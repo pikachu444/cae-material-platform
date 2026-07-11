@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import pytest
-from cmp.bootstrap.security import build_security_service
+from cmp.bootstrap.security import build_identity_services
 from cmp.bootstrap.settings import Settings
 from cmp.modules.identity_access.adapters.development.test_idp import DevelopmentTestIdp
 from cmp.modules.identity_access.adapters.oidc.pyjwt import (
@@ -234,7 +234,7 @@ def test_environment_settings_parse_claim_mapping_and_partial_oidc_fails_closed(
     assert settings.oidc_groups_claim == "roles"
     assert settings.oidc_service_grant_values == ("client_credentials", "workload")
     with pytest.raises(ValueError, match="all required"):
-        build_security_service(Settings(oidc_issuer="https://idp.example.test"))
+        build_identity_services(Settings(oidc_issuer="https://idp.example.test"))
 
 
 def test_security_service_builds_request_context_only_after_principal_resolution(

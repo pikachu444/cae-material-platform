@@ -40,6 +40,19 @@
 - 인증 오류는 token, claim, key, stack trace를 노출하지 않는 `application/problem+json`으로
   반환하고 모든 응답에 correlation용 `X-Request-ID`를 둔다.
 
+### 2.2 T-04 authorization contract
+
+- 인증된 context는 권한이 아니다. 보호 endpoint는 하나의 명시적 `Permission`으로 service-layer
+  authorization을 먼저 수행한다.
+- 허용 decision은 해당 action에 필요한 DB permission과 그 action을 부여한 binding들의
+  classification clearance만 포함한다. 다른 role binding의 clearance를 합성하지 않는다.
+- 같은 decision을 PostgreSQL transaction-local context로 bind한 뒤 repository query/command를
+  실행한다. 다른 organization/project/request decision으로 재bind할 수 없다.
+- 권한이 없으면 403, role-binding store 또는 RLS context를 사용할 수 없으면 503으로 fail
+  closed한다. Token, role-binding row, 다른 tenant resource의 존재는 problem detail에 넣지 않는다.
+- `/me`는 identity와 선택 context만 반환한다. Role/permission 관리 API는 아직 public contract가
+  아니며 추가할 때 별도 versioned schema를 만든다.
+
 ## 3. 주요 REST resource
 
 ### 3.1 Catalog·testing

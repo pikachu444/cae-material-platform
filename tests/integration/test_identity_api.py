@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 from uuid import UUID, uuid5
@@ -10,19 +10,31 @@ from uuid import UUID, uuid5
 import httpx
 from cmp.apps.api import create_app
 from cmp.bootstrap.settings import Settings
+from cmp.modules.identity_access.adapters.api.authorization import (
+    RequestAuthorizationDependency,
+)
 from cmp.modules.identity_access.adapters.development.test_idp import DevelopmentTestIdp
 from cmp.modules.identity_access.adapters.oidc.pyjwt import (
     OidcAccessTokenConfig,
     PyJwkClientSigningKeyResolver,
     PyJwtAccessTokenVerifier,
 )
+from cmp.modules.identity_access.application.authorization import AuthorizationService
 from cmp.modules.identity_access.application.security import SecurityContextService
+from cmp.modules.identity_access.domain.authorization import (
+    BindingSubject,
+    DataClassification,
+    Permission,
+    Role,
+    RoleBinding,
+)
 from cmp.modules.identity_access.domain.security import (
     AuthenticationUnavailable,
     Principal,
+    SecurityContext,
     VerifiedAccessToken,
 )
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Request
 
 ORG = UUID("40000000-0000-4000-8000-000000000001")
 PROJECT = UUID("40000000-0000-4000-8000-000000000002")
@@ -83,6 +95,7 @@ def _request(
     app: FastAPI,
     token: str | None,
     extra_headers: dict[str, str] | None = None,
+    path: str = "/api/v1/me",
 ) -> httpx.Response:
     async def send() -> httpx.Response:
         transport = httpx.ASGITransport(app=app)
@@ -91,7 +104,7 @@ def _request(
         if token is not None:
             headers["Authorization"] = f"Bearer {token}"
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-            return await client.get("/api/v1/me", headers=headers)
+            return await client.get(path, headers=headers)
 
     return asyncio.run(send())
 
@@ -248,3 +261,69 @@ def test_error_responses_keep_a_sanitized_request_correlation_id() -> None:
     assert UUID(response.headers["x-request-id"])
     assert response.headers["cache-control"] == "no-store"
     assert "not-a-token" not in response.text
+
+
+class _ApiBindings:
+    def __init__(self, binding: RoleBinding) -> None:
+        self.binding = binding
+
+    def find_applicable(
+        self, context: SecurityContext, observed_at: datetime
+    ) -> tuple[RoleBinding, ...]:
+        del context, observed_at
+        return (self.binding,)
+
+
+def test_reusable_api_authorization_dependency_allows_and_denies_explicit_action() -> None:
+    idp = DevelopmentTestIdp()
+    now = datetime.now(UTC)
+    binding = RoleBinding(
+        id=uuid5(NAMESPACE, "api-role-binding"),
+        organization_id=ORG,
+        project_id=PROJECT,
+        subject=BindingSubject.for_group(idp.issuer, "dataset-readers"),
+        role=Role.DATA_STEWARD,
+        max_classification=DataClassification.CONFIDENTIAL,
+        allow_export_controlled=False,
+        valid_from=now - timedelta(minutes=1),
+    )
+    authorization = AuthorizationService(
+        bindings=_ApiBindings(binding),
+        clock=lambda: now,
+    )
+    app = create_app(Settings(environment="test"), _security(idp), authorization)
+    authorize = RequestAuthorizationDependency(authorization, Permission.DATASET_READ)
+
+    @app.get(
+        "/api/v1/protected-probe",
+        dependencies=[
+            Depends(app.state.security_context_dependency),
+            Depends(authorize),
+        ],
+    )
+    def protected_probe(request: Request) -> dict[str, str]:
+        decision = request.state.authorization_decision
+        return {"permission": decision.permission.value}
+
+    allowed_token = idp.issue_user_token(
+        subject="authorized-api-user",
+        organization_id=ORG,
+        project_id=PROJECT,
+        display_name="Authorized API User",
+        groups=("dataset-readers",),
+    )
+    denied_token = idp.issue_user_token(
+        subject="denied-api-user",
+        organization_id=ORG,
+        project_id=PROJECT,
+        display_name="Denied API User",
+    )
+
+    allowed = _request(app, allowed_token, path="/api/v1/protected-probe")
+    denied = _request(app, denied_token, path="/api/v1/protected-probe")
+
+    assert allowed.status_code == 200
+    assert allowed.json() == {"permission": "dataset.read"}
+    assert denied.status_code == 403
+    assert denied.json()["code"] == "CMP-AUTHZ-0001"
+    assert denied_token not in denied.text

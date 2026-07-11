@@ -1,0 +1,361 @@
+from __future__ import annotations
+
+from datetime import UTC, datetime, timedelta
+from uuid import UUID, uuid4
+
+import pytest
+from cmp.modules.identity_access.application.authorization import (
+    ROLE_PERMISSIONS,
+    AuthorizationService,
+    GrantRoleBinding,
+    RevokeRoleBinding,
+    RoleBindingAdministrationService,
+    database_permissions_for,
+)
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    AuthorizationDenied,
+    BindingSubject,
+    DataClassification,
+    Permission,
+    Role,
+    RoleBinding,
+)
+from cmp.modules.identity_access.domain.security import (
+    Principal,
+    PrincipalType,
+    SecurityContext,
+)
+
+NOW = datetime(2026, 7, 11, 5, 0, tzinfo=UTC)
+ORG = UUID("60000000-0000-4000-8000-000000000001")
+PROJECT = UUID("60000000-0000-4000-8000-000000000002")
+PRINCIPAL = UUID("60000000-0000-4000-8000-000000000003")
+ISSUER = "https://test-idp.invalid"
+TRACE = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+
+
+def _context(
+    *,
+    organization_id: UUID = ORG,
+    project_id: UUID = PROJECT,
+    groups: tuple[str, ...] = ("project-modelers",),
+) -> SecurityContext:
+    return SecurityContext(
+        principal=Principal(PRINCIPAL, PrincipalType.USER, "Policy User", True),
+        organization_id=organization_id,
+        project_id=project_id,
+        issuer=ISSUER,
+        subject="policy-user",
+        token_id=str(uuid4()),
+        groups=groups,
+        scopes=("openid",),
+        request_id=uuid4(),
+        trace_id=TRACE,
+        authenticated_at=NOW,
+    )
+
+
+def _binding(
+    role: Role,
+    *,
+    subject: BindingSubject | None = None,
+    organization_id: UUID = ORG,
+    project_id: UUID | None = PROJECT,
+    maximum: DataClassification = DataClassification.INTERNAL,
+    export: bool = False,
+    valid_from: datetime = NOW - timedelta(days=1),
+    expires_at: datetime | None = None,
+    revoked_at: datetime | None = None,
+) -> RoleBinding:
+    return RoleBinding(
+        id=uuid4(),
+        organization_id=organization_id,
+        project_id=project_id,
+        subject=subject or BindingSubject.for_principal(PRINCIPAL),
+        role=role,
+        max_classification=maximum,
+        allow_export_controlled=export,
+        valid_from=valid_from,
+        expires_at=expires_at,
+        revoked_at=revoked_at,
+    )
+
+
+class _Bindings:
+    def __init__(self, *bindings: RoleBinding) -> None:
+        self.bindings = bindings
+
+    def find_applicable(
+        self, context: SecurityContext, observed_at: datetime
+    ) -> tuple[RoleBinding, ...]:
+        del context, observed_at
+        return self.bindings
+
+
+def _service(*bindings: RoleBinding) -> AuthorizationService:
+    return AuthorizationService(bindings=_Bindings(*bindings), clock=lambda: NOW)
+
+
+@pytest.mark.parametrize(
+    ("role", "permission"),
+    [
+        (Role.ORG_ADMIN, Permission.IDENTITY_MANAGE),
+        (Role.TEST_ENGINEER, Permission.TESTING_WRITE),
+        (Role.DATA_STEWARD, Permission.DATASET_WRITE),
+        (Role.STATISTICAL_ANALYST, Permission.STATISTICS_EXECUTE),
+        (Role.MATERIAL_MODELER, Permission.CALIBRATION_EXECUTE),
+        (Role.CAE_ANALYST, Permission.VALIDATION_EXECUTE),
+        (Role.DOMAIN_REVIEWER, Permission.REVIEW_DECIDE),
+        (Role.RELEASE_APPROVER, Permission.RELEASE_PUBLISH),
+        (Role.PLUGIN_MAINTAINER, Permission.PLUGIN_SUBMIT),
+        (Role.AUDITOR, Permission.AUDIT_READ),
+    ],
+)
+def test_conservative_mvp_role_matrix_grants_documented_actions(
+    role: Role, permission: Permission
+) -> None:
+    decision = _service(_binding(role)).authorize(_context(), permission)
+
+    assert decision.roles == (role,)
+    assert permission.value in decision.database_permissions
+
+
+def test_admin_roles_do_not_implicitly_receive_business_or_approval_access() -> None:
+    assert Permission.TESTING_READ not in ROLE_PERMISSIONS[Role.PLATFORM_ADMIN]
+    assert Permission.RELEASE_PUBLISH not in ROLE_PERMISSIONS[Role.PLATFORM_ADMIN]
+    assert Permission.TESTING_READ not in ROLE_PERMISSIONS[Role.ORG_ADMIN]
+    assert Permission.RELEASE_PUBLISH not in ROLE_PERMISSIONS[Role.PROJECT_ADMIN]
+    assert Permission.PLUGIN_ACTIVATE not in ROLE_PERMISSIONS[Role.PLUGIN_MAINTAINER]
+
+
+def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
+    for permissions in ROLE_PERMISSIONS.values():
+        for action in permissions:
+            typed_dependencies = {
+                Permission(value)
+                for value in database_permissions_for(action)
+                if value not in {"governance.read", "governance.write"}
+            }
+            assert typed_dependencies.issubset(permissions)
+
+
+def test_no_binding_or_wrong_tenant_project_subject_and_group_issuer_are_denied() -> None:
+    context = _context()
+    wrong_bindings = (
+        _binding(Role.DATA_STEWARD, organization_id=uuid4()),
+        _binding(Role.DATA_STEWARD, project_id=uuid4()),
+        _binding(
+            Role.DATA_STEWARD,
+            subject=BindingSubject.for_principal(uuid4()),
+        ),
+        _binding(
+            Role.DATA_STEWARD,
+            subject=BindingSubject.for_group("https://other-idp.invalid", "project-modelers"),
+        ),
+    )
+
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        _service(*wrong_bindings).authorize(context, Permission.DATASET_WRITE)
+
+
+def test_exact_issuer_group_and_org_wide_binding_apply_to_selected_project() -> None:
+    binding = _binding(
+        Role.MATERIAL_MODELER,
+        project_id=None,
+        subject=BindingSubject.for_group(ISSUER, "project-modelers"),
+        maximum=DataClassification.CONFIDENTIAL,
+    )
+
+    decision = _service(binding).authorize(_context(), Permission.MODELING_WRITE)
+
+    assert decision.max_classification is DataClassification.CONFIDENTIAL
+    assert decision.allows(ORG, PROJECT, DataClassification.CONFIDENTIAL)
+    assert not decision.allows(ORG, PROJECT, DataClassification.RESTRICTED)
+
+
+def test_action_and_clearance_are_not_combined_across_unrelated_bindings() -> None:
+    writer = _binding(
+        Role.TEST_ENGINEER,
+        maximum=DataClassification.INTERNAL,
+        export=False,
+    )
+    unrelated_clearance = _binding(
+        Role.CONSUMER,
+        maximum=DataClassification.RESTRICTED,
+        export=True,
+    )
+
+    decision = _service(writer, unrelated_clearance).authorize(
+        _context(), Permission.TESTING_WRITE
+    )
+
+    assert decision.roles == (Role.TEST_ENGINEER,)
+    assert decision.max_classification is DataClassification.INTERNAL
+    assert not decision.allow_export_controlled
+    assert not decision.allows(ORG, PROJECT, DataClassification.CONFIDENTIAL)
+    assert not decision.allows(ORG, PROJECT, DataClassification.EXPORT_CONTROLLED)
+
+
+def test_explicit_export_clearance_is_independent_of_standard_rank() -> None:
+    binding = _binding(
+        Role.CAE_ANALYST,
+        maximum=DataClassification.CONFIDENTIAL,
+        export=True,
+    )
+
+    decision = _service(binding).authorize(_context(), Permission.VALIDATION_READ)
+
+    assert decision.allows(ORG, PROJECT, DataClassification.CONFIDENTIAL)
+    assert not decision.allows(ORG, PROJECT, DataClassification.RESTRICTED)
+    assert decision.allows(ORG, PROJECT, DataClassification.EXPORT_CONTROLLED)
+
+
+def test_expired_and_revoked_bindings_are_denied() -> None:
+    expired = _binding(Role.DATA_STEWARD, expires_at=NOW)
+    revoked = _binding(Role.DATA_STEWARD, revoked_at=NOW - timedelta(hours=1))
+
+    with pytest.raises(AuthorizationDenied):
+        _service(expired, revoked).authorize(_context(), Permission.DATASET_WRITE)
+
+
+def test_write_decision_expands_only_required_read_and_governance_permissions() -> None:
+    decision = _service(_binding(Role.DATA_STEWARD)).authorize(
+        _context(), Permission.DATASET_WRITE
+    )
+
+    assert decision.database_permissions == (
+        "dataset.read",
+        "dataset.write",
+        "governance.read",
+        "governance.write",
+    )
+
+
+def test_cross_module_execution_decision_contains_only_explicit_dependencies() -> None:
+    decision = _service(_binding(Role.CAE_ANALYST)).authorize(
+        _context(), Permission.VALIDATION_EXECUTE
+    )
+
+    assert decision.database_permissions == (
+        "artifact.read",
+        "export.read",
+        "governance.read",
+        "governance.write",
+        "modeling.read",
+        "validation.execute",
+        "validation.read",
+    )
+
+
+class _AdministrationRepository:
+    def __init__(self) -> None:
+        self.appended: RoleBinding | None = None
+        self.revoked: UUID | None = None
+
+    def append(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        binding: RoleBinding,
+        created_at: datetime,
+        grant_reason: str,
+    ) -> RoleBinding:
+        assert context.principal.id == decision.principal_id
+        assert created_at == NOW
+        assert grant_reason == "approved project assignment"
+        self.appended = binding
+        return binding
+
+    def revoke(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        binding_id: UUID,
+        revoked_at: datetime,
+        reason: str,
+    ) -> None:
+        assert context.principal.id == decision.principal_id
+        assert revoked_at == NOW
+        assert reason == "assignment ended"
+        self.revoked = binding_id
+
+
+def test_org_admin_can_append_and_revoke_scoped_immutable_bindings() -> None:
+    repository = _AdministrationRepository()
+    authorization = _service(_binding(Role.ORG_ADMIN, project_id=None))
+    fixed_id = UUID("60000000-0000-4000-8000-000000000099")
+    administration = RoleBindingAdministrationService(
+        authorization=authorization,
+        repository=repository,
+        id_factory=lambda: fixed_id,
+        clock=lambda: NOW,
+    )
+    context = _context()
+
+    binding = administration.grant(
+        context,
+        GrantRoleBinding(
+            organization_id=ORG,
+            project_id=PROJECT,
+            subject=BindingSubject.for_group(ISSUER, "new-reviewers"),
+            role=Role.DOMAIN_REVIEWER,
+            max_classification=DataClassification.RESTRICTED,
+            allow_export_controlled=False,
+            grant_reason="approved project assignment",
+        ),
+    )
+    administration.revoke(
+        context,
+        RevokeRoleBinding(binding_id=fixed_id, reason="assignment ended"),
+    )
+
+    assert binding.id == fixed_id
+    assert repository.appended == binding
+    assert repository.revoked == fixed_id
+
+
+def test_role_administration_rejects_cross_context_scope_and_non_admin_role() -> None:
+    context = _context()
+    command = GrantRoleBinding(
+        organization_id=ORG,
+        project_id=uuid4(),
+        subject=BindingSubject.for_principal(uuid4()),
+        role=Role.CONSUMER,
+        max_classification=DataClassification.INTERNAL,
+        allow_export_controlled=False,
+        grant_reason="cross project attempt",
+    )
+    repository = _AdministrationRepository()
+    administration = RoleBindingAdministrationService(
+        authorization=_service(_binding(Role.ORG_ADMIN, project_id=None)),
+        repository=repository,
+        clock=lambda: NOW,
+    )
+
+    with pytest.raises(AuthorizationDenied, match="binding_scope_mismatch"):
+        administration.grant(context, command)
+
+    with pytest.raises(AuthorizationDenied, match="platform_role_operator_only"):
+        administration.grant(
+            context,
+            GrantRoleBinding(
+                organization_id=ORG,
+                project_id=None,
+                subject=BindingSubject.for_principal(uuid4()),
+                role=Role.PLATFORM_ADMIN,
+                max_classification=DataClassification.INTERNAL,
+                allow_export_controlled=False,
+                grant_reason="privilege escalation attempt",
+            ),
+        )
+
+    non_admin = RoleBindingAdministrationService(
+        authorization=_service(_binding(Role.PLATFORM_ADMIN, project_id=None)),
+        repository=repository,
+        clock=lambda: NOW,
+    )
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        non_admin.grant(context, command)

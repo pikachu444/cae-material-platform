@@ -2,6 +2,7 @@ import json
 from copy import deepcopy
 from pathlib import Path
 
+from cmp import __version__
 from cmp.apps.api import app
 from cmp.tools.contracts import (
     detect_openapi_breaks,
@@ -64,6 +65,7 @@ def test_runtime_openapi_matches_source_health_shape() -> None:
     runtime = app.openapi()
 
     assert "/api/v1/health" in runtime["paths"]
+    assert source["info"]["version"] == runtime["info"]["version"] == __version__
     assert runtime["paths"]["/api/v1/health"]["get"]["operationId"] == "getHealth"
     assert set(runtime["components"]["schemas"]["HealthResponse"]["required"]) == set(
         source["components"]["schemas"]["HealthResponse"]["required"]

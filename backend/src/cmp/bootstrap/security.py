@@ -1,8 +1,11 @@
-"""Compose T-03 identity adapters only from explicit operator configuration."""
+"""Compose T-03/T-04 identity adapters only from explicit operator configuration."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 import sqlalchemy as sa
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.bootstrap.settings import Settings
@@ -14,13 +17,26 @@ from cmp.modules.identity_access.adapters.oidc.pyjwt import (
 from cmp.modules.identity_access.adapters.persistence.principals import (
     SqlAlchemyPrincipalRepository,
 )
+from cmp.modules.identity_access.adapters.persistence.rls import SqlAlchemyRlsContext
+from cmp.modules.identity_access.adapters.persistence.role_bindings import (
+    SqlAlchemyRoleBindingRepository,
+)
+from cmp.modules.identity_access.application.authorization import AuthorizationService
 from cmp.modules.identity_access.application.security import SecurityContextService
 
 
-def build_security_service(settings: Settings) -> SecurityContextService | None:
+@dataclass(frozen=True, slots=True)
+class IdentityServices:
+    security: SecurityContextService | None
+    authorization: AuthorizationService | None
+    rls_context: SqlAlchemyRlsContext | None
+    engine: Engine | None
+
+
+def build_identity_services(settings: Settings) -> IdentityServices:
     oidc_values = (settings.oidc_issuer, settings.oidc_audience, settings.oidc_jwks_url)
     if all(value is None for value in oidc_values):
-        return None
+        return IdentityServices(None, None, None, None)
     if any(value is None for value in oidc_values):
         raise ValueError(
             "CMP_OIDC_ISSUER, CMP_OIDC_AUDIENCE, and CMP_OIDC_JWKS_URL are all required"
@@ -53,4 +69,20 @@ def build_security_service(settings: Settings) -> SecurityContextService | None:
         session_factory=sessions,
         auto_provision=settings.oidc_auto_provision,
     )
-    return SecurityContextService(verifier=verifier, principals=principals)
+    rls_context = SqlAlchemyRlsContext()
+    try:
+        with sessions() as session, session.begin():
+            rls_context.assert_application_role(session)
+    except Exception:
+        engine.dispose()
+        raise
+    bindings = SqlAlchemyRoleBindingRepository(
+        session_factory=sessions,
+        rls_context=rls_context,
+    )
+    return IdentityServices(
+        security=SecurityContextService(verifier=verifier, principals=principals),
+        authorization=AuthorizationService(bindings=bindings),
+        rls_context=rls_context,
+        engine=engine,
+    )

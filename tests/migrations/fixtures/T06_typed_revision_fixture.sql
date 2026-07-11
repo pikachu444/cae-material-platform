@@ -88,25 +88,51 @@ FOR EACH ROW EXECUTE FUNCTION revisioning.reject_immutable_row_mutation();
 
 ALTER TABLE kernel_fixture.revisioned_note ENABLE ROW LEVEL SECURITY;
 ALTER TABLE kernel_fixture.revisioned_note FORCE ROW LEVEL SECURITY;
-CREATE POLICY revisioned_note_tenant_isolation ON kernel_fixture.revisioned_note
+CREATE POLICY revisioned_note_authorized_select
+ON kernel_fixture.revisioned_note
+FOR SELECT
 USING (
-  organization_id = revisioning.current_organization_id()
-  AND project_id = revisioning.current_project_id()
+  access_control.can_access_row(
+    organization_id, project_id, classification, 'revision.read'
+  )
+);
+CREATE POLICY revisioned_note_authorized_insert
+ON kernel_fixture.revisioned_note
+FOR INSERT
+WITH CHECK (
+  access_control.can_access_row(
+    organization_id, project_id, classification, 'revision.write'
+  )
+);
+CREATE POLICY revisioned_note_authorized_update
+ON kernel_fixture.revisioned_note
+FOR UPDATE
+USING (
+  access_control.can_access_row(
+    organization_id, project_id, classification, 'revision.write'
+  )
 )
 WITH CHECK (
-  organization_id = revisioning.current_organization_id()
-  AND project_id = revisioning.current_project_id()
+  access_control.can_access_row(
+    organization_id, project_id, classification, 'revision.write'
+  )
 );
 
 ALTER TABLE kernel_fixture.revisioned_note_revision ENABLE ROW LEVEL SECURITY;
 ALTER TABLE kernel_fixture.revisioned_note_revision FORCE ROW LEVEL SECURITY;
-CREATE POLICY revisioned_note_revision_tenant_isolation
+CREATE POLICY revisioned_note_revision_authorized_select
 ON kernel_fixture.revisioned_note_revision
+FOR SELECT
 USING (
-  organization_id = revisioning.current_organization_id()
-  AND project_id = revisioning.current_project_id()
-)
+  access_control.can_access_row(
+    organization_id, project_id, classification, 'revision.read'
+  )
+);
+CREATE POLICY revisioned_note_revision_authorized_insert
+ON kernel_fixture.revisioned_note_revision
+FOR INSERT
 WITH CHECK (
-  organization_id = revisioning.current_organization_id()
-  AND project_id = revisioning.current_project_id()
+  access_control.can_access_row(
+    organization_id, project_id, classification, 'revision.write'
+  )
 );

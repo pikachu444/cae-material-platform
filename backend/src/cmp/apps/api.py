@@ -8,9 +8,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict
 
 from cmp import __version__
-from cmp.bootstrap.security import build_security_service
+from cmp.bootstrap.security import IdentityServices, build_identity_services
 from cmp.bootstrap.settings import Settings
 from cmp.modules.identity_access.adapters.api.security import install_identity_api
+from cmp.modules.identity_access.application.authorization import AuthorizationService
 from cmp.modules.identity_access.application.security import SecurityContextService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
@@ -28,13 +29,14 @@ class HealthResponse(BaseModel):
 def create_app(
     settings: Settings | None = None,
     security_service: SecurityContextService | None = None,
+    authorization_service: AuthorizationService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Identity and revision-kernel API foundation; no material resources yet.",
+        summary="Identity, authorization, and revision foundation; no material resources yet.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -51,8 +53,18 @@ def create_app(
     def get_health() -> HealthResponse:
         return HealthResponse(status="ok", service="cmp-api", version=__version__)
 
-    resolved_security = security_service or build_security_service(resolved)
+    services = (
+        IdentityServices(security_service, authorization_service, None, None)
+        if security_service is not None or authorization_service is not None
+        else build_identity_services(resolved)
+    )
+    resolved_security = services.security
     install_identity_api(application, resolved_security)
+    application.state.authorization_service = services.authorization
+    application.state.rls_context = services.rls_context
+    application.state.identity_engine = services.engine
+    if services.engine is not None:
+        application.router.add_event_handler("shutdown", services.engine.dispose)
 
     generated_openapi = application.openapi
 

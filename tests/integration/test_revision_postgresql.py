@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
@@ -79,6 +80,20 @@ def _set_scope(connection: sa.Connection, scope: TenantScope) -> None:
         sa.select(
             sa.func.set_config("cmp.organization_id", str(scope.organization_id), True),
             sa.func.set_config("cmp.project_id", str(scope.project_id), True),
+            sa.func.set_config(
+                "cmp.permissions",
+                json.dumps(
+                    [
+                        "governance.read",
+                        "governance.write",
+                        "revision.read",
+                        "revision.write",
+                    ]
+                ),
+                True,
+            ),
+            sa.func.set_config("cmp.max_classification_rank", "2", True),
+            sa.func.set_config("cmp.allow_export_controlled", "true", True),
         )
     )
 
@@ -115,7 +130,8 @@ def postgres() -> Iterator[PostgresHarness]:
                     f'CREATE ROLE "{role_name}" NOLOGIN NOSUPERUSER NOBYPASSRLS'
                 )
                 connection.exec_driver_sql(
-                    f'GRANT USAGE ON SCHEMA kernel_fixture, governance, revisioning '
+                    f'GRANT USAGE ON SCHEMA kernel_fixture, governance, revisioning, '
+                    f'access_control '
                     f'TO "{role_name}"'
                 )
                 connection.exec_driver_sql(
@@ -259,8 +275,8 @@ def test_migration_installs_constraints_indexes_triggers_and_rls(
         )
 
     assert "fk_lifecycle_projection_last_event" in constraints
-    assert "lifecycle_event_tenant_isolation" in policies
-    assert "revisioned_note_revision_tenant_isolation" in policies
+    assert "lifecycle_event_authorized_select" in policies
+    assert "revisioned_note_revision_authorized_select" in policies
     assert "lifecycle_event_immutable" in triggers
     assert "revisioned_note_head_only" in triggers
     assert "revisioned_note_revision_immutable" in triggers

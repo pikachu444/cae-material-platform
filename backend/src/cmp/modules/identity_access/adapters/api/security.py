@@ -84,9 +84,10 @@ class IdentityHttpError(Exception):
         request_id: UUID,
         trace_id: str,
         authenticate: str | None = None,
+        problem_type: str = "urn:cmp:problem:authentication",
     ) -> None:
         self.problem = AuthenticationProblem(
-            type="urn:cmp:problem:authentication",
+            type=problem_type,
             title=title,
             status=status,
             detail=detail,

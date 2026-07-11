@@ -31,6 +31,10 @@
 - reviewed internal/partner plugin only
 - runner를 통한 solver orchestration과 manual result attach 모두 계약에 포함
 - MVP SLO: 99.5%, RPO 15분, RTO 4시간 등은 초기 목표
+- T-04 role-action matrix는 문서의 대표 권한을 보수적으로 구현했으며 Domain/Product 승인 전
+  `ASSUMPTION`이다.
+- classification은 `internal < confidential < restricted`와 별도 `export_controlled` flag로
+  평가한다. 국적·compartment 정책은 `OQ-SEC-002`다.
 
 사용자 답이 오면 해당 가정과 관련 ADR을 갱신한다.
 

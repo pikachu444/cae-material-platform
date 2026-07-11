@@ -1,13 +1,13 @@
 # CAE Material Platform
 
-Status: identity and revision-kernel foundation (`T-01` + `T-02` + `T-03` + `T-06`)
+Status: identity, authorization, and revision foundation (`T-01`–`T-04` + `T-06`)
 
-Version: `0.3.0`
+Version: `0.4.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
-business implementation. Database support is limited to the T-03 identity projection and the
-domain-neutral T-06 revision kernel.
+business implementation. Database support is limited to the T-03/T-04 identity and access-control
+foundation and the domain-neutral T-06 revision kernel.
 
 ## Implemented foundation
 
@@ -26,6 +26,9 @@ domain-neutral T-06 revision kernel.
 - Strict OIDC JWT access-token validation for user and service principals
 - Immutable `(issuer, subject)` external identities and stable opaque principal IDs
 - Request-scoped organization/project context and authenticated `GET /api/v1/me`
+- Conservative deny-by-default RBAC matrix and principal/IdP-group role bindings
+- Transaction-local permission/classification context with forced PostgreSQL RLS
+- Reusable service/API authorization decisions and append/revoke role administration
 
 ## Prerequisites
 
@@ -68,6 +71,23 @@ The optional claim mapping settings are `CMP_OIDC_CLIENT_ID_CLAIM`,
 `CMP_OIDC_SERVICE_GRANT_VALUES`. `CMP_OIDC_ALGORITHMS` is an explicit asymmetric allowlist.
 Loopback HTTP JWKS is disabled unless `CMP_OIDC_ALLOW_LOOPBACK_HTTP=true` is set for development.
 
+Run migrations with a separate owner role. Runtime OIDC configuration must use a non-owner
+application role; startup rejects `SUPERUSER`, `BYPASSRLS`, or a role that owns application
+relations. A minimal privilege baseline is:
+
+```sql
+CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+GRANT CONNECT ON DATABASE cmp TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control TO cmp_app;
+```
+
+Future bounded-module migrations grant only the table operations their adapters require. Every
+tenant-owned table must use `access_control.can_access_row(...)`, `ENABLE ROW LEVEL SECURITY`, and
+`FORCE ROW LEVEL SECURITY`; granting SQL privileges alone never grants row access.
+
 ## Development commands
 
 ```bash
@@ -101,12 +121,13 @@ CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 Read `AGENTS.md` before changing this repository. Production tensile standards, material models,
 calibration choices, solver cards, and validation criteria remain `TBD`. T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
-production-looking reference implementations before the corresponding decision gates. T-03 does
-not implement roles, membership, ABAC, or tenant RLS; those remain T-04.
+production-looking reference implementations before the corresponding decision gates. T-04 does
+not implement Material, artifact transfer, audit chains, lifecycle approval, or export-control
+nationality rules.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-06`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `NFR-SEC-001`, `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`,
   `NFR-MOD-001`, `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`

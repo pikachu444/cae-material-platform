@@ -107,6 +107,23 @@ RBAC가 action 범위를 주고 ABAC가 resource context를 제한한다.
 
 조직 규모가 작아 분리가 불가능하면 exception policy와 audit report를 명시한다.
 
+### 4.4 T-04 구현 기준선
+
+- Role binding subject는 principal 또는 exact issuer의 IdP group 중 하나다.
+- Binding은 organization 필수, project 선택이다. `project_id=NULL`은 organization 전체 binding,
+  UUID가 있으면 선택된 project에서만 유효하다.
+- Grant row는 수정·삭제하지 않는다. 종료는 actor/time/reason을 동시에 기록하는 revoke이며
+  revoke를 되돌리거나 같은 row의 role/clearance를 바꿀 수 없다.
+- `internal < confidential < restricted`는 표준 clearance 순서로 평가한다.
+  `export_controlled`는 순서에 섞지 않고 별도 명시 flag가 있어야 한다. 국적·compartment 정책은
+  `OQ-SEC-002`로 남긴다.
+- Action과 clearance는 그 action을 실제 부여한 binding들 안에서만 합성한다. 무관한 높은
+  clearance binding과 write role을 결합하지 않는다.
+- `platform_admin`, `org_admin`, `project_admin`은 business data read/release approval을 자동으로
+  얻지 않는다. Platform-admin grant는 운영자 provisioning 전용이다.
+- 현재 role-action matrix는 문서의 대표 권한을 보수적으로 구체화한 `ASSUMPTION`이며
+  Domain/Product 승인 후 확정한다.
+
 ## 5. PostgreSQL RLS
 
 PostgreSQL row security는 user/role별로 조회·변경 가능한 row를 제한할 수 있고 policy가 없으면 default-deny를 사용할 수 있다. [PostgreSQL Row Security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
@@ -122,6 +139,15 @@ PostgreSQL row security는 user/role별로 조회·변경 가능한 row를 제�
 - backup, migration, reconciliation role은 별도이며 사용과 audit를 제한한다.
 
 Search count, facet, autocomplete, event payload도 동일 정책을 적용한다.
+
+T-04 adapter는 principal, issuer/group, request/trace, permission, standard clearance, export flag를
+`set_config(..., true)`로 현재 transaction에만 설정한다. Runtime은 relation owner, superuser,
+`BYPASSRLS` role이면 시작하지 않는다. Tenant table은 SQL privilege와 별도로 `ENABLE` 및
+`FORCE ROW LEVEL SECURITY`를 사용한다. PostgreSQL은 FK/unique 검사를 RLS보다 우선하므로
+tenant 복합 FK/unique key와 sanitized 동일 오류 표면을 함께 검증한다.
+
+근거: [PostgreSQL Row Security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html),
+[Configuration Settings Functions](https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADMIN-SET).
 
 ## 6. Object storage 보안
 

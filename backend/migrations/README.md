@@ -1,7 +1,7 @@
 # Database migrations
 
-The Alembic chain starts with `20260711_001_T06_revision_kernel.py` and continues with
-`20260711_002_T03_identity_principal.py`.
+The Alembic chain starts with `20260711_001_T06_revision_kernel.py`, followed by the T-03 identity
+projection and T-04 access-control migrations.
 
 ## T-06 ownership
 
@@ -35,6 +35,25 @@ and database session RLS enforcement. JIT provisioning is off by default; when e
 adapter serializes the same external identity with a PostgreSQL transaction advisory lock and
 creates random UUIDv4 identifiers.
 
+## T-04 ownership
+
+`20260711_003_T04_authorization_rls.py` adds:
+
+- explicit `identity.role_binding` columns for principal or exact-issuer group subjects, org-wide
+  or project scope, role, standard clearance, export compartment, validity, creator/reason, and
+  atomic revocation;
+- immutable-grant/delete guards, tenant/subject indexes, constrained role/classification values,
+  and `FORCE ROW LEVEL SECURITY`;
+- `access_control` functions for transaction-local principal/group/permission/clearance context,
+  non-bypass application-role assertion, and classification-aware row checks;
+- separate read/write policies on governance lifecycle tables, replacing the T-06 tenant-only
+  policy while retaining fail-closed organization/project isolation.
+
+The migration deliberately does not create a cluster-global application role because role names,
+login secrets, and ownership belong to deployment provisioning. The runtime role must be a
+non-owner `NOSUPERUSER NOBYPASSRLS` role with explicit schema/table grants. Migration, backup, and
+reconciliation use separate privileged roles.
+
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:
 
@@ -53,6 +72,6 @@ CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 ```
 
 `CMP_TEST_POSTGRES_DSN` must identify an isolated admin database. The test creates a uniquely named
-temporary database, upgrades it, installs the T-06 test-only typed fixture, exercises both T-03 and
-T-06 persistence, downgrades it, and removes it.
+temporary database, upgrades it, installs the T-04 authorization and T-06 typed fixtures, exercises
+T-03/T-04/T-06 persistence, downgrades it, and removes it.
 

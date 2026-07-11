@@ -1,6 +1,6 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-06`, HTTP contract version `0.3.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-06`, HTTP contract version `0.4.0`.
 
 ## Files
 
@@ -27,8 +27,11 @@ Status: `T-02` + `T-03` + `T-06`, HTTP contract version `0.3.0`.
 - Revision content remains resource-specific; the common schema must never gain a generic
   `content`/EAV payload.
 - `/api/v1/me` accepts bearer access tokens; ID tokens are not an interchangeable credential.
-- Identity responses require both organization and project UUIDs. Role/membership authorization
-  remains outside this T-03 contract and is added by T-04.
+- Identity responses require both organization and project UUIDs. `/me` remains an authenticated
+  identity/context response and does not imply authorization. Each protected endpoint must bind an
+  explicit T-04 permission before opening its resource transaction.
+- Role and clearance details are internal policy state rather than a public `/me` field. A future
+  role-management API requires its own versioned request/response schema.
 
 Run `make check-contracts` after every contract change. Accepting a breaking change requires a new
 major contract, an ADR, and migration guidance; do not overwrite the baseline to hide the break.

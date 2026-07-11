@@ -9,6 +9,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
     assert [path.name for path in migrations] == [
         "20260711_001_T06_revision_kernel.py",
         "20260711_002_T03_identity_principal.py",
+        "20260711_003_T04_authorization_rls.py",
     ]
 
 
@@ -39,6 +40,21 @@ def test_t03_migration_stops_before_roles_and_business_resources() -> None:
     assert '"role_binding"' not in migration
     assert '"material"' not in migration
     assert '"test_run"' not in migration
+    assert '"solver_card"' not in migration
+    assert "sa.JSON" not in migration
+    assert "postgresql.JSONB" not in migration
+
+
+def test_t04_migration_adds_access_control_without_business_tables() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260711_003_T04_authorization_rls.py"
+    ).read_text(encoding="utf-8")
+
+    assert '"role_binding"' in migration
+    assert '"material"' not in migration
+    assert '"test_run"' not in migration
+    assert '"artifact"' not in migration
     assert '"solver_card"' not in migration
     assert "sa.JSON" not in migration
     assert "postgresql.JSONB" not in migration

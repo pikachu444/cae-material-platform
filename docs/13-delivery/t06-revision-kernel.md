@@ -123,3 +123,7 @@ Application port의 `stage(RevisionCreated)`는 같은 transaction에서 fail cl
 
 PostgreSQL integration은 `CMP_TEST_POSTGRES_DSN`이 있을 때 실행한다. 일반 CI에서는 offline
 migration test가 항상 실행된다.
+
+T-04 이후 head migration은 T-06 governance와 test-only typed fixture의 tenant-only policy를
+permission/classification-aware `access_control.can_access_row` policy로 강화한다. T-06 자체의
+immutability, CAS, typed-table 계약은 바뀌지 않는다.

@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Identity and revision-kernel API foundation with no material-domain resources.
-  version: 0.3.0
+  summary: Identity, authorization, and revision foundation with no material-domain resources.
+  version: 0.4.0
 servers:
   - url: http://127.0.0.1:8000
 paths:

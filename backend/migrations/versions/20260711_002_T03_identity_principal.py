@@ -1,7 +1,7 @@
 """T-03 OIDC principal and immutable external identity.
 
 Traceability: T-03, NFR-SEC-001/002/003, NFR-AUD-001, RFC 6750/8725/9068.
-Authorization bindings and tenant-owned RLS remain T-04.
+Authorization bindings and tenant-owned RLS are added by the downstream T-04 migration.
 """
 
 from __future__ import annotations
