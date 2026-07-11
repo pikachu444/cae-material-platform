@@ -109,6 +109,7 @@ def _service(*bindings: RoleBinding) -> AuthorizationService:
         (Role.DOMAIN_REVIEWER, Permission.REVIEW_DECIDE),
         (Role.RELEASE_APPROVER, Permission.RELEASE_PUBLISH),
         (Role.PLUGIN_MAINTAINER, Permission.PLUGIN_SUBMIT),
+        (Role.JOB_RUNNER, Permission.JOB_EXECUTE),
         (Role.AUDITOR, Permission.AUDIT_READ),
     ],
 )
@@ -127,6 +128,10 @@ def test_admin_roles_do_not_implicitly_receive_business_or_approval_access() -> 
     assert Permission.TESTING_READ not in ROLE_PERMISSIONS[Role.ORG_ADMIN]
     assert Permission.RELEASE_PUBLISH not in ROLE_PERMISSIONS[Role.PROJECT_ADMIN]
     assert Permission.PLUGIN_ACTIVATE not in ROLE_PERMISSIONS[Role.PLUGIN_MAINTAINER]
+    assert ROLE_PERMISSIONS[Role.JOB_RUNNER] == {
+        Permission.JOB_READ,
+        Permission.JOB_EXECUTE,
+    }
 
 
 def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
@@ -349,6 +354,20 @@ def test_role_administration_rejects_cross_context_scope_and_non_admin_role() ->
                 max_classification=DataClassification.INTERNAL,
                 allow_export_controlled=False,
                 grant_reason="privilege escalation attempt",
+            ),
+        )
+
+    with pytest.raises(AuthorizationDenied, match="platform_role_operator_only"):
+        administration.grant(
+            context,
+            GrantRoleBinding(
+                organization_id=ORG,
+                project_id=PROJECT,
+                subject=BindingSubject.for_principal(uuid4()),
+                role=Role.JOB_RUNNER,
+                max_classification=DataClassification.INTERNAL,
+                allow_export_controlled=False,
+                grant_reason="runner role must be operator provisioned",
             ),
         )
 

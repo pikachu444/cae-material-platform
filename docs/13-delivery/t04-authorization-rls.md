@@ -17,8 +17,9 @@
    flag로만 허용하며 nationality/compartment 판단은 구현하지 않는다.
 5. 첫 배포는 single-enterprise 가정이므로 deployment-level platform role도 organization context
    안에서 조회한다. Platform-admin grant는 application API가 아니라 운영자 provisioning 전용이다.
-6. Artifact download-token endpoint는 T-15 전까지 없으므로 T-04는 재사용 authorization guard와
-   row/filter leakage 회귀를 제공하고 실제 transfer-token 검증은 T-15에서 연결한다.
+6. Artifact download-token endpoint는 T-09/T-10 전까지 없으므로 T-04는 재사용 authorization
+   guard와 row/filter leakage 회귀를 제공한다. T-15는 job manifest 참조만 저장하며 실제
+   transfer-token과 artifact commit은 구현하지 않는다.
 
 ## 3. Service-layer policy
 

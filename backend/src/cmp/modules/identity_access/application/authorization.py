@@ -138,6 +138,9 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.PLUGIN_MAINTAINER: frozenset(
         {Permission.PLUGIN_READ, Permission.PLUGIN_SUBMIT}
     ),
+    # Operational role for service principals. It is provisioned outside the public
+    # role-administration service and cannot grant human business permissions.
+    Role.JOB_RUNNER: frozenset({Permission.JOB_READ, Permission.JOB_EXECUTE}),
     Role.AUDITOR: frozenset({Permission.AUDIT_READ, Permission.PROVENANCE_READ}),
 }
 
@@ -176,6 +179,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.PLUGIN_ACTIVATE: frozenset({Permission.PLUGIN_READ}),
     Permission.JOB_SUBMIT: frozenset({Permission.JOB_READ}),
     Permission.JOB_CONTROL: frozenset({Permission.JOB_READ}),
+    Permission.JOB_EXECUTE: frozenset({Permission.JOB_READ}),
 }
 
 
@@ -301,7 +305,7 @@ class RoleBindingAdministrationService:
             context.project_id,
         }:
             raise AuthorizationDenied("binding_scope_mismatch")
-        if command.role is Role.PLATFORM_ADMIN:
+        if command.role in {Role.PLATFORM_ADMIN, Role.JOB_RUNNER}:
             raise AuthorizationDenied("platform_role_operator_only")
         created_at = self._clock()
         valid_from = command.valid_from or created_at

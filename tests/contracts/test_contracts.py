@@ -1,5 +1,6 @@
 import json
 from copy import deepcopy
+from importlib.resources import files
 from pathlib import Path
 
 from cmp import __version__
@@ -98,4 +99,38 @@ def test_me_contract_requires_project_and_runtime_bearer_security() -> None:
         {"BearerAuth": []}
     ]
     assert runtime["components"]["securitySchemes"]["BearerAuth"]["scheme"] == "bearer"
+
+
+def test_job_contract_and_runtime_expose_submit_read_cancel_and_retry() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/jobs": ("post", "submitJob"),
+        "/api/v1/jobs/{job_id}": ("get", "getJob"),
+        "/api/v1/jobs/{job_id}:cancel": ("post", "cancelJob"),
+        "/api/v1/jobs/{job_id}:retry": ("post", "retryJob"),
+    }
+
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+    assert source["paths"]["/api/v1/jobs"]["post"]["responses"]["202"][
+        "headers"
+    ]["Location"]["required"]
+
+
+def test_packaged_runtime_job_spec_schema_matches_public_contract_exactly() -> None:
+    public = json.loads(
+        (PROJECT_ROOT / "contracts/jobs/job-spec.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    packaged = json.loads(
+        files("cmp.modules.jobs.contracts")
+        .joinpath("job-spec.schema.json")
+        .read_text(encoding="utf-8")
+    )
+
+    assert packaged == public
 

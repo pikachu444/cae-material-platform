@@ -1,19 +1,20 @@
 # CAE Material Platform
 
-Status: identity, authorization, and revision foundation (`T-01`–`T-04` + `T-06`)
+Status: identity, authorization, revision, and durable job foundation
+(`T-01`–`T-04` + `T-06` + `T-15`)
 
-Version: `0.4.0`
+Version: `0.5.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
 business implementation. Database support is limited to the T-03/T-04 identity and access-control
-foundation and the domain-neutral T-06 revision kernel.
+foundation, the domain-neutral T-06 revision kernel, and the generic T-15 Job/Attempt/Lease engine.
 
 ## Implemented foundation
 
 - Modular-monolith Python package and bounded-module namespaces
 - FastAPI `GET /api/v1/health` endpoint
-- Empty durable-worker process shell with a one-cycle verification mode
+- Generic durable worker with claim/start/heartbeat/cancel/finalize ports and an idle smoke mode
 - Architecture dependency checker
 - OpenAPI 3.1 and AsyncAPI baseline contracts
 - JSON Schema baselines for jobs, plugin packages, and Material Model IR envelope
@@ -29,6 +30,11 @@ foundation and the domain-neutral T-06 revision kernel.
 - Conservative deny-by-default RBAC matrix and principal/IdP-group role bindings
 - Transaction-local permission/classification context with forced PostgreSQL RLS
 - Reusable service/API authorization decisions and append/revoke role administration
+- Stable Job identities separated from immutable per-execution Attempt/Job Spec records
+- PostgreSQL atomic claim (`FOR UPDATE SKIP LOCKED`), lease fencing, crash recovery, and retry policy
+- Explicit runner capability/resource tables, per-runner concurrency, and tenant/classification RLS
+- Idempotent Job submission/finalization and append-only retry attempts
+- Protected `POST /api/v1/jobs`, `GET /api/v1/jobs/{id}`, `:cancel`, and `:retry` resources
 
 ## Prerequisites
 
@@ -78,9 +84,10 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control TO cmp_app;
 ```
 
@@ -123,13 +130,15 @@ calibration choices, solver cards, and validation criteria remain `TBD`. T-06 pr
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
 not implement Material, artifact transfer, audit chains, lifecycle approval, or export-control
-nationality rules.
+nationality rules. T-15 accepts only versioned generic Job Spec documents; it does not implement
+Material, test importer, fitting, solver exporter, production plugin, or general-purpose DAG logic.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-15`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
-  `NFR-SEC-001`, `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`,
-  `NFR-MOD-001`, `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
+  `FR-API-002`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
+  `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
+  `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003` (with `ADR-004` and `ADR-005` scope guards)
 

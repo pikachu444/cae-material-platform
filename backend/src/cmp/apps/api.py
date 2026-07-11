@@ -1,4 +1,4 @@
-"""FastAPI composition root for health and shared revision contract components."""
+"""FastAPI composition root for identity, revision contracts, and durable jobs."""
 
 from __future__ import annotations
 
@@ -8,11 +8,18 @@ from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict
 
 from cmp import __version__
+from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.security import IdentityServices, build_identity_services
 from cmp.bootstrap.settings import Settings
+from cmp.modules.identity_access.adapters.api.authorization import (
+    RequestAuthorizationDependency,
+)
 from cmp.modules.identity_access.adapters.api.security import install_identity_api
 from cmp.modules.identity_access.application.authorization import AuthorizationService
 from cmp.modules.identity_access.application.security import SecurityContextService
+from cmp.modules.identity_access.domain.authorization import Permission
+from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
+from cmp.modules.jobs.application.jobs import JobService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
 
@@ -30,13 +37,14 @@ def create_app(
     settings: Settings | None = None,
     security_service: SecurityContextService | None = None,
     authorization_service: AuthorizationService | None = None,
+    job_service: JobService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Identity, authorization, and revision foundation; no material resources yet.",
+        summary="Identity, authorization, revision, and durable job foundation.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -59,7 +67,22 @@ def create_app(
         else build_identity_services(resolved)
     )
     resolved_security = services.security
-    install_identity_api(application, resolved_security)
+    security_dependency = install_identity_api(application, resolved_security)
+    resolved_jobs = job_service or build_job_service(services)
+    install_jobs_api(
+        application,
+        service=resolved_jobs,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.JOB_READ
+        ),
+        submit_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.JOB_SUBMIT
+        ),
+        control_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.JOB_CONTROL
+        ),
+    )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine

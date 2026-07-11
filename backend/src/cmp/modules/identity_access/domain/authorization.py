@@ -56,6 +56,7 @@ class Role(StrEnum):
     RELEASE_APPROVER = "release_approver"
     CONSUMER = "consumer"
     PLUGIN_MAINTAINER = "plugin_maintainer"
+    JOB_RUNNER = "job_runner"
     AUDITOR = "auditor"
 
 
@@ -90,6 +91,7 @@ class Permission(StrEnum):
     JOB_READ = "job.read"
     JOB_SUBMIT = "job.submit"
     JOB_CONTROL = "job.control"
+    JOB_EXECUTE = "job.execute"
     PROVENANCE_READ = "provenance.read"
     AUDIT_READ = "audit.read"
 

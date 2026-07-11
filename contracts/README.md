@@ -1,6 +1,6 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-06`, HTTP contract version `0.4.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15`, HTTP contract version `0.5.0`.
 
 ## Files
 
@@ -32,6 +32,10 @@ Status: `T-02` + `T-03` + `T-04` + `T-06`, HTTP contract version `0.4.0`.
   explicit T-04 permission before opening its resource transaction.
 - Role and clearance details are internal policy state rather than a public `/me` field. A future
   role-management API requires its own versioned request/response schema.
+- Job submission requires an idempotency key and an immutable Job Spec. Retry appends a new
+  Attempt/Spec pair; it never rewrites an existing attempt or accepts a moving `latest` input.
+- Result manifests remain immutable references and digests. Artifact commit and reconciliation
+  are owned by T-10/T-16 rather than the T-15 job state projection.
 
 Run `make check-contracts` after every contract change. Accepting a breaking change requires a new
 major contract, an ADR, and migration guidance; do not overwrite the baseline to hide the break.

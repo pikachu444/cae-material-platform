@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-11`
-Foundation version: `0.4.0`
+Foundation version: `0.5.0`
 
 ## Completed
 
@@ -16,11 +16,14 @@ Foundation version: `0.4.0`
 - `T-06`: framework-free aggregate revision kernel, explicit typed-table SQLAlchemy adapter,
   PostgreSQL/Alembic immutability and tenant primitives, initial lifecycle event/projection,
   strong ETag and revision metadata contracts
+- `T-15`: stable Job/immutable Attempt separation, versioned Job Spec digests, PostgreSQL atomic
+  claim/lease/heartbeat/recovery, generic retry taxonomy, runner resources, protected Job API,
+  and a handler-neutral durable worker
 
 ## Runtime proof
 
 - FastAPI health endpoint: `GET /api/v1/health`
-- Empty worker verification: `cmp-worker --once --json`
+- Unconfigured durable-worker idle verification: `cmp-worker --once --json`
 - Generated client calls a live Uvicorn process in integration tests
 - Worker starts in a separate subprocess and exits successfully in one-cycle mode
 - OIDC validation uses exact issuer/audience, explicit asymmetric algorithms, configured JWKS,
@@ -35,6 +38,13 @@ Foundation version: `0.4.0`
   and PostgreSQL compare-and-swap head advancement
 - PostgreSQL integration uses a migration-managed explicit typed fixture; no generic EAV/content
   table exists
+- Job submission is tenant-idempotent; every retry appends a distinct immutable Attempt/Job Spec
+- PostgreSQL claim uses runner serialization and `FOR UPDATE SKIP LOCKED`; fencing tokens reject
+  stale heartbeat/finalize calls after lease recovery
+- Failure/cancel/timeout attempts remain queryable, terminal attempts and Job results are immutable,
+  and identical finalize calls replay without a second commit
+- Job/Attempt/Runner RLS uses the same request/service principal, tenant, permission, and
+  classification context as API resources
 
 ## Validation result
 
@@ -42,26 +52,29 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (76 source/test files)
+mypy strict: passed (95 source/test files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 88 passed, 20 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with ephemeral PostgreSQL: 108 passed
+make ci: 107 passed, 29 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 136 passed
 ```
 
 ## Intentionally absent
 
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
-- Material, test, dataset, typed provenance, audit-chain, or job implementations
+- Material, test, dataset, typed provenance, or audit-chain implementations
+- Artifact transfer/commit, outbox/reconciliation, runner credential provisioning, and isolated
+  plugin/package execution
 - Production plugins
 - Constitutive equations, fitting algorithms, solver cards, or validation thresholds
 - Frontend application
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-15`: the PostgreSQL Job/Attempt/Lease engine.
-Audit (`T-05`), catalog (`T-07`), artifact transfer (`T-09/T-10`), and provenance (`T-13`) remain
-separate tasks; none is implied complete by the T-03/T-04/T-06 interfaces.
+Per the repository blueprint, the next task is `T-17`: Plugin manifest/package/schema registry.
+Its T-10 artifact dependency remains a separate interface boundary; T-15 stores only immutable
+Job Spec and Result Manifest references. Audit (`T-05`), catalog (`T-07`), artifact transfer
+(`T-09/T-10`), and provenance (`T-13`) are not implied complete.
 

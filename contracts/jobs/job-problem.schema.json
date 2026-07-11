@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:job-problem:1.0.0",
+  "title": "CMP Job Problem",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "title", "status", "detail", "code", "trace_id"],
+  "properties": {
+    "type": {"const": "urn:cmp:problem:job"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 255},
+    "status": {"type": "integer", "minimum": 400, "maximum": 599},
+    "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "code": {"type": "string", "pattern": "^CMP-JOB-[0-9]{4}$"},
+    "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+  }
+}

@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Identity, authorization, and revision foundation with no material-domain resources.
-  version: 0.4.0
+  summary: Identity, authorization, revision, and durable job foundation.
+  version: 0.5.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -80,6 +80,173 @@ paths:
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/AuthenticationProblem"}
+  /api/v1/jobs:
+    post:
+      operationId: submitJob
+      tags: [jobs]
+      summary: Submit one immutable Job Spec for durable execution.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+            pattern: '^[\x21-\x7e]+$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SubmitJobRequest"}
+      responses:
+        "202":
+          description: Job accepted or an identical idempotent submission replayed.
+          headers:
+            Location:
+              required: true
+              schema: {type: string}
+            Idempotent-Replay:
+              required: true
+              schema: {type: string, enum: ["true", "false"]}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/JobResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Job submission is not authorized}
+        "409":
+          description: Idempotency key or stable Job identity conflict.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "422":
+          description: Job Spec or resource policy violates its contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "503":
+          description: Durable job service unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+  /api/v1/jobs/{job_id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Return job, attempt, progress, and terminal result references.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Tenant-scoped durable Job resource.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/JobResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Job read is not authorized}
+        "404":
+          description: No visible Job matches the opaque identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "422":
+          description: Job identifier violates the command contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "503":
+          description: Durable job service unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+  /api/v1/jobs/{job_id}:cancel:
+    post:
+      operationId: cancelJob
+      tags: [jobs]
+      summary: Request cooperative cancellation without deleting execution facts.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ControlJobRequest"}
+      responses:
+        "202":
+          description: Cancellation requested or queued work cancelled atomically.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/JobResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Job control is not authorized}
+        "404":
+          description: No visible Job matches the opaque identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "409":
+          description: Job is already terminal with a non-cancel outcome.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "422":
+          description: Cancellation request violates the command contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "503":
+          description: Durable job service unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+  /api/v1/jobs/{job_id}:retry:
+    post:
+      operationId: retryJob
+      tags: [jobs]
+      summary: Append a new attempt for a retryable terminal job.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ControlJobRequest"}
+      responses:
+        "202":
+          description: A distinct immutable Attempt and Job Spec were appended.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/JobResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Job control is not authorized}
+        "404":
+          description: No visible Job matches the opaque identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "409":
+          description: State, immutable input, deadline, or attempt cap forbids retry.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "422":
+          description: Retry request violates the command contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
+        "503":
+          description: Durable job service unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/JobProblem"}
 components:
   securitySchemes:
     BearerAuth:
@@ -95,6 +262,11 @@ components:
         type: string
         pattern: '^"revision:[1-9][0-9]*:sha256:[0-9a-f]{64}"$'
   parameters:
+    JobId:
+      name: job_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
     IfMatchRevision:
       name: If-Match
       in: header
@@ -135,4 +307,16 @@ components:
         trace_id:
           type: string
           pattern: '^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$'
+    SubmitJobRequest:
+      $ref: ../jobs/job-submission.schema.json
+    ControlJobRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: {type: string, minLength: 1, maxLength: 2000}
+    JobResponse:
+      $ref: ../jobs/job-resource.schema.json
+    JobProblem:
+      $ref: ../jobs/job-problem.schema.json
 
