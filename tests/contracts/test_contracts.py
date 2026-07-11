@@ -81,3 +81,19 @@ def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None
     )
     assert "sha256" in etag["schema"]["pattern"]
 
+
+def test_me_contract_requires_project_and_runtime_bearer_security() -> None:
+    schema_path = PROJECT_ROOT / "contracts/identity/me-response.schema.json"
+    failures = validate_example(
+        schema_path,
+        PROJECT_ROOT / "contracts/examples/negative/me-response-missing-project.json",
+    )
+    runtime = app.openapi()
+
+    assert any("project_id" in failure for failure in failures)
+    assert runtime["paths"]["/api/v1/me"]["get"]["operationId"] == "getMe"
+    assert runtime["paths"]["/api/v1/me"]["get"]["security"] == [
+        {"BearerAuth": []}
+    ]
+    assert runtime["components"]["securitySchemes"]["BearerAuth"]["scheme"] == "bearer"
+

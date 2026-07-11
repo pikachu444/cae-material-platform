@@ -1,12 +1,13 @@
 # CAE Material Platform
 
-Status: revision-kernel foundation (`T-01` + `T-02` + `T-06`)
+Status: identity and revision-kernel foundation (`T-01` + `T-02` + `T-03` + `T-06`)
 
-Version: `0.2.0`
+Version: `0.3.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
-business implementation. Database support is limited to the domain-neutral T-06 revision kernel.
+business implementation. Database support is limited to the T-03 identity projection and the
+domain-neutral T-06 revision kernel.
 
 ## Implemented foundation
 
@@ -22,6 +23,9 @@ business implementation. Database support is limited to the domain-neutral T-06 
 - SQLAlchemy adapter for explicit stable-identity/typed-revision table pairs
 - Alembic/PostgreSQL immutability guards, tenant RLS helpers, and lifecycle projection
 - Strong revision ETag and common content-free revision metadata contracts
+- Strict OIDC JWT access-token validation for user and service principals
+- Immutable `(issuer, subject)` external identities and stable opaque principal IDs
+- Request-scoped organization/project context and authenticated `GET /api/v1/me`
 
 ## Prerequisites
 
@@ -44,6 +48,25 @@ In another terminal:
 curl http://127.0.0.1:8000/api/v1/health
 make run-worker-once
 ```
+
+`GET /api/v1/health` is public. `GET /api/v1/me` fails closed with `503` until all required OIDC
+settings and the database URL are configured. Apply the migration first, then set:
+
+```bash
+export CMP_DATABASE_URL=postgresql+psycopg://...
+export CMP_OIDC_ISSUER=https://idp.example.com/
+export CMP_OIDC_AUDIENCE=urn:cmp:api
+export CMP_OIDC_JWKS_URL=https://idp.example.com/.well-known/jwks.json
+export CMP_OIDC_AUTO_PROVISION=true  # optional; false by default
+make run-api
+curl -H "Authorization: Bearer ${ACCESS_TOKEN}" http://127.0.0.1:8000/api/v1/me
+```
+
+The optional claim mapping settings are `CMP_OIDC_CLIENT_ID_CLAIM`,
+`CMP_OIDC_ORGANIZATION_CLAIM`, `CMP_OIDC_PROJECT_CLAIM`, `CMP_OIDC_GROUPS_CLAIM`,
+`CMP_OIDC_DISPLAY_NAME_CLAIM`, `CMP_OIDC_SERVICE_GRANT_CLAIM`, and
+`CMP_OIDC_SERVICE_GRANT_VALUES`. `CMP_OIDC_ALGORITHMS` is an explicit asymmetric allowlist.
+Loopback HTTP JWKS is disabled unless `CMP_OIDC_ALLOW_LOOPBACK_HTTP=true` is set for development.
 
 ## Development commands
 
@@ -78,12 +101,14 @@ CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 Read `AGENTS.md` before changing this repository. Production tensile standards, material models,
 calibration choices, solver cards, and validation criteria remain `TBD`. T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
-production-looking reference implementations before the corresponding decision gates.
+production-looking reference implementations before the corresponding decision gates. T-03 does
+not implement roles, membership, ABAC, or tenant RLS; those remain T-04.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-06`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-06`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
-  `NFR-SEC-003`, `NFR-SEC-006`, `NFR-MOD-001`, `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
+  `NFR-SEC-001`, `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`,
+  `NFR-MOD-001`, `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003` (with `ADR-004` and `ADR-005` scope guards)
 

@@ -1,2 +1,2 @@
-"""Identity and access module namespace; implementation begins at T-03."""
+"""Identity and access bounded module implemented from T-03 onward."""
 

@@ -46,6 +46,25 @@ flowchart TD
 - local emergency admin은 break-glass 절차와 별도 audit를 요구한다.
 - external callback은 scoped signed token, nonce/replay 방지를 사용한다.
 
+### 3.1 T-03 access-token 신뢰 경계
+
+- API resource server는 `typ=at+jwt` 또는 `application/at+jwt`인 JWT access token만 받으며
+  OIDC ID token과 혼용하지 않는다.
+- 서명 key는 운영자가 지정한 HTTPS JWKS endpoint에서만 가져온다. Token이 제공하는 URL이나
+  임의 discovery 결과를 따라가지 않는다. Loopback HTTP는 명시적인 개발 설정에서만 허용한다.
+- issuer와 audience는 exact match, 알고리즘은 비대칭 allowlist, `exp`/`iat`와 필수 claim은
+  fail-closed로 검증한다.
+- external identity key `(issuer, subject)`는 생성 후 바꾸거나 삭제하지 않는다. Principal의
+  display name과 active 상태만 별도 projection으로 변경할 수 있다.
+- JIT provisioning은 기본적으로 꺼져 있다. 켜더라도 동일 external identity의 동시 요청은
+  PostgreSQL transaction lock으로 한 principal에 수렴한다.
+- organization/project claim은 request의 선택 context다. 실제 membership, role, classification
+  권한과 RLS session 설정은 T-04 전까지 구현 완료로 간주하지 않는다.
+
+검증 기준은 [RFC 6750](https://www.rfc-editor.org/rfc/rfc6750),
+[RFC 8725](https://www.rfc-editor.org/rfc/rfc8725),
+[RFC 9068](https://www.rfc-editor.org/rfc/rfc9068)을 따른다.
+
 ## 4. 권한 모델
 
 ### 4.1 RBAC role

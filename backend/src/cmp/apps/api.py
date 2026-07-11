@@ -8,7 +8,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict
 
 from cmp import __version__
+from cmp.bootstrap.security import build_security_service
 from cmp.bootstrap.settings import Settings
+from cmp.modules.identity_access.adapters.api.security import install_identity_api
+from cmp.modules.identity_access.application.security import SecurityContextService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
 
@@ -22,13 +25,16 @@ class HealthResponse(BaseModel):
     version: str
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    security_service: SecurityContextService | None = None,
+) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Revision-kernel API foundation; no material-domain resources yet.",
+        summary="Identity and revision-kernel API foundation; no material resources yet.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -44,6 +50,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     def get_health() -> HealthResponse:
         return HealthResponse(status="ok", service="cmp-api", version=__version__)
+
+    resolved_security = security_service or build_security_service(resolved)
+    install_identity_api(application, resolved_security)
 
     generated_openapi = application.openapi
 

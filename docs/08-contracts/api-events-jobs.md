@@ -24,6 +24,22 @@
 | Long operation | `202 Accepted`, `Location: /api/v1/jobs/{id}` |
 | Deletion | domain delete 대신 archive/withdraw/tombstone command |
 
+### 2.1 인증과 request security context
+
+- `GET /api/v1/health`는 공개 endpoint다.
+- 보호 endpoint는 RFC 6750 bearer access token을 사용한다. ID token은 API credential로 받지
+  않는다.
+- API는 운영자가 설정한 issuer, audience, JWKS URL, 비대칭 서명 알고리즘 allowlist를 정확히
+  검증한다. Token header나 claim에서 discovery/JWKS URL을 선택하지 않는다.
+- 검증된 token의 `(issuer, subject)`는 stable principal로 resolve한다. user와 service principal을
+  구분하고 client-credentials service token은 `subject == client_id`여야 한다.
+- `organization_id`와 `project_id`는 선택된 request context로 반드시 존재해야 한다. 이 값이
+  membership/role 권한을 증명하는 것은 아니며 T-04가 별도로 검증한다.
+- `GET /api/v1/me`는 principal UUID/type/display name, 선택된 organization/project, group/scope,
+  request/trace ID를 반환한다.
+- 인증 오류는 token, claim, key, stack trace를 노출하지 않는 `application/problem+json`으로
+  반환하고 모든 응답에 correlation용 `X-Request-ID`를 둔다.
+
 ## 3. 주요 REST resource
 
 ### 3.1 Catalog·testing

@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Revision-kernel API foundation with no material-domain resources.
-  version: 0.2.0
+  summary: Identity and revision-kernel API foundation with no material-domain resources.
+  version: 0.3.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -18,7 +18,75 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
+  /api/v1/me:
+    get:
+      operationId: getMe
+      tags: [identity]
+      summary: Return the authenticated principal and selected tenant context.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: X-Request-ID
+          in: header
+          required: false
+          schema: {type: string, format: uuid}
+        - name: traceparent
+          in: header
+          required: false
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$'
+      responses:
+        "200":
+          description: Authenticated principal and request security context.
+          headers:
+            X-Request-ID:
+              schema: {type: string, format: uuid}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeResponse"
+        "400":
+          description: Request or trace identifier is malformed.
+          headers:
+            X-Request-ID:
+              schema: {type: string, format: uuid}
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/AuthenticationProblem"}
+        "401":
+          description: Bearer access token is missing or invalid.
+          headers:
+            X-Request-ID:
+              schema: {type: string, format: uuid}
+            WWW-Authenticate:
+              schema: {type: string}
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/AuthenticationProblem"}
+        "403":
+          description: Principal is inactive or not provisioned.
+          headers:
+            X-Request-ID:
+              schema: {type: string, format: uuid}
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/AuthenticationProblem"}
+        "503":
+          description: OIDC authentication is not configured or temporarily unavailable.
+          headers:
+            X-Request-ID:
+              schema: {type: string, format: uuid}
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/AuthenticationProblem"}
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT access token
+      description: RFC 6750 bearer access token; ID tokens are rejected.
   headers:
     RevisionETag:
       description: Strong ETag for one concrete immutable revision.
@@ -52,4 +120,19 @@ components:
           pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     RevisionMetadata:
       $ref: ../revisions/revision-metadata.schema.json
+    MeResponse:
+      $ref: ../identity/me-response.schema.json
+    AuthenticationProblem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, detail, code, trace_id]
+      properties:
+        type: {type: string}
+        title: {type: string}
+        status: {type: integer, minimum: 400, maximum: 599}
+        detail: {type: string}
+        code: {type: string, pattern: '^CMP-[A-Z]+-[0-9]{4}$'}
+        trace_id:
+          type: string
+          pattern: '^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$'
 

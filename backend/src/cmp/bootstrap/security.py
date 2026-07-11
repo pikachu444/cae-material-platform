@@ -1,0 +1,56 @@
+"""Compose T-03 identity adapters only from explicit operator configuration."""
+
+from __future__ import annotations
+
+import sqlalchemy as sa
+from sqlalchemy.orm import Session, sessionmaker
+
+from cmp.bootstrap.settings import Settings
+from cmp.modules.identity_access.adapters.oidc.pyjwt import (
+    OidcAccessTokenConfig,
+    PyJwkClientSigningKeyResolver,
+    PyJwtAccessTokenVerifier,
+)
+from cmp.modules.identity_access.adapters.persistence.principals import (
+    SqlAlchemyPrincipalRepository,
+)
+from cmp.modules.identity_access.application.security import SecurityContextService
+
+
+def build_security_service(settings: Settings) -> SecurityContextService | None:
+    oidc_values = (settings.oidc_issuer, settings.oidc_audience, settings.oidc_jwks_url)
+    if all(value is None for value in oidc_values):
+        return None
+    if any(value is None for value in oidc_values):
+        raise ValueError(
+            "CMP_OIDC_ISSUER, CMP_OIDC_AUDIENCE, and CMP_OIDC_JWKS_URL are all required"
+        )
+    if not settings.database_url:
+        raise ValueError("CMP_DATABASE_URL is required when OIDC authentication is configured")
+    issuer, audience, jwks_url = oidc_values
+    assert issuer is not None and audience is not None and jwks_url is not None
+    config = OidcAccessTokenConfig(
+        issuer=issuer,
+        audience=audience,
+        algorithms=settings.oidc_algorithms,
+        clock_skew_seconds=settings.oidc_clock_skew_seconds,
+        client_id_claim=settings.oidc_client_id_claim,
+        organization_claim=settings.oidc_organization_claim,
+        project_claim=settings.oidc_project_claim,
+        groups_claim=settings.oidc_groups_claim,
+        display_name_claim=settings.oidc_display_name_claim,
+        service_grant_claim=settings.oidc_service_grant_claim,
+        service_grant_values=settings.oidc_service_grant_values,
+    )
+    keys = PyJwkClientSigningKeyResolver(
+        jwks_url,
+        allow_loopback_http=settings.oidc_allow_loopback_http,
+    )
+    verifier = PyJwtAccessTokenVerifier(config=config, signing_keys=keys)
+    engine = sa.create_engine(settings.database_url, pool_pre_ping=True)
+    sessions = sessionmaker(engine, class_=Session, expire_on_commit=False)
+    principals = SqlAlchemyPrincipalRepository(
+        session_factory=sessions,
+        auto_provision=settings.oidc_auto_provision,
+    )
+    return SecurityContextService(verifier=verifier, principals=principals)

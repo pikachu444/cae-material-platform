@@ -1,8 +1,8 @@
 {
   "name": "cae-material-platform-workspace",
   "private": true,
-  "version": "0.2.0",
-  "description": "Frontend workspace placeholder; no web application is implemented through T-06.",
+  "version": "0.3.0",
+  "description": "Frontend workspace placeholder; no web application is implemented through T-03/T-06.",
   "scripts": {
     "check": "node -e \"console.log('web workspace intentionally empty')\""
   }

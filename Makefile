@@ -44,7 +44,7 @@ test-integration:
 
 test-postgresql:
 	@test -n "$(CMP_TEST_POSTGRES_DSN)" || (echo "CMP_TEST_POSTGRES_DSN is required" && exit 2)
-	$(UV) run pytest -m postgresql tests/integration/test_revision_postgresql.py
+	$(UV) run pytest -m postgresql tests/integration
 
 test:
 	$(UV) run pytest

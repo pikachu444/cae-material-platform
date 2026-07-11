@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:identity:me-response:v1",
+  "title": "Authenticated Principal Context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "principal_id",
+    "principal_type",
+    "display_name",
+    "organization_id",
+    "project_id",
+    "groups",
+    "scopes",
+    "request_id",
+    "trace_id"
+  ],
+  "properties": {
+    "principal_id": {"type": "string", "format": "uuid"},
+    "principal_type": {"type": "string", "enum": ["user", "service"]},
+    "display_name": {"type": "string", "minLength": 1, "maxLength": 255},
+    "organization_id": {"type": "string", "format": "uuid"},
+    "project_id": {"type": "string", "format": "uuid"},
+    "groups": {
+      "type": "array",
+      "maxItems": 200,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 255}
+    },
+    "scopes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 255}
+    },
+    "request_id": {"type": "string", "format": "uuid"},
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
+    }
+  }
+}

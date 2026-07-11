@@ -1,6 +1,7 @@
 # Database migrations
 
-The Alembic chain starts with `20260711_001_T06_revision_kernel.py`.
+The Alembic chain starts with `20260711_001_T06_revision_kernel.py` and continues with
+`20260711_002_T03_identity_principal.py`.
 
 ## T-06 ownership
 
@@ -15,6 +16,24 @@ The migration creates:
 It deliberately does **not** create a central aggregate/revision/content table. Each bounded module
 must create an explicit identity table and an explicit typed revision table in its owned schema.
 JSONB is reserved for schema-validated plugin extension payloads, not core attributes.
+
+## T-03 ownership
+
+The second migration creates the `identity` schema with explicit relational tables:
+
+- `identity.principal`: opaque stable UUID, `user|service` type, mutable display projection and
+  active flag;
+- `identity.external_identity`: immutable issuer/subject binding to a principal and monotonic
+  last-seen timestamp;
+- unique `(issuer, subject)`, principal lookup/type indexes, foreign keys, checks, and database
+  triggers that reject key replacement or deletion.
+
+These tables are deployment-level identity projections, not tenant-owned business rows. They do
+not contain organization/project authorization or RLS policy. A validated token supplies the
+selected request context, while T-04 owns organization/project membership, role bindings, ABAC,
+and database session RLS enforcement. JIT provisioning is off by default; when enabled, the
+adapter serializes the same external identity with a PostgreSQL transaction advisory lock and
+creates random UUIDv4 identifiers.
 
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:
@@ -34,6 +53,6 @@ CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 ```
 
 `CMP_TEST_POSTGRES_DSN` must identify an isolated admin database. The test creates a uniquely named
-temporary database, upgrades it, installs the test-only typed fixture, tests it, downgrades it, and
-removes it.
+temporary database, upgrades it, installs the T-06 test-only typed fixture, exercises both T-03 and
+T-06 persistence, downgrades it, and removes it.
 
