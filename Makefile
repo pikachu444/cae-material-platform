@@ -4,7 +4,8 @@ export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
 .PHONY: bootstrap lint typecheck check-architecture check-contracts generate-client \
-	test-unit test-contract test-integration test run-api run-worker run-worker-once ci
+	migrate test-unit test-contract test-migration test-integration test-postgresql test \
+	run-api run-worker run-worker-once ci
 
 bootstrap:
 	$(UV) sync --all-groups
@@ -25,14 +26,25 @@ check-contracts:
 generate-client:
 	$(UV) run cmp-generate-client --contract contracts/http/openapi.yaml --output generated/python/cmp_api_client/client.py
 
+migrate:
+	@test -n "$(CMP_DATABASE_URL)" || (echo "CMP_DATABASE_URL is required" && exit 2)
+	$(UV) run alembic -c alembic.ini upgrade head
+
 test-unit:
 	$(UV) run pytest backend/tests/unit tests/architecture
 
 test-contract:
 	$(UV) run pytest tests/contracts
 
+test-migration:
+	$(UV) run pytest tests/migrations
+
 test-integration:
-	$(UV) run pytest backend/tests/integration tests/integration
+	$(UV) run pytest tests/integration
+
+test-postgresql:
+	@test -n "$(CMP_TEST_POSTGRES_DSN)" || (echo "CMP_TEST_POSTGRES_DSN is required" && exit 2)
+	$(UV) run pytest -m postgresql tests/integration/test_revision_postgresql.py
 
 test:
 	$(UV) run pytest

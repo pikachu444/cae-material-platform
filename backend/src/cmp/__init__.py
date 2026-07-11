@@ -1,4 +1,4 @@
-"""CAE Material Platform foundation package."""
+"""CAE Material Platform package."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 

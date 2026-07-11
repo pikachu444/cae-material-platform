@@ -1,4 +1,4 @@
-"""FastAPI composition root for the foundation health endpoint."""
+"""FastAPI composition root for health and shared revision contract components."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from cmp import __version__
 from cmp.bootstrap.settings import Settings
+from cmp.shared.contracts.revisions import revision_openapi_components
 
 
 class HealthResponse(BaseModel):
@@ -27,7 +28,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Foundation API; no material-domain resources are implemented yet.",
+        summary="Revision-kernel API foundation; no material-domain resources yet.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -43,6 +44,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     def get_health() -> HealthResponse:
         return HealthResponse(status="ok", service="cmp-api", version=__version__)
+
+    generated_openapi = application.openapi
+
+    def openapi_with_revision_components() -> dict[str, object]:
+        schema = generated_openapi()
+        components = schema.setdefault("components", {})
+        if not isinstance(components, dict):
+            raise RuntimeError("FastAPI generated invalid OpenAPI components")
+        for section, entries in revision_openapi_components().items():
+            target = components.setdefault(section, {})
+            if not isinstance(target, dict):
+                raise RuntimeError(f"FastAPI generated invalid OpenAPI {section}")
+            target.update(entries)
+        return schema
+
+    application.openapi = openapi_with_revision_components  # type: ignore[method-assign]
 
     return application
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Keep this script LF-normalized so `make ci` also works from Windows/WSL checkouts.
 set -euo pipefail
 
 export UV_CACHE_DIR="${UV_CACHE_DIR:-${TMPDIR:-/tmp}/cmp-uv-cache}"

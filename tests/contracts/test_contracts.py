@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 from pathlib import Path
 
@@ -24,6 +25,18 @@ def test_latest_revision_reference_fixture_is_rejected() -> None:
     )
 
     assert any("uuid" in failure for failure in failures)
+
+
+def test_revision_metadata_rejects_latest_and_has_no_generic_content() -> None:
+    schema_path = PROJECT_ROOT / "contracts/revisions/revision-metadata.schema.json"
+    failures = validate_example(
+        schema_path,
+        PROJECT_ROOT / "contracts/examples/negative/revision-metadata-latest.json",
+    )
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+
+    assert any("uuid" in failure for failure in failures)
+    assert "content" not in schema["properties"]
 
 
 def test_optional_to_required_change_is_breaking() -> None:
@@ -55,4 +68,16 @@ def test_runtime_openapi_matches_source_health_shape() -> None:
     assert set(runtime["components"]["schemas"]["HealthResponse"]["required"]) == set(
         source["components"]["schemas"]["HealthResponse"]["required"]
     )
+
+
+def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None:
+    runtime = app.openapi()
+    revision = runtime["components"]["schemas"]["RevisionMetadata"]
+    etag = runtime["components"]["headers"]["RevisionETag"]
+
+    assert "content" not in revision["properties"]
+    assert {"organization_id", "project_id", "content_hash"}.issubset(
+        revision["required"]
+    )
+    assert "sha256" in etag["schema"]["pattern"]
 

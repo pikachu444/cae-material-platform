@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:revision-metadata:v1",
+  "title": "Revision Metadata",
+  "description": "Common metadata only; bounded resources define typed content separately.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "aggregate_id",
+    "revision_no",
+    "based_on_revision_id",
+    "schema_id",
+    "schema_version",
+    "content_hash",
+    "created_at",
+    "created_by",
+    "change_reason",
+    "organization_id",
+    "project_id",
+    "classification",
+    "lifecycle_state"
+  ],
+  "properties": {
+    "id": {"type": "string", "format": "uuid"},
+    "aggregate_id": {"type": "string", "format": "uuid"},
+    "revision_no": {"type": "integer", "minimum": 1},
+    "based_on_revision_id": {
+      "oneOf": [
+        {"type": "string", "format": "uuid"},
+        {"type": "null"}
+      ]
+    },
+    "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+    "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "created_by": {"type": "string", "format": "uuid"},
+    "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "organization_id": {"type": "string", "format": "uuid"},
+    "project_id": {"type": "string", "format": "uuid"},
+    "classification": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+    },
+    "lifecycle_state": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+    }
+  }
+}

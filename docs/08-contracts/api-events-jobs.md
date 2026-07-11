@@ -99,7 +99,7 @@
 
 ```http
 POST /api/v1/materials/8e.../revisions
-If-Match: "revision:3:sha256..."
+If-Match: "revision:3:sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 Idempotency-Key: 5b...
 Content-Type: application/json
 ```
@@ -117,6 +117,10 @@ Content-Type: application/json
 ```
 
 성공 시 `201 Created`, 새 resource URL, ETag를 반환한다. head가 달라졌다면 `409 Conflict` 또는 `412 Precondition Failed`와 current revision ref를 반환한다.
+
+`T-06`은 아직 Material endpoint를 만들지 않고 위 endpoint들이 재사용할 strong ETag와
+content-free `RevisionMetadata` component만 구현한다. Weak/wildcard/multiple ETag와 `latest`
+alias는 허용하지 않는다. Concrete Material API와 typed content schema는 `T-07`에서 추가한다.
 
 ## 5. Job resource
 

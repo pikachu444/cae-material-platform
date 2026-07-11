@@ -154,6 +154,7 @@ Architecture test로 이 규칙을 강제한다.
 
 | Module | Schema |
 | --- | --- |
+| shared revision kernel | `revisioning` (functions and tenant context helpers only) |
 | identity/access | `identity` |
 | catalog | `catalog` |
 | testing | `testing` |

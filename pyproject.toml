@@ -4,15 +4,18 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cae-material-platform"
-version = "0.1.0"
-description = "Foundation for a provenance-first CAE material-data platform"
+version = "0.2.0"
+description = "Provenance-first CAE material-data platform revision kernel"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 dependencies = [
+  "alembic>=1.16,<2",
   "fastapi>=0.139,<0.140",
   "jsonschema>=4.26,<5",
+  "psycopg[binary]>=3.2,<4",
   "pydantic>=2.13,<3",
   "PyYAML>=6.0,<7",
+  "sqlalchemy>=2.0,<3",
   "uvicorn>=0.51,<0.52",
 ]
 
@@ -40,6 +43,9 @@ packages = ["backend/src/cmp"]
 addopts = "-ra --strict-markers"
 pythonpath = ["backend/src", "generated/python"]
 testpaths = ["backend/tests", "tests"]
+markers = [
+  "postgresql: requires CMP_TEST_POSTGRES_DSN and an isolated PostgreSQL database",
+]
 
 [tool.ruff]
 line-length = 100
