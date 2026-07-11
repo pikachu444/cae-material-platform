@@ -1,4 +1,4 @@
-"""FastAPI composition root for identity, revision contracts, and durable jobs."""
+"""FastAPI composition root for identity, revisions, jobs, and plugin registry."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from cmp import __version__
 from cmp.bootstrap.jobs import build_job_service
+from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.security import IdentityServices, build_identity_services
 from cmp.bootstrap.settings import Settings
 from cmp.modules.identity_access.adapters.api.authorization import (
@@ -20,6 +21,8 @@ from cmp.modules.identity_access.application.security import SecurityContextServ
 from cmp.modules.identity_access.domain.authorization import Permission
 from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
 from cmp.modules.jobs.application.jobs import JobService
+from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
+from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
 
@@ -38,13 +41,14 @@ def create_app(
     security_service: SecurityContextService | None = None,
     authorization_service: AuthorizationService | None = None,
     job_service: JobService | None = None,
+    plugin_registry_service: PluginRegistryService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Identity, authorization, revision, and durable job foundation.",
+        summary="Identity, revision, durable job, and immutable plugin foundation.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -81,6 +85,23 @@ def create_app(
         ),
         control_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.JOB_CONTROL
+        ),
+    )
+    resolved_plugins = plugin_registry_service or build_plugin_registry_service(
+        services
+    )
+    install_plugin_registry_api(
+        application,
+        service=resolved_plugins,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PLUGIN_READ
+        ),
+        submit_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PLUGIN_SUBMIT
+        ),
+        activate_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PLUGIN_ACTIVATE
         ),
     )
     application.state.authorization_service = services.authorization

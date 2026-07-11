@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Identity, authorization, revision, and durable job foundation.
-  version: 0.5.0
+  summary: Identity, revision, durable job, and immutable plugin foundation.
+  version: 0.6.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -247,6 +247,215 @@ paths:
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/JobProblem"}
+  /api/v1/plugins/packages:
+    post:
+      operationId: registerPluginPackage
+      tags: [plugins]
+      summary: Register one immutable manifest, package digest, and schema bundle.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+            pattern: '^[\x21-\x7e]+$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/RegisterPluginPackageRequest"}
+      responses:
+        "201":
+          description: Immutable package registered or an identical submission replayed.
+          headers:
+            Location:
+              required: true
+              schema: {type: string}
+            Idempotent-Replay:
+              required: true
+              schema: {type: string, enum: ["true", "false"]}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PluginPackageResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Plugin package submission is not authorized}
+        "409":
+          description: Plugin/version, digest, or idempotency identity conflict.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "422":
+          description: Manifest, artifact reference, or schema violates its contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "503":
+          description: Plugin registry unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+  /api/v1/plugins/packages/{package_id}:
+    get:
+      operationId: getPluginPackage
+      tags: [plugins]
+      summary: Read an immutable package and its append-only state history.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PluginPackageId"
+      responses:
+        "200":
+          description: Tenant-scoped immutable plugin package resource.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PluginPackageResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Plugin package read is not authorized}
+        "404":
+          description: No visible package matches the opaque identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "422":
+          description: Package identifier violates the command contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "503":
+          description: Plugin registry unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+  /api/v1/plugins/packages/{package_id}:verify:
+    post:
+      operationId: verifyPluginPackage
+      tags: [plugins]
+      summary: Record operator verification of signature, SBOM, and policy evidence.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PluginPackageId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ControlPluginPackageRequest"}
+      responses:
+        "200":
+          description: Package became activation-eligible or was already eligible.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PluginPackageResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Plugin verification is not authorized}
+        "404":
+          description: No visible package matches the opaque identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "409":
+          description: Package state cannot accept verification.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "422":
+          description: Verification reason violates the command contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "503":
+          description: Plugin registry unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+  /api/v1/plugins/packages/{package_id}:activate:
+    post:
+      operationId: activatePluginPackage
+      tags: [plugins]
+      summary: Append the project allowlist activation for an eligible package.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PluginPackageId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ControlPluginPackageRequest"}
+      responses:
+        "200":
+          description: Project-scoped package activation appended or replayed.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PluginPackageResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Plugin activation is not authorized}
+        "404":
+          description: No visible package matches the opaque identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "409":
+          description: Package is not eligible, is revoked, or already terminal.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "422":
+          description: Activation reason violates the command contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "503":
+          description: Plugin registry unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+  /api/v1/plugins/packages/{package_id}:revoke:
+    post:
+      operationId: revokePluginPackage
+      tags: [plugins]
+      summary: Append revocation without deleting historical package identity.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PluginPackageId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ControlPluginPackageRequest"}
+      responses:
+        "200":
+          description: Package revocation appended or replayed.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PluginPackageResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Plugin revocation is not authorized}
+        "404":
+          description: No visible package matches the opaque identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "409":
+          description: Package state cannot accept revocation.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "422":
+          description: Revocation reason violates the command contract.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
+        "503":
+          description: Plugin registry unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/PluginProblem"}
 components:
   securitySchemes:
     BearerAuth:
@@ -264,6 +473,11 @@ components:
   parameters:
     JobId:
       name: job_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    PluginPackageId:
+      name: package_id
       in: path
       required: true
       schema: {type: string, format: uuid}
@@ -319,4 +533,16 @@ components:
       $ref: ../jobs/job-resource.schema.json
     JobProblem:
       $ref: ../jobs/job-problem.schema.json
+    RegisterPluginPackageRequest:
+      $ref: ../plugins/plugin-package-registration.schema.json
+    ControlPluginPackageRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason: {type: string, minLength: 1, maxLength: 2000}
+    PluginPackageResponse:
+      $ref: ../plugins/plugin-package-resource.schema.json
+    PluginProblem:
+      $ref: ../plugins/plugin-problem.schema.json
 

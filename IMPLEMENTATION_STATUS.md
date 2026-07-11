@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-11`
-Foundation version: `0.5.0`
+Foundation version: `0.6.0`
 
 ## Completed
 
@@ -19,6 +19,9 @@ Foundation version: `0.5.0`
 - `T-15`: stable Job/immutable Attempt separation, versioned Job Spec digests, PostgreSQL atomic
   claim/lease/heartbeat/recovery, generic retry taxonomy, runner resources, protected Job API,
   and a handler-neutral durable worker
+- `T-17`: stable Plugin Definition/immutable Package separation, Manifest 1.0 and JSON Schema
+  validation, explicit capability/schema/supply-chain references, append-only verification and
+  activation history, project-scoped allowlisting, protected API, and forced PostgreSQL RLS
 
 ## Runtime proof
 
@@ -45,6 +48,11 @@ Foundation version: `0.5.0`
   and identical finalize calls replay without a second commit
 - Job/Attempt/Runner RLS uses the same request/service principal, tenant, permission, and
   classification context as API resources
+- Plugin Maintainers can register but cannot self-verify or activate; Org Admin verification and
+  activation commands use a separate permission and append actor/request/trace facts
+- PostgreSQL rejects plugin ID/version digest substitution, package/history mutation, activation
+  before eligibility, incomplete schema/capability bundles, revoked packages, and cross-project
+  access even when opaque UUIDs are known
 
 ## Validation result
 
@@ -52,12 +60,12 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (95 source/test files)
+mypy strict: passed (112 source/test files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 107 passed, 29 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 136 passed
+make ci: 124 passed, 34 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 158 passed
 ```
 
 ## Intentionally absent
@@ -65,16 +73,17 @@ Full suite with PostgreSQL 16.14: 136 passed
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
 - Material, test, dataset, typed provenance, or audit-chain implementations
-- Artifact transfer/commit, outbox/reconciliation, runner credential provisioning, and isolated
-  plugin/package execution
+- Artifact transfer/byte verification/commit, outbox/reconciliation, runner credential
+  provisioning, cryptographic verification automation, and isolated plugin/package execution
 - Production plugins
 - Constitutive equations, fitting algorithms, solver cards, or validation thresholds
 - Frontend application
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-17`: Plugin manifest/package/schema registry.
-Its T-10 artifact dependency remains a separate interface boundary; T-15 stores only immutable
-Job Spec and Result Manifest references. Audit (`T-05`), catalog (`T-07`), artifact transfer
-(`T-09/T-10`), and provenance (`T-13`) are not implied complete.
+Per the repository blueprint, the next task is `T-18`: isolated runner, Python SDK, and
+compatibility test kit. T-17 keeps T-10 artifact ownership behind immutable UUID/digest references;
+it does not claim byte availability, cryptographic verification, or package execution. Audit
+(`T-05`), catalog (`T-07`), artifact transfer (`T-09/T-10`), and provenance (`T-13`) are not
+implied complete.
 

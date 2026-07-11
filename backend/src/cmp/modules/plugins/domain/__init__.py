@@ -1,0 +1,41 @@
+"""Public T-17 plugin registry domain types."""
+
+from cmp.modules.plugins.domain.registry import (
+    ActivationRecord,
+    ArtifactReference,
+    ExtensionDescriptor,
+    ExtensionType,
+    ImmutablePluginManifest,
+    InvalidManifest,
+    InvalidPackageState,
+    PackageAccessDenied,
+    PackageConflict,
+    PackageNotFound,
+    PackageRecord,
+    PackageState,
+    PackageStateEventRecord,
+    PluginRegistryError,
+    SchemaDocument,
+    SchemaRole,
+    assert_package_transition,
+)
+
+__all__ = [
+    "ActivationRecord",
+    "ArtifactReference",
+    "ExtensionDescriptor",
+    "ExtensionType",
+    "ImmutablePluginManifest",
+    "InvalidManifest",
+    "InvalidPackageState",
+    "PackageAccessDenied",
+    "PackageConflict",
+    "PackageNotFound",
+    "PackageRecord",
+    "PackageState",
+    "PackageStateEventRecord",
+    "PluginRegistryError",
+    "SchemaDocument",
+    "SchemaRole",
+    "assert_package_transition",
+]

@@ -134,3 +134,69 @@ def test_packaged_runtime_job_spec_schema_matches_public_contract_exactly() -> N
 
     assert packaged == public
 
+
+def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/plugins/packages": ("post", "registerPluginPackage"),
+        "/api/v1/plugins/packages/{package_id}": ("get", "getPluginPackage"),
+        "/api/v1/plugins/packages/{package_id}:verify": (
+            "post",
+            "verifyPluginPackage",
+        ),
+        "/api/v1/plugins/packages/{package_id}:activate": (
+            "post",
+            "activatePluginPackage",
+        ),
+        "/api/v1/plugins/packages/{package_id}:revoke": (
+            "post",
+            "revokePluginPackage",
+        ),
+    }
+
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+    assert source["paths"]["/api/v1/plugins/packages"]["post"]["responses"][
+        "201"
+    ]["headers"]["Idempotent-Replay"]["required"]
+
+
+def test_packaged_runtime_plugin_manifest_matches_public_contract_exactly() -> None:
+    public = json.loads(
+        (PROJECT_ROOT / "contracts/plugins/plugin-manifest.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    packaged = json.loads(
+        files("cmp.modules.plugins.contracts")
+        .joinpath("plugin-manifest.schema.json")
+        .read_text(encoding="utf-8")
+    )
+
+    assert packaged == public
+
+
+def test_runtime_plugin_request_and_resource_required_fields_match_public_schemas() -> None:
+    runtime = app.openapi()["components"]["schemas"]
+    registration = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/plugins/plugin-package-registration.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    resource = json.loads(
+        (
+            PROJECT_ROOT / "contracts/plugins/plugin-package-resource.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    assert set(runtime["RegisterPluginPackageRequest"]["required"]) == set(
+        registration["required"]
+    )
+    assert set(runtime["PluginPackageResponse"]["required"]) == set(
+        resource["required"]
+    )
+

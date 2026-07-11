@@ -1,6 +1,7 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15`, HTTP contract version `0.5.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15` + `T-17`, HTTP contract
+version `0.6.0`.
 
 ## Files
 
@@ -9,6 +10,9 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15`, HTTP contract version `0.5.0
 - `events/asyncapi.yaml`: asynchronous contract shell; no domain events yet
 - `jobs/*.schema.json`: immutable runner envelopes
 - `plugins/plugin-manifest.schema.json`: package metadata baseline
+- `plugins/plugin-package-registration.schema.json`: signed package/SBOM/schema registration input
+- `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
+- `plugins/plugin-problem.schema.json`: sanitized registry problem response
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
 - `revisions/revision-metadata.schema.json`: content-free typed-revision metadata envelope
 - `identity/me-response.schema.json`: authenticated principal and selected tenant context
@@ -36,6 +40,9 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15`, HTTP contract version `0.5.0
   Attempt/Spec pair; it never rewrites an existing attempt or accepts a moving `latest` input.
 - Result manifests remain immutable references and digests. Artifact commit and reconciliation
   are owned by T-10/T-16 rather than the T-15 job state projection.
+- Plugin registration separates a stable Definition from immutable version/digest Packages. A
+  package becomes eligible only after an authorized verification event and activation is scoped to
+  the selected organization/project; revocation never overwrites package or state-history facts.
 
 Run `make check-contracts` after every contract change. Accepting a breaking change requires a new
 major contract, an ADR, and migration guidance; do not overwrite the baseline to hide the break.
