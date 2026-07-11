@@ -1,0 +1,18 @@
+{
+  "manifest_version": "1.0",
+  "plugin_id": "org.example.cmp.reference-processor",
+  "display_name": "Invalid Reference Processor",
+  "plugin_version": "0.1.0",
+  "contract_api": ">=1.0 <2.0",
+  "extensions": [
+    {"type": "processor", "entrypoint": "invalid:Processor", "capabilities": []}
+  ],
+  "permissions": {
+    "network": "none",
+    "artifact_read_roles": [],
+    "artifact_write_roles": []
+  },
+  "resources": {"cpu": 1, "memory_mb": 256, "gpu": 0, "timeout_s": 60},
+  "non_production": true
+}
+

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:material-model-ir-envelope:1.0.0",
+  "title": "CMP Material Model IR Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ir_version",
+    "ir_id",
+    "ir_revision_id",
+    "material_ref",
+    "model_family",
+    "semantics",
+    "payload",
+    "applicability",
+    "validity_domain",
+    "calibration_evidence",
+    "validation_evidence",
+    "provenance",
+    "extensions",
+    "non_production"
+  ],
+  "properties": {
+    "ir_version": {"const": "1.0.0"},
+    "ir_id": {"type": "string", "format": "uuid"},
+    "ir_revision_id": {"type": "string", "format": "uuid"},
+    "material_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_revision_id", "material_state_revision_id"],
+      "properties": {
+        "material_revision_id": {"type": "string", "format": "uuid"},
+        "material_state_revision_id": {"type": "string", "format": "uuid"}
+      }
+    },
+    "model_family": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "schema_version", "schema_digest", "provider_plugin"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^urn:cmp:reference:"},
+        "schema_version": {"type": "string"},
+        "schema_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "provider_plugin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plugin_id", "plugin_version", "package_digest"],
+          "properties": {
+            "plugin_id": {"type": "string"},
+            "plugin_version": {"type": "string"},
+            "package_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+          }
+        }
+      }
+    },
+    "semantics": {"type": "object"},
+    "payload": {"type": "object"},
+    "applicability": {"type": "object"},
+    "validity_domain": {"type": "object"},
+    "calibration_evidence": {"type": "object"},
+    "validation_evidence": {"type": "array", "items": {"type": "object"}},
+    "provenance": {"type": "object"},
+    "extensions": {"type": "object"},
+    "non_production": {"const": true}
+  }
+}
+

@@ -1,0 +1,14 @@
+asyncapi: 3.0.0
+info:
+  title: CAE Material Platform Events
+  version: 0.1.0
+  description: >-
+    Transport-neutral event contract shell. Domain events begin with the transactional outbox task;
+    no material-domain event is defined in T-01/T-02.
+defaultContentType: application/json
+channels: {}
+operations: {}
+components:
+  messages: {}
+  schemas: {}
+

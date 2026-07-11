@@ -1,0 +1,35 @@
+{
+  "job_spec_version": "1.0",
+  "job_id": "00000000-0000-4000-8000-000000000001",
+  "attempt_id": "00000000-0000-4000-8000-000000000002",
+  "extension": {
+    "type": "processor",
+    "plugin_id": "org.example.cmp.reference-processor",
+    "plugin_version": "0.1.0",
+    "package_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "operation": "run",
+  "inputs": [
+    {
+      "role": "dataset",
+      "entity_revision_id": "00000000-0000-4000-8000-000000000003",
+      "artifact_id": "00000000-0000-4000-8000-000000000004",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "media_type": "application/vnd.apache.parquet",
+      "access": "runner-scoped-reference"
+    }
+  ],
+  "config": {"non_production": true},
+  "config_schema_ref": "urn:cmp:reference:processor-config:1.0.0",
+  "expected_outputs": [
+    {"role": "processed-dataset", "schema_ref": "urn:cmp:schema:dataset:1.0.0"}
+  ],
+  "execution": {
+    "seed": 12345,
+    "deadline": "2030-01-01T00:00:00Z",
+    "traceparent": "00-00000000000000000000000000000001-0000000000000001-01",
+    "locale": "C",
+    "timezone": "UTC"
+  }
+}
+

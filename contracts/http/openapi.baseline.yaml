@@ -1,0 +1,37 @@
+openapi: 3.1.0
+info:
+  title: CAE Material Platform API
+  summary: Foundation API with no material-domain resources.
+  version: 0.1.0
+servers:
+  - url: http://127.0.0.1:8000
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      tags: [system]
+      summary: Report API process health.
+      responses:
+        "200":
+          description: The API process is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          const: cmp-api
+        version:
+          type: string
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+

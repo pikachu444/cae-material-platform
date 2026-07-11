@@ -1,0 +1,28 @@
+{
+  "result_manifest_version": "1.0",
+  "job_id": "00000000-0000-4000-8000-000000000001",
+  "attempt_id": "00000000-0000-4000-8000-000000000002",
+  "status": "succeeded",
+  "started_at": "2030-01-01T00:00:00Z",
+  "ended_at": "2030-01-01T00:00:01Z",
+  "outputs": [
+    {
+      "role": "processed-dataset",
+      "media_type": "application/vnd.apache.parquet",
+      "schema_ref": "urn:cmp:schema:dataset:1.0.0",
+      "staged_artifact": "runner-output-reference",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size_bytes": 1000
+    }
+  ],
+  "diagnostics": [],
+  "metrics": {"wall_time_s": 1.0, "peak_memory_mb": 64},
+  "reproducibility": {
+    "package_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "dependency_lock_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "seed": 12345,
+    "hardware_summary": "reference-cpu"
+  },
+  "non_production": true
+}
+

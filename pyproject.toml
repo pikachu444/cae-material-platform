@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling>=1.28,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cae-material-platform"
+version = "0.1.0"
+description = "Foundation for a provenance-first CAE material-data platform"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi>=0.139,<0.140",
+  "jsonschema>=4.26,<5",
+  "pydantic>=2.13,<3",
+  "PyYAML>=6.0,<7",
+  "uvicorn>=0.51,<0.52",
+]
+
+[dependency-groups]
+dev = [
+  "httpx>=0.28,<1",
+  "mypy>=1.18,<2",
+  "pytest>=8.4,<9",
+  "ruff>=0.14,<1",
+  "types-jsonschema>=4.26,<5",
+  "types-PyYAML>=6.0,<7",
+]
+
+[project.scripts]
+cmp-api = "cmp.apps.api:main"
+cmp-worker = "cmp.apps.worker:main"
+cmp-check-architecture = "cmp.tools.architecture:main"
+cmp-check-contracts = "cmp.tools.contracts:main"
+cmp-generate-client = "cmp.tools.generate_client:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend/src/cmp"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+pythonpath = ["backend/src", "generated/python"]
+testpaths = ["backend/tests", "tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["backend/src", "backend/tests", "tests"]
+mypy_path = ["backend/src", "generated/python"]
+exclude = ["generated/"]

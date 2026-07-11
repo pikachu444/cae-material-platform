@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:result-manifest:1.0.0",
+  "title": "CMP Result Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "result_manifest_version",
+    "job_id",
+    "attempt_id",
+    "status",
+    "started_at",
+    "ended_at",
+    "outputs",
+    "diagnostics",
+    "metrics",
+    "reproducibility",
+    "non_production"
+  ],
+  "properties": {
+    "result_manifest_version": {"const": "1.0"},
+    "job_id": {"type": "string", "format": "uuid"},
+    "attempt_id": {"type": "string", "format": "uuid"},
+    "status": {"enum": ["succeeded", "failed", "cancelled", "timed_out"]},
+    "started_at": {"type": "string", "format": "date-time"},
+    "ended_at": {"type": "string", "format": "date-time"},
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "media_type",
+          "schema_ref",
+          "staged_artifact",
+          "sha256",
+          "size_bytes"
+        ],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "media_type": {"type": "string", "minLength": 1},
+          "schema_ref": {"type": "string", "minLength": 1},
+          "staged_artifact": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": {"type": "string"},
+          "severity": {"enum": ["info", "warning", "error"]},
+          "message": {"type": "string"}
+        }
+      }
+    },
+    "metrics": {"type": "object"},
+    "reproducibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_digest", "dependency_lock_digest", "seed", "hardware_summary"],
+      "properties": {
+        "package_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "dependency_lock_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "seed": {"type": "integer"},
+        "hardware_summary": {"type": "string", "minLength": 1}
+      }
+    },
+    "non_production": {"const": true}
+  }
+}
+

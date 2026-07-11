@@ -1,0 +1,101 @@
+# CAE Material Platform — 기획·설계 기준선
+
+문서 버전: `0.1.0-draft`  
+기준일: `2026-07-11`  
+상태: 구현 전 설계 패키지
+
+## 1. 이 패키지의 목적
+
+이 패키지는 재료시험 원본의 보존부터 통계 분석, 전처리, 구성방정식 보정, solver-neutral Material Model IR, 솔버 카드 생성, 가상 시편 검증, 검토·승인·발행까지를 하나의 추적 가능한 플랫폼으로 구현하기 위한 기준선이다.
+
+이 설계는 Ansys Granta MI, Simcenter Material Data Center, Simcenter Material Modeler의 공개 자료에서 확인되는 **기능 범주**를 참고한다. 해당 제품의 코드, 비공개 데이터 모델, 내부 저장 구조, UI 또는 독점 알고리즘을 재현하지 않는다.
+
+## 2. 문서에서 사용하는 판정 표기
+
+| 표기 | 의미 |
+| --- | --- |
+| `FACT-PUBLIC` | 공식 공개 자료에서 직접 확인한 경쟁 제품 또는 표준의 사실 |
+| `CONFIRMED` | 사용자가 이번 프로젝트에서 확정한 요구사항 |
+| `DECISION` | 이 설계 패키지에서 권고하고 기준선으로 채택한 결정 |
+| `ASSUMPTION` | 답이 없어서 작업 지속을 위해 채택한 권장 가정 |
+| `TBD` | 도메인 또는 사업 결정이 필요한 미결정 사항 |
+| `OUT-OF-SCOPE` | 현재 범위에서 의도적으로 제외한 항목 |
+
+경쟁 제품의 내부 구현은 어느 문서에서도 `FACT-PUBLIC`으로 취급하지 않는다.
+
+## 3. 현재 기준선
+
+- `CONFIRMED` 원본 바이트는 수정하지 않는다.
+- `CONFIRMED` 원본 단위 표기와 정규화 단위를 모두 보존한다.
+- `CONFIRMED` Material, Material State, Manufacturing Process, Lot/Batch, Test Condition, Specimen을 별도 개념으로 관리한다.
+- `CONFIRMED` 이상치는 삭제하지 않고 판정, 규칙, 근거, 판정자를 기록한다.
+- `CONFIRMED` 모든 계산 실행은 입력 revision, 알고리즘·플러그인·코드 버전, 설정, 실행 환경을 기록한다.
+- `CONFIRMED` 솔버 카드보다 앞에 solver-neutral Material Model IR을 둔다.
+- `DECISION` 시스템 오브 레코드는 PostgreSQL이며, 대용량 원본·곡선·solver 산출물은 content-addressed 객체 저장소에 둔다.
+- `DECISION` provenance는 선형 파이프라인이 아니라 W3C PROV 개념을 축약한 typed relation 기반 DAG로 관리한다.
+- `DECISION` 첫 배포는 모듈형 모놀리스로 시작하고, 계산 플러그인 및 솔버 runner만 별도 프로세스/실행 영역으로 격리한다.
+- `DECISION` 플러그인은 메인 서비스 프로세스에 직접 import하지 않는다. 메인 서비스는 manifest와 실행 계약만 안다.
+- `ASSUMPTION` 첫 운영 대상은 단일 기업용 온프레미스 또는 사설 클라우드다.
+- `ASSUMPTION` 초기에는 검토·서명된 내부/파트너 플러그인만 설치한다.
+- `ASSUMPTION` 가상 시편 검증은 고객사 라이선스 및 HPC에 연결된 runner를 통해 실행할 수 있고, 수동 결과 반입도 허용한다.
+- `TBD` 대표 인장시험의 재료군, 시험 표준, 구성방정식, 솔버 및 카드 종류는 결정하지 않았다.
+
+## 4. 대표 MVP 흐름
+
+```mermaid
+flowchart TD
+    A["반복 인장시험 업로드"] --> B["메타데이터·단위 정규화"]
+    B --> C["시편 QC·산포 분석"]
+    C --> D["곡선 전처리"]
+    D --> E["구성방정식 보정"]
+    E --> F["Material Model IR"]
+    F --> G["솔버 카드 생성"]
+    G --> H["가상 시편 검증"]
+    H --> I["검토·승인·발행"]
+```
+
+`E`, `G`의 구체적인 모델·카드는 `TBD`다. core는 이 선택을 알지 못하며, 선택된 플러그인 manifest와 schema만 처리한다.
+
+## 5. 문서 목록과 읽는 순서
+
+1. [공식 제품 조사](docs/00-research/official-product-research.md)
+2. [제품 비전·역할·흐름·범위](docs/01-product/product-vision.md)
+3. [기능·비기능 요구사항](docs/02-requirements/requirements.md)
+4. [Canonical domain model 및 ERD](docs/03-domain/canonical-domain-model.md)
+5. [Revision 및 provenance](docs/04-provenance/revision-and-provenance.md)
+6. [시스템 아키텍처 및 기술 스택](docs/05-architecture/system-architecture.md)
+7. [Plugin SDK](docs/06-plugins/plugin-sdk.md)
+8. [Material Model IR](docs/07-ir/material-model-ir.md)
+9. [API·이벤트·비동기 작업 계약](docs/08-contracts/api-events-jobs.md)
+10. [산포 분석 및 통계](docs/09-analytics/scatter-statistics.md)
+11. [Fitting 및 검증 실행 구조](docs/10-execution/fitting-validation.md)
+12. [권한·감사·보안·격리](docs/11-security/security-tenancy-audit.md)
+13. [MVP 및 후속 로드맵](docs/12-roadmap/roadmap.md)
+14. [Epic·Story·Task 작업명세](docs/13-delivery/backlog.md)
+15. [테스트 전략](docs/14-testing/test-strategy.md)
+16. [위험·미결정·의사결정 로그](docs/15-governance/risks-open-questions-decisions.md)
+17. [Codex 구현용 저장소 구조](docs/16-repository/repository-blueprint.md)
+
+## 6. 구현 착수 게이트
+
+다음 조건 전에는 production 재료모델·솔버 exporter를 구현하지 않는다.
+
+1. 대표 재료군과 인장시험 표준을 결정한다.
+2. 입력 파일 샘플과 필수 메타데이터를 확보한다.
+3. 구성방정식과 식별 대상 파라미터, 목적함수, 제약조건을 도메인 전문가가 승인한다.
+4. 첫 솔버·버전·카드와 단위 체계를 결정한다.
+5. 가상 시편 geometry/mesh/BC/output 및 합격 기준을 결정한다.
+6. 최소 1개의 승인된 기준 카드와 검증 결과를 golden reference로 확보한다.
+
+게이트 이전에도 core, synthetic reference plugin, revision/provenance, API, job framework, 보안 및 테스트 기반은 구현할 수 있다.
+
+## 7. 요구사항 추적 규칙
+
+- 요구사항 ID: `FR-*`, `NFR-*`
+- 아키텍처 결정: `ADR-*`
+- Epic/Story/Task: `E-*`, `S-*`, `T-*`
+- 테스트: `UT-*`, `IT-*`, `CT-*`, `GT-*`, `ST-*`
+- 미결정 사항: `OQ-*`
+
+모든 PR은 최소 한 개의 요구사항 또는 task ID를 참조한다. 수치 알고리즘, IR schema, exporter 변경은 도메인 리뷰와 회귀 기준 갱신을 함께 요구한다.
+

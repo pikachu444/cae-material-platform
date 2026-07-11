@@ -1,0 +1,29 @@
+{
+  "ir_version": "1.0.0",
+  "ir_id": "00000000-0000-4000-8000-000000000010",
+  "ir_revision_id": "00000000-0000-4000-8000-000000000011",
+  "material_ref": {
+    "material_revision_id": "00000000-0000-4000-8000-000000000012",
+    "material_state_revision_id": "00000000-0000-4000-8000-000000000013"
+  },
+  "model_family": {
+    "id": "urn:cmp:reference:analytic-model:1.0.0",
+    "schema_version": "1.0.0",
+    "schema_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "provider_plugin": {
+      "plugin_id": "org.example.cmp.reference-model",
+      "plugin_version": "0.1.0",
+      "package_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "semantics": {"status": "reference-only"},
+  "payload": {"parameters": []},
+  "applicability": {"analysis_domains": ["reference-only"]},
+  "validity_domain": {"status": "not-characterized"},
+  "calibration_evidence": {"status": "reference-only"},
+  "validation_evidence": [],
+  "provenance": {"activity_id": "00000000-0000-4000-8000-000000000014"},
+  "extensions": {"non_production": true},
+  "non_production": true
+}
+
