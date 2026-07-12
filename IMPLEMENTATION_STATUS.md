@@ -31,20 +31,15 @@ Foundation version: `0.12.0`
 - `T-15`: stable Job/immutable Attempt separation, versioned Job Spec digests, PostgreSQL atomic
   claim/lease/heartbeat/recovery, generic retry taxonomy, runner resources, protected Job API,
   and a handler-neutral durable worker
+- `T-16`: transactional CloudEvent outbox, aggregate sequence and producer deduplication, fenced
+  at-least-once delivery, poison quarantine, inbox deduplication, atomic ArtifactAvailable event,
+  durable reconciliation schedule/run lease, and staging-only retention receipts
 - `T-17`: stable Plugin Definition/immutable Package separation, Manifest 1.0 and JSON Schema
   validation, explicit capability/schema/supply-chain references, append-only verification and
   activation history, project-scoped allowlisting, protected API, and forced PostgreSQL RLS
 - `T-18`: framework-free Python SDK, immutable Job Spec/Result Manifest execution service,
   reviewed-package subprocess runner, OCI-ready production plan and capability attestation,
   tenant-scoped active-package planning, durable worker bridge, and seven-extension TCK
-
-## In progress
-
-- `T-16` phase 1: explicit transactional CloudEvent outbox, aggregate sequence and producer
-  deduplication, fenced at-least-once delivery, poison quarantine, consumer inbox deduplication,
-  AsyncAPI event catalog, and atomic T-10 ArtifactAvailable event
-- `T-16` phase 2 remains: durable tenant reconciliation schedule/run history and safe cleanup of
-  terminal pending staging objects only
 
 ## Runtime proof
 
@@ -124,6 +119,9 @@ Foundation version: `0.12.0`
 - Outbox aggregate sequence blocks out-of-order claims; publisher crash recovery replaces the
   lease token, stale fencing is rejected, poison blocks later aggregate events, and duplicate
   consumer delivery creates one inbox receipt
+- Reconciliation schedules reclaim expired runs as timed out, append a fresh fenced run, execute
+  the existing T-10 reconciler, and record idempotent cleanup only after discarding an eligible
+  terminal pending staging object; the content-addressed final object remains intact
 
 ## Validation result
 
@@ -131,12 +129,12 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (181 source files)
+mypy strict: passed (183 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 213 passed, 54 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 267 passed
+make ci: 214 passed, 55 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 269 passed
 ```
 
 ## Intentionally absent
@@ -146,8 +144,8 @@ Full suite with PostgreSQL 16.14: 267 passed
 - Material, test, dataset, or audit-chain implementations
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
-- Production S3 adapter, KMS/object-lock/versioning/replication provisioning, T-16 durable
-  reconciliation scheduling/staging retention cleanup, and deployment runner credentials
+- Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
+  transport credentials, and deployment runner credentials
 - T-17 authoritative package-Artifact admission, T-18 materializer/committer deployment wiring,
   and signature/SBOM/malware/vulnerability verification automation
 - A selected production OCI runtime implementation and production package/image admission policy
@@ -157,9 +155,8 @@ Full suite with PostgreSQL 16.14: 267 passed
 
 ## Next gate
 
-The next implementation unit completes `T-16` with a durable tenant-scoped Artifact reconciliation
-schedule/run lease and staging-only retention cleanup. The transactional outbox/inbox and
-ArtifactAvailable event are implemented. T-30 still owns Release creation and evidence policy;
-T-17/T-18 production Artifact composition, Audit (`T-05`), catalog (`T-07`), and release-specific
-retention/backup policy are not implied complete.
+The next unimplemented foundation gate is `T-05`, the append-only audit chain and protected audit
+query. T-30 still owns Release creation and evidence policy; T-17/T-18 production Artifact
+composition, catalog (`T-07`), and release-specific retention/backup policy are not implied
+complete.
 

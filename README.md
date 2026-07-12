@@ -18,9 +18,9 @@ T-13 adds domain-neutral typed Entity/Activity/Agent relations and fail-closed c
 creating any Material, Dataset, Test, fitting, or solver implementation.
 T-14 adds bounded bidirectional lineage, impact pagination, and a generic Entity-root provenance
 completeness gate. Release creation and release-specific evidence policy remain owned by T-30.
-T-16 phase 1 adds a PostgreSQL transactional CloudEvent outbox, fenced at-least-once delivery,
-consumer inbox deduplication, and an atomic ArtifactAvailable event. Durable reconciliation
-scheduling and staging-retention cleanup remain the next phase of T-16.
+T-16 adds a PostgreSQL transactional CloudEvent outbox, fenced at-least-once delivery, consumer
+inbox deduplication, an atomic ArtifactAvailable event, durable Artifact reconciliation scheduling,
+and staging-only retention cleanup.
 
 ## Implemented foundation
 
@@ -97,6 +97,8 @@ scheduling and staging-retention cleanup remain the next phase of T-16.
   Artifact; no object key or vendor transport detail is exposed
 - Broker-neutral at-least-once publisher port with lease fencing, crash reclaim, per-aggregate
   ordering, and same-transaction consumer inbox deduplication
+- Tenant-scoped reconciliation schedule and immutable run history with crash lease recovery;
+  retention receipts cover only terminal pending staging keys and never final objects
 
 ## Prerequisites
 
@@ -219,9 +221,8 @@ non-production; production requires an attested OCI runtime. T-10 provides autho
 finalization, integrity reconciliation, and protected byte streaming, but production S3/credential
 composition and T-18 package/input/output policy adapters remain deployment work, so an
 unconfigured worker stays idle. T-09 Raw Asset facts remain immutable after T-10 promotion.
-T-16 phase 1 owns transactional outbox delivery and inbox deduplication. Durable reconciliation
-scheduling and safe staging-only retention cleanup remain T-16 phase 2; final/raw/release objects
-are never cleanup candidates.
+T-16 owns transactional outbox/inbox, durable reconciliation scheduling, and safe staging-only
+retention cleanup. Final/raw/release objects are never cleanup candidates.
 T-13 accepts only owner-attested immutable references and does not expose arbitrary graph writes.
 T-14 provides bounded Entity-root traversal and provenance completeness only; it does not provide
 arbitrary graph analytics or create a Release resource. T-30 owns release composition and the
@@ -229,7 +230,7 @@ release-specific evidence/mapping/review gate that consumes this generic report.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-16` (phase 1), `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,

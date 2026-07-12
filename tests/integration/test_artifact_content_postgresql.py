@@ -18,6 +18,9 @@ from alembic.config import Config
 from cmp.modules.artifacts.adapters.persistence.content import (
     SqlAlchemyArtifactRepository,
 )
+from cmp.modules.artifacts.adapters.persistence.maintenance import (
+    SqlAlchemyArtifactMaintenanceRepository,
+)
 from cmp.modules.artifacts.adapters.persistence.uploads import (
     SqlAlchemyUploadRepository,
 )
@@ -30,6 +33,10 @@ from cmp.modules.artifacts.application.content import (
     ArtifactTransferCodec,
     FinalizedArtifact,
     PrepareArtifact,
+    ReconciliationResult,
+)
+from cmp.modules.artifacts.application.maintenance import (
+    ArtifactMaintenanceCoordinator,
 )
 from cmp.modules.artifacts.application.uploads import (
     CompleteUpload,
@@ -729,6 +736,101 @@ def test_artifact_and_outbox_roll_back_together_when_later_hook_fails(
     assert pending["state"] == "promoting"
     assert artifact_count == 0
     assert event_count == 0
+
+
+def test_durable_reconciliation_reclaims_crash_and_cleans_only_staging(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    decision = _decision(context, Permission.ARTIFACT_WRITE)
+    finalized = asyncio.run(
+        _stage_derived(
+            postgres.artifacts,
+            postgres.store,
+            context,
+            b"durable-reconciliation-target",
+            f"t16-maintenance-{uuid4()}",
+        )
+    )
+    staging_key = finalized.pending.staging_object_key
+    asyncio.run(postgres.store.write_for_testing(staging_key, b"leftover-staging"))
+    repository = SqlAlchemyArtifactMaintenanceRepository(
+        session_factory=postgres.sessions,
+        rls_context=postgres.rls,
+    )
+    repository.ensure_schedule(
+        context=context,
+        decision=decision,
+        classification=DataClassification.INTERNAL,
+        interval=timedelta(minutes=1),
+        retention=timedelta(hours=1),
+        now=NOW,
+    )
+
+    async def reconcile() -> ReconciliationResult:
+        return await postgres.artifacts.reconcile(context, decision, limit=100)
+
+    coordinator = ArtifactMaintenanceCoordinator(
+        repository=repository,
+        reconciler=reconcile,
+        object_store=postgres.store,
+        clock=lambda: NOW + timedelta(hours=2),
+    )
+    result = asyncio.run(coordinator.run_once(context, decision))
+
+    assert result.status == "succeeded"
+    assert result.staging_cleaned >= 1
+    assert asyncio.run(postgres.store.inspect(staging_key)) is None
+    assert asyncio.run(postgres.store.inspect(finalized.record.artifact.storage_key)) is not None
+    with postgres.admin_engine.connect() as connection:
+        cleanup_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM artifact.staging_cleanup "
+                "WHERE pending_artifact_id = :pending_id"
+            ),
+            {"pending_id": finalized.pending.id},
+        )
+    assert cleanup_count == 1
+
+    other_context = _context(project_id=PROJECT_B)
+    other_decision = _decision(other_context, Permission.ARTIFACT_WRITE)
+    repository.ensure_schedule(
+        context=other_context,
+        decision=other_decision,
+        classification=DataClassification.INTERNAL,
+        interval=timedelta(minutes=1),
+        retention=timedelta(hours=1),
+        now=NOW,
+    )
+    first = repository.claim(
+        context=other_context,
+        decision=other_decision,
+        lease_duration=timedelta(minutes=5),
+        now=NOW,
+    )
+    assert first is not None
+    assert (
+        repository.claim(
+            context=other_context,
+            decision=other_decision,
+            lease_duration=timedelta(minutes=5),
+            now=NOW + timedelta(minutes=1),
+        )
+        is None
+    )
+    replacement = repository.claim(
+        context=other_context,
+        decision=other_decision,
+        lease_duration=timedelta(minutes=5),
+        now=NOW + timedelta(minutes=6),
+    )
+    assert replacement is not None and replacement.run_id != first.run_id
+    with postgres.admin_engine.connect() as connection:
+        state = connection.scalar(
+            sa.text("SELECT state FROM artifact.reconciliation_run WHERE id = :run_id"),
+            {"run_id": first.run_id},
+        )
+    assert state == "timed_out"
 
 
 class _FailOnceStore:

@@ -1,7 +1,7 @@
 # Public contract baseline
 
 Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
-`T-15` + `T-16` phase 1 + `T-17` + `T-18`, HTTP contract version `0.12.0`.
+`T-15` + `T-16` + `T-17` + `T-18`, HTTP contract version `0.12.0`.
 
 ## Files
 

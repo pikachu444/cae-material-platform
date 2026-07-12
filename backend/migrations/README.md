@@ -143,6 +143,14 @@ same transaction as its side effect. All three tables use forced RLS with intern
 `events.publish`, `events.dispatch`, and `events.consume` capabilities. T-16 phase 2 owns durable
 Artifact reconciliation scheduling and safe staging cleanup; no final object deletion is implied.
 
+`20260713_011_T16_reconciliation_schedule.py` completes the task with explicit
+`artifact.reconciliation_schedule`, `reconciliation_run`, and `staging_cleanup` relations. A
+schedule has one fenced lease/current run; expired leases terminalize the abandoned run as
+`timed_out` before a fresh run is appended. Successful/failed/timed-out run history becomes
+immutable. Cleanup receipts have a classified composite FK to a terminal pending Artifact and a
+run, and the application selects only old terminal staging keys that differ from the final key.
+The migration contains no object-delete SQL and no final Artifact cleanup relation.
+
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:
 

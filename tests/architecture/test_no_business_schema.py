@@ -17,6 +17,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260713_008_T13_typed_provenance.py",
         "20260713_009_T14_lineage_read_model.py",
         "20260713_010_T16_transactional_outbox.py",
+        "20260713_011_T16_reconciliation_schedule.py",
     ]
 
 

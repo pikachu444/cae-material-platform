@@ -1,6 +1,6 @@
 # T-16 transactional outbox 구현 기록
 
-Status: `phase 1 complete; phase 2 in progress`
+Status: `complete`
 
 ## 1. 범위와 추적성
 
@@ -72,3 +72,16 @@ public schema와 packaged schema의 byte-equivalent JSON document를 contract te
 
 외부 broker adapter와 운영 credential은 deployment composition이다. phase 1은 transport port와
 authoritative delivery state를 제공하며 특정 broker를 core dependency로 만들지 않는다.
+
+## 6. Durable reconciliation과 retention
+
+`20260713_011_T16_reconciliation_schedule.py`는 tenant별 schedule, append되는 run history,
+staging cleanup receipt를 추가한다. schedule claim은 `FOR UPDATE SKIP LOCKED`와 UUID lease token을
+사용한다. worker crash로 lease가 만료되면 기존 running run을 `timed_out`으로 끝내고 새 run/token을
+발급한다. terminal run의 identity/result는 수정할 수 없다.
+
+Maintenance coordinator는 기존 T-10 `reconcile`을 먼저 실행한 뒤 retention window를 지난
+`available|rejected` pending 중 `staging_object_key != final_object_key`이고 cleanup receipt가 없는
+항목만 discard한다. discard 성공 후 같은 transaction scope의 run을 참조하는 immutable receipt를
+남긴다. retry 시 이미 없는 staging discard와 receipt conflict는 idempotent하다. Artifact storage key,
+Raw Asset staging fact, release/final object는 candidate query에 포함되지 않는다.

@@ -9,6 +9,12 @@ from cmp.modules.artifacts.application.content import (
     PrepareArtifact,
     ReconciliationResult,
 )
+from cmp.modules.artifacts.application.maintenance import (
+    ArtifactMaintenanceCoordinator,
+    MaintenanceCycleResult,
+    ReconciliationLease,
+    StagingCleanupCandidate,
+)
 from cmp.modules.artifacts.application.uploads import (
     CancelUpload,
     CompleteUpload,
@@ -25,6 +31,7 @@ from cmp.modules.artifacts.application.uploads import (
 
 __all__ = [
     "ArtifactDownloadGrant",
+    "ArtifactMaintenanceCoordinator",
     "ArtifactPolicy",
     "ArtifactService",
     "ArtifactTransferCodec",
@@ -33,11 +40,14 @@ __all__ = [
     "CreateUpload",
     "CreateUploadResult",
     "FinalizedArtifact",
+    "MaintenanceCycleResult",
     "MultipartObjectStore",
     "PrepareArtifact",
     "RawAssetCompletion",
+    "ReconciliationLease",
     "ReconciliationResult",
     "RecordUploadPart",
+    "StagingCleanupCandidate",
     "UploadCapabilityCodec",
     "UploadPolicy",
     "UploadRepository",
