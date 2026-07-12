@@ -1,7 +1,10 @@
-"""PostgreSQL persistence adapter for T-09 uploads and Raw Assets."""
+"""PostgreSQL persistence adapters for upload and immutable Artifact state."""
 
+from cmp.modules.artifacts.adapters.persistence.content import (
+    SqlAlchemyArtifactRepository,
+)
 from cmp.modules.artifacts.adapters.persistence.uploads import (
     SqlAlchemyUploadRepository,
 )
 
-__all__ = ["SqlAlchemyUploadRepository"]
+__all__ = ["SqlAlchemyArtifactRepository", "SqlAlchemyUploadRepository"]

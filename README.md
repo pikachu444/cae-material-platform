@@ -1,9 +1,10 @@
 # CAE Material Platform
 
-Status: identity, authorization, revision, streaming Raw Asset upload, durable job, plugin registry,
-and isolated runner foundation (`T-01`–`T-04` + `T-06` + `T-09` + `T-15` + `T-17` + `T-18`)
+Status: identity, authorization, revision, streaming Raw Asset upload, immutable content Artifact,
+durable job, plugin registry, and isolated runner foundation
+(`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-15` + `T-17` + `T-18`)
 
-Version: `0.8.0`
+Version: `0.9.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
@@ -11,7 +12,8 @@ business implementation. Database support is limited to the T-03/T-04 identity a
 foundation, the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine,
 the T-17 immutable plugin package registry, and the T-18 isolated execution contract. T-18 adds no
 Material, test, fitting, calibration, or solver business implementation. T-09 adds verified staging
-Raw Assets; T-10 still owns content-addressed final Artifact availability and reconciliation.
+Raw Assets, and T-10 promotes them into tenant-scoped content-addressed immutable Artifacts with
+integrity observations and scoped streaming download.
 
 ## Implemented foundation
 
@@ -41,7 +43,8 @@ Raw Assets; T-10 still owns content-addressed final Artifact availability and re
 - Stable project-scoped Plugin Definitions separated from immutable version/digest Packages
 - Explicit extension, capability, JSON Schema, artifact-role, state-event, and activation tables
 - Manifest 1.0 and JSON Schema 2020-12 validation without importing plugin implementations
-- Signed-package, signature, and SBOM artifact UUID/digest references pending T-10-owned FKs
+- Signed-package, signature, and SBOM artifact UUID/digest snapshots; production registry admission
+  still requires authoritative T-10 Artifact resolution in the deployment composition
 - Plugin Maintainer registration separated from Org Admin verification/activation/revocation
 - Forced PostgreSQL RLS, append-only package history, project activation, and fail-closed guards
 - Protected plugin package register/read/verify/activate/revoke API resources
@@ -63,6 +66,14 @@ Raw Assets; T-10 still owns content-addressed final Artifact availability and re
   `ingestion_event` tables with tenant composite keys, forced RLS, append-only guards, and dedup
 - Non-production filesystem multipart adapter for integration and development; production
   S3-compatible TLS/encryption/object-lock adapter selection remains a deployment boundary
+- Deterministic organization/project/classification-scoped SHA-256 final keys with no-overwrite
+  staging promotion, idempotent retry, and immutable Artifact manifests
+- Explicit PostgreSQL `artifact_pending`, `artifact`, `integrity_observation`,
+  `integrity_projection`, and `reconciliation_issue` relations with guarded state and forced RLS
+- Reconciliation of object-success/DB-gap, missing, corrupt, orphan, and missing-staging fixtures
+  without rewriting Raw Assets or Artifact manifests
+- Actor/tenant/content/expiry-bound HMAC transfer grants and protected streaming content API;
+  internal staging/final object keys are absent from all public contracts
 
 ## Prerequisites
 
@@ -105,13 +116,15 @@ The optional claim mapping settings are `CMP_OIDC_CLIENT_ID_CLAIM`,
 `CMP_OIDC_SERVICE_GRANT_VALUES`. `CMP_OIDC_ALGORITHMS` is an explicit asymmetric allowlist.
 Loopback HTTP JWKS is disabled unless `CMP_OIDC_ALLOW_LOOPBACK_HTTP=true` is set for development.
 
-The T-09 development upload adapter is enabled only outside production and only when both settings
-are present. The capability secret must contain at least 32 bytes and should come from a secret
+The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
+capability secrets are separate, must contain at least 32 bytes, and should come from a secret
 manager rather than source control:
 
 ```bash
 export CMP_UPLOAD_STORAGE_ROOT=/var/lib/cmp-upload-staging
 export CMP_UPLOAD_CAPABILITY_SECRET='replace-with-a-secret-manager-value'
+export CMP_ARTIFACT_TRANSFER_SECRET='replace-with-a-different-secret-manager-value'
+export CMP_ARTIFACT_TRANSFER_TTL_SECONDS=300
 export CMP_UPLOAD_MAX_OBJECT_BYTES=2147483648
 export CMP_UPLOAD_PART_BYTES=8388608
 ```
@@ -174,22 +187,23 @@ not implement Material, artifact transfer, audit chains, lifecycle approval, or 
 nationality rules. T-15 accepts only versioned generic Job Spec documents; it does not implement
 Material, test importer, fitting, solver exporter, production plugin, or general-purpose DAG logic.
 T-17 registers manifest/schema/supply-chain references and project activation facts only. It does
-not validate artifact bytes owned by T-10, implement a public marketplace, or claim cryptographic
-verification without an explicit authorized verification event. T-18 executes only approved,
+not implement a public marketplace or claim cryptographic verification without an explicit
+authorized verification event. T-18 executes only approved,
 digest-pinned packages through Job Spec/Result Manifest. The local subprocess is explicitly
-non-production; production requires an attested OCI runtime. T-10 object transfer/commit and
-deployment credential provisioning remain external ports, so an unconfigured worker stays idle.
-T-09 verifies complete staging bytes and creates immutable Raw Asset/Ingestion facts, but it does
-not expose storage keys, issue download tokens, claim final Artifact availability, or implement the
-T-10 staging-to-content-addressed copy/reconciler.
+non-production; production requires an attested OCI runtime. T-10 provides authoritative Artifact
+finalization, integrity reconciliation, and protected byte streaming, but production S3/credential
+composition and T-18 package/input/output policy adapters remain deployment work, so an
+unconfigured worker stays idle. T-09 Raw Asset facts remain immutable after T-10 promotion.
+T-16 owns durable reconciliation scheduling, outbox delivery, and retention cleanup automation.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-15`, `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-15`, `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
-  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `NFR-INT-001`, `NFR-PERF-004`,
+  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `FR-DAT-008`, `NFR-INT-001`,
+  `NFR-INT-002`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004` (with `ADR-005` as a scope guard)

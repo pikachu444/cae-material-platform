@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import os
 import shutil
@@ -9,6 +10,7 @@ from collections.abc import AsyncIterable
 from pathlib import Path, PurePosixPath
 from uuid import UUID, uuid4
 
+from cmp.modules.artifacts.domain.content import ArtifactIntegrityError, StoredObject
 from cmp.modules.artifacts.domain.uploads import (
     CompletedObject,
     InvalidUpload,
@@ -227,6 +229,9 @@ class FilesystemMultipartObjectStore:
         self._remove_tree(self._upload_root(upload_id))
 
     async def discard(self, object_key: str) -> None:
+        key = self._safe_key(object_key)
+        if key.parts[0] != "staging":
+            raise ObjectStoreError("only non-authoritative staging objects may be discarded")
         target = self._object_path(object_key)
         try:
             if target.is_symlink():
@@ -234,6 +239,174 @@ class FilesystemMultipartObjectStore:
             target.unlink(missing_ok=True)
         except OSError as error:
             raise ObjectStoreError("failed to discard staged object") from error
+
+    async def inspect(self, object_key: str) -> StoredObject | None:
+        target = self._object_path(object_key)
+        if not target.exists():
+            return None
+        digest, size = _hash_file(target)
+        return StoredObject(object_key, size, digest, digest, digest)
+
+    async def promote(
+        self,
+        *,
+        source_key: str,
+        target_key: str,
+        expected_sha256: str,
+        expected_size_bytes: int,
+    ) -> StoredObject:
+        if source_key == target_key:
+            existing = await self.inspect(target_key)
+            if existing is None:
+                raise ObjectStoreError("content-addressed object is unavailable")
+            if (
+                existing.sha256 != expected_sha256
+                or existing.size_bytes != expected_size_bytes
+            ):
+                raise ArtifactIntegrityError(
+                    "content-addressed object differs from its immutable manifest"
+                )
+            return existing
+        target = await self.inspect(target_key)
+        if target is not None:
+            if (
+                target.sha256 != expected_sha256
+                or target.size_bytes != expected_size_bytes
+            ):
+                raise ArtifactIntegrityError(
+                    "content-addressed key already contains different bytes"
+                )
+            return target
+        source = await self.inspect(source_key)
+        if source is None:
+            raise ObjectStoreError("staging object is unavailable")
+        if (
+            source.sha256 != expected_sha256
+            or source.size_bytes != expected_size_bytes
+        ):
+            raise ArtifactIntegrityError(
+                "staging object differs from its immutable manifest"
+            )
+        source_path = self._object_path(source_key)
+        target_path = self._object_path(target_key)
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self._inside(
+            target_path.parent,
+            target_path.parent / f".{target_path.name}.{uuid4()}.tmp",
+        )
+        digest = hashlib.sha256()
+        observed = 0
+        try:
+            with source_path.open("rb") as source_stream, temporary.open(
+                "xb"
+            ) as destination:
+                while chunk := source_stream.read(1024 * 1024):
+                    digest.update(chunk)
+                    observed += len(chunk)
+                    destination.write(chunk)
+                destination.flush()
+                os.fsync(destination.fileno())
+            promoted_digest = digest.hexdigest()
+            if (
+                promoted_digest != expected_sha256
+                or observed != expected_size_bytes
+            ):
+                raise ArtifactIntegrityError(
+                    "staging object changed during content-addressed promotion"
+                )
+            try:
+                os.link(temporary, target_path)
+            except FileExistsError:
+                concurrent_digest, concurrent_size = _hash_file(target_path)
+                if (
+                    concurrent_digest != expected_sha256
+                    or concurrent_size != expected_size_bytes
+                ):
+                    raise ArtifactIntegrityError(
+                        "content-addressed key was concurrently replaced"
+                    ) from None
+            return StoredObject(
+                target_key,
+                observed,
+                promoted_digest,
+                promoted_digest,
+                promoted_digest,
+            )
+        except (ArtifactIntegrityError, ObjectStoreError):
+            raise
+        except OSError as error:
+            raise ObjectStoreError(
+                "failed to promote content-addressed object"
+            ) from error
+        finally:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+    async def list_objects(self, prefix: str) -> tuple[StoredObject, ...]:
+        if not prefix.endswith("/"):
+            raise ObjectStoreError("object listing prefix must end with a separator")
+        self._safe_key(prefix.removesuffix("/"))
+        values: list[StoredObject] = []
+        try:
+            for path in self._objects.rglob("*.blob"):
+                if path.is_symlink() or not path.is_file():
+                    raise ObjectStoreError("object listing encountered a non-regular file")
+                relative = path.relative_to(self._objects).as_posix()
+                object_key = relative.removesuffix(".blob")
+                if not object_key.startswith(prefix):
+                    continue
+                digest, size = _hash_file(path)
+                values.append(StoredObject(object_key, size, digest, digest, digest))
+        except ObjectStoreError:
+            raise
+        except OSError as error:
+            raise ObjectStoreError("failed to list object-store content") from error
+        return tuple(sorted(values, key=lambda item: item.object_key))
+
+    async def stream(self, object_key: str) -> AsyncIterable[bytes]:
+        target = self._object_path(object_key)
+        if target.is_symlink() or not target.is_file():
+            raise ObjectStoreError("download object is unavailable")
+        try:
+            with target.open("rb") as source:
+                while chunk := source.read(1024 * 1024):
+                    yield chunk
+                    await asyncio.sleep(0)
+        except OSError as error:
+            raise ObjectStoreError("failed to stream immutable object") from error
+
+    async def write_for_testing(self, object_key: str, value: bytes) -> StoredObject:
+        """Seed one no-overwrite object for integration fault fixtures."""
+
+        target = self._object_path(object_key)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with target.open("xb") as stream:
+                stream.write(value)
+                stream.flush()
+                os.fsync(stream.fileno())
+        except OSError as error:
+            raise ObjectStoreError("failed to seed test object") from error
+        result = await self.inspect(object_key)
+        if result is None:
+            raise RuntimeError("test object disappeared after write")
+        return result
+
+    def corrupt_for_testing(self, object_key: str, value: bytes) -> None:
+        """Simulate out-of-band storage damage; production code has no overwrite path."""
+
+        target = self._object_path(object_key)
+        if target.is_symlink() or not target.is_file():
+            raise FileNotFoundError(object_key)
+        with target.open("wb") as stream:
+            stream.write(value)
+
+    def remove_for_testing(self, object_key: str) -> None:
+        """Simulate an out-of-band missing-object fault."""
+
+        self._object_path(object_key).unlink()
 
     def read_for_testing(self, object_key: str) -> bytes:
         """Test-only visibility; public APIs never expose the internal object key."""

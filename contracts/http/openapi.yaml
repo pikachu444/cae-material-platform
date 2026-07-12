@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Identity, streaming upload, durable job, and immutable plugin foundation.
-  version: 0.8.0
+  version: 0.9.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -594,6 +594,83 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/RawAssetResponse"}
         "404": {description: Raw Asset not visible.}
+  /api/v1/artifacts/{artifact_id}:
+    get:
+      operationId: getArtifact
+      tags: [artifacts]
+      summary: Read an immutable content-addressed Artifact manifest.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ArtifactId"
+      responses:
+        "200":
+          description: Tenant-visible Artifact metadata without an object-store key.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ArtifactResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Artifact classification is not authorized.}
+        "404": {description: Artifact not visible.}
+        "503": {description: Artifact service unavailable.}
+  /api/v1/artifacts/{artifact_id}:download-token:
+    post:
+      operationId: issueArtifactDownloadToken
+      tags: [artifacts]
+      summary: Issue an actor- and tenant-scoped short-lived transfer capability.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ArtifactId"
+      responses:
+        "200":
+          description: Short-lived Artifact transfer grant.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ArtifactDownloadGrant"}
+        "401": {description: Authentication required.}
+        "403": {description: Artifact access is not authorized.}
+        "404": {description: Artifact not visible.}
+        "409":
+          description: Artifact object is missing, corrupt, or not verified.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ArtifactProblem"}
+        "503": {description: Object store unavailable.}
+  /api/v1/artifacts/{artifact_id}/content:
+    get:
+      operationId: downloadArtifactContent
+      tags: [artifacts]
+      summary: Stream immutable bytes without exposing the object-store key.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ArtifactId"
+        - name: Artifact-Transfer-Token
+          in: header
+          required: true
+          schema: {type: string, minLength: 32, maxLength: 4096}
+      responses:
+        "200":
+          description: Immutable Artifact bytes.
+          headers:
+            X-Content-SHA256:
+              required: true
+              schema: {type: string, pattern: '^[0-9a-f]{64}$'}
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}
+        "401": {description: Authentication required.}
+        "403":
+          description: Transfer capability is invalid for this actor or tenant.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ArtifactProblem"}
+        "404": {description: Artifact not visible.}
+        "409": {description: Artifact object is missing, corrupt, or not verified.}
+        "410": {description: Transfer capability expired.}
+        "422": {description: Transfer header is invalid.}
+        "503": {description: Object store unavailable.}
 components:
   securitySchemes:
     BearerAuth:
@@ -626,6 +703,11 @@ components:
       schema: {type: string, format: uuid}
     RawAssetId:
       name: raw_asset_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ArtifactId:
+      name: artifact_id
       in: path
       required: true
       schema: {type: string, format: uuid}
@@ -705,4 +787,10 @@ components:
       $ref: ../artifacts/raw-asset-resource.schema.json
     UploadProblem:
       $ref: ../artifacts/upload-problem.schema.json
+    ArtifactResponse:
+      $ref: ../artifacts/artifact-resource.schema.json
+    ArtifactDownloadGrant:
+      $ref: ../artifacts/artifact-download-grant.schema.json
+    ArtifactProblem:
+      $ref: ../artifacts/artifact-problem.schema.json
 

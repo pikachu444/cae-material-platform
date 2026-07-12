@@ -9,7 +9,7 @@ import json
 import math
 import re
 from collections.abc import AsyncIterable, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol, cast
 from uuid import UUID, uuid4
@@ -117,6 +117,7 @@ class RawAssetCompletion:
     raw_asset: RawAsset
     ingestion_event: IngestionEvent
     duplicate_content: bool
+    available_artifact_id: UUID | None = None
 
 
 class MultipartObjectStore(Protocol):
@@ -143,6 +144,15 @@ class MultipartObjectStore(Protocol):
     async def abort(self, *, object_key: str, upload_id: str) -> None: ...
 
     async def discard(self, object_key: str) -> None: ...
+
+
+class RawAssetFinalizer(Protocol):
+    async def finalize_raw_asset(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        raw_asset: RawAsset,
+    ) -> UUID: ...
 
 
 class UploadRepository(Protocol):
@@ -325,6 +335,7 @@ class UploadService:
         repository: UploadRepository,
         object_store: MultipartObjectStore,
         capabilities: UploadCapabilityCodec,
+        raw_asset_finalizer: RawAssetFinalizer | None = None,
         policy: UploadPolicy | None = None,
         id_factory: Callable[[], UUID] = uuid4,
         clock: Callable[[], datetime] | None = None,
@@ -332,6 +343,7 @@ class UploadService:
         self._repository = repository
         self._store = object_store
         self._capabilities = capabilities
+        self._raw_asset_finalizer = raw_asset_finalizer
         self._policy = policy or UploadPolicy()
         self._id_factory = id_factory
         self._clock = clock or (lambda: datetime.now(UTC))
@@ -512,10 +524,14 @@ class UploadService:
         )
         self._capabilities.verify(command.capability, current, context)
         if current.state is UploadState.COMPLETED:
-            return self._repository.get_completion(
-                context=context,
-                decision=decision,
-                upload_id=current.id,
+            return await self._finalize_completion(
+                context,
+                decision,
+                self._repository.get_completion(
+                    context=context,
+                    decision=decision,
+                    upload_id=current.id,
+                ),
             )
         expected_numbers = tuple(range(1, current.expected_part_count + 1))
         actual_numbers = tuple(item.part_number for item in current.parts)
@@ -560,7 +576,22 @@ class UploadService:
         )
         if result.duplicate_content:
             await self._store.discard(session.staging_object_key)
-        return result
+        return await self._finalize_completion(context, decision, result)
+
+    async def _finalize_completion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        result: RawAssetCompletion,
+    ) -> RawAssetCompletion:
+        if self._raw_asset_finalizer is None:
+            return result
+        artifact_id = await self._raw_asset_finalizer.finalize_raw_asset(
+            context,
+            decision,
+            result.raw_asset,
+        )
+        return replace(result, available_artifact_id=artifact_id)
 
     async def cancel(
         self,

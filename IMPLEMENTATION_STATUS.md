@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-12`
-Foundation version: `0.8.0`
+Foundation version: `0.9.0`
 
 ## Completed
 
@@ -19,6 +19,9 @@ Foundation version: `0.8.0`
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
+- `T-10`: tenant/classification-scoped content-addressed promotion, immutable Artifact manifests,
+  append-only integrity observations/issues, guarded current projection, mismatch reconciliation,
+  scoped streaming download, protected API, and forced PostgreSQL RLS
 - `T-15`: stable Job/immutable Attempt separation, versioned Job Spec digests, PostgreSQL atomic
   claim/lease/heartbeat/recovery, generic retry taxonomy, runner resources, protected Job API,
   and a handler-neutral durable worker
@@ -77,6 +80,17 @@ Foundation version: `0.8.0`
   invalid state transitions, cross-project reads/writes, and storage-key exposure in API contracts
 - Same-classification duplicate bytes reuse one Raw Asset while appending a distinct immutable
   ingestion event; mismatch and cancellation leave no successful Raw Asset fact
+- Raw Asset promotion never updates its staging fact; one separate immutable Artifact references
+  it, and cross-actor duplicate ingestion reuses the same available Artifact
+- PostgreSQL requires an exact promoting pending manifest before Artifact insertion and an exact
+  immutable observation before integrity projection change; terminal pending/Artifact rows reject
+  every mutation or deletion
+- Content keys include organization, project, classification, and SHA-256; filesystem promotion
+  rehashes source/final bytes and uses no-overwrite commit with idempotent identical replay
+- Reconciliation recovers object-success/DB-gap, records missing/corrupt observations and
+  orphan/missing-staging issues, and never rewrites an Artifact manifest
+- Download grants are canonical HMAC capabilities bound to actor, tenant, Artifact, digest, and
+  expiry; bearer authorization remains required and public contracts contain no object keys
 
 ## Validation result
 
@@ -84,12 +98,12 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (147 source/test files)
+mypy strict: passed (155 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 174 passed, 40 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 214 passed
+make ci: 184 passed, 43 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 227 passed
 ```
 
 ## Intentionally absent
@@ -97,9 +111,10 @@ Full suite with PostgreSQL 16.14: 214 passed
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
 - Material, test, dataset, typed provenance, or audit-chain implementations
-- Content-addressed final Artifact promotion, download tokens, S3 production adapter,
-  outbox/reconciliation, deployment runner credential provisioning, and
-  signature/SBOM/malware/vulnerability verification automation
+- Production S3 adapter, KMS/object-lock/versioning/replication provisioning, T-16 durable
+  reconciliation scheduling/outbox/retention cleanup, and deployment runner credentials
+- T-17 authoritative package-Artifact admission, T-18 materializer/committer deployment wiring,
+  and signature/SBOM/malware/vulnerability verification automation
 - A selected production OCI runtime implementation and production package/image admission policy
 - Production plugins
 - Constitutive equations, fitting algorithms, solver cards, or validation thresholds
@@ -107,10 +122,10 @@ Full suite with PostgreSQL 16.14: 214 passed
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-10`: content-addressed final Artifact and
-integrity reconciliation. T-09 deliberately stops at a digest/size-verified staging object and
-`staged_verified` Raw Asset. T-18 package/input materialization and validated Result Manifest/output
-commit remain behind T-10 ports; an unconfigured worker remains safely idle.
-Audit (`T-05`), provenance (`T-13`), catalog (`T-07`), and outbox/reconciliation (`T-16`) are not
-implied complete.
+Per the repository blueprint, the next task is `T-13`: typed provenance Entity/Activity/Agent and
+usage/generation/derivation relations. T-10 deliberately implements reconciliation mechanics but
+leaves durable scheduling, outbox delivery, issue resolution policy, and retention cleanup to
+T-16. T-17/T-18 production Artifact admission/materialization composition remains explicit work;
+an unconfigured worker remains safely idle. Audit (`T-05`), catalog (`T-07`), and release-specific
+retention/backup policy are not implied complete.
 

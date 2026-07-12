@@ -20,6 +20,8 @@ class Settings:
     upload_max_object_bytes: int = 2 * 1024 * 1024 * 1024
     upload_part_bytes: int = 8 * 1024 * 1024
     upload_session_ttl_seconds: int = 24 * 60 * 60
+    artifact_transfer_secret: str | None = None
+    artifact_transfer_ttl_seconds: int = 5 * 60
     oidc_issuer: str | None = None
     oidc_audience: str | None = None
     oidc_jwks_url: str | None = None
@@ -80,6 +82,10 @@ class Settings:
             ),
             upload_session_ttl_seconds=int(
                 os.getenv("CMP_UPLOAD_SESSION_TTL_SECONDS", str(24 * 60 * 60))
+            ),
+            artifact_transfer_secret=optional("CMP_ARTIFACT_TRANSFER_SECRET"),
+            artifact_transfer_ttl_seconds=int(
+                os.getenv("CMP_ARTIFACT_TRANSFER_TTL_SECONDS", str(5 * 60))
             ),
             oidc_issuer=os.getenv("CMP_OIDC_ISSUER"),
             oidc_audience=os.getenv("CMP_OIDC_AUDIENCE"),

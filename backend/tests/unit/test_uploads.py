@@ -108,11 +108,13 @@ def test_blank_upload_environment_is_unconfigured(
 ) -> None:
     monkeypatch.setenv("CMP_UPLOAD_STORAGE_ROOT", "")
     monkeypatch.setenv("CMP_UPLOAD_CAPABILITY_SECRET", "")
+    monkeypatch.setenv("CMP_ARTIFACT_TRANSFER_SECRET", "")
 
     settings = Settings.from_environment()
 
     assert settings.upload_storage_root is None
     assert settings.upload_capability_secret is None
+    assert settings.artifact_transfer_secret is None
 
 
 def test_upload_capability_is_actor_tenant_expiry_and_signature_scoped() -> None:

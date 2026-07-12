@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:content-artifact-resource:1.0.0",
+  "title": "Immutable Content Artifact Resource",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact_id", "organization_id", "project_id", "classification",
+    "artifact_kind", "artifact_role", "schema_ref", "media_type", "size_bytes",
+    "sha256", "encryption_profile", "source_raw_asset_id", "created_at",
+    "created_by", "integrity_status", "last_checked_at", "links"
+  ],
+  "properties": {
+    "artifact_id": {"type": "string", "format": "uuid"},
+    "organization_id": {"type": "string", "format": "uuid"},
+    "project_id": {"type": "string", "format": "uuid"},
+    "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "artifact_kind": {"enum": ["raw", "derived", "release"]},
+    "artifact_role": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+    "schema_ref": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+    "media_type": {"type": "string", "minLength": 1, "maxLength": 255},
+    "size_bytes": {"type": "integer", "minimum": 0, "maximum": 9223372036854775807},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "encryption_profile": {"type": "string", "minLength": 1, "maxLength": 255},
+    "source_raw_asset_id": {"type": ["string", "null"], "format": "uuid"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "created_by": {"type": "string", "format": "uuid"},
+    "integrity_status": {"enum": ["verified", "missing", "corrupt"]},
+    "last_checked_at": {"type": "string", "format": "date-time"},
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["self", "download_token", "content"],
+      "properties": {
+        "self": {"type": "string"},
+        "download_token": {"type": "string"},
+        "content": {"type": "string"}
+      }
+    }
+  }
+}

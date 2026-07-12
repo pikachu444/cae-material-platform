@@ -1,5 +1,14 @@
-"""Public T-09 multipart upload application service."""
+"""Public multipart upload and content-addressed Artifact services."""
 
+from cmp.modules.artifacts.application.content import (
+    ArtifactDownloadGrant,
+    ArtifactPolicy,
+    ArtifactService,
+    ArtifactTransferCodec,
+    FinalizedArtifact,
+    PrepareArtifact,
+    ReconciliationResult,
+)
 from cmp.modules.artifacts.application.uploads import (
     CancelUpload,
     CompleteUpload,
@@ -15,12 +24,19 @@ from cmp.modules.artifacts.application.uploads import (
 )
 
 __all__ = [
+    "ArtifactDownloadGrant",
+    "ArtifactPolicy",
+    "ArtifactService",
+    "ArtifactTransferCodec",
     "CancelUpload",
     "CompleteUpload",
     "CreateUpload",
     "CreateUploadResult",
+    "FinalizedArtifact",
     "MultipartObjectStore",
+    "PrepareArtifact",
     "RawAssetCompletion",
+    "ReconciliationResult",
     "RecordUploadPart",
     "UploadCapabilityCodec",
     "UploadPolicy",

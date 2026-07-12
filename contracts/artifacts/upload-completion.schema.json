@@ -3,7 +3,10 @@
   "$id": "urn:cmp:schema:upload-completion:1.0.0",
   "type": "object",
   "additionalProperties": false,
-  "required": ["upload", "raw_asset", "ingestion_event", "duplicate_content"],
+  "required": [
+    "upload", "raw_asset", "ingestion_event", "duplicate_content",
+    "available_artifact_id"
+  ],
   "properties": {
     "upload": {"$ref": "upload-session-resource.schema.json"},
     "raw_asset": {"$ref": "raw-asset-resource.schema.json"},
@@ -27,6 +30,7 @@
         "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
       }
     },
-    "duplicate_content": {"type": "boolean"}
+    "duplicate_content": {"type": "boolean"},
+    "available_artifact_id": {"type": ["string", "null"], "format": "uuid"}
   }
 }

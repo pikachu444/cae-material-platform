@@ -20,6 +20,11 @@ from cmp.modules.artifacts.application.uploads import (
     RecordUploadPart,
     UploadService,
 )
+from cmp.modules.artifacts.domain.content import (
+    ArtifactAccessDenied,
+    ArtifactError,
+    ArtifactNotFound,
+)
 from cmp.modules.artifacts.domain.uploads import (
     DigestMismatch,
     IngestionEvent,
@@ -233,6 +238,7 @@ class CompleteUploadResponse(BaseModel):
     raw_asset: RawAssetResponse
     ingestion_event: IngestionEventResponse
     duplicate_content: bool
+    available_artifact_id: UUID | None
 
 
 class UploadProblem(BaseModel):
@@ -296,7 +302,7 @@ def _safe_detail(error: Exception) -> str:
 
 
 def _translate(context: SecurityContext, error: Exception) -> UploadHttpError:
-    if isinstance(error, UploadNotFound):
+    if isinstance(error, (UploadNotFound, ArtifactNotFound)):
         return UploadHttpError(
             context=context,
             status=404,
@@ -304,7 +310,7 @@ def _translate(context: SecurityContext, error: Exception) -> UploadHttpError:
             detail="No upload resource is visible in the selected tenant context.",
             code="CMP-UPLOAD-0001",
         )
-    if isinstance(error, UploadAccessDenied):
+    if isinstance(error, (UploadAccessDenied, ArtifactAccessDenied)):
         return UploadHttpError(
             context=context,
             status=403,
@@ -454,7 +460,7 @@ def install_upload_api(
                     idempotency_key=idempotency_key,
                 ),
             )
-        except (UploadError, ValueError) as error:
+        except (UploadError, ArtifactError, ValueError) as error:
             raise _translate(context, error) from error
         response.headers["Location"] = f"/api/v1/uploads/{result.session.id}"
         response.headers["Idempotent-Replay"] = "true" if result.replayed else "false"
@@ -478,7 +484,7 @@ def install_upload_api(
             raise _unavailable(context)
         try:
             value = service.get_upload(context, decision, upload_id)
-        except (UploadError, ValueError) as error:
+        except (UploadError, ArtifactError, ValueError) as error:
             raise _translate(context, error) from error
         return UploadSessionResponse.from_record(value)
 
@@ -510,7 +516,7 @@ def install_upload_api(
                 RecordUploadPart(upload_id, part_number, upload_capability),
                 request.stream(),
             )
-        except (UploadError, ValueError) as error:
+        except (UploadError, ArtifactError, ValueError) as error:
             raise _translate(context, error) from error
         return UploadSessionResponse.from_record(value)
 
@@ -537,7 +543,7 @@ def install_upload_api(
             value = await service.complete(
                 context, decision, CompleteUpload(upload_id, upload_capability)
             )
-        except (UploadError, ValueError) as error:
+        except (UploadError, ArtifactError, ValueError) as error:
             raise _translate(context, error) from error
         return CompleteUploadResponse(
             upload=UploadSessionResponse.from_record(value.session),
@@ -546,6 +552,7 @@ def install_upload_api(
                 value.ingestion_event
             ),
             duplicate_content=value.duplicate_content,
+            available_artifact_id=value.available_artifact_id,
         )
 
     @application.post(
@@ -571,7 +578,7 @@ def install_upload_api(
             value = await service.cancel(
                 context, decision, CancelUpload(upload_id, upload_capability)
             )
-        except (UploadError, ValueError) as error:
+        except (UploadError, ArtifactError, ValueError) as error:
             raise _translate(context, error) from error
         return UploadSessionResponse.from_record(value)
 
@@ -589,6 +596,6 @@ def install_upload_api(
             raise _unavailable(context)
         try:
             value = service.get_raw_asset(context, decision, raw_asset_id)
-        except (UploadError, ValueError) as error:
+        except (UploadError, ArtifactError, ValueError) as error:
             raise _translate(context, error) from error
         return RawAssetResponse.from_record(value)

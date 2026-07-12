@@ -184,6 +184,44 @@ def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
     assert "storage_key" not in runtime["properties"]
 
 
+def test_content_artifact_contract_and_runtime_expose_scoped_streaming_download() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/artifacts/{artifact_id}": ("get", "getArtifact"),
+        "/api/v1/artifacts/{artifact_id}:download-token": (
+            "post",
+            "issueArtifactDownloadToken",
+        ),
+        "/api/v1/artifacts/{artifact_id}/content": (
+            "get",
+            "downloadArtifactContent",
+        ),
+    }
+
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+    parameters = source["paths"][
+        "/api/v1/artifacts/{artifact_id}/content"
+    ]["get"]["parameters"]
+    assert any(item.get("name") == "Artifact-Transfer-Token" for item in parameters)
+
+
+def test_content_artifact_public_contract_never_exposes_object_key() -> None:
+    schema = json.loads(
+        (
+            PROJECT_ROOT / "contracts/artifacts/artifact-resource.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    runtime = app.openapi()["components"]["schemas"]["ArtifactResponse"]
+
+    for forbidden in ("storage_key", "staging_object_key", "final_object_key"):
+        assert forbidden not in schema["properties"]
+        assert forbidden not in runtime["properties"]
+
+
 def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

@@ -1,5 +1,19 @@
-"""Public T-09 upload and Raw Asset domain values."""
+"""Public upload, Raw Asset, immutable Artifact, and integrity values."""
 
+from cmp.modules.artifacts.domain.content import (
+    Artifact,
+    ArtifactError,
+    ArtifactIntegrityError,
+    ArtifactKind,
+    ArtifactRecord,
+    IntegrityObservation,
+    IntegrityStatus,
+    PendingArtifact,
+    PendingArtifactState,
+    ReconciliationIssue,
+    StoredObject,
+    content_object_key,
+)
 from cmp.modules.artifacts.domain.uploads import (
     CompletedObject,
     DigestMismatch,
@@ -21,13 +35,24 @@ from cmp.modules.artifacts.domain.uploads import (
 )
 
 __all__ = [
+    "Artifact",
+    "ArtifactError",
+    "ArtifactIntegrityError",
+    "ArtifactKind",
+    "ArtifactRecord",
     "CompletedObject",
     "DigestMismatch",
     "IngestionEvent",
+    "IntegrityObservation",
+    "IntegrityStatus",
     "InvalidUpload",
     "ObjectStoreError",
+    "PendingArtifact",
+    "PendingArtifactState",
     "RawAsset",
     "RawAssetStorageState",
+    "ReconciliationIssue",
+    "StoredObject",
     "StoredPart",
     "UploadAccessDenied",
     "UploadConflict",
@@ -38,4 +63,5 @@ __all__ = [
     "UploadSession",
     "UploadState",
     "UploadStateError",
+    "content_object_key",
 ]

@@ -1,8 +1,9 @@
 # Database migrations
 
 The linear Alembic chain is T-06 revision primitives, T-03 identity projection, T-04 access
-control, T-15 durable jobs, T-17 plugin registry, and T-09 streaming upload. Task numbers express
-delivery ownership, not migration chronology; every revision has one explicit predecessor.
+control, T-15 durable jobs, T-17 plugin registry, T-09 streaming upload, and T-10 immutable
+Artifact storage. Task numbers express delivery ownership, not migration chronology; every
+revision has one explicit predecessor.
 
 ## T-06 ownership
 
@@ -71,7 +72,27 @@ uniqueness, state/manifest checks, insert guards, immutable-row triggers, and ta
 created explicitly. All four tables use forced RLS and separate `artifact.read`/`artifact.write`
 policies. There is no generic Artifact/EAV/JSON content table. `test_run_revision_id` is recorded as
 an opaque non-zero UUID until T-08 creates its owning table and adds the tenant-qualified foreign
-key. T-09 stops at `staged_verified`; T-10 owns final content-addressed objects and reconciliation.
+key. T-09 stops at `staged_verified`; T-10 links that immutable source to a separate final Artifact.
+
+## T-10 ownership
+
+`20260712_007_T10_content_artifacts.py` extends the bounded `artifact` schema with:
+
+- `artifact.artifact_pending`: immutable staging/final manifest plus guarded promotion projection;
+- `artifact.artifact`: immutable available content manifest linked to its pending record and,
+  for raw content, the unchanged T-09 Raw Asset;
+- `artifact.integrity_observation`: append-only expected/observed digest and size checks;
+- `artifact.integrity_projection`: mutable current status backed by an immutable observation;
+- `artifact.reconciliation_issue`: append-only orphan and pending-object mismatch facts;
+- `artifact.content_object_key(...)`: deterministic
+  organization/project/classification/SHA-256 key derivation enforced by DB checks.
+
+The migration enforces no-overwrite metadata semantics, terminal pending immutability, exact
+pending-to-Artifact insertion, observation/projection consistency, tenant-first composite FKs and
+indexes, and forced classification-aware RLS. Artifact manifests have explicit columns and no
+JSON/EAV payload. Internal object keys are persistence details and are excluded from public API
+schemas. T-16 remains responsible for durable reconciliation scheduling, outbox delivery, and
+retention cleanup; production object versioning/replication is deployment provisioning.
 
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:

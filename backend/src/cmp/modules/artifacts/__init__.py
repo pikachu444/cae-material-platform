@@ -1,2 +1,2 @@
-"""T-09 streaming upload and immutable Raw Asset module."""
+"""Streaming upload, immutable Raw Asset, content Artifact, and integrity module."""
 
