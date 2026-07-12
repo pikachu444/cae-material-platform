@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-13`
-Foundation version: `0.12.0`
+Foundation version: `0.13.0`
 
 ## Completed
 
@@ -13,6 +13,8 @@ Foundation version: `0.12.0`
   external identity projection, request security context, `/api/v1/me`, and development test IdP
 - `T-04`: conservative deny-by-default role matrix, principal/group role bindings, append/revoke
   administration, classification ABAC, reusable authorization dependency, and forced PostgreSQL RLS
+- `T-05`: project-scoped append-only audit chain, DB-computed canonical SHA-256, periodic segment
+  roots, atomic revision hook, tamper verification, and protected query/export/integrity API
 - `T-06`: framework-free aggregate revision kernel, explicit typed-table SQLAlchemy adapter,
   PostgreSQL/Alembic immutability and tenant primitives, initial lifecycle event/projection,
   strong ETag and revision metadata contracts
@@ -122,6 +124,14 @@ Foundation version: `0.12.0`
 - Reconciliation schedules reclaim expired runs as timed out, append a fresh fenced run, execute
   the existing T-10 reconciler, and record idempotent cleanup only after discarding an eligible
   terminal pending staging object; the content-addressed final object remains intact
+- Audit append derives only from an authorized modifying command; PostgreSQL serializes each
+  project chain and computes sequence, previous hash, recorded time, and event hash itself
+- Periodic roots cover only the next contiguous unsealed range and form their own root chain;
+  application recomputation matches PostgreSQL and reports unsealed tail events separately
+- Audit rows and roots reject update/delete, cross-project readers see no rows, and mutation,
+  reorder, or deletion performed through a privileged tamper fixture makes integrity invalid
+- Public audit access is read-only event query, bounded export, and integrity reporting; raw
+  payloads, secrets, IP addresses, object keys, and generic JSON/EAV are absent from DB/contracts
 
 ## Validation result
 
@@ -129,19 +139,19 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (183 source files)
+mypy strict: passed (197 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 214 passed, 55 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 269 passed
+make ci: 223 passed, 58 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 281 passed
 ```
 
 ## Intentionally absent
 
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
-- Material, test, dataset, or audit-chain implementations
+- Material, test, or dataset catalog implementations
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
@@ -150,13 +160,15 @@ Full suite with PostgreSQL 16.14: 269 passed
   and signature/SBOM/malware/vulnerability verification automation
 - A selected production OCI runtime implementation and production package/image admission policy
 - Production plugins
+- External audit root signer, SIEM/WORM connector, retention/legal-hold policy, and deployment
+  service-principal scheduling for periodic sealing
 - Constitutive equations, fitting algorithms, solver cards, or validation thresholds
 - Frontend application
 
 ## Next gate
 
-The next unimplemented foundation gate is `T-05`, the append-only audit chain and protected audit
-query. T-30 still owns Release creation and evidence policy; T-17/T-18 production Artifact
-composition, catalog (`T-07`), and release-specific retention/backup policy are not implied
-complete.
+`T-05` is complete. Catalog task `T-07` is the next numbered backlog item but remains outside the
+approved scope because it introduces Material/process catalog behavior. T-30 still owns Release
+creation and evidence policy; T-17/T-18 production Artifact composition and release-specific
+retention/backup policy are not implied complete.
 

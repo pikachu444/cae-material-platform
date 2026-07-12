@@ -240,6 +240,11 @@ def database_permissions_for(permission: Permission) -> tuple[str, ...]:
         permissions.update({"provenance.read", "provenance.write"})
     if permission in _EVENT_PUBLISHING_COMMANDS:
         permissions.add("events.publish")
+    # T-05 audit rows are appended only from an already-authorized modifying command.
+    # ``audit.append`` is an internal transaction capability, never a role permission or
+    # public graph-style write API.
+    if operation in _MODIFYING_OPERATIONS:
+        permissions.add("audit.append")
     if permission is Permission.JOB_EXECUTE:
         permissions.update({"events.consume", "events.dispatch"})
     return tuple(sorted(permissions))

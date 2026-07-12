@@ -328,6 +328,48 @@ def test_provenance_public_contract_hides_polymorphic_database_details() -> None
     )
 
 
+def test_audit_contract_and_runtime_expose_read_only_query_export_and_integrity() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/audit/events": "listAuditEvents",
+        "/api/v1/audit/integrity": "getAuditIntegrity",
+        "/api/v1/audit/export": "exportAuditSegment",
+    }
+
+    for path, operation_id in operations.items():
+        assert set(source["paths"][path]) == {"get"}
+        assert set(runtime["paths"][path]) == {"get"}
+        assert source["paths"][path]["get"]["operationId"] == operation_id
+        assert runtime["paths"][path]["get"]["operationId"] == operation_id
+        assert runtime["paths"][path]["get"]["security"] == [{"BearerAuth": []}]
+
+
+def test_audit_contract_has_no_raw_payload_secret_or_object_key() -> None:
+    contract_dir = PROJECT_ROOT / "contracts/audit"
+    documents = [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in sorted(contract_dir.glob("*.schema.json"))
+    ]
+    integrity = json.loads(
+        (contract_dir / "audit-integrity.schema.json").read_text(encoding="utf-8")
+    )
+    serialized = json.dumps(documents)
+    runtime = app.openapi()["components"]["schemas"]
+
+    assert '"payload"' not in serialized
+    assert "storage_key" not in serialized
+    assert "authorization" not in serialized
+    assert set(runtime["AuditEventPageResponse"]["required"]) == {
+        "events",
+        "next_after_sequence",
+    }
+    assert set(runtime["AuditIntegrityResponse"]["required"]) == set(
+        integrity["required"]
+    )
+    assert "export_version" in runtime["AuditExportResponse"]["required"]
+
+
 def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

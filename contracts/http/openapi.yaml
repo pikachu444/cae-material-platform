@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Identity, immutable data, durable execution, and typed provenance foundation.
-  version: 0.12.0
+  summary: Identity, immutable data, durable execution, provenance, and audit foundation.
+  version: 0.13.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -820,6 +820,114 @@ paths:
         "404": {description: Root Entity not visible.}
         "409": {description: Stored graph cannot produce a valid bounded report.}
         "503": {description: Provenance service unavailable.}
+  /api/v1/audit/events:
+    get:
+      operationId: listAuditEvents
+      tags: [audit]
+      summary: Query tenant-scoped append-only audit events.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: after_sequence
+          in: query
+          required: false
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 1000, default: 100}
+        - name: action
+          in: query
+          required: false
+          schema: {type: string, minLength: 3, maxLength: 150}
+        - name: actor_id
+          in: query
+          required: false
+          schema: {type: string, format: uuid}
+        - name: target_type
+          in: query
+          required: false
+          schema: {type: string, minLength: 1, maxLength: 150}
+        - name: target_id
+          in: query
+          required: false
+          schema: {type: string, format: uuid}
+        - name: outcome
+          in: query
+          required: false
+          schema: {type: string, enum: [success, failure, denied]}
+        - name: occurred_from
+          in: query
+          required: false
+          schema: {type: string, format: date-time}
+        - name: occurred_to
+          in: query
+          required: false
+          schema: {type: string, format: date-time}
+      responses:
+        "200":
+          description: Sequence-paginated tenant audit events without raw payloads.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AuditEventPageResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Audit read is not authorized.}
+        "409": {description: Audit query conflicts with immutable chain state.}
+        "422":
+          description: Audit filters or pagination bounds are invalid.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/AuditProblem"}
+        "503": {description: Audit service unavailable.}
+  /api/v1/audit/integrity:
+    get:
+      operationId: getAuditIntegrity
+      tags: [audit]
+      summary: Verify the complete visible event chain and periodic segment roots.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Hash-chain and segment-root integrity report.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AuditIntegrityResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Audit read is not authorized.}
+        "409": {description: Audit chain cannot be verified.}
+        "422": {description: Audit request is invalid.}
+        "503": {description: Audit service unavailable.}
+  /api/v1/audit/export:
+    get:
+      operationId: exportAuditSegment
+      tags: [audit]
+      summary: Export a bounded event range with chain anchor, roots, and integrity report.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: from_sequence
+          in: query
+          required: true
+          schema: {type: integer, minimum: 1}
+        - name: to_sequence
+          in: query
+          required: true
+          schema: {type: integer, minimum: 1}
+      responses:
+        "200":
+          description: At most 10000 events with segment roots and full-chain integrity status.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AuditExportResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Audit export is not authorized.}
+        "409": {description: Audit export conflicts with immutable chain state.}
+        "422":
+          description: Export range is invalid or exceeds 10000 events.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/AuditProblem"}
+        "503": {description: Audit service unavailable.}
 components:
   securitySchemes:
     BearerAuth:
@@ -955,4 +1063,12 @@ components:
       $ref: ../provenance/provenance-completeness.schema.json
     ProvenanceProblem:
       $ref: ../provenance/provenance-problem.schema.json
+    AuditEventPageResponse:
+      $ref: ../audit/audit-event-page.schema.json
+    AuditIntegrityResponse:
+      $ref: ../audit/audit-integrity.schema.json
+    AuditExportResponse:
+      $ref: ../audit/audit-export.schema.json
+    AuditProblem:
+      $ref: ../audit/audit-problem.schema.json
 

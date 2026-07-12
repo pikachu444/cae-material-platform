@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:audit:event-page:1.0.0",
+  "title": "Audit Event Page 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["events", "next_after_sequence"],
+  "properties": {
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+    "next_after_sequence": {"type": ["integer", "null"], "minimum": 1}
+  },
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": {"type": "string", "enum": ["user", "service"]},
+        "id": {"type": "string", "format": "uuid"}
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": {"type": "string", "minLength": 1, "maxLength": 150},
+        "id": {"type": ["string", "null"], "format": "uuid"}
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id", "sequence_no", "occurred_at", "recorded_at", "actor",
+        "organization_id", "project_id", "action", "target", "outcome",
+        "request_id", "trace_id", "ip_or_client", "reason", "previous_hash",
+        "event_hash"
+      ],
+      "properties": {
+        "event_id": {"type": "string", "format": "uuid"},
+        "sequence_no": {"type": "integer", "minimum": 1},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "actor": {"$ref": "#/$defs/actor"},
+        "organization_id": {"type": "string", "format": "uuid"},
+        "project_id": {"type": "string", "format": "uuid"},
+        "action": {
+          "type": "string",
+          "maxLength": 150,
+          "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)+$"
+        },
+        "target": {"$ref": "#/$defs/target"},
+        "outcome": {"type": "string", "enum": ["success", "failure", "denied"]},
+        "request_id": {"type": "string", "format": "uuid"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "ip_or_client": {"const": "policy-redacted"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "previous_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "event_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

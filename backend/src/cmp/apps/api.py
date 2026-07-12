@@ -1,4 +1,4 @@
-"""FastAPI composition root for identity, artifacts, jobs, plugins, and provenance."""
+"""FastAPI composition root for identity, immutable data, provenance, and audit."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
+from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.provenance import build_provenance_services
@@ -18,6 +19,8 @@ from cmp.modules.artifacts.adapters.api.content import install_content_artifact_
 from cmp.modules.artifacts.adapters.api.uploads import install_upload_api
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.application.uploads import UploadService
+from cmp.modules.audit.adapters.api.audit import install_audit_api
+from cmp.modules.audit.application.service import AuditService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
 )
@@ -55,6 +58,7 @@ def create_app(
     artifact_service: ArtifactService | None = None,
     provenance_service: ProvenanceService | None = None,
     provenance_lineage_service: ProvenanceLineageService | None = None,
+    audit_service: AuditService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -150,6 +154,15 @@ def create_app(
             services.authorization, Permission.PROVENANCE_READ
         ),
         lineage_service=resolved_lineage,
+    )
+    resolved_audit = audit_service or build_audit_service(services)
+    install_audit_api(
+        application,
+        service=resolved_audit,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.AUDIT_READ
+        ),
     )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context

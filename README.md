@@ -1,10 +1,11 @@
 # CAE Material Platform
 
 Status: identity, authorization, revision, streaming Raw Asset upload, immutable content Artifact,
-typed provenance and bounded lineage, durable job and transactional event, plugin registry, and
-isolated runner foundation (`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-13`–`T-18`)
+typed provenance and bounded lineage, append-only audit, durable job and transactional event,
+plugin registry, and isolated runner foundation
+(`T-01`–`T-06` + `T-09`–`T-10` + `T-13`–`T-18`)
 
-Version: `0.12.0`
+Version: `0.13.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
@@ -21,6 +22,8 @@ completeness gate. Release creation and release-specific evidence policy remain 
 T-16 adds a PostgreSQL transactional CloudEvent outbox, fenced at-least-once delivery, consumer
 inbox deduplication, an atomic ArtifactAvailable event, durable Artifact reconciliation scheduling,
 and staging-only retention cleanup.
+T-05 adds project-scoped append-only audit events, deterministic hash chains, periodic segment
+roots, a same-transaction T-06 revision hook, and auditor-only query/export/integrity APIs.
 
 ## Implemented foundation
 
@@ -99,6 +102,10 @@ and staging-only retention cleanup.
   ordering, and same-transaction consumer inbox deduplication
 - Tenant-scoped reconciliation schedule and immutable run history with crash lease recovery;
   retention receipts cover only terminal pending staging keys and never final objects
+- Explicit PostgreSQL `audit.event` and `audit.segment_root` relations with DB-computed sequence,
+  canonical SHA-256 chain/root hashes, append-only triggers, forced RLS, and no payload JSON/EAV
+- T-06 same-transaction revision audit hook, policy-redacted client field, mutation/reorder/delete
+  verifier, and protected auditor query, bounded export, and integrity-report APIs
 
 ## Prerequisites
 
@@ -161,7 +168,7 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
@@ -169,12 +176,14 @@ GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA plugin TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA provenance TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA events TO cmp_app;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance TO cmp_app;
+GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO cmp_app;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance, audit TO cmp_app;
 ```
 
 Future bounded-module migrations grant only the table operations their adapters require. Every
-tenant-owned table must use `access_control.can_access_row(...)`, `ENABLE ROW LEVEL SECURITY`, and
-`FORCE ROW LEVEL SECURITY`; granting SQL privileges alone never grants row access.
+tenant-owned table must use the module's explicit tenant/permission policy,
+`ENABLE ROW LEVEL SECURITY`, and `FORCE ROW LEVEL SECURITY`; granting SQL privileges alone never
+grants row access.
 
 ## Development commands
 
@@ -210,7 +219,7 @@ Read `AGENTS.md` before changing this repository. Production tensile standards, 
 calibration choices, solver cards, and validation criteria remain `TBD`. T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
-not implement Material, artifact transfer, audit chains, lifecycle approval, or export-control
+not implement Material, artifact transfer, lifecycle approval, or export-control
 nationality rules. T-15 accepts only versioned generic Job Spec documents; it does not implement
 Material, test importer, fitting, solver exporter, production plugin, or general-purpose DAG logic.
 T-17 registers manifest/schema/supply-chain references and project activation facts only. It does
@@ -227,13 +236,16 @@ T-13 accepts only owner-attested immutable references and does not expose arbitr
 T-14 provides bounded Entity-root traversal and provenance completeness only; it does not provide
 arbitrary graph analytics or create a Release resource. T-30 owns release composition and the
 release-specific evidence/mapping/review gate that consumes this generic report.
+T-05 stores explicit audit facts only; it does not store raw command payloads or secrets and does
+not provide an external SIEM/WORM/KMS connector. Production DB grants should omit audit
+`UPDATE`/`DELETE`; immutable triggers remain a second enforcement layer.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
-  `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
+  `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
   `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `FR-DAT-005`, `FR-DAT-007`,
   `FR-DAT-008`, `FR-WF-003`, `NFR-INT-001`,
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,

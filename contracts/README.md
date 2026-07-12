@@ -1,7 +1,7 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
-`T-15` + `T-16` + `T-17` + `T-18`, HTTP contract version `0.12.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-05` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
+`T-15` + `T-16` + `T-17` + `T-18`, HTTP contract version `0.13.0`.
 
 ## Files
 
@@ -14,6 +14,8 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
   completion, and sanitized problem contracts
 - `provenance/*.schema.json`: immutable Entity, bounded lineage/impact, generic provenance
   completeness, and sanitized problem contracts
+- `audit/*.schema.json`: payload-free audit event page, bounded export, integrity report, and
+  sanitized problem contracts
 - `plugins/plugin-manifest.schema.json`: package metadata baseline
 - `plugins/plugin-package-registration.schema.json`: signed package/SBOM/schema registration input
 - `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
@@ -64,6 +66,9 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
 - Plugin registration separates a stable Definition from immutable version/digest Packages. A
   package becomes eligible only after an authorized verification event and activation is scoped to
   the selected organization/project; revocation never overwrites package or state-history facts.
+- Audit access is read-only and requires `audit.read`. Events expose explicit actor/action/target,
+  outcome, request/trace, redacted client, reason, and hash fields; raw payloads, secrets, and object
+  keys are forbidden. Export is capped at 10000 events and includes its chain anchor and roots.
 
 Run `make check-contracts` after every contract change. Accepting a breaking change requires a new
 major contract, an ADR, and migration guidance; do not overwrite the baseline to hide the break.

@@ -154,6 +154,7 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
                     "events.publish",
                     "events.dispatch",
                     "events.consume",
+                    "audit.append",
                 }
             }
             assert typed_dependencies.issubset(permissions)
@@ -240,6 +241,7 @@ def test_write_decision_expands_only_required_read_and_governance_permissions() 
     decision = _service(_binding(Role.DATA_STEWARD)).authorize(_context(), Permission.DATASET_WRITE)
 
     assert decision.database_permissions == (
+        "audit.append",
         "dataset.read",
         "dataset.write",
         "events.publish",
@@ -257,6 +259,7 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
 
     assert decision.database_permissions == (
         "artifact.read",
+        "audit.append",
         "events.publish",
         "export.read",
         "governance.read",
@@ -274,6 +277,7 @@ def test_job_runner_receives_only_internal_dispatch_and_consumer_capabilities() 
 
     assert {"events.dispatch", "events.consume"}.issubset(decision.database_permissions)
     assert "events.publish" not in decision.database_permissions
+    assert "audit.append" in decision.database_permissions
 
 
 class _AdministrationRepository:

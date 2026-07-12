@@ -1,0 +1,37 @@
+{
+  "export_version": "1.0",
+  "organization_id": "ab000000-0000-4000-8000-000000000001",
+  "project_id": "ab000000-0000-4000-8000-000000000002",
+  "from_sequence": 1,
+  "to_sequence": 1,
+  "anchor_previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "events": [{
+    "event_id": "ab000000-0000-4000-8000-000000000005",
+    "sequence_no": 1,
+    "occurred_at": "2026-07-13T15:00:00Z",
+    "recorded_at": "2026-07-13T15:00:00Z",
+    "actor": {"type": "user", "id": "ab000000-0000-4000-8000-000000000003"},
+    "organization_id": "ab000000-0000-4000-8000-000000000001",
+    "project_id": "ab000000-0000-4000-8000-000000000002",
+    "action": "synthetic.fixture.revision.create",
+    "target": {"type": "synthetic.fixture.revision", "id": "ab000000-0000-4000-8000-000000000006"},
+    "outcome": "success",
+    "request_id": "ab000000-0000-4000-8000-000000000004",
+    "trace_id": "trace",
+    "ip_or_client": "203.0.113.42",
+    "reason": "initial immutable revision",
+    "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "event_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+    "payload": {"authorization": "Bearer secret"}
+  }],
+  "segment_roots": [],
+  "integrity": {
+    "state": "valid",
+    "event_count": 1,
+    "last_sequence_no": 1,
+    "segment_count": 0,
+    "sealed_through_sequence_no": 0,
+    "unsealed_event_count": 1,
+    "issues": []
+  }
+}

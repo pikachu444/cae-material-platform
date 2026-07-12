@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:audit:problem:1.0.0",
+  "title": "Audit Problem 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "title", "status", "detail", "code", "trace_id"],
+  "properties": {
+    "type": {"const": "urn:cmp:problem:audit"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 255},
+    "status": {"type": "integer", "minimum": 400, "maximum": 599},
+    "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "code": {"type": "string", "pattern": "^CMP-AUDIT-[0-9]{4}$"},
+    "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+  }
+}

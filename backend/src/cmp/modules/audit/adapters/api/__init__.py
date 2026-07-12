@@ -1,0 +1,1 @@
+"""Protected audit HTTP adapter."""

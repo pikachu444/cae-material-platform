@@ -1,2 +1,2 @@
-"""Audit module namespace; implementation begins at T-05."""
+"""Append-only audit and tamper-evidence bounded module."""
 
