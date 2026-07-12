@@ -35,14 +35,15 @@
             "solver_exporter"
           ]
         },
-        "plugin_id": {"type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)+$"},
-        "plugin_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "plugin_id": {"type": "string", "maxLength": 255, "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)+$"},
+        "plugin_version": {"type": "string", "maxLength": 64, "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
         "package_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
       }
     },
-    "operation": {"type": "string", "minLength": 1},
+    "operation": {"type": "string", "minLength": 1, "maxLength": 100},
     "inputs": {
       "type": "array",
+      "maxItems": 100,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -55,26 +56,27 @@
           "access"
         ],
         "properties": {
-          "role": {"type": "string", "minLength": 1},
+          "role": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
           "entity_revision_id": {"type": "string", "format": "uuid"},
           "artifact_id": {"type": "string", "format": "uuid"},
           "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-          "media_type": {"type": "string", "minLength": 1},
-          "access": {"type": "string", "minLength": 1}
+          "media_type": {"type": "string", "minLength": 1, "maxLength": 255},
+          "access": {"type": "string", "minLength": 1, "maxLength": 2048}
         }
       }
     },
     "config": {"type": "object"},
-    "config_schema_ref": {"type": "string", "minLength": 1},
+    "config_schema_ref": {"type": "string", "minLength": 1, "maxLength": 500},
     "expected_outputs": {
       "type": "array",
+      "maxItems": 100,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": ["role", "schema_ref"],
         "properties": {
-          "role": {"type": "string", "minLength": 1},
-          "schema_ref": {"type": "string", "minLength": 1}
+          "role": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+          "schema_ref": {"type": "string", "minLength": 1, "maxLength": 500}
         }
       }
     },
@@ -83,7 +85,7 @@
       "additionalProperties": false,
       "required": ["seed", "deadline", "traceparent", "locale", "timezone"],
       "properties": {
-        "seed": {"type": "integer"},
+        "seed": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807},
         "deadline": {"type": "string", "format": "date-time"},
         "traceparent": {
           "type": "string",

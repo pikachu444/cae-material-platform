@@ -1,15 +1,16 @@
 # CAE Material Platform
 
-Status: identity, authorization, revision, durable job, and plugin registry foundation
-(`T-01`–`T-04` + `T-06` + `T-15` + `T-17`)
+Status: identity, authorization, revision, durable job, plugin registry, and isolated runner
+foundation (`T-01`–`T-04` + `T-06` + `T-15` + `T-17` + `T-18`)
 
-Version: `0.6.0`
+Version: `0.7.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
 business implementation. Database support is limited to the T-03/T-04 identity and access-control
 foundation, the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine,
-and the T-17 immutable plugin package registry.
+the T-17 immutable plugin package registry, and the T-18 isolated execution contract. T-18 adds no
+Material, test, fitting, calibration, or solver business implementation.
 
 ## Implemented foundation
 
@@ -43,6 +44,16 @@ and the T-17 immutable plugin package registry.
 - Plugin Maintainer registration separated from Org Admin verification/activation/revocation
 - Forced PostgreSQL RLS, append-only package history, project activation, and fail-closed guards
 - Protected plugin package register/read/verify/activate/revoke API resources
+- Framework-free Python plugin SDK with typed Job Spec views, scoped input reads, bounded output
+  writes, cooperative cancellation/deadlines, deterministic RNG, and structured diagnostics
+- Non-production subprocess runner with package/input/output rehashing, safe ZIP extraction,
+  path/link/process/network guards, bounded diagnostics, timeout, and cancellation enforcement
+- OCI-runtime-neutral production execution plan that fails closed unless every required sandbox
+  capability is attested; no Docker/Kubernetes/vendor dependency is embedded in core
+- Compatibility test kit and synthetic contract-echo package covering all seven extension types
+  without implementing domain, material, test, fitting, or solver behavior
+- Tenant-scoped active-package resolution, durable worker result mapping, and explicit T-10
+  materialization/commit ports; core never imports a plugin implementation
 
 ## Prerequisites
 
@@ -142,16 +153,19 @@ not implement Material, artifact transfer, audit chains, lifecycle approval, or 
 nationality rules. T-15 accepts only versioned generic Job Spec documents; it does not implement
 Material, test importer, fitting, solver exporter, production plugin, or general-purpose DAG logic.
 T-17 registers manifest/schema/supply-chain references and project activation facts only. It does
-not execute plugin code, validate artifact bytes owned by T-10, implement a public marketplace, or
-claim cryptographic/TCK verification without an explicit authorized verification event.
+not validate artifact bytes owned by T-10, implement a public marketplace, or claim cryptographic
+verification without an explicit authorized verification event. T-18 executes only approved,
+digest-pinned packages through Job Spec/Result Manifest. The local subprocess is explicitly
+non-production; production requires an attested OCI runtime. T-10 object transfer/commit and
+deployment credential provisioning remain external ports, so an unconfigured worker stays idle.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-15`, `T-17`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-15`, `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
-  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `NFR-SEC-005`, `NFR-MOD-002`,
-  `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
+  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `NFR-REP-001`, `NFR-REP-003`,
+  `NFR-SEC-005`, `NFR-MOD-002`, `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004` (with `ADR-005` as a scope guard)
 

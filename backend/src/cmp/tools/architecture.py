@@ -15,7 +15,13 @@ FORBIDDEN_DOMAIN_IMPORT_ROOTS = {
     "uvicorn",
 }
 PRIVATE_MODULE_LAYERS = {"adapters", "persistence", "repositories"}
-PRODUCTION_PLUGIN_IMPORTS = {"plugins.production", "cmp.plugins.production"}
+PLUGIN_IMPLEMENTATION_IMPORTS = {
+    "plugins.production",
+    "cmp.plugins.production",
+    "plugins.reference",
+    "cmp.plugins.reference",
+    "contract_echo",
+}
 
 
 @dataclass(frozen=True, order=True, slots=True)
@@ -97,14 +103,14 @@ def find_violations(root: Path) -> list[Violation]:
                 )
             if any(
                 import_name == forbidden or import_name.startswith(f"{forbidden}.")
-                for forbidden in PRODUCTION_PLUGIN_IMPORTS
+                for forbidden in PLUGIN_IMPLEMENTATION_IMPORTS
             ):
                 violations.append(
                     Violation(
                         str(relative),
                         line,
                         "ARCH-003",
-                        f"core imports production plugin implementation '{import_name}'",
+                        f"core imports plugin implementation '{import_name}'",
                     )
                 )
     return sorted(violations)

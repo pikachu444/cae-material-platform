@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling>=1.28,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cmp-plugin-sdk"
+version = "0.1.0"
+description = "Language-neutral-contract Python SDK for isolated CMP plugins"
+requires-python = ">=3.12,<3.14"
+dependencies = ["jsonschema>=4.26,<5"]
+
+[project.scripts]
+cmp-plugin-runner = "cmp_plugin_sdk.runner:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cmp_plugin_sdk"]

@@ -1,1 +1,1 @@
-"""T-17 plugin registry infrastructure adapters."""
+"""T-17 registry and T-18 isolated-runner infrastructure adapters."""

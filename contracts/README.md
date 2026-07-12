@@ -1,7 +1,7 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15` + `T-17`, HTTP contract
-version `0.6.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15` + `T-17` + `T-18`, HTTP contract
+version `0.7.0`.
 
 ## Files
 
@@ -40,6 +40,8 @@ version `0.6.0`.
   Attempt/Spec pair; it never rewrites an existing attempt or accepts a moving `latest` input.
 - Result manifests remain immutable references and digests. Artifact commit and reconciliation
   are owned by T-10/T-16 rather than the T-15 job state projection.
+- The T-18 Python runner packages exact copies of Job Spec/Result Manifest 1.0. A Result Manifest
+  records whether the runtime was non-production; the execution service rejects a mode mismatch.
 - Plugin registration separates a stable Definition from immutable version/digest Packages. A
   package becomes eligible only after an authorized verification event and activation is scoped to
   the selected organization/project; revocation never overwrites package or state-history facts.

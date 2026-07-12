@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cae-material-platform"
-version = "0.6.0"
+version = "0.7.0"
 description = "Provenance-first CAE platform identity, revision, job, and plugin foundation"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
@@ -33,16 +33,17 @@ dev = [
 [project.scripts]
 cmp-api = "cmp.apps.api:main"
 cmp-worker = "cmp.apps.worker:main"
+cmp-plugin-runner = "cmp_plugin_sdk.runner:main"
 cmp-check-architecture = "cmp.tools.architecture:main"
 cmp-check-contracts = "cmp.tools.contracts:main"
 cmp-generate-client = "cmp.tools.generate_client:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["backend/src/cmp"]
+packages = ["backend/src/cmp", "sdk/python/src/cmp_plugin_sdk"]
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers"
-pythonpath = ["backend/src", "generated/python"]
+pythonpath = ["backend/src", "sdk/python/src", "generated/python"]
 testpaths = ["backend/tests", "tests"]
 markers = [
   "postgresql: requires CMP_TEST_POSTGRES_DSN and an isolated PostgreSQL database",
@@ -58,6 +59,6 @@ select = ["E", "F", "I", "B", "UP", "RUF"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["backend/src", "backend/tests", "tests"]
-mypy_path = ["backend/src", "generated/python"]
+files = ["backend/src", "sdk/python/src", "backend/tests", "tests"]
+mypy_path = ["backend/src", "sdk/python/src", "generated/python"]
 exclude = ["generated/"]

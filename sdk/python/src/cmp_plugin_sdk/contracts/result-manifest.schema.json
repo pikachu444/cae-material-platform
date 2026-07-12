@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:result-manifest:1.0.0",
+  "title": "CMP Result Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "result_manifest_version",
+    "job_id",
+    "attempt_id",
+    "status",
+    "started_at",
+    "ended_at",
+    "outputs",
+    "diagnostics",
+    "metrics",
+    "reproducibility",
+    "non_production"
+  ],
+  "properties": {
+    "result_manifest_version": {"const": "1.0"},
+    "job_id": {"type": "string", "format": "uuid"},
+    "attempt_id": {"type": "string", "format": "uuid"},
+    "status": {"enum": ["succeeded", "failed", "cancelled", "timed_out"]},
+    "started_at": {"type": "string", "format": "date-time"},
+    "ended_at": {"type": "string", "format": "date-time"},
+    "outputs": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "media_type",
+          "schema_ref",
+          "staged_artifact",
+          "sha256",
+          "size_bytes"
+        ],
+        "properties": {
+          "role": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+          "media_type": {"type": "string", "minLength": 1, "maxLength": 255},
+          "schema_ref": {"type": "string", "minLength": 1, "maxLength": 500},
+          "staged_artifact": {"type": "string", "pattern": "^runner-output:[1-9][0-9]*:sha256:[0-9a-f]{64}$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0, "maximum": 9223372036854775807}
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": {"type": "string", "pattern": "^CMP-[A-Z0-9]+-[0-9]{4}$"},
+          "severity": {"enum": ["info", "warning", "error"]},
+          "message": {"type": "string", "minLength": 1, "maxLength": 4000},
+          "evidence": {"type": "object"}
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wall_time_s", "peak_memory_mb"],
+      "properties": {
+        "wall_time_s": {"type": "number", "minimum": 0},
+        "peak_memory_mb": {"type": "number", "minimum": 0}
+      }
+    },
+    "reproducibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_digest", "dependency_lock_digest", "seed", "hardware_summary"],
+      "properties": {
+        "package_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "dependency_lock_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "seed": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807},
+        "hardware_summary": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    },
+    "non_production": {"type": "boolean"}
+  }
+}

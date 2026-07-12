@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-11`
-Foundation version: `0.6.0`
+Date: `2026-07-12`
+Foundation version: `0.7.0`
 
 ## Completed
 
@@ -22,6 +22,9 @@ Foundation version: `0.6.0`
 - `T-17`: stable Plugin Definition/immutable Package separation, Manifest 1.0 and JSON Schema
   validation, explicit capability/schema/supply-chain references, append-only verification and
   activation history, project-scoped allowlisting, protected API, and forced PostgreSQL RLS
+- `T-18`: framework-free Python SDK, immutable Job Spec/Result Manifest execution service,
+  reviewed-package subprocess runner, OCI-ready production plan and capability attestation,
+  tenant-scoped active-package planning, durable worker bridge, and seven-extension TCK
 
 ## Runtime proof
 
@@ -53,6 +56,16 @@ Foundation version: `0.6.0`
 - PostgreSQL rejects plugin ID/version digest substitution, package/history mutation, activation
   before eligibility, incomplete schema/capability bundles, revoked packages, and cross-project
   access even when opaque UUIDs are known
+- Active package lookup is pinned to project, plugin ID, exact version, and package digest; revoked
+  or cross-project packages are hidden before runner materialization
+- The local T-18 runner rehashes package/input/output bytes, safely extracts bounded ZIP entries,
+  rejects links and traversal, supplies only scoped SDK I/O, and enforces parent timeout/cancel
+- Network, child-process, ambient-path, symlink, oversized-output, corrupt-package, and corrupt
+  Result Manifest fixtures fail closed with sanitized diagnostics
+- An OCI runtime must attest every production isolation control before receiving an execution plan;
+  core contains no Docker, Kubernetes, vendor runtime, or plugin implementation dependency
+- Identical seeds produce byte-identical synthetic RNG output, and all seven extension types pass
+  the same domain-neutral contract-echo compatibility matrix
 
 ## Validation result
 
@@ -60,12 +73,12 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (112 source/test files)
+mypy strict: passed (131 source/test files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 124 passed, 34 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 158 passed
+make ci: 162 passed, 35 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 197 passed
 ```
 
 ## Intentionally absent
@@ -73,17 +86,18 @@ Full suite with PostgreSQL 16.14: 158 passed
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
 - Material, test, dataset, typed provenance, or audit-chain implementations
-- Artifact transfer/byte verification/commit, outbox/reconciliation, runner credential
-  provisioning, cryptographic verification automation, and isolated plugin/package execution
+- Artifact transfer/authoritative object commit, outbox/reconciliation, deployment runner
+  credential provisioning, and signature/SBOM/malware/vulnerability verification automation
+- A selected production OCI runtime implementation and production package/image admission policy
 - Production plugins
 - Constitutive equations, fitting algorithms, solver cards, or validation thresholds
 - Frontend application
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-18`: isolated runner, Python SDK, and
-compatibility test kit. T-17 keeps T-10 artifact ownership behind immutable UUID/digest references;
-it does not claim byte availability, cryptographic verification, or package execution. Audit
-(`T-05`), catalog (`T-07`), artifact transfer (`T-09/T-10`), and provenance (`T-13`) are not
+Per the repository blueprint, the next task is `T-09`/`T-10`: raw-asset upload and authoritative
+artifact transfer/commit. T-18 deliberately keeps package/input materialization and validated
+Result Manifest/output commit behind those ports; an unconfigured worker remains safely idle.
+Audit (`T-05`), provenance (`T-13`), catalog (`T-07`), and outbox/reconciliation (`T-16`) are not
 implied complete.
 

@@ -146,7 +146,8 @@ Public OpenAPI 0.6.0과 registration/resource/problem JSON Schema를 추가했�
 ## 7. 미결정 및 후속 경계
 
 - T-10: artifact table FK, byte digest/size 검증, object commit 및 availability/reconciliation
-- T-18: isolated runner, signature/SBOM 자동 검증 adapter, malware/vulnerability scan, TCK, SDK
+- T-18(완료): isolated subprocess/OCI-ready runner, SDK, TCK, active package execution lookup.
+  Signature/SBOM·malware/vulnerability 자동 검증은 별도 supply-chain policy adapter로 남는다.
 - T-05/T-13: tamper-evident audit chain과 표준 provenance Entity/Activity/Agent relation
 - organization-wide package 공유/activation inheritance가 필요한지 여부
 - signature format/trust root, SBOM profile, vulnerability/license policy, TCK evidence schema

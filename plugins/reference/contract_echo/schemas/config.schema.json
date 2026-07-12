@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:tck:contract-echo:config:1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "behavior": {
+      "enum": ["echo", "rng", "network", "process", "path_traversal", "ambient_read", "symlink", "hang", "cancel", "oversize", "failed_output"]
+    },
+    "media_type": {"const": "application/octet-stream"},
+    "output_bytes": {"type": "integer", "minimum": 1, "maximum": 10485760}
+  }
+}

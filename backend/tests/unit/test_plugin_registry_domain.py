@@ -205,6 +205,18 @@ class _CaptureRepository:
         del context, decision, package_id
         raise NotImplementedError
 
+    def get_active(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plugin_id: str,
+        plugin_version: str,
+        package_digest: str,
+    ) -> PackageRecord:
+        del context, decision, plugin_id, plugin_version, package_digest
+        raise NotImplementedError
+
     def transition(
         self,
         *,

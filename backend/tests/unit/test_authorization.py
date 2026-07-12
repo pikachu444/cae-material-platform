@@ -129,9 +129,14 @@ def test_admin_roles_do_not_implicitly_receive_business_or_approval_access() -> 
     assert Permission.RELEASE_PUBLISH not in ROLE_PERMISSIONS[Role.PROJECT_ADMIN]
     assert Permission.PLUGIN_ACTIVATE not in ROLE_PERMISSIONS[Role.PLUGIN_MAINTAINER]
     assert ROLE_PERMISSIONS[Role.JOB_RUNNER] == {
+        Permission.ARTIFACT_READ,
+        Permission.ARTIFACT_WRITE,
+        Permission.PLUGIN_READ,
         Permission.JOB_READ,
         Permission.JOB_EXECUTE,
     }
+    assert Permission.PLUGIN_ACTIVATE not in ROLE_PERMISSIONS[Role.JOB_RUNNER]
+    assert Permission.PLUGIN_SUBMIT not in ROLE_PERMISSIONS[Role.JOB_RUNNER]
 
 
 def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:

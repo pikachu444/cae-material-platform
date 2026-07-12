@@ -483,6 +483,72 @@ def test_revoked_package_and_cross_project_context_cannot_activate(
         )
 
 
+def test_active_execution_lookup_is_digest_pinned_revocation_aware_and_tenant_scoped(
+    postgres: PostgresHarness,
+) -> None:
+    plugin_id = "org.example.t18.execution-lookup"
+    digest = "8" * 64
+    _, registered = _register(
+        postgres,
+        _command(plugin_id=plugin_id, version="1.8.0", digest=digest),
+    )
+    administrator = _context(ADMIN)
+    activation_decision = _decision(administrator, Permission.PLUGIN_ACTIVATE)
+    postgres.service.verify(
+        administrator,
+        activation_decision,
+        ControlPackage(registered.package.id, "runner contract evidence verified"),
+    )
+    postgres.service.activate(
+        administrator,
+        activation_decision,
+        ActivatePackage(registered.package.id, "approved for isolated execution"),
+    )
+    read_decision = _decision(administrator, Permission.PLUGIN_READ)
+
+    active = postgres.service.get_active(
+        administrator,
+        read_decision,
+        plugin_id=plugin_id,
+        plugin_version="1.8.0",
+        package_digest=digest,
+    )
+
+    assert active.id == registered.package.id
+    assert active.active
+    with pytest.raises(PackageNotFound):
+        postgres.service.get_active(
+            administrator,
+            read_decision,
+            plugin_id=plugin_id,
+            plugin_version="1.8.0",
+            package_digest="9" * 64,
+        )
+    other_project = _context(ADMIN, project_id=PROJECT_B)
+    with pytest.raises(PackageNotFound):
+        postgres.service.get_active(
+            other_project,
+            _decision(other_project, Permission.PLUGIN_READ),
+            plugin_id=plugin_id,
+            plugin_version="1.8.0",
+            package_digest=digest,
+        )
+
+    postgres.service.revoke(
+        administrator,
+        activation_decision,
+        ControlPackage(registered.package.id, "package revoked after activation"),
+    )
+    with pytest.raises(PackageNotFound):
+        postgres.service.get_active(
+            administrator,
+            read_decision,
+            plugin_id=plugin_id,
+            plugin_version="1.8.0",
+            package_digest=digest,
+        )
+
+
 @pytest.mark.parametrize(
     ("table", "trigger", "message"),
     [

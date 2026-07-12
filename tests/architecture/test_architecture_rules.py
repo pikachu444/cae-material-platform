@@ -40,3 +40,16 @@ def test_production_plugin_import_is_rejected(tmp_path: Path) -> None:
 
     assert [item.rule for item in violations] == ["ARCH-003"]
 
+
+def test_reference_plugin_import_is_also_rejected_from_core(tmp_path: Path) -> None:
+    source = tmp_path / "cmp/modules/plugins/application/execution.py"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "from plugins.reference.contract_echo import plugin\n",
+        encoding="utf-8",
+    )
+
+    violations = find_violations(tmp_path)
+
+    assert [item.rule for item in violations] == ["ARCH-003"]
+

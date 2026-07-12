@@ -28,6 +28,8 @@ from cmp.modules.plugins.domain.registry import (
 from cmp.shared.domain.revisions import content_sha256
 
 _IDEMPOTENCY_KEY = re.compile(r"^[\x21-\x7e]{1,255}$")
+_PLUGIN_ID = re.compile(r"^[a-z0-9]+(?:[._-][a-z0-9]+)+$")
+_SEMVER = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
 
 
 class PluginContractValidator(Protocol):
@@ -97,6 +99,16 @@ class PluginRegistryRepository(Protocol):
         context: SecurityContext,
         decision: AuthorizationDecision,
         package_id: UUID,
+    ) -> PackageRecord: ...
+
+    def get_active(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plugin_id: str,
+        plugin_version: str,
+        package_digest: str,
     ) -> PackageRecord: ...
 
     def transition(
@@ -291,6 +303,32 @@ class PluginRegistryService:
         _nonzero("package_id", package_id)
         return self._repository.get(
             context=context, decision=decision, package_id=package_id
+        )
+
+    def get_active(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        plugin_id: str,
+        plugin_version: str,
+        package_digest: str,
+    ) -> PackageRecord:
+        _require_decision(context, decision, Permission.PLUGIN_READ)
+        if (
+            _PLUGIN_ID.fullmatch(plugin_id) is None
+            or len(plugin_id) > 255
+            or _SEMVER.fullmatch(plugin_version) is None
+            or len(plugin_version) > 64
+            or not re.fullmatch(r"[0-9a-f]{64}", package_digest)
+        ):
+            raise ValueError("active plugin identity/version/digest is invalid")
+        return self._repository.get_active(
+            context=context,
+            decision=decision,
+            plugin_id=plugin_id,
+            plugin_version=plugin_version,
+            package_digest=package_digest,
         )
 
     def verify(

@@ -135,6 +135,20 @@ def test_packaged_runtime_job_spec_schema_matches_public_contract_exactly() -> N
     assert packaged == public
 
 
+def test_python_runner_contract_schemas_match_public_contracts_exactly() -> None:
+    for name in ("job-spec.schema.json", "result-manifest.schema.json"):
+        public = json.loads(
+            (PROJECT_ROOT / "contracts/jobs" / name).read_text(encoding="utf-8")
+        )
+        packaged = json.loads(
+            files("cmp_plugin_sdk.contracts")
+            .joinpath(name)
+            .read_text(encoding="utf-8")
+        )
+
+        assert packaged == public
+
+
 def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

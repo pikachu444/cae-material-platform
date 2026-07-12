@@ -10,7 +10,7 @@
       "role": "processed-dataset",
       "media_type": "application/vnd.apache.parquet",
       "schema_ref": "urn:cmp:schema:dataset:1.0.0",
-      "staged_artifact": "runner-output-reference",
+      "staged_artifact": "runner-output:1:sha256:0000000000000000000000000000000000000000000000000000000000000000",
       "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "size_bytes": 1000
     }

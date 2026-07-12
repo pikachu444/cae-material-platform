@@ -22,6 +22,7 @@ from cmp.modules.jobs.application.jobs import (
     HeartbeatResult,
 )
 from cmp.modules.jobs.domain.jobs import AttemptState, Failure, FailureCategory
+from cmp.modules.plugins.adapters.worker import PluginAttemptHandler
 
 LOGGER = logging.getLogger("cmp.worker")
 
@@ -51,6 +52,24 @@ class WorkerExecution:
 
 
 type JobHandler = Callable[[WorkerExecution], Awaitable[HandlerResult]]
+
+
+def isolated_plugin_job_handler(executor: PluginAttemptHandler) -> JobHandler:
+    """Adapt the T-18 module handler without exposing worker internals to plugins."""
+
+    async def handle(execution: WorkerExecution) -> HandlerResult:
+        result = await executor.execute(
+            execution.claimed,
+            execution.cancellation_requested,
+        )
+        return HandlerResult(
+            outcome=result.outcome,
+            result_manifest_id=result.result_manifest_id,
+            result_manifest_digest=result.result_manifest_digest,
+            failure=result.failure,
+        )
+
+    return handle
 
 
 class JobWorkerQueue(Protocol):
@@ -204,8 +223,9 @@ def _parser() -> argparse.ArgumentParser:
 async def _run(args: argparse.Namespace) -> int:
     settings = Settings.from_environment()
     interval = args.poll_interval or settings.worker_poll_interval_seconds
-    # Runner authentication and isolated execution are T-18. Until that composition exists,
-    # the process stays safely idle instead of fabricating a trusted service context.
+    # Production composition requires a trusted service principal plus T-10 package/input
+    # materializer and result committer. When they are absent, the deployable stays safely
+    # idle instead of fabricating credentials or mutable artifact references.
     worker = DurableJobWorker(poll_interval_seconds=interval)
     if args.once:
         result = await worker.run_once()

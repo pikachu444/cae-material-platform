@@ -138,9 +138,19 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.PLUGIN_MAINTAINER: frozenset(
         {Permission.PLUGIN_READ, Permission.PLUGIN_SUBMIT}
     ),
-    # Operational role for service principals. It is provisioned outside the public
-    # role-administration service and cannot grant human business permissions.
-    Role.JOB_RUNNER: frozenset({Permission.JOB_READ, Permission.JOB_EXECUTE}),
+    # Operational role for service principals. T-18 adds only the package and scoped
+    # artifact permissions required to resolve inputs and commit validated outputs.
+    # It is provisioned outside the public role-administration service and cannot grant
+    # human business, review, release, or plugin activation permissions.
+    Role.JOB_RUNNER: frozenset(
+        {
+            Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.PLUGIN_READ,
+            Permission.JOB_READ,
+            Permission.JOB_EXECUTE,
+        }
+    ),
     Role.AUDITOR: frozenset({Permission.AUDIT_READ, Permission.PROVENANCE_READ}),
 }
 
