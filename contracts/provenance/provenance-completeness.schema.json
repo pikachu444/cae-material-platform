@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:provenance-completeness:1.0.0",
+  "title": "Bounded Provenance Completeness Gate Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "root_entity_id", "state", "eligible", "nodes_evaluated", "edges_evaluated",
+    "max_depth_reached", "issues"
+  ],
+  "properties": {
+    "root_entity_id": {"type": "string", "format": "uuid"},
+    "state": {"enum": ["complete", "incomplete", "indeterminate"]},
+    "eligible": {"type": "boolean"},
+    "nodes_evaluated": {"type": "integer", "minimum": 1, "maximum": 10000},
+    "edges_evaluated": {"type": "integer", "minimum": 0},
+    "max_depth_reached": {"type": "integer", "minimum": 0, "maximum": 20},
+    "issues": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "entity_id", "activity_id"],
+        "properties": {
+          "code": {
+            "enum": [
+              "missing_primary_generation", "missing_activity_input",
+              "missing_activity_agent", "missing_activity_output", "missing_source_path",
+              "dependency_cycle", "graph_limit_exceeded"
+            ]
+          },
+          "entity_id": {"type": ["string", "null"], "format": "uuid"},
+          "activity_id": {"type": ["string", "null"], "format": "uuid"}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"state": {"const": "complete"}}},
+      "then": {
+        "properties": {
+          "eligible": {"const": true},
+          "issues": {"maxItems": 0}
+        }
+      },
+      "else": {
+        "properties": {
+          "eligible": {"const": false},
+          "issues": {"minItems": 1}
+        }
+      }
+    }
+  ]
+}

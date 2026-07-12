@@ -1,10 +1,10 @@
 # CAE Material Platform
 
 Status: identity, authorization, revision, streaming Raw Asset upload, immutable content Artifact,
-typed provenance, durable job, plugin registry, and isolated runner foundation
-(`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-13` + `T-15` + `T-17` + `T-18`)
+typed provenance and bounded lineage, durable job, plugin registry, and isolated runner foundation
+(`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-13`–`T-15` + `T-17` + `T-18`)
 
-Version: `0.10.0`
+Version: `0.11.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
@@ -16,6 +16,8 @@ Raw Assets, and T-10 promotes them into tenant-scoped content-addressed immutabl
 integrity observations and scoped streaming download.
 T-13 adds domain-neutral typed Entity/Activity/Agent relations and fail-closed completeness without
 creating any Material, Dataset, Test, fitting, or solver implementation.
+T-14 adds bounded bidirectional lineage, impact pagination, and a generic Entity-root provenance
+completeness gate. Release creation and release-specific evidence policy remain owned by T-30.
 
 ## Implemented foundation
 
@@ -82,7 +84,10 @@ creating any Material, Dataset, Test, fitting, or solver implementation.
   append-only triggers, tenant/classification composite FKs, and forced RLS
 - Owner-module immutable reference resolver, atomic terminal Activity write service, idempotent
   domain-run replay, and a T-06 revision transaction hook
-- Protected immutable Entity/completeness lookup; recursive lineage and impact APIs remain T-14
+- Protected immutable Entity lookup plus bounded upstream/downstream lineage, downstream impact,
+  opaque cursor pagination, and fail-closed provenance completeness APIs
+- PostgreSQL security-invoker typed read models and depth/node limits with 10-hop/10,000-edge
+  performance and organization/project/classification isolation fixtures
 
 ## Prerequisites
 
@@ -206,17 +211,19 @@ composition and T-18 package/input/output policy adapters remain deployment work
 unconfigured worker stays idle. T-09 Raw Asset facts remain immutable after T-10 promotion.
 T-16 owns durable reconciliation scheduling, outbox delivery, and retention cleanup automation.
 T-13 accepts only owner-attested immutable references and does not expose arbitrary graph writes.
-T-14 owns recursive lineage/impact traversal, pagination/limits, performance fixtures, and release
-completeness reporting.
+T-14 provides bounded Entity-root traversal and provenance completeness only; it does not provide
+arbitrary graph analytics or create a Release resource. T-30 owns release composition and the
+release-specific evidence/mapping/review gate that consumes this generic report.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-15`, `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
-  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `FR-DAT-005`, `FR-DAT-008`, `NFR-INT-001`,
-  `NFR-INT-002`, `NFR-PERF-004`,
+  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `FR-DAT-005`, `FR-DAT-007`,
+  `FR-DAT-008`, `FR-WF-003`, `NFR-INT-001`,
+  `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004` (with `ADR-005` as a scope guard)

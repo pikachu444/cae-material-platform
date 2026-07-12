@@ -1,0 +1,27 @@
+{
+  "root_entity_id": "94000000-0000-4000-8000-000000000001",
+  "direction": "upstream",
+  "max_depth": 10,
+  "limit": 100,
+  "target_entity_type": null,
+  "nodes": [
+    {
+      "entity_id": "94000000-0000-4000-8000-000000000001",
+      "entity_type": "artifact.raw_asset",
+      "reference": {
+        "kind": "raw_asset",
+        "type": "artifact.raw_asset",
+        "id": "94000000-0000-4000-8000-000000000002",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "generation_activity_id": null,
+      "completeness": {"state": "complete", "issues": []},
+      "depth": 0,
+      "path": ["94000000-0000-4000-8000-000000000001"],
+      "via_relation": null
+    }
+  ],
+  "next_cursor": null,
+  "graph_truncated": false,
+  "total_discovered": 1
+}

@@ -1,0 +1,9 @@
+{
+  "root_entity_id": "95000000-0000-4000-8000-000000000001",
+  "state": "complete",
+  "eligible": true,
+  "nodes_evaluated": 4,
+  "edges_evaluated": 4,
+  "max_depth_reached": 2,
+  "issues": []
+}

@@ -2,22 +2,33 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.bootstrap.security import IdentityServices
 from cmp.modules.provenance.adapters.persistence.repository import (
     SqlAlchemyProvenanceRepository,
 )
+from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
 
 
-def build_provenance_service(identity: IdentityServices) -> ProvenanceService | None:
+@dataclass(frozen=True, slots=True)
+class ProvenanceServices:
+    entity: ProvenanceService | None
+    lineage: ProvenanceLineageService | None
+
+
+def build_provenance_services(identity: IdentityServices) -> ProvenanceServices:
     if identity.engine is None or identity.rls_context is None:
-        return None
+        return ProvenanceServices(None, None)
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
-    return ProvenanceService(
-        repository=SqlAlchemyProvenanceRepository(
-            session_factory=sessions,
-            rls_context=identity.rls_context,
-        )
+    repository = SqlAlchemyProvenanceRepository(
+        session_factory=sessions,
+        rls_context=identity.rls_context,
+    )
+    return ProvenanceServices(
+        entity=ProvenanceService(repository=repository),
+        lineage=ProvenanceLineageService(repository=repository),
     )

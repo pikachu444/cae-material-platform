@@ -16,5 +16,5 @@
   "recorded_at": "2026-07-13T00:00:00Z",
   "recorded_by": "91000000-0000-4000-8000-000000000006",
   "completeness": {"state": "complete", "issues": []},
-  "links": {"self": "x"}
+  "links": {"self": "x", "lineage": "x", "impact": "x", "completeness": "x"}
 }

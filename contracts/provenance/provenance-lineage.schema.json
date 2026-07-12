@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:provenance-lineage:1.0.0",
+  "title": "Bounded Typed Provenance Lineage Page",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "root_entity_id", "direction", "max_depth", "limit", "target_entity_type",
+    "nodes", "next_cursor", "graph_truncated", "total_discovered"
+  ],
+  "properties": {
+    "root_entity_id": {"type": "string", "format": "uuid"},
+    "direction": {"enum": ["upstream", "downstream"]},
+    "max_depth": {"type": "integer", "minimum": 1, "maximum": 20},
+    "limit": {"type": "integer", "minimum": 1, "maximum": 1000},
+    "target_entity_type": {
+      "type": ["string", "null"],
+      "pattern": "^[a-z][a-z0-9]*([._-][a-z0-9]+)+$",
+      "maxLength": 100
+    },
+    "nodes": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {"$ref": "#/$defs/node"}
+    },
+    "next_cursor": {"type": ["string", "null"], "maxLength": 4096},
+    "graph_truncated": {"type": "boolean"},
+    "total_discovered": {"type": "integer", "minimum": 0, "maximum": 10000}
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "type", "id", "sha256"],
+      "properties": {
+        "kind": {"enum": ["raw_asset", "artifact", "revision"]},
+        "type": {"type": "string", "pattern": "^[a-z][a-z0-9]*([._-][a-z0-9]+)+$"},
+        "id": {"type": "string", "format": "uuid"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "completeness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "issues"],
+      "properties": {
+        "state": {"enum": ["complete", "incomplete"]},
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_id", "entity_type", "reference", "generation_activity_id",
+        "completeness", "depth", "path", "via_relation"
+      ],
+      "properties": {
+        "entity_id": {"type": "string", "format": "uuid"},
+        "entity_type": {"type": "string", "pattern": "^[a-z][a-z0-9]*([._-][a-z0-9]+)+$"},
+        "reference": {"$ref": "#/$defs/reference"},
+        "generation_activity_id": {"type": ["string", "null"], "format": "uuid"},
+        "completeness": {"$ref": "#/$defs/completeness"},
+        "depth": {"type": "integer", "minimum": 0, "maximum": 20},
+        "path": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 21,
+          "uniqueItems": true,
+          "items": {"type": "string", "format": "uuid"}
+        },
+        "via_relation": {
+          "type": ["string", "null"],
+          "enum": [null, "usage_generation", "derivation", "revision"]
+        }
+      }
+    }
+  }
+}

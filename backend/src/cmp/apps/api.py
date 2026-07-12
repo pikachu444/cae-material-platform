@@ -11,7 +11,7 @@ from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
-from cmp.bootstrap.provenance import build_provenance_service
+from cmp.bootstrap.provenance import build_provenance_services
 from cmp.bootstrap.security import IdentityServices, build_identity_services
 from cmp.bootstrap.settings import Settings
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
@@ -30,6 +30,7 @@ from cmp.modules.jobs.application.jobs import JobService
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
+from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
@@ -53,6 +54,7 @@ def create_app(
     upload_service: UploadService | None = None,
     artifact_service: ArtifactService | None = None,
     provenance_service: ProvenanceService | None = None,
+    provenance_lineage_service: ProvenanceLineageService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -137,7 +139,9 @@ def create_app(
             services.authorization, Permission.ARTIFACT_READ
         ),
     )
-    resolved_provenance = provenance_service or build_provenance_service(services)
+    provenance_services = build_provenance_services(services)
+    resolved_provenance = provenance_service or provenance_services.entity
+    resolved_lineage = provenance_lineage_service or provenance_services.lineage
     install_provenance_api(
         application,
         service=resolved_provenance,
@@ -145,6 +149,7 @@ def create_app(
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROVENANCE_READ
         ),
+        lineage_service=resolved_lineage,
     )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context

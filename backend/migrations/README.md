@@ -2,8 +2,8 @@
 
 The linear Alembic chain is T-06 revision primitives, T-03 identity projection, T-04 access
 control, T-15 durable jobs, T-17 plugin registry, T-09 streaming upload, T-10 immutable Artifact
-storage, and T-13 typed provenance. Task numbers express delivery ownership, not migration
-chronology; every revision has one explicit predecessor.
+storage, T-13 typed provenance, and T-14 lineage read models. Task numbers express delivery
+ownership, not migration chronology; every revision has one explicit predecessor.
 
 ## T-06 ownership
 
@@ -109,6 +109,22 @@ revision cycles, revision type consistency, and plan usage. Every table is appen
 forced classification-aware RLS with separate internal `provenance.write` and public
 `provenance.read` capabilities. T-14 owns recursive lineage/impact read models and performance
 limits; T-13 creates only the authoritative typed source relations and entity lookup.
+
+## T-14 ownership
+
+`20260713_009_T14_lineage_read_model.py` adds three security-invoker/security-barrier views over
+the T-13 typed relations:
+
+- `provenance.dependency_edge`: the fixed `derivation`, `usage_generation`, and `revision`
+  relation families used by bounded traversal;
+- `provenance.entity_completeness`: primary-generation status for immutable Entity records;
+- `provenance.activity_completeness`: declared input, responsible Agent, and output status.
+
+The views add no stored generic edge, EAV payload, closure table, or mutable projection. Their
+underlying tables retain forced organization/project/classification RLS. The repository performs
+bounded recursive discovery separately from typed Entity materialization, caps depth at 20 and
+nodes at 10,000, then exposes pages of at most 1,000 nodes. T-30 remains responsible for Release
+tables and release-specific evidence/review/mapping policy.
 
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:

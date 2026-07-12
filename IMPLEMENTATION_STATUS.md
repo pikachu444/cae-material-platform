@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-13`
-Foundation version: `0.10.0`
+Foundation version: `0.11.0`
 
 ## Completed
 
@@ -25,6 +25,9 @@ Foundation version: `0.10.0`
 - `T-13`: typed Entity/Activity/Agent and six core relation families, immutable owner-reference
   resolution, atomic run/revision hooks, deferred completeness, DAG cycle guards, protected Entity
   lookup, and forced PostgreSQL RLS
+- `T-14`: bounded recursive upstream/downstream lineage, downstream impact filters and opaque
+  pagination, deterministic shortest paths, generic Entity-root completeness gate, typed
+  security-invoker read models, graph explosion limits, and tenant/classification-safe APIs
 - `T-15`: stable Job/immutable Attempt separation, versioned Job Spec digests, PostgreSQL atomic
   claim/lease/heartbeat/recovery, generic retry taxonomy, runner resources, protected Job API,
   and a handler-neutral durable worker
@@ -100,8 +103,13 @@ Foundation version: `0.10.0`
   generation, reverse dependency cycles, cross-project reads, and every provenance mutation/delete
 - T-06 typed revision transactions can install a fail-closed hook that records revision generation,
   author association/attribution, and `wasRevisionOf` in the caller's transaction
-- Public provenance access is read-only Entity/completeness lookup; moving heads, DB table details,
-  raw payloads, and object keys are absent from the contract
+- Public provenance access is read-only Entity lookup, bounded lineage/impact, and completeness;
+  moving heads, DB table details, raw payloads, and object keys are absent from the contract
+- Recursive discovery and RLS-protected Entity materialization use separate bounded SQL phases so
+  PostgreSQL avoids a pathological security-view join plan; known DAG paths remain deterministic
+- A 10-hop chain and 10,000-edge fan-out run under the two-second query assertion, while depth 20,
+  10,000 nodes, page size 1,000, cycles, duplicate paths, cursor rebinding, and graph truncation
+  fail closed
 
 ## Validation result
 
@@ -109,12 +117,12 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (169 source files)
+mypy strict: passed (174 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 197 passed, 48 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 245 passed
+make ci: 206 passed, 52 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 258 passed
 ```
 
 ## Intentionally absent
@@ -122,6 +130,8 @@ Full suite with PostgreSQL 16.14: 245 passed
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
 - Material, test, dataset, or audit-chain implementations
+- Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
+  the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, T-16 durable
   reconciliation scheduling/outbox/retention cleanup, and deployment runner credentials
 - T-17 authoritative package-Artifact admission, T-18 materializer/committer deployment wiring,
@@ -133,10 +143,9 @@ Full suite with PostgreSQL 16.14: 245 passed
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-14`: bounded recursive upstream/downstream/
-impact query and completeness report/gate. T-13 deliberately stops at authoritative typed
-relations, write-time invariants, and single-Entity completeness lookup. T-16 still owns durable
-reconciliation scheduling/outbox/retention, while T-17/T-18 production Artifact composition
-remains explicit work. Audit (`T-05`), catalog (`T-07`), and release-specific retention/backup
-policy are not implied complete.
+Per the repository blueprint, the next task is `T-16`: durable reconciliation scheduling, outbox
+delivery, and retention cleanup. T-14 deliberately stops at generic Entity-root lineage and
+provenance completeness; T-30 still owns Release creation and its evidence/review/mapping policy.
+T-17/T-18 production Artifact composition remains explicit work. Audit (`T-05`), catalog (`T-07`),
+and release-specific retention/backup policy are not implied complete.
 

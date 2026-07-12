@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Identity, immutable data, durable execution, and typed provenance foundation.
-  version: 0.10.0
+  version: 0.11.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -712,6 +712,114 @@ paths:
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+  /api/v1/provenance/entities/{entity_id}/lineage:
+    get:
+      operationId: getProvenanceLineage
+      tags: [provenance]
+      summary: Traverse a bounded typed upstream or downstream provenance subgraph.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ProvenanceEntityId"
+        - name: direction
+          in: query
+          required: false
+          schema: {type: string, enum: [upstream, downstream], default: upstream}
+        - name: max_depth
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 20, default: 10}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 1000, default: 100}
+        - name: cursor
+          in: query
+          required: false
+          schema: {type: string, maxLength: 4096}
+        - name: target_entity_type
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+            pattern: '^[a-z][a-z0-9]*([._-][a-z0-9]+)+$'
+      responses:
+        "200":
+          description: Cursor-paginated bounded typed lineage page.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProvenanceLineageResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Provenance read is not authorized.}
+        "404": {description: Root Entity not visible.}
+        "409": {description: Stored graph cannot produce a valid bounded path.}
+        "422":
+          description: Query, filter, limit, or cursor is invalid.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "503": {description: Provenance service unavailable.}
+  /api/v1/provenance/entities/{entity_id}/impact:
+    get:
+      operationId: getProvenanceImpact
+      tags: [provenance]
+      summary: Find bounded downstream impact from one immutable Entity.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ProvenanceEntityId"
+        - name: max_depth
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 20, default: 10}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 1000, default: 100}
+        - name: cursor
+          in: query
+          required: false
+          schema: {type: string, maxLength: 4096}
+        - name: target_entity_type
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+            pattern: '^[a-z][a-z0-9]*([._-][a-z0-9]+)+$'
+      responses:
+        "200":
+          description: Cursor-paginated downstream impact page.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProvenanceLineageResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Provenance read is not authorized.}
+        "404": {description: Root Entity not visible.}
+        "409": {description: Stored graph cannot produce a valid bounded path.}
+        "422": {description: Query, filter, limit, or cursor is invalid.}
+        "503": {description: Provenance service unavailable.}
+  /api/v1/provenance/entities/{entity_id}/completeness:
+    get:
+      operationId: getProvenanceCompleteness
+      tags: [provenance]
+      summary: Evaluate the bounded upstream provenance completeness gate.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ProvenanceEntityId"
+      responses:
+        "200":
+          description: Complete, incomplete, or indeterminate gate report.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProvenanceCompletenessResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Provenance read is not authorized.}
+        "404": {description: Root Entity not visible.}
+        "409": {description: Stored graph cannot produce a valid bounded report.}
+        "503": {description: Provenance service unavailable.}
 components:
   securitySchemes:
     BearerAuth:
@@ -841,6 +949,10 @@ components:
       $ref: ../artifacts/artifact-problem.schema.json
     ProvenanceEntityResponse:
       $ref: ../provenance/provenance-entity-resource.schema.json
+    ProvenanceLineageResponse:
+      $ref: ../provenance/provenance-lineage.schema.json
+    ProvenanceCompletenessResponse:
+      $ref: ../provenance/provenance-completeness.schema.json
     ProvenanceProblem:
       $ref: ../provenance/provenance-problem.schema.json
 

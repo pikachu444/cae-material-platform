@@ -57,6 +57,27 @@ def test_provenance_entity_examples_accept_revision_and_reject_moving_head() -> 
     assert failures
 
 
+def test_lineage_and_completeness_examples_enforce_bounded_gate_contract() -> None:
+    lineage = PROJECT_ROOT / "contracts/provenance/provenance-lineage.schema.json"
+    completeness = (
+        PROJECT_ROOT / "contracts/provenance/provenance-completeness.schema.json"
+    )
+
+    assert validate_example(
+        lineage,
+        PROJECT_ROOT / "contracts/examples/positive/provenance-lineage.json",
+    ) == []
+    assert validate_example(
+        completeness,
+        PROJECT_ROOT / "contracts/examples/positive/provenance-completeness.json",
+    ) == []
+    assert validate_example(
+        completeness,
+        PROJECT_ROOT
+        / "contracts/examples/negative/provenance-completeness-false-eligible.json",
+    )
+
+
 def test_optional_to_required_change_is_breaking() -> None:
     baseline = load_yaml(PROJECT_ROOT / "contracts/http/openapi.baseline.yaml")
     current = deepcopy(baseline)
@@ -246,6 +267,18 @@ def test_provenance_contract_and_runtime_expose_read_only_entity_lookup() -> Non
             "get",
             "getProvenanceEntity",
         ),
+        "/api/v1/provenance/entities/{entity_id}/lineage": (
+            "get",
+            "getProvenanceLineage",
+        ),
+        "/api/v1/provenance/entities/{entity_id}/impact": (
+            "get",
+            "getProvenanceImpact",
+        ),
+        "/api/v1/provenance/entities/{entity_id}/completeness": (
+            "get",
+            "getProvenanceCompleteness",
+        ),
     }
 
     for path, (method, operation_id) in operations.items():
@@ -266,13 +299,33 @@ def test_provenance_public_contract_hides_polymorphic_database_details() -> None
             / "contracts/provenance/provenance-entity-resource.schema.json"
         ).read_text(encoding="utf-8")
     )
-    serialized = json.dumps({"entity": entity})
     runtime = app.openapi()["components"]["schemas"]["ProvenanceEntityResponse"]
+    lineage = json.loads(
+        (
+            PROJECT_ROOT / "contracts/provenance/provenance-lineage.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    completeness = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/provenance/provenance-completeness.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    serialized = json.dumps(
+        {"entity": entity, "lineage": lineage, "completeness": completeness}
+    )
+    runtime_schemas = app.openapi()["components"]["schemas"]
 
     assert "domain_ref_table" not in serialized
     assert "storage_key" not in serialized
     assert "edge_type" not in serialized
     assert set(runtime["required"]) == set(entity["required"])
+    assert set(runtime_schemas["LineagePageResponse"]["required"]) == set(
+        lineage["required"]
+    )
+    assert set(runtime_schemas["ProvenanceCompletenessResponse"]["required"]) == set(
+        completeness["required"]
+    )
 
 
 def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:

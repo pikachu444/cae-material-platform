@@ -1,0 +1,15 @@
+{
+  "root_entity_id": "96000000-0000-4000-8000-000000000001",
+  "state": "incomplete",
+  "eligible": true,
+  "nodes_evaluated": 1,
+  "edges_evaluated": 0,
+  "max_depth_reached": 0,
+  "issues": [
+    {
+      "code": "missing_primary_generation",
+      "entity_id": "96000000-0000-4000-8000-000000000001",
+      "activity_id": null
+    }
+  ]
+}

@@ -19,6 +19,15 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.provenance.application.service import ResolvedActivityCommit
+from cmp.modules.provenance.domain.lineage import (
+    CompletenessIssue,
+    CompletenessIssueCode,
+    DependencyEdge,
+    LineageDirection,
+    LineageGraph,
+    LineageRelation,
+    LineageVertex,
+)
 from cmp.modules.provenance.domain.model import (
     ActivityCommitResult,
     ActivityStatus,
@@ -194,9 +203,7 @@ def _entity(row: RowMapping) -> ProvenanceEntity:
         scope=scope,
         entity_type=str(row["entity_type"]),
         reference=reference,
-        generation_requirement=GenerationRequirement(
-            str(row["generation_requirement"])
-        ),
+        generation_requirement=GenerationRequirement(str(row["generation_requirement"])),
         created_at=row["created_at"],
         recorded_at=row["recorded_at"],
         recorded_by=cast(UUID, row["recorded_by"]),
@@ -301,15 +308,19 @@ class SqlAlchemyProvenanceRepository:
         scope: ProvenanceScope,
         reference: ImmutableEntityReference,
     ) -> ProvenanceEntity | None:
-        row = session.execute(
-            sa.select(entity_table).where(
-                entity_table.c.organization_id == scope.organization_id,
-                entity_table.c.project_id == scope.project_id,
-                entity_table.c.reference_kind == reference.kind.value,
-                entity_table.c.reference_type == reference.reference_type,
-                entity_table.c.reference_id == reference.reference_id,
+        row = (
+            session.execute(
+                sa.select(entity_table).where(
+                    entity_table.c.organization_id == scope.organization_id,
+                    entity_table.c.project_id == scope.project_id,
+                    entity_table.c.reference_kind == reference.kind.value,
+                    entity_table.c.reference_type == reference.reference_type,
+                    entity_table.c.reference_id == reference.reference_id,
+                )
             )
-        ).mappings().one_or_none()
+            .mappings()
+            .one_or_none()
+        )
         return _entity(row) if row is not None else None
 
     @staticmethod
@@ -326,10 +337,8 @@ class SqlAlchemyProvenanceRepository:
         if existing is not None:
             if (
                 existing.entity_type != candidate.entity_type
-                or existing.reference.content_sha256
-                != candidate.reference.content_sha256
-                or existing.generation_requirement
-                is not candidate.generation_requirement
+                or existing.reference.content_sha256 != candidate.reference.content_sha256
+                or existing.generation_requirement is not candidate.generation_requirement
                 or existing.scope != candidate.scope
             ):
                 raise ProvenanceConflict(
@@ -351,15 +360,19 @@ class SqlAlchemyProvenanceRepository:
         request_id: UUID,
         trace_id: str,
     ) -> ProvenanceAgent:
-        row = session.execute(
-            sa.select(agent_table).where(
-                agent_table.c.organization_id == candidate.scope.organization_id,
-                agent_table.c.project_id == candidate.scope.project_id,
-                agent_table.c.classification == candidate.scope.classification.value,
-                agent_table.c.agent_type == candidate.reference.agent_type.value,
-                agent_table.c.reference_id == candidate.reference.reference_id,
+        row = (
+            session.execute(
+                sa.select(agent_table).where(
+                    agent_table.c.organization_id == candidate.scope.organization_id,
+                    agent_table.c.project_id == candidate.scope.project_id,
+                    agent_table.c.classification == candidate.scope.classification.value,
+                    agent_table.c.agent_type == candidate.reference.agent_type.value,
+                    agent_table.c.reference_id == candidate.reference.reference_id,
+                )
             )
-        ).mappings().one_or_none()
+            .mappings()
+            .one_or_none()
+        )
         if row is not None:
             return ProvenanceAgent(
                 id=cast(UUID, row["id"]),
@@ -426,15 +439,18 @@ class SqlAlchemyProvenanceRepository:
             with self._sessions() as session, session.begin():
                 self._bind(session, context, decision)
                 activity = commit.activity
-                existing_row = session.execute(
-                    sa.select(activity_table).where(
-                        activity_table.c.organization_id
-                        == activity.scope.organization_id,
-                        activity_table.c.project_id == activity.scope.project_id,
-                        activity_table.c.domain_run_type == activity.domain_run_type,
-                        activity_table.c.domain_run_id == activity.domain_run_id,
+                existing_row = (
+                    session.execute(
+                        sa.select(activity_table).where(
+                            activity_table.c.organization_id == activity.scope.organization_id,
+                            activity_table.c.project_id == activity.scope.project_id,
+                            activity_table.c.domain_run_type == activity.domain_run_type,
+                            activity_table.c.domain_run_id == activity.domain_run_id,
+                        )
                     )
-                ).mappings().one_or_none()
+                    .mappings()
+                    .one_or_none()
+                )
                 if existing_row is not None:
                     existing = _activity(existing_row)
                     if existing.submission_digest != activity.submission_digest:
@@ -534,16 +550,13 @@ class SqlAlchemyProvenanceRepository:
                 return ActivityCommitResult(
                     activity=activity,
                     input_entity_ids=tuple(
-                        entity_by_reference[item.entity].id
-                        for item in commit.command.inputs
+                        entity_by_reference[item.entity].id for item in commit.command.inputs
                     ),
                     output_entity_ids=tuple(
-                        entity_by_reference[item.entity].id
-                        for item in commit.command.outputs
+                        entity_by_reference[item.entity].id for item in commit.command.outputs
                     ),
                     agent_ids=tuple(
-                        agent_by_reference[item.agent].id
-                        for item in commit.command.agents
+                        agent_by_reference[item.agent].id for item in commit.command.agents
                     ),
                     replayed=False,
                 )
@@ -561,22 +574,25 @@ class SqlAlchemyProvenanceRepository:
     ) -> ProvenanceRecord:
         with self._sessions() as session, session.begin():
             self._bind(session, context, decision)
-            row = session.execute(
-                sa.select(
-                    entity_table,
-                    generation_table.c.activity_id.label("generation_activity_id"),
+            row = (
+                session.execute(
+                    sa.select(
+                        entity_table,
+                        generation_table.c.activity_id.label("generation_activity_id"),
+                    )
+                    .outerjoin(
+                        generation_table,
+                        sa.and_(
+                            generation_table.c.organization_id == entity_table.c.organization_id,
+                            generation_table.c.project_id == entity_table.c.project_id,
+                            generation_table.c.entity_id == entity_table.c.id,
+                        ),
+                    )
+                    .where(entity_table.c.id == entity_id)
                 )
-                .outerjoin(
-                    generation_table,
-                    sa.and_(
-                        generation_table.c.organization_id
-                        == entity_table.c.organization_id,
-                        generation_table.c.project_id == entity_table.c.project_id,
-                        generation_table.c.entity_id == entity_table.c.id,
-                    ),
-                )
-                .where(entity_table.c.id == entity_id)
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if row is None:
                 raise ProvenanceNotFound(str(entity_id))
             entity = _entity(row)
@@ -588,14 +604,306 @@ class SqlAlchemyProvenanceRepository:
                 else ()
             )
             completeness = EntityCompleteness(
-                state=(
-                    CompletenessState.INCOMPLETE
-                    if issues
-                    else CompletenessState.COMPLETE
-                ),
+                state=(CompletenessState.INCOMPLETE if issues else CompletenessState.COMPLETE),
                 issues=issues,
             )
             return ProvenanceRecord(entity, generation_id, completeness)
+
+    def load_lineage_graph(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        root_entity_id: UUID,
+        direction: LineageDirection,
+        max_depth: int,
+        max_nodes: int,
+    ) -> LineageGraph:
+        if direction is LineageDirection.UPSTREAM:
+            frontier_column = "edge.child_entity_id"
+            next_id = "edge.parent_entity_id"
+        else:
+            frontier_column = "edge.parent_entity_id"
+            next_id = "edge.child_entity_id"
+        query = sa.text(
+            f"""
+            WITH RECURSIVE levels(
+              depth, frontier, visited, node_truncated
+            ) AS (
+              SELECT
+                0,
+                ARRAY[CAST(:root_entity_id AS uuid)],
+                ARRAY[CAST(:root_entity_id AS uuid)],
+                false
+              UNION ALL
+              SELECT
+                levels.depth + 1,
+                expansion.frontier,
+                levels.visited || expansion.frontier,
+                expansion.node_truncated
+              FROM levels
+              CROSS JOIN LATERAL (
+                SELECT
+                  COALESCE(
+                    (array_agg(candidate.entity_id ORDER BY candidate.entity_id))[
+                      1:GREATEST(:max_nodes - cardinality(levels.visited), 0)
+                    ],
+                    ARRAY[]::uuid[]
+                  ) AS frontier,
+                  count(*) > GREATEST(
+                    :max_nodes - cardinality(levels.visited), 0
+                  ) AS node_truncated
+                FROM (
+                  SELECT DISTINCT {next_id} AS entity_id
+                  FROM provenance.dependency_edge AS edge
+                  WHERE edge.organization_id = :organization_id
+                    AND edge.project_id = :project_id
+                    AND {frontier_column} = ANY(levels.frontier)
+                    AND NOT ({next_id} = ANY(levels.visited))
+                  ORDER BY entity_id
+                  LIMIT GREATEST(
+                    :max_nodes - cardinality(levels.visited) + 1, 1
+                  )
+                ) AS candidate
+              ) AS expansion
+              WHERE levels.depth < :max_depth
+                AND cardinality(levels.frontier) > 0
+                AND NOT levels.node_truncated
+            ), ranked AS (
+              SELECT entity_id, levels.depth
+              FROM levels
+              CROSS JOIN LATERAL unnest(levels.frontier) AS entity_id
+            )
+            SELECT
+              ranked.entity_id,
+              ranked.depth,
+              EXISTS (
+                SELECT 1 FROM levels WHERE levels.node_truncated
+              ) AS node_truncated
+            FROM ranked
+            ORDER BY ranked.depth, ranked.entity_id
+            """
+        )
+        entity_query = sa.text(
+            """
+            SELECT
+              entity.*,
+              generation.activity_id AS generation_activity_id,
+              (
+                entity.generation_requirement = 'none'
+                OR generation.activity_id IS NOT NULL
+              ) AS generation_complete
+            FROM provenance.entity AS entity
+            LEFT JOIN provenance.generation AS generation
+              ON generation.organization_id = entity.organization_id
+             AND generation.project_id = entity.project_id
+             AND generation.classification = entity.classification
+             AND generation.entity_id = entity.id
+            WHERE entity.organization_id = :organization_id
+              AND entity.project_id = :project_id
+              AND entity.id = ANY(CAST(:entity_ids AS uuid[]))
+            ORDER BY entity.id
+            """
+        )
+        try:
+            with self._sessions() as session, session.begin():
+                self._bind(session, context, decision)
+                rows = (
+                    session.execute(
+                        query,
+                        {
+                            "root_entity_id": root_entity_id,
+                            "organization_id": context.organization_id,
+                            "project_id": context.project_id,
+                            "max_depth": max_depth,
+                            "max_nodes": max_nodes,
+                        },
+                    )
+                    .mappings()
+                    .all()
+                )
+                if not rows:
+                    raise ProvenanceNotFound(str(root_entity_id))
+                depths = {cast(UUID, row["entity_id"]): int(row["depth"]) for row in rows}
+                identifiers = list(depths)
+                entity_rows = (
+                    session.execute(
+                        entity_query,
+                        {
+                            "organization_id": context.organization_id,
+                            "project_id": context.project_id,
+                            "entity_ids": identifiers,
+                        },
+                    )
+                    .mappings()
+                    .all()
+                )
+                vertices: list[LineageVertex] = []
+                for row in entity_rows:
+                    entity = _entity(row)
+                    generation_id = cast(UUID | None, row["generation_activity_id"])
+                    complete = bool(row["generation_complete"])
+                    vertices.append(
+                        LineageVertex(
+                            ProvenanceRecord(
+                                entity,
+                                generation_id,
+                                EntityCompleteness(
+                                    CompletenessState.COMPLETE
+                                    if complete
+                                    else CompletenessState.INCOMPLETE,
+                                    () if complete else ("missing_primary_generation",),
+                                ),
+                            ),
+                            depths[entity.id],
+                        )
+                    )
+                vertices.sort(key=lambda vertex: (vertex.depth, str(vertex.record.entity.id)))
+                if not vertices or vertices[0].record.entity.id != root_entity_id:
+                    raise ProvenanceNotFound(str(root_entity_id))
+                edge_query = sa.text(
+                    """
+                    SELECT DISTINCT
+                      child_entity_id, parent_entity_id, relation, activity_id
+                    FROM provenance.dependency_edge
+                    WHERE organization_id = :organization_id
+                      AND project_id = :project_id
+                      AND child_entity_id = ANY(CAST(:entity_ids AS uuid[]))
+                      AND parent_entity_id = ANY(CAST(:entity_ids AS uuid[]))
+                    ORDER BY child_entity_id, parent_entity_id, relation
+                    """
+                )
+                edge_rows = (
+                    session.execute(
+                        edge_query,
+                        {
+                            "organization_id": context.organization_id,
+                            "project_id": context.project_id,
+                            "entity_ids": identifiers,
+                        },
+                    )
+                    .mappings()
+                    .all()
+                )
+                edges = tuple(
+                    DependencyEdge(
+                        child_entity_id=cast(UUID, row["child_entity_id"]),
+                        parent_entity_id=cast(UUID, row["parent_entity_id"]),
+                        relation=LineageRelation(str(row["relation"])),
+                        activity_id=cast(UUID | None, row["activity_id"]),
+                    )
+                    for row in edge_rows
+                )
+                node_truncated = bool(rows[0]["node_truncated"])
+                depth_truncated = False
+                boundary_ids = [
+                    vertex.record.entity.id for vertex in vertices if vertex.depth == max_depth
+                ]
+                if not node_truncated and boundary_ids:
+                    if direction is LineageDirection.UPSTREAM:
+                        boundary_column = "child_entity_id"
+                        unseen_column = "parent_entity_id"
+                    else:
+                        boundary_column = "parent_entity_id"
+                        unseen_column = "child_entity_id"
+                    boundary_query = sa.text(
+                        f"""
+                        SELECT EXISTS (
+                          SELECT 1
+                          FROM provenance.dependency_edge
+                          WHERE organization_id = :organization_id
+                            AND project_id = :project_id
+                            AND {boundary_column} = ANY(
+                              CAST(:boundary_ids AS uuid[])
+                            )
+                            AND NOT ({unseen_column} = ANY(
+                              CAST(:known_ids AS uuid[])
+                            ))
+                        )
+                        """
+                    )
+                    depth_truncated = bool(
+                        session.scalar(
+                            boundary_query,
+                            {
+                                "organization_id": context.organization_id,
+                                "project_id": context.project_id,
+                                "boundary_ids": boundary_ids,
+                                "known_ids": identifiers,
+                            },
+                        )
+                    )
+                return LineageGraph(
+                    root_entity_id=root_entity_id,
+                    direction=direction,
+                    vertices=tuple(vertices),
+                    edges=edges,
+                    truncated=node_truncated or depth_truncated,
+                )
+        except ProvenanceNotFound:
+            raise
+        except DBAPIError as error:
+            raise ProvenanceConflict("database rejected the bounded lineage query") from error
+
+    def activity_completeness_issues(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        activity_ids: tuple[UUID, ...],
+    ) -> tuple[CompletenessIssue, ...]:
+        if not activity_ids:
+            return ()
+        query = sa.text(
+            """
+            SELECT activity_id, input_complete, agent_complete, output_complete
+            FROM provenance.activity_completeness
+            WHERE organization_id = :organization_id
+              AND project_id = :project_id
+              AND activity_id = ANY(CAST(:activity_ids AS uuid[]))
+            ORDER BY activity_id
+            """
+        )
+        with self._sessions() as session, session.begin():
+            self._bind(session, context, decision)
+            rows = (
+                session.execute(
+                    query,
+                    {
+                        "organization_id": context.organization_id,
+                        "project_id": context.project_id,
+                        "activity_ids": list(activity_ids),
+                    },
+                )
+                .mappings()
+                .all()
+            )
+            issues: list[CompletenessIssue] = []
+            for row in rows:
+                activity_id = cast(UUID, row["activity_id"])
+                if not bool(row["input_complete"]):
+                    issues.append(
+                        CompletenessIssue(
+                            CompletenessIssueCode.MISSING_ACTIVITY_INPUT,
+                            activity_id=activity_id,
+                        )
+                    )
+                if not bool(row["agent_complete"]):
+                    issues.append(
+                        CompletenessIssue(
+                            CompletenessIssueCode.MISSING_ACTIVITY_AGENT,
+                            activity_id=activity_id,
+                        )
+                    )
+                if not bool(row["output_complete"]):
+                    issues.append(
+                        CompletenessIssue(
+                            CompletenessIssueCode.MISSING_ACTIVITY_OUTPUT,
+                            activity_id=activity_id,
+                        )
+                    )
+            return tuple(issues)
+
 
 class SqlAlchemyRevisionProvenanceHook:
     """T-06 hook that writes revision provenance in the caller's transaction.
@@ -620,9 +928,7 @@ class SqlAlchemyRevisionProvenanceHook:
             scope, recorded_at=recorded_at, recorded_by=revision.created_by
         )
         principal_type = session.scalar(
-            sa.text(
-                "SELECT principal_type FROM identity.principal WHERE id = :principal_id"
-            ),
+            sa.text("SELECT principal_type FROM identity.principal WHERE id = :principal_id"),
             {"principal_id": revision.created_by},
         )
         if principal_type not in {"user", "service"}:
@@ -664,20 +970,21 @@ class SqlAlchemyRevisionProvenanceHook:
         )
         prior_entity: ProvenanceEntity | None = None
         if revision.based_on_revision_id is not None:
-            prior_row = session.execute(
-                sa.select(entity_table).where(
-                    entity_table.c.organization_id == scope.organization_id,
-                    entity_table.c.project_id == scope.project_id,
-                    entity_table.c.reference_kind
-                    == EntityReferenceKind.REVISION.value,
-                    entity_table.c.reference_type == reference_type,
-                    entity_table.c.reference_id == revision.based_on_revision_id,
+            prior_row = (
+                session.execute(
+                    sa.select(entity_table).where(
+                        entity_table.c.organization_id == scope.organization_id,
+                        entity_table.c.project_id == scope.project_id,
+                        entity_table.c.reference_kind == EntityReferenceKind.REVISION.value,
+                        entity_table.c.reference_type == reference_type,
+                        entity_table.c.reference_id == revision.based_on_revision_id,
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if prior_row is None:
-                raise ProvenanceConflict(
-                    "prior immutable revision is missing from provenance"
-                )
+                raise ProvenanceConflict("prior immutable revision is missing from provenance")
             prior_entity = _entity(prior_row)
 
         submission_digest = content_sha256(

@@ -17,6 +17,9 @@
   "recorded_by": "90000000-0000-4000-8000-000000000006",
   "completeness": {"state": "complete", "issues": []},
   "links": {
-    "self": "/api/v1/provenance/entities/90000000-0000-4000-8000-000000000001"
+    "self": "/api/v1/provenance/entities/90000000-0000-4000-8000-000000000001",
+    "lineage": "/api/v1/provenance/entities/90000000-0000-4000-8000-000000000001/lineage",
+    "impact": "/api/v1/provenance/entities/90000000-0000-4000-8000-000000000001/impact",
+    "completeness": "/api/v1/provenance/entities/90000000-0000-4000-8000-000000000001/completeness"
   }
 }

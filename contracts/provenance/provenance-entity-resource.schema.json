@@ -37,9 +37,12 @@
     "links": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["self"],
+      "required": ["self", "lineage", "impact", "completeness"],
       "properties": {
-        "self": {"type": "string"}
+        "self": {"type": "string"},
+        "lineage": {"type": "string"},
+        "impact": {"type": "string"},
+        "completeness": {"type": "string"}
       }
     }
   },

@@ -1,7 +1,7 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-15` +
-`T-17` + `T-18`, HTTP contract version `0.10.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
+`T-15` + `T-17` + `T-18`, HTTP contract version `0.11.0`.
 
 ## Files
 
@@ -11,7 +11,8 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-15` +
 - `jobs/*.schema.json`: immutable runner envelopes
 - `artifacts/*.schema.json`: upload/Raw Asset plus immutable Artifact metadata, transfer grant,
   completion, and sanitized problem contracts
-- `provenance/*.schema.json`: immutable Entity/completeness lookup and sanitized problem contract
+- `provenance/*.schema.json`: immutable Entity, bounded lineage/impact, generic provenance
+  completeness, and sanitized problem contracts
 - `plugins/plugin-manifest.schema.json`: package metadata baseline
 - `plugins/plugin-package-registration.schema.json`: signed package/SBOM/schema registration input
 - `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
@@ -51,9 +52,10 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-15` +
 - Artifact metadata exposes content digest, semantic role/schema, encryption profile, and current
   integrity status. Staging/final object keys stay internal; byte transfer requires bearer
   authorization plus an actor/tenant/content/expiry-bound capability header.
-- Provenance Entity responses expose an immutable typed UUID/digest reference and primary
-  generation completeness. No public graph-write or recursive lineage endpoint is part of T-13;
-  moving head aliases are rejected and T-14 owns bounded traversal.
+- Provenance Entity responses expose immutable typed UUID/digest references and primary-generation
+  completeness. T-14 lineage/impact responses are read-only, bounded, deterministically ordered,
+  and cursor-paginated; completeness is eligible only when no issue remains. Moving heads and
+  graph writes are rejected, and Release-specific policy remains outside this contract.
 - Plugin registration separates a stable Definition from immutable version/digest Packages. A
   package becomes eligible only after an authorized verification event and activation is scoped to
   the selected organization/project; revocation never overwrites package or state-history facts.
