@@ -2,8 +2,9 @@
 
 The linear Alembic chain is T-06 revision primitives, T-03 identity projection, T-04 access
 control, T-15 durable jobs, T-17 plugin registry, T-09 streaming upload, T-10 immutable Artifact
-storage, T-13 typed provenance, and T-14 lineage read models. Task numbers express delivery
-ownership, not migration chronology; every revision has one explicit predecessor.
+storage, T-13 typed provenance, T-14 lineage read models, and T-16 transactional events. Task
+numbers express delivery ownership, not migration chronology; every revision has one explicit
+predecessor.
 
 ## T-06 ownership
 
@@ -125,6 +126,22 @@ underlying tables retain forced organization/project/classification RLS. The rep
 bounded recursive discovery separately from typed Entity materialization, caps depth at 20 and
 nodes at 10,000, then exposes pages of at most 1,000 nodes. T-30 remains responsible for Release
 tables and release-specific evidence/review/mapping policy.
+
+## T-16 phase 1 ownership
+
+`20260713_010_T16_transactional_outbox.py` creates the `events` schema with explicit
+`outbox_event`, `outbox_delivery`, and `consumer_inbox` relations. The immutable event stores a
+CloudEvents 1.0 envelope projection, schema-identified JSON object data, canonical data digest,
+tenant/classification scope, aggregate sequence, producer deduplication key, actor/request/trace,
+and occurrence/recording times. JSONB is limited to this named versioned event data contract and is
+not an EAV business store.
+
+Delivery state is a separate guarded lease projection with fencing token, expiry, monotonic attempt
+count, retry availability, terminal published/poison state, and a claim index. Inbox receipts are
+immutable and unique by tenant, consumer, and event ID so a consumer can record the receipt in the
+same transaction as its side effect. All three tables use forced RLS with internal
+`events.publish`, `events.dispatch`, and `events.consume` capabilities. T-16 phase 2 owns durable
+Artifact reconciliation scheduling and safe staging cleanup; no final object deletion is implied.
 
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:

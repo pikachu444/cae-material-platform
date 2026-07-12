@@ -1,5 +1,11 @@
-"""Public T-15 job application services and ports."""
+"""Public T-15 job and T-16 event application services and ports."""
 
+from cmp.modules.jobs.application.events import (
+    EventTransport,
+    OutboxPublisher,
+    OutboxRepository,
+    PublishBatchResult,
+)
 from cmp.modules.jobs.application.jobs import (
     CancelJob,
     ClaimedAttempt,
@@ -23,6 +29,7 @@ __all__ = [
     "CancelJob",
     "ClaimJob",
     "ClaimedAttempt",
+    "EventTransport",
     "FinalizeAttempt",
     "FinalizeResult",
     "HeartbeatAttempt",
@@ -30,6 +37,9 @@ __all__ = [
     "JobContractValidator",
     "JobRepository",
     "JobService",
+    "OutboxPublisher",
+    "OutboxRepository",
+    "PublishBatchResult",
     "RecoverExpired",
     "RecoveryResult",
     "RetryJob",

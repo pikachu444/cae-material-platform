@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from datetime import datetime
 from typing import Protocol, cast
 from uuid import UUID
@@ -182,9 +183,7 @@ def _pending(row: RowMapping) -> PendingArtifact:
         reserved_artifact_id=cast(UUID, row["reserved_artifact_id"]),
         available_artifact_id=cast(UUID | None, row["available_artifact_id"]),
         attempt_count=int(row["attempt_count"]),
-        failure_code=(
-            str(row["failure_code"]) if row["failure_code"] is not None else None
-        ),
+        failure_code=(str(row["failure_code"]) if row["failure_code"] is not None else None),
         created_at=row["created_at"],
         created_by=cast(UUID, row["created_by"]),
         request_id=cast(UUID, row["request_id"]),
@@ -227,19 +226,13 @@ def _observation(row: RowMapping) -> IntegrityObservation:
         expected_sha256=str(row["expected_sha256"]),
         expected_size_bytes=int(row["expected_size_bytes"]),
         observed_sha256=(
-            str(row["observed_sha256"])
-            if row["observed_sha256"] is not None
-            else None
+            str(row["observed_sha256"]) if row["observed_sha256"] is not None else None
         ),
         observed_size_bytes=(
-            int(row["observed_size_bytes"])
-            if row["observed_size_bytes"] is not None
-            else None
+            int(row["observed_size_bytes"]) if row["observed_size_bytes"] is not None else None
         ),
         object_version_id=(
-            str(row["object_version_id"])
-            if row["object_version_id"] is not None
-            else None
+            str(row["object_version_id"]) if row["object_version_id"] is not None else None
         ),
         checked_at=row["checked_at"],
         checked_by=cast(UUID, row["checked_by"]),
@@ -259,24 +252,16 @@ def _issue(row: RowMapping) -> ReconciliationIssue:
         pending_artifact_id=cast(UUID | None, row["pending_artifact_id"]),
         object_key=str(row["object_key"]),
         expected_sha256=(
-            str(row["expected_sha256"])
-            if row["expected_sha256"] is not None
-            else None
+            str(row["expected_sha256"]) if row["expected_sha256"] is not None else None
         ),
         expected_size_bytes=(
-            int(row["expected_size_bytes"])
-            if row["expected_size_bytes"] is not None
-            else None
+            int(row["expected_size_bytes"]) if row["expected_size_bytes"] is not None else None
         ),
         observed_sha256=(
-            str(row["observed_sha256"])
-            if row["observed_sha256"] is not None
-            else None
+            str(row["observed_sha256"]) if row["observed_sha256"] is not None else None
         ),
         observed_size_bytes=(
-            int(row["observed_size_bytes"])
-            if row["observed_size_bytes"] is not None
-            else None
+            int(row["observed_size_bytes"]) if row["observed_size_bytes"] is not None else None
         ),
         detected_at=row["detected_at"],
         detected_by=cast(UUID, row["detected_by"]),
@@ -291,9 +276,11 @@ class SqlAlchemyArtifactRepository:
         *,
         session_factory: sessionmaker[Session],
         rls_context: RlsContext,
+        available_hooks: Sequence[Callable[[Session, FinalizedArtifact], None]] = (),
     ) -> None:
         self._sessions = session_factory
         self._rls = rls_context
+        self._available_hooks = tuple(available_hooks)
 
     def _bind(
         self,
@@ -322,9 +309,11 @@ class SqlAlchemyArtifactRepository:
 
     @staticmethod
     def _artifact_row(session: Session, artifact_id: UUID) -> RowMapping:
-        row = session.execute(
-            sa.select(artifact_table).where(artifact_table.c.id == artifact_id)
-        ).mappings().one_or_none()
+        row = (
+            session.execute(sa.select(artifact_table).where(artifact_table.c.id == artifact_id))
+            .mappings()
+            .one_or_none()
+        )
         if row is None:
             raise ArtifactNotFound(str(artifact_id))
         return row
@@ -332,11 +321,15 @@ class SqlAlchemyArtifactRepository:
     @classmethod
     def _record(cls, session: Session, artifact_id: UUID) -> ArtifactRecord:
         artifact_row = cls._artifact_row(session, artifact_id)
-        projection = session.execute(
-            sa.select(integrity_projection_table).where(
-                integrity_projection_table.c.artifact_id == artifact_id
+        projection = (
+            session.execute(
+                sa.select(integrity_projection_table).where(
+                    integrity_projection_table.c.artifact_id == artifact_id
+                )
             )
-        ).mappings().one_or_none()
+            .mappings()
+            .one_or_none()
+        )
         if projection is None:
             raise RuntimeError("available Artifact lost its integrity projection")
         return ArtifactRecord(
@@ -390,15 +383,16 @@ class SqlAlchemyArtifactRepository:
                 .returning(artifact_pending_table.c.id)
             ).scalar_one_or_none()
             if inserted is not None:
-                return _pending(
-                    self._pending_row(session, cast(UUID, inserted))
-                ), False
-            existing = session.execute(
-                sa.select(artifact_pending_table).where(
-                    artifact_pending_table.c.idempotency_key
-                    == pending.idempotency_key
+                return _pending(self._pending_row(session, cast(UUID, inserted))), False
+            existing = (
+                session.execute(
+                    sa.select(artifact_pending_table).where(
+                        artifact_pending_table.c.idempotency_key == pending.idempotency_key
+                    )
                 )
-            ).mappings().one_or_none()
+                .mappings()
+                .one_or_none()
+            )
             if existing is None:
                 raise ArtifactConflict("pending Artifact identity is already in use")
             same_raw_asset = (
@@ -437,8 +431,7 @@ class SqlAlchemyArtifactRepository:
             session.execute(
                 sa.update(artifact_pending_table)
                 .where(
-                    artifact_pending_table.c.organization_id
-                    == row["organization_id"],
+                    artifact_pending_table.c.organization_id == row["organization_id"],
                     artifact_pending_table.c.project_id == row["project_id"],
                     artifact_pending_table.c.id == pending_id,
                     artifact_pending_table.c.state == state.value,
@@ -474,12 +467,10 @@ class SqlAlchemyArtifactRepository:
             session.execute(
                 sa.update(artifact_pending_table)
                 .where(
-                    artifact_pending_table.c.organization_id
-                    == row["organization_id"],
+                    artifact_pending_table.c.organization_id == row["organization_id"],
                     artifact_pending_table.c.project_id == row["project_id"],
                     artifact_pending_table.c.id == pending_id,
-                    artifact_pending_table.c.state
-                    == PendingArtifactState.PROMOTING.value,
+                    artifact_pending_table.c.state == PendingArtifactState.PROMOTING.value,
                 )
                 .values(
                     state=PendingArtifactState.RETRYABLE.value,
@@ -515,8 +506,7 @@ class SqlAlchemyArtifactRepository:
                 session.execute(
                     sa.update(artifact_pending_table)
                     .where(
-                        artifact_pending_table.c.organization_id
-                        == row["organization_id"],
+                        artifact_pending_table.c.organization_id == row["organization_id"],
                         artifact_pending_table.c.project_id == row["project_id"],
                         artifact_pending_table.c.id == pending_id,
                         artifact_pending_table.c.state == state.value,
@@ -534,12 +524,10 @@ class SqlAlchemyArtifactRepository:
             session.execute(
                 sa.update(artifact_pending_table)
                 .where(
-                    artifact_pending_table.c.organization_id
-                    == row["organization_id"],
+                    artifact_pending_table.c.organization_id == row["organization_id"],
                     artifact_pending_table.c.project_id == row["project_id"],
                     artifact_pending_table.c.id == pending_id,
-                    artifact_pending_table.c.state
-                    == PendingArtifactState.PROMOTING.value,
+                    artifact_pending_table.c.state == PendingArtifactState.PROMOTING.value,
                 )
                 .values(
                     state=PendingArtifactState.REJECTED.value,
@@ -568,9 +556,7 @@ class SqlAlchemyArtifactRepository:
                 available_id = cast(UUID | None, row["available_artifact_id"])
                 if available_id is None:
                     raise RuntimeError("available pending Artifact lost its identity")
-                return FinalizedArtifact(
-                    _pending(row), self._record(session, available_id), True
-                )
+                return FinalizedArtifact(_pending(row), self._record(session, available_id), True)
             if state is not PendingArtifactState.PROMOTING:
                 raise ArtifactStateError("pending Artifact is not promoting")
             if (
@@ -635,12 +621,10 @@ class SqlAlchemyArtifactRepository:
             session.execute(
                 sa.update(artifact_pending_table)
                 .where(
-                    artifact_pending_table.c.organization_id
-                    == row["organization_id"],
+                    artifact_pending_table.c.organization_id == row["organization_id"],
                     artifact_pending_table.c.project_id == row["project_id"],
                     artifact_pending_table.c.id == pending_id,
-                    artifact_pending_table.c.state
-                    == PendingArtifactState.PROMOTING.value,
+                    artifact_pending_table.c.state == PendingArtifactState.PROMOTING.value,
                 )
                 .values(
                     state=PendingArtifactState.AVAILABLE.value,
@@ -649,11 +633,14 @@ class SqlAlchemyArtifactRepository:
                     updated_at=now,
                 )
             )
-            return FinalizedArtifact(
+            result = FinalizedArtifact(
                 _pending(self._pending_row(session, pending_id)),
                 self._record(session, artifact_id),
                 False,
             )
+            for hook in self._available_hooks:
+                hook(session, result)
+            return result
 
     def get_artifact(
         self,
@@ -679,12 +666,9 @@ class SqlAlchemyArtifactRepository:
             if (
                 artifact_row["classification"] != observation.classification.value
                 or artifact_row["sha256"] != observation.expected_sha256
-                or int(artifact_row["size_bytes"])
-                != observation.expected_size_bytes
+                or int(artifact_row["size_bytes"]) != observation.expected_size_bytes
             ):
-                raise ArtifactConflict(
-                    "integrity observation differs from immutable Artifact"
-                )
+                raise ArtifactConflict("integrity observation differs from immutable Artifact")
             session.execute(
                 sa.insert(integrity_observation_table).values(
                     organization_id=observation.organization_id,
@@ -708,12 +692,9 @@ class SqlAlchemyArtifactRepository:
             updated = session.execute(
                 sa.update(integrity_projection_table)
                 .where(
-                    integrity_projection_table.c.organization_id
-                    == observation.organization_id,
-                    integrity_projection_table.c.project_id
-                    == observation.project_id,
-                    integrity_projection_table.c.artifact_id
-                    == observation.artifact_id,
+                    integrity_projection_table.c.organization_id == observation.organization_id,
+                    integrity_projection_table.c.project_id == observation.project_id,
+                    integrity_projection_table.c.artifact_id == observation.artifact_id,
                 )
                 .values(
                     status=observation.status.value,
@@ -780,13 +761,10 @@ class SqlAlchemyArtifactRepository:
     ) -> frozenset[str]:
         with self._sessions() as session, session.begin():
             self._bind(session, context, decision)
-            artifact_keys = session.execute(
-                sa.select(artifact_table.c.storage_key)
-            ).scalars()
+            artifact_keys = session.execute(sa.select(artifact_table.c.storage_key)).scalars()
             pending_keys = session.execute(
                 sa.select(artifact_pending_table.c.final_object_key).where(
-                    artifact_pending_table.c.state
-                    != PendingArtifactState.REJECTED.value
+                    artifact_pending_table.c.state != PendingArtifactState.REJECTED.value
                 )
             ).scalars()
             return frozenset(str(value) for value in (*artifact_keys, *pending_keys))
@@ -800,26 +778,30 @@ class SqlAlchemyArtifactRepository:
     ) -> ReconciliationIssue:
         with self._sessions() as session, session.begin():
             self._bind(session, context, decision)
-            row = session.execute(
-                sa.insert(reconciliation_issue_table)
-                .values(
-                    organization_id=issue.organization_id,
-                    project_id=issue.project_id,
-                    id=issue.id,
-                    classification=issue.classification.value,
-                    issue_type=issue.issue_type.value,
-                    artifact_id=issue.artifact_id,
-                    pending_artifact_id=issue.pending_artifact_id,
-                    object_key=issue.object_key,
-                    expected_sha256=issue.expected_sha256,
-                    expected_size_bytes=issue.expected_size_bytes,
-                    observed_sha256=issue.observed_sha256,
-                    observed_size_bytes=issue.observed_size_bytes,
-                    detected_at=issue.detected_at,
-                    detected_by=issue.detected_by,
-                    request_id=issue.request_id,
-                    trace_id=issue.trace_id,
+            row = (
+                session.execute(
+                    sa.insert(reconciliation_issue_table)
+                    .values(
+                        organization_id=issue.organization_id,
+                        project_id=issue.project_id,
+                        id=issue.id,
+                        classification=issue.classification.value,
+                        issue_type=issue.issue_type.value,
+                        artifact_id=issue.artifact_id,
+                        pending_artifact_id=issue.pending_artifact_id,
+                        object_key=issue.object_key,
+                        expected_sha256=issue.expected_sha256,
+                        expected_size_bytes=issue.expected_size_bytes,
+                        observed_sha256=issue.observed_sha256,
+                        observed_size_bytes=issue.observed_size_bytes,
+                        detected_at=issue.detected_at,
+                        detected_by=issue.detected_by,
+                        request_id=issue.request_id,
+                        trace_id=issue.trace_id,
+                    )
+                    .returning(reconciliation_issue_table)
                 )
-                .returning(reconciliation_issue_table)
-            ).mappings().one()
+                .mappings()
+                .one()
+            )
             return _issue(row)

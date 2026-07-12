@@ -1,13 +1,14 @@
 # Public contract baseline
 
 Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
-`T-15` + `T-17` + `T-18`, HTTP contract version `0.11.0`.
+`T-15` + `T-16` phase 1 + `T-17` + `T-18`, HTTP contract version `0.12.0`.
 
 ## Files
 
 - `http/openapi.yaml`: REST source contract
 - `http/openapi.baseline.yaml`: last accepted compatibility baseline
-- `events/asyncapi.yaml`: asynchronous contract shell; no domain events yet
+- `events/asyncapi.yaml`: CloudEvents 1.0 ArtifactAvailable event and at-least-once delivery contract
+- `events/*.schema.json`: immutable event payload/envelope contracts without storage keys
 - `jobs/*.schema.json`: immutable runner envelopes
 - `artifacts/*.schema.json`: upload/Raw Asset plus immutable Artifact metadata, transfer grant,
   completion, and sanitized problem contracts
@@ -56,6 +57,10 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
   completeness. T-14 lineage/impact responses are read-only, bounded, deterministically ordered,
   and cursor-paginated; completeness is eligible only when no issue remains. Moving heads and
   graph writes are rejected, and Release-specific policy remains outside this contract.
+- ArtifactAvailable is emitted from the same transaction as Artifact commit, uses aggregate
+  sequence and tenant/classification CloudEvent extensions, and exposes content metadata but no
+  staging/final object key. Duplicate delivery is expected and consumer inbox deduplication is
+  mandatory.
 - Plugin registration separates a stable Definition from immutable version/digest Packages. A
   package becomes eligible only after an authorized verification event and activation is scoped to
   the selected organization/project; revocation never overwrites package or state-history facts.

@@ -151,6 +151,9 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
                     "governance.write",
                     "provenance.read",
                     "provenance.write",
+                    "events.publish",
+                    "events.dispatch",
+                    "events.consume",
                 }
             }
             assert typed_dependencies.issubset(permissions)
@@ -202,9 +205,7 @@ def test_action_and_clearance_are_not_combined_across_unrelated_bindings() -> No
         export=True,
     )
 
-    decision = _service(writer, unrelated_clearance).authorize(
-        _context(), Permission.TESTING_WRITE
-    )
+    decision = _service(writer, unrelated_clearance).authorize(_context(), Permission.TESTING_WRITE)
 
     assert decision.roles == (Role.TEST_ENGINEER,)
     assert decision.max_classification is DataClassification.INTERNAL
@@ -236,13 +237,12 @@ def test_expired_and_revoked_bindings_are_denied() -> None:
 
 
 def test_write_decision_expands_only_required_read_and_governance_permissions() -> None:
-    decision = _service(_binding(Role.DATA_STEWARD)).authorize(
-        _context(), Permission.DATASET_WRITE
-    )
+    decision = _service(_binding(Role.DATA_STEWARD)).authorize(_context(), Permission.DATASET_WRITE)
 
     assert decision.database_permissions == (
         "dataset.read",
         "dataset.write",
+        "events.publish",
         "governance.read",
         "governance.write",
         "provenance.read",
@@ -257,6 +257,7 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
 
     assert decision.database_permissions == (
         "artifact.read",
+        "events.publish",
         "export.read",
         "governance.read",
         "governance.write",
@@ -266,6 +267,13 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
         "validation.execute",
         "validation.read",
     )
+
+
+def test_job_runner_receives_only_internal_dispatch_and_consumer_capabilities() -> None:
+    decision = _service(_binding(Role.JOB_RUNNER)).authorize(_context(), Permission.JOB_EXECUTE)
+
+    assert {"events.dispatch", "events.consume"}.issubset(decision.database_permissions)
+    assert "events.publish" not in decision.database_permissions
 
 
 class _AdministrationRepository:

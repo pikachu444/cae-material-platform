@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-13`
-Foundation version: `0.11.0`
+Foundation version: `0.12.0`
 
 ## Completed
 
@@ -37,6 +37,14 @@ Foundation version: `0.11.0`
 - `T-18`: framework-free Python SDK, immutable Job Spec/Result Manifest execution service,
   reviewed-package subprocess runner, OCI-ready production plan and capability attestation,
   tenant-scoped active-package planning, durable worker bridge, and seven-extension TCK
+
+## In progress
+
+- `T-16` phase 1: explicit transactional CloudEvent outbox, aggregate sequence and producer
+  deduplication, fenced at-least-once delivery, poison quarantine, consumer inbox deduplication,
+  AsyncAPI event catalog, and atomic T-10 ArtifactAvailable event
+- `T-16` phase 2 remains: durable tenant reconciliation schedule/run history and safe cleanup of
+  terminal pending staging objects only
 
 ## Runtime proof
 
@@ -110,6 +118,12 @@ Foundation version: `0.11.0`
 - A 10-hop chain and 10,000-edge fan-out run under the two-second query assertion, while depth 20,
   10,000 nodes, page size 1,000, cycles, duplicate paths, cursor rebinding, and graph truncation
   fail closed
+- Artifact finalization and ArtifactAvailable outbox append commit or roll back together; exact
+  replay emits one event, schema validation fails the transaction, and event data contains no
+  object-store key
+- Outbox aggregate sequence blocks out-of-order claims; publisher crash recovery replaces the
+  lease token, stale fencing is rejected, poison blocks later aggregate events, and duplicate
+  consumer delivery creates one inbox receipt
 
 ## Validation result
 
@@ -117,12 +131,12 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (174 source files)
+mypy strict: passed (181 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 206 passed, 52 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 258 passed
+make ci: 213 passed, 54 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 267 passed
 ```
 
 ## Intentionally absent
@@ -133,7 +147,7 @@ Full suite with PostgreSQL 16.14: 258 passed
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, T-16 durable
-  reconciliation scheduling/outbox/retention cleanup, and deployment runner credentials
+  reconciliation scheduling/staging retention cleanup, and deployment runner credentials
 - T-17 authoritative package-Artifact admission, T-18 materializer/committer deployment wiring,
   and signature/SBOM/malware/vulnerability verification automation
 - A selected production OCI runtime implementation and production package/image admission policy
@@ -143,9 +157,9 @@ Full suite with PostgreSQL 16.14: 258 passed
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-16`: durable reconciliation scheduling, outbox
-delivery, and retention cleanup. T-14 deliberately stops at generic Entity-root lineage and
-provenance completeness; T-30 still owns Release creation and its evidence/review/mapping policy.
-T-17/T-18 production Artifact composition remains explicit work. Audit (`T-05`), catalog (`T-07`),
-and release-specific retention/backup policy are not implied complete.
+The next implementation unit completes `T-16` with a durable tenant-scoped Artifact reconciliation
+schedule/run lease and staging-only retention cleanup. The transactional outbox/inbox and
+ArtifactAvailable event are implemented. T-30 still owns Release creation and evidence policy;
+T-17/T-18 production Artifact composition, Audit (`T-05`), catalog (`T-07`), and release-specific
+retention/backup policy are not implied complete.
 

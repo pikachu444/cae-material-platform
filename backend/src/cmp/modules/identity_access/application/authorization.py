@@ -135,9 +135,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         }
     ),
     Role.CONSUMER: frozenset({Permission.RELEASE_READ}),
-    Role.PLUGIN_MAINTAINER: frozenset(
-        {Permission.PLUGIN_READ, Permission.PLUGIN_SUBMIT}
-    ),
+    Role.PLUGIN_MAINTAINER: frozenset({Permission.PLUGIN_READ, Permission.PLUGIN_SUBMIT}),
     # Operational role for service principals. T-18 adds only the package and scoped
     # artifact permissions required to resolve inputs and commit validated outputs.
     # It is provisioned outside the public role-administration service and cannot grant
@@ -158,16 +156,10 @@ _MODIFYING_OPERATIONS = frozenset(
     {"activate", "control", "decide", "execute", "manage", "publish", "submit", "write"}
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
-    Permission.PROCESSING_EXECUTE: frozenset(
-        {Permission.DATASET_READ, Permission.PROCESSING_READ}
-    ),
-    Permission.STATISTICS_EXECUTE: frozenset(
-        {Permission.DATASET_READ, Permission.STATISTICS_READ}
-    ),
+    Permission.PROCESSING_EXECUTE: frozenset({Permission.DATASET_READ, Permission.PROCESSING_READ}),
+    Permission.STATISTICS_EXECUTE: frozenset({Permission.DATASET_READ, Permission.STATISTICS_READ}),
     Permission.MODELING_WRITE: frozenset({Permission.MODELING_READ}),
-    Permission.CALIBRATION_EXECUTE: frozenset(
-        {Permission.DATASET_READ, Permission.MODELING_READ}
-    ),
+    Permission.CALIBRATION_EXECUTE: frozenset({Permission.DATASET_READ, Permission.MODELING_READ}),
     Permission.EXPORT_EXECUTE: frozenset(
         {Permission.ARTIFACT_READ, Permission.MODELING_READ, Permission.EXPORT_READ}
     ),
@@ -179,9 +171,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.VALIDATION_READ,
         }
     ),
-    Permission.REVIEW_DECIDE: frozenset(
-        {Permission.REVIEW_READ, Permission.PROVENANCE_READ}
-    ),
+    Permission.REVIEW_DECIDE: frozenset({Permission.REVIEW_READ, Permission.PROVENANCE_READ}),
     Permission.RELEASE_PUBLISH: frozenset(
         {Permission.REVIEW_READ, Permission.RELEASE_READ, Permission.PROVENANCE_READ}
     ),
@@ -212,6 +202,24 @@ _PROVENANCE_WRITING_COMMANDS = frozenset(
     }
 )
 
+# T-16 outbox rows are inserted only by an already-authorized owning command. Dispatch and
+# inbox capabilities belong exclusively to the project-scoped operational Job Runner.
+_EVENT_PUBLISHING_COMMANDS = frozenset(
+    {
+        Permission.ARTIFACT_WRITE,
+        Permission.TESTING_WRITE,
+        Permission.DATASET_WRITE,
+        Permission.PROCESSING_EXECUTE,
+        Permission.STATISTICS_EXECUTE,
+        Permission.MODELING_WRITE,
+        Permission.CALIBRATION_EXECUTE,
+        Permission.EXPORT_EXECUTE,
+        Permission.VALIDATION_EXECUTE,
+        Permission.REVIEW_DECIDE,
+        Permission.RELEASE_PUBLISH,
+    }
+)
+
 
 def database_permissions_for(permission: Permission) -> tuple[str, ...]:
     """Expand one authorized command into its minimum transaction-local DB permissions."""
@@ -230,6 +238,10 @@ def database_permissions_for(permission: Permission) -> tuple[str, ...]:
             permissions.add("governance.write")
     if permission in _PROVENANCE_WRITING_COMMANDS:
         permissions.update({"provenance.read", "provenance.write"})
+    if permission in _EVENT_PUBLISHING_COMMANDS:
+        permissions.add("events.publish")
+    if permission is Permission.JOB_EXECUTE:
+        permissions.update({"events.consume", "events.dispatch"})
     return tuple(sorted(permissions))
 
 
@@ -243,9 +255,7 @@ class AuthorizationService:
         self._bindings = bindings
         self._clock = clock or (lambda: datetime.now(UTC))
 
-    def authorize(
-        self, context: SecurityContext, permission: Permission
-    ) -> AuthorizationDecision:
+    def authorize(self, context: SecurityContext, permission: Permission) -> AuthorizationDecision:
         observed_at = self._clock()
         applicable = self._bindings.find_applicable(context, observed_at)
         granting = tuple(
@@ -273,9 +283,7 @@ class AuthorizationService:
             roles=tuple(sorted({binding.role for binding in granting}, key=str)),
             database_permissions=database_permissions_for(permission),
             max_classification=maximum,
-            allow_export_controlled=any(
-                binding.allow_export_controlled for binding in granting
-            ),
+            allow_export_controlled=any(binding.allow_export_controlled for binding in granting),
             request_id=context.request_id,
             trace_id=context.trace_id,
             decided_at=observed_at,
@@ -328,9 +336,7 @@ class RoleBindingAdministrationService:
         self._id_factory = id_factory
         self._clock = clock or (lambda: datetime.now(UTC))
 
-    def grant(
-        self, context: SecurityContext, command: GrantRoleBinding
-    ) -> RoleBinding:
+    def grant(self, context: SecurityContext, command: GrantRoleBinding) -> RoleBinding:
         decision = self._authorization.authorize(context, Permission.IDENTITY_MANAGE)
         if command.organization_id != context.organization_id or command.project_id not in {
             None,
@@ -362,9 +368,7 @@ class RoleBindingAdministrationService:
             grant_reason=command.grant_reason,
         )
 
-    def revoke(
-        self, context: SecurityContext, command: RevokeRoleBinding
-    ) -> None:
+    def revoke(self, context: SecurityContext, command: RevokeRoleBinding) -> None:
         decision = self._authorization.authorize(context, Permission.IDENTITY_MANAGE)
         self._repository.revoke(
             context=context,

@@ -1,0 +1,26 @@
+{
+  "specversion": "1.0",
+  "id": "94000000-0000-4000-8000-000000000001",
+  "source": "urn:cmp:module:artifacts",
+  "type": "io.cmp.artifact.available.v1",
+  "subject": "artifacts/94000000-0000-4000-8000-000000000002",
+  "time": "2026-07-13T15:00:00Z",
+  "datacontenttype": "application/json",
+  "dataschema": "urn:cmp:schema:event:artifact-available:1.0.0",
+  "cmpsequence": 1,
+  "cmporganizationid": "94000000-0000-4000-8000-000000000003",
+  "cmpprojectid": "94000000-0000-4000-8000-000000000004",
+  "cmpclassification": "internal",
+  "data": {
+    "artifact_id": "94000000-0000-4000-8000-000000000002",
+    "pending_artifact_id": "94000000-0000-4000-8000-000000000005",
+    "artifact_kind": "raw",
+    "artifact_role": "raw_source",
+    "schema_ref": null,
+    "media_type": "text/csv",
+    "size_bytes": 12,
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "source_raw_asset_id": "94000000-0000-4000-8000-000000000006",
+    "created_at": "2026-07-13T15:00:00Z"
+  }
+}

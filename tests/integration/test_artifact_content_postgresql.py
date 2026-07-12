@@ -5,7 +5,7 @@ import hashlib
 import os
 import tempfile
 from collections.abc import AsyncIterator, Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
@@ -63,6 +63,21 @@ from cmp.modules.identity_access.domain.security import (
     PrincipalType,
     SecurityContext,
 )
+from cmp.modules.jobs.adapters.persistence.artifact_events import (
+    SqlArtifactAvailableOutboxHook,
+)
+from cmp.modules.jobs.adapters.persistence.events import (
+    SqlAlchemyInboxDeduplicator,
+    SqlAlchemyOutboxRepository,
+    SqlAlchemyOutboxWriter,
+)
+from cmp.modules.jobs.domain.events import (
+    CloudEventDraft,
+    EventConflict,
+    EventLeaseLost,
+    InboxOutcome,
+    InboxReceipt,
+)
 from sqlalchemy.engine import URL, Engine, make_url
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session, sessionmaker
@@ -92,6 +107,8 @@ TRANSFER_SECRET = b"t10-transfer-capability-secret-at-least-32-bytes"
 @dataclass(frozen=True, slots=True)
 class PostgresHarness:
     admin_engine: Engine
+    sessions: sessionmaker[Session]
+    rls: SqlAlchemyRlsContext
     repository: SqlAlchemyArtifactRepository
     artifacts: ArtifactService
     uploads: UploadService
@@ -151,11 +168,13 @@ def postgres() -> Iterator[PostgresHarness]:
                 )
                 connection.exec_driver_sql(
                     "GRANT USAGE ON SCHEMA identity, revisioning, access_control, "
-                    f'governance, artifact TO "{app_role}"'
+                    f'governance, artifact, events TO "{app_role}"'
                 )
                 connection.exec_driver_sql(
-                    "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact "
-                    f'TO "{app_role}"'
+                    f'GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO "{app_role}"'
+                )
+                connection.exec_driver_sql(
+                    f'GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA events TO "{app_role}"'
                 )
                 connection.exec_driver_sql(
                     "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA "
@@ -171,14 +190,13 @@ def postgres() -> Iterator[PostgresHarness]:
             artifact_repository = SqlAlchemyArtifactRepository(
                 session_factory=sessions,
                 rls_context=rls,
+                available_hooks=(SqlArtifactAvailableOutboxHook(),),
             )
             store = FilesystemMultipartObjectStore(Path(temporary))
             artifacts = ArtifactService(
                 repository=artifact_repository,
                 object_store=store,
-                transfers=ArtifactTransferCodec(
-                    TRANSFER_SECRET, clock=lambda: NOW
-                ),
+                transfers=ArtifactTransferCodec(TRANSFER_SECRET, clock=lambda: NOW),
                 clock=lambda: NOW,
             )
             uploads = UploadService(
@@ -187,9 +205,7 @@ def postgres() -> Iterator[PostgresHarness]:
                     rls_context=rls,
                 ),
                 object_store=store,
-                capabilities=UploadCapabilityCodec(
-                    UPLOAD_SECRET, clock=lambda: NOW
-                ),
+                capabilities=UploadCapabilityCodec(UPLOAD_SECRET, clock=lambda: NOW),
                 raw_asset_finalizer=artifacts,
                 policy=UploadPolicy(
                     max_object_bytes=2 * 1024 * 1024,
@@ -202,6 +218,8 @@ def postgres() -> Iterator[PostgresHarness]:
             )
             yield PostgresHarness(
                 admin_engine,
+                sessions,
+                rls,
                 artifact_repository,
                 artifacts,
                 uploads,
@@ -398,13 +416,34 @@ def test_raw_upload_promotes_idempotently_and_artifact_facts_are_immutable(
         return created, raw_id, artifact_id
 
     created, _, artifact_id = asyncio.run(run())
+    with postgres.admin_engine.connect() as connection:
+        event = (
+            connection.execute(
+                sa.text(
+                    "SELECT event_type, sequence_no, data FROM events.outbox_event "
+                    "WHERE aggregate_id = :artifact_id"
+                ),
+                {"artifact_id": artifact_id},
+            )
+            .mappings()
+            .one()
+        )
+        delivery_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM events.outbox_delivery WHERE event_id = ("
+                "SELECT id FROM events.outbox_event WHERE aggregate_id = :artifact_id)"
+            ),
+            {"artifact_id": artifact_id},
+        )
+    assert event["event_type"] == "io.cmp.artifact.available.v1"
+    assert event["sequence_no"] == 1
+    assert event["data"]["artifact_id"] == str(artifact_id)
+    assert "storage_key" not in event["data"]
+    assert delivery_count == 1
     with pytest.raises(DBAPIError, match="immutable"):
         with postgres.admin_engine.begin() as connection:
             connection.execute(
-                sa.text(
-                    "UPDATE artifact.artifact SET media_type = 'text/plain' "
-                    "WHERE id = :id"
-                ),
+                sa.text("UPDATE artifact.artifact SET media_type = 'text/plain' WHERE id = :id"),
                 {"id": artifact_id},
             )
     with pytest.raises(DBAPIError, match="immutable"):
@@ -434,6 +473,262 @@ def test_raw_upload_promotes_idempotently_and_artifact_facts_are_immutable(
             artifact_id,
         )
     assert created.session.id.int != 0
+
+
+def test_outbox_sequence_crash_reclaim_poison_and_inbox_dedup(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context(project_id=PROJECT_B)
+    aggregate_id = uuid4()
+    writer = SqlAlchemyOutboxWriter()
+
+    def draft(sequence: int) -> CloudEventDraft:
+        return CloudEventDraft(
+            organization_id=ORG,
+            project_id=PROJECT_B,
+            classification=DataClassification.INTERNAL,
+            aggregate_type="test.aggregate",
+            aggregate_id=aggregate_id,
+            event_type="io.cmp.test.sequence.v1",
+            source="urn:cmp:test:outbox",
+            subject=f"test/{aggregate_id}",
+            data_schema="urn:cmp:schema:event:test-sequence:1.0.0",
+            data={"value": sequence},
+            occurred_at=NOW + timedelta(seconds=sequence),
+            recorded_by=ACTOR,
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+            deduplication_key=f"test.sequence:{aggregate_id}:{sequence}",
+        )
+
+    with postgres.sessions() as session, session.begin():
+        postgres.rls.bind_authorization(
+            session,
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+        )
+        first = writer.append(
+            session,
+            draft(1),
+            recorded_at=NOW + timedelta(seconds=1),
+        )
+        replay = writer.append(
+            session,
+            draft(1),
+            recorded_at=NOW + timedelta(seconds=1),
+        )
+        second = writer.append(
+            session,
+            draft(2),
+            recorded_at=NOW + timedelta(seconds=2),
+        )
+    assert not first.replayed and replay.replayed
+    assert first.event.id == replay.event.id
+    assert (first.event.sequence_no, second.event.sequence_no) == (1, 2)
+    with postgres.sessions() as session, session.begin():
+        postgres.rls.bind_authorization(
+            session,
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+        )
+        with pytest.raises(EventConflict):
+            writer.append(
+                session,
+                replace(draft(1), data={"value": "substituted"}),
+                recorded_at=NOW + timedelta(seconds=1),
+            )
+
+    other_project_context = _context(project_id=PROJECT_A)
+    with postgres.sessions() as session, session.begin():
+        postgres.rls.bind_authorization(
+            session,
+            other_project_context,
+            _decision(other_project_context, Permission.JOB_EXECUTE),
+        )
+        hidden = session.scalar(
+            sa.text("SELECT id FROM events.outbox_event WHERE id = :event_id"),
+            {"event_id": first.event.id},
+        )
+    assert hidden is None
+
+    repository = SqlAlchemyOutboxRepository(
+        session_factory=postgres.sessions,
+        rls_context=postgres.rls,
+    )
+    execute = _decision(context, Permission.JOB_EXECUTE)
+    claimed = repository.claim(
+        context=context,
+        decision=execute,
+        limit=10,
+        lease_duration=timedelta(seconds=30),
+        now=NOW + timedelta(seconds=3),
+    )
+    assert [item.event.id for item in claimed] == [first.event.id]
+    assert (
+        repository.claim(
+            context=context,
+            decision=execute,
+            limit=10,
+            lease_duration=timedelta(seconds=30),
+            now=NOW + timedelta(seconds=20),
+        )
+        == ()
+    )
+
+    reclaimed = repository.claim(
+        context=context,
+        decision=execute,
+        limit=10,
+        lease_duration=timedelta(seconds=30),
+        now=NOW + timedelta(seconds=34),
+    )
+    assert len(reclaimed) == 1
+    assert reclaimed[0].event.id == first.event.id
+    assert reclaimed[0].lease_token != claimed[0].lease_token
+    assert reclaimed[0].attempt_count == 2
+    with pytest.raises(EventLeaseLost):
+        repository.published(
+            context=context,
+            decision=execute,
+            event_id=first.event.id,
+            lease_token=claimed[0].lease_token,
+            published_at=NOW + timedelta(seconds=35),
+        )
+    repository.published(
+        context=context,
+        decision=execute,
+        event_id=first.event.id,
+        lease_token=reclaimed[0].lease_token,
+        published_at=NOW + timedelta(seconds=35),
+    )
+
+    second_claim = repository.claim(
+        context=context,
+        decision=execute,
+        limit=10,
+        lease_duration=timedelta(seconds=30),
+        now=NOW + timedelta(seconds=36),
+    )
+    assert [item.event.id for item in second_claim] == [second.event.id]
+    assert repository.failed(
+        context=context,
+        decision=execute,
+        event_id=second.event.id,
+        lease_token=second_claim[0].lease_token,
+        failure_code="poison_fixture",
+        retry_at=NOW + timedelta(seconds=40),
+        failed_at=NOW + timedelta(seconds=37),
+        maximum_attempts=1,
+    )
+    with postgres.sessions() as session, session.begin():
+        postgres.rls.bind_authorization(
+            session,
+            context,
+            _decision(context, Permission.ARTIFACT_WRITE),
+        )
+        writer.append(
+            session,
+            draft(3),
+            recorded_at=NOW + timedelta(seconds=38),
+        )
+    assert (
+        repository.claim(
+            context=context,
+            decision=execute,
+            limit=10,
+            lease_duration=timedelta(seconds=30),
+            now=NOW + timedelta(seconds=50),
+        )
+        == ()
+    )
+
+    receipt = InboxReceipt(
+        consumer_name="io.cmp.test.consumer",
+        event_id=first.event.id,
+        event_type=first.event.draft.event_type,
+        data_sha256=first.event.draft.data_sha256,
+        outcome=InboxOutcome.COMPLETED,
+        side_effect_key=f"effect:{first.event.id}",
+        received_at=NOW + timedelta(seconds=35),
+        processed_at=NOW + timedelta(seconds=36),
+    )
+    inserted: list[bool] = []
+    for _ in range(2):
+        with postgres.sessions() as session, session.begin():
+            postgres.rls.bind_authorization(session, context, execute)
+            inserted.append(
+                SqlAlchemyInboxDeduplicator.record(
+                    session,
+                    context=context,
+                    classification=DataClassification.INTERNAL.value,
+                    receipt=receipt,
+                )
+            )
+    assert inserted == [True, False]
+    with postgres.admin_engine.connect() as connection:
+        inbox_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM events.consumer_inbox "
+                "WHERE consumer_name = :consumer AND event_id = :event_id"
+            ),
+            {"consumer": receipt.consumer_name, "event_id": receipt.event_id},
+        )
+    assert inbox_count == 1
+
+
+def test_artifact_and_outbox_roll_back_together_when_later_hook_fails(
+    postgres: PostgresHarness,
+) -> None:
+    def fail_after_outbox(session: Session, result: FinalizedArtifact) -> None:
+        del session, result
+        raise RuntimeError("synthetic post-outbox transaction failure")
+
+    repository = SqlAlchemyArtifactRepository(
+        session_factory=postgres.sessions,
+        rls_context=postgres.rls,
+        available_hooks=(SqlArtifactAvailableOutboxHook(), fail_after_outbox),
+    )
+    service = ArtifactService(
+        repository=repository,
+        object_store=postgres.store,
+        transfers=ArtifactTransferCodec(TRANSFER_SECRET, clock=lambda: NOW),
+        clock=lambda: NOW,
+    )
+    idempotency_key = f"t16-rollback-{uuid4()}"
+    with pytest.raises(RuntimeError, match="post-outbox"):
+        asyncio.run(
+            _stage_derived(
+                service,
+                postgres.store,
+                _context(),
+                b"atomic-artifact-and-outbox",
+                idempotency_key,
+            )
+        )
+
+    with postgres.admin_engine.connect() as connection:
+        pending = (
+            connection.execute(
+                sa.text(
+                    "SELECT reserved_artifact_id, state FROM artifact.artifact_pending "
+                    "WHERE idempotency_key = :idempotency_key"
+                ),
+                {"idempotency_key": idempotency_key},
+            )
+            .mappings()
+            .one()
+        )
+        artifact_count = connection.scalar(
+            sa.text("SELECT count(*) FROM artifact.artifact WHERE id = :artifact_id"),
+            {"artifact_id": pending["reserved_artifact_id"]},
+        )
+        event_count = connection.scalar(
+            sa.text("SELECT count(*) FROM events.outbox_event WHERE aggregate_id = :artifact_id"),
+            {"artifact_id": pending["reserved_artifact_id"]},
+        )
+    assert pending["state"] == "promoting"
+    assert artifact_count == 0
+    assert event_count == 0
 
 
 class _FailOnceStore:
@@ -575,15 +870,11 @@ def test_reconciler_detects_missing_corrupt_orphan_and_missing_staging(
             "t10-corrupt-final",
         )
         postgres.store.remove_for_testing(missing.record.artifact.storage_key)
-        postgres.store.corrupt_for_testing(
-            corrupt.record.artifact.storage_key, b"damaged"
-        )
+        postgres.store.corrupt_for_testing(corrupt.record.artifact.storage_key, b"damaged")
 
         orphan_bytes = b"orphan-final-object"
         orphan_digest = hashlib.sha256(orphan_bytes).hexdigest()
-        orphan_key = content_object_key(
-            ORG, PROJECT_A, DataClassification.INTERNAL, orphan_digest
-        )
+        orphan_key = content_object_key(ORG, PROJECT_A, DataClassification.INTERNAL, orphan_digest)
         await postgres.store.write_for_testing(orphan_key, orphan_bytes)
 
         absent_staging = f"staging/{ORG}/{PROJECT_A}/{uuid4()}.derived"
@@ -641,9 +932,7 @@ def test_reconciler_detects_missing_corrupt_orphan_and_missing_staging(
             ),
             {"missing_id": missing_id, "corrupt_id": corrupt_id},
         )
-        statuses: dict[UUID, str] = {
-            cast(UUID, row[0]): str(row[1]) for row in status_rows
-        }
+        statuses: dict[UUID, str] = {cast(UUID, row[0]): str(row[1]) for row in status_rows}
         assert statuses[missing_id] == "missing"
         assert statuses[corrupt_id] == "corrupt"
         issue_types = set(

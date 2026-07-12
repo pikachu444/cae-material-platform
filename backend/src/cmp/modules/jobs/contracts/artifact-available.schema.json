@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:event:artifact-available:1.0.0",
+  "title": "Artifact Available CloudEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specversion", "id", "source", "type", "subject", "time",
+    "datacontenttype", "dataschema", "cmpsequence", "cmporganizationid",
+    "cmpprojectid", "cmpclassification", "data"
+  ],
+  "properties": {
+    "specversion": {"const": "1.0"},
+    "id": {"type": "string", "format": "uuid"},
+    "source": {"const": "urn:cmp:module:artifacts"},
+    "type": {"const": "io.cmp.artifact.available.v1"},
+    "subject": {
+      "type": "string",
+      "pattern": "^artifacts/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "time": {"type": "string", "format": "date-time"},
+    "datacontenttype": {"const": "application/json"},
+    "dataschema": {"const": "urn:cmp:schema:event:artifact-available:1.0.0"},
+    "cmpsequence": {"type": "integer", "minimum": 1},
+    "cmporganizationid": {"type": "string", "format": "uuid"},
+    "cmpprojectid": {"type": "string", "format": "uuid"},
+    "cmpclassification": {
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id", "pending_artifact_id", "artifact_kind", "artifact_role",
+        "schema_ref", "media_type", "size_bytes", "sha256", "source_raw_asset_id",
+        "created_at"
+      ],
+      "properties": {
+        "artifact_id": {"type": "string", "format": "uuid"},
+        "pending_artifact_id": {"type": "string", "format": "uuid"},
+        "artifact_kind": {"enum": ["raw", "derived", "release"]},
+        "artifact_role": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+        "schema_ref": {"type": ["string", "null"], "maxLength": 500},
+        "media_type": {"type": "string", "minLength": 1, "maxLength": 255},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_raw_asset_id": {"type": ["string", "null"], "format": "uuid"},
+        "created_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

@@ -29,6 +29,9 @@ from cmp.modules.artifacts.application.uploads import (
     UploadPolicy,
     UploadService,
 )
+from cmp.modules.jobs.adapters.persistence.artifact_events import (
+    SqlArtifactAvailableOutboxHook,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,15 +67,12 @@ def build_artifact_services(
             repository=SqlAlchemyArtifactRepository(
                 session_factory=sessions,
                 rls_context=identity.rls_context,
+                available_hooks=(SqlArtifactAvailableOutboxHook(),),
             ),
             object_store=store,
-            transfers=ArtifactTransferCodec(
-                settings.artifact_transfer_secret.encode("utf-8")
-            ),
+            transfers=ArtifactTransferCodec(settings.artifact_transfer_secret.encode("utf-8")),
             policy=ArtifactPolicy(
-                transfer_ttl=timedelta(
-                    seconds=settings.artifact_transfer_ttl_seconds
-                )
+                transfer_ttl=timedelta(seconds=settings.artifact_transfer_ttl_seconds)
             ),
         )
     upload: UploadService | None = None
@@ -83,16 +83,12 @@ def build_artifact_services(
                 rls_context=identity.rls_context,
             ),
             object_store=store,
-            capabilities=UploadCapabilityCodec(
-                settings.upload_capability_secret.encode("utf-8")
-            ),
+            capabilities=UploadCapabilityCodec(settings.upload_capability_secret.encode("utf-8")),
             raw_asset_finalizer=content,
             policy=UploadPolicy(
                 max_object_bytes=settings.upload_max_object_bytes,
                 default_part_bytes=settings.upload_part_bytes,
-                session_ttl=timedelta(
-                    seconds=settings.upload_session_ttl_seconds
-                ),
+                session_ttl=timedelta(seconds=settings.upload_session_ttl_seconds),
             ),
         )
     return ArtifactServices(upload, content)

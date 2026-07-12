@@ -44,14 +44,16 @@ def test_revision_metadata_rejects_latest_and_has_no_generic_content() -> None:
 def test_provenance_entity_examples_accept_revision_and_reject_moving_head() -> None:
     schema = PROJECT_ROOT / "contracts/provenance/provenance-entity-resource.schema.json"
 
-    assert validate_example(
-        schema,
-        PROJECT_ROOT / "contracts/examples/positive/provenance-entity.json",
-    ) == []
+    assert (
+        validate_example(
+            schema,
+            PROJECT_ROOT / "contracts/examples/positive/provenance-entity.json",
+        )
+        == []
+    )
     failures = validate_example(
         schema,
-        PROJECT_ROOT
-        / "contracts/examples/negative/provenance-entity-moving-head.json",
+        PROJECT_ROOT / "contracts/examples/negative/provenance-entity-moving-head.json",
     )
 
     assert failures
@@ -59,31 +61,32 @@ def test_provenance_entity_examples_accept_revision_and_reject_moving_head() -> 
 
 def test_lineage_and_completeness_examples_enforce_bounded_gate_contract() -> None:
     lineage = PROJECT_ROOT / "contracts/provenance/provenance-lineage.schema.json"
-    completeness = (
-        PROJECT_ROOT / "contracts/provenance/provenance-completeness.schema.json"
-    )
+    completeness = PROJECT_ROOT / "contracts/provenance/provenance-completeness.schema.json"
 
-    assert validate_example(
-        lineage,
-        PROJECT_ROOT / "contracts/examples/positive/provenance-lineage.json",
-    ) == []
+    assert (
+        validate_example(
+            lineage,
+            PROJECT_ROOT / "contracts/examples/positive/provenance-lineage.json",
+        )
+        == []
+    )
+    assert (
+        validate_example(
+            completeness,
+            PROJECT_ROOT / "contracts/examples/positive/provenance-completeness.json",
+        )
+        == []
+    )
     assert validate_example(
         completeness,
-        PROJECT_ROOT / "contracts/examples/positive/provenance-completeness.json",
-    ) == []
-    assert validate_example(
-        completeness,
-        PROJECT_ROOT
-        / "contracts/examples/negative/provenance-completeness-false-eligible.json",
+        PROJECT_ROOT / "contracts/examples/negative/provenance-completeness-false-eligible.json",
     )
 
 
 def test_optional_to_required_change_is_breaking() -> None:
     baseline = load_yaml(PROJECT_ROOT / "contracts/http/openapi.baseline.yaml")
     current = deepcopy(baseline)
-    current["components"]["schemas"]["HealthResponse"]["properties"]["build"] = {
-        "type": "string"
-    }
+    current["components"]["schemas"]["HealthResponse"]["properties"]["build"] = {"type": "string"}
     current["components"]["schemas"]["HealthResponse"]["required"].append("build")
 
     breaks = detect_openapi_breaks(baseline, current)
@@ -116,9 +119,7 @@ def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None
     etag = runtime["components"]["headers"]["RevisionETag"]
 
     assert "content" not in revision["properties"]
-    assert {"organization_id", "project_id", "content_hash"}.issubset(
-        revision["required"]
-    )
+    assert {"organization_id", "project_id", "content_hash"}.issubset(revision["required"])
     assert "sha256" in etag["schema"]["pattern"]
 
 
@@ -132,9 +133,7 @@ def test_me_contract_requires_project_and_runtime_bearer_security() -> None:
 
     assert any("project_id" in failure for failure in failures)
     assert runtime["paths"]["/api/v1/me"]["get"]["operationId"] == "getMe"
-    assert runtime["paths"]["/api/v1/me"]["get"]["security"] == [
-        {"BearerAuth": []}
-    ]
+    assert runtime["paths"]["/api/v1/me"]["get"]["security"] == [{"BearerAuth": []}]
     assert runtime["components"]["securitySchemes"]["BearerAuth"]["scheme"] == "bearer"
 
 
@@ -152,16 +151,14 @@ def test_job_contract_and_runtime_expose_submit_read_cancel_and_retry() -> None:
         assert source["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
-    assert source["paths"]["/api/v1/jobs"]["post"]["responses"]["202"][
-        "headers"
-    ]["Location"]["required"]
+    assert source["paths"]["/api/v1/jobs"]["post"]["responses"]["202"]["headers"]["Location"][
+        "required"
+    ]
 
 
 def test_packaged_runtime_job_spec_schema_matches_public_contract_exactly() -> None:
     public = json.loads(
-        (PROJECT_ROOT / "contracts/jobs/job-spec.schema.json").read_text(
-            encoding="utf-8"
-        )
+        (PROJECT_ROOT / "contracts/jobs/job-spec.schema.json").read_text(encoding="utf-8")
     )
     packaged = json.loads(
         files("cmp.modules.jobs.contracts")
@@ -172,15 +169,26 @@ def test_packaged_runtime_job_spec_schema_matches_public_contract_exactly() -> N
     assert packaged == public
 
 
+def test_packaged_artifact_event_schema_matches_async_contract_exactly() -> None:
+    public = json.loads(
+        (PROJECT_ROOT / "contracts/events/artifact-available.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    packaged = json.loads(
+        files("cmp.modules.jobs.contracts")
+        .joinpath("artifact-available.schema.json")
+        .read_text(encoding="utf-8")
+    )
+
+    assert packaged == public
+
+
 def test_python_runner_contract_schemas_match_public_contracts_exactly() -> None:
     for name in ("job-spec.schema.json", "result-manifest.schema.json"):
-        public = json.loads(
-            (PROJECT_ROOT / "contracts/jobs" / name).read_text(encoding="utf-8")
-        )
+        public = json.loads((PROJECT_ROOT / "contracts/jobs" / name).read_text(encoding="utf-8"))
         packaged = json.loads(
-            files("cmp_plugin_sdk.contracts")
-            .joinpath(name)
-            .read_text(encoding="utf-8")
+            files("cmp_plugin_sdk.contracts").joinpath(name).read_text(encoding="utf-8")
         )
 
         assert packaged == public
@@ -202,16 +210,16 @@ def test_upload_contract_and_runtime_expose_stream_complete_cancel_and_raw_asset
         assert source["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
-    assert source["paths"]["/api/v1/uploads"]["post"]["responses"]["201"][
-        "headers"
-    ]["Location"]["required"]
+    assert source["paths"]["/api/v1/uploads"]["post"]["responses"]["201"]["headers"]["Location"][
+        "required"
+    ]
 
 
 def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
     schema = json.loads(
-        (
-            PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json"
-        ).read_text(encoding="utf-8")
+        (PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json").read_text(
+            encoding="utf-8"
+        )
     )
     runtime = app.openapi()["components"]["schemas"]["RawAssetResponse"]
 
@@ -240,17 +248,15 @@ def test_content_artifact_contract_and_runtime_expose_scoped_streaming_download(
         assert source["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
-    parameters = source["paths"][
-        "/api/v1/artifacts/{artifact_id}/content"
-    ]["get"]["parameters"]
+    parameters = source["paths"]["/api/v1/artifacts/{artifact_id}/content"]["get"]["parameters"]
     assert any(item.get("name") == "Artifact-Transfer-Token" for item in parameters)
 
 
 def test_content_artifact_public_contract_never_exposes_object_key() -> None:
     schema = json.loads(
-        (
-            PROJECT_ROOT / "contracts/artifacts/artifact-resource.schema.json"
-        ).read_text(encoding="utf-8")
+        (PROJECT_ROOT / "contracts/artifacts/artifact-resource.schema.json").read_text(
+            encoding="utf-8"
+        )
     )
     runtime = app.openapi()["components"]["schemas"]["ArtifactResponse"]
 
@@ -294,35 +300,29 @@ def test_provenance_contract_and_runtime_expose_read_only_entity_lookup() -> Non
 
 def test_provenance_public_contract_hides_polymorphic_database_details() -> None:
     entity = json.loads(
-        (
-            PROJECT_ROOT
-            / "contracts/provenance/provenance-entity-resource.schema.json"
-        ).read_text(encoding="utf-8")
+        (PROJECT_ROOT / "contracts/provenance/provenance-entity-resource.schema.json").read_text(
+            encoding="utf-8"
+        )
     )
     runtime = app.openapi()["components"]["schemas"]["ProvenanceEntityResponse"]
     lineage = json.loads(
-        (
-            PROJECT_ROOT / "contracts/provenance/provenance-lineage.schema.json"
-        ).read_text(encoding="utf-8")
+        (PROJECT_ROOT / "contracts/provenance/provenance-lineage.schema.json").read_text(
+            encoding="utf-8"
+        )
     )
     completeness = json.loads(
-        (
-            PROJECT_ROOT
-            / "contracts/provenance/provenance-completeness.schema.json"
-        ).read_text(encoding="utf-8")
+        (PROJECT_ROOT / "contracts/provenance/provenance-completeness.schema.json").read_text(
+            encoding="utf-8"
+        )
     )
-    serialized = json.dumps(
-        {"entity": entity, "lineage": lineage, "completeness": completeness}
-    )
+    serialized = json.dumps({"entity": entity, "lineage": lineage, "completeness": completeness})
     runtime_schemas = app.openapi()["components"]["schemas"]
 
     assert "domain_ref_table" not in serialized
     assert "storage_key" not in serialized
     assert "edge_type" not in serialized
     assert set(runtime["required"]) == set(entity["required"])
-    assert set(runtime_schemas["LineagePageResponse"]["required"]) == set(
-        lineage["required"]
-    )
+    assert set(runtime_schemas["LineagePageResponse"]["required"]) == set(lineage["required"])
     assert set(runtime_schemas["ProvenanceCompletenessResponse"]["required"]) == set(
         completeness["required"]
     )
@@ -352,16 +352,14 @@ def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:
         assert source["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["operationId"] == operation_id
         assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
-    assert source["paths"]["/api/v1/plugins/packages"]["post"]["responses"][
-        "201"
-    ]["headers"]["Idempotent-Replay"]["required"]
+    assert source["paths"]["/api/v1/plugins/packages"]["post"]["responses"]["201"]["headers"][
+        "Idempotent-Replay"
+    ]["required"]
 
 
 def test_packaged_runtime_plugin_manifest_matches_public_contract_exactly() -> None:
     public = json.loads(
-        (PROJECT_ROOT / "contracts/plugins/plugin-manifest.schema.json").read_text(
-            encoding="utf-8"
-        )
+        (PROJECT_ROOT / "contracts/plugins/plugin-manifest.schema.json").read_text(encoding="utf-8")
     )
     packaged = json.loads(
         files("cmp.modules.plugins.contracts")
@@ -375,21 +373,15 @@ def test_packaged_runtime_plugin_manifest_matches_public_contract_exactly() -> N
 def test_runtime_plugin_request_and_resource_required_fields_match_public_schemas() -> None:
     runtime = app.openapi()["components"]["schemas"]
     registration = json.loads(
-        (
-            PROJECT_ROOT
-            / "contracts/plugins/plugin-package-registration.schema.json"
-        ).read_text(encoding="utf-8")
+        (PROJECT_ROOT / "contracts/plugins/plugin-package-registration.schema.json").read_text(
+            encoding="utf-8"
+        )
     )
     resource = json.loads(
-        (
-            PROJECT_ROOT / "contracts/plugins/plugin-package-resource.schema.json"
-        ).read_text(encoding="utf-8")
+        (PROJECT_ROOT / "contracts/plugins/plugin-package-resource.schema.json").read_text(
+            encoding="utf-8"
+        )
     )
 
-    assert set(runtime["RegisterPluginPackageRequest"]["required"]) == set(
-        registration["required"]
-    )
-    assert set(runtime["PluginPackageResponse"]["required"]) == set(
-        resource["required"]
-    )
-
+    assert set(runtime["RegisterPluginPackageRequest"]["required"]) == set(registration["required"])
+    assert set(runtime["PluginPackageResponse"]["required"]) == set(resource["required"])

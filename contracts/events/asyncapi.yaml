@@ -1,14 +1,31 @@
 asyncapi: 3.0.0
 info:
   title: CAE Material Platform Events
-  version: 0.1.0
+  version: 0.2.0
   description: >-
-    Transport-neutral event contract shell. Domain events begin with the transactional outbox task;
-    no material-domain event is defined in T-01/T-02.
+    Transport-neutral CloudEvents 1.0 contracts delivered at least once from the PostgreSQL
+    transactional outbox. Consumers must use the tenant-scoped inbox event ID for deduplication.
 defaultContentType: application/json
-channels: {}
-operations: {}
+channels:
+  artifactAvailable:
+    address: io.cmp.artifact.available.v1
+    messages:
+      artifactAvailable:
+        $ref: '#/components/messages/ArtifactAvailable'
+operations:
+  publishArtifactAvailable:
+    action: send
+    channel:
+      $ref: '#/channels/artifactAvailable'
+    messages:
+      - $ref: '#/channels/artifactAvailable/messages/artifactAvailable'
 components:
-  messages: {}
+  messages:
+    ArtifactAvailable:
+      name: ArtifactAvailable
+      title: Immutable Artifact became available
+      contentType: application/json
+      payload:
+        $ref: './artifact-available.schema.json'
   schemas: {}
 

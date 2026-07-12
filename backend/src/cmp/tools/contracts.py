@@ -21,12 +21,14 @@ POSITIVE_EXAMPLES = {
     "material-model-ir.json": "contracts/ir/material-model-ir-envelope.schema.json",
     "me-response.json": "contracts/identity/me-response.schema.json",
     "revision-metadata.json": "contracts/revisions/revision-metadata.schema.json",
+    "artifact-available-event.json": "contracts/events/artifact-available.schema.json",
 }
 NEGATIVE_EXAMPLES = {
     "job-spec-latest.json": "contracts/jobs/job-spec.schema.json",
     "me-response-missing-project.json": "contracts/identity/me-response.schema.json",
     "plugin-manifest-missing-digest.json": "contracts/plugins/plugin-manifest.schema.json",
     "revision-metadata-latest.json": "contracts/revisions/revision-metadata.schema.json",
+    "artifact-available-event-storage-key.json": "contracts/events/artifact-available.schema.json",
 }
 
 

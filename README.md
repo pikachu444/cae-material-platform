@@ -1,10 +1,10 @@
 # CAE Material Platform
 
 Status: identity, authorization, revision, streaming Raw Asset upload, immutable content Artifact,
-typed provenance and bounded lineage, durable job, plugin registry, and isolated runner foundation
-(`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-13`–`T-15` + `T-17` + `T-18`)
+typed provenance and bounded lineage, durable job and transactional event, plugin registry, and
+isolated runner foundation (`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-13`–`T-18`)
 
-Version: `0.11.0`
+Version: `0.12.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
@@ -18,6 +18,9 @@ T-13 adds domain-neutral typed Entity/Activity/Agent relations and fail-closed c
 creating any Material, Dataset, Test, fitting, or solver implementation.
 T-14 adds bounded bidirectional lineage, impact pagination, and a generic Entity-root provenance
 completeness gate. Release creation and release-specific evidence policy remain owned by T-30.
+T-16 phase 1 adds a PostgreSQL transactional CloudEvent outbox, fenced at-least-once delivery,
+consumer inbox deduplication, and an atomic ArtifactAvailable event. Durable reconciliation
+scheduling and staging-retention cleanup remain the next phase of T-16.
 
 ## Implemented foundation
 
@@ -88,6 +91,12 @@ completeness gate. Release creation and release-specific evidence policy remain 
   opaque cursor pagination, and fail-closed provenance completeness APIs
 - PostgreSQL security-invoker typed read models and depth/node limits with 10-hop/10,000-edge
   performance and organization/project/classification isolation fixtures
+- Explicit PostgreSQL `events.outbox_event`, delivery lease, and consumer inbox relations with
+  aggregate sequence, producer deduplication, poison quarantine, forced RLS, and immutable facts
+- Schema-validated CloudEvents 1.0 ArtifactAvailable event committed atomically with the immutable
+  Artifact; no object key or vendor transport detail is exposed
+- Broker-neutral at-least-once publisher port with lease fencing, crash reclaim, per-aggregate
+  ordering, and same-transaction consumer inbox deduplication
 
 ## Prerequisites
 
@@ -150,13 +159,14 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA plugin TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA provenance TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA events TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance TO cmp_app;
 ```
 
@@ -209,7 +219,9 @@ non-production; production requires an attested OCI runtime. T-10 provides autho
 finalization, integrity reconciliation, and protected byte streaming, but production S3/credential
 composition and T-18 package/input/output policy adapters remain deployment work, so an
 unconfigured worker stays idle. T-09 Raw Asset facts remain immutable after T-10 promotion.
-T-16 owns durable reconciliation scheduling, outbox delivery, and retention cleanup automation.
+T-16 phase 1 owns transactional outbox delivery and inbox deduplication. Durable reconciliation
+scheduling and safe staging-only retention cleanup remain T-16 phase 2; final/raw/release objects
+are never cleanup candidates.
 T-13 accepts only owner-attested immutable references and does not expose arbitrary graph writes.
 T-14 provides bounded Entity-root traversal and provenance completeness only; it does not provide
 arbitrary graph analytics or create a Release resource. T-30 owns release composition and the
@@ -217,9 +229,9 @@ release-specific evidence/mapping/review gate that consumes this generic report.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-16` (phase 1), `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
-  `FR-API-002`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
+  `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
   `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `FR-DAT-005`, `FR-DAT-007`,
   `FR-DAT-008`, `FR-WF-003`, `NFR-INT-001`,

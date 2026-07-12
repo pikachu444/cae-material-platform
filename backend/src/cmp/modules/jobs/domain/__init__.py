@@ -1,5 +1,18 @@
-"""Public T-15 job domain types."""
+"""Public T-15 job and T-16 event domain types."""
 
+from cmp.modules.jobs.domain.events import (
+    ClaimedCloudEvent,
+    CloudEventDraft,
+    CloudEventRecord,
+    DeliveryState,
+    EventConflict,
+    EventError,
+    EventLeaseLost,
+    EventNotFound,
+    InboxOutcome,
+    InboxReceipt,
+    InvalidCloudEvent,
+)
 from cmp.modules.jobs.domain.jobs import (
     ACTIVE_ATTEMPT_STATES,
     TERMINAL_ATTEMPT_STATES,
@@ -34,10 +47,21 @@ __all__ = [
     "TERMINAL_JOB_STATES",
     "AttemptRecord",
     "AttemptState",
+    "ClaimedCloudEvent",
+    "CloudEventDraft",
+    "CloudEventRecord",
+    "DeliveryState",
+    "EventConflict",
+    "EventError",
+    "EventLeaseLost",
+    "EventNotFound",
     "Failure",
     "FailureCategory",
     "FinalizeConflict",
     "ImmutableJobSpec",
+    "InboxOutcome",
+    "InboxReceipt",
+    "InvalidCloudEvent",
     "InvalidJobSpec",
     "InvalidJobTransition",
     "JobConflict",
