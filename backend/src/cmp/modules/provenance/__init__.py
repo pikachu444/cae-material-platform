@@ -1,2 +1,2 @@
-"""Provenance module namespace; implementation begins at T-13."""
+"""T-13 typed provenance module."""
 

@@ -41,6 +41,22 @@ def test_revision_metadata_rejects_latest_and_has_no_generic_content() -> None:
     assert "content" not in schema["properties"]
 
 
+def test_provenance_entity_examples_accept_revision_and_reject_moving_head() -> None:
+    schema = PROJECT_ROOT / "contracts/provenance/provenance-entity-resource.schema.json"
+
+    assert validate_example(
+        schema,
+        PROJECT_ROOT / "contracts/examples/positive/provenance-entity.json",
+    ) == []
+    failures = validate_example(
+        schema,
+        PROJECT_ROOT
+        / "contracts/examples/negative/provenance-entity-moving-head.json",
+    )
+
+    assert failures
+
+
 def test_optional_to_required_change_is_breaking() -> None:
     baseline = load_yaml(PROJECT_ROOT / "contracts/http/openapi.baseline.yaml")
     current = deepcopy(baseline)
@@ -220,6 +236,43 @@ def test_content_artifact_public_contract_never_exposes_object_key() -> None:
     for forbidden in ("storage_key", "staging_object_key", "final_object_key"):
         assert forbidden not in schema["properties"]
         assert forbidden not in runtime["properties"]
+
+
+def test_provenance_contract_and_runtime_expose_read_only_entity_lookup() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/provenance/entities/{entity_id}": (
+            "get",
+            "getProvenanceEntity",
+        ),
+    }
+
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+    assert all(
+        method not in source["paths"][path]
+        for path in operations
+        for method in ("post", "put", "patch", "delete")
+    )
+
+
+def test_provenance_public_contract_hides_polymorphic_database_details() -> None:
+    entity = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/provenance/provenance-entity-resource.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    serialized = json.dumps({"entity": entity})
+    runtime = app.openapi()["components"]["schemas"]["ProvenanceEntityResponse"]
+
+    assert "domain_ref_table" not in serialized
+    assert "storage_key" not in serialized
+    assert "edge_type" not in serialized
+    assert set(runtime["required"]) == set(entity["required"])
 
 
 def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:

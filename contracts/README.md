@@ -1,7 +1,7 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-15` + `T-17` +
-`T-18`, HTTP contract version `0.9.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-13` + `T-15` +
+`T-17` + `T-18`, HTTP contract version `0.10.0`.
 
 ## Files
 
@@ -11,6 +11,7 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-15` + `T-17` +
 - `jobs/*.schema.json`: immutable runner envelopes
 - `artifacts/*.schema.json`: upload/Raw Asset plus immutable Artifact metadata, transfer grant,
   completion, and sanitized problem contracts
+- `provenance/*.schema.json`: immutable Entity/completeness lookup and sanitized problem contract
 - `plugins/plugin-manifest.schema.json`: package metadata baseline
 - `plugins/plugin-package-registration.schema.json`: signed package/SBOM/schema registration input
 - `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
@@ -50,6 +51,9 @@ Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-10` + `T-15` + `T-17` +
 - Artifact metadata exposes content digest, semantic role/schema, encryption profile, and current
   integrity status. Staging/final object keys stay internal; byte transfer requires bearer
   authorization plus an actor/tenant/content/expiry-bound capability header.
+- Provenance Entity responses expose an immutable typed UUID/digest reference and primary
+  generation completeness. No public graph-write or recursive lineage endpoint is part of T-13;
+  moving head aliases are rejected and T-14 owns bounded traversal.
 - Plugin registration separates a stable Definition from immutable version/digest Packages. A
   package becomes eligible only after an authorized verification event and activation is scoped to
   the selected organization/project; revocation never overwrites package or state-history facts.

@@ -145,7 +145,13 @@ def test_each_role_action_also_grants_its_typed_database_dependencies() -> None:
             typed_dependencies = {
                 Permission(value)
                 for value in database_permissions_for(action)
-                if value not in {"governance.read", "governance.write"}
+                if value
+                not in {
+                    "governance.read",
+                    "governance.write",
+                    "provenance.read",
+                    "provenance.write",
+                }
             }
             assert typed_dependencies.issubset(permissions)
 
@@ -239,6 +245,8 @@ def test_write_decision_expands_only_required_read_and_governance_permissions() 
         "dataset.write",
         "governance.read",
         "governance.write",
+        "provenance.read",
+        "provenance.write",
     )
 
 
@@ -253,6 +261,8 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
         "governance.read",
         "governance.write",
         "modeling.read",
+        "provenance.read",
+        "provenance.write",
         "validation.execute",
         "validation.read",
     )

@@ -1,4 +1,4 @@
-"""FastAPI composition root for identity, uploads, jobs, and plugin registry."""
+"""FastAPI composition root for identity, artifacts, jobs, plugins, and provenance."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
+from cmp.bootstrap.provenance import build_provenance_service
 from cmp.bootstrap.security import IdentityServices, build_identity_services
 from cmp.bootstrap.settings import Settings
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
@@ -28,6 +29,8 @@ from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
 from cmp.modules.jobs.application.jobs import JobService
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
+from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
+from cmp.modules.provenance.application.service import ProvenanceService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
 
@@ -49,13 +52,14 @@ def create_app(
     plugin_registry_service: PluginRegistryService | None = None,
     upload_service: UploadService | None = None,
     artifact_service: ArtifactService | None = None,
+    provenance_service: ProvenanceService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Identity, streaming upload, durable job, and plugin foundation.",
+        summary="Identity, immutable data, durable execution, and provenance foundation.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -131,6 +135,15 @@ def create_app(
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.ARTIFACT_READ
+        ),
+    )
+    resolved_provenance = provenance_service or build_provenance_service(services)
+    install_provenance_api(
+        application,
+        service=resolved_provenance,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROVENANCE_READ
         ),
     )
     application.state.authorization_service = services.authorization

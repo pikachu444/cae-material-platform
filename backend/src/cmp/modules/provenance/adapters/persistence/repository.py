@@ -1,0 +1,760 @@
+"""RLS-bound PostgreSQL repository and T-06 hook for typed provenance."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from datetime import datetime
+from typing import Any, Protocol, cast
+from uuid import UUID, uuid4
+
+import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.engine import RowMapping
+from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.orm import Session, sessionmaker
+
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+)
+from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.provenance.application.service import ResolvedActivityCommit
+from cmp.modules.provenance.domain.model import (
+    ActivityCommitResult,
+    ActivityStatus,
+    AgentReference,
+    AgentType,
+    CompletenessState,
+    EntityCompleteness,
+    EntityReferenceKind,
+    GenerationRequirement,
+    ImmutableEntityReference,
+    ProvenanceActivity,
+    ProvenanceAgent,
+    ProvenanceConflict,
+    ProvenanceEntity,
+    ProvenanceNotFound,
+    ProvenanceRecord,
+    ProvenanceScope,
+)
+from cmp.shared.domain.revisions import RevisionCreated, content_sha256
+
+metadata = sa.MetaData()
+uuid_type = postgresql.UUID(as_uuid=True)
+
+
+def _scope_columns() -> list[sa.Column[Any]]:
+    return [
+        sa.Column("organization_id", uuid_type, nullable=False),
+        sa.Column("project_id", uuid_type, nullable=False),
+        sa.Column("classification", sa.String(64), nullable=False),
+    ]
+
+
+entity_table = sa.Table(
+    "entity",
+    metadata,
+    *_scope_columns(),
+    sa.Column("id", uuid_type, nullable=False),
+    sa.Column("entity_type", sa.String(100), nullable=False),
+    sa.Column("reference_kind", sa.String(32), nullable=False),
+    sa.Column("reference_type", sa.String(100), nullable=False),
+    sa.Column("reference_id", uuid_type, nullable=False),
+    sa.Column("content_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("generation_requirement", sa.String(16), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("recorded_by", uuid_type, nullable=False),
+    sa.Column("request_id", uuid_type, nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="provenance",
+)
+
+activity_table = sa.Table(
+    "activity",
+    metadata,
+    *_scope_columns(),
+    sa.Column("id", uuid_type, nullable=False),
+    sa.Column("activity_type", sa.String(100), nullable=False),
+    sa.Column("domain_run_type", sa.String(100), nullable=False),
+    sa.Column("domain_run_id", uuid_type, nullable=False),
+    sa.Column("status", sa.String(16), nullable=False),
+    sa.Column("input_required", sa.Boolean(), nullable=False),
+    sa.Column("output_required", sa.Boolean(), nullable=False),
+    sa.Column("started_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("ended_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("submission_digest", sa.CHAR(64), nullable=False),
+    sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("recorded_by", uuid_type, nullable=False),
+    sa.Column("request_id", uuid_type, nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="provenance",
+)
+
+agent_table = sa.Table(
+    "agent",
+    metadata,
+    *_scope_columns(),
+    sa.Column("id", uuid_type, nullable=False),
+    sa.Column("agent_type", sa.String(32), nullable=False),
+    sa.Column("reference_id", uuid_type, nullable=False),
+    sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("recorded_by", uuid_type, nullable=False),
+    sa.Column("request_id", uuid_type, nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="provenance",
+)
+
+
+def _relation_table(name: str, *columns: sa.Column[Any]) -> sa.Table:
+    return sa.Table(
+        name,
+        metadata,
+        *_scope_columns(),
+        *columns,
+        sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("recorded_by", uuid_type, nullable=False),
+        schema="provenance",
+    )
+
+
+usage_table = _relation_table(
+    "usage",
+    sa.Column("activity_id", uuid_type, nullable=False),
+    sa.Column("entity_id", uuid_type, nullable=False),
+    sa.Column("role", sa.String(100), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+)
+generation_table = _relation_table(
+    "generation",
+    sa.Column("entity_id", uuid_type, nullable=False),
+    sa.Column("activity_id", uuid_type, nullable=False),
+    sa.Column("role", sa.String(100), nullable=False),
+    sa.Column("generated_at", sa.DateTime(timezone=True), nullable=False),
+)
+derivation_table = _relation_table(
+    "derivation",
+    sa.Column("generated_entity_id", uuid_type, nullable=False),
+    sa.Column("used_entity_id", uuid_type, nullable=False),
+    sa.Column("activity_id", uuid_type, nullable=True),
+    sa.Column("derivation_kind", sa.String(100), nullable=False),
+)
+association_table = _relation_table(
+    "association",
+    sa.Column("activity_id", uuid_type, nullable=False),
+    sa.Column("agent_id", uuid_type, nullable=False),
+    sa.Column("role", sa.String(100), nullable=False),
+    sa.Column("plan_entity_id", uuid_type, nullable=True),
+)
+revision_table = _relation_table(
+    "revision",
+    sa.Column("newer_entity_id", uuid_type, nullable=False),
+    sa.Column("prior_entity_id", uuid_type, nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+)
+attribution_table = _relation_table(
+    "attribution",
+    sa.Column("entity_id", uuid_type, nullable=False),
+    sa.Column("agent_id", uuid_type, nullable=False),
+    sa.Column("role", sa.String(100), nullable=False),
+)
+
+
+class RlsContext(Protocol):
+    def bind_authorization(
+        self,
+        session: Session,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> None: ...
+
+
+def _scope_values(scope: ProvenanceScope) -> dict[str, object]:
+    return {
+        "organization_id": scope.organization_id,
+        "project_id": scope.project_id,
+        "classification": scope.classification.value,
+    }
+
+
+def _entity(row: RowMapping) -> ProvenanceEntity:
+    scope = ProvenanceScope(
+        organization_id=cast(UUID, row["organization_id"]),
+        project_id=cast(UUID, row["project_id"]),
+        classification=DataClassification(str(row["classification"])),
+    )
+    reference = ImmutableEntityReference(
+        kind=EntityReferenceKind(str(row["reference_kind"])),
+        reference_type=str(row["reference_type"]),
+        reference_id=cast(UUID, row["reference_id"]),
+        content_sha256=str(row["content_sha256"]),
+    )
+    return ProvenanceEntity(
+        id=cast(UUID, row["id"]),
+        scope=scope,
+        entity_type=str(row["entity_type"]),
+        reference=reference,
+        generation_requirement=GenerationRequirement(
+            str(row["generation_requirement"])
+        ),
+        created_at=row["created_at"],
+        recorded_at=row["recorded_at"],
+        recorded_by=cast(UUID, row["recorded_by"]),
+    )
+
+
+def _activity(row: RowMapping) -> ProvenanceActivity:
+    return ProvenanceActivity(
+        id=cast(UUID, row["id"]),
+        scope=ProvenanceScope(
+            organization_id=cast(UUID, row["organization_id"]),
+            project_id=cast(UUID, row["project_id"]),
+            classification=DataClassification(str(row["classification"])),
+        ),
+        activity_type=str(row["activity_type"]),
+        domain_run_type=str(row["domain_run_type"]),
+        domain_run_id=cast(UUID, row["domain_run_id"]),
+        status=ActivityStatus(str(row["status"])),
+        started_at=row["started_at"],
+        ended_at=row["ended_at"],
+        submission_digest=str(row["submission_digest"]),
+        recorded_at=row["recorded_at"],
+        recorded_by=cast(UUID, row["recorded_by"]),
+    )
+
+
+def _entity_values(
+    entity: ProvenanceEntity,
+    *,
+    request_id: UUID,
+    trace_id: str,
+) -> dict[str, object]:
+    return {
+        **_scope_values(entity.scope),
+        "id": entity.id,
+        "entity_type": entity.entity_type,
+        "reference_kind": entity.reference.kind.value,
+        "reference_type": entity.reference.reference_type,
+        "reference_id": entity.reference.reference_id,
+        "content_sha256": entity.reference.content_sha256,
+        "generation_requirement": entity.generation_requirement.value,
+        "created_at": entity.created_at,
+        "recorded_at": entity.recorded_at,
+        "recorded_by": entity.recorded_by,
+        "request_id": request_id,
+        "trace_id": trace_id,
+    }
+
+
+def _agent_values(
+    agent: ProvenanceAgent,
+    *,
+    request_id: UUID,
+    trace_id: str,
+) -> dict[str, object]:
+    return {
+        **_scope_values(agent.scope),
+        "id": agent.id,
+        "agent_type": agent.reference.agent_type.value,
+        "reference_id": agent.reference.reference_id,
+        "recorded_at": agent.recorded_at,
+        "recorded_by": agent.recorded_by,
+        "request_id": request_id,
+        "trace_id": trace_id,
+    }
+
+
+def _relation_values(
+    scope: ProvenanceScope,
+    *,
+    recorded_at: datetime,
+    recorded_by: UUID,
+) -> dict[str, object]:
+    return {
+        **_scope_values(scope),
+        "recorded_at": recorded_at,
+        "recorded_by": recorded_by,
+    }
+
+
+class SqlAlchemyProvenanceRepository:
+    def __init__(
+        self,
+        *,
+        session_factory: sessionmaker[Session],
+        rls_context: RlsContext,
+    ) -> None:
+        self._sessions = session_factory
+        self._rls = rls_context
+
+    def _bind(
+        self,
+        session: Session,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> None:
+        self._rls.bind_authorization(session, context, decision)
+
+    @staticmethod
+    def _find_entity(
+        session: Session,
+        scope: ProvenanceScope,
+        reference: ImmutableEntityReference,
+    ) -> ProvenanceEntity | None:
+        row = session.execute(
+            sa.select(entity_table).where(
+                entity_table.c.organization_id == scope.organization_id,
+                entity_table.c.project_id == scope.project_id,
+                entity_table.c.reference_kind == reference.kind.value,
+                entity_table.c.reference_type == reference.reference_type,
+                entity_table.c.reference_id == reference.reference_id,
+            )
+        ).mappings().one_or_none()
+        return _entity(row) if row is not None else None
+
+    @staticmethod
+    def _ensure_entity(
+        session: Session,
+        candidate: ProvenanceEntity,
+        *,
+        request_id: UUID,
+        trace_id: str,
+    ) -> ProvenanceEntity:
+        existing = SqlAlchemyProvenanceRepository._find_entity(
+            session, candidate.scope, candidate.reference
+        )
+        if existing is not None:
+            if (
+                existing.entity_type != candidate.entity_type
+                or existing.reference.content_sha256
+                != candidate.reference.content_sha256
+                or existing.generation_requirement
+                is not candidate.generation_requirement
+                or existing.scope != candidate.scope
+            ):
+                raise ProvenanceConflict(
+                    "immutable Entity reference was already registered with different facts"
+                )
+            return existing
+        session.execute(
+            sa.insert(entity_table).values(
+                _entity_values(candidate, request_id=request_id, trace_id=trace_id)
+            )
+        )
+        return candidate
+
+    @staticmethod
+    def _ensure_agent(
+        session: Session,
+        candidate: ProvenanceAgent,
+        *,
+        request_id: UUID,
+        trace_id: str,
+    ) -> ProvenanceAgent:
+        row = session.execute(
+            sa.select(agent_table).where(
+                agent_table.c.organization_id == candidate.scope.organization_id,
+                agent_table.c.project_id == candidate.scope.project_id,
+                agent_table.c.classification == candidate.scope.classification.value,
+                agent_table.c.agent_type == candidate.reference.agent_type.value,
+                agent_table.c.reference_id == candidate.reference.reference_id,
+            )
+        ).mappings().one_or_none()
+        if row is not None:
+            return ProvenanceAgent(
+                id=cast(UUID, row["id"]),
+                scope=candidate.scope,
+                reference=candidate.reference,
+                recorded_at=row["recorded_at"],
+                recorded_by=cast(UUID, row["recorded_by"]),
+            )
+        session.execute(
+            sa.insert(agent_table).values(
+                _agent_values(candidate, request_id=request_id, trace_id=trace_id)
+            )
+        )
+        return candidate
+
+    @staticmethod
+    def _replayed_result(session: Session, activity: ProvenanceActivity) -> ActivityCommitResult:
+        input_ids = tuple(
+            cast(UUID, value)
+            for value in session.scalars(
+                sa.select(usage_table.c.entity_id)
+                .where(
+                    usage_table.c.organization_id == activity.scope.organization_id,
+                    usage_table.c.project_id == activity.scope.project_id,
+                    usage_table.c.activity_id == activity.id,
+                )
+                .order_by(usage_table.c.ordinal, usage_table.c.entity_id)
+            )
+        )
+        output_ids = tuple(
+            cast(UUID, value)
+            for value in session.scalars(
+                sa.select(generation_table.c.entity_id)
+                .where(
+                    generation_table.c.organization_id == activity.scope.organization_id,
+                    generation_table.c.project_id == activity.scope.project_id,
+                    generation_table.c.activity_id == activity.id,
+                )
+                .order_by(generation_table.c.entity_id)
+            )
+        )
+        agent_ids = tuple(
+            cast(UUID, value)
+            for value in session.scalars(
+                sa.select(association_table.c.agent_id)
+                .where(
+                    association_table.c.organization_id == activity.scope.organization_id,
+                    association_table.c.project_id == activity.scope.project_id,
+                    association_table.c.activity_id == activity.id,
+                )
+                .order_by(association_table.c.agent_id)
+            )
+        )
+        return ActivityCommitResult(activity, input_ids, output_ids, agent_ids, True)
+
+    def commit_activity(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        commit: ResolvedActivityCommit,
+    ) -> ActivityCommitResult:
+        try:
+            with self._sessions() as session, session.begin():
+                self._bind(session, context, decision)
+                activity = commit.activity
+                existing_row = session.execute(
+                    sa.select(activity_table).where(
+                        activity_table.c.organization_id
+                        == activity.scope.organization_id,
+                        activity_table.c.project_id == activity.scope.project_id,
+                        activity_table.c.domain_run_type == activity.domain_run_type,
+                        activity_table.c.domain_run_id == activity.domain_run_id,
+                    )
+                ).mappings().one_or_none()
+                if existing_row is not None:
+                    existing = _activity(existing_row)
+                    if existing.submission_digest != activity.submission_digest:
+                        raise ProvenanceConflict(
+                            "domain run identity was already committed with another graph"
+                        )
+                    return self._replayed_result(session, existing)
+
+                entity_by_reference = {
+                    item.reference: self._ensure_entity(
+                        session,
+                        item,
+                        request_id=context.request_id,
+                        trace_id=context.trace_id,
+                    )
+                    for item in commit.entities
+                }
+                agent_by_reference = {
+                    item.reference: self._ensure_agent(
+                        session,
+                        item,
+                        request_id=context.request_id,
+                        trace_id=context.trace_id,
+                    )
+                    for item in commit.agents
+                }
+                session.execute(
+                    sa.insert(activity_table).values(
+                        **_scope_values(activity.scope),
+                        id=activity.id,
+                        activity_type=activity.activity_type,
+                        domain_run_type=activity.domain_run_type,
+                        domain_run_id=activity.domain_run_id,
+                        status=activity.status.value,
+                        input_required=True,
+                        output_required=activity.status is ActivityStatus.SUCCEEDED,
+                        started_at=activity.started_at,
+                        ended_at=activity.ended_at,
+                        submission_digest=activity.submission_digest,
+                        recorded_at=activity.recorded_at,
+                        recorded_by=activity.recorded_by,
+                        request_id=context.request_id,
+                        trace_id=context.trace_id,
+                    )
+                )
+                relation_base = _relation_values(
+                    activity.scope,
+                    recorded_at=activity.recorded_at,
+                    recorded_by=activity.recorded_by,
+                )
+                for item in commit.command.inputs:
+                    session.execute(
+                        sa.insert(usage_table).values(
+                            **relation_base,
+                            activity_id=activity.id,
+                            entity_id=entity_by_reference[item.entity].id,
+                            role=item.role,
+                            ordinal=item.ordinal,
+                        )
+                    )
+                for association in commit.command.agents:
+                    plan_id = (
+                        entity_by_reference[association.plan_entity].id
+                        if association.plan_entity is not None
+                        else None
+                    )
+                    session.execute(
+                        sa.insert(association_table).values(
+                            **relation_base,
+                            activity_id=activity.id,
+                            agent_id=agent_by_reference[association.agent].id,
+                            role=association.role,
+                            plan_entity_id=plan_id,
+                        )
+                    )
+                for output in commit.command.outputs:
+                    output_id = entity_by_reference[output.entity].id
+                    session.execute(
+                        sa.insert(generation_table).values(
+                            **relation_base,
+                            entity_id=output_id,
+                            activity_id=activity.id,
+                            role=output.role,
+                            generated_at=activity.ended_at,
+                        )
+                    )
+                    for derivation in output.derivations:
+                        session.execute(
+                            sa.insert(derivation_table).values(
+                                **relation_base,
+                                generated_entity_id=output_id,
+                                used_entity_id=entity_by_reference[derivation.entity].id,
+                                activity_id=activity.id,
+                                derivation_kind=derivation.kind,
+                            )
+                        )
+                return ActivityCommitResult(
+                    activity=activity,
+                    input_entity_ids=tuple(
+                        entity_by_reference[item.entity].id
+                        for item in commit.command.inputs
+                    ),
+                    output_entity_ids=tuple(
+                        entity_by_reference[item.entity].id
+                        for item in commit.command.outputs
+                    ),
+                    agent_ids=tuple(
+                        agent_by_reference[item.agent].id
+                        for item in commit.command.agents
+                    ),
+                    replayed=False,
+                )
+        except ProvenanceConflict:
+            raise
+        except (IntegrityError, DBAPIError) as error:
+            raise ProvenanceConflict("database rejected the provenance graph") from error
+
+    def get_entity(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        entity_id: UUID,
+    ) -> ProvenanceRecord:
+        with self._sessions() as session, session.begin():
+            self._bind(session, context, decision)
+            row = session.execute(
+                sa.select(
+                    entity_table,
+                    generation_table.c.activity_id.label("generation_activity_id"),
+                )
+                .outerjoin(
+                    generation_table,
+                    sa.and_(
+                        generation_table.c.organization_id
+                        == entity_table.c.organization_id,
+                        generation_table.c.project_id == entity_table.c.project_id,
+                        generation_table.c.entity_id == entity_table.c.id,
+                    ),
+                )
+                .where(entity_table.c.id == entity_id)
+            ).mappings().one_or_none()
+            if row is None:
+                raise ProvenanceNotFound(str(entity_id))
+            entity = _entity(row)
+            generation_id = cast(UUID | None, row["generation_activity_id"])
+            issues = (
+                ("missing_primary_generation",)
+                if entity.generation_requirement is GenerationRequirement.PRIMARY
+                and generation_id is None
+                else ()
+            )
+            completeness = EntityCompleteness(
+                state=(
+                    CompletenessState.INCOMPLETE
+                    if issues
+                    else CompletenessState.COMPLETE
+                ),
+                issues=issues,
+            )
+            return ProvenanceRecord(entity, generation_id, completeness)
+
+class SqlAlchemyRevisionProvenanceHook:
+    """T-06 hook that writes revision provenance in the caller's transaction.
+
+    The owning revision repository must bind ``provenance.read``/``provenance.write`` and
+    principal RLS context on the supplied session before this hook runs.
+    """
+
+    def __init__(self, *, id_factory: Callable[[], UUID] = uuid4) -> None:
+        self._id_factory = id_factory
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        scope = ProvenanceScope(
+            revision.scope.organization_id,
+            revision.scope.project_id,
+            DataClassification(revision.scope.classification),
+        )
+        reference_type = f"{revision.aggregate_type}.revision"
+        recorded_at = revision.created_at
+        relation_base = _relation_values(
+            scope, recorded_at=recorded_at, recorded_by=revision.created_by
+        )
+        principal_type = session.scalar(
+            sa.text(
+                "SELECT principal_type FROM identity.principal WHERE id = :principal_id"
+            ),
+            {"principal_id": revision.created_by},
+        )
+        if principal_type not in {"user", "service"}:
+            raise ProvenanceConflict("revision creator is not an active provenance Agent")
+
+        agent_candidate = ProvenanceAgent(
+            id=self._id_factory(),
+            scope=scope,
+            reference=AgentReference(AgentType(str(principal_type)), revision.created_by),
+            recorded_at=recorded_at,
+            recorded_by=revision.created_by,
+        )
+        agent = SqlAlchemyProvenanceRepository._ensure_agent(
+            session,
+            agent_candidate,
+            request_id=revision.request_id,
+            trace_id=revision.trace_id,
+        )
+        entity_candidate = ProvenanceEntity(
+            id=self._id_factory(),
+            scope=scope,
+            entity_type=reference_type,
+            reference=ImmutableEntityReference(
+                EntityReferenceKind.REVISION,
+                reference_type,
+                revision.revision_id,
+                revision.content_hash,
+            ),
+            generation_requirement=GenerationRequirement.PRIMARY,
+            created_at=recorded_at,
+            recorded_at=recorded_at,
+            recorded_by=revision.created_by,
+        )
+        entity = SqlAlchemyProvenanceRepository._ensure_entity(
+            session,
+            entity_candidate,
+            request_id=revision.request_id,
+            trace_id=revision.trace_id,
+        )
+        prior_entity: ProvenanceEntity | None = None
+        if revision.based_on_revision_id is not None:
+            prior_row = session.execute(
+                sa.select(entity_table).where(
+                    entity_table.c.organization_id == scope.organization_id,
+                    entity_table.c.project_id == scope.project_id,
+                    entity_table.c.reference_kind
+                    == EntityReferenceKind.REVISION.value,
+                    entity_table.c.reference_type == reference_type,
+                    entity_table.c.reference_id == revision.based_on_revision_id,
+                )
+            ).mappings().one_or_none()
+            if prior_row is None:
+                raise ProvenanceConflict(
+                    "prior immutable revision is missing from provenance"
+                )
+            prior_entity = _entity(prior_row)
+
+        submission_digest = content_sha256(
+            {
+                "hook": "t13.revision",
+                "revision_id": str(revision.revision_id),
+                "prior_revision_id": (
+                    str(revision.based_on_revision_id)
+                    if revision.based_on_revision_id is not None
+                    else None
+                ),
+                "content_sha256": revision.content_hash,
+                "change_reason": revision.change_reason,
+            }
+        )
+        activity_id = self._id_factory()
+        session.execute(
+            sa.insert(activity_table).values(
+                **_scope_values(scope),
+                id=activity_id,
+                activity_type="core.revision_commit",
+                domain_run_type="core.revision_commit",
+                domain_run_id=revision.revision_id,
+                status=ActivityStatus.SUCCEEDED.value,
+                input_required=prior_entity is not None,
+                output_required=True,
+                started_at=recorded_at,
+                ended_at=recorded_at,
+                submission_digest=submission_digest,
+                recorded_at=recorded_at,
+                recorded_by=revision.created_by,
+                request_id=revision.request_id,
+                trace_id=revision.trace_id,
+            )
+        )
+        if prior_entity is not None:
+            session.execute(
+                sa.insert(usage_table).values(
+                    **relation_base,
+                    activity_id=activity_id,
+                    entity_id=prior_entity.id,
+                    role="prior_revision",
+                    ordinal=0,
+                )
+            )
+        session.execute(
+            sa.insert(association_table).values(
+                **relation_base,
+                activity_id=activity_id,
+                agent_id=agent.id,
+                role="author",
+                plan_entity_id=None,
+            )
+        )
+        session.execute(
+            sa.insert(generation_table).values(
+                **relation_base,
+                entity_id=entity.id,
+                activity_id=activity_id,
+                role="primary",
+                generated_at=recorded_at,
+            )
+        )
+        session.execute(
+            sa.insert(attribution_table).values(
+                **relation_base,
+                entity_id=entity.id,
+                agent_id=agent.id,
+                role="author",
+            )
+        )
+        if prior_entity is not None:
+            session.execute(
+                sa.insert(revision_table).values(
+                    **relation_base,
+                    newer_entity_id=entity.id,
+                    prior_entity_id=prior_entity.id,
+                    change_reason=revision.change_reason,
+                )
+            )

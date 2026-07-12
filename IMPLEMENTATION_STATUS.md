@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-12`
-Foundation version: `0.9.0`
+Date: `2026-07-13`
+Foundation version: `0.10.0`
 
 ## Completed
 
@@ -22,6 +22,9 @@ Foundation version: `0.9.0`
 - `T-10`: tenant/classification-scoped content-addressed promotion, immutable Artifact manifests,
   append-only integrity observations/issues, guarded current projection, mismatch reconciliation,
   scoped streaming download, protected API, and forced PostgreSQL RLS
+- `T-13`: typed Entity/Activity/Agent and six core relation families, immutable owner-reference
+  resolution, atomic run/revision hooks, deferred completeness, DAG cycle guards, protected Entity
+  lookup, and forced PostgreSQL RLS
 - `T-15`: stable Job/immutable Attempt separation, versioned Job Spec digests, PostgreSQL atomic
   claim/lease/heartbeat/recovery, generic retry taxonomy, runner resources, protected Job API,
   and a handler-neutral durable worker
@@ -91,6 +94,14 @@ Foundation version: `0.9.0`
   orphan/missing-staging issues, and never rewrites an Artifact manifest
 - Download grants are canonical HMAC capabilities bound to actor, tenant, Artifact, digest, and
   expiry; bearer authorization remains required and public contracts contain no object keys
+- Raw Asset→synthetic revision commit records typed usage, generation, derivation, and association
+  atomically; the same domain-run graph replays while digest substitution is rejected
+- PostgreSQL rejects generated orphan Entity records, incomplete Activities, duplicate primary
+  generation, reverse dependency cycles, cross-project reads, and every provenance mutation/delete
+- T-06 typed revision transactions can install a fail-closed hook that records revision generation,
+  author association/attribution, and `wasRevisionOf` in the caller's transaction
+- Public provenance access is read-only Entity/completeness lookup; moving heads, DB table details,
+  raw payloads, and object keys are absent from the contract
 
 ## Validation result
 
@@ -98,19 +109,19 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (155 source files)
+mypy strict: passed (169 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 184 passed, 43 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 227 passed
+make ci: 197 passed, 48 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 245 passed
 ```
 
 ## Intentionally absent
 
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
-- Material, test, dataset, typed provenance, or audit-chain implementations
+- Material, test, dataset, or audit-chain implementations
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, T-16 durable
   reconciliation scheduling/outbox/retention cleanup, and deployment runner credentials
 - T-17 authoritative package-Artifact admission, T-18 materializer/committer deployment wiring,
@@ -122,10 +133,10 @@ Full suite with PostgreSQL 16.14: 227 passed
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-13`: typed provenance Entity/Activity/Agent and
-usage/generation/derivation relations. T-10 deliberately implements reconciliation mechanics but
-leaves durable scheduling, outbox delivery, issue resolution policy, and retention cleanup to
-T-16. T-17/T-18 production Artifact admission/materialization composition remains explicit work;
-an unconfigured worker remains safely idle. Audit (`T-05`), catalog (`T-07`), and release-specific
-retention/backup policy are not implied complete.
+Per the repository blueprint, the next task is `T-14`: bounded recursive upstream/downstream/
+impact query and completeness report/gate. T-13 deliberately stops at authoritative typed
+relations, write-time invariants, and single-Entity completeness lookup. T-16 still owns durable
+reconciliation scheduling/outbox/retention, while T-17/T-18 production Artifact composition
+remains explicit work. Audit (`T-05`), catalog (`T-07`), and release-specific retention/backup
+policy are not implied complete.
 

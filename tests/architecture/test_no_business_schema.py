@@ -14,6 +14,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260711_005_T17_plugin_registry.py",
         "20260712_006_T09_streaming_upload.py",
         "20260712_007_T10_content_artifacts.py",
+        "20260713_008_T13_typed_provenance.py",
     ]
 
 
@@ -124,6 +125,35 @@ def test_t10_uses_explicit_manifest_integrity_relations_without_eav_json() -> No
     assert '"reconciliation_issue"' in migration
     assert "postgresql.JSONB" not in migration
     assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert '"material"' not in migration
+    assert '"dataset"' not in migration
+    assert '"solver_card"' not in migration
+
+
+def test_t13_uses_typed_provenance_relations_without_generic_edges_or_jsonb() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260713_008_T13_typed_provenance.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "entity",
+        "activity",
+        "agent",
+        "usage",
+        "generation",
+        "derivation",
+        "association",
+        "revision",
+        "attribution",
+    ):
+        assert f'"{table}"' in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"edge"' not in migration
+    assert '"edge_type"' not in migration
     assert '"key"' not in migration
     assert '"value"' not in migration
     assert '"material"' not in migration

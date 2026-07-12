@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:provenance-entity-resource:1.0.0",
+  "title": "Immutable Provenance Entity Resource",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "entity_id", "organization_id", "project_id", "classification", "entity_type",
+    "reference", "generation_requirement", "generation_activity_id", "created_at",
+    "recorded_at", "recorded_by", "completeness", "links"
+  ],
+  "properties": {
+    "entity_id": {"type": "string", "format": "uuid"},
+    "organization_id": {"type": "string", "format": "uuid"},
+    "project_id": {"type": "string", "format": "uuid"},
+    "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "entity_type": {"type": "string", "pattern": "^[a-z][a-z0-9]*([._-][a-z0-9]+)+$"},
+    "reference": {"$ref": "#/$defs/entityReference"},
+    "generation_requirement": {"enum": ["none", "primary"]},
+    "generation_activity_id": {"type": ["string", "null"], "format": "uuid"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "recorded_at": {"type": "string", "format": "date-time"},
+    "recorded_by": {"type": "string", "format": "uuid"},
+    "completeness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "issues"],
+      "properties": {
+        "state": {"enum": ["complete", "incomplete"]},
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["self"],
+      "properties": {
+        "self": {"type": "string"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"reference": {"properties": {"kind": {"const": "raw_asset"}}}}},
+      "then": {
+        "properties": {
+          "reference": {"properties": {"type": {"const": "artifact.raw_asset"}}},
+          "generation_requirement": {"const": "none"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"reference": {"properties": {"kind": {"const": "artifact"}}}}},
+      "then": {
+        "properties": {
+          "reference": {"properties": {"type": {"const": "artifact.artifact"}}},
+          "generation_requirement": {"const": "primary"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"reference": {"properties": {"kind": {"const": "revision"}}}}},
+      "then": {
+        "properties": {
+          "reference": {
+            "properties": {
+              "type": {"not": {"enum": ["aggregate.head", "aggregate.latest"]}}
+            }
+          },
+          "generation_requirement": {"const": "primary"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "entityReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "type", "id", "sha256"],
+      "properties": {
+        "kind": {"enum": ["raw_asset", "artifact", "revision"]},
+        "type": {"type": "string", "pattern": "^[a-z][a-z0-9]*([._-][a-z0-9]+)+$"},
+        "id": {"type": "string", "format": "uuid"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

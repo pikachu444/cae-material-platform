@@ -1,9 +1,9 @@
 # Database migrations
 
 The linear Alembic chain is T-06 revision primitives, T-03 identity projection, T-04 access
-control, T-15 durable jobs, T-17 plugin registry, T-09 streaming upload, and T-10 immutable
-Artifact storage. Task numbers express delivery ownership, not migration chronology; every
-revision has one explicit predecessor.
+control, T-15 durable jobs, T-17 plugin registry, T-09 streaming upload, T-10 immutable Artifact
+storage, and T-13 typed provenance. Task numbers express delivery ownership, not migration
+chronology; every revision has one explicit predecessor.
 
 ## T-06 ownership
 
@@ -93,6 +93,22 @@ indexes, and forced classification-aware RLS. Artifact manifests have explicit c
 JSON/EAV payload. Internal object keys are persistence details and are excluded from public API
 schemas. T-16 remains responsible for durable reconciliation scheduling, outbox delivery, and
 retention cleanup; production object versioning/replication is deployment provisioning.
+
+## T-13 ownership
+
+`20260713_008_T13_typed_provenance.py` creates the bounded `provenance` schema with explicit
+`entity`, `activity`, `agent`, `usage`, `generation`, `derivation`, `association`, `revision`, and
+`attribution` relations. Every relation repeats organization/project/classification and uses
+tenant-qualified composite foreign keys. Core relation metadata is typed columns only; there is no
+JSONB, EAV key/value table, or unrestricted edge table.
+
+Deferred constraint triggers require primary generation for generated Entity records and enforce
+declared Activity input/output plus a responsible Agent before commit. Insert guards validate
+Raw Asset/Artifact snapshots, principal/plugin Agent references, usage-generation/derivation/
+revision cycles, revision type consistency, and plan usage. Every table is append-only and uses
+forced classification-aware RLS with separate internal `provenance.write` and public
+`provenance.read` capabilities. T-14 owns recursive lineage/impact read models and performance
+limits; T-13 creates only the authoritative typed source relations and entity lookup.
 
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:

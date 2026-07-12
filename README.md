@@ -1,10 +1,10 @@
 # CAE Material Platform
 
 Status: identity, authorization, revision, streaming Raw Asset upload, immutable content Artifact,
-durable job, plugin registry, and isolated runner foundation
-(`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-15` + `T-17` + `T-18`)
+typed provenance, durable job, plugin registry, and isolated runner foundation
+(`T-01`–`T-04` + `T-06` + `T-09`–`T-10` + `T-13` + `T-15` + `T-17` + `T-18`)
 
-Version: `0.9.0`
+Version: `0.10.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
@@ -14,6 +14,8 @@ the T-17 immutable plugin package registry, and the T-18 isolated execution cont
 Material, test, fitting, calibration, or solver business implementation. T-09 adds verified staging
 Raw Assets, and T-10 promotes them into tenant-scoped content-addressed immutable Artifacts with
 integrity observations and scoped streaming download.
+T-13 adds domain-neutral typed Entity/Activity/Agent relations and fail-closed completeness without
+creating any Material, Dataset, Test, fitting, or solver implementation.
 
 ## Implemented foundation
 
@@ -74,6 +76,13 @@ integrity observations and scoped streaming download.
   without rewriting Raw Assets or Artifact manifests
 - Actor/tenant/content/expiry-bound HMAC transfer grants and protected streaming content API;
   internal staging/final object keys are absent from all public contracts
+- Explicit PostgreSQL provenance Entity/Activity/Agent plus usage, generation, derivation,
+  association, revision, and attribution relations without JSONB/EAV or unrestricted graph edges
+- Deferred primary-generation/Activity completeness, duplicate-generation and DAG cycle guards,
+  append-only triggers, tenant/classification composite FKs, and forced RLS
+- Owner-module immutable reference resolver, atomic terminal Activity write service, idempotent
+  domain-run replay, and a T-06 revision transaction hook
+- Protected immutable Entity/completeness lookup; recursive lineage and impact APIs remain T-14
 
 ## Prerequisites
 
@@ -136,13 +145,14 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA plugin TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO cmp_app;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact TO cmp_app;
+GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA provenance TO cmp_app;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance TO cmp_app;
 ```
 
 Future bounded-module migrations grant only the table operations their adapters require. Every
@@ -195,16 +205,19 @@ finalization, integrity reconciliation, and protected byte streaming, but produc
 composition and T-18 package/input/output policy adapters remain deployment work, so an
 unconfigured worker stays idle. T-09 Raw Asset facts remain immutable after T-10 promotion.
 T-16 owns durable reconciliation scheduling, outbox delivery, and retention cleanup automation.
+T-13 accepts only owner-attested immutable references and does not expose arbitrary graph writes.
+T-14 owns recursive lineage/impact traversal, pagination/limits, performance fixtures, and release
+completeness reporting.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-15`, `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-10`, `T-13`, `T-15`, `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
-  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `FR-DAT-008`, `NFR-INT-001`,
+  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `FR-DAT-005`, `FR-DAT-008`, `NFR-INT-001`,
   `NFR-INT-002`, `NFR-PERF-004`,
-  `NFR-REP-001`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
+  `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004` (with `ADR-005` as a scope guard)
 

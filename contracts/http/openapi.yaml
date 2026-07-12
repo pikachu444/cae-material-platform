@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Identity, streaming upload, durable job, and immutable plugin foundation.
-  version: 0.9.0
+  summary: Identity, immutable data, durable execution, and typed provenance foundation.
+  version: 0.10.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -671,6 +671,47 @@ paths:
         "410": {description: Transfer capability expired.}
         "422": {description: Transfer header is invalid.}
         "503": {description: Object store unavailable.}
+  /api/v1/provenance/entities/{entity_id}:
+    get:
+      operationId: getProvenanceEntity
+      tags: [provenance]
+      summary: Read one immutable provenance Entity and completeness status.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ProvenanceEntityId"
+      responses:
+        "200":
+          description: Tenant-visible immutable Entity metadata and completeness status.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProvenanceEntityResponse"}
+        "401": {description: Authentication required.}
+        "403":
+          description: Provenance read is not authorized.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "404":
+          description: Entity not visible.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "409":
+          description: Query conflicts with immutable provenance state.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "422":
+          description: Entity identifier is invalid.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "503":
+          description: Provenance service unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
 components:
   securitySchemes:
     BearerAuth:
@@ -708,6 +749,11 @@ components:
       schema: {type: string, format: uuid}
     ArtifactId:
       name: artifact_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ProvenanceEntityId:
+      name: entity_id
       in: path
       required: true
       schema: {type: string, format: uuid}
@@ -793,4 +839,8 @@ components:
       $ref: ../artifacts/artifact-download-grant.schema.json
     ArtifactProblem:
       $ref: ../artifacts/artifact-problem.schema.json
+    ProvenanceEntityResponse:
+      $ref: ../provenance/provenance-entity-resource.schema.json
+    ProvenanceProblem:
+      $ref: ../provenance/provenance-problem.schema.json
 

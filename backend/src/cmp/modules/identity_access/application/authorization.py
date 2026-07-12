@@ -192,6 +192,26 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.JOB_EXECUTE: frozenset({Permission.JOB_READ}),
 }
 
+# These commands may invoke a T-13 fail-closed provenance hook in the owning domain
+# transaction. ``provenance.write`` is deliberately not a public role permission; it is a
+# minimum DB capability derived only after one of the owning commands was authorized.
+_PROVENANCE_WRITING_COMMANDS = frozenset(
+    {
+        Permission.TESTING_WRITE,
+        Permission.ARTIFACT_WRITE,
+        Permission.DATASET_WRITE,
+        Permission.PROCESSING_EXECUTE,
+        Permission.STATISTICS_EXECUTE,
+        Permission.MODELING_WRITE,
+        Permission.CALIBRATION_EXECUTE,
+        Permission.EXPORT_EXECUTE,
+        Permission.VALIDATION_EXECUTE,
+        Permission.REVIEW_DECIDE,
+        Permission.RELEASE_PUBLISH,
+        Permission.JOB_EXECUTE,
+    }
+)
+
 
 def database_permissions_for(permission: Permission) -> tuple[str, ...]:
     """Expand one authorized command into its minimum transaction-local DB permissions."""
@@ -208,6 +228,8 @@ def database_permissions_for(permission: Permission) -> tuple[str, ...]:
         permissions.add("governance.read")
         if operation in _MODIFYING_OPERATIONS:
             permissions.add("governance.write")
+    if permission in _PROVENANCE_WRITING_COMMANDS:
+        permissions.update({"provenance.read", "provenance.write"})
     return tuple(sorted(permissions))
 
 
