@@ -1,16 +1,17 @@
 # CAE Material Platform
 
-Status: identity, authorization, revision, durable job, plugin registry, and isolated runner
-foundation (`T-01`–`T-04` + `T-06` + `T-15` + `T-17` + `T-18`)
+Status: identity, authorization, revision, streaming Raw Asset upload, durable job, plugin registry,
+and isolated runner foundation (`T-01`–`T-04` + `T-06` + `T-09` + `T-15` + `T-17` + `T-18`)
 
-Version: `0.7.0`
+Version: `0.8.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
 business implementation. Database support is limited to the T-03/T-04 identity and access-control
 foundation, the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine,
 the T-17 immutable plugin package registry, and the T-18 isolated execution contract. T-18 adds no
-Material, test, fitting, calibration, or solver business implementation.
+Material, test, fitting, calibration, or solver business implementation. T-09 adds verified staging
+Raw Assets; T-10 still owns content-addressed final Artifact availability and reconciliation.
 
 ## Implemented foundation
 
@@ -54,6 +55,14 @@ Material, test, fitting, calibration, or solver business implementation.
   without implementing domain, material, test, fitting, or solver behavior
 - Tenant-scoped active-package resolution, durable worker result mapping, and explicit T-10
   materialization/commit ports; core never imports a plugin implementation
+- Resumable upload sessions with immutable numbered part manifests, exact SHA-256/size/MIME policy,
+  environment-bounded streaming, cancellation, and idempotent completion
+- HMAC upload capabilities scoped to session, organization, project, actor, and expiry; internal
+  object keys never appear in public API responses
+- Explicit PostgreSQL `artifact.upload_session`, `upload_part`, `raw_asset`, and
+  `ingestion_event` tables with tenant composite keys, forced RLS, append-only guards, and dedup
+- Non-production filesystem multipart adapter for integration and development; production
+  S3-compatible TLS/encryption/object-lock adapter selection remains a deployment boundary
 
 ## Prerequisites
 
@@ -96,6 +105,17 @@ The optional claim mapping settings are `CMP_OIDC_CLIENT_ID_CLAIM`,
 `CMP_OIDC_SERVICE_GRANT_VALUES`. `CMP_OIDC_ALGORITHMS` is an explicit asymmetric allowlist.
 Loopback HTTP JWKS is disabled unless `CMP_OIDC_ALLOW_LOOPBACK_HTTP=true` is set for development.
 
+The T-09 development upload adapter is enabled only outside production and only when both settings
+are present. The capability secret must contain at least 32 bytes and should come from a secret
+manager rather than source control:
+
+```bash
+export CMP_UPLOAD_STORAGE_ROOT=/var/lib/cmp-upload-staging
+export CMP_UPLOAD_CAPABILITY_SECRET='replace-with-a-secret-manager-value'
+export CMP_UPLOAD_MAX_OBJECT_BYTES=2147483648
+export CMP_UPLOAD_PART_BYTES=8388608
+```
+
 Run migrations with a separate owner role. Runtime OIDC configuration must use a non-owner
 application role; startup rejects `SUPERUSER`, `BYPASSRLS`, or a role that owns application
 relations. A minimal privilege baseline is:
@@ -103,12 +123,13 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA plugin TO cmp_app;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO cmp_app;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact TO cmp_app;
 ```
 
 Future bounded-module migrations grant only the table operations their adapters require. Every
@@ -158,14 +179,18 @@ verification without an explicit authorized verification event. T-18 executes on
 digest-pinned packages through Job Spec/Result Manifest. The local subprocess is explicitly
 non-production; production requires an attested OCI runtime. T-10 object transfer/commit and
 deployment credential provisioning remain external ports, so an unconfigured worker stays idle.
+T-09 verifies complete staging bytes and creates immutable Raw Asset/Ingestion facts, but it does
+not expose storage keys, issue download tokens, claim final Artifact availability, or implement the
+T-10 staging-to-content-addressed copy/reconciler.
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-15`, `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-06`, `T-09`, `T-15`, `T-17`, `T-18`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-MOD-001`,
-  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `NFR-REP-001`, `NFR-REP-003`,
-  `NFR-SEC-005`, `NFR-MOD-002`, `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
+  `FR-PLG-001`, `FR-PLG-002`, `FR-PLG-003`, `FR-PLG-005`, `NFR-INT-001`, `NFR-PERF-004`,
+  `NFR-REP-001`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
+  `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004` (with `ADR-005` as a scope guard)
 

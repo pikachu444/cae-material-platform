@@ -1,7 +1,7 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-15` + `T-17` + `T-18`, HTTP contract
-version `0.7.0`.
+Status: `T-02` + `T-03` + `T-04` + `T-06` + `T-09` + `T-15` + `T-17` + `T-18`,
+HTTP contract version `0.8.0`.
 
 ## Files
 
@@ -9,6 +9,7 @@ version `0.7.0`.
 - `http/openapi.baseline.yaml`: last accepted compatibility baseline
 - `events/asyncapi.yaml`: asynchronous contract shell; no domain events yet
 - `jobs/*.schema.json`: immutable runner envelopes
+- `artifacts/*.schema.json`: T-09 upload session, Raw Asset, completion, and problem contracts
 - `plugins/plugin-manifest.schema.json`: package metadata baseline
 - `plugins/plugin-package-registration.schema.json`: signed package/SBOM/schema registration input
 - `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
@@ -42,6 +43,9 @@ version `0.7.0`.
   are owned by T-10/T-16 rather than the T-15 job state projection.
 - The T-18 Python runner packages exact copies of Job Spec/Result Manifest 1.0. A Result Manifest
   records whether the runtime was non-production; the execution service rejects a mode mismatch.
+- Upload creation pins filename/MIME/size/SHA-256 and streams immutable numbered parts. Raw Asset
+  responses expose digest and `staged_verified` state but never an internal object-store key;
+  T-10 owns content-addressed final Artifact availability.
 - Plugin registration separates a stable Definition from immutable version/digest Packages. A
   package becomes eligible only after an authorized verification event and activation is scoped to
   the selected organization/project; revocation never overwrites package or state-history facts.

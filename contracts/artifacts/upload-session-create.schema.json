@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:upload-session-create:1.0.0",
+  "title": "Create Upload Session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "classification",
+    "original_filename",
+    "media_type",
+    "expected_size_bytes",
+    "expected_sha256"
+  ],
+  "properties": {
+    "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "original_filename": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^/\\\\\\u0000\\s](?:[^/\\\\\\u0000]*[^/\\\\\\u0000\\s])?$"},
+    "media_type": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^\\u0000\\s](?:[^\\u0000]*[^\\u0000\\s])?$"},
+    "expected_size_bytes": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+    "expected_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "part_size_bytes": {"type": "integer", "minimum": 1, "maximum": 536870912},
+    "test_run_revision_id": {"type": ["string", "null"], "format": "uuid"}
+  }
+}

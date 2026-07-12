@@ -15,6 +15,11 @@ class Settings:
     api_port: int = 8000
     worker_poll_interval_seconds: float = 1.0
     database_url: str | None = None
+    upload_storage_root: str | None = None
+    upload_capability_secret: str | None = None
+    upload_max_object_bytes: int = 2 * 1024 * 1024 * 1024
+    upload_part_bytes: int = 8 * 1024 * 1024
+    upload_session_ttl_seconds: int = 24 * 60 * 60
     oidc_issuer: str | None = None
     oidc_audience: str | None = None
     oidc_jwks_url: str | None = None
@@ -52,6 +57,10 @@ class Settings:
                 if item.strip()
             )
 
+        def optional(name: str) -> str | None:
+            value = os.getenv(name)
+            return value if value else None
+
         algorithms = comma_separated("CMP_OIDC_ALGORITHMS", "RS256")
         return cls(
             environment=os.getenv("CMP_ENVIRONMENT", "development"),
@@ -61,6 +70,17 @@ class Settings:
                 os.getenv("CMP_WORKER_POLL_INTERVAL_SECONDS", "1.0")
             ),
             database_url=os.getenv("CMP_DATABASE_URL"),
+            upload_storage_root=optional("CMP_UPLOAD_STORAGE_ROOT"),
+            upload_capability_secret=optional("CMP_UPLOAD_CAPABILITY_SECRET"),
+            upload_max_object_bytes=int(
+                os.getenv("CMP_UPLOAD_MAX_OBJECT_BYTES", str(2 * 1024 * 1024 * 1024))
+            ),
+            upload_part_bytes=int(
+                os.getenv("CMP_UPLOAD_PART_BYTES", str(8 * 1024 * 1024))
+            ),
+            upload_session_ttl_seconds=int(
+                os.getenv("CMP_UPLOAD_SESSION_TTL_SECONDS", str(24 * 60 * 60))
+            ),
             oidc_issuer=os.getenv("CMP_OIDC_ISSUER"),
             oidc_audience=os.getenv("CMP_OIDC_AUDIENCE"),
             oidc_jwks_url=os.getenv("CMP_OIDC_JWKS_URL"),

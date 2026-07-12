@@ -1,7 +1,8 @@
 # Database migrations
 
-The Alembic chain starts with `20260711_001_T06_revision_kernel.py`, followed by the T-03 identity
-projection and T-04 access-control migrations.
+The linear Alembic chain is T-06 revision primitives, T-03 identity projection, T-04 access
+control, T-15 durable jobs, T-17 plugin registry, and T-09 streaming upload. Task numbers express
+delivery ownership, not migration chronology; every revision has one explicit predecessor.
 
 ## T-06 ownership
 
@@ -54,6 +55,24 @@ login secrets, and ownership belong to deployment provisioning. The runtime role
 non-owner `NOSUPERUSER NOBYPASSRLS` role with explicit schema/table grants. Migration, backup, and
 reconciliation use separate privileged roles.
 
+## T-09 ownership
+
+`20260712_006_T09_streaming_upload.py` creates the bounded `artifact` schema with explicit tables:
+
+- `artifact.upload_session`: immutable upload request/manifest identity plus a guarded operational
+  state projection;
+- `artifact.upload_part`: append-only numbered part digest, size, and object-store ETag facts;
+- `artifact.raw_asset`: immutable content identity for a digest/size-verified staging object;
+- `artifact.ingestion_event`: append-only actor/request/test-run context for each completed upload,
+  including duplicate ingestion of an existing Raw Asset.
+
+Tenant-first primary/foreign keys, classification-bearing references, digest/idempotency/storage
+uniqueness, state/manifest checks, insert guards, immutable-row triggers, and targeted indexes are
+created explicitly. All four tables use forced RLS and separate `artifact.read`/`artifact.write`
+policies. There is no generic Artifact/EAV/JSON content table. `test_run_revision_id` is recorded as
+an opaque non-zero UUID until T-08 creates its owning table and adds the tenant-qualified foreign
+key. T-09 stops at `staged_verified`; T-10 owns final content-addressed objects and reconciliation.
+
 The executable test-only example is
 `tests/migrations/fixtures/T06_typed_revision_fixture.sql`. It demonstrates:
 
@@ -71,7 +90,7 @@ CMP_DATABASE_URL=postgresql+psycopg://... make migrate
 CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 ```
 
-`CMP_TEST_POSTGRES_DSN` must identify an isolated admin database. The test creates a uniquely named
-temporary database, upgrades it, installs the T-04 authorization and T-06 typed fixtures, exercises
-T-03/T-04/T-06 persistence, downgrades it, and removes it.
+`CMP_TEST_POSTGRES_DSN` must identify an isolated admin database. PostgreSQL-gated suites create
+uniquely named temporary databases and non-bypass application roles, upgrade to the requested
+revision, exercise RLS and persistence against the real schema, downgrade, and remove them.
 

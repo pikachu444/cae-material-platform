@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:raw-asset-resource:1.0.0",
+  "title": "Raw Asset Resource",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "raw_asset_id", "organization_id", "project_id", "classification", "sha256",
+    "size_bytes", "media_type", "original_filename", "storage_state", "created_at",
+    "created_by", "links"
+  ],
+  "properties": {
+    "raw_asset_id": {"type": "string", "format": "uuid"},
+    "organization_id": {"type": "string", "format": "uuid"},
+    "project_id": {"type": "string", "format": "uuid"},
+    "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "size_bytes": {"type": "integer", "minimum": 1},
+    "media_type": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^\\u0000\\s](?:[^\\u0000]*[^\\u0000\\s])?$"},
+    "original_filename": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^/\\\\\\u0000\\s](?:[^/\\\\\\u0000]*[^/\\\\\\u0000\\s])?$"},
+    "storage_state": {"const": "staged_verified"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "created_by": {"type": "string", "format": "uuid"},
+    "links": {
+      "type": "object",
+      "additionalProperties": {"type": "string"},
+      "required": ["self"]
+    }
+  }
+}

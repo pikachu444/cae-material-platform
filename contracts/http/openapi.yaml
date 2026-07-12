@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Identity, revision, durable job, and immutable plugin foundation.
-  version: 0.7.0
+  summary: Identity, streaming upload, durable job, and immutable plugin foundation.
+  version: 0.8.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -456,6 +456,144 @@ paths:
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/PluginProblem"}
+  /api/v1/uploads:
+    post:
+      operationId: createUploadSession
+      tags: [artifacts]
+      summary: Create a resumable digest-pinned multipart upload session.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, minLength: 1, maxLength: 255}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreateUploadRequest"}
+      responses:
+        "201":
+          description: Upload session created or replayed.
+          headers:
+            Location: {required: true, schema: {type: string}}
+            Idempotent-Replay: {required: true, schema: {type: string, enum: ["true", "false"]}}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreateUploadResponse"}
+        "409": {description: Idempotency or upload conflict.}
+        "422": {description: Invalid upload manifest.}
+        "503": {description: Upload service unavailable.}
+  /api/v1/uploads/{upload_id}:
+    get:
+      operationId: getUploadSession
+      tags: [artifacts]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+      responses:
+        "200":
+          description: Tenant-visible upload session and immutable part manifest.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UploadSessionResponse"}
+        "404": {description: Upload session not visible.}
+  /api/v1/uploads/{upload_id}/parts/{part_number}:
+    put:
+      operationId: uploadPart
+      tags: [artifacts]
+      summary: Stream one immutable upload part.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+        - name: part_number
+          in: path
+          required: true
+          schema: {type: integer, minimum: 1, maximum: 100000}
+        - name: Upload-Capability
+          in: header
+          required: true
+          schema: {type: string, minLength: 32, maxLength: 4096}
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: {type: string, format: binary}
+      responses:
+        "200":
+          description: Part stored and recorded immutably.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UploadSessionResponse"}
+        "403": {description: Capability scope mismatch.}
+        "404": {description: Upload session not visible.}
+        "409": {description: Part or upload state conflict.}
+        "410": {description: Capability expired.}
+        "422": {description: Part violates the immutable upload manifest.}
+        "503": {description: Object store unavailable.}
+  /api/v1/uploads/{upload_id}:complete:
+    post:
+      operationId: completeUpload
+      tags: [artifacts]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+        - name: Upload-Capability
+          in: header
+          required: true
+          schema: {type: string, minLength: 32, maxLength: 4096}
+      responses:
+        "200":
+          description: Staged object verified and immutable Raw Asset committed.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CompleteUploadResponse"}
+        "403": {description: Capability scope mismatch.}
+        "404": {description: Upload session not visible.}
+        "409": {description: Upload state conflict.}
+        "410": {description: Capability expired.}
+        "422": {description: Missing part or digest/size mismatch.}
+        "503": {description: Object store unavailable.}
+  /api/v1/uploads/{upload_id}:cancel:
+    post:
+      operationId: cancelUpload
+      tags: [artifacts]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+        - name: Upload-Capability
+          in: header
+          required: true
+          schema: {type: string, minLength: 32, maxLength: 4096}
+      responses:
+        "200":
+          description: Upload cancelled without deleting an existing Raw Asset.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UploadSessionResponse"}
+        "403": {description: Capability scope mismatch.}
+        "404": {description: Upload session not visible.}
+        "409": {description: Terminal upload cannot be cancelled.}
+  /api/v1/raw-assets/{raw_asset_id}:
+    get:
+      operationId: getRawAsset
+      tags: [artifacts]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/RawAssetId"
+      responses:
+        "200":
+          description: Immutable Raw Asset metadata without internal storage keys.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/RawAssetResponse"}
+        "404": {description: Raw Asset not visible.}
 components:
   securitySchemes:
     BearerAuth:
@@ -478,6 +616,16 @@ components:
       schema: {type: string, format: uuid}
     PluginPackageId:
       name: package_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    UploadId:
+      name: upload_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    RawAssetId:
+      name: raw_asset_id
       in: path
       required: true
       schema: {type: string, format: uuid}
@@ -545,4 +693,16 @@ components:
       $ref: ../plugins/plugin-package-resource.schema.json
     PluginProblem:
       $ref: ../plugins/plugin-problem.schema.json
+    CreateUploadRequest:
+      $ref: ../artifacts/upload-session-create.schema.json
+    CreateUploadResponse:
+      $ref: ../artifacts/upload-create-response.schema.json
+    UploadSessionResponse:
+      $ref: ../artifacts/upload-session-resource.schema.json
+    CompleteUploadResponse:
+      $ref: ../artifacts/upload-completion.schema.json
+    RawAssetResponse:
+      $ref: ../artifacts/raw-asset-resource.schema.json
+    UploadProblem:
+      $ref: ../artifacts/upload-problem.schema.json
 

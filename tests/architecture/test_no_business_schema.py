@@ -12,6 +12,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260711_003_T04_authorization_rls.py",
         "20260711_004_T15_job_engine.py",
         "20260711_005_T17_plugin_registry.py",
+        "20260712_006_T09_streaming_upload.py",
     ]
 
 
@@ -90,5 +91,21 @@ def test_t17_jsonb_is_limited_to_versioned_manifest_and_schema_contracts() -> No
     assert '"value"' not in migration
     assert '"material"' not in migration
     assert '"test_run"' not in migration
+    assert '"solver_card"' not in migration
+
+
+def test_t09_uses_explicit_upload_raw_and_ingestion_relations_without_jsonb() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260712_006_T09_streaming_upload.py"
+    ).read_text(encoding="utf-8")
+
+    assert '"upload_session"' in migration
+    assert '"upload_part"' in migration
+    assert '"raw_asset"' in migration
+    assert '"ingestion_event"' in migration
+    assert "postgresql.JSONB" not in migration
+    assert '"material"' not in migration
+    assert '"dataset"' not in migration
     assert '"solver_card"' not in migration
 

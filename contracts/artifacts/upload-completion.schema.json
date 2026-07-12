@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:upload-completion:1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["upload", "raw_asset", "ingestion_event", "duplicate_content"],
+  "properties": {
+    "upload": {"$ref": "upload-session-resource.schema.json"},
+    "raw_asset": {"$ref": "raw-asset-resource.schema.json"},
+    "ingestion_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ingestion_event_id", "upload_session_id", "raw_asset_id",
+        "test_run_revision_id", "duplicate_content", "occurred_at", "actor_id",
+        "request_id", "trace_id"
+      ],
+      "properties": {
+        "ingestion_event_id": {"type": "string", "format": "uuid"},
+        "upload_session_id": {"type": "string", "format": "uuid"},
+        "raw_asset_id": {"type": "string", "format": "uuid"},
+        "test_run_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "duplicate_content": {"type": "boolean"},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "actor_id": {"type": "string", "format": "uuid"},
+        "request_id": {"type": "string", "format": "uuid"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    },
+    "duplicate_content": {"type": "boolean"}
+  }
+}

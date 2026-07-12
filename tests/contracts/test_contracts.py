@@ -149,6 +149,41 @@ def test_python_runner_contract_schemas_match_public_contracts_exactly() -> None
         assert packaged == public
 
 
+def test_upload_contract_and_runtime_expose_stream_complete_cancel_and_raw_asset() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/uploads": ("post", "createUploadSession"),
+        "/api/v1/uploads/{upload_id}": ("get", "getUploadSession"),
+        "/api/v1/uploads/{upload_id}/parts/{part_number}": ("put", "uploadPart"),
+        "/api/v1/uploads/{upload_id}:complete": ("post", "completeUpload"),
+        "/api/v1/uploads/{upload_id}:cancel": ("post", "cancelUpload"),
+        "/api/v1/raw-assets/{raw_asset_id}": ("get", "getRawAsset"),
+    }
+
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+    assert source["paths"]["/api/v1/uploads"]["post"]["responses"]["201"][
+        "headers"
+    ]["Location"]["required"]
+
+
+def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
+    schema = json.loads(
+        (
+            PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    runtime = app.openapi()["components"]["schemas"]["RawAssetResponse"]
+
+    assert "staging_object_key" not in schema["properties"]
+    assert "storage_key" not in schema["properties"]
+    assert "staging_object_key" not in runtime["properties"]
+    assert "storage_key" not in runtime["properties"]
+
+
 def test_plugin_contract_and_runtime_expose_registry_lifecycle() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

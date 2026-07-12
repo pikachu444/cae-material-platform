@@ -1,2 +1,2 @@
-"""Immutable artifact module namespace; implementation begins at T-09."""
+"""T-09 streaming upload and immutable Raw Asset module."""
 

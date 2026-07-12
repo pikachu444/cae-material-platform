@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-12`
-Foundation version: `0.7.0`
+Foundation version: `0.8.0`
 
 ## Completed
 
@@ -16,6 +16,9 @@ Foundation version: `0.7.0`
 - `T-06`: framework-free aggregate revision kernel, explicit typed-table SQLAlchemy adapter,
   PostgreSQL/Alembic immutability and tenant primitives, initial lifecycle event/projection,
   strong ETag and revision metadata contracts
+- `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
+  immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
+  content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
 - `T-15`: stable Job/immutable Attempt separation, versioned Job Spec digests, PostgreSQL atomic
   claim/lease/heartbeat/recovery, generic retry taxonomy, runner resources, protected Job API,
   and a handler-neutral durable worker
@@ -66,6 +69,14 @@ Foundation version: `0.7.0`
   core contains no Docker, Kubernetes, vendor runtime, or plugin implementation dependency
 - Identical seeds produce byte-identical synthetic RNG output, and all seven extension types pass
   the same domain-neutral contract-echo compatibility matrix
+- Upload parts stream incrementally to a fresh server-generated staging key; exact per-part and
+  complete-object size/SHA-256 are checked before a Raw Asset can be committed
+- Upload capabilities are deterministically signed but not persisted as plaintext, and are bound
+  to session, organization, project, actor, and expiry in addition to bearer authorization
+- PostgreSQL blocks part replacement, Raw Asset/Ingestion Event mutation, incomplete completion,
+  invalid state transitions, cross-project reads/writes, and storage-key exposure in API contracts
+- Same-classification duplicate bytes reuse one Raw Asset while appending a distinct immutable
+  ingestion event; mismatch and cancellation leave no successful Raw Asset fact
 
 ## Validation result
 
@@ -73,12 +84,12 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (131 source/test files)
+mypy strict: passed (147 source/test files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 162 passed, 35 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 197 passed
+make ci: 174 passed, 40 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 214 passed
 ```
 
 ## Intentionally absent
@@ -86,8 +97,9 @@ Full suite with PostgreSQL 16.14: 197 passed
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
 - Material, test, dataset, typed provenance, or audit-chain implementations
-- Artifact transfer/authoritative object commit, outbox/reconciliation, deployment runner
-  credential provisioning, and signature/SBOM/malware/vulnerability verification automation
+- Content-addressed final Artifact promotion, download tokens, S3 production adapter,
+  outbox/reconciliation, deployment runner credential provisioning, and
+  signature/SBOM/malware/vulnerability verification automation
 - A selected production OCI runtime implementation and production package/image admission policy
 - Production plugins
 - Constitutive equations, fitting algorithms, solver cards, or validation thresholds
@@ -95,9 +107,10 @@ Full suite with PostgreSQL 16.14: 197 passed
 
 ## Next gate
 
-Per the repository blueprint, the next task is `T-09`/`T-10`: raw-asset upload and authoritative
-artifact transfer/commit. T-18 deliberately keeps package/input materialization and validated
-Result Manifest/output commit behind those ports; an unconfigured worker remains safely idle.
+Per the repository blueprint, the next task is `T-10`: content-addressed final Artifact and
+integrity reconciliation. T-09 deliberately stops at a digest/size-verified staging object and
+`staged_verified` Raw Asset. T-18 package/input materialization and validated Result Manifest/output
+commit remain behind T-10 ports; an unconfigured worker remains safely idle.
 Audit (`T-05`), provenance (`T-13`), catalog (`T-07`), and outbox/reconciliation (`T-16`) are not
 implied complete.
 

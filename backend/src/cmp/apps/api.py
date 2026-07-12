@@ -1,4 +1,4 @@
-"""FastAPI composition root for identity, revisions, jobs, and plugin registry."""
+"""FastAPI composition root for identity, uploads, jobs, and plugin registry."""
 
 from __future__ import annotations
 
@@ -8,10 +8,13 @@ from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict
 
 from cmp import __version__
+from cmp.bootstrap.artifacts import build_upload_service
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.security import IdentityServices, build_identity_services
 from cmp.bootstrap.settings import Settings
+from cmp.modules.artifacts.adapters.api.uploads import install_upload_api
+from cmp.modules.artifacts.application.uploads import UploadService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
 )
@@ -42,13 +45,14 @@ def create_app(
     authorization_service: AuthorizationService | None = None,
     job_service: JobService | None = None,
     plugin_registry_service: PluginRegistryService | None = None,
+    upload_service: UploadService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Identity, revision, durable job, and immutable plugin foundation.",
+        summary="Identity, streaming upload, durable job, and plugin foundation.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -102,6 +106,18 @@ def create_app(
         ),
         activate_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PLUGIN_ACTIVATE
+        ),
+    )
+    resolved_uploads = upload_service or build_upload_service(services, resolved)
+    install_upload_api(
+        application,
+        service=resolved_uploads,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.ARTIFACT_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.ARTIFACT_WRITE
         ),
     )
     application.state.authorization_service = services.authorization

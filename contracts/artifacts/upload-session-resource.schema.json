@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:upload-session-resource:1.0.0",
+  "title": "Upload Session Resource",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "upload_id", "organization_id", "project_id", "classification", "state",
+    "original_filename", "media_type", "expected_size_bytes", "expected_sha256",
+    "part_size_bytes", "expected_part_count", "test_run_revision_id", "created_at",
+    "expires_at", "created_by", "updated_at", "terminal_at", "raw_asset_id",
+    "failure_code", "parts", "links"
+  ],
+  "properties": {
+    "upload_id": {"type": "string", "format": "uuid"},
+    "organization_id": {"type": "string", "format": "uuid"},
+    "project_id": {"type": "string", "format": "uuid"},
+    "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "state": {"enum": ["open", "completing", "completed", "failed", "cancelled"]},
+    "original_filename": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^/\\\\\\u0000\\s](?:[^/\\\\\\u0000]*[^/\\\\\\u0000\\s])?$"},
+    "media_type": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^\\u0000\\s](?:[^\\u0000]*[^\\u0000\\s])?$"},
+    "expected_size_bytes": {"type": "integer", "minimum": 1},
+    "expected_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "part_size_bytes": {"type": "integer", "minimum": 1},
+    "expected_part_count": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "test_run_revision_id": {"type": ["string", "null"], "format": "uuid"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "created_by": {"type": "string", "format": "uuid"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "terminal_at": {"type": ["string", "null"], "format": "date-time"},
+    "raw_asset_id": {"type": ["string", "null"], "format": "uuid"},
+    "failure_code": {"type": ["string", "null"], "maxLength": 100},
+    "parts": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["part_number", "size_bytes", "sha256", "storage_etag", "recorded_at"],
+        "properties": {
+          "part_number": {"type": "integer", "minimum": 1},
+          "size_bytes": {"type": "integer", "minimum": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "storage_etag": {"type": "string", "minLength": 1, "maxLength": 255},
+          "recorded_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["self", "complete", "cancel"],
+      "properties": {
+        "self": {"type": "string"},
+        "complete": {"type": "string"},
+        "cancel": {"type": "string"}
+      }
+    }
+  }
+}
