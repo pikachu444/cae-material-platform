@@ -345,6 +345,12 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-25. Solver Exporter capability/preflight/export framework — `P0`
 
+- **2026-07-14 reference subset:** generic exporter/run framework 대신 ADR-006의 OpenRadioss
+  2025 `/MAT/ELAST`, `kg_m_s`, reference linear-elastic IR 한 target tuple을 explicit typed
+  tables/API/UI로 구현했다. mapping report acknowledgement, immutable card preview/download,
+  provenance/audit/RLS를 포함한다. production exporter, arbitrary options, plugin-owned target
+  payload, release approval은 이 subset에 포함되지 않는다.
+
 - **목적:** IR→target mapping의 exact/transformed/approximated/unsupported 상태와 승인 조건을 강제한다.
 - **입력과 출력:** 입력은 IR Revision, target solver/version/card/unit/options, exporter package; 출력은 Mapping Report, Solver Card Revision.
 - **영향 데이터/API:** `exporting.target`, `export_run`, `mapping_report`, `solver_card*`; preflight/card API.
@@ -355,6 +361,11 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 - **담당:** Software framework; Solver Domain Expert가 production mapping/card 승인.
 
 #### T-26. Solver-card golden/semantic comparison harness — `P0`
+
+- **2026-07-14 reference subset:** reference IR fixture의 byte-exact `.rad` golden card,
+  report acknowledgement mismatch, card-text tamper, unsupported target regression을 CI에
+  추가했다. multiple target/version matrix, parser-based semantic diff, 그리고 domain-review
+  golden-update workflow는 후속 범위다.
 
 - **목적:** exporter 변경이 card text와 의미에 미치는 영향을 review 가능한 회귀 test로 고정한다.
 - **입력과 출력:** 입력은 IR fixtures, target/version/options, approved golden; 출력은 byte/normalized semantic diff와 test result.

@@ -1,11 +1,12 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP and reference Material Model IR plus identity, authorization, revision, streaming Raw Asset upload,
+Status: Material Catalog MVP, reference Material Model IR, and reference OpenRadioss Solver Card
+plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-07` + `T-09`–`T-10` + `T-13`–`T-18` + reference `T-22` subset)
+(`T-01`–`T-07` + `T-09`–`T-10` + `T-13`–`T-18` + reference `T-22`/`T-25`/`T-26` subsets)
 
-Version: `0.15.0`
+Version: `0.16.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -16,8 +17,11 @@ search, Material/State entry, typed property entry/revision, revision comparison
 summary. The first non-production Material Model IR can now be created only from one concrete
 Property Set revision: it keeps Material/State/Property revision lineage, typed SI density/E/ν,
 applicability, and an explicit disposition for an optional yield value that the linear-elastic
-reference model does not use. Solver card export, tests/datasets, and fitting remain separate
-follow-on slices. The T-03/T-04 identity and access-control foundation,
+reference model does not use. The first card exporter consumes only that frozen IR revision and
+creates a non-production OpenRadioss 2025 `/MAT/ELAST` text card after an explicit mapping
+preflight/report acknowledgement. The workbench exposes the resulting immutable card preview and
+authenticated download. Tests/datasets and fitting remain separate follow-on slices. The T-03/T-04
+identity and access-control foundation,
 the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine, the T-17
 immutable plugin package registry, and the T-18 isolated execution contract remain reusable
 platform infrastructure. T-09 adds verified staging Raw Assets, and T-10 promotes them into
@@ -54,6 +58,12 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
   Property Set create/revision APIs with same-transaction lifecycle, provenance, and audit facts
 - React/Vite Material Catalog workbench connected to the protected APIs, including Dashboard,
   search, Material creation, State/property forms, revision history/compare, and provenance summary
+- Reference IR creation, explicit OpenRadioss 2025 `/MAT/ELAST` mapping preflight, mapping-status
+  report, immutable Solver Card preview, and authenticated `.rad` download in the Material State
+  workbench; target/unit defaults and silent approximations are prohibited
+- Explicit PostgreSQL `exporting.solver_card` and `solver_card_revision` relations with frozen
+  Material Model revision FKs, typed SI card fields/status columns, mapping/card SHA-256 digests,
+  tenant/classification composite keys, forced RLS, and append-only guards; no EAV/card JSON
 - Strict OIDC JWT access-token validation for user and service principals
 - Immutable `(issuer, subject)` external identities and stable opaque principal IDs
 - Request-scoped organization/project context and authenticated `GET /api/v1/me`
@@ -180,6 +190,13 @@ Open `http://127.0.0.1:5173`. The development server proxies `/api` to
 token issued for the desired organization/project. The client deliberately sends no Material request
 without a token and does not bypass the API's authorization or PostgreSQL RLS policy.
 
+For the first runnable product flow, create a Material, add a Material State, record density/E/ν,
+then use **Material Model IR → Solver Card** within that State. The UI creates an immutable reference
+IR from the selected Property Set revision, requires an explicit OpenRadioss 2025 `kg_m_s` target,
+shows every mapping status, and enables preview/download only after the report digest is acknowledged.
+This narrow exporter is non-production and is based on the official
+[OpenRadioss 2025 `/MAT/LAW1` (`/MAT/ELAST`) reference](https://2025.help.altair.com/2025/hwsolvers/rad/topics/solvers/rad/mat_law1_elast_starter_r.htm).
+
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret
 manager rather than source control:
@@ -200,7 +217,7 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, modeling, exporting TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
@@ -210,6 +227,8 @@ GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA provenance TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA events TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA catalog TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA modeling TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA exporting TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance, audit TO cmp_app;
 ```
 
@@ -251,13 +270,15 @@ CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 ## Scope guard
 
 Read `AGENTS.md` before changing this repository. Production tensile standards, material models,
-calibration choices, solver cards, and validation criteria remain `TBD`; the T-22 linear-elastic IR
-is an explicitly non-production reference projection, not a production material model. T-06 provides a typed-table
+calibration choices, solver cards, and validation criteria remain `TBD`; ADR-006's T-22/T-25
+linear-elastic/OpenRadioss path is an explicitly non-production reference projection and card, not
+a production material model or solver qualification. T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
 not implement Material, artifact transfer, lifecycle approval, or export-control
 nationality rules. T-15 accepts only versioned generic Job Spec documents; it does not implement
-Material, test importer, fitting, solver exporter, production plugin, or general-purpose DAG logic.
+Material, test importer, fitting, production solver exporter, production plugin, or general-purpose
+DAG logic.
 T-17 registers manifest/schema/supply-chain references and project activation facts only. It does
 not implement a public marketplace or claim cryptographic verification without an explicit
 authorized verification event. T-18 executes only approved,
@@ -279,7 +300,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 ## Traceability
 
 - Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, `T-09`, `T-10`,
-  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, `T-32` MVP
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-22`, `T-25`, `T-26`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
@@ -288,5 +309,5 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006` (with `ADR-005` as a scope guard)
 

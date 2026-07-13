@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-14`
-Foundation version: `0.15.0`
+Foundation version: `0.16.0`
 
 ## Completed
 
@@ -23,16 +23,26 @@ Foundation version: `0.15.0`
   per-value source and applicability; search/detail/history/compare APIs; provenance/audit/lifecycle
   hooks; PostgreSQL composite tenant/classification FKs, indexes, and forced RLS. Process/Lot/Batch
   genealogy remains outside this subset.
-- `T-32` MVP subset: React/Vite Material Catalog workbench backed by the protected Catalog API;
-  Dashboard, search, Material creation, State and typed Property Set entry/revision, revision
-  compare/history, and provenance summary screens. Test/upload/mapping UI remains outside this
-  subset.
+- `T-32` MVP subset: React/Vite Material Catalog workbench backed by protected Catalog, Modeling,
+  and Exporting APIs; Dashboard, search, Material creation, State and typed Property Set
+  entry/revision, revision compare/history, provenance summary, and the reference
+  IR→mapping-preflight→Solver Card preview/download workflow. Test upload and tabular column-mapping
+  UI remain outside this subset.
 - `T-22` reference subset: a stable Material Model identity and immutable reference
   isotropic-linear-elastic IR revision projected from one concrete Property Set revision; explicit
   SI density/Young's modulus/Poisson ratio columns, source-yield disposition, semantic/unit bounds,
   Material→State→Property lineage composite FKs, API/list/history resources, provenance/audit/lifecycle
   hooks, PostgreSQL RLS, and non-production-only contract. Generic model-schema registration,
   calibration evidence, and production model families remain separate work.
+- `T-25` reference subset: an explicit OpenRadioss 2025 `/MAT/ELAST` exporter for only the
+  reference linear-elastic IR and `kg_m_s` units; typed capability/preflight/mapping-report and
+  immutable Solver Card identity/revision tables, source-revision FKs, SHA-256 report/card digests,
+  provenance/audit/RLS, protected preview/download APIs, and no generic exporter/options payload.
+  Production solver qualification, additional targets, transforms, approximations, and release
+  approval remain separate work.
+- `T-26` reference subset: a byte-exact `.rad` golden fixture plus report-acknowledgement,
+  unsupported-target, and text-tamper regressions. A multi-target/version matrix, semantic parser,
+  and domain-review golden-update workflow remain separate work.
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -86,6 +96,10 @@ Foundation version: `0.15.0`
   dependency; source values are selected by concrete Property Set revision, then persisted with
   concrete Material/State/Property revision references. PostgreSQL constraints prevent mixed parent
   lineage, RLS hides cross-project models, and original IR revisions reject mutation/deletion.
+- Reference Solver Card creation consumes a concrete Material Model revision only; an explicit
+  OpenRadioss 2025 `/MAT/ELAST` `kg_m_s` preflight returns every mapping status and its digest must
+  be acknowledged before an immutable typed card revision is written. PostgreSQL T-25 integration
+  coverage proves provenance/audit derivation, tenant isolation, and card-revision immutability.
 - PostgreSQL integration uses a migration-managed explicit typed fixture; no generic EAV/content
   table exists
 - Job submission is tenant-idempotent; every retry appends a distinct immutable Attempt/Job Spec
@@ -162,17 +176,19 @@ Foundation version: `0.15.0`
 
 ## Validation result
 
-Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-compatible server
+Current command: `make ci`; the PostgreSQL integration suite additionally requires
+`CMP_TEST_POSTGRES_DSN`.
 
 ```text
 Ruff: passed
-mypy strict: passed (211 source files)
+mypy strict: passed (237 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 230 passed, 59 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 289 passed
-Web workbench build: passed; Vitest: 4 passed
+make ci: 246 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Web workbench build: passed; Vitest: 6 passed
+T-25 PostgreSQL integration: implemented but not executed in this environment because
+  CMP_TEST_POSTGRES_DSN is unavailable
 ```
 
 ## Intentionally absent
@@ -191,16 +207,17 @@ Web workbench build: passed; Vitest: 4 passed
 - Production plugins
 - External audit root signer, SIEM/WORM connector, retention/legal-hold policy, and deployment
   service-principal scheduling for periodic sealing
-- Fitting algorithms, solver cards, or validation thresholds; the implemented reference IR is not a
-  calibrated or production-validated constitutive equation
+- Fitting algorithms, production solver cards/targets, or validation thresholds; the implemented
+  reference IR and OpenRadioss card are not calibrated or production-qualified
 - Production web identity/session integration and a compose/demo identity stack
 
 ## Next gate
 
-The backend/API/database and Material management UI portions of the `T-07` MVP and the reference
-IR subset of `T-22` are complete. ADR-006 keeps OpenRadioss mapping preflight, immutable reference
-card generation, preview/download, and golden semantic tests as the next contiguous product step;
-the foundation above is retained and reused. T-30 still owns Release
-creation and evidence policy; T-17/T-18 production Artifact composition and release-specific
-retention/backup policy are not implied complete.
+The first vertical flow is complete as a non-production reference subset:
+Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report
+→ immutable card preview/download. The next contiguous product step is the Test/Dataset vertical
+slice: Specimen/Test metadata, reference tensile CSV upload, column/unit mapping, raw and
+normalized curve viewing, and a concrete Material link. T-30 still owns Release creation and
+evidence policy; T-17/T-18 production Artifact composition and release-specific retention/backup
+policy are not implied complete.
 

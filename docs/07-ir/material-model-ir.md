@@ -28,6 +28,19 @@ yield stress는 이 선형탄성 model에 적용되지 않음을 explicit dispos
 validation, release를 주장하지 않는다. OpenRadioss mapping/card는 별도 exporting slice가
 그 IR revision만 입력으로 받는다.
 
+### 1.2 구현된 reference export subset
+
+`exporting.solver_card`는 stable identity이고, `exporting.solver_card_revision`은 append-only
+immutable revision이다. 현재 허용되는 target tuple은 OpenRadioss `2025`, `/MAT/ELAST`,
+`kg_m_s` 하나뿐이다. preflight는 density, Young's modulus, Poisson ratio와 unit을 `exact`로,
+reference law에 적용되지 않는 source yield/temperature/rate를 `not_applicable`으로 명시한다.
+지원하지 않는 target은 `unsupported`로 실패하며, default 또는 approximation은 사용하지 않는다.
+
+card 생성은 concrete IR revision과 다시 계산한 mapping-report SHA-256을 함께 요구한다.
+보고서와 입력이 달라지면 생성할 수 없고, 생성된 card에는 typed field, 각 mapping status,
+report/card SHA-256 및 provenance derivation이 고정된다. 이 구현은 generic exporter framework,
+arbitrary option payload, production solver qualification, 또는 release approval을 뜻하지 않는다.
+
 ## 2. IR이 해결해야 하는 문제
 
 parameter 이름과 숫자만 저장하면 다음을 알 수 없다.
