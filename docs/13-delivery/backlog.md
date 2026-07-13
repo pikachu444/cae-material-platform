@@ -429,6 +429,11 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-32. Catalog/Test/Upload/Mapping UI — `P0`
 
+- **MVP progress (2026-07-14):** The protected Material Catalog UI is implemented: dashboard,
+  Material search/create/detail, Material State entry, typed basic Property Set create/revision,
+  revision history/compare, and provenance summary. Test/upload/mapping surfaces remain pending;
+  this is not a claim that the full T-32 task is complete.
+
 - **목적:** material-state-lot/batch-specimen-test 문맥과 upload/mapping confirmation을 오류 없이 입력한다.
 - **입력과 출력:** 입력은 OpenAPI resources/schema; 출력은 typed forms, upload progress, mapping review, issue display.
 - **영향 데이터/API:** T-07~T-12 APIs; client-side state만 별도.

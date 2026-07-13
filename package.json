@@ -1,10 +1,15 @@
 {
   "name": "cae-material-platform-workspace",
   "private": true,
-  "version": "0.4.0",
-  "description": "Frontend workspace placeholder; no web application is implemented through T-04/T-06.",
+  "version": "0.5.0",
+  "description": "CAE Material Platform web workspace.",
+  "workspaces": [
+    "apps/web"
+  ],
   "scripts": {
-    "check": "node -e \"console.log('web workspace intentionally empty')\""
+    "build": "npm run build --workspace @cmp/web",
+    "test:web": "npm run test --workspace @cmp/web",
+    "check": "npm run build && npm run test:web"
   }
 }
 

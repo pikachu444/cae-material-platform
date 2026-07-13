@@ -5,7 +5,7 @@ export UV_LINK_MODE ?= copy
 
 .PHONY: bootstrap lint typecheck check-architecture check-contracts generate-client \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
-	run-api run-worker run-worker-once ci
+	web-build web-test run-api run-worker run-worker-once ci
 
 bootstrap:
 	$(UV) sync --all-groups
@@ -48,6 +48,12 @@ test-postgresql:
 
 test:
 	$(UV) run pytest
+
+web-build:
+	npm run build --workspace @cmp/web
+
+web-test:
+	npm run test:web
 
 run-api:
 	$(UV) run uvicorn cmp.apps.api:app --host 127.0.0.1 --port 8000

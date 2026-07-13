@@ -23,6 +23,10 @@ Foundation version: `0.14.0`
   per-value source and applicability; search/detail/history/compare APIs; provenance/audit/lifecycle
   hooks; PostgreSQL composite tenant/classification FKs, indexes, and forced RLS. Process/Lot/Batch
   genealogy remains outside this subset.
+- `T-32` MVP subset: React/Vite Material Catalog workbench backed by the protected Catalog API;
+  Dashboard, search, Material creation, State and typed Property Set entry/revision, revision
+  compare/history, and provenance summary screens. Test/upload/mapping UI remains outside this
+  subset.
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -51,6 +55,8 @@ Foundation version: `0.14.0`
 ## Runtime proof
 
 - FastAPI health endpoint: `GET /api/v1/health`
+- Web workbench: `http://127.0.0.1:5173` after `npm run dev --workspace @cmp/web`; it uses the
+  configured bearer token and `/api/v1` contract without an authorization bypass
 - Unconfigured durable-worker idle verification: `cmp-worker --once --json`
 - Generated client calls a live Uvicorn process in integration tests
 - Worker starts in a separate subprocess and exits successfully in one-cycle mode
@@ -156,6 +162,7 @@ Contract lint: passed
 OpenAPI compatibility: passed
 make ci: 230 passed, 59 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
 Full suite with PostgreSQL 16.14: 289 passed
+Web workbench build: passed; Vitest: 4 passed
 ```
 
 ## Intentionally absent
@@ -175,13 +182,13 @@ Full suite with PostgreSQL 16.14: 289 passed
 - External audit root signer, SIEM/WORM connector, retention/legal-hold policy, and deployment
   service-principal scheduling for periodic sealing
 - Constitutive equations, fitting algorithms, solver cards, or validation thresholds
-- Frontend application
+- Production web identity/session integration and a compose/demo identity stack
 
 ## Next gate
 
-The backend/API/database portion of the `T-07` Material/State/typed Property MVP is complete.
-ADR-006 keeps Material management UI, reference Material Model IR, and reference OpenRadioss card
-generation as the next contiguous product steps; the foundation above is retained and reused. T-30
-still owns Release creation and evidence policy; T-17/T-18 production Artifact composition and
-release-specific retention/backup policy are not implied complete.
+The backend/API/database and Material management UI portions of the `T-07` MVP are complete.
+ADR-006 keeps reference Material Model IR and reference OpenRadioss card generation as the next
+contiguous product steps; the foundation above is retained and reused. T-30 still owns Release
+creation and evidence policy; T-17/T-18 production Artifact composition and release-specific
+retention/backup policy are not implied complete.
 

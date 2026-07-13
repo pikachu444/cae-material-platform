@@ -11,8 +11,10 @@ This repository is the implementation workspace for the CAE material-data platfo
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
 mechanical Property Set revisions. It intentionally does not use generic EAV or JSON property
 payloads: density, Young's modulus, Poisson ratio, optional yield stress, source, and applicability
-are named SI fields. Process/Lot/Batch, test data, fitting, Material Model IR, solver cards, and the
-frontend remain separate follow-on slices. The T-03/T-04 identity and access-control foundation,
+are named SI fields. The React Material Catalog workbench connects to these protected APIs for
+search, Material/State entry, typed property entry/revision, revision comparison, and provenance
+summary. Process/Lot/Batch, test data, fitting, Material Model IR, and solver cards remain separate
+follow-on slices. The T-03/T-04 identity and access-control foundation,
 the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine, the T-17
 immutable plugin package registry, and the T-18 isolated execution contract remain reusable
 platform infrastructure. T-09 adds verified staging Raw Assets, and T-10 promotes them into
@@ -47,6 +49,8 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
   revisions, composite tenant/classification parent FKs, forced RLS, indexes, and no EAV payload
 - Protected Material create/search/detail/revision comparison, State creation/revision, and typed
   Property Set create/revision APIs with same-transaction lifecycle, provenance, and audit facts
+- React/Vite Material Catalog workbench connected to the protected APIs, including Dashboard,
+  search, Material creation, State/property forms, revision history/compare, and provenance summary
 - Strict OIDC JWT access-token validation for user and service principals
 - Immutable `(issuer, subject)` external identities and stable opaque principal IDs
 - Request-scoped organization/project context and authenticated `GET /api/v1/me`
@@ -120,6 +124,7 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
 - Python 3.12+
 - `uv`
 - `make`
+- Node.js 20.19+ and `npm` for the web workbench
 - PostgreSQL 16+ for migration and persistence integration tests
 
 ## Start
@@ -155,6 +160,22 @@ The optional claim mapping settings are `CMP_OIDC_CLIENT_ID_CLAIM`,
 `CMP_OIDC_DISPLAY_NAME_CLAIM`, `CMP_OIDC_SERVICE_GRANT_CLAIM`, and
 `CMP_OIDC_SERVICE_GRANT_VALUES`. `CMP_OIDC_ALGORITHMS` is an explicit asymmetric allowlist.
 Loopback HTTP JWKS is disabled unless `CMP_OIDC_ALLOW_LOOPBACK_HTTP=true` is set for development.
+
+## Material Catalog workbench
+
+Start the API with a migrated PostgreSQL database and a valid OIDC configuration, then start the
+web workbench in a second terminal:
+
+```bash
+npm ci --workspaces --include-workspace-root
+npm run dev --workspace @cmp/web
+```
+
+Open `http://127.0.0.1:5173`. The development server proxies `/api` to
+`http://127.0.0.1:8000`; set `VITE_CMP_API_TARGET` to use a different local API target. In the
+**Connection** panel, provide the API base URL (default `/api/v1`) and a short-lived bearer access
+token issued for the desired organization/project. The client deliberately sends no Material request
+without a token and does not bypass the API's authorization or PostgreSQL RLS policy.
 
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret
@@ -206,6 +227,8 @@ make test-contract
 make test-migration
 make test-integration
 make test
+make web-build
+make web-test
 make ci
 ```
 
@@ -251,7 +274,8 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-09`, `T-10`, `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, `T-09`, `T-10`,
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
