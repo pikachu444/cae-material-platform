@@ -172,6 +172,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.STATISTICS_EXECUTE: frozenset({Permission.DATASET_READ, Permission.STATISTICS_READ}),
     Permission.MODELING_WRITE: frozenset({Permission.CATALOG_READ, Permission.MODELING_READ}),
     Permission.CALIBRATION_EXECUTE: frozenset({Permission.DATASET_READ, Permission.MODELING_READ}),
+    Permission.EXPORT_READ: frozenset({Permission.MODELING_READ}),
     Permission.EXPORT_EXECUTE: frozenset(
         {Permission.ARTIFACT_READ, Permission.MODELING_READ, Permission.EXPORT_READ}
     ),

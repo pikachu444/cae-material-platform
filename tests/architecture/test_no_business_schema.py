@@ -21,6 +21,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260713_012_T05_append_only_audit.py",
         "20260713_013_T07_material_catalog.py",
         "20260714_014_T22_reference_material_model.py",
+        "20260714_015_T25_reference_openradioss_export.py",
     ]
 
 
@@ -231,6 +232,32 @@ def test_t22_uses_typed_reference_model_revisions_without_generic_model_payload(
         '"poisson_ratio"',
         '"source_yield_stress_pa"',
         '"property_set_revision_id"',
+    ):
+        assert column in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+
+
+def test_t25_uses_typed_solver_card_revisions_without_generic_card_payload() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260714_015_T25_reference_openradioss_export.py"
+    ).read_text(encoding="utf-8")
+
+    for table in ("solver_card", "solver_card_revision"):
+        assert f'"{table}"' in migration
+    for column in (
+        '"material_model_revision_id"',
+        '"density_kg_per_m3"',
+        '"youngs_modulus_pa"',
+        '"poisson_ratio"',
+        '"mapping_report_sha256"',
+        '"card_sha256"',
+        '"card_text"',
     ):
         assert column in migration
     assert "postgresql.JSONB" not in migration

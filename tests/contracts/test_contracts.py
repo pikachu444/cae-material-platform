@@ -281,6 +281,47 @@ def test_upload_contract_and_runtime_expose_stream_complete_cancel_and_raw_asset
     ]
 
 
+def test_solver_card_contract_and_runtime_expose_preflight_preview_and_download() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/exporters/reference-openradioss-elast/capabilities": (
+            "get",
+            "getReferenceOpenRadiossExporterCapabilities",
+        ),
+        "/api/v1/material-models/{material_model_id}/mapping-preflight": (
+            "post",
+            "preflightReferenceOpenRadiossMapping",
+        ),
+        "/api/v1/material-models/{material_model_id}/solver-cards": (
+            "post",
+            "createReferenceOpenRadiossSolverCard",
+        ),
+        "/api/v1/solver-cards/{solver_card_id}/preview": ("get", "previewSolverCard"),
+        "/api/v1/solver-cards/{solver_card_id}/download": ("get", "downloadSolverCard"),
+    }
+
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = PROJECT_ROOT / "contracts/exporting/reference-openradioss-resources.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    serialized = json.dumps(schema)
+    card = runtime["components"]["schemas"]["SolverCardContentResponse"]
+    report = runtime["components"]["schemas"]["MappingReportResponse"]
+
+    assert "postgresql.JSONB" not in serialized
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+    assert "card_text" not in card["properties"]
+    assert {"mapping_report_sha256", "card_sha256", "non_production"}.issubset(
+        card["required"]
+    )
+    assert {"items", "mapping_report_sha256", "exportable"}.issubset(report["required"])
+
+
 def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
     schema = json.loads(
         (PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json").read_text(

@@ -1,0 +1,14 @@
+#RADIOSS STARTER
+# CMP reference-only exporter cmp.reference.openradioss-elast 1.0.0
+# CMP material-model-revision e1000000-0000-4000-8000-000000000008
+# CMP mapping-report-sha256 e7a0c3f86c58b1832ae129eafbb45e28d63c2c7bf160a5f84290276c38595abb
+/UNIT/1
+CMP_SI_KG_M_S
+kg                  m                   s
+/MAT/ELAST/17/1
+Reference steel
+#              RHO_I
+     7.850000000E+03                   0
+#                  E                  nu
+     2.100000000E+11     3.000000000E-01
+/END

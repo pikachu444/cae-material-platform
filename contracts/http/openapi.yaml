@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.15.0
+  version: 0.16.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1308,6 +1308,183 @@ paths:
         "403": {description: Modeling read is not authorized.}
         "404": {description: No visible Material Model matches the identifier.}
         "503": {description: Material Model service unavailable.}
+  /api/v1/exporters/reference-openradioss-elast/capabilities:
+    get:
+      operationId: getReferenceOpenRadiossExporterCapabilities
+      tags: [exporting]
+      summary: Read the narrow non-production OpenRadioss reference exporter capability manifest.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Declared reference exporter capability and mapping statuses.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExporterCapability"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+  /api/v1/material-models/{material_model_id}/mapping-preflight:
+    post:
+      operationId: preflightReferenceOpenRadiossMapping
+      tags: [exporting]
+      summary: Map the current reference IR revision to an explicit target without creating a card.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/MappingPreflightRequest"}
+      responses:
+        "200":
+          description: Deterministic mapping report for the current concrete IR revision.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/MappingReport"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404":
+          description: No current reference Material Model is visible for the supplied identifier.
+          content:
+            application/problem+json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExportingProblem"}
+        "409":
+          description: Immutable export state conflict.
+          content:
+            application/problem+json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExportingProblem"}
+        "422":
+          description: Explicit target or typed reference IR is not valid for this exporter.
+          content:
+            application/problem+json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExportingProblem"}
+        "503": {description: Solver Card service unavailable.}
+  /api/v1/material-models/{material_model_id}/solver-cards:
+    get:
+      operationId: listSolverCardsForMaterialModel
+      tags: [exporting]
+      summary: List current Solver Cards generated from one Material Model identity.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Current immutable Solver Card heads.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/SolverCardListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "503": {description: Solver Card service unavailable.}
+    post:
+      operationId: createReferenceOpenRadiossSolverCard
+      tags: [exporting]
+      summary: Create an immutable reference OpenRadioss card from an acknowledged frozen IR mapping.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/SolverCardCreateRequest"}
+      responses:
+        "201":
+          description: Stable Solver Card identity and immutable card revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/SolverCardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export execute is not authorized.}
+        "404":
+          description: No concrete reference Material Model revision is visible.
+          content:
+            application/problem+json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExportingProblem"}
+        "409":
+          description: The frozen source, target identity, or mapping acknowledgement conflicts.
+          content:
+            application/problem+json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExportingProblem"}
+        "422":
+          description: Typed IR input or explicit target is not valid for the reference exporter.
+          content:
+            application/problem+json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/ExportingProblem"}
+        "503": {description: Solver Card service unavailable.}
+  /api/v1/solver-cards/{solver_card_id}:
+    get:
+      operationId: getSolverCard
+      tags: [exporting]
+      summary: Read the current immutable Solver Card revision and mapping report.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Current immutable Solver Card revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/SolverCardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible Solver Card matches the identifier.}
+        "503": {description: Solver Card service unavailable.}
+  /api/v1/solver-cards/{solver_card_id}/revisions:
+    get:
+      operationId: listSolverCardRevisions
+      tags: [exporting]
+      summary: List immutable revisions for one Solver Card identity.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Newest-first immutable Solver Card revision history.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-openradioss-resources.schema.json#/$defs/SolverCardRevisionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible Solver Card matches the identifier.}
+        "503": {description: Solver Card service unavailable.}
+  /api/v1/solver-cards/{solver_card_id}/preview:
+    get:
+      operationId: previewSolverCard
+      tags: [exporting]
+      summary: Preview the exact immutable Solver Card text.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Plain-text Solver Card preview.
+          content:
+            text/plain:
+              schema: {type: string}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible Solver Card matches the identifier.}
+        "503": {description: Solver Card service unavailable.}
+  /api/v1/solver-cards/{solver_card_id}/download:
+    get:
+      operationId: downloadSolverCard
+      tags: [exporting]
+      summary: Download the exact immutable Solver Card text.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Solver Card text attachment.
+          headers:
+            Content-Disposition:
+              required: true
+              schema: {type: string}
+          content:
+            text/plain:
+              schema: {type: string}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible Solver Card matches the identifier.}
+        "503": {description: Solver Card service unavailable.}
 components:
   securitySchemes:
     BearerAuth:
@@ -1345,6 +1522,11 @@ components:
       schema: {type: string, format: uuid}
     MaterialModelId:
       name: material_model_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    SolverCardId:
+      name: solver_card_id
       in: path
       required: true
       schema: {type: string, format: uuid}

@@ -31,6 +31,18 @@ from cmp.modules.catalog.domain.model import (
     PropertySource,
     PropertySourceKind,
 )
+from cmp.modules.exporting.adapters.persistence.repository import (
+    SqlAlchemyExportingRepository,
+    solver_card_revision_table,
+)
+from cmp.modules.exporting.application.service import (
+    CreateReferenceOpenRadiossCard,
+    SolverCardService,
+)
+from cmp.modules.exporting.domain.openradioss_elast import (
+    ExportTarget,
+    SolverCardNotFound,
+)
 from cmp.modules.identity_access.adapters.persistence.rls import SqlAlchemyRlsContext
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -86,6 +98,7 @@ class PostgresHarness:
     rls: SqlAlchemyRlsContext
     service: CatalogService
     modeling: MaterialModelService
+    exporting: SolverCardService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -136,7 +149,7 @@ def postgres() -> Iterator[PostgresHarness]:
             )
             connection.exec_driver_sql(
                 "GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, "
-                f'provenance, audit, catalog, modeling, artifact, plugin TO "{app_role}"'
+                f'provenance, audit, catalog, modeling, exporting, artifact, plugin TO "{app_role}"'
             )
             for schema in (
                 "identity",
@@ -145,6 +158,7 @@ def postgres() -> Iterator[PostgresHarness]:
                 "audit",
                 "catalog",
                 "modeling",
+                "exporting",
                 "artifact",
                 "plugin",
             ):
@@ -183,12 +197,24 @@ def postgres() -> Iterator[PostgresHarness]:
                 ),
             )
         )
+        exporting = SolverCardService(
+            repository=SqlAlchemyExportingRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            )
+        )
         yield PostgresHarness(
             admin_engine=admin_engine,
             sessions=sessions,
             rls=rls,
             service=CatalogService(repository=repository),
             modeling=modeling,
+            exporting=exporting,
         )
     finally:
         if app_engine is not None:
@@ -231,7 +257,13 @@ def _decision(context: SecurityContext, permission: Permission) -> Authorization
         permission=permission,
         roles=(
             (Role.MATERIAL_MODELER,)
-            if permission in {Permission.MODELING_READ, Permission.MODELING_WRITE}
+            if permission
+            in {
+                Permission.MODELING_READ,
+                Permission.MODELING_WRITE,
+                Permission.EXPORT_READ,
+                Permission.EXPORT_EXECUTE,
+            }
             else (Role.DATA_STEWARD,)
         ),
         database_permissions=database_permissions_for(permission),
@@ -464,3 +496,137 @@ def test_reference_material_model_is_immutable_source_pinned_and_tenant_scoped(
             sa.text("SELECT count(*) FROM audit.event WHERE action = 'modeling.material_model'"),
         )
     assert lifecycle_count == provenance_count == audit_count == 1
+
+
+def test_solver_card_is_source_pinned_immutable_provenanced_and_tenant_scoped(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    catalog_write = _decision(context, Permission.CATALOG_WRITE)
+    modeling_write = _decision(context, Permission.MODELING_WRITE)
+    export_read = _decision(context, Permission.EXPORT_READ)
+    export_execute = _decision(context, Permission.EXPORT_EXECUTE)
+    material = postgres.service.create_material(
+        context,
+        catalog_write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent("Reference export steel", "REF-CARD", "steel"),
+            "create solver-card source material",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        catalog_write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "As supplied",
+            ),
+            "create solver-card source state",
+        ),
+    )
+    property_set = postgres.service.create_property_set(
+        context,
+        catalog_write,
+        CreatePropertySet(
+            PropertySetContent(
+                state.id,
+                state.current.record.revision_id,
+                density_kg_per_m3=7850.0,
+                density_source=_source(),
+                youngs_modulus_pa=210_000_000_000.0,
+                youngs_modulus_source=_source(),
+                poisson_ratio=0.3,
+                poisson_ratio_source=_source(),
+                yield_stress_pa=355_000_000.0,
+                yield_stress_source=_source(),
+            ),
+            "record typed export source values",
+        ),
+    )
+    model = postgres.modeling.create_reference_linear_elastic_model(
+        context,
+        modeling_write,
+        CreateReferenceLinearElasticModel(
+            material_state_id=state.id,
+            property_set_revision_id=property_set.current.record.revision_id,
+            change_reason="project source revision into reference IR",
+        ),
+    )
+    target = ExportTarget("openradioss", "2025", "kg_m_s")
+    report = postgres.exporting.preflight_reference_openradioss(
+        context,
+        export_read,
+        model.id,
+        target,
+    )
+    card, returned_report = postgres.exporting.create_reference_openradioss_card(
+        context,
+        export_execute,
+        CreateReferenceOpenRadiossCard(
+            material_model_id=model.id,
+            material_model_revision_id=model.current.record.revision_id,
+            target=target,
+            expected_mapping_report_sha256=report.digest,
+            solver_material_id=17,
+            card_title="Reference export steel",
+            change_reason="generate acknowledged reference solver card",
+        ),
+    )
+
+    assert returned_report == report
+    assert card.current.content.material_model_revision_id == model.current.record.revision_id
+    assert card.current.content.mapping_report_sha256 == report.digest
+    assert "/MAT/ELAST/17/1" in card.current.content.card_text
+    assert postgres.exporting.get_solver_card(context, export_read, card.id) == card
+    assert postgres.exporting.list_solver_cards_for_model(context, export_read, model.id) == (card,)
+    assert postgres.exporting.list_solver_card_revisions(context, export_read, card.id) == (
+        card.current,
+    )
+
+    with pytest.raises(DBAPIError):
+        with postgres.sessions() as session, session.begin():
+            postgres.rls.bind_authorization(session, context, export_execute)
+            session.execute(
+                sa.update(solver_card_revision_table)
+                .where(solver_card_revision_table.c.id == card.current.record.revision_id)
+                .values(card_text="mutated immutable card")
+            )
+
+    other_context = _context(PROJECT_B)
+    with pytest.raises(SolverCardNotFound):
+        postgres.exporting.get_solver_card(
+            other_context,
+            _decision(other_context, Permission.EXPORT_READ),
+            card.id,
+        )
+
+    with postgres.admin_engine.connect() as connection:
+        lifecycle_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM governance.lifecycle_event "
+                "WHERE aggregate_type = 'exporting.solver_card'"
+            )
+        )
+        provenance_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM provenance.entity "
+                "WHERE reference_type = 'exporting.solver_card.revision'"
+            )
+        )
+        usage_count = connection.scalar(
+            sa.text("SELECT count(*) FROM provenance.usage WHERE role = 'material_model_ir'")
+        )
+        derivation_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM provenance.derivation "
+                "WHERE derivation_kind = 'solver_card_export'"
+            )
+        )
+        audit_count = connection.scalar(
+            sa.text("SELECT count(*) FROM audit.event WHERE action = 'exporting.solver_card'"),
+        )
+    assert lifecycle_count == provenance_count == audit_count == 1
+    assert usage_count == derivation_count == 1

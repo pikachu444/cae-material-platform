@@ -11,6 +11,7 @@ from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import build_catalog_service
+from cmp.bootstrap.exporting import build_solver_card_service
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import build_material_model_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
@@ -25,6 +26,8 @@ from cmp.modules.audit.adapters.api.audit import install_audit_api
 from cmp.modules.audit.application.service import AuditService
 from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.application.service import CatalogService
+from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
+from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
 )
@@ -67,6 +70,7 @@ def create_app(
     audit_service: AuditService | None = None,
     catalog_service: CatalogService | None = None,
     material_model_service: MaterialModelService | None = None,
+    solver_card_service: SolverCardService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -196,11 +200,24 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_solver_cards = solver_card_service or build_solver_card_service(services)
+    install_solver_card_api(
+        application,
+        service=resolved_solver_cards,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_EXECUTE
+        ),
+    )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
     application.state.catalog_service = resolved_catalog
     application.state.material_model_service = resolved_material_models
+    application.state.solver_card_service = resolved_solver_cards
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)
 

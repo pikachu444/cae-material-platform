@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/exporting/reference-openradioss-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "MappingStatus": {
+      "enum": ["exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"]
+    },
+    "ExportTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver", "version", "unit_system"],
+      "properties": {
+        "solver": {"type": "string", "minLength": 1, "maxLength": 64},
+        "version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "unit_system": {"type": "string", "minLength": 1, "maxLength": 64}
+      }
+    },
+    "MappingItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "ir_path", "target_representation", "status", "detail"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 100},
+        "ir_path": {"type": "string", "minLength": 1, "maxLength": 300},
+        "target_representation": {"type": ["string", "null"], "maxLength": 300},
+        "status": {"$ref": "#/$defs/MappingStatus"},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 1000}
+      }
+    },
+    "MappingReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_model_id", "material_model_revision_id", "model_schema_digest", "target",
+        "items", "exporter_id", "exporter_version", "exporter_digest",
+        "mapping_report_sha256", "exportable", "non_production"
+      ],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "model_schema_digest": {"$ref": "#/$defs/Sha256"},
+        "target": {"$ref": "#/$defs/ExportTarget"},
+        "items": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/MappingItem"}},
+        "exporter_id": {"const": "cmp.reference.openradioss-elast"},
+        "exporter_version": {"const": "1.0.0"},
+        "exporter_digest": {"$ref": "#/$defs/Sha256"},
+        "mapping_report_sha256": {"$ref": "#/$defs/Sha256"},
+        "exportable": {"type": "boolean"},
+        "non_production": {"const": true}
+      }
+    },
+    "MappingPreflightRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target"],
+      "properties": {"target": {"$ref": "#/$defs/ExportTarget"}}
+    },
+    "SolverCardCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_model_revision_id", "target", "expected_mapping_report_sha256",
+        "solver_material_id", "card_title", "change_reason"
+      ],
+      "properties": {
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "target": {"$ref": "#/$defs/ExportTarget"},
+        "expected_mapping_report_sha256": {"$ref": "#/$defs/Sha256"},
+        "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+        "card_title": {"type": "string", "minLength": 1, "maxLength": 100},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "SolverCardContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_model_id", "material_model_revision_id", "model_schema_digest", "target",
+        "solver_material_id", "card_title", "density_kg_per_m3", "youngs_modulus_pa",
+        "poisson_ratio", "source_yield_stress_pa", "applicable_temperature_min_k",
+        "applicable_temperature_max_k", "applicable_strain_rate_min_per_s",
+        "applicable_strain_rate_max_per_s", "mapping_report_sha256", "card_sha256",
+        "exporter_id", "exporter_version", "exporter_digest", "non_production"
+      ],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "model_schema_digest": {"$ref": "#/$defs/Sha256"},
+        "target": {"$ref": "#/$defs/ExportTarget"},
+        "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+        "card_title": {"type": "string", "minLength": 1, "maxLength": 100},
+        "density_kg_per_m3": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "poisson_ratio": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5},
+        "source_yield_stress_pa": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "applicable_temperature_min_k": {"type": ["number", "null"], "minimum": 0},
+        "applicable_temperature_max_k": {"type": ["number", "null"], "minimum": 0},
+        "applicable_strain_rate_min_per_s": {"type": ["number", "null"], "minimum": 0},
+        "applicable_strain_rate_max_per_s": {"type": ["number", "null"], "minimum": 0},
+        "mapping_report_sha256": {"$ref": "#/$defs/Sha256"},
+        "card_sha256": {"$ref": "#/$defs/Sha256"},
+        "exporter_id": {"const": "cmp.reference.openradioss-elast"},
+        "exporter_version": {"const": "1.0.0"},
+        "exporter_digest": {"$ref": "#/$defs/Sha256"},
+        "non_production": {"const": true}
+      }
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"const": "urn:cmp:exporting:reference-openradioss-elast:1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "SolverCardProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_type", "reference_type", "revision_id", "content_sha256",
+        "based_on_revision_id", "source_material_model_revision_id",
+        "mapping_report_sha256", "recorded_at", "recorded_by"
+      ],
+      "properties": {
+        "entity_type": {"const": "exporting.solver_card.revision"},
+        "reference_type": {"const": "exporting.solver_card.revision"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "content_sha256": {"$ref": "#/$defs/Sha256"},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "source_material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "mapping_report_sha256": {"$ref": "#/$defs/Sha256"},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "recorded_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "SolverCardRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content", "mapping_report", "provenance"],
+          "properties": {
+            "content": {"$ref": "#/$defs/SolverCardContent"},
+            "mapping_report": {"$ref": "#/$defs/MappingReport"},
+            "provenance": {"$ref": "#/$defs/SolverCardProvenance"}
+          }
+        }
+      ]
+    },
+    "SolverCardResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver_card_id", "material_model_id", "target", "solver_material_id", "current_revision", "links"],
+      "properties": {
+        "solver_card_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "target": {"$ref": "#/$defs/ExportTarget"},
+        "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+        "current_revision": {"$ref": "#/$defs/SolverCardRevision"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "SolverCardListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/SolverCardResponse"}}}
+    },
+    "SolverCardRevisionListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver_card_id", "revisions"],
+      "properties": {
+        "solver_card_id": {"$ref": "#/$defs/Uuid"},
+        "revisions": {"type": "array", "items": {"$ref": "#/$defs/SolverCardRevision"}}
+      }
+    },
+    "ExporterCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exporter_id", "exporter_version", "exporter_digest", "non_production",
+        "targets", "supported_model_families", "mapping_statuses"
+      ],
+      "properties": {
+        "exporter_id": {"const": "cmp.reference.openradioss-elast"},
+        "exporter_version": {"const": "1.0.0"},
+        "exporter_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "non_production": {"const": true},
+        "targets": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+        "supported_model_families": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+        "mapping_statuses": {"type": "array", "items": {"$ref": "#/$defs/MappingStatus"}}
+      }
+    },
+    "ExportingProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:exporting"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-EXPORT-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}
