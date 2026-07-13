@@ -44,6 +44,12 @@ Foundation version: `0.17.0`
   concrete Specimen selection, reference Method registration, immutable Test Run creation, browser
   multipart CSV upload, explicit column/unit mapping, and raw/normalized Dataset revision/curve
   inspection. It remains deliberately limited to the reference tensile CSV contract.
+- Local demo composition: an explicit `CMP_ENVIRONMENT=demo` + `CMP_DEMO_IDENTITY=true` Docker
+  Compose profile now runs PostgreSQL, owner-only migration/bootstrap, a non-owner `cmp_app` API,
+  worker, React workbench, filesystem object storage, checked reference-plugin asset, and an
+  API-driven synthetic seed. The seed creates a Material/State/properties/reference IR/OpenRadioss
+  card plus a reference tensile Raw Asset and raw/normalized Dataset revisions without direct
+  database writes or an authorization/RLS bypass.
 - `T-22` reference subset: a stable Material Model identity and immutable reference
   isotropic-linear-elastic IR revision projected from one concrete Property Set revision; explicit
   SI density/Young's modulus/Poisson ratio columns, source-yield disposition, semantic/unit bounds,
@@ -127,6 +133,11 @@ Foundation version: `0.17.0`
 - The Material State workbench calls the protected Testing/Dataset/Upload APIs directly; it keeps
   raw and normalized curve revisions selectable, labels their units, and uses deterministic preview
   sampling rather than treating a browser plot as a calculation artifact.
+- The local Compose workbench can request a demo token only from an explicitly enabled demo API;
+  the in-process token issuer is absent from normal/production configuration, and the resulting
+  token follows the same JWT verification, group role-binding, authorization, and RLS path as a
+  normal API request. The database bootstrap creates an owner-distinct `cmp_app` role and grants
+  only the existing bounded-module table/function operations it requires.
 - PostgreSQL integration uses a migration-managed explicit typed fixture; no generic EAV/content
   table exists
 - Job submission is tenant-idempotent; every retry appends a distinct immutable Attempt/Job Spec
@@ -209,12 +220,15 @@ environment without `make`); the PostgreSQL integration suite additionally requi
 
 ```text
 Ruff: passed
-mypy strict: passed (260 source files)
+mypy strict: passed (265 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-CI-equivalent test sequence: 257 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Web workbench build: passed; Vitest: 9 passed
+CI-equivalent test sequence: 261 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Web workbench build: passed; Vitest: 11 passed
+Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
+  token tests are implemented. Docker is not installed in this Windows environment, so the
+  containers and live PostgreSQL demo could not be started here.
 T-25 PostgreSQL integration coverage is implemented but not executed in this environment because
   CMP_TEST_POSTGRES_DSN is unavailable; the reference Test/Dataset migration has offline SQL
   rendering coverage, while a live PostgreSQL test remains the next verification task.
@@ -238,7 +252,8 @@ T-25 PostgreSQL integration coverage is implemented but not executed in this env
   service-principal scheduling for periodic sealing
 - Fitting algorithms, production solver cards/targets, or validation thresholds; the implemented
   reference IR and OpenRadioss card are not calibrated or production-qualified
-- Production web identity/session integration and a compose/demo identity stack
+- Production web identity/session integration, external demo IdP deployment, and a production
+  Compose/deployment profile; the checked-in demo issuer is explicitly local-only
 
 ## Next gate
 

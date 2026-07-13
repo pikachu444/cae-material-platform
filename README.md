@@ -152,6 +152,34 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
 - Node.js 20.19+ and `npm` for the web workbench
 - PostgreSQL 16+ for migration and persistence integration tests
 
+## Local end-to-end demo
+
+The fastest way to exercise the first product slice is the explicit local
+Docker Compose demo:
+
+```bash
+docker compose -f deploy/compose/docker-compose.demo.yml up --build
+# or: make demo
+```
+
+It starts PostgreSQL, an owner-only migration/bootstrap job, the non-owner API,
+the generic worker, the React workbench, reference-plugin asset check, and an
+API-only synthetic data seed. The seed follows the protected product path:
+
+```text
+Material → Material State → typed properties → reference IR
+→ OpenRadioss mapping report → immutable .rad Solver Card
+```
+
+It also creates one synthetic tensile CSV as a Raw Asset and appends raw plus
+normalized Dataset revisions. Open `http://127.0.0.1:5173`, select
+**Connection**, choose **Use local demo identity**, and save. The button exists
+only because this composition explicitly sets `CMP_ENVIRONMENT=demo` and
+`CMP_DEMO_IDENTITY=true`; the issued 15-minute signed token is still verified
+by the normal JWT, RBAC, and PostgreSQL RLS path. No real company or validated
+engineering data is included. See [the compose guide](deploy/compose/README.md)
+for ports and teardown.
+
 ## Start
 
 ```bash
@@ -243,6 +271,7 @@ GRANT CONNECT ON DATABASE cmp TO cmp_app;
 GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, modeling, exporting TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA governance TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA plugin TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO cmp_app;

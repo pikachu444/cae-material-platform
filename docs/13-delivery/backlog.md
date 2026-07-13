@@ -460,6 +460,13 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-32. Catalog/Test/Upload/Mapping UI — `P0`
 
+- **Runnable demo extension (2026-07-14):** `deploy/compose/docker-compose.demo.yml` now composes
+  PostgreSQL, owner migration/bootstrap, non-owner API, worker, workbench, object storage, checked
+  reference-plugin asset, and API-driven synthetic demo data. The browser may request a local token
+  only when the API is explicitly in `demo` mode; all Material/Test/Dataset/IR/Card requests still
+  use the normal JWT, authorization, and RLS boundaries. This is a development demonstration, not
+  a production deployment or a generic plugin workflow.
+
 - **Extension (2026-07-14):** The Material State screen now calls protected Testing, Upload, and
   Dataset APIs for the reference tensile path: Specimen/Test Run creation, multipart CSV upload,
   explicit column/unit confirmation, raw/normalized Dataset revision selection, and bounded curve
