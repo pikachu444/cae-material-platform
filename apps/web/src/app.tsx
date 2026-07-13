@@ -21,6 +21,7 @@ import {
   revisePropertySet,
   saveApiConfig,
 } from "./api";
+import { ReferenceTensileWorkflow } from "./reference-tensile-workflow";
 import type {
   DataClassification,
   ExportTarget,
@@ -916,6 +917,7 @@ function MaterialStateCard({
           <button className="text-button" type="button" onClick={() => setEditorOpen(true)}>Add properties</button>
         </section>
       )}
+      <ReferenceTensileWorkflow config={config} state={state} />
       {editorOpen ? (
         <PropertySetEditor
           key={propertySet?.property_set_id ?? `new-${state.material_state_id}`}

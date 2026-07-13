@@ -734,6 +734,97 @@ dd {
     linear-gradient(135deg, rgb(226 246 241 / 72%), rgb(249 253 252 / 92%));
 }
 
+.reference-tensile-workflow {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #d6c9a5;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgb(255 249 229 / 88%), rgb(255 253 246 / 94%));
+}
+
+.workflow-toggle {
+  justify-self: start;
+  padding: 0;
+  color: #6f5b14;
+  font-weight: 750;
+}
+
+.workflow-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: #61737a;
+  font-size: 0.76rem;
+}
+
+.tensile-workflow-stack .workflow-step {
+  border-color: #e5dcc1;
+  background: rgb(255 255 255 / 86%);
+}
+
+.dataset-results {
+  align-content: start;
+}
+
+.curve-panel {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.85rem;
+  border: 1px solid #d7e2d7;
+  border-radius: 7px;
+  background: #fbfdfb;
+}
+
+.curve-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.curve-heading h5 {
+  margin: 0;
+  color: #2c4d49;
+  font-size: 0.82rem;
+}
+
+.curve-summary {
+  margin: 0;
+  color: #5e7476;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.curve-plot {
+  width: 100%;
+  min-height: 180px;
+  overflow: visible;
+  border: 1px solid #dce9e3;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.curve-plot line {
+  stroke: #8caeaa;
+  stroke-width: 1;
+}
+
+.curve-plot polyline {
+  fill: none;
+  stroke: #d0713d;
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.curve-plot text {
+  fill: #60797a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+}
+
 .reference-chip,
 .mapping-status {
   display: inline-flex;

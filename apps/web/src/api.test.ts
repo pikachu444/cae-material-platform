@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   ApiError,
+  importReferenceTensileDataset,
+  previewDatasetCurve,
   preflightSolverCardMapping,
   previewSolverCard,
   listMaterials,
@@ -93,6 +95,56 @@ describe("Catalog API client", () => {
     expect(result.data).toBe("/MAT/ELAST/17/1\n");
     const [, init] = fetchMock.mock.calls[0];
     expect(new Headers(init?.headers).get("accept")).toBe("text/plain");
+    expect(new Headers(init?.headers).get("authorization")).toBe("Bearer short-lived-token");
+  });
+
+  it("imports a Dataset only with pinned Test Run and Raw Artifact identities", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({
+      dataset_id: "00000000-0000-0000-0000-000000000010",
+      test_run_id: "00000000-0000-0000-0000-000000000011",
+      current_revision: {},
+      links: {},
+    }, 201));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await importReferenceTensileDataset(
+      { baseUrl: "http://localhost:8000/api/v1", accessToken: "short-lived-token" },
+      {
+        test_run_id: "00000000-0000-0000-0000-000000000011",
+        test_run_revision_id: "00000000-0000-0000-0000-000000000012",
+        raw_asset_id: "00000000-0000-0000-0000-000000000013",
+        raw_artifact_id: "00000000-0000-0000-0000-000000000014",
+        mapping: {
+          strain_column: "engineering_strain",
+          stress_column: "engineering_stress",
+          strain_unit: "1",
+          stress_unit: "MPa",
+        },
+        change_reason: "Import reference curve",
+      },
+    );
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("http://localhost:8000/api/v1/datasets/reference-uniaxial-tensile:import");
+    expect(init?.method).toBe("POST");
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      test_run_revision_id: "00000000-0000-0000-0000-000000000012",
+      raw_artifact_id: "00000000-0000-0000-0000-000000000014",
+    });
+  });
+
+  it("requests a bounded curve preview for one concrete Dataset revision", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ points: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await previewDatasetCurve(
+      { baseUrl: "/api/v1", accessToken: "short-lived-token" },
+      "00000000-0000-0000-0000-000000000015",
+      500,
+    );
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/dataset-revisions/00000000-0000-0000-0000-000000000015/curve?maximum_points=500");
     expect(new Headers(init?.headers).get("authorization")).toBe("Bearer short-lived-token");
   });
 });

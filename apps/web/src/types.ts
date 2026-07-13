@@ -304,3 +304,161 @@ export interface SolverCardCreateInput {
   card_title: string;
   change_reason: string;
 }
+
+export interface SpecimenContent {
+  material_id: string;
+  material_revision_id: string;
+  material_state_id: string;
+  material_state_revision_id: string;
+  specimen_code: string;
+  orientation: string | null;
+  preparation_note: string | null;
+}
+
+export interface SpecimenRevision extends RevisionMetadata {
+  content: SpecimenContent;
+}
+
+export interface SpecimenResponse {
+  specimen_id: string;
+  material_state_id: string;
+  current_revision: SpecimenRevision;
+  links: Record<string, string>;
+}
+
+export interface TestMethodContent {
+  method_code: "reference_uniaxial_tensile";
+  display_name: "Reference uniaxial tensile CSV";
+  reference_only: true;
+}
+
+export interface TestMethodRevision extends RevisionMetadata {
+  content: TestMethodContent;
+}
+
+export interface TestMethodResponse {
+  test_method_id: string;
+  current_revision: TestMethodRevision;
+  links: Record<string, string>;
+}
+
+export interface TestRunContent {
+  specimen_id: string;
+  specimen_revision_id: string;
+  test_method_id: string;
+  test_method_revision_id: string;
+  run_label: string;
+  performed_at: string;
+  test_temperature_k: number | null;
+  crosshead_speed_mm_per_min: number | null;
+  reference_only: true;
+}
+
+export interface TestRunRevision extends RevisionMetadata {
+  content: TestRunContent;
+}
+
+export interface TestRunResponse {
+  test_run_id: string;
+  specimen_id: string;
+  test_method_id: string;
+  current_revision: TestRunRevision;
+  links: Record<string, string>;
+}
+
+export interface ReferenceTensileMapping {
+  strain_column: string;
+  stress_column: string;
+  strain_unit: "1" | "%";
+  stress_unit: "Pa" | "kPa" | "MPa" | "GPa";
+}
+
+export type DatasetRepresentation = "raw" | "normalized";
+
+export interface DatasetChannel {
+  name: "engineering_strain" | "engineering_stress";
+  quantity_kind: "engineering_strain" | "engineering_stress";
+  original_column: string;
+  original_unit: string;
+  normalized_unit: "1" | "Pa";
+  axis_role: "independent" | "dependent";
+}
+
+export interface DatasetContent {
+  test_run_id: string;
+  test_run_revision_id: string;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  data_artifact_id: string;
+  data_sha256: string;
+  representation: DatasetRepresentation;
+  source_dataset_revision_id: string | null;
+  point_count: number;
+  mapping_sha256: string;
+  importer_id: string;
+  importer_version: string;
+  reference_only: true;
+  channels: DatasetChannel[];
+}
+
+export interface DatasetRevision extends RevisionMetadata {
+  content: DatasetContent;
+}
+
+export interface DatasetResponse {
+  dataset_id: string;
+  test_run_id: string;
+  current_revision: DatasetRevision;
+  links: Record<string, string>;
+}
+
+export interface CurvePoint {
+  engineering_strain: number;
+  engineering_stress: number;
+}
+
+export interface CurvePreview {
+  dataset_id: string;
+  dataset_revision_id: string;
+  representation: DatasetRepresentation;
+  point_count: number;
+  returned_point_count: number;
+  sampled: boolean;
+  strain_unit: "1" | "%";
+  stress_unit: "Pa" | "kPa" | "MPa" | "GPa";
+  points: CurvePoint[];
+}
+
+export interface UploadSession {
+  upload_id: string;
+  organization_id: string;
+  project_id: string;
+  classification: DataClassification;
+  state: "open" | "completing" | "completed" | "failed" | "cancelled";
+  original_filename: string;
+  media_type: string;
+  expected_size_bytes: number;
+  expected_sha256: string;
+  part_size_bytes: number;
+  expected_part_count: number;
+  test_run_revision_id: string | null;
+  raw_asset_id: string | null;
+}
+
+export interface RawAsset {
+  raw_asset_id: string;
+  organization_id: string;
+  project_id: string;
+  classification: DataClassification;
+  sha256: string;
+  size_bytes: number;
+  media_type: string;
+  original_filename: string;
+  storage_state: "staged_verified";
+}
+
+export interface CompletedUpload {
+  upload: UploadSession;
+  raw_asset: RawAsset;
+  available_artifact_id: string | null;
+}

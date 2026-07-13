@@ -1,5 +1,9 @@
 import type {
   ExportTarget,
+  CompletedUpload,
+  CurvePreview,
+  DatasetResponse,
+  DataClassification,
   MaterialCreateInput,
   MaterialDetail,
   MaterialModelList,
@@ -16,6 +20,11 @@ import type {
   SolverCardCreateInput,
   SolverCardList,
   SolverCardResponse,
+  SpecimenResponse,
+  TestMethodResponse,
+  TestRunResponse,
+  ReferenceTensileMapping,
+  UploadSession,
 } from "./types";
 
 export interface ApiConfig {
@@ -320,4 +329,184 @@ export async function downloadSolverCard(
     },
     etag: response.headers.get("etag"),
   };
+}
+
+export function listSpecimensForMaterialState(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: SpecimenResponse[] }>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/specimens`);
+}
+
+export function createSpecimen(
+  config: ApiConfig,
+  materialStateId: string,
+  input: {
+    material_state_revision_id: string;
+    specimen_code: string;
+    orientation: string | null;
+    preparation_note: string | null;
+    change_reason: string;
+  },
+): Promise<ApiResult<SpecimenResponse>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/specimens`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listTestMethods(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: TestMethodResponse[] }>> {
+  return request(config, "/test-methods");
+}
+
+export function createReferenceTensileTestMethod(
+  config: ApiConfig,
+  input: { classification: DataClassification; change_reason: string },
+): Promise<ApiResult<TestMethodResponse>> {
+  return request(config, "/test-methods/reference-uniaxial-tensile", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createReferenceTensileTestRun(
+  config: ApiConfig,
+  input: {
+    specimen_id: string;
+    specimen_revision_id: string;
+    test_method_id: string;
+    test_method_revision_id: string;
+    run_label: string;
+    performed_at: string;
+    test_temperature_k: number | null;
+    crosshead_speed_mm_per_min: number | null;
+    change_reason: string;
+  },
+): Promise<ApiResult<TestRunResponse>> {
+  return request(config, "/test-runs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listTestRunsForMaterialState(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: TestRunResponse[] }>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/test-runs`);
+}
+
+export function listDatasetsForMaterialState(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: DatasetResponse[] }>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/datasets`);
+}
+
+export function listDatasetRevisions(
+  config: ApiConfig,
+  datasetId: string,
+): Promise<ApiResult<{ dataset_id: string; revisions: DatasetResponse["current_revision"][] }>> {
+  return request(config, `/datasets/${encodeURIComponent(datasetId)}/revisions`);
+}
+
+export function importReferenceTensileDataset(
+  config: ApiConfig,
+  input: {
+    test_run_id: string;
+    test_run_revision_id: string;
+    raw_asset_id: string;
+    raw_artifact_id: string;
+    mapping: ReferenceTensileMapping;
+    change_reason: string;
+  },
+): Promise<ApiResult<DatasetResponse>> {
+  return request(config, "/datasets/reference-uniaxial-tensile:import", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewDatasetCurve(
+  config: ApiConfig,
+  datasetRevisionId: string,
+  maximumPoints = 1_000,
+): Promise<ApiResult<CurvePreview>> {
+  const query = new URLSearchParams({ maximum_points: String(maximumPoints) });
+  return request(
+    config,
+    `/dataset-revisions/${encodeURIComponent(datasetRevisionId)}/curve?${query.toString()}`,
+  );
+}
+
+function browserIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `browser-upload-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+async function sha256Hex(file: File): Promise<string> {
+  if (typeof crypto === "undefined" || !crypto.subtle) {
+    throw new ApiError(503, "This browser cannot calculate the required SHA-256 upload digest.");
+  }
+  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function uploadReferenceTensileCsv(
+  config: ApiConfig,
+  input: {
+    file: File;
+    classification: DataClassification;
+    test_run_revision_id: string;
+  },
+): Promise<ApiResult<CompletedUpload>> {
+  const filename = input.file.name.trim();
+  if (!filename || filename.includes("/") || filename.includes("\\")) {
+    throw new ApiError(422, "Choose a CSV file with a safe, non-empty filename.");
+  }
+  if (input.file.size < 1 || input.file.size > 16 * 1024 * 1024) {
+    throw new ApiError(422, "The reference CSV must be between 1 byte and 16 MiB.");
+  }
+  const digest = await sha256Hex(input.file);
+  const created = await request<{ upload: UploadSession; upload_capability: string }>(config, "/uploads", {
+    method: "POST",
+    headers: { "Idempotency-Key": browserIdempotencyKey() },
+    body: JSON.stringify({
+      classification: input.classification,
+      original_filename: filename,
+      media_type: "text/csv",
+      expected_size_bytes: input.file.size,
+      expected_sha256: digest,
+      test_run_revision_id: input.test_run_revision_id,
+    }),
+  });
+  const { upload, upload_capability: capability } = created.data;
+  for (let partNumber = 1; partNumber <= upload.expected_part_count; partNumber += 1) {
+    const start = (partNumber - 1) * upload.part_size_bytes;
+    const part = input.file.slice(start, Math.min(input.file.size, start + upload.part_size_bytes));
+    await request<UploadSession>(
+      config,
+      `/uploads/${encodeURIComponent(upload.upload_id)}/parts/${partNumber}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "text/csv",
+          "Upload-Capability": capability,
+        },
+        body: part,
+      },
+    );
+  }
+  return request<CompletedUpload>(
+    config,
+    `/uploads/${encodeURIComponent(upload.upload_id)}:complete`,
+    {
+      method: "POST",
+      headers: { "Upload-Capability": capability },
+    },
+  );
 }
