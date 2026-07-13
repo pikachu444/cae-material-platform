@@ -9,6 +9,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.bootstrap.settings import Settings
+from cmp.modules.identity_access.adapters.development.test_idp import DevelopmentTestIdp
 from cmp.modules.identity_access.adapters.oidc.pyjwt import (
     OidcAccessTokenConfig,
     PyJwkClientSigningKeyResolver,
@@ -63,11 +64,60 @@ def build_identity_services(settings: Settings) -> IdentityServices:
         allow_loopback_http=settings.oidc_allow_loopback_http,
     )
     verifier = PyJwtAccessTokenVerifier(config=config, signing_keys=keys)
+    return _build_persisted_identity_services(
+        settings,
+        verifier=verifier,
+        auto_provision=settings.oidc_auto_provision,
+    )
+
+
+def build_demo_identity_services(
+    settings: Settings, identity: DevelopmentTestIdp
+) -> IdentityServices:
+    """Compose local demo JWT verification without weakening normal OIDC behavior."""
+
+    if settings.environment != "demo" or not settings.demo_identity:
+        raise ValueError("demo identity services require explicit demo environment configuration")
+    if not settings.database_url:
+        raise ValueError("CMP_DATABASE_URL is required when demo identity is configured")
+    verifier = PyJwtAccessTokenVerifier(
+        config=OidcAccessTokenConfig(
+            issuer=identity.issuer,
+            audience=identity.audience,
+            algorithms=("RS256",),
+            clock_skew_seconds=settings.oidc_clock_skew_seconds,
+            client_id_claim=settings.oidc_client_id_claim,
+            organization_claim=settings.oidc_organization_claim,
+            project_claim=settings.oidc_project_claim,
+            groups_claim=settings.oidc_groups_claim,
+            display_name_claim=settings.oidc_display_name_claim,
+            service_grant_claim=settings.oidc_service_grant_claim,
+            service_grant_values=settings.oidc_service_grant_values,
+        ),
+        signing_keys=identity.signing_key_resolver(),
+    )
+    return _build_persisted_identity_services(
+        settings,
+        verifier=verifier,
+        auto_provision=True,
+    )
+
+
+def _build_persisted_identity_services(
+    settings: Settings,
+    *,
+    verifier: PyJwtAccessTokenVerifier,
+    auto_provision: bool,
+) -> IdentityServices:
+    """Create the shared persistence/RLS boundary after a verifier was selected."""
+
+    if not settings.database_url:
+        raise ValueError("CMP_DATABASE_URL is required when OIDC authentication is configured")
     engine = sa.create_engine(settings.database_url, pool_pre_ping=True)
     sessions = sessionmaker(engine, class_=Session, expire_on_commit=False)
     principals = SqlAlchemyPrincipalRepository(
         session_factory=sessions,
-        auto_provision=settings.oidc_auto_provision,
+        auto_provision=auto_provision,
     )
     rls_context = SqlAlchemyRlsContext()
     try:

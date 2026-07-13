@@ -37,6 +37,15 @@ export interface ApiResult<T> {
   etag: string | null;
 }
 
+export interface LocalDemoAccessToken {
+  access_token: string;
+  token_type: "Bearer";
+  expires_in_seconds: number;
+  organization_id: string;
+  project_id: string;
+  group: string;
+}
+
 interface ProblemDocument {
   detail?: string;
   title?: string;
@@ -144,6 +153,27 @@ async function request<T>(
   }
 
   return { data: body as T, etag: response.headers.get("etag") };
+}
+
+/**
+ * Request the explicitly enabled local-demo token without attaching a bearer
+ * credential.  A normal deployment has no such route, so this never becomes
+ * an authentication fallback for the workbench.
+ */
+export async function requestLocalDemoAccessToken(
+  config: Pick<ApiConfig, "baseUrl">,
+): Promise<ApiResult<LocalDemoAccessToken>> {
+  const baseUrl = config.baseUrl.trim().replace(/\/$/, "") || "/api/v1";
+  const response = await fetch(`${baseUrl}/demo-identity/token`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  return {
+    data: (await response.json()) as LocalDemoAccessToken,
+    etag: response.headers.get("etag"),
+  };
 }
 
 export function listMaterials(

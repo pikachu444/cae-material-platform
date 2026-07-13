@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./app";
 
@@ -75,5 +75,29 @@ describe("Material Catalog workbench", () => {
 
     expect(await screen.findByText("Demo DP780 Steel")).toBeTruthy();
     expect(screen.getByText("DP780")).toBeTruthy();
+  });
+
+  it("can request an explicitly enabled local demo token without treating it as a normal fallback", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      jsonResponse({
+        access_token: "demo-token",
+        token_type: "Bearer",
+        expires_in_seconds: 900,
+        organization_id: "d0000000-0000-4000-8000-000000000001",
+        project_id: "d0000000-0000-4000-8000-000000000002",
+        group: "cmp-demo-material-team",
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+
+    fireEvent.click(screen.getByText("Connection"));
+    fireEvent.click(screen.getByRole("button", { name: "Use local demo identity" }));
+
+    expect(await screen.findByDisplayValue("demo-token")).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/v1/demo-identity/token",
+      expect.objectContaining({ headers: expect.anything() }),
+    );
   });
 });

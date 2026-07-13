@@ -34,6 +34,8 @@ dev = [
 [project.scripts]
 cmp-api = "cmp.apps.api:main"
 cmp-worker = "cmp.apps.worker:main"
+cmp-demo-bootstrap = "cmp.apps.demo:main"
+cmp-demo-seed = "cmp.apps.demo_seed:main"
 cmp-plugin-runner = "cmp_plugin_sdk.runner:main"
 cmp-check-architecture = "cmp.tools.architecture:main"
 cmp-check-contracts = "cmp.tools.contracts:main"

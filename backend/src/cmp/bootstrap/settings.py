@@ -36,6 +36,11 @@ class Settings:
     oidc_display_name_claim: str = "preferred_username"
     oidc_service_grant_claim: str = "gty"
     oidc_service_grant_values: tuple[str, ...] = ("client-credentials",)
+    # This is deliberately separate from normal OIDC configuration.  It is an
+    # explicit local-demo opt-in, not a fallback authentication mechanism.
+    demo_identity: bool = False
+    demo_identity_issuer: str = "urn:cmp:demo-identity"
+    demo_identity_audience: str = "urn:cmp:demo-api"
 
     @classmethod
     def from_environment(cls) -> Settings:
@@ -108,6 +113,13 @@ class Settings:
             ),
             oidc_service_grant_values=comma_separated(
                 "CMP_OIDC_SERVICE_GRANT_VALUES", "client-credentials"
+            ),
+            demo_identity=boolean("CMP_DEMO_IDENTITY"),
+            demo_identity_issuer=os.getenv(
+                "CMP_DEMO_IDENTITY_ISSUER", "urn:cmp:demo-identity"
+            ),
+            demo_identity_audience=os.getenv(
+                "CMP_DEMO_IDENTITY_AUDIENCE", "urn:cmp:demo-api"
             ),
         )
 

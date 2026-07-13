@@ -394,6 +394,20 @@ h4 {
   line-height: 1.5;
 }
 
+.demo-identity-action {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--surface) 78%, var(--accent-soft));
+}
+
+.demo-identity-action small {
+  color: #677980;
+  line-height: 1.45;
+}
+
 .revision-chip {
   display: inline-flex;
   align-items: center;

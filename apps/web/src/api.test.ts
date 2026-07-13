@@ -5,6 +5,7 @@ import {
   previewDatasetCurve,
   preflightSolverCardMapping,
   previewSolverCard,
+  requestLocalDemoAccessToken,
   listMaterials,
 } from "./api";
 
@@ -42,6 +43,25 @@ describe("Catalog API client", () => {
       expect(error).toBeInstanceOf(ApiError);
       expect((error as ApiError).status).toBe(401);
     }
+  });
+
+  it("requests a local demo token without attaching a bearer credential", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({
+      access_token: "local-demo-token",
+      token_type: "Bearer",
+      expires_in_seconds: 900,
+      organization_id: "d0000000-0000-4000-8000-000000000001",
+      project_id: "d0000000-0000-4000-8000-000000000002",
+      group: "cmp-demo-material-team",
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await requestLocalDemoAccessToken({ baseUrl: "/api/v1" });
+
+    expect(result.data.access_token).toBe("local-demo-token");
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/demo-identity/token");
+    expect(new Headers(init?.headers).get("authorization")).toBeNull();
   });
 
   it("acknowledges an explicit solver target before any Solver Card is created", async () => {

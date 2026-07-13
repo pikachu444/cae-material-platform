@@ -1,0 +1,114 @@
+name: cmp-local-demo
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: cmp
+      POSTGRES_USER: cmp_owner
+      POSTGRES_PASSWORD: cmp_owner_development_only
+    ports:
+      - "54329:5432"
+    volumes:
+      - cmp_demo_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cmp_owner -d cmp"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+    command: ["sh", "-ec", "alembic -c alembic.ini upgrade head && cmp-demo-bootstrap"]
+    environment: &demo_owner_environment
+      CMP_ENVIRONMENT: demo
+      CMP_DEMO_IDENTITY: "true"
+      CMP_DATABASE_URL: postgresql+psycopg://cmp_owner:cmp_owner_development_only@postgres:5432/cmp
+      CMP_DEMO_APP_DATABASE_PASSWORD: cmp_app_development_only
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+    command: ["cmp-api"]
+    environment: &demo_application_environment
+      CMP_ENVIRONMENT: demo
+      CMP_DEMO_IDENTITY: "true"
+      CMP_API_HOST: 0.0.0.0
+      CMP_API_PORT: "8000"
+      CMP_DATABASE_URL: postgresql+psycopg://cmp_app:cmp_app_development_only@postgres:5432/cmp
+      CMP_UPLOAD_STORAGE_ROOT: /var/lib/cmp/object-store
+      CMP_UPLOAD_CAPABILITY_SECRET: demo-upload-capability-secret-not-for-production-2026
+      CMP_ARTIFACT_TRANSFER_SECRET: demo-artifact-transfer-secret-not-for-production-2026
+      CMP_UPLOAD_MAX_OBJECT_BYTES: "16777216"
+      CMP_UPLOAD_PART_BYTES: "8388608"
+    ports:
+      - "8000:8000"
+    volumes:
+      - cmp_demo_objects:/var/lib/cmp/object-store
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; assert urlopen('http://127.0.0.1:8000/api/v1/health').status == 200"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+    command: ["cmp-worker"]
+    environment: *demo_application_environment
+    volumes:
+      - cmp_demo_objects:/var/lib/cmp/object-store
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  reference-plugins:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+    command: ["sh", "-ec", "test -f /app/plugins/reference/contract_echo/dependency.lock"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  seed:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+    command: ["cmp-demo-seed", "--api-base-url", "http://api:8000/api/v1"]
+    environment:
+      CMP_DEMO_API_BASE_URL: http://api:8000/api/v1
+    depends_on:
+      api:
+        condition: service_healthy
+      reference-plugins:
+        condition: service_completed_successfully
+    restart: "no"
+
+  web:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.web
+    environment:
+      VITE_CMP_API_TARGET: http://api:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  cmp_demo_postgres:
+  cmp_demo_objects:

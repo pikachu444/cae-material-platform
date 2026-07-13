@@ -12,12 +12,17 @@ from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import build_catalog_service
 from cmp.bootstrap.datasets import build_dataset_service
+from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
 from cmp.bootstrap.exporting import build_solver_card_service
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import build_material_model_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.provenance import build_provenance_services
-from cmp.bootstrap.security import IdentityServices, build_identity_services
+from cmp.bootstrap.security import (
+    IdentityServices,
+    build_demo_identity_services,
+    build_identity_services,
+)
 from cmp.bootstrap.settings import Settings
 from cmp.bootstrap.testing import build_testing_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
@@ -83,6 +88,7 @@ def create_app(
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
+    demo_identity = DemoIdentity.from_settings(resolved)
     application = FastAPI(
         title="CAE Material Platform API",
         summary="Material data management, immutable traceability, and CAE workflow platform.",
@@ -105,8 +111,13 @@ def create_app(
     services = (
         IdentityServices(security_service, authorization_service, None, None)
         if security_service is not None or authorization_service is not None
-        else build_identity_services(resolved)
+        else (
+            build_demo_identity_services(resolved, demo_identity.idp)
+            if demo_identity is not None
+            else build_identity_services(resolved)
+        )
     )
+    install_demo_identity_api(application, demo_identity)
     resolved_security = services.security
     security_dependency = install_identity_api(application, resolved_security)
     resolved_jobs = job_service or build_job_service(services)

@@ -18,6 +18,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
+  /api/v1/demo-identity/token:
+    get:
+      operationId: issueLocalDemoAccessToken
+      tags: [development]
+      summary: Issue a short-lived token for the explicit local demo tenant.
+      description: >-
+        Available only when the API was explicitly started with CMP_ENVIRONMENT=demo
+        and CMP_DEMO_IDENTITY=true. It is not present in normal or production deployments.
+      responses:
+        "200":
+          description: A signed, 15-minute synthetic demo access token.
+          headers:
+            Cache-Control:
+              required: true
+              schema: {type: string, enum: [no-store]}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/DemoAccessTokenResponse"}
+        "404":
+          description: The explicit local demo identity composition is disabled.
   /api/v1/me:
     get:
       operationId: getMe
@@ -1834,6 +1854,18 @@ components:
         version:
           type: string
           pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    DemoAccessTokenResponse:
+      type: object
+      additionalProperties: false
+      required:
+        [access_token, token_type, expires_in_seconds, organization_id, project_id, group]
+      properties:
+        access_token: {type: string, minLength: 1}
+        token_type: {type: string, enum: [Bearer]}
+        expires_in_seconds: {type: integer, minimum: 1}
+        organization_id: {type: string, format: uuid}
+        project_id: {type: string, format: uuid}
+        group: {type: string, minLength: 1}
     RevisionMetadata:
       $ref: ../revisions/revision-metadata.schema.json
     MeResponse:

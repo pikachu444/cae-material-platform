@@ -18,6 +18,7 @@ import {
   loadApiConfig,
   preflightSolverCardMapping,
   previewSolverCard,
+  requestLocalDemoAccessToken,
   revisePropertySet,
   saveApiConfig,
 } from "./api";
@@ -165,11 +166,14 @@ function ConnectionPanel({
 }) {
   const [baseUrl, setBaseUrl] = useState(config.baseUrl);
   const [accessToken, setAccessToken] = useState(config.accessToken);
+  const [requestingDemoToken, setRequestingDemoToken] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setBaseUrl(config.baseUrl);
       setAccessToken(config.accessToken);
+      setDemoError(null);
     }
   }, [config, open]);
 
@@ -184,6 +188,25 @@ function ConnectionPanel({
       accessToken: accessToken.trim(),
     });
     onClose();
+  }
+
+  async function useLocalDemoIdentity(): Promise<void> {
+    setRequestingDemoToken(true);
+    setDemoError(null);
+    try {
+      const normalizedBaseUrl = baseUrl.trim().replace(/\/$/, "") || "/api/v1";
+      const token = await requestLocalDemoAccessToken({ baseUrl: normalizedBaseUrl });
+      setBaseUrl(normalizedBaseUrl);
+      setAccessToken(token.data.access_token);
+    } catch (cause) {
+      setDemoError(
+        cause instanceof ApiError
+          ? "The local demo identity is unavailable for this API endpoint."
+          : "The local demo identity could not be requested.",
+      );
+    } finally {
+      setRequestingDemoToken(false);
+    }
   }
 
   return (
@@ -225,6 +248,21 @@ function ConnectionPanel({
             Stored only in this browser&apos;s local storage for local development. Production identity
             integration remains an operator concern.
           </p>
+          <div className="demo-identity-action">
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => void useLocalDemoIdentity()}
+              disabled={requestingDemoToken}
+            >
+              {requestingDemoToken ? "Requesting demo token…" : "Use local demo identity"}
+            </button>
+            <small>
+              Available only from the explicit Docker Compose demo; it still uses signed JWT,
+              authorization, and tenant RLS.
+            </small>
+          </div>
+          {demoError ? <p className="error-notice" role="alert">{demoError}</p> : null}
           <div className="form-actions">
             <button className="button secondary" type="button" onClick={onClose}>
               Cancel

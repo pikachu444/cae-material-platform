@@ -3,12 +3,18 @@ export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
 export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
-.PHONY: bootstrap lint typecheck check-architecture check-contracts generate-client \
+.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts generate-client \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
 	web-build web-test run-api run-worker run-worker-once ci
 
 bootstrap:
 	$(UV) sync --all-groups
+
+demo:
+	docker compose -f deploy/compose/docker-compose.demo.yml up --build
+
+demo-down:
+	docker compose -f deploy/compose/docker-compose.demo.yml down -v
 
 lint:
 	$(UV) run ruff check .

@@ -1,0 +1,17 @@
+.cache/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+node_modules/
+apps/web/node_modules/
+apps/web/dist/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.coverage
+htmlcov/
+.git/
+.env
