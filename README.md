@@ -1,12 +1,12 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP, reference Material Model IR, and reference OpenRadioss Solver Card
+Status: Material Catalog MVP, reference tensile Dataset, reference Material Model IR, and reference OpenRadioss Solver Card
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-07` + `T-09`–`T-10` + `T-13`–`T-18` + reference `T-22`/`T-25`/`T-26` subsets)
+(`T-01`–`T-10` + `T-12`–`T-18` + reference `T-22`/`T-25`/`T-26` subsets)
 
-Version: `0.16.0`
+Version: `0.17.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -20,7 +20,10 @@ applicability, and an explicit disposition for an optional yield value that the 
 reference model does not use. The first card exporter consumes only that frozen IR revision and
 creates a non-production OpenRadioss 2025 `/MAT/ELAST` text card after an explicit mapping
 preflight/report acknowledgement. The workbench exposes the resulting immutable card preview and
-authenticated download. Tests/datasets and fitting remain separate follow-on slices. The T-03/T-04
+authenticated download. A narrow reference tensile flow now creates a concrete Specimen, pins a
+Test Run to concrete Specimen/Test Method revisions, uploads one UTF-8 CSV as a Raw Asset/Artifact,
+requires explicit column/unit mapping, and creates separate raw and normalized Dataset revisions.
+Fitting remains a follow-on slice. The T-03/T-04
 identity and access-control foundation,
 the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine, the T-17
 immutable plugin package registry, and the T-18 isolated execution contract remain reusable
@@ -61,6 +64,15 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
 - Reference IR creation, explicit OpenRadioss 2025 `/MAT/ELAST` mapping preflight, mapping-status
   report, immutable Solver Card preview, and authenticated `.rad` download in the Material State
   workbench; target/unit defaults and silent approximations are prohibited
+- Explicit reference tensile `testing.specimen`, `testing.test_method`, and `testing.test_run`
+  identity/revision relations; Test Runs pin concrete source revisions and no test result overwrites
+  a source run
+- Explicit `datasets.dataset`/`dataset_revision` records linked to Raw Asset and Artifact IDs;
+  raw UTF-8 CSV bytes remain unchanged while one normalized SI Parquet Artifact is appended as a
+  second immutable revision, with typed engineering strain/stress channel semantics
+- Material State workbench controls for Specimen, reference Test Method, Test Run, CSV upload,
+  user-confirmed column/unit mapping, and bounded raw/normalized curve preview; no column or unit
+  inference is performed in the browser or importer
 - Explicit PostgreSQL `exporting.solver_card` and `solver_card_revision` relations with frozen
   Material Model revision FKs, typed SI card fields/status columns, mapping/card SHA-256 digests,
   tenant/classification composite keys, forced RLS, and append-only guards; no EAV/card JSON
@@ -197,6 +209,17 @@ shows every mapping status, and enables preview/download only after the report d
 This narrow exporter is non-production and is based on the official
 [OpenRadioss 2025 `/MAT/LAW1` (`/MAT/ELAST`) reference](https://2025.help.altair.com/2025/hwsolvers/rad/topics/solvers/rad/mat_law1_elast_starter_r.htm).
 
+### Reference tensile CSV Dataset
+
+Within a Material State, open **Manage reference tensile data** and perform the following explicit
+sequence: register a Specimen, register the reference tensile Test Method for the State's
+classification, create a Test Run, select a UTF-8 CSV, enter the source strain/stress column names
+and units, then create the Dataset. The importer accepts only engineering strain (`1` or `%`) and
+engineering stress (`Pa`, `kPa`, `MPa`, or `GPa`) and rejects ambiguous, missing, non-finite,
+negative, or non-monotonic data. It never guesses a mapping. The resulting viewer permits a
+concrete raw or normalized Dataset revision to be selected; the curve preview is bounded and is not
+the calculation input.
+
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret
 manager rather than source control:
@@ -217,7 +240,7 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, modeling, exporting TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, modeling, exporting TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
@@ -227,6 +250,8 @@ GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA provenance TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA events TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA catalog TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA testing TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA datasets TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA modeling TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA exporting TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance, audit TO cmp_app;
@@ -299,7 +324,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 
 ## Traceability
 
-- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, `T-09`, `T-10`,
+- Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, reference `T-08`, `T-09`, `T-10`, reference `T-12`,
   `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-22`, `T-25`, `T-26`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,

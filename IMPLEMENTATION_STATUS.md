@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-14`
-Foundation version: `0.16.0`
+Foundation version: `0.17.0`
 
 ## Completed
 
@@ -23,11 +23,27 @@ Foundation version: `0.16.0`
   per-value source and applicability; search/detail/history/compare APIs; provenance/audit/lifecycle
   hooks; PostgreSQL composite tenant/classification FKs, indexes, and forced RLS. Process/Lot/Batch
   genealogy remains outside this subset.
+- `T-08` reference subset: explicit Specimen, reference uniaxial tensile Test Method, and Test Run
+  stable identities with immutable typed revisions; a Test Run pins concrete Specimen/Test Method
+  revisions, a State-specific specimen code, optional test temperature/crosshead speed, protected
+  APIs, audit/provenance/lifecycle hooks, PostgreSQL tenant/classification FKs, RLS, and immutable
+  tables. Campaign, instrument, standard, and production test-method variants remain separate work.
+- `T-12` reference subset: a user-confirmed UTF-8 reference tensile CSV mapping with explicit
+  engineering strain/stress columns and limited `1`/`%` and `Pa`/`kPa`/`MPa`/`GPa` units; one stable
+  Dataset identity appends raw CSV and normalized SI Parquet revisions without overwriting either;
+  typed channel semantics, Raw Asset/Artifact/Test Run concrete references, raw-input provenance,
+  bounded curve preview, PostgreSQL constraints/RLS, protected APIs, and deterministic regression
+  coverage. Generic importer detection, arbitrary channel schemas, and other test formats remain
+  separate work.
 - `T-32` MVP subset: React/Vite Material Catalog workbench backed by protected Catalog, Modeling,
   and Exporting APIs; Dashboard, search, Material creation, State and typed Property Set
   entry/revision, revision compare/history, provenance summary, and the reference
   IR→mapping-preflight→Solver Card preview/download workflow. Test upload and tabular column-mapping
   UI remain outside this subset.
+- `T-32` extension: the protected Material State screen now drives the reference tensile sequence:
+  concrete Specimen selection, reference Method registration, immutable Test Run creation, browser
+  multipart CSV upload, explicit column/unit mapping, and raw/normalized Dataset revision/curve
+  inspection. It remains deliberately limited to the reference tensile CSV contract.
 - `T-22` reference subset: a stable Material Model identity and immutable reference
   isotropic-linear-elastic IR revision projected from one concrete Property Set revision; explicit
   SI density/Young's modulus/Poisson ratio columns, source-yield disposition, semantic/unit bounds,
@@ -100,6 +116,17 @@ Foundation version: `0.16.0`
   OpenRadioss 2025 `/MAT/ELAST` `kg_m_s` preflight returns every mapping status and its digest must
   be acknowledged before an immutable typed card revision is written. PostgreSQL T-25 integration
   coverage proves provenance/audit derivation, tenant isolation, and card-revision immutability.
+- Reference tensile Test Runs pin the exact Specimen and Test Method revisions used at registration;
+  a Dataset import accepts only the matching tenant/classification Test Run and the completed
+  `text/csv` Raw Asset Artifact, then appends raw and normalized Dataset revisions rather than
+  mutating source bytes or a published curve.
+- Dataset CSV import rejects missing/duplicate columns, unsupported units, non-finite/negative
+  points, non-monotonic engineering strain, and ambiguous mapping. It produces typed SI Parquet
+  only after the user supplied the mapping, and attaches the Raw Asset as input provenance to the
+  Dataset generation activity.
+- The Material State workbench calls the protected Testing/Dataset/Upload APIs directly; it keeps
+  raw and normalized curve revisions selectable, labels their units, and uses deterministic preview
+  sampling rather than treating a browser plot as a calculation artifact.
 - PostgreSQL integration uses a migration-managed explicit typed fixture; no generic EAV/content
   table exists
 - Job submission is tenant-idempotent; every retry appends a distinct immutable Attempt/Job Spec
@@ -176,27 +203,29 @@ Foundation version: `0.16.0`
 
 ## Validation result
 
-Current command: `make ci`; the PostgreSQL integration suite additionally requires
+Current command: `make ci` (or the equivalent `scripts/ci.sh` command sequence on a Windows
+environment without `make`); the PostgreSQL integration suite additionally requires
 `CMP_TEST_POSTGRES_DSN`.
 
 ```text
 Ruff: passed
-mypy strict: passed (237 source files)
+mypy strict: passed (260 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 246 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Web workbench build: passed; Vitest: 6 passed
-T-25 PostgreSQL integration: implemented but not executed in this environment because
-  CMP_TEST_POSTGRES_DSN is unavailable
+CI-equivalent test sequence: 257 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Web workbench build: passed; Vitest: 9 passed
+T-25 PostgreSQL integration coverage is implemented but not executed in this environment because
+  CMP_TEST_POSTGRES_DSN is unavailable; the reference Test/Dataset migration has offline SQL
+  rendering coverage, while a live PostgreSQL test remains the next verification task.
 ```
 
 ## Intentionally absent
 
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
-- Process/Lot/Batch genealogy, richer typed property/curve families, test and dataset catalog
-  implementations
+- Process/Lot/Batch genealogy, richer typed property/curve families, Test Campaign/Instrument
+  records, generic importer detection/mapping approval, and non-reference Dataset channels
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
@@ -213,7 +242,13 @@ T-25 PostgreSQL integration: implemented but not executed in this environment be
 
 ## Next gate
 
-The first vertical flow is complete as a non-production reference subset:
+**Updated 2026-07-14:** the reference Test/Dataset slice described below is now implemented.
+The current next step is versioned Processing and Selection: begin only with a small, explicitly
+chosen crop/resample or engineering-to-true transform after the relevant Material/Test domain
+decision. Statistics, outlier assessment, calibration, and release evidence remain separate
+bounded work.
+
+Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report
 → immutable card preview/download. The next contiguous product step is the Test/Dataset vertical
 slice: Specimen/Test metadata, reference tensile CSV upload, column/unit mapping, raw and

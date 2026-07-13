@@ -121,6 +121,13 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-08. Specimen/Test Method/Campaign/Run/Instrument domain — `P0`
 
+- **MVP progress (2026-07-14):** A deliberately narrow reference tensile subset is implemented:
+  `Specimen`, the fixed `reference_uniaxial_tensile` Test Method, and `Test Run` stable identities
+  with immutable typed revisions. Test Runs pin concrete Specimen/Method revisions and retain
+  optional temperature/crosshead-speed metadata. Campaign, Instrument, condition snapshots, and
+  production test-method variants remain pending; this is not a claim that the complete T-08 task
+  is finished.
+
 - **목적:** 물리 specimen, method definition, campaign, actual run, condition snapshot, instrument/calibration reference를 구현한다.
 - **입력과 출력:** 입력은 specimen/test metadata; 출력은 immutable run context와 completeness issue.
 - **영향 데이터/API:** `catalog.specimen*`, `testing.test_method*`, `campaign*`, `test_run*`, `condition_snapshot`, `instrument*`; testing API.
@@ -170,6 +177,14 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 - **담당:** Software framework; Test Domain이 production mapping/plugin 승인.
 
 #### T-12. Dataset Revision, channel semantics, 단위 normalization — `P0`
+
+- **MVP progress (2026-07-14):** One reference tensile CSV path is implemented. A confirmed mapping
+  creates an immutable raw Dataset revision from a completed Raw Asset/Artifact and appends one
+  normalized SI Parquet revision under the same stable Dataset identity. The implementation stores
+  typed engineering strain/stress channel semantics, preserves original units, rejects guessing,
+  and exposes a bounded raw/normalized curve preview. Generic importer detection/approval and
+  arbitrary Dataset schemas remain pending; this is not a claim that the complete T-12 task is
+  finished.
 
 - **목적:** original/normalized unit과 quantity kind, channel schema를 보존한 Parquet dataset revision을 구현한다.
 - **입력과 출력:** 입력은 importer output/artifacts/schema; 출력은 Dataset Revision Manifest, channel metadata, unit conversion activity.
@@ -445,10 +460,17 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-32. Catalog/Test/Upload/Mapping UI — `P0`
 
+- **Extension (2026-07-14):** The Material State screen now calls protected Testing, Upload, and
+  Dataset APIs for the reference tensile path: Specimen/Test Run creation, multipart CSV upload,
+  explicit column/unit confirmation, raw/normalized Dataset revision selection, and bounded curve
+  preview. Generic testing/importer UX, mapping review for arbitrary formats, and workflow approval
+  remain pending.
+
 - **MVP progress (2026-07-14):** The protected Material Catalog UI is implemented: dashboard,
   Material search/create/detail, Material State entry, typed basic Property Set create/revision,
-  revision history/compare, and provenance summary. Test/upload/mapping surfaces remain pending;
-  this is not a claim that the full T-32 task is complete.
+  revision history/compare, and provenance summary. The narrow reference tensile upload/mapping
+  surface is implemented as described above; generic test/importer UX remains pending, and this is
+  not a claim that the full T-32 task is complete.
 
 - **목적:** material-state-lot/batch-specimen-test 문맥과 upload/mapping confirmation을 오류 없이 입력한다.
 - **입력과 출력:** 입력은 OpenAPI resources/schema; 출력은 typed forms, upload progress, mapping review, issue display.
