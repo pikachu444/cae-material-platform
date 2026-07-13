@@ -15,6 +15,10 @@ import type {
   MaterialStateCreateInput,
   MaterialStateResponse,
   MappingReport,
+  OutlierAssessmentResponse,
+  OutlierDetectionPlanResponse,
+  OutlierDetectionRunResponse,
+  OutlierScopeComparisonResponse,
   PropertySetCreateInput,
   PropertySetResponse,
   ProcessingRecipeResponse,
@@ -570,6 +574,82 @@ export function previewStatisticalResultCurve(
   return request(
     config,
     `/statistical-results/${encodeURIComponent(resultId)}/curve?${query.toString()}`,
+  );
+}
+
+export function listOutlierDetectionPlans(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: OutlierDetectionPlanResponse[] }>> {
+  return request(config, "/outlier-detection-plans?limit=100");
+}
+
+export function createReferenceTensilePairOutlierDetectionPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      plan_label: string;
+      statistical_result_id: string;
+      statistical_result_revision_id: string;
+      relative_peak_difference_threshold: number;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<OutlierDetectionPlanResponse>> {
+  return request(config, "/outlier-detection-plans/reference-tensile-pair", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceTensilePairOutlierDetection(
+  config: ApiConfig,
+  input: {
+    detection_plan_id: string;
+    detection_plan_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<OutlierDetectionRunResponse>> {
+  return request(config, "/outlier-detection-runs/reference-tensile-pair", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createReferenceTensilePairOutlierAssessment(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      candidate_id: string;
+      statistical_plan_id: string;
+      statistical_plan_revision_id: string;
+      decision: "retained" | "excluded_from_reference_analysis";
+      assessment_reason: string;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<OutlierAssessmentResponse>> {
+  return request(config, "/outlier-assessments/reference-tensile-pair", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getReferenceTensilePairOutlierScopeComparison(
+  config: ApiConfig,
+  input: {
+    detection_plan_id: string;
+    detection_plan_revision_id: string;
+  },
+): Promise<ApiResult<OutlierScopeComparisonResponse>> {
+  const query = new URLSearchParams({
+    detection_plan_id: input.detection_plan_id,
+    detection_plan_revision_id: input.detection_plan_revision_id,
+  });
+  return request(
+    config,
+    `/outlier-scope-comparisons/reference-tensile-pair?${query.toString()}`,
   );
 }
 

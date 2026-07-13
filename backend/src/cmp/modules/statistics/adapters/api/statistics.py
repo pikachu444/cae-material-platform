@@ -25,14 +25,36 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.statistics.application.service import (
+    CreateReferenceTensilePairOutlierAssessment,
+    CreateReferenceTensilePairOutlierDetectionPlan,
     CreateReferenceTensilePairPlan,
+    ExecuteReferenceTensilePairOutlierDetection,
     ExecuteReferenceTensilePairStatistics,
+    OutlierAssessmentSnapshot,
+    OutlierDetectionPlanSnapshot,
+    OutlierDetectionRun,
+    OutlierScopeComparison,
+    ReviseReferenceTensilePairOutlierDetectionPlan,
     ReviseReferenceTensilePairPlan,
     RevisionSnapshot,
     StatisticalPlanSnapshot,
     StatisticalResultSnapshot,
     StatisticalRun,
     StatisticsService,
+)
+from cmp.modules.statistics.domain.reference_tensile_outlier import (
+    REFERENCE_TENSILE_PAIR_OUTLIER_DETECTION_PLAN_KIND,
+    REFERENCE_TENSILE_PAIR_OUTLIER_DETECTOR,
+    REFERENCE_TENSILE_PAIR_OUTLIER_FEATURE,
+    REFERENCE_TENSILE_PAIR_OUTLIER_FORMULA_VERSION,
+    REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
+    OutlierAssessmentDecision,
+    OutlierCandidateStatus,
+    OutlierDetectionRunStatus,
+    ReferencePairPosition,
+    ReferenceTensilePairOutlierAssessmentContent,
+    ReferenceTensilePairOutlierCandidate,
+    ReferenceTensilePairOutlierDetectionPlanContent,
 )
 from cmp.modules.statistics.domain.reference_tensile_pair import (
     REFERENCE_TENSILE_PAIR_ASSUMPTION_PROFILE,
@@ -447,6 +469,361 @@ class StatisticalCurvePreviewResponse(BaseModel):
     points: tuple[ReferenceTensilePairCurvePointResponse, ...]
 
 
+class ReferenceTensilePairOutlierDetectionPlanInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    plan_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    statistical_result_id: UUID
+    statistical_result_revision_id: UUID
+    relative_peak_difference_threshold: Annotated[float, Field(gt=0.0, le=1.0)]
+
+    def to_domain(self) -> ReferenceTensilePairOutlierDetectionPlanContent:
+        return ReferenceTensilePairOutlierDetectionPlanContent(
+            plan_label=self.plan_label,
+            statistical_result_id=self.statistical_result_id,
+            statistical_result_revision_id=self.statistical_result_revision_id,
+            relative_peak_difference_threshold=self.relative_peak_difference_threshold,
+        )
+
+
+class CreateReferenceTensilePairOutlierDetectionPlanRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classification: DataClassification
+    content: ReferenceTensilePairOutlierDetectionPlanInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReviseReferenceTensilePairOutlierDetectionPlanRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_current_revision_id: UUID
+    plan_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    statistical_result_id: UUID
+    statistical_result_revision_id: UUID
+    relative_peak_difference_threshold: Annotated[float, Field(gt=0.0, le=1.0)]
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+    def to_content(self) -> ReferenceTensilePairOutlierDetectionPlanContent:
+        return ReferenceTensilePairOutlierDetectionPlanContent(
+            plan_label=self.plan_label,
+            statistical_result_id=self.statistical_result_id,
+            statistical_result_revision_id=self.statistical_result_revision_id,
+            relative_peak_difference_threshold=self.relative_peak_difference_threshold,
+        )
+
+
+class ExecuteReferenceTensilePairOutlierDetectionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    detection_plan_id: UUID
+    detection_plan_revision_id: UUID
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceTensilePairOutlierAssessmentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: UUID
+    statistical_plan_id: UUID
+    statistical_plan_revision_id: UUID
+    decision: OutlierAssessmentDecision
+    assessment_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+    def to_domain(self) -> ReferenceTensilePairOutlierAssessmentContent:
+        return ReferenceTensilePairOutlierAssessmentContent(
+            candidate_id=self.candidate_id,
+            statistical_plan_id=self.statistical_plan_id,
+            statistical_plan_revision_id=self.statistical_plan_revision_id,
+            decision=self.decision,
+            assessment_reason=self.assessment_reason,
+        )
+
+
+class CreateReferenceTensilePairOutlierAssessmentRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classification: DataClassification
+    content: ReferenceTensilePairOutlierAssessmentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceTensilePairOutlierDetectionPlanContentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    plan_kind: str
+    detector: str
+    formula_version: str
+    statistical_result_id: UUID
+    statistical_result_revision_id: UUID
+    feature: str
+    relative_peak_difference_threshold: float
+    candidate_policy: str
+    automatic_exclusion: bool
+    scope_kind: str
+
+    @classmethod
+    def from_domain(
+        cls, value: ReferenceTensilePairOutlierDetectionPlanContent
+    ) -> ReferenceTensilePairOutlierDetectionPlanContentResponse:
+        return cls(
+            plan_kind=REFERENCE_TENSILE_PAIR_OUTLIER_DETECTION_PLAN_KIND,
+            detector=REFERENCE_TENSILE_PAIR_OUTLIER_DETECTOR,
+            formula_version=REFERENCE_TENSILE_PAIR_OUTLIER_FORMULA_VERSION,
+            statistical_result_id=value.statistical_result_id,
+            statistical_result_revision_id=value.statistical_result_revision_id,
+            feature=REFERENCE_TENSILE_PAIR_OUTLIER_FEATURE,
+            relative_peak_difference_threshold=value.relative_peak_difference_threshold,
+            candidate_policy="flag_both_pair_members_for_human_review",
+            automatic_exclusion=False,
+            scope_kind=REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
+        )
+
+
+class OutlierDetectionPlanRevisionResponse(RevisionMetadataResponse):
+    content: ReferenceTensilePairOutlierDetectionPlanContentResponse
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[ReferenceTensilePairOutlierDetectionPlanContent]
+    ) -> OutlierDetectionPlanRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=ReferenceTensilePairOutlierDetectionPlanContentResponse.from_domain(
+                value.content
+            ),
+        )
+
+
+class OutlierDetectionPlanResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outlier_detection_plan_id: UUID
+    plan_label: str
+    current_revision: OutlierDetectionPlanRevisionResponse
+    links: dict[str, str]
+
+    @classmethod
+    def from_snapshot(cls, value: OutlierDetectionPlanSnapshot) -> OutlierDetectionPlanResponse:
+        root = f"/api/v1/outlier-detection-plans/{value.id}"
+        return cls(
+            outlier_detection_plan_id=value.id,
+            plan_label=value.current.content.plan_label,
+            current_revision=OutlierDetectionPlanRevisionResponse.from_snapshot(value.current),
+            links={"self": root, "revisions": f"{root}/revisions"},
+        )
+
+
+class OutlierDetectionPlanListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: tuple[OutlierDetectionPlanResponse, ...]
+
+
+class OutlierCandidateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outlier_candidate_id: UUID
+    detection_run_id: UUID
+    detection_plan_id: UUID
+    detection_plan_revision_id: UUID
+    statistical_result_id: UUID
+    statistical_result_revision_id: UUID
+    statistical_plan_id: UUID
+    statistical_plan_revision_id: UUID
+    selection_id: UUID
+    selection_revision_id: UUID
+    dataset_id: UUID
+    dataset_revision_id: UUID
+    pair_position: ReferencePairPosition
+    feature: str
+    peak_engineering_stress_pa: float
+    peer_peak_engineering_stress_pa: float
+    relative_peak_difference: float
+    relative_peak_difference_threshold: float
+    status: OutlierCandidateStatus
+    automatic_exclusion: bool
+    links: dict[str, str]
+
+    @classmethod
+    def from_domain(
+        cls, value: ReferenceTensilePairOutlierCandidate
+    ) -> OutlierCandidateResponse:
+        comparison_link = (
+            "/api/v1/outlier-scope-comparisons/reference-tensile-pair"
+            f"?detection_plan_id={value.detection_plan_id}"
+            f"&detection_plan_revision_id={value.detection_plan_revision_id}"
+        )
+        return cls(
+            outlier_candidate_id=value.id,
+            detection_run_id=value.detection_run_id,
+            detection_plan_id=value.detection_plan_id,
+            detection_plan_revision_id=value.detection_plan_revision_id,
+            statistical_result_id=value.statistical_result_id,
+            statistical_result_revision_id=value.statistical_result_revision_id,
+            statistical_plan_id=value.statistical_plan_id,
+            statistical_plan_revision_id=value.statistical_plan_revision_id,
+            selection_id=value.selection_id,
+            selection_revision_id=value.selection_revision_id,
+            dataset_id=value.dataset_id,
+            dataset_revision_id=value.dataset_revision_id,
+            pair_position=value.pair_position,
+            feature=REFERENCE_TENSILE_PAIR_OUTLIER_FEATURE,
+            peak_engineering_stress_pa=value.peak_engineering_stress_pa,
+            peer_peak_engineering_stress_pa=value.peer_peak_engineering_stress_pa,
+            relative_peak_difference=value.relative_peak_difference,
+            relative_peak_difference_threshold=value.relative_peak_difference_threshold,
+            status=value.status,
+            automatic_exclusion=False,
+            links={"scope_comparison": comparison_link},
+        )
+
+
+class OutlierDetectionRunResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outlier_detection_run_id: UUID
+    classification: DataClassification
+    execution_mode: str
+    status: OutlierDetectionRunStatus
+    detection_plan_id: UUID
+    detection_plan_revision_id: UUID
+    statistical_result_id: UUID
+    statistical_result_revision_id: UUID
+    candidate_count: int
+    failure_code: str | None
+    candidates: tuple[OutlierCandidateResponse, ...]
+    change_reason: str
+    started_at: str
+    ended_at: str | None
+    links: dict[str, str]
+
+    @classmethod
+    def from_domain(cls, value: OutlierDetectionRun) -> OutlierDetectionRunResponse:
+        root = f"/api/v1/outlier-detection-runs/{value.id}"
+        return cls(
+            outlier_detection_run_id=value.id,
+            classification=value.classification,
+            execution_mode="committed",
+            status=value.status,
+            detection_plan_id=value.detection_plan_id,
+            detection_plan_revision_id=value.detection_plan_revision_id,
+            statistical_result_id=value.statistical_result_id,
+            statistical_result_revision_id=value.statistical_result_revision_id,
+            candidate_count=value.candidate_count,
+            failure_code=value.failure_code,
+            candidates=tuple(
+                OutlierCandidateResponse.from_domain(item) for item in value.candidates
+            ),
+            change_reason=value.change_reason,
+            started_at=value.started_at.isoformat(),
+            ended_at=value.ended_at.isoformat() if value.ended_at is not None else None,
+            links={"self": root},
+        )
+
+
+class ReferenceTensilePairOutlierAssessmentContentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: UUID
+    scope_kind: str
+    statistical_plan_id: UUID
+    statistical_plan_revision_id: UUID
+    decision: OutlierAssessmentDecision
+    assessment_reason: str
+
+    @classmethod
+    def from_domain(
+        cls, value: ReferenceTensilePairOutlierAssessmentContent
+    ) -> ReferenceTensilePairOutlierAssessmentContentResponse:
+        return cls(
+            candidate_id=value.candidate_id,
+            scope_kind=REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
+            statistical_plan_id=value.statistical_plan_id,
+            statistical_plan_revision_id=value.statistical_plan_revision_id,
+            decision=value.decision,
+            assessment_reason=value.assessment_reason,
+        )
+
+
+class OutlierAssessmentRevisionResponse(RevisionMetadataResponse):
+    content: ReferenceTensilePairOutlierAssessmentContentResponse
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[ReferenceTensilePairOutlierAssessmentContent]
+    ) -> OutlierAssessmentRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=ReferenceTensilePairOutlierAssessmentContentResponse.from_domain(
+                value.content
+            ),
+        )
+
+
+class OutlierAssessmentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outlier_assessment_id: UUID
+    current_revision: OutlierAssessmentRevisionResponse
+    links: dict[str, str]
+
+    @classmethod
+    def from_snapshot(cls, value: OutlierAssessmentSnapshot) -> OutlierAssessmentResponse:
+        root = f"/api/v1/outlier-assessments/{value.id}"
+        return cls(
+            outlier_assessment_id=value.id,
+            current_revision=OutlierAssessmentRevisionResponse.from_snapshot(value.current),
+            links={"self": root},
+        )
+
+
+class OutlierScopeComparisonEntryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidate: OutlierCandidateResponse
+    assessment_history: tuple[OutlierAssessmentResponse, ...]
+    latest_assessment: OutlierAssessmentResponse | None
+
+
+class OutlierScopeComparisonResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    detection_plan: OutlierDetectionPlanResponse
+    statistical_result: StatisticalResultResponse
+    scope_kind: str
+    entries: tuple[OutlierScopeComparisonEntryResponse, ...]
+    source_mutation: bool
+    derived_selection_created: bool
+
+    @classmethod
+    def from_domain(cls, value: OutlierScopeComparison) -> OutlierScopeComparisonResponse:
+        return cls(
+            detection_plan=OutlierDetectionPlanResponse.from_snapshot(value.detection_plan),
+            statistical_result=StatisticalResultResponse.from_snapshot(value.statistical_result),
+            scope_kind=REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
+            entries=tuple(
+                OutlierScopeComparisonEntryResponse(
+                    candidate=OutlierCandidateResponse.from_domain(item.candidate),
+                    assessment_history=tuple(
+                        OutlierAssessmentResponse.from_snapshot(assessment)
+                        for assessment in item.assessments
+                    ),
+                    latest_assessment=(
+                        OutlierAssessmentResponse.from_snapshot(item.latest_assessment)
+                        if item.latest_assessment is not None
+                        else None
+                    ),
+                )
+                for item in value.entries
+            ),
+            source_mutation=False,
+            derived_selection_created=False,
+        )
+
+
 class StatisticsProblem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -769,6 +1146,255 @@ def install_statistics_api(
             raise _translate(context, error) from error
         _etag(response, result.current.record)
         return StatisticalResultResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/outlier-detection-plans/reference-tensile-pair",
+        operation_id="createReferenceTensilePairOutlierDetectionPlan",
+        response_model=OutlierDetectionPlanResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["statistics"],
+    )
+    def create_outlier_detection_plan(
+        request: Request,
+        response: Response,
+        body: CreateReferenceTensilePairOutlierDetectionPlanRequest,
+    ) -> OutlierDetectionPlanResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_tensile_pair_outlier_detection_plan(
+                context,
+                decision,
+                CreateReferenceTensilePairOutlierDetectionPlan(
+                    classification=body.classification,
+                    content=body.content.to_domain(),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/outlier-detection-plans/{result.id}"
+        _etag(response, result.current.record)
+        return OutlierDetectionPlanResponse.from_snapshot(result)
+
+    @application.get(
+        "/api/v1/outlier-detection-plans",
+        operation_id="listOutlierDetectionPlans",
+        response_model=OutlierDetectionPlanListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["statistics"],
+    )
+    def list_outlier_detection_plans(
+        request: Request,
+        limit: Annotated[int, Query(ge=1, le=200)] = 100,
+    ) -> OutlierDetectionPlanListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            items = service.list_outlier_detection_plans(context, decision, limit=limit)
+        except Exception as error:
+            raise _translate(context, error) from error
+        return OutlierDetectionPlanListResponse(
+            items=tuple(OutlierDetectionPlanResponse.from_snapshot(item) for item in items)
+        )
+
+    @application.get(
+        "/api/v1/outlier-detection-plans/{detection_plan_id}",
+        operation_id="getOutlierDetectionPlan",
+        response_model=OutlierDetectionPlanResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["statistics"],
+    )
+    def get_outlier_detection_plan(
+        request: Request,
+        response: Response,
+        detection_plan_id: UUID,
+    ) -> OutlierDetectionPlanResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_outlier_detection_plan(context, decision, detection_plan_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return OutlierDetectionPlanResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/outlier-detection-plans/{detection_plan_id}/revisions",
+        operation_id="reviseReferenceTensilePairOutlierDetectionPlan",
+        response_model=OutlierDetectionPlanResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["statistics"],
+    )
+    def revise_outlier_detection_plan(
+        request: Request,
+        response: Response,
+        detection_plan_id: UUID,
+        body: ReviseReferenceTensilePairOutlierDetectionPlanRequest,
+    ) -> OutlierDetectionPlanResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.revise_reference_tensile_pair_outlier_detection_plan(
+                context,
+                decision,
+                detection_plan_id,
+                ReviseReferenceTensilePairOutlierDetectionPlan(
+                    expected_current_revision_id=body.expected_current_revision_id,
+                    content=body.to_content(),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return OutlierDetectionPlanResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/outlier-detection-runs/reference-tensile-pair",
+        operation_id="executeReferenceTensilePairOutlierDetection",
+        response_model=OutlierDetectionRunResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["statistics"],
+    )
+    def execute_outlier_detection(
+        request: Request,
+        response: Response,
+        body: ExecuteReferenceTensilePairOutlierDetectionRequest,
+    ) -> OutlierDetectionRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.execute_reference_tensile_pair_outlier_detection(
+                context,
+                decision,
+                ExecuteReferenceTensilePairOutlierDetection(
+                    detection_plan_id=body.detection_plan_id,
+                    detection_plan_revision_id=body.detection_plan_revision_id,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/outlier-detection-runs/{result.id}"
+        response.headers["Cache-Control"] = "no-store"
+        return OutlierDetectionRunResponse.from_domain(result)
+
+    @application.get(
+        "/api/v1/outlier-detection-runs/{run_id}",
+        operation_id="getOutlierDetectionRun",
+        response_model=OutlierDetectionRunResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["statistics"],
+    )
+    def get_outlier_detection_run(
+        request: Request,
+        run_id: UUID,
+    ) -> OutlierDetectionRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_outlier_detection_run(context, decision, run_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        return OutlierDetectionRunResponse.from_domain(result)
+
+    @application.post(
+        "/api/v1/outlier-assessments/reference-tensile-pair",
+        operation_id="createReferenceTensilePairOutlierAssessment",
+        response_model=OutlierAssessmentResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["statistics"],
+    )
+    def create_outlier_assessment(
+        request: Request,
+        response: Response,
+        body: CreateReferenceTensilePairOutlierAssessmentRequest,
+    ) -> OutlierAssessmentResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_tensile_pair_outlier_assessment(
+                context,
+                decision,
+                CreateReferenceTensilePairOutlierAssessment(
+                    classification=body.classification,
+                    content=body.content.to_domain(),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/outlier-assessments/{result.id}"
+        _etag(response, result.current.record)
+        return OutlierAssessmentResponse.from_snapshot(result)
+
+    @application.get(
+        "/api/v1/outlier-assessments/{assessment_id}",
+        operation_id="getOutlierAssessment",
+        response_model=OutlierAssessmentResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["statistics"],
+    )
+    def get_outlier_assessment(
+        request: Request,
+        response: Response,
+        assessment_id: UUID,
+    ) -> OutlierAssessmentResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_outlier_assessment(context, decision, assessment_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return OutlierAssessmentResponse.from_snapshot(result)
+
+    @application.get(
+        "/api/v1/outlier-scope-comparisons/reference-tensile-pair",
+        operation_id="getReferenceTensilePairOutlierScopeComparison",
+        response_model=OutlierScopeComparisonResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["statistics"],
+    )
+    def get_outlier_scope_comparison(
+        request: Request,
+        detection_plan_id: UUID,
+        detection_plan_revision_id: UUID,
+    ) -> OutlierScopeComparisonResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_reference_tensile_pair_outlier_scope_comparison(
+                context,
+                decision,
+                detection_plan_id=detection_plan_id,
+                detection_plan_revision_id=detection_plan_revision_id,
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return OutlierScopeComparisonResponse.from_domain(result)
 
     @application.get(
         "/api/v1/statistical-results/{result_id}/curve",

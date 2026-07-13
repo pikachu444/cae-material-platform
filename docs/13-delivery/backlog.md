@@ -318,6 +318,15 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-21. Outlier candidate·판정·scope 비교 — `P0`
 
+- **2026-07-17 reference subset:** completed for the existing two-selection reference tensile
+  Statistics Result only. A typed immutable Detection Plan pins the exact Result revision and a
+  declared relative peak-difference threshold; its committed run emits zero candidates below the
+  threshold or both pair members as review_required at/above it. Separate immutable Assessment
+  identities record retained or excluded_from_reference_analysis against the exact Statistical Plan
+  revision. The typed comparison projection, PostgreSQL constraints/RLS, provenance/audit, API,
+  contracts, and workbench preserve all source evidence and create neither automatic deletion nor a
+  derived Selection. Multi-member methods and calibration-specific scope remain outside this subset.
+
 - **목적:** 이상치 후보 탐지와 사람 판정을 분리하고 특정 analysis/calibration exclusion만 표현한다.
 - **입력과 출력:** 입력은 QC/statistics evidence와 detector plan; 출력은 candidate, append-only assessment, derived Selection Revision/comparison.
 - **영향 데이터/API:** `statistics.outlier_candidate`, `outlier_assessment`; assessment API와 comparison query.

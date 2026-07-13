@@ -630,6 +630,106 @@ export interface StatisticalCurvePreview {
   points: StatisticalCurvePoint[];
 }
 
+export interface ReferenceTensilePairOutlierDetectionPlanContent {
+  plan_kind: "reference_tensile_pair_peak_difference_review";
+  detector: "relative_peak_engineering_stress_difference";
+  formula_version: "1.0.0";
+  statistical_result_id: string;
+  statistical_result_revision_id: string;
+  feature: "peak_engineering_stress_pa";
+  relative_peak_difference_threshold: number;
+  candidate_policy: "flag_both_pair_members_for_human_review";
+  automatic_exclusion: false;
+  scope_kind: "reference_pair_analysis";
+}
+
+export interface OutlierDetectionPlanRevision extends RevisionMetadata {
+  content: ReferenceTensilePairOutlierDetectionPlanContent;
+}
+
+export interface OutlierDetectionPlanResponse {
+  outlier_detection_plan_id: string;
+  plan_label: string;
+  current_revision: OutlierDetectionPlanRevision;
+  links: Record<string, string>;
+}
+
+export interface OutlierCandidateResponse {
+  outlier_candidate_id: string;
+  detection_run_id: string;
+  detection_plan_id: string;
+  detection_plan_revision_id: string;
+  statistical_result_id: string;
+  statistical_result_revision_id: string;
+  statistical_plan_id: string;
+  statistical_plan_revision_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  dataset_id: string;
+  dataset_revision_id: string;
+  pair_position: "first" | "second";
+  feature: "peak_engineering_stress_pa";
+  peak_engineering_stress_pa: number;
+  peer_peak_engineering_stress_pa: number;
+  relative_peak_difference: number;
+  relative_peak_difference_threshold: number;
+  status: "review_required";
+  automatic_exclusion: false;
+  links: Record<string, string>;
+}
+
+export interface OutlierDetectionRunResponse {
+  outlier_detection_run_id: string;
+  classification: DataClassification;
+  execution_mode: "committed";
+  status: "executing" | "succeeded" | "failed";
+  detection_plan_id: string;
+  detection_plan_revision_id: string;
+  statistical_result_id: string;
+  statistical_result_revision_id: string;
+  candidate_count: 0 | 2;
+  failure_code: string | null;
+  candidates: OutlierCandidateResponse[];
+  change_reason: string;
+  started_at: string;
+  ended_at: string | null;
+  links: Record<string, string>;
+}
+
+export interface ReferenceTensilePairOutlierAssessmentContent {
+  candidate_id: string;
+  scope_kind: "reference_pair_analysis";
+  statistical_plan_id: string;
+  statistical_plan_revision_id: string;
+  decision: "retained" | "excluded_from_reference_analysis";
+  assessment_reason: string;
+}
+
+export interface OutlierAssessmentRevision extends RevisionMetadata {
+  content: ReferenceTensilePairOutlierAssessmentContent;
+}
+
+export interface OutlierAssessmentResponse {
+  outlier_assessment_id: string;
+  current_revision: OutlierAssessmentRevision;
+  links: Record<string, string>;
+}
+
+export interface OutlierScopeComparisonEntry {
+  candidate: OutlierCandidateResponse;
+  assessment_history: OutlierAssessmentResponse[];
+  latest_assessment: OutlierAssessmentResponse | null;
+}
+
+export interface OutlierScopeComparisonResponse {
+  detection_plan: OutlierDetectionPlanResponse;
+  statistical_result: StatisticalResultResponse;
+  scope_kind: "reference_pair_analysis";
+  entries: OutlierScopeComparisonEntry[];
+  source_mutation: false;
+  derived_selection_created: false;
+}
+
 export interface UploadSession {
   upload_id: string;
   organization_id: string;

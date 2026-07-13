@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-16`
-Foundation version: `0.19.0`
+Date: `2026-07-17`
+Foundation version: `0.20.0`
 
 ## Completed
 
@@ -49,8 +49,18 @@ Foundation version: `0.19.0`
   stress per Test Run (`n=2`) with mean/sample SD/median/MAD/IQR/range/CV; curve statistics require
   exact observed engineering-strain grid equality and never align, interpolate, resample, or
   extrapolate. The API, provenance/audit hooks, PostgreSQL constraints/RLS, and Material State
-  workbench expose the pinned inputs, QC, result scalar values, and mean curve. Outlier assessment,
-  larger groups, CI estimation, and approved alignment Processing remain outside this reference slice.
+  workbench expose the pinned inputs, QC, result scalar values, and mean curve. Larger groups, CI
+  estimation, and approved alignment Processing remain outside this reference slice.
+- `T-21` reference subset: an immutable Outlier Detection Plan pins one successful reference-pair
+  Statistical Result revision and a declared relative peak-difference threshold. A committed
+  Detection Run creates zero candidates below that threshold or exactly two review_required
+  candidates at/above it, never chooses a true outlier at n=2, and never excludes data
+  automatically. Separate immutable human Assessment identities record retained or
+  excluded_from_reference_analysis only against the candidate's exact Statistical Plan revision.
+  Typed PostgreSQL tables, composite tenant/classification FKs, forced RLS, append-only guards,
+  provenance/audit hooks, contracts, APIs, and the Material State workbench expose append-only
+  assessment history and a comparison projection without changing any Raw Asset, Dataset,
+  Selection, or Statistics Result or creating a derived Selection.
 - `T-32` MVP subset: React/Vite Material Catalog workbench backed by protected Catalog, Modeling,
   and Exporting APIs; Dashboard, search, Material creation, State and typed Property Set
   entry/revision, revision compare/history, provenance summary, and the reference
@@ -64,6 +74,10 @@ Foundation version: `0.19.0`
   creates a Statistical Plan, commits the reference Statistics/QC Run, surfaces passed/failed QC,
   scalar output, and the immutable mean-curve preview. It does not conceal grid mismatch through a
   browser-side alignment or alter either source revision.
+- `T-32` extension: after the reference Statistics Result is visible, the same screen can pin a
+  declared outlier-review threshold, commit a zero-or-two-candidate Detection Run, append a human
+  assessment, and view the exact-scope history. The UI explicitly states that n=2 cannot identify
+  an outlier and that no automatic deletion or source mutation occurs.
 - Local demo composition: an explicit `CMP_ENVIRONMENT=demo` + `CMP_DEMO_IDENTITY=true` Docker
   Compose profile now runs PostgreSQL, owner-only migration/bootstrap, a non-owner `cmp_app` API,
   worker, React workbench, filesystem object storage, checked reference-plugin asset, and an
@@ -262,13 +276,13 @@ Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
 Alembic `upgrade head --sql`: passed
-CI-equivalent pytest: 280 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+CI-equivalent pytest: 290 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
 Root web check: build passed; Vitest: 13 passed
 Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
   token tests are implemented. Docker is not installed in this Windows environment, so the
   containers and live PostgreSQL demo could not be started here.
-T-19/T-20 have unit, API integration, migration SQL, and browser-workbench regression coverage.
-T-20 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
+T-19/T-21 have unit, API integration, migration SQL, and browser-workbench regression coverage.
+T-21 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
 because CMP_TEST_POSTGRES_DSN is unavailable; migration SQL rendering is covered offline, while a
 live PostgreSQL test remains the next verification task.
 ```
@@ -280,7 +294,8 @@ live PostgreSQL test remains the next verification task.
 - Process/Lot/Batch genealogy, richer typed property/curve families, Test Campaign/Instrument
   records, generic importer detection/mapping approval, and non-reference Dataset channels
 - Multi-member Selection/filter semantics, resample/true-stress-strain processing, durable
-  Processing Run reconciliation, outlier assessment, larger-replicate/CI statistics, and calibration
+  Processing Run reconciliation, calibration-specific outlier scope, larger-replicate/CI
+  statistics, and calibration
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
@@ -298,12 +313,14 @@ live PostgreSQL test remains the next verification task.
 
 ## Next gate
 
-**Updated 2026-07-16:** the reference Test/Dataset, committed Processing, and exact-grid
-two-sample Statistics/QC slices are implemented. The next product gate is `T-21`: add append-only
-outlier candidate/assessment and explicitly scoped comparison without changing raw, normalized, or
-Statistics inputs. Calibration and release evidence remain separate bounded work; calibration must
-consume explicit Dataset, Processing, Selection, and Statistics revisions rather than becoming a
-separate MCalibration-shaped application.
+**Updated 2026-07-17:** the reference Test/Dataset, committed Processing, exact-grid
+two-sample Statistics/QC, and append-only outlier-review slices are implemented. The completed
+reference Material → Property Set → IR → OpenRadioss Card path remains the product's
+second-priority CAE-use vertical slice; this T-21 work supports the separate Test Data → Statistics
+demonstration and does not replace it. The next requested sequence is T-11 importer orchestration,
+then T-23/T-24 reference calibration and candidate selection, then T-27/T-28 validation. Any
+expansion beyond the existing exact linear-elastic OpenRadioss mapping also requires a documented
+target/model mapping decision; it must not be silently inferred.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

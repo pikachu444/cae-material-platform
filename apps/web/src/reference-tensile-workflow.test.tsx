@@ -254,7 +254,7 @@ describe("Reference tensile Dataset workflow", () => {
     });
   });
 
-  it("pins two normalized selections, records QC, and renders the reference statistics result", async () => {
+  it("pins two normalized selections, records QC, and scopes append-only outlier review", async () => {
     const firstDatasetId = "20000000-0000-4000-8000-000000000001";
     const secondDatasetId = "20000000-0000-4000-8000-000000000002";
     const firstRevisionId = "20000000-0000-4000-8000-000000000003";
@@ -268,6 +268,13 @@ describe("Reference tensile Dataset workflow", () => {
     const statisticalRunId = "20000000-0000-4000-8000-00000000000b";
     const resultId = "20000000-0000-4000-8000-00000000000c";
     const resultRevisionId = "20000000-0000-4000-8000-00000000000d";
+    const outlierPlanId = "20000000-0000-4000-8000-000000000019";
+    const outlierPlanRevisionId = "20000000-0000-4000-8000-00000000001a";
+    const outlierRunId = "20000000-0000-4000-8000-00000000001b";
+    const firstCandidateId = "20000000-0000-4000-8000-00000000001c";
+    const secondCandidateId = "20000000-0000-4000-8000-00000000001d";
+    const assessmentId = "20000000-0000-4000-8000-00000000001e";
+    const assessmentRevisionId = "20000000-0000-4000-8000-00000000001f";
     const dataset = (datasetId: string, revisionId: string, testRunId: string) => ({
       dataset_id: datasetId,
       test_run_id: testRunId,
@@ -326,6 +333,90 @@ describe("Reference tensile Dataset workflow", () => {
       },
       links: {},
     };
+    const outlierPlan = {
+      outlier_detection_plan_id: outlierPlanId,
+      plan_label: "Review reference pair peak difference",
+      current_revision: {
+        ...state.current_revision,
+        id: outlierPlanRevisionId,
+        aggregate_id: outlierPlanId,
+        content: {
+          plan_kind: "reference_tensile_pair_peak_difference_review",
+          detector: "relative_peak_engineering_stress_difference",
+          formula_version: "1.0.0",
+          statistical_result_id: resultId,
+          statistical_result_revision_id: resultRevisionId,
+          feature: "peak_engineering_stress_pa",
+          relative_peak_difference_threshold: 0.2,
+          candidate_policy: "flag_both_pair_members_for_human_review",
+          automatic_exclusion: false,
+          scope_kind: "reference_pair_analysis",
+        },
+      },
+      links: {},
+    };
+    const candidate = (candidateId: string, pairPosition: "first" | "second") => ({
+      outlier_candidate_id: candidateId,
+      detection_run_id: outlierRunId,
+      detection_plan_id: outlierPlanId,
+      detection_plan_revision_id: outlierPlanRevisionId,
+      statistical_result_id: resultId,
+      statistical_result_revision_id: resultRevisionId,
+      statistical_plan_id: planId,
+      statistical_plan_revision_id: planRevisionId,
+      selection_id: pairPosition === "first" ? firstSelectionId : secondSelectionId,
+      selection_revision_id: pairPosition === "first"
+        ? firstSelectionRevisionId
+        : secondSelectionRevisionId,
+      dataset_id: pairPosition === "first" ? firstDatasetId : secondDatasetId,
+      dataset_revision_id: pairPosition === "first" ? firstRevisionId : secondRevisionId,
+      pair_position: pairPosition,
+      feature: "peak_engineering_stress_pa",
+      peak_engineering_stress_pa: pairPosition === "first" ? 120000000 : 150000000,
+      peer_peak_engineering_stress_pa: pairPosition === "first" ? 150000000 : 120000000,
+      relative_peak_difference: 0.2,
+      relative_peak_difference_threshold: 0.2,
+      status: "review_required",
+      automatic_exclusion: false,
+      links: {},
+    });
+    const firstCandidate = candidate(firstCandidateId, "first");
+    const secondCandidate = candidate(secondCandidateId, "second");
+    const outlierRun = {
+      outlier_detection_run_id: outlierRunId,
+      classification: "internal",
+      execution_mode: "committed",
+      status: "succeeded",
+      detection_plan_id: outlierPlanId,
+      detection_plan_revision_id: outlierPlanRevisionId,
+      statistical_result_id: resultId,
+      statistical_result_revision_id: resultRevisionId,
+      candidate_count: 2,
+      failure_code: null,
+      candidates: [firstCandidate, secondCandidate],
+      change_reason: "Generate review candidates without deleting source data",
+      started_at: "2026-07-17T00:00:00Z",
+      ended_at: "2026-07-17T00:00:00Z",
+      links: {},
+    };
+    const assessment = {
+      outlier_assessment_id: assessmentId,
+      current_revision: {
+        ...state.current_revision,
+        id: assessmentRevisionId,
+        aggregate_id: assessmentId,
+        content: {
+          candidate_id: firstCandidateId,
+          scope_kind: "reference_pair_analysis",
+          statistical_plan_id: planId,
+          statistical_plan_revision_id: planRevisionId,
+          decision: "retained",
+          assessment_reason: "Human review retains this candidate for the reference analysis.",
+        },
+      },
+      links: {},
+    };
+    let assessmentRecorded = false;
     const fetchMock = vi.fn<typeof fetch>((input, init) => {
       const url = String(input);
       const method = init?.method ?? "GET";
@@ -357,6 +448,9 @@ describe("Reference tensile Dataset workflow", () => {
         return Promise.resolve(jsonResponse({ items: [secondSelection] }));
       }
       if (url.endsWith("/statistical-plans?limit=100") && method === "GET") {
+        return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      if (url.endsWith("/outlier-detection-plans?limit=100") && method === "GET") {
         return Promise.resolve(jsonResponse({ items: [] }));
       }
       if (url.endsWith("/statistical-plans/reference-tensile-pair") && method === "POST") {
@@ -443,6 +537,46 @@ describe("Reference tensile Dataset workflow", () => {
           ],
         }));
       }
+      if (url.endsWith("/outlier-detection-plans/reference-tensile-pair") && method === "POST") {
+        return Promise.resolve(jsonResponse(outlierPlan));
+      }
+      if (url.endsWith("/outlier-detection-runs/reference-tensile-pair") && method === "POST") {
+        return Promise.resolve(jsonResponse(outlierRun));
+      }
+      if (url.endsWith("/outlier-assessments/reference-tensile-pair") && method === "POST") {
+        assessmentRecorded = true;
+        return Promise.resolve(jsonResponse(assessment));
+      }
+      if (url.includes("/outlier-scope-comparisons/reference-tensile-pair")) {
+        return Promise.resolve(jsonResponse({
+          detection_plan: outlierPlan,
+          statistical_result: {
+            statistical_result_id: resultId,
+            current_revision: {
+              ...state.current_revision,
+              id: resultRevisionId,
+              aggregate_id: resultId,
+              content: {},
+            },
+            links: {},
+          },
+          scope_kind: "reference_pair_analysis",
+          entries: [
+            {
+              candidate: firstCandidate,
+              assessment_history: assessmentRecorded ? [assessment] : [],
+              latest_assessment: assessmentRecorded ? assessment : null,
+            },
+            {
+              candidate: secondCandidate,
+              assessment_history: [],
+              latest_assessment: null,
+            },
+          ],
+          source_mutation: false,
+          derived_selection_created: false,
+        }));
+      }
       if (url.endsWith("/processing-recipes") && method === "GET") {
         return Promise.resolve(jsonResponse({ items: [] }));
       }
@@ -473,6 +607,19 @@ describe("Reference tensile Dataset workflow", () => {
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([input, init]) => (
         String(input).endsWith("/statistical-runs/reference-tensile-pair")
+        && init?.method === "POST"
+      ))).toBe(true);
+    });
+    await screen.findByText("10. Review pair-difference candidates without deleting data");
+    fireEvent.click(screen.getByRole("button", { name: "Create immutable Outlier Detection Plan" }));
+    await screen.findByRole("combobox", { name: "Outlier Detection Plan" });
+    fireEvent.click(screen.getByRole("button", { name: "Commit Outlier Detection Run" }));
+    await screen.findByRole("combobox", { name: "Outlier candidate" });
+    fireEvent.click(screen.getByRole("button", { name: "Append human Assessment" }));
+    await screen.findByText(/Human review retains this candidate for the reference analysis/);
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input, init]) => (
+        String(input).endsWith("/outlier-assessments/reference-tensile-pair")
         && init?.method === "POST"
       ))).toBe(true);
     });
