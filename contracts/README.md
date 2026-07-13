@@ -1,8 +1,8 @@
 # Public contract baseline
 
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
-`T-12`, `T-19`, `T-20`, `T-22`, `T-25`, `T-26`, and the `T-32` workbench. HTTP contract version
-`0.19.0`.
+`T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, and the `T-32` workbench. HTTP contract version
+`0.20.0`.
 
 ## Files
 
@@ -28,6 +28,9 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
   resources for the reference Processing slice
 - `statistics/reference-tensile-pair-resources.schema.json`: typed two-selection reference
   Statistics/QC Plan, committed Run, scalar/curve Result, and bounded curve preview resources
+- `statistics/reference-tensile-outlier-resources.schema.json`: typed immutable reference-pair
+  Detection Plans, zero-or-two review_required candidates, append-only human Assessments, and
+  exact-scope comparison resources without source mutation or automatic exclusion
 - `revisions/revision-metadata.schema.json`: content-free typed-revision metadata envelope
 - `identity/me-response.schema.json`: authenticated principal and selected tenant context
 - `examples/positive`: examples that must validate

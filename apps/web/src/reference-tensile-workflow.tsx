@@ -4,12 +4,16 @@ import {
   type ApiConfig,
   createReferenceDatasetSelection,
   createReferenceTensileCropRecipe,
+  createReferenceTensilePairOutlierAssessment,
+  createReferenceTensilePairOutlierDetectionPlan,
   createReferenceTensilePairStatisticalPlan,
   createReferenceTensileTestMethod,
   createReferenceTensileTestRun,
   createSpecimen,
   executeReferenceTensileCrop,
+  executeReferenceTensilePairOutlierDetection,
   executeReferenceTensilePairStatistics,
+  getReferenceTensilePairOutlierScopeComparison,
   getStatisticalResult,
   importReferenceTensileDataset,
   listDatasetRevisions,
@@ -17,6 +21,7 @@ import {
   listDatasetsForMaterialState,
   listSpecimensForMaterialState,
   listProcessingRecipes,
+  listOutlierDetectionPlans,
   listStatisticalPlans,
   listTestMethods,
   listTestRunsForMaterialState,
@@ -30,6 +35,9 @@ import type {
   DatasetResponse,
   DatasetRevision,
   MaterialStateResponse,
+  OutlierDetectionPlanResponse,
+  OutlierDetectionRunResponse,
+  OutlierScopeComparisonResponse,
   ProcessingRecipeResponse,
   ProcessingRunResponse,
   ReferenceTensileMapping,
@@ -225,6 +233,11 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [statisticalRun, setStatisticalRun] = useState<StatisticalRunResponse | null>(null);
   const [statisticalResult, setStatisticalResult] = useState<StatisticalResultResponse | null>(null);
   const [statisticalCurve, setStatisticalCurve] = useState<StatisticalCurvePreview | null>(null);
+  const [outlierDetectionPlans, setOutlierDetectionPlans] = useState<OutlierDetectionPlanResponse[]>([]);
+  const [selectedOutlierDetectionPlanId, setSelectedOutlierDetectionPlanId] = useState("");
+  const [outlierDetectionRun, setOutlierDetectionRun] = useState<OutlierDetectionRunResponse | null>(null);
+  const [outlierScopeComparison, setOutlierScopeComparison] = useState<OutlierScopeComparisonResponse | null>(null);
+  const [selectedOutlierCandidateId, setSelectedOutlierCandidateId] = useState("");
   const [specimenCode, setSpecimenCode] = useState("");
   const [orientation, setOrientation] = useState("");
   const [specimenReason, setSpecimenReason] = useState("Register reference tensile specimen");
@@ -250,6 +263,13 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [statisticalPlanLabel, setStatisticalPlanLabel] = useState("Reference tensile pair statistics");
   const [statisticalPlanReason, setStatisticalPlanReason] = useState("Pin two normalized selections for reference statistics");
   const [statisticsReason, setStatisticsReason] = useState("Calculate reference pair scalar statistics and curve band");
+  const [outlierDetectionPlanLabel, setOutlierDetectionPlanLabel] = useState("Review reference pair peak difference");
+  const [outlierThreshold, setOutlierThreshold] = useState("0.2");
+  const [outlierDetectionPlanReason, setOutlierDetectionPlanReason] = useState("Pin a declared review threshold to the immutable Statistics Result");
+  const [outlierDetectionReason, setOutlierDetectionReason] = useState("Generate review candidates without deleting source data");
+  const [outlierAssessmentDecision, setOutlierAssessmentDecision] = useState<"retained" | "excluded_from_reference_analysis">("retained");
+  const [outlierAssessmentReason, setOutlierAssessmentReason] = useState("Record human review for this exact reference-analysis scope");
+  const [outlierAssessmentChangeReason, setOutlierAssessmentChangeReason] = useState("Append human outlier assessment");
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -276,6 +296,12 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   ) ?? null;
   const selectedStatisticalPlan = statisticalPlans.find(
     (plan) => plan.statistical_plan_id === selectedStatisticalPlanId,
+  ) ?? null;
+  const selectedOutlierDetectionPlan = outlierDetectionPlans.find(
+    (plan) => plan.outlier_detection_plan_id === selectedOutlierDetectionPlanId,
+  ) ?? null;
+  const selectedOutlierCandidate = outlierDetectionRun?.candidates.find(
+    (candidate) => candidate.outlier_candidate_id === selectedOutlierCandidateId,
   ) ?? null;
   const statisticalScalar = statisticalResult?.current_revision.content.scalar ?? null;
   const normalizedDatasetHeads = useMemo(
@@ -395,6 +421,11 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
       setFirstStatisticsSelectionId("");
       setSecondStatisticsSelectionId("");
       setSelectedStatisticalPlanId("");
+      setOutlierDetectionPlans([]);
+      setSelectedOutlierDetectionPlanId("");
+      setOutlierDetectionRun(null);
+      setOutlierScopeComparison(null);
+      setSelectedOutlierCandidateId("");
       return;
     }
     let current = true;
@@ -445,6 +476,42 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
       current = false;
     };
   }, [config, normalizedDatasetHeads, open, state.current_revision.classification]);
+
+  useEffect(() => {
+    if (!open || !statisticalResult) {
+      return;
+    }
+    let current = true;
+    void listOutlierDetectionPlans(config)
+      .then((result) => {
+        if (!current) {
+          return;
+        }
+        const scopedPlans = result.data.items.filter((plan) => (
+          plan.current_revision.classification === state.current_revision.classification
+          && plan.current_revision.content.statistical_result_id
+            === statisticalResult.statistical_result_id
+          && plan.current_revision.content.statistical_result_revision_id
+            === statisticalResult.current_revision.id
+        ));
+        setOutlierDetectionPlans((existing) => {
+          const values = new Map<string, OutlierDetectionPlanResponse>();
+          for (const plan of [...existing, ...scopedPlans]) {
+            values.set(plan.outlier_detection_plan_id, plan);
+          }
+          return [...values.values()];
+        });
+        setSelectedOutlierDetectionPlanId((selected) => (
+          scopedPlans.some((plan) => plan.outlier_detection_plan_id === selected)
+            ? selected
+            : scopedPlans[0]?.outlier_detection_plan_id ?? selected
+        ));
+      })
+      .catch((cause: unknown) => current && setError(messageFor(cause)));
+    return () => {
+      current = false;
+    };
+  }, [config, open, state.current_revision.classification, statisticalResult]);
 
   useEffect(() => {
     const outputRevisionId = processingRun?.output_dataset_revision_id;
@@ -692,6 +759,11 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
       setStatisticalRun(null);
       setStatisticalResult(null);
       setStatisticalCurve(null);
+      setOutlierDetectionPlans([]);
+      setSelectedOutlierDetectionPlanId("");
+      setOutlierDetectionRun(null);
+      setOutlierScopeComparison(null);
+      setSelectedOutlierCandidateId("");
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -712,6 +784,11 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
         change_reason: statisticsReason.trim(),
       });
       setStatisticalRun(result.data);
+      setOutlierDetectionPlans([]);
+      setSelectedOutlierDetectionPlanId("");
+      setOutlierDetectionRun(null);
+      setOutlierScopeComparison(null);
+      setSelectedOutlierCandidateId("");
       if (result.data.result_id) {
         const [nextResult, nextCurve] = await Promise.all([
           getStatisticalResult(config, result.data.result_id),
@@ -723,6 +800,103 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
         setStatisticalResult(null);
         setStatisticalCurve(null);
       }
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function submitOutlierDetectionPlan(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!statisticalResult) {
+      return;
+    }
+    const threshold = Number(outlierThreshold);
+    if (!Number.isFinite(threshold) || threshold <= 0 || threshold > 1) {
+      setError("Enter a finite relative peak-difference threshold in the interval (0, 1].");
+      return;
+    }
+    setAction("outlier-detection-plan");
+    setError(null);
+    try {
+      const result = await createReferenceTensilePairOutlierDetectionPlan(config, {
+        classification: state.current_revision.classification,
+        content: {
+          plan_label: outlierDetectionPlanLabel.trim(),
+          statistical_result_id: statisticalResult.statistical_result_id,
+          statistical_result_revision_id: statisticalResult.current_revision.id,
+          relative_peak_difference_threshold: threshold,
+        },
+        change_reason: outlierDetectionPlanReason.trim(),
+      });
+      setOutlierDetectionPlans((current) => [
+        result.data,
+        ...current.filter(
+          (plan) => plan.outlier_detection_plan_id !== result.data.outlier_detection_plan_id,
+        ),
+      ]);
+      setSelectedOutlierDetectionPlanId(result.data.outlier_detection_plan_id);
+      setOutlierDetectionRun(null);
+      setOutlierScopeComparison(null);
+      setSelectedOutlierCandidateId("");
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function executeOutlierDetection(): Promise<void> {
+    if (!selectedOutlierDetectionPlan) {
+      return;
+    }
+    setAction("outlier-detection");
+    setError(null);
+    try {
+      const result = await executeReferenceTensilePairOutlierDetection(config, {
+        detection_plan_id: selectedOutlierDetectionPlan.outlier_detection_plan_id,
+        detection_plan_revision_id: selectedOutlierDetectionPlan.current_revision.id,
+        change_reason: outlierDetectionReason.trim(),
+      });
+      setOutlierDetectionRun(result.data);
+      setSelectedOutlierCandidateId(result.data.candidates[0]?.outlier_candidate_id ?? "");
+      const comparison = await getReferenceTensilePairOutlierScopeComparison(config, {
+        detection_plan_id: selectedOutlierDetectionPlan.outlier_detection_plan_id,
+        detection_plan_revision_id: selectedOutlierDetectionPlan.current_revision.id,
+      });
+      setOutlierScopeComparison(comparison.data);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function submitOutlierAssessment(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!selectedOutlierCandidate || !selectedOutlierDetectionPlan) {
+      return;
+    }
+    setAction("outlier-assessment");
+    setError(null);
+    try {
+      await createReferenceTensilePairOutlierAssessment(config, {
+        classification: state.current_revision.classification,
+        content: {
+          candidate_id: selectedOutlierCandidate.outlier_candidate_id,
+          statistical_plan_id: selectedOutlierCandidate.statistical_plan_id,
+          statistical_plan_revision_id: selectedOutlierCandidate.statistical_plan_revision_id,
+          decision: outlierAssessmentDecision,
+          assessment_reason: outlierAssessmentReason.trim(),
+        },
+        change_reason: outlierAssessmentChangeReason.trim(),
+      });
+      const comparison = await getReferenceTensilePairOutlierScopeComparison(config, {
+        detection_plan_id: selectedOutlierDetectionPlan.outlier_detection_plan_id,
+        detection_plan_revision_id: selectedOutlierDetectionPlan.current_revision.id,
+      });
+      setOutlierScopeComparison(comparison.data);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -1028,6 +1202,11 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
                       setStatisticalRun(null);
                       setStatisticalResult(null);
                       setStatisticalCurve(null);
+                      setOutlierDetectionPlans([]);
+                      setSelectedOutlierDetectionPlanId("");
+                      setOutlierDetectionRun(null);
+                      setOutlierScopeComparison(null);
+                      setSelectedOutlierCandidateId("");
                     }}
                   >
                     {statisticalPlans.map((plan) => (
@@ -1083,6 +1262,222 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
                   <div><dt>Coefficient of variation</dt><dd>{statisticalScalar.coefficient_of_variation?.toPrecision(6) ?? "not applicable"}</dd></div>
                 </dl>
                 {statisticalCurve ? <StatisticsCurvePanel curve={statisticalCurve} /> : null}
+              </div>
+            ) : null}
+          </div>
+          <div className="workflow-step dataset-results">
+            <strong>10. Review pair-difference candidates without deleting data</strong>
+            <p className="form-hint">
+              This reference detector reads one immutable two-sample Statistics Result. At n=2 it
+              cannot identify a true outlier, so it flags both pair members for human review or
+              creates no candidate. A decision remains scoped to the exact Statistical Plan
+              revision and never changes a Raw Asset, Dataset, Selection, or Statistics Result.
+            </p>
+            {!statisticalResult ? (
+              <p className="muted">
+                Commit a successful reference Statistics Run before defining an outlier review
+                plan.
+              </p>
+            ) : (
+              <>
+                <form
+                  className="form-stack"
+                  onSubmit={(event) => void submitOutlierDetectionPlan(event)}
+                >
+                  <div className="form-grid">
+                    <label>
+                      Outlier Detection Plan label
+                      <input
+                        value={outlierDetectionPlanLabel}
+                        onChange={(event) => setOutlierDetectionPlanLabel(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Relative peak-difference threshold
+                      <input
+                        aria-label="Relative peak-difference threshold"
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="any"
+                        value={outlierThreshold}
+                        onChange={(event) => setOutlierThreshold(event.target.value)}
+                        required
+                      />
+                    </label>
+                  </div>
+                  <p className="source-line">
+                    Result revision {shortId(statisticalResult.current_revision.id)} · feature:
+                    peak engineering stress (Pa) · no automatic exclusion.
+                  </p>
+                  <label>
+                    Change reason
+                    <input
+                      value={outlierDetectionPlanReason}
+                      onChange={(event) => setOutlierDetectionPlanReason(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <button
+                    className="button secondary"
+                    type="submit"
+                    disabled={action !== null}
+                  >
+                    {action === "outlier-detection-plan"
+                      ? "Pinning Outlier Detection Plan..."
+                      : "Create immutable Outlier Detection Plan"}
+                  </button>
+                </form>
+                {outlierDetectionPlans.length ? (
+                  <>
+                    <label>
+                      Outlier Detection Plan
+                      <select
+                        value={selectedOutlierDetectionPlanId}
+                        onChange={(event) => {
+                          setSelectedOutlierDetectionPlanId(event.target.value);
+                          setOutlierDetectionRun(null);
+                          setOutlierScopeComparison(null);
+                          setSelectedOutlierCandidateId("");
+                        }}
+                      >
+                        {outlierDetectionPlans.map((plan) => (
+                          <option
+                            key={plan.outlier_detection_plan_id}
+                            value={plan.outlier_detection_plan_id}
+                          >
+                            {plan.plan_label} · threshold{" "}
+                            {plan.current_revision.content.relative_peak_difference_threshold}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Change reason
+                      <input
+                        value={outlierDetectionReason}
+                        onChange={(event) => setOutlierDetectionReason(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <button
+                      className="button primary"
+                      type="button"
+                      onClick={() => void executeOutlierDetection()}
+                      disabled={!selectedOutlierDetectionPlan || action !== null}
+                    >
+                      {action === "outlier-detection"
+                        ? "Committing Outlier Detection Run..."
+                        : "Commit Outlier Detection Run"}
+                    </button>
+                  </>
+                ) : null}
+              </>
+            )}
+            {outlierDetectionRun ? (
+              <div className="statistics-result" aria-live="polite">
+                <div className="workflow-toolbar">
+                  <span>
+                    Detection Run {shortId(outlierDetectionRun.outlier_detection_run_id)} ·{" "}
+                    {outlierDetectionRun.status} · {outlierDetectionRun.candidate_count} review
+                    candidate{outlierDetectionRun.candidate_count === 2 ? "s" : ""}
+                  </span>
+                  <span className="reference-chip">automatic exclusion: no</span>
+                </div>
+                {!outlierDetectionRun.candidates.length ? (
+                  <p className="muted">
+                    The declared threshold was not met; no candidate and no data exclusion were
+                    created.
+                  </p>
+                ) : (
+                  <form
+                    className="form-stack"
+                    onSubmit={(event) => void submitOutlierAssessment(event)}
+                  >
+                    <label>
+                      Outlier candidate
+                      <select
+                        value={selectedOutlierCandidateId}
+                        onChange={(event) => setSelectedOutlierCandidateId(event.target.value)}
+                      >
+                        {outlierDetectionRun.candidates.map((candidate) => (
+                          <option
+                            key={candidate.outlier_candidate_id}
+                            value={candidate.outlier_candidate_id}
+                          >
+                            {candidate.pair_position} · peak{" "}
+                            {candidate.peak_engineering_stress_pa.toPrecision(6)} Pa · review
+                            required
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <div className="form-grid">
+                      <label>
+                        Human decision
+                        <select
+                          value={outlierAssessmentDecision}
+                          onChange={(event) => setOutlierAssessmentDecision(
+                            event.target.value as "retained" | "excluded_from_reference_analysis",
+                          )}
+                        >
+                          <option value="retained">Retain for this reference analysis</option>
+                          <option value="excluded_from_reference_analysis">
+                            Exclude only from this reference analysis
+                          </option>
+                        </select>
+                      </label>
+                      <label>
+                        Assessment reason
+                        <input
+                          value={outlierAssessmentReason}
+                          onChange={(event) => setOutlierAssessmentReason(event.target.value)}
+                          required
+                        />
+                      </label>
+                    </div>
+                    <label>
+                      Change reason
+                      <input
+                        value={outlierAssessmentChangeReason}
+                        onChange={(event) => setOutlierAssessmentChangeReason(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <button
+                      className="button secondary"
+                      type="submit"
+                      disabled={!selectedOutlierCandidate || action !== null}
+                    >
+                      {action === "outlier-assessment"
+                        ? "Appending human Assessment..."
+                        : "Append human Assessment"}
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : null}
+            {outlierScopeComparison ? (
+              <div className="statistics-result">
+                <p className="source-line">
+                  Scope comparison · source mutation: no · derived Selection created: no.
+                </p>
+                <ul className="qc-list" aria-label="Outlier candidate scope comparison">
+                  {outlierScopeComparison.entries.map((entry) => {
+                    const latest = entry.latest_assessment?.current_revision.content;
+                    return (
+                      <li key={entry.candidate.outlier_candidate_id}>
+                        <strong>{entry.candidate.pair_position}</strong> ·{" "}
+                        {entry.candidate.status} · {entry.assessment_history.length} immutable
+                        assessment{entry.assessment_history.length === 1 ? "" : "s"} · latest:{" "}
+                        {latest
+                          ? `${latest.decision} — ${latest.assessment_reason}`
+                          : "no human decision recorded"}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             ) : null}
           </div>

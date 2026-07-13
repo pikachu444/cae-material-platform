@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/statistics/reference-tensile-outlier-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ReferenceTensilePairOutlierDetectionPlanInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_label", "statistical_result_id", "statistical_result_revision_id",
+        "relative_peak_difference_threshold"
+      ],
+      "properties": {
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "relative_peak_difference_threshold": {
+          "type": "number", "exclusiveMinimum": 0, "maximum": 1
+        }
+      }
+    },
+    "CreateReferenceTensilePairOutlierDetectionPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/ReferenceTensilePairOutlierDetectionPlanInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseReferenceTensilePairOutlierDetectionPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_current_revision_id", "plan_label", "statistical_result_id",
+        "statistical_result_revision_id", "relative_peak_difference_threshold",
+        "change_reason"
+      ],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "relative_peak_difference_threshold": {
+          "type": "number", "exclusiveMinimum": 0, "maximum": 1
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReferenceTensilePairOutlierDetectionPlanContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_kind", "detector", "formula_version", "statistical_result_id",
+        "statistical_result_revision_id", "feature", "relative_peak_difference_threshold",
+        "candidate_policy", "automatic_exclusion", "scope_kind"
+      ],
+      "properties": {
+        "plan_kind": {"const": "reference_tensile_pair_peak_difference_review"},
+        "detector": {"const": "relative_peak_engineering_stress_difference"},
+        "formula_version": {"const": "1.0.0"},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "feature": {"const": "peak_engineering_stress_pa"},
+        "relative_peak_difference_threshold": {
+          "type": "number", "exclusiveMinimum": 0, "maximum": 1
+        },
+        "candidate_policy": {"const": "flag_both_pair_members_for_human_review"},
+        "automatic_exclusion": {"const": false},
+        "scope_kind": {"const": "reference_pair_analysis"}
+      }
+    },
+    "OutlierDetectionPlanRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {
+            "content": {"$ref": "#/$defs/ReferenceTensilePairOutlierDetectionPlanContent"}
+          }
+        }
+      ]
+    },
+    "OutlierDetectionPlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outlier_detection_plan_id", "plan_label", "current_revision", "links"
+      ],
+      "properties": {
+        "outlier_detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "#/$defs/OutlierDetectionPlanRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "OutlierDetectionPlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/OutlierDetectionPlanResponse"}
+        }
+      }
+    },
+    "ExecuteReferenceTensilePairOutlierDetectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detection_plan_id", "detection_plan_revision_id", "change_reason"
+      ],
+      "properties": {
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "OutlierCandidateResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outlier_candidate_id", "detection_run_id", "detection_plan_id",
+        "detection_plan_revision_id", "statistical_result_id",
+        "statistical_result_revision_id", "statistical_plan_id",
+        "statistical_plan_revision_id", "selection_id", "selection_revision_id",
+        "dataset_id", "dataset_revision_id", "pair_position", "feature",
+        "peak_engineering_stress_pa", "peer_peak_engineering_stress_pa",
+        "relative_peak_difference", "relative_peak_difference_threshold", "status",
+        "automatic_exclusion", "links"
+      ],
+      "properties": {
+        "outlier_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "detection_run_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_plan_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "pair_position": {"enum": ["first", "second"]},
+        "feature": {"const": "peak_engineering_stress_pa"},
+        "peak_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "peer_peak_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "relative_peak_difference": {"type": "number", "minimum": 0, "maximum": 1},
+        "relative_peak_difference_threshold": {
+          "type": "number", "exclusiveMinimum": 0, "maximum": 1
+        },
+        "status": {"const": "review_required"},
+        "automatic_exclusion": {"const": false},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "OutlierDetectionRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outlier_detection_run_id", "classification", "execution_mode", "status",
+        "detection_plan_id", "detection_plan_revision_id", "statistical_result_id",
+        "statistical_result_revision_id", "candidate_count", "failure_code",
+        "candidates", "change_reason", "started_at", "ended_at", "links"
+      ],
+      "properties": {
+        "outlier_detection_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "execution_mode": {"const": "committed"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "candidate_count": {"enum": [0, 2]},
+        "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "candidates": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 2,
+          "items": {"$ref": "#/$defs/OutlierCandidateResponse"}
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReferenceTensilePairOutlierAssessmentInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id", "statistical_plan_id", "statistical_plan_revision_id",
+        "decision", "assessment_reason"
+      ],
+      "properties": {
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_plan_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "decision": {"enum": ["retained", "excluded_from_reference_analysis"]},
+        "assessment_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CreateReferenceTensilePairOutlierAssessmentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/ReferenceTensilePairOutlierAssessmentInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReferenceTensilePairOutlierAssessmentContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id", "scope_kind", "statistical_plan_id",
+        "statistical_plan_revision_id", "decision", "assessment_reason"
+      ],
+      "properties": {
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "scope_kind": {"const": "reference_pair_analysis"},
+        "statistical_plan_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "decision": {"enum": ["retained", "excluded_from_reference_analysis"]},
+        "assessment_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "OutlierAssessmentRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {
+            "content": {"$ref": "#/$defs/ReferenceTensilePairOutlierAssessmentContent"}
+          }
+        }
+      ]
+    },
+    "OutlierAssessmentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outlier_assessment_id", "current_revision", "links"],
+      "properties": {
+        "outlier_assessment_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/OutlierAssessmentRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "StatisticalResultReference": {
+      "type": "object",
+      "required": ["statistical_result_id", "current_revision", "links"],
+      "properties": {
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {
+          "type": "object",
+          "required": ["id", "aggregate_id", "content_hash"],
+          "properties": {
+            "id": {"$ref": "#/$defs/Uuid"},
+            "aggregate_id": {"$ref": "#/$defs/Uuid"},
+            "content_hash": {"$ref": "#/$defs/Sha256"}
+          }
+        },
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "OutlierScopeComparisonEntryResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate", "assessment_history", "latest_assessment"],
+      "properties": {
+        "candidate": {"$ref": "#/$defs/OutlierCandidateResponse"},
+        "assessment_history": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/OutlierAssessmentResponse"}
+        },
+        "latest_assessment": {
+          "anyOf": [
+            {"$ref": "#/$defs/OutlierAssessmentResponse"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "OutlierScopeComparisonResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detection_plan", "statistical_result", "scope_kind", "entries",
+        "source_mutation", "derived_selection_created"
+      ],
+      "properties": {
+        "detection_plan": {"$ref": "#/$defs/OutlierDetectionPlanResponse"},
+        "statistical_result": {"$ref": "#/$defs/StatisticalResultReference"},
+        "scope_kind": {"const": "reference_pair_analysis"},
+        "entries": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/OutlierScopeComparisonEntryResponse"}
+        },
+        "source_mutation": {"const": false},
+        "derived_selection_created": {"const": false}
+      }
+    },
+    "StatisticsProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:statistics"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-STATISTICS-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

@@ -1,12 +1,12 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC, reference Material Model IR, and reference OpenRadioss Solver Card
+Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Material Model IR, and reference OpenRadioss Solver Card
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-10` + `T-12`–`T-20` + reference `T-22`/`T-25`/`T-26` subsets)
+(`T-01`–`T-10` + `T-12`–`T-21` + reference `T-22`/`T-25`/`T-26` subsets)
 
-Version: `0.19.0`
+Version: `0.20.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -278,8 +278,25 @@ mean, sample standard deviation, median, minimum, and maximum on the unchanged o
 
 This deliberately narrow reference method does not interpolate, resample, smooth, extrapolate, or
 claim a confidence interval from the two-sample pair. Its response explicitly reports
-`not_provided_reference_pair`; outlier assessment, larger replicate groups, alignment processing,
-and calibration remain separate bounded work.
+`not_provided_reference_pair`; larger replicate groups, alignment processing, and calibration
+remain separate bounded work.
+
+### Reference tensile outlier review
+
+After a successful reference Statistics Result is visible, the same Material State workbench can
+create an immutable Outlier Detection Plan that pins that exact Result revision and a declared
+relative peak engineering-stress difference threshold. The committed detector creates no candidate
+below the threshold, or exactly two review_required candidates at/above it—one per pinned
+Selection/Dataset/Test Run. With exactly two samples it does not claim to know which specimen is an
+outlier and never excludes data automatically.
+
+A human records a separate immutable Outlier Assessment identity as either retained or
+excluded_from_reference_analysis, with reason and actor context. The decision is restricted to the
+exact Statistical Plan revision that produced the candidate. The scope-comparison screen shows
+candidate evidence and append-only assessment history while explicitly confirming that no Raw
+Asset, Dataset, Selection, or Statistical Result was modified and no derived Selection was
+created. Calibration-specific exclusion remains a later schema decision after a concrete
+Calibration Plan exists.
 
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret

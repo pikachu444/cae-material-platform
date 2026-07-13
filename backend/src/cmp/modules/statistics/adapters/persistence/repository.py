@@ -17,13 +17,34 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.statistics.application.service import (
+    OUTLIER_ASSESSMENT_AGGREGATE_TYPE,
+    OUTLIER_DETECTION_PLAN_AGGREGATE_TYPE,
     STATISTICAL_PLAN_AGGREGATE_TYPE,
     STATISTICAL_RESULT_AGGREGATE_TYPE,
+    OutlierAssessmentSnapshot,
+    OutlierDetectionPlanSnapshot,
+    OutlierDetectionRun,
     RevisionSnapshot,
     StatisticalPlanSnapshot,
     StatisticalResultSnapshot,
     StatisticalRun,
     StatisticsRepository,
+)
+from cmp.modules.statistics.domain.reference_tensile_outlier import (
+    REFERENCE_TENSILE_PAIR_OUTLIER_DETECTION_PLAN_KIND,
+    REFERENCE_TENSILE_PAIR_OUTLIER_DETECTOR,
+    REFERENCE_TENSILE_PAIR_OUTLIER_FEATURE,
+    REFERENCE_TENSILE_PAIR_OUTLIER_FORMULA_VERSION,
+    REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
+    OutlierAssessmentDecision,
+    OutlierCandidateStatus,
+    OutlierDetectionRunStatus,
+    ReferencePairPosition,
+    ReferenceTensilePairOutlierAssessmentContent,
+    ReferenceTensilePairOutlierCandidate,
+    ReferenceTensilePairOutlierDetectionPlanContent,
+    reference_tensile_pair_outlier_assessment_canonical,
+    reference_tensile_pair_outlier_detection_plan_canonical,
 )
 from cmp.modules.statistics.domain.reference_tensile_pair import (
     REFERENCE_TENSILE_PAIR_ASSUMPTION_PROFILE,
@@ -166,6 +187,39 @@ statistical_result_revision_table = _revision_table(
     sa.Column("quantile_method", sa.String(100), nullable=False),
     sa.Column("confidence_interval_status", sa.String(100), nullable=False),
 )
+outlier_detection_plan_table = _identity_table(
+    "outlier_detection_plan",
+    sa.Column("plan_label", sa.String(160), nullable=False),
+    sa.Column("plan_kind", sa.String(100), nullable=False),
+)
+outlier_detection_plan_revision_table = _revision_table(
+    "outlier_detection_plan_revision",
+    sa.Column("plan_kind", sa.String(100), nullable=False),
+    sa.Column("detector", sa.String(100), nullable=False),
+    sa.Column("formula_version", sa.String(64), nullable=False),
+    sa.Column("statistical_result_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_result_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_result_kind", sa.String(100), nullable=False),
+    sa.Column("feature", sa.String(100), nullable=False),
+    sa.Column("relative_peak_difference_threshold", sa.Double(), nullable=False),
+    sa.Column("candidate_policy", sa.String(100), nullable=False),
+    sa.Column("automatic_exclusion", sa.Boolean(), nullable=False),
+    sa.Column("scope_kind", sa.String(100), nullable=False),
+)
+outlier_assessment_table = _identity_table(
+    "outlier_assessment",
+    sa.Column("candidate_id", sa.Uuid(), nullable=False),
+    sa.Column("scope_kind", sa.String(100), nullable=False),
+)
+outlier_assessment_revision_table = _revision_table(
+    "outlier_assessment_revision",
+    sa.Column("candidate_id", sa.Uuid(), nullable=False),
+    sa.Column("scope_kind", sa.String(100), nullable=False),
+    sa.Column("statistical_plan_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_plan_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("decision", sa.String(100), nullable=False),
+    sa.Column("assessment_reason", sa.Text(), nullable=False),
+)
 statistical_run_table = sa.Table(
     "statistical_run",
     metadata,
@@ -198,6 +252,57 @@ statistical_run_table = sa.Table(
     sa.Column("created_by", sa.Uuid(), nullable=False),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="statistics",
+)
+outlier_detection_run_table = sa.Table(
+    "outlier_detection_run",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("detection_plan_id", sa.Uuid(), nullable=False),
+    sa.Column("detection_plan_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_result_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_result_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("execution_mode", sa.String(16), nullable=False),
+    sa.Column("status", sa.String(16), nullable=False),
+    sa.Column("candidate_count", sa.SmallInteger(), nullable=False),
+    sa.Column("failure_code", sa.String(100), nullable=True),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("started_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("ended_at", sa.DateTime(timezone=True), nullable=True),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="statistics",
+)
+outlier_candidate_table = sa.Table(
+    "outlier_candidate",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("detection_run_id", sa.Uuid(), nullable=False),
+    sa.Column("detection_plan_id", sa.Uuid(), nullable=False),
+    sa.Column("detection_plan_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_result_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_result_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_plan_id", sa.Uuid(), nullable=False),
+    sa.Column("statistical_plan_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("dataset_id", sa.Uuid(), nullable=False),
+    sa.Column("dataset_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("pair_position", sa.String(16), nullable=False),
+    sa.Column("peak_engineering_stress_pa", sa.Double(), nullable=False),
+    sa.Column("peer_peak_engineering_stress_pa", sa.Double(), nullable=False),
+    sa.Column("relative_peak_difference", sa.Double(), nullable=False),
+    sa.Column("relative_peak_difference_threshold", sa.Double(), nullable=False),
+    sa.Column("status", sa.String(32), nullable=False),
+    sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("recorded_by", sa.Uuid(), nullable=False),
     schema="statistics",
 )
 qc_observation_table = sa.Table(
@@ -317,6 +422,45 @@ def _result_content(row: Any) -> ReferenceTensilePairResultContent:
     )
 
 
+def _outlier_detection_plan_content(
+    row: Any,
+) -> ReferenceTensilePairOutlierDetectionPlanContent:
+    if (
+        str(row["plan_kind"]) != REFERENCE_TENSILE_PAIR_OUTLIER_DETECTION_PLAN_KIND
+        or str(row["detector"]) != REFERENCE_TENSILE_PAIR_OUTLIER_DETECTOR
+        or str(row["formula_version"]) != REFERENCE_TENSILE_PAIR_OUTLIER_FORMULA_VERSION
+        or str(row["statistical_result_kind"]) != REFERENCE_TENSILE_PAIR_PLAN_KIND
+        or str(row["feature"]) != REFERENCE_TENSILE_PAIR_OUTLIER_FEATURE
+        or str(row["candidate_policy"])
+        != "flag_both_pair_members_for_human_review"
+        or bool(row["automatic_exclusion"])
+        or str(row["scope_kind"]) != REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND
+    ):
+        raise StatisticsConflict(
+            "Outlier Detection Plan revision violates the reference pair contract"
+        )
+    return ReferenceTensilePairOutlierDetectionPlanContent(
+        plan_label=str(row["plan_label"]),
+        statistical_result_id=cast(UUID, row["statistical_result_id"]),
+        statistical_result_revision_id=cast(UUID, row["statistical_result_revision_id"]),
+        relative_peak_difference_threshold=float(row["relative_peak_difference_threshold"]),
+    )
+
+
+def _outlier_assessment_content(
+    row: Any,
+) -> ReferenceTensilePairOutlierAssessmentContent:
+    if str(row["scope_kind"]) != REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND:
+        raise StatisticsConflict("Outlier Assessment has an unsupported scope kind")
+    return ReferenceTensilePairOutlierAssessmentContent(
+        candidate_id=cast(UUID, row["candidate_id"]),
+        statistical_plan_id=cast(UUID, row["statistical_plan_id"]),
+        statistical_plan_revision_id=cast(UUID, row["statistical_plan_revision_id"]),
+        decision=OutlierAssessmentDecision(str(row["decision"])),
+        assessment_reason=str(row["assessment_reason"]),
+    )
+
+
 def _plan_values(value: ReferenceTensilePairPlanContent) -> dict[str, object]:
     return {
         "plan_kind": REFERENCE_TENSILE_PAIR_PLAN_KIND,
@@ -377,6 +521,37 @@ def _result_values(value: ReferenceTensilePairResultContent) -> dict[str, object
     }
 
 
+def _outlier_detection_plan_values(
+    value: ReferenceTensilePairOutlierDetectionPlanContent,
+) -> dict[str, object]:
+    return {
+        "plan_kind": REFERENCE_TENSILE_PAIR_OUTLIER_DETECTION_PLAN_KIND,
+        "detector": REFERENCE_TENSILE_PAIR_OUTLIER_DETECTOR,
+        "formula_version": REFERENCE_TENSILE_PAIR_OUTLIER_FORMULA_VERSION,
+        "statistical_result_id": value.statistical_result_id,
+        "statistical_result_revision_id": value.statistical_result_revision_id,
+        "statistical_result_kind": REFERENCE_TENSILE_PAIR_PLAN_KIND,
+        "feature": REFERENCE_TENSILE_PAIR_OUTLIER_FEATURE,
+        "relative_peak_difference_threshold": value.relative_peak_difference_threshold,
+        "candidate_policy": "flag_both_pair_members_for_human_review",
+        "automatic_exclusion": False,
+        "scope_kind": REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
+    }
+
+
+def _outlier_assessment_values(
+    value: ReferenceTensilePairOutlierAssessmentContent,
+) -> dict[str, object]:
+    return {
+        "candidate_id": value.candidate_id,
+        "scope_kind": REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
+        "statistical_plan_id": value.statistical_plan_id,
+        "statistical_plan_revision_id": value.statistical_plan_revision_id,
+        "decision": value.decision.value,
+        "assessment_reason": value.assessment_reason,
+    }
+
+
 _PLAN_TABLES: TypedRevisionTables[ReferenceTensilePairPlanContent] = TypedRevisionTables(
     aggregate_type=STATISTICAL_PLAN_AGGREGATE_TYPE,
     identity_table=statistical_plan_table,
@@ -397,6 +572,32 @@ _RESULT_TABLES: TypedRevisionTables[ReferenceTensilePairResultContent] = TypedRe
     identity_values=lambda value: {
         "statistical_run_id": value.statistical_run_id,
         "result_kind": REFERENCE_TENSILE_PAIR_PLAN_KIND,
+    },
+)
+_OUTLIER_DETECTION_PLAN_TABLES: TypedRevisionTables[
+    ReferenceTensilePairOutlierDetectionPlanContent
+] = TypedRevisionTables(
+    aggregate_type=OUTLIER_DETECTION_PLAN_AGGREGATE_TYPE,
+    identity_table=outlier_detection_plan_table,
+    revision_table=outlier_detection_plan_revision_table,
+    canonical_content=reference_tensile_pair_outlier_detection_plan_canonical,
+    content_values=_outlier_detection_plan_values,
+    identity_values=lambda value: {
+        "plan_label": value.plan_label,
+        "plan_kind": REFERENCE_TENSILE_PAIR_OUTLIER_DETECTION_PLAN_KIND,
+    },
+)
+_OUTLIER_ASSESSMENT_TABLES: TypedRevisionTables[
+    ReferenceTensilePairOutlierAssessmentContent
+] = TypedRevisionTables(
+    aggregate_type=OUTLIER_ASSESSMENT_AGGREGATE_TYPE,
+    identity_table=outlier_assessment_table,
+    revision_table=outlier_assessment_revision_table,
+    canonical_content=reference_tensile_pair_outlier_assessment_canonical,
+    content_values=_outlier_assessment_values,
+    identity_values=lambda value: {
+        "candidate_id": value.candidate_id,
+        "scope_kind": REFERENCE_TENSILE_PAIR_OUTLIER_SCOPE_KIND,
     },
 )
 
@@ -473,6 +674,53 @@ def _run(row: Any, qcs: tuple[QcObservation, ...] = ()) -> StatisticalRun:
     )
 
 
+def _outlier_candidate(row: Any) -> ReferenceTensilePairOutlierCandidate:
+    return ReferenceTensilePairOutlierCandidate(
+        id=cast(UUID, row["id"]),
+        detection_run_id=cast(UUID, row["detection_run_id"]),
+        detection_plan_id=cast(UUID, row["detection_plan_id"]),
+        detection_plan_revision_id=cast(UUID, row["detection_plan_revision_id"]),
+        statistical_result_id=cast(UUID, row["statistical_result_id"]),
+        statistical_result_revision_id=cast(UUID, row["statistical_result_revision_id"]),
+        statistical_plan_id=cast(UUID, row["statistical_plan_id"]),
+        statistical_plan_revision_id=cast(UUID, row["statistical_plan_revision_id"]),
+        selection_id=cast(UUID, row["selection_id"]),
+        selection_revision_id=cast(UUID, row["selection_revision_id"]),
+        dataset_id=cast(UUID, row["dataset_id"]),
+        dataset_revision_id=cast(UUID, row["dataset_revision_id"]),
+        pair_position=ReferencePairPosition(str(row["pair_position"])),
+        peak_engineering_stress_pa=float(row["peak_engineering_stress_pa"]),
+        peer_peak_engineering_stress_pa=float(row["peer_peak_engineering_stress_pa"]),
+        relative_peak_difference=float(row["relative_peak_difference"]),
+        relative_peak_difference_threshold=float(row["relative_peak_difference_threshold"]),
+        status=OutlierCandidateStatus(str(row["status"])),
+    )
+
+
+def _outlier_detection_run(
+    row: Any,
+    candidates: tuple[ReferenceTensilePairOutlierCandidate, ...] = (),
+) -> OutlierDetectionRun:
+    return OutlierDetectionRun(
+        id=cast(UUID, row["id"]),
+        classification=DataClassification(str(row["classification"])),
+        detection_plan_id=cast(UUID, row["detection_plan_id"]),
+        detection_plan_revision_id=cast(UUID, row["detection_plan_revision_id"]),
+        statistical_result_id=cast(UUID, row["statistical_result_id"]),
+        statistical_result_revision_id=cast(UUID, row["statistical_result_revision_id"]),
+        status=OutlierDetectionRunStatus(str(row["status"])),
+        candidate_count=int(row["candidate_count"]),
+        failure_code=cast(str | None, row["failure_code"]),
+        change_reason=str(row["change_reason"]),
+        started_at=row["started_at"],
+        ended_at=row["ended_at"],
+        created_by=cast(UUID, row["created_by"]),
+        request_id=cast(UUID, row["request_id"]),
+        trace_id=str(row["trace_id"]),
+        candidates=candidates,
+    )
+
+
 class SqlAlchemyStatisticsRepository(StatisticsRepository):
     """Explicit Statistics tables with RLS-bound reads and immutable terminal facts."""
 
@@ -514,6 +762,26 @@ class SqlAlchemyStatisticsRepository(StatisticsRepository):
         return SqlAlchemyRevisionStore(
             session_factory=self._sessions,
             tables=_RESULT_TABLES,
+            hooks=self._hooks,
+            session_binder=lambda session: self._bind(session, context, decision),
+        )
+
+    def outlier_detection_plan_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceTensilePairOutlierDetectionPlanContent]:
+        return SqlAlchemyRevisionStore(
+            session_factory=self._sessions,
+            tables=_OUTLIER_DETECTION_PLAN_TABLES,
+            hooks=self._hooks,
+            session_binder=lambda session: self._bind(session, context, decision),
+        )
+
+    def outlier_assessment_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceTensilePairOutlierAssessmentContent]:
+        return SqlAlchemyRevisionStore(
+            session_factory=self._sessions,
+            tables=_OUTLIER_ASSESSMENT_TABLES,
             hooks=self._hooks,
             session_binder=lambda session: self._bind(session, context, decision),
         )
@@ -650,6 +918,139 @@ class SqlAlchemyStatisticsRepository(StatisticsRepository):
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._plan_snapshot(row) for row in rows)
+
+    @staticmethod
+    def _current_outlier_detection_plan_statement() -> sa.Select[Any]:
+        identity = outlier_detection_plan_table
+        revision = outlier_detection_plan_revision_table
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            identity.c.plan_label,
+            *_revision_columns(revision),
+            revision.c.plan_kind,
+            revision.c.detector,
+            revision.c.formula_version,
+            revision.c.statistical_result_id,
+            revision.c.statistical_result_revision_id,
+            revision.c.statistical_result_kind,
+            revision.c.feature,
+            revision.c.relative_peak_difference_threshold,
+            revision.c.candidate_policy,
+            revision.c.automatic_exclusion,
+            revision.c.scope_kind,
+        ).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.id == identity.c.current_revision_id,
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    @staticmethod
+    def _outlier_detection_plan_snapshot(row: Any) -> OutlierDetectionPlanSnapshot:
+        return OutlierDetectionPlanSnapshot(
+            id=cast(UUID, row["identity_id"]),
+            current=RevisionSnapshot(
+                _record(row, OUTLIER_DETECTION_PLAN_AGGREGATE_TYPE),
+                _outlier_detection_plan_content(row),
+            ),
+        )
+
+    def get_outlier_detection_plan(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+    ) -> OutlierDetectionPlanSnapshot:
+        statement = self._current_outlier_detection_plan_statement().where(
+            outlier_detection_plan_table.c.organization_id == context.organization_id,
+            outlier_detection_plan_table.c.project_id == context.project_id,
+            outlier_detection_plan_table.c.id == detection_plan_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise StatisticsNotFound("Outlier Detection Plan is not visible in the selected tenant")
+        return self._outlier_detection_plan_snapshot(row)
+
+    def get_outlier_detection_plan_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+        detection_plan_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceTensilePairOutlierDetectionPlanContent]:
+        identity = outlier_detection_plan_table
+        revision = outlier_detection_plan_revision_table
+        statement = (
+            sa.select(
+                identity.c.plan_label,
+                *_revision_columns(revision),
+                revision.c.plan_kind,
+                revision.c.detector,
+                revision.c.formula_version,
+                revision.c.statistical_result_id,
+                revision.c.statistical_result_revision_id,
+                revision.c.statistical_result_kind,
+                revision.c.feature,
+                revision.c.relative_peak_difference_threshold,
+                revision.c.candidate_policy,
+                revision.c.automatic_exclusion,
+                revision.c.scope_kind,
+            )
+            .select_from(
+                identity.join(
+                    revision,
+                    sa.and_(
+                        revision.c.aggregate_id == identity.c.id,
+                        revision.c.organization_id == identity.c.organization_id,
+                        revision.c.project_id == identity.c.project_id,
+                    ),
+                )
+            )
+            .where(
+                identity.c.organization_id == context.organization_id,
+                identity.c.project_id == context.project_id,
+                identity.c.id == detection_plan_id,
+                revision.c.id == detection_plan_revision_id,
+            )
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise StatisticsNotFound(
+                "Outlier Detection Plan revision is not visible in the selected tenant"
+            )
+        return RevisionSnapshot(
+            _record(row, OUTLIER_DETECTION_PLAN_AGGREGATE_TYPE),
+            _outlier_detection_plan_content(row),
+        )
+
+    def list_outlier_detection_plans(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        limit: int,
+    ) -> tuple[OutlierDetectionPlanSnapshot, ...]:
+        statement = (
+            self._current_outlier_detection_plan_statement()
+            .where(
+                outlier_detection_plan_table.c.organization_id == context.organization_id,
+                outlier_detection_plan_table.c.project_id == context.project_id,
+            )
+            .order_by(outlier_detection_plan_table.c.created_at.desc())
+            .limit(limit)
+        )
+        with self._session(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+        return tuple(self._outlier_detection_plan_snapshot(row) for row in rows)
 
     @staticmethod
     def _current_result_statement() -> sa.Select[Any]:
@@ -913,3 +1314,319 @@ class SqlAlchemyStatisticsRepository(StatisticsRepository):
         if row is None:
             raise StatisticsNotFound("Statistical Run is not visible in the selected tenant")
         return _run(row, qcs)
+
+    def create_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run: OutlierDetectionRun,
+    ) -> OutlierDetectionRun:
+        values = {
+            "id": run.id,
+            "organization_id": context.organization_id,
+            "project_id": context.project_id,
+            "classification": run.classification.value,
+            "detection_plan_id": run.detection_plan_id,
+            "detection_plan_revision_id": run.detection_plan_revision_id,
+            "statistical_result_id": run.statistical_result_id,
+            "statistical_result_revision_id": run.statistical_result_revision_id,
+            "execution_mode": "committed",
+            "status": OutlierDetectionRunStatus.EXECUTING.value,
+            "candidate_count": 0,
+            "failure_code": None,
+            "change_reason": run.change_reason,
+            "started_at": run.started_at,
+            "ended_at": None,
+            "created_by": run.created_by,
+            "request_id": run.request_id,
+            "trace_id": run.trace_id,
+        }
+        try:
+            with self._session(context, decision) as session:
+                session.execute(sa.insert(outlier_detection_run_table).values(**values))
+        except (IntegrityError, DBAPIError) as error:
+            raise StatisticsConflict(
+                "Outlier Detection Run cannot be created for these pinned inputs"
+            ) from error
+        return run
+
+    def _terminal_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        status: OutlierDetectionRunStatus,
+        candidates: tuple[ReferenceTensilePairOutlierCandidate, ...],
+        failure_code: str | None,
+    ) -> OutlierDetectionRun:
+        ended_at = datetime.now(UTC)
+        statement = (
+            sa.update(outlier_detection_run_table)
+            .where(
+                outlier_detection_run_table.c.organization_id == context.organization_id,
+                outlier_detection_run_table.c.project_id == context.project_id,
+                outlier_detection_run_table.c.id == run_id,
+                outlier_detection_run_table.c.status
+                == OutlierDetectionRunStatus.EXECUTING.value,
+            )
+            .values(
+                status=status.value,
+                candidate_count=len(candidates),
+                failure_code=failure_code,
+                ended_at=ended_at,
+            )
+            .returning(*outlier_detection_run_table.c)
+        )
+        try:
+            with self._session(context, decision) as session:
+                row = session.execute(statement).mappings().one_or_none()
+                if row is None:
+                    raise StatisticsConflict("Outlier Detection Run is no longer executing")
+                for candidate in candidates:
+                    session.execute(
+                        sa.insert(outlier_candidate_table).values(
+                            id=candidate.id,
+                            organization_id=context.organization_id,
+                            project_id=context.project_id,
+                            classification=row["classification"],
+                            detection_run_id=candidate.detection_run_id,
+                            detection_plan_id=candidate.detection_plan_id,
+                            detection_plan_revision_id=candidate.detection_plan_revision_id,
+                            statistical_result_id=candidate.statistical_result_id,
+                            statistical_result_revision_id=(
+                                candidate.statistical_result_revision_id
+                            ),
+                            statistical_plan_id=candidate.statistical_plan_id,
+                            statistical_plan_revision_id=(
+                                candidate.statistical_plan_revision_id
+                            ),
+                            selection_id=candidate.selection_id,
+                            selection_revision_id=candidate.selection_revision_id,
+                            dataset_id=candidate.dataset_id,
+                            dataset_revision_id=candidate.dataset_revision_id,
+                            pair_position=candidate.pair_position.value,
+                            peak_engineering_stress_pa=(
+                                candidate.peak_engineering_stress_pa
+                            ),
+                            peer_peak_engineering_stress_pa=(
+                                candidate.peer_peak_engineering_stress_pa
+                            ),
+                            relative_peak_difference=candidate.relative_peak_difference,
+                            relative_peak_difference_threshold=(
+                                candidate.relative_peak_difference_threshold
+                            ),
+                            status=candidate.status.value,
+                            recorded_at=ended_at,
+                            recorded_by=context.principal.id,
+                        )
+                    )
+        except StatisticsConflict:
+            raise
+        except (IntegrityError, DBAPIError) as error:
+            raise StatisticsConflict("Outlier Detection Run terminal state was rejected") from error
+        return _outlier_detection_run(row, candidates)
+
+    def succeed_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        candidates: tuple[ReferenceTensilePairOutlierCandidate, ...],
+    ) -> OutlierDetectionRun:
+        return self._terminal_outlier_detection_run(
+            context=context,
+            decision=decision,
+            run_id=run_id,
+            status=OutlierDetectionRunStatus.SUCCEEDED,
+            candidates=candidates,
+            failure_code=None,
+        )
+
+    def fail_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        failure_code: str,
+    ) -> OutlierDetectionRun:
+        return self._terminal_outlier_detection_run(
+            context=context,
+            decision=decision,
+            run_id=run_id,
+            status=OutlierDetectionRunStatus.FAILED,
+            candidates=(),
+            failure_code=failure_code,
+        )
+
+    @staticmethod
+    def _candidate_rows_for_run_statement(
+        *,
+        organization_id: UUID,
+        project_id: UUID,
+        run_id: UUID,
+    ) -> sa.Select[Any]:
+        return (
+            sa.select(outlier_candidate_table)
+            .where(
+                outlier_candidate_table.c.organization_id == organization_id,
+                outlier_candidate_table.c.project_id == project_id,
+                outlier_candidate_table.c.detection_run_id == run_id,
+            )
+            .order_by(outlier_candidate_table.c.pair_position)
+        )
+
+    def get_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> OutlierDetectionRun:
+        statement = sa.select(outlier_detection_run_table).where(
+            outlier_detection_run_table.c.organization_id == context.organization_id,
+            outlier_detection_run_table.c.project_id == context.project_id,
+            outlier_detection_run_table.c.id == run_id,
+        )
+        candidate_statement = self._candidate_rows_for_run_statement(
+            organization_id=context.organization_id,
+            project_id=context.project_id,
+            run_id=run_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+            candidates = tuple(
+                _outlier_candidate(value)
+                for value in session.execute(candidate_statement).mappings().all()
+            )
+        if row is None:
+            raise StatisticsNotFound("Outlier Detection Run is not visible in the selected tenant")
+        return _outlier_detection_run(row, candidates)
+
+    def get_outlier_candidate(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> ReferenceTensilePairOutlierCandidate:
+        statement = sa.select(outlier_candidate_table).where(
+            outlier_candidate_table.c.organization_id == context.organization_id,
+            outlier_candidate_table.c.project_id == context.project_id,
+            outlier_candidate_table.c.id == candidate_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise StatisticsNotFound("Outlier Candidate is not visible in the selected tenant")
+        return _outlier_candidate(row)
+
+    def list_outlier_candidates_for_detection_plan(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+        detection_plan_revision_id: UUID,
+    ) -> tuple[ReferenceTensilePairOutlierCandidate, ...]:
+        statement = (
+            sa.select(outlier_candidate_table)
+            .where(
+                outlier_candidate_table.c.organization_id == context.organization_id,
+                outlier_candidate_table.c.project_id == context.project_id,
+                outlier_candidate_table.c.detection_plan_id == detection_plan_id,
+                outlier_candidate_table.c.detection_plan_revision_id
+                == detection_plan_revision_id,
+            )
+            .order_by(
+                outlier_candidate_table.c.recorded_at,
+                outlier_candidate_table.c.pair_position,
+            )
+        )
+        with self._session(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+        return tuple(_outlier_candidate(row) for row in rows)
+
+    @staticmethod
+    def _current_outlier_assessment_statement() -> sa.Select[Any]:
+        identity = outlier_assessment_table
+        revision = outlier_assessment_revision_table
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            *_revision_columns(revision),
+            revision.c.candidate_id,
+            revision.c.scope_kind,
+            revision.c.statistical_plan_id,
+            revision.c.statistical_plan_revision_id,
+            revision.c.decision,
+            revision.c.assessment_reason,
+        ).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.id == identity.c.current_revision_id,
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    @staticmethod
+    def _outlier_assessment_snapshot(row: Any) -> OutlierAssessmentSnapshot:
+        return OutlierAssessmentSnapshot(
+            id=cast(UUID, row["identity_id"]),
+            current=RevisionSnapshot(
+                _record(row, OUTLIER_ASSESSMENT_AGGREGATE_TYPE),
+                _outlier_assessment_content(row),
+            ),
+        )
+
+    def get_outlier_assessment(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        assessment_id: UUID,
+    ) -> OutlierAssessmentSnapshot:
+        statement = self._current_outlier_assessment_statement().where(
+            outlier_assessment_table.c.organization_id == context.organization_id,
+            outlier_assessment_table.c.project_id == context.project_id,
+            outlier_assessment_table.c.id == assessment_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise StatisticsNotFound("Outlier Assessment is not visible in the selected tenant")
+        return self._outlier_assessment_snapshot(row)
+
+    def list_outlier_assessments_for_candidate_scope(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+        statistical_plan_id: UUID,
+        statistical_plan_revision_id: UUID,
+    ) -> tuple[OutlierAssessmentSnapshot, ...]:
+        statement = (
+            self._current_outlier_assessment_statement()
+            .where(
+                outlier_assessment_table.c.organization_id == context.organization_id,
+                outlier_assessment_table.c.project_id == context.project_id,
+                outlier_assessment_revision_table.c.candidate_id == candidate_id,
+                outlier_assessment_revision_table.c.statistical_plan_id == statistical_plan_id,
+                outlier_assessment_revision_table.c.statistical_plan_revision_id
+                == statistical_plan_revision_id,
+            )
+            .order_by(
+                outlier_assessment_revision_table.c.created_at,
+                outlier_assessment_revision_table.c.id,
+            )
+        )
+        with self._session(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+        return tuple(self._outlier_assessment_snapshot(row) for row in rows)

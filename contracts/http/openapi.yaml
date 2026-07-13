@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.19.0
+  version: 0.20.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1926,6 +1926,222 @@ paths:
         "404": {description: No visible Statistical Result or curve Artifact matches the identifier.}
         "409": {description: Immutable Artifact integrity or Result state conflicts.}
         "422": {description: Preview point limit or curve Artifact data is invalid.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-detection-plans/reference-tensile-pair:
+    post:
+      operationId: createReferenceTensilePairOutlierDetectionPlan
+      tags: [statistics]
+      summary: Create an immutable declared-threshold reference-pair outlier review plan.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/CreateReferenceTensilePairOutlierDetectionPlanRequest"}
+      responses:
+        "201":
+          description: Stable Detection Plan identity with its first immutable pinned Result revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierDetectionPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics execution is not authorized.}
+        "404": {description: The immutable Statistical Result is not visible.}
+        "409": {description: Tenant scope or immutable Result state conflicts.}
+        "422": {description: Detection threshold or typed input is invalid.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-detection-plans:
+    get:
+      operationId: listOutlierDetectionPlans
+      tags: [statistics]
+      summary: List current tenant-visible reference-pair outlier Detection Plan heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current immutable outlier Detection Plan heads.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierDetectionPlanListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-detection-plans/{detection_plan_id}:
+    get:
+      operationId: getOutlierDetectionPlan
+      tags: [statistics]
+      summary: Read one current immutable reference-pair outlier Detection Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: detection_plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Detection Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierDetectionPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible Detection Plan matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-detection-plans/{detection_plan_id}/revisions:
+    post:
+      operationId: reviseReferenceTensilePairOutlierDetectionPlan
+      tags: [statistics]
+      summary: Append an immutable revised reference-pair outlier review threshold.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: detection_plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/ReviseReferenceTensilePairOutlierDetectionPlanRequest"}
+      responses:
+        "200":
+          description: Appended immutable Detection Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierDetectionPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics execution is not authorized.}
+        "404": {description: A visible Detection Plan or Statistical Result is absent.}
+        "409": {description: Expected head or immutable Result state conflicts.}
+        "422": {description: Detection-plan revision input is invalid.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-detection-runs/reference-tensile-pair:
+    post:
+      operationId: executeReferenceTensilePairOutlierDetection
+      tags: [statistics]
+      summary: Commit zero or two review candidates from one pinned pair Result; never automatically exclude data.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/ExecuteReferenceTensilePairOutlierDetectionRequest"}
+      responses:
+        "201":
+          description: Terminal committed Detection Run with immutable review candidates, if threshold evidence exists.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierDetectionRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics execution is not authorized.}
+        "404": {description: A pinned Detection Plan or Result revision is not visible.}
+        "409": {description: Immutable input or terminal-run state conflicts.}
+        "422": {description: The typed detection request is invalid.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-detection-runs/{run_id}:
+    get:
+      operationId: getOutlierDetectionRun
+      tags: [statistics]
+      summary: Read one tenant-visible committed Detection Run and its immutable review candidates.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Detection Run state, pinned evidence, and candidate records.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierDetectionRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible Detection Run matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-assessments/reference-tensile-pair:
+    post:
+      operationId: createReferenceTensilePairOutlierAssessment
+      tags: [statistics]
+      summary: Append one human review decision scoped to the candidate's exact Statistical Plan revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/CreateReferenceTensilePairOutlierAssessmentRequest"}
+      responses:
+        "201":
+          description: New immutable human Assessment identity; it does not mutate source Dataset or Selection evidence.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierAssessmentResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics execution is not authorized.}
+        "404": {description: A candidate or exact Statistical Plan revision is not visible.}
+        "409": {description: Candidate scope or immutable evidence conflicts.}
+        "422": {description: Assessment decision or reason is invalid.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-assessments/{assessment_id}:
+    get:
+      operationId: getOutlierAssessment
+      tags: [statistics]
+      summary: Read one immutable human reference-pair outlier Assessment.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable Assessment and its exact scope decision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierAssessmentResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible Assessment matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/outlier-scope-comparisons/reference-tensile-pair:
+    get:
+      operationId: getReferenceTensilePairOutlierScopeComparison
+      tags: [statistics]
+      summary: Compare immutable candidates with append-only human decisions in one exact reference-pair scope.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: detection_plan_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+        - name: detection_plan_revision_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Candidate evidence and scoped Assessment history; no source mutation or derived Selection is created.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-outlier-resources.schema.json#/$defs/OutlierScopeComparisonResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: A pinned Detection Plan or Result is not visible.}
+        "409": {description: Immutable scope evidence conflicts.}
         "503": {description: Statistics service unavailable.}
   /api/v1/material-states/{material_state_id}/material-models:
     get:

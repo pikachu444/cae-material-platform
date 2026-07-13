@@ -507,6 +507,58 @@ def test_reference_statistics_contract_and_runtime_expose_typed_pair_qc_workflow
     )
 
 
+def test_reference_outlier_contract_and_runtime_expose_append_only_human_scope_workflow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/outlier-detection-plans/reference-tensile-pair": {
+            "post": "createReferenceTensilePairOutlierDetectionPlan"
+        },
+        "/api/v1/outlier-detection-plans": {"get": "listOutlierDetectionPlans"},
+        "/api/v1/outlier-detection-plans/{detection_plan_id}": {
+            "get": "getOutlierDetectionPlan"
+        },
+        "/api/v1/outlier-detection-plans/{detection_plan_id}/revisions": {
+            "post": "reviseReferenceTensilePairOutlierDetectionPlan"
+        },
+        "/api/v1/outlier-detection-runs/reference-tensile-pair": {
+            "post": "executeReferenceTensilePairOutlierDetection"
+        },
+        "/api/v1/outlier-detection-runs/{run_id}": {"get": "getOutlierDetectionRun"},
+        "/api/v1/outlier-assessments/reference-tensile-pair": {
+            "post": "createReferenceTensilePairOutlierAssessment"
+        },
+        "/api/v1/outlier-assessments/{assessment_id}": {"get": "getOutlierAssessment"},
+        "/api/v1/outlier-scope-comparisons/reference-tensile-pair": {
+            "get": "getReferenceTensilePairOutlierScopeComparison"
+        },
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    serialized = (
+        PROJECT_ROOT / "contracts/statistics/reference-tensile-outlier-resources.schema.json"
+    ).read_text(encoding="utf-8")
+    runtime_schemas = runtime["components"]["schemas"]
+
+    assert '"automatic_exclusion": {"const": false}' in serialized
+    assert '"review_required"' in serialized
+    assert '"excluded_from_reference_analysis"' in serialized
+    assert '"source_mutation": {"const": false}' in serialized
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+    assert {"candidate_count", "candidates", "failure_code"}.issubset(
+        runtime_schemas["OutlierDetectionRunResponse"]["required"]
+    )
+    assert {"assessment_history", "latest_assessment"}.issubset(
+        runtime_schemas["OutlierScopeComparisonEntryResponse"]["required"]
+    )
+
+
 def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
     schema = json.loads(
         (PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json").read_text(

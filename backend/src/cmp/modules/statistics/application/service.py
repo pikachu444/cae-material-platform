@@ -25,6 +25,13 @@ from cmp.modules.identity_access.domain.authorization import (
     Permission,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.statistics.domain.reference_tensile_outlier import (
+    OutlierDetectionRunStatus,
+    ReferenceTensilePairOutlierAssessmentContent,
+    ReferenceTensilePairOutlierCandidate,
+    ReferenceTensilePairOutlierDetectionPlanContent,
+    reference_tensile_pair_review_candidates,
+)
 from cmp.modules.statistics.domain.reference_tensile_pair import (
     REFERENCE_TENSILE_PAIR_CURVE_SCHEMA,
     REFERENCE_TENSILE_PAIR_PLAN_SCHEMA,
@@ -54,6 +61,8 @@ from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionRecord, 
 
 STATISTICAL_PLAN_AGGREGATE_TYPE = "statistics.statistical_plan"
 STATISTICAL_RESULT_AGGREGATE_TYPE = "statistics.statistical_result"
+OUTLIER_DETECTION_PLAN_AGGREGATE_TYPE = "statistics.outlier_detection_plan"
+OUTLIER_ASSESSMENT_AGGREGATE_TYPE = "statistics.outlier_assessment"
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,6 +81,52 @@ class StatisticalPlanSnapshot:
 class StatisticalResultSnapshot:
     id: UUID
     current: RevisionSnapshot[ReferenceTensilePairResultContent]
+
+
+@dataclass(frozen=True, slots=True)
+class OutlierDetectionPlanSnapshot:
+    id: UUID
+    current: RevisionSnapshot[ReferenceTensilePairOutlierDetectionPlanContent]
+
+
+@dataclass(frozen=True, slots=True)
+class OutlierAssessmentSnapshot:
+    id: UUID
+    current: RevisionSnapshot[ReferenceTensilePairOutlierAssessmentContent]
+
+
+@dataclass(frozen=True, slots=True)
+class OutlierDetectionRun:
+    id: UUID
+    classification: DataClassification
+    detection_plan_id: UUID
+    detection_plan_revision_id: UUID
+    statistical_result_id: UUID
+    statistical_result_revision_id: UUID
+    status: OutlierDetectionRunStatus
+    candidate_count: int
+    failure_code: str | None
+    change_reason: str
+    started_at: datetime
+    ended_at: datetime | None
+    created_by: UUID
+    request_id: UUID
+    trace_id: str
+    candidates: tuple[ReferenceTensilePairOutlierCandidate, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class OutlierScopeComparisonEntry:
+    candidate: ReferenceTensilePairOutlierCandidate
+    assessments: tuple[OutlierAssessmentSnapshot, ...]
+    latest_assessment: OutlierAssessmentSnapshot | None
+
+
+@dataclass(frozen=True, slots=True)
+class OutlierScopeComparison:
+    detection_plan: OutlierDetectionPlanSnapshot
+    statistical_result: StatisticalResultSnapshot
+    entries: tuple[OutlierScopeComparisonEntry, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,6 +178,34 @@ class ReviseReferenceTensilePairPlan:
 class ExecuteReferenceTensilePairStatistics:
     plan_id: UUID
     plan_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateReferenceTensilePairOutlierDetectionPlan:
+    classification: DataClassification
+    content: ReferenceTensilePairOutlierDetectionPlanContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseReferenceTensilePairOutlierDetectionPlan:
+    expected_current_revision_id: UUID
+    content: ReferenceTensilePairOutlierDetectionPlanContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ExecuteReferenceTensilePairOutlierDetection:
+    detection_plan_id: UUID
+    detection_plan_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateReferenceTensilePairOutlierAssessment:
+    classification: DataClassification
+    content: ReferenceTensilePairOutlierAssessmentContent
     change_reason: str
 
 
@@ -203,6 +286,108 @@ class StatisticsRepository(Protocol):
         decision: AuthorizationDecision,
         run_id: UUID,
     ) -> StatisticalRun: ...
+
+    def outlier_detection_plan_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceTensilePairOutlierDetectionPlanContent]: ...
+
+    def outlier_assessment_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceTensilePairOutlierAssessmentContent]: ...
+
+    def get_outlier_detection_plan(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+    ) -> OutlierDetectionPlanSnapshot: ...
+
+    def get_outlier_detection_plan_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+        detection_plan_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceTensilePairOutlierDetectionPlanContent]: ...
+
+    def list_outlier_detection_plans(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        limit: int,
+    ) -> tuple[OutlierDetectionPlanSnapshot, ...]: ...
+
+    def create_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run: OutlierDetectionRun,
+    ) -> OutlierDetectionRun: ...
+
+    def succeed_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        candidates: tuple[ReferenceTensilePairOutlierCandidate, ...],
+    ) -> OutlierDetectionRun: ...
+
+    def fail_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        failure_code: str,
+    ) -> OutlierDetectionRun: ...
+
+    def get_outlier_detection_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> OutlierDetectionRun: ...
+
+    def get_outlier_candidate(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> ReferenceTensilePairOutlierCandidate: ...
+
+    def list_outlier_candidates_for_detection_plan(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+        detection_plan_revision_id: UUID,
+    ) -> tuple[ReferenceTensilePairOutlierCandidate, ...]: ...
+
+    def get_outlier_assessment(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        assessment_id: UUID,
+    ) -> OutlierAssessmentSnapshot: ...
+
+    def list_outlier_assessments_for_candidate_scope(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+        statistical_plan_id: UUID,
+        statistical_plan_revision_id: UUID,
+    ) -> tuple[OutlierAssessmentSnapshot, ...]: ...
 
 
 def _reason(value: str) -> str:
@@ -656,6 +841,349 @@ class StatisticsService:
     ) -> StatisticalResultSnapshot:
         _require(context, decision, Permission.STATISTICS_READ)
         return self._repository.get_result(context=context, decision=decision, result_id=result_id)
+
+    def _outlier_result_input(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: ReferenceTensilePairOutlierDetectionPlanContent,
+    ) -> StatisticalResultSnapshot:
+        result = self._repository.get_result(
+            context=context,
+            decision=decision,
+            result_id=content.statistical_result_id,
+        )
+        if result.current.record.revision_id != content.statistical_result_revision_id:
+            raise StatisticsConflict(
+                "Outlier Detection Plan must pin the current immutable Statistical Result revision"
+            )
+        if result.current.record.scope.organization_id != context.organization_id or (
+            result.current.record.scope.project_id != context.project_id
+        ):
+            raise StatisticsConflict("Statistical Result is outside the detector tenant scope")
+        return result
+
+    def create_reference_tensile_pair_outlier_detection_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceTensilePairOutlierDetectionPlan,
+    ) -> OutlierDetectionPlanSnapshot:
+        _require(context, decision, Permission.STATISTICS_EXECUTE)
+        reason = _reason(command.change_reason)
+        result = self._outlier_result_input(context, decision, command.content)
+        scope = TenantScope(
+            context.organization_id,
+            context.project_id,
+            command.classification.value,
+        )
+        if result.current.record.scope != scope:
+            raise StatisticsConflict(
+                "Outlier Detection Plan classification must match its Statistical Result"
+            )
+        detection_plan_id = self._id()
+        record = RevisionService(
+            aggregate_type=OUTLIER_DETECTION_PLAN_AGGREGATE_TYPE,
+            store=self._repository.outlier_detection_plan_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=detection_plan_id,
+                scope=scope,
+                schema_id=(
+                    "urn:cmp:statistics:reference-tensile-pair-outlier-detection-plan:1.0.0"
+                ),
+                schema_version="1.0.0",
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return OutlierDetectionPlanSnapshot(
+            detection_plan_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def revise_reference_tensile_pair_outlier_detection_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+        command: ReviseReferenceTensilePairOutlierDetectionPlan,
+    ) -> OutlierDetectionPlanSnapshot:
+        _require(context, decision, Permission.STATISTICS_EXECUTE)
+        reason = _reason(command.change_reason)
+        existing = self._repository.get_outlier_detection_plan(
+            context=context,
+            decision=decision,
+            detection_plan_id=detection_plan_id,
+        )
+        if command.content.plan_label != existing.current.content.plan_label:
+            raise StatisticsConflict("Outlier Detection Plan label is a stable identity")
+        result = self._outlier_result_input(context, decision, command.content)
+        if result.current.record.scope != existing.current.record.scope:
+            raise StatisticsConflict("Outlier Detection Plan Result is outside its tenant scope")
+        record = RevisionService(
+            aggregate_type=OUTLIER_DETECTION_PLAN_AGGREGATE_TYPE,
+            store=self._repository.outlier_detection_plan_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=detection_plan_id,
+                scope=existing.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=(
+                    "urn:cmp:statistics:reference-tensile-pair-outlier-detection-plan:1.0.0"
+                ),
+                schema_version="1.0.0",
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return OutlierDetectionPlanSnapshot(
+            detection_plan_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def get_outlier_detection_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_plan_id: UUID,
+    ) -> OutlierDetectionPlanSnapshot:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_outlier_detection_plan(
+            context=context,
+            decision=decision,
+            detection_plan_id=detection_plan_id,
+        )
+
+    def list_outlier_detection_plans(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        limit: int = 100,
+    ) -> tuple[OutlierDetectionPlanSnapshot, ...]:
+        _require(context, decision, Permission.STATISTICS_READ)
+        if not 1 <= limit <= 200:
+            raise ValueError("limit must be between 1 and 200")
+        return self._repository.list_outlier_detection_plans(
+            context=context,
+            decision=decision,
+            limit=limit,
+        )
+
+    def execute_reference_tensile_pair_outlier_detection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: ExecuteReferenceTensilePairOutlierDetection,
+    ) -> OutlierDetectionRun:
+        """Create review candidates from frozen pair evidence; never mutate the inputs."""
+
+        _require(context, decision, Permission.STATISTICS_EXECUTE)
+        reason = _reason(command.change_reason)
+        plan = self._repository.get_outlier_detection_plan_revision(
+            context=context,
+            decision=decision,
+            detection_plan_id=command.detection_plan_id,
+            detection_plan_revision_id=command.detection_plan_revision_id,
+        )
+        result = self._outlier_result_input(context, decision, plan.content)
+        if result.current.record.scope != plan.record.scope:
+            raise StatisticsConflict("Outlier Detection Plan and Result must share tenant scope")
+        run = OutlierDetectionRun(
+            id=self._id(),
+            classification=DataClassification(plan.record.scope.classification),
+            detection_plan_id=command.detection_plan_id,
+            detection_plan_revision_id=command.detection_plan_revision_id,
+            statistical_result_id=plan.content.statistical_result_id,
+            statistical_result_revision_id=plan.content.statistical_result_revision_id,
+            status=OutlierDetectionRunStatus.EXECUTING,
+            candidate_count=0,
+            failure_code=None,
+            change_reason=reason,
+            started_at=datetime.now(UTC),
+            ended_at=None,
+            created_by=context.principal.id,
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+        )
+        created = self._repository.create_outlier_detection_run(
+            context=context,
+            decision=decision,
+            run=run,
+        )
+        try:
+            candidates = reference_tensile_pair_review_candidates(
+                candidate_ids=(self._id(), self._id()),
+                detection_run_id=created.id,
+                detection_plan_id=created.detection_plan_id,
+                detection_plan_revision_id=created.detection_plan_revision_id,
+                statistical_result_id=created.statistical_result_id,
+                statistical_result_revision_id=created.statistical_result_revision_id,
+                result=result.current.content,
+                relative_peak_difference_threshold=(
+                    plan.content.relative_peak_difference_threshold
+                ),
+            )
+            return self._repository.succeed_outlier_detection_run(
+                context=context,
+                decision=decision,
+                run_id=created.id,
+                candidates=candidates,
+            )
+        except Exception:
+            try:
+                self._repository.fail_outlier_detection_run(
+                    context=context,
+                    decision=decision,
+                    run_id=created.id,
+                    failure_code="outlier_detection_command_failed",
+                )
+            except Exception:
+                pass
+            raise
+
+    def get_outlier_detection_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> OutlierDetectionRun:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_outlier_detection_run(
+            context=context,
+            decision=decision,
+            run_id=run_id,
+        )
+
+    def create_reference_tensile_pair_outlier_assessment(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceTensilePairOutlierAssessment,
+    ) -> OutlierAssessmentSnapshot:
+        _require(context, decision, Permission.STATISTICS_EXECUTE)
+        reason = _reason(command.change_reason)
+        candidate = self._repository.get_outlier_candidate(
+            context=context,
+            decision=decision,
+            candidate_id=command.content.candidate_id,
+        )
+        if (
+            candidate.statistical_plan_id != command.content.statistical_plan_id
+            or candidate.statistical_plan_revision_id
+            != command.content.statistical_plan_revision_id
+        ):
+            raise StatisticsConflict(
+                "Outlier Assessment scope must match the candidate's immutable Statistical Plan"
+            )
+        plan = self._repository.get_plan_revision(
+            context=context,
+            decision=decision,
+            plan_id=command.content.statistical_plan_id,
+            plan_revision_id=command.content.statistical_plan_revision_id,
+        )
+        scope = TenantScope(
+            context.organization_id,
+            context.project_id,
+            command.classification.value,
+        )
+        if plan.record.scope != scope:
+            raise StatisticsConflict("Outlier Assessment classification must match its scope Plan")
+        assessment_id = self._id()
+        record = RevisionService(
+            aggregate_type=OUTLIER_ASSESSMENT_AGGREGATE_TYPE,
+            store=self._repository.outlier_assessment_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=assessment_id,
+                scope=scope,
+                schema_id="urn:cmp:statistics:reference-tensile-pair-outlier-assessment:1.0.0",
+                schema_version="1.0.0",
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return OutlierAssessmentSnapshot(
+            assessment_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def get_outlier_assessment(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        assessment_id: UUID,
+    ) -> OutlierAssessmentSnapshot:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_outlier_assessment(
+            context=context,
+            decision=decision,
+            assessment_id=assessment_id,
+        )
+
+    def get_reference_tensile_pair_outlier_scope_comparison(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        detection_plan_id: UUID,
+        detection_plan_revision_id: UUID,
+    ) -> OutlierScopeComparison:
+        _require(context, decision, Permission.STATISTICS_READ)
+        plan = self._repository.get_outlier_detection_plan_revision(
+            context=context,
+            decision=decision,
+            detection_plan_id=detection_plan_id,
+            detection_plan_revision_id=detection_plan_revision_id,
+        )
+        result = self._outlier_result_input(context, decision, plan.content)
+        candidates = self._repository.list_outlier_candidates_for_detection_plan(
+            context=context,
+            decision=decision,
+            detection_plan_id=detection_plan_id,
+            detection_plan_revision_id=detection_plan_revision_id,
+        )
+        entries: list[OutlierScopeComparisonEntry] = []
+        for candidate in candidates:
+            assessments = self._repository.list_outlier_assessments_for_candidate_scope(
+                context=context,
+                decision=decision,
+                candidate_id=candidate.id,
+                statistical_plan_id=candidate.statistical_plan_id,
+                statistical_plan_revision_id=candidate.statistical_plan_revision_id,
+            )
+            latest = max(
+                assessments,
+                key=lambda value: (
+                    value.current.record.created_at,
+                    str(value.current.record.revision_id),
+                ),
+                default=None,
+            )
+            entries.append(
+                OutlierScopeComparisonEntry(
+                    candidate=candidate,
+                    assessments=assessments,
+                    latest_assessment=latest,
+                )
+            )
+        detection_plan = OutlierDetectionPlanSnapshot(detection_plan_id, plan)
+        return OutlierScopeComparison(
+            detection_plan=detection_plan,
+            statistical_result=result,
+            entries=tuple(entries),
+        )
 
     async def preview_reference_tensile_pair_result_curve(
         self,
