@@ -1,12 +1,12 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP, reference tensile Dataset, reference Material Model IR, and reference OpenRadioss Solver Card
+Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC, reference Material Model IR, and reference OpenRadioss Solver Card
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-10` + `T-12`–`T-18` + reference `T-22`/`T-25`/`T-26` subsets)
+(`T-01`–`T-10` + `T-12`–`T-20` + reference `T-22`/`T-25`/`T-26` subsets)
 
-Version: `0.18.0`
+Version: `0.19.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -23,7 +23,10 @@ preflight/report acknowledgement. The workbench exposes the resulting immutable 
 authenticated download. A narrow reference tensile flow now creates a concrete Specimen, pins a
 Test Run to concrete Specimen/Test Method revisions, uploads one UTF-8 CSV as a Raw Asset/Artifact,
 requires explicit column/unit mapping, and creates separate raw and normalized Dataset revisions.
-Fitting remains a follow-on slice. The T-03/T-04
+The reference Statistics/QC slice pins two distinct normalized Selection revisions from distinct
+Test Runs, records immutable QC observations, and creates a separate typed scalar/curve Result only
+when their observed engineering-strain grids match exactly; it never aligns or resamples curves
+implicitly. Fitting remains a follow-on slice. The T-03/T-04
 identity and access-control foundation,
 the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine, the T-17
 immutable plugin package registry, and the T-18 isolated execution contract remain reusable
@@ -261,8 +264,22 @@ This is deliberately a small non-production reference operation: it accepts one 
 reference tensile Dataset, retains observed points only, and does not interpolate, resample, smooth,
 convert engineering to true quantities, average repeats, or make a temporary preview artifact.
 Selection/Recipe revisions and the output Dataset are auditable, and the output provenance records
-the pinned input, Recipe, and Processing Run. Multi-replicate statistics/QC and calibration are
-subsequent slices.
+the pinned input, Recipe, and Processing Run. Calibration remains a subsequent slice.
+
+### Reference tensile Statistics/QC
+
+The same Material State workbench can compare two pinned normalized Dataset Selections from
+distinct Test Runs. A **Statistical Plan** immutably pins both Selection revisions. A committed
+**Statistical Run** records the distinct-Test-Run and exact-observed-grid QC observations, then
+creates a separate immutable Result revision and typed Parquet curve artifact when QC passes.
+Scalar output uses one peak engineering-stress value per Test Run (`n=2`) and reports mean, sample
+standard deviation, median, MAD, IQR, range, and coefficient of variation. Pointwise output carries
+mean, sample standard deviation, median, minimum, and maximum on the unchanged observed grid.
+
+This deliberately narrow reference method does not interpolate, resample, smooth, extrapolate, or
+claim a confidence interval from the two-sample pair. Its response explicitly reports
+`not_provided_reference_pair`; outlier assessment, larger replicate groups, alignment processing,
+and calibration remain separate bounded work.
 
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret
@@ -284,7 +301,7 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, processing, modeling, exporting TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, processing, statistics, modeling, exporting TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA governance TO cmp_app;
@@ -298,6 +315,7 @@ GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA catalog TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA testing TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA datasets TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA processing TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA statistics TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA modeling TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA exporting TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance, audit TO cmp_app;

@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/statistics/reference-tensile-pair-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ReferenceTensilePairPlanInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_label", "first_selection_id", "first_selection_revision_id",
+        "second_selection_id", "second_selection_revision_id"
+      ],
+      "properties": {
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "first_selection_id": {"$ref": "#/$defs/Uuid"},
+        "first_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "CreateReferenceTensilePairPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/ReferenceTensilePairPlanInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseReferenceTensilePairPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_current_revision_id", "plan_label", "first_selection_id",
+        "first_selection_revision_id", "second_selection_id", "second_selection_revision_id",
+        "change_reason"
+      ],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "first_selection_id": {"$ref": "#/$defs/Uuid"},
+        "first_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReferenceTensilePairPlanContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_kind", "sample_count", "first_selection_id", "first_selection_revision_id",
+        "second_selection_id", "second_selection_revision_id", "input_schema_ref",
+        "scalar_feature", "curve_grid_policy", "assumption_profile", "quantile_method",
+        "confidence_interval_status", "curve_output_schema_ref"
+      ],
+      "properties": {
+        "plan_kind": {"const": "reference_tensile_pair_scalar_and_curve"},
+        "sample_count": {"const": 2},
+        "first_selection_id": {"$ref": "#/$defs/Uuid"},
+        "first_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "input_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"},
+        "scalar_feature": {"const": "peak_engineering_stress_pa"},
+        "curve_grid_policy": {"const": "exact_observed_grid_match_no_alignment"},
+        "assumption_profile": {"const": "identical_observed_engineering_strain_grid"},
+        "quantile_method": {"const": "linear_inclusive"},
+        "confidence_interval_status": {"const": "not_provided_reference_pair"},
+        "curve_output_schema_ref": {"const": "urn:cmp:statistics:reference-tensile-pair-curve-parquet:1.0.0"}
+      }
+    },
+    "StatisticalPlanRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/ReferenceTensilePairPlanContent"}}}
+      ]
+    },
+    "StatisticalPlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statistical_plan_id", "plan_label", "current_revision", "links"],
+      "properties": {
+        "statistical_plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "#/$defs/StatisticalPlanRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "StatisticalPlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/StatisticalPlanResponse"}}}
+    },
+    "ExecuteReferenceTensilePairStatisticsRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "plan_revision_id", "change_reason"],
+      "properties": {
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "QcObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_code", "outcome", "detail", "expected_point_count",
+        "observed_point_count", "mismatch_index"
+      ],
+      "properties": {
+        "check_code": {"enum": ["distinct_test_runs", "identical_observed_engineering_strain_grid", "input_artifact_readable"]},
+        "outcome": {"enum": ["passed", "failed"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 500},
+        "expected_point_count": {"type": ["integer", "null"], "minimum": 0},
+        "observed_point_count": {"type": ["integer", "null"], "minimum": 0},
+        "mismatch_index": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "StatisticalRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statistical_run_id", "classification", "execution_mode", "status", "plan_id",
+        "plan_revision_id", "first_selection_id", "first_selection_revision_id",
+        "first_dataset_id", "first_dataset_revision_id", "second_selection_id",
+        "second_selection_revision_id", "second_dataset_id", "second_dataset_revision_id",
+        "sample_count", "result_id", "result_revision_id", "curve_artifact_id", "curve_sha256",
+        "curve_point_count", "failure_code", "qc_observations", "change_reason", "started_at",
+        "ended_at", "links"
+      ],
+      "properties": {
+        "statistical_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "execution_mode": {"const": "committed"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "first_selection_id": {"$ref": "#/$defs/Uuid"},
+        "first_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "first_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "first_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "second_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "second_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sample_count": {"const": 2},
+        "result_id": {"type": ["string", "null"], "format": "uuid"},
+        "result_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "curve_artifact_id": {"type": ["string", "null"], "format": "uuid"},
+        "curve_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "curve_point_count": {"type": ["integer", "null"], "minimum": 2, "maximum": 100000},
+        "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "qc_observations": {"type": "array", "items": {"$ref": "#/$defs/QcObservation"}},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReferenceTensilePairScalarStatistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first_peak_engineering_stress_pa", "second_peak_engineering_stress_pa",
+        "mean_engineering_stress_pa", "sample_standard_deviation_engineering_stress_pa",
+        "median_engineering_stress_pa", "median_absolute_deviation_engineering_stress_pa",
+        "interquartile_range_engineering_stress_pa", "minimum_engineering_stress_pa",
+        "maximum_engineering_stress_pa", "coefficient_of_variation", "confidence_interval_status",
+        "quantile_method"
+      ],
+      "properties": {
+        "first_peak_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "second_peak_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "mean_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "sample_standard_deviation_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "median_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "median_absolute_deviation_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "interquartile_range_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "minimum_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "maximum_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "coefficient_of_variation": {"type": ["number", "null"], "minimum": 0},
+        "confidence_interval_status": {"const": "not_provided_reference_pair"},
+        "quantile_method": {"const": "linear_inclusive"}
+      }
+    },
+    "ReferenceTensilePairResultContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_kind", "statistical_run_id", "plan_id", "plan_revision_id",
+        "first_selection_id", "first_selection_revision_id", "first_dataset_id",
+        "first_dataset_revision_id", "second_selection_id", "second_selection_revision_id",
+        "second_dataset_id", "second_dataset_revision_id", "sample_count", "scalar_feature",
+        "curve_artifact_id", "curve_sha256", "curve_point_count", "scalar", "assumption_profile",
+        "curve_grid_policy"
+      ],
+      "properties": {
+        "result_kind": {"const": "reference_tensile_pair_scalar_and_curve"},
+        "statistical_run_id": {"$ref": "#/$defs/Uuid"},
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "first_selection_id": {"$ref": "#/$defs/Uuid"},
+        "first_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "first_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "first_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_id": {"$ref": "#/$defs/Uuid"},
+        "second_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "second_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "second_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sample_count": {"const": 2},
+        "scalar_feature": {"const": "peak_engineering_stress_pa"},
+        "curve_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "curve_sha256": {"$ref": "#/$defs/Sha256"},
+        "curve_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "scalar": {"$ref": "#/$defs/ReferenceTensilePairScalarStatistics"},
+        "assumption_profile": {"const": "identical_observed_engineering_strain_grid"},
+        "curve_grid_policy": {"const": "exact_observed_grid_match_no_alignment"}
+      }
+    },
+    "StatisticalResultRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/ReferenceTensilePairResultContent"}}}
+      ]
+    },
+    "StatisticalResultResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statistical_result_id", "current_revision", "links"],
+      "properties": {
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/StatisticalResultRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReferenceTensilePairCurvePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engineering_strain", "mean_engineering_stress_pa",
+        "sample_standard_deviation_engineering_stress_pa", "median_engineering_stress_pa",
+        "minimum_engineering_stress_pa", "maximum_engineering_stress_pa"
+      ],
+      "properties": {
+        "engineering_strain": {"type": "number", "minimum": 0},
+        "mean_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "sample_standard_deviation_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "median_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "minimum_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "maximum_engineering_stress_pa": {"type": "number", "minimum": 0}
+      }
+    },
+    "StatisticalCurvePreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statistical_result_id", "point_count", "returned_point_count", "sampled",
+        "strain_unit", "stress_unit", "points"
+      ],
+      "properties": {
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "returned_point_count": {"type": "integer", "minimum": 2, "maximum": 10000},
+        "sampled": {"type": "boolean"},
+        "strain_unit": {"const": "1"},
+        "stress_unit": {"const": "Pa"},
+        "points": {"type": "array", "items": {"$ref": "#/$defs/ReferenceTensilePairCurvePoint"}}
+      }
+    },
+    "StatisticsProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:statistics"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-STATISTICS-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

@@ -19,6 +19,10 @@ import type {
   PropertySetResponse,
   ProcessingRecipeResponse,
   ProcessingRunResponse,
+  StatisticalCurvePreview,
+  StatisticalPlanResponse,
+  StatisticalResultResponse,
+  StatisticalRunResponse,
   ReferenceModelCreateInput,
   SolverCardCreateInput,
   SolverCardList,
@@ -508,6 +512,65 @@ export function executeReferenceTensileCrop(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listStatisticalPlans(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: StatisticalPlanResponse[] }>> {
+  return request(config, "/statistical-plans?limit=100");
+}
+
+export function createReferenceTensilePairStatisticalPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      plan_label: string;
+      first_selection_id: string;
+      first_selection_revision_id: string;
+      second_selection_id: string;
+      second_selection_revision_id: string;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<StatisticalPlanResponse>> {
+  return request(config, "/statistical-plans/reference-tensile-pair", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceTensilePairStatistics(
+  config: ApiConfig,
+  input: {
+    plan_id: string;
+    plan_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<StatisticalRunResponse>> {
+  return request(config, "/statistical-runs/reference-tensile-pair", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getStatisticalResult(
+  config: ApiConfig,
+  resultId: string,
+): Promise<ApiResult<StatisticalResultResponse>> {
+  return request(config, `/statistical-results/${encodeURIComponent(resultId)}`);
+}
+
+export function previewStatisticalResultCurve(
+  config: ApiConfig,
+  resultId: string,
+  maximumPoints = 1_000,
+): Promise<ApiResult<StatisticalCurvePreview>> {
+  const query = new URLSearchParams({ maximum_points: String(maximumPoints) });
+  return request(
+    config,
+    `/statistical-results/${encodeURIComponent(resultId)}/curve?${query.toString()}`,
+  );
 }
 
 export function importReferenceTensileDataset(

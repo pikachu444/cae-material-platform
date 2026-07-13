@@ -26,7 +26,7 @@ from cmp.bootstrap.settings import Settings
 _APPLICATION_ROLE = "cmp_app"
 _BOOTSTRAP_PRINCIPAL_ID = UUID("d0000000-0000-4000-8000-000000000003")
 _BINDING_NAMESPACE = UUID("d0000000-0000-4000-8000-000000000004")
-_DEMO_ROLES = ("test_engineer", "data_steward", "material_modeler")
+_DEMO_ROLES = ("test_engineer", "data_steward", "statistical_analyst", "material_modeler")
 _SCHEMAS = (
     "identity",
     "revisioning",
@@ -42,13 +42,14 @@ _SCHEMAS = (
     "testing",
     "datasets",
     "processing",
+    "statistics",
     "modeling",
     "exporting",
 )
 
 
 def _identifier(value: str) -> str:
-    return f'"{value.replace("\"", "\"\"")}"'
+    return f'"{value.replace('"', '""')}"'
 
 
 def _required_environment(name: str) -> str:
@@ -101,6 +102,7 @@ def _grant_runtime_privileges(connection: Connection) -> None:
         "testing",
         "datasets",
         "processing",
+        "statistics",
         "modeling",
         "exporting",
     ):

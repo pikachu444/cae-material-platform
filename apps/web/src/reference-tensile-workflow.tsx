@@ -4,19 +4,24 @@ import {
   type ApiConfig,
   createReferenceDatasetSelection,
   createReferenceTensileCropRecipe,
+  createReferenceTensilePairStatisticalPlan,
   createReferenceTensileTestMethod,
   createReferenceTensileTestRun,
   createSpecimen,
   executeReferenceTensileCrop,
+  executeReferenceTensilePairStatistics,
+  getStatisticalResult,
   importReferenceTensileDataset,
   listDatasetRevisions,
   listDatasetRevisionSelections,
   listDatasetsForMaterialState,
   listSpecimensForMaterialState,
   listProcessingRecipes,
+  listStatisticalPlans,
   listTestMethods,
   listTestRunsForMaterialState,
   previewDatasetCurve,
+  previewStatisticalResultCurve,
   uploadReferenceTensileCsv,
 } from "./api";
 import type {
@@ -29,6 +34,10 @@ import type {
   ProcessingRunResponse,
   ReferenceTensileMapping,
   SpecimenResponse,
+  StatisticalCurvePreview,
+  StatisticalPlanResponse,
+  StatisticalResultResponse,
+  StatisticalRunResponse,
   TestMethodResponse,
   TestRunResponse,
 } from "./types";
@@ -126,6 +135,65 @@ function CurvePanel({ curve }: { curve: CurvePreview }) {
   );
 }
 
+function plotStatisticsPoints(curve: StatisticalCurvePreview): string {
+  const width = 720;
+  const height = 280;
+  const left = 48;
+  const right = 18;
+  const top = 18;
+  const bottom = 40;
+  const xs = curve.points.map((point) => point.engineering_strain);
+  const ys = curve.points.map((point) => point.mean_engineering_stress_pa);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const xSpan = maxX - minX || 1;
+  const ySpan = maxY - minY || 1;
+  return curve.points
+    .map((point) => {
+      const x = left + ((point.engineering_strain - minX) / xSpan) * (width - left - right);
+      const y = height - bottom - ((point.mean_engineering_stress_pa - minY) / ySpan) * (height - top - bottom);
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
+}
+
+function StatisticsCurvePanel({ curve }: { curve: StatisticalCurvePreview }) {
+  const xValues = curve.points.map((point) => point.engineering_strain);
+  const yValues = curve.points.map((point) => point.mean_engineering_stress_pa);
+  const minX = Math.min(...xValues);
+  const maxX = Math.max(...xValues);
+  const minY = Math.min(...yValues);
+  const maxY = Math.max(...yValues);
+  return (
+    <section className="curve-panel" aria-label="Reference tensile pair mean curve">
+      <div className="curve-heading">
+        <div>
+          <p className="eyebrow">Statistics result</p>
+          <h5>Mean engineering-stress curve</h5>
+        </div>
+        <span className="reference-chip">n=2</span>
+      </div>
+      <p className="curve-summary">
+        {curve.returned_point_count.toLocaleString()} of {curve.point_count.toLocaleString()} observed
+        points; the range and sample standard deviation remain in the immutable result Artifact.
+      </p>
+      <svg className="curve-plot" viewBox="0 0 720 280" role="img" aria-label="Mean stress strain curve">
+        <line x1="48" x2="702" y1="240" y2="240" />
+        <line x1="48" x2="48" y1="18" y2="240" />
+        <polyline points={plotStatisticsPoints(curve)} />
+        <text x="48" y="264">{minX.toPrecision(4)}</text>
+        <text x="642" y="264">{maxX.toPrecision(4)}</text>
+        <text x="4" y="236">{minY.toPrecision(4)}</text>
+        <text x="4" y="26">{maxY.toPrecision(4)}</text>
+        <text x="340" y="278">engineering strain (1)</text>
+        <text x="14" y="144" transform="rotate(-90 14 144)">mean engineering stress (Pa)</text>
+      </svg>
+    </section>
+  );
+}
+
 interface ReferenceTensileWorkflowProps {
   config: ApiConfig;
   state: MaterialStateResponse;
@@ -149,6 +217,14 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [selectedRecipeId, setSelectedRecipeId] = useState("");
   const [processingRun, setProcessingRun] = useState<ProcessingRunResponse | null>(null);
   const [processedCurve, setProcessedCurve] = useState<CurvePreview | null>(null);
+  const [statisticsSelections, setStatisticsSelections] = useState<DatasetSelectionResponse[]>([]);
+  const [firstStatisticsSelectionId, setFirstStatisticsSelectionId] = useState("");
+  const [secondStatisticsSelectionId, setSecondStatisticsSelectionId] = useState("");
+  const [statisticalPlans, setStatisticalPlans] = useState<StatisticalPlanResponse[]>([]);
+  const [selectedStatisticalPlanId, setSelectedStatisticalPlanId] = useState("");
+  const [statisticalRun, setStatisticalRun] = useState<StatisticalRunResponse | null>(null);
+  const [statisticalResult, setStatisticalResult] = useState<StatisticalResultResponse | null>(null);
+  const [statisticalCurve, setStatisticalCurve] = useState<StatisticalCurvePreview | null>(null);
   const [specimenCode, setSpecimenCode] = useState("");
   const [orientation, setOrientation] = useState("");
   const [specimenReason, setSpecimenReason] = useState("Register reference tensile specimen");
@@ -171,6 +247,9 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [maximumStrain, setMaximumStrain] = useState("0.02");
   const [recipeReason, setRecipeReason] = useState("Define committed observed-point crop recipe");
   const [processingReason, setProcessingReason] = useState("Create processed Dataset from pinned input and recipe");
+  const [statisticalPlanLabel, setStatisticalPlanLabel] = useState("Reference tensile pair statistics");
+  const [statisticalPlanReason, setStatisticalPlanReason] = useState("Pin two normalized selections for reference statistics");
+  const [statisticsReason, setStatisticsReason] = useState("Calculate reference pair scalar statistics and curve band");
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -189,6 +268,20 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   ) ?? null;
   const selectedSelection = selections.find((selection) => selection.selection_id === selectedSelectionId) ?? null;
   const selectedRecipe = recipes.find((recipe) => recipe.recipe_id === selectedRecipeId) ?? null;
+  const firstStatisticsSelection = statisticsSelections.find(
+    (selection) => selection.selection_id === firstStatisticsSelectionId,
+  ) ?? null;
+  const secondStatisticsSelection = statisticsSelections.find(
+    (selection) => selection.selection_id === secondStatisticsSelectionId,
+  ) ?? null;
+  const selectedStatisticalPlan = statisticalPlans.find(
+    (plan) => plan.statistical_plan_id === selectedStatisticalPlanId,
+  ) ?? null;
+  const statisticalScalar = statisticalResult?.current_revision.content.scalar ?? null;
+  const normalizedDatasetHeads = useMemo(
+    () => datasets.filter((dataset) => dataset.current_revision.content.representation === "normalized"),
+    [datasets],
+  );
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -294,6 +387,64 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
       current = false;
     };
   }, [config, normalizedRevision, open, state.current_revision.classification]);
+
+  useEffect(() => {
+    if (!open) {
+      setStatisticsSelections([]);
+      setStatisticalPlans([]);
+      setFirstStatisticsSelectionId("");
+      setSecondStatisticsSelectionId("");
+      setSelectedStatisticalPlanId("");
+      return;
+    }
+    let current = true;
+    const selectionRequests = normalizedDatasetHeads.map((dataset) => (
+      listDatasetRevisionSelections(config, dataset.current_revision.id)
+    ));
+    void Promise.all([
+      Promise.all(selectionRequests),
+      listStatisticalPlans(config),
+    ])
+      .then(([selectionResults, planResult]) => {
+        if (!current) {
+          return;
+        }
+        const selectionById = new Map<string, DatasetSelectionResponse>();
+        for (const result of selectionResults) {
+          for (const selection of result.data.items) {
+            if (selection.current_revision.classification === state.current_revision.classification) {
+              selectionById.set(selection.selection_id, selection);
+            }
+          }
+        }
+        const scopedSelections = [...selectionById.values()];
+        const scopedPlans = planResult.data.items.filter(
+          (plan) => plan.current_revision.classification === state.current_revision.classification,
+        );
+        setStatisticsSelections(scopedSelections);
+        setStatisticalPlans(scopedPlans);
+        setFirstStatisticsSelectionId((selected) => (
+          scopedSelections.some((item) => item.selection_id === selected)
+            ? selected
+            : scopedSelections[0]?.selection_id ?? ""
+        ));
+        setSecondStatisticsSelectionId((selected) => {
+          if (scopedSelections.some((item) => item.selection_id === selected && selected !== scopedSelections[0]?.selection_id)) {
+            return selected;
+          }
+          return scopedSelections.find((item) => item.selection_id !== scopedSelections[0]?.selection_id)?.selection_id ?? "";
+        });
+        setSelectedStatisticalPlanId((selected) => (
+          scopedPlans.some((item) => item.statistical_plan_id === selected)
+            ? selected
+            : scopedPlans[0]?.statistical_plan_id ?? ""
+        ));
+      })
+      .catch((cause: unknown) => current && setError(messageFor(cause)));
+    return () => {
+      current = false;
+    };
+  }, [config, normalizedDatasetHeads, open, state.current_revision.classification]);
 
   useEffect(() => {
     const outputRevisionId = processingRun?.output_dataset_revision_id;
@@ -510,6 +661,75 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
     }
   }
 
+  async function submitStatisticalPlan(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!firstStatisticsSelection || !secondStatisticsSelection) {
+      return;
+    }
+    if (firstStatisticsSelection.current_revision.id === secondStatisticsSelection.current_revision.id) {
+      setError("Select two distinct pinned Selection revisions for the reference pair.");
+      return;
+    }
+    setAction("statistical-plan");
+    setError(null);
+    try {
+      const result = await createReferenceTensilePairStatisticalPlan(config, {
+        classification: state.current_revision.classification,
+        content: {
+          plan_label: statisticalPlanLabel.trim(),
+          first_selection_id: firstStatisticsSelection.selection_id,
+          first_selection_revision_id: firstStatisticsSelection.current_revision.id,
+          second_selection_id: secondStatisticsSelection.selection_id,
+          second_selection_revision_id: secondStatisticsSelection.current_revision.id,
+        },
+        change_reason: statisticalPlanReason.trim(),
+      });
+      setStatisticalPlans((current) => [
+        result.data,
+        ...current.filter((plan) => plan.statistical_plan_id !== result.data.statistical_plan_id),
+      ]);
+      setSelectedStatisticalPlanId(result.data.statistical_plan_id);
+      setStatisticalRun(null);
+      setStatisticalResult(null);
+      setStatisticalCurve(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function executeStatistics(): Promise<void> {
+    if (!selectedStatisticalPlan) {
+      return;
+    }
+    setAction("statistics");
+    setError(null);
+    try {
+      const result = await executeReferenceTensilePairStatistics(config, {
+        plan_id: selectedStatisticalPlan.statistical_plan_id,
+        plan_revision_id: selectedStatisticalPlan.current_revision.id,
+        change_reason: statisticsReason.trim(),
+      });
+      setStatisticalRun(result.data);
+      if (result.data.result_id) {
+        const [nextResult, nextCurve] = await Promise.all([
+          getStatisticalResult(config, result.data.result_id),
+          previewStatisticalResultCurve(config, result.data.result_id),
+        ]);
+        setStatisticalResult(nextResult.data);
+        setStatisticalCurve(nextCurve.data);
+      } else {
+        setStatisticalResult(null);
+        setStatisticalCurve(null);
+      }
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
   return (
     <section className="reference-tensile-workflow" aria-label="Reference tensile Dataset workflow">
       <div className="section-heading compact-heading">
@@ -717,6 +937,154 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
               </div>
             ) : null}
             {processedCurve ? <CurvePanel curve={processedCurve} /> : null}
+          </div>
+          <div className="workflow-step dataset-results">
+            <strong>9. Compare two pinned selections with reference Statistics/QC</strong>
+            <p className="form-hint">
+              This reference method uses exactly two distinct Test Runs. It accepts only identical
+              observed engineering-strain grids: there is no implicit alignment, resampling,
+              interpolation, extrapolation, or confidence interval.
+            </p>
+            {statisticsSelections.length < 2 ? (
+              <p className="muted">
+                Create pinned Selections for two normalized Dataset revisions from distinct Test Runs
+                before defining a Statistical Plan.
+              </p>
+            ) : (
+              <>
+                <form className="form-stack" onSubmit={(event) => void submitStatisticalPlan(event)}>
+                  <div className="form-grid">
+                    <label>
+                      First pinned Selection
+                      <select
+                        value={firstStatisticsSelectionId}
+                        onChange={(event) => {
+                          const next = event.target.value;
+                          setFirstStatisticsSelectionId(next);
+                          if (next === secondStatisticsSelectionId) {
+                            setSecondStatisticsSelectionId(
+                              statisticsSelections.find((selection) => selection.selection_id !== next)?.selection_id ?? "",
+                            );
+                          }
+                        }}
+                      >
+                        {statisticsSelections.map((selection) => (
+                          <option key={selection.selection_id} value={selection.selection_id}>
+                            {selection.selection_label} - {shortId(selection.current_revision.id)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Second pinned Selection
+                      <select
+                        value={secondStatisticsSelectionId}
+                        onChange={(event) => setSecondStatisticsSelectionId(event.target.value)}
+                      >
+                        {statisticsSelections
+                          .filter((selection) => selection.selection_id !== firstStatisticsSelectionId)
+                          .map((selection) => (
+                            <option key={selection.selection_id} value={selection.selection_id}>
+                              {selection.selection_label} - {shortId(selection.current_revision.id)}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                    <label>
+                      Statistical Plan label
+                      <input
+                        value={statisticalPlanLabel}
+                        onChange={(event) => setStatisticalPlanLabel(event.target.value)}
+                        required
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Change reason
+                    <input
+                      value={statisticalPlanReason}
+                      onChange={(event) => setStatisticalPlanReason(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <button
+                    className="button secondary"
+                    type="submit"
+                    disabled={!firstStatisticsSelection || !secondStatisticsSelection || action !== null}
+                  >
+                    {action === "statistical-plan" ? "Pinning Statistical Plan..." : "Create immutable Statistical Plan"}
+                  </button>
+                </form>
+              </>
+            )}
+            {statisticalPlans.length ? (
+              <>
+                <label>
+                  Statistical Plan
+                  <select
+                    value={selectedStatisticalPlanId}
+                    onChange={(event) => {
+                      setSelectedStatisticalPlanId(event.target.value);
+                      setStatisticalRun(null);
+                      setStatisticalResult(null);
+                      setStatisticalCurve(null);
+                    }}
+                  >
+                    {statisticalPlans.map((plan) => (
+                      <option key={plan.statistical_plan_id} value={plan.statistical_plan_id}>
+                        {plan.plan_label} - r{plan.current_revision.revision_no}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Change reason
+                  <input value={statisticsReason} onChange={(event) => setStatisticsReason(event.target.value)} required />
+                </label>
+                <button
+                  className="button primary"
+                  type="button"
+                  onClick={() => void executeStatistics()}
+                  disabled={!selectedStatisticalPlan || action !== null}
+                >
+                  {action === "statistics" ? "Committing Statistical Run..." : "Commit Statistical Run"}
+                </button>
+              </>
+            ) : null}
+            {statisticalRun ? (
+              <div className="statistics-result" aria-live="polite">
+                <div className="workflow-toolbar">
+                  <span>
+                    Run {shortId(statisticalRun.statistical_run_id)} - {statisticalRun.status} - n={statisticalRun.sample_count}
+                  </span>
+                  <span className="reference-chip">{statisticalRun.failure_code ?? "QC recorded"}</span>
+                </div>
+                <ul className="qc-list" aria-label="Statistical quality-control observations">
+                  {statisticalRun.qc_observations.map((observation) => (
+                    <li key={observation.check_code} className={observation.outcome}>
+                      <strong>{observation.outcome}</strong> {observation.check_code}: {observation.detail}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {statisticalScalar ? (
+              <div className="statistics-result">
+                <p className="source-line">
+                  Scalar feature: peak engineering stress (Pa); quantiles use linear inclusive;
+                  confidence interval: {statisticalScalar.confidence_interval_status}.
+                </p>
+                <dl className="definition-list statistics-definition-list">
+                  <div><dt>Mean (Pa)</dt><dd>{statisticalScalar.mean_engineering_stress_pa.toPrecision(6)}</dd></div>
+                  <div><dt>Sample standard deviation (Pa)</dt><dd>{statisticalScalar.sample_standard_deviation_engineering_stress_pa.toPrecision(6)}</dd></div>
+                  <div><dt>Median (Pa)</dt><dd>{statisticalScalar.median_engineering_stress_pa.toPrecision(6)}</dd></div>
+                  <div><dt>MAD (Pa)</dt><dd>{statisticalScalar.median_absolute_deviation_engineering_stress_pa.toPrecision(6)}</dd></div>
+                  <div><dt>IQR (Pa)</dt><dd>{statisticalScalar.interquartile_range_engineering_stress_pa.toPrecision(6)}</dd></div>
+                  <div><dt>Coefficient of variation</dt><dd>{statisticalScalar.coefficient_of_variation?.toPrecision(6) ?? "not applicable"}</dd></div>
+                </dl>
+                {statisticalCurve ? <StatisticsCurvePanel curve={statisticalCurve} /> : null}
+              </div>
+            ) : null}
           </div>
         </div>
       )}

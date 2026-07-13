@@ -25,6 +25,7 @@ from cmp.bootstrap.security import (
     build_identity_services,
 )
 from cmp.bootstrap.settings import Settings
+from cmp.bootstrap.statistics import build_statistics_service
 from cmp.bootstrap.testing import build_testing_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
 from cmp.modules.artifacts.adapters.api.uploads import install_upload_api
@@ -56,6 +57,8 @@ from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
 from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
+from cmp.modules.statistics.adapters.api.statistics import install_statistics_api
+from cmp.modules.statistics.application.service import StatisticsService
 from cmp.modules.testing.adapters.api.testing import install_testing_api
 from cmp.modules.testing.application.service import TestingService
 from cmp.shared.contracts.revisions import revision_openapi_components
@@ -86,6 +89,7 @@ def create_app(
     testing_service: TestingService | None = None,
     dataset_service: DatasetService | None = None,
     processing_service: ProcessingService | None = None,
+    statistics_service: StatisticsService | None = None,
     material_model_service: MaterialModelService | None = None,
     solver_card_service: SolverCardService | None = None,
 ) -> FastAPI:
@@ -129,9 +133,7 @@ def create_app(
         application,
         service=resolved_jobs,
         security_dependency=security_dependency,
-        read_dependency=RequestAuthorizationDependency(
-            services.authorization, Permission.JOB_READ
-        ),
+        read_dependency=RequestAuthorizationDependency(services.authorization, Permission.JOB_READ),
         submit_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.JOB_SUBMIT
         ),
@@ -139,9 +141,7 @@ def create_app(
             services.authorization, Permission.JOB_CONTROL
         ),
     )
-    resolved_plugins = plugin_registry_service or build_plugin_registry_service(
-        services
-    )
+    resolved_plugins = plugin_registry_service or build_plugin_registry_service(services)
     install_plugin_registry_api(
         application,
         service=resolved_plugins,
@@ -251,6 +251,22 @@ def create_app(
             services.authorization, Permission.PROCESSING_EXECUTE
         ),
     )
+    resolved_statistics = statistics_service or build_statistics_service(
+        services,
+        resolved_datasets,
+        resolved_artifacts,
+    )
+    install_statistics_api(
+        application,
+        service=resolved_statistics,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.STATISTICS_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.STATISTICS_EXECUTE
+        ),
+    )
     resolved_material_models = material_model_service or build_material_model_service(services)
     install_material_model_api(
         application,
@@ -282,6 +298,7 @@ def create_app(
     application.state.testing_service = resolved_testing
     application.state.dataset_service = resolved_datasets
     application.state.processing_service = resolved_processing
+    application.state.statistics_service = resolved_statistics
     application.state.material_model_service = resolved_material_models
     application.state.solver_card_service = resolved_solver_cards
     if services.engine is not None:
@@ -320,4 +337,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

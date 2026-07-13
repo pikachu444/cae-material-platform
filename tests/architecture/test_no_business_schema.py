@@ -24,6 +24,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260714_015_T25_reference_openradioss_export.py",
         "20260714_016_T08_T12_reference_tensile_dataset.py",
         "20260715_017_T19_reference_processing.py",
+        "20260716_018_T20_reference_statistics.py",
     ]
 
 
@@ -295,6 +296,38 @@ def test_t08_t12_use_explicit_test_dataset_revisions_and_artifact_references_wit
         '"strain_original_unit"',
         '"stress_original_unit"',
         '"mapping_sha256"',
+    ):
+        assert column in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+
+
+def test_t20_uses_explicit_statistics_qc_and_result_columns_without_eav() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260716_018_T20_reference_statistics.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "statistical_plan",
+        "statistical_plan_revision",
+        "statistical_result",
+        "statistical_result_revision",
+        "statistical_run",
+        "qc_observation",
+    ):
+        assert f'"{table}"' in migration
+    for column in (
+        '"first_selection_revision_id"',
+        '"second_selection_revision_id"',
+        '"first_peak_engineering_stress_pa"',
+        '"sample_standard_deviation_engineering_stress_pa"',
+        '"curve_artifact_id"',
+        '"check_code"',
     ):
         assert column in migration
     assert "postgresql.JSONB" not in migration

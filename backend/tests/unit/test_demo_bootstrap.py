@@ -27,7 +27,8 @@ class _Connection:
         self.statements.append(statement)
 
 
-def test_demo_bootstrap_grants_processing_schema_to_non_owner_application_role() -> None:
+def test_demo_bootstrap_grants_processing_and_statistics_schemas_to_non_owner_application_role(
+) -> None:
     connection = _Connection()
 
     _grant_runtime_privileges(cast(Any, connection))
@@ -35,6 +36,12 @@ def test_demo_bootstrap_grants_processing_schema_to_non_owner_application_role()
     assert any('"processing"' in statement for statement in connection.statements)
     assert any(
         "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA \"processing\" TO cmp_app"
+        == statement
+        for statement in connection.statements
+    )
+    assert any('"statistics"' in statement for statement in connection.statements)
+    assert any(
+        "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA \"statistics\" TO cmp_app"
         == statement
         for statement in connection.statements
     )
