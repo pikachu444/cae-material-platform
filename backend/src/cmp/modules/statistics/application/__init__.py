@@ -1,0 +1,1 @@
+"""Statistics application services."""

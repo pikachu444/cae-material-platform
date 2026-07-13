@@ -460,6 +460,53 @@ def test_reference_tensile_revision_contracts_allow_typed_content_but_no_unknown
         assert list(validator.iter_errors({**valid, "unexpected": True}))
 
 
+def test_reference_statistics_contract_and_runtime_expose_typed_pair_qc_workflow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/statistical-plans/reference-tensile-pair": {
+            "post": "createReferenceTensilePairStatisticalPlan"
+        },
+        "/api/v1/statistical-plans": {"get": "listStatisticalPlans"},
+        "/api/v1/statistical-plans/{plan_id}": {"get": "getStatisticalPlan"},
+        "/api/v1/statistical-plans/{plan_id}/revisions": {
+            "post": "reviseReferenceTensilePairStatisticalPlan"
+        },
+        "/api/v1/statistical-runs/reference-tensile-pair": {
+            "post": "executeReferenceTensilePairStatistics"
+        },
+        "/api/v1/statistical-runs/{run_id}": {"get": "getStatisticalRun"},
+        "/api/v1/statistical-results/{result_id}": {"get": "getStatisticalResult"},
+        "/api/v1/statistical-results/{result_id}/curve": {
+            "get": "previewStatisticalResultCurve"
+        },
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    serialized = (
+        PROJECT_ROOT / "contracts/statistics/reference-tensile-pair-resources.schema.json"
+    ).read_text(encoding="utf-8")
+    runtime_schemas = runtime["components"]["schemas"]
+
+    assert '"first_selection_revision_id"' in serialized
+    assert '"second_selection_revision_id"' in serialized
+    assert '"curve_grid_policy"' in serialized
+    assert '"not_provided_reference_pair"' in serialized
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+    assert {"sample_count", "qc_observations", "curve_artifact_id"}.issubset(
+        runtime_schemas["StatisticalRunResponse"]["required"]
+    )
+    assert {"scalar", "curve_artifact_id", "curve_point_count"}.issubset(
+        runtime_schemas["ReferenceTensilePairResultContentResponse"]["required"]
+    )
+
+
 def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
     schema = json.loads(
         (PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json").read_text(

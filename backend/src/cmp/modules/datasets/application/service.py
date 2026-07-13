@@ -247,10 +247,10 @@ def _require_capability(
 ) -> None:
     """Allow an already authorized bounded command to use a Dataset dependency.
 
-    Processing execution is authorized as ``processing.execute`` at the HTTP edge.  Its
-    explicitly expanded transaction capabilities include Dataset read/write, so the Dataset
-    owner can safely create the derived Dataset without pretending the caller used the public
-    Dataset-write endpoint.
+    A bounded command such as Processing or Statistics is authorized at the HTTP edge under its
+    own permission. Its explicitly expanded transaction capabilities may include Dataset
+    read/write, so the Dataset owner can safely provide immutable inputs or register a derived
+    Dataset without pretending the caller used a public Dataset endpoint.
     """
 
     if (
@@ -504,6 +504,23 @@ class DatasetService:
             selection_revision_id=selection_revision_id,
         )
 
+    def get_reference_dataset_selection_revision_for_statistics(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> DatasetSelectionRevisionSnapshot:
+        """Resolve a concrete Selection input for an authorized Statistics command."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_selection_revision(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+            selection_revision_id=selection_revision_id,
+        )
+
     def list_reference_dataset_selections_for_revision(
         self,
         context: SecurityContext,
@@ -523,6 +540,21 @@ class DatasetService:
         decision: AuthorizationDecision,
         dataset_revision_id: UUID,
     ) -> DatasetRevisionSnapshot:
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+
+    def get_dataset_revision_for_statistics(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> DatasetRevisionSnapshot:
+        """Resolve a concrete Dataset input for an authorized Statistics command."""
+
         _require_capability(context, decision, Permission.DATASET_READ)
         return self._repository.get_dataset_revision(
             context=context,
@@ -561,8 +593,7 @@ class DatasetService:
             or artifact.artifact.media_type != "application/vnd.apache.parquet"
             or artifact.artifact.organization_id != context.organization_id
             or artifact.artifact.project_id != context.project_id
-            or artifact.artifact.classification.value
-            != source.revision.record.scope.classification
+            or artifact.artifact.classification.value != source.revision.record.scope.classification
         ):
             raise DatasetConflict(
                 "processed Dataset requires a verified derived reference Parquet Artifact"
@@ -656,9 +687,7 @@ class DatasetService:
             raise DatasetConflict("Raw Asset classification or tenant differs from the Test Run")
         parsed = parse_reference_tensile_csv(raw_bytes, command.mapping)
         dataset_id = self._dataset_id(context, command)
-        scope = TenantScope(
-            context.organization_id, context.project_id, run.classification.value
-        )
+        scope = TenantScope(context.organization_id, context.project_id, run.classification.value)
         raw_content = DatasetContent(
             test_run_id=command.test_run_id,
             test_run_revision_id=command.test_run_revision_id,

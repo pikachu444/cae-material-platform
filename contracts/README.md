@@ -1,8 +1,8 @@
 # Public contract baseline
 
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
-`T-12`, `T-19`, `T-22`, `T-25`, `T-26`, and the `T-32` workbench. HTTP contract version
-`0.18.0`.
+`T-12`, `T-19`, `T-20`, `T-22`, `T-25`, `T-26`, and the `T-32` workbench. HTTP contract version
+`0.19.0`.
 
 ## Files
 
@@ -26,6 +26,8 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
   immutable one-member Selection resources
 - `processing/reference-tensile-crop-resources.schema.json`: typed crop Recipe and committed Run
   resources for the reference Processing slice
+- `statistics/reference-tensile-pair-resources.schema.json`: typed two-selection reference
+  Statistics/QC Plan, committed Run, scalar/curve Result, and bounded curve preview resources
 - `revisions/revision-metadata.schema.json`: content-free typed-revision metadata envelope
 - `identity/me-response.schema.json`: authenticated principal and selected tenant context
 - `examples/positive`: examples that must validate
@@ -78,6 +80,10 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
 - A reference Processing Run pins one normalized Dataset revision and one typed crop Recipe revision.
   Its processed output is a separate immutable Dataset identity, never a replacement for raw or
   normalized source bytes. Generic processing payloads and implicit interpolation are forbidden.
+- A reference Statistical Plan pins exactly two distinct normalized Selection revisions from distinct
+  Test Runs. Curve statistics require identical observed engineering-strain grids; the contract
+  explicitly forbids implicit alignment/resampling and marks the two-sample confidence interval as
+  `not_provided_reference_pair`.
 
 Run `make check-contracts` after every contract change. Accepting a breaking change requires a new
 major contract, an ADR, and migration guidance; do not overwrite the baseline to hide the break.

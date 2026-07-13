@@ -495,6 +495,141 @@ export interface ProcessingRunResponse {
   links: Record<string, string>;
 }
 
+export interface ReferenceTensilePairPlanContent {
+  plan_kind: "reference_tensile_pair_scalar_and_curve";
+  sample_count: 2;
+  first_selection_id: string;
+  first_selection_revision_id: string;
+  second_selection_id: string;
+  second_selection_revision_id: string;
+  input_schema_ref: string;
+  scalar_feature: "peak_engineering_stress_pa";
+  curve_grid_policy: "exact_observed_grid_match_no_alignment";
+  assumption_profile: "identical_observed_engineering_strain_grid";
+  quantile_method: "linear_inclusive";
+  confidence_interval_status: "not_provided_reference_pair";
+  curve_output_schema_ref: string;
+}
+
+export interface StatisticalPlanRevision extends RevisionMetadata {
+  content: ReferenceTensilePairPlanContent;
+}
+
+export interface StatisticalPlanResponse {
+  statistical_plan_id: string;
+  plan_label: string;
+  current_revision: StatisticalPlanRevision;
+  links: Record<string, string>;
+}
+
+export interface QcObservation {
+  check_code:
+    | "distinct_test_runs"
+    | "identical_observed_engineering_strain_grid"
+    | "input_artifact_readable";
+  outcome: "passed" | "failed";
+  detail: string;
+  expected_point_count: number | null;
+  observed_point_count: number | null;
+  mismatch_index: number | null;
+}
+
+export interface StatisticalRunResponse {
+  statistical_run_id: string;
+  classification: DataClassification;
+  execution_mode: "committed";
+  status: "executing" | "succeeded" | "failed";
+  plan_id: string;
+  plan_revision_id: string;
+  first_selection_id: string;
+  first_selection_revision_id: string;
+  first_dataset_id: string;
+  first_dataset_revision_id: string;
+  second_selection_id: string;
+  second_selection_revision_id: string;
+  second_dataset_id: string;
+  second_dataset_revision_id: string;
+  sample_count: 2;
+  result_id: string | null;
+  result_revision_id: string | null;
+  curve_artifact_id: string | null;
+  curve_sha256: string | null;
+  curve_point_count: number | null;
+  failure_code: string | null;
+  qc_observations: QcObservation[];
+  change_reason: string;
+  started_at: string;
+  ended_at: string | null;
+  links: Record<string, string>;
+}
+
+export interface ReferenceTensilePairScalarStatistics {
+  first_peak_engineering_stress_pa: number;
+  second_peak_engineering_stress_pa: number;
+  mean_engineering_stress_pa: number;
+  sample_standard_deviation_engineering_stress_pa: number;
+  median_engineering_stress_pa: number;
+  median_absolute_deviation_engineering_stress_pa: number;
+  interquartile_range_engineering_stress_pa: number;
+  minimum_engineering_stress_pa: number;
+  maximum_engineering_stress_pa: number;
+  coefficient_of_variation: number | null;
+  confidence_interval_status: "not_provided_reference_pair";
+  quantile_method: "linear_inclusive";
+}
+
+export interface ReferenceTensilePairResultContent {
+  result_kind: "reference_tensile_pair_scalar_and_curve";
+  statistical_run_id: string;
+  plan_id: string;
+  plan_revision_id: string;
+  first_selection_id: string;
+  first_selection_revision_id: string;
+  first_dataset_id: string;
+  first_dataset_revision_id: string;
+  second_selection_id: string;
+  second_selection_revision_id: string;
+  second_dataset_id: string;
+  second_dataset_revision_id: string;
+  sample_count: 2;
+  scalar_feature: "peak_engineering_stress_pa";
+  curve_artifact_id: string;
+  curve_sha256: string;
+  curve_point_count: number;
+  scalar: ReferenceTensilePairScalarStatistics;
+  assumption_profile: "identical_observed_engineering_strain_grid";
+  curve_grid_policy: "exact_observed_grid_match_no_alignment";
+}
+
+export interface StatisticalResultRevision extends RevisionMetadata {
+  content: ReferenceTensilePairResultContent;
+}
+
+export interface StatisticalResultResponse {
+  statistical_result_id: string;
+  current_revision: StatisticalResultRevision;
+  links: Record<string, string>;
+}
+
+export interface StatisticalCurvePoint {
+  engineering_strain: number;
+  mean_engineering_stress_pa: number;
+  sample_standard_deviation_engineering_stress_pa: number;
+  median_engineering_stress_pa: number;
+  minimum_engineering_stress_pa: number;
+  maximum_engineering_stress_pa: number;
+}
+
+export interface StatisticalCurvePreview {
+  statistical_result_id: string;
+  point_count: number;
+  returned_point_count: number;
+  sampled: boolean;
+  strain_unit: "1";
+  stress_unit: "Pa";
+  points: StatisticalCurvePoint[];
+}
+
 export interface UploadSession {
   upload_id: string;
   organization_id: string;

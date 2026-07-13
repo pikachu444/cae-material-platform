@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-15`
-Foundation version: `0.18.0`
+Date: `2026-07-16`
+Foundation version: `0.19.0`
 
 ## Completed
 
@@ -42,6 +42,15 @@ Foundation version: `0.18.0`
   records Selection/Recipe/output revision audit facts and concrete Processing provenance, and
   provides protected API plus Material State workbench controls. Multi-input selection, resampling,
   true-strain transforms, and durable Run reconciliation remain outside this subset.
+- `T-20` reference subset: an immutable Statistical Plan pins exactly two existing one-member
+  normalized Dataset Selection revisions from distinct Test Runs; a committed Statistical Run records
+  typed QC observations and either fails durably or creates a separate immutable Statistical Result
+  revision plus typed Parquet pointwise curve Artifact. Scalar statistics use one peak engineering
+  stress per Test Run (`n=2`) with mean/sample SD/median/MAD/IQR/range/CV; curve statistics require
+  exact observed engineering-strain grid equality and never align, interpolate, resample, or
+  extrapolate. The API, provenance/audit hooks, PostgreSQL constraints/RLS, and Material State
+  workbench expose the pinned inputs, QC, result scalar values, and mean curve. Outlier assessment,
+  larger groups, CI estimation, and approved alignment Processing remain outside this reference slice.
 - `T-32` MVP subset: React/Vite Material Catalog workbench backed by protected Catalog, Modeling,
   and Exporting APIs; Dashboard, search, Material creation, State and typed Property Set
   entry/revision, revision compare/history, provenance summary, and the reference
@@ -51,6 +60,10 @@ Foundation version: `0.18.0`
   concrete Specimen selection, reference Method registration, immutable Test Run creation, browser
   multipart CSV upload, explicit column/unit mapping, and raw/normalized Dataset revision/curve
   inspection. It remains deliberately limited to the reference tensile CSV contract.
+- `T-32` extension: the same Material State screen now selects two pinned normalized Selections,
+  creates a Statistical Plan, commits the reference Statistics/QC Run, surfaces passed/failed QC,
+  scalar output, and the immutable mean-curve preview. It does not conceal grid mismatch through a
+  browser-side alignment or alter either source revision.
 - Local demo composition: an explicit `CMP_ENVIRONMENT=demo` + `CMP_DEMO_IDENTITY=true` Docker
   Compose profile now runs PostgreSQL, owner-only migration/bootstrap, a non-owner `cmp_app` API,
   worker, React workbench, filesystem object storage, checked reference-plugin asset, and an
@@ -145,6 +158,14 @@ Foundation version: `0.18.0`
   typed Recipe plan, output derivation, and generic revision audit facts in tenant/classification
   scope. If output Dataset commit succeeds but the terminal Run projection fails, the Run remains
   executing for explicit reconciliation rather than being falsely marked failed.
+- Reference Statistics first validates that the two immutable Selection inputs resolve to distinct
+  Test Runs and reads both normalized Artifacts without changing them. It stores an explicit failed
+  terminal Run plus typed QC when an Artifact is unreadable, its point count disagrees with its
+  revision, or the observed engineering-strain grids differ; no implicit alignment path exists.
+- A successful Statistics Run creates a separate derived typed curve Artifact and immutable Result
+  revision before its terminal transition, then records QC in the same terminal transaction. Result
+  provenance captures both Selection revisions and the Plan; the two-sample confidence interval is
+  explicitly `not_provided_reference_pair` rather than manufactured from point pseudo-replicates.
 - The Material State workbench calls the protected Testing/Dataset/Upload APIs directly; it keeps
   raw and normalized curve revisions selectable, labels their units, and uses deterministic preview
   sampling rather than treating a browser plot as a calculation artifact.
@@ -229,26 +250,27 @@ Foundation version: `0.18.0`
 
 ## Validation result
 
-Normal command: `make ci`. This Windows environment has no `make`, so the equivalent `uv` lint,
-typecheck, architecture/contract, migration-SQL, pytest, and root web-check commands were executed
-directly; the PostgreSQL integration suite additionally requires `CMP_TEST_POSTGRES_DSN`.
+Normal command: `make ci`. This Windows environment has no `make`; its WSL/Bash fallback cannot
+start a VM service, so the equivalent locked dependency sync, lint, typecheck, architecture/contract,
+migration-SQL, pytest, and root web-check commands were executed directly. The PostgreSQL integration
+suite additionally requires `CMP_TEST_POSTGRES_DSN`.
 
 ```text
 Ruff: passed
-mypy strict: passed (280 source files)
+mypy strict: passed (294 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
 Alembic `upgrade head --sql`: passed
-CI-equivalent pytest: 270 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Root web check: build passed; Vitest: 12 passed
+CI-equivalent pytest: 280 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Root web check: build passed; Vitest: 13 passed
 Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
   token tests are implemented. Docker is not installed in this Windows environment, so the
   containers and live PostgreSQL demo could not be started here.
-T-19 has unit/API/migration and browser-workbench regression coverage. T-19 and earlier PostgreSQL
-  integration coverage is implemented but not executed in this environment because
-  CMP_TEST_POSTGRES_DSN is unavailable; migration SQL rendering is covered offline, while a live
-  PostgreSQL test remains the next verification task.
+T-19/T-20 have unit, API integration, migration SQL, and browser-workbench regression coverage.
+T-20 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
+because CMP_TEST_POSTGRES_DSN is unavailable; migration SQL rendering is covered offline, while a
+live PostgreSQL test remains the next verification task.
 ```
 
 ## Intentionally absent
@@ -258,7 +280,7 @@ T-19 has unit/API/migration and browser-workbench regression coverage. T-19 and 
 - Process/Lot/Batch genealogy, richer typed property/curve families, Test Campaign/Instrument
   records, generic importer detection/mapping approval, and non-reference Dataset channels
 - Multi-member Selection/filter semantics, resample/true-stress-strain processing, durable
-  Processing Run reconciliation, statistics/QC/outlier assessment, and calibration
+  Processing Run reconciliation, outlier assessment, larger-replicate/CI statistics, and calibration
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
@@ -276,11 +298,12 @@ T-19 has unit/API/migration and browser-workbench regression coverage. T-19 and 
 
 ## Next gate
 
-**Updated 2026-07-15:** the reference Test/Dataset and committed Processing slices are implemented.
-The next product gate is `T-20`: choose a domain-approved multi-replicate Selection/alignment
-decision, then add typed scalar/curve statistics and QC evidence. Outlier assessment, calibration,
-and release evidence remain separate bounded work; calibration must consume these explicit Dataset
-and Processing revisions rather than becoming a separate MCalibration-shaped application.
+**Updated 2026-07-16:** the reference Test/Dataset, committed Processing, and exact-grid
+two-sample Statistics/QC slices are implemented. The next product gate is `T-21`: add append-only
+outlier candidate/assessment and explicitly scoped comparison without changing raw, normalized, or
+Statistics inputs. Calibration and release evidence remain separate bounded work; calibration must
+consume explicit Dataset, Processing, Selection, and Statistics revisions rather than becoming a
+separate MCalibration-shaped application.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

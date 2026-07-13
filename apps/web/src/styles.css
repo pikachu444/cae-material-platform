@@ -880,6 +880,52 @@ dd {
   line-height: 1.5;
 }
 
+.statistics-result {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid #c9dbd7;
+  border-radius: 7px;
+  background: #f9fdfc;
+}
+
+.qc-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #4d6669;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.qc-list li {
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid #78a9a1;
+  border-radius: 3px;
+  background: #f2f8f6;
+}
+
+.qc-list li.failed {
+  border-left-color: #c86655;
+  color: #7b3027;
+  background: #fff3f0;
+}
+
+.statistics-definition-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.statistics-definition-list div {
+  grid-template-columns: 1fr;
+  gap: 0.2rem;
+  padding: 0.45rem;
+  border: 1px solid #dce9e4;
+  border-radius: 5px;
+  background: #fff;
+}
+
 .mapping-report {
   display: grid;
   gap: 0.55rem;

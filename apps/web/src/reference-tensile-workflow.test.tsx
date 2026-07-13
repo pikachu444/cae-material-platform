@@ -75,7 +75,7 @@ describe("Reference tensile Dataset workflow", () => {
     expect(screen.getByLabelText("Strain column")).toBeTruthy();
     expect(screen.getByLabelText("Stress column")).toBeTruthy();
     expect(screen.getByText(/Column names are never inferred/)).toBeTruthy();
-    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock).toHaveBeenCalledTimes(5);
   });
 
   it("commits a pinned observed-point crop and renders the separate processed curve", async () => {
@@ -249,6 +249,230 @@ describe("Reference tensile Dataset workflow", () => {
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([input, init]) => (
         String(input).endsWith("/processing-runs/reference-tensile-crop")
+        && init?.method === "POST"
+      ))).toBe(true);
+    });
+  });
+
+  it("pins two normalized selections, records QC, and renders the reference statistics result", async () => {
+    const firstDatasetId = "20000000-0000-4000-8000-000000000001";
+    const secondDatasetId = "20000000-0000-4000-8000-000000000002";
+    const firstRevisionId = "20000000-0000-4000-8000-000000000003";
+    const secondRevisionId = "20000000-0000-4000-8000-000000000004";
+    const firstSelectionId = "20000000-0000-4000-8000-000000000005";
+    const secondSelectionId = "20000000-0000-4000-8000-000000000006";
+    const firstSelectionRevisionId = "20000000-0000-4000-8000-000000000007";
+    const secondSelectionRevisionId = "20000000-0000-4000-8000-000000000008";
+    const planId = "20000000-0000-4000-8000-000000000009";
+    const planRevisionId = "20000000-0000-4000-8000-00000000000a";
+    const statisticalRunId = "20000000-0000-4000-8000-00000000000b";
+    const resultId = "20000000-0000-4000-8000-00000000000c";
+    const resultRevisionId = "20000000-0000-4000-8000-00000000000d";
+    const dataset = (datasetId: string, revisionId: string, testRunId: string) => ({
+      dataset_id: datasetId,
+      test_run_id: testRunId,
+      current_revision: {
+        ...state.current_revision,
+        id: revisionId,
+        aggregate_id: datasetId,
+        content: {
+          test_run_id: testRunId,
+          test_run_revision_id: `${testRunId.slice(0, -1)}f`,
+          raw_asset_id: "20000000-0000-4000-8000-00000000000e",
+          raw_artifact_id: "20000000-0000-4000-8000-00000000000f",
+          data_artifact_id: "20000000-0000-4000-8000-000000000010",
+          data_sha256: "b".repeat(64),
+          representation: "normalized" as const,
+          source_dataset_revision_id: null,
+          processing_run_id: null,
+          point_count: 3,
+          mapping_sha256: "c".repeat(64),
+          importer_id: "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0",
+          importer_version: "1.0.0",
+          reference_only: true as const,
+          channels: [],
+        },
+      },
+      links: {},
+    });
+    const firstDataset = dataset(firstDatasetId, firstRevisionId, "20000000-0000-4000-8000-000000000011");
+    const secondDataset = dataset(secondDatasetId, secondRevisionId, "20000000-0000-4000-8000-000000000012");
+    const selection = (selectionId: string, revisionId: string, source: typeof firstDataset, label: string) => ({
+      selection_id: selectionId,
+      selection_label: label,
+      current_revision: {
+        ...state.current_revision,
+        id: revisionId,
+        aggregate_id: selectionId,
+        content: {
+          selection_kind: "reference_normalized_dataset_revision" as const,
+          member_count: 1 as const,
+          dataset_id: source.dataset_id,
+          dataset_revision_id: source.current_revision.id,
+        },
+      },
+      links: {},
+    });
+    const firstSelection = selection(firstSelectionId, firstSelectionRevisionId, firstDataset, "Specimen A");
+    const secondSelection = selection(secondSelectionId, secondSelectionRevisionId, secondDataset, "Specimen B");
+    const plan = {
+      statistical_plan_id: planId,
+      plan_label: "Reference tensile pair statistics",
+      current_revision: {
+        ...state.current_revision,
+        id: planRevisionId,
+        aggregate_id: planId,
+        content: {},
+      },
+      links: {},
+    };
+    const fetchMock = vi.fn<typeof fetch>((input, init) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+      if (url.includes("/dataset-revisions/") && url.includes("/curve")) {
+        const revisionId = url.includes(secondRevisionId) ? secondRevisionId : firstRevisionId;
+        return Promise.resolve(jsonResponse({
+          dataset_id: revisionId === secondRevisionId ? secondDatasetId : firstDatasetId,
+          dataset_revision_id: revisionId,
+          representation: "normalized",
+          point_count: 3,
+          returned_point_count: 3,
+          sampled: false,
+          strain_unit: "1",
+          stress_unit: "Pa",
+          points: [
+            { engineering_strain: 0, engineering_stress: 0 },
+            { engineering_strain: 0.01, engineering_stress: 100000000 },
+            { engineering_strain: 0.02, engineering_stress: 120000000 },
+          ],
+        }));
+      }
+      if (url.endsWith(`/datasets/${firstDatasetId}/revisions`)) {
+        return Promise.resolve(jsonResponse({ dataset_id: firstDatasetId, revisions: [firstDataset.current_revision] }));
+      }
+      if (url.endsWith(`/dataset-revisions/${firstRevisionId}/selections`)) {
+        return Promise.resolve(jsonResponse({ items: [firstSelection] }));
+      }
+      if (url.endsWith(`/dataset-revisions/${secondRevisionId}/selections`)) {
+        return Promise.resolve(jsonResponse({ items: [secondSelection] }));
+      }
+      if (url.endsWith("/statistical-plans?limit=100") && method === "GET") {
+        return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      if (url.endsWith("/statistical-plans/reference-tensile-pair") && method === "POST") {
+        return Promise.resolve(jsonResponse(plan));
+      }
+      if (url.endsWith("/statistical-runs/reference-tensile-pair") && method === "POST") {
+        return Promise.resolve(jsonResponse({
+          statistical_run_id: statisticalRunId,
+          classification: "internal",
+          execution_mode: "committed",
+          status: "succeeded",
+          plan_id: planId,
+          plan_revision_id: planRevisionId,
+          first_selection_id: firstSelectionId,
+          first_selection_revision_id: firstSelectionRevisionId,
+          first_dataset_id: firstDatasetId,
+          first_dataset_revision_id: firstRevisionId,
+          second_selection_id: secondSelectionId,
+          second_selection_revision_id: secondSelectionRevisionId,
+          second_dataset_id: secondDatasetId,
+          second_dataset_revision_id: secondRevisionId,
+          sample_count: 2,
+          result_id: resultId,
+          result_revision_id: resultRevisionId,
+          curve_artifact_id: "20000000-0000-4000-8000-000000000013",
+          curve_sha256: "d".repeat(64),
+          curve_point_count: 3,
+          failure_code: null,
+          qc_observations: [
+            {
+              check_code: "distinct_test_runs",
+              outcome: "passed",
+              detail: "Two distinct Test Run revisions are pinned.",
+              expected_point_count: null,
+              observed_point_count: null,
+              mismatch_index: null,
+            },
+          ],
+          change_reason: "Calculate reference pair scalar statistics and curve band",
+          started_at: "2026-07-16T00:00:00Z",
+          ended_at: "2026-07-16T00:00:00Z",
+          links: {},
+        }));
+      }
+      if (url.endsWith(`/statistical-results/${resultId}`)) {
+        return Promise.resolve(jsonResponse({
+          statistical_result_id: resultId,
+          current_revision: {
+            ...state.current_revision,
+            id: resultRevisionId,
+            aggregate_id: resultId,
+            content: {
+              scalar: {
+                first_peak_engineering_stress_pa: 120000000,
+                second_peak_engineering_stress_pa: 140000000,
+                mean_engineering_stress_pa: 130000000,
+                sample_standard_deviation_engineering_stress_pa: 14142135.6237,
+                median_engineering_stress_pa: 130000000,
+                median_absolute_deviation_engineering_stress_pa: 10000000,
+                interquartile_range_engineering_stress_pa: 10000000,
+                minimum_engineering_stress_pa: 120000000,
+                maximum_engineering_stress_pa: 140000000,
+                coefficient_of_variation: 0.108785658,
+                confidence_interval_status: "not_provided_reference_pair",
+                quantile_method: "linear_inclusive",
+              },
+            },
+          },
+          links: {},
+        }));
+      }
+      if (url.includes(`/statistical-results/${resultId}/curve`)) {
+        return Promise.resolve(jsonResponse({
+          statistical_result_id: resultId,
+          point_count: 3,
+          returned_point_count: 3,
+          sampled: false,
+          strain_unit: "1",
+          stress_unit: "Pa",
+          points: [
+            { engineering_strain: 0, mean_engineering_stress_pa: 0, sample_standard_deviation_engineering_stress_pa: 0, median_engineering_stress_pa: 0, minimum_engineering_stress_pa: 0, maximum_engineering_stress_pa: 0 },
+            { engineering_strain: 0.01, mean_engineering_stress_pa: 105000000, sample_standard_deviation_engineering_stress_pa: 7071067.8119, median_engineering_stress_pa: 105000000, minimum_engineering_stress_pa: 100000000, maximum_engineering_stress_pa: 110000000 },
+            { engineering_strain: 0.02, mean_engineering_stress_pa: 130000000, sample_standard_deviation_engineering_stress_pa: 14142135.6237, median_engineering_stress_pa: 130000000, minimum_engineering_stress_pa: 120000000, maximum_engineering_stress_pa: 140000000 },
+          ],
+        }));
+      }
+      if (url.endsWith("/processing-recipes") && method === "GET") {
+        return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      if (url.includes("/material-states/") && url.endsWith("/datasets")) {
+        return Promise.resolve(jsonResponse({ items: [firstDataset, secondDataset] }));
+      }
+      return Promise.resolve(jsonResponse({ items: [] }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ReferenceTensileWorkflow
+        config={{ baseUrl: "/api/v1", accessToken: "tenant-token" }}
+        state={state}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Manage reference tensile data" }));
+
+    await screen.findByText("9. Compare two pinned selections with reference Statistics/QC");
+    await screen.findByRole("button", { name: "Create immutable Statistical Plan" });
+    fireEvent.click(screen.getByRole("button", { name: "Create immutable Statistical Plan" }));
+    await screen.findByRole("combobox", { name: "Statistical Plan" });
+    fireEvent.click(screen.getByRole("button", { name: "Commit Statistical Run" }));
+
+    await screen.findByText("Mean engineering-stress curve");
+    expect(screen.getByText(/distinct_test_runs/)).toBeTruthy();
+    expect(screen.getByText(/not_provided_reference_pair/)).toBeTruthy();
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input, init]) => (
+        String(input).endsWith("/statistical-runs/reference-tensile-pair")
         && init?.method === "POST"
       ))).toBe(true);
     });

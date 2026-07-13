@@ -89,6 +89,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
             Permission.DATASET_READ,
             Permission.STATISTICS_READ,
             Permission.STATISTICS_EXECUTE,
@@ -194,7 +195,17 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.PROCESSING_READ,
         }
     ),
-    Permission.STATISTICS_EXECUTE: frozenset({Permission.DATASET_READ, Permission.STATISTICS_READ}),
+    # A committed Statistical Run reads two pinned Dataset Artifacts and writes one immutable
+    # typed curve-result Artifact. These are transaction-local capabilities, not public Artifact
+    # endpoint grants inferred by the Statistics route.
+    Permission.STATISTICS_EXECUTE: frozenset(
+        {
+            Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_READ,
+            Permission.STATISTICS_READ,
+        }
+    ),
     Permission.MODELING_WRITE: frozenset({Permission.CATALOG_READ, Permission.MODELING_READ}),
     Permission.CALIBRATION_EXECUTE: frozenset({Permission.DATASET_READ, Permission.MODELING_READ}),
     Permission.EXPORT_READ: frozenset({Permission.MODELING_READ}),

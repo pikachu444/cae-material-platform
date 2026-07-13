@@ -297,6 +297,16 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-20. QC rule, scalar feature, Statistical Plan/Run — `P0`
 
+- **2026-07-16 reference subset:** existing one-member normalized Dataset Selections remain intact;
+  a typed Statistical Plan pins exactly two distinct Selection revisions from distinct Test Runs.
+  A committed Run records typed QC and produces a separate immutable Result revision plus Parquet
+  curve artifact only when the two observed engineering-strain grids are exactly equal. Scalar
+  statistics use peak stress per Test Run (`n=2`) and report mean/sample SD/median/MAD/IQR/range/CV;
+  curve output carries mean/sample SD/median/min/max. No hidden alignment, resampling,
+  interpolation, extrapolation, or two-sample CI is performed (`not_provided_reference_pair`).
+  PostgreSQL typed tables/RLS/constraints, provenance/audit, API, and Material State workbench are
+  implemented. Multi-member grouping, approved alignment processing, larger-n uncertainty, and
+  domain-approved statistical method/tolerance profiles remain separate work.
 - **목적:** specimen-level QC와 scalar/curve statistics를 grouping/assumption과 함께 계산한다.
 - **입력과 출력:** 입력은 Selection Revision, aligned dataset, Statistical Plan; 출력은 features, QC observations, scalar/curve result artifacts.
 - **영향 데이터/API:** `statistics.plan*`, `run`, `feature`, `qc_observation`, `result`; statistical API.
