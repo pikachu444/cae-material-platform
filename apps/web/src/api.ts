@@ -1,13 +1,21 @@
 import type {
+  ExportTarget,
   MaterialCreateInput,
   MaterialDetail,
+  MaterialModelList,
+  MaterialModelResponse,
   MaterialResponse,
   MaterialRevisionComparison,
   MaterialRevisionList,
   MaterialStateCreateInput,
   MaterialStateResponse,
+  MappingReport,
   PropertySetCreateInput,
   PropertySetResponse,
+  ReferenceModelCreateInput,
+  SolverCardCreateInput,
+  SolverCardList,
+  SolverCardResponse,
 } from "./types";
 
 export interface ApiConfig {
@@ -79,34 +87,51 @@ function endpoint(config: ApiConfig, path: string): string {
   return `${config.baseUrl.replace(/\/$/, "")}${path}`;
 }
 
-async function request<T>(
-  config: ApiConfig,
-  path: string,
-  init: RequestInit = {},
-): Promise<ApiResult<T>> {
+function authenticatedHeaders(config: ApiConfig, init: RequestInit, accept: string): Headers {
   const token = config.accessToken.trim();
   if (!token) {
     throw new ApiError(401, "Add a bearer access token in Connection before using the catalog.");
   }
 
   const headers = new Headers(init.headers);
-  headers.set("Accept", "application/json");
+  headers.set("Accept", accept);
   headers.set("Authorization", `Bearer ${token}`);
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
+  return headers;
+}
 
+async function throwResponseError(response: Response): Promise<never> {
+  const isJson = response.headers.get("content-type")?.includes("json");
+  let problem: ProblemDocument = {};
+  if (isJson) {
+    try {
+      problem = (await response.json()) as ProblemDocument;
+    } catch {
+      // Preserve a useful HTTP failure if a proxy sends an invalid problem body.
+    }
+  }
+  throw new ApiError(
+    response.status,
+    problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`,
+    problem.code,
+  );
+}
+
+async function request<T>(
+  config: ApiConfig,
+  path: string,
+  init: RequestInit = {},
+): Promise<ApiResult<T>> {
+  const headers = authenticatedHeaders(config, init, "application/json");
   const response = await fetch(endpoint(config, path), { ...init, headers });
-  const isJson = response.headers.get("content-type")?.includes("application/json");
+  const isJson = response.headers.get("content-type")?.includes("json");
   const body: unknown = isJson ? await response.json() : undefined;
 
   if (!response.ok) {
     const problem = (body ?? {}) as ProblemDocument;
-    throw new ApiError(
-      response.status,
-      problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`,
-      problem.code,
-    );
+    throw new ApiError(response.status, problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`, problem.code);
   }
 
   return { data: body as T, etag: response.headers.get("etag") };
@@ -203,4 +228,96 @@ export function revisePropertySet(
     headers: { "If-Match": etag },
     body: JSON.stringify(input),
   });
+}
+
+export function listMaterialModels(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<MaterialModelList>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/material-models`);
+}
+
+export function createReferenceMaterialModel(
+  config: ApiConfig,
+  materialStateId: string,
+  input: ReferenceModelCreateInput,
+): Promise<ApiResult<MaterialModelResponse>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/material-models`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function preflightSolverCardMapping(
+  config: ApiConfig,
+  materialModelId: string,
+  target: ExportTarget,
+): Promise<ApiResult<MappingReport>> {
+  return request(config, `/material-models/${encodeURIComponent(materialModelId)}/mapping-preflight`, {
+    method: "POST",
+    body: JSON.stringify({ target }),
+  });
+}
+
+export function listSolverCards(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<SolverCardList>> {
+  return request(config, `/material-models/${encodeURIComponent(materialModelId)}/solver-cards`);
+}
+
+export function createSolverCard(
+  config: ApiConfig,
+  materialModelId: string,
+  input: SolverCardCreateInput,
+): Promise<ApiResult<SolverCardResponse>> {
+  return request(config, `/material-models/${encodeURIComponent(materialModelId)}/solver-cards`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function previewSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<string>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/solver-cards/${encodeURIComponent(solverCardId)}/preview`),
+    { ...init, headers },
+  );
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  return { data: await response.text(), etag: response.headers.get("etag") };
+}
+
+export interface SolverCardDownload {
+  blob: Blob;
+  filename: string;
+}
+
+export async function downloadSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<SolverCardDownload>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/solver-cards/${encodeURIComponent(solverCardId)}/download`),
+    { ...init, headers },
+  );
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  const header = response.headers.get("content-disposition") ?? "";
+  const match = header.match(/filename="?([^";]+)"?/i);
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: match?.[1] ?? `solver-card-${solverCardId}.rad`,
+    },
+    etag: response.headers.get("etag"),
+  };
 }

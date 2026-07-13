@@ -4,24 +4,35 @@ import {
   type ApiConfig,
   compareMaterialRevisions,
   createMaterial,
+  createReferenceMaterialModel,
   createMaterialState,
   createPropertySet,
+  createSolverCard,
+  downloadSolverCard,
   getMaterialDetail,
   getMaterialRevisions,
   getPropertySet,
+  listMaterialModels,
   listMaterials,
+  listSolverCards,
   loadApiConfig,
+  preflightSolverCardMapping,
+  previewSolverCard,
   revisePropertySet,
   saveApiConfig,
 } from "./api";
 import type {
   DataClassification,
+  ExportTarget,
   MaterialDetail,
+  MaterialModelResponse,
   MaterialResponse,
   MaterialRevision,
   MaterialStateResponse,
+  MappingReport,
   PropertySetResponse,
   PropertySourceKind,
+  SolverCardResponse,
 } from "./types";
 
 type Navigate = (path: string) => void;
@@ -289,8 +300,8 @@ function DashboardPage({
           <h1>Material data, made ready for CAE.</h1>
           <p>
             Register a Material, bind a manufacturing state, record typed basic properties, and retain
-            immutable revision provenance. Reference IR and OpenRadioss card generation are the next
-            contiguous step.
+            immutable revision provenance. The same Material State can then create a reference IR,
+            inspect an explicit OpenRadioss mapping, and download its immutable Solver Card.
           </p>
         </div>
         <div className="hero-actions">
@@ -871,24 +882,32 @@ function MaterialStateCard({
         <div><dt>Lot / batch</dt><dd>{content.lot_or_batch ?? "—"}</dd></div>
       </dl>
       {content.description ? <p className="state-description">{content.description}</p> : null}
-      {property ? (
-        <section className="property-summary">
-          <div className="section-heading compact-heading">
-            <div><p className="eyebrow">Typed property set</p><h4>Basic mechanical properties</h4></div>
-            <button className="text-button" type="button" onClick={() => setEditorOpen((value) => !value)}>
-              {editorOpen ? "Close editor" : "Revise"}
-            </button>
-          </div>
-          <div className="property-grid">
-            <div><span>Density</span><strong>{new Intl.NumberFormat().format(property.density_kg_per_m3)} kg/m³</strong></div>
-            <div><span>Young&apos;s modulus</span><strong>{formatPressurePa(property.youngs_modulus_pa)}</strong></div>
-            <div><span>Poisson&apos;s ratio</span><strong>{property.poisson_ratio}</strong></div>
-            <div><span>Yield stress</span><strong>{formatPressurePa(property.yield_stress_pa)}</strong></div>
-          </div>
-          <small className="source-line">
-            Sources: ρ {property.density_source.kind}, E {property.youngs_modulus_source.kind}, ν {property.poisson_ratio_source.kind}
-          </small>
-        </section>
+      {property && propertySet ? (
+        <>
+          <section className="property-summary">
+            <div className="section-heading compact-heading">
+              <div><p className="eyebrow">Typed property set</p><h4>Basic mechanical properties</h4></div>
+              <button className="text-button" type="button" onClick={() => setEditorOpen((value) => !value)}>
+                {editorOpen ? "Close editor" : "Revise"}
+              </button>
+            </div>
+            <div className="property-grid">
+              <div><span>Density</span><strong>{new Intl.NumberFormat().format(property.density_kg_per_m3)} kg/m³</strong></div>
+              <div><span>Young&apos;s modulus</span><strong>{formatPressurePa(property.youngs_modulus_pa)}</strong></div>
+              <div><span>Poisson&apos;s ratio</span><strong>{property.poisson_ratio}</strong></div>
+              <div><span>Yield stress</span><strong>{formatPressurePa(property.yield_stress_pa)}</strong></div>
+            </div>
+            <small className="source-line">
+              Sources: ρ {property.density_source.kind}, E {property.youngs_modulus_source.kind}, ν {property.poisson_ratio_source.kind}
+            </small>
+          </section>
+          <ModelToCardWorkflow
+            key={propertySet.current_revision.id}
+            config={config}
+            state={state}
+            propertySet={propertySet}
+          />
+        </>
       ) : (
         <section className="property-summary empty-properties">
           <p className="eyebrow">Typed property set</p>
@@ -1010,6 +1029,370 @@ function PropertySetEditor({
         {error ? <ErrorNotice message={error} /> : null}
         <div className="form-actions"><button className="button primary" type="submit" disabled={saving}>{saving ? "Saving…" : propertySet ? "Append property revision" : "Create property set"}</button></div>
       </form>
+    </section>
+  );
+}
+
+const referenceTarget: ExportTarget = {
+  solver: "openradioss",
+  version: "2025",
+  unit_system: "kg_m_s",
+};
+
+function readableMappingStatus(status: string): string {
+  return status.replaceAll("_", " ");
+}
+
+function ModelToCardWorkflow({
+  config,
+  state,
+  propertySet,
+}: {
+  config: ApiConfig;
+  state: MaterialStateResponse;
+  propertySet: PropertySetResponse;
+}) {
+  const [models, setModels] = useState<MaterialModelResponse[]>([]);
+  const [selectedModelId, setSelectedModelId] = useState("");
+  const [cards, setCards] = useState<SolverCardResponse[]>([]);
+  const [report, setReport] = useState<MappingReport | null>(null);
+  const [modelReason, setModelReason] = useState("Create reference Material Model IR");
+  const [cardTitle, setCardTitle] = useState(`${state.current_revision.content.name} elastic`);
+  const [solverMaterialId, setSolverMaterialId] = useState("1");
+  const [cardReason, setCardReason] = useState("Generate OpenRadioss reference card");
+  const [targetKey, setTargetKey] = useState("openradioss-2025-kg_m_s");
+  const [loadingModels, setLoadingModels] = useState(false);
+  const [savingModel, setSavingModel] = useState(false);
+  const [runningPreflight, setRunningPreflight] = useState(false);
+  const [savingCard, setSavingCard] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [previewCardId, setPreviewCardId] = useState<string | null>(null);
+  const [downloadingCardId, setDownloadingCardId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let current = true;
+    setLoadingModels(true);
+    setError(null);
+    void listMaterialModels(config, state.material_state_id)
+      .then((result) => {
+        if (!current) {
+          return;
+        }
+        setModels(result.data.items);
+        setSelectedModelId((selected) => selected || result.data.items[0]?.material_model_id || "");
+      })
+      .catch((cause: unknown) => current && setError(errorMessage(cause)))
+      .finally(() => current && setLoadingModels(false));
+    return () => {
+      current = false;
+    };
+  }, [config, state.material_state_id]);
+
+  const selectedModel = models.find((model) => model.material_model_id === selectedModelId) ?? null;
+
+  useEffect(() => {
+    if (!selectedModel) {
+      setCards([]);
+      setReport(null);
+      return;
+    }
+    let current = true;
+    setPreview(null);
+    setPreviewCardId(null);
+    setReport(null);
+    void listSolverCards(config, selectedModel.material_model_id)
+      .then((result) => current && setCards(result.data.items))
+      .catch((cause: unknown) => current && setError(errorMessage(cause)));
+    return () => {
+      current = false;
+    };
+  }, [config, selectedModel?.material_model_id]);
+
+  async function createModel(): Promise<void> {
+    setSavingModel(true);
+    setError(null);
+    try {
+      const result = await createReferenceMaterialModel(config, state.material_state_id, {
+        property_set_revision_id: propertySet.current_revision.id,
+        change_reason: modelReason.trim(),
+      });
+      setModels((current) => [result.data, ...current]);
+      setSelectedModelId(result.data.material_model_id);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setSavingModel(false);
+    }
+  }
+
+  async function runPreflight(): Promise<void> {
+    if (!selectedModel || targetKey !== "openradioss-2025-kg_m_s") {
+      return;
+    }
+    setRunningPreflight(true);
+    setError(null);
+    try {
+      const result = await preflightSolverCardMapping(
+        config,
+        selectedModel.material_model_id,
+        referenceTarget,
+      );
+      setReport(result.data);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setRunningPreflight(false);
+    }
+  }
+
+  async function createCard(): Promise<void> {
+    if (!selectedModel || !report) {
+      return;
+    }
+    setSavingCard(true);
+    setError(null);
+    try {
+      const result = await createSolverCard(config, selectedModel.material_model_id, {
+        material_model_revision_id: selectedModel.current_revision.id,
+        target: referenceTarget,
+        expected_mapping_report_sha256: report.mapping_report_sha256,
+        solver_material_id: Number(solverMaterialId),
+        card_title: cardTitle.trim(),
+        change_reason: cardReason.trim(),
+      });
+      setCards((current) => [result.data, ...current]);
+      setPreview(null);
+      setPreviewCardId(null);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setSavingCard(false);
+    }
+  }
+
+  async function showPreview(card: SolverCardResponse): Promise<void> {
+    setError(null);
+    try {
+      const result = await previewSolverCard(config, card.solver_card_id);
+      setPreview(result.data);
+      setPreviewCardId(card.solver_card_id);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    }
+  }
+
+  async function download(card: SolverCardResponse): Promise<void> {
+    setDownloadingCardId(card.solver_card_id);
+    setError(null);
+    try {
+      const result = await downloadSolverCard(config, card.solver_card_id);
+      const url = URL.createObjectURL(result.data.blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = result.data.filename;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setDownloadingCardId(null);
+    }
+  }
+
+  return (
+    <section className="model-card-workflow" aria-label="Material Model and Solver Card workflow">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">CAE workflow</p>
+          <h4>Material Model IR → Solver Card</h4>
+        </div>
+        <span className="reference-chip">Reference only</span>
+      </div>
+      <p className="form-hint">
+        This narrow workflow creates a solver-neutral, non-production isotropic linear-elastic IR
+        from this exact Property Set revision. It never changes the source Material or properties.
+      </p>
+      {error ? <ErrorNotice message={error} /> : null}
+      {loadingModels ? <p className="muted">Loading Material Model IRs…</p> : null}
+      {!loadingModels && models.length === 0 ? (
+        <div className="workflow-step">
+          <strong>1. Create a Material Model IR</strong>
+          <small>Uses density, Young&apos;s modulus, and Poisson&apos;s ratio from this frozen Property Set.</small>
+          <label>
+            Change reason
+            <input value={modelReason} onChange={(event) => setModelReason(event.target.value)} required />
+          </label>
+          <button className="button primary" type="button" onClick={() => void createModel()} disabled={savingModel}>
+            {savingModel ? "Creating IR…" : "Create reference IR"}
+          </button>
+        </div>
+      ) : null}
+      {models.length > 0 ? (
+        <div className="workflow-stack">
+          <div className="workflow-step">
+            <strong>1. Select immutable Material Model IR</strong>
+            <label>
+              Material Model revision
+              <select
+                value={selectedModelId}
+                onChange={(event) => setSelectedModelId(event.target.value)}
+              >
+                {models.map((model) => (
+                  <option key={model.material_model_id} value={model.material_model_id}>
+                    r{model.current_revision.revision_no} · {shortId(model.current_revision.id)} · reference linear elasticity
+                  </option>
+                ))}
+              </select>
+            </label>
+            {selectedModel ? (
+              <small className="source-line">
+                Source Property Set revision {shortId(selectedModel.current_revision.content.property_set_revision_id)}
+              </small>
+            ) : null}
+          </div>
+          <div className="workflow-step">
+            <strong>2. Choose target and inspect mapping</strong>
+            <label>
+              Solver target
+              <select value={targetKey} onChange={(event) => setTargetKey(event.target.value)}>
+                <option value="openradioss-2025-kg_m_s">OpenRadioss 2025 · /MAT/ELAST · kg / m / s</option>
+              </select>
+            </label>
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => void runPreflight()}
+              disabled={!selectedModel || runningPreflight}
+            >
+              {runningPreflight ? "Checking mapping…" : "Run mapping preflight"}
+            </button>
+            {report ? <MappingReportPanel report={report} /> : null}
+          </div>
+          <div className="workflow-step">
+            <strong>3. Generate immutable Solver Card</strong>
+            <small>Acknowledges the exact mapping report digest shown above; no default or approximation is hidden.</small>
+            <div className="form-grid">
+              <label>
+                Solver material ID
+                <input
+                  type="number"
+                  min="1"
+                  max="9999999999"
+                  value={solverMaterialId}
+                  onChange={(event) => setSolverMaterialId(event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Card title
+                <input value={cardTitle} onChange={(event) => setCardTitle(event.target.value)} required />
+              </label>
+            </div>
+            <label>
+              Change reason
+              <input value={cardReason} onChange={(event) => setCardReason(event.target.value)} required />
+            </label>
+            <button
+              className="button primary"
+              type="button"
+              onClick={() => void createCard()}
+              disabled={!report?.exportable || savingCard}
+            >
+              {savingCard ? "Generating card…" : "Generate Solver Card"}
+            </button>
+          </div>
+          <SolverCardPanel
+            cards={cards}
+            preview={preview}
+            previewCardId={previewCardId}
+            downloadingCardId={downloadingCardId}
+            onPreview={showPreview}
+            onDownload={download}
+          />
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function MappingReportPanel({ report }: { report: MappingReport }) {
+  return (
+    <section className="mapping-report" aria-label="Solver mapping report">
+      <div className="mapping-report-heading">
+        <strong>{report.exportable ? "Exportable mapping" : "Mapping requires attention"}</strong>
+        <span className={report.exportable ? "mapping-status exact" : "mapping-status unsupported"}>
+          {report.exportable ? "exportable" : "blocked"}
+        </span>
+      </div>
+      <small>Report SHA-256: {shortId(report.mapping_report_sha256)}</small>
+      <ul className="mapping-list">
+        {report.items.map((item) => (
+          <li key={item.name}>
+            <span className={`mapping-status ${item.status}`}>{readableMappingStatus(item.status)}</span>
+            <div>
+              <strong>{item.name.replaceAll("_", " ")}</strong>
+              <small>{item.detail}</small>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function SolverCardPanel({
+  cards,
+  preview,
+  previewCardId,
+  downloadingCardId,
+  onPreview,
+  onDownload,
+}: {
+  cards: SolverCardResponse[];
+  preview: string | null;
+  previewCardId: string | null;
+  downloadingCardId: string | null;
+  onPreview: (card: SolverCardResponse) => Promise<void>;
+  onDownload: (card: SolverCardResponse) => Promise<void>;
+}) {
+  return (
+    <section className="solver-card-results">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Generated Solver Cards</p>
+          <h4>{cards.length ? `${cards.length} immutable card${cards.length === 1 ? "" : "s"}` : "No Solver Card yet"}</h4>
+        </div>
+      </div>
+      {!cards.length ? <p className="muted">Run a successful mapping preflight, then generate the first card.</p> : null}
+      <div className="solver-card-list">
+        {cards.map((card) => (
+          <article key={card.solver_card_id} className="solver-card-item">
+            <div>
+              <strong>/MAT/ELAST/{card.solver_material_id}</strong>
+              <small>r{card.current_revision.revision_no} · {shortId(card.current_revision.id)} · {card.current_revision.content.card_title}</small>
+            </div>
+            <div className="card-actions">
+              <button className="text-button" type="button" onClick={() => void onPreview(card)}>
+                Preview
+              </button>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => void onDownload(card)}
+                disabled={downloadingCardId === card.solver_card_id}
+              >
+                {downloadingCardId === card.solver_card_id ? "Preparing…" : "Download .rad"}
+              </button>
+            </div>
+            {previewCardId === card.solver_card_id && preview ? (
+              <pre className="solver-card-preview">{preview}</pre>
+            ) : null}
+          </article>
+        ))}
+      </div>
     </section>
   );
 }
