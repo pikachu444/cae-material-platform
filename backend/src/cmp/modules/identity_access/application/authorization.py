@@ -101,8 +101,11 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.CATALOG_WRITE,
+            Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
             Permission.DATASET_READ,
+            Permission.DATASET_WRITE,
             Permission.STATISTICS_READ,
             Permission.PROCESSING_READ,
             Permission.PROCESSING_EXECUTE,
@@ -178,7 +181,19 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.DATASET_WRITE: frozenset(
         {Permission.ARTIFACT_READ, Permission.ARTIFACT_WRITE, Permission.TESTING_READ}
     ),
-    Permission.PROCESSING_EXECUTE: frozenset({Permission.DATASET_READ, Permission.PROCESSING_READ}),
+    # A committed Processing Run reads a pinned Dataset Artifact, writes a new immutable derived
+    # Artifact, and asks the Dataset owner to register the resulting processed Dataset revision.
+    # These are transaction-local capabilities only; the public Dataset/Artifact write endpoints
+    # still require their own top-level permissions.
+    Permission.PROCESSING_EXECUTE: frozenset(
+        {
+            Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_READ,
+            Permission.DATASET_WRITE,
+            Permission.PROCESSING_READ,
+        }
+    ),
     Permission.STATISTICS_EXECUTE: frozenset({Permission.DATASET_READ, Permission.STATISTICS_READ}),
     Permission.MODELING_WRITE: frozenset({Permission.CATALOG_READ, Permission.MODELING_READ}),
     Permission.CALIBRATION_EXECUTE: frozenset({Permission.DATASET_READ, Permission.MODELING_READ}),

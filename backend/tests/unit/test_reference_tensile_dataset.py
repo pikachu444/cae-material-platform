@@ -20,6 +20,8 @@ from cmp.modules.artifacts.domain.content import (
 from cmp.modules.datasets.application.service import (
     DatasetRepository,
     DatasetRevisionSnapshot,
+    DatasetSelectionRevisionSnapshot,
+    DatasetSelectionSnapshot,
     DatasetService,
     DatasetSnapshot,
     ImportReferenceTensileCsv,
@@ -40,6 +42,7 @@ from cmp.modules.datasets.domain.reference_tensile import (
     parse_reference_tensile_csv,
     preview_points,
 )
+from cmp.modules.datasets.domain.selection import ReferenceDatasetSelectionContent
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -300,6 +303,12 @@ class _Repository(DatasetRepository):
         assert decision is WRITE
         return self.store
 
+    def selection_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceDatasetSelectionContent]:
+        del context, decision
+        raise AssertionError("Selection storage is not exercised by Dataset import tests")
+
     def load_reference_test_run(
         self,
         *,
@@ -371,6 +380,37 @@ class _Repository(DatasetRepository):
     ) -> tuple[DatasetSnapshot, ...]:
         del context, decision, material_state_id
         return ()
+
+    def get_dataset_selection(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> DatasetSelectionSnapshot:
+        del context, decision, selection_id
+        raise AssertionError("Selection reads are not exercised by Dataset import tests")
+
+    def list_dataset_selections_for_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> tuple[DatasetSelectionSnapshot, ...]:
+        del context, decision, dataset_revision_id
+        raise AssertionError("Selection reads are not exercised by Dataset import tests")
+
+    def get_dataset_selection_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> DatasetSelectionRevisionSnapshot:
+        del context, decision, selection_id, selection_revision_id
+        raise AssertionError("Selection reads are not exercised by Dataset import tests")
 
 
 def _command() -> ImportReferenceTensileCsv:

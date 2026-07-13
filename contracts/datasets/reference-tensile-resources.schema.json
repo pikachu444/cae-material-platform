@@ -78,6 +78,7 @@
       "required": [
         "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id",
         "data_artifact_id", "data_sha256", "representation", "source_dataset_revision_id",
+        "processing_run_id",
         "point_count", "mapping_sha256", "importer_id", "importer_version", "reference_only", "channels"
       ],
       "properties": {
@@ -87,8 +88,9 @@
         "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
         "data_artifact_id": {"$ref": "#/$defs/Uuid"},
         "data_sha256": {"$ref": "#/$defs/Sha256"},
-        "representation": {"enum": ["raw", "normalized"]},
+        "representation": {"enum": ["raw", "normalized", "processed"]},
         "source_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "processing_run_id": {"type": ["string", "null"], "format": "uuid"},
         "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
         "mapping_sha256": {"$ref": "#/$defs/Sha256"},
         "importer_id": {"const": "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0"},
@@ -146,7 +148,7 @@
       "properties": {
         "dataset_id": {"$ref": "#/$defs/Uuid"},
         "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
-        "representation": {"enum": ["raw", "normalized"]},
+        "representation": {"enum": ["raw", "normalized", "processed"]},
         "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
         "returned_point_count": {"type": "integer", "minimum": 2, "maximum": 10000},
         "sampled": {"type": "boolean"},

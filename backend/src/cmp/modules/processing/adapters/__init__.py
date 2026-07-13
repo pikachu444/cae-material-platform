@@ -1,0 +1,1 @@
+"""Processing adapter namespace."""

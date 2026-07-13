@@ -13,8 +13,11 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.modules.datasets.application.service import (
     DATASET_AGGREGATE_TYPE,
+    DATASET_SELECTION_AGGREGATE_TYPE,
     DatasetRepository,
     DatasetRevisionSnapshot,
+    DatasetSelectionRevisionSnapshot,
+    DatasetSelectionSnapshot,
     DatasetSnapshot,
     ReferenceTestRunSource,
     RevisionSnapshot,
@@ -25,6 +28,10 @@ from cmp.modules.datasets.domain.reference_tensile import (
     DatasetRepresentation,
     ReferenceTensileMapping,
     dataset_canonical,
+)
+from cmp.modules.datasets.domain.selection import (
+    ReferenceDatasetSelectionContent,
+    reference_dataset_selection_canonical,
 )
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -62,6 +69,7 @@ dataset_table = sa.Table(
     sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
     sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("mapping_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("processing_run_id", sa.Uuid(), nullable=True),
     sa.Column("current_revision_id", sa.Uuid(), nullable=False),
     sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("created_by", sa.Uuid(), nullable=False),
@@ -94,6 +102,7 @@ dataset_revision_table = sa.Table(
     sa.Column("data_sha256", sa.CHAR(64), nullable=False),
     sa.Column("representation", sa.String(16), nullable=False),
     sa.Column("source_dataset_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_run_id", sa.Uuid(), nullable=True),
     sa.Column("point_count", sa.BigInteger(), nullable=False),
     sa.Column("strain_column", sa.String(255), nullable=False),
     sa.Column("stress_column", sa.String(255), nullable=False),
@@ -102,6 +111,43 @@ dataset_revision_table = sa.Table(
     sa.Column("mapping_sha256", sa.CHAR(64), nullable=False),
     sa.Column("importer_id", sa.String(255), nullable=False),
     sa.Column("importer_version", sa.String(64), nullable=False),
+    schema="datasets",
+)
+dataset_selection_table = sa.Table(
+    "dataset_selection",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("selection_label", sa.String(160), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    schema="datasets",
+)
+dataset_selection_revision_table = sa.Table(
+    "dataset_selection_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("revision_no", sa.BigInteger(), nullable=False),
+    sa.Column("based_on_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("schema_id", sa.String(255), nullable=False),
+    sa.Column("schema_version", sa.String(64), nullable=False),
+    sa.Column("content_hash", sa.CHAR(64), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("dataset_id", sa.Uuid(), nullable=False),
+    sa.Column("dataset_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("member_count", sa.SmallInteger(), nullable=False),
     schema="datasets",
 )
 test_run_revision_table = sa.Table(
@@ -191,6 +237,7 @@ def _content(row: Any) -> DatasetContent:
         ),
         importer_id=str(row["importer_id"]),
         importer_version=str(row["importer_version"]),
+        processing_run_id=cast(UUID | None, row["processing_run_id"]),
     )
 
 
@@ -204,6 +251,7 @@ def _values(value: DatasetContent) -> dict[str, object]:
         "data_sha256": value.data_sha256,
         "representation": value.representation.value,
         "source_dataset_revision_id": value.source_dataset_revision_id,
+        "processing_run_id": value.processing_run_id,
         "point_count": value.point_count,
         "strain_column": value.mapping.strain_column,
         "stress_column": value.mapping.stress_column,
@@ -226,7 +274,55 @@ _TABLES: TypedRevisionTables[DatasetContent] = TypedRevisionTables(
         "raw_asset_id": value.raw_asset_id,
         "raw_artifact_id": value.raw_artifact_id,
         "mapping_sha256": value.mapping_sha256,
+        "processing_run_id": value.processing_run_id,
     },
+)
+
+
+def _selection_record(row: Any) -> RevisionRecord:
+    return RevisionRecord(
+        revision_id=cast(UUID, row["id"]),
+        aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+        aggregate_id=cast(UUID, row["aggregate_id"]),
+        scope=TenantScope(
+            cast(UUID, row["organization_id"]),
+            cast(UUID, row["project_id"]),
+            str(row["classification"]),
+        ),
+        revision_no=int(row["revision_no"]),
+        based_on_revision_id=cast(UUID | None, row["based_on_revision_id"]),
+        schema_id=str(row["schema_id"]),
+        schema_version=str(row["schema_version"]),
+        content_hash=str(row["content_hash"]),
+        created_at=row["created_at"],
+        created_by=cast(UUID, row["created_by"]),
+        change_reason=str(row["change_reason"]),
+        request_id=cast(UUID, row["request_id"]),
+        trace_id=str(row["trace_id"]),
+    )
+
+
+def _selection_content(row: Any) -> ReferenceDatasetSelectionContent:
+    if int(row["member_count"]) != 1:
+        raise DatasetNotFound("reference Dataset Selection membership is invalid")
+    return ReferenceDatasetSelectionContent(
+        selection_label=str(row["selection_label"]),
+        dataset_id=cast(UUID, row["dataset_id"]),
+        dataset_revision_id=cast(UUID, row["dataset_revision_id"]),
+    )
+
+
+_SELECTION_TABLES: TypedRevisionTables[ReferenceDatasetSelectionContent] = TypedRevisionTables(
+    aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+    identity_table=dataset_selection_table,
+    revision_table=dataset_selection_revision_table,
+    canonical_content=reference_dataset_selection_canonical,
+    content_values=lambda value: {
+        "dataset_id": value.dataset_id,
+        "dataset_revision_id": value.dataset_revision_id,
+        "member_count": 1,
+    },
+    identity_values=lambda value: {"selection_label": value.selection_label},
 )
 
 
@@ -284,6 +380,16 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         return SqlAlchemyRevisionStore(
             session_factory=self._sessions,
             tables=_TABLES,
+            hooks=self._hooks,
+            session_binder=lambda session: self._bind(session, context, decision),
+        )
+
+    def selection_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceDatasetSelectionContent]:
+        return SqlAlchemyRevisionStore(
+            session_factory=self._sessions,
+            tables=_SELECTION_TABLES,
             hooks=self._hooks,
             session_binder=lambda session: self._bind(session, context, decision),
         )
@@ -362,6 +468,7 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
             revision_row.c.data_sha256,
             revision_row.c.representation,
             revision_row.c.source_dataset_revision_id,
+            revision_row.c.processing_run_id,
             revision_row.c.point_count,
             revision_row.c.strain_column,
             revision_row.c.stress_column,
@@ -417,6 +524,7 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
             row_table.c.data_sha256,
             row_table.c.representation,
             row_table.c.source_dataset_revision_id,
+            row_table.c.processing_run_id,
             row_table.c.point_count,
             row_table.c.strain_column,
             row_table.c.stress_column,
@@ -456,6 +564,7 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
             row_table.c.data_sha256,
             row_table.c.representation,
             row_table.c.source_dataset_revision_id,
+            row_table.c.processing_run_id,
             row_table.c.point_count,
             row_table.c.strain_column,
             row_table.c.stress_column,
@@ -503,3 +612,112 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._snapshot(row) for row in rows)
+
+    @staticmethod
+    def _selection_snapshot(row: Any) -> DatasetSelectionSnapshot:
+        return DatasetSelectionSnapshot(
+            id=cast(UUID, row["identity_id"]),
+            selection_label=str(row["identity_selection_label"]),
+            current=RevisionSnapshot(_selection_record(row), _selection_content(row)),
+        )
+
+    @staticmethod
+    def _selection_current_statement() -> sa.Select[Any]:
+        identity = dataset_selection_table
+        revision = dataset_selection_revision_table
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            identity.c.selection_label.label("identity_selection_label"),
+            *_revision_columns(revision),
+            revision.c.dataset_id,
+            revision.c.dataset_revision_id,
+            revision.c.member_count,
+        ).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.id == identity.c.current_revision_id,
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    def get_dataset_selection(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> DatasetSelectionSnapshot:
+        statement = self._selection_current_statement().where(
+            dataset_selection_table.c.organization_id == context.organization_id,
+            dataset_selection_table.c.project_id == context.project_id,
+            dataset_selection_table.c.id == selection_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise DatasetNotFound("Dataset Selection is not visible in the selected tenant")
+        return self._selection_snapshot(row)
+
+    def get_dataset_selection_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> DatasetSelectionRevisionSnapshot:
+        identity = dataset_selection_table
+        revision = dataset_selection_revision_table
+        statement = sa.select(
+            identity.c.id.label("identity_id"),
+            identity.c.selection_label.label("identity_selection_label"),
+            *_revision_columns(revision),
+            revision.c.dataset_id,
+            revision.c.dataset_revision_id,
+            revision.c.member_count,
+        ).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        ).where(
+            identity.c.organization_id == context.organization_id,
+            identity.c.project_id == context.project_id,
+            identity.c.id == selection_id,
+            revision.c.id == selection_revision_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise DatasetNotFound(
+                "Dataset Selection revision is not visible in the selected tenant"
+            )
+        return DatasetSelectionRevisionSnapshot(
+            selection_id=cast(UUID, row["identity_id"]),
+            selection_label=str(row["identity_selection_label"]),
+            revision=RevisionSnapshot(_selection_record(row), _selection_content(row)),
+        )
+
+    def list_dataset_selections_for_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> tuple[DatasetSelectionSnapshot, ...]:
+        statement = self._selection_current_statement().where(
+            dataset_selection_table.c.organization_id == context.organization_id,
+            dataset_selection_table.c.project_id == context.project_id,
+            dataset_selection_revision_table.c.dataset_revision_id == dataset_revision_id,
+        ).order_by(dataset_selection_table.c.created_at.asc())
+        with self._session(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+        return tuple(self._selection_snapshot(row) for row in rows)

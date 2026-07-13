@@ -421,6 +421,7 @@ def test_reference_tensile_revision_contracts_allow_typed_content_but_no_unknown
                     "data_sha256": "b" * 64,
                     "representation": "raw",
                     "source_dataset_revision_id": None,
+                    "processing_run_id": None,
                     "point_count": 2,
                     "mapping_sha256": "c" * 64,
                     "importer_id": "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0",

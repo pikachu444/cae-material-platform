@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/processing/reference-tensile-crop-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ReferenceDatasetSelectionCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "selection_label", "dataset_revision_id", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReferenceDatasetSelectionRevisionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_current_revision_id", "dataset_revision_id", "change_reason"],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "DatasetSelectionContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_kind", "member_count", "dataset_id", "dataset_revision_id"],
+      "properties": {
+        "selection_kind": {"const": "reference_normalized_dataset_revision"},
+        "member_count": {"const": 1},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "DatasetSelectionRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {"content": {"$ref": "#/$defs/DatasetSelectionContent"}}
+        }
+      ]
+    },
+    "DatasetSelectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_id", "selection_label", "current_revision", "links"],
+      "properties": {
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "#/$defs/DatasetSelectionRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "DatasetSelectionListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/DatasetSelectionResponse"}}
+      }
+    },
+    "ReferenceTensileCropRecipeInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_label", "minimum_engineering_strain", "maximum_engineering_strain"],
+      "properties": {
+        "recipe_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "minimum_engineering_strain": {"type": "number", "minimum": 0},
+        "maximum_engineering_strain": {"type": "number"}
+      }
+    },
+    "CreateReferenceTensileCropRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/ReferenceTensileCropRecipeInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseReferenceTensileCropRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_current_revision_id", "recipe_label", "minimum_engineering_strain",
+        "maximum_engineering_strain", "change_reason"
+      ],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "minimum_engineering_strain": {"type": "number", "minimum": 0},
+        "maximum_engineering_strain": {"type": "number"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReferenceTensileCropRecipeContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recipe_kind", "step_count", "minimum_engineering_strain", "maximum_engineering_strain",
+        "input_schema_ref", "output_schema_ref", "diagnostics_schema_ref", "boundary_policy"
+      ],
+      "properties": {
+        "recipe_kind": {"const": "reference_tensile_inclusive_crop"},
+        "step_count": {"const": 1},
+        "minimum_engineering_strain": {"type": "number", "minimum": 0},
+        "maximum_engineering_strain": {"type": "number"},
+        "input_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"},
+        "output_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0"},
+        "diagnostics_schema_ref": {"const": "urn:cmp:processing:reference-tensile-crop-diagnostics:1.0.0"},
+        "boundary_policy": {"const": "select_observed_points_inclusive_no_interpolation"}
+      }
+    },
+    "ProcessingRecipeRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {"content": {"$ref": "#/$defs/ReferenceTensileCropRecipeContent"}}
+        }
+      ]
+    },
+    "ProcessingRecipeResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_id", "recipe_label", "current_revision", "links"],
+      "properties": {
+        "recipe_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "#/$defs/ProcessingRecipeRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ProcessingRecipeListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/ProcessingRecipeResponse"}}
+      }
+    },
+    "ExecuteReferenceTensileCropRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_id", "selection_revision_id", "recipe_id", "recipe_revision_id", "change_reason"
+      ],
+      "properties": {
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProcessingRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processing_run_id", "classification", "execution_mode", "status", "selection_id",
+        "selection_revision_id", "recipe_id", "recipe_revision_id", "input_dataset_id",
+        "input_dataset_revision_id", "input_point_count", "output_point_count", "removed_point_count",
+        "result_artifact_id", "result_sha256", "output_dataset_id", "output_dataset_revision_id",
+        "failure_code", "change_reason", "started_at", "ended_at", "links"
+      ],
+      "properties": {
+        "processing_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "execution_mode": {"const": "committed"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_revision_id": {"$ref": "#/$defs/Uuid"},
+        "input_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "input_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "input_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "output_point_count": {"type": ["integer", "null"], "minimum": 2, "maximum": 100000},
+        "removed_point_count": {"type": ["integer", "null"], "minimum": 0},
+        "result_artifact_id": {"type": ["string", "null"], "format": "uuid"},
+        "result_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "output_dataset_id": {"type": ["string", "null"], "format": "uuid"},
+        "output_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ProcessingProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:processing"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-PROCESSING-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

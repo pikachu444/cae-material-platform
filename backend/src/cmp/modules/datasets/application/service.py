@@ -7,9 +7,11 @@ from typing import Protocol
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from cmp.modules.artifacts.application.content import ArtifactService
-from cmp.modules.artifacts.domain.content import ArtifactKind
+from cmp.modules.artifacts.domain.content import ArtifactKind, ArtifactRecord, IntegrityStatus
 from cmp.modules.datasets.domain.reference_tensile import (
+    MAX_REFERENCE_TENSILE_POINTS,
     REFERENCE_TENSILE_PARQUET_SCHEMA,
+    REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA,
     REFERENCE_TENSILE_SCHEMA_VERSION,
     CurvePoint,
     DatasetConflict,
@@ -22,6 +24,11 @@ from cmp.modules.datasets.domain.reference_tensile import (
     normalized_points_from_parquet,
     parse_reference_tensile_csv,
     preview_points,
+)
+from cmp.modules.datasets.domain.selection import (
+    REFERENCE_DATASET_SELECTION_SCHEMA_VERSION,
+    ReferenceDatasetSelectionContent,
+    validate_selection_label,
 )
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -45,6 +52,8 @@ from cmp.shared.domain.revisions import (
 
 DATASET_AGGREGATE_TYPE = "datasets.dataset"
 DATASET_SCHEMA_ID = "urn:cmp:datasets:reference-uniaxial-tensile:1.0.0"
+DATASET_SELECTION_AGGREGATE_TYPE = "datasets.selection"
+DATASET_SELECTION_SCHEMA_ID = "urn:cmp:datasets:reference-selection:1.0.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,6 +76,20 @@ class DatasetRevisionSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class DatasetSelectionSnapshot:
+    id: UUID
+    selection_label: str
+    current: RevisionSnapshot[ReferenceDatasetSelectionContent]
+
+
+@dataclass(frozen=True, slots=True)
+class DatasetSelectionRevisionSnapshot:
+    selection_id: UUID
+    selection_label: str
+    revision: RevisionSnapshot[ReferenceDatasetSelectionContent]
+
+
+@dataclass(frozen=True, slots=True)
 class ReferenceTestRunSource:
     classification: DataClassification
     test_method_code: str
@@ -79,6 +102,36 @@ class ImportReferenceTensileCsv:
     raw_asset_id: UUID
     raw_artifact_id: UUID
     mapping: ReferenceTensileMapping
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateReferenceDatasetSelection:
+    classification: DataClassification
+    selection_label: str
+    dataset_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseReferenceDatasetSelection:
+    expected_current_revision_id: UUID
+    dataset_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class RegisterProcessedReferenceTensileDataset:
+    """Public Dataset ownership port used only by a committed Processing Run.
+
+    The Processing module supplies an already verified immutable Artifact record.  The Dataset
+    module still validates its type, schema, scope, and source before writing its own tables.
+    """
+
+    source_dataset_revision_id: UUID
+    processing_run_id: UUID
+    artifact: ArtifactRecord
+    point_count: int
     change_reason: str
 
 
@@ -99,6 +152,10 @@ class DatasetRepository(Protocol):
     def dataset_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[DatasetContent]: ...
+
+    def selection_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceDatasetSelectionContent]: ...
 
     def load_reference_test_run(
         self,
@@ -141,6 +198,31 @@ class DatasetRepository(Protocol):
         material_state_id: UUID,
     ) -> tuple[DatasetSnapshot, ...]: ...
 
+    def get_dataset_selection(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> DatasetSelectionSnapshot: ...
+
+    def list_dataset_selections_for_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> tuple[DatasetSelectionSnapshot, ...]: ...
+
+    def get_dataset_selection_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> DatasetSelectionRevisionSnapshot: ...
+
 
 def _require(
     context: SecurityContext,
@@ -156,6 +238,30 @@ def _require(
         or decision.trace_id != context.trace_id
     ):
         raise DatasetConflict("authorization decision does not match Dataset request")
+
+
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    """Allow an already authorized bounded command to use a Dataset dependency.
+
+    Processing execution is authorized as ``processing.execute`` at the HTTP edge.  Its
+    explicitly expanded transaction capabilities include Dataset read/write, so the Dataset
+    owner can safely create the derived Dataset without pretending the caller used the public
+    Dataset-write endpoint.
+    """
+
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise DatasetConflict("authorization decision lacks the required Dataset capability")
 
 
 class DatasetService:
@@ -220,6 +326,295 @@ class DatasetService:
             and existing.source_dataset_revision_id == expected.source_dataset_revision_id
             and existing.mapping == expected.mapping
             and existing.point_count == expected.point_count
+        )
+
+    @staticmethod
+    def _processed_dataset_id(context: SecurityContext, processing_run_id: UUID) -> UUID:
+        """Bind one immutable processed Dataset identity to one immutable Processing Run."""
+
+        return uuid5(
+            NAMESPACE_URL,
+            "cmp:processed-reference-tensile-dataset:"
+            f"{context.organization_id}:{context.project_id}:{processing_run_id}",
+        )
+
+    @staticmethod
+    def _matches_processed_result(existing: DatasetContent, expected: DatasetContent) -> bool:
+        return (
+            existing.representation is DatasetRepresentation.PROCESSED
+            and existing.test_run_id == expected.test_run_id
+            and existing.test_run_revision_id == expected.test_run_revision_id
+            and existing.raw_asset_id == expected.raw_asset_id
+            and existing.raw_artifact_id == expected.raw_artifact_id
+            and existing.data_artifact_id == expected.data_artifact_id
+            and existing.data_sha256 == expected.data_sha256
+            and existing.source_dataset_revision_id == expected.source_dataset_revision_id
+            and existing.processing_run_id == expected.processing_run_id
+            and existing.mapping == expected.mapping
+            and existing.point_count == expected.point_count
+        )
+
+    def create_reference_dataset_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceDatasetSelection,
+    ) -> DatasetSelectionSnapshot:
+        """Create a stable Selection and first immutable one-member revision.
+
+        The narrow one-member shape is intentional for the reference crop slice.  It records a
+        concrete normalized revision rather than a moving Dataset head and can be revised later
+        with another concrete input.
+        """
+
+        _require(context, decision, Permission.DATASET_WRITE)
+        label = validate_selection_label(command.selection_label)
+        source = self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=command.dataset_revision_id,
+        )
+        if source.revision.content.representation is not DatasetRepresentation.NORMALIZED:
+            raise DatasetConflict(
+                "reference Dataset Selection requires a normalized Dataset revision"
+            )
+        if source.revision.record.scope.classification != command.classification.value:
+            raise DatasetConflict("Selection classification must match its Dataset revision")
+        content = ReferenceDatasetSelectionContent(
+            selection_label=label,
+            dataset_id=source.dataset_id,
+            dataset_revision_id=source.revision.record.revision_id,
+        )
+        aggregate_id = uuid5(
+            NAMESPACE_URL,
+            "cmp:reference-dataset-selection:"
+            f"{context.organization_id}:{context.project_id}:{command.classification.value}:{label}",
+        )
+        record = RevisionService(
+            aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+            store=self._repository.selection_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=TenantScope(
+                    context.organization_id,
+                    context.project_id,
+                    command.classification.value,
+                ),
+                schema_id=DATASET_SELECTION_SCHEMA_ID,
+                schema_version=REFERENCE_DATASET_SELECTION_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return DatasetSelectionSnapshot(aggregate_id, label, RevisionSnapshot(record, content))
+
+    def revise_reference_dataset_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        command: ReviseReferenceDatasetSelection,
+    ) -> DatasetSelectionSnapshot:
+        _require(context, decision, Permission.DATASET_WRITE)
+        existing = self._repository.get_dataset_selection(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+        )
+        source = self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=command.dataset_revision_id,
+        )
+        if source.revision.content.representation is not DatasetRepresentation.NORMALIZED:
+            raise DatasetConflict(
+                "reference Dataset Selection requires a normalized Dataset revision"
+            )
+        if source.revision.record.scope != existing.current.record.scope:
+            raise DatasetConflict(
+                "Selection Dataset revision is outside the Selection tenant scope"
+            )
+        content = ReferenceDatasetSelectionContent(
+            selection_label=existing.selection_label,
+            dataset_id=source.dataset_id,
+            dataset_revision_id=source.revision.record.revision_id,
+        )
+        record = RevisionService(
+            aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+            store=self._repository.selection_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=selection_id,
+                scope=existing.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=DATASET_SELECTION_SCHEMA_ID,
+                schema_version=REFERENCE_DATASET_SELECTION_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return DatasetSelectionSnapshot(
+            selection_id,
+            existing.selection_label,
+            RevisionSnapshot(record, content),
+        )
+
+    def get_reference_dataset_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> DatasetSelectionSnapshot:
+        _require(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_selection(
+            context=context, decision=decision, selection_id=selection_id
+        )
+
+    def get_reference_dataset_selection_for_processing(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> DatasetSelectionSnapshot:
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_selection(
+            context=context, decision=decision, selection_id=selection_id
+        )
+
+    def get_reference_dataset_selection_revision_for_processing(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> DatasetSelectionRevisionSnapshot:
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_selection_revision(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+            selection_revision_id=selection_revision_id,
+        )
+
+    def list_reference_dataset_selections_for_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> tuple[DatasetSelectionSnapshot, ...]:
+        _require(context, decision, Permission.DATASET_READ)
+        return self._repository.list_dataset_selections_for_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+
+    def get_dataset_revision_for_processing(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> DatasetRevisionSnapshot:
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+
+    def register_processed_reference_tensile_dataset(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: RegisterProcessedReferenceTensileDataset,
+    ) -> DatasetSnapshot:
+        """Create the processed Dataset identity owned by the Dataset bounded module.
+
+        A committed Processing Run is a semantic derivation, not an edit of its normalized input,
+        so this always creates revision 1 of a separate stable Dataset identity.
+        """
+
+        _require_capability(context, decision, Permission.DATASET_WRITE)
+        source = self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=command.source_dataset_revision_id,
+        )
+        source_content = source.revision.content
+        if source_content.representation is not DatasetRepresentation.NORMALIZED:
+            raise DatasetConflict(
+                "processed reference Dataset must derive from a normalized Dataset revision"
+            )
+        artifact = command.artifact
+        if (
+            artifact.integrity_status is not IntegrityStatus.VERIFIED
+            or artifact.artifact.artifact_kind is not ArtifactKind.DERIVED
+            or artifact.artifact.schema_ref != REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA
+            or artifact.artifact.media_type != "application/vnd.apache.parquet"
+            or artifact.artifact.organization_id != context.organization_id
+            or artifact.artifact.project_id != context.project_id
+            or artifact.artifact.classification.value
+            != source.revision.record.scope.classification
+        ):
+            raise DatasetConflict(
+                "processed Dataset requires a verified derived reference Parquet Artifact"
+            )
+        if not 2 <= command.point_count <= MAX_REFERENCE_TENSILE_POINTS:
+            raise InvalidDatasetData("processed reference Dataset must contain 2..100000 points")
+        dataset_id = self._processed_dataset_id(context, command.processing_run_id)
+        content = DatasetContent(
+            test_run_id=source_content.test_run_id,
+            test_run_revision_id=source_content.test_run_revision_id,
+            raw_asset_id=source_content.raw_asset_id,
+            raw_artifact_id=source_content.raw_artifact_id,
+            data_artifact_id=artifact.artifact.id,
+            data_sha256=artifact.artifact.sha256,
+            representation=DatasetRepresentation.PROCESSED,
+            source_dataset_revision_id=source.revision.record.revision_id,
+            point_count=command.point_count,
+            mapping=source_content.mapping,
+            processing_run_id=command.processing_run_id,
+        )
+        scope = source.revision.record.scope
+        service = RevisionService(
+            aggregate_type=DATASET_AGGREGATE_TYPE,
+            store=self._repository.dataset_store(context, decision),
+        )
+        try:
+            record = service.create(
+                CreateRevisionedAggregate(
+                    aggregate_id=dataset_id,
+                    scope=scope,
+                    schema_id=DATASET_SCHEMA_ID,
+                    schema_version=REFERENCE_TENSILE_SCHEMA_VERSION,
+                    content=content,
+                    created_by=context.principal.id,
+                    change_reason=command.change_reason,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                )
+            )
+        except AggregateAlreadyExists as error:
+            existing = self._repository.get_dataset(
+                context=context, decision=decision, dataset_id=dataset_id
+            )
+            if not self._matches_processed_result(existing.current.content, content):
+                raise DatasetConflict(
+                    "processed Dataset identity is already bound to different immutable output"
+                ) from error
+            return existing
+        return DatasetSnapshot(
+            dataset_id,
+            content.test_run_id,
+            RevisionSnapshot(record, content),
         )
 
     async def import_reference_tensile_csv(

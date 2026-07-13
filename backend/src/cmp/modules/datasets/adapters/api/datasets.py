@@ -19,10 +19,13 @@ from cmp.modules.artifacts.domain.content import (
     InvalidArtifact,
 )
 from cmp.modules.datasets.application.service import (
+    CreateReferenceDatasetSelection,
     CurvePreview,
+    DatasetSelectionSnapshot,
     DatasetService,
     DatasetSnapshot,
     ImportReferenceTensileCsv,
+    ReviseReferenceDatasetSelection,
     RevisionSnapshot,
 )
 from cmp.modules.datasets.domain.reference_tensile import (
@@ -34,7 +37,11 @@ from cmp.modules.datasets.domain.reference_tensile import (
     InvalidDatasetData,
     ReferenceTensileMapping,
 )
-from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
+from cmp.modules.datasets.domain.selection import ReferenceDatasetSelectionContent
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+)
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataResponse
 from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionKernelError, RevisionRecord
@@ -71,6 +78,23 @@ class ReferenceTensileImportRequest(BaseModel):
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
+class ReferenceDatasetSelectionCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classification: DataClassification
+    selection_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    dataset_revision_id: UUID
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceDatasetSelectionRevisionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_current_revision_id: UUID
+    dataset_revision_id: UUID
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
 class DatasetChannelResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -93,6 +117,7 @@ class DatasetContentResponse(BaseModel):
     data_sha256: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
     representation: DatasetRepresentation
     source_dataset_revision_id: UUID | None
+    processing_run_id: UUID | None
     point_count: int
     mapping_sha256: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
     importer_id: str
@@ -111,6 +136,7 @@ class DatasetContentResponse(BaseModel):
             data_sha256=value.data_sha256,
             representation=value.representation,
             source_dataset_revision_id=value.source_dataset_revision_id,
+            processing_run_id=value.processing_run_id,
             point_count=value.point_count,
             mapping_sha256=value.mapping_sha256,
             importer_id=value.importer_id,
@@ -179,6 +205,65 @@ class DatasetRevisionListResponse(BaseModel):
 
     dataset_id: UUID
     revisions: tuple[DatasetRevisionResponse, ...]
+
+
+class DatasetSelectionContentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection_kind: str
+    member_count: int
+    dataset_id: UUID
+    dataset_revision_id: UUID
+
+    @classmethod
+    def from_domain(
+        cls, value: ReferenceDatasetSelectionContent
+    ) -> DatasetSelectionContentResponse:
+        return cls(
+            selection_kind="reference_normalized_dataset_revision",
+            member_count=1,
+            dataset_id=value.dataset_id,
+            dataset_revision_id=value.dataset_revision_id,
+        )
+
+
+class DatasetSelectionRevisionResponse(RevisionMetadataResponse):
+    content: DatasetSelectionContentResponse
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[ReferenceDatasetSelectionContent]
+    ) -> DatasetSelectionRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=DatasetSelectionContentResponse.from_domain(value.content),
+        )
+
+
+class DatasetSelectionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection_id: UUID
+    selection_label: str
+    current_revision: DatasetSelectionRevisionResponse
+    links: dict[str, str]
+
+    @classmethod
+    def from_snapshot(cls, value: DatasetSelectionSnapshot) -> DatasetSelectionResponse:
+        root = f"/api/v1/dataset-selections/{value.id}"
+        return cls(
+            selection_id=value.id,
+            selection_label=value.selection_label,
+            current_revision=DatasetSelectionRevisionResponse.from_snapshot(value.current),
+            links={"self": root, "revisions": f"{root}/revisions"},
+        )
+
+
+class DatasetSelectionListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: tuple[DatasetSelectionResponse, ...]
 
 
 class CurvePointResponse(BaseModel):
@@ -392,6 +477,94 @@ def install_dataset_api(
         _etag(response, result.current.record)
         return DatasetResponse.from_snapshot(result)
 
+    @application.post(
+        "/api/v1/dataset-selections",
+        operation_id="createReferenceDatasetSelection",
+        response_model=DatasetSelectionResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["datasets"],
+    )
+    def create_reference_selection(
+        request: Request,
+        response: Response,
+        body: ReferenceDatasetSelectionCreateRequest,
+    ) -> DatasetSelectionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_dataset_selection(
+                context,
+                decision,
+                CreateReferenceDatasetSelection(
+                    classification=body.classification,
+                    selection_label=body.selection_label,
+                    dataset_revision_id=body.dataset_revision_id,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/dataset-selections/{result.id}"
+        _etag(response, result.current.record)
+        return DatasetSelectionResponse.from_snapshot(result)
+
+    @application.get(
+        "/api/v1/dataset-selections/{selection_id}",
+        operation_id="getDatasetSelection",
+        response_model=DatasetSelectionResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["datasets"],
+    )
+    def get_selection(
+        request: Request, response: Response, selection_id: UUID
+    ) -> DatasetSelectionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_reference_dataset_selection(context, decision, selection_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return DatasetSelectionResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/dataset-selections/{selection_id}/revisions",
+        operation_id="reviseReferenceDatasetSelection",
+        response_model=DatasetSelectionResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["datasets"],
+    )
+    def revise_selection(
+        request: Request,
+        response: Response,
+        selection_id: UUID,
+        body: ReferenceDatasetSelectionRevisionRequest,
+    ) -> DatasetSelectionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.revise_reference_dataset_selection(
+                context,
+                decision,
+                selection_id,
+                ReviseReferenceDatasetSelection(
+                    expected_current_revision_id=body.expected_current_revision_id,
+                    dataset_revision_id=body.dataset_revision_id,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return DatasetSelectionResponse.from_snapshot(result)
+
     @application.get(
         "/api/v1/datasets/{dataset_id}",
         operation_id="getDataset",
@@ -450,6 +623,32 @@ def install_dataset_api(
             raise _translate(context, error) from error
         return DatasetListResponse(
             items=tuple(DatasetResponse.from_snapshot(item) for item in items)
+        )
+
+    @application.get(
+        "/api/v1/dataset-revisions/{dataset_revision_id}/selections",
+        operation_id="listDatasetRevisionSelections",
+        response_model=DatasetSelectionListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["datasets"],
+    )
+    def list_revision_selections(
+        request: Request, dataset_revision_id: UUID
+    ) -> DatasetSelectionListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            items = service.list_reference_dataset_selections_for_revision(
+                context,
+                decision,
+                dataset_revision_id,
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return DatasetSelectionListResponse(
+            items=tuple(DatasetSelectionResponse.from_snapshot(item) for item in items)
         )
 
     @application.get(

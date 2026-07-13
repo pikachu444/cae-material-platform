@@ -17,6 +17,7 @@ from cmp.bootstrap.exporting import build_solver_card_service
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import build_material_model_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
+from cmp.bootstrap.processing import build_processing_service
 from cmp.bootstrap.provenance import build_provenance_services
 from cmp.bootstrap.security import (
     IdentityServices,
@@ -50,6 +51,8 @@ from cmp.modules.modeling.adapters.api.material_models import install_material_m
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
+from cmp.modules.processing.adapters.api.processing import install_processing_api
+from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
 from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
@@ -82,6 +85,7 @@ def create_app(
     catalog_service: CatalogService | None = None,
     testing_service: TestingService | None = None,
     dataset_service: DatasetService | None = None,
+    processing_service: ProcessingService | None = None,
     material_model_service: MaterialModelService | None = None,
     solver_card_service: SolverCardService | None = None,
 ) -> FastAPI:
@@ -231,6 +235,22 @@ def create_app(
             services.authorization, Permission.DATASET_WRITE
         ),
     )
+    resolved_processing = processing_service or build_processing_service(
+        services,
+        resolved_datasets,
+        resolved_artifacts,
+    )
+    install_processing_api(
+        application,
+        service=resolved_processing,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_EXECUTE
+        ),
+    )
     resolved_material_models = material_model_service or build_material_model_service(services)
     install_material_model_api(
         application,
@@ -261,6 +281,7 @@ def create_app(
     application.state.catalog_service = resolved_catalog
     application.state.testing_service = resolved_testing
     application.state.dataset_service = resolved_datasets
+    application.state.processing_service = resolved_processing
     application.state.material_model_service = resolved_material_models
     application.state.solver_card_service = resolved_solver_cards
     if services.engine is not None:

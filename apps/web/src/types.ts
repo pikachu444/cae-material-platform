@@ -373,7 +373,7 @@ export interface ReferenceTensileMapping {
   stress_unit: "Pa" | "kPa" | "MPa" | "GPa";
 }
 
-export type DatasetRepresentation = "raw" | "normalized";
+export type DatasetRepresentation = "raw" | "normalized" | "processed";
 
 export interface DatasetChannel {
   name: "engineering_strain" | "engineering_stress";
@@ -393,6 +393,7 @@ export interface DatasetContent {
   data_sha256: string;
   representation: DatasetRepresentation;
   source_dataset_revision_id: string | null;
+  processing_run_id: string | null;
   point_count: number;
   mapping_sha256: string;
   importer_id: string;
@@ -427,6 +428,71 @@ export interface CurvePreview {
   strain_unit: "1" | "%";
   stress_unit: "Pa" | "kPa" | "MPa" | "GPa";
   points: CurvePoint[];
+}
+
+export interface DatasetSelectionContent {
+  selection_kind: "reference_normalized_dataset_revision";
+  member_count: 1;
+  dataset_id: string;
+  dataset_revision_id: string;
+}
+
+export interface DatasetSelectionRevision extends RevisionMetadata {
+  content: DatasetSelectionContent;
+}
+
+export interface DatasetSelectionResponse {
+  selection_id: string;
+  selection_label: string;
+  current_revision: DatasetSelectionRevision;
+  links: Record<string, string>;
+}
+
+export interface ReferenceTensileCropRecipeContent {
+  recipe_kind: "reference_tensile_inclusive_crop";
+  step_count: 1;
+  minimum_engineering_strain: number;
+  maximum_engineering_strain: number;
+  input_schema_ref: string;
+  output_schema_ref: string;
+  diagnostics_schema_ref: string;
+  boundary_policy: "select_observed_points_inclusive_no_interpolation";
+}
+
+export interface ProcessingRecipeRevision extends RevisionMetadata {
+  content: ReferenceTensileCropRecipeContent;
+}
+
+export interface ProcessingRecipeResponse {
+  recipe_id: string;
+  recipe_label: string;
+  current_revision: ProcessingRecipeRevision;
+  links: Record<string, string>;
+}
+
+export interface ProcessingRunResponse {
+  processing_run_id: string;
+  classification: DataClassification;
+  execution_mode: "committed";
+  status: "executing" | "succeeded" | "failed";
+  selection_id: string;
+  selection_revision_id: string;
+  recipe_id: string;
+  recipe_revision_id: string;
+  input_dataset_id: string;
+  input_dataset_revision_id: string;
+  input_point_count: number;
+  output_point_count: number | null;
+  removed_point_count: number | null;
+  result_artifact_id: string | null;
+  result_sha256: string | null;
+  output_dataset_id: string | null;
+  output_dataset_revision_id: string | null;
+  failure_code: string | null;
+  change_reason: string;
+  started_at: string;
+  ended_at: string | null;
+  links: Record<string, string>;
 }
 
 export interface UploadSession {

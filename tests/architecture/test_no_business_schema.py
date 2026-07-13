@@ -23,6 +23,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260714_014_T22_reference_material_model.py",
         "20260714_015_T25_reference_openradioss_export.py",
         "20260714_016_T08_T12_reference_tensile_dataset.py",
+        "20260715_017_T19_reference_processing.py",
     ]
 
 

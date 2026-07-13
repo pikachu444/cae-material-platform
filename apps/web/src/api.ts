@@ -2,6 +2,7 @@ import type {
   ExportTarget,
   CompletedUpload,
   CurvePreview,
+  DatasetSelectionResponse,
   DatasetResponse,
   DataClassification,
   MaterialCreateInput,
@@ -16,6 +17,8 @@ import type {
   MappingReport,
   PropertySetCreateInput,
   PropertySetResponse,
+  ProcessingRecipeResponse,
+  ProcessingRunResponse,
   ReferenceModelCreateInput,
   SolverCardCreateInput,
   SolverCardList,
@@ -440,6 +443,71 @@ export function listDatasetRevisions(
   datasetId: string,
 ): Promise<ApiResult<{ dataset_id: string; revisions: DatasetResponse["current_revision"][] }>> {
   return request(config, `/datasets/${encodeURIComponent(datasetId)}/revisions`);
+}
+
+export function createReferenceDatasetSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    dataset_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<DatasetSelectionResponse>> {
+  return request(config, "/dataset-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listDatasetRevisionSelections(
+  config: ApiConfig,
+  datasetRevisionId: string,
+): Promise<ApiResult<{ items: DatasetSelectionResponse[] }>> {
+  return request(
+    config,
+    `/dataset-revisions/${encodeURIComponent(datasetRevisionId)}/selections`,
+  );
+}
+
+export function listProcessingRecipes(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: ProcessingRecipeResponse[] }>> {
+  return request(config, "/processing-recipes");
+}
+
+export function createReferenceTensileCropRecipe(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      recipe_label: string;
+      minimum_engineering_strain: number;
+      maximum_engineering_strain: number;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<ProcessingRecipeResponse>> {
+  return request(config, "/processing-recipes/reference-tensile-crop", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceTensileCrop(
+  config: ApiConfig,
+  input: {
+    selection_id: string;
+    selection_revision_id: string;
+    recipe_id: string;
+    recipe_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ProcessingRunResponse>> {
+  return request(config, "/processing-runs/reference-tensile-crop", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export function importReferenceTensileDataset(

@@ -1,4 +1,4 @@
-"""Explicit reference tensile CSV mapping, normalization, and Dataset revision values."""
+"""Explicit reference tensile CSV mapping and typed Dataset revision values."""
 
 from __future__ import annotations
 
@@ -19,6 +19,9 @@ from cmp.shared.domain.revisions import content_sha256
 REFERENCE_TENSILE_IMPORTER_ID = "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0"
 REFERENCE_TENSILE_IMPORTER_VERSION = "1.0.0"
 REFERENCE_TENSILE_PARQUET_SCHEMA = "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"
+REFERENCE_TENSILE_PROCESSED_PARQUET_SCHEMA = (
+    "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0"
+)
 REFERENCE_TENSILE_SCHEMA_VERSION = "1.0.0"
 MAX_REFERENCE_TENSILE_POINTS = 100_000
 
@@ -51,6 +54,7 @@ class DatasetConflict(DatasetError):
 class DatasetRepresentation(StrEnum):
     RAW = "raw"
     NORMALIZED = "normalized"
+    PROCESSED = "processed"
 
 
 def _uuid(name: str, value: UUID) -> None:
@@ -103,6 +107,9 @@ class DatasetContent:
     mapping: ReferenceTensileMapping
     importer_id: str = REFERENCE_TENSILE_IMPORTER_ID
     importer_version: str = REFERENCE_TENSILE_IMPORTER_VERSION
+    # A processed Dataset is a new stable Dataset identity produced by a concrete Processing Run.
+    # It deliberately is not an in-place revision of the normalized source Dataset.
+    processing_run_id: UUID | None = None
 
     def __post_init__(self) -> None:
         for name, value in (
@@ -130,12 +137,33 @@ class DatasetContent:
                 raise InvalidDatasetData(
                     "raw Dataset revision cannot have a source Dataset revision"
                 )
+            if self.processing_run_id is not None:
+                raise InvalidDatasetData("raw Dataset revision cannot reference a Processing Run")
             if self.data_artifact_id != self.raw_artifact_id:
                 raise InvalidDatasetData("raw Dataset revision must point at its raw Artifact")
-        elif self.source_dataset_revision_id is None:
-            raise InvalidDatasetData("normalized Dataset revision requires a concrete raw revision")
-        elif self.data_artifact_id == self.raw_artifact_id:
-            raise InvalidDatasetData("normalized Dataset requires a distinct derived Artifact")
+        elif self.representation is DatasetRepresentation.NORMALIZED:
+            if self.source_dataset_revision_id is None:
+                raise InvalidDatasetData(
+                    "normalized Dataset revision requires a concrete raw revision"
+                )
+            if self.processing_run_id is not None:
+                raise InvalidDatasetData(
+                    "normalized Dataset revision cannot reference a Processing Run"
+                )
+            if self.data_artifact_id == self.raw_artifact_id:
+                raise InvalidDatasetData(
+                    "normalized Dataset requires a distinct derived Artifact"
+                )
+        else:
+            if self.source_dataset_revision_id is None:
+                raise InvalidDatasetData(
+                    "processed Dataset requires a concrete normalized source revision"
+                )
+            if self.processing_run_id is None:
+                raise InvalidDatasetData("processed Dataset requires a concrete Processing Run")
+            _uuid("processing_run_id", self.processing_run_id)
+            if self.data_artifact_id == self.raw_artifact_id:
+                raise InvalidDatasetData("processed Dataset requires a distinct derived Artifact")
 
     @property
     def mapping_sha256(self) -> str:
@@ -188,6 +216,9 @@ def dataset_canonical(value: DatasetContent) -> dict[str, object]:
             str(value.source_dataset_revision_id)
             if value.source_dataset_revision_id is not None
             else None
+        ),
+        "processing_run_id": (
+            str(value.processing_run_id) if value.processing_run_id is not None else None
         ),
         "point_count": value.point_count,
         "mapping": reference_tensile_mapping_canonical(value.mapping),
@@ -290,6 +321,17 @@ def normalized_parquet_bytes(points: tuple[CurvePoint, ...]) -> bytes:
         write_statistics=True,
     )
     return cast(bytes, sink.getvalue().to_pybytes())
+
+
+def processed_parquet_bytes(points: tuple[CurvePoint, ...]) -> bytes:
+    """Encode a processed reference curve without changing its typed channel semantics.
+
+    The Artifact schema reference, Processing Recipe revision, and Processing Run carry the
+    transformation meaning.  The Parquet columns intentionally remain the same two normalized
+    engineering channels so a downstream reader cannot silently mistake the output for raw data.
+    """
+
+    return normalized_parquet_bytes(points)
 
 
 def normalized_points_from_parquet(value: bytes) -> tuple[CurvePoint, ...]:

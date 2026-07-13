@@ -2,13 +2,18 @@ import { type ChangeEvent, type FormEvent, useCallback, useEffect, useMemo, useS
 import {
   ApiError,
   type ApiConfig,
+  createReferenceDatasetSelection,
+  createReferenceTensileCropRecipe,
   createReferenceTensileTestMethod,
   createReferenceTensileTestRun,
   createSpecimen,
+  executeReferenceTensileCrop,
   importReferenceTensileDataset,
   listDatasetRevisions,
+  listDatasetRevisionSelections,
   listDatasetsForMaterialState,
   listSpecimensForMaterialState,
+  listProcessingRecipes,
   listTestMethods,
   listTestRunsForMaterialState,
   previewDatasetCurve,
@@ -16,9 +21,12 @@ import {
 } from "./api";
 import type {
   CurvePreview,
+  DatasetSelectionResponse,
   DatasetResponse,
   DatasetRevision,
   MaterialStateResponse,
+  ProcessingRecipeResponse,
+  ProcessingRunResponse,
   ReferenceTensileMapping,
   SpecimenResponse,
   TestMethodResponse,
@@ -88,7 +96,13 @@ function CurvePanel({ curve }: { curve: CurvePreview }) {
       <div className="curve-heading">
         <div>
           <p className="eyebrow">Curve preview</p>
-          <h5>{curve.representation === "raw" ? "Original-unit raw curve" : "Normalized SI curve"}</h5>
+          <h5>
+            {curve.representation === "raw"
+              ? "Original-unit raw curve"
+              : curve.representation === "processed"
+                ? "Committed processed SI curve"
+                : "Normalized SI curve"}
+          </h5>
         </div>
         <span className="reference-chip">{curve.representation}</span>
       </div>
@@ -129,6 +143,12 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [datasetRevisions, setDatasetRevisions] = useState<DatasetRevision[]>([]);
   const [selectedDatasetRevisionId, setSelectedDatasetRevisionId] = useState("");
   const [curve, setCurve] = useState<CurvePreview | null>(null);
+  const [selections, setSelections] = useState<DatasetSelectionResponse[]>([]);
+  const [selectedSelectionId, setSelectedSelectionId] = useState("");
+  const [recipes, setRecipes] = useState<ProcessingRecipeResponse[]>([]);
+  const [selectedRecipeId, setSelectedRecipeId] = useState("");
+  const [processingRun, setProcessingRun] = useState<ProcessingRunResponse | null>(null);
+  const [processedCurve, setProcessedCurve] = useState<CurvePreview | null>(null);
   const [specimenCode, setSpecimenCode] = useState("");
   const [orientation, setOrientation] = useState("");
   const [specimenReason, setSpecimenReason] = useState("Register reference tensile specimen");
@@ -144,6 +164,13 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [strainUnit, setStrainUnit] = useState<ReferenceTensileMapping["strain_unit"]>("1");
   const [stressUnit, setStressUnit] = useState<ReferenceTensileMapping["stress_unit"]>("MPa");
   const [datasetReason, setDatasetReason] = useState("Import reference tensile CSV and normalize units");
+  const [selectionLabel, setSelectionLabel] = useState("Reference crop input");
+  const [selectionReason, setSelectionReason] = useState("Pin normalized Dataset revision for processing");
+  const [recipeLabel, setRecipeLabel] = useState("Observed-point crop");
+  const [minimumStrain, setMinimumStrain] = useState("0");
+  const [maximumStrain, setMaximumStrain] = useState("0.02");
+  const [recipeReason, setRecipeReason] = useState("Define committed observed-point crop recipe");
+  const [processingReason, setProcessingReason] = useState("Create processed Dataset from pinned input and recipe");
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -157,6 +184,11 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   );
   const selectedSpecimen = specimens.find((specimen) => specimen.specimen_id === selectedSpecimenId) ?? null;
   const selectedRun = runs.find((run) => run.test_run_id === selectedRunId) ?? null;
+  const normalizedRevision = datasetRevisions.find(
+    (revision) => revision.content.representation === "normalized",
+  ) ?? null;
+  const selectedSelection = selections.find((selection) => selection.selection_id === selectedSelectionId) ?? null;
+  const selectedRecipe = recipes.find((recipe) => recipe.recipe_id === selectedRecipeId) ?? null;
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -225,6 +257,58 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
       current = false;
     };
   }, [config, open, selectedDatasetRevisionId]);
+
+  useEffect(() => {
+    if (!open || !normalizedRevision) {
+      setSelections([]);
+      setSelectedSelectionId("");
+      return;
+    }
+    let current = true;
+    void Promise.all([
+      listDatasetRevisionSelections(config, normalizedRevision.id),
+      listProcessingRecipes(config),
+    ])
+      .then(([nextSelections, nextRecipes]) => {
+        if (!current) {
+          return;
+        }
+        const scopedRecipes = nextRecipes.data.items.filter(
+          (recipe) => recipe.current_revision.classification === state.current_revision.classification,
+        );
+        setSelections(nextSelections.data.items);
+        setRecipes(scopedRecipes);
+        setSelectedSelectionId((selected) => (
+          nextSelections.data.items.some((item) => item.selection_id === selected)
+            ? selected
+            : nextSelections.data.items[0]?.selection_id ?? ""
+        ));
+        setSelectedRecipeId((selected) => (
+          scopedRecipes.some((item) => item.recipe_id === selected)
+            ? selected
+            : scopedRecipes[0]?.recipe_id ?? ""
+        ));
+      })
+      .catch((cause: unknown) => current && setError(messageFor(cause)));
+    return () => {
+      current = false;
+    };
+  }, [config, normalizedRevision, open, state.current_revision.classification]);
+
+  useEffect(() => {
+    const outputRevisionId = processingRun?.output_dataset_revision_id;
+    if (!open || !outputRevisionId) {
+      setProcessedCurve(null);
+      return;
+    }
+    let current = true;
+    void previewDatasetCurve(config, outputRevisionId)
+      .then((result) => current && setProcessedCurve(result.data))
+      .catch((cause: unknown) => current && setError(messageFor(cause)));
+    return () => {
+      current = false;
+    };
+  }, [config, open, processingRun?.output_dataset_revision_id]);
 
   async function submitSpecimen(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -334,6 +418,91 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
       setSelectedDatasetId(result.data.dataset_id);
       setSelectedDatasetRevisionId(result.data.current_revision.id);
       setFile(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function submitSelection(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!normalizedRevision) {
+      return;
+    }
+    setAction("selection");
+    setError(null);
+    try {
+      const result = await createReferenceDatasetSelection(config, {
+        classification: state.current_revision.classification,
+        selection_label: selectionLabel.trim(),
+        dataset_revision_id: normalizedRevision.id,
+        change_reason: selectionReason.trim(),
+      });
+      setSelections((current) => [
+        result.data,
+        ...current.filter((item) => item.selection_id !== result.data.selection_id),
+      ]);
+      setSelectedSelectionId(result.data.selection_id);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function submitRecipe(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    const minimum = Number(minimumStrain);
+    const maximum = Number(maximumStrain);
+    if (!Number.isFinite(minimum) || !Number.isFinite(maximum) || minimum < 0 || maximum <= minimum) {
+      setError("Provide finite crop bounds with 0 ≤ minimum strain < maximum strain.");
+      return;
+    }
+    setAction("recipe");
+    setError(null);
+    try {
+      const result = await createReferenceTensileCropRecipe(config, {
+        classification: state.current_revision.classification,
+        content: {
+          recipe_label: recipeLabel.trim(),
+          minimum_engineering_strain: minimum,
+          maximum_engineering_strain: maximum,
+        },
+        change_reason: recipeReason.trim(),
+      });
+      setRecipes((current) => [
+        result.data,
+        ...current.filter((item) => item.recipe_id !== result.data.recipe_id),
+      ]);
+      setSelectedRecipeId(result.data.recipe_id);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function executeProcessing(): Promise<void> {
+    if (!selectedSelection || !selectedRecipe) {
+      return;
+    }
+    setAction("processing");
+    setError(null);
+    try {
+      const result = await executeReferenceTensileCrop(config, {
+        selection_id: selectedSelection.selection_id,
+        selection_revision_id: selectedSelection.current_revision.id,
+        recipe_id: selectedRecipe.recipe_id,
+        recipe_revision_id: selectedRecipe.current_revision.id,
+        change_reason: processingReason.trim(),
+      });
+      setProcessingRun(result.data);
+      if (result.data.output_dataset_revision_id) {
+        const output = await previewDatasetCurve(config, result.data.output_dataset_revision_id);
+        setProcessedCurve(output.data);
+      }
+      await refresh();
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -464,6 +633,90 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
                 {curve ? <CurvePanel curve={curve} /> : <p className="muted">Select a Dataset revision to load its curve.</p>}
               </>
             ) : null}
+          </div>
+          <div className="workflow-step">
+            <strong>6. Pin the normalized revision as a Processing Selection</strong>
+            {!normalizedRevision ? (
+              <p className="muted">Import a normalized Dataset revision before creating a Selection.</p>
+            ) : (
+              <>
+                <p className="form-hint">
+                  This narrow reference Selection contains exactly one normalized Dataset revision.
+                  It never follows a moving Dataset head.
+                </p>
+                <p className="source-line">
+                  Input Dataset revision {shortId(normalizedRevision.id)} · {normalizedRevision.content.point_count.toLocaleString()} points
+                </p>
+                <form className="form-stack" onSubmit={(event) => void submitSelection(event)}>
+                  <label>Selection label<input value={selectionLabel} onChange={(event) => setSelectionLabel(event.target.value)} required /></label>
+                  <label>Change reason<input value={selectionReason} onChange={(event) => setSelectionReason(event.target.value)} required /></label>
+                  <button className="button secondary" type="submit" disabled={action !== null}>
+                    {action === "selection" ? "Pinning Selection…" : "Create pinned Selection"}
+                  </button>
+                </form>
+                {selections.length ? (
+                  <label>
+                    Pinned Selection
+                    <select value={selectedSelectionId} onChange={(event) => setSelectedSelectionId(event.target.value)}>
+                      {selections.map((selection) => (
+                        <option key={selection.selection_id} value={selection.selection_id}>
+                          {selection.selection_label} · r{selection.current_revision.revision_no} · {shortId(selection.current_revision.id)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+              </>
+            )}
+          </div>
+          <div className="workflow-step">
+            <strong>7. Define the one-step observed-point crop Recipe</strong>
+            <p className="form-hint">
+              The reference Recipe is intentionally limited to inclusive observed engineering-strain bounds. It does not interpolate, resample, smooth, or alter units.
+            </p>
+            <form className="form-stack" onSubmit={(event) => void submitRecipe(event)}>
+              <div className="form-grid">
+                <label>Recipe label<input value={recipeLabel} onChange={(event) => setRecipeLabel(event.target.value)} required /></label>
+                <label>Minimum engineering strain<input type="number" min="0" step="any" value={minimumStrain} onChange={(event) => setMinimumStrain(event.target.value)} required /></label>
+                <label>Maximum engineering strain<input type="number" min="0" step="any" value={maximumStrain} onChange={(event) => setMaximumStrain(event.target.value)} required /></label>
+              </div>
+              <label>Change reason<input value={recipeReason} onChange={(event) => setRecipeReason(event.target.value)} required /></label>
+              <button className="button secondary" type="submit" disabled={action !== null}>
+                {action === "recipe" ? "Creating Recipe…" : "Create immutable Recipe"}
+              </button>
+            </form>
+            {recipes.length ? (
+              <label>
+                Processing Recipe
+                <select value={selectedRecipeId} onChange={(event) => setSelectedRecipeId(event.target.value)}>
+                  {recipes.map((recipe) => (
+                    <option key={recipe.recipe_id} value={recipe.recipe_id}>
+                      {recipe.recipe_label} · [{recipe.current_revision.content.minimum_engineering_strain}, {recipe.current_revision.content.maximum_engineering_strain}] · r{recipe.current_revision.revision_no}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </div>
+          <div className="workflow-step dataset-results">
+            <strong>8. Commit Processing Run and inspect the separate processed Dataset</strong>
+            <p className="form-hint">
+              This action has no transient preview mode. It creates a durable committed Run, a derived immutable Artifact, and revision 1 of a separate processed Dataset identity; raw and normalized inputs remain unchanged.
+            </p>
+            <label>Change reason<input value={processingReason} onChange={(event) => setProcessingReason(event.target.value)} required /></label>
+            <button className="button primary" type="button" onClick={() => void executeProcessing()} disabled={!selectedSelection || !selectedRecipe || action !== null}>
+              {action === "processing" ? "Committing Processing Run…" : "Commit crop Processing Run"}
+            </button>
+            {!selectedSelection || !selectedRecipe ? <small className="muted">Create or select both a pinned Selection and Recipe before committing a run.</small> : null}
+            {processingRun ? (
+              <div className="workflow-toolbar">
+                <span>
+                  Run {shortId(processingRun.processing_run_id)} · {processingRun.status} · {processingRun.input_point_count.toLocaleString()} → {processingRun.output_point_count?.toLocaleString() ?? "—"} points
+                </span>
+                {processingRun.output_dataset_revision_id ? <span className="reference-chip">processed Dataset r1</span> : null}
+              </div>
+            ) : null}
+            {processedCurve ? <CurvePanel curve={processedCurve} /> : null}
           </div>
         </div>
       )}

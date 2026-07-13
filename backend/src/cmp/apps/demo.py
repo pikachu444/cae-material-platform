@@ -41,6 +41,7 @@ _SCHEMAS = (
     "catalog",
     "testing",
     "datasets",
+    "processing",
     "modeling",
     "exporting",
 )
@@ -99,6 +100,7 @@ def _grant_runtime_privileges(connection: Connection) -> None:
         "catalog",
         "testing",
         "datasets",
+        "processing",
         "modeling",
         "exporting",
     ):

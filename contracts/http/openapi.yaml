@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.17.0
+  version: 0.18.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1408,6 +1408,84 @@ paths:
         "409": {description: Immutable source, Artifact, or Dataset state conflicts.}
         "422": {description: Mapping, unit, or reference CSV values are invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-selections:
+    post:
+      operationId: createReferenceDatasetSelection
+      tags: [datasets]
+      summary: Pin one normalized reference Dataset revision as an immutable Selection revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ReferenceDatasetSelectionCreateRequest"}
+      responses:
+        "201":
+          description: Stable Selection identity with its first immutable pinned-member revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/DatasetSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: No visible normalized Dataset revision matches the identifier.}
+        "409": {description: Selection identity or immutable Dataset state conflicts.}
+        "422": {description: Selection label or revision request is invalid.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-selections/{selection_id}:
+    get:
+      operationId: getDatasetSelection
+      tags: [datasets]
+      summary: Read the current immutable revision of one pinned Dataset Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current pinned Selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/DatasetSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: No visible Dataset Selection matches the identifier.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-selections/{selection_id}/revisions:
+    post:
+      operationId: reviseReferenceDatasetSelection
+      tags: [datasets]
+      summary: Append a new pinned-member revision to an existing Dataset Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ReferenceDatasetSelectionRevisionRequest"}
+      responses:
+        "200":
+          description: Appended immutable Selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/DatasetSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: No visible Selection or normalized Dataset revision matches the identifier.}
+        "409": {description: Expected Selection head or immutable Dataset state conflicts.}
+        "422": {description: Selection revision request is invalid.}
+        "503": {description: Dataset service unavailable.}
   /api/v1/datasets/{dataset_id}:
     get:
       operationId: getDataset
@@ -1435,7 +1513,7 @@ paths:
     get:
       operationId: listDatasetRevisions
       tags: [datasets]
-      summary: List immutable raw and normalized revisions for one Dataset identity.
+      summary: List immutable raw, normalized, or processed revisions for one Dataset identity.
       security: [{BearerAuth: []}]
       parameters:
         - name: dataset_id
@@ -1468,11 +1546,32 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Dataset read is not authorized.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-revisions/{dataset_revision_id}/selections:
+    get:
+      operationId: listDatasetRevisionSelections
+      tags: [datasets]
+      summary: List current Selections that pin the named normalized Dataset revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: dataset_revision_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Tenant-visible current Selection heads that name this concrete revision.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/DatasetSelectionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: No visible Dataset revision matches the identifier.}
+        "503": {description: Dataset service unavailable.}
   /api/v1/dataset-revisions/{dataset_revision_id}/curve:
     get:
       operationId: previewDatasetCurve
       tags: [datasets]
-      summary: Read a bounded deterministic preview of either raw or normalized Dataset curve data.
+      summary: Read a bounded deterministic preview of raw, normalized, or processed Dataset curve data.
       security: [{BearerAuth: []}]
       parameters:
         - name: dataset_revision_id
@@ -1495,6 +1594,147 @@ paths:
         "409": {description: Immutable Artifact integrity or Dataset state conflicts.}
         "422": {description: Preview point limit or Dataset data is invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/processing-recipes/reference-tensile-crop:
+    post:
+      operationId: createReferenceTensileCropRecipe
+      tags: [processing]
+      summary: Create an immutable one-step inclusive observed-point crop Recipe.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/CreateReferenceTensileCropRecipeRequest"}
+      responses:
+        "201":
+          description: Stable Recipe identity with its first immutable typed crop revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ProcessingRecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Immutable Recipe identity state conflicts.}
+        "422": {description: Crop bounds or Recipe label are invalid.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-recipes:
+    get:
+      operationId: listProcessingRecipes
+      tags: [processing]
+      summary: List current tenant-visible typed reference crop Recipe heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current immutable Recipe heads.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ProcessingRecipeListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-recipes/{recipe_id}:
+    get:
+      operationId: getProcessingRecipe
+      tags: [processing]
+      summary: Read one current immutable typed crop Recipe revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: recipe_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current Recipe revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ProcessingRecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: No visible Processing Recipe matches the identifier.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-recipes/{recipe_id}/revisions:
+    post:
+      operationId: reviseReferenceTensileCropRecipe
+      tags: [processing]
+      summary: Append one immutable revision to a typed reference crop Recipe.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: recipe_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ReviseReferenceTensileCropRecipeRequest"}
+      responses:
+        "200":
+          description: Appended immutable Recipe revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ProcessingRecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: No visible Processing Recipe matches the identifier.}
+        "409": {description: Expected Recipe head conflicts with immutable state.}
+        "422": {description: Crop bounds or Recipe revision request are invalid.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/reference-tensile-crop:
+    post:
+      operationId: executeReferenceTensileCrop
+      tags: [processing]
+      summary: Commit a typed crop Run from pinned Selection and Recipe revisions without preview mutation.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ExecuteReferenceTensileCropRequest"}
+      responses:
+        "201":
+          description: Terminal committed Processing Run with a separate processed Dataset output, or a failed terminal Run.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ProcessingRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: No visible pinned Selection, Recipe, Dataset revision, or Artifact matches the request.}
+        "409": {description: Immutable input, Artifact, or output state conflicts.}
+        "422": {description: The typed crop request is invalid.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/{run_id}:
+    get:
+      operationId: getProcessingRun
+      tags: [processing]
+      summary: Read one tenant-visible committed Processing Run and its immutable result references.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Processing Run state and immutable input/output references.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ProcessingRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: No visible Processing Run matches the identifier.}
+        "503": {description: Processing service unavailable.}
   /api/v1/material-states/{material_state_id}/material-models:
     get:
       operationId: listMaterialModelsForState
