@@ -88,6 +88,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.STATISTICAL_ANALYST: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.ARTIFACT_READ,
             Permission.DATASET_READ,
             Permission.STATISTICS_READ,
             Permission.STATISTICS_EXECUTE,
@@ -168,6 +169,15 @@ _MODIFYING_OPERATIONS = frozenset(
     {"activate", "control", "decide", "execute", "manage", "publish", "submit", "write"}
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
+    Permission.TESTING_WRITE: frozenset({Permission.CATALOG_READ}),
+    # A Dataset is an immutable interpretation of an Artifact.  Reading a curve
+    # therefore needs the same row-visible Artifact access as reading its Dataset
+    # metadata; otherwise the API could disclose metadata but not safely load the
+    # immutable content it identifies.
+    Permission.DATASET_READ: frozenset({Permission.ARTIFACT_READ}),
+    Permission.DATASET_WRITE: frozenset(
+        {Permission.ARTIFACT_READ, Permission.ARTIFACT_WRITE, Permission.TESTING_READ}
+    ),
     Permission.PROCESSING_EXECUTE: frozenset({Permission.DATASET_READ, Permission.PROCESSING_READ}),
     Permission.STATISTICS_EXECUTE: frozenset({Permission.DATASET_READ, Permission.STATISTICS_READ}),
     Permission.MODELING_WRITE: frozenset({Permission.CATALOG_READ, Permission.MODELING_READ}),

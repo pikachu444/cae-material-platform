@@ -111,6 +111,14 @@ class ReconciliationResult:
 
 
 class ContentObjectStore(Protocol):
+    async def stage_bytes(
+        self,
+        *,
+        object_key: str,
+        value: bytes,
+        media_type: str,
+    ) -> StoredObject: ...
+
     async def inspect(self, object_key: str) -> StoredObject | None: ...
 
     async def promote(
@@ -337,6 +345,24 @@ def _require_decision(
         raise ValueError("authorization decision does not match Artifact context")
 
 
+def _require_database_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    """Permit a bounded command to consume an explicitly granted Artifact dependency."""
+
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise ArtifactAccessDenied("authorization decision lacks the required Artifact capability")
+
+
 def _matches(value: StoredObject, sha256: str, size_bytes: int) -> bool:
     return value.sha256 == sha256 and value.size_bytes == size_bytes
 
@@ -394,13 +420,126 @@ class ArtifactService:
         )
         return result.record.artifact.id
 
+    @staticmethod
+    def _derived_staging_key(
+        context: SecurityContext,
+        classification: DataClassification,
+        idempotency_key: str,
+    ) -> str:
+        """Return a deterministic non-authoritative key for one derived-byte command."""
+
+        digest = hashlib.sha256(idempotency_key.encode("utf-8")).hexdigest()
+        return (
+            f"staging/derived/{context.organization_id}/{context.project_id}/"
+            f"{classification.value}/{digest}"
+        )
+
+    async def finalize_derived_bytes(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        classification: DataClassification,
+        artifact_role: str,
+        schema_ref: str,
+        media_type: str,
+        value: bytes,
+        idempotency_key: str,
+    ) -> ArtifactRecord:
+        """Persist one small derived payload through the immutable Artifact lifecycle.
+
+        This is intentionally an internal application service, not a generic upload endpoint.
+        A bounded domain (the reference Dataset importer) supplies fully validated bytes and an
+        explicit schema/role.  The bytes first receive a deterministic staging key, then use the
+        same content-addressed promotion, integrity observation, outbox, and RLS path as other
+        Artifacts.
+        """
+
+        _require_database_capability(context, decision, Permission.ARTIFACT_WRITE)
+        if not value:
+            raise InvalidArtifact("derived Artifact bytes must not be empty")
+        if _IDEMPOTENCY_KEY.fullmatch(idempotency_key) is None:
+            raise InvalidArtifact("Artifact idempotency key must contain visible ASCII")
+        sha256 = hashlib.sha256(value).hexdigest()
+        staging_key = self._derived_staging_key(context, classification, idempotency_key)
+        stored = await self._store.stage_bytes(
+            object_key=staging_key,
+            value=value,
+            media_type=media_type,
+        )
+        if stored.sha256 != sha256 or stored.size_bytes != len(value):
+            raise ArtifactIntegrityError("derived staging object differs from supplied bytes")
+        result = await self.finalize_staged(
+            context,
+            decision,
+            PrepareArtifact(
+                classification=classification,
+                artifact_kind=ArtifactKind.DERIVED,
+                artifact_role=artifact_role,
+                schema_ref=schema_ref,
+                media_type=media_type,
+                expected_size_bytes=len(value),
+                expected_sha256=sha256,
+                staging_object_key=staging_key,
+                idempotency_key=idempotency_key,
+            ),
+        )
+        if result.replayed:
+            try:
+                await self._store.discard(staging_key)
+            except ObjectStoreError:
+                pass
+        return result.record
+
+    async def read_verified_bytes(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+        *,
+        maximum_bytes: int,
+    ) -> tuple[ArtifactRecord, bytes]:
+        """Read a bounded immutable Artifact for an in-process typed importer.
+
+        Public callers keep using short-lived streaming transfer capabilities.  This method is
+        deliberately scoped to a server-side application command that already holds
+        ``artifact.read`` and rechecks the authoritative digest before parsing.
+        """
+
+        if not 1 <= maximum_bytes <= 64 * 1024 * 1024:
+            raise InvalidArtifact("maximum Artifact read size is outside the supported range")
+        _require_database_capability(context, decision, Permission.ARTIFACT_READ)
+        if artifact_id.int == 0:
+            raise InvalidArtifact("artifact_id must be non-zero")
+        record = self._repository.get_artifact(
+            context=context,
+            decision=decision,
+            artifact_id=artifact_id,
+        )
+        if record.integrity_status is not IntegrityStatus.VERIFIED:
+            raise ArtifactIntegrityError("Artifact is not currently verified")
+        chunks: list[bytes] = []
+        observed = 0
+        async for chunk in self._store.stream(record.artifact.storage_key):
+            observed += len(chunk)
+            if observed > maximum_bytes:
+                raise InvalidArtifact("Artifact exceeds the importer byte limit")
+            chunks.append(chunk)
+        value = b"".join(chunks)
+        if (
+            len(value) != record.artifact.size_bytes
+            or hashlib.sha256(value).hexdigest() != record.artifact.sha256
+        ):
+            raise ArtifactIntegrityError("Artifact bytes no longer match the immutable manifest")
+        return record, value
+
     async def finalize_staged(
         self,
         context: SecurityContext,
         decision: AuthorizationDecision,
         command: PrepareArtifact,
     ) -> FinalizedArtifact:
-        _require_decision(context, decision, Permission.ARTIFACT_WRITE)
+        _require_database_capability(context, decision, Permission.ARTIFACT_WRITE)
         if not decision.allows(
             context.organization_id, context.project_id, command.classification
         ):

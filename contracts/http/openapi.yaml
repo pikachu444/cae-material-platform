@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.16.0
+  version: 0.17.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1219,6 +1219,262 @@ paths:
         "403": {description: Catalog write is not authorized.}
         "404": {description: No visible Property Set matches the identifier.}
         "412": {description: Current head differs from the supplied strong ETag.}
+  /api/v1/material-states/{material_state_id}/specimens:
+    get:
+      operationId: listMaterialStateSpecimens
+      tags: [testing]
+      summary: List current Specimen records bound to one Material State.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Current Specimens visible to testing.read.
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+        "503": {description: Testing service unavailable.}
+    post:
+      operationId: createSpecimen
+      tags: [testing]
+      summary: Create an immutable reference Specimen bound to a concrete Material State revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenCreateRequest"}
+      responses:
+        "201":
+          description: Stable Specimen identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: No concrete Material State revision is visible.}
+        "409": {description: Immutable source or Specimen identity conflicts.}
+        "422": {description: Specimen content is invalid.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-methods/reference-uniaxial-tensile:
+    post:
+      operationId: createReferenceTensileTestMethod
+      tags: [testing]
+      summary: Register the narrow non-production reference uniaxial tensile CSV method.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ReferenceMethodCreateRequest"}
+      responses:
+        "201":
+          description: Stable reference Test Method identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestMethodResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "409": {description: The reference Test Method already exists for this classification.}
+        "422": {description: Reference Test Method request is invalid.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-methods:
+    get:
+      operationId: listTestMethods
+      tags: [testing]
+      summary: List current Test Method records visible to testing.read.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Test Method heads.
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestMethodListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-runs:
+    post:
+      operationId: createReferenceTensileTestRun
+      tags: [testing]
+      summary: Create an immutable reference Test Run bound to concrete Specimen and Method revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunCreateRequest"}
+      responses:
+        "201":
+          description: Stable Test Run identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: Concrete Specimen or reference Test Method revision is not visible.}
+        "409": {description: Immutable source or Test Run identity conflicts.}
+        "422": {description: Test Run content is invalid.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-runs/{test_run_id}:
+    get:
+      operationId: getTestRun
+      tags: [testing]
+      summary: Read one current immutable Test Run revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: test_run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current Test Run revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+        "404": {description: No visible Test Run matches the identifier.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/material-states/{material_state_id}/test-runs:
+    get:
+      operationId: listMaterialStateTestRuns
+      tags: [testing]
+      summary: List current Test Runs linked to one Material State through their Specimens.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Current Test Run heads visible to testing.read.
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/datasets/reference-uniaxial-tensile:import:
+    post:
+      operationId: importReferenceTensileDataset
+      tags: [datasets]
+      summary: Create raw and normalized immutable Dataset revisions from a confirmed reference tensile CSV mapping.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/reference-tensile-resources.schema.json#/$defs/ReferenceTensileImportRequest"}
+      responses:
+        "201":
+          description: Dataset raw revision and normalized Parquet revision created, or an equivalent completed import replayed.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-resources.schema.json#/$defs/DatasetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset import is not authorized.}
+        "404": {description: Concrete reference Test Run or raw Artifact is not visible.}
+        "409": {description: Immutable source, Artifact, or Dataset state conflicts.}
+        "422": {description: Mapping, unit, or reference CSV values are invalid.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/datasets/{dataset_id}:
+    get:
+      operationId: getDataset
+      tags: [datasets]
+      summary: Read one current immutable Dataset revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current Dataset revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-resources.schema.json#/$defs/DatasetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: No visible Dataset matches the identifier.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/datasets/{dataset_id}/revisions:
+    get:
+      operationId: listDatasetRevisions
+      tags: [datasets]
+      summary: List immutable raw and normalized revisions for one Dataset identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable Dataset revision history.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-resources.schema.json#/$defs/DatasetRevisionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: No visible Dataset matches the identifier.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/material-states/{material_state_id}/datasets:
+    get:
+      operationId: listMaterialStateDatasets
+      tags: [datasets]
+      summary: List current Datasets connected to a Material State through Specimens and Test Runs.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Current Dataset heads visible to dataset.read.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-resources.schema.json#/$defs/DatasetListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-revisions/{dataset_revision_id}/curve:
+    get:
+      operationId: previewDatasetCurve
+      tags: [datasets]
+      summary: Read a bounded deterministic preview of either raw or normalized Dataset curve data.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: dataset_revision_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: maximum_points
+          in: query
+          required: false
+          schema: {type: integer, minimum: 2, maximum: 10000, default: 1000}
+      responses:
+        "200":
+          description: Unit-labelled immutable curve preview; source bytes remain unchanged.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-resources.schema.json#/$defs/CurvePreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: No visible Dataset revision or Artifact matches the identifier.}
+        "409": {description: Immutable Artifact integrity or Dataset state conflicts.}
+        "422": {description: Preview point limit or Dataset data is invalid.}
+        "503": {description: Dataset service unavailable.}
   /api/v1/material-states/{material_state_id}/material-models:
     get:
       operationId: listMaterialModelsForState

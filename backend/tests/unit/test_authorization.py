@@ -241,6 +241,8 @@ def test_write_decision_expands_only_required_read_and_governance_permissions() 
     decision = _service(_binding(Role.DATA_STEWARD)).authorize(_context(), Permission.DATASET_WRITE)
 
     assert decision.database_permissions == (
+        "artifact.read",
+        "artifact.write",
         "audit.append",
         "dataset.read",
         "dataset.write",
@@ -249,6 +251,7 @@ def test_write_decision_expands_only_required_read_and_governance_permissions() 
         "governance.write",
         "provenance.read",
         "provenance.write",
+        "testing.read",
     )
 
 

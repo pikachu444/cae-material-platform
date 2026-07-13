@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/testing/reference-tensile-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "SpecimenCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_state_revision_id", "specimen_code", "change_reason"],
+      "properties": {
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_code": {"type": "string", "minLength": 1, "maxLength": 100},
+        "orientation": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "preparation_note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReferenceMethodCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "TestRunCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "specimen_id", "specimen_revision_id", "test_method_id", "test_method_revision_id",
+        "run_label", "performed_at", "change_reason"
+      ],
+      "properties": {
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_revision_id": {"$ref": "#/$defs/Uuid"},
+        "run_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "performed_at": {"type": "string", "format": "date-time"},
+        "test_temperature_k": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "crosshead_speed_mm_per_min": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "SpecimenContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_id", "material_revision_id", "material_state_id", "material_state_revision_id",
+        "specimen_code", "orientation", "preparation_note"
+      ],
+      "properties": {
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_code": {"type": "string", "minLength": 1, "maxLength": 100},
+        "orientation": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "preparation_note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "TestMethodContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method_code", "display_name", "reference_only"],
+      "properties": {
+        "method_code": {"const": "reference_uniaxial_tensile"},
+        "display_name": {"const": "Reference uniaxial tensile CSV"},
+        "reference_only": {"const": true}
+      }
+    },
+    "TestRunContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "specimen_id", "specimen_revision_id", "test_method_id", "test_method_revision_id",
+        "run_label", "performed_at", "test_temperature_k", "crosshead_speed_mm_per_min",
+        "reference_only"
+      ],
+      "properties": {
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_revision_id": {"$ref": "#/$defs/Uuid"},
+        "run_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "performed_at": {"type": "string", "format": "date-time"},
+        "test_temperature_k": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "crosshead_speed_mm_per_min": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "reference_only": {"const": true}
+      }
+    },
+    "SpecimenRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/SpecimenContent"}}}
+      ]
+    },
+    "TestMethodRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/TestMethodContent"}}}
+      ]
+    },
+    "TestRunRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/TestRunContent"}}}
+      ]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "SpecimenResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["specimen_id", "material_state_id", "current_revision", "links"],
+      "properties": {
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/SpecimenRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "TestMethodResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["test_method_id", "current_revision", "links"],
+      "properties": {
+        "test_method_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/TestMethodRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "TestRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["test_run_id", "specimen_id", "test_method_id", "current_revision", "links"],
+      "properties": {
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "test_method_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/TestRunRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "SpecimenListResponse": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/SpecimenResponse"}}}
+    },
+    "TestMethodListResponse": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/TestMethodResponse"}}}
+    },
+    "TestRunListResponse": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/TestRunResponse"}}}
+    },
+    "TestingProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:testing"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-TESTING-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

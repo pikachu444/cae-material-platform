@@ -11,6 +11,7 @@ from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import build_catalog_service
+from cmp.bootstrap.datasets import build_dataset_service
 from cmp.bootstrap.exporting import build_solver_card_service
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import build_material_model_service
@@ -18,6 +19,7 @@ from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.provenance import build_provenance_services
 from cmp.bootstrap.security import IdentityServices, build_identity_services
 from cmp.bootstrap.settings import Settings
+from cmp.bootstrap.testing import build_testing_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
 from cmp.modules.artifacts.adapters.api.uploads import install_upload_api
 from cmp.modules.artifacts.application.content import ArtifactService
@@ -26,6 +28,8 @@ from cmp.modules.audit.adapters.api.audit import install_audit_api
 from cmp.modules.audit.application.service import AuditService
 from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.application.service import CatalogService
+from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
+from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.identity_access.adapters.api.authorization import (
@@ -44,6 +48,8 @@ from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
 from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
+from cmp.modules.testing.adapters.api.testing import install_testing_api
+from cmp.modules.testing.application.service import TestingService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
 
@@ -69,6 +75,8 @@ def create_app(
     provenance_lineage_service: ProvenanceLineageService | None = None,
     audit_service: AuditService | None = None,
     catalog_service: CatalogService | None = None,
+    testing_service: TestingService | None = None,
+    dataset_service: DatasetService | None = None,
     material_model_service: MaterialModelService | None = None,
     solver_card_service: SolverCardService | None = None,
 ) -> FastAPI:
@@ -188,6 +196,30 @@ def create_app(
             services.authorization, Permission.CATALOG_WRITE
         ),
     )
+    resolved_testing = testing_service or build_testing_service(services)
+    install_testing_api(
+        application,
+        service=resolved_testing,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.TESTING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.TESTING_WRITE
+        ),
+    )
+    resolved_datasets = dataset_service or build_dataset_service(services, resolved_artifacts)
+    install_dataset_api(
+        application,
+        service=resolved_datasets,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_WRITE
+        ),
+    )
     resolved_material_models = material_model_service or build_material_model_service(services)
     install_material_model_api(
         application,
@@ -216,6 +248,8 @@ def create_app(
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
     application.state.catalog_service = resolved_catalog
+    application.state.testing_service = resolved_testing
+    application.state.dataset_service = resolved_datasets
     application.state.material_model_service = resolved_material_models
     application.state.solver_card_service = resolved_solver_cards
     if services.engine is not None:

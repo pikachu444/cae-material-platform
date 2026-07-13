@@ -12,6 +12,7 @@ from cmp.tools.contracts import (
     validate_example,
 )
 from cmp.tools.generate_client import render_client
+from jsonschema import Draft202012Validator, FormatChecker
 
 PROJECT_ROOT = Path(__file__).parents[2]
 
@@ -320,6 +321,142 @@ def test_solver_card_contract_and_runtime_expose_preflight_preview_and_download(
         card["required"]
     )
     assert {"items", "mapping_report_sha256", "exportable"}.issubset(report["required"])
+
+
+def test_reference_tensile_contract_and_runtime_expose_typed_test_dataset_workflow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/material-states/{material_state_id}/specimens": {
+            "get": "listMaterialStateSpecimens",
+            "post": "createSpecimen",
+        },
+        "/api/v1/test-methods/reference-uniaxial-tensile": {
+            "post": "createReferenceTensileTestMethod"
+        },
+        "/api/v1/test-methods": {"get": "listTestMethods"},
+        "/api/v1/test-runs": {"post": "createReferenceTensileTestRun"},
+        "/api/v1/test-runs/{test_run_id}": {"get": "getTestRun"},
+        "/api/v1/material-states/{material_state_id}/test-runs": {
+            "get": "listMaterialStateTestRuns"
+        },
+        "/api/v1/datasets/reference-uniaxial-tensile:import": {
+            "post": "importReferenceTensileDataset"
+        },
+        "/api/v1/datasets/{dataset_id}": {"get": "getDataset"},
+        "/api/v1/datasets/{dataset_id}/revisions": {"get": "listDatasetRevisions"},
+        "/api/v1/material-states/{material_state_id}/datasets": {
+            "get": "listMaterialStateDatasets"
+        },
+        "/api/v1/dataset-revisions/{dataset_revision_id}/curve": {
+            "get": "previewDatasetCurve"
+        },
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    for relative in (
+        "contracts/testing/reference-tensile-resources.schema.json",
+        "contracts/datasets/reference-tensile-resources.schema.json",
+    ):
+        serialized = (PROJECT_ROOT / relative).read_text(encoding="utf-8")
+        assert "postgresql.JSONB" not in serialized
+        assert '"key"' not in serialized
+        assert '"value"' not in serialized
+    dataset_content = runtime["components"]["schemas"]["DatasetContentResponse"]
+    assert {"raw_artifact_id", "data_artifact_id", "mapping_sha256", "channels"}.issubset(
+        dataset_content["required"]
+    )
+
+
+def test_reference_tensile_revision_contracts_allow_typed_content_but_no_unknown_fields() -> None:
+    metadata = {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "aggregate_id": "00000000-0000-0000-0000-000000000002",
+        "revision_no": 1,
+        "based_on_revision_id": None,
+        "schema_id": "urn:cmp:test:1.0.0",
+        "schema_version": "1.0.0",
+        "content_hash": "a" * 64,
+        "created_at": "2026-07-14T00:00:00Z",
+        "created_by": "00000000-0000-0000-0000-000000000003",
+        "change_reason": "reference fixture",
+        "organization_id": "00000000-0000-0000-0000-000000000004",
+        "project_id": "00000000-0000-0000-0000-000000000005",
+        "classification": "internal",
+        "lifecycle_state": "draft",
+    }
+    checks = (
+        (
+            "contracts/testing/reference-tensile-resources.schema.json",
+            "SpecimenRevision",
+            {
+                **metadata,
+                "content": {
+                    "material_id": "00000000-0000-0000-0000-000000000006",
+                    "material_revision_id": "00000000-0000-0000-0000-000000000007",
+                    "material_state_id": "00000000-0000-0000-0000-000000000008",
+                    "material_state_revision_id": "00000000-0000-0000-0000-000000000009",
+                    "specimen_code": "SP-001",
+                    "orientation": None,
+                    "preparation_note": None,
+                },
+            },
+        ),
+        (
+            "contracts/datasets/reference-tensile-resources.schema.json",
+            "DatasetRevision",
+            {
+                **metadata,
+                "content": {
+                    "test_run_id": "00000000-0000-0000-0000-000000000010",
+                    "test_run_revision_id": "00000000-0000-0000-0000-000000000011",
+                    "raw_asset_id": "00000000-0000-0000-0000-000000000012",
+                    "raw_artifact_id": "00000000-0000-0000-0000-000000000013",
+                    "data_artifact_id": "00000000-0000-0000-0000-000000000014",
+                    "data_sha256": "b" * 64,
+                    "representation": "raw",
+                    "source_dataset_revision_id": None,
+                    "point_count": 2,
+                    "mapping_sha256": "c" * 64,
+                    "importer_id": "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0",
+                    "importer_version": "1.0.0",
+                    "reference_only": True,
+                    "channels": [
+                        {
+                            "name": "engineering_strain",
+                            "quantity_kind": "engineering_strain",
+                            "original_column": "strain",
+                            "original_unit": "1",
+                            "normalized_unit": "1",
+                            "axis_role": "independent",
+                        },
+                        {
+                            "name": "engineering_stress",
+                            "quantity_kind": "engineering_stress",
+                            "original_column": "stress",
+                            "original_unit": "MPa",
+                            "normalized_unit": "Pa",
+                            "axis_role": "dependent",
+                        },
+                    ],
+                },
+            },
+        ),
+    )
+
+    for relative, definition, valid in checks:
+        schema = json.loads((PROJECT_ROOT / relative).read_text(encoding="utf-8"))
+        validator = Draft202012Validator(
+            {"$defs": schema["$defs"], "$ref": f"#/$defs/{definition}"},
+            format_checker=FormatChecker(),
+        )
+        assert list(validator.iter_errors(valid)) == []
+        assert list(validator.iter_errors({**valid, "unexpected": True}))
 
 
 def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:

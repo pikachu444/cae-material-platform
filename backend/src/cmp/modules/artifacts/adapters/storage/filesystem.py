@@ -228,6 +228,41 @@ class FilesystemMultipartObjectStore:
         self._safe_key(object_key)
         self._remove_tree(self._upload_root(upload_id))
 
+    async def stage_bytes(
+        self,
+        *,
+        object_key: str,
+        value: bytes,
+        media_type: str,
+    ) -> StoredObject:
+        """Write one non-authoritative derived object without exposing an overwrite path."""
+
+        key = self._safe_key(object_key)
+        if key.parts[:2] != ("staging", "derived"):
+            raise ObjectStoreError("derived bytes must use the dedicated staging namespace")
+        if not value or not media_type or len(media_type) > 255:
+            raise ObjectStoreError("derived object payload or media type is invalid")
+        target = self._object_path(object_key)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        digest = hashlib.sha256(value).hexdigest()
+        try:
+            with target.open("xb") as stream:
+                stream.write(value)
+                stream.flush()
+                os.fsync(stream.fileno())
+        except FileExistsError:
+            existing_digest, existing_size = _hash_file(target)
+            if existing_digest != digest or existing_size != len(value):
+                raise ObjectStoreError(
+                    "derived staging key is already bound to different bytes"
+                ) from None
+        except OSError as error:
+            raise ObjectStoreError("failed to stage derived object bytes") from error
+        result = await self.inspect(object_key)
+        if result is None:
+            raise RuntimeError("derived staging object disappeared after write")
+        return result
+
     async def discard(self, object_key: str) -> None:
         key = self._safe_key(object_key)
         if key.parts[0] != "staging":

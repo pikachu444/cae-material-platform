@@ -22,6 +22,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260713_013_T07_material_catalog.py",
         "20260714_014_T22_reference_material_model.py",
         "20260714_015_T25_reference_openradioss_export.py",
+        "20260714_016_T08_T12_reference_tensile_dataset.py",
     ]
 
 
@@ -258,6 +259,41 @@ def test_t25_uses_typed_solver_card_revisions_without_generic_card_payload() -> 
         '"mapping_report_sha256"',
         '"card_sha256"',
         '"card_text"',
+    ):
+        assert column in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+
+
+def test_t08_t12_use_explicit_test_dataset_revisions_and_artifact_references_without_eav() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260714_016_T08_T12_reference_tensile_dataset.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "specimen",
+        "specimen_revision",
+        "test_method",
+        "test_method_revision",
+        "test_run",
+        "test_run_revision",
+        "dataset",
+        "dataset_revision",
+    ):
+        assert f'"{table}"' in migration
+    for column in (
+        '"material_state_revision_id"',
+        '"test_run_revision_id"',
+        '"raw_artifact_id"',
+        '"data_artifact_id"',
+        '"strain_original_unit"',
+        '"stress_original_unit"',
+        '"mapping_sha256"',
     ):
         assert column in migration
     assert "postgresql.JSONB" not in migration

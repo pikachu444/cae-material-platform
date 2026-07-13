@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/datasets/reference-tensile-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ReferenceTensileMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strain_column", "stress_column", "strain_unit", "stress_unit"],
+      "properties": {
+        "strain_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "stress_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "strain_unit": {"enum": ["1", "%"]},
+        "stress_unit": {"enum": ["Pa", "kPa", "MPa", "GPa"]}
+      }
+    },
+    "ReferenceTensileImportRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id",
+        "mapping", "change_reason"
+      ],
+      "properties": {
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "raw_asset_id": {"$ref": "#/$defs/Uuid"},
+        "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "mapping": {"$ref": "#/$defs/ReferenceTensileMapping"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "DatasetChannel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "quantity_kind", "original_column", "original_unit", "normalized_unit", "axis_role"],
+      "properties": {
+        "name": {"enum": ["engineering_strain", "engineering_stress"]},
+        "quantity_kind": {"enum": ["engineering_strain", "engineering_stress"]},
+        "original_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "original_unit": {"type": "string", "minLength": 1, "maxLength": 16},
+        "normalized_unit": {"enum": ["1", "Pa"]},
+        "axis_role": {"enum": ["independent", "dependent"]}
+      }
+    },
+    "DatasetContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id",
+        "data_artifact_id", "data_sha256", "representation", "source_dataset_revision_id",
+        "point_count", "mapping_sha256", "importer_id", "importer_version", "reference_only", "channels"
+      ],
+      "properties": {
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "raw_asset_id": {"$ref": "#/$defs/Uuid"},
+        "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "data_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "data_sha256": {"$ref": "#/$defs/Sha256"},
+        "representation": {"enum": ["raw", "normalized"]},
+        "source_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "mapping_sha256": {"$ref": "#/$defs/Sha256"},
+        "importer_id": {"const": "urn:cmp:datasets:reference-uniaxial-tensile-csv:1.0.0"},
+        "importer_version": {"const": "1.0.0"},
+        "reference_only": {"const": true},
+        "channels": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/DatasetChannel"}}
+      }
+    },
+    "DatasetRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/DatasetContent"}}}
+      ]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "DatasetResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset_id", "test_run_id", "current_revision", "links"],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/DatasetRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "DatasetListResponse": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/DatasetResponse"}}}
+    },
+    "DatasetRevisionListResponse": {
+      "type": "object", "additionalProperties": false, "required": ["dataset_id", "revisions"],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "revisions": {"type": "array", "items": {"$ref": "#/$defs/DatasetRevision"}}
+      }
+    },
+    "CurvePoint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["engineering_strain", "engineering_stress"],
+      "properties": {
+        "engineering_strain": {"type": "number"},
+        "engineering_stress": {"type": "number"}
+      }
+    },
+    "CurvePreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_id", "dataset_revision_id", "representation", "point_count", "returned_point_count",
+        "sampled", "strain_unit", "stress_unit", "points"
+      ],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "representation": {"enum": ["raw", "normalized"]},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "returned_point_count": {"type": "integer", "minimum": 2, "maximum": 10000},
+        "sampled": {"type": "boolean"},
+        "strain_unit": {"enum": ["1", "%"]},
+        "stress_unit": {"enum": ["Pa", "kPa", "MPa", "GPa"]},
+        "points": {"type": "array", "minItems": 2, "maxItems": 10000, "items": {"$ref": "#/$defs/CurvePoint"}}
+      }
+    },
+    "DatasetProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:datasets"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-DATASET-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}
