@@ -10,6 +10,11 @@ IR은 모든 solver의 최소 공통분모가 아니다. 다음을 분리한다.
 - model family plugin이 소유하는 constitutive payload
 - solver exporter가 소유하는 target mapping
 
+ADR-006의 첫 구현은 `urn:cmp:reference:isotropic-linear-elasticity:1.0.0`과
+OpenRadioss 2025 `/MAT/ELAST`만을 위한 non-production reference slice다. 이 문서의
+일반 IR contract를 축소하거나 특정 solver keyword를 IR에 넣지 않으며, reference
+payload와 target mapping은 명시적으로 분리한다.
+
 ## 2. IR이 해결해야 하는 문제
 
 parameter 이름과 숫자만 저장하면 다음을 알 수 없다.

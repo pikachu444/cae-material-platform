@@ -14,6 +14,11 @@
 
 낮은 objective value만으로 validation pass를 만들지 않는다.
 
+제품의 우선순위는 Material data management와 solver card 활용이다. 따라서 첫
+Material→IR→card 수직 기능은 calibration 없이 manual typed property로 시작한다.
+Calibration은 이후 `Processing`, `Modeling`, `Validation`에 흡수되는 bounded
+capability이며 MCalibration형 독립 제품이나 module을 만들지 않는다(ADR-006).
+
 ## 2. 실행 계층
 
 ```mermaid

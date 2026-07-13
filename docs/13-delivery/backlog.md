@@ -7,6 +7,19 @@
 - `담당`에서 `Software`는 software developer, `Domain`은 재료시험·통계·구성모델·solver 전문가를 뜻한다.
 - production 시험/model/solver plugin은 `TBD` 결정 전 synthetic reference만 구현한다.
 
+## 1.1 2026-07-13 제품 우선순위 결정
+
+ADR-006에 따라 다음 delivery 순서를 적용한다.
+
+1. `T-07`의 Material/State/typed Property MVP subset과 Material management UI
+2. `T-22`의 reference linear-elastic IR subset
+3. `T-25`/`T-26`의 OpenRadioss `/MAT/ELAST` reference card, preflight, download 및 golden subset
+4. 그 다음 Test/Dataset→Processing/QC/Statistics→Calibration→Validation/Release 수직 slice
+
+이는 foundation을 폐기하는 결정이 아니다. T-03~T-06, T-09~T-10, T-13~T-18은 새
+domain write와 UI가 재사용해야 하는 product substrate다. Process/Lot/Batch, production
+solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수 조건이 아니다.
+
 ## E-01. 제품 기준선과 계약 기반
 
 ### S-01.1. 저장소와 아키텍처 규칙을 고정한다

@@ -167,8 +167,10 @@ Full suite with PostgreSQL 16.14: 281 passed
 
 ## Next gate
 
-`T-05` is complete. Catalog task `T-07` is the next numbered backlog item but remains outside the
-approved scope because it introduces Material/process catalog behavior. T-30 still owns Release
+`T-05` is complete. ADR-006 changes the approved product direction: `T-07` Material/State/typed
+Property MVP, Material management UI, reference Material Model IR, and reference OpenRadioss
+card generation are now the first product vertical slice. At this status revision they remain
+unimplemented; the foundation above is deliberately retained and reused. T-30 still owns Release
 creation and evidence policy; T-17/T-18 production Artifact composition and release-specific
 retention/backup policy are not implied complete.
 

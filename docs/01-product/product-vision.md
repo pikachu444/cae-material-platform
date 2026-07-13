@@ -4,6 +4,13 @@
 
 재료시험 파일과 개인별 스크립트, spreadsheet, solver card가 분산된 상태를 없애고, **어떤 시험과 처리·보정·검증을 거쳐 어떤 solver card가 승인되었는지 설명할 수 있는 재료모델 공급망**을 만든다.
 
+이 제품의 중심은 Granta MI·Altair Material Data Center 계열의 **재료 데이터 관리와
+CAE 활용 흐름**이다. Material, state, property, 시험 원본과 파생 데이터, model IR,
+solver card, 검증 및 승인 이력을 하나의 tenant-isolated platform에서 연결한다.
+Calibration은 이 흐름 안의 bounded capability이며, MCalibration은 calibration
+workflow의 누락 기능을 점검하기 위한 reference product일 뿐 제품 구조나 별도
+애플리케이션의 기준이 아니다. 자세한 첫 수직 기능 결정은 ADR-006을 따른다.
+
 제품의 핵심 가치는 단순한 material database가 아니라 다음 질문에 즉시 답하는 것이다.
 
 - 이 카드가 어떤 material, state, lot/batch, specimen, test condition에서 나왔는가?
@@ -96,19 +103,22 @@
 
 | 단계 | MVP 산출물 | 상태 |
 | --- | --- | --- |
-| 반복 인장시험 업로드 | raw asset, import mapping, test-run linkage | `CONFIRMED` |
-| 메타데이터·단위 정규화 | normalized dataset revision | `CONFIRMED` |
-| 시편별 QC·산포 | QC observations, scalar/curve statistics | `CONFIRMED` |
-| 곡선 전처리 | processing recipe/run, processed dataset | `CONFIRMED` |
+| Material catalog | material/state/property revision, search, provenance | first priority |
+| 수동 입력 card 흐름 | reference IR, mapping report, card preview/download | first priority |
+| 반복 인장시험 업로드 | raw asset, import mapping, test-run linkage | next data slice |
+| 메타데이터·단위 정규화 | normalized dataset revision | next data slice |
+| 시편별 QC·산포 | QC observations, scalar/curve statistics | after dataset slice |
+| 곡선 전처리 | processing recipe/run, processed dataset | after dataset slice |
 | 구성방정식 fitting | calibration run, parameter set, diagnostics | model `TBD` |
-| 한 종류 solver card | card artifact, mapping report | solver/card `TBD` |
 | 가상 시편 검증 | validation run, extracted response, comparison | template/solver `TBD` |
-| 검토·승인·발행 | review decisions, release package | `CONFIRMED` |
+| 검토·승인·발행 | review decisions, release package | after evidence slices |
 
 ## 6. MVP 범위
 
 - 단일 기업 내 organization/project space
-- 웹 기반 metadata·workflow·review UI
+- 웹 기반 Material metadata·workflow·review UI
+- Material 생성, state/property revision, 검색, 비교, provenance summary
+- 수동 입력 typed property에서 reference IR과 첫 solver card를 생성·preview·download
 - 대용량 streaming upload와 immutable raw storage
 - 한 종류의 반복 인장시험 importer plugin
 - original 및 normalized unit 동시 보존
@@ -125,6 +135,8 @@
 - plugin manifest, compatibility test kit, synthetic reference plugins
 
 구체 모델·solver 선택 전에는 synthetic reference plugin으로 core 계약만 검증한다.
+첫 product slice의 OpenRadioss `/MAT/ELAST` target과 isotropic linear-elastic reference
+IR은 ADR-006에서 명시적으로 non-production reference 범위로 결정했다.
 
 ## 7. 비범위
 
