@@ -496,6 +496,9 @@ def test_cancel_and_cross_project_or_tampered_capability_fail_closed(
                 RecordUploadPart(created.session.id, 1, created.capability),
                 _chunks(payload[: created.session.part_size_bytes]),
             )
+        tampered_capability = created.capability[:-1] + (
+            "B" if created.capability.endswith("A") else "A"
+        )
         with pytest.raises(UploadAccessDenied):
             await postgres.service.record_part(
                 owner,
@@ -503,7 +506,7 @@ def test_cancel_and_cross_project_or_tampered_capability_fail_closed(
                 RecordUploadPart(
                     created.session.id,
                     1,
-                    created.capability[:-1] + "A",
+                    tampered_capability,
                 ),
                 _chunks(payload[: created.session.part_size_bytes]),
             )

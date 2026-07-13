@@ -19,6 +19,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260713_010_T16_transactional_outbox.py",
         "20260713_011_T16_reconciliation_schedule.py",
         "20260713_012_T05_append_only_audit.py",
+        "20260713_013_T07_material_catalog.py",
     ]
 
 
@@ -180,4 +181,37 @@ def test_t14_adds_security_invoker_read_models_without_new_domain_tables() -> No
     assert '"material"' not in migration
     assert '"dataset"' not in migration
     assert '"solver_card"' not in migration
+
+
+def test_t07_uses_explicit_catalog_revisions_and_typed_property_columns_without_eav() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260713_013_T07_material_catalog.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "material",
+        "material_revision",
+        "material_state",
+        "material_state_revision",
+        "property_set",
+        "property_set_revision",
+    ):
+        assert f'"{table}"' in migration
+    for column in (
+        '"density_kg_per_m3"',
+        '"youngs_modulus_pa"',
+        '"poisson_ratio"',
+        '"yield_stress_pa"',
+        '"applicable_temperature_min_k"',
+    ):
+        assert column in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "for table in (identity, revision_table):" in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+    assert "revisioning.guard_identity_head_update()" in migration
 

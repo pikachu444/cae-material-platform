@@ -1,0 +1,1 @@
+"""Catalog delivery adapters."""

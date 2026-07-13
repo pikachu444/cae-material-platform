@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CAE Material Platform API
-  summary: Identity, immutable data, durable execution, provenance, and audit foundation.
-  version: 0.13.0
+  summary: Material data management, immutable traceability, and CAE workflow platform.
+  version: 0.14.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -928,6 +928,297 @@ paths:
             application/problem+json:
               schema: {$ref: "#/components/schemas/AuditProblem"}
         "503": {description: Audit service unavailable.}
+  /api/v1/materials:
+    get:
+      operationId: listMaterials
+      tags: [catalog]
+      summary: Search current Material revisions in the selected organization and project.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema: {type: string, minLength: 1, maxLength: 200}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 100, default: 50}
+      responses:
+        "200":
+          description: Current Material heads visible to catalog.read.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "422": {description: Search request is invalid.}
+        "503": {description: Catalog service unavailable.}
+    post:
+      operationId: createMaterial
+      tags: [catalog]
+      summary: Create a stable Material identity and first immutable revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialCreateRequest"}
+      responses:
+        "201":
+          description: Material identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Typed parent or immutable state conflict.}
+        "422": {description: Typed Material content is invalid.}
+        "503": {description: Catalog service unavailable.}
+  /api/v1/materials/{material_id}:
+    get:
+      operationId: getMaterial
+      tags: [catalog]
+      summary: Read a Material, its current States, properties, and provenance summary.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialId"}]
+      responses:
+        "200":
+          description: Current Material detail.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/MaterialDetailResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Material matches the identifier.}
+        "503": {description: Catalog service unavailable.}
+  /api/v1/materials/{material_id}/revisions:
+    get:
+      operationId: listMaterialRevisions
+      tags: [catalog]
+      summary: List immutable revisions for one Material identity.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialId"}]
+      responses:
+        "200":
+          description: Newest-first Material revision history.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [material_id, revisions]
+                properties:
+                  material_id: {type: string, format: uuid}
+                  revisions:
+                    type: array
+                    items: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialRevision"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Material matches the identifier.}
+    post:
+      operationId: reviseMaterial
+      tags: [catalog]
+      summary: Append an immutable Material revision using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - $ref: "#/components/parameters/MaterialId"
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialReviseRequest"}
+      responses:
+        "200":
+          description: A new Material revision was appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Material matches the identifier.}
+        "412":
+          description: Current head differs from the supplied strong ETag.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/problem+json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/CatalogProblem"}
+        "422": {description: Revision request is invalid.}
+  /api/v1/materials/{material_id}/revisions:compare:
+    get:
+      operationId: compareMaterialRevisions
+      tags: [catalog]
+      summary: Compare two concrete immutable Material revisions.
+      security: [{BearerAuth: []}]
+      parameters:
+        - $ref: "#/components/parameters/MaterialId"
+        - name: left_revision_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+        - name: right_revision_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Typed field-level comparison; no moving revision aliases are accepted.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/MaterialRevisionComparisonResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: One or both revisions are not visible.}
+  /api/v1/materials/{material_id}/states:
+    post:
+      operationId: createMaterialState
+      tags: [catalog]
+      summary: Create a Material State bound to a concrete Material revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialStateCreateRequest"}
+      responses:
+        "201":
+          description: Material State revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialStateResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: Selected Material revision is not visible.}
+        "422": {description: Typed state content is invalid.}
+  /api/v1/material-states/{material_state_id}:
+    get:
+      operationId: getMaterialState
+      tags: [catalog]
+      summary: Read one current Material State revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Current Material State revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialStateResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Material State matches the identifier.}
+  /api/v1/material-states/{material_state_id}/revisions:
+    post:
+      operationId: reviseMaterialState
+      tags: [catalog]
+      summary: Append a Material State revision using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - $ref: "#/components/parameters/MaterialStateId"
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialStateCreateRequest"}
+      responses:
+        "200":
+          description: New Material State revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialStateResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Material State matches the identifier.}
+        "412": {description: Current head differs from the supplied strong ETag.}
+  /api/v1/material-states/{material_state_id}/property-sets:
+    post:
+      operationId: createPropertySet
+      tags: [catalog]
+      summary: Record explicitly typed SI mechanical properties for a Material State revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/PropertySetCreateRequest"}
+      responses:
+        "201":
+          description: Typed Property Set revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/PropertySetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: Selected Material State revision is not visible.}
+        "422": {description: Typed SI property content is invalid.}
+  /api/v1/property-sets/{property_set_id}:
+    get:
+      operationId: getPropertySet
+      tags: [catalog]
+      summary: Read one current typed Property Set revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/PropertySetId"}]
+      responses:
+        "200":
+          description: Current Property Set revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/PropertySetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Property Set matches the identifier.}
+  /api/v1/property-sets/{property_set_id}/revisions:
+    post:
+      operationId: revisePropertySet
+      tags: [catalog]
+      summary: Append a typed Property Set revision using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - $ref: "#/components/parameters/PropertySetId"
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/PropertySetCreateRequest"}
+      responses:
+        "200":
+          description: New Property Set revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/PropertySetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Property Set matches the identifier.}
+        "412": {description: Current head differs from the supplied strong ETag.}
 components:
   securitySchemes:
     BearerAuth:
@@ -945,6 +1236,21 @@ components:
   parameters:
     JobId:
       name: job_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    MaterialId:
+      name: material_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    MaterialStateId:
+      name: material_state_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    PropertySetId:
+      name: property_set_id
       in: path
       required: true
       schema: {type: string, format: uuid}
@@ -1071,4 +1377,27 @@ components:
       $ref: ../audit/audit-export.schema.json
     AuditProblem:
       $ref: ../audit/audit-problem.schema.json
+    MaterialDetailResponse:
+      type: object
+      additionalProperties: false
+      required: [material, states, property_sets]
+      properties:
+        material: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialResponse"}
+        states:
+          type: array
+          items: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialStateResponse"}
+        property_sets:
+          type: array
+          items: {$ref: "../catalog/catalog-resources.schema.json#/$defs/PropertySetResponse"}
+    MaterialRevisionComparisonResponse:
+      type: object
+      additionalProperties: false
+      required: [material_id, left, right, changed_fields]
+      properties:
+        material_id: {type: string, format: uuid}
+        left: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialRevision"}
+        right: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialRevision"}
+        changed_fields:
+          type: array
+          items: {type: string, minLength: 1, maxLength: 255}
 

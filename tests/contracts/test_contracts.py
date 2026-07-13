@@ -123,6 +123,41 @@ def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None
     assert "sha256" in etag["schema"]["pattern"]
 
 
+def test_catalog_contract_and_runtime_expose_typed_material_state_property_workflow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/materials": {"get": "listMaterials", "post": "createMaterial"},
+        "/api/v1/materials/{material_id}": {"get": "getMaterial"},
+        "/api/v1/materials/{material_id}/revisions": {
+            "get": "listMaterialRevisions",
+            "post": "reviseMaterial",
+        },
+        "/api/v1/materials/{material_id}/states": {"post": "createMaterialState"},
+        "/api/v1/material-states/{material_state_id}/property-sets": {
+            "post": "createPropertySet"
+        },
+        "/api/v1/property-sets/{property_set_id}/revisions": {
+            "post": "revisePropertySet"
+        },
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    catalog_contract = (
+        PROJECT_ROOT / "contracts/catalog/catalog-resources.schema.json"
+    ).read_text(encoding="utf-8")
+    assert '"density_kg_per_m3"' in catalog_contract
+    assert '"youngs_modulus_pa"' in catalog_contract
+    assert '"poisson_ratio"' in catalog_contract
+    assert '"key"' not in catalog_contract
+    assert '"value"' not in catalog_contract
+
+
 def test_me_contract_requires_project_and_runtime_bearer_security() -> None:
     schema_path = PROJECT_ROOT / "contracts/identity/me-response.schema.json"
     failures = validate_example(

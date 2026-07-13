@@ -74,6 +74,7 @@ class TypedRevisionTables[ContentT]:
     revision_table: sa.Table
     canonical_content: Callable[[ContentT], object]
     content_values: Callable[[ContentT], Mapping[str, Any]]
+    identity_values: Callable[[ContentT], Mapping[str, Any]] | None = None
 
     def __post_init__(self) -> None:
         missing_identity = _IDENTITY_COLUMNS.difference(self.identity_table.c.keys())
@@ -82,6 +83,30 @@ class TypedRevisionTables[ContentT]:
             raise ValueError(f"identity table is missing columns: {sorted(missing_identity)}")
         if missing_revision:
             raise ValueError(f"revision table is missing columns: {sorted(missing_revision)}")
+
+    def encode_identity_values(self, content: ContentT) -> dict[str, Any]:
+        """Return module-owned stable-identity columns for a typed aggregate.
+
+        The revision kernel still owns its common identity columns.  Bounded modules may add
+        a small number of immutable parent references to their stable identity (for example,
+        a Material State belongs to one Material).  This deliberately remains a named-column
+        mapping rather than a generic metadata or attribute payload.
+        """
+
+        if self.identity_values is None:
+            return {}
+        encoded = dict(self.identity_values(content))
+        collisions = _IDENTITY_COLUMNS.intersection(encoded)
+        if collisions:
+            raise InvalidRevisionCommand(
+                f"typed identity encoder attempted to replace kernel columns: {sorted(collisions)}"
+            )
+        unknown = set(encoded).difference(self.identity_table.c.keys())
+        if unknown:
+            raise InvalidRevisionCommand(
+                f"typed identity encoder returned unknown columns: {sorted(unknown)}"
+            )
+        return encoded
 
 
 class SqlAlchemyRevisionStore[ContentT]:
@@ -93,10 +118,12 @@ class SqlAlchemyRevisionStore[ContentT]:
         session_factory: Callable[[], Session],
         tables: TypedRevisionTables[ContentT],
         hooks: Sequence[SqlRevisionHook] = (),
+        session_binder: Callable[[Session], None] | None = None,
     ) -> None:
         self._session_factory = session_factory
         self._tables = tables
         self._hooks = tuple(hooks)
+        self._session_binder = session_binder
 
     def canonical_content(self, content: ContentT) -> object:
         return self._tables.canonical_content(content)
@@ -104,6 +131,8 @@ class SqlAlchemyRevisionStore[ContentT]:
     @contextmanager
     def transaction(self) -> Iterator[RevisionTransaction[ContentT]]:
         with self._session_factory() as session, session.begin():
+            if self._session_binder is not None:
+                self._session_binder(session)
             yield _SqlAlchemyRevisionTransaction(session, self._tables, self._hooks)
 
 
@@ -197,6 +226,30 @@ class _SqlAlchemyRevisionTransaction[ContentT]:
         values.update(self._encoded_content(draft.content))
         return values
 
+    def _identity_values(self, content: ContentT) -> dict[str, Any]:
+        return self._tables.encode_identity_values(content)
+
+    def _assert_identity_matches(self, draft: RevisionDraft[ContentT]) -> None:
+        """Prevent a later revision from changing module-owned stable parent references."""
+
+        encoded = self._identity_values(draft.content)
+        if not encoded:
+            return
+        identity = self._tables.identity_table
+        row = self._session.execute(
+            sa.select(*(identity.c[name] for name in encoded)).where(
+                identity.c.id == draft.aggregate_id,
+                identity.c.organization_id == draft.scope.organization_id,
+                identity.c.project_id == draft.scope.project_id,
+            )
+        ).mappings().one_or_none()
+        if row is None:
+            raise AggregateNotFound(str(draft.aggregate_id))
+        if any(row[name] != value for name, value in encoded.items()):
+            raise InvalidRevisionCommand(
+                "typed revision content cannot change module-owned stable identity columns"
+            )
+
     def create(self, draft: RevisionDraft[ContentT]) -> RevisionRecord:
         self._bind_scope(draft.scope)
         if draft.aggregate_type != self._tables.aggregate_type:
@@ -212,6 +265,7 @@ class _SqlAlchemyRevisionTransaction[ContentT]:
                     created_at=draft.created_at,
                     created_by=draft.created_by,
                     updated_at=draft.created_at,
+                    **self._identity_values(draft.content),
                 )
             )
             self._session.execute(
@@ -268,6 +322,8 @@ class _SqlAlchemyRevisionTransaction[ContentT]:
         self._bind_scope(draft.scope)
         if draft.aggregate_type != self._tables.aggregate_type:
             raise InvalidRevisionCommand("aggregate type does not match the typed table binding")
+
+        self._assert_identity_matches(draft)
 
         revision = self._tables.revision_table
         expected_no = self._session.execute(

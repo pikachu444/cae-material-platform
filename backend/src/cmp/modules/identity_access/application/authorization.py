@@ -61,6 +61,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.PROJECT_ADMIN: frozenset({Permission.PROJECT_MANAGE}),
     Role.TEST_ENGINEER: frozenset(
         {
+            Permission.CATALOG_READ,
             Permission.TESTING_READ,
             Permission.TESTING_WRITE,
             Permission.ARTIFACT_READ,
@@ -73,6 +74,8 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     ),
     Role.DATA_STEWARD: frozenset(
         {
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
             Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
@@ -84,6 +87,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     ),
     Role.STATISTICAL_ANALYST: frozenset(
         {
+            Permission.CATALOG_READ,
             Permission.DATASET_READ,
             Permission.STATISTICS_READ,
             Permission.STATISTICS_EXECUTE,
@@ -94,6 +98,8 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     ),
     Role.MATERIAL_MODELER: frozenset(
         {
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
             Permission.DATASET_READ,
             Permission.STATISTICS_READ,
             Permission.PROCESSING_READ,
@@ -108,6 +114,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     ),
     Role.CAE_ANALYST: frozenset(
         {
+            Permission.CATALOG_READ,
             Permission.ARTIFACT_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
@@ -121,6 +128,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     ),
     Role.DOMAIN_REVIEWER: frozenset(
         {
+            Permission.CATALOG_READ,
             Permission.REVIEW_READ,
             Permission.REVIEW_DECIDE,
             Permission.PROVENANCE_READ,
@@ -128,13 +136,14 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     ),
     Role.RELEASE_APPROVER: frozenset(
         {
+            Permission.CATALOG_READ,
             Permission.REVIEW_READ,
             Permission.RELEASE_READ,
             Permission.RELEASE_PUBLISH,
             Permission.PROVENANCE_READ,
         }
     ),
-    Role.CONSUMER: frozenset({Permission.RELEASE_READ}),
+    Role.CONSUMER: frozenset({Permission.CATALOG_READ, Permission.RELEASE_READ}),
     Role.PLUGIN_MAINTAINER: frozenset({Permission.PLUGIN_READ, Permission.PLUGIN_SUBMIT}),
     # Operational role for service principals. T-18 adds only the package and scoped
     # artifact permissions required to resolve inputs and commit validated outputs.
@@ -188,6 +197,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
 _PROVENANCE_WRITING_COMMANDS = frozenset(
     {
         Permission.TESTING_WRITE,
+        Permission.CATALOG_WRITE,
         Permission.ARTIFACT_WRITE,
         Permission.DATASET_WRITE,
         Permission.PROCESSING_EXECUTE,

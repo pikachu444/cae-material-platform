@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/catalog/catalog-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "PropertySource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reference"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["manual", "supplier_datasheet", "test_derived", "literature", "calibration"]
+        },
+        "reference": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "Applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_min_k",
+        "temperature_max_k",
+        "strain_rate_min_per_s",
+        "strain_rate_max_per_s",
+        "note"
+      ],
+      "properties": {
+        "temperature_min_k": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "temperature_max_k": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "strain_rate_min_per_s": {"type": ["number", "null"], "minimum": 0},
+        "strain_rate_max_per_s": {"type": ["number", "null"], "minimum": 0},
+        "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "MaterialContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "material_code", "material_family", "description"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "material_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "material_family": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "MaterialContentInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "material_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "material_family": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "MaterialStateContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_id",
+        "material_revision_id",
+        "name",
+        "manufacturing_route",
+        "heat_treatment",
+        "lot_or_batch",
+        "description"
+      ],
+      "properties": {
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "manufacturing_route": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+        "heat_treatment": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+        "lot_or_batch": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "PropertySetContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_state_id",
+        "material_state_revision_id",
+        "density_kg_per_m3",
+        "density_source",
+        "youngs_modulus_pa",
+        "youngs_modulus_source",
+        "poisson_ratio",
+        "poisson_ratio_source",
+        "yield_stress_pa",
+        "yield_stress_source",
+        "applicability"
+      ],
+      "properties": {
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "density_kg_per_m3": {"type": "number", "exclusiveMinimum": 0},
+        "density_source": {"$ref": "#/$defs/PropertySource"},
+        "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_source": {"$ref": "#/$defs/PropertySource"},
+        "poisson_ratio": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5},
+        "poisson_ratio_source": {"$ref": "#/$defs/PropertySource"},
+        "yield_stress_pa": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "yield_stress_source": {"anyOf": [{"$ref": "#/$defs/PropertySource"}, {"type": "null"}]},
+        "applicability": {"$ref": "#/$defs/Applicability"}
+      }
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"type": "string", "const": "draft"}
+      }
+    },
+    "ProvenanceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_type", "reference_type", "revision_id", "content_sha256",
+        "based_on_revision_id", "recorded_at", "recorded_by"
+      ],
+      "properties": {
+        "entity_type": {"type": "string", "minLength": 1, "maxLength": 100},
+        "reference_type": {"type": "string", "minLength": 1, "maxLength": 100},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "content_sha256": {"$ref": "#/$defs/Sha256"},
+        "based_on_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "recorded_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "MaterialRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content", "provenance"],
+          "properties": {
+            "content": {"$ref": "#/$defs/MaterialContent"},
+            "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+          }
+        }
+      ]
+    },
+    "MaterialStateRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content", "provenance"],
+          "properties": {
+            "content": {"$ref": "#/$defs/MaterialStateContent"},
+            "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+          }
+        }
+      ]
+    },
+    "PropertySetRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content", "provenance"],
+          "properties": {
+            "content": {"$ref": "#/$defs/PropertySetContent"},
+            "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+          }
+        }
+      ]
+    },
+    "MaterialResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_id", "current_revision", "links"],
+      "properties": {
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/MaterialRevision"},
+        "links": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["self", "revisions", "states"],
+          "properties": {
+            "self": {"type": "string"},
+            "revisions": {"type": "string"},
+            "states": {"type": "string"}
+          }
+        }
+      }
+    },
+    "MaterialStateResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_state_id", "material_id", "current_revision", "property_sets_url"],
+      "properties": {
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/MaterialStateRevision"},
+        "property_sets_url": {"type": "string"}
+      }
+    },
+    "PropertySetResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property_set_id", "material_state_id", "current_revision"],
+      "properties": {
+        "property_set_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/PropertySetRevision"}
+      }
+    },
+    "MaterialCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/MaterialContentInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "MaterialReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/MaterialContentInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "MaterialStateCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["material_revision_id", "name"],
+          "properties": {
+            "material_revision_id": {"$ref": "#/$defs/Uuid"},
+            "name": {"type": "string", "minLength": 1, "maxLength": 200},
+            "manufacturing_route": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+            "heat_treatment": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+            "lot_or_batch": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+            "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "PropertySetCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "material_state_revision_id", "density_kg_per_m3", "density_source",
+            "youngs_modulus_pa", "youngs_modulus_source", "poisson_ratio", "poisson_ratio_source"
+          ],
+          "properties": {
+            "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+            "density_kg_per_m3": {"type": "number", "exclusiveMinimum": 0},
+            "density_source": {"$ref": "#/$defs/PropertySource"},
+            "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+            "youngs_modulus_source": {"$ref": "#/$defs/PropertySource"},
+            "poisson_ratio": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5},
+            "poisson_ratio_source": {"$ref": "#/$defs/PropertySource"},
+            "yield_stress_pa": {"type": ["number", "null"], "exclusiveMinimum": 0},
+            "yield_stress_source": {"anyOf": [{"$ref": "#/$defs/PropertySource"}, {"type": "null"}]},
+            "applicability": {"$ref": "#/$defs/Applicability"}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CatalogProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"type": "string", "minLength": 1, "maxLength": 255},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-CATALOG-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  },
+  "$ref": "#/$defs/MaterialResponse"
+}

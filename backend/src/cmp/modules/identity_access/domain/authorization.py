@@ -64,6 +64,8 @@ class Permission(StrEnum):
     PLATFORM_MANAGE = "platform.manage"
     IDENTITY_MANAGE = "identity.manage"
     PROJECT_MANAGE = "project.manage"
+    CATALOG_READ = "catalog.read"
+    CATALOG_WRITE = "catalog.write"
     TESTING_READ = "testing.read"
     TESTING_WRITE = "testing.write"
     ARTIFACT_READ = "artifact.read"

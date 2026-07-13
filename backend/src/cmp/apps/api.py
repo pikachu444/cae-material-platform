@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
+from cmp.bootstrap.catalog import build_catalog_service
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.provenance import build_provenance_services
@@ -21,6 +22,8 @@ from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.application.uploads import UploadService
 from cmp.modules.audit.adapters.api.audit import install_audit_api
 from cmp.modules.audit.application.service import AuditService
+from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
+from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
 )
@@ -59,13 +62,14 @@ def create_app(
     provenance_service: ProvenanceService | None = None,
     provenance_lineage_service: ProvenanceLineageService | None = None,
     audit_service: AuditService | None = None,
+    catalog_service: CatalogService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
     resolved = settings or Settings.from_environment()
     application = FastAPI(
         title="CAE Material Platform API",
-        summary="Identity, immutable data, durable execution, and provenance foundation.",
+        summary="Material data management, immutable traceability, and CAE workflow platform.",
         version=__version__,
         openapi_version="3.1.0",
         openapi_url="/api/v1/openapi.json",
@@ -164,9 +168,22 @@ def create_app(
             services.authorization, Permission.AUDIT_READ
         ),
     )
+    resolved_catalog = catalog_service or build_catalog_service(services)
+    install_catalog_api(
+        application,
+        service=resolved_catalog,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_WRITE
+        ),
+    )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
+    application.state.catalog_service = resolved_catalog
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)
 

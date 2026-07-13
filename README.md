@@ -1,20 +1,23 @@
 # CAE Material Platform
 
-Status: identity, authorization, revision, streaming Raw Asset upload, immutable content Artifact,
-typed provenance and bounded lineage, append-only audit, durable job and transactional event,
-plugin registry, and isolated runner foundation
-(`T-01`–`T-06` + `T-09`–`T-10` + `T-13`–`T-18`)
+Status: Material Catalog MVP plus identity, authorization, revision, streaming Raw Asset upload,
+immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
+and transactional event, plugin registry, and isolated runner foundation
+(`T-01`–`T-07` + `T-09`–`T-10` + `T-13`–`T-18`)
 
-Version: `0.13.0`
+Version: `0.14.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
-`docs/`. The current scope deliberately contains no material, test, fitting, or solver-card
-business implementation. Database support is limited to the T-03/T-04 identity and access-control
-foundation, the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine,
-the T-17 immutable plugin package registry, and the T-18 isolated execution contract. T-18 adds no
-Material, test, fitting, calibration, or solver business implementation. T-09 adds verified staging
-Raw Assets, and T-10 promotes them into tenant-scoped content-addressed immutable Artifacts with
-integrity observations and scoped streaming download.
+`docs/`. The first product slice implements Material, Material State, and explicitly typed basic
+mechanical Property Set revisions. It intentionally does not use generic EAV or JSON property
+payloads: density, Young's modulus, Poisson ratio, optional yield stress, source, and applicability
+are named SI fields. Process/Lot/Batch, test data, fitting, Material Model IR, solver cards, and the
+frontend remain separate follow-on slices. The T-03/T-04 identity and access-control foundation,
+the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine, the T-17
+immutable plugin package registry, and the T-18 isolated execution contract remain reusable
+platform infrastructure. T-09 adds verified staging Raw Assets, and T-10 promotes them into
+tenant-scoped content-addressed immutable Artifacts with integrity observations and scoped streaming
+download.
 T-13 adds domain-neutral typed Entity/Activity/Agent relations and fail-closed completeness without
 creating any Material, Dataset, Test, fitting, or solver implementation.
 T-14 adds bounded bidirectional lineage, impact pagination, and a generic Entity-root provenance
@@ -39,6 +42,11 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
 - SQLAlchemy adapter for explicit stable-identity/typed-revision table pairs
 - Alembic/PostgreSQL immutability guards, tenant RLS helpers, and lifecycle projection
 - Strong revision ETag and common content-free revision metadata contracts
+- Explicit PostgreSQL `catalog.material`, `material_revision`, `material_state`,
+  `material_state_revision`, `property_set`, and `property_set_revision` relations; immutable
+  revisions, composite tenant/classification parent FKs, forced RLS, indexes, and no EAV payload
+- Protected Material create/search/detail/revision comparison, State creation/revision, and typed
+  Property Set create/revision APIs with same-transaction lifecycle, provenance, and audit facts
 - Strict OIDC JWT access-token validation for user and service principals
 - Immutable `(issuer, subject)` external identities and stable opaque principal IDs
 - Request-scoped organization/project context and authenticated `GET /api/v1/me`
@@ -168,7 +176,7 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
@@ -177,6 +185,7 @@ GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA provenance TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA events TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA catalog TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance, audit TO cmp_app;
 ```
 

@@ -104,6 +104,12 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-07. Material/State/Process/Lot/Batch domain — `P0`
 
+- **MVP progress (2026-07-13):** Material, Material State, and typed basic Property Set revisions
+  are implemented with explicit PostgreSQL tables/constraints/indexes/RLS, create/search/detail/
+  compare APIs, and same-transaction lifecycle/provenance/audit hooks. Process/Lot/Batch genealogy
+  and its multi-lot acceptance fixtures remain pending; this records a completed MVP subset, not the
+  full T-07 task.
+
 - **목적:** material identity, state, process definition/run, lot, batch 및 input/output 관계를 구현한다.
 - **입력과 출력:** 입력은 metadata/revision commands; 출력은 typed catalog revisions와 batch genealogy.
 - **영향 데이터/API:** `catalog.material*`, `material_state*`, `process*`, `lot*`, `batch*`, `batch_input`; catalog CRUD/revision/search API.

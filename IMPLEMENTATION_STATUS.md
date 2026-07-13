@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-13`
-Foundation version: `0.13.0`
+Foundation version: `0.14.0`
 
 ## Completed
 
@@ -18,6 +18,11 @@ Foundation version: `0.13.0`
 - `T-06`: framework-free aggregate revision kernel, explicit typed-table SQLAlchemy adapter,
   PostgreSQL/Alembic immutability and tenant primitives, initial lifecycle event/projection,
   strong ETag and revision metadata contracts
+- `T-07` MVP subset: Material and Material State stable identities separated from immutable typed
+  revisions; explicit SI density/Young's modulus/Poisson ratio/optional yield property columns,
+  per-value source and applicability; search/detail/history/compare APIs; provenance/audit/lifecycle
+  hooks; PostgreSQL composite tenant/classification FKs, indexes, and forced RLS. Process/Lot/Batch
+  genealogy remains outside this subset.
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -59,6 +64,12 @@ Foundation version: `0.13.0`
   above-clearance writes; tenant composite FKs normalize hidden/unknown target failures
 - Revision writes use concrete UUID bases, canonical SHA-256, transaction-local fail-closed hooks,
   and PostgreSQL compare-and-swap head advancement
+- Material Catalog writes append separate Material, State, and Property Set revisions; original
+  rows reject mutation/deletion, State/Property identities cannot move to another parent, and all
+  parent references are concrete revisions rather than moving heads
+- Catalog search/detail and writes use `catalog.read`/`catalog.write` with organization/project and
+  classification RLS; PostgreSQL integration proves cross-project hiding plus lifecycle, provenance,
+  and audit facts for every Catalog revision
 - PostgreSQL integration uses a migration-managed explicit typed fixture; no generic EAV/content
   table exists
 - Job submission is tenant-idempotent; every retry appends a distinct immutable Attempt/Job Spec
@@ -139,19 +150,20 @@ Commands: `make ci` and `make test-postgresql` with an ephemeral PostgreSQL 16-c
 
 ```text
 Ruff: passed
-mypy strict: passed (197 source files)
+mypy strict: passed (211 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-make ci: 223 passed, 58 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Full suite with PostgreSQL 16.14: 281 passed
+make ci: 230 passed, 59 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Full suite with PostgreSQL 16.14: 289 passed
 ```
 
 ## Intentionally absent
 
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
-- Material, test, or dataset catalog implementations
+- Process/Lot/Batch genealogy, richer typed property/curve families, test and dataset catalog
+  implementations
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
@@ -167,10 +179,9 @@ Full suite with PostgreSQL 16.14: 281 passed
 
 ## Next gate
 
-`T-05` is complete. ADR-006 changes the approved product direction: `T-07` Material/State/typed
-Property MVP, Material management UI, reference Material Model IR, and reference OpenRadioss
-card generation are now the first product vertical slice. At this status revision they remain
-unimplemented; the foundation above is deliberately retained and reused. T-30 still owns Release
-creation and evidence policy; T-17/T-18 production Artifact composition and release-specific
-retention/backup policy are not implied complete.
+The backend/API/database portion of the `T-07` Material/State/typed Property MVP is complete.
+ADR-006 keeps Material management UI, reference Material Model IR, and reference OpenRadioss card
+generation as the next contiguous product steps; the foundation above is retained and reused. T-30
+still owns Release creation and evidence policy; T-17/T-18 production Artifact composition and
+release-specific retention/backup policy are not implied complete.
 
