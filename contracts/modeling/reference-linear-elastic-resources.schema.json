@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/reference-linear-elastic-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "ReferenceLinearElasticContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_family_id", "model_schema_version", "model_schema_digest",
+        "material_id", "material_revision_id", "material_state_id",
+        "material_state_revision_id", "property_set_id", "property_set_revision_id",
+        "density_kg_per_m3", "youngs_modulus_pa", "poisson_ratio",
+        "source_yield_stress_pa", "applicable_temperature_min_k",
+        "applicable_temperature_max_k", "applicable_strain_rate_min_per_s",
+        "applicable_strain_rate_max_per_s", "applicability_note",
+        "reference_temperature_k", "non_production"
+      ],
+      "properties": {
+        "model_family_id": {"const": "urn:cmp:reference:isotropic-linear-elasticity:1.0.0"},
+        "model_schema_version": {"const": "1.0.0"},
+        "model_schema_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "density_kg_per_m3": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "poisson_ratio": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5},
+        "source_yield_stress_pa": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "applicable_temperature_min_k": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "applicable_temperature_max_k": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "applicable_strain_rate_min_per_s": {"type": ["number", "null"], "minimum": 0},
+        "applicable_strain_rate_max_per_s": {"type": ["number", "null"], "minimum": 0},
+        "applicability_note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "non_production": {"const": true}
+      }
+    },
+    "SourceYieldDisposition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": {"status": {"const": "not_present"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "unit", "status"],
+          "properties": {
+            "value": {"type": "number", "exclusiveMinimum": 0},
+            "unit": {"const": "Pa"},
+            "status": {"const": "not_applicable_to_linear_elasticity"}
+          }
+        }
+      ]
+    },
+    "ReferenceLinearElasticIr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ir_version", "ir_id", "ir_revision_id", "material_ref", "model_family",
+        "semantics", "payload", "applicability", "validity_domain",
+        "calibration_evidence", "validation_evidence", "provenance", "extensions",
+        "non_production"
+      ],
+      "properties": {
+        "ir_version": {"const": "1.0.0"},
+        "ir_id": {"$ref": "#/$defs/Uuid"},
+        "ir_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["material_revision_id", "material_state_revision_id"],
+          "properties": {
+            "material_revision_id": {"$ref": "#/$defs/Uuid"},
+            "material_state_revision_id": {"$ref": "#/$defs/Uuid"}
+          }
+        },
+        "model_family": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "schema_version", "schema_digest", "provider_plugin"],
+          "properties": {
+            "id": {"const": "urn:cmp:reference:isotropic-linear-elasticity:1.0.0"},
+            "schema_version": {"const": "1.0.0"},
+            "schema_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "provider_plugin": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["plugin_id", "plugin_version", "package_digest"],
+              "properties": {
+                "plugin_id": {"const": "cmp.reference.isotropic-linear-elasticity"},
+                "plugin_version": {"const": "1.0.0"},
+                "package_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+              }
+            }
+          }
+        },
+        "semantics": {"type": "object"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model", "density", "youngs_modulus", "poisson_ratio",
+            "property_set_revision_id", "source_property_disposition"
+          ],
+          "properties": {
+            "model": {"const": "isotropic_linear_elasticity"},
+            "density": {"$ref": "#/$defs/SiDensity"},
+            "youngs_modulus": {"$ref": "#/$defs/SiYoungsModulus"},
+            "poisson_ratio": {"$ref": "#/$defs/DimensionlessPoissonRatio"},
+            "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+            "source_property_disposition": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["yield_stress"],
+              "properties": {"yield_stress": {"$ref": "#/$defs/SourceYieldDisposition"}}
+            }
+          }
+        },
+        "applicability": {"type": "object"},
+        "validity_domain": {"type": "object"},
+        "calibration_evidence": {"type": "object"},
+        "validation_evidence": {"type": "array", "items": {"type": "object"}},
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_property_set_revision_id", "source_material_revision_id",
+            "source_material_state_revision_id"
+          ],
+          "properties": {
+            "source_property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+            "source_material_revision_id": {"$ref": "#/$defs/Uuid"},
+            "source_material_state_revision_id": {"$ref": "#/$defs/Uuid"}
+          }
+        },
+        "extensions": {"type": "object", "maxProperties": 0},
+        "non_production": {"const": true}
+      }
+    },
+    "SiDensity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit"],
+      "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "kg/m3"}}
+    },
+    "SiYoungsModulus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit"],
+      "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "Pa"}}
+    },
+    "DimensionlessPoissonRatio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit"],
+      "properties": {"value": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5}, "unit": {"const": "1"}}
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ModelProvenanceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_type", "reference_type", "revision_id", "content_sha256",
+        "based_on_revision_id", "source_property_set_revision_id", "recorded_at", "recorded_by"
+      ],
+      "properties": {
+        "entity_type": {"const": "modeling.material_model.revision"},
+        "reference_type": {"const": "modeling.material_model.revision"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "content_sha256": {"$ref": "#/$defs/Sha256"},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "source_property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "recorded_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "MaterialModelRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content", "ir", "provenance"],
+          "properties": {
+            "content": {"$ref": "#/$defs/ReferenceLinearElasticContent"},
+            "ir": {"$ref": "#/$defs/ReferenceLinearElasticIr"},
+            "provenance": {"$ref": "#/$defs/ModelProvenanceSummary"}
+          }
+        }
+      ]
+    },
+    "MaterialModelResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_model_id", "material_state_id", "current_revision", "links"],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/MaterialModelRevision"},
+        "links": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["self", "revisions", "preflight", "solver_cards"],
+          "properties": {
+            "self": {"type": "string"}, "revisions": {"type": "string"},
+            "preflight": {"type": "string"}, "solver_cards": {"type": "string"}
+          }
+        }
+      }
+    },
+    "MaterialModelListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/MaterialModelResponse"}}}
+    },
+    "MaterialModelRevisionListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_model_id", "revisions"],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "revisions": {"type": "array", "items": {"$ref": "#/$defs/MaterialModelRevision"}}
+      }
+    },
+    "ReferenceModelCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property_set_revision_id", "change_reason"],
+      "properties": {
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ModelingProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:modeling"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-MODELING-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

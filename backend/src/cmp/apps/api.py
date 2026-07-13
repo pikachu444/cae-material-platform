@@ -12,6 +12,7 @@ from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import build_catalog_service
 from cmp.bootstrap.jobs import build_job_service
+from cmp.bootstrap.modeling import build_material_model_service
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.provenance import build_provenance_services
 from cmp.bootstrap.security import IdentityServices, build_identity_services
@@ -33,6 +34,8 @@ from cmp.modules.identity_access.application.security import SecurityContextServ
 from cmp.modules.identity_access.domain.authorization import Permission
 from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
 from cmp.modules.jobs.application.jobs import JobService
+from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
+from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
@@ -63,6 +66,7 @@ def create_app(
     provenance_lineage_service: ProvenanceLineageService | None = None,
     audit_service: AuditService | None = None,
     catalog_service: CatalogService | None = None,
+    material_model_service: MaterialModelService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -180,10 +184,23 @@ def create_app(
             services.authorization, Permission.CATALOG_WRITE
         ),
     )
+    resolved_material_models = material_model_service or build_material_model_service(services)
+    install_material_model_api(
+        application,
+        service=resolved_material_models,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+    )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
     application.state.catalog_service = resolved_catalog
+    application.state.material_model_service = resolved_material_models
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)
 

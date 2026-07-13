@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.14.0
+  version: 0.15.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1219,6 +1219,95 @@ paths:
         "403": {description: Catalog write is not authorized.}
         "404": {description: No visible Property Set matches the identifier.}
         "412": {description: Current head differs from the supplied strong ETag.}
+  /api/v1/material-states/{material_state_id}/material-models:
+    get:
+      operationId: listMaterialModelsForState
+      tags: [modeling]
+      summary: List current reference Material Model IR revisions for one Material State.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Current Material Model IR heads visible to modeling.read.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/MaterialModelListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Material Model service unavailable.}
+    post:
+      operationId: createReferenceLinearElasticMaterialModel
+      tags: [modeling]
+      summary: Create a non-production reference linear-elastic IR from one concrete Property Set revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/ReferenceModelCreateRequest"}
+      responses:
+        "201":
+          description: Stable Material Model identity and immutable IR revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/MaterialModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404":
+          description: The concrete source Property Set revision is not visible for this Material State.
+          content:
+            application/problem+json:
+              schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/ModelingProblem"}
+        "409":
+          description: Immutable source or revision state conflict.
+          content:
+            application/problem+json:
+              schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/ModelingProblem"}
+        "422":
+          description: Typed SI source values are not valid for the reference model.
+          content:
+            application/problem+json:
+              schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/ModelingProblem"}
+        "503": {description: Material Model service unavailable.}
+  /api/v1/material-models/{material_model_id}:
+    get:
+      operationId: getMaterialModel
+      tags: [modeling]
+      summary: Read one current immutable Material Model IR revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Current Material Model IR revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/MaterialModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Material Model matches the identifier.}
+        "503": {description: Material Model service unavailable.}
+  /api/v1/material-models/{material_model_id}/revisions:
+    get:
+      operationId: listMaterialModelRevisions
+      tags: [modeling]
+      summary: List immutable revisions for one Material Model IR.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Newest-first Material Model IR revision history.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-resources.schema.json#/$defs/MaterialModelRevisionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Material Model matches the identifier.}
+        "503": {description: Material Model service unavailable.}
 components:
   securitySchemes:
     BearerAuth:
@@ -1251,6 +1340,11 @@ components:
       schema: {type: string, format: uuid}
     PropertySetId:
       name: property_set_id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    MaterialModelId:
+      name: material_model_id
       in: path
       required: true
       schema: {type: string, format: uuid}

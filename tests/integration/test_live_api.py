@@ -58,7 +58,7 @@ def test_generated_client_calls_live_health_endpoint() -> None:
 
         assert result.status == "ok"
         assert result.service == "cmp-api"
-        assert result.version == "0.14.0"
+        assert result.version == "0.15.0"
     finally:
         process.terminate()
         try:

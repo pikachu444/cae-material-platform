@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-13`
-Foundation version: `0.14.0`
+Date: `2026-07-14`
+Foundation version: `0.15.0`
 
 ## Completed
 
@@ -27,6 +27,12 @@ Foundation version: `0.14.0`
   Dashboard, search, Material creation, State and typed Property Set entry/revision, revision
   compare/history, and provenance summary screens. Test/upload/mapping UI remains outside this
   subset.
+- `T-22` reference subset: a stable Material Model identity and immutable reference
+  isotropic-linear-elastic IR revision projected from one concrete Property Set revision; explicit
+  SI density/Young's modulus/Poisson ratio columns, source-yield disposition, semantic/unit bounds,
+  Material→State→Property lineage composite FKs, API/list/history resources, provenance/audit/lifecycle
+  hooks, PostgreSQL RLS, and non-production-only contract. Generic model-schema registration,
+  calibration evidence, and production model families remain separate work.
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -76,6 +82,10 @@ Foundation version: `0.14.0`
 - Catalog search/detail and writes use `catalog.read`/`catalog.write` with organization/project and
   classification RLS; PostgreSQL integration proves cross-project hiding plus lifecycle, provenance,
   and audit facts for every Catalog revision
+- Reference Material Model creation uses `modeling.write` plus its explicit `catalog.read`
+  dependency; source values are selected by concrete Property Set revision, then persisted with
+  concrete Material/State/Property revision references. PostgreSQL constraints prevent mixed parent
+  lineage, RLS hides cross-project models, and original IR revisions reject mutation/deletion.
 - PostgreSQL integration uses a migration-managed explicit typed fixture; no generic EAV/content
   table exists
 - Job submission is tenant-idempotent; every retry appends a distinct immutable Attempt/Job Spec
@@ -181,14 +191,16 @@ Web workbench build: passed; Vitest: 4 passed
 - Production plugins
 - External audit root signer, SIEM/WORM connector, retention/legal-hold policy, and deployment
   service-principal scheduling for periodic sealing
-- Constitutive equations, fitting algorithms, solver cards, or validation thresholds
+- Fitting algorithms, solver cards, or validation thresholds; the implemented reference IR is not a
+  calibrated or production-validated constitutive equation
 - Production web identity/session integration and a compose/demo identity stack
 
 ## Next gate
 
-The backend/API/database and Material management UI portions of the `T-07` MVP are complete.
-ADR-006 keeps reference Material Model IR and reference OpenRadioss card generation as the next
-contiguous product steps; the foundation above is retained and reused. T-30 still owns Release
+The backend/API/database and Material management UI portions of the `T-07` MVP and the reference
+IR subset of `T-22` are complete. ADR-006 keeps OpenRadioss mapping preflight, immutable reference
+card generation, preview/download, and golden semantic tests as the next contiguous product step;
+the foundation above is retained and reused. T-30 still owns Release
 creation and evidence policy; T-17/T-18 production Artifact composition and release-specific
 retention/backup policy are not implied complete.
 

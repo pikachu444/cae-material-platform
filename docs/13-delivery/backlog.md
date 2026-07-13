@@ -301,6 +301,11 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-22. Material Model IR envelope와 model schema registry — `P0`
 
+- **2026-07-14 reference subset:** `urn:cmp:reference:isotropic-linear-elasticity:1.0.0`의
+  stable identity/immutable revision, concrete Catalog revision lineage, typed SI elasticity
+  columns, semantic/unit validation, protected create/read/history API, provenance/audit/RLS를
+  구현했다. 이는 production schema registry 또는 calibration IR 전체 완료를 뜻하지 않는다.
+
 - **목적:** 공통 semantics/units/applicability/evidence와 plugin-owned constitutive payload를 검증한다.
 - **입력과 출력:** 입력은 model schema/plugin와 IR candidate; 출력은 IR Revision, L0~L4 validation report.
 - **영향 데이터/API:** `modeling.model_family`, `model_schema`, `material_model*`; IR create/validate API.

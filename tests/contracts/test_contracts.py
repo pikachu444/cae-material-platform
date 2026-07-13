@@ -158,6 +158,37 @@ def test_catalog_contract_and_runtime_expose_typed_material_state_property_workf
     assert '"value"' not in catalog_contract
 
 
+def test_material_model_contract_and_runtime_expose_typed_reference_ir_workflow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/material-states/{material_state_id}/material-models": {
+            "get": "listMaterialModelsForState",
+            "post": "createReferenceLinearElasticMaterialModel",
+        },
+        "/api/v1/material-models/{material_model_id}": {"get": "getMaterialModel"},
+        "/api/v1/material-models/{material_model_id}/revisions": {
+            "get": "listMaterialModelRevisions"
+        },
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    modeling_contract = (
+        PROJECT_ROOT / "contracts/modeling/reference-linear-elastic-resources.schema.json"
+    ).read_text(encoding="utf-8")
+    assert '"density_kg_per_m3"' in modeling_contract
+    assert '"youngs_modulus_pa"' in modeling_contract
+    assert '"poisson_ratio"' in modeling_contract
+    assert '"source_yield_stress_pa"' in modeling_contract
+    assert '"key"' not in modeling_contract
+    assert '"attribute"' not in modeling_contract
+
+
 def test_me_contract_requires_project_and_runtime_bearer_security() -> None:
     schema_path = PROJECT_ROOT / "contracts/identity/me-response.schema.json"
     failures = validate_example(

@@ -100,12 +100,15 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.CATALOG_WRITE,
+            Permission.ARTIFACT_READ,
             Permission.DATASET_READ,
             Permission.STATISTICS_READ,
             Permission.PROCESSING_READ,
             Permission.PROCESSING_EXECUTE,
             Permission.MODELING_READ,
             Permission.MODELING_WRITE,
+            Permission.EXPORT_READ,
+            Permission.EXPORT_EXECUTE,
             Permission.CALIBRATION_EXECUTE,
             Permission.JOB_READ,
             Permission.JOB_SUBMIT,
@@ -167,7 +170,7 @@ _MODIFYING_OPERATIONS = frozenset(
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
     Permission.PROCESSING_EXECUTE: frozenset({Permission.DATASET_READ, Permission.PROCESSING_READ}),
     Permission.STATISTICS_EXECUTE: frozenset({Permission.DATASET_READ, Permission.STATISTICS_READ}),
-    Permission.MODELING_WRITE: frozenset({Permission.MODELING_READ}),
+    Permission.MODELING_WRITE: frozenset({Permission.CATALOG_READ, Permission.MODELING_READ}),
     Permission.CALIBRATION_EXECUTE: frozenset({Permission.DATASET_READ, Permission.MODELING_READ}),
     Permission.EXPORT_EXECUTE: frozenset(
         {Permission.ARTIFACT_READ, Permission.MODELING_READ, Permission.EXPORT_READ}

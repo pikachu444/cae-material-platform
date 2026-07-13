@@ -44,6 +44,15 @@ from cmp.modules.identity_access.domain.security import (
     PrincipalType,
     SecurityContext,
 )
+from cmp.modules.modeling.adapters.persistence.repository import (
+    SqlAlchemyModelingRepository,
+    material_model_revision_table,
+)
+from cmp.modules.modeling.application.service import (
+    CreateReferenceLinearElasticModel,
+    MaterialModelService,
+)
+from cmp.modules.modeling.domain.reference_linear_elasticity import ReferenceModelNotFound
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.shared.domain.revisions import RevisionConflict
@@ -76,6 +85,7 @@ class PostgresHarness:
     sessions: sessionmaker[Session]
     rls: SqlAlchemyRlsContext
     service: CatalogService
+    modeling: MaterialModelService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -126,7 +136,7 @@ def postgres() -> Iterator[PostgresHarness]:
             )
             connection.exec_driver_sql(
                 "GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, "
-                f'provenance, audit, catalog, artifact, plugin TO "{app_role}"'
+                f'provenance, audit, catalog, modeling, artifact, plugin TO "{app_role}"'
             )
             for schema in (
                 "identity",
@@ -134,6 +144,7 @@ def postgres() -> Iterator[PostgresHarness]:
                 "provenance",
                 "audit",
                 "catalog",
+                "modeling",
                 "artifact",
                 "plugin",
             ):
@@ -161,11 +172,23 @@ def postgres() -> Iterator[PostgresHarness]:
                 SqlAlchemyRevisionAuditHook(),
             ),
         )
+        modeling = MaterialModelService(
+            repository=SqlAlchemyModelingRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            )
+        )
         yield PostgresHarness(
             admin_engine=admin_engine,
             sessions=sessions,
             rls=rls,
             service=CatalogService(repository=repository),
+            modeling=modeling,
         )
     finally:
         if app_engine is not None:
@@ -206,7 +229,11 @@ def _decision(context: SecurityContext, permission: Permission) -> Authorization
         organization_id=context.organization_id,
         project_id=context.project_id,
         permission=permission,
-        roles=(Role.DATA_STEWARD,),
+        roles=(
+            (Role.MATERIAL_MODELER,)
+            if permission in {Permission.MODELING_READ, Permission.MODELING_WRITE}
+            else (Role.DATA_STEWARD,)
+        ),
         database_permissions=database_permissions_for(permission),
         max_classification=DataClassification.RESTRICTED,
         allow_export_controlled=False,
@@ -329,3 +356,111 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
             sa.text("SELECT count(*) FROM audit.event WHERE action LIKE 'catalog.%'")
         )
     assert lifecycle_count == provenance_count == audit_count == 4
+
+
+def test_reference_material_model_is_immutable_source_pinned_and_tenant_scoped(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    catalog_write = _decision(context, Permission.CATALOG_WRITE)
+    modeling_write = _decision(context, Permission.MODELING_WRITE)
+    modeling_read = _decision(context, Permission.MODELING_READ)
+    material = postgres.service.create_material(
+        context,
+        catalog_write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent("Reference steel", "REF-ELAST", "steel"),
+            "create source material",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        catalog_write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "As supplied",
+            ),
+            "create source state",
+        ),
+    )
+    property_set = postgres.service.create_property_set(
+        context,
+        catalog_write,
+        CreatePropertySet(
+            PropertySetContent(
+                state.id,
+                state.current.record.revision_id,
+                density_kg_per_m3=7850.0,
+                density_source=_source(),
+                youngs_modulus_pa=210_000_000_000.0,
+                youngs_modulus_source=_source(),
+                poisson_ratio=0.3,
+                poisson_ratio_source=_source(),
+                yield_stress_pa=355_000_000.0,
+                yield_stress_source=_source(),
+            ),
+            "record source elastic values",
+        ),
+    )
+
+    model = postgres.modeling.create_reference_linear_elastic_model(
+        context,
+        modeling_write,
+        CreateReferenceLinearElasticModel(
+            material_state_id=state.id,
+            property_set_revision_id=property_set.current.record.revision_id,
+            change_reason="project typed source revision into reference IR",
+        ),
+    )
+
+    assert model.current.content.material_revision_id == material.current.record.revision_id
+    assert model.current.content.material_state_revision_id == state.current.record.revision_id
+    assert model.current.content.property_set_revision_id == property_set.current.record.revision_id
+    assert model.current.content.source_yield_stress_pa == 355_000_000.0
+    assert postgres.modeling.get_material_model(context, modeling_read, model.id) == model
+    assert postgres.modeling.list_material_models_for_state(context, modeling_read, state.id) == (
+        model,
+    )
+    assert postgres.modeling.list_material_model_revisions(
+        context,
+        modeling_read,
+        model.id,
+    ) == (model.current,)
+
+    with pytest.raises(DBAPIError):
+        with postgres.sessions() as session, session.begin():
+            postgres.rls.bind_authorization(session, context, modeling_write)
+            session.execute(
+                sa.update(material_model_revision_table)
+                .where(material_model_revision_table.c.id == model.current.record.revision_id)
+                .values(youngs_modulus_pa=100_000_000_000.0)
+            )
+
+    other_context = _context(PROJECT_B)
+    with pytest.raises(ReferenceModelNotFound):
+        postgres.modeling.get_material_model(
+            other_context,
+            _decision(other_context, Permission.MODELING_READ),
+            model.id,
+        )
+
+    with postgres.admin_engine.connect() as connection:
+        lifecycle_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM governance.lifecycle_event "
+                "WHERE aggregate_type = 'modeling.material_model'"
+            )
+        )
+        provenance_count = connection.scalar(
+            sa.text(
+                "SELECT count(*) FROM provenance.entity "
+                "WHERE reference_type = 'modeling.material_model.revision'"
+            )
+        )
+        audit_count = connection.scalar(
+            sa.text("SELECT count(*) FROM audit.event WHERE action = 'modeling.material_model'"),
+        )
+    assert lifecycle_count == provenance_count == audit_count == 1

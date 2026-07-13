@@ -15,6 +15,19 @@ OpenRadioss 2025 `/MAT/ELAST`만을 위한 non-production reference slice다. �
 일반 IR contract를 축소하거나 특정 solver keyword를 IR에 넣지 않으며, reference
 payload와 target mapping은 명시적으로 분리한다.
 
+### 1.1 구현된 reference subset
+
+`modeling.material_model`은 stable identity이고, `modeling.material_model_revision`은
+append-only immutable revision이다. 첫 revision은 하나의 concrete `Property Set Revision`에서만
+생성한다. density, Young's modulus, Poisson ratio는 명시적 SI 열로 snapshot하며,
+Material/State/Property의 각 concrete revision을 composite foreign key로 고정한다. optional
+yield stress는 이 선형탄성 model에 적용되지 않음을 explicit disposition으로 남긴다. 따라서
+새 Catalog revision이 생겨도 과거 IR의 source, 값, applicability는 바뀌지 않는다.
+
+이 reference subset은 calibration, temperature/rate dependent law, plastic hardening, production
+validation, release를 주장하지 않는다. OpenRadioss mapping/card는 별도 exporting slice가
+그 IR revision만 입력으로 받는다.
+
 ## 2. IR이 해결해야 하는 문제
 
 parameter 이름과 숫자만 저장하면 다음을 알 수 없다.

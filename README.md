@@ -1,11 +1,11 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP plus identity, authorization, revision, streaming Raw Asset upload,
+Status: Material Catalog MVP and reference Material Model IR plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-07` + `T-09`–`T-10` + `T-13`–`T-18`)
+(`T-01`–`T-07` + `T-09`–`T-10` + `T-13`–`T-18` + reference `T-22` subset)
 
-Version: `0.14.0`
+Version: `0.15.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -13,7 +13,10 @@ mechanical Property Set revisions. It intentionally does not use generic EAV or 
 payloads: density, Young's modulus, Poisson ratio, optional yield stress, source, and applicability
 are named SI fields. The React Material Catalog workbench connects to these protected APIs for
 search, Material/State entry, typed property entry/revision, revision comparison, and provenance
-summary. Process/Lot/Batch, test data, fitting, Material Model IR, and solver cards remain separate
+summary. The first non-production Material Model IR can now be created only from one concrete
+Property Set revision: it keeps Material/State/Property revision lineage, typed SI density/E/ν,
+applicability, and an explicit disposition for an optional yield value that the linear-elastic
+reference model does not use. Solver card export, tests/datasets, and fitting remain separate
 follow-on slices. The T-03/T-04 identity and access-control foundation,
 the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine, the T-17
 immutable plugin package registry, and the T-18 isolated execution contract remain reusable
@@ -248,7 +251,8 @@ CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 ## Scope guard
 
 Read `AGENTS.md` before changing this repository. Production tensile standards, material models,
-calibration choices, solver cards, and validation criteria remain `TBD`. T-06 provides a typed-table
+calibration choices, solver cards, and validation criteria remain `TBD`; the T-22 linear-elastic IR
+is an explicitly non-production reference projection, not a production material model. T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
 not implement Material, artifact transfer, lifecycle approval, or export-control
