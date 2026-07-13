@@ -6,7 +6,7 @@ immutable content Artifact, typed provenance and bounded lineage, append-only au
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-10` + `T-12`–`T-18` + reference `T-22`/`T-25`/`T-26` subsets)
 
-Version: `0.17.0`
+Version: `0.18.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -248,6 +248,22 @@ negative, or non-monotonic data. It never guesses a mapping. The resulting viewe
 concrete raw or normalized Dataset revision to be selected; the curve preview is bounded and is not
 the calculation input.
 
+### Reference tensile Processing
+
+After a normalized Dataset revision exists, the same Material State workbench can create a named
+Selection that pins that exact revision, create a named reference crop Recipe with inclusive minimum
+and maximum engineering-strain bounds, and execute a **committed** Processing Run. Its only output
+is a typed processed Parquet Artifact and a separate processed Dataset identity at revision 1; the
+raw CSV, raw Dataset revision, and normalized Dataset revision remain unchanged. The output curve is
+then shown from that concrete processed revision.
+
+This is deliberately a small non-production reference operation: it accepts one normalized
+reference tensile Dataset, retains observed points only, and does not interpolate, resample, smooth,
+convert engineering to true quantities, average repeats, or make a temporary preview artifact.
+Selection/Recipe revisions and the output Dataset are auditable, and the output provenance records
+the pinned input, Recipe, and Processing Run. Multi-replicate statistics/QC and calibration are
+subsequent slices.
+
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret
 manager rather than source control:
@@ -268,7 +284,7 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, modeling, exporting TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, processing, modeling, exporting TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA governance TO cmp_app;
@@ -281,6 +297,7 @@ GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA catalog TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA testing TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA datasets TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA processing TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA modeling TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA exporting TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance, audit TO cmp_app;
@@ -354,7 +371,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 ## Traceability
 
 - Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, reference `T-08`, `T-09`, `T-10`, reference `T-12`,
-  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-22`, `T-25`, `T-26`, `T-32` MVP
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-22`, `T-25`, `T-26`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
@@ -363,5 +380,5 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007` (with `ADR-005` as a scope guard)
 

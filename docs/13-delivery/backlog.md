@@ -277,6 +277,13 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-19. Selection Revision과 Processing Recipe/Run — `P0`
 
+- **2026-07-15 reference subset:** 하나의 normalized reference tensile Dataset revision을
+  pin하는 typed Selection, one-step inclusive engineering-strain crop Recipe, committed Run,
+  typed processed Artifact와 별도 Dataset identity/revision 1, provenance/audit/RLS/API/웹
+  흐름을 구현했다. source raw/normalized revision은 수정하지 않으며 preview output,
+  interpolation, generic JSON/EAV를 사용하지 않는다. 여러 member/filter, resample/true
+  transform, durable reconciliation worker 및 production curve method는 여전히 후속 범위다.
+
 - **목적:** specimen/dataset membership과 ordered processing step을 재현 가능한 input으로 고정한다.
 - **입력과 출력:** 입력은 dataset revisions/member filters/step configs; 출력은 Selection Revision, Recipe Revision, processed Dataset Revision.
 - **영향 데이터/API:** `datasets.selection*`, `processing.recipe*`, `processing_run`; selection/recipe/run API.

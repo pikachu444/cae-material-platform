@@ -1,8 +1,8 @@
 # Public contract baseline
 
-Status: `T-02` + `T-03` + `T-04` + `T-05` + `T-06` + `T-09` + `T-10` + `T-13` + `T-14` +
-`T-15` + `T-16` + `T-17` + `T-18`, plus the T-07 Material Catalog MVP, HTTP contract version
-`0.14.0`.
+Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
+`T-12`, `T-19`, `T-22`, `T-25`, `T-26`, and the `T-32` workbench. HTTP contract version
+`0.18.0`.
 
 ## Files
 
@@ -22,6 +22,10 @@ Status: `T-02` + `T-03` + `T-04` + `T-05` + `T-06` + `T-09` + `T-10` + `T-13` + 
 - `plugins/plugin-package-resource.schema.json`: immutable package and state-history resource
 - `plugins/plugin-problem.schema.json`: sanitized registry problem response
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
+- `datasets/reference-tensile-resources.schema.json`: typed reference tensile Dataset, curve, and
+  immutable one-member Selection resources
+- `processing/reference-tensile-crop-resources.schema.json`: typed crop Recipe and committed Run
+  resources for the reference Processing slice
 - `revisions/revision-metadata.schema.json`: content-free typed-revision metadata envelope
 - `identity/me-response.schema.json`: authenticated principal and selected tenant context
 - `examples/positive`: examples that must validate
@@ -35,7 +39,8 @@ Status: `T-02` + `T-03` + `T-04` + `T-05` + `T-06` + `T-09` + `T-10` + `T-13` + 
 - OpenAPI removals, response removals, property removals, and optional-to-required changes fail the
   baseline compatibility check.
 - JSON Schema and event contracts use their own explicit version fields and immutable schema IDs.
-- This baseline contains no production material, test, calibration, or solver semantics.
+- These contracts contain only explicitly marked non-production reference material, tensile,
+  processing, IR, and solver semantics; they make no production qualification claim.
 - Revision content remains resource-specific; the common schema must never gain a generic
   `content`/EAV payload.
 - `/api/v1/me` accepts bearer access tokens; ID tokens are not an interchangeable credential.
@@ -70,6 +75,9 @@ Status: `T-02` + `T-03` + `T-04` + `T-05` + `T-06` + `T-09` + `T-10` + `T-13` + 
 - Audit access is read-only and requires `audit.read`. Events expose explicit actor/action/target,
   outcome, request/trace, redacted client, reason, and hash fields; raw payloads, secrets, and object
   keys are forbidden. Export is capped at 10000 events and includes its chain anchor and roots.
+- A reference Processing Run pins one normalized Dataset revision and one typed crop Recipe revision.
+  Its processed output is a separate immutable Dataset identity, never a replacement for raw or
+  normalized source bytes. Generic processing payloads and implicit interpolation are forbidden.
 
 Run `make check-contracts` after every contract change. Accepting a breaking change requires a new
 major contract, an ADR, and migration guidance; do not overwrite the baseline to hide the break.

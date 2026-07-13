@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-14`
-Foundation version: `0.17.0`
+Date: `2026-07-15`
+Foundation version: `0.18.0`
 
 ## Completed
 
@@ -35,6 +35,13 @@ Foundation version: `0.17.0`
   bounded curve preview, PostgreSQL constraints/RLS, protected APIs, and deterministic regression
   coverage. Generic importer detection, arbitrary channel schemas, and other test formats remain
   separate work.
+- `T-19` reference subset: an immutable one-member Selection pins one normalized reference tensile
+  Dataset revision; a stable Recipe with immutable typed revisions performs only inclusive observed
+  engineering-strain crop; a committed Processing Run creates a typed processed Parquet Artifact
+  and a separate processed Dataset identity/revision 1. It preserves raw/normalized source bytes,
+  records Selection/Recipe/output revision audit facts and concrete Processing provenance, and
+  provides protected API plus Material State workbench controls. Multi-input selection, resampling,
+  true-strain transforms, and durable Run reconciliation remain outside this subset.
 - `T-32` MVP subset: React/Vite Material Catalog workbench backed by protected Catalog, Modeling,
   and Exporting APIs; Dashboard, search, Material creation, State and typed Property Set
   entry/revision, revision compare/history, provenance summary, and the reference
@@ -130,6 +137,14 @@ Foundation version: `0.17.0`
   points, non-monotonic engineering strain, and ambiguous mapping. It produces typed SI Parquet
   only after the user supplied the mapping, and attaches the Raw Asset as input provenance to the
   Dataset generation activity.
+- Reference Processing pins exact Selection, Recipe, and normalized Dataset revisions before it
+  creates a committed Run. The only reference operation is an inclusive observed-point crop: it
+  creates a new processed Dataset identity and never edits raw/normalized revisions, interpolates
+  points, or treats a browser curve preview as an artifact.
+- The processed Dataset generation activity records the Processing Run, normalized Dataset usage,
+  typed Recipe plan, output derivation, and generic revision audit facts in tenant/classification
+  scope. If output Dataset commit succeeds but the terminal Run projection fails, the Run remains
+  executing for explicit reconciliation rather than being falsely marked failed.
 - The Material State workbench calls the protected Testing/Dataset/Upload APIs directly; it keeps
   raw and normalized curve revisions selectable, labels their units, and uses deterministic preview
   sampling rather than treating a browser plot as a calculation artifact.
@@ -214,24 +229,26 @@ Foundation version: `0.17.0`
 
 ## Validation result
 
-Current command: `make ci` (or the equivalent `scripts/ci.sh` command sequence on a Windows
-environment without `make`); the PostgreSQL integration suite additionally requires
-`CMP_TEST_POSTGRES_DSN`.
+Normal command: `make ci`. This Windows environment has no `make`, so the equivalent `uv` lint,
+typecheck, architecture/contract, migration-SQL, pytest, and root web-check commands were executed
+directly; the PostgreSQL integration suite additionally requires `CMP_TEST_POSTGRES_DSN`.
 
 ```text
 Ruff: passed
-mypy strict: passed (265 source files)
+mypy strict: passed (280 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
-CI-equivalent test sequence: 261 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Web workbench build: passed; Vitest: 11 passed
+Alembic `upgrade head --sql`: passed
+CI-equivalent pytest: 270 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Root web check: build passed; Vitest: 12 passed
 Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
   token tests are implemented. Docker is not installed in this Windows environment, so the
   containers and live PostgreSQL demo could not be started here.
-T-25 PostgreSQL integration coverage is implemented but not executed in this environment because
-  CMP_TEST_POSTGRES_DSN is unavailable; the reference Test/Dataset migration has offline SQL
-  rendering coverage, while a live PostgreSQL test remains the next verification task.
+T-19 has unit/API/migration and browser-workbench regression coverage. T-19 and earlier PostgreSQL
+  integration coverage is implemented but not executed in this environment because
+  CMP_TEST_POSTGRES_DSN is unavailable; migration SQL rendering is covered offline, while a live
+  PostgreSQL test remains the next verification task.
 ```
 
 ## Intentionally absent
@@ -240,6 +257,8 @@ T-25 PostgreSQL integration coverage is implemented but not executed in this env
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
 - Process/Lot/Batch genealogy, richer typed property/curve families, Test Campaign/Instrument
   records, generic importer detection/mapping approval, and non-reference Dataset channels
+- Multi-member Selection/filter semantics, resample/true-stress-strain processing, durable
+  Processing Run reconciliation, statistics/QC/outlier assessment, and calibration
 - Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
   the reusable provenance-completeness report
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
@@ -257,11 +276,11 @@ T-25 PostgreSQL integration coverage is implemented but not executed in this env
 
 ## Next gate
 
-**Updated 2026-07-14:** the reference Test/Dataset slice described below is now implemented.
-The current next step is versioned Processing and Selection: begin only with a small, explicitly
-chosen crop/resample or engineering-to-true transform after the relevant Material/Test domain
-decision. Statistics, outlier assessment, calibration, and release evidence remain separate
-bounded work.
+**Updated 2026-07-15:** the reference Test/Dataset and committed Processing slices are implemented.
+The next product gate is `T-20`: choose a domain-approved multi-replicate Selection/alignment
+decision, then add typed scalar/curve statistics and QC evidence. Outlier assessment, calibration,
+and release evidence remain separate bounded work; calibration must consume these explicit Dataset
+and Processing revisions rather than becoming a separate MCalibration-shaped application.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report
