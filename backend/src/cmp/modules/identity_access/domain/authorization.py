@@ -83,6 +83,7 @@ class Permission(StrEnum):
     EXPORT_EXECUTE = "export.execute"
     VALIDATION_READ = "validation.read"
     VALIDATION_EXECUTE = "validation.execute"
+    REVIEW_REQUEST = "review.request"
     REVIEW_READ = "review.read"
     REVIEW_DECIDE = "review.decide"
     RELEASE_READ = "release.read"

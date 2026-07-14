@@ -46,6 +46,9 @@ import type {
   ValidationRunResponse,
   ValidationTemplateResponse,
   ReferenceRunnerOutcome,
+  ReviewDecisionKind,
+  ReviewRequestListResponse,
+  ReviewRequestResponse,
   SpecimenResponse,
   TestMethodResponse,
   TestRunResponse,
@@ -536,6 +539,63 @@ export function previewReferenceValidationResultCurve(
     config,
     `/validation-results/${encodeURIComponent(validationResultId)}/curve?${query.toString()}`,
   );
+}
+
+export function createReviewRequest(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    aggregate_type: string;
+    aggregate_id: string;
+    revision_id: string;
+    manifest_sha256: string;
+    reason: string;
+  },
+): Promise<ApiResult<ReviewRequestResponse>> {
+  return request(config, "/review-requests", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listReviewRequests(
+  config: ApiConfig,
+  filters: {
+    aggregate_type?: string;
+    aggregate_id?: string;
+    revision_id?: string;
+    limit?: number;
+  } = {},
+): Promise<ApiResult<ReviewRequestListResponse>> {
+  const query = new URLSearchParams();
+  if (filters.aggregate_type?.trim()) query.set("aggregate_type", filters.aggregate_type.trim());
+  if (filters.aggregate_id?.trim()) query.set("aggregate_id", filters.aggregate_id.trim());
+  if (filters.revision_id?.trim()) query.set("revision_id", filters.revision_id.trim());
+  if (filters.limit) query.set("limit", String(filters.limit));
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return request(config, `/review-requests${suffix}`);
+}
+
+export function getReviewRequest(
+  config: ApiConfig,
+  reviewRequestId: string,
+): Promise<ApiResult<ReviewRequestResponse>> {
+  return request(config, `/review-requests/${encodeURIComponent(reviewRequestId)}`);
+}
+
+export function createReviewDecision(
+  config: ApiConfig,
+  reviewRequestId: string,
+  input: {
+    expected_manifest_sha256: string;
+    decision: ReviewDecisionKind;
+    reason: string;
+  },
+): Promise<ApiResult<ReviewRequestResponse>> {
+  return request(config, `/review-requests/${encodeURIComponent(reviewRequestId)}/decisions`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export function preflightSolverCardMapping(

@@ -6,7 +6,7 @@ immutable content Artifact, typed provenance and bounded lineage, append-only au
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
 
-Version: `0.23.0`
+Version: `0.24.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -446,6 +446,9 @@ not an approved optimizer/model or release policy. ADR-013's T-27 runner preserv
 execution evidence only; it is neither an actual solver/HPC adapter nor a validation verdict.
 ADR-014's T-28 result is an explicit non-production extraction/health/comparison profile; it is not
 a production acceptance threshold, solver qualification, approval, or release decision.
+T-29 adds an explicit governance review request/decision flow: a request pins one immutable
+aggregate revision and manifest digest, a domain reviewer decides through an append-only fact, and
+changes requested requires a new revision. It does not publish a Release or replace candidate data.
 T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
@@ -474,7 +477,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 ## Traceability
 
 - Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, reference `T-08`, `T-09`, `T-10`, reference `T-11`/`T-12`,
-  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-27`, `T-28`, `T-32` MVP
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
@@ -483,5 +486,5 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012`, `ADR-013`, `ADR-014` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012`, `ADR-013`, `ADR-014`, `ADR-015` (with `ADR-005` as a scope guard)
 

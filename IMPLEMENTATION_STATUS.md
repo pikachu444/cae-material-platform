@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-21`
-Foundation version: `0.23.0`
+Foundation version: `0.24.0`
 
 ## Completed
 
@@ -153,6 +153,14 @@ Foundation version: `0.23.0`
   missing/unit-invalid/alignment-invalid/fit-overlap outcomes as `not_evaluated`. It is reference
   evidence only, not real solver/HPC qualification, production material validation, approval, or
   release policy (ADR-0014).
+- `T-29` reference governance subset: immutable `governance.review_request` and
+  `governance.review_decision` tables pin an aggregate revision and manifest digest; protected
+  request/list/read/decision APIs advance the shared lifecycle event/projection in one transaction.
+  The author cannot decide, stale manifest or newer revision approval is rejected, decisions are
+  append-only, and `changes_requested` requires a newly created immutable revision. The React
+  dashboard includes a digest-pinned request/decision workbench and recent-review list. The MVP
+  fixes the required role to `domain_reviewer`; configurable matrices, comments/evidence, legal
+  signatures, and Release publication remain outside this task.
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -340,8 +348,8 @@ Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
 Alembic `upgrade head --sql`: passed
-CI-equivalent pytest: 305 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Root web check: build passed; Vitest: 14 passed
+CI-equivalent pytest: 342 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Root web check: build passed; Vitest: 16 passed
 Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
   token tests are implemented. Docker is not installed in this Windows environment, so the
   containers and live PostgreSQL demo could not be started here.
@@ -416,6 +424,13 @@ comparison -> immutable Validation Result`. The API/workbench expose the extract
 health, holdout-independence, metric, threshold, and curve preview. The next delivery work is
 T-29 review/lifecycle and T-30 release evidence gating; a real solver/HPC adapter, production
 threshold, multiple solver/template support, and domain qualification remain explicit decisions.
+
+**Update 2026-07-23:** T-29 now completes the bounded governance path:
+`draft revision -> review request pinned to manifest digest -> separated reviewer decision ->
+approved/changes_requested lifecycle projection`. Review facts and decisions are immutable,
+tenant-scoped, and transactionally linked to lifecycle events. A stale digest, newer revision,
+author-only decision, or repeated decision is rejected; changes requested cannot be resubmitted
+without a new revision. The next delivery work is T-30 Release completeness and evidence gating.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

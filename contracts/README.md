@@ -1,8 +1,8 @@
 # Public contract baseline
 
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
-`T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, and the `T-32` workbench. HTTP contract version
-`0.23.0`.
+`T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`, and the `T-32` workbench. HTTP contract version
+`0.24.0`.
 
 ## Files
 
@@ -41,6 +41,8 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
 - `validation/reference-result-interpretation-resources.schema.json`: typed non-production
   response extraction, numerical-health, observed-grid comparison, and immutable reference verdict
   evidence; it does not claim production model or solver validation
+- `governance/review-resources.schema.json`: immutable review request/decision resources with
+  manifest-digest pinning, lifecycle state, and separation-of-duties evidence
 - `revisions/revision-metadata.schema.json`: content-free typed-revision metadata envelope
 - `identity/me-response.schema.json`: authenticated principal and selected tenant context
 - `examples/positive`: examples that must validate

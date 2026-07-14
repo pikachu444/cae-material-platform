@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.23.0
+  version: 0.24.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -3268,6 +3268,109 @@ paths:
         "404": {description: No visible Validation Result matches the identifier.}
         "409": {description: The Validation Result has no extracted response available for preview.}
         "503": {description: Validation service unavailable.}
+  /api/v1/review-requests:
+    post:
+      operationId: createReviewRequest
+      tags: [governance, review]
+      summary: Submit one immutable candidate revision for human review.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../governance/review-resources.schema.json#/$defs/CreateReviewRequestRequest"}
+      responses:
+        "201":
+          description: Immutable review request and lifecycle transition to review.
+          content:
+            application/json:
+              schema: {$ref: "../governance/review-resources.schema.json#/$defs/ReviewRequestResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Review request is not authorized.}
+        "404": {description: No visible lifecycle target matches.}
+        "409": {description: Target is not a draft or already has a review request.}
+        "422": {description: Typed review input is invalid.}
+        "503": {description: Review service unavailable.}
+    get:
+      operationId: listReviewRequests
+      tags: [governance, review]
+      summary: List immutable review requests visible in the selected tenant.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+        - name: aggregate_type
+          in: query
+          required: false
+          schema: {type: string, minLength: 1, maxLength: 100}
+        - name: aggregate_id
+          in: query
+          required: false
+          schema: {type: string, format: uuid}
+        - name: revision_id
+          in: query
+          required: false
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Tenant-visible immutable review requests.
+          content:
+            application/json:
+              schema: {$ref: "../governance/review-resources.schema.json#/$defs/ReviewRequestListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Review read is not authorized.}
+        "503": {description: Review service unavailable.}
+  /api/v1/review-requests/{review_request_id}:
+    get:
+      operationId: getReviewRequest
+      tags: [governance, review]
+      summary: Read one immutable review request and its append-only decision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: review_request_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable review request and current lifecycle projection.
+          content:
+            application/json:
+              schema: {$ref: "../governance/review-resources.schema.json#/$defs/ReviewRequestResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Review read is not authorized.}
+        "404": {description: No visible review request matches.}
+        "503": {description: Review service unavailable.}
+  /api/v1/review-requests/{review_request_id}/decisions:
+    post:
+      operationId: createReviewDecision
+      tags: [governance, review]
+      summary: Append one separated human decision to an immutable review request.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: review_request_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../governance/review-resources.schema.json#/$defs/CreateReviewDecisionRequest"}
+      responses:
+        "201":
+          description: Immutable decision and lifecycle transition to approved or changes_requested.
+          content:
+            application/json:
+              schema: {$ref: "../governance/review-resources.schema.json#/$defs/ReviewRequestResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Review decision is not authorized.}
+        "404": {description: No visible review request matches.}
+        "409": {description: Stale digest, author-only decision, duplicate decision, or lifecycle conflict.}
+        "422": {description: Typed decision input is invalid.}
+        "503": {description: Review service unavailable.}
 components:
   securitySchemes:
     BearerAuth:

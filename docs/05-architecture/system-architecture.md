@@ -75,6 +75,12 @@ application ports and stores explicit Validation-owned rows/Artifacts; it does n
 test importer, fitting engine, or generic property/EAV payload. A reference verdict is not a
 production solver, material, review, or release decision (ADR-0014).
 
+`T-29` keeps review governance in `review_release`: requests pin the aggregate type/id, exact
+revision, and manifest digest; decisions are append-only and advance the existing lifecycle event
+and projection inside one PostgreSQL transaction. The request author cannot decide it, a stale
+manifest or newer revision is rejected, and `changes_requested` leaves the old revision immutable
+so a new revision is required before resubmission. Release composition remains T-30.
+
 의존성 방향은 외부 adapter에서 domain/application 쪽으로 향한다. domain module은 FastAPI, SQLAlchemy, S3 SDK, solver SDK를 import하지 않는다.
 
 ## 5. Bounded module

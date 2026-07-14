@@ -116,6 +116,9 @@ Mock repository만으로 통과하는 test를 persistence integration의 대체�
 - T-28 reference interpretation: SI unit/target validation, finite/monotonic/truncated output,
   explicit observed-grid interpolation with no extrapolation, fixed relative-RMSE threshold,
   abnormal-output `not_evaluated`, and calibration Selection/holdout overlap rejection
+- T-29 review governance: immutable request/decision rows, draft→review→approved or
+  changes_requested transitions, manifest digest pinning, stale revision rejection, and
+  author/reviewer separation of duties
 - curve point 수를 늘려도 replicate `n` 불변
 - display downsample과 full calculation 분리
 
