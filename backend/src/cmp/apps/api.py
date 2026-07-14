@@ -15,7 +15,10 @@ from cmp.bootstrap.datasets import build_dataset_service
 from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
 from cmp.bootstrap.exporting import build_solver_card_service
 from cmp.bootstrap.jobs import build_job_service
-from cmp.bootstrap.modeling import build_material_model_service
+from cmp.bootstrap.modeling import (
+    build_material_model_service,
+    build_reference_calibration_service,
+)
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import build_processing_service
 from cmp.bootstrap.provenance import build_provenance_services
@@ -48,7 +51,9 @@ from cmp.modules.identity_access.application.security import SecurityContextServ
 from cmp.modules.identity_access.domain.authorization import Permission
 from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
 from cmp.modules.jobs.application.jobs import JobService
+from cmp.modules.modeling.adapters.api.calibration import install_calibration_api
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
+from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
@@ -91,6 +96,7 @@ def create_app(
     processing_service: ProcessingService | None = None,
     statistics_service: StatisticsService | None = None,
     material_model_service: MaterialModelService | None = None,
+    calibration_service: ReferenceCalibrationService | None = None,
     solver_card_service: SolverCardService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
@@ -280,6 +286,23 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_calibration = calibration_service or build_reference_calibration_service(
+        services,
+        resolved_datasets,
+        resolved_material_models,
+        resolved_artifacts,
+    )
+    install_calibration_api(
+        application,
+        service=resolved_calibration,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CALIBRATION_EXECUTE
+        ),
+    )
     resolved_solver_cards = solver_card_service or build_solver_card_service(services)
     install_solver_card_api(
         application,
@@ -301,6 +324,7 @@ def create_app(
     application.state.processing_service = resolved_processing
     application.state.statistics_service = resolved_statistics
     application.state.material_model_service = resolved_material_models
+    application.state.calibration_service = resolved_calibration
     application.state.solver_card_service = resolved_solver_cards
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)

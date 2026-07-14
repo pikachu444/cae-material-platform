@@ -511,10 +511,131 @@ export interface CurvePreview {
 }
 
 export interface DatasetSelectionContent {
-  selection_kind: "reference_normalized_dataset_revision";
+  selection_kind: "reference_curve_dataset_revision";
   member_count: 1;
   dataset_id: string;
   dataset_revision_id: string;
+}
+
+export interface ReferenceLinearElasticCalibrationPlanContent {
+  plan_kind: "reference_uniaxial_linear_elasticity";
+  plan_label: string;
+  selection_id: string;
+  selection_revision_id: string;
+  material_model_id: string;
+  material_model_revision_id: string;
+  model_family_id: string;
+  model_schema_version: string;
+  model_schema_digest: string;
+  test_mode: "reference_uniaxial_tension";
+  evaluator_id: string;
+  evaluator_version: string;
+  evaluation_mode: "closed_form_curve";
+  calibrator_id: string;
+  calibrator_version: string;
+  parameter_name: "youngs_modulus_pa";
+  youngs_modulus_lower_bound_pa: number;
+  youngs_modulus_initial_value_pa: number;
+  youngs_modulus_upper_bound_pa: number;
+  normalization_stress_scale_pa: number;
+  point_weighting: "uniform_point_weight";
+  objective_aggregation: "mean_normalized_squared_residual";
+  x_domain_policy: "all_observed_points";
+  missing_data_policy: "reject";
+  multistart_count: number;
+  random_seed: number;
+  non_production: true;
+}
+
+export interface CalibrationPlanRevision extends RevisionMetadata {
+  content: ReferenceLinearElasticCalibrationPlanContent;
+}
+
+export interface CalibrationPlanResponse {
+  calibration_plan_id: string;
+  current_revision: CalibrationPlanRevision;
+  links: Record<string, string>;
+}
+
+export interface CalibrationAttemptResponse {
+  calibration_attempt_id: string;
+  calibration_run_id: string;
+  attempt_ordinal: number;
+  initial_youngs_modulus_pa: number;
+  random_seed: number;
+  status: "executing" | "succeeded" | "failed";
+  candidate_id: string | null;
+  failure_code: string | null;
+  started_at: string;
+  ended_at: string | null;
+}
+
+export interface CalibrationCandidateResponse {
+  calibration_candidate_id: string;
+  calibration_run_id: string;
+  calibration_attempt_id: string;
+  attempt_ordinal: number;
+  status: "converged" | "nonconverged" | "failed";
+  candidate_sha256: string;
+  youngs_modulus_pa: number;
+  objective_total: number;
+  residual_root_mean_square_pa: number;
+  residual_mean_pa: number;
+  bound_sticking: boolean;
+  convergence_reason: string;
+  identifiability_status: string;
+  uncertainty_status: string;
+  diagnostics_artifact_id: string;
+  diagnostics_sha256: string;
+  diagnostics_point_count: number;
+  created_at: string;
+  created_by: string;
+  links: Record<string, string>;
+}
+
+export interface CalibrationRunResponse {
+  calibration_run_id: string;
+  classification: DataClassification;
+  calibration_plan_id: string;
+  calibration_plan_revision_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  dataset_id: string;
+  dataset_revision_id: string;
+  material_model_id: string;
+  material_model_revision_id: string;
+  execution_mode: "reference_inline";
+  reproducibility_level: string;
+  environment_digest: string;
+  status: "executing" | "succeeded" | "failed";
+  attempt_count: number;
+  candidate_count: number;
+  failure_code: string | null;
+  change_reason: string;
+  started_at: string;
+  ended_at: string | null;
+  created_by: string;
+  request_id: string;
+  trace_id: string;
+  attempts: CalibrationAttemptResponse[];
+  candidates: CalibrationCandidateResponse[];
+  links: Record<string, string>;
+}
+
+export interface CalibrationDiagnosticPoint {
+  engineering_strain: number;
+  observed_engineering_stress_pa: number;
+  predicted_engineering_stress_pa: number;
+  residual_engineering_stress_pa: number;
+  normalized_residual: number;
+}
+
+export interface CalibrationDiagnosticPreview {
+  calibration_candidate_id: string;
+  point_count: number;
+  returned_point_count: number;
+  sampled: boolean;
+  points: CalibrationDiagnosticPoint[];
 }
 
 export interface DatasetSelectionRevision extends RevisionMetadata {

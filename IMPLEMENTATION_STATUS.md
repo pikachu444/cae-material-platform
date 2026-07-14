@@ -1,6 +1,6 @@
 # Implementation Status
 
-Date: `2026-07-18`
+Date: `2026-07-19`
 Foundation version: `0.21.0`
 
 ## Completed
@@ -101,6 +101,15 @@ Foundation version: `0.21.0`
   Material→State→Property lineage composite FKs, API/list/history resources, provenance/audit/lifecycle
   hooks, PostgreSQL RLS, and non-production-only contract. Generic model-schema registration,
   calibration evidence, and production model families remain separate work.
+- `T-23` reference subset: a stable Calibration Plan identity with immutable typed revisions that
+  pin one normalized or processed tensile Selection revision and one reference linear-elastic
+  Material Model IR revision; explicit Young's-modulus bounds/initial value, normalization scale,
+  point-weighting, multistart count, and seed; durable append-only Run/Attempt/Candidate records;
+  typed observed/predicted/residual Parquet diagnostics Artifacts; protected API/contract and a
+  Material State calibration workbench. The bounded analytic `sigma = E * epsilon` WLS evaluator
+  is explicitly non-production and R3 only for its recorded reference environment. Candidate
+  selection, IR promotion, uncertainty, production optimizer/model choice, and solver validation
+  remain separate work.
 - `T-25` reference subset: an explicit OpenRadioss 2025 `/MAT/ELAST` exporter for only the
   reference linear-elastic IR and `kg_m_s` units; typed capability/preflight/mapping-report and
   immutable Solver Card identity/revision tables, source-revision FKs, SHA-256 report/card digests,
@@ -191,6 +200,11 @@ Foundation version: `0.21.0`
   revision before its terminal transition, then records QC in the same terminal transaction. Result
   provenance captures both Selection revisions and the Plan; the two-sample confidence interval is
   explicitly `not_provided_reference_pair` rather than manufactured from point pseudo-replicates.
+- Reference Calibration resolves only concrete Selection, Dataset, and Material Model revisions
+  through public bounded-module ports, verifies shared Material State and tenant scope, and records
+  a durable terminal failure if its typed curve Artifact cannot be read. Its analytic bounded WLS
+  evaluator writes a separate typed diagnostics Artifact and immutable Candidate per recorded
+  multistart Attempt; it never changes source curves or the IR it evaluated.
 - The Material State workbench calls the protected Testing/Dataset/Upload APIs directly; it keeps
   raw and normalized curve revisions selectable, labels their units, and uses deterministic preview
   sampling rather than treating a browser plot as a calculation artifact.
@@ -325,7 +339,7 @@ live PostgreSQL test remains the next verification task.
 
 ## Next gate
 
-**Updated 2026-07-18:** the reference Test/Dataset, committed Processing, exact-grid
+**Updated 2026-07-18 (superseded below):** the reference Test/Dataset, committed Processing, exact-grid
 two-sample Statistics/QC, and append-only outlier-review slices are implemented. The completed
 reference Material → Property Set → IR → OpenRadioss Card path remains the product's
 second-priority CAE-use vertical slice; this T-21 work supports the separate Test Data → Statistics
@@ -334,6 +348,13 @@ detect → human mapping approval → pinned Import Run → immutable Dataset re
 sequence is T-23/T-24 reference calibration and candidate selection, then T-27/T-28 validation. Any
 expansion beyond the existing exact linear-elastic OpenRadioss mapping also requires a documented
 target/model mapping decision; it must not be silently inferred.
+
+**Update 2026-07-19:** T-23 is now implemented as a non-production reference Calibration
+Plan/Run/Attempt/Candidate diagnostics slice. It demonstrates `Selection revision -> Material
+Model IR revision -> Candidate diagnostics` without mutating the source Dataset or IR. The next
+requested work is T-24 human candidate selection and append-only IR promotion, followed by T-27/T-28
+validation. Any expansion beyond the exact reference linear-elastic OpenRadioss mapping requires a
+documented target/model decision and must not be silently inferred.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

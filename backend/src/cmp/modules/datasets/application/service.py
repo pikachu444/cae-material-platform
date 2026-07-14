@@ -76,6 +76,14 @@ class DatasetRevisionSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class CalibrationDatasetSource:
+    """Pinned Dataset revision plus the Material State reached through its Test Run specimen."""
+
+    dataset: DatasetRevisionSnapshot
+    material_state_id: UUID
+
+
+@dataclass(frozen=True, slots=True)
 class DatasetSelectionSnapshot:
     id: UUID
     selection_label: str
@@ -181,6 +189,14 @@ class DatasetRepository(Protocol):
         decision: AuthorizationDecision,
         dataset_revision_id: UUID,
     ) -> DatasetRevisionSnapshot: ...
+
+    def get_calibration_dataset_source(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> CalibrationDatasetSource: ...
 
     def list_dataset_revisions(
         self,
@@ -362,9 +378,9 @@ class DatasetService:
     ) -> DatasetSelectionSnapshot:
         """Create a stable Selection and first immutable one-member revision.
 
-        The narrow one-member shape is intentional for the reference crop slice.  It records a
-        concrete normalized revision rather than a moving Dataset head and can be revised later
-        with another concrete input.
+        The narrow one-member shape is intentional for the reference vertical slice.  It records
+        one concrete normalized or processed revision rather than a moving Dataset head and can
+        be revised later with another concrete input.
         """
 
         _require(context, decision, Permission.DATASET_WRITE)
@@ -374,9 +390,12 @@ class DatasetService:
             decision=decision,
             dataset_revision_id=command.dataset_revision_id,
         )
-        if source.revision.content.representation is not DatasetRepresentation.NORMALIZED:
+        if source.revision.content.representation not in (
+            DatasetRepresentation.NORMALIZED,
+            DatasetRepresentation.PROCESSED,
+        ):
             raise DatasetConflict(
-                "reference Dataset Selection requires a normalized Dataset revision"
+                "reference Dataset Selection requires a normalized or processed Dataset revision"
             )
         if source.revision.record.scope.classification != command.classification.value:
             raise DatasetConflict("Selection classification must match its Dataset revision")
@@ -430,9 +449,12 @@ class DatasetService:
             decision=decision,
             dataset_revision_id=command.dataset_revision_id,
         )
-        if source.revision.content.representation is not DatasetRepresentation.NORMALIZED:
+        if source.revision.content.representation not in (
+            DatasetRepresentation.NORMALIZED,
+            DatasetRepresentation.PROCESSED,
+        ):
             raise DatasetConflict(
-                "reference Dataset Selection requires a normalized Dataset revision"
+                "reference Dataset Selection requires a normalized or processed Dataset revision"
             )
         if source.revision.record.scope != existing.current.record.scope:
             raise DatasetConflict(
@@ -521,6 +543,23 @@ class DatasetService:
             selection_revision_id=selection_revision_id,
         )
 
+    def get_reference_dataset_selection_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> DatasetSelectionRevisionSnapshot:
+        """Resolve one immutable Selection input for an authorized calibration command."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_selection_revision(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+            selection_revision_id=selection_revision_id,
+        )
+
     def list_reference_dataset_selections_for_revision(
         self,
         context: SecurityContext,
@@ -557,6 +596,36 @@ class DatasetService:
 
         _require_capability(context, decision, Permission.DATASET_READ)
         return self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+
+    def get_dataset_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> DatasetRevisionSnapshot:
+        """Resolve immutable normalized/processed curve metadata for Calibration."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+
+    def get_calibration_dataset_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> CalibrationDatasetSource:
+        """Resolve Dataset-to-Material-State lineage for Calibration without table leakage."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_calibration_dataset_source(
             context=context,
             decision=decision,
             dataset_revision_id=dataset_revision_id,

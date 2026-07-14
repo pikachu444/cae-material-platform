@@ -1,6 +1,9 @@
 import type {
   ExportTarget,
   CompletedUpload,
+  CalibrationDiagnosticPreview,
+  CalibrationPlanResponse,
+  CalibrationRunResponse,
   CurvePreview,
   DatasetSelectionResponse,
   DatasetResponse,
@@ -299,6 +302,55 @@ export function createReferenceMaterialModel(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function createReferenceLinearElasticCalibrationPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    selection_id: string;
+    selection_revision_id: string;
+    material_model_id: string;
+    material_model_revision_id: string;
+    youngs_modulus_lower_bound_pa: number;
+    youngs_modulus_initial_value_pa: number;
+    youngs_modulus_upper_bound_pa: number;
+    normalization_stress_scale_pa: number;
+    multistart_count: number;
+    random_seed: number;
+    change_reason: string;
+  },
+): Promise<ApiResult<CalibrationPlanResponse>> {
+  return request(config, "/calibration-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceLinearElasticCalibration(
+  config: ApiConfig,
+  input: {
+    plan_id: string;
+    plan_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<CalibrationRunResponse>> {
+  return request(config, "/calibration-runs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewCalibrationCandidateDiagnostics(
+  config: ApiConfig,
+  candidateId: string,
+  maximumPoints = 500,
+): Promise<ApiResult<CalibrationDiagnosticPreview>> {
+  return request(
+    config,
+    `/calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics-preview?maximum_points=${maximumPoints}`,
+  );
 }
 
 export function preflightSolverCardMapping(

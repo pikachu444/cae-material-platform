@@ -190,6 +190,54 @@ def test_material_model_contract_and_runtime_expose_typed_reference_ir_workflow(
     assert '"attribute"' not in modeling_contract
 
 
+def test_reference_calibration_contract_and_runtime_expose_pinned_typed_workflow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/calibration-plans": {
+            "post": "createReferenceLinearElasticCalibrationPlan",
+            "get": "listCalibrationPlans",
+        },
+        "/api/v1/calibration-plans/{plan_id}": {
+            "patch": "reviseReferenceLinearElasticCalibrationPlan",
+            "get": "getCalibrationPlan",
+        },
+        "/api/v1/calibration-runs": {"post": "executeReferenceLinearElasticCalibration"},
+        "/api/v1/calibration-runs/{run_id}": {"get": "getCalibrationRun"},
+        "/api/v1/calibration-candidates/{candidate_id}/diagnostics-preview": {
+            "get": "previewCalibrationCandidateDiagnostics"
+        },
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = (
+        PROJECT_ROOT
+        / "contracts/modeling/reference-linear-elastic-calibration-resources.schema.json"
+    )
+    serialized = schema_path.read_text(encoding="utf-8")
+    assert '"youngs_modulus_lower_bound_pa"' in serialized
+    assert '"normalization_stress_scale_pa"' in serialized
+    assert '"diagnostics_artifact_id"' in serialized
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+
+    plan_content = runtime["components"]["schemas"]["ReferenceCalibrationPlanContentResponse"]
+    candidate = runtime["components"]["schemas"]["CalibrationCandidateResponse"]
+    revise = runtime["components"]["schemas"]["ReferenceCalibrationPlanReviseRequest"]
+    assert {"selection_revision_id", "material_model_revision_id", "random_seed"}.issubset(
+        plan_content["required"]
+    )
+    assert {"diagnostics_artifact_id", "candidate_sha256", "bound_sticking"}.issubset(
+        candidate["required"]
+    )
+    assert "classification" not in revise["properties"]
+
+
 def test_me_contract_requires_project_and_runtime_bearer_security() -> None:
     schema_path = PROJECT_ROOT / "contracts/identity/me-response.schema.json"
     failures = validate_example(

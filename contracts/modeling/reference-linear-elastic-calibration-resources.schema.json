@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/reference-linear-elastic-calibration-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "PrefixedSha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"const": "urn:cmp:modeling:reference-uniaxial-linear-elastic-calibration:1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ReferenceLinearElasticCalibrationPlanFields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_label", "selection_id", "selection_revision_id", "material_model_id",
+        "material_model_revision_id", "youngs_modulus_lower_bound_pa",
+        "youngs_modulus_initial_value_pa", "youngs_modulus_upper_bound_pa",
+        "normalization_stress_scale_pa", "multistart_count", "random_seed"
+      ],
+      "properties": {
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "youngs_modulus_lower_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_initial_value_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_upper_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "normalization_stress_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "multistart_count": {"type": "integer", "minimum": 1, "maximum": 16},
+        "random_seed": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807}
+      }
+    },
+    "CreateReferenceLinearElasticCalibrationPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "plan_label", "selection_id", "selection_revision_id",
+        "material_model_id", "material_model_revision_id", "youngs_modulus_lower_bound_pa",
+        "youngs_modulus_initial_value_pa", "youngs_modulus_upper_bound_pa",
+        "normalization_stress_scale_pa", "multistart_count", "random_seed", "change_reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "youngs_modulus_lower_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_initial_value_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_upper_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "normalization_stress_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "multistart_count": {"type": "integer", "minimum": 1, "maximum": 16},
+        "random_seed": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseReferenceLinearElasticCalibrationPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_current_revision_id", "plan_label", "selection_id", "selection_revision_id",
+        "material_model_id", "material_model_revision_id", "youngs_modulus_lower_bound_pa",
+        "youngs_modulus_initial_value_pa", "youngs_modulus_upper_bound_pa",
+        "normalization_stress_scale_pa", "multistart_count", "random_seed", "change_reason"
+      ],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "youngs_modulus_lower_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_initial_value_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_upper_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "normalization_stress_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "multistart_count": {"type": "integer", "minimum": 1, "maximum": 16},
+        "random_seed": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReferenceLinearElasticCalibrationPlanContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_kind", "plan_label", "selection_id", "selection_revision_id", "material_model_id",
+        "material_model_revision_id", "model_family_id", "model_schema_version",
+        "model_schema_digest", "test_mode", "evaluator_id", "evaluator_version",
+        "evaluation_mode", "calibrator_id", "calibrator_version", "parameter_name",
+        "youngs_modulus_lower_bound_pa", "youngs_modulus_initial_value_pa",
+        "youngs_modulus_upper_bound_pa", "normalization_stress_scale_pa", "point_weighting",
+        "objective_aggregation", "x_domain_policy", "missing_data_policy", "multistart_count",
+        "random_seed", "non_production"
+      ],
+      "properties": {
+        "plan_kind": {"const": "reference_uniaxial_linear_elasticity"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "model_family_id": {"const": "urn:cmp:reference:isotropic-linear-elasticity:1.0.0"},
+        "model_schema_version": {"const": "1.0.0"},
+        "model_schema_digest": {"$ref": "#/$defs/PrefixedSha256"},
+        "test_mode": {"const": "reference_uniaxial_tension"},
+        "evaluator_id": {"const": "urn:cmp:reference:linear-elastic-closed-form-curve-evaluator:1.0.0"},
+        "evaluator_version": {"const": "1.0.0"},
+        "evaluation_mode": {"const": "closed_form_curve"},
+        "calibrator_id": {"const": "urn:cmp:reference:analytic-bounded-weighted-least-squares:1.0.0"},
+        "calibrator_version": {"const": "1.0.0"},
+        "parameter_name": {"const": "youngs_modulus_pa"},
+        "youngs_modulus_lower_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_initial_value_pa": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_upper_bound_pa": {"type": "number", "exclusiveMinimum": 0},
+        "normalization_stress_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "point_weighting": {"const": "uniform_point_weight"},
+        "objective_aggregation": {"const": "mean_normalized_squared_residual"},
+        "x_domain_policy": {"const": "all_observed_points"},
+        "missing_data_policy": {"const": "reject"},
+        "multistart_count": {"type": "integer", "minimum": 1, "maximum": 16},
+        "random_seed": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807},
+        "non_production": {"const": true}
+      }
+    },
+    "CalibrationPlanRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/ReferenceLinearElasticCalibrationPlanContent"}}}
+      ]
+    },
+    "CalibrationPlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["calibration_plan_id", "current_revision", "links"],
+      "properties": {
+        "calibration_plan_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/CalibrationPlanRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "CalibrationPlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/CalibrationPlanResponse"}}}
+    },
+    "ExecuteReferenceLinearElasticCalibrationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "plan_revision_id", "change_reason"],
+      "properties": {
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CalibrationAttemptResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calibration_attempt_id", "calibration_run_id", "attempt_ordinal",
+        "initial_youngs_modulus_pa", "random_seed", "status", "candidate_id",
+        "failure_code", "started_at", "ended_at"
+      ],
+      "properties": {
+        "calibration_attempt_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "attempt_ordinal": {"type": "integer", "minimum": 1, "maximum": 16},
+        "initial_youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "random_seed": {"type": "integer", "minimum": -9223372036854775808, "maximum": 9223372036854775807},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "candidate_id": {"type": ["string", "null"], "format": "uuid"},
+        "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "CalibrationCandidateResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calibration_candidate_id", "calibration_run_id", "calibration_attempt_id",
+        "attempt_ordinal", "status", "candidate_sha256", "youngs_modulus_pa",
+        "objective_total", "residual_root_mean_square_pa", "residual_mean_pa",
+        "bound_sticking", "convergence_reason", "identifiability_status", "uncertainty_status",
+        "diagnostics_artifact_id", "diagnostics_sha256", "diagnostics_point_count",
+        "created_at", "created_by", "links"
+      ],
+      "properties": {
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_attempt_id": {"$ref": "#/$defs/Uuid"},
+        "attempt_ordinal": {"type": "integer", "minimum": 1, "maximum": 16},
+        "status": {"enum": ["converged", "nonconverged", "failed"]},
+        "candidate_sha256": {"$ref": "#/$defs/PrefixedSha256"},
+        "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "objective_total": {"type": "number", "minimum": 0},
+        "residual_root_mean_square_pa": {"type": "number", "minimum": 0},
+        "residual_mean_pa": {"type": "number"},
+        "bound_sticking": {"type": "boolean"},
+        "convergence_reason": {"type": "string", "minLength": 1, "maxLength": 255},
+        "identifiability_status": {"type": "string", "minLength": 1, "maxLength": 255},
+        "uncertainty_status": {"type": "string", "minLength": 1, "maxLength": 255},
+        "diagnostics_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "diagnostics_sha256": {"$ref": "#/$defs/PrefixedSha256"},
+        "diagnostics_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "CalibrationRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calibration_run_id", "classification", "calibration_plan_id",
+        "calibration_plan_revision_id", "selection_id", "selection_revision_id", "dataset_id",
+        "dataset_revision_id", "material_model_id", "material_model_revision_id",
+        "execution_mode", "reproducibility_level", "environment_digest", "status",
+        "attempt_count", "candidate_count", "failure_code", "change_reason", "started_at",
+        "ended_at", "created_by", "request_id", "trace_id", "attempts", "candidates", "links"
+      ],
+      "properties": {
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "calibration_plan_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "execution_mode": {"const": "reference_inline"},
+        "reproducibility_level": {"const": "R3"},
+        "environment_digest": {"$ref": "#/$defs/PrefixedSha256"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "attempt_count": {"type": "integer", "minimum": 1, "maximum": 16},
+        "candidate_count": {"type": "integer", "minimum": 0, "maximum": 16},
+        "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "request_id": {"$ref": "#/$defs/Uuid"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "attempts": {"type": "array", "items": {"$ref": "#/$defs/CalibrationAttemptResponse"}},
+        "candidates": {"type": "array", "items": {"$ref": "#/$defs/CalibrationCandidateResponse"}},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "CalibrationDiagnosticPointResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engineering_strain", "observed_engineering_stress_pa", "predicted_engineering_stress_pa",
+        "residual_engineering_stress_pa", "normalized_residual"
+      ],
+      "properties": {
+        "engineering_strain": {"type": "number", "minimum": 0},
+        "observed_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "predicted_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "residual_engineering_stress_pa": {"type": "number"},
+        "normalized_residual": {"type": "number"}
+      }
+    },
+    "CalibrationDiagnosticPreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["calibration_candidate_id", "point_count", "returned_point_count", "sampled", "points"],
+      "properties": {
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "returned_point_count": {"type": "integer", "minimum": 2, "maximum": 10000},
+        "sampled": {"type": "boolean"},
+        "points": {"type": "array", "items": {"$ref": "#/$defs/CalibrationDiagnosticPointResponse"}}
+      }
+    },
+    "CalibrationProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:calibration"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-CALIBRATION-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

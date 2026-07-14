@@ -27,6 +27,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260716_018_T20_reference_statistics.py",
         "20260717_019_T21_reference_outlier_assessment.py",
         "20260718_020_T11_reference_import_orchestration.py",
+        "20260719_021_T23_reference_calibration.py",
     ]
 
 

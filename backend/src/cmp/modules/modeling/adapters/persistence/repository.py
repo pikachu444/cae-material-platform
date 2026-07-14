@@ -250,6 +250,32 @@ def _revision_columns(table: sa.Table) -> tuple[Any, ...]:
     )
 
 
+def _content_columns(table: sa.Table) -> tuple[Any, ...]:
+    """Select every explicitly typed IR column needed to reconstruct immutable content."""
+
+    return (
+        table.c.model_family_id,
+        table.c.model_schema_digest,
+        table.c.material_id,
+        table.c.material_revision_id,
+        table.c.material_state_id,
+        table.c.material_state_revision_id,
+        table.c.property_set_id,
+        table.c.property_set_revision_id,
+        table.c.density_kg_per_m3,
+        table.c.youngs_modulus_pa,
+        table.c.poisson_ratio,
+        table.c.source_yield_stress_pa,
+        table.c.applicable_temperature_min_k,
+        table.c.applicable_temperature_max_k,
+        table.c.applicable_strain_rate_min_per_s,
+        table.c.applicable_strain_rate_max_per_s,
+        table.c.applicability_note,
+        table.c.reference_temperature_k,
+        table.c.non_production,
+    )
+
+
 class SqlAlchemyModelingRepository(ModelingRepository):
     """Tenant/RLS-bound source selection and typed Material Model revision persistence."""
 
@@ -394,7 +420,7 @@ class SqlAlchemyModelingRepository(ModelingRepository):
     def _current_statement(self) -> sa.Select[Any]:
         identity = material_model_table
         revision = material_model_revision_table
-        return sa.select(*_revision_columns(revision)).select_from(
+        return sa.select(*_revision_columns(revision), *_content_columns(revision)).select_from(
             identity.join(
                 revision,
                 sa.and_(
@@ -459,7 +485,7 @@ class SqlAlchemyModelingRepository(ModelingRepository):
     ) -> tuple[RevisionSnapshot[ReferenceLinearElasticContent], ...]:
         revision = material_model_revision_table
         statement = (
-            sa.select(*_revision_columns(revision))
+            sa.select(*_revision_columns(revision), *_content_columns(revision))
             .where(
                 revision.c.aggregate_id == material_model_id,
                 revision.c.organization_id == context.organization_id,
@@ -477,3 +503,29 @@ class SqlAlchemyModelingRepository(ModelingRepository):
         if not rows:
             raise ReferenceModelNotFound("Material Model is not visible in the selected tenant")
         return tuple(RevisionSnapshot(_record(row), _content(row)) for row in rows)
+
+    def get_material_model_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearElasticContent]:
+        revision = material_model_revision_table
+        statement = sa.select(*_revision_columns(revision), *_content_columns(revision)).where(
+            revision.c.aggregate_id == material_model_id,
+            revision.c.id == material_model_revision_id,
+            revision.c.organization_id == context.organization_id,
+            revision.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+            except DBAPIError as error:
+                raise ReferenceModelNotFound("Material Model revision is not available") from error
+        if row is None:
+            raise ReferenceModelNotFound(
+                "Material Model revision is not visible in the selected tenant"
+            )
+        return RevisionSnapshot(_record(row), _content(row))

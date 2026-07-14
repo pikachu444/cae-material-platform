@@ -1,8 +1,8 @@
-"""Explicit, immutable one-curve Dataset Selections for the reference processing slice.
+"""Explicit, immutable one-curve Dataset Selections for reference downstream workflows.
 
 The production Selection aggregate will ultimately support ordered multi-curve membership.  The
-first Processing vertical slice deliberately pins exactly one normalized reference tensile Dataset
-revision instead of hiding a future general membership model in JSON or an EAV table.
+first vertical slices deliberately pin exactly one normalized or processed reference tensile
+Dataset revision instead of hiding a future general membership model in JSON or an EAV table.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ def _text(name: str, value: str, maximum: int) -> None:
 
 @dataclass(frozen=True, slots=True)
 class ReferenceDatasetSelectionContent:
-    """One concrete normalized Dataset revision, never a moving Dataset head alias."""
+    """One concrete normalized/processed Dataset revision, never a moving head alias."""
 
     selection_label: str
     dataset_id: UUID
@@ -45,7 +45,7 @@ def reference_dataset_selection_canonical(
     """Canonical typed content for the Selection revision hash."""
 
     return {
-        "selection_kind": "reference_normalized_dataset_revision",
+        "selection_kind": "reference_curve_dataset_revision",
         "selection_label": value.selection_label,
         "member_count": 1,
         "members": [

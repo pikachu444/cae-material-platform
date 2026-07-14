@@ -95,6 +95,15 @@ class ModelingRepository(Protocol):
         material_model_id: UUID,
     ) -> tuple[RevisionSnapshot[ReferenceLinearElasticContent], ...]: ...
 
+    def get_material_model_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearElasticContent]: ...
+
 
 def _reason(value: str) -> str:
     if not value or value != value.strip() or len(value) > 2000 or "\x00" in value:
@@ -116,6 +125,26 @@ def _require_decision(
         or decision.trace_id != context.trace_id
     ):
         raise ReferenceModelConflict("authorization decision does not match Material Model request")
+
+
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    """Authorize a bounded downstream command with an expanded Modeling read capability."""
+
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise ReferenceModelConflict(
+            "authorization decision lacks the required Modeling capability"
+        )
 
 
 class MaterialModelService:
@@ -219,4 +248,21 @@ class MaterialModelService:
             context=context,
             decision=decision,
             material_model_id=material_model_id,
+        )
+
+    def get_material_model_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearElasticContent]:
+        """Expose one fixed IR revision to the authorized Calibration capability."""
+
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_material_model_revision(
+            context=context,
+            decision=decision,
+            material_model_id=material_model_id,
+            material_model_revision_id=material_model_revision_id,
         )
