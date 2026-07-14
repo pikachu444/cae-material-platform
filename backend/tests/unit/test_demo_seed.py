@@ -31,6 +31,8 @@ class _DemoApi:
             return {"items": []}
         if path.endswith("/material-models") or path.endswith("/solver-cards"):
             return {"items": []}
+        if path.endswith("/tabulated-plasticity-models"):
+            return {"items": []}
         if path.endswith("/datasets") or path.endswith("/specimens") or path.endswith("/test-runs"):
             return {"items": []}
         if path == "/test-methods":
@@ -93,6 +95,12 @@ class _DemoApi:
             }
         if path == "/datasets/reference-uniaxial-tensile:import":
             return _resource("dataset_id", "dataset-1", "dataset-r2", {})
+        if path == "/material-states/state-1/tabulated-plasticity-models":
+            return _resource("material_model_id", "plastic-model-1", "plastic-model-r1", {})
+        if path == "/tabulated-plasticity-models/plastic-model-1/mapping-preflight":
+            return {"mapping_report_sha256": "b" * 64}
+        if path == "/tabulated-plasticity-models/plastic-model-1/solver-cards":
+            return _resource("solver_card_id", "plastic-card-1", "plastic-card-r1", {})
         raise AssertionError(f"unexpected POST {path}")
 
     def put_bytes(
@@ -117,3 +125,10 @@ def test_seed_uses_the_protected_material_to_card_and_dataset_http_flow() -> Non
     assert ("post", "/uploads") in api.calls
     assert ("put", "/uploads/upload-1/parts/1") in api.calls
     assert ("post", "/datasets/reference-uniaxial-tensile:import") in api.calls
+    assert ("post", "/material-states/state-1/tabulated-plasticity-models") in api.calls
+    assert api.calls.count(
+        ("post", "/tabulated-plasticity-models/plastic-model-1/mapping-preflight")
+    ) == 2
+    assert api.calls.count(
+        ("post", "/tabulated-plasticity-models/plastic-model-1/solver-cards")
+    ) == 2

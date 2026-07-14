@@ -1,0 +1,426 @@
+from __future__ import annotations
+
+import asyncio
+import hashlib
+from collections.abc import Iterator
+from contextlib import AbstractContextManager, contextmanager
+from datetime import UTC, datetime
+from typing import cast
+from uuid import UUID, uuid4
+
+import pytest
+from cmp.modules.artifacts.application.content import ArtifactService
+from cmp.modules.artifacts.domain.content import (
+    Artifact,
+    ArtifactKind,
+    ArtifactRecord,
+    IntegrityStatus,
+    content_object_key,
+)
+from cmp.modules.datasets.application.service import (
+    CalibrationDatasetSource,
+    DatasetRevisionSnapshot,
+    DatasetService,
+)
+from cmp.modules.datasets.application.service import (
+    RevisionSnapshot as DatasetRevision,
+)
+from cmp.modules.datasets.domain.reference_tensile import (
+    REFERENCE_TENSILE_PARQUET_SCHEMA,
+    CurvePoint,
+    DatasetContent,
+    DatasetRepresentation,
+    ReferenceTensileMapping,
+    normalized_parquet_bytes,
+)
+from cmp.modules.identity_access.application.authorization import database_permissions_for
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+    Permission,
+    Role,
+)
+from cmp.modules.identity_access.domain.security import (
+    Principal,
+    PrincipalType,
+    SecurityContext,
+)
+from cmp.modules.modeling.application.service import (
+    MATERIAL_MODEL_AGGREGATE_TYPE,
+    MaterialModelService,
+    ReferencePropertySource,
+)
+from cmp.modules.modeling.application.tabulated_plasticity import (
+    CreateReferenceTabulatedPlasticityModel,
+    TabulatedPlasticityModelService,
+    TabulatedPlasticityRepository,
+)
+from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import (
+    HardeningPointOrigin,
+    InvalidTabulatedPlasticity,
+    ReferenceIsotropicTabulatedPlasticityContent,
+    hardening_curve_from_parquet,
+    reference_isotropic_tabulated_plasticity_canonical,
+)
+from cmp.modules.modeling.domain.reference_linear_elasticity import ReferenceLinearElasticContent
+from cmp.shared.application.revisions import RevisionStore, RevisionTransaction
+from cmp.shared.domain.revisions import (
+    RevisionCreated,
+    RevisionDraft,
+    RevisionRecord,
+    TenantScope,
+)
+
+NOW = datetime(2026, 7, 26, 10, 0, tzinfo=UTC)
+ORG = UUID("e4000000-0000-4000-8000-000000000001")
+PROJECT = UUID("e4000000-0000-4000-8000-000000000002")
+ACTOR = UUID("e4000000-0000-4000-8000-000000000003")
+STATE = UUID("e4000000-0000-4000-8000-000000000004")
+PROPERTY_SET = UUID("e4000000-0000-4000-8000-000000000005")
+PROPERTY_REVISION = UUID("e4000000-0000-4000-8000-000000000006")
+DATASET = UUID("e4000000-0000-4000-8000-000000000007")
+DATASET_REVISION = UUID("e4000000-0000-4000-8000-000000000008")
+SOURCE_ARTIFACT = UUID("e4000000-0000-4000-8000-000000000009")
+HARDENING_ARTIFACT = UUID("e4000000-0000-4000-8000-00000000000a")
+MODEL = UUID("e4000000-0000-4000-8000-00000000000b")
+TRACE = "00-000000000000000000000000000000e4-00000000000000e4-01"
+
+SOURCE_POINTS = (
+    CurvePoint(0.0, 0.0),
+    CurvePoint(0.001, 210_000_000.0),
+    CurvePoint(0.002, 350_000_000.0),
+    CurvePoint(0.004, 370_000_000.0),
+    CurvePoint(0.02, 450_000_000.0),
+    CurvePoint(0.10, 520_000_000.0),
+    CurvePoint(0.15, 500_000_000.0),
+)
+SOURCE_BYTES = normalized_parquet_bytes(SOURCE_POINTS)
+
+
+def _context() -> SecurityContext:
+    return SecurityContext(
+        principal=Principal(ACTOR, PrincipalType.USER, "Modeler", True),
+        organization_id=ORG,
+        project_id=PROJECT,
+        issuer="https://test-idp.invalid",
+        subject=str(ACTOR),
+        token_id=str(uuid4()),
+        groups=(),
+        scopes=("openid",),
+        request_id=uuid4(),
+        trace_id=TRACE,
+        authenticated_at=NOW,
+    )
+
+
+CONTEXT = _context()
+WRITE = AuthorizationDecision(
+    principal_id=ACTOR,
+    organization_id=ORG,
+    project_id=PROJECT,
+    permission=Permission.MODELING_WRITE,
+    roles=(Role.MATERIAL_MODELER,),
+    database_permissions=database_permissions_for(Permission.MODELING_WRITE),
+    max_classification=DataClassification.INTERNAL,
+    allow_export_controlled=False,
+    request_id=CONTEXT.request_id,
+    trace_id=TRACE,
+    decided_at=NOW,
+)
+
+
+def _artifact(
+    artifact_id: UUID,
+    value: bytes,
+    *,
+    role: str,
+    schema_ref: str,
+) -> ArtifactRecord:
+    digest = hashlib.sha256(value).hexdigest()
+    return ArtifactRecord(
+        Artifact(
+            id=artifact_id,
+            organization_id=ORG,
+            project_id=PROJECT,
+            classification=DataClassification.INTERNAL,
+            artifact_kind=ArtifactKind.DERIVED,
+            artifact_role=role,
+            schema_ref=schema_ref,
+            media_type="application/vnd.apache.parquet",
+            size_bytes=len(value),
+            sha256=digest,
+            storage_key=content_object_key(
+                ORG,
+                PROJECT,
+                DataClassification.INTERNAL,
+                digest,
+            ),
+            encryption_profile="test",
+            source_raw_asset_id=None,
+            source_pending_id=uuid4(),
+            created_at=NOW,
+            created_by=ACTOR,
+        ),
+        IntegrityStatus.VERIFIED,
+        NOW,
+        uuid4(),
+    )
+
+
+SOURCE_RECORD = _artifact(
+    SOURCE_ARTIFACT,
+    SOURCE_BYTES,
+    role="dataset.normalized_curve",
+    schema_ref=REFERENCE_TENSILE_PARQUET_SCHEMA,
+)
+
+
+def _dataset_source() -> CalibrationDatasetSource:
+    content = DatasetContent(
+        test_run_id=UUID("e4000000-0000-4000-8000-000000000010"),
+        test_run_revision_id=UUID("e4000000-0000-4000-8000-000000000011"),
+        raw_asset_id=UUID("e4000000-0000-4000-8000-000000000012"),
+        raw_artifact_id=UUID("e4000000-0000-4000-8000-000000000013"),
+        data_artifact_id=SOURCE_ARTIFACT,
+        data_sha256=SOURCE_RECORD.artifact.sha256,
+        representation=DatasetRepresentation.NORMALIZED,
+        source_dataset_revision_id=UUID("e4000000-0000-4000-8000-000000000014"),
+        point_count=len(SOURCE_POINTS),
+        mapping=ReferenceTensileMapping("strain", "stress", "1", "Pa"),
+    )
+    record = RevisionRecord(
+        revision_id=DATASET_REVISION,
+        aggregate_type="datasets.dataset",
+        aggregate_id=DATASET,
+        scope=TenantScope(ORG, PROJECT, DataClassification.INTERNAL.value),
+        revision_no=2,
+        based_on_revision_id=content.source_dataset_revision_id,
+        schema_id="urn:cmp:datasets:reference-uniaxial-tensile:1.0.0",
+        schema_version="1.0.0",
+        content_hash="b" * 64,
+        created_at=NOW,
+        created_by=ACTOR,
+        change_reason="normalize source curve",
+        request_id=CONTEXT.request_id,
+        trace_id=TRACE,
+    )
+    return CalibrationDatasetSource(
+        DatasetRevisionSnapshot(DATASET, DatasetRevision(record, content)),
+        STATE,
+    )
+
+
+class _MaterialModels:
+    def get_reference_property_source_for_tabulated_plasticity(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        material_state_id: UUID,
+        property_set_revision_id: UUID,
+    ) -> ReferencePropertySource:
+        assert context is CONTEXT and decision is WRITE
+        assert material_state_id == STATE and property_set_revision_id == PROPERTY_REVISION
+        return ReferencePropertySource(
+            DataClassification.INTERNAL,
+            ReferenceLinearElasticContent(
+                material_id=UUID("e4000000-0000-4000-8000-000000000020"),
+                material_revision_id=UUID("e4000000-0000-4000-8000-000000000021"),
+                material_state_id=STATE,
+                material_state_revision_id=UUID(
+                    "e4000000-0000-4000-8000-000000000022"
+                ),
+                property_set_id=PROPERTY_SET,
+                property_set_revision_id=PROPERTY_REVISION,
+                density_kg_per_m3=7_850.0,
+                youngs_modulus_pa=210_000_000_000.0,
+                poisson_ratio=0.3,
+                source_yield_stress_pa=355_000_000.0,
+            ),
+        )
+
+
+class _Datasets:
+    def get_calibration_dataset_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> CalibrationDatasetSource:
+        assert context is CONTEXT and decision is WRITE
+        assert dataset_revision_id == DATASET_REVISION
+        return _dataset_source()
+
+
+class _Artifacts:
+    def __init__(self) -> None:
+        self.hardening_bytes: bytes | None = None
+
+    async def read_verified_bytes(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+        *,
+        maximum_bytes: int,
+    ) -> tuple[ArtifactRecord, bytes]:
+        assert context is CONTEXT and decision is WRITE
+        assert artifact_id == SOURCE_ARTIFACT and maximum_bytes >= len(SOURCE_BYTES)
+        return SOURCE_RECORD, SOURCE_BYTES
+
+    async def finalize_derived_bytes(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        classification: DataClassification,
+        artifact_role: str,
+        schema_ref: str,
+        media_type: str,
+        value: bytes,
+        idempotency_key: str,
+    ) -> ArtifactRecord:
+        assert context is CONTEXT and decision is WRITE
+        assert classification is DataClassification.INTERNAL
+        assert artifact_role == "modeling.hardening_curve"
+        assert media_type == "application/vnd.apache.parquet"
+        assert idempotency_key.startswith("modeling-hardening:")
+        self.hardening_bytes = value
+        return _artifact(HARDENING_ARTIFACT, value, role=artifact_role, schema_ref=schema_ref)
+
+
+class _Transaction(RevisionTransaction[ReferenceIsotropicTabulatedPlasticityContent]):
+    def __init__(self, repository: _Repository) -> None:
+        self.repository = repository
+
+    def create(
+        self, draft: RevisionDraft[ReferenceIsotropicTabulatedPlasticityContent]
+    ) -> RevisionRecord:
+        record = RevisionRecord(
+            revision_id=draft.revision_id,
+            aggregate_type=draft.aggregate_type,
+            aggregate_id=draft.aggregate_id,
+            scope=draft.scope,
+            revision_no=1,
+            based_on_revision_id=None,
+            schema_id=draft.schema_id,
+            schema_version=draft.schema_version,
+            content_hash=draft.content_hash,
+            created_at=draft.created_at,
+            created_by=draft.created_by,
+            change_reason=draft.change_reason,
+            request_id=draft.request_id,
+            trace_id=draft.trace_id,
+        )
+        self.repository.content = draft.content
+        self.repository.record = record
+        return record
+
+    def revise(
+        self,
+        draft: RevisionDraft[ReferenceIsotropicTabulatedPlasticityContent],
+        expected_current_revision_id: UUID,
+    ) -> RevisionRecord:
+        del draft, expected_current_revision_id
+        raise AssertionError("this slice creates a new stable model identity")
+
+    def stage(self, event: RevisionCreated) -> None:
+        self.repository.event = event
+
+
+class _Store(RevisionStore[ReferenceIsotropicTabulatedPlasticityContent]):
+    def __init__(self, repository: _Repository) -> None:
+        self.repository = repository
+
+    def canonical_content(self, content: ReferenceIsotropicTabulatedPlasticityContent) -> object:
+        return reference_isotropic_tabulated_plasticity_canonical(content)
+
+    def transaction(
+        self,
+    ) -> AbstractContextManager[
+        RevisionTransaction[ReferenceIsotropicTabulatedPlasticityContent]
+    ]:
+        return self._transaction()
+
+    @contextmanager
+    def _transaction(
+        self,
+    ) -> Iterator[RevisionTransaction[ReferenceIsotropicTabulatedPlasticityContent]]:
+        yield _Transaction(self.repository)
+
+
+class _Repository:
+    def __init__(self) -> None:
+        self.content: ReferenceIsotropicTabulatedPlasticityContent | None = None
+        self.record: RevisionRecord | None = None
+        self.event: RevisionCreated | None = None
+        self.store = _Store(self)
+
+    def material_model_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceIsotropicTabulatedPlasticityContent]:
+        assert context is CONTEXT and decision is WRITE
+        return self.store
+
+
+def _service(repository: _Repository, artifacts: _Artifacts) -> TabulatedPlasticityModelService:
+    return TabulatedPlasticityModelService(
+        repository=cast(TabulatedPlasticityRepository, repository),
+        material_models=cast(MaterialModelService, _MaterialModels()),
+        datasets=cast(DatasetService, _Datasets()),
+        artifacts=cast(ArtifactService, artifacts),
+        id_factory=lambda: MODEL,
+    )
+
+
+def _command(*, acknowledge: bool = True) -> CreateReferenceTabulatedPlasticityModel:
+    return CreateReferenceTabulatedPlasticityModel(
+        material_state_id=STATE,
+        property_set_revision_id=PROPERTY_REVISION,
+        dataset_revision_id=DATASET_REVISION,
+        extension_max_true_plastic_strain=0.25,
+        acknowledge_post_necking_approximation=acknowledge,
+        change_reason="derive explicit pre-necking reference hardening curve",
+    )
+
+
+def test_service_pins_sources_and_persists_the_explicit_hardening_artifact() -> None:
+    repository = _Repository()
+    artifacts = _Artifacts()
+
+    snapshot = asyncio.run(_service(repository, artifacts).create_model(CONTEXT, WRITE, _command()))
+
+    assert snapshot.id == MODEL
+    assert snapshot.current.record.aggregate_type == MATERIAL_MODEL_AGGREGATE_TYPE
+    content = snapshot.current.content
+    assert content.property_set_revision_id == PROPERTY_REVISION
+    assert content.source_dataset_id == DATASET
+    assert content.source_dataset_revision_id == DATASET_REVISION
+    assert content.hardening_curve_artifact_id == HARDENING_ARTIFACT
+    assert content.necking_engineering_strain == pytest.approx(0.10)
+    assert content.characterized_max_true_plastic_strain < 0.25
+    assert content.extension_max_true_plastic_strain == 0.25
+    assert content.post_necking_approximation_acknowledged is True
+    assert artifacts.hardening_bytes is not None
+    points = hardening_curve_from_parquet(artifacts.hardening_bytes)
+    assert points[0].origin is HardeningPointOrigin.CATALOG_YIELD_ANCHOR
+    assert points[-1].origin is HardeningPointOrigin.APPROVED_CONSTANT_EXTENSION
+    assert points[-1].true_yield_stress_pa == points[-2].true_yield_stress_pa
+    assert repository.event is not None
+
+
+def test_service_rejects_unacknowledged_post_necking_extension_before_persistence() -> None:
+    repository = _Repository()
+    artifacts = _Artifacts()
+
+    with pytest.raises(InvalidTabulatedPlasticity, match="explicitly acknowledged"):
+        asyncio.run(
+            _service(repository, artifacts).create_model(
+                CONTEXT,
+                WRITE,
+                _command(acknowledge=False),
+            )
+        )
+
+    assert repository.content is None
+    assert artifacts.hardening_bytes is None

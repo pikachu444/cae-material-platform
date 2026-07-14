@@ -630,3 +630,67 @@ def test_solver_card_is_source_pinned_immutable_provenanced_and_tenant_scoped(
         )
     assert lifecycle_count == provenance_count == audit_count == 1
     assert usage_count == derivation_count == 1
+
+
+def test_elastoplastic_migration_installs_typed_scoped_constraints_and_guards(
+    postgres: PostgresHarness,
+) -> None:
+    with postgres.admin_engine.connect() as connection:
+        constraints: dict[str, str] = {
+            str(row[0]): str(row[1])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT c.conname, pg_get_constraintdef(c.oid) "
+                    "FROM pg_constraint AS c "
+                    "JOIN pg_class AS t ON t.oid = c.conrelid "
+                    "JOIN pg_namespace AS n ON n.oid = t.relnamespace "
+                    "WHERE (n.nspname, t.relname) IN "
+                    "(('modeling', 'material_model_revision'), "
+                    " ('exporting', 'solver_card_revision'))"
+                )
+            ).all()
+        }
+        triggers = {
+            row[0]
+            for row in connection.execute(
+                sa.text(
+                    "SELECT tgname FROM pg_trigger AS g "
+                    "JOIN pg_class AS t ON t.oid = g.tgrelid "
+                    "JOIN pg_namespace AS n ON n.oid = t.relnamespace "
+                    "WHERE NOT g.tgisinternal AND (n.nspname, t.relname) IN "
+                    "(('modeling', 'material_model_revision'), "
+                    " ('exporting', 'solver_card_revision'))"
+                )
+            ).all()
+        }
+        rls: dict[str, bool] = {
+            str(row[0]): bool(row[1])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT n.nspname || '.' || t.relname, t.relrowsecurity "
+                    "FROM pg_class AS t "
+                    "JOIN pg_namespace AS n ON n.oid = t.relnamespace "
+                    "WHERE (n.nspname, t.relname) IN "
+                    "(('modeling', 'material_model_revision'), "
+                    " ('exporting', 'solver_card_revision'))"
+                )
+            ).all()
+        }
+
+    model_source_fk = constraints["fk_modeling_material_model_plastic_dataset_revision"]
+    curve_artifact_fk = constraints["fk_modeling_material_model_hardening_artifact"]
+    card_artifact_fk = constraints["fk_exporting_solver_card_hardening_artifact"]
+    for definition in (model_source_fk, curve_artifact_fk, card_artifact_fk):
+        assert "organization_id" in definition
+        assert "project_id" in definition
+        assert "classification" in definition
+        assert "ON DELETE RESTRICT" in definition
+    assert "source_point_count" in constraints[
+        "ck_modeling_material_model_plastic_counts"
+    ]
+    assert "modeling_material_model_family_stable" in triggers
+    assert "modeling_material_model_hardening_artifact_valid" in triggers
+    assert rls == {
+        "exporting.solver_card_revision": True,
+        "modeling.material_model_revision": True,
+    }

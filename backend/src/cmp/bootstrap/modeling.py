@@ -15,9 +15,15 @@ from cmp.modules.modeling.adapters.persistence.candidate_selection_repository im
     SqlAlchemyCandidateSelectionRepository,
 )
 from cmp.modules.modeling.adapters.persistence.repository import SqlAlchemyModelingRepository
+from cmp.modules.modeling.adapters.persistence.tabulated_plasticity_repository import (
+    SqlAlchemyTabulatedPlasticityRepository,
+)
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.service import MaterialModelService
+from cmp.modules.modeling.application.tabulated_plasticity import (
+    TabulatedPlasticityModelService,
+)
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 
@@ -60,6 +66,39 @@ def build_reference_calibration_service(
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
     return ReferenceCalibrationService(
         repository=SqlAlchemyCalibrationRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        datasets=datasets,
+        material_models=material_models,
+        artifacts=artifacts,
+    )
+
+
+def build_tabulated_plasticity_model_service(
+    identity: IdentityServices,
+    datasets: DatasetService | None,
+    material_models: MaterialModelService | None,
+    artifacts: ArtifactService | None,
+) -> TabulatedPlasticityModelService | None:
+    """Compose the explicit Dataset-to-elastoplastic-IR projection."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or datasets is None
+        or material_models is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return TabulatedPlasticityModelService(
+        repository=SqlAlchemyTabulatedPlasticityRepository(
             session_factory=sessions,
             rls_context=identity.rls_context,
             revision_hooks=(

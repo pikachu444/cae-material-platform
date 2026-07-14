@@ -417,6 +417,77 @@ def test_solver_card_contract_and_runtime_expose_preflight_preview_and_download(
     assert {"items", "mapping_report_sha256", "exportable"}.issubset(report["required"])
 
 
+def test_elastoplastic_multisolver_contract_exposes_processing_evidence_and_two_cards() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/material-states/{material_state_id}/tabulated-plasticity-models": {
+            "get": "listReferenceTabulatedPlasticityModels",
+            "post": "createReferenceTabulatedPlasticityModel",
+        },
+        "/api/v1/tabulated-plasticity-models/{material_model_id}": {
+            "get": "getReferenceTabulatedPlasticityModel"
+        },
+        "/api/v1/tabulated-plasticity-models/{material_model_id}/hardening-curve": {
+            "get": "getReferenceTabulatedPlasticityHardeningCurve"
+        },
+        "/api/v1/exporters/reference-elastoplastic/capabilities": {
+            "get": "getReferenceElastoplasticExporterCapabilities"
+        },
+        "/api/v1/tabulated-plasticity-models/{material_model_id}/mapping-preflight": {
+            "post": "preflightReferenceElastoplasticMapping"
+        },
+        "/api/v1/tabulated-plasticity-models/{material_model_id}/solver-cards": {
+            "get": "listReferenceElastoplasticSolverCards",
+            "post": "createReferenceElastoplasticSolverCard",
+        },
+        "/api/v1/elastoplastic-solver-cards/{solver_card_id}/preview": {
+            "get": "previewReferenceElastoplasticSolverCard"
+        },
+        "/api/v1/elastoplastic-solver-cards/{solver_card_id}/download": {
+            "get": "downloadReferenceElastoplasticSolverCard"
+        },
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    modeling = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/modeling/reference-tabulated-plasticity-resources.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    exporting = json.loads(
+        (
+            PROJECT_ROOT
+            / "contracts/exporting/reference-elastoplastic-resources.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    modeling_text = json.dumps(modeling)
+    exporting_text = json.dumps(exporting)
+    model_content = runtime["components"]["schemas"]["TabulatedPlasticityContentResponse"]
+    card_content = runtime["components"]["schemas"]["ElastoplasticCardContentResponse"]
+    report = runtime["components"]["schemas"]["ElastoplasticMappingReportResponse"]
+
+    assert {
+        "source_point_count",
+        "pre_yield_excluded_point_count",
+        "post_necking_excluded_point_count",
+        "necking_source_point_index",
+        "applicability",
+    }.issubset(model_content["required"])
+    assert "card_text" not in card_content["properties"]
+    assert "approximated" in report["properties"]["items"]["items"]["$ref"] or (
+        "approximated" in exporting_text
+    )
+    assert '"openradioss"' in exporting_text and '"abaqus"' in exporting_text
+    assert '"key"' not in modeling_text and '"value"' not in modeling_text
+    assert '"key"' not in exporting_text and '"value"' not in exporting_text
+
+
 def test_reference_tensile_contract_and_runtime_expose_typed_test_dataset_workflow() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

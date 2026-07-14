@@ -13,12 +13,16 @@ from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import build_catalog_service
 from cmp.bootstrap.datasets import build_dataset_service
 from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
-from cmp.bootstrap.exporting import build_solver_card_service
+from cmp.bootstrap.exporting import (
+    build_elastoplastic_solver_card_service,
+    build_solver_card_service,
+)
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
     build_material_model_service,
     build_reference_calibration_service,
+    build_tabulated_plasticity_model_service,
 )
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import build_processing_service
@@ -44,7 +48,13 @@ from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
 from cmp.modules.datasets.application.service import DatasetService
+from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
+    install_elastoplastic_solver_card_api,
+)
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
+from cmp.modules.exporting.application.elastoplastic_service import (
+    ElastoplasticSolverCardService,
+)
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
@@ -58,9 +68,15 @@ from cmp.modules.jobs.application.jobs import JobService
 from cmp.modules.modeling.adapters.api.calibration import install_calibration_api
 from cmp.modules.modeling.adapters.api.candidate_selection import install_candidate_selection_api
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
+from cmp.modules.modeling.adapters.api.tabulated_plasticity import (
+    install_tabulated_plasticity_api,
+)
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.service import MaterialModelService
+from cmp.modules.modeling.application.tabulated_plasticity import (
+    TabulatedPlasticityModelService,
+)
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.processing.adapters.api.processing import install_processing_api
@@ -108,9 +124,11 @@ def create_app(
     processing_service: ProcessingService | None = None,
     statistics_service: StatisticsService | None = None,
     material_model_service: MaterialModelService | None = None,
+    tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
     candidate_selection_service: CandidateSelectionService | None = None,
     solver_card_service: SolverCardService | None = None,
+    elastoplastic_solver_card_service: ElastoplasticSolverCardService | None = None,
     validation_service: ReferenceValidationService | None = None,
     review_service: ReviewService | None = None,
     release_service: ReleaseService | None = None,
@@ -302,6 +320,26 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_tabulated_plasticity = (
+        tabulated_plasticity_model_service
+        or build_tabulated_plasticity_model_service(
+            services,
+            resolved_datasets,
+            resolved_material_models,
+            resolved_artifacts,
+        )
+    )
+    install_tabulated_plasticity_api(
+        application,
+        service=resolved_tabulated_plasticity,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+    )
     resolved_calibration = calibration_service or build_reference_calibration_service(
         services,
         resolved_datasets,
@@ -342,6 +380,24 @@ def create_app(
     install_solver_card_api(
         application,
         service=resolved_solver_cards,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_EXECUTE
+        ),
+    )
+    resolved_elastoplastic_solver_cards = (
+        elastoplastic_solver_card_service
+        or build_elastoplastic_solver_card_service(
+            services,
+            resolved_tabulated_plasticity,
+        )
+    )
+    install_elastoplastic_solver_card_api(
+        application,
+        service=resolved_elastoplastic_solver_cards,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.EXPORT_READ
@@ -404,9 +460,13 @@ def create_app(
     application.state.processing_service = resolved_processing
     application.state.statistics_service = resolved_statistics
     application.state.material_model_service = resolved_material_models
+    application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
+    application.state.elastoplastic_solver_card_service = (
+        resolved_elastoplastic_solver_cards
+    )
     application.state.validation_service = resolved_validation
     application.state.review_service = resolved_review
     application.state.release_service = resolved_release
