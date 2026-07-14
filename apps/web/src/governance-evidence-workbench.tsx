@@ -2,6 +2,7 @@ import { type FormEvent, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+  findProvenanceEntityByReference,
   getAuditIntegrity,
   getProvenanceCompleteness,
   getProvenanceEntity,
@@ -146,6 +147,8 @@ function AuditEvents({ events }: { events: AuditEvent[] }) {
 
 export function GovernanceEvidenceWorkbench({ config }: { config: ApiConfig }) {
   const [entityId, setEntityId] = useState("");
+  const [referenceType, setReferenceType] = useState("exporting.solver_card.revision");
+  const [referenceId, setReferenceId] = useState("");
   const [targetEntityType, setTargetEntityType] = useState("");
   const [maxDepth, setMaxDepth] = useState("10");
   const [limit, setLimit] = useState("100");
@@ -171,6 +174,28 @@ export function GovernanceEvidenceWorkbench({ config }: { config: ApiConfig }) {
       limit: pageLimit,
       target_entity_type: targetEntityType.trim() || null,
     };
+  }
+
+  async function resolveReference(): Promise<void> {
+    if (!referenceType.trim() || !referenceId.trim()) return;
+    setBusy("reference");
+    setError(null);
+    try {
+      const result = await findProvenanceEntityByReference(
+        config,
+        referenceType,
+        referenceId,
+      );
+      setEntity(result.data);
+      setEntityId(result.data.entity_id);
+      setLineage(null);
+      setImpact(null);
+      setCompleteness(null);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function inspectEntity(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -266,8 +291,16 @@ export function GovernanceEvidenceWorkbench({ config }: { config: ApiConfig }) {
       <form className="form-stack" onSubmit={(event) => void inspectEntity(event)}>
         <div className="form-grid">
           <label>
+            Typed reference type
+            <input value={referenceType} onChange={(event) => setReferenceType(event.target.value)} placeholder="e.g. exporting.solver_card.revision" />
+          </label>
+          <label>
+            Typed reference ID
+            <input value={referenceId} onChange={(event) => setReferenceId(event.target.value)} placeholder="Revision or artifact UUID" />
+          </label>
+          <label>
             Provenance Entity ID
-            <input value={entityId} onChange={(event) => setEntityId(event.target.value)} placeholder="UUID from a revision or artifact evidence link" required />
+            <input value={entityId} onChange={(event) => setEntityId(event.target.value)} placeholder="Resolved Entity UUID (or paste one)" required />
           </label>
           <label>
             Target entity type (optional)
@@ -284,6 +317,7 @@ export function GovernanceEvidenceWorkbench({ config }: { config: ApiConfig }) {
         </div>
         {error ? <p className="error-notice" role="alert">{error}</p> : null}
         <div className="form-actions">
+          <button className="button secondary" type="button" onClick={() => void resolveReference()} disabled={busy !== null || !referenceType.trim() || !referenceId.trim()}>{busy === "reference" ? "Resolving…" : "Resolve typed reference"}</button>
           <button className="button primary" type="submit" disabled={busy !== null || !entityId.trim()}>{busy === "entity" ? "Loading entity…" : "Inspect entity"}</button>
           <button className="button secondary" type="button" onClick={() => void loadLineage("upstream")} disabled={busy !== null || !entityId.trim()}>{busy === "upstream" ? "Loading…" : "Load upstream lineage"}</button>
           <button className="button secondary" type="button" onClick={() => void loadLineage("downstream")} disabled={busy !== null || !entityId.trim()}>{busy === "downstream" ? "Loading…" : "Load downstream impact"}</button>

@@ -155,6 +155,19 @@ class _Repository:
             raise ProvenanceNotFound(str(entity_id))
         return _record()
 
+    def find_entity_by_reference(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        reference_type: str,
+        reference_id: UUID,
+    ) -> ProvenanceRecord:
+        del context, decision
+        if reference_type != "synthetic.dataset_revision" or reference_id != REFERENCE:
+            raise ProvenanceNotFound(f"{reference_type}:{reference_id}")
+        return _record()
+
     def load_lineage_graph(
         self,
         *,
@@ -243,6 +256,16 @@ def test_provenance_entity_contract_exposes_no_database_details() -> None:
     serialized = response.text
     assert "domain_ref_table" not in serialized
     assert "storage_key" not in serialized
+
+
+def test_provenance_entity_can_be_resolved_from_typed_reference() -> None:
+    response = _request(
+        f"/api/v1/provenance/entities/by-reference?reference_type=synthetic.dataset_revision&reference_id={REFERENCE}"
+    )
+
+    assert response.status_code == 200
+    assert response.json()["entity_id"] == str(ENTITY)
+    assert response.json()["reference"]["id"] == str(REFERENCE)
 
 
 def test_provenance_api_sanitizes_unknown_and_invalid_identifier() -> None:

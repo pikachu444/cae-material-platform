@@ -746,6 +746,10 @@ def test_provenance_contract_and_runtime_expose_read_only_entity_lookup() -> Non
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()
     operations = {
+        "/api/v1/provenance/entities/by-reference": (
+            "get",
+            "findProvenanceEntityByReference",
+        ),
         "/api/v1/provenance/entities/{entity_id}": (
             "get",
             "getProvenanceEntity",

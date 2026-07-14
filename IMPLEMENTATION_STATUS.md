@@ -103,8 +103,8 @@ Foundation version: `0.27.0`
   Audit Inspector alongside the Review and Release workbenches. It loads one immutable provenance
   Entity, bounded upstream lineage or downstream impact, completeness, audit events, and audit
   integrity with explicit truncation/invalid warnings. No graph is reconstructed client-side and
-  no audit payload, object key, or tenant scope is exposed; the inspector accepts the explicit
-  provenance Entity UUID from an evidence link.
+  no audit payload, object key, or tenant scope is exposed; the inspector resolves a typed immutable
+  revision/artifact reference to the opaque Entity UUID or accepts that UUID directly.
 - Local demo composition: an explicit `CMP_ENVIRONMENT=demo` + `CMP_DEMO_IDENTITY=true` Docker
   Compose profile now runs PostgreSQL, owner-only migration/bootstrap, a non-owner `cmp_app` API,
   worker, React workbench, filesystem object storage, checked reference-plugin asset, and an

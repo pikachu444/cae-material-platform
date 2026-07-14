@@ -684,6 +684,18 @@ export function getProvenanceEntity(
   return request(config, `/provenance/entities/${encodeURIComponent(entityId)}`);
 }
 
+export function findProvenanceEntityByReference(
+  config: ApiConfig,
+  referenceType: string,
+  referenceId: string,
+): Promise<ApiResult<ProvenanceEntityResponse>> {
+  const query = new URLSearchParams({
+    reference_type: referenceType.trim(),
+    reference_id: referenceId.trim(),
+  });
+  return request(config, `/provenance/entities/by-reference?${query.toString()}`);
+}
+
 interface ProvenanceGraphQuery {
   max_depth?: number;
   limit?: number;

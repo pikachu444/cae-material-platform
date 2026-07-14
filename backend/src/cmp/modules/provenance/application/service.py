@@ -76,6 +76,15 @@ class ProvenanceRepository(Protocol):
         entity_id: UUID,
     ) -> ProvenanceRecord: ...
 
+    def find_entity_by_reference(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        reference_type: str,
+        reference_id: UUID,
+    ) -> ProvenanceRecord: ...
+
 def _reference_document(reference: ImmutableEntityReference) -> dict[str, str]:
     return {
         "kind": reference.kind.value,
@@ -283,4 +292,22 @@ class ProvenanceService:
             context=context,
             decision=decision,
             entity_id=entity_id,
+        )
+
+    def find_entity_by_reference(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        reference_type: str,
+        reference_id: UUID,
+    ) -> ProvenanceRecord:
+        self._assert_scope(context, decision)
+        if decision.permission is not Permission.PROVENANCE_READ:
+            raise ProvenanceConflict("entity lookup requires provenance.read")
+        return self._repository.find_entity_by_reference(
+            context=context,
+            decision=decision,
+            reference_type=reference_type,
+            reference_id=reference_id,
         )

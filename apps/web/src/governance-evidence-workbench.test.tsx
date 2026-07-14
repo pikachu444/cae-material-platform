@@ -74,4 +74,39 @@ describe("Governance evidence workbench", () => {
     expect(await screen.findByText("Audit integrity")).toBeTruthy();
     expect(fetchMock.mock.calls[2]?.[0]).toBe("/api/v1/audit/integrity");
   });
+
+  it("resolves a revision reference before opening the evidence path", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({
+      entity_id: entityId,
+      organization_id: "00000000-0000-0000-0000-000000000002",
+      project_id: "00000000-0000-0000-0000-000000000003",
+      classification: "internal",
+      entity_type: "exporting.solver_card.revision",
+      reference: {
+        kind: "revision",
+        type: "exporting.solver_card.revision",
+        id: "00000000-0000-0000-0000-000000000004",
+        sha256: "a".repeat(64),
+      },
+      generation_requirement: "primary",
+      generation_activity_id: null,
+      created_at: "2026-07-25T00:00:00Z",
+      recorded_at: "2026-07-25T00:00:00Z",
+      recorded_by: "00000000-0000-0000-0000-000000000005",
+      completeness: { state: "complete", issues: [] },
+      links: { self: "", lineage: "", impact: "", completeness: "" },
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<GovernanceEvidenceWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} />);
+    fireEvent.change(screen.getByLabelText("Typed reference ID"), {
+      target: { value: "00000000-0000-0000-0000-000000000004" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Resolve typed reference" }));
+
+    expect(await screen.findByText("exporting.solver_card.revision")).toBeTruthy();
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/provenance/entities/by-reference?");
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("reference_type=exporting.solver_card.revision");
+    expect(screen.getByDisplayValue(entityId)).toBeTruthy();
+  });
 });

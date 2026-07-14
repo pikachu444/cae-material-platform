@@ -609,6 +609,54 @@ class SqlAlchemyProvenanceRepository:
             )
             return ProvenanceRecord(entity, generation_id, completeness)
 
+    def find_entity_by_reference(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        reference_type: str,
+        reference_id: UUID,
+    ) -> ProvenanceRecord:
+        with self._sessions() as session, session.begin():
+            self._bind(session, context, decision)
+            row = (
+                session.execute(
+                    sa.select(
+                        entity_table,
+                        generation_table.c.activity_id.label("generation_activity_id"),
+                    )
+                    .outerjoin(
+                        generation_table,
+                        sa.and_(
+                            generation_table.c.organization_id == entity_table.c.organization_id,
+                            generation_table.c.project_id == entity_table.c.project_id,
+                            generation_table.c.entity_id == entity_table.c.id,
+                        ),
+                    )
+                    .where(
+                        entity_table.c.reference_type == reference_type,
+                        entity_table.c.reference_id == reference_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise ProvenanceNotFound(f"{reference_type}:{reference_id}")
+            entity = _entity(row)
+            generation_id = cast(UUID | None, row["generation_activity_id"])
+            issues = (
+                ("missing_primary_generation",)
+                if entity.generation_requirement is GenerationRequirement.PRIMARY
+                and generation_id is None
+                else ()
+            )
+            completeness = EntityCompleteness(
+                state=(CompletenessState.INCOMPLETE if issues else CompletenessState.COMPLETE),
+                issues=issues,
+            )
+            return ProvenanceRecord(entity, generation_id, completeness)
+
     def load_lineage_graph(
         self,
         *,
