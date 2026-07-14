@@ -663,3 +663,10 @@ approval/release, uncertainty, and solver validation remain outside this bounded
 - **테스트:** 단위—mapping/parser/units; 통합—IR→solver→metrics; 회귀—golden card/licensed solver fixtures.
 - **담당:** Software/CAE Automation 구현; Solver/CAE Domain Expert 주 승인.
 
+### T-30 implementation note (2026-07-24)
+
+The bounded reference Release slice is implemented: explicit PostgreSQL Release, Release Manifest,
+and package Artifact rows; fail-closed candidate/review/validation/mapping checks; protected
+create/list/read/download API; React Release workbench; and unit, integration, contract, and
+migration regression coverage. The channel is intentionally `reference` only; supersede/withdraw
+and production publication remain T-31+.

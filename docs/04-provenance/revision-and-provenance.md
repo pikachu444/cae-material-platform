@@ -306,4 +306,11 @@ Release 전 자동 검사한다.
     Decision is append-only, records the separated reviewer and exact digest, advances the shared
     lifecycle projection transactionally, and never mutates the candidate. `changes_requested`
     applies only to that revision; resubmission requires a newly created revision.
+13. a T-30 reference Release pins one explicit candidate manifest: Material/State/Property
+    revisions, Material Model IR revision, Solver Card and mapping/card digests, a passed
+    Validation Result, the approved T-29 Review Request/Decision digest, and a provenance snapshot
+    digest. The Release Manifest and package Artifact are immutable and tenant/classification scoped;
+    the completeness gate rejects stale, draft, unsupported, approximated, cross-tenant, or
+    partially approved inputs. The reference package is not a production object-store publication
+    and has no supersede/withdraw transition until T-31.
 

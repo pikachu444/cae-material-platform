@@ -6,7 +6,7 @@ immutable content Artifact, typed provenance and bounded lineage, append-only au
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
 
-Version: `0.24.0`
+Version: `0.25.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -488,3 +488,12 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
 - Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012`, `ADR-013`, `ADR-014`, `ADR-015` (with `ADR-005` as a scope guard)
 
+## T-30 reference Release channel
+
+T-30 adds a bounded Release completeness gate to the product vertical slice. A Release is an
+immutable `reference` package created only from one typed Material Model revision, non-production
+Solver Card revision, passed Validation Result, approved T-29 Review digest, and provenance
+snapshot. The protected API and React workbench expose create/list/read/download operations, and
+the package stores explicit component identities and SHA-256 digests. Draft, cross-tenant,
+unsupported, approximated, stale, or partially approved inputs are rejected. Supersede/withdraw
+and production object-store publication remain outside this reference channel.

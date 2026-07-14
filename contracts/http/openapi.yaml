@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.24.0
+  version: 0.25.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -3371,6 +3371,92 @@ paths:
         "409": {description: Stale digest, author-only decision, duplicate decision, or lifecycle conflict.}
         "422": {description: Typed decision input is invalid.}
         "503": {description: Review service unavailable.}
+  /api/v1/releases:
+    post:
+      operationId: createRelease
+      tags: [governance, release]
+      summary: Create one immutable reference Release after the typed completeness gate passes.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../governance/release-resources.schema.json#/$defs/CreateReleaseRequest"}
+      responses:
+        "201":
+          description: Immutable digest-fixed Release manifest.
+          content:
+            application/json:
+              schema: {$ref: "../governance/release-resources.schema.json#/$defs/ReleaseResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Release publish is not authorized.}
+        "404": {description: No visible source component matches.}
+        "409": {description: Completeness, integrity, approval, or identity gate rejected the release.}
+        "422": {description: Typed release input is invalid.}
+        "503": {description: Release service unavailable.}
+    get:
+      operationId: listReleases
+      tags: [governance, release]
+      summary: List immutable reference Releases visible in the selected tenant.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Tenant-visible immutable Releases.
+          content:
+            application/json:
+              schema: {$ref: "../governance/release-resources.schema.json#/$defs/ReleaseListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Release read is not authorized.}
+        "503": {description: Release service unavailable.}
+  /api/v1/releases/{release_id}:
+    get:
+      operationId: getRelease
+      tags: [governance, release]
+      summary: Read one immutable reference Release manifest.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: release_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable Release manifest and component digests.
+          content:
+            application/json:
+              schema: {$ref: "../governance/release-resources.schema.json#/$defs/ReleaseResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Release read is not authorized.}
+        "404": {description: No visible Release matches.}
+        "503": {description: Release service unavailable.}
+  /api/v1/releases/{release_id}/download:
+    get:
+      operationId: downloadRelease
+      tags: [governance, release]
+      summary: Download the immutable reference Release package.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: release_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Digest-fixed Release manifest package bytes.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/vnd.cmp.release-manifest+json:
+              schema: {type: string, format: binary}
+        "401": {description: Authentication required.}
+        "403": {description: Release read is not authorized.}
+        "404": {description: No visible Release matches.}
+        "503": {description: Release service unavailable.}
 components:
   securitySchemes:
     BearerAuth:

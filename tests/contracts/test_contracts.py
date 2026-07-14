@@ -997,3 +997,35 @@ def test_review_contract_and_runtime_expose_digest_pinned_governance_flow() -> N
     assert {"expected_manifest_sha256", "decision", "reason"}.issubset(
         runtime_schemas["ReviewDecisionCreateRequest"]["required"]
     )
+
+
+def test_release_contract_and_runtime_expose_digest_fixed_completeness_flow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/releases": {"post": "createRelease", "get": "listReleases"},
+        "/api/v1/releases/{release_id}": {"get": "getRelease"},
+        "/api/v1/releases/{release_id}/download": {"get": "downloadRelease"},
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = PROJECT_ROOT / "contracts/governance/release-resources.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    serialized = json.dumps(schema)
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+    assert "package_media_type" in serialized
+    assert "provenance_snapshot_sha256" in serialized
+    runtime_schemas = runtime["components"]["schemas"]
+    assert {
+        "material_model_id",
+        "solver_card_id",
+        "validation_result_id",
+        "review_request_id",
+        "provenance_snapshot_sha256",
+    }.issubset(runtime_schemas["ReleaseCreateRequest"]["required"])
+    assert runtime_schemas["ReleaseResponse"]["properties"]["channel"]["const"] == "reference"

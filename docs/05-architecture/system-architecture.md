@@ -81,6 +81,14 @@ and projection inside one PostgreSQL transaction. The request author cannot deci
 manifest or newer revision is rejected, and `changes_requested` leaves the old revision immutable
 so a new revision is required before resubmission. Release composition remains T-30.
 
+`T-30` keeps the first Release channel in the same `review_release` bounded module. A reference
+Release is a stable identity plus one immutable typed Manifest and one immutable package Artifact.
+The persistence adapter validates explicit Material Model, Solver Card, Validation Result, Review,
+and provenance digests inside the tenant/classification scope before inserting the three rows. The
+package is intentionally a small database-backed reference artifact for this slice; production
+object-store publication and supersede/withdraw transitions remain separate T-31 work. No generic
+EAV or catch-all release payload is introduced.
+
 의존성 방향은 외부 adapter에서 domain/application 쪽으로 향한다. domain module은 FastAPI, SQLAlchemy, S3 SDK, solver SDK를 import하지 않는다.
 
 ## 5. Bounded module
