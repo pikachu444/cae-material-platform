@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/reference-calibration-candidate-selection-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "PrefixedSha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"const": "urn:cmp:modeling:reference-calibration-candidate-selection:1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "CandidateSelectionFields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_label", "calibration_run_id", "calibration_candidate_id",
+        "selection_reason"
+      ],
+      "properties": {
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CreateReferenceCalibrationCandidateSelectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "selection_label", "calibration_run_id",
+        "calibration_candidate_id", "selection_reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseReferenceCalibrationCandidateSelectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_current_revision_id", "selection_label", "calibration_run_id",
+        "calibration_candidate_id", "selection_reason"
+      ],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CandidateSelectionContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_label", "calibration_run_id", "calibration_candidate_id",
+        "candidate_sha256", "selection_reason", "selection_decision",
+        "domain_acceptance_status", "non_production"
+      ],
+      "properties": {
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "candidate_sha256": {"$ref": "#/$defs/PrefixedSha256"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "selection_decision": {"const": "accepted_for_reference_ir_promotion"},
+        "domain_acceptance_status": {"const": "accepted_by_human_for_reference_ir_promotion"},
+        "non_production": {"const": true}
+      }
+    },
+    "CandidateSelectionRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {"content": {"$ref": "#/$defs/CandidateSelectionContent"}}
+        }
+      ]
+    },
+    "CandidateSelectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calibration_candidate_selection_id", "current_revision", "links"
+      ],
+      "properties": {
+        "calibration_candidate_selection_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/CandidateSelectionRevision"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "CandidateSelectionListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/CandidateSelectionResponse"}}
+      }
+    },
+    "PromoteSelectedReferenceCalibrationCandidateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_revision_id", "expected_material_model_revision_id", "change_reason"
+      ],
+      "properties": {
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "expected_material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CandidateSelectionPromotionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calibration_candidate_selection_id", "calibration_candidate_selection_revision_id",
+        "material_model"
+      ],
+      "properties": {
+        "calibration_candidate_selection_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model": {
+          "$ref": "reference-linear-elastic-resources.schema.json#/$defs/MaterialModelResponse"
+        }
+      }
+    },
+    "CandidateSelectionProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:calibration"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-CALIBRATION-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

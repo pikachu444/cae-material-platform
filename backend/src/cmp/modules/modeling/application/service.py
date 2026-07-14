@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol
 from uuid import UUID, uuid4
 
@@ -15,11 +15,13 @@ from cmp.modules.identity_access.domain.authorization import (
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.modeling.domain.reference_linear_elasticity import (
     REFERENCE_MODEL_SCHEMA_VERSION,
+    ReferenceCalibrationEvidence,
     ReferenceLinearElasticContent,
     ReferenceModelConflict,
 )
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
+    ReviseAggregate,
     RevisionService,
     RevisionStore,
 )
@@ -54,6 +56,16 @@ class ReferencePropertySource:
 class CreateReferenceLinearElasticModel:
     material_state_id: UUID
     property_set_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class PromoteReferenceCalibrationCandidate:
+    """Append one IR revision from an explicit human Candidate Selection revision."""
+
+    expected_current_revision_id: UUID
+    youngs_modulus_pa: float
+    calibration_evidence: ReferenceCalibrationEvidence
     change_reason: str
 
 
@@ -265,4 +277,54 @@ class MaterialModelService:
             decision=decision,
             material_model_id=material_model_id,
             material_model_revision_id=material_model_revision_id,
+        )
+
+    def promote_reference_calibration_candidate(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        command: PromoteReferenceCalibrationCandidate,
+    ) -> MaterialModelSnapshot:
+        """Append a calibrated IR revision only when its evaluated source is still the head."""
+
+        _require_decision(context, decision, Permission.MODELING_WRITE)
+        reason = _reason(command.change_reason)
+        current = self._repository.get_material_model(
+            context=context,
+            decision=decision,
+            material_model_id=material_model_id,
+        )
+        if current.current.record.revision_id != command.expected_current_revision_id:
+            raise ReferenceModelConflict(
+                "Calibration Candidate source IR is stale; rerun or select against the current head"
+            )
+        promoted = replace(
+            current.current.content,
+            youngs_modulus_pa=command.youngs_modulus_pa,
+            calibration_evidence=command.calibration_evidence,
+        )
+        record = RevisionService(
+            aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
+            store=self._repository.material_model_store(context, decision),
+            id_factory=self._id_factory,
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=material_model_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=MATERIAL_MODEL_SCHEMA_ID,
+                schema_version=REFERENCE_MODEL_SCHEMA_VERSION,
+                content=promoted,
+                created_by=context.principal.id,
+                change_reason=reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return MaterialModelSnapshot(
+            id=material_model_id,
+            material_state_id=current.material_state_id,
+            current=RevisionSnapshot(record, promoted),
         )

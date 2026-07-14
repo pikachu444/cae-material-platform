@@ -2571,6 +2571,132 @@ paths:
         "409": {description: Immutable candidate or Artifact integrity state conflicts.}
         "422": {description: The diagnostics preview bound or typed Artifact data is invalid.}
         "503": {description: Calibration service unavailable.}
+  /api/v1/calibration-candidate-selections:
+    post:
+      operationId: createReferenceCalibrationCandidateSelection
+      tags: [modeling, calibration]
+      summary: Record an explicit human acceptance of one converged reference Calibration Candidate.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/CreateReferenceCalibrationCandidateSelectionRequest"}
+      responses:
+        "201":
+          description: Stable Candidate Selection identity with its first immutable human decision revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/CandidateSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: No visible Calibration Run or Candidate matches the request.}
+        "409": {description: Candidate convergence, Run terminal state, or immutable Selection state conflicts.}
+        "422": {description: Human selection label or reason is invalid.}
+        "503": {description: Candidate Selection service unavailable.}
+    get:
+      operationId: listCalibrationCandidateSelections
+      tags: [modeling, calibration]
+      summary: List current tenant-visible immutable human Candidate Selection heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current immutable Candidate Selection heads.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/CandidateSelectionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Candidate Selection service unavailable.}
+  /api/v1/calibration-candidate-selections/{selection_id}:
+    get:
+      operationId: getCalibrationCandidateSelection
+      tags: [modeling, calibration]
+      summary: Read the current immutable human Candidate Selection revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Candidate Selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/CandidateSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Candidate Selection matches the identifier.}
+        "503": {description: Candidate Selection service unavailable.}
+    patch:
+      operationId: reviseReferenceCalibrationCandidateSelection
+      tags: [modeling, calibration]
+      summary: Append a new immutable human Selection revision within the same Calibration Run.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/ReviseReferenceCalibrationCandidateSelectionRequest"}
+      responses:
+        "200":
+          description: Appended immutable Candidate Selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/CandidateSelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: No visible Selection, Run, or Candidate matches the request.}
+        "409": {description: Expected Selection head, immutable Run identity, or Candidate state conflicts.}
+        "422": {description: Human selection label or reason is invalid.}
+        "503": {description: Candidate Selection service unavailable.}
+  /api/v1/calibration-candidate-selections/{selection_id}/promote-material-model:
+    post:
+      operationId: promoteSelectedReferenceCalibrationCandidate
+      tags: [modeling, calibration]
+      summary: Append a new reference IR revision from the current accepted Candidate Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/PromoteSelectedReferenceCalibrationCandidateRequest"}
+      responses:
+        "201":
+          description: A new immutable Material Model IR revision carrying typed Selection, Candidate, Run, and diagnostics evidence.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-calibration-candidate-selection-resources.schema.json#/$defs/CandidateSelectionPromotionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: No visible Selection, Run, Candidate, or Material Model matches the request.}
+        "409": {description: Selection is not current, evidence differs, or the source IR revision is stale.}
+        "422": {description: Promotion reason is invalid.}
+        "503": {description: Candidate Selection service unavailable.}
   /api/v1/exporters/reference-openradioss-elast/capabilities:
     get:
       operationId: getReferenceOpenRadiossExporterCapabilities

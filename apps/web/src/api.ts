@@ -2,6 +2,8 @@ import type {
   ExportTarget,
   CompletedUpload,
   CalibrationDiagnosticPreview,
+  CalibrationCandidateSelectionPromotionResponse,
+  CalibrationCandidateSelectionResponse,
   CalibrationPlanResponse,
   CalibrationRunResponse,
   CurvePreview,
@@ -350,6 +352,41 @@ export function previewCalibrationCandidateDiagnostics(
   return request(
     config,
     `/calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics-preview?maximum_points=${maximumPoints}`,
+  );
+}
+
+export function createReferenceCalibrationCandidateSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    calibration_run_id: string;
+    calibration_candidate_id: string;
+    selection_reason: string;
+  },
+): Promise<ApiResult<CalibrationCandidateSelectionResponse>> {
+  return request(config, "/calibration-candidate-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function promoteSelectedReferenceCalibrationCandidate(
+  config: ApiConfig,
+  selectionId: string,
+  input: {
+    selection_revision_id: string;
+    expected_material_model_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<CalibrationCandidateSelectionPromotionResponse>> {
+  return request(
+    config,
+    `/calibration-candidate-selections/${encodeURIComponent(selectionId)}/promote-material-model`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
   );
 }
 

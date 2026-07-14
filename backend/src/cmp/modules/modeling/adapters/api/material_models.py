@@ -26,6 +26,7 @@ from cmp.modules.modeling.domain.reference_linear_elasticity import (
     REFERENCE_MODEL_SCHEMA_VERSION,
     InvalidReferenceModel,
     ModelingError,
+    ReferenceCalibrationEvidence,
     ReferenceLinearElasticContent,
     ReferenceModelConflict,
     ReferenceModelNotFound,
@@ -43,6 +44,34 @@ class ReferenceModelCreateRequest(BaseModel):
 
     property_set_revision_id: UUID
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceCalibrationEvidenceResponse(BaseModel):
+    """Explicit provenance of a human-selected reference calibration Candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    calibration_selection_id: UUID
+    calibration_selection_revision_id: UUID
+    calibration_run_id: UUID
+    calibration_candidate_id: UUID
+    calibration_candidate_sha256: str
+    diagnostics_artifact_id: UUID
+    diagnostics_sha256: str
+
+    @classmethod
+    def from_domain(
+        cls, value: ReferenceCalibrationEvidence
+    ) -> ReferenceCalibrationEvidenceResponse:
+        return cls(
+            calibration_selection_id=value.calibration_selection_id,
+            calibration_selection_revision_id=value.calibration_selection_revision_id,
+            calibration_run_id=value.calibration_run_id,
+            calibration_candidate_id=value.calibration_candidate_id,
+            calibration_candidate_sha256=f"sha256:{value.calibration_candidate_sha256}",
+            diagnostics_artifact_id=value.diagnostics_artifact_id,
+            diagnostics_sha256=f"sha256:{value.diagnostics_sha256}",
+        )
 
 
 class ReferenceLinearElasticContentResponse(BaseModel):
@@ -69,6 +98,7 @@ class ReferenceLinearElasticContentResponse(BaseModel):
     applicable_strain_rate_max_per_s: float | None
     applicability_note: str | None
     reference_temperature_k: float
+    calibration_evidence: ReferenceCalibrationEvidenceResponse | None
     non_production: bool
 
     @classmethod
@@ -95,6 +125,11 @@ class ReferenceLinearElasticContentResponse(BaseModel):
             applicable_strain_rate_max_per_s=value.applicable_strain_rate_max_per_s,
             applicability_note=value.applicability_note,
             reference_temperature_k=value.reference_temperature_k,
+            calibration_evidence=(
+                ReferenceCalibrationEvidenceResponse.from_domain(value.calibration_evidence)
+                if value.calibration_evidence is not None
+                else None
+            ),
             non_production=True,
         )
 
@@ -108,6 +143,7 @@ class ModelProvenanceSummary(BaseModel):
     content_sha256: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
     based_on_revision_id: UUID | None
     source_property_set_revision_id: UUID
+    calibration_selection_revision_id: UUID | None
     recorded_at: datetime
     recorded_by: UUID
 
@@ -123,6 +159,11 @@ class ModelProvenanceSummary(BaseModel):
             content_sha256=record.content_hash,
             based_on_revision_id=record.based_on_revision_id,
             source_property_set_revision_id=content.property_set_revision_id,
+            calibration_selection_revision_id=(
+                content.calibration_evidence.calibration_selection_revision_id
+                if content.calibration_evidence is not None
+                else None
+            ),
             recorded_at=record.created_at,
             recorded_by=record.created_by,
         )

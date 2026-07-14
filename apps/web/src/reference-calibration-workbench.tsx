@@ -2,14 +2,17 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react
 import {
   ApiError,
   type ApiConfig,
+  createReferenceCalibrationCandidateSelection,
   createReferenceLinearElasticCalibrationPlan,
   executeReferenceLinearElasticCalibration,
   listDatasetRevisionSelections,
   listDatasetsForMaterialState,
   listMaterialModels,
+  promoteSelectedReferenceCalibrationCandidate,
   previewCalibrationCandidateDiagnostics,
 } from "./api";
 import type {
+  CalibrationCandidateSelectionResponse,
   CalibrationDiagnosticPreview,
   CalibrationPlanResponse,
   CalibrationRunResponse,
@@ -125,6 +128,8 @@ export function ReferenceCalibrationWorkbench({
   const [selectedSelectionId, setSelectedSelectionId] = useState("");
   const [plan, setPlan] = useState<CalibrationPlanResponse | null>(null);
   const [run, setRun] = useState<CalibrationRunResponse | null>(null);
+  const [candidateSelection, setCandidateSelection] = useState<CalibrationCandidateSelectionResponse | null>(null);
+  const [promotedModel, setPromotedModel] = useState<MaterialModelResponse | null>(null);
   const [diagnostics, setDiagnostics] = useState<CalibrationDiagnosticPreview | null>(null);
   const [planLabel, setPlanLabel] = useState("Reference linear elastic calibration");
   const [lowerBound, setLowerBound] = useState("1000000000");
@@ -135,6 +140,10 @@ export function ReferenceCalibrationWorkbench({
   const [randomSeed, setRandomSeed] = useState("20260719");
   const [planReason, setPlanReason] = useState("Pin reference tensile curve and model revisions for calibration");
   const [runReason, setRunReason] = useState("Execute deterministic reference linear elastic calibration");
+  const [selectedCandidateId, setSelectedCandidateId] = useState("");
+  const [candidateSelectionLabel, setCandidateSelectionLabel] = useState("Accepted reference elastic candidate");
+  const [candidateSelectionReason, setCandidateSelectionReason] = useState("Human review accepts this converged candidate for a non-production reference IR");
+  const [promotionReason, setPromotionReason] = useState("Promote the accepted reference calibration candidate into a new immutable IR revision");
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -191,7 +200,14 @@ export function ReferenceCalibrationWorkbench({
     () => selections.find((selection) => selection.selection_id === selectedSelectionId) ?? null,
     [selections, selectedSelectionId],
   );
-  const firstCandidate = run?.candidates[0] ?? null;
+  const convergedCandidates = useMemo(
+    () => run?.candidates.filter((candidate) => candidate.status === "converged") ?? [],
+    [run],
+  );
+  const selectedCandidate = useMemo(
+    () => convergedCandidates.find((candidate) => candidate.calibration_candidate_id === selectedCandidateId) ?? null,
+    [convergedCandidates, selectedCandidateId],
+  );
 
   async function submitPlan(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -243,6 +259,9 @@ export function ReferenceCalibrationWorkbench({
       setPlan(result.data);
       setRun(null);
       setDiagnostics(null);
+      setCandidateSelection(null);
+      setPromotedModel(null);
+      setSelectedCandidateId("");
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -263,7 +282,10 @@ export function ReferenceCalibrationWorkbench({
         change_reason: runReason.trim(),
       });
       setRun(result.data);
-      const candidate = result.data.candidates[0];
+      setCandidateSelection(null);
+      setPromotedModel(null);
+      const candidate = result.data.candidates.find((item) => item.status === "converged");
+      setSelectedCandidateId(candidate?.calibration_candidate_id ?? "");
       if (candidate) {
         const preview = await previewCalibrationCandidateDiagnostics(
           config,
@@ -273,6 +295,55 @@ export function ReferenceCalibrationWorkbench({
       } else {
         setDiagnostics(null);
       }
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function recordCandidateSelection(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!run || !selectedCandidate) {
+      setError("Select one numerically converged Candidate before recording human acceptance.");
+      return;
+    }
+    setAction("selection");
+    setError(null);
+    try {
+      const result = await createReferenceCalibrationCandidateSelection(config, {
+        classification: run.classification,
+        selection_label: candidateSelectionLabel.trim(),
+        calibration_run_id: run.calibration_run_id,
+        calibration_candidate_id: selectedCandidate.calibration_candidate_id,
+        selection_reason: candidateSelectionReason.trim(),
+      });
+      setCandidateSelection(result.data);
+      setPromotedModel(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function promoteSelection(): Promise<void> {
+    if (!run || !candidateSelection) {
+      return;
+    }
+    setAction("promotion");
+    setError(null);
+    try {
+      const result = await promoteSelectedReferenceCalibrationCandidate(
+        config,
+        candidateSelection.calibration_candidate_selection_id,
+        {
+          selection_revision_id: candidateSelection.current_revision.id,
+          expected_material_model_revision_id: run.material_model_revision_id,
+          change_reason: promotionReason.trim(),
+        },
+      );
+      setPromotedModel(result.data.material_model);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -405,25 +476,97 @@ export function ReferenceCalibrationWorkbench({
                 <span className="reference-chip">R{run.reproducibility_level.slice(1)}</span>
               </div>
               {run.failure_code ? <p className="error-notice">Failure: {run.failure_code}</p> : null}
-              {firstCandidate ? (
+              {selectedCandidate ? (
                 <>
                   <dl className="statistics-definition-list calibration-candidate-summary">
-                    <div><dt>Young&apos;s modulus (Pa)</dt><dd>{firstCandidate.youngs_modulus_pa.toPrecision(8)}</dd></div>
-                    <div><dt>Objective</dt><dd>{firstCandidate.objective_total.toPrecision(6)}</dd></div>
-                    <div><dt>Residual RMS (Pa)</dt><dd>{firstCandidate.residual_root_mean_square_pa.toPrecision(6)}</dd></div>
-                    <div><dt>Bound sticking</dt><dd>{firstCandidate.bound_sticking ? "yes — review required" : "no"}</dd></div>
-                    <div><dt>Identifiability</dt><dd>{firstCandidate.identifiability_status.replaceAll("_", " ")}</dd></div>
-                    <div><dt>Uncertainty</dt><dd>{firstCandidate.uncertainty_status.replaceAll("_", " ")}</dd></div>
+                    <div><dt>Young&apos;s modulus (Pa)</dt><dd>{selectedCandidate.youngs_modulus_pa.toPrecision(8)}</dd></div>
+                    <div><dt>Objective</dt><dd>{selectedCandidate.objective_total.toPrecision(6)}</dd></div>
+                    <div><dt>Residual RMS (Pa)</dt><dd>{selectedCandidate.residual_root_mean_square_pa.toPrecision(6)}</dd></div>
+                    <div><dt>Bound sticking</dt><dd>{selectedCandidate.bound_sticking ? "yes — review required" : "no"}</dd></div>
+                    <div><dt>Identifiability</dt><dd>{selectedCandidate.identifiability_status.replaceAll("_", " ")}</dd></div>
+                    <div><dt>Uncertainty</dt><dd>{selectedCandidate.uncertainty_status.replaceAll("_", " ")}</dd></div>
                   </dl>
                   <p className="source-line">
-                    Candidate {shortId(firstCandidate.calibration_candidate_id)} · {firstCandidate.status} · diagnostics SHA-256 {shortId(firstCandidate.diagnostics_sha256)} · {firstCandidate.convergence_reason.replaceAll("_", " ")}.
+                    Candidate {shortId(selectedCandidate.calibration_candidate_id)} · {selectedCandidate.status} · diagnostics SHA-256 {shortId(selectedCandidate.diagnostics_sha256)} · {selectedCandidate.convergence_reason.replaceAll("_", " ")}.
                   </p>
                   {diagnostics ? <CalibrationCurvePanel preview={diagnostics} /> : null}
-                  <p className="form-hint">
-                    Candidate selection and IR promotion are deliberately separate human decisions in
-                    the next workflow step; this run does not alter the source Material Model IR.
-                  </p>
+                  <form className="workflow-step form-stack" onSubmit={(event) => void recordCandidateSelection(event)}>
+                    <strong>3. Record explicit human Candidate acceptance</strong>
+                    <p className="form-hint">
+                      Numerical convergence is not a release or approval decision. Record a human
+                      reason against one converged Candidate; this creates an immutable, non-production
+                      Selection revision and does not modify the Run or Candidate.
+                    </p>
+                    <label>
+                      Converged Candidate
+                      <select
+                        aria-label="Converged Candidate"
+                        value={selectedCandidateId}
+                        onChange={(event) => {
+                          setSelectedCandidateId(event.target.value);
+                          setCandidateSelection(null);
+                          setPromotedModel(null);
+                        }}
+                      >
+                        {convergedCandidates.map((candidate) => (
+                          <option key={candidate.calibration_candidate_id} value={candidate.calibration_candidate_id}>
+                            {shortId(candidate.calibration_candidate_id)} · E {candidate.youngs_modulus_pa.toPrecision(8)} Pa · objective {candidate.objective_total.toPrecision(6)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Candidate Selection label
+                      <input
+                        value={candidateSelectionLabel}
+                        onChange={(event) => setCandidateSelectionLabel(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Human acceptance reason
+                      <input
+                        value={candidateSelectionReason}
+                        onChange={(event) => setCandidateSelectionReason(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <button className="button secondary" type="submit" disabled={action !== null}>
+                      {action === "selection" ? "Recording human acceptance…" : "Record human Candidate acceptance"}
+                    </button>
+                  </form>
+                  {candidateSelection ? (
+                    <div className="workflow-step calibration-plan-result">
+                      <strong>4. Promote the accepted Candidate into a new IR revision</strong>
+                      <p className="source-line">
+                        Human acceptance recorded as Selection r{candidateSelection.current_revision.revision_no} · {candidateSelection.current_revision.content.domain_acceptance_status.replaceAll("_", " ")}.
+                      </p>
+                      <p className="form-hint">
+                        Promotion requires this Selection revision and the exact Material Model IR
+                        revision evaluated by the Calibration Run to still be current. It appends a
+                        new IR revision; it never overwrites the source revision.
+                      </p>
+                      <label>
+                        IR promotion reason
+                        <input
+                          value={promotionReason}
+                          onChange={(event) => setPromotionReason(event.target.value)}
+                          required
+                        />
+                      </label>
+                      <button className="button primary" type="button" onClick={() => void promoteSelection()} disabled={action !== null}>
+                        {action === "promotion" ? "Promoting immutable IR…" : "Promote accepted Candidate to new IR revision"}
+                      </button>
+                      {promotedModel ? (
+                        <p className="success-notice">
+                          Promoted Material Model IR r{promotedModel.current_revision.revision_no} · E {promotedModel.current_revision.content.youngs_modulus_pa.toPrecision(8)} Pa. The new revision is linked to the Selection, Candidate, Run, and diagnostics artifact.
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </>
+              ) : run.status === "succeeded" ? (
+                <p className="muted">No numerically converged Candidate is available for human selection.</p>
               ) : null}
             </div>
           ) : null}

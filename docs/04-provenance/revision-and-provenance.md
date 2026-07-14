@@ -289,4 +289,7 @@ Release 전 자동 검사한다.
 6. card는 IR revision과 exporter package에서 파생되었다.
 7. validation은 template, solver/card, runner, result extraction version을 가진다.
 8. review decision은 검토한 release-candidate manifest digest를 참조한다.
+9. a Calibration-promoted Material Model IR references the exact current Candidate Selection
+   revision, converged Candidate digest, Calibration Run, and diagnostics Artifact digest; it never
+   replaces the evaluated IR revision.
 

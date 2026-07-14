@@ -1,6 +1,6 @@
 # Reference linear-elastic calibration slice
 
-Status: implemented non-production reference subset (`T-23`, 2026-07-19)
+Status: implemented non-production reference subset (`T-23`/`T-24`, 2026-07-20)
 
 This document records the executable contract for the first calibration slice. It supplements the
 future-oriented fitting/validation design in [fitting-validation.md](fitting-validation.md) and
@@ -68,6 +68,28 @@ Candidates also retain total objective, residual RMS/mean, bound-sticking, conve
 and explicit `not_assessed_reference_one_parameter` / `not_estimated_reference` diagnostic
 statuses. These statuses are evidence of what the slice does not claim, not hidden missing data.
 
+## Human Candidate Selection and IR promotion
+
+`converged` means that the declared reference calculation reached its terminal numerical result; it
+does **not** mean that a Material Modeler has accepted the result. A user must create a separate
+stable Candidate Selection identity with an explicit label and human reason. Its immutable
+revisions are fixed to one Calibration Run, may only reference an exact converged Candidate from
+that succeeded Run, and pin the Candidate SHA-256.
+
+The current Selection revision can be promoted only if the exact Material Model revision evaluated
+by the Run is still the current model head. Promotion appends a new Material Model revision with
+the selected `youngs_modulus_pa`; it does not modify the Candidate, Run, source IR, Property Set,
+Dataset, or a previously generated solver card. The promoted revision carries typed evidence for:
+
+- Candidate Selection identity and Selection revision;
+- Calibration Run identity;
+- Candidate identity and Candidate SHA-256; and
+- diagnostics Artifact identity and SHA-256.
+
+This reference promotion is not a production approval or release decision. A later Selection
+revision supersedes the prior human choice for promotion, but both decision records remain
+available in history.
+
 ## Storage and API boundary
 
 PostgreSQL relations are explicit:
@@ -78,12 +100,16 @@ modeling.calibration_plan_revision
 modeling.calibration_run
 modeling.calibration_attempt
 modeling.calibration_candidate
+modeling.calibration_candidate_selection
+modeling.calibration_candidate_selection_revision
 ```
 
 They use composite organization/project/classification foreign keys, tenant/classification RLS,
 immutable-row and head guards, same-input coherence checks, terminal state guards, and indexes for
-tenant-scoped Plan/Run/Candidate lookup. The module does not use a generic EAV relation or a
-free-form core numeric payload.
+tenant-scoped Plan/Run/Candidate/Selection lookup. Promotion evidence is stored in named
+`modeling.material_model_revision` columns with a trigger that checks the exact current Selection,
+Candidate, diagnostics Artifact, Run, and evaluated Model revision. The module does not use a
+generic EAV relation or a free-form core numeric payload.
 
 Protected endpoints are:
 
@@ -95,16 +121,22 @@ GET   /api/v1/calibration-plans/{plan_id}
 POST  /api/v1/calibration-runs
 GET   /api/v1/calibration-runs/{run_id}
 GET   /api/v1/calibration-candidates/{candidate_id}/diagnostics-preview
+POST  /api/v1/calibration-candidate-selections
+GET   /api/v1/calibration-candidate-selections
+GET   /api/v1/calibration-candidate-selections/{selection_id}
+PATCH /api/v1/calibration-candidate-selections/{selection_id}
+POST  /api/v1/calibration-candidate-selections/{selection_id}/promote-material-model
 ```
 
 The Material State web workbench invokes these APIs directly. It exposes pinned inputs and
-numerical conventions, creates/executes a Plan, and renders candidate diagnostics. Browser plots
-are previews only; the typed Artifact remains the calculation evidence.
+numerical conventions, creates/executes a Plan, renders candidate diagnostics, records explicit
+human acceptance, and only then offers promotion. Browser plots are previews only; the typed
+Artifact and immutable Selection/IR revisions remain the calculation evidence.
 
 ## Explicit non-goals
 
 This slice does not provide a production constitutive model, a SciPy or other production optimizer
 selection, parameter transforms/scaling beyond the stated reference convention, uncertainty or
 identifiability estimation, material-point integration, holdout validation, virtual specimen
-execution, solver execution, candidate auto-acceptance, or IR mutation/promotion. `T-24` owns
-human candidate selection with a reason and append-only IR promotion evidence.
+execution, solver execution, candidate auto-acceptance, formal approval/release, or mutation of
+an existing IR. `T-27`/`T-28` own validation template/runner and solver-result evidence.

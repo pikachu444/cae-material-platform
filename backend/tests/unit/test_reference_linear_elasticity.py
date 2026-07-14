@@ -6,6 +6,7 @@ import pytest
 from cmp.modules.modeling.domain.reference_linear_elasticity import (
     REFERENCE_MODEL_FAMILY_ID,
     InvalidReferenceModel,
+    ReferenceCalibrationEvidence,
     ReferenceLinearElasticContent,
     reference_linear_elastic_canonical,
     reference_linear_elastic_ir,
@@ -19,6 +20,11 @@ PROPERTY_SET = UUID("d1000000-0000-4000-8000-000000000005")
 PROPERTY_SET_REVISION = UUID("d1000000-0000-4000-8000-000000000006")
 MODEL = UUID("d1000000-0000-4000-8000-000000000007")
 MODEL_REVISION = UUID("d1000000-0000-4000-8000-000000000008")
+SELECTION = UUID("d1000000-0000-4000-8000-000000000009")
+SELECTION_REVISION = UUID("d1000000-0000-4000-8000-00000000000a")
+RUN = UUID("d1000000-0000-4000-8000-00000000000b")
+CANDIDATE = UUID("d1000000-0000-4000-8000-00000000000c")
+DIAGNOSTICS = UUID("d1000000-0000-4000-8000-00000000000d")
 
 
 def _content(**changes: object) -> ReferenceLinearElasticContent:
@@ -78,3 +84,46 @@ def test_reference_ir_rejects_unstable_isotropic_constants(poisson_ratio: float)
 def test_reference_ir_rejects_nonpositive_unmapped_yield_source_value() -> None:
     with pytest.raises(InvalidReferenceModel, match="source_yield_stress_pa"):
         _content(source_yield_stress_pa=0.0)
+
+
+def test_reference_ir_records_typed_candidate_selection_evidence_without_changing_model_schema(
+) -> None:
+    evidence = ReferenceCalibrationEvidence(
+        calibration_selection_id=SELECTION,
+        calibration_selection_revision_id=SELECTION_REVISION,
+        calibration_run_id=RUN,
+        calibration_candidate_id=CANDIDATE,
+        calibration_candidate_sha256="c" * 64,
+        diagnostics_artifact_id=DIAGNOSTICS,
+        diagnostics_sha256="d" * 64,
+    )
+    content = _content(calibration_evidence=evidence)
+
+    canonical = reference_linear_elastic_canonical(content)
+    ir = reference_linear_elastic_ir(
+        content,
+        material_model_id=MODEL,
+        material_model_revision_id=MODEL_REVISION,
+    )
+
+    assert canonical["calibration_evidence"] == {
+        "status": "reference_candidate_selected",
+        "selection_id": str(SELECTION),
+        "selection_revision_id": str(SELECTION_REVISION),
+        "calibration_run_id": str(RUN),
+        "calibration_candidate_id": str(CANDIDATE),
+        "calibration_candidate_sha256": "c" * 64,
+        "diagnostics_artifact_id": str(DIAGNOSTICS),
+        "diagnostics_sha256": "d" * 64,
+    }
+    assert ir["calibration_evidence"] == {
+        "status": "reference_candidate_selected",
+        "selection_id": str(SELECTION),
+        "selection_revision_id": str(SELECTION_REVISION),
+        "calibration_run_id": str(RUN),
+        "candidate_id": str(CANDIDATE),
+        "candidate_sha256": f"sha256:{'c' * 64}",
+        "diagnostics_artifact_id": str(DIAGNOSTICS),
+        "diagnostics_sha256": f"sha256:{'d' * 64}",
+        "selection_decision": "accepted_for_reference_ir_promotion",
+    }

@@ -1,10 +1,10 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics, reference Material Model IR, and reference OpenRadioss Solver Card
+Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics with human Candidate Selection/IR promotion, reference Material Model IR, and reference OpenRadioss Solver Card
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-21` + reference `T-22`/`T-25`/`T-26` subsets)
+(`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
 
 Version: `0.21.0`
 
@@ -33,7 +33,9 @@ implicitly. The reference calibration slice then pins one normalized or processe
 and one reference linear-elastic IR revision in an immutable Plan, records every deterministic
 bounded-WLS multistart Attempt and Candidate, and stores typed observed/predicted/residual Parquet
 diagnostics. It is a non-production closed-form `sigma = E * epsilon` workflow reference: it does
-not select a production optimizer, accept a Candidate, mutate an IR, or validate a solver card. The T-03/T-04
+not select a production optimizer or approve a model. A Material Modeler can separately record a
+reasoned human Candidate Selection and append a new IR revision only when the exact evaluated IR
+is still current; it never rewrites the Candidate, source IR, Dataset, or a solver card. The T-03/T-04
 identity and access-control foundation,
 the domain-neutral T-06 revision kernel, the generic T-15 Job/Attempt/Lease engine, the T-17
 immutable plugin package registry, and the T-18 isolated execution contract remain reusable
@@ -86,8 +88,9 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
   or importer
 - Reference Calibration workbench controls for concrete Dataset Selection/Material Model revision
   pinning, explicit Young's-modulus bounds/initial value/normalization/seed/multistart conventions,
-  durable Run execution, Candidate summary, and observed-versus-fitted diagnostics preview; the
-  source Dataset and evaluated IR remain unchanged, and candidate selection/promotion is separate
+  durable Run execution, Candidate summary, observed-versus-fitted diagnostics preview, explicit
+  human Candidate Selection reason, and append-only IR promotion; the source Dataset and evaluated
+  IR remain unchanged, while the promoted IR retains typed Selection/Candidate/Run/diagnostics evidence
 - Explicit PostgreSQL `testing.import_detection_report`, `testing.import_mapping`,
   `testing.import_mapping_revision`, and `processing.import_run` relations with frozen Raw
   Asset/Artifact/Test Run/Mapping references, source-digest guards, tenant/classification composite
@@ -326,9 +329,12 @@ diagnostics preview.
 
 This is deliberately a non-production reference calculation of `sigma = E * epsilon` using a
 deterministic analytic bounded weighted least-squares solution. It does not select a production
-optimizer or constitutive model, estimate uncertainty, approve a candidate, modify a Material Model
-IR, or validate/modify a Solver Card. Candidate selection with a required reason and promotion to a
-new immutable IR revision are the next separate workflow. See the
+optimizer or constitutive model, estimate uncertainty, approve a candidate, or validate/modify a
+Solver Card. After inspecting diagnostics, select one `converged` Candidate, enter an explicit
+human reason, and record the immutable Candidate Selection. A separate promotion action appends a
+new Material Model IR revision only when the Selection revision and exact evaluated source IR are
+still current. It stores typed Selection, Candidate, Run, and diagnostics Artifact evidence and
+never overwrites any source revision. See the
 [reference calibration contract](docs/10-execution/reference-linear-elastic-calibration.md).
 
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
@@ -411,8 +417,9 @@ CMP_TEST_POSTGRES_DSN=postgresql+psycopg://... make test-postgresql
 Read `AGENTS.md` before changing this repository. Production tensile standards, material models,
 calibration choices, solver cards, and validation criteria remain `TBD`; ADR-006's T-22/T-25
 linear-elastic/OpenRadioss path is an explicitly non-production reference projection and card, not
-a production material model or solver qualification. ADR-011's T-23 calibration path is likewise
-an explicitly non-production reference evaluator, not an approved optimizer/model policy. T-06 provides a typed-table
+a production material model or solver qualification. ADR-011/ADR-012's T-23/T-24 calibration path is
+likewise an explicitly non-production reference evaluator and human-selection/promotion workflow,
+not an approved optimizer/model or release policy. T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
 not implement Material, artifact transfer, lifecycle approval, or export-control
@@ -440,7 +447,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 ## Traceability
 
 - Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, reference `T-08`, `T-09`, `T-10`, reference `T-11`/`T-12`,
-  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-25`, `T-26`, `T-32` MVP
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
@@ -449,5 +456,5 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012` (with `ADR-005` as a scope guard)
 

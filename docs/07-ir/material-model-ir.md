@@ -230,23 +230,27 @@ model의 의도된 해석 유형과 formulation 요구다.
 
 ## 8. Calibration evidence
 
+The current non-production reference linear-elastic promotion uses an explicit evidence shape;
+it does not copy raw optimizer logs or a generic parameter dictionary into the IR:
+
 ```json
 {
+  "status": "reference_candidate_selected",
+  "selection_id": "uuid",
+  "selection_revision_id": "uuid",
   "calibration_run_id": "uuid",
-  "input_selection_revision_id": "uuid",
-  "processed_dataset_revision_ids": ["uuid"],
-  "calibrator": {
-    "plugin_id": "TBD",
-    "package_digest": "sha256:...",
-    "algorithm": "TBD"
-  },
-  "objective": {"definition": "TBD", "final_value": null},
-  "weights": {"definition": "TBD"},
-  "convergence": {"status": "TBD", "reason": null},
-  "diagnostic_artifact_ids": ["uuid"],
-  "candidate_selection_reason": "TBD"
+  "candidate_id": "uuid",
+  "candidate_sha256": "sha256:...",
+  "diagnostics_artifact_id": "uuid",
+  "diagnostics_sha256": "sha256:...",
+  "selection_decision": "accepted_for_reference_ir_promotion"
 }
 ```
+
+`converged` is numerical evidence only. The separately versioned Candidate Selection requires a
+human reason, and only its current revision may promote the exact IR revision evaluated by the
+Calibration Run. Future model families may require richer evidence, but must preserve this
+separation between immutable calculation evidence and a human domain decision.
 
 IR은 calibration raw log를 복사하지 않고 immutable run/evidence를 참조한다. release package는 필요한 evidence digest를 함께 고정한다.
 

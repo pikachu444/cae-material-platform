@@ -199,6 +199,8 @@ sequenceDiagram
     W->>P: selection+plan refs
     P->>O: diagnostics+IR candidate
     W->>A: result commit
+    A->>A: human Candidate Selection revision
+    A->>A: append promoted IR revision with typed evidence
     A->>W: exporter job
     W->>P: IR+target
     P->>O: card+mapping report

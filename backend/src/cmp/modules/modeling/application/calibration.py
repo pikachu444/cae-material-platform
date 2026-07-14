@@ -320,6 +320,26 @@ def _require(
         raise CalibrationConflict("authorization decision does not match Calibration request")
 
 
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    """Allow a bounded downstream Modeling workflow to read immutable calibration evidence."""
+
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise CalibrationConflict(
+            "authorization decision lacks the required Calibration capability"
+        )
+
+
 class ReferenceCalibrationService:
     """Execute explicit one-curve reference calibrations without mutable input aliases."""
 
@@ -692,6 +712,30 @@ class ReferenceCalibrationService:
             self._repository.get_run(context=context, decision=decision, run_id=run_id),
             self._repository.list_attempts(context=context, decision=decision, run_id=run_id),
             self._repository.list_candidates(context=context, decision=decision, run_id=run_id),
+        )
+
+    def get_run_for_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> CalibrationRun:
+        """Expose one immutable Run to the authorized Candidate Selection capability."""
+
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_run(context=context, decision=decision, run_id=run_id)
+
+    def get_candidate_for_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> CalibrationCandidate:
+        """Expose one immutable Candidate without granting generic persistence access."""
+
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_candidate(
+            context=context, decision=decision, candidate_id=candidate_id
         )
 
     async def preview_candidate_diagnostics(

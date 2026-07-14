@@ -28,6 +28,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260717_019_T21_reference_outlier_assessment.py",
         "20260718_020_T11_reference_import_orchestration.py",
         "20260719_021_T23_reference_calibration.py",
+        "20260720_022_T24_candidate_selection_promotion.py",
     ]
 
 
@@ -373,4 +374,37 @@ def test_t11_uses_explicit_detection_mapping_and_import_run_records_without_eav(
     assert "FORCE ROW LEVEL SECURITY" in migration
     assert "revisioning.reject_immutable_row_mutation()" in migration
     assert "revisioning.guard_identity_head_update()" in migration
+
+
+def test_t24_uses_typed_candidate_selection_and_ir_promotion_evidence_without_eav() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260720_022_T24_candidate_selection_promotion.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "calibration_candidate_selection",
+        "calibration_candidate_selection_revision",
+        "material_model_revision",
+    ):
+        assert table in migration
+    for column in (
+        "selection_label",
+        "calibration_run_id",
+        "calibration_candidate_id",
+        "candidate_sha256",
+        "selection_reason",
+        "calibration_selection_revision_id",
+        "calibration_diagnostics_artifact_id",
+    ):
+        assert column in migration
+    assert "accepted_for_reference_ir_promotion" in migration
+    assert "reference_candidate_selection" in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+    assert "guard_reference_calibrated_model_revision_insert" in migration
 
