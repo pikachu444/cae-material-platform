@@ -521,5 +521,25 @@ The third P0-2 increment adds a domain-kernel gate before persistence is connect
 - the immutable plan canonical form pins one Selection revision and declares processed-only input,
   exact-grid policy, quantile method, and confidence-interval method.
 
-The following increment must add PostgreSQL constraints/RLS/immutability, API integration, browser
-result-band rendering, provenance completeness, and live non-owner Docker verification.
+The fourth P0-2 increment makes the persisted Statistics/QC gate mandatory:
+
+- migration/PostgreSQL: explicit Plan/Revision, Run/ordered Member, Result/Revision, and QC tables;
+  exact-count and pin-consistency guards; append-only revisions; terminal Run transitions; indexes;
+  forced RLS; and no JSONB/EAV fallback;
+- migration lifecycle: fresh upgrade to `20260730_033_p02`, downgrade to 032, and re-upgrade against
+  disposable PostgreSQL 16 without losing prior P0-2 evidence;
+- service/API: Plan sample count equals the pinned Selection member count, only processed revisions
+  are accepted, exact members and QC are returned, and bounded curve preview verifies Artifact
+  digest/schema/point count;
+- provenance: the Result generation activity uses the exact Selection and Plan revisions and
+  derives the immutable Result and curve Artifact under the same tenant/classification scope;
+- browser: alignment outputs require a separate explicit Selection before Plan creation; Run QC,
+  specimen scalar statistics, observed range, mean, and Student-t 95% CI band are rendered from the
+  protected API; and no display data becomes a calculation input;
+- regression: source normalized/processed Dataset revisions and Artifacts remain unchanged, the
+  legacy two-selection pair flow remains valid, and authorization includes only the explicit
+  Artifact read needed for curve preview.
+
+The next gate adds multi-member outlier evidence and append-only human assessment. Tests must prove
+that candidates are not deletions, assessments never mutate candidates or source data, no automatic
+exclusion occurs, and calibration exclusion is fixed to a concrete scope revision.
