@@ -116,6 +116,33 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "ReferenceTensileAlignmentRecipeInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recipe_label", "grid_start_engineering_strain", "grid_end_engineering_strain",
+        "grid_point_count", "domain_policy", "interpolation_policy", "extrapolation_policy"
+      ],
+      "properties": {
+        "recipe_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "grid_start_engineering_strain": {"type": "number", "minimum": 0},
+        "grid_end_engineering_strain": {"type": "number"},
+        "grid_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "domain_policy": {"const": "intersection"},
+        "interpolation_policy": {"const": "piecewise_linear"},
+        "extrapolation_policy": {"const": "reject"}
+      }
+    },
+    "CreateReferenceTensileAlignmentRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/ReferenceTensileAlignmentRecipeInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "ReviseReferenceTensileCropRecipeRequest": {
       "type": "object",
       "additionalProperties": false,
@@ -149,6 +176,29 @@
         "boundary_policy": {"const": "select_observed_points_inclusive_no_interpolation"}
       }
     },
+    "ReferenceTensileAlignmentRecipeContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recipe_kind", "step_count", "grid_start_engineering_strain",
+        "grid_end_engineering_strain", "grid_point_count", "domain_policy",
+        "interpolation_policy", "extrapolation_policy", "input_schema_ref",
+        "output_schema_ref", "diagnostics_schema_ref"
+      ],
+      "properties": {
+        "recipe_kind": {"const": "reference_tensile_common_grid_linear"},
+        "step_count": {"const": 1},
+        "grid_start_engineering_strain": {"type": "number", "minimum": 0},
+        "grid_end_engineering_strain": {"type": "number"},
+        "grid_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "domain_policy": {"const": "intersection"},
+        "interpolation_policy": {"const": "piecewise_linear"},
+        "extrapolation_policy": {"const": "reject"},
+        "input_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-normalized-parquet:1.0.0"},
+        "output_schema_ref": {"const": "urn:cmp:datasets:reference-tensile-processed-parquet:1.0.0"},
+        "diagnostics_schema_ref": {"const": "urn:cmp:processing:reference-tensile-common-grid-diagnostics:1.0.0"}
+      }
+    },
     "ProcessingRecipeRevision": {
       "type": "object",
       "unevaluatedProperties": false,
@@ -157,7 +207,10 @@
         {
           "type": "object",
           "required": ["content"],
-          "properties": {"content": {"$ref": "#/$defs/ReferenceTensileCropRecipeContent"}}
+          "properties": {"content": {"oneOf": [
+            {"$ref": "#/$defs/ReferenceTensileCropRecipeContent"},
+            {"$ref": "#/$defs/ReferenceTensileAlignmentRecipeContent"}
+          ]}}
         }
       ]
     },
@@ -202,7 +255,8 @@
         "selection_revision_id", "recipe_id", "recipe_revision_id", "input_dataset_id",
         "input_dataset_revision_id", "input_point_count", "output_point_count", "removed_point_count",
         "result_artifact_id", "result_sha256", "output_dataset_id", "output_dataset_revision_id",
-        "failure_code", "change_reason", "started_at", "ended_at", "links"
+        "failure_code", "change_reason", "started_at", "ended_at", "run_kind",
+        "batch_id", "member_ordinal", "links"
       ],
       "properties": {
         "processing_run_id": {"$ref": "#/$defs/Uuid"},
@@ -226,7 +280,29 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
         "started_at": {"type": "string", "format": "date-time"},
         "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "run_kind": {"enum": ["reference_tensile_inclusive_crop", "reference_tensile_common_grid_linear"]},
+        "batch_id": {"type": ["string", "null"], "format": "uuid"},
+        "member_ordinal": {"type": ["integer", "null"], "minimum": 0, "maximum": 49},
         "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReplicateAlignmentBatchResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alignment_batch_id", "selection_id", "selection_revision_id", "recipe_id",
+        "recipe_revision_id", "common_domain_start", "common_domain_end", "member_count", "runs"
+      ],
+      "properties": {
+        "alignment_batch_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_revision_id": {"$ref": "#/$defs/Uuid"},
+        "common_domain_start": {"type": "number"},
+        "common_domain_end": {"type": "number"},
+        "member_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "runs": {"type": "array", "minItems": 2, "maxItems": 50, "items": {"$ref": "#/$defs/ProcessingRunResponse"}}
       }
     },
     "ProcessingProblem": {

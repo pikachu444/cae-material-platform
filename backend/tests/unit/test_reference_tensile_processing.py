@@ -63,6 +63,9 @@ from cmp.modules.processing.application.service import (
 from cmp.modules.processing.application.service import (
     RevisionSnapshot as ProcessingRevisionSnapshot,
 )
+from cmp.modules.processing.domain.reference_tensile_alignment import (
+    ReferenceTensileAlignmentRecipeContent,
+)
 from cmp.modules.processing.domain.reference_tensile_crop import (
     ProcessingConflict,
     ProcessingRunStatus,
@@ -410,7 +413,9 @@ class _ProcessingRepository:
         decision: AuthorizationDecision,
         recipe_id: UUID,
         recipe_revision_id: UUID,
-    ) -> ProcessingRevisionSnapshot[ReferenceTensileCropRecipeContent]:
+    ) -> ProcessingRevisionSnapshot[
+        ReferenceTensileCropRecipeContent | ReferenceTensileAlignmentRecipeContent
+    ]:
         assert context is CONTEXT
         assert decision is EXECUTE
         assert (recipe_id, recipe_revision_id) == (RECIPE, RECIPE_REVISION)

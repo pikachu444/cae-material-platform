@@ -1095,8 +1095,22 @@ export interface ReferenceTensileCropRecipeContent {
   boundary_policy: "select_observed_points_inclusive_no_interpolation";
 }
 
+export interface ReferenceTensileAlignmentRecipeContent {
+  recipe_kind: "reference_tensile_common_grid_linear";
+  step_count: 1;
+  grid_start_engineering_strain: number;
+  grid_end_engineering_strain: number;
+  grid_point_count: number;
+  domain_policy: "intersection";
+  interpolation_policy: "piecewise_linear";
+  extrapolation_policy: "reject";
+  input_schema_ref: string;
+  output_schema_ref: string;
+  diagnostics_schema_ref: string;
+}
+
 export interface ProcessingRecipeRevision extends RevisionMetadata {
-  content: ReferenceTensileCropRecipeContent;
+  content: ReferenceTensileCropRecipeContent | ReferenceTensileAlignmentRecipeContent;
 }
 
 export interface ProcessingRecipeResponse {
@@ -1128,7 +1142,22 @@ export interface ProcessingRunResponse {
   change_reason: string;
   started_at: string;
   ended_at: string | null;
+  run_kind: "reference_tensile_inclusive_crop" | "reference_tensile_common_grid_linear";
+  batch_id: string | null;
+  member_ordinal: number | null;
   links: Record<string, string>;
+}
+
+export interface ReplicateAlignmentBatchResponse {
+  alignment_batch_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  recipe_id: string;
+  recipe_revision_id: string;
+  common_domain_start: number;
+  common_domain_end: number;
+  member_count: number;
+  runs: ProcessingRunResponse[];
 }
 
 export interface ReferenceTensilePairPlanContent {

@@ -254,7 +254,8 @@ skip zero and failure zero are the acceptance rule.
 without discarding the implemented foundation:
 
 1. `P0-1` (**complete**): live Docker Compose/PostgreSQL migration, RLS, integration, CI, and browser verification.
-2. `P0-2` (**next**): multi-replicate Selection/processing, statistics, QC, outlier scope, and connected UI.
+2. `P0-2` (**in progress**): multi-replicate Selection and explicit common-grid processing are
+   implemented; multi-member statistics, QC, outlier scope, and their connected UI remain next.
 3. `P1`: bounded non-production nonlinear reference calibration, Candidate selection, calibrated IR,
    existing OpenRadioss/Abaqus card generation, and solver-independent holdout checks.
 4. `P2`: Process/Lot/Batch and broader domain work, actual solver/HPC execution qualification,
@@ -450,6 +451,7 @@ GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA jobs TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA plugin TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA artifact TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA provenance TO cmp_app;
+GRANT UPDATE ON provenance.activity, provenance.association TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA events TO cmp_app;
 GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA audit TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA catalog TO cmp_app;

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from typing import Annotated, Any
 from uuid import UUID
@@ -25,13 +26,16 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.service import (
+    CreateReferenceTensileAlignmentRecipe,
     CreateReferenceTensileCropRecipe,
     ExecuteReferenceImport,
+    ExecuteReferenceTensileAlignment,
     ExecuteReferenceTensileCrop,
     ImportRun,
     ProcessingRecipeSnapshot,
     ProcessingRun,
     ProcessingService,
+    ReplicateAlignmentBatch,
     ReviseReferenceTensileCropRecipe,
     RevisionSnapshot,
 )
@@ -39,6 +43,14 @@ from cmp.modules.processing.domain.reference_import import (
     REFERENCE_IMPORT_EXECUTION_MODE,
     REFERENCE_IMPORT_RUN_KIND,
     ImportRunStatus,
+)
+from cmp.modules.processing.domain.reference_tensile_alignment import (
+    REFERENCE_TENSILE_ALIGNMENT_DIAGNOSTICS_SCHEMA,
+    REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+    AlignmentDomainPolicy,
+    AlignmentExtrapolationPolicy,
+    AlignmentInterpolationPolicy,
+    ReferenceTensileAlignmentRecipeContent,
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
@@ -57,6 +69,7 @@ from cmp.shared.domain.revisions import RevisionKernelError, RevisionRecord
 
 type Label = Annotated[str, StringConstraints(min_length=1, max_length=255)]
 type Dependency = Callable[..., object]
+logger = logging.getLogger(__name__)
 
 
 class ReferenceTensileCropRecipeInput(BaseModel):
@@ -93,6 +106,39 @@ class ReviseReferenceTensileCropRecipeRequest(BaseModel):
 
 
 class ExecuteReferenceTensileCropRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection_id: UUID
+    selection_revision_id: UUID
+    recipe_id: UUID
+    recipe_revision_id: UUID
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceTensileAlignmentRecipeInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    recipe_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    grid_start_engineering_strain: Annotated[float, Field(ge=0)]
+    grid_end_engineering_strain: float
+    grid_point_count: Annotated[int, Field(ge=2, le=100_000)]
+    domain_policy: AlignmentDomainPolicy
+    interpolation_policy: AlignmentInterpolationPolicy
+    extrapolation_policy: AlignmentExtrapolationPolicy
+
+    def to_domain(self) -> ReferenceTensileAlignmentRecipeContent:
+        return ReferenceTensileAlignmentRecipeContent(**self.model_dump())
+
+
+class CreateReferenceTensileAlignmentRecipeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classification: DataClassification
+    content: ReferenceTensileAlignmentRecipeInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ExecuteReferenceTensileAlignmentRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     selection_id: UUID
@@ -144,17 +190,61 @@ class ReferenceTensileCropRecipeContentResponse(BaseModel):
         )
 
 
+class ReferenceTensileAlignmentRecipeContentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    recipe_kind: str
+    step_count: int
+    grid_start_engineering_strain: float
+    grid_end_engineering_strain: float
+    grid_point_count: int
+    domain_policy: AlignmentDomainPolicy
+    interpolation_policy: AlignmentInterpolationPolicy
+    extrapolation_policy: AlignmentExtrapolationPolicy
+    input_schema_ref: str
+    output_schema_ref: str
+    diagnostics_schema_ref: str
+
+    @classmethod
+    def from_domain(
+        cls, value: ReferenceTensileAlignmentRecipeContent
+    ) -> ReferenceTensileAlignmentRecipeContentResponse:
+        return cls(
+            recipe_kind=REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+            step_count=1,
+            grid_start_engineering_strain=value.grid_start_engineering_strain,
+            grid_end_engineering_strain=value.grid_end_engineering_strain,
+            grid_point_count=value.grid_point_count,
+            domain_policy=value.domain_policy,
+            interpolation_policy=value.interpolation_policy,
+            extrapolation_policy=value.extrapolation_policy,
+            input_schema_ref=REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
+            output_schema_ref=REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+            diagnostics_schema_ref=REFERENCE_TENSILE_ALIGNMENT_DIAGNOSTICS_SCHEMA,
+        )
+
+
 class ProcessingRecipeRevisionResponse(RevisionMetadataResponse):
-    content: ReferenceTensileCropRecipeContentResponse
+    content: (
+        ReferenceTensileCropRecipeContentResponse
+        | ReferenceTensileAlignmentRecipeContentResponse
+    )
 
     @classmethod
     def from_snapshot(
-        cls, value: RevisionSnapshot[ReferenceTensileCropRecipeContent]
+        cls,
+        value: RevisionSnapshot[
+            ReferenceTensileCropRecipeContent | ReferenceTensileAlignmentRecipeContent
+        ],
     ) -> ProcessingRecipeRevisionResponse:
         metadata = RevisionMetadataResponse.from_record(value.record, "draft")
         return cls(
             **metadata.model_dump(),
-            content=ReferenceTensileCropRecipeContentResponse.from_domain(value.content),
+            content=(
+                ReferenceTensileCropRecipeContentResponse.from_domain(value.content)
+                if isinstance(value.content, ReferenceTensileCropRecipeContent)
+                else ReferenceTensileAlignmentRecipeContentResponse.from_domain(value.content)
+            ),
         )
 
 
@@ -207,6 +297,9 @@ class ProcessingRunResponse(BaseModel):
     change_reason: str
     started_at: str
     ended_at: str | None
+    run_kind: str
+    batch_id: UUID | None
+    member_ordinal: int | None
     links: dict[str, str]
 
     @classmethod
@@ -241,7 +334,38 @@ class ProcessingRunResponse(BaseModel):
             change_reason=value.change_reason,
             started_at=value.started_at.isoformat(),
             ended_at=value.ended_at.isoformat() if value.ended_at is not None else None,
+            run_kind=value.run_kind,
+            batch_id=value.batch_id,
+            member_ordinal=value.member_ordinal,
             links=links,
+        )
+
+
+class ReplicateAlignmentBatchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    alignment_batch_id: UUID
+    selection_id: UUID
+    selection_revision_id: UUID
+    recipe_id: UUID
+    recipe_revision_id: UUID
+    common_domain_start: float
+    common_domain_end: float
+    member_count: int
+    runs: tuple[ProcessingRunResponse, ...]
+
+    @classmethod
+    def from_domain(cls, value: ReplicateAlignmentBatch) -> ReplicateAlignmentBatchResponse:
+        return cls(
+            alignment_batch_id=value.id,
+            selection_id=value.selection_id,
+            selection_revision_id=value.selection_revision_id,
+            recipe_id=value.recipe_id,
+            recipe_revision_id=value.recipe_revision_id,
+            common_domain_start=value.common_domain_start,
+            common_domain_end=value.common_domain_end,
+            member_count=len(value.runs),
+            runs=tuple(ProcessingRunResponse.from_domain(run) for run in value.runs),
         )
 
 
@@ -382,10 +506,7 @@ def _translate(context: SecurityContext, error: Exception) -> ProcessingHttpErro
             context=context,
             status_code=422,
             title="Invalid Processing request",
-            detail=(
-                "The reference crop requires finite ordered bounds and declared compatible "
-                "input."
-            ),
+            detail="The typed Processing recipe, grid, bounds, or input is invalid.",
             code="CMP-PROCESSING-0002",
         )
     if isinstance(error, (ArtifactAccessDenied, ArtifactIntegrityError)):
@@ -477,6 +598,39 @@ def install_processing_api(
                 context,
                 decision,
                 CreateReferenceTensileCropRecipe(
+                    classification=body.classification,
+                    content=body.content.to_domain(),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/processing-recipes/{result.id}"
+        _etag(response, result.current.record)
+        return ProcessingRecipeResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/processing-recipes/reference-tensile-common-grid",
+        operation_id="createReferenceTensileAlignmentRecipe",
+        response_model=ProcessingRecipeResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["processing"],
+    )
+    def create_alignment_recipe(
+        request: Request,
+        response: Response,
+        body: CreateReferenceTensileAlignmentRecipeRequest,
+    ) -> ProcessingRecipeResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_tensile_alignment_recipe(
+                context,
+                decision,
+                CreateReferenceTensileAlignmentRecipe(
                     classification=body.classification,
                     content=body.content.to_domain(),
                     change_reason=body.change_reason,
@@ -603,6 +757,38 @@ def install_processing_api(
         response.headers["Location"] = f"/api/v1/processing-runs/{result.id}"
         response.headers["Cache-Control"] = "no-store"
         return ProcessingRunResponse.from_domain(result)
+
+    @application.post(
+        "/api/v1/processing-runs/reference-tensile-common-grid",
+        operation_id="executeReferenceTensileAlignment",
+        response_model=ReplicateAlignmentBatchResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["processing"],
+    )
+    async def execute_alignment(
+        request: Request,
+        response: Response,
+        body: ExecuteReferenceTensileAlignmentRequest,
+    ) -> ReplicateAlignmentBatchResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = await service.execute_reference_tensile_alignment(
+                context,
+                decision,
+                ExecuteReferenceTensileAlignment(**body.model_dump()),
+            )
+        except Exception as error:
+            logger.exception("reference tensile replicate alignment failed")
+            raise _translate(context, error) from error
+        response.headers["Location"] = (
+            f"/api/v1/processing-runs/reference-tensile-common-grid/{result.id}"
+        )
+        response.headers["Cache-Control"] = "no-store"
+        return ReplicateAlignmentBatchResponse.from_domain(result)
 
     @application.get(
         "/api/v1/processing-runs/{run_id}",

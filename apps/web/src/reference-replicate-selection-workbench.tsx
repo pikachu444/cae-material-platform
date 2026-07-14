@@ -3,7 +3,9 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
+  createReferenceTensileAlignmentRecipe,
   createReferenceTensileReplicateSelection,
+  executeReferenceTensileAlignment,
   listReferenceTensileReplicateSelections,
   previewDatasetCurve,
   reviseReferenceTensileReplicateSelection,
@@ -90,9 +92,19 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
   const [selections, setSelections] = useState<TensileReplicateSelectionResponse[]>([]);
   const [selectedSelectionId, setSelectedSelectionId] = useState("");
   const [curves, setCurves] = useState<CurvePreview[]>([]);
+  const [alignedCurves, setAlignedCurves] = useState<CurvePreview[]>([]);
   const [label, setLabel] = useState("Reference tensile replicate set");
   const [reason, setReason] = useState("Pin independent tensile Dataset revisions");
   const [busy, setBusy] = useState(false);
+  const [aligning, setAligning] = useState(false);
+  const [alignmentLabel, setAlignmentLabel] = useState("Common tensile replicate grid");
+  const [gridStart, setGridStart] = useState("0");
+  const [gridEnd, setGridEnd] = useState("0.02");
+  const [gridPointCount, setGridPointCount] = useState("201");
+  const [alignmentReason, setAlignmentReason] = useState(
+    "Align pinned tensile replicates on an explicit common grid",
+  );
+  const [alignmentSummary, setAlignmentSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const selectedSelection = selections.find((item) => item.selection_id === selectedSelectionId);
 
@@ -120,6 +132,18 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
     }).catch((cause: unknown) => current && setError(messageFor(cause)));
     return () => { current = false; };
   }, [config, selectedSelection]);
+
+  useEffect(() => {
+    if (curves.length < 2) return;
+    const start = Math.max(...curves.map((item) => item.points[0]?.engineering_strain ?? 0));
+    const end = Math.min(...curves.map(
+      (item) => item.points[item.points.length - 1]?.engineering_strain ?? 0,
+    ));
+    if (end > start) {
+      setGridStart(String(start));
+      setGridEnd(String(end));
+    }
+  }, [curves]);
 
   function toggle(revisionId: string): void {
     setSelectedRevisionIds((current) => current.includes(revisionId)
@@ -157,6 +181,63 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
       setError(messageFor(cause));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function align(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!selectedSelection) return;
+    const start = Number(gridStart);
+    const end = Number(gridEnd);
+    const pointCount = Number(gridPointCount);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+      setError("Enter a finite common-grid end greater than its start.");
+      return;
+    }
+    if (!Number.isInteger(pointCount) || pointCount < 2 || pointCount > 100_000) {
+      setError("Grid point count must be an integer from 2 to 100000.");
+      return;
+    }
+    setAligning(true);
+    setError(null);
+    setAlignmentSummary(null);
+    try {
+      const recipe = await createReferenceTensileAlignmentRecipe(config, {
+        classification: selectedSelection.current_revision.classification,
+        content: {
+          recipe_label: alignmentLabel.trim(),
+          grid_start_engineering_strain: start,
+          grid_end_engineering_strain: end,
+          grid_point_count: pointCount,
+          domain_policy: "intersection",
+          interpolation_policy: "piecewise_linear",
+          extrapolation_policy: "reject",
+        },
+        change_reason: alignmentReason.trim(),
+      });
+      const batch = await executeReferenceTensileAlignment(config, {
+        selection_id: selectedSelection.selection_id,
+        selection_revision_id: selectedSelection.current_revision.id,
+        recipe_id: recipe.data.recipe_id,
+        recipe_revision_id: recipe.data.current_revision.id,
+        change_reason: alignmentReason.trim(),
+      });
+      const previews = await Promise.all(batch.data.runs.map((run) => {
+        if (!run.output_dataset_revision_id) {
+          throw new Error("Alignment run did not commit an output Dataset revision.");
+        }
+        return previewDatasetCurve(config, run.output_dataset_revision_id, 1000);
+      }));
+      setAlignedCurves(previews.map((result) => result.data));
+      setAlignmentSummary(
+        `Batch ${shortId(batch.data.alignment_batch_id)} committed ${batch.data.member_count} `
+        + `processed Dataset revisions on [${batch.data.common_domain_start}, `
+        + `${batch.data.common_domain_end}].`,
+      );
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAligning(false);
     }
   }
 
@@ -209,6 +290,33 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
       ) : null}
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {curves.length ? <Overlay curves={curves} /> : null}
+      {selectedSelection ? (
+        <form className="form-stack alignment-workbench" onSubmit={(event) => void align(event)}>
+          <strong>6B. Commit separate processed revisions on one explicit grid</strong>
+          <p className="form-hint">
+            Domain=intersection, interpolation=piecewise linear, extrapolation=reject. All four
+            choices and the exact grid are persisted in the immutable Recipe revision.
+          </p>
+          <label>
+            Recipe label
+            <input value={alignmentLabel} onChange={(event) => setAlignmentLabel(event.target.value)} required />
+          </label>
+          <div className="form-grid three-columns">
+            <label>Grid start (strain, 1)<input type="number" step="any" min="0" value={gridStart} onChange={(event) => setGridStart(event.target.value)} required /></label>
+            <label>Grid end (strain, 1)<input type="number" step="any" min="0" value={gridEnd} onChange={(event) => setGridEnd(event.target.value)} required /></label>
+            <label>Point count<input type="number" min="2" max="100000" step="1" value={gridPointCount} onChange={(event) => setGridPointCount(event.target.value)} required /></label>
+          </div>
+          <label>
+            Change reason
+            <input value={alignmentReason} onChange={(event) => setAlignmentReason(event.target.value)} required />
+          </label>
+          <button className="button secondary" type="submit" disabled={aligning}>
+            {aligning ? "Committing aligned revisions..." : "Create Recipe and align all members"}
+          </button>
+          {alignmentSummary ? <div className="success-banner">{alignmentSummary}</div> : null}
+        </form>
+      ) : null}
+      {alignedCurves.length ? <Overlay curves={alignedCurves} /> : null}
     </div>
   );
 }
