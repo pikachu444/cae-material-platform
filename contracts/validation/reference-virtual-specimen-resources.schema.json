@@ -331,7 +331,7 @@
         "experimental_selection_id", "experimental_selection_revision_id", "execution_mode", "runner_id",
         "runner_version", "runner_digest", "status", "deck", "external_job_reference", "failure_code",
         "submitted_at", "started_at", "ended_at", "created_by", "request_id", "trace_id",
-        "change_reason", "result_manifest", "links"
+        "change_reason", "result_manifest", "validation_result", "links"
       ],
       "properties": {
         "validation_run_id": {"$ref": "#/$defs/Uuid"},
@@ -362,6 +362,12 @@
         "trace_id": {"type": "string", "minLength": 1, "maxLength": 255},
         "change_reason": {"$ref": "#/$defs/ChangeReason"},
         "result_manifest": {"oneOf": [{"$ref": "#/$defs/ValidationResultManifestResponse"}, {"type": "null"}]},
+        "validation_result": {
+          "oneOf": [
+            {"$ref": "reference-result-interpretation-resources.schema.json#/$defs/ReferenceValidationResultResponse"},
+            {"type": "null"}
+          ]
+        },
         "links": {"$ref": "#/$defs/Links"}
       }
     },

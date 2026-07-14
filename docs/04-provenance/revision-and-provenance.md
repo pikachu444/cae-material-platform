@@ -296,4 +296,10 @@ Release 전 자동 검사한다.
     mock and manual attachment: exact Plan/Template/IR/Card/Selection usage plus immutable
     deck/log/native-result/manifest Artifact generation. A normal termination is evidence only and
     must not be represented as a validation verdict.
+11. a T-28 Validation Result is a separate immutable interpretation activity. It uses the frozen
+    terminal Result Manifest and experimental Selection revision, generates separate normalized
+    response, numerical-health-report, and comparison-result Artifacts, and records their digests
+    without changing the Run, Manifest, native Artifact, source Dataset, IR, Card, or a prior
+    result. Its pass/fail/not-evaluated value is an explicit reference profile outcome, never a
+    replacement for approval or release provenance.
 

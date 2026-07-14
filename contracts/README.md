@@ -1,8 +1,8 @@
 # Public contract baseline
 
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
-`T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, and the `T-32` workbench. HTTP contract version
-`0.22.0`.
+`T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, and the `T-32` workbench. HTTP contract version
+`0.23.0`.
 
 ## Files
 
@@ -37,7 +37,10 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
   exact-scope comparison resources without source mutation or automatic exclusion
 - `validation/reference-virtual-specimen-resources.schema.json`: typed non-production reference
   virtual-specimen Template/Plan revisions, exact immutable IR/Card/Selection pins, durable Run,
-  and shared mock/manual Result Manifest Artifact evidence without a validation verdict
+  and shared mock/manual Result Manifest Artifact evidence
+- `validation/reference-result-interpretation-resources.schema.json`: typed non-production
+  response extraction, numerical-health, observed-grid comparison, and immutable reference verdict
+  evidence; it does not claim production model or solver validation
 - `revisions/revision-metadata.schema.json`: content-free typed-revision metadata envelope
 - `identity/me-response.schema.json`: authenticated principal and selected tenant context
 - `examples/positive`: examples that must validate
@@ -98,10 +101,13 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
   Test Runs. Curve statistics require identical observed engineering-strain grids; the contract
   explicitly forbids implicit alignment/resampling and marks the two-sample confidence interval as
   `not_provided_reference_pair`.
-- The reference Validation contract records evidence only. A Plan pins concrete Template, Material
-  Model IR, Solver Card, and experimental Selection revisions; `reference_inline_mock` and
-  `manual_attach` share one immutable Result Manifest shape. Normal termination is not a health or
-  experimental-validation pass, and no shell command field is public.
+- A reference Validation Plan pins concrete Template, Material Model IR, Solver Card, and
+  experimental Selection revisions; `reference_inline_mock` and `manual_attach` share one
+  immutable Result Manifest shape. T-28 extracts a typed SI response only from bounded native
+  evidence, records numerical health separately, and compares at the observed experimental strain
+  grid with explicit linear interpolation and no extrapolation. Normal termination alone is not a
+  pass; abnormal/unhealthy output and fitted-selection overlap are `not_evaluated`. No shell command
+  field is public.
 
 Run `make check-contracts` after every contract change. Accepting a breaking change requires a new
 major contract, an ADR, and migration guidance; do not overwrite the baseline to hide the break.

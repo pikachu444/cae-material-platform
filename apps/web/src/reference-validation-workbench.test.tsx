@@ -26,6 +26,7 @@ const templateRevisionId = "27000000-0000-4000-8000-00000000020b";
 const planId = "27000000-0000-4000-8000-00000000020c";
 const planRevisionId = "27000000-0000-4000-8000-00000000020d";
 const runId = "27000000-0000-4000-8000-00000000020e";
+const validationResultId = "28000000-0000-4000-8000-00000000020f";
 
 const state = {
   material_state_id: materialStateId,
@@ -133,6 +134,7 @@ describe("Reference validation workbench", () => {
       runner_version: "1.0.0",
       failure_code: null,
       result_manifest: null,
+      validation_result: null,
     };
     const terminalRun = {
       ...queuedRun,
@@ -147,6 +149,71 @@ describe("Reference validation workbench", () => {
         native_result: { artifact_id: "27000000-0000-4000-8000-000000000218", sha256: "f".repeat(64) },
         manifest_artifact: { artifact_id: "27000000-0000-4000-8000-000000000219", sha256: "1".repeat(64) },
       },
+    };
+    const evaluatedRun = {
+      ...terminalRun,
+      validation_result: {
+        validation_result_id: validationResultId,
+        verdict: "passed",
+        relative_root_mean_squared_error: 0,
+        relative_rmse_threshold: 0.05,
+        root_mean_squared_error_pa: 0,
+        compared_point_count: 3,
+        holdout_independence: "independent_selection",
+        reason_code: null,
+        response_extraction: {
+          normalized_response: {
+            artifact_id: "28000000-0000-4000-8000-000000000220",
+            sha256: "2".repeat(64),
+          },
+        },
+        numerical_health_report: {
+          status: "healthy",
+          report_artifact: {
+            artifact_id: "28000000-0000-4000-8000-000000000221",
+            sha256: "3".repeat(64),
+          },
+        },
+        result_artifact: {
+          artifact_id: "28000000-0000-4000-8000-000000000222",
+          sha256: "4".repeat(64),
+        },
+      },
+    };
+    const curve = {
+      validation_result_id: validationResultId,
+      verdict: "passed",
+      response_point_count: 3,
+      returned_response_point_count: 3,
+      response_sampled: false,
+      response_points: [
+        { engineering_strain: 0, engineering_stress_pa: 0 },
+        { engineering_strain: 0.01, engineering_stress_pa: 2_100_000_000 },
+        { engineering_strain: 0.02, engineering_stress_pa: 4_200_000_000 },
+      ],
+      comparison_point_count: 3,
+      returned_comparison_point_count: 3,
+      comparison_sampled: false,
+      comparison_points: [
+        {
+          engineering_strain: 0,
+          observed_engineering_stress_pa: 0,
+          simulated_engineering_stress_pa: 0,
+          residual_engineering_stress_pa: 0,
+        },
+        {
+          engineering_strain: 0.01,
+          observed_engineering_stress_pa: 2_100_000_000,
+          simulated_engineering_stress_pa: 2_100_000_000,
+          residual_engineering_stress_pa: 0,
+        },
+        {
+          engineering_strain: 0.02,
+          observed_engineering_stress_pa: 4_200_000_000,
+          simulated_engineering_stress_pa: 4_200_000_000,
+          residual_engineering_stress_pa: 0,
+        },
+      ],
     };
     const fetchMock = vi.fn<typeof fetch>((input, init) => {
       const url = String(input);
@@ -181,6 +248,12 @@ describe("Reference validation workbench", () => {
       if (url.endsWith(`/validation-runs/${runId}:poll`) && method === "POST") {
         return Promise.resolve(jsonResponse(terminalRun));
       }
+      if (url.endsWith(`/validation-runs/${runId}:evaluate`) && method === "POST") {
+        return Promise.resolve(jsonResponse(evaluatedRun));
+      }
+      if (url.endsWith(`/validation-results/${validationResultId}/curve?maximum_points=1000`)) {
+        return Promise.resolve(jsonResponse(curve));
+      }
       return Promise.resolve(jsonResponse({ items: [] }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -198,6 +271,9 @@ describe("Reference validation workbench", () => {
     await screen.findByText(/Validation Run 27000000/);
     fireEvent.click(screen.getByRole("button", { name: "Collect mock outcome" }));
     await screen.findByText(/Termination: normal/);
+    fireEvent.click(screen.getByRole("button", { name: "Extract response and evaluate" }));
+    await screen.findByText("Reference result interpretation");
+    await screen.findByRole("img", { name: "Observed and reference simulated engineering stress-strain curves" });
 
     await waitFor(() => {
       const planCall = fetchMock.mock.calls.find(([url, init]) => (
@@ -222,6 +298,13 @@ describe("Reference validation workbench", () => {
       ));
       expect(pollCall).toBeTruthy();
       expect(JSON.parse(String(pollCall?.[1]?.body))).toMatchObject({ outcome: "succeeded" });
+      const evaluateCall = fetchMock.mock.calls.find(([url, init]) => (
+        String(url).endsWith(`/validation-runs/${runId}:evaluate`) && init?.method === "POST"
+      ));
+      expect(evaluateCall).toBeTruthy();
+      expect(JSON.parse(String(evaluateCall?.[1]?.body))).toMatchObject({
+        change_reason: expect.stringContaining("assess numerical health"),
+      });
     });
   });
 });

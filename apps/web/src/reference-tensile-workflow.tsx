@@ -1,4 +1,4 @@
-import { type ChangeEvent, type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
@@ -291,6 +291,7 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const selectionListingGeneration = useRef(0);
 
   const matchingMethods = useMemo(
     () => methods.filter(
@@ -397,17 +398,19 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
 
   useEffect(() => {
     if (!open || !normalizedRevision) {
+      selectionListingGeneration.current += 1;
       setSelections([]);
       setSelectedSelectionId("");
       return;
     }
     let current = true;
+    const requestGeneration = ++selectionListingGeneration.current;
     void Promise.all([
       listDatasetRevisionSelections(config, normalizedRevision.id),
       listProcessingRecipes(config),
     ])
       .then(([nextSelections, nextRecipes]) => {
-        if (!current) {
+        if (!current || requestGeneration !== selectionListingGeneration.current) {
           return;
         }
         const scopedRecipes = nextRecipes.data.items.filter(
@@ -739,6 +742,8 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
     if (!normalizedRevision) {
       return;
     }
+    // An in-flight list response predating this creation must not erase the new immutable Selection.
+    selectionListingGeneration.current += 1;
     setAction("selection");
     setError(null);
     try {

@@ -244,7 +244,8 @@ async def _await_process(
         if cancellation_wait in done and cancellation.is_set():
             cancellation_marker.touch(exist_ok=True)
             try:
-                await asyncio.wait_for(process_wait, timeout=grace_seconds)
+                # Keep the transport wait alive so Windows cleanup cannot race a killed child.
+                await asyncio.wait_for(asyncio.shield(process_wait), timeout=grace_seconds)
                 return
             except TimeoutError as error:
                 await _stop(process)
@@ -252,7 +253,7 @@ async def _await_process(
                     "plugin subprocess ignored cancellation"
                 ) from error
         try:
-            await asyncio.wait_for(process_wait, timeout=grace_seconds)
+            await asyncio.wait_for(asyncio.shield(process_wait), timeout=grace_seconds)
             return
         except TimeoutError as error:
             await _stop(process)

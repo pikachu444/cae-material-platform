@@ -20,12 +20,15 @@ from cmp.modules.validation.application.service import (
     AttachManualValidationResult,
     CreateReferenceValidationPlan,
     CreateReferenceValidationTemplate,
+    EvaluateReferenceValidationRun,
+    ReferenceValidationResult,
     ReferenceValidationService,
     ReviseReferenceValidationPlan,
     ReviseReferenceValidationTemplate,
     RevisionSnapshot,
     SubmitValidationRun,
     ValidationPlanSnapshot,
+    ValidationResultCurvePreview,
     ValidationRunDetail,
     ValidationRunResultManifest,
     ValidationTemplateSnapshot,
@@ -308,6 +311,12 @@ class ValidationCancelRequest(BaseModel):
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
+class ValidationEvaluateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
 class ManualValidationAttachRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -379,6 +388,237 @@ class ValidationResultManifestResponse(BaseModel):
         )
 
 
+class ValidationResponseExtractionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    response_extraction_id: UUID
+    validation_run_id: UUID
+    validation_result_manifest_id: UUID
+    source_native_result: ArtifactPointerResponse | None
+    status: str
+    normalized_response: ArtifactPointerResponse | None
+    point_count: int | None
+    reason_code: str | None
+    created_at: datetime
+    created_by: UUID
+
+    @classmethod
+    def from_domain(cls, value: Any) -> ValidationResponseExtractionResponse:
+        return cls(
+            response_extraction_id=value.id,
+            validation_run_id=value.validation_run_id,
+            validation_result_manifest_id=value.validation_result_manifest_id,
+            source_native_result=(
+                ArtifactPointerResponse.from_domain(
+                    value.source_native_result.artifact_id,
+                    value.source_native_result.sha256,
+                )
+                if value.source_native_result is not None
+                else None
+            ),
+            status=value.status.value,
+            normalized_response=(
+                ArtifactPointerResponse.from_domain(
+                    value.normalized_response.artifact_id,
+                    value.normalized_response.sha256,
+                )
+                if value.normalized_response is not None
+                else None
+            ),
+            point_count=value.point_count,
+            reason_code=value.reason_code,
+            created_at=value.created_at,
+            created_by=value.created_by,
+        )
+
+
+class NumericalHealthReportResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    numerical_health_report_id: UUID
+    validation_run_id: UUID
+    validation_result_manifest_id: UUID
+    response_extraction_id: UUID
+    status: str
+    solver_termination: str
+    native_result_state: str
+    expected_point_count: int
+    observed_point_count: int | None
+    output_complete: bool
+    finite_values: bool
+    strictly_increasing_strain: bool
+    reason_code: str | None
+    report_artifact: ArtifactPointerResponse
+    report_sha256: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    created_at: datetime
+    created_by: UUID
+
+    @classmethod
+    def from_domain(cls, value: Any) -> NumericalHealthReportResponse:
+        assessment = value.content.assessment
+        return cls(
+            numerical_health_report_id=value.id,
+            validation_run_id=value.validation_run_id,
+            validation_result_manifest_id=value.validation_result_manifest_id,
+            response_extraction_id=value.response_extraction_id,
+            status=assessment.status.value,
+            solver_termination=value.content.solver_termination.value,
+            native_result_state=value.content.native_result_state,
+            expected_point_count=assessment.expected_point_count,
+            observed_point_count=assessment.observed_point_count,
+            output_complete=assessment.output_complete,
+            finite_values=assessment.finite_values,
+            strictly_increasing_strain=assessment.strictly_increasing_strain,
+            reason_code=assessment.reason_code,
+            report_artifact=ArtifactPointerResponse.from_domain(
+                value.report_artifact.artifact_id,
+                value.report_artifact.sha256,
+            ),
+            report_sha256=value.report_sha256,
+            created_at=value.created_at,
+            created_by=value.created_by,
+        )
+
+
+class ReferenceValidationResultResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    validation_result_id: UUID
+    validation_run_id: UUID
+    validation_result_manifest_id: UUID
+    response_extraction: ValidationResponseExtractionResponse
+    numerical_health_report: NumericalHealthReportResponse
+    experimental_selection_id: UUID
+    experimental_selection_revision_id: UUID
+    metric_profile_id: str
+    threshold_profile_id: str
+    alignment_profile_id: str
+    relative_rmse_threshold: float
+    experimental_point_count: int
+    simulated_point_count: int | None
+    compared_point_count: int
+    root_mean_squared_error_pa: float | None
+    relative_root_mean_squared_error: float | None
+    normalization_stress_scale_pa: float | None
+    holdout_independence: str
+    verdict: str
+    reason_code: str | None
+    result_artifact: ArtifactPointerResponse
+    result_sha256: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+    created_at: datetime
+    created_by: UUID
+    links: dict[str, str]
+
+    @classmethod
+    def from_domain(cls, value: ReferenceValidationResult) -> ReferenceValidationResultResponse:
+        content = value.content
+        metrics = content.metrics
+        return cls(
+            validation_result_id=value.id,
+            validation_run_id=value.validation_run_id,
+            validation_result_manifest_id=value.validation_result_manifest_id,
+            response_extraction=ValidationResponseExtractionResponse.from_domain(
+                value.response_extraction
+            ),
+            numerical_health_report=NumericalHealthReportResponse.from_domain(
+                value.numerical_health_report
+            ),
+            experimental_selection_id=content.experimental_selection_id,
+            experimental_selection_revision_id=content.experimental_selection_revision_id,
+            metric_profile_id=content.metric_profile_id,
+            threshold_profile_id=content.threshold_profile_id,
+            alignment_profile_id=content.alignment_profile_id,
+            relative_rmse_threshold=content.relative_rmse_threshold,
+            experimental_point_count=content.experimental_point_count,
+            simulated_point_count=content.simulated_point_count,
+            compared_point_count=len(metrics.comparison_points) if metrics is not None else 0,
+            root_mean_squared_error_pa=(
+                metrics.root_mean_squared_error_pa if metrics is not None else None
+            ),
+            relative_root_mean_squared_error=(
+                metrics.relative_root_mean_squared_error if metrics is not None else None
+            ),
+            normalization_stress_scale_pa=(
+                metrics.normalization_stress_scale_pa if metrics is not None else None
+            ),
+            holdout_independence=content.holdout_independence.value,
+            verdict=content.verdict.value,
+            reason_code=content.reason_code,
+            result_artifact=ArtifactPointerResponse.from_domain(
+                value.result_artifact.artifact_id,
+                value.result_artifact.sha256,
+            ),
+            result_sha256=value.result_sha256,
+            created_at=value.created_at,
+            created_by=value.created_by,
+            links={
+                "self": f"/api/v1/validation-results/{value.id}",
+                "curve": f"/api/v1/validation-results/{value.id}/curve",
+                "run": f"/api/v1/validation-runs/{value.validation_run_id}",
+            },
+        )
+
+
+class ValidationResponseCurvePoint(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    engineering_strain: float
+    engineering_stress_pa: float
+
+
+class ValidationComparisonCurvePoint(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    engineering_strain: float
+    observed_engineering_stress_pa: float
+    simulated_engineering_stress_pa: float
+    residual_engineering_stress_pa: float
+
+
+class ValidationResultCurveResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    validation_result_id: UUID
+    verdict: str
+    response_point_count: int
+    returned_response_point_count: int
+    response_sampled: bool
+    response_points: tuple[ValidationResponseCurvePoint, ...]
+    comparison_point_count: int
+    returned_comparison_point_count: int
+    comparison_sampled: bool
+    comparison_points: tuple[ValidationComparisonCurvePoint, ...]
+
+    @classmethod
+    def from_domain(cls, value: ValidationResultCurvePreview) -> ValidationResultCurveResponse:
+        return cls(
+            validation_result_id=value.validation_result_id,
+            verdict=value.verdict.value,
+            response_point_count=value.response_point_count,
+            returned_response_point_count=value.returned_response_point_count,
+            response_sampled=value.response_sampled,
+            response_points=tuple(
+                ValidationResponseCurvePoint(
+                    engineering_strain=point.engineering_strain,
+                    engineering_stress_pa=point.engineering_stress_pa,
+                )
+                for point in value.response_points
+            ),
+            comparison_point_count=value.comparison_point_count,
+            returned_comparison_point_count=value.returned_comparison_point_count,
+            comparison_sampled=value.comparison_sampled,
+            comparison_points=tuple(
+                ValidationComparisonCurvePoint(
+                    engineering_strain=point.engineering_strain,
+                    observed_engineering_stress_pa=point.observed_engineering_stress_pa,
+                    simulated_engineering_stress_pa=point.simulated_engineering_stress_pa,
+                    residual_engineering_stress_pa=point.residual_engineering_stress_pa,
+                )
+                for point in value.comparison_points
+            ),
+        )
+
+
 class ValidationRunResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -410,6 +650,7 @@ class ValidationRunResponse(BaseModel):
     trace_id: str
     change_reason: str
     result_manifest: ValidationResultManifestResponse | None
+    validation_result: ReferenceValidationResultResponse | None
     links: dict[str, str]
 
     @classmethod
@@ -448,11 +689,17 @@ class ValidationRunResponse(BaseModel):
                 if value.result_manifest is not None
                 else None
             ),
+            validation_result=(
+                ReferenceValidationResultResponse.from_domain(value.validation_result)
+                if value.validation_result is not None
+                else None
+            ),
             links={
                 "self": f"/api/v1/validation-runs/{run.id}",
                 "poll": f"/api/v1/validation-runs/{run.id}:poll",
                 "cancel": f"/api/v1/validation-runs/{run.id}:cancel",
                 "attach_result": f"/api/v1/validation-runs/{run.id}:attach-result",
+                "evaluate": f"/api/v1/validation-runs/{run.id}:evaluate",
             },
         )
 
@@ -923,3 +1170,75 @@ def install_validation_api(
         except Exception as error:
             raise _translate(context, error) from error
         return ValidationRunResponse.from_detail(value)
+
+    @application.post(
+        "/api/v1/validation-runs/{run_id}:evaluate",
+        operation_id="evaluateReferenceValidationRun",
+        response_model=ValidationRunResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["validation"],
+    )
+    async def evaluate_run(
+        request: Request, run_id: UUID, body: ValidationEvaluateRequest
+    ) -> ValidationRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = await service.evaluate_reference_run(
+                context,
+                decision,
+                run_id,
+                EvaluateReferenceValidationRun(body.change_reason),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ValidationRunResponse.from_detail(value)
+
+    @application.get(
+        "/api/v1/validation-results/{validation_result_id}",
+        operation_id="getValidationResult",
+        response_model=ReferenceValidationResultResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["validation"],
+    )
+    def get_validation_result(
+        request: Request, validation_result_id: UUID
+    ) -> ReferenceValidationResultResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.get_validation_result(context, decision, validation_result_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ReferenceValidationResultResponse.from_domain(value)
+
+    @application.get(
+        "/api/v1/validation-results/{validation_result_id}/curve",
+        operation_id="previewValidationResultCurve",
+        response_model=ValidationResultCurveResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["validation"],
+    )
+    async def preview_validation_result_curve(
+        request: Request,
+        validation_result_id: UUID,
+        maximum_points: Annotated[int, Query(ge=2, le=10_000)] = 1_000,
+    ) -> ValidationResultCurveResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = await service.preview_validation_result_curve(
+                context,
+                decision,
+                validation_result_id,
+                maximum_points=maximum_points,
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ValidationResultCurveResponse.from_domain(value)

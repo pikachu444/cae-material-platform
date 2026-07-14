@@ -633,6 +633,25 @@ class DatasetService:
             dataset_revision_id=dataset_revision_id,
         )
 
+    def get_dataset_revision_for_validation(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> DatasetRevisionSnapshot:
+        """Resolve one immutable normalized/processed Dataset input for Validation.
+
+        Validation receives the typed snapshot through the Dataset application boundary rather
+        than reaching into Dataset persistence for an Artifact pointer.
+        """
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+
     def get_calibration_dataset_source(
         self,
         context: SecurityContext,

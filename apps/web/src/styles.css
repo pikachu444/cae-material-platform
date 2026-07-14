@@ -838,6 +838,96 @@ dd {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+.validation-interpretation-result {
+  gap: 0.8rem;
+  border-color: #d5c6e6;
+  background: #fcfaff;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.metric-grid div {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #e2d9ed;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.metric-grid dt {
+  color: #6b5d78;
+  font-size: 0.68rem;
+}
+
+.metric-grid dd {
+  margin: 0.22rem 0 0;
+  color: #493b59;
+  font: 0.76rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.validation-curve-preview {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.65rem;
+  border: 1px solid #e2d9ed;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.validation-curve-preview svg {
+  width: 100%;
+  min-height: 180px;
+}
+
+.validation-curve-preview line {
+  stroke: #a397ae;
+  stroke-width: 1;
+}
+
+.validation-curve-preview polyline {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.validation-observed-curve {
+  stroke: #8c4c75;
+}
+
+.validation-simulated-curve {
+  stroke: #397c8d;
+}
+
+.validation-curve-preview figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  color: #66566f;
+  font-size: 0.72rem;
+}
+
+.curve-legend::before {
+  display: inline-block;
+  width: 1rem;
+  height: 0.2rem;
+  margin-right: 0.28rem;
+  vertical-align: middle;
+  content: "";
+}
+
+.curve-legend.observed::before {
+  background: #8c4c75;
+}
+
+.curve-legend.simulated::before {
+  background: #397c8d;
+}
+
 .calibration-workbench-stack .workflow-step {
   border-color: #dcd9ef;
   background: rgb(255 255 255 / 88%);
@@ -1347,6 +1437,7 @@ summary {
   .property-grid,
   .calibration-parameter-grid,
   .validation-template-grid,
+  .metric-grid,
   .calibration-residual-summary {
     grid-template-columns: 1fr;
   }

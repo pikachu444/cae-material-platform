@@ -461,6 +461,17 @@ approval/release, uncertainty, and solver validation remain outside this bounded
 
 #### T-28. Result extraction, numerical health, experimental validation — `P0`
 
+- **상태 (2026-07-22):** reference subset 구현. terminal Result Manifest에서 별도 immutable
+  normalized-response Artifact, numerical-health report Artifact, comparison-result Artifact와
+  explicit `validation_response_extraction`/`validation_numerical_health_report`/
+  `validation_result`/comparison-point rows를 append한다. native SI unit/target/curve integrity,
+  termination, health, observed-grid linear interpolation/no extrapolation, fixed relative-RMSE
+  `0.05`, calibration Selection overlap을 명시적으로 판정한다. abnormal/unhealthy/no-output/
+  unit-or-alignment-invalid/overlap 결과는 `not_evaluated`이고 pass가 될 수 없다. protected
+  evaluate/read/curve API와 Material State workbench가 이를 표시한다. 이는 non-production
+  reference evidence이며 real solver/HPC qualification, production threshold, approval/release는
+  포함하지 않는다(ADR-0014).
+
 - **목적:** native result를 normalized response로 추출하고 solver health와 실험 비교 verdict를 분리한다.
 - **입력과 출력:** 입력은 native result/log, experimental Selection, extraction/metric profiles; 출력은 response artifact, health report, metrics, Validation Result.
 - **영향 데이터/API:** `validation.result`, metric/threshold profile; validation result API.

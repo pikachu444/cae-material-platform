@@ -6,6 +6,7 @@ import {
   cancelValidationRun,
   createReferenceValidationPlan,
   createReferenceValidationTemplate,
+  evaluateReferenceValidationRun,
   listDatasetRevisionSelections,
   listDatasetsForMaterialState,
   listMaterialModels,
@@ -13,6 +14,7 @@ import {
   listValidationPlans,
   listValidationTemplates,
   pollReferenceValidationRun,
+  previewReferenceValidationResultCurve,
   submitReferenceValidationRun,
 } from "./api";
 import type {
@@ -23,6 +25,7 @@ import type {
   SolverCardResponse,
   ValidationExecutionMode,
   ValidationPlanResponse,
+  ValidationResultCurveResponse,
   ValidationRunResponse,
   ValidationTemplateResponse,
 } from "./types";
@@ -47,9 +50,11 @@ function defaultNativeResult(): string {
       non_production: true,
       target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" },
       solver_termination: "normal",
+      channel_units: { engineering_strain: "1", engineering_stress_pa: "Pa" },
       points: [
         { engineering_strain: 0, engineering_stress_pa: 0 },
         { engineering_strain: 0.01, engineering_stress_pa: 2100000000 },
+        { engineering_strain: 0.02, engineering_stress_pa: 4200000000 },
       ],
     },
     null,
@@ -62,6 +67,62 @@ function ArtifactEvidence({ label, artifact }: { label: string; artifact: { arti
     return <li><strong>{label}</strong><span>not available</span></li>;
   }
   return <li><strong>{label}</strong><span>{shortId(artifact.artifact_id)} · {shortId(artifact.sha256)}</span></li>;
+}
+
+function formatScientific(value: number | null, digits = 3): string {
+  return value === null ? "not evaluated" : value.toExponential(digits);
+}
+
+function ReferenceValidationCurve({ curve }: { curve: ValidationResultCurveResponse }) {
+  const points = curve.comparison_points;
+  if (points.length < 2) {
+    return <p className="muted">No aligned observed-grid curve is available for this result.</p>;
+  }
+  const width = 560;
+  const height = 250;
+  const padding = 28;
+  const maximumStrain = Math.max(...points.map((point) => point.engineering_strain), 1e-12);
+  const maximumStress = Math.max(
+    ...points.flatMap((point) => [
+      point.observed_engineering_stress_pa,
+      point.simulated_engineering_stress_pa,
+    ]),
+    1,
+  );
+  const coordinate = (strain: number, stress: number): string => {
+    const x = padding + (strain / maximumStrain) * (width - padding * 2);
+    const y = height - padding - (stress / maximumStress) * (height - padding * 2);
+    return `${x},${y}`;
+  };
+  const observed = points
+    .map((point) => coordinate(point.engineering_strain, point.observed_engineering_stress_pa))
+    .join(" ");
+  const simulated = points
+    .map((point) => coordinate(point.engineering_strain, point.simulated_engineering_stress_pa))
+    .join(" ");
+
+  return (
+    <figure className="validation-curve-preview">
+      <svg
+        aria-label="Observed and reference simulated engineering stress-strain curves"
+        role="img"
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} />
+        <line x1={padding} y1={padding} x2={padding} y2={height - padding} />
+        <polyline className="validation-observed-curve" points={observed} fill="none" />
+        <polyline className="validation-simulated-curve" points={simulated} fill="none" />
+      </svg>
+      <figcaption>
+        <span className="curve-legend observed">Observed experimental selection</span>
+        <span className="curve-legend simulated">Reference simulated response</span>
+        <span className="muted">
+          {curve.returned_comparison_point_count}/{curve.comparison_point_count} observed-grid points
+          {curve.comparison_sampled ? " (sampled)" : ""}
+        </span>
+      </figcaption>
+    </figure>
+  );
 }
 
 export function ReferenceValidationWorkbench({
@@ -94,7 +155,7 @@ export function ReferenceValidationWorkbench({
   const [crossSectionArea, setCrossSectionArea] = useState("0.00001");
   const [elementCount, setElementCount] = useState("10");
   const [displacement, setDisplacement] = useState("0.001");
-  const [sampleCount, setSampleCount] = useState("21");
+  const [sampleCount, setSampleCount] = useState("3");
   const [templateReason, setTemplateReason] = useState("Create non-production reference virtual specimen template");
   const [planLabel, setPlanLabel] = useState("Reference tensile validation");
   const [planReason, setPlanReason] = useState("Pin Material Model, Solver Card, Template, and experimental selection");
@@ -103,6 +164,7 @@ export function ReferenceValidationWorkbench({
   const [stdoutText, setStdoutText] = useState("Manual reference execution completed.");
   const [stderrText, setStderrText] = useState("No stderr captured.");
   const [attachReason, setAttachReason] = useState("Attach bounded manual reference result evidence");
+  const [validationCurve, setValidationCurve] = useState<ValidationResultCurveResponse | null>(null);
 
   const selectedTemplate = templates.find((item) => item.validation_template_id === selectedTemplateId) ?? null;
   const selectedModel = models.find((item) => item.material_model_id === selectedModelId) ?? null;
@@ -301,6 +363,33 @@ export function ReferenceValidationWorkbench({
     }
   }
 
+  async function evaluateRun(): Promise<void> {
+    if (!run || !run.result_manifest) {
+      return;
+    }
+    setAction("evaluate");
+    setError(null);
+    setValidationCurve(null);
+    try {
+      const result = await evaluateReferenceValidationRun(config, run.validation_run_id, {
+        change_reason: "Extract reference response, assess numerical health, and compare evidence",
+      });
+      setRun(result.data);
+      const validationResult = result.data.validation_result;
+      if (validationResult?.response_extraction.normalized_response) {
+        const curve = await previewReferenceValidationResultCurve(
+          config,
+          validationResult.validation_result_id,
+        );
+        setValidationCurve(curve.data);
+      }
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
   async function cancelRun(): Promise<void> {
     if (!run) {
       return;
@@ -330,7 +419,8 @@ export function ReferenceValidationWorkbench({
       </div>
       <p className="form-hint">
         This records a frozen 1D tensile Template, Material Model IR, Solver Card, and experiment selection.
-        It uses an inline mock or manual evidence attachment only; it does not execute OpenRadioss or issue a validation verdict.
+        It uses an inline mock or manual evidence attachment only; extraction and comparison produce
+        non-production reference evidence, not a production solver or material qualification.
       </p>
       <button className="button secondary" type="button" onClick={() => setOpen((value) => !value)}>
         {open ? "Close validation workbench" : "Open validation workbench"}
@@ -423,7 +513,11 @@ export function ReferenceValidationWorkbench({
                   <p className="eyebrow">Run evidence</p>
                   <h5>Validation Run {shortId(run.validation_run_id)} · {run.status.replaceAll("_", " ")}</h5>
                 </div>
-                <span className="reference-chip">No T-28 verdict</span>
+                <span className="reference-chip">
+                  {run.validation_result
+                    ? `Reference ${run.validation_result.verdict.replaceAll("_", " ")}`
+                    : "Awaiting result interpretation"}
+                </span>
               </div>
               <p className="source-line">Deck {shortId(run.deck.artifact_id)} · frozen Plan r{selectedPlan?.current_revision.revision_no ?? "?"} · runner {run.runner_version}</p>
               {run.status === "queued" ? (
@@ -466,6 +560,78 @@ export function ReferenceValidationWorkbench({
                     <ArtifactEvidence label="Result manifest" artifact={run.result_manifest.manifest_artifact} />
                   </ul>
                 </>
+              ) : null}
+              {run.result_manifest && !run.validation_result ? (
+                <div className="workflow-step inline-action">
+                  <p>
+                    Extract the typed SI response, assess numerical health, and compare only at the
+                    observed experimental strain grid. This remains reference evidence, not a
+                    production validation claim.
+                  </p>
+                  <button
+                    className="button primary"
+                    type="button"
+                    onClick={() => void evaluateRun()}
+                    disabled={action !== null}
+                  >
+                    {action === "evaluate"
+                      ? "Interpreting reference result…"
+                      : "Extract response and evaluate"}
+                  </button>
+                </div>
+              ) : null}
+              {run.validation_result ? (
+                <section className="workflow-step validation-interpretation-result">
+                  <div className="section-heading compact-heading">
+                    <div>
+                      <p className="eyebrow">Reference result interpretation</p>
+                      <h5>{run.validation_result.verdict.replaceAll("_", " ")}</h5>
+                    </div>
+                    <span className="reference-chip">
+                      numerical health: {run.validation_result.numerical_health_report.status}
+                    </span>
+                  </div>
+                  <p className="source-line">
+                    Holdout: {run.validation_result.holdout_independence.replaceAll("_", " ")}
+                    {run.validation_result.reason_code
+                      ? ` · reason: ${run.validation_result.reason_code.replaceAll("_", " ")}`
+                      : ""}
+                  </p>
+                  <dl className="metric-grid">
+                    <div>
+                      <dt>Relative RMSE</dt>
+                      <dd>{formatScientific(run.validation_result.relative_root_mean_squared_error)}</dd>
+                    </div>
+                    <div>
+                      <dt>Threshold</dt>
+                      <dd>{run.validation_result.relative_rmse_threshold.toFixed(3)}</dd>
+                    </div>
+                    <div>
+                      <dt>RMSE (Pa)</dt>
+                      <dd>{formatScientific(run.validation_result.root_mean_squared_error_pa)}</dd>
+                    </div>
+                    <div>
+                      <dt>Compared points</dt>
+                      <dd>{run.validation_result.compared_point_count}</dd>
+                    </div>
+                  </dl>
+                  <ul className="validation-evidence-list">
+                    <ArtifactEvidence
+                      label="Normalized response"
+                      artifact={run.validation_result.response_extraction.normalized_response}
+                    />
+                    <ArtifactEvidence
+                      label="Numerical health report"
+                      artifact={run.validation_result.numerical_health_report.report_artifact}
+                    />
+                    <ArtifactEvidence label="Comparison result" artifact={run.validation_result.result_artifact} />
+                  </ul>
+                  {validationCurve ? <ReferenceValidationCurve curve={validationCurve} /> : null}
+                  <p className="muted">
+                    Explicit linear interpolation is limited to the observed experimental grid; no
+                    extrapolation or silent approximation is allowed.
+                  </p>
+                </section>
               ) : null}
               {run.failure_code ? <p className="error-notice">Recorded run failure: {run.failure_code.replaceAll("_", " ")}</p> : null}
             </section>

@@ -274,6 +274,32 @@ reference where applicable, Artifact digests, provenance, and audit facts. Shell
 not accepted. `normal` solver termination is evidence only: extraction, numerical-health,
 metrics, thresholds, and a validation verdict remain `T-28` responsibilities (ADR-0013).
 
+### 11.2 Implemented T-28 reference result interpretation boundary
+
+`T-28` appends a typed response extraction, numerical health report, and Validation Result only
+after a terminal `T-27` Result Manifest exists. It never rewrites the Run, native output, source
+Selection/Dataset revision, Material Model IR, Solver Card, or a previously recorded result.
+
+The initial profile is deliberately narrow and non-production:
+
+- native output is parsed as a typed SI engineering strain/stress response; declared units, target,
+  finite values, and strictly increasing strain are checked explicitly;
+- numerical health separately records termination, native-output availability, expected/observed
+  curve count, completeness, finite values, and monotonicity;
+- comparison is linear interpolation only at the observed experimental strain grid and only inside
+  the simulated domain; extrapolation is rejected;
+- relative RMSE is normalized by the maximum absolute observed stress and uses a fixed reference
+  threshold of `0.05`;
+- abnormal/unhealthy/no-output/unit-invalid/alignment-invalid runs and calibration-selection overlap
+  are `not_evaluated`, never `passed` or `failed`;
+- `passed`/`failed` remains a reference-profile metric outcome, not solver qualification, Material
+  approval, review, release, or a production acceptance threshold.
+
+The validation API exposes an explicit evaluate command, immutable result read resource, and bounded
+curve preview. The workbench displays source Artifact pointers, health, holdout-independence state,
+metric/threshold, and observed-versus-simulated curve without performing a browser-side calculation.
+See ADR-0014 for the frozen profile and revisit conditions.
+
 ## 12. Solver runner flow
 
 1. exporter output과 mapping report digest 확인

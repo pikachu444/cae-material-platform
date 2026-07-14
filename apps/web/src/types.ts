@@ -407,6 +407,100 @@ export interface ValidationResultManifestResponse {
   created_by: string;
 }
 
+export type ValidationResponseExtractionStatus = "extracted" | "not_evaluated";
+export type NumericalHealthStatus = "healthy" | "unhealthy" | "not_evaluated";
+export type ValidationVerdict = "passed" | "failed" | "not_evaluated";
+export type HoldoutIndependence =
+  | "not_applicable_manual_ir"
+  | "independent_selection"
+  | "overlaps_calibration_selection";
+
+export interface ValidationResponseExtractionResponse {
+  response_extraction_id: string;
+  validation_run_id: string;
+  validation_result_manifest_id: string;
+  source_native_result: ValidationArtifactPointer | null;
+  status: ValidationResponseExtractionStatus;
+  normalized_response: ValidationArtifactPointer | null;
+  point_count: number | null;
+  reason_code: string | null;
+  created_at: string;
+  created_by: string;
+}
+
+export interface NumericalHealthReportResponse {
+  numerical_health_report_id: string;
+  validation_run_id: string;
+  validation_result_manifest_id: string;
+  response_extraction_id: string;
+  status: NumericalHealthStatus;
+  solver_termination: "normal" | "abnormal" | "not_available";
+  native_result_state: "available" | "not_available";
+  expected_point_count: number;
+  observed_point_count: number | null;
+  output_complete: boolean;
+  finite_values: boolean;
+  strictly_increasing_strain: boolean;
+  reason_code: string | null;
+  report_artifact: ValidationArtifactPointer;
+  report_sha256: string;
+  created_at: string;
+  created_by: string;
+}
+
+export interface ReferenceValidationResultResponse {
+  validation_result_id: string;
+  validation_run_id: string;
+  validation_result_manifest_id: string;
+  response_extraction: ValidationResponseExtractionResponse;
+  numerical_health_report: NumericalHealthReportResponse;
+  experimental_selection_id: string;
+  experimental_selection_revision_id: string;
+  metric_profile_id: "urn:cmp:validation:reference-relative-rmse:1.0.0";
+  threshold_profile_id: "urn:cmp:validation:reference-relative-rmse-threshold:1.0.0";
+  alignment_profile_id: "urn:cmp:validation:reference-linear-interpolation-observed-grid:1.0.0";
+  relative_rmse_threshold: number;
+  experimental_point_count: number;
+  simulated_point_count: number | null;
+  compared_point_count: number;
+  root_mean_squared_error_pa: number | null;
+  relative_root_mean_squared_error: number | null;
+  normalization_stress_scale_pa: number | null;
+  holdout_independence: HoldoutIndependence;
+  verdict: ValidationVerdict;
+  reason_code: string | null;
+  result_artifact: ValidationArtifactPointer;
+  result_sha256: string;
+  created_at: string;
+  created_by: string;
+  links: Record<string, string>;
+}
+
+export interface ValidationResponseCurvePoint {
+  engineering_strain: number;
+  engineering_stress_pa: number;
+}
+
+export interface ValidationComparisonCurvePoint {
+  engineering_strain: number;
+  observed_engineering_stress_pa: number;
+  simulated_engineering_stress_pa: number;
+  residual_engineering_stress_pa: number;
+}
+
+export interface ValidationResultCurveResponse {
+  validation_result_id: string;
+  verdict: ValidationVerdict;
+  response_point_count: number;
+  returned_response_point_count: number;
+  response_sampled: boolean;
+  response_points: ValidationResponseCurvePoint[];
+  comparison_point_count: number;
+  returned_comparison_point_count: number;
+  comparison_sampled: boolean;
+  comparison_points: ValidationComparisonCurvePoint[];
+}
+
 export interface ValidationRunResponse {
   validation_run_id: string;
   classification: DataClassification;
@@ -436,6 +530,7 @@ export interface ValidationRunResponse {
   trace_id: string;
   change_reason: string;
   result_manifest: ValidationResultManifestResponse | null;
+  validation_result: ReferenceValidationResultResponse | null;
   links: Record<string, string>;
 }
 

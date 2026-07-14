@@ -1,12 +1,12 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics with human Candidate Selection/IR promotion, reference Material Model IR, reference OpenRadioss Solver Card, and reference virtual-specimen evidence runner
+Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics with human Candidate Selection/IR promotion, reference Material Model IR, reference OpenRadioss Solver Card, and reference virtual-specimen evidence/result interpretation runner
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
 
-Version: `0.22.0`
+Version: `0.23.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -347,10 +347,17 @@ the exact Template, IR, Card, and Selection revisions. It can submit and collect
 and bounded native JSON/log evidence.
 
 Both paths retain an immutable deck, stdout/stderr, optional native result, and Result Manifest
-Artifact/provenance record. The workbench deliberately labels this as **non-production only**: it
-does not execute OpenRadioss or an HPC scheduler, and a normal termination does not mean numerical
-health or experimental validation passed. Extraction, health, metrics, and verdicts are the next
-`T-28` slice; see [ADR-0013](adr/0013-reference-validation-template-and-runner-boundary.md).
+Artifact/provenance record. After a terminal manifest, **Extract response and evaluate** appends a
+separate typed SI response Artifact, numerical-health Artifact, and comparison-result Artifact. The
+workbench displays health, holdout independence, relative RMSE, fixed `0.05` reference threshold,
+Artifact evidence, and an observed-versus-simulated curve. Comparison is linear interpolation only
+at observed experimental strain points and rejects extrapolation. Abnormal/unhealthy/no-output,
+unit/alignment-invalid, and fit/holdout-overlap results are `not_evaluated`.
+
+This is deliberately **non-production reference evidence**: it does not execute OpenRadioss or an
+HPC scheduler, and even a `passed` reference result is not solver qualification, material approval,
+or release approval. See [ADR-0013](adr/0013-reference-validation-template-and-runner-boundary.md)
+and [ADR-0014](adr/0014-reference-validation-result-interpretation-policy.md).
 
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret
@@ -437,6 +444,8 @@ a production material model or solver qualification. ADR-011/ADR-012's T-23/T-24
 likewise an explicitly non-production reference evaluator and human-selection/promotion workflow,
 not an approved optimizer/model or release policy. ADR-013's T-27 runner preserves mock/manual
 execution evidence only; it is neither an actual solver/HPC adapter nor a validation verdict.
+ADR-014's T-28 result is an explicit non-production extraction/health/comparison profile; it is not
+a production acceptance threshold, solver qualification, approval, or release decision.
 T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
@@ -465,7 +474,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 ## Traceability
 
 - Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, reference `T-08`, `T-09`, `T-10`, reference `T-11`/`T-12`,
-  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-27`, `T-32` MVP
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-27`, `T-28`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
@@ -474,5 +483,5 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012`, `ADR-013` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012`, `ADR-013`, `ADR-014` (with `ADR-005` as a scope guard)
 

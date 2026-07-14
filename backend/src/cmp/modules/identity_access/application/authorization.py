@@ -232,6 +232,10 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.EXPORT_EXECUTE: frozenset(
         {Permission.ARTIFACT_READ, Permission.MODELING_READ, Permission.EXPORT_READ}
     ),
+    # Validation result previews read only Validation-owned typed reports, but those reports
+    # are immutable Artifacts.  The capability is transaction-local; it does not make the
+    # public Artifact content route reachable through validation.read.
+    Permission.VALIDATION_READ: frozenset({Permission.ARTIFACT_READ}),
     Permission.VALIDATION_EXECUTE: frozenset(
         {
             Permission.ARTIFACT_READ,
