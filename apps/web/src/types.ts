@@ -1377,6 +1377,153 @@ export interface CompletedUpload {
   available_artifact_id: string | null;
 }
 
+export interface TabulatedPlasticityHardeningReference {
+  artifact_id: string;
+  sha256: string;
+  schema_ref: string;
+  point_count: number;
+  independent_quantity: "true_plastic_strain";
+  independent_unit: "1";
+  dependent_quantity: "true_yield_stress";
+  dependent_unit: "Pa";
+}
+
+export interface TabulatedPlasticityContent {
+  model_family_id: string;
+  model_schema_version: string;
+  model_schema_digest: string;
+  material_id: string;
+  material_revision_id: string;
+  material_state_id: string;
+  material_state_revision_id: string;
+  property_set_id: string;
+  property_set_revision_id: string;
+  source_dataset_id: string;
+  source_dataset_revision_id: string;
+  density_kg_per_m3: number;
+  youngs_modulus_pa: number;
+  poisson_ratio: number;
+  initial_yield_stress_pa: number;
+  hardening_curve: TabulatedPlasticityHardeningReference;
+  source_point_count: number;
+  pre_yield_excluded_point_count: number;
+  post_necking_excluded_point_count: number;
+  necking_source_point_index: number;
+  transformation_profile_id: string;
+  transformation_profile_version: string;
+  transformation_profile_digest: string;
+  necking_engineering_strain: number;
+  characterized_max_true_plastic_strain: number;
+  extension_max_true_plastic_strain: number;
+  post_necking_extension_policy: "approved_constant_true_stress";
+  post_necking_approximation_acknowledged: true;
+  applicability: Applicability;
+  reference_temperature_k: number;
+  non_production: true;
+}
+
+export interface TabulatedPlasticityProvenanceSummary {
+  entity_type: "modeling.material_model.revision";
+  reference_type: "modeling.material_model.revision";
+  revision_id: string;
+  content_sha256: string;
+  based_on_revision_id: string | null;
+  source_property_set_revision_id: string;
+  source_dataset_revision_id: string;
+  hardening_curve_artifact_id: string;
+  hardening_curve_sha256: string;
+  transformation_profile_digest: string;
+  recorded_at: string;
+  recorded_by: string;
+}
+
+export interface TabulatedPlasticityRevision extends RevisionMetadata {
+  content: TabulatedPlasticityContent;
+  ir: Record<string, unknown>;
+  provenance: TabulatedPlasticityProvenanceSummary;
+}
+
+export interface TabulatedPlasticityModelResponse {
+  material_model_id: string;
+  material_state_id: string;
+  current_revision: TabulatedPlasticityRevision;
+  links: Record<string, string>;
+}
+
+export interface HardeningCurvePoint {
+  true_plastic_strain: number;
+  true_yield_stress_pa: number;
+  origin: "catalog_yield_anchor" | "pre_necking_observation" | "approved_constant_extension";
+}
+
+export interface HardeningCurveResponse {
+  material_model_id: string;
+  material_model_revision_id: string;
+  artifact_id: string;
+  artifact_sha256: string;
+  points: HardeningCurvePoint[];
+}
+
+export interface ElastoplasticCardContent {
+  material_model_id: string;
+  material_model_revision_id: string;
+  model_schema_digest: string;
+  target: ExportTarget;
+  solver_material_id: number;
+  material_name: string;
+  density_kg_per_m3: number;
+  youngs_modulus_pa: number;
+  poisson_ratio: number;
+  initial_yield_stress_pa: number;
+  hardening_curve_artifact_id: string;
+  hardening_curve_sha256: string;
+  hardening_curve_point_count: number;
+  extension_max_true_plastic_strain: number;
+  post_necking_extension_policy: "approved_constant_true_stress";
+  applicability: Applicability;
+  mapping_statuses: Record<string, MappingStatus>;
+  mapping_report_sha256: string;
+  card_sha256: string;
+  exporter_id: string;
+  exporter_version: string;
+  exporter_digest: string;
+  non_production: true;
+}
+
+export interface ElastoplasticCardProvenanceSummary {
+  entity_type: "exporting.solver_card.revision";
+  reference_type: "exporting.solver_card.revision";
+  revision_id: string;
+  content_sha256: string;
+  based_on_revision_id: string | null;
+  source_material_model_revision_id: string;
+  source_hardening_curve_artifact_id: string;
+  source_hardening_curve_sha256: string;
+  mapping_report_sha256: string;
+  recorded_at: string;
+  recorded_by: string;
+}
+
+export interface ElastoplasticCardRevision extends RevisionMetadata {
+  content: ElastoplasticCardContent;
+  provenance: ElastoplasticCardProvenanceSummary;
+}
+
+export interface ElastoplasticCardResponse {
+  solver_card_id: string;
+  material_model_id: string;
+  target: ExportTarget;
+  solver_material_id: number;
+  material_name: string;
+  current_revision: ElastoplasticCardRevision;
+  links: Record<string, string>;
+}
+
+export interface ElastoplasticCardCreatedResponse {
+  card: ElastoplasticCardResponse;
+  mapping_report: MappingReport;
+}
+
 export type ProvenanceEntityReferenceKind = "raw_asset" | "artifact" | "revision";
 
 export type ProvenanceCompletenessState = "complete" | "incomplete";

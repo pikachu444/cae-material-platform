@@ -1,5 +1,7 @@
 import type {
   ExportTarget,
+  ElastoplasticCardCreatedResponse,
+  ElastoplasticCardResponse,
   CompletedUpload,
   CalibrationDiagnosticPreview,
   CalibrationCandidateSelectionPromotionResponse,
@@ -39,6 +41,8 @@ import type {
   SolverCardCreateInput,
   SolverCardList,
   SolverCardResponse,
+  TabulatedPlasticityModelResponse,
+  HardeningCurveResponse,
   ValidationExecutionMode,
   ReferenceValidationResultResponse,
   ValidationPlanResponse,
@@ -866,6 +870,129 @@ export async function downloadSolverCard(
     data: {
       blob: await response.blob(),
       filename: match?.[1] ?? `solver-card-${solverCardId}.rad`,
+    },
+    etag: response.headers.get("etag"),
+  };
+}
+
+export function listTabulatedPlasticityModels(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: TabulatedPlasticityModelResponse[] }>> {
+  return request(
+    config,
+    `/material-states/${encodeURIComponent(materialStateId)}/tabulated-plasticity-models`,
+  );
+}
+
+export function createTabulatedPlasticityModel(
+  config: ApiConfig,
+  materialStateId: string,
+  input: {
+    property_set_revision_id: string;
+    dataset_revision_id: string;
+    extension_max_true_plastic_strain: number;
+    acknowledge_post_necking_approximation: boolean;
+    change_reason: string;
+  },
+): Promise<ApiResult<TabulatedPlasticityModelResponse>> {
+  return request(
+    config,
+    `/material-states/${encodeURIComponent(materialStateId)}/tabulated-plasticity-models`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function getTabulatedPlasticityHardeningCurve(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<HardeningCurveResponse>> {
+  return request(
+    config,
+    `/tabulated-plasticity-models/${encodeURIComponent(materialModelId)}/hardening-curve`,
+  );
+}
+
+export function preflightElastoplasticMapping(
+  config: ApiConfig,
+  materialModelId: string,
+  materialModelRevisionId: string,
+  target: ExportTarget,
+): Promise<ApiResult<MappingReport>> {
+  return request(
+    config,
+    `/tabulated-plasticity-models/${encodeURIComponent(materialModelId)}/mapping-preflight`,
+    {
+      method: "POST",
+      body: JSON.stringify({ material_model_revision_id: materialModelRevisionId, target }),
+    },
+  );
+}
+
+export function listElastoplasticSolverCards(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<{ items: ElastoplasticCardResponse[] }>> {
+  return request(
+    config,
+    `/tabulated-plasticity-models/${encodeURIComponent(materialModelId)}/solver-cards`,
+  );
+}
+
+export function createElastoplasticSolverCard(
+  config: ApiConfig,
+  materialModelId: string,
+  input: {
+    material_model_revision_id: string;
+    target: ExportTarget;
+    expected_mapping_report_sha256: string;
+    solver_material_id: number;
+    material_name: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ElastoplasticCardCreatedResponse>> {
+  return request(
+    config,
+    `/tabulated-plasticity-models/${encodeURIComponent(materialModelId)}/solver-cards`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export async function previewElastoplasticSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<string>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/elastoplastic-solver-cards/${encodeURIComponent(solverCardId)}/preview`),
+    { ...init, headers },
+  );
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  return { data: await response.text(), etag: response.headers.get("etag") };
+}
+
+export async function downloadElastoplasticSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<SolverCardDownload>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/elastoplastic-solver-cards/${encodeURIComponent(solverCardId)}/download`),
+    { ...init, headers },
+  );
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  const header = response.headers.get("content-disposition") ?? "";
+  const match = header.match(/filename="?([^";]+)"?/i);
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: match?.[1] ?? `elastoplastic-card-${solverCardId}.txt`,
     },
     etag: response.headers.get("etag"),
   };
