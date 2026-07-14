@@ -202,6 +202,18 @@ class _Repository:
         assert self.record is not None
         return self.record
 
+    def find_entity_by_reference(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        reference_type: str,
+        reference_id: UUID,
+    ) -> ProvenanceRecord:
+        del context, decision, reference_type, reference_id
+        assert self.record is not None
+        return self.record
+
 def test_moving_head_reference_is_rejected_before_persistence() -> None:
     with pytest.raises(MutableEntityReference):
         ImmutableEntityReference(

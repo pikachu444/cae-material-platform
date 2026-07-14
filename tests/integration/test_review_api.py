@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 import httpx
@@ -91,7 +91,7 @@ class MemoryReviewRepository:
         if self.value is not None:
             raise ReviewConflict("already requested")
         self.value = ReviewRequestRecord(
-            id=kwargs["review_request_id"],
+            id=cast(UUID, kwargs["review_request_id"]),
             organization_id=ORG,
             project_id=PROJECT,
             classification=command.classification,
@@ -100,8 +100,8 @@ class MemoryReviewRepository:
             revision_id=command.revision_id,
             manifest_sha256=command.manifest_sha256,
             required_role="domain_reviewer",
-            requested_by=kwargs["actor_id"],
-            requested_at=kwargs["occurred_at"],
+            requested_by=cast(UUID, kwargs["actor_id"]),
+            requested_at=cast(datetime, kwargs["occurred_at"]),
             reason=command.reason,
             lifecycle_state=LifecycleState.REVIEW,
         )
@@ -127,7 +127,7 @@ class MemoryReviewRepository:
         if command.expected_manifest_sha256 != self.value.manifest_sha256:
             raise ReviewConflict("stale digest")
         decision = ReviewDecisionRecord(
-            id=kwargs["decision_id"],
+            id=cast(UUID, kwargs["decision_id"]),
             review_request_id=self.value.id,
             organization_id=ORG,
             project_id=PROJECT,
@@ -137,8 +137,8 @@ class MemoryReviewRepository:
             revision_id=self.value.revision_id,
             manifest_sha256=self.value.manifest_sha256,
             decision=command.decision,
-            decided_by=kwargs["actor_id"],
-            decided_at=kwargs["occurred_at"],
+            decided_by=cast(UUID, kwargs["actor_id"]),
+            decided_at=cast(datetime, kwargs["occurred_at"]),
             reason=command.reason,
         )
         self.value = replace(

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from typing import cast
 from uuid import UUID
 
 import pytest
@@ -14,7 +15,10 @@ from cmp.modules.identity_access.domain.authorization import (
     Role,
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
-from cmp.modules.review_release.application.release_service import ReleaseService
+from cmp.modules.review_release.application.release_service import (
+    ReleaseRepository,
+    ReleaseService,
+)
 from cmp.modules.review_release.domain.release import (
     CreateRelease,
     InvalidRelease,
@@ -105,8 +109,8 @@ class MemoryReleaseRepository:
         candidate = kwargs["command"]
         assert isinstance(candidate, CreateRelease)
         manifest = ReleaseManifestRecord(
-            id=kwargs["manifest_id"],
-            release_id=kwargs["release_id"],
+            id=cast(UUID, kwargs["manifest_id"]),
+            release_id=cast(UUID, kwargs["release_id"]),
             organization_id=ORG,
             project_id=PROJECT,
             classification=candidate.classification,
@@ -133,21 +137,21 @@ class MemoryReleaseRepository:
             review_request_id=candidate.review_request_id,
             review_manifest_sha256=candidate.review_manifest_sha256,
             provenance_snapshot_sha256=candidate.provenance_snapshot_sha256,
-            created_at=kwargs["occurred_at"],
-            created_by=kwargs["actor_id"],
+            created_at=cast(datetime, kwargs["occurred_at"]),
+            created_by=cast(UUID, kwargs["actor_id"]),
             reason=candidate.reason,
             state=ReleaseState.RELEASED,
         )
         self.value = ReleaseRecord(
-            id=kwargs["release_id"],
+            id=cast(UUID, kwargs["release_id"]),
             organization_id=ORG,
             project_id=PROJECT,
             classification=candidate.classification,
             release_code=candidate.release_code,
             title=candidate.title,
             channel="reference",
-            created_at=kwargs["occurred_at"],
-            created_by=kwargs["actor_id"],
+            created_at=cast(datetime, kwargs["occurred_at"]),
+            created_by=cast(UUID, kwargs["actor_id"]),
             manifest=manifest,
             package_text="{}",
         )
@@ -188,7 +192,11 @@ def test_release_service_allocates_immutable_identity_and_enforces_publish_scope
             UUID("30000000-0000-4000-8000-000000000022"),
         )
     )
-    service = ReleaseService(repository=repository, id_factory=lambda: next(ids), clock=lambda: NOW)
+    service = ReleaseService(
+        repository=cast(ReleaseRepository, repository),
+        id_factory=lambda: next(ids),
+        clock=lambda: NOW,
+    )
 
     candidate = command()
     candidate = replace(candidate, review_manifest_sha256=candidate_manifest_sha256(candidate))
