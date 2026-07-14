@@ -540,6 +540,10 @@ The fourth P0-2 increment makes the persisted Statistics/QC gate mandatory:
   legacy two-selection pair flow remains valid, and authorization includes only the explicit
   Artifact read needed for curve preview.
 
-The next gate adds multi-member outlier evidence and append-only human assessment. Tests must prove
+The fifth P0-2 gate adds multi-member outlier evidence and append-only human assessment. Tests prove
 that candidates are not deletions, assessments never mutate candidates or source data, no automatic
-exclusion occurs, and calibration exclusion is fixed to a concrete scope revision.
+exclusion occurs, and calibration exclusion is fixed to a concrete scope revision. The gate now
+includes modified-z and MAD-zero unit tests, protected API and React flow regressions, the migration
+suite, a `033 → 034 → 033 → 034` PostgreSQL exercise, and a live two-candidate flow that records
+one retained and one calibration-only excluded Assessment before producing a 2-included/
+1-excluded immutable Scope.

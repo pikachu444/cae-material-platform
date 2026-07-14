@@ -832,6 +832,15 @@ curve APIs and provenance hooks are connected to the Material State workbench. T
 an explicit immutable Selection of aligned outputs, then displays QC, scalar statistics, observed
 range, mean, and Student-t 95% CI band. Statistics performs no alignment or interpolation.
 
-The next P0-2 work is item 4: multi-member outlier candidate evidence and append-only human
-assessment, followed by calibration-specific exclusion scope. It must not delete, overwrite, or
-automatically exclude any source Dataset/Selection/Result revision.
+P0-2 item 4 is implemented by migration `20260731_034_p02`. A typed non-production modified-z
+Plan pins one exact multi-replicate Statistical Result revision; its immutable Run evaluates every
+preserved processed Dataset member and stores review evidence only. MAD-zero/nonmedian evidence is
+explicit and no infinite score or automatic exclusion is produced. Separate append-only human
+Assessment revisions drive an immutable calibration input Scope with exact Dataset/Test Run/
+Candidate/Assessment pins and at least two retained members. Protected APIs, JSON Schema/OpenAPI,
+the connected workbench, unit/API/web tests, migration downgrade/re-upgrade, and live PostgreSQL
+include/exclude flows are present. No source Dataset/Selection/Result revision is changed.
+
+The next execution wave is P1: bounded multi-curve Voce calibration, Candidate diagnostics and
+selection, calibrated IR plus OpenRadioss/Abaqus card generation, and solver-independent holdout
+validation. Actual solver execution remains deferred to P2.
