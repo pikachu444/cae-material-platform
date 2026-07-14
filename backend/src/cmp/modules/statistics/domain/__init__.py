@@ -8,6 +8,7 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
 )
 from cmp.modules.statistics.domain.reference_tensile_replicates import (
     ReferenceTensileReplicatePlanContent,
+    ReferenceTensileReplicateResultContent,
     ReferenceTensileReplicateStatistics,
     ReplicateCurvePoint,
     ReplicateScalarStatistics,
@@ -18,6 +19,7 @@ __all__ = [
     "ReferenceTensilePairResultContent",
     "ReferenceTensilePairStatistics",
     "ReferenceTensileReplicatePlanContent",
+    "ReferenceTensileReplicateResultContent",
     "ReferenceTensileReplicateStatistics",
     "ReplicateCurvePoint",
     "ReplicateScalarStatistics",

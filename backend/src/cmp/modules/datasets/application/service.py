@@ -732,6 +732,23 @@ class DatasetService:
             selection_revision_id=selection_revision_id,
         )
 
+    def get_reference_tensile_replicate_selection_revision_for_statistics(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> TensileReplicateSelectionRevisionSnapshot:
+        """Expose one immutable replicate set to an authorized Statistics command."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_tensile_replicate_selection_revision(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+            selection_revision_id=selection_revision_id,
+        )
+
     def list_reference_tensile_replicate_selections(
         self,
         context: SecurityContext,

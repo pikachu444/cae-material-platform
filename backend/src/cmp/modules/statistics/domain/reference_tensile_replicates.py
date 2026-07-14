@@ -23,6 +23,9 @@ REFERENCE_TENSILE_REPLICATE_PLAN_KIND = "reference_tensile_replicate_scalar_and_
 REFERENCE_TENSILE_REPLICATE_PLAN_SCHEMA = (
     "urn:cmp:statistics:reference-tensile-replicate-plan:1.0.0"
 )
+REFERENCE_TENSILE_REPLICATE_RESULT_SCHEMA = (
+    "urn:cmp:statistics:reference-tensile-replicate-result:1.0.0"
+)
 REFERENCE_TENSILE_REPLICATE_CURVE_SCHEMA = (
     "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.0.0"
 )
@@ -209,6 +212,72 @@ class ReferenceTensileReplicateStatistics:
             for index in range(1, len(self.curve))
         ):
             raise InvalidStatisticsRequest("replicate statistics grid must strictly increase")
+
+
+@dataclass(frozen=True, slots=True)
+class ReferenceTensileReplicateResultContent:
+    """Immutable scalar summary and typed pointwise Artifact reference for one run."""
+
+    statistical_run_id: UUID
+    plan_id: UUID
+    plan_revision_id: UUID
+    selection_id: UUID
+    selection_revision_id: UUID
+    curve_artifact_id: UUID
+    curve_sha256: str
+    curve_point_count: int
+    peak_engineering_stress_pa: ReplicateScalarStatistics
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("statistical_run_id", self.statistical_run_id),
+            ("plan_id", self.plan_id),
+            ("plan_revision_id", self.plan_revision_id),
+            ("selection_id", self.selection_id),
+            ("selection_revision_id", self.selection_revision_id),
+            ("curve_artifact_id", self.curve_artifact_id),
+        ):
+            _uuid(name, value)
+        if len(self.curve_sha256) != 64 or any(
+            character not in "0123456789abcdef" for character in self.curve_sha256
+        ):
+            raise InvalidStatisticsRequest("curve_sha256 must be a lowercase SHA-256 digest")
+        if not 2 <= self.curve_point_count <= MAX_REFERENCE_TENSILE_REPLICATE_POINTS:
+            raise InvalidStatisticsRequest("curve_point_count must be between 2 and 100000")
+
+
+def reference_tensile_replicate_result_canonical(
+    value: ReferenceTensileReplicateResultContent,
+) -> dict[str, object]:
+    """Return the complete typed result document used by immutable revision hashing."""
+
+    peak = value.peak_engineering_stress_pa
+    return {
+        "result_kind": REFERENCE_TENSILE_REPLICATE_PLAN_KIND,
+        "statistical_run_id": str(value.statistical_run_id),
+        "plan_id": str(value.plan_id),
+        "plan_revision_id": str(value.plan_revision_id),
+        "selection_id": str(value.selection_id),
+        "selection_revision_id": str(value.selection_revision_id),
+        "sample_count": peak.sample_count,
+        "scalar_feature": REFERENCE_TENSILE_REPLICATE_SCALAR_FEATURE,
+        "curve_artifact_id": str(value.curve_artifact_id),
+        "curve_sha256": value.curve_sha256,
+        "curve_point_count": value.curve_point_count,
+        "mean_engineering_stress_pa": peak.mean,
+        "sample_standard_deviation_engineering_stress_pa": peak.sample_standard_deviation,
+        "median_engineering_stress_pa": peak.median,
+        "median_absolute_deviation_engineering_stress_pa": peak.median_absolute_deviation,
+        "interquartile_range_engineering_stress_pa": peak.interquartile_range,
+        "minimum_engineering_stress_pa": peak.minimum,
+        "maximum_engineering_stress_pa": peak.maximum,
+        "coefficient_of_variation": peak.coefficient_of_variation,
+        "mean_confidence_interval_lower_95_pa": peak.mean_confidence_interval_lower_95,
+        "mean_confidence_interval_upper_95_pa": peak.mean_confidence_interval_upper_95,
+        "curve_grid_policy": REFERENCE_TENSILE_REPLICATE_GRID_POLICY,
+        "quantile_method": REFERENCE_TENSILE_REPLICATE_QUANTILE_METHOD,
+        "confidence_interval_method": REFERENCE_TENSILE_REPLICATE_CI_METHOD,
+    }
 
 
 def calculate_scalar_statistics(values: tuple[float, ...]) -> ReplicateScalarStatistics:

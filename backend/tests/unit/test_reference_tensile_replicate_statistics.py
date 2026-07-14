@@ -8,12 +8,14 @@ from cmp.modules.datasets.domain.reference_tensile import CurvePoint
 from cmp.modules.statistics.domain.reference_tensile_pair import QcOutcome
 from cmp.modules.statistics.domain.reference_tensile_replicates import (
     ReferenceTensileReplicatePlanContent,
+    ReferenceTensileReplicateResultContent,
     calculate_reference_tensile_replicate_statistics,
     calculate_scalar_statistics,
     exact_replicate_grid_qc,
     reference_tensile_replicate_curve_from_parquet,
     reference_tensile_replicate_curve_parquet_bytes,
     reference_tensile_replicate_plan_canonical,
+    reference_tensile_replicate_result_canonical,
 )
 
 
@@ -93,3 +95,25 @@ def test_replicate_curve_artifact_round_trip_preserves_declared_statistics() -> 
     decoded = reference_tensile_replicate_curve_from_parquet(encoded)
 
     assert decoded == calculated.curve
+
+
+def test_replicate_result_canonical_retains_scalar_uncertainty_and_input_revision() -> None:
+    peak = calculate_scalar_statistics((100.0, 110.0, 120.0))
+    result = ReferenceTensileReplicateResultContent(
+        statistical_run_id=UUID("20000000-0000-4000-8000-000000000001"),
+        plan_id=UUID("20000000-0000-4000-8000-000000000002"),
+        plan_revision_id=UUID("20000000-0000-4000-8000-000000000003"),
+        selection_id=UUID("20000000-0000-4000-8000-000000000004"),
+        selection_revision_id=UUID("20000000-0000-4000-8000-000000000005"),
+        curve_artifact_id=UUID("20000000-0000-4000-8000-000000000006"),
+        curve_sha256="a" * 64,
+        curve_point_count=31,
+        peak_engineering_stress_pa=peak,
+    )
+
+    canonical = reference_tensile_replicate_result_canonical(result)
+
+    assert canonical["selection_revision_id"] == str(result.selection_revision_id)
+    assert canonical["sample_count"] == 3
+    assert canonical["mean_engineering_stress_pa"] == 110.0
+    assert canonical["confidence_interval_method"] == "student_t_95_two_sided"
