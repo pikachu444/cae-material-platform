@@ -43,6 +43,22 @@ class ReleaseState(StrEnum):
     RELEASED = "released"
 
 
+class ReleaseLifecycleState(StrEnum):
+    RELEASED = "released"
+    SUPERSEDED = "superseded"
+    WITHDRAWN = "withdrawn"
+
+
+class ReleaseTransitionKind(StrEnum):
+    SUPERSEDE = "supersede"
+    WITHDRAW = "withdraw"
+
+
+class ReleaseUsageKind(StrEnum):
+    DOWNLOAD = "download"
+    CONSUME = "consume"
+
+
 def _uuid(name: str, value: UUID) -> None:
     if value.int == 0:
         raise InvalidRelease(f"{name} must be a non-zero UUID")
@@ -243,6 +259,7 @@ class ReleaseRecord:
     created_by: UUID
     manifest: ReleaseManifestRecord
     package_text: str
+    lifecycle_state: ReleaseLifecycleState = ReleaseLifecycleState.RELEASED
 
     def __post_init__(self) -> None:
         _uuid("id", self.id)
@@ -258,6 +275,122 @@ class ReleaseRecord:
             raise ReleaseConflict("release package size does not match its immutable manifest")
         if hashlib.sha256(package_bytes).hexdigest() != self.manifest.package_sha256:
             raise ReleaseConflict("release package digest does not match its immutable manifest")
+
+
+@dataclass(frozen=True, slots=True)
+class SupersedeRelease:
+    successor_release_id: UUID
+    reason: str
+
+    def __post_init__(self) -> None:
+        _uuid("successor_release_id", self.successor_release_id)
+        _text("reason", self.reason, 2000)
+
+
+@dataclass(frozen=True, slots=True)
+class WithdrawRelease:
+    reason: str
+
+    def __post_init__(self) -> None:
+        _text("reason", self.reason, 2000)
+
+
+@dataclass(frozen=True, slots=True)
+class RecordReleaseUsage:
+    usage_kind: ReleaseUsageKind
+    reason: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.usage_kind, ReleaseUsageKind):
+            raise InvalidRelease("usage_kind must be a supported ReleaseUsageKind")
+        _text("reason", self.reason, 2000)
+
+
+@dataclass(frozen=True, slots=True)
+class ReleaseTransitionRecord:
+    id: UUID
+    release_id: UUID
+    organization_id: UUID
+    project_id: UUID
+    classification: DataClassification
+    kind: ReleaseTransitionKind
+    from_state: ReleaseLifecycleState
+    to_state: ReleaseLifecycleState
+    successor_release_id: UUID | None
+    reason: str
+    occurred_at: datetime
+    occurred_by: UUID
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("id", self.id),
+            ("release_id", self.release_id),
+            ("organization_id", self.organization_id),
+            ("project_id", self.project_id),
+            ("occurred_by", self.occurred_by),
+        ):
+            _uuid(name, value)
+        if not isinstance(self.kind, ReleaseTransitionKind):
+            raise InvalidRelease("kind must be a supported ReleaseTransitionKind")
+        if not isinstance(self.from_state, ReleaseLifecycleState) or not isinstance(
+            self.to_state, ReleaseLifecycleState
+        ):
+            raise InvalidRelease("transition states must be supported ReleaseLifecycleState values")
+        if self.successor_release_id is not None:
+            _uuid("successor_release_id", self.successor_release_id)
+        if self.from_state is not ReleaseLifecycleState.RELEASED:
+            raise InvalidRelease("release transitions must start from released")
+        if self.kind is ReleaseTransitionKind.SUPERSEDE:
+            if self.to_state is not ReleaseLifecycleState.SUPERSEDED:
+                raise InvalidRelease("supersede transition must end in superseded")
+            if self.successor_release_id is None:
+                raise InvalidRelease("supersede transition requires a successor Release")
+        elif self.kind is ReleaseTransitionKind.WITHDRAW:
+            if self.to_state is not ReleaseLifecycleState.WITHDRAWN:
+                raise InvalidRelease("withdraw transition must end in withdrawn")
+            if self.successor_release_id is not None:
+                raise InvalidRelease("withdraw transition cannot have a successor Release")
+        _text("reason", self.reason, 2000)
+        if self.occurred_at.tzinfo is None or self.occurred_at.utcoffset() is None:
+            raise InvalidRelease("occurred_at must be timezone-aware")
+
+
+@dataclass(frozen=True, slots=True)
+class ReleaseUsageRecord:
+    id: UUID
+    release_id: UUID
+    organization_id: UUID
+    project_id: UUID
+    classification: DataClassification
+    usage_kind: ReleaseUsageKind
+    used_by: UUID
+    used_at: datetime
+    reason: str
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("id", self.id),
+            ("release_id", self.release_id),
+            ("organization_id", self.organization_id),
+            ("project_id", self.project_id),
+            ("used_by", self.used_by),
+        ):
+            _uuid(name, value)
+        if not isinstance(self.usage_kind, ReleaseUsageKind):
+            raise InvalidRelease("usage_kind must be a supported ReleaseUsageKind")
+        _text("reason", self.reason, 2000)
+        if self.used_at.tzinfo is None or self.used_at.utcoffset() is None:
+            raise InvalidRelease("used_at must be timezone-aware")
+
+
+@dataclass(frozen=True, slots=True)
+class ReleaseImpactRecord:
+    release: ReleaseRecord
+    predecessor_release_id: UUID | None
+    successor_release_id: UUID | None
+    usages: tuple[ReleaseUsageRecord, ...]
+    transitions: tuple[ReleaseTransitionRecord, ...] = ()
+    warning: str | None = None
 
 
 def release_manifest_document(command: CreateRelease, manifest_sha256: str) -> dict[str, Any]:

@@ -20,11 +20,20 @@ from cmp.modules.review_release.application.release_service import ReleaseReposi
 from cmp.modules.review_release.domain.release import (
     RELEASE_PACKAGE_MEDIA_TYPE,
     CreateRelease,
+    RecordReleaseUsage,
     ReleaseConflict,
+    ReleaseImpactRecord,
+    ReleaseLifecycleState,
     ReleaseManifestRecord,
     ReleaseNotFound,
     ReleaseRecord,
     ReleaseState,
+    ReleaseTransitionKind,
+    ReleaseTransitionRecord,
+    ReleaseUsageKind,
+    ReleaseUsageRecord,
+    SupersedeRelease,
+    WithdrawRelease,
     candidate_manifest_sha256,
     release_manifest_document,
 )
@@ -113,6 +122,62 @@ release_artifact_table = sa.Table(
     sa.Column("content_text", sa.Text(), nullable=False),
     sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="governance",
+)
+
+release_lifecycle_projection_table = sa.Table(
+    "release_lifecycle_projection",
+    metadata,
+    sa.Column("release_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("state", sa.String(32), nullable=False),
+    sa.Column("sequence_no", sa.Integer(), nullable=False),
+    sa.Column("last_event_id", sa.Uuid(), nullable=True),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("updated_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="governance",
+)
+
+release_lifecycle_event_table = sa.Table(
+    "release_lifecycle_event",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("release_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("sequence_no", sa.Integer(), nullable=False),
+    sa.Column("kind", sa.String(32), nullable=False),
+    sa.Column("from_state", sa.String(32), nullable=False),
+    sa.Column("to_state", sa.String(32), nullable=False),
+    sa.Column("successor_release_id", sa.Uuid(), nullable=True),
+    sa.Column("reason", sa.Text(), nullable=False),
+    sa.Column("occurred_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("occurred_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="governance",
+)
+
+release_usage_table = sa.Table(
+    "release_usage",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("release_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("usage_kind", sa.String(32), nullable=False),
+    sa.Column("lifecycle_state", sa.String(32), nullable=False),
+    sa.Column("used_by", sa.Uuid(), nullable=False),
+    sa.Column("used_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("reason", sa.Text(), nullable=False),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
     schema="governance",
@@ -261,6 +326,38 @@ def _release_record(row: Any) -> ReleaseRecord:
         created_by=cast(UUID, row["created_by"]),
         manifest=_release_manifest_row(row),
         package_text=str(row["content_text"]),
+        lifecycle_state=ReleaseLifecycleState(str(row["lifecycle_state"])),
+    )
+
+
+def _usage_record(row: Any) -> ReleaseUsageRecord:
+    return ReleaseUsageRecord(
+        id=cast(UUID, row["usage_id"]),
+        release_id=cast(UUID, row["release_id"]),
+        organization_id=cast(UUID, row["organization_id"]),
+        project_id=cast(UUID, row["project_id"]),
+        classification=DataClassification(str(row["classification"])),
+        usage_kind=ReleaseUsageKind(str(row["usage_kind"])),
+        used_by=cast(UUID, row["used_by"]),
+        used_at=cast(datetime, row["used_at"]),
+        reason=str(row["reason"]),
+    )
+
+
+def _transition_record(row: Any) -> ReleaseTransitionRecord:
+    return ReleaseTransitionRecord(
+        id=cast(UUID, row["transition_id"]),
+        release_id=cast(UUID, row["release_id"]),
+        organization_id=cast(UUID, row["organization_id"]),
+        project_id=cast(UUID, row["project_id"]),
+        classification=DataClassification(str(row["classification"])),
+        kind=ReleaseTransitionKind(str(row["kind"])),
+        from_state=ReleaseLifecycleState(str(row["from_state"])),
+        to_state=ReleaseLifecycleState(str(row["to_state"])),
+        successor_release_id=cast(UUID | None, row["successor_release_id"]),
+        reason=str(row["reason"]),
+        occurred_at=cast(datetime, row["occurred_at"]),
+        occurred_by=cast(UUID, row["occurred_by"]),
     )
 
 
@@ -292,6 +389,10 @@ class SqlAlchemyReleaseRepository(ReleaseRepository):
             release_table.c.release_code,
             release_table.c.title,
             release_table.c.channel,
+            sa.func.coalesce(
+                release_lifecycle_projection_table.c.state,
+                release_table.c.state,
+            ).label("lifecycle_state"),
             release_table.c.created_at,
             release_table.c.created_by,
             release_manifest_table.c.id.label("manifest_id"),
@@ -331,13 +432,23 @@ class SqlAlchemyReleaseRepository(ReleaseRepository):
                     release_manifest_table.c.project_id == release_table.c.project_id,
                     release_manifest_table.c.release_id == release_table.c.id,
                 ),
-            ).join(
+            )
+            .join(
                 release_artifact_table,
                 sa.and_(
                     release_artifact_table.c.organization_id
                     == release_manifest_table.c.organization_id,
                     release_artifact_table.c.project_id == release_manifest_table.c.project_id,
                     release_artifact_table.c.release_manifest_id == release_manifest_table.c.id,
+                ),
+            )
+            .outerjoin(
+                release_lifecycle_projection_table,
+                sa.and_(
+                    release_lifecycle_projection_table.c.organization_id
+                    == release_table.c.organization_id,
+                    release_lifecycle_projection_table.c.project_id == release_table.c.project_id,
+                    release_lifecycle_projection_table.c.release_id == release_table.c.id,
                 ),
             )
         )
@@ -359,6 +470,170 @@ class SqlAlchemyReleaseRepository(ReleaseRepository):
             .mappings()
             .one_or_none()
         )
+
+    def _ensure_projection(
+        self,
+        session: Session,
+        *,
+        context: SecurityContext,
+        release_id: UUID,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> Any:
+        """Lock and return the lifecycle projection, backfilling old T-30 rows if needed."""
+
+        release = (
+            session.execute(
+                sa.select(release_table)
+                .where(_scope_clause(release_table, context), release_table.c.id == release_id)
+                .with_for_update()
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if release is None:
+            raise ReleaseNotFound("release is not visible")
+        projection = (
+            session.execute(
+                sa.select(release_lifecycle_projection_table)
+                .where(
+                    _scope_clause(release_lifecycle_projection_table, context),
+                    release_lifecycle_projection_table.c.release_id == release_id,
+                )
+                .with_for_update()
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if projection is not None:
+            return projection
+        values = {
+            "release_id": release_id,
+            "organization_id": context.organization_id,
+            "project_id": context.project_id,
+            "classification": release["classification"],
+            "state": "released",
+            "sequence_no": 0,
+            "last_event_id": None,
+            "updated_at": cast(datetime, release["created_at"]),
+            "updated_by": cast(UUID, release["created_by"]),
+            "request_id": cast(UUID, release["request_id"]),
+            "trace_id": str(release["trace_id"]),
+        }
+        session.execute(sa.insert(release_lifecycle_projection_table).values(**values))
+        return values
+
+    def _transition(
+        self,
+        session: Session,
+        *,
+        context: SecurityContext,
+        release_id: UUID,
+        transition_id: UUID,
+        kind: ReleaseTransitionKind,
+        successor_release_id: UUID | None,
+        reason: str,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> ReleaseRecord:
+        successor: Any | None = None
+        if successor_release_id is not None and successor_release_id.int < release_id.int:
+            successor = self._ensure_projection(
+                session,
+                context=context,
+                release_id=successor_release_id,
+                actor_id=actor_id,
+                occurred_at=occurred_at,
+            )
+        source = self._ensure_projection(
+            session,
+            context=context,
+            release_id=release_id,
+            actor_id=actor_id,
+            occurred_at=occurred_at,
+        )
+        source_state = ReleaseLifecycleState(str(source["state"]))
+        if source_state is not ReleaseLifecycleState.RELEASED:
+            raise ReleaseConflict("only a released Release can transition")
+        source_row = (
+            session.execute(
+                sa.select(release_table.c.classification).where(
+                    _scope_clause(release_table, context), release_table.c.id == release_id
+                )
+            )
+            .mappings()
+            .one()
+        )
+        source_classification: Any = source_row["classification"]
+        if successor_release_id is not None:
+            if successor_release_id == release_id:
+                raise ReleaseConflict("a Release cannot supersede itself")
+            if successor is None:
+                successor = self._ensure_projection(
+                    session,
+                    context=context,
+                    release_id=successor_release_id,
+                    actor_id=actor_id,
+                    occurred_at=occurred_at,
+                )
+            if ReleaseLifecycleState(str(successor["state"])) is not ReleaseLifecycleState.RELEASED:
+                raise ReleaseConflict("successor Release must be released")
+            if successor["classification"] != source_classification:
+                raise ReleaseConflict("successor Release classification must match")
+            already_successor = session.execute(
+                sa.select(release_lifecycle_event_table.c.id).where(
+                    _scope_clause(release_lifecycle_event_table, context),
+                    release_lifecycle_event_table.c.successor_release_id == successor_release_id,
+                )
+            ).scalar_one_or_none()
+            if already_successor is not None:
+                raise ReleaseConflict("successor Release is already linked")
+        to_state = (
+            ReleaseLifecycleState.SUPERSEDED
+            if kind is ReleaseTransitionKind.SUPERSEDE
+            else ReleaseLifecycleState.WITHDRAWN
+        )
+        session.execute(
+            sa.insert(release_lifecycle_event_table).values(
+                id=transition_id,
+                release_id=release_id,
+                organization_id=context.organization_id,
+                project_id=context.project_id,
+                classification=source_classification,
+                sequence_no=int(source["sequence_no"]) + 1,
+                kind=kind.value,
+                from_state=ReleaseLifecycleState.RELEASED.value,
+                to_state=to_state.value,
+                successor_release_id=successor_release_id,
+                reason=reason,
+                occurred_at=occurred_at,
+                occurred_by=actor_id,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        session.execute(
+            sa.update(release_lifecycle_projection_table)
+            .where(
+                _scope_clause(release_lifecycle_projection_table, context),
+                release_lifecycle_projection_table.c.release_id == release_id,
+                release_lifecycle_projection_table.c.state == ReleaseLifecycleState.RELEASED.value,
+                release_lifecycle_projection_table.c.sequence_no == int(source["sequence_no"]),
+            )
+            .values(
+                state=to_state.value,
+                sequence_no=int(source["sequence_no"]) + 1,
+                last_event_id=transition_id,
+                updated_at=occurred_at,
+                updated_by=actor_id,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        row = self._load(session, context=context, release_id=release_id)
+        if row is None:
+            raise ReleaseConflict("transitioned Release could not be reloaded")
+        return _release_record(row)
 
     def _validate_inputs(
         self,
@@ -605,6 +880,21 @@ class SqlAlchemyReleaseRepository(ReleaseRepository):
                     trace_id=context.trace_id,
                 )
             )
+            session.execute(
+                sa.insert(release_lifecycle_projection_table).values(
+                    release_id=release_id,
+                    organization_id=context.organization_id,
+                    project_id=context.project_id,
+                    classification=command.classification.value,
+                    state=ReleaseLifecycleState.RELEASED.value,
+                    sequence_no=0,
+                    last_event_id=None,
+                    updated_at=occurred_at,
+                    updated_by=actor_id,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                )
+            )
             row = self._load(session, context=context, release_id=release_id)
             if row is None:
                 raise ReleaseConflict("created release could not be reloaded")
@@ -645,3 +935,205 @@ class SqlAlchemyReleaseRepository(ReleaseRepository):
                 if row is not None:
                     values.append(_release_record(row))
             return tuple(values)
+
+    def supersede(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        transition_id: UUID,
+        command: SupersedeRelease,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> ReleaseRecord:
+        with self._session(context, decision) as session:
+            return self._transition(
+                session,
+                context=context,
+                release_id=release_id,
+                transition_id=transition_id,
+                kind=ReleaseTransitionKind.SUPERSEDE,
+                successor_release_id=command.successor_release_id,
+                reason=command.reason,
+                actor_id=actor_id,
+                occurred_at=occurred_at,
+            )
+
+    def withdraw(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        transition_id: UUID,
+        command: WithdrawRelease,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> ReleaseRecord:
+        with self._session(context, decision) as session:
+            return self._transition(
+                session,
+                context=context,
+                release_id=release_id,
+                transition_id=transition_id,
+                kind=ReleaseTransitionKind.WITHDRAW,
+                successor_release_id=None,
+                reason=command.reason,
+                actor_id=actor_id,
+                occurred_at=occurred_at,
+            )
+
+    def record_usage(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        usage_id: UUID,
+        command: RecordReleaseUsage,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> ReleaseUsageRecord:
+        with self._session(context, decision) as session:
+            projection = self._ensure_projection(
+                session,
+                context=context,
+                release_id=release_id,
+                actor_id=actor_id,
+                occurred_at=occurred_at,
+            )
+            if (
+                ReleaseLifecycleState(str(projection["state"]))
+                is not ReleaseLifecycleState.RELEASED
+            ):
+                raise ReleaseConflict("only a released Release can be consumed")
+            release = (
+                session.execute(
+                    sa.select(release_table.c.classification).where(
+                        _scope_clause(release_table, context), release_table.c.id == release_id
+                    )
+                )
+                .mappings()
+                .one()
+            )
+            values = {
+                "id": usage_id,
+                "release_id": release_id,
+                "organization_id": context.organization_id,
+                "project_id": context.project_id,
+                "classification": release["classification"],
+                "usage_kind": command.usage_kind.value,
+                "lifecycle_state": ReleaseLifecycleState.RELEASED.value,
+                "used_by": actor_id,
+                "used_at": occurred_at,
+                "reason": command.reason,
+                "request_id": context.request_id,
+                "trace_id": context.trace_id,
+            }
+            session.execute(sa.insert(release_usage_table).values(**values))
+            return _usage_record(
+                {
+                    "usage_id": usage_id,
+                    "release_id": release_id,
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                    "classification": release["classification"],
+                    "usage_kind": command.usage_kind.value,
+                    "used_by": actor_id,
+                    "used_at": occurred_at,
+                    "reason": command.reason,
+                }
+            )
+
+    def impact(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+    ) -> ReleaseImpactRecord:
+        with self._session(context, decision) as session:
+            release_row = self._load(session, context=context, release_id=release_id)
+            if release_row is None:
+                raise ReleaseNotFound("release is not visible")
+            release = _release_record(release_row)
+            successor = session.execute(
+                sa.select(release_lifecycle_event_table.c.successor_release_id).where(
+                    _scope_clause(release_lifecycle_event_table, context),
+                    release_lifecycle_event_table.c.release_id == release_id,
+                    release_lifecycle_event_table.c.kind == ReleaseTransitionKind.SUPERSEDE.value,
+                )
+            ).scalar_one_or_none()
+            predecessor = session.execute(
+                sa.select(release_lifecycle_event_table.c.release_id).where(
+                    _scope_clause(release_lifecycle_event_table, context),
+                    release_lifecycle_event_table.c.successor_release_id == release_id,
+                )
+            ).scalar_one_or_none()
+            transition_rows = (
+                session.execute(
+                    sa.select(
+                        release_lifecycle_event_table.c.id.label("transition_id"),
+                        release_lifecycle_event_table.c.release_id,
+                        release_lifecycle_event_table.c.organization_id,
+                        release_lifecycle_event_table.c.project_id,
+                        release_lifecycle_event_table.c.classification,
+                        release_lifecycle_event_table.c.kind,
+                        release_lifecycle_event_table.c.from_state,
+                        release_lifecycle_event_table.c.to_state,
+                        release_lifecycle_event_table.c.successor_release_id,
+                        release_lifecycle_event_table.c.reason,
+                        release_lifecycle_event_table.c.occurred_at,
+                        release_lifecycle_event_table.c.occurred_by,
+                    )
+                    .where(
+                        _scope_clause(release_lifecycle_event_table, context),
+                        sa.or_(
+                            release_lifecycle_event_table.c.release_id == release_id,
+                            release_lifecycle_event_table.c.successor_release_id == release_id,
+                        ),
+                    )
+                    .order_by(release_lifecycle_event_table.c.sequence_no.asc())
+                )
+                .mappings()
+                .all()
+            )
+            usage_rows = (
+                session.execute(
+                    sa.select(
+                        release_usage_table.c.id.label("usage_id"),
+                        release_usage_table.c.release_id,
+                        release_usage_table.c.organization_id,
+                        release_usage_table.c.project_id,
+                        release_usage_table.c.classification,
+                        release_usage_table.c.usage_kind,
+                        release_usage_table.c.used_by,
+                        release_usage_table.c.used_at,
+                        release_usage_table.c.reason,
+                    )
+                    .where(
+                        _scope_clause(release_usage_table, context),
+                        release_usage_table.c.release_id == release_id,
+                    )
+                    .order_by(release_usage_table.c.used_at.asc(), release_usage_table.c.id.asc())
+                )
+                .mappings()
+                .all()
+            )
+            warning = None
+            if release.lifecycle_state is ReleaseLifecycleState.SUPERSEDED:
+                warning = (
+                    "Release has been superseded; consumers must explicitly select its successor "
+                    "and must not silently substitute it."
+                )
+            elif release.lifecycle_state is ReleaseLifecycleState.WITHDRAWN:
+                warning = "Release has been withdrawn; do not use it for new solver runs."
+            return ReleaseImpactRecord(
+                release=release,
+                predecessor_release_id=cast(UUID | None, predecessor),
+                successor_release_id=cast(UUID | None, successor),
+                usages=tuple(_usage_record(row) for row in usage_rows),
+                transitions=tuple(_transition_record(row) for row in transition_rows),
+                warning=warning,
+            )

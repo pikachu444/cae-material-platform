@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.25.0
+  version: 0.26.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -3453,6 +3453,111 @@ paths:
           content:
             application/vnd.cmp.release-manifest+json:
               schema: {type: string, format: binary}
+        "401": {description: Authentication required.}
+        "403": {description: Release read is not authorized.}
+        "404": {description: No visible Release matches.}
+        "503": {description: Release service unavailable.}
+  /api/v1/releases/{release_id}/supersede:
+    post:
+      operationId: supersedeRelease
+      tags: [governance, release]
+      summary: Mark a released package superseded by an explicit successor Release.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: release_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../governance/release-resources.schema.json#/$defs/SupersedeReleaseRequest"}
+      responses:
+        "200":
+          description: The immutable Release with its terminal superseded projection.
+          content:
+            application/json:
+              schema: {$ref: "../governance/release-resources.schema.json#/$defs/ReleaseResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Release publish is not authorized.}
+        "404": {description: No visible Release or successor matches.}
+        "409": {description: Lifecycle or successor conflict.}
+        "422": {description: Typed transition input is invalid.}
+        "503": {description: Release service unavailable.}
+  /api/v1/releases/{release_id}/withdraw:
+    post:
+      operationId: withdrawRelease
+      tags: [governance, release]
+      summary: Withdraw a released package without deleting its immutable artifact.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: release_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../governance/release-resources.schema.json#/$defs/WithdrawReleaseRequest"}
+      responses:
+        "200":
+          description: The immutable Release with its terminal withdrawn projection.
+          content:
+            application/json:
+              schema: {$ref: "../governance/release-resources.schema.json#/$defs/ReleaseResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Release publish is not authorized.}
+        "404": {description: No visible Release matches.}
+        "409": {description: Lifecycle conflict.}
+        "422": {description: Typed transition input is invalid.}
+        "503": {description: Release service unavailable.}
+  /api/v1/releases/{release_id}/usage:
+    post:
+      operationId: recordReleaseUsage
+      tags: [governance, release]
+      summary: Record an explicit consume event for a released package.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: release_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../governance/release-resources.schema.json#/$defs/RecordReleaseUsageRequest"}
+      responses:
+        "201":
+          description: Immutable usage fact.
+          content:
+            application/json:
+              schema: {$ref: "../governance/release-resources.schema.json#/$defs/ReleaseUsageResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Release read is not authorized.}
+        "404": {description: No visible Release matches.}
+        "409": {description: Release is terminal or usage conflicts.}
+        "422": {description: Typed usage input is invalid.}
+        "503": {description: Release service unavailable.}
+  /api/v1/releases/{release_id}/impact:
+    get:
+      operationId: getReleaseImpact
+      tags: [governance, release]
+      summary: Read replacement links, usage facts, and lifecycle warnings.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: release_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Release lifecycle impact report.
+          content:
+            application/json:
+              schema: {$ref: "../governance/release-resources.schema.json#/$defs/ReleaseImpactResponse"}
         "401": {description: Authentication required.}
         "403": {description: Release read is not authorized.}
         "404": {description: No visible Release matches.}

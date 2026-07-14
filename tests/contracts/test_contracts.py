@@ -135,12 +135,8 @@ def test_catalog_contract_and_runtime_expose_typed_material_state_property_workf
             "post": "reviseMaterial",
         },
         "/api/v1/materials/{material_id}/states": {"post": "createMaterialState"},
-        "/api/v1/material-states/{material_state_id}/property-sets": {
-            "post": "createPropertySet"
-        },
-        "/api/v1/property-sets/{property_set_id}/revisions": {
-            "post": "revisePropertySet"
-        },
+        "/api/v1/material-states/{material_state_id}/property-sets": {"post": "createPropertySet"},
+        "/api/v1/property-sets/{property_set_id}/revisions": {"post": "revisePropertySet"},
     }
 
     for path, values in operations.items():
@@ -149,9 +145,9 @@ def test_catalog_contract_and_runtime_expose_typed_material_state_property_workf
             assert runtime["paths"][path][method]["operationId"] == operation_id
             assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
 
-    catalog_contract = (
-        PROJECT_ROOT / "contracts/catalog/catalog-resources.schema.json"
-    ).read_text(encoding="utf-8")
+    catalog_contract = (PROJECT_ROOT / "contracts/catalog/catalog-resources.schema.json").read_text(
+        encoding="utf-8"
+    )
     assert '"density_kg_per_m3"' in catalog_contract
     assert '"youngs_modulus_pa"' in catalog_contract
     assert '"poisson_ratio"' in catalog_contract
@@ -240,8 +236,9 @@ def test_reference_calibration_contract_and_runtime_expose_pinned_typed_workflow
     assert "classification" not in revise["properties"]
 
 
-def test_candidate_selection_contract_and_runtime_expose_human_acceptance_and_ir_promotion(
-) -> None:
+def test_candidate_selection_contract_and_runtime_expose_human_acceptance_and_ir_promotion() -> (
+    None
+):
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()
     operations = {
@@ -416,9 +413,7 @@ def test_solver_card_contract_and_runtime_expose_preflight_preview_and_download(
     assert '"key"' not in serialized
     assert '"value"' not in serialized
     assert "card_text" not in card["properties"]
-    assert {"mapping_report_sha256", "card_sha256", "non_production"}.issubset(
-        card["required"]
-    )
+    assert {"mapping_report_sha256", "card_sha256", "non_production"}.issubset(card["required"])
     assert {"items", "mapping_report_sha256", "exportable"}.issubset(report["required"])
 
 
@@ -447,9 +442,7 @@ def test_reference_tensile_contract_and_runtime_expose_typed_test_dataset_workfl
         "/api/v1/material-states/{material_state_id}/datasets": {
             "get": "listMaterialStateDatasets"
         },
-        "/api/v1/dataset-revisions/{dataset_revision_id}/curve": {
-            "get": "previewDatasetCurve"
-        },
+        "/api/v1/dataset-revisions/{dataset_revision_id}/curve": {"get": "previewDatasetCurve"},
     }
 
     for path, values in operations.items():
@@ -576,9 +569,7 @@ def test_reference_statistics_contract_and_runtime_expose_typed_pair_qc_workflow
         },
         "/api/v1/statistical-runs/{run_id}": {"get": "getStatisticalRun"},
         "/api/v1/statistical-results/{result_id}": {"get": "getStatisticalResult"},
-        "/api/v1/statistical-results/{result_id}/curve": {
-            "get": "previewStatisticalResultCurve"
-        },
+        "/api/v1/statistical-results/{result_id}/curve": {"get": "previewStatisticalResultCurve"},
     }
 
     for path, values in operations.items():
@@ -614,9 +605,7 @@ def test_reference_outlier_contract_and_runtime_expose_append_only_human_scope_w
             "post": "createReferenceTensilePairOutlierDetectionPlan"
         },
         "/api/v1/outlier-detection-plans": {"get": "listOutlierDetectionPlans"},
-        "/api/v1/outlier-detection-plans/{detection_plan_id}": {
-            "get": "getOutlierDetectionPlan"
-        },
+        "/api/v1/outlier-detection-plans/{detection_plan_id}": {"get": "getOutlierDetectionPlan"},
         "/api/v1/outlier-detection-plans/{detection_plan_id}/revisions": {
             "post": "reviseReferenceTensilePairOutlierDetectionPlan"
         },
@@ -668,9 +657,7 @@ def test_reference_import_contract_and_runtime_keep_detection_and_human_approval
         },
         "/api/v1/import-mappings": {"post": "createReferenceImportMapping"},
         "/api/v1/import-mappings/{mapping_id}": {"get": "getImportMapping"},
-        "/api/v1/import-mappings/{mapping_id}/revisions": {
-            "post": "reviseReferenceImportMapping"
-        },
+        "/api/v1/import-mappings/{mapping_id}/revisions": {"post": "reviseReferenceImportMapping"},
         "/api/v1/imports": {"post": "executeReferenceImport"},
         "/api/v1/imports/{import_run_id}": {"get": "getImportRun"},
     }
@@ -854,9 +841,7 @@ def test_audit_contract_has_no_raw_payload_secret_or_object_key() -> None:
         "events",
         "next_after_sequence",
     }
-    assert set(runtime["AuditIntegrityResponse"]["required"]) == set(
-        integrity["required"]
-    )
+    assert set(runtime["AuditIntegrityResponse"]["required"]) == set(integrity["required"])
     assert "export_version" in runtime["AuditExportResponse"]["required"]
 
 
@@ -973,9 +958,7 @@ def test_review_contract_and_runtime_expose_digest_pinned_governance_flow() -> N
             "get": "listReviewRequests",
         },
         "/api/v1/review-requests/{review_request_id}": {"get": "getReviewRequest"},
-        "/api/v1/review-requests/{review_request_id}/decisions": {
-            "post": "createReviewDecision"
-        },
+        "/api/v1/review-requests/{review_request_id}/decisions": {"post": "createReviewDecision"},
     }
     for path, methods in operations.items():
         for method, operation_id in methods.items():
@@ -1006,6 +989,10 @@ def test_release_contract_and_runtime_expose_digest_fixed_completeness_flow() ->
         "/api/v1/releases": {"post": "createRelease", "get": "listReleases"},
         "/api/v1/releases/{release_id}": {"get": "getRelease"},
         "/api/v1/releases/{release_id}/download": {"get": "downloadRelease"},
+        "/api/v1/releases/{release_id}/supersede": {"post": "supersedeRelease"},
+        "/api/v1/releases/{release_id}/withdraw": {"post": "withdrawRelease"},
+        "/api/v1/releases/{release_id}/usage": {"post": "recordReleaseUsage"},
+        "/api/v1/releases/{release_id}/impact": {"get": "getReleaseImpact"},
     }
     for path, methods in operations.items():
         for method, operation_id in methods.items():
@@ -1029,3 +1016,15 @@ def test_release_contract_and_runtime_expose_digest_fixed_completeness_flow() ->
         "provenance_snapshot_sha256",
     }.issubset(runtime_schemas["ReleaseCreateRequest"]["required"])
     assert runtime_schemas["ReleaseResponse"]["properties"]["channel"]["const"] == "reference"
+    assert set(runtime_schemas["ReleaseResponse"]["properties"]["lifecycle_state"]["enum"]) == {
+        "released",
+        "superseded",
+        "withdrawn",
+    }
+    assert {
+        "predecessor_release_id",
+        "successor_release_id",
+        "usages",
+        "transitions",
+        "warning",
+    }.issubset(runtime_schemas["ReleaseImpactResponse"]["required"])
