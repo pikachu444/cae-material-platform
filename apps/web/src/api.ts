@@ -34,6 +34,7 @@ import type {
   PropertySetResponse,
   ProcessingRecipeResponse,
   ProcessingRunResponse,
+  ReplicateAlignmentBatchResponse,
   StatisticalCurvePreview,
   StatisticalPlanResponse,
   StatisticalResultResponse,
@@ -1181,6 +1182,44 @@ export function executeReferenceTensileCrop(
   },
 ): Promise<ApiResult<ProcessingRunResponse>> {
   return request(config, "/processing-runs/reference-tensile-crop", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createReferenceTensileAlignmentRecipe(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      recipe_label: string;
+      grid_start_engineering_strain: number;
+      grid_end_engineering_strain: number;
+      grid_point_count: number;
+      domain_policy: "intersection";
+      interpolation_policy: "piecewise_linear";
+      extrapolation_policy: "reject";
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<ProcessingRecipeResponse>> {
+  return request(config, "/processing-recipes/reference-tensile-common-grid", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceTensileAlignment(
+  config: ApiConfig,
+  input: {
+    selection_id: string;
+    selection_revision_id: string;
+    recipe_id: string;
+    recipe_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ReplicateAlignmentBatchResponse>> {
+  return request(config, "/processing-runs/reference-tensile-common-grid", {
     method: "POST",
     body: JSON.stringify(input),
   });

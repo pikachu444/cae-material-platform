@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import cast
 from uuid import UUID, uuid4
@@ -32,14 +33,24 @@ from cmp.modules.identity_access.domain.security import (
 from cmp.modules.processing.adapters.api.processing import install_processing_api
 from cmp.modules.processing.application.service import (
     PROCESSING_RECIPE_AGGREGATE_TYPE,
+    CreateReferenceTensileAlignmentRecipe,
     CreateReferenceTensileCropRecipe,
+    ExecuteReferenceTensileAlignment,
     ExecuteReferenceTensileCrop,
     ProcessingRecipeSnapshot,
     ProcessingRun,
     ProcessingService,
+    ReplicateAlignmentBatch,
 )
 from cmp.modules.processing.application.service import (
     RevisionSnapshot as ProcessingRevisionSnapshot,
+)
+from cmp.modules.processing.domain.reference_tensile_alignment import (
+    REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+    AlignmentDomainPolicy,
+    AlignmentExtrapolationPolicy,
+    AlignmentInterpolationPolicy,
+    ReferenceTensileAlignmentRecipeContent,
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
     ProcessingRunStatus,
@@ -160,6 +171,29 @@ def _recipe() -> ProcessingRecipeSnapshot:
     )
 
 
+def _alignment_recipe() -> ProcessingRecipeSnapshot:
+    content = ReferenceTensileAlignmentRecipeContent(
+        "Common grid",
+        0.01,
+        0.03,
+        21,
+        AlignmentDomainPolicy.INTERSECTION,
+        AlignmentInterpolationPolicy.PIECEWISE_LINEAR,
+        AlignmentExtrapolationPolicy.REJECT,
+    )
+    return ProcessingRecipeSnapshot(
+        id=RECIPE,
+        current=ProcessingRevisionSnapshot(
+            _record(
+                revision_id=RECIPE_REVISION,
+                aggregate_id=RECIPE,
+                aggregate_type=PROCESSING_RECIPE_AGGREGATE_TYPE,
+            ),
+            content,
+        ),
+    )
+
+
 def _run() -> ProcessingRun:
     return ProcessingRun(
         id=RUN,
@@ -204,6 +238,17 @@ class _DatasetApiService:
 
 
 class _ProcessingApiService:
+    def create_reference_tensile_alignment_recipe(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceTensileAlignmentRecipe,
+    ) -> ProcessingRecipeSnapshot:
+        assert context is CONTEXT
+        assert decision is PROCESSING_EXECUTE
+        assert command.content.grid_point_count == 21
+        return _alignment_recipe()
+
     def create_reference_tensile_crop_recipe(
         self,
         context: SecurityContext,
@@ -230,6 +275,33 @@ class _ProcessingApiService:
         )
         assert (command.recipe_id, command.recipe_revision_id) == (RECIPE, RECIPE_REVISION)
         return _run()
+
+    async def execute_reference_tensile_alignment(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: ExecuteReferenceTensileAlignment,
+    ) -> ReplicateAlignmentBatch:
+        assert context is CONTEXT
+        assert decision is PROCESSING_EXECUTE
+        aligned = replace(
+            _run(),
+            output_point_count=21,
+            removed_point_count=None,
+            run_kind=REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+            batch_id=RUN,
+            member_ordinal=0,
+        )
+        return ReplicateAlignmentBatch(
+            id=RUN,
+            selection_id=command.selection_id,
+            selection_revision_id=command.selection_revision_id,
+            recipe_id=command.recipe_id,
+            recipe_revision_id=command.recipe_revision_id,
+            common_domain_start=0.01,
+            common_domain_end=0.03,
+            runs=(aligned, replace(aligned, id=uuid4(), member_ordinal=1)),
+        )
 
     def get_run(
         self, context: SecurityContext, decision: AuthorizationDecision, run_id: UUID
@@ -351,3 +423,44 @@ def test_reference_processing_api_pins_selection_recipe_and_exposes_committed_ou
         f"/api/v1/dataset-revisions/{OUTPUT_DATASET_REVISION}/curve"
     )
     assert _request(application, "GET", f"/api/v1/processing-runs/{RUN}").status_code == 200
+
+
+def test_reference_alignment_api_declares_policies_and_returns_grouped_outputs() -> None:
+    application = _application()
+    recipe = _request(
+        application,
+        "POST",
+        "/api/v1/processing-recipes/reference-tensile-common-grid",
+        json={
+            "classification": "internal",
+            "content": {
+                "recipe_label": "Common grid",
+                "grid_start_engineering_strain": 0.01,
+                "grid_end_engineering_strain": 0.03,
+                "grid_point_count": 21,
+                "domain_policy": "intersection",
+                "interpolation_policy": "piecewise_linear",
+                "extrapolation_policy": "reject",
+            },
+            "change_reason": "Declare all alignment behavior",
+        },
+    )
+    assert recipe.status_code == 201
+    assert recipe.json()["current_revision"]["content"]["extrapolation_policy"] == "reject"
+
+    batch = _request(
+        application,
+        "POST",
+        "/api/v1/processing-runs/reference-tensile-common-grid",
+        json={
+            "selection_id": str(SELECTION),
+            "selection_revision_id": str(SELECTION_REVISION),
+            "recipe_id": str(RECIPE),
+            "recipe_revision_id": str(RECIPE_REVISION),
+            "change_reason": "Commit two independent aligned outputs",
+        },
+    )
+    assert batch.status_code == 201
+    assert batch.json()["member_count"] == 2
+    assert [item["member_ordinal"] for item in batch.json()["runs"]] == [0, 1]
+    assert all(item["removed_point_count"] is None for item in batch.json()["runs"])

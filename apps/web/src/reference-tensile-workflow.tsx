@@ -415,7 +415,8 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
           return;
         }
         const scopedRecipes = nextRecipes.data.items.filter(
-          (recipe) => recipe.current_revision.classification === state.current_revision.classification,
+          (recipe) => recipe.current_revision.classification === state.current_revision.classification
+            && recipe.current_revision.content.recipe_kind === "reference_tensile_inclusive_crop",
         );
         setSelections(nextSelections.data.items);
         setRecipes(scopedRecipes);
@@ -1210,9 +1211,11 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
                 Processing Recipe
                 <select value={selectedRecipeId} onChange={(event) => setSelectedRecipeId(event.target.value)}>
                   {recipes.map((recipe) => (
-                    <option key={recipe.recipe_id} value={recipe.recipe_id}>
-                      {recipe.recipe_label} · [{recipe.current_revision.content.minimum_engineering_strain}, {recipe.current_revision.content.maximum_engineering_strain}] · r{recipe.current_revision.revision_no}
-                    </option>
+                    recipe.current_revision.content.recipe_kind === "reference_tensile_inclusive_crop"
+                      ? <option key={recipe.recipe_id} value={recipe.recipe_id}>
+                          {recipe.recipe_label} · [{recipe.current_revision.content.minimum_engineering_strain}, {recipe.current_revision.content.maximum_engineering_strain}] · r{recipe.current_revision.revision_no}
+                        </option>
+                      : null
                   ))}
                 </select>
               </label>

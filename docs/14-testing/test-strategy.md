@@ -494,6 +494,19 @@ The first P0-2 increment adds these mandatory checks:
 - demo regression: three synthetic Test Runs produce three independent Dataset revisions and one
   replicate Selection through protected HTTP APIs.
 
-This gate does not authorize hidden alignment. The next Processing increment must test declared
-grid, domain, interpolation, and extrapolation policies and persist separate processed Dataset
-revisions before pointwise statistics consume the replicate Selection.
+The second P0-2 increment extends this gate with:
+
+- unit: strictly increasing input strain, exact common intersection, deterministic declared grid,
+  piecewise-linear expected values, and hard rejection of extrapolation/non-overlap;
+- migration/PostgreSQL: typed grid/policy columns, crop/alignment shape constraints, batch/member
+  uniqueness, Selection-member/Recipe-kind guards, immutable terminal transitions, and provenance
+  activity/plan finalization limited to the creating request;
+- contract/API: explicit policy request/response and grouped member outputs with concrete processed
+  Dataset revision links;
+- browser: editable grid start/end/count, visible fixed policies, committed batch summary, and a
+  separate processed-revision overlay;
+- regression: output point count may differ from input without abusing crop `removed_point_count`,
+  while each source normalized revision and Artifact digest remain unchanged.
+
+Pointwise statistics may now consume only these explicit aligned processed revisions; it still may
+not align or interpolate inputs internally.

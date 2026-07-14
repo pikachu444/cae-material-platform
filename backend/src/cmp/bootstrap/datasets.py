@@ -80,6 +80,7 @@ _processing_run_table = sa.Table(
     sa.Column("classification", sa.String(64), nullable=False),
     sa.Column("recipe_revision_id", sa.Uuid(), nullable=False),
     sa.Column("input_dataset_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("run_kind", sa.String(100), nullable=False),
     schema="processing",
 )
 
@@ -365,6 +366,7 @@ class SqlReferenceProcessedDatasetProvenanceHook:
                 sa.select(
                     _processing_run_table.c.recipe_revision_id,
                     _processing_run_table.c.input_dataset_revision_id,
+                    _processing_run_table.c.run_kind,
                 ).where(
                     _processing_run_table.c.organization_id == revision.scope.organization_id,
                     _processing_run_table.c.project_id == revision.scope.project_id,
@@ -380,6 +382,12 @@ class SqlReferenceProcessedDatasetProvenanceHook:
         if cast(UUID, processing_row["input_dataset_revision_id"]) != source_revision_id:
             raise ProvenanceConflict("processed Dataset source does not match its Processing Run")
         recipe_revision_id = cast(UUID, processing_row["recipe_revision_id"])
+        run_kind = str(processing_row["run_kind"])
+        activity_type = (
+            "processing.reference_tensile_alignment"
+            if run_kind == "reference_tensile_common_grid_linear"
+            else "processing.reference_tensile_crop"
+        )
         generated_entity_id = _revision_provenance_entity_id(
             session,
             event,
@@ -408,13 +416,13 @@ class SqlReferenceProcessedDatasetProvenanceHook:
                 provenance_activity_table.c.id == activity_id,
             )
             .values(
-                activity_type="processing.reference_tensile_crop",
+                activity_type=activity_type,
                 domain_run_type="processing.processing_run",
                 domain_run_id=processing_run_id,
                 input_required=True,
                 submission_digest=content_sha256(
                     {
-                        "hook": "t19.reference_tensile_crop",
+                        "hook": activity_type,
                         "processing_run_id": str(processing_run_id),
                         "recipe_revision_id": str(recipe_revision_id),
                         "source_dataset_revision_id": str(source_revision_id),
@@ -433,12 +441,21 @@ class SqlReferenceProcessedDatasetProvenanceHook:
             )
         )
         session.execute(
+            sa.insert(provenance_usage_table).values(
+                **_relation_values(event),
+                activity_id=activity_id,
+                entity_id=recipe_entity_id,
+                role="processing_recipe_revision",
+                ordinal=1,
+            )
+        )
+        session.execute(
             sa.insert(provenance_derivation_table).values(
                 **_relation_values(event),
                 generated_entity_id=generated_entity_id,
                 used_entity_id=source_entity_id,
                 activity_id=activity_id,
-                derivation_kind="reference_tensile_inclusive_crop",
+                derivation_kind=run_kind,
             )
         )
         session.execute(

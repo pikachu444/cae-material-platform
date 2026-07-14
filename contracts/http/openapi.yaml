@@ -1888,6 +1888,30 @@ paths:
         "409": {description: Immutable Recipe identity state conflicts.}
         "422": {description: Crop bounds or Recipe label are invalid.}
         "503": {description: Processing service unavailable.}
+  /api/v1/processing-recipes/reference-tensile-common-grid:
+    post:
+      operationId: createReferenceTensileAlignmentRecipe
+      tags: [processing]
+      summary: Create an immutable explicit common-grid replicate alignment Recipe.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/CreateReferenceTensileAlignmentRecipeRequest"}
+      responses:
+        "201":
+          description: Stable Recipe identity with an immutable typed alignment revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ProcessingRecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Immutable Recipe identity state conflicts.}
+        "422": {description: Grid, policy, or Recipe label is invalid.}
+        "503": {description: Processing service unavailable.}
   /api/v1/processing-recipes:
     get:
       operationId: listProcessingRecipes
@@ -1983,6 +2007,29 @@ paths:
         "404": {description: No visible pinned Selection, Recipe, Dataset revision, or Artifact matches the request.}
         "409": {description: Immutable input, Artifact, or output state conflicts.}
         "422": {description: The typed crop request is invalid.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/reference-tensile-common-grid:
+    post:
+      operationId: executeReferenceTensileAlignment
+      tags: [processing]
+      summary: Commit one separate processed Dataset revision for each pinned replicate.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ExecuteReferenceTensileCropRequest"}
+      responses:
+        "201":
+          description: Grouped terminal Runs and separate immutable processed Dataset outputs.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/ReplicateAlignmentBatchResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: A pinned Selection, Recipe, Dataset revision, or Artifact is absent.}
+        "409": {description: Immutable input, Artifact, or output state conflicts.}
+        "422": {description: Grid is outside the common domain or policies are invalid.}
         "503": {description: Processing service unavailable.}
   /api/v1/processing-runs/{run_id}:
     get:

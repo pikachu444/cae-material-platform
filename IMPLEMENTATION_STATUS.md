@@ -550,12 +550,22 @@ member selection and a common-scale overlay of pinned curves. Synthetic demo dat
 three independent Test Runs/Datasets and one replicate Selection. Legacy one-member Selections are
 backfilled without changing their revision hashes.
 
-The next P0-2 increment is an explicit alignment/resampling Processing Recipe and separate
-processed Dataset revisions. No statistical calculation may align or interpolate members
-implicitly.
+The second P0-2 increment is also implemented. Migration `20260729_032_p02` adds a typed
+`reference_tensile_common_grid_linear` Recipe revision with explicit start/end/count,
+`intersection` domain, `piecewise_linear` interpolation, and `reject` extrapolation columns and
+database constraints. A grouped execution pins the multi-member Selection and Recipe revisions,
+then creates one immutable `processing_run`, derived Artifact, and separate processed Dataset
+identity/revision per member. The API and Material State workbench expose the policy, exact grid,
+batch result, processed overlays, and concrete output revision links. No source revision is edited
+and no statistical calculation performs hidden alignment.
 
-Verification for this increment: live non-owner demo API creation returned HTTP 201, the Docker
-seed completed with three pinned members, PostgreSQL marker tests recorded 62 passed with zero
-skips/failures, the CI-equivalent Python total is 456 (394 default plus 62 PostgreSQL), and the web
-suite recorded 21 passed with a successful production build.
+The remaining P0-2 order is now: multi-member specimen-level pointwise/scalar statistics and QC,
+then multi-member outlier evidence/assessment with calibration-specific exclusion scope.
+
+Verification includes a live non-owner Docker/PostgreSQL execution that committed three independent
+31-point processed Dataset revisions in one batch. Unit tests cover interpolation, common-domain,
+monotonicity, and extrapolation rejection; API integration covers explicit policy and grouped output;
+migration regression covers typed columns, guards, RLS-compatible provenance finalization, and the
+absence of JSONB/EAV. The CI-equivalent result is 461 Python tests (399 default plus 62 live
+PostgreSQL, zero skips/failures), 21 web tests, and a successful production build.
 

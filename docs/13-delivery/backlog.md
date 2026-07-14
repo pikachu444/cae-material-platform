@@ -815,7 +815,12 @@ pins 2..50 ordered concrete normalized/processed Dataset revisions from distinct
 revisions. Membership uses explicit rows, foreign keys, uniqueness, forced RLS, immutable-row
 guards, and a deferred exact-count check; it is not JSON or EAV.
 
-Items 2--5 remain in order. The next increment must introduce an explicit alignment/resampling
-Recipe revision and separate processed Dataset revisions before multi-member statistics expand.
-Grid, valid domain, interpolation, and extrapolation policy must be visible and versioned; hidden
-alignment remains forbidden.
+P0-2 item 2 is implemented by migration `20260729_032_p02`. The typed
+`reference_tensile_common_grid_linear` Recipe stores grid start/end/count, `intersection` domain,
+`piecewise_linear` interpolation, and `reject` extrapolation in explicit columns and constraints.
+One grouped request creates an ordered committed Run and separate processed Dataset revision for
+every pinned member. The connected workbench shows the declared policy and the resulting overlay.
+Source Dataset revisions remain immutable; hidden alignment remains forbidden.
+
+Items 3--5 remain in order: multi-member statistics/pointwise bands and QC, multi-member outlier
+evidence and assessment, then calibration-scoped exclusion integration.

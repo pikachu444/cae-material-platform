@@ -113,7 +113,9 @@ def _grant_runtime_privileges(connection: Connection) -> None:
         connection.exec_driver_sql(
             f"GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA {_identifier(schema)} TO cmp_app"
         )
-    connection.exec_driver_sql("GRANT UPDATE ON provenance.activity TO cmp_app")
+    connection.exec_driver_sql(
+        "GRANT UPDATE ON provenance.activity, provenance.association TO cmp_app"
+    )
     for schema in _SCHEMAS:
         connection.exec_driver_sql(
             f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA {_identifier(schema)} TO cmp_app"

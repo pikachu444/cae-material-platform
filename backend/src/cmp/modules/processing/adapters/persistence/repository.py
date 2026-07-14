@@ -20,6 +20,7 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.service import (
     PROCESSING_RECIPE_AGGREGATE_TYPE,
     ImportRun,
+    ProcessingRecipeContent,
     ProcessingRecipeSnapshot,
     ProcessingRepository,
     ProcessingRun,
@@ -29,6 +30,15 @@ from cmp.modules.processing.domain.reference_import import (
     REFERENCE_IMPORT_EXECUTION_MODE,
     REFERENCE_IMPORT_RUN_KIND,
     ImportRunStatus,
+)
+from cmp.modules.processing.domain.reference_tensile_alignment import (
+    REFERENCE_TENSILE_ALIGNMENT_DIAGNOSTICS_SCHEMA,
+    REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+    AlignmentDomainPolicy,
+    AlignmentExtrapolationPolicy,
+    AlignmentInterpolationPolicy,
+    ReferenceTensileAlignmentRecipeContent,
+    reference_tensile_alignment_canonical,
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
@@ -95,11 +105,17 @@ processing_recipe_revision_table = sa.Table(
     sa.Column("trace_id", sa.String(255), nullable=False),
     sa.Column("recipe_kind", sa.String(100), nullable=False),
     sa.Column("step_ordinal", sa.SmallInteger(), nullable=False),
-    sa.Column("minimum_engineering_strain", sa.Double(), nullable=False),
-    sa.Column("maximum_engineering_strain", sa.Double(), nullable=False),
+    sa.Column("minimum_engineering_strain", sa.Double(), nullable=True),
+    sa.Column("maximum_engineering_strain", sa.Double(), nullable=True),
     sa.Column("input_schema_ref", sa.String(500), nullable=False),
     sa.Column("output_schema_ref", sa.String(500), nullable=False),
     sa.Column("diagnostics_schema_ref", sa.String(500), nullable=False),
+    sa.Column("grid_start_engineering_strain", sa.Double(), nullable=True),
+    sa.Column("grid_end_engineering_strain", sa.Double(), nullable=True),
+    sa.Column("grid_point_count", sa.BigInteger(), nullable=True),
+    sa.Column("domain_policy", sa.String(32), nullable=True),
+    sa.Column("interpolation_policy", sa.String(32), nullable=True),
+    sa.Column("extrapolation_policy", sa.String(32), nullable=True),
     schema="processing",
 )
 processing_run_table = sa.Table(
@@ -131,6 +147,9 @@ processing_run_table = sa.Table(
     sa.Column("created_by", sa.Uuid(), nullable=False),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("run_kind", sa.String(100), nullable=False),
+    sa.Column("batch_id", sa.Uuid(), nullable=True),
+    sa.Column("member_ordinal", sa.SmallInteger(), nullable=True),
     schema="processing",
 )
 import_run_table = sa.Table(
@@ -188,43 +207,95 @@ def _record(row: Any) -> RevisionRecord:
     )
 
 
-def _content(row: Any) -> ReferenceTensileCropRecipeContent:
+def _content(row: Any) -> ProcessingRecipeContent:
+    kind = str(row["recipe_kind"])
     if (
-        str(row["recipe_kind"]) != REFERENCE_TENSILE_CROP_RECIPE_KIND
-        or int(row["step_ordinal"]) != 0
+        int(row["step_ordinal"]) != 0
         or str(row["input_schema_ref"]) != REFERENCE_TENSILE_CROP_INPUT_SCHEMA
         or str(row["output_schema_ref"]) != REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA
-        or str(row["diagnostics_schema_ref"]) != REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA
     ):
-        raise ProcessingConflict("Processing Recipe revision violates the reference crop contract")
-    return ReferenceTensileCropRecipeContent(
-        recipe_label=str(row["recipe_label"]),
-        minimum_engineering_strain=float(row["minimum_engineering_strain"]),
-        maximum_engineering_strain=float(row["maximum_engineering_strain"]),
-    )
+        raise ProcessingConflict("Processing Recipe revision violates its typed contract")
+    if kind == REFERENCE_TENSILE_CROP_RECIPE_KIND:
+        if str(row["diagnostics_schema_ref"]) != REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA:
+            raise ProcessingConflict("Processing Recipe violates the reference crop contract")
+        return ReferenceTensileCropRecipeContent(
+            recipe_label=str(row["recipe_label"]),
+            minimum_engineering_strain=float(row["minimum_engineering_strain"]),
+            maximum_engineering_strain=float(row["maximum_engineering_strain"]),
+        )
+    if kind == REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND:
+        if str(row["diagnostics_schema_ref"]) != REFERENCE_TENSILE_ALIGNMENT_DIAGNOSTICS_SCHEMA:
+            raise ProcessingConflict("Processing Recipe violates the alignment contract")
+        return ReferenceTensileAlignmentRecipeContent(
+            recipe_label=str(row["recipe_label"]),
+            grid_start_engineering_strain=float(row["grid_start_engineering_strain"]),
+            grid_end_engineering_strain=float(row["grid_end_engineering_strain"]),
+            grid_point_count=int(row["grid_point_count"]),
+            domain_policy=AlignmentDomainPolicy(str(row["domain_policy"])),
+            interpolation_policy=AlignmentInterpolationPolicy(
+                str(row["interpolation_policy"])
+            ),
+            extrapolation_policy=AlignmentExtrapolationPolicy(
+                str(row["extrapolation_policy"])
+            ),
+        )
+    raise ProcessingConflict("Processing Recipe kind is unsupported")
 
 
-def _values(value: ReferenceTensileCropRecipeContent) -> dict[str, object]:
-    return {
-        "recipe_kind": REFERENCE_TENSILE_CROP_RECIPE_KIND,
+def _values(value: ProcessingRecipeContent) -> dict[str, object]:
+    common: dict[str, object] = {
         "step_ordinal": 0,
-        "minimum_engineering_strain": value.minimum_engineering_strain,
-        "maximum_engineering_strain": value.maximum_engineering_strain,
         "input_schema_ref": REFERENCE_TENSILE_CROP_INPUT_SCHEMA,
         "output_schema_ref": REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
-        "diagnostics_schema_ref": REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
+        "minimum_engineering_strain": None,
+        "maximum_engineering_strain": None,
+        "grid_start_engineering_strain": None,
+        "grid_end_engineering_strain": None,
+        "grid_point_count": None,
+        "domain_policy": None,
+        "interpolation_policy": None,
+        "extrapolation_policy": None,
+    }
+    if isinstance(value, ReferenceTensileCropRecipeContent):
+        return common | {
+            "recipe_kind": REFERENCE_TENSILE_CROP_RECIPE_KIND,
+            "minimum_engineering_strain": value.minimum_engineering_strain,
+            "maximum_engineering_strain": value.maximum_engineering_strain,
+            "diagnostics_schema_ref": REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
+        }
+    return common | {
+        "recipe_kind": REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+        "grid_start_engineering_strain": value.grid_start_engineering_strain,
+        "grid_end_engineering_strain": value.grid_end_engineering_strain,
+        "grid_point_count": value.grid_point_count,
+        "domain_policy": value.domain_policy.value,
+        "interpolation_policy": value.interpolation_policy.value,
+        "extrapolation_policy": value.extrapolation_policy.value,
+        "diagnostics_schema_ref": REFERENCE_TENSILE_ALIGNMENT_DIAGNOSTICS_SCHEMA,
     }
 
 
-_TABLES: TypedRevisionTables[ReferenceTensileCropRecipeContent] = TypedRevisionTables(
+def _canonical(value: ProcessingRecipeContent) -> dict[str, object]:
+    if isinstance(value, ReferenceTensileCropRecipeContent):
+        return reference_tensile_crop_canonical(value)
+    return reference_tensile_alignment_canonical(value)
+
+
+def _kind(value: ProcessingRecipeContent) -> str:
+    if isinstance(value, ReferenceTensileCropRecipeContent):
+        return REFERENCE_TENSILE_CROP_RECIPE_KIND
+    return REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND
+
+
+_TABLES: TypedRevisionTables[ProcessingRecipeContent] = TypedRevisionTables(
     aggregate_type=PROCESSING_RECIPE_AGGREGATE_TYPE,
     identity_table=processing_recipe_table,
     revision_table=processing_recipe_revision_table,
-    canonical_content=reference_tensile_crop_canonical,
+    canonical_content=_canonical,
     content_values=_values,
     identity_values=lambda value: {
         "recipe_label": value.recipe_label,
-        "recipe_kind": REFERENCE_TENSILE_CROP_RECIPE_KIND,
+        "recipe_kind": _kind(value),
     },
 )
 
@@ -283,6 +354,11 @@ def _run(row: Any) -> ProcessingRun:
         created_by=cast(UUID, row["created_by"]),
         request_id=cast(UUID, row["request_id"]),
         trace_id=str(row["trace_id"]),
+        run_kind=str(row["run_kind"]),
+        batch_id=cast(UUID | None, row["batch_id"]),
+        member_ordinal=(
+            int(row["member_ordinal"]) if row["member_ordinal"] is not None else None
+        ),
     )
 
 
@@ -344,7 +420,7 @@ class SqlAlchemyProcessingRepository(ProcessingRepository):
 
     def recipe_store(
         self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> RevisionStore[ReferenceTensileCropRecipeContent]:
+    ) -> RevisionStore[ProcessingRecipeContent]:
         return SqlAlchemyRevisionStore(
             session_factory=self._sessions,
             tables=_TABLES,
@@ -367,6 +443,12 @@ class SqlAlchemyProcessingRepository(ProcessingRepository):
             revision.c.input_schema_ref,
             revision.c.output_schema_ref,
             revision.c.diagnostics_schema_ref,
+            revision.c.grid_start_engineering_strain,
+            revision.c.grid_end_engineering_strain,
+            revision.c.grid_point_count,
+            revision.c.domain_policy,
+            revision.c.interpolation_policy,
+            revision.c.extrapolation_policy,
         ).select_from(
             identity.join(
                 revision,
@@ -411,7 +493,7 @@ class SqlAlchemyProcessingRepository(ProcessingRepository):
         decision: AuthorizationDecision,
         recipe_id: UUID,
         recipe_revision_id: UUID,
-    ) -> RevisionSnapshot[ReferenceTensileCropRecipeContent]:
+    ) -> RevisionSnapshot[ProcessingRecipeContent]:
         identity = processing_recipe_table
         revision = processing_recipe_revision_table
         statement = sa.select(
@@ -424,6 +506,12 @@ class SqlAlchemyProcessingRepository(ProcessingRepository):
             revision.c.input_schema_ref,
             revision.c.output_schema_ref,
             revision.c.diagnostics_schema_ref,
+            revision.c.grid_start_engineering_strain,
+            revision.c.grid_end_engineering_strain,
+            revision.c.grid_point_count,
+            revision.c.domain_policy,
+            revision.c.interpolation_policy,
+            revision.c.extrapolation_policy,
         ).select_from(
             identity.join(
                 revision,
@@ -496,6 +584,9 @@ class SqlAlchemyProcessingRepository(ProcessingRepository):
             "created_by": run.created_by,
             "request_id": run.request_id,
             "trace_id": run.trace_id,
+            "run_kind": run.run_kind,
+            "batch_id": run.batch_id,
+            "member_ordinal": run.member_ordinal,
         }
         try:
             with self._session(context, decision) as session:
@@ -567,7 +658,7 @@ class SqlAlchemyProcessingRepository(ProcessingRepository):
         output_dataset_id: UUID,
         output_dataset_revision_id: UUID,
         output_point_count: int,
-        removed_point_count: int,
+        removed_point_count: int | None,
     ) -> ProcessingRun:
         return self._terminal_run(
             context=context,

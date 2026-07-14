@@ -29,8 +29,17 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.domain.reference_import import ImportRunStatus
+from cmp.modules.processing.domain.reference_tensile_alignment import (
+    REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+    REFERENCE_TENSILE_ALIGNMENT_SCHEMA_ID,
+    REFERENCE_TENSILE_ALIGNMENT_SCHEMA_VERSION,
+    ReferenceTensileAlignmentRecipeContent,
+    align_reference_tensile_curve,
+    common_intersection_domain,
+)
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+    REFERENCE_TENSILE_CROP_RECIPE_KIND,
     REFERENCE_TENSILE_CROP_SCHEMA_VERSION,
     ProcessingConflict,
     ProcessingRunStatus,
@@ -48,6 +57,9 @@ from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 
 PROCESSING_RECIPE_AGGREGATE_TYPE = "processing.processing_recipe"
 PROCESSING_RECIPE_SCHEMA_ID = "urn:cmp:processing:reference-tensile-crop-recipe:1.0.0"
+type ProcessingRecipeContent = (
+    ReferenceTensileCropRecipeContent | ReferenceTensileAlignmentRecipeContent
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,7 +71,7 @@ class RevisionSnapshot[ContentT]:
 @dataclass(frozen=True, slots=True)
 class ProcessingRecipeSnapshot:
     id: UUID
-    current: RevisionSnapshot[ReferenceTensileCropRecipeContent]
+    current: RevisionSnapshot[ProcessingRecipeContent]
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,6 +99,21 @@ class ProcessingRun:
     created_by: UUID
     request_id: UUID
     trace_id: str
+    run_kind: str = REFERENCE_TENSILE_CROP_RECIPE_KIND
+    batch_id: UUID | None = None
+    member_ordinal: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ReplicateAlignmentBatch:
+    id: UUID
+    selection_id: UUID
+    selection_revision_id: UUID
+    recipe_id: UUID
+    recipe_revision_id: UUID
+    common_domain_start: float
+    common_domain_end: float
+    runs: tuple[ProcessingRun, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,7 +156,23 @@ class ReviseReferenceTensileCropRecipe:
 
 
 @dataclass(frozen=True, slots=True)
+class CreateReferenceTensileAlignmentRecipe:
+    classification: DataClassification
+    content: ReferenceTensileAlignmentRecipeContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
 class ExecuteReferenceTensileCrop:
+    selection_id: UUID
+    selection_revision_id: UUID
+    recipe_id: UUID
+    recipe_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ExecuteReferenceTensileAlignment:
     selection_id: UUID
     selection_revision_id: UUID
     recipe_id: UUID
@@ -151,7 +194,7 @@ class ExecuteReferenceImport:
 class ProcessingRepository(Protocol):
     def recipe_store(
         self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> RevisionStore[ReferenceTensileCropRecipeContent]: ...
+    ) -> RevisionStore[ProcessingRecipeContent]: ...
 
     def get_recipe(
         self,
@@ -168,7 +211,7 @@ class ProcessingRepository(Protocol):
         decision: AuthorizationDecision,
         recipe_id: UUID,
         recipe_revision_id: UUID,
-    ) -> RevisionSnapshot[ReferenceTensileCropRecipeContent]: ...
+    ) -> RevisionSnapshot[ProcessingRecipeContent]: ...
 
     def list_recipes(
         self,
@@ -196,7 +239,7 @@ class ProcessingRepository(Protocol):
         output_dataset_id: UUID,
         output_dataset_revision_id: UUID,
         output_point_count: int,
-        removed_point_count: int,
+        removed_point_count: int | None,
     ) -> ProcessingRun: ...
 
     def fail_run(
@@ -331,6 +374,38 @@ class ProcessingService:
         )
         return ProcessingRecipeSnapshot(recipe_id, RevisionSnapshot(record, command.content))
 
+    def create_reference_tensile_alignment_recipe(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceTensileAlignmentRecipe,
+    ) -> ProcessingRecipeSnapshot:
+        _require(context, decision, Permission.PROCESSING_EXECUTE)
+        reason = _reason(command.change_reason)
+        scope = TenantScope(
+            context.organization_id,
+            context.project_id,
+            command.classification.value,
+        )
+        recipe_id = self._id()
+        record = RevisionService(
+            aggregate_type=PROCESSING_RECIPE_AGGREGATE_TYPE,
+            store=self._repository.recipe_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=recipe_id,
+                scope=scope,
+                schema_id=REFERENCE_TENSILE_ALIGNMENT_SCHEMA_ID,
+                schema_version=REFERENCE_TENSILE_ALIGNMENT_SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ProcessingRecipeSnapshot(recipe_id, RevisionSnapshot(record, command.content))
+
     def revise_reference_tensile_crop_recipe(
         self,
         context: SecurityContext,
@@ -343,6 +418,8 @@ class ProcessingService:
         existing = self._repository.get_recipe(
             context=context, decision=decision, recipe_id=recipe_id
         )
+        if not isinstance(existing.current.content, ReferenceTensileCropRecipeContent):
+            raise ProcessingConflict("crop revision endpoint requires a crop Recipe identity")
         if command.content.recipe_label != existing.current.content.recipe_label:
             raise ProcessingConflict(
                 "Processing Recipe label is a stable identity and cannot change"
@@ -408,6 +485,8 @@ class ProcessingService:
             recipe_id=command.recipe_id,
             recipe_revision_id=command.recipe_revision_id,
         )
+        if not isinstance(recipe.content, ReferenceTensileCropRecipeContent):
+            raise ProcessingConflict("reference crop requires a crop Recipe revision")
         selection = self._datasets.get_reference_dataset_selection_revision_for_processing(
             context,
             decision,
@@ -531,6 +610,174 @@ class ProcessingService:
                 # path can surface a terminal-state update failure independently.
                 pass
             raise
+
+    async def execute_reference_tensile_alignment(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: ExecuteReferenceTensileAlignment,
+    ) -> ReplicateAlignmentBatch:
+        """Align every pinned replicate to one explicit grid as separate outputs."""
+
+        _require(context, decision, Permission.PROCESSING_EXECUTE)
+        reason = _reason(command.change_reason)
+        recipe = self._repository.get_recipe_revision(
+            context=context,
+            decision=decision,
+            recipe_id=command.recipe_id,
+            recipe_revision_id=command.recipe_revision_id,
+        )
+        if not isinstance(recipe.content, ReferenceTensileAlignmentRecipeContent):
+            raise ProcessingConflict("replicate alignment requires an alignment Recipe revision")
+        selection = (
+            self._datasets.get_reference_tensile_replicate_selection_revision_for_processing(
+                context,
+                decision,
+                command.selection_id,
+                command.selection_revision_id,
+            )
+        )
+        if recipe.record.scope != selection.revision.record.scope:
+            raise ProcessingConflict("alignment Recipe and replicate Selection must share scope")
+
+        inputs = []
+        curves = []
+        for member in selection.revision.content.members:
+            snapshot = self._datasets.get_dataset_revision_for_processing(
+                context, decision, member.dataset_revision_id
+            )
+            if snapshot.dataset_id != member.dataset_id:
+                raise ProcessingConflict("replicate member Dataset identity does not match")
+            if snapshot.revision.record.scope != recipe.record.scope:
+                raise ProcessingConflict("replicate Dataset is outside the Recipe tenant scope")
+            content = snapshot.revision.content
+            if content.representation is not DatasetRepresentation.NORMALIZED:
+                raise ProcessingConflict(
+                    "reference alignment currently accepts normalized Dataset revisions only"
+                )
+            _, payload = await self._artifacts.read_verified_bytes(
+                context,
+                decision,
+                content.data_artifact_id,
+                maximum_bytes=16 * 1024 * 1024,
+            )
+            try:
+                points = normalized_points_from_parquet(payload)
+            except DatasetError as error:
+                raise ProcessingConflict("replicate Dataset cannot be read") from error
+            if len(points) != content.point_count:
+                raise ProcessingConflict("replicate Artifact point count differs from revision")
+            inputs.append(snapshot)
+            curves.append(points)
+
+        common_domain = common_intersection_domain(tuple(curves))
+        outcomes = tuple(
+            align_reference_tensile_curve(
+                points,
+                recipe.content,
+                common_domain=common_domain,
+            )
+            for points in curves
+        )
+        batch_id = self._id()
+        results: list[ProcessingRun] = []
+        for member, input_snapshot, outcome in zip(
+            selection.revision.content.members, inputs, outcomes, strict=True
+        ):
+            run = ProcessingRun(
+                id=self._id(),
+                classification=DataClassification(recipe.record.scope.classification),
+                selection_id=command.selection_id,
+                selection_revision_id=command.selection_revision_id,
+                recipe_id=command.recipe_id,
+                recipe_revision_id=command.recipe_revision_id,
+                input_dataset_id=input_snapshot.dataset_id,
+                input_dataset_revision_id=input_snapshot.revision.record.revision_id,
+                status=ProcessingRunStatus.EXECUTING,
+                input_point_count=outcome.input_point_count,
+                output_point_count=None,
+                removed_point_count=None,
+                result_artifact_id=None,
+                result_sha256=None,
+                output_dataset_id=None,
+                output_dataset_revision_id=None,
+                failure_code=None,
+                change_reason=reason,
+                started_at=datetime.now(UTC),
+                ended_at=None,
+                created_by=context.principal.id,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+                run_kind=REFERENCE_TENSILE_ALIGNMENT_RECIPE_KIND,
+                batch_id=batch_id,
+                member_ordinal=member.ordinal,
+            )
+            created = self._repository.create_run(context=context, decision=decision, run=run)
+            artifact: ArtifactRecord | None = None
+            output_registered = False
+            try:
+                artifact = await self._artifacts.finalize_derived_bytes(
+                    context,
+                    decision,
+                    classification=created.classification,
+                    artifact_role="dataset.processed_reference_tensile_curve",
+                    schema_ref=REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
+                    media_type="application/vnd.apache.parquet",
+                    value=processed_parquet_bytes(outcome.points),
+                    idempotency_key=(
+                        f"processing:{created.id}:reference-tensile-common-grid"
+                    ),
+                )
+                output = self._datasets.register_processed_reference_tensile_dataset(
+                    context,
+                    decision,
+                    RegisterProcessedReferenceTensileDataset(
+                        source_dataset_revision_id=input_snapshot.revision.record.revision_id,
+                        processing_run_id=created.id,
+                        artifact=artifact,
+                        point_count=outcome.output_point_count,
+                        change_reason=reason,
+                    ),
+                )
+                output_registered = True
+                results.append(
+                    self._repository.succeed_run(
+                        context=context,
+                        decision=decision,
+                        run_id=created.id,
+                        artifact=artifact,
+                        output_dataset_id=output.id,
+                        output_dataset_revision_id=output.current.record.revision_id,
+                        output_point_count=outcome.output_point_count,
+                        removed_point_count=None,
+                    )
+                )
+            except Exception as error:
+                if output_registered:
+                    raise ProcessingConflict(
+                        "aligned Dataset committed but Run terminal state requires reconciliation"
+                    ) from error
+                try:
+                    self._repository.fail_run(
+                        context=context,
+                        decision=decision,
+                        run_id=created.id,
+                        artifact=artifact,
+                        failure_code="alignment_command_failed",
+                    )
+                except Exception:
+                    pass
+                raise
+        return ReplicateAlignmentBatch(
+            id=batch_id,
+            selection_id=command.selection_id,
+            selection_revision_id=command.selection_revision_id,
+            recipe_id=command.recipe_id,
+            recipe_revision_id=command.recipe_revision_id,
+            common_domain_start=common_domain[0],
+            common_domain_end=common_domain[1],
+            runs=tuple(results),
+        )
 
     async def execute_reference_import(
         self,
