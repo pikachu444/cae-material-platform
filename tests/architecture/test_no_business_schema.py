@@ -30,6 +30,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260719_021_T23_reference_calibration.py",
         "20260720_022_T24_candidate_selection_promotion.py",
         "20260721_023_T27_validation_template_runner.py",
+        "20260722_024_T28_validation_result_interpretation.py",
     ]
 
 
@@ -447,4 +448,40 @@ def test_t27_uses_explicit_template_plan_run_and_result_manifest_relations_witho
     assert "revisioning.reject_immutable_row_mutation()" in migration
     assert "guard_validation_plan_revision_insert" in migration
     assert "guard_validation_result_manifest_insert" in migration
+
+
+def test_t28_uses_explicit_validation_result_interpretation_relations_without_eav() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260722_024_T28_validation_result_interpretation.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "validation_response_extraction",
+        "validation_numerical_health_report",
+        "validation_result",
+        "validation_result_comparison_point",
+    ):
+        assert table in migration
+    for column in (
+        "source_native_result_artifact_id",
+        "normalized_response_artifact_id",
+        "health_status",
+        "relative_root_mean_squared_error",
+        "holdout_independence",
+        "engineering_strain",
+        "observed_engineering_stress_pa",
+        "simulated_engineering_stress_pa",
+    ):
+        assert column in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+    assert "guard_validation_response_extraction_insert" in migration
+    assert "guard_validation_numerical_health_report_insert" in migration
+    assert "guard_validation_result_insert" in migration
+    assert "guard_validation_result_comparison_points" in migration
 

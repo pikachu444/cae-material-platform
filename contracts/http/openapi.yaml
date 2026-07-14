@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.22.0
+  version: 0.23.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -3192,6 +3192,81 @@ paths:
         "404": {description: No visible Validation Run matches the identifier.}
         "409": {description: The Run is not waiting for a manual attachment or already has a Result Manifest.}
         "422": {description: The manual logs or native result do not satisfy the bounded reference contract.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-runs/{run_id}:evaluate:
+    post:
+      operationId: evaluateReferenceValidationRun
+      tags: [validation]
+      summary: Extract, normalize, and compare terminal reference validation evidence without a production claim.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-result-interpretation-resources.schema.json#/$defs/EvaluateReferenceValidationRunRequest"}
+      responses:
+        "200":
+          description: Terminal Run with immutable extracted response, numerical health, and reference verdict evidence.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: No visible terminal Validation Run or pinned immutable input matches the identifier.}
+        "409": {description: Result evidence already exists or frozen inputs, health, or holdout independence conflict.}
+        "422": {description: The bounded native output or experimental response cannot be interpreted.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-results/{validation_result_id}:
+    get:
+      operationId: getValidationResult
+      tags: [validation]
+      summary: Read immutable non-production reference validation interpretation evidence.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: validation_result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable typed extraction, numerical-health, metric, and verdict evidence.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-result-interpretation-resources.schema.json#/$defs/ReferenceValidationResultResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "404": {description: No visible Validation Result matches the identifier.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-results/{validation_result_id}/curve:
+    get:
+      operationId: previewValidationResultCurve
+      tags: [validation]
+      summary: Preview bounded extracted and observed-grid comparison curves for a reference Validation Result.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: validation_result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: maximum_points
+          in: query
+          required: false
+          schema: {type: integer, minimum: 2, maximum: 10000, default: 1000}
+      responses:
+        "200":
+          description: Bounded curve preview; sampling is explicit in the response.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-result-interpretation-resources.schema.json#/$defs/ValidationResultCurveResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "404": {description: No visible Validation Result matches the identifier.}
+        "409": {description: The Validation Result has no extracted response available for preview.}
         "503": {description: Validation service unavailable.}
 components:
   securitySchemes:

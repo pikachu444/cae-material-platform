@@ -454,6 +454,10 @@ def reference_mock_native_result_bytes(
                 "version": template.target_version,
                 "unit_system": template.target_unit_system,
             },
+            "channel_units": {
+                "engineering_strain": "1",
+                "engineering_stress_pa": "Pa",
+            },
             "solver_termination": SolverTerminationStatus.NORMAL.value,
             "points": points,
         }

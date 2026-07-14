@@ -113,6 +113,9 @@ Mock repository만으로 통과하는 test를 persistence integration의 대체�
 - reference Validation Template/Plan exact revision pinning; mock/manual Result Manifest parity;
   normal/abnormal/not-available termination; shell-like external-job rejection; target/native-result
   mismatch; immutable deck/log/manifest evidence without a validation verdict
+- T-28 reference interpretation: SI unit/target validation, finite/monotonic/truncated output,
+  explicit observed-grid interpolation with no extrapolation, fixed relative-RMSE threshold,
+  abnormal-output `not_evaluated`, and calibration Selection/holdout overlap rejection
 - curve point 수를 늘려도 replicate `n` 불변
 - display downsample과 full calculation 분리
 
@@ -130,6 +133,10 @@ Mock repository만으로 통과하는 test를 persistence integration의 대체�
 8. migration은 old entity를 보존하고 explicit activity를 만든다.
 9. a promoted IR must pin the current Candidate Selection revision, exact Candidate/diagnostics
    digests, and evaluated source IR revision; superseded selections and stale IR heads fail.
+10. a T-28 Validation Result must pin the terminal Result Manifest and exact experimental Selection
+    revision, create separate response/health/result Artifacts, and preserve every earlier Run,
+    Manifest, Dataset, IR, Card, and result fact. The result cannot pass after abnormal/unhealthy
+    evidence or fit/holdout overlap.
 
 Property-based graph fixture와 intentionally corrupt DB fixture를 모두 둔다.
 

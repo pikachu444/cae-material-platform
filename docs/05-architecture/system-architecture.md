@@ -68,7 +68,12 @@ flowchart TD
 application/persistence boundary. Its current `reference_inline_mock` and manual evidence paths do
 not invoke a solver executable or scheduler; they persist typed Template/Plan/Run/Result Manifest
 facts and immutable Artifact evidence through existing Artifact, Provenance, Audit, and RLS ports.
-Real solver/HPC execution remains an adapter decision, and result extraction/verdict remains T-28.
+Real solver/HPC execution remains an adapter decision. `T-28` now keeps typed response extraction,
+numerical-health assessment, observed-grid comparison, and reference verdict calculation in the
+same Validation bounded module. It reads Dataset/Model revisions only through their public
+application ports and stores explicit Validation-owned rows/Artifacts; it does not import a solver,
+test importer, fitting engine, or generic property/EAV payload. A reference verdict is not a
+production solver, material, review, or release decision (ADR-0014).
 
 의존성 방향은 외부 adapter에서 domain/application 쪽으로 향한다. domain module은 FastAPI, SQLAlchemy, S3 SDK, solver SDK를 import하지 않는다.
 

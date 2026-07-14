@@ -24,16 +24,37 @@ from cmp.modules.validation.application.service import (
     VALIDATION_TEMPLATE_AGGREGATE_TYPE,
     CreateReferenceValidationPlan,
     CreateReferenceValidationTemplate,
+    EvaluateReferenceValidationRun,
+    NumericalHealthReport,
+    ReferenceValidationResult,
     ReferenceValidationService,
     RevisionSnapshot,
     SubmitValidationRun,
     ValidationPlanSnapshot,
+    ValidationResponseExtraction,
+    ValidationResultCurvePreview,
     ValidationRun,
     ValidationRunDetail,
     ValidationRunResultManifest,
     ValidationTemplateSnapshot,
 )
+from cmp.modules.validation.domain.reference_result_interpretation import (
+    REFERENCE_ALIGNMENT_PROFILE_ID,
+    REFERENCE_RELATIVE_RMSE_THRESHOLD,
+    REFERENCE_THRESHOLD_PROFILE_ID,
+    HoldoutIndependenceStatus,
+    NumericalHealthAssessment,
+    NumericalHealthStatus,
+    ReferenceComparisonPoint,
+    ReferenceMetricAssessment,
+    ReferenceNumericalHealthReportContent,
+    ReferenceResponsePoint,
+    ReferenceValidationResultContent,
+    ResponseExtractionStatus,
+    ValidationVerdict,
+)
 from cmp.modules.validation.domain.reference_virtual_specimen import (
+    REFERENCE_METRIC_PROFILE_ID,
     ReferenceRunnerOutcome,
     ReferenceValidationPlanContent,
     ReferenceVirtualSpecimenTemplateContent,
@@ -67,6 +88,12 @@ STDOUT = UUID("27000000-0000-4000-8000-000000000111")
 STDERR = UUID("27000000-0000-4000-8000-000000000112")
 NATIVE = UUID("27000000-0000-4000-8000-000000000113")
 MANIFEST_ARTIFACT = UUID("27000000-0000-4000-8000-000000000114")
+EXTRACTION = UUID("27000000-0000-4000-8000-000000000115")
+HEALTH = UUID("27000000-0000-4000-8000-000000000116")
+RESULT = UUID("27000000-0000-4000-8000-000000000117")
+RESPONSE = UUID("27000000-0000-4000-8000-000000000118")
+HEALTH_ARTIFACT = UUID("27000000-0000-4000-8000-000000000119")
+RESULT_ARTIFACT = UUID("27000000-0000-4000-8000-00000000011a")
 TRACE = "00-00000000000000000000000000000270-0000000000000270-01"
 
 CONTEXT = SecurityContext(
@@ -178,6 +205,7 @@ class _ValidationService:
         )
         self.run = self._run(ValidationRunStatus.QUEUED)
         self.manifest: ValidationRunResultManifest | None = None
+        self.result: ReferenceValidationResult | None = None
 
     def _run(self, status: ValidationRunStatus) -> ValidationRun:
         return ValidationRun(
@@ -272,13 +300,14 @@ class _ValidationService:
         assert (command.plan_id, command.plan_revision_id) == (PLAN, PLAN_REVISION)
         self.run = self._run(ValidationRunStatus.QUEUED)
         self.manifest = None
-        return ValidationRunDetail(self.run, None)
+        self.result = None
+        return ValidationRunDetail(self.run, None, None)
 
     def get_run(
         self, context: SecurityContext, decision: AuthorizationDecision, run_id: UUID
     ) -> ValidationRunDetail:
         assert context is CONTEXT and decision is READ and run_id == RUN
-        return ValidationRunDetail(self.run, self.manifest)
+        return ValidationRunDetail(self.run, self.manifest, self.result)
 
     async def poll_reference_mock_run(
         self,
@@ -312,13 +341,152 @@ class _ValidationService:
             created_at=NOW,
             created_by=ACTOR,
         )
-        return ValidationRunDetail(self.run, self.manifest)
+        return ValidationRunDetail(self.run, self.manifest, self.result)
 
     def cancel_run(self, *args: Any, **kwargs: Any) -> ValidationRunDetail:
-        return ValidationRunDetail(self.run, self.manifest)
+        return ValidationRunDetail(self.run, self.manifest, self.result)
 
     async def attach_manual_result(self, *args: Any, **kwargs: Any) -> ValidationRunDetail:
-        return ValidationRunDetail(self.run, self.manifest)
+        return ValidationRunDetail(self.run, self.manifest, self.result)
+
+    def _result(self) -> ReferenceValidationResult:
+        assert self.manifest is not None
+        extraction = ValidationResponseExtraction(
+            id=EXTRACTION,
+            validation_run_id=RUN,
+            validation_result_manifest_id=MANIFEST,
+            source_native_result=_artifact(NATIVE, "1" * 64),
+            status=ResponseExtractionStatus.EXTRACTED,
+            normalized_response=_artifact(RESPONSE, "4" * 64),
+            point_count=3,
+            reason_code=None,
+            created_at=NOW,
+            created_by=ACTOR,
+        )
+        assessment = NumericalHealthAssessment(
+            status=NumericalHealthStatus.HEALTHY,
+            expected_point_count=3,
+            observed_point_count=3,
+            output_complete=True,
+            finite_values=True,
+            strictly_increasing_strain=True,
+            reason_code=None,
+        )
+        health = NumericalHealthReport(
+            id=HEALTH,
+            validation_run_id=RUN,
+            validation_result_manifest_id=MANIFEST,
+            response_extraction_id=EXTRACTION,
+            content=ReferenceNumericalHealthReportContent(
+                validation_run_id=RUN,
+                validation_result_manifest_id=MANIFEST,
+                response_extraction_id=EXTRACTION,
+                solver_termination=SolverTerminationStatus.NORMAL,
+                native_result_state="available",
+                assessment=assessment,
+            ),
+            report_artifact=_artifact(HEALTH_ARTIFACT, "5" * 64),
+            report_sha256="5" * 64,
+            created_at=NOW,
+            created_by=ACTOR,
+        )
+        metrics = ReferenceMetricAssessment(
+            root_mean_squared_error_pa=0.0,
+            relative_root_mean_squared_error=0.0,
+            normalization_stress_scale_pa=2_100_000_000.0,
+            comparison_points=(
+                ReferenceComparisonPoint(0.0, 0.0, 0.0, 0.0),
+                ReferenceComparisonPoint(
+                    0.01,
+                    2_100_000_000.0,
+                    2_100_000_000.0,
+                    0.0,
+                ),
+            ),
+        )
+        content = ReferenceValidationResultContent(
+            validation_run_id=RUN,
+            validation_result_manifest_id=MANIFEST,
+            response_extraction_id=EXTRACTION,
+            numerical_health_report_id=HEALTH,
+            experimental_selection_id=SELECTION,
+            experimental_selection_revision_id=SELECTION_REVISION,
+            normalized_response=extraction.normalized_response,
+            numerical_health_report=health.report_artifact,
+            metric_profile_id=REFERENCE_METRIC_PROFILE_ID,
+            threshold_profile_id=REFERENCE_THRESHOLD_PROFILE_ID,
+            alignment_profile_id=REFERENCE_ALIGNMENT_PROFILE_ID,
+            relative_rmse_threshold=REFERENCE_RELATIVE_RMSE_THRESHOLD,
+            experimental_point_count=2,
+            simulated_point_count=3,
+            metrics=metrics,
+            holdout_independence=HoldoutIndependenceStatus.INDEPENDENT_SELECTION,
+            verdict=ValidationVerdict.PASSED,
+            reason_code=None,
+        )
+        return ReferenceValidationResult(
+            id=RESULT,
+            validation_run_id=RUN,
+            validation_result_manifest_id=MANIFEST,
+            response_extraction=extraction,
+            numerical_health_report=health,
+            content=content,
+            result_artifact=_artifact(RESULT_ARTIFACT, "6" * 64),
+            result_sha256="6" * 64,
+            created_at=NOW,
+            created_by=ACTOR,
+        )
+
+    async def evaluate_reference_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        command: EvaluateReferenceValidationRun,
+    ) -> ValidationRunDetail:
+        assert context is CONTEXT and decision is EXECUTE and run_id == RUN
+        assert command.change_reason
+        self.result = self.result or self._result()
+        return ValidationRunDetail(self.run, self.manifest, self.result)
+
+    def get_validation_result(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        validation_result_id: UUID,
+    ) -> ReferenceValidationResult:
+        assert context is CONTEXT and decision is READ and validation_result_id == RESULT
+        assert self.result is not None
+        return self.result
+
+    async def preview_validation_result_curve(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        validation_result_id: UUID,
+        *,
+        maximum_points: int,
+    ) -> ValidationResultCurvePreview:
+        assert context is CONTEXT and decision is READ and validation_result_id == RESULT
+        assert self.result is not None and maximum_points == 1000
+        metrics = self.result.content.metrics
+        assert metrics is not None
+        return ValidationResultCurvePreview(
+            validation_result_id=RESULT,
+            verdict=ValidationVerdict.PASSED,
+            response_point_count=3,
+            returned_response_point_count=3,
+            response_sampled=False,
+            response_points=(
+                ReferenceResponsePoint(0.0, 0.0),
+                ReferenceResponsePoint(0.01, 2_100_000_000.0),
+                ReferenceResponsePoint(0.02, 4_200_000_000.0),
+            ),
+            comparison_point_count=2,
+            returned_comparison_point_count=2,
+            comparison_sampled=False,
+            comparison_points=metrics.comparison_points,
+        )
 
 
 def _application() -> FastAPI:
@@ -359,8 +527,9 @@ def _request(
     return asyncio.run(send())
 
 
-def test_validation_api_pins_inputs_and_exposes_terminal_artifact_manifest_without_verdict(
-) -> None:
+def test_validation_api_pins_inputs_and_exposes_terminal_artifact_manifest_without_verdict() -> (
+    None
+):
     application = _application()
 
     template = _request(
@@ -436,3 +605,21 @@ def test_validation_api_pins_inputs_and_exposes_terminal_artifact_manifest_witho
     assert document["result_manifest"]["solver_termination"] == "normal"
     assert document["result_manifest"]["native_result_state"] == "available"
     assert "verdict" not in document
+
+    evaluated = _request(
+        application,
+        "POST",
+        f"/api/v1/validation-runs/{RUN}:evaluate",
+        json={"change_reason": "Extract response and compare pinned experiment"},
+    )
+    assert evaluated.status_code == 200
+    assert evaluated.json()["validation_result"]["verdict"] == "passed"
+    assert evaluated.json()["validation_result"]["numerical_health_report"]["status"] == "healthy"
+
+    result = _request(application, "GET", f"/api/v1/validation-results/{RESULT}")
+    assert result.status_code == 200
+    assert result.json()["alignment_profile_id"].endswith("observed-grid:1.0.0")
+
+    curve = _request(application, "GET", f"/api/v1/validation-results/{RESULT}/curve")
+    assert curve.status_code == 200
+    assert curve.json()["comparison_point_count"] == 2

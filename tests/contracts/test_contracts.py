@@ -917,3 +917,48 @@ def test_runtime_plugin_request_and_resource_required_fields_match_public_schema
 
     assert set(runtime["RegisterPluginPackageRequest"]["required"]) == set(registration["required"])
     assert set(runtime["PluginPackageResponse"]["required"]) == set(resource["required"])
+
+
+def test_reference_validation_result_contract_and_runtime_expose_typed_interpretation() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/validation-runs/{run_id}:evaluate": (
+            "post",
+            "evaluateReferenceValidationRun",
+        ),
+        "/api/v1/validation-results/{validation_result_id}": ("get", "getValidationResult"),
+        "/api/v1/validation-results/{validation_result_id}/curve": (
+            "get",
+            "previewValidationResultCurve",
+        ),
+    }
+
+    for path, (method, operation_id) in operations.items():
+        assert source["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["operationId"] == operation_id
+        assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = (
+        PROJECT_ROOT / "contracts/validation/reference-result-interpretation-resources.schema.json"
+    )
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    serialized = json.dumps(schema)
+    result = runtime["components"]["schemas"]["ReferenceValidationResultResponse"]
+    health = runtime["components"]["schemas"]["NumericalHealthReportResponse"]
+    curve = runtime["components"]["schemas"]["ValidationResultCurveResponse"]
+    run = runtime["components"]["schemas"]["ValidationRunResponse"]
+
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+    assert "storage_key" not in serialized
+    assert {"response_extraction", "numerical_health_report", "holdout_independence"}.issubset(
+        result["required"]
+    )
+    assert {"output_complete", "finite_values", "strictly_increasing_strain"}.issubset(
+        health["required"]
+    )
+    assert {"response_points", "comparison_points", "comparison_sampled"}.issubset(
+        curve["required"]
+    )
+    assert "validation_result" in run["required"]

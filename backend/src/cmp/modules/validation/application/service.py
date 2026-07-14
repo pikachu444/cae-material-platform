@@ -9,11 +9,16 @@ from typing import Protocol
 from uuid import UUID, uuid4
 
 from cmp.modules.artifacts.application.content import ArtifactService
-from cmp.modules.artifacts.domain.content import ArtifactRecord
+from cmp.modules.artifacts.domain.content import ArtifactError, ArtifactRecord
 from cmp.modules.datasets.application.service import (
     CalibrationDatasetSource,
     DatasetSelectionRevisionSnapshot,
     DatasetService,
+)
+from cmp.modules.datasets.domain.reference_tensile import (
+    CurvePoint,
+    DatasetRepresentation,
+    normalized_points_from_parquet,
 )
 from cmp.modules.exporting.application.service import (
     RevisionSnapshot as SolverCardRevisionSnapshot,
@@ -35,6 +40,36 @@ from cmp.modules.modeling.application.service import (
     RevisionSnapshot as MaterialModelRevisionSnapshot,
 )
 from cmp.modules.modeling.domain.reference_linear_elasticity import ReferenceLinearElasticContent
+from cmp.modules.validation.domain.reference_result_interpretation import (
+    REFERENCE_ALIGNMENT_PROFILE_ID,
+    REFERENCE_NORMALIZED_RESPONSE_SCHEMA_ID,
+    REFERENCE_NUMERICAL_HEALTH_REPORT_SCHEMA_ID,
+    REFERENCE_RELATIVE_RMSE_THRESHOLD,
+    REFERENCE_THRESHOLD_PROFILE_ID,
+    REFERENCE_VALIDATION_RESULT_SCHEMA_ID,
+    HoldoutIndependenceStatus,
+    NumericalHealthStatus,
+    ReferenceComparisonPoint,
+    ReferenceMetricAssessment,
+    ReferenceNativeResponse,
+    ReferenceNormalizedResponseContent,
+    ReferenceNumericalHealthReportContent,
+    ReferenceResponsePoint,
+    ReferenceResultInterpretationError,
+    ReferenceValidationResultContent,
+    ResponseExtractionStatus,
+    ValidationVerdict,
+    assess_reference_numerical_health,
+    compare_reference_responses,
+    extract_reference_native_response,
+    normalized_response_bytes,
+    numerical_health_report_bytes,
+    parse_reference_normalized_response_bytes,
+    preview_reference_comparison_points,
+    preview_reference_response_points,
+    validation_result_bytes,
+    validation_result_sha256,
+)
 from cmp.modules.validation.domain.reference_virtual_specimen import (
     REFERENCE_DECK_SCHEMA_ID,
     REFERENCE_NATIVE_RESULT_SCHEMA_ID,
@@ -71,7 +106,7 @@ from cmp.shared.application.revisions import (
     RevisionService,
     RevisionStore,
 )
-from cmp.shared.domain.revisions import RevisionRecord, TenantScope
+from cmp.shared.domain.revisions import RevisionRecord, TenantScope, content_sha256
 
 VALIDATION_TEMPLATE_AGGREGATE_TYPE = "validation.validation_template"
 VALIDATION_PLAN_AGGREGATE_TYPE = "validation.validation_plan"
@@ -137,9 +172,71 @@ class ValidationRunResultManifest:
 
 
 @dataclass(frozen=True, slots=True)
+class ValidationResponseExtraction:
+    """Immutable T-28 projection of one terminal native result into canonical SI channels."""
+
+    id: UUID
+    validation_run_id: UUID
+    validation_result_manifest_id: UUID
+    source_native_result: ValidationArtifactReference | None
+    status: ResponseExtractionStatus
+    normalized_response: ValidationArtifactReference | None
+    point_count: int | None
+    reason_code: str | None
+    created_at: datetime
+    created_by: UUID
+
+
+@dataclass(frozen=True, slots=True)
+class NumericalHealthReport:
+    """Immutable solver/response health report; no metric or verdict is embedded here."""
+
+    id: UUID
+    validation_run_id: UUID
+    validation_result_manifest_id: UUID
+    response_extraction_id: UUID
+    content: ReferenceNumericalHealthReportContent
+    report_artifact: ValidationArtifactReference
+    report_sha256: str
+    created_at: datetime
+    created_by: UUID
+
+
+@dataclass(frozen=True, slots=True)
+class ReferenceValidationResult:
+    """Immutable T-28 experimental-comparison result derived from a terminal T-27 run."""
+
+    id: UUID
+    validation_run_id: UUID
+    validation_result_manifest_id: UUID
+    response_extraction: ValidationResponseExtraction
+    numerical_health_report: NumericalHealthReport
+    content: ReferenceValidationResultContent
+    result_artifact: ValidationArtifactReference
+    result_sha256: str
+    created_at: datetime
+    created_by: UUID
+
+
+@dataclass(frozen=True, slots=True)
+class ValidationResultCurvePreview:
+    validation_result_id: UUID
+    verdict: ValidationVerdict
+    response_point_count: int
+    returned_response_point_count: int
+    response_sampled: bool
+    response_points: tuple[ReferenceResponsePoint, ...]
+    comparison_point_count: int
+    returned_comparison_point_count: int
+    comparison_sampled: bool
+    comparison_points: tuple[ReferenceComparisonPoint, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ValidationRunDetail:
     run: ValidationRun
     result_manifest: ValidationRunResultManifest | None
+    validation_result: ReferenceValidationResult | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -184,6 +281,11 @@ class AttachManualValidationResult:
     stdout_text: str
     stderr_text: str
     native_result_text: str
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluateReferenceValidationRun:
     change_reason: str
 
 
@@ -291,6 +393,26 @@ class ValidationRepository(Protocol):
         change_reason: str,
     ) -> ValidationRunDetail: ...
 
+    def record_result_evaluation(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        response_extraction: ValidationResponseExtraction,
+        numerical_health_report: NumericalHealthReport,
+        validation_result: ReferenceValidationResult,
+        change_reason: str,
+    ) -> ValidationRunDetail: ...
+
+    def get_validation_result(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        validation_result_id: UUID,
+    ) -> ReferenceValidationResult: ...
+
 
 def _require(
     context: SecurityContext,
@@ -316,6 +438,23 @@ def _reason(value: str) -> str:
 
 def _reference(record: ArtifactRecord) -> ValidationArtifactReference:
     return ValidationArtifactReference(record.artifact.id, record.artifact.sha256)
+
+
+def _require_artifact_reference(
+    record: ArtifactRecord,
+    reference: ValidationArtifactReference,
+    *,
+    role: str,
+) -> None:
+    if record.artifact.id != reference.artifact_id or record.artifact.sha256 != reference.sha256:
+        raise ValidationConflict(f"{role} Artifact does not match its immutable pointer")
+
+
+def _response_points(value: tuple[CurvePoint, ...]) -> tuple[ReferenceResponsePoint, ...]:
+    return tuple(
+        ReferenceResponsePoint(point.engineering_strain, point.engineering_stress)
+        for point in value
+    )
 
 
 class ReferenceValidationService:
@@ -892,6 +1031,344 @@ class ReferenceValidationService:
             terminal_status=terminal_status,
             failure_code=failure_code,
             change_reason=reason,
+        )
+
+    async def evaluate_reference_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        command: EvaluateReferenceValidationRun,
+    ) -> ValidationRunDetail:
+        """Extract a terminal reference result, assess health, and compare it with experiment.
+
+        A terminal solver failure is still persisted as a typed, traceable
+        ``not_evaluated`` result.  It can never be turned into a passing verdict by a metric.
+        """
+
+        _require(context, decision, Permission.VALIDATION_EXECUTE)
+        reason = _reason(command.change_reason)
+        detail = self._repository.get_run_detail(context=context, decision=decision, run_id=run_id)
+        if detail.validation_result is not None:
+            return detail
+        if detail.result_manifest is None:
+            raise ValidationConflict(
+                "Validation Run requires a terminal Result Manifest before evaluation"
+            )
+        run = detail.run
+        manifest = detail.result_manifest
+        template = self._repository.get_template_revision(
+            context=context,
+            decision=decision,
+            template_id=run.template_id,
+            template_revision_id=run.template_revision_id,
+        )
+        selection = self._datasets.get_reference_dataset_selection_revision_for_validation(
+            context,
+            decision,
+            run.experimental_selection_id,
+            run.experimental_selection_revision_id,
+        )
+        dataset = self._datasets.get_dataset_revision_for_validation(
+            context,
+            decision,
+            selection.revision.content.dataset_revision_id,
+        )
+        if (
+            selection.revision.record.scope != template.record.scope
+            or dataset.revision.record.scope != template.record.scope
+        ):
+            raise ValidationConflict("Validation experimental Dataset is outside the pinned scope")
+        if dataset.revision.record.revision_id != selection.revision.content.dataset_revision_id:
+            raise ValidationConflict(
+                "Validation Selection no longer resolves its pinned Dataset revision"
+            )
+        if dataset.revision.content.representation not in {
+            DatasetRepresentation.NORMALIZED,
+            DatasetRepresentation.PROCESSED,
+        }:
+            raise ValidationConflict(
+                "Validation requires a normalized or processed tensile Dataset"
+            )
+        observed_record, observed_bytes = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            dataset.revision.content.data_artifact_id,
+            maximum_bytes=16 * 1024 * 1024,
+        )
+        if observed_record.artifact.sha256 != dataset.revision.content.data_sha256:
+            raise ValidationConflict("Validation Dataset Artifact digest differs from its revision")
+        try:
+            observed = _response_points(normalized_points_from_parquet(observed_bytes))
+        except ValueError as error:
+            raise ValidationConflict(
+                "Validation Dataset Artifact is not a normalized tensile curve"
+            ) from error
+
+        extraction_id = self._id()
+        health_id = self._id()
+        result_id = self._id()
+        native_response: ReferenceNativeResponse | None = None
+        extraction_reason: str | None = None
+        normalized_response: ValidationArtifactReference | None = None
+        source_native = manifest.content.native_result
+        if (
+            manifest.content.solver_termination is SolverTerminationStatus.NORMAL
+            and source_native is not None
+        ):
+            try:
+                native_record, native_bytes = await self._artifacts.read_verified_bytes(
+                    context,
+                    decision,
+                    source_native.artifact_id,
+                    maximum_bytes=1_000_000,
+                )
+                _require_artifact_reference(
+                    native_record,
+                    source_native,
+                    role="Validation native result",
+                )
+                native_response = extract_reference_native_response(
+                    native_bytes,
+                    template=template.content,
+                )
+                if native_response.solver_termination is not SolverTerminationStatus.NORMAL:
+                    extraction_reason = "native_termination_mismatch"
+                    native_response = None
+                else:
+                    response_content = ReferenceNormalizedResponseContent(
+                        validation_run_id=run.id,
+                        validation_result_manifest_id=manifest.id,
+                        response_extraction_id=extraction_id,
+                        source_native_result=source_native,
+                        points=native_response.points,
+                    )
+                    normalized_response = _reference(
+                        await self._artifacts.finalize_derived_bytes(
+                            context,
+                            decision,
+                            classification=run.classification,
+                            artifact_role="validation.normalized_response",
+                            schema_ref=REFERENCE_NORMALIZED_RESPONSE_SCHEMA_ID,
+                            media_type="application/json",
+                            value=normalized_response_bytes(response_content),
+                            idempotency_key=f"validation-result:{run.id}:normalized-response",
+                        )
+                    )
+            except ReferenceResultInterpretationError as error:
+                extraction_reason = error.reason_code
+            except ArtifactError:
+                extraction_reason = "native_result_unavailable"
+        health = assess_reference_numerical_health(
+            template=template.content,
+            solver_termination=manifest.content.solver_termination,
+            native_result_state=manifest.content.native_result_state,
+            response=native_response,
+            extraction_reason_code=extraction_reason,
+        )
+        extraction = ValidationResponseExtraction(
+            id=extraction_id,
+            validation_run_id=run.id,
+            validation_result_manifest_id=manifest.id,
+            source_native_result=source_native,
+            status=(
+                ResponseExtractionStatus.EXTRACTED
+                if native_response is not None and normalized_response is not None
+                else ResponseExtractionStatus.NOT_EVALUATED
+            ),
+            normalized_response=normalized_response,
+            point_count=len(native_response.points) if native_response is not None else None,
+            reason_code=extraction_reason,
+            created_at=self._clock(),
+            created_by=context.principal.id,
+        )
+        health_content = ReferenceNumericalHealthReportContent(
+            validation_run_id=run.id,
+            validation_result_manifest_id=manifest.id,
+            response_extraction_id=extraction.id,
+            solver_termination=manifest.content.solver_termination,
+            native_result_state=manifest.content.native_result_state,
+            assessment=health,
+        )
+        health_artifact = _reference(
+            await self._artifacts.finalize_derived_bytes(
+                context,
+                decision,
+                classification=run.classification,
+                artifact_role="validation.numerical_health_report",
+                schema_ref=REFERENCE_NUMERICAL_HEALTH_REPORT_SCHEMA_ID,
+                media_type="application/json",
+                value=numerical_health_report_bytes(health_content),
+                idempotency_key=f"validation-result:{run.id}:numerical-health",
+            )
+        )
+        health_report = NumericalHealthReport(
+            id=health_id,
+            validation_run_id=run.id,
+            validation_result_manifest_id=manifest.id,
+            response_extraction_id=extraction.id,
+            content=health_content,
+            report_artifact=health_artifact,
+            report_sha256=content_sha256(health_content.canonical()),
+            created_at=self._clock(),
+            created_by=context.principal.id,
+        )
+        model = self._material_models.get_material_model_revision_for_validation(
+            context,
+            decision,
+            run.material_model_id,
+            run.material_model_revision_id,
+        )
+        if model.record.scope != template.record.scope:
+            raise ValidationConflict("Validation Material Model is outside the pinned scope")
+        evidence = model.content.calibration_evidence
+        if evidence is None:
+            holdout = HoldoutIndependenceStatus.NOT_APPLICABLE_MANUAL_IR
+        elif (
+            evidence.calibration_selection_id == run.experimental_selection_id
+            and evidence.calibration_selection_revision_id == run.experimental_selection_revision_id
+        ):
+            holdout = HoldoutIndependenceStatus.OVERLAPS_CALIBRATION_SELECTION
+        else:
+            holdout = HoldoutIndependenceStatus.INDEPENDENT_SELECTION
+        metrics: ReferenceMetricAssessment | None = None
+        verdict = ValidationVerdict.NOT_EVALUATED
+        result_reason = health.reason_code
+        if health.status is NumericalHealthStatus.HEALTHY and native_response is not None:
+            try:
+                metrics = compare_reference_responses(
+                    observed=observed, simulated=native_response.points
+                )
+            except ReferenceResultInterpretationError as error:
+                result_reason = error.reason_code
+            else:
+                if holdout is HoldoutIndependenceStatus.OVERLAPS_CALIBRATION_SELECTION:
+                    result_reason = "fit_holdout_overlap"
+                elif metrics.relative_root_mean_squared_error <= 0.05:
+                    verdict = ValidationVerdict.PASSED
+                    result_reason = None
+                else:
+                    verdict = ValidationVerdict.FAILED
+                    result_reason = None
+        result_content = ReferenceValidationResultContent(
+            validation_run_id=run.id,
+            validation_result_manifest_id=manifest.id,
+            response_extraction_id=extraction.id,
+            numerical_health_report_id=health_report.id,
+            experimental_selection_id=run.experimental_selection_id,
+            experimental_selection_revision_id=run.experimental_selection_revision_id,
+            normalized_response=extraction.normalized_response,
+            numerical_health_report=health_report.report_artifact,
+            metric_profile_id=template.content.metric_profile_id,
+            threshold_profile_id=REFERENCE_THRESHOLD_PROFILE_ID,
+            alignment_profile_id=REFERENCE_ALIGNMENT_PROFILE_ID,
+            relative_rmse_threshold=REFERENCE_RELATIVE_RMSE_THRESHOLD,
+            experimental_point_count=len(observed),
+            simulated_point_count=extraction.point_count,
+            metrics=metrics,
+            holdout_independence=holdout,
+            verdict=verdict,
+            reason_code=(
+                result_reason or "validation_not_evaluated"
+                if verdict is ValidationVerdict.NOT_EVALUATED
+                else None
+            ),
+        )
+        result_artifact = _reference(
+            await self._artifacts.finalize_derived_bytes(
+                context,
+                decision,
+                classification=run.classification,
+                artifact_role="validation.experimental_comparison_result",
+                schema_ref=REFERENCE_VALIDATION_RESULT_SCHEMA_ID,
+                media_type="application/json",
+                value=validation_result_bytes(result_content),
+                idempotency_key=f"validation-result:{run.id}:experimental-comparison",
+            )
+        )
+        validation_result = ReferenceValidationResult(
+            id=result_id,
+            validation_run_id=run.id,
+            validation_result_manifest_id=manifest.id,
+            response_extraction=extraction,
+            numerical_health_report=health_report,
+            content=result_content,
+            result_artifact=result_artifact,
+            result_sha256=validation_result_sha256(result_content),
+            created_at=self._clock(),
+            created_by=context.principal.id,
+        )
+        return self._repository.record_result_evaluation(
+            context=context,
+            decision=decision,
+            run_id=run.id,
+            response_extraction=extraction,
+            numerical_health_report=health_report,
+            validation_result=validation_result,
+            change_reason=reason,
+        )
+
+    def get_validation_result(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        validation_result_id: UUID,
+    ) -> ReferenceValidationResult:
+        _require(context, decision, Permission.VALIDATION_READ)
+        return self._repository.get_validation_result(
+            context=context,
+            decision=decision,
+            validation_result_id=validation_result_id,
+        )
+
+    async def preview_validation_result_curve(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        validation_result_id: UUID,
+        *,
+        maximum_points: int = 1_000,
+    ) -> ValidationResultCurvePreview:
+        _require(context, decision, Permission.VALIDATION_READ)
+        result = self.get_validation_result(context, decision, validation_result_id)
+        response_points: tuple[ReferenceResponsePoint, ...] = ()
+        if result.content.normalized_response is not None:
+            record, value = await self._artifacts.read_verified_bytes(
+                context,
+                decision,
+                result.content.normalized_response.artifact_id,
+                maximum_bytes=1_000_000,
+            )
+            _require_artifact_reference(
+                record,
+                result.content.normalized_response,
+                role="Validation normalized response",
+            )
+            response_points = parse_reference_normalized_response_bytes(value)
+        preview_response = (
+            preview_reference_response_points(response_points, maximum_points)
+            if response_points
+            else ()
+        )
+        comparison_points = preview_reference_comparison_points(result.content, maximum_points)
+        return ValidationResultCurvePreview(
+            validation_result_id=result.id,
+            verdict=result.content.verdict,
+            response_point_count=len(response_points),
+            returned_response_point_count=len(preview_response),
+            response_sampled=len(preview_response) != len(response_points),
+            response_points=preview_response,
+            comparison_point_count=(
+                len(result.content.metrics.comparison_points)
+                if result.content.metrics is not None
+                else 0
+            ),
+            returned_comparison_point_count=len(comparison_points),
+            comparison_sampled=(
+                result.content.metrics is not None
+                and len(comparison_points) != len(result.content.metrics.comparison_points)
+            ),
+            comparison_points=comparison_points,
         )
 
     def cancel_run(

@@ -79,6 +79,7 @@ from cmp.modules.validation.adapters.persistence.repository import SqlAlchemyVal
 from cmp.modules.validation.application.service import (
     VALIDATION_PLAN_AGGREGATE_TYPE,
     VALIDATION_TEMPLATE_AGGREGATE_TYPE,
+    ReferenceValidationResult,
     ReferenceValidationService,
     ValidationRun,
     ValidationRunResultManifest,
@@ -125,6 +126,78 @@ def _required_revision_entity_id(
             "Validation requires complete provenance for every pinned revision"
         )
     return cast(UUID, entity_id)
+
+
+def _required_artifact_entity_id(
+    session: Session,
+    scope: ProvenanceScope,
+    reference: ValidationArtifactReference,
+) -> UUID:
+    entity_id = session.scalar(
+        sa.select(provenance_entity_table.c.id).where(
+            provenance_entity_table.c.organization_id == scope.organization_id,
+            provenance_entity_table.c.project_id == scope.project_id,
+            provenance_entity_table.c.classification == scope.classification.value,
+            provenance_entity_table.c.reference_kind == EntityReferenceKind.ARTIFACT.value,
+            provenance_entity_table.c.reference_type == "artifact.artifact",
+            provenance_entity_table.c.reference_id == reference.artifact_id,
+            provenance_entity_table.c.content_sha256 == reference.sha256,
+        )
+    )
+    if entity_id is None:
+        raise ProvenanceConflict(
+            "Validation requires complete provenance for its evidence Artifact"
+        )
+    return cast(UUID, entity_id)
+
+
+def _ensure_artifact_entity(
+    session: Session,
+    *,
+    scope: ProvenanceScope,
+    reference: ValidationArtifactReference,
+    entity_type: str,
+    recorded_at: datetime,
+    context: SecurityContext,
+    id_factory: Callable[[], UUID],
+) -> UUID:
+    artifact_row = (
+        session.execute(
+            sa.select(_artifact_table.c.created_at, _artifact_table.c.sha256).where(
+                _artifact_table.c.organization_id == scope.organization_id,
+                _artifact_table.c.project_id == scope.project_id,
+                _artifact_table.c.classification == scope.classification.value,
+                _artifact_table.c.id == reference.artifact_id,
+            )
+        )
+        .mappings()
+        .one_or_none()
+    )
+    if artifact_row is None or str(artifact_row["sha256"]) != reference.sha256:
+        raise ProvenanceConflict(
+            "Validation output Artifact is not visible with its declared digest"
+        )
+    entity = SqlAlchemyProvenanceRepository._ensure_entity(
+        session,
+        ProvenanceEntity(
+            id=id_factory(),
+            scope=scope,
+            entity_type=entity_type,
+            reference=ImmutableEntityReference(
+                EntityReferenceKind.ARTIFACT,
+                "artifact.artifact",
+                reference.artifact_id,
+                reference.sha256,
+            ),
+            generation_requirement=GenerationRequirement.PRIMARY,
+            created_at=cast(datetime, artifact_row["created_at"]),
+            recorded_at=recorded_at,
+            recorded_by=context.principal.id,
+        ),
+        request_id=context.request_id,
+        trace_id=context.trace_id,
+    )
+    return entity.id
 
 
 class SqlReferenceValidationRunAuditHook:
@@ -441,6 +514,233 @@ class SqlReferenceValidationRunProvenanceHook:
                 )
 
 
+class SqlReferenceValidationResultProvenanceHook:
+    """Attach the T-28 extraction/health/comparison lineage in the composition root."""
+
+    def __init__(self, *, id_factory: Callable[[], UUID] = uuid4) -> None:
+        self._id_factory = id_factory
+
+    def __call__(
+        self,
+        session: Session,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run: ValidationRun,
+        manifest: ValidationRunResultManifest,
+        result: ReferenceValidationResult,
+        occurred_at: datetime,
+    ) -> None:
+        del decision
+        if (
+            result.validation_run_id != run.id
+            or result.validation_result_manifest_id != manifest.id
+            or result.created_by != context.principal.id
+        ):
+            raise ProvenanceConflict("Validation Result provenance facts do not match the run")
+        scope = ProvenanceScope(
+            context.organization_id,
+            context.project_id,
+            run.classification,
+        )
+        recorded_at = max(run.ended_at or run.submitted_at, result.created_at, occurred_at)
+        source_entities = {
+            "result_manifest": _required_artifact_entity_id(
+                session, scope, manifest.manifest_artifact
+            ),
+            "experimental_selection": _required_revision_entity_id(
+                session,
+                scope,
+                aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+                revision_id=run.experimental_selection_revision_id,
+            ),
+        }
+        if manifest.content.native_result is not None:
+            source_entities["native_solver_result"] = _required_artifact_entity_id(
+                session,
+                scope,
+                manifest.content.native_result,
+            )
+        outputs: list[tuple[str, str, ValidationArtifactReference]] = [
+            (
+                "numerical_health_report",
+                "validation.numerical_health_report",
+                result.numerical_health_report.report_artifact,
+            ),
+            (
+                "validation_result",
+                "validation.experimental_comparison_result",
+                result.result_artifact,
+            ),
+        ]
+        if result.response_extraction.normalized_response is not None:
+            outputs.insert(
+                0,
+                (
+                    "normalized_response",
+                    "validation.normalized_response",
+                    result.response_extraction.normalized_response,
+                ),
+            )
+        output_entities = {
+            role: _ensure_artifact_entity(
+                session,
+                scope=scope,
+                reference=reference,
+                entity_type=entity_type,
+                recorded_at=recorded_at,
+                context=context,
+                id_factory=self._id_factory,
+            )
+            for role, entity_type, reference in outputs
+        }
+        principal_type = session.scalar(
+            sa.text("SELECT principal_type FROM identity.principal WHERE id = :principal_id"),
+            {"principal_id": context.principal.id},
+        )
+        if principal_type not in {"user", "service"}:
+            raise ProvenanceConflict("Validation Result operator is not an active provenance Agent")
+        agent = SqlAlchemyProvenanceRepository._ensure_agent(
+            session,
+            ProvenanceAgent(
+                id=self._id_factory(),
+                scope=scope,
+                reference=AgentReference(AgentType(str(principal_type)), context.principal.id),
+                recorded_at=recorded_at,
+                recorded_by=context.principal.id,
+            ),
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+        )
+        submission_digest = content_sha256(
+            {
+                "hook": "t28.reference_validation_result",
+                "validation_run_id": str(run.id),
+                "validation_result_id": str(result.id),
+                "result_manifest_id": str(manifest.id),
+                "verdict": result.content.verdict.value,
+                "health_status": result.numerical_health_report.content.assessment.status.value,
+                "sources": {role: str(entity_id) for role, entity_id in source_entities.items()},
+                "outputs": {role: str(entity_id) for role, entity_id in output_entities.items()},
+            }
+        )
+        existing = session.scalar(
+            sa.select(provenance_activity_table.c.submission_digest).where(
+                provenance_activity_table.c.organization_id == scope.organization_id,
+                provenance_activity_table.c.project_id == scope.project_id,
+                provenance_activity_table.c.classification == scope.classification.value,
+                provenance_activity_table.c.domain_run_type == "validation.validation_result",
+                provenance_activity_table.c.domain_run_id == result.id,
+            )
+        )
+        if existing is not None:
+            if str(existing) != submission_digest:
+                raise ProvenanceConflict("Validation Result already has conflicting provenance")
+            return
+        activity = ProvenanceActivity(
+            id=self._id_factory(),
+            scope=scope,
+            activity_type="validation.reference_result_interpretation",
+            domain_run_type="validation.validation_result",
+            domain_run_id=result.id,
+            status=ActivityStatus.SUCCEEDED,
+            started_at=run.ended_at or run.submitted_at,
+            ended_at=recorded_at,
+            submission_digest=submission_digest,
+            recorded_at=recorded_at,
+            recorded_by=context.principal.id,
+        )
+        relation_values = {
+            "organization_id": scope.organization_id,
+            "project_id": scope.project_id,
+            "classification": scope.classification.value,
+            "recorded_at": recorded_at,
+            "recorded_by": context.principal.id,
+        }
+        session.execute(
+            sa.insert(provenance_activity_table).values(
+                organization_id=scope.organization_id,
+                project_id=scope.project_id,
+                classification=scope.classification.value,
+                id=activity.id,
+                activity_type=activity.activity_type,
+                domain_run_type=activity.domain_run_type,
+                domain_run_id=activity.domain_run_id,
+                status=activity.status.value,
+                input_required=True,
+                output_required=True,
+                started_at=activity.started_at,
+                ended_at=activity.ended_at,
+                submission_digest=activity.submission_digest,
+                recorded_at=activity.recorded_at,
+                recorded_by=activity.recorded_by,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        for ordinal, (role, entity_id) in enumerate(source_entities.items()):
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **relation_values,
+                    activity_id=activity.id,
+                    entity_id=entity_id,
+                    role=role,
+                    ordinal=ordinal,
+                )
+            )
+        session.execute(
+            sa.insert(provenance_association_table).values(
+                **relation_values,
+                activity_id=activity.id,
+                agent_id=agent.id,
+                role="operator",
+                plan_entity_id=source_entities["experimental_selection"],
+            )
+        )
+        derivations: dict[str, tuple[UUID, ...]] = {
+            "numerical_health_report": tuple(
+                entity_id
+                for role, entity_id in source_entities.items()
+                if role in {"result_manifest", "native_solver_result"}
+            ),
+            "validation_result": (
+                source_entities["result_manifest"],
+                source_entities["experimental_selection"],
+                output_entities["numerical_health_report"],
+                *(
+                    (output_entities["normalized_response"],)
+                    if "normalized_response" in output_entities
+                    else ()
+                ),
+            ),
+        }
+        if "normalized_response" in output_entities:
+            derivations["normalized_response"] = tuple(
+                entity_id
+                for role, entity_id in source_entities.items()
+                if role in {"result_manifest", "native_solver_result"}
+            )
+        for role, entity_id in output_entities.items():
+            session.execute(
+                sa.insert(provenance_generation_table).values(
+                    **relation_values,
+                    entity_id=entity_id,
+                    activity_id=activity.id,
+                    role=role,
+                    generated_at=recorded_at,
+                )
+            )
+            for source_entity_id in derivations[role]:
+                session.execute(
+                    sa.insert(provenance_derivation_table).values(
+                        **relation_values,
+                        generated_entity_id=entity_id,
+                        used_entity_id=source_entity_id,
+                        activity_id=activity.id,
+                        derivation_kind="reference_validation_result",
+                    )
+                )
+
+
 def build_reference_validation_service(
     identity: IdentityServices,
     datasets: DatasetService | None,
@@ -471,6 +771,7 @@ def build_reference_validation_service(
             ),
             result_provenance_hook=SqlReferenceValidationRunProvenanceHook(),
             result_audit_hook=SqlReferenceValidationRunAuditHook(),
+            evaluation_provenance_hook=SqlReferenceValidationResultProvenanceHook(),
         ),
         datasets=datasets,
         material_models=material_models,

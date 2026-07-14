@@ -40,7 +40,9 @@ import type {
   SolverCardList,
   SolverCardResponse,
   ValidationExecutionMode,
+  ReferenceValidationResultResponse,
   ValidationPlanResponse,
+  ValidationResultCurveResponse,
   ValidationRunResponse,
   ValidationTemplateResponse,
   ReferenceRunnerOutcome,
@@ -504,6 +506,36 @@ export function attachManualValidationResult(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function evaluateReferenceValidationRun(
+  config: ApiConfig,
+  runId: string,
+  input: { change_reason: string },
+): Promise<ApiResult<ValidationRunResponse>> {
+  return request(config, `/validation-runs/${encodeURIComponent(runId)}:evaluate`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getReferenceValidationResult(
+  config: ApiConfig,
+  validationResultId: string,
+): Promise<ApiResult<ReferenceValidationResultResponse>> {
+  return request(config, `/validation-results/${encodeURIComponent(validationResultId)}`);
+}
+
+export function previewReferenceValidationResultCurve(
+  config: ApiConfig,
+  validationResultId: string,
+  maximumPoints = 1_000,
+): Promise<ApiResult<ValidationResultCurveResponse>> {
+  const query = new URLSearchParams({ maximum_points: String(maximumPoints) });
+  return request(
+    config,
+    `/validation-results/${encodeURIComponent(validationResultId)}/curve?${query.toString()}`,
+  );
 }
 
 export function preflightSolverCardMapping(

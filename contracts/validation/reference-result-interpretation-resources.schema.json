@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/validation/reference-result-interpretation-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "ChangeReason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "ArtifactPointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "sha256"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "EvaluateReferenceValidationRunRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["change_reason"],
+      "properties": {"change_reason": {"$ref": "#/$defs/ChangeReason"}}
+    },
+    "ValidationResponseExtractionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "response_extraction_id", "validation_run_id", "validation_result_manifest_id",
+        "source_native_result", "status", "normalized_response", "point_count",
+        "reason_code", "created_at", "created_by"
+      ],
+      "properties": {
+        "response_extraction_id": {"$ref": "#/$defs/Uuid"},
+        "validation_run_id": {"$ref": "#/$defs/Uuid"},
+        "validation_result_manifest_id": {"$ref": "#/$defs/Uuid"},
+        "source_native_result": {
+          "oneOf": [{"$ref": "#/$defs/ArtifactPointer"}, {"type": "null"}]
+        },
+        "status": {"enum": ["extracted", "not_evaluated"]},
+        "normalized_response": {
+          "oneOf": [{"$ref": "#/$defs/ArtifactPointer"}, {"type": "null"}]
+        },
+        "point_count": {"type": ["integer", "null"], "minimum": 2, "maximum": 10000},
+        "reason_code": {
+          "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_]{0,99}$"
+        },
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "NumericalHealthReportResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "numerical_health_report_id", "validation_run_id", "validation_result_manifest_id",
+        "response_extraction_id", "status", "solver_termination", "native_result_state",
+        "expected_point_count", "observed_point_count", "output_complete", "finite_values",
+        "strictly_increasing_strain", "reason_code", "report_artifact", "report_sha256",
+        "created_at", "created_by"
+      ],
+      "properties": {
+        "numerical_health_report_id": {"$ref": "#/$defs/Uuid"},
+        "validation_run_id": {"$ref": "#/$defs/Uuid"},
+        "validation_result_manifest_id": {"$ref": "#/$defs/Uuid"},
+        "response_extraction_id": {"$ref": "#/$defs/Uuid"},
+        "status": {"enum": ["healthy", "unhealthy", "not_evaluated"]},
+        "solver_termination": {"enum": ["normal", "abnormal", "not_available"]},
+        "native_result_state": {"enum": ["available", "not_available"]},
+        "expected_point_count": {"type": "integer", "minimum": 2, "maximum": 10000},
+        "observed_point_count": {"type": ["integer", "null"], "minimum": 0, "maximum": 10000},
+        "output_complete": {"type": "boolean"},
+        "finite_values": {"type": "boolean"},
+        "strictly_increasing_strain": {"type": "boolean"},
+        "reason_code": {
+          "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_]{0,99}$"
+        },
+        "report_artifact": {"$ref": "#/$defs/ArtifactPointer"},
+        "report_sha256": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "ReferenceValidationResultResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_result_id", "validation_run_id", "validation_result_manifest_id",
+        "response_extraction", "numerical_health_report", "experimental_selection_id",
+        "experimental_selection_revision_id", "metric_profile_id", "threshold_profile_id",
+        "alignment_profile_id", "relative_rmse_threshold", "experimental_point_count",
+        "simulated_point_count", "compared_point_count", "root_mean_squared_error_pa",
+        "relative_root_mean_squared_error", "normalization_stress_scale_pa",
+        "holdout_independence", "verdict", "reason_code", "result_artifact", "result_sha256",
+        "created_at", "created_by", "links"
+      ],
+      "properties": {
+        "validation_result_id": {"$ref": "#/$defs/Uuid"},
+        "validation_run_id": {"$ref": "#/$defs/Uuid"},
+        "validation_result_manifest_id": {"$ref": "#/$defs/Uuid"},
+        "response_extraction": {"$ref": "#/$defs/ValidationResponseExtractionResponse"},
+        "numerical_health_report": {"$ref": "#/$defs/NumericalHealthReportResponse"},
+        "experimental_selection_id": {"$ref": "#/$defs/Uuid"},
+        "experimental_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "metric_profile_id": {"const": "urn:cmp:validation:reference-relative-rmse:1.0.0"},
+        "threshold_profile_id": {
+          "const": "urn:cmp:validation:reference-relative-rmse-threshold:1.0.0"
+        },
+        "alignment_profile_id": {
+          "const": "urn:cmp:validation:reference-linear-interpolation-observed-grid:1.0.0"
+        },
+        "relative_rmse_threshold": {"const": 0.05},
+        "experimental_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "simulated_point_count": {"type": ["integer", "null"], "minimum": 2, "maximum": 10000},
+        "compared_point_count": {"type": "integer", "minimum": 0, "maximum": 100000},
+        "root_mean_squared_error_pa": {"type": ["number", "null"], "minimum": 0},
+        "relative_root_mean_squared_error": {"type": ["number", "null"], "minimum": 0},
+        "normalization_stress_scale_pa": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "holdout_independence": {
+          "enum": [
+            "not_applicable_manual_ir", "independent_selection", "overlaps_calibration_selection"
+          ]
+        },
+        "verdict": {"enum": ["passed", "failed", "not_evaluated"]},
+        "reason_code": {
+          "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_]{0,99}$"
+        },
+        "result_artifact": {"$ref": "#/$defs/ArtifactPointer"},
+        "result_sha256": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "ValidationResponseCurvePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engineering_strain", "engineering_stress_pa"],
+      "properties": {
+        "engineering_strain": {"type": "number", "minimum": 0},
+        "engineering_stress_pa": {"type": "number", "minimum": 0}
+      }
+    },
+    "ValidationComparisonCurvePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engineering_strain", "observed_engineering_stress_pa",
+        "simulated_engineering_stress_pa", "residual_engineering_stress_pa"
+      ],
+      "properties": {
+        "engineering_strain": {"type": "number", "minimum": 0},
+        "observed_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "simulated_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "residual_engineering_stress_pa": {"type": "number"}
+      }
+    },
+    "ValidationResultCurveResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_result_id", "verdict", "response_point_count",
+        "returned_response_point_count", "response_sampled", "response_points",
+        "comparison_point_count", "returned_comparison_point_count", "comparison_sampled",
+        "comparison_points"
+      ],
+      "properties": {
+        "validation_result_id": {"$ref": "#/$defs/Uuid"},
+        "verdict": {"enum": ["passed", "failed", "not_evaluated"]},
+        "response_point_count": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "returned_response_point_count": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "response_sampled": {"type": "boolean"},
+        "response_points": {
+          "type": "array", "items": {"$ref": "#/$defs/ValidationResponseCurvePoint"}
+        },
+        "comparison_point_count": {"type": "integer", "minimum": 0, "maximum": 100000},
+        "returned_comparison_point_count": {
+          "type": "integer", "minimum": 0, "maximum": 100000
+        },
+        "comparison_sampled": {"type": "boolean"},
+        "comparison_points": {
+          "type": "array", "items": {"$ref": "#/$defs/ValidationComparisonCurvePoint"}
+        }
+      }
+    }
+  }
+}

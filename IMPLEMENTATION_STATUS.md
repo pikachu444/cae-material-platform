@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-21`
-Foundation version: `0.22.0`
+Foundation version: `0.23.0`
 
 ## Completed
 
@@ -143,6 +143,16 @@ Foundation version: `0.22.0`
   actual API resources and labels the feature as non-production. No real solver/HPC process,
   numerical-health result, comparison metric, validation pass, approval, or release claim exists;
   those are `T-28` and later work (ADR-0013).
+- `T-28` reference subset: a terminal T-27 Result Manifest now produces separate immutable typed
+  response-extraction, numerical-health, and experimental-comparison result records/Artifacts.
+  Explicit PostgreSQL tables, composite tenant/classification FKs, forced RLS, immutable guards,
+  comparison-point rows, provenance, audit, protected evaluate/read/curve APIs, and Material State
+  workbench UI retain the frozen input tuple. The first profile validates declared SI response
+  units/target/curve health, compares only on the observed experimental strain grid with linear
+  interpolation/no extrapolation, uses fixed relative RMSE `0.05`, and records abnormal/unhealthy/
+  missing/unit-invalid/alignment-invalid/fit-overlap outcomes as `not_evaluated`. It is reference
+  evidence only, not real solver/HPC qualification, production material validation, approval, or
+  release policy (ADR-0014).
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -399,6 +409,13 @@ Both mock and manual branches retain the same immutable Artifact/provenance shap
 does not execute a solver and `normal` termination is not a validation pass. The next requested
 work is `T-28`: bounded native-result extraction, numerical-health, experimental comparison, and
 an explicit non-production verdict that must keep abnormal/no-output runs `not_evaluated`.
+
+**Update 2026-07-22:** T-28 now completes that bounded non-production interpretation path:
+`Result Manifest -> typed SI response extraction -> numerical-health report -> observed-grid
+comparison -> immutable Validation Result`. The API/workbench expose the extracted evidence,
+health, holdout-independence, metric, threshold, and curve preview. The next delivery work is
+T-29 review/lifecycle and T-30 release evidence gating; a real solver/HPC adapter, production
+threshold, multiple solver/template support, and domain qualification remain explicit decisions.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report
