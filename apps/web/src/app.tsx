@@ -23,6 +23,7 @@ import {
   saveApiConfig,
 } from "./api";
 import { ReferenceTensileWorkflow } from "./reference-tensile-workflow";
+import { ReferenceElastoplasticWorkbench } from "./reference-elastoplastic-workbench";
 import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench";
 import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
 import { ReviewWorkbench } from "./review-workbench";
@@ -964,6 +965,14 @@ function MaterialStateCard({
         </section>
       )}
       <ReferenceTensileWorkflow config={config} state={state} />
+      {propertySet ? (
+        <ReferenceElastoplasticWorkbench
+          key={`elastoplastic-${propertySet.current_revision.id}`}
+          config={config}
+          state={state}
+          propertySet={propertySet}
+        />
+      ) : null}
       <ReferenceCalibrationWorkbench config={config} state={state} />
       <ReferenceValidationWorkbench config={config} state={state} />
       {editorOpen ? (

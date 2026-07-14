@@ -19,6 +19,9 @@ from cmp.modules.exporting.application.service import (
     SolverCardSnapshot,
 )
 from cmp.modules.exporting.domain.openradioss_elast import (
+    EXPORTER_ID as REFERENCE_OPENRADIOSS_EXPORTER_ID,
+)
+from cmp.modules.exporting.domain.openradioss_elast import (
     ExportTarget,
     MappingStatus,
     ReferenceOpenRadiossCardContent,
@@ -104,6 +107,15 @@ solver_card_revision_table = sa.Table(
     sa.Column("youngs_modulus_pa", sa.Double(), nullable=False),
     sa.Column("poisson_ratio", sa.Double(), nullable=False),
     sa.Column("source_yield_stress_pa", sa.Double(), nullable=True),
+    # Typed tabulated-plasticity evidence. Nullable only for the retained linear ELAST cards.
+    sa.Column("material_name", sa.String(80), nullable=True),
+    sa.Column("hardening_curve_artifact_id", sa.Uuid(), nullable=True),
+    sa.Column("hardening_curve_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("hardening_curve_point_count", sa.BigInteger(), nullable=True),
+    sa.Column("extension_max_true_plastic_strain", sa.Double(), nullable=True),
+    sa.Column("post_necking_extension_policy", sa.String(64), nullable=True),
+    sa.Column("hardening_curve_mapping_status", sa.String(32), nullable=True),
+    sa.Column("extension_mapping_status", sa.String(32), nullable=True),
     sa.Column("applicable_temperature_min_k", sa.Double(), nullable=True),
     sa.Column("applicable_temperature_max_k", sa.Double(), nullable=True),
     sa.Column("applicable_strain_rate_min_per_s", sa.Double(), nullable=True),
@@ -695,16 +707,20 @@ class SqlAlchemyExportingRepository(ExportingRepository):
     def _current_card_statement(self) -> sa.Select[Any]:
         identity = solver_card_table
         revision = solver_card_revision_table
-        return sa.select(*_revision_columns(revision)).select_from(
-            identity.join(
-                revision,
-                sa.and_(
-                    revision.c.id == identity.c.current_revision_id,
-                    revision.c.aggregate_id == identity.c.id,
-                    revision.c.organization_id == identity.c.organization_id,
-                    revision.c.project_id == identity.c.project_id,
-                ),
+        return (
+            sa.select(*_revision_columns(revision))
+            .select_from(
+                identity.join(
+                    revision,
+                    sa.and_(
+                        revision.c.id == identity.c.current_revision_id,
+                        revision.c.aggregate_id == identity.c.id,
+                        revision.c.organization_id == identity.c.organization_id,
+                        revision.c.project_id == identity.c.project_id,
+                    ),
+                )
             )
+            .where(revision.c.exporter_id == REFERENCE_OPENRADIOSS_EXPORTER_ID)
         )
 
     def get_solver_card(
@@ -763,6 +779,7 @@ class SqlAlchemyExportingRepository(ExportingRepository):
             sa.select(*_revision_columns(revision))
             .where(
                 revision.c.aggregate_id == solver_card_id,
+                revision.c.exporter_id == REFERENCE_OPENRADIOSS_EXPORTER_ID,
                 revision.c.organization_id == context.organization_id,
                 revision.c.project_id == context.project_id,
             )
@@ -802,6 +819,7 @@ class SqlAlchemyExportingRepository(ExportingRepository):
             .where(
                 identity.c.id == solver_card_id,
                 revision.c.id == solver_card_revision_id,
+                revision.c.exporter_id == REFERENCE_OPENRADIOSS_EXPORTER_ID,
                 identity.c.organization_id == context.organization_id,
                 identity.c.project_id == context.project_id,
             )

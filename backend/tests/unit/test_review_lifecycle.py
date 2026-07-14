@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -87,7 +88,7 @@ class FakeReviewRepository:
         command = kwargs["command"]
         assert isinstance(command, SubmitReviewRequest)
         self.value = ReviewRequestRecord(
-            id=kwargs["review_request_id"],
+            id=cast(UUID, kwargs["review_request_id"]),
             organization_id=ORG,
             project_id=PROJECT,
             classification=command.classification,
@@ -96,8 +97,8 @@ class FakeReviewRepository:
             revision_id=command.revision_id,
             manifest_sha256=command.manifest_sha256,
             required_role="domain_reviewer",
-            requested_by=kwargs["actor_id"],
-            requested_at=kwargs["occurred_at"],
+            requested_by=cast(UUID, kwargs["actor_id"]),
+            requested_at=cast(datetime, kwargs["occurred_at"]),
             reason=command.reason,
             lifecycle_state=LifecycleState.REVIEW,
         )
@@ -116,7 +117,7 @@ class FakeReviewRepository:
             raise ReviewConflict("missing")
         command = kwargs["command"]
         assert isinstance(command, DecideReviewRequest)
-        actor_id = kwargs["actor_id"]
+        actor_id = cast(UUID, kwargs["actor_id"])
         if self.value.requested_by == actor_id:
             raise ReviewConflict("author cannot decide")
         if command.expected_manifest_sha256 != self.value.manifest_sha256:
@@ -124,7 +125,7 @@ class FakeReviewRepository:
         if self.newer_revision:
             raise ReviewConflict("newer revision")
         decision = ReviewDecisionRecord(
-            id=kwargs["decision_id"],
+            id=cast(UUID, kwargs["decision_id"]),
             review_request_id=self.value.id,
             organization_id=ORG,
             project_id=PROJECT,
@@ -135,7 +136,7 @@ class FakeReviewRepository:
             manifest_sha256=self.value.manifest_sha256,
             decision=command.decision,
             decided_by=actor_id,
-            decided_at=kwargs["occurred_at"],
+            decided_at=cast(datetime, kwargs["occurred_at"]),
             reason=command.reason,
         )
         self.value = replace(

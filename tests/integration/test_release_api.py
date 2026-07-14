@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import cast
 from uuid import UUID
 
 import httpx
@@ -122,8 +123,8 @@ class MemoryReleaseRepository:
         command = kwargs["command"]
         assert isinstance(command, CreateRelease)
         manifest = ReleaseManifestRecord(
-            id=kwargs["manifest_id"],
-            release_id=kwargs["release_id"],
+            id=cast(UUID, kwargs["manifest_id"]),
+            release_id=cast(UUID, kwargs["release_id"]),
             organization_id=ORG,
             project_id=PROJECT,
             classification=command.classification,
@@ -150,21 +151,21 @@ class MemoryReleaseRepository:
             review_request_id=command.review_request_id,
             review_manifest_sha256=command.review_manifest_sha256,
             provenance_snapshot_sha256=command.provenance_snapshot_sha256,
-            created_at=kwargs["occurred_at"],
-            created_by=kwargs["actor_id"],
+            created_at=cast(datetime, kwargs["occurred_at"]),
+            created_by=cast(UUID, kwargs["actor_id"]),
             reason=command.reason,
             state=ReleaseState.RELEASED,
         )
         self.value = ReleaseRecord(
-            id=kwargs["release_id"],
+            id=cast(UUID, kwargs["release_id"]),
             organization_id=ORG,
             project_id=PROJECT,
             classification=command.classification,
             release_code=command.release_code,
             title=command.title,
             channel="reference",
-            created_at=kwargs["occurred_at"],
-            created_by=kwargs["actor_id"],
+            created_at=cast(datetime, kwargs["occurred_at"]),
+            created_by=cast(UUID, kwargs["actor_id"]),
             manifest=manifest,
             package_text=PACKAGE_TEXT,
         )
@@ -184,14 +185,14 @@ class MemoryReleaseRepository:
         if self.value.lifecycle_state is not ReleaseLifecycleState.RELEASED:
             raise RuntimeError("release is terminal")
         usage = ReleaseUsageRecord(
-            id=kwargs["usage_id"],
+            id=cast(UUID, kwargs["usage_id"]),
             release_id=self.value.id,
             organization_id=ORG,
             project_id=PROJECT,
             classification=self.value.classification,
             usage_kind=command.usage_kind,
-            used_by=kwargs["actor_id"],
-            used_at=kwargs["occurred_at"],
+            used_by=cast(UUID, kwargs["actor_id"]),
+            used_at=cast(datetime, kwargs["occurred_at"]),
             reason=command.reason,
         )
         self.usages.append(usage)
@@ -213,7 +214,7 @@ class MemoryReleaseRepository:
         assert isinstance(command, WithdrawRelease)
         assert self.value is not None
         transition = ReleaseTransitionRecord(
-            id=kwargs["transition_id"],
+            id=cast(UUID, kwargs["transition_id"]),
             release_id=self.value.id,
             organization_id=ORG,
             project_id=PROJECT,
@@ -223,8 +224,8 @@ class MemoryReleaseRepository:
             to_state=ReleaseLifecycleState.WITHDRAWN,
             successor_release_id=None,
             reason=command.reason,
-            occurred_at=kwargs["occurred_at"],
-            occurred_by=kwargs["actor_id"],
+            occurred_at=cast(datetime, kwargs["occurred_at"]),
+            occurred_by=cast(UUID, kwargs["actor_id"]),
         )
         self.transitions.append(transition)
         self.value = replace(self.value, lifecycle_state=ReleaseLifecycleState.WITHDRAWN)

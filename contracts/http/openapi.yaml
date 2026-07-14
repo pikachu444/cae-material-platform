@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.26.0
+  version: 0.27.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -2452,6 +2452,84 @@ paths:
         "403": {description: Modeling read is not authorized.}
         "404": {description: No visible Material Model matches the identifier.}
         "503": {description: Material Model service unavailable.}
+  /api/v1/material-states/{material_state_id}/tabulated-plasticity-models:
+    get:
+      operationId: listReferenceTabulatedPlasticityModels
+      tags: [modeling]
+      summary: List current reference tabulated-plasticity IR heads for one Material State.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Tenant-visible immutable tabulated-plasticity IR heads.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/MaterialModelListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Tabulated-plasticity service unavailable.}
+    post:
+      operationId: createReferenceTabulatedPlasticityModel
+      tags: [modeling]
+      summary: Derive a non-production tabulated-plasticity IR from one pinned tensile Dataset revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201":
+          description: Stable model identity, immutable IR revision, and hardening-curve Artifact created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/MaterialModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: A pinned Property Set, Dataset revision, or Artifact is not visible.}
+        "409": {description: Tenant, classification, immutable source, or Artifact evidence conflicts.}
+        "422": {description: Tensile data or the explicit transformation declaration is invalid.}
+        "503": {description: Tabulated-plasticity service unavailable.}
+  /api/v1/tabulated-plasticity-models/{material_model_id}:
+    get:
+      operationId: getReferenceTabulatedPlasticityModel
+      tags: [modeling]
+      summary: Read one current immutable reference tabulated-plasticity IR revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Current immutable tabulated-plasticity IR revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/MaterialModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible tabulated-plasticity model matches the identifier.}
+        "503": {description: Tabulated-plasticity service unavailable.}
+  /api/v1/tabulated-plasticity-models/{material_model_id}/hardening-curve:
+    get:
+      operationId: getReferenceTabulatedPlasticityHardeningCurve
+      tags: [modeling]
+      summary: Read and verify the immutable true-stress/true-plastic-strain Artifact.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Verified bounded hardening curve with explicit point origins.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/HardeningCurveResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible model or hardening Artifact matches the identifier.}
+        "409": {description: Artifact metadata, digest, or point count conflicts with the IR.}
+        "503": {description: Tabulated-plasticity service unavailable.}
   /api/v1/calibration-plans:
     post:
       operationId: createReferenceLinearElasticCalibrationPlan
@@ -2745,6 +2823,145 @@ paths:
         "409": {description: Selection is not current, evidence differs, or the source IR revision is stale.}
         "422": {description: Promotion reason is invalid.}
         "503": {description: Candidate Selection service unavailable.}
+  /api/v1/exporters/reference-elastoplastic/capabilities:
+    get:
+      operationId: getReferenceElastoplasticExporterCapabilities
+      tags: [exporting]
+      summary: Read the bounded OpenRadioss LAW36 and Abaqus isotropic-plasticity capabilities.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Exact target tuples, exporter digests, keywords, and mapping statuses.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/Capabilities"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+  /api/v1/tabulated-plasticity-models/{material_model_id}/mapping-preflight:
+    post:
+      operationId: preflightReferenceElastoplasticMapping
+      tags: [exporting]
+      summary: Map one concrete tabulated-plasticity IR revision to an explicit solver target.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/PreflightRequest"}
+      responses:
+        "200":
+          description: Deterministic item-level mapping report with no silent defaults.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/MappingReport"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No concrete tabulated-plasticity IR revision is visible.}
+        "409": {description: Immutable model or Artifact evidence conflicts.}
+        "422": {description: The explicit solver target is unsupported or invalid.}
+        "503": {description: Elastoplastic export service unavailable.}
+  /api/v1/tabulated-plasticity-models/{material_model_id}/solver-cards:
+    get:
+      operationId: listReferenceElastoplasticSolverCards
+      tags: [exporting]
+      summary: List current OpenRadioss LAW36 and Abaqus card heads for one model identity.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Current immutable elastoplastic Solver Card heads.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/CardListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "503": {description: Elastoplastic export service unavailable.}
+    post:
+      operationId: createReferenceElastoplasticSolverCard
+      tags: [exporting]
+      summary: Generate an immutable OpenRadioss LAW36 or Abaqus plastic card from an acknowledged mapping.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/CardCreateRequest"}
+      responses:
+        "201":
+          description: Stable card identity and immutable solver-specific card revision created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/CardCreatedResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export execute is not authorized.}
+        "404": {description: No concrete tabulated-plasticity IR revision is visible.}
+        "409": {description: Mapping acknowledgement or immutable Artifact evidence conflicts.}
+        "422": {description: The target, material name, or solver identity is invalid.}
+        "503": {description: Elastoplastic export service unavailable.}
+  /api/v1/elastoplastic-solver-cards/{solver_card_id}:
+    get:
+      operationId: getReferenceElastoplasticSolverCard
+      tags: [exporting]
+      summary: Read one current immutable elastoplastic Solver Card revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Current immutable elastoplastic Solver Card revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/CardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible elastoplastic Solver Card matches the identifier.}
+        "503": {description: Elastoplastic export service unavailable.}
+  /api/v1/elastoplastic-solver-cards/{solver_card_id}/preview:
+    get:
+      operationId: previewReferenceElastoplasticSolverCard
+      tags: [exporting]
+      summary: Preview the exact immutable OpenRadioss or Abaqus card text.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Plain-text card preview.
+          content:
+            text/plain:
+              schema: {type: string}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible elastoplastic Solver Card matches the identifier.}
+        "503": {description: Elastoplastic export service unavailable.}
+  /api/v1/elastoplastic-solver-cards/{solver_card_id}/download:
+    get:
+      operationId: downloadReferenceElastoplasticSolverCard
+      tags: [exporting]
+      summary: Download the exact immutable .rad or .inp card text.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Solver Card text attachment with its content digest header.
+          headers:
+            Content-Disposition:
+              required: true
+              schema: {type: string}
+            X-CMP-Card-SHA256:
+              required: true
+              schema: {$ref: "../exporting/reference-elastoplastic-resources.schema.json#/$defs/Sha256"}
+          content:
+            text/plain:
+              schema: {type: string}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible elastoplastic Solver Card matches the identifier.}
+        "503": {description: Elastoplastic export service unavailable.}
   /api/v1/exporters/reference-openradioss-elast/capabilities:
     get:
       operationId: getReferenceOpenRadiossExporterCapabilities

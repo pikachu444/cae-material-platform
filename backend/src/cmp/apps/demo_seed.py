@@ -32,6 +32,7 @@ _CSV = b"""engineering_strain,engineering_stress_mpa
 0.0050,450
 0.0100,540
 0.0200,620
+0.0300,600
 """
 
 
@@ -276,11 +277,12 @@ def _ensure_model_and_card(
 
 def _ensure_tensile_dataset(
     api: DemoApi, material: Mapping[str, Any], state: Mapping[str, Any]
-) -> None:
+) -> dict[str, Any]:
     state_id = _current_id(state, "material_state_id")
     datasets = api.get(f"/material-states/{state_id}/datasets")
-    if _find(datasets.get("items"), lambda _: True) is not None:
-        return
+    existing = _find(datasets.get("items"), lambda _: True)
+    if existing is not None:
+        return existing
     specimens = api.get(f"/material-states/{state_id}/specimens")
     specimen = _find(
         specimens.get("items"),
@@ -364,7 +366,7 @@ def _ensure_tensile_dataset(
     artifact_id = completed.get("available_artifact_id")
     if not isinstance(raw_asset, dict) or not isinstance(artifact_id, str):
         raise DemoSeedError("completed raw CSV did not produce an immutable Artifact")
-    api.post(
+    dataset = api.post(
         "/datasets/reference-uniaxial-tensile:import",
         {
             "test_run_id": _current_id(run, "test_run_id"),
@@ -383,6 +385,66 @@ def _ensure_tensile_dataset(
         },
     )
     del material
+    return dataset
+
+
+def _ensure_elastoplastic_models_and_cards(
+    api: DemoApi,
+    state: Mapping[str, Any],
+    properties: Mapping[str, Any],
+    dataset: Mapping[str, Any],
+) -> None:
+    state_id = _current_id(state, "material_state_id")
+    models = api.get(f"/material-states/{state_id}/tabulated-plasticity-models")
+    model = _find(models.get("items"), lambda _: True)
+    if model is None:
+        model = api.post(
+            f"/material-states/{state_id}/tabulated-plasticity-models",
+            {
+                "property_set_revision_id": _revision_id(properties),
+                "dataset_revision_id": _revision_id(dataset),
+                "extension_max_true_plastic_strain": 0.25,
+                "acknowledge_post_necking_approximation": True,
+                "change_reason": (
+                    "Derive the reference pre-necking tabulated-plasticity IR for the demo."
+                ),
+            },
+        )
+    model_id = _current_id(model, "material_model_id")
+    cards = api.get(f"/tabulated-plasticity-models/{model_id}/solver-cards")
+    existing = cards.get("items")
+    for solver, solver_material_id in (("openradioss", 781), ("abaqus", 782)):
+        def matches_solver(item: dict[str, Any], expected_solver: str = solver) -> bool:
+            target = item.get("target")
+            return isinstance(target, dict) and target.get("solver") == expected_solver
+
+        if _find(
+            existing,
+            matches_solver,
+        ) is not None:
+            continue
+        target = {"solver": solver, "version": "2025", "unit_system": "kg_m_s"}
+        report = api.post(
+            f"/tabulated-plasticity-models/{model_id}/mapping-preflight",
+            {
+                "material_model_revision_id": _revision_id(model),
+                "target": target,
+            },
+        )
+        digest = report.get("mapping_report_sha256")
+        if not isinstance(digest, str) or not digest:
+            raise DemoSeedError("elastoplastic preflight did not return a report digest")
+        api.post(
+            f"/tabulated-plasticity-models/{model_id}/solver-cards",
+            {
+                "material_model_revision_id": _revision_id(model),
+                "target": target,
+                "expected_mapping_report_sha256": digest,
+                "solver_material_id": solver_material_id,
+                "material_name": "CMP_DEMO_DP780",
+                "change_reason": f"Generate the local demo {solver} elastoplastic card.",
+            },
+        )
 
 
 def seed_demo(api: DemoApi) -> None:
@@ -392,7 +454,8 @@ def seed_demo(api: DemoApi) -> None:
     material, state = _ensure_state(api, detail)
     properties = _ensure_properties(api, detail, state)
     _ensure_model_and_card(api, state, properties)
-    _ensure_tensile_dataset(api, material, state)
+    dataset = _ensure_tensile_dataset(api, material, state)
+    _ensure_elastoplastic_models_and_cards(api, state, properties, dataset)
 
 
 def _parser() -> argparse.ArgumentParser:

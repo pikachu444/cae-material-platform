@@ -217,10 +217,14 @@ def _policy(command: ExecutePlugin, inputs: list[dict[str, object]]) -> dict[str
 
 
 async def _stop(process: asyncio.subprocess.Process) -> None:
-    if process.returncode is not None:
-        return
-    process.kill()
+    if process.returncode is None:
+        process.kill()
     await process.wait()
+    if os.name == "nt":
+        # Windows can report process completion a scheduling tick before releasing the child's
+        # current-directory handle. Give that handle a bounded chance to close before the
+        # TemporaryDirectory context removes the isolated workspace.
+        await asyncio.sleep(0.05)
 
 
 async def _await_process(

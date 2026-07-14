@@ -296,6 +296,28 @@ class MaterialModelService:
             material_model_revision_id=material_model_revision_id,
         )
 
+    def get_reference_property_source_for_tabulated_plasticity(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        material_state_id: UUID,
+        property_set_revision_id: UUID,
+    ) -> ReferencePropertySource:
+        """Resolve the same pinned Catalog projection for another typed Modeling family.
+
+        The tabulated-plasticity application remains inside the Modeling boundary and consumes
+        this public application port instead of reaching into Catalog persistence.
+        """
+
+        _require_capability(context, decision, Permission.MODELING_WRITE)
+        return self._repository.load_reference_property_source(
+            context=context,
+            decision=decision,
+            material_state_id=material_state_id,
+            property_set_revision_id=property_set_revision_id,
+        )
+
     def promote_reference_calibration_candidate(
         self,
         context: SecurityContext,

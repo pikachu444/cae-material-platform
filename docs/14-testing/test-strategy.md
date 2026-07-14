@@ -178,6 +178,30 @@ Production model/solver가 `TBD`인 동안 synthetic exporter fixture만 둔다.
 6. syntax checker/dry-run hook
 7. licensed solver smoke/virtual specimen reference
 
+## Reference elastoplastic multi-solver regression matrix
+
+The bounded tensile-to-card slice is verified at four distinct boundaries:
+
+1. Domain tests verify engineering-to-true stress/log-strain/true-plastic-strain equations,
+   first-maximum necking cutoff, monotone hardening, explicit yield anchor, rejection of softening,
+   and mandatory post-necking approximation acknowledgement.
+2. Artifact/application tests verify pinned Property Set and Dataset revisions, verified SI
+   Parquet input, immutable hardening Parquet output, source/excluded point counts, scope and
+   classification equality, and no source revision mutation.
+3. Mapping/API/browser tests verify explicit OpenRadioss/Abaqus target tuples, all mapping-status
+   values including visible `approximated`, report-digest acknowledgement, card preview/download,
+   and the connected Material State workbench flow.
+4. Golden regressions compare byte-exact OpenRadioss `/MAT/LAW36` + `/FUNCT` `.rad` and Abaqus
+   `*DENSITY` + `*ELASTIC` + isotropic `*PLASTIC` `.inp` output. A golden match establishes
+   deterministic mapping regression only; it is not solver qualification.
+
+PostgreSQL-marked coverage additionally checks the organization/project/classification composite
+source FKs, explicit transformation-count constraint, hardening Artifact guard, family-stability
+guard, and forced RLS. It requires the disposable PostgreSQL DSN described below. Licensed or
+installed solver execution is not part of normal CI; an eventual production gate must add
+OpenRadioss Starter/dry-run and licensed Abaqus data-check fixtures under an approved version
+matrix.
+
 ## T-31 PostgreSQL integration prerequisites
 
 The PostgreSQL-marked suites are intentionally conditional. They are skipped when

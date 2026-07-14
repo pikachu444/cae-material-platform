@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/reference-tabulated-plasticity-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "HardeningCurveReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id", "sha256", "schema_ref", "point_count", "independent_quantity",
+        "independent_unit", "dependent_quantity", "dependent_unit"
+      ],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "schema_ref": {"const": "urn:cmp:modeling:reference-true-stress-plastic-strain-parquet:1.0.0"},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 5000},
+        "independent_quantity": {"const": "true_plastic_strain"},
+        "independent_unit": {"const": "1"},
+        "dependent_quantity": {"const": "true_yield_stress"},
+        "dependent_unit": {"const": "Pa"}
+      }
+    },
+    "Applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_min_k", "temperature_max_k", "strain_rate_min_per_s",
+        "strain_rate_max_per_s", "note"
+      ],
+      "properties": {
+        "temperature_min_k": {"type": ["number", "null"], "minimum": 0},
+        "temperature_max_k": {"type": ["number", "null"], "minimum": 0},
+        "strain_rate_min_per_s": {"type": ["number", "null"], "minimum": 0},
+        "strain_rate_max_per_s": {"type": ["number", "null"], "minimum": 0},
+        "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "TabulatedPlasticityContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_family_id", "model_schema_version", "model_schema_digest", "material_id",
+        "material_revision_id", "material_state_id", "material_state_revision_id",
+        "property_set_id", "property_set_revision_id", "source_dataset_id",
+        "source_dataset_revision_id", "density_kg_per_m3", "youngs_modulus_pa",
+        "poisson_ratio", "initial_yield_stress_pa", "hardening_curve",
+        "source_point_count", "pre_yield_excluded_point_count",
+        "post_necking_excluded_point_count", "necking_source_point_index",
+        "transformation_profile_id", "transformation_profile_version",
+        "transformation_profile_digest", "necking_engineering_strain",
+        "characterized_max_true_plastic_strain", "extension_max_true_plastic_strain",
+        "post_necking_extension_policy", "post_necking_approximation_acknowledged",
+        "applicability", "reference_temperature_k", "non_production"
+      ],
+      "properties": {
+        "model_family_id": {"const": "urn:cmp:reference:isotropic-tabulated-plasticity:1.0.0"},
+        "model_schema_version": {"const": "1.0.0"},
+        "model_schema_digest": {"$ref": "#/$defs/Sha256"},
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "source_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "source_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "density_kg_per_m3": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "poisson_ratio": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5},
+        "initial_yield_stress_pa": {"type": "number", "exclusiveMinimum": 0},
+        "hardening_curve": {"$ref": "#/$defs/HardeningCurveReference"},
+        "source_point_count": {"type": "integer", "minimum": 4, "maximum": 5000},
+        "pre_yield_excluded_point_count": {"type": "integer", "minimum": 0, "maximum": 5000},
+        "post_necking_excluded_point_count": {"type": "integer", "minimum": 0, "maximum": 4999},
+        "necking_source_point_index": {"type": "integer", "minimum": 0, "maximum": 4999},
+        "transformation_profile_id": {"const": "urn:cmp:processing:reference-pre-necking-true-plastic-reduction:1.0.0"},
+        "transformation_profile_version": {"const": "1.0.0"},
+        "transformation_profile_digest": {"$ref": "#/$defs/Sha256"},
+        "necking_engineering_strain": {"type": "number", "minimum": 0},
+        "characterized_max_true_plastic_strain": {"type": "number", "minimum": 0},
+        "extension_max_true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
+        "post_necking_extension_policy": {"const": "approved_constant_true_stress"},
+        "post_necking_approximation_acknowledged": {"const": true},
+        "applicability": {"$ref": "#/$defs/Applicability"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "non_production": {"const": true}
+      }
+    },
+    "ProvenanceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_type", "reference_type", "revision_id", "content_sha256",
+        "based_on_revision_id", "source_property_set_revision_id",
+        "source_dataset_revision_id", "hardening_curve_artifact_id",
+        "hardening_curve_sha256", "transformation_profile_digest", "recorded_at", "recorded_by"
+      ],
+      "properties": {
+        "entity_type": {"const": "modeling.material_model.revision"},
+        "reference_type": {"const": "modeling.material_model.revision"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "content_sha256": {"$ref": "#/$defs/Sha256"},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "source_property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "source_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "hardening_curve_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "hardening_curve_sha256": {"$ref": "#/$defs/Sha256"},
+        "transformation_profile_digest": {"$ref": "#/$defs/Sha256"},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "recorded_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "MaterialModelIr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ir_version", "ir_id", "ir_revision_id", "schema_version", "scope", "model",
+        "source_revisions", "transformation_evidence", "applicability", "non_production"
+      ],
+      "properties": {
+        "ir_version": {"const": "1.0"},
+        "ir_id": {"$ref": "#/$defs/Uuid"},
+        "ir_revision_id": {"$ref": "#/$defs/Uuid"},
+        "schema_version": {"const": "1.0.0"},
+        "scope": {"const": "material_state"},
+        "model": {"type": "object"},
+        "source_revisions": {"type": "object"},
+        "transformation_evidence": {"type": "object"},
+        "applicability": {"type": "object"},
+        "non_production": {"const": true}
+      }
+    },
+    "MaterialModelRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content", "ir", "provenance"],
+          "properties": {
+            "content": {"$ref": "#/$defs/TabulatedPlasticityContent"},
+            "ir": {"$ref": "#/$defs/MaterialModelIr"},
+            "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+          }
+        }
+      ]
+    },
+    "MaterialModelResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_model_id", "material_state_id", "current_revision", "links"],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/MaterialModelRevision"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "MaterialModelListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/MaterialModelResponse"}}}
+    },
+    "CreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "property_set_revision_id", "dataset_revision_id", "extension_max_true_plastic_strain",
+        "acknowledge_post_necking_approximation", "change_reason"
+      ],
+      "properties": {
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "extension_max_true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
+        "acknowledge_post_necking_approximation": {"const": true},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "HardeningCurvePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["true_plastic_strain", "true_yield_stress_pa", "origin"],
+      "properties": {
+        "true_plastic_strain": {"type": "number", "minimum": 0},
+        "true_yield_stress_pa": {"type": "number", "exclusiveMinimum": 0},
+        "origin": {"enum": ["catalog_yield_anchor", "pre_necking_observation", "approved_constant_extension"]}
+      }
+    },
+    "HardeningCurveResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_model_id", "material_model_revision_id", "artifact_id", "artifact_sha256", "points"
+      ],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "artifact_sha256": {"$ref": "#/$defs/Sha256"},
+        "points": {"type": "array", "minItems": 2, "maxItems": 5000, "items": {"$ref": "#/$defs/HardeningCurvePoint"}}
+      }
+    },
+    "ModelingProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:modeling:tabulated-plasticity"},
+        "title": {"type": "string", "minLength": 1},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-MODELING-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

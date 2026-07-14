@@ -96,6 +96,26 @@ material_model_revision_table = sa.Table(
     sa.Column("youngs_modulus_pa", sa.Double(), nullable=False),
     sa.Column("poisson_ratio", sa.Double(), nullable=False),
     sa.Column("source_yield_stress_pa", sa.Double(), nullable=True),
+    # Typed evidence for the bounded tabulated-plasticity family. These columns are nullable only
+    # because the same revision table also retains the original linear-elastic family.
+    sa.Column("source_dataset_id", sa.Uuid(), nullable=True),
+    sa.Column("source_dataset_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("hardening_curve_artifact_id", sa.Uuid(), nullable=True),
+    sa.Column("hardening_curve_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("hardening_curve_schema_ref", sa.String(255), nullable=True),
+    sa.Column("hardening_curve_point_count", sa.BigInteger(), nullable=True),
+    sa.Column("source_point_count", sa.BigInteger(), nullable=True),
+    sa.Column("pre_yield_excluded_point_count", sa.BigInteger(), nullable=True),
+    sa.Column("post_necking_excluded_point_count", sa.BigInteger(), nullable=True),
+    sa.Column("necking_source_point_index", sa.BigInteger(), nullable=True),
+    sa.Column("transformation_profile_id", sa.String(255), nullable=True),
+    sa.Column("transformation_profile_version", sa.String(64), nullable=True),
+    sa.Column("transformation_profile_digest", sa.CHAR(64), nullable=True),
+    sa.Column("necking_engineering_strain", sa.Double(), nullable=True),
+    sa.Column("characterized_max_true_plastic_strain", sa.Double(), nullable=True),
+    sa.Column("extension_max_true_plastic_strain", sa.Double(), nullable=True),
+    sa.Column("post_necking_extension_policy", sa.String(64), nullable=True),
+    sa.Column("post_necking_approximation_acknowledged", sa.Boolean(), nullable=True),
     sa.Column("applicable_temperature_min_k", sa.Double(), nullable=True),
     sa.Column("applicable_temperature_max_k", sa.Double(), nullable=True),
     sa.Column("applicable_strain_rate_min_per_s", sa.Double(), nullable=True),
@@ -492,16 +512,20 @@ class SqlAlchemyModelingRepository(ModelingRepository):
     def _current_statement(self) -> sa.Select[Any]:
         identity = material_model_table
         revision = material_model_revision_table
-        return sa.select(*_revision_columns(revision), *_content_columns(revision)).select_from(
-            identity.join(
-                revision,
-                sa.and_(
-                    revision.c.id == identity.c.current_revision_id,
-                    revision.c.aggregate_id == identity.c.id,
-                    revision.c.organization_id == identity.c.organization_id,
-                    revision.c.project_id == identity.c.project_id,
-                ),
+        return (
+            sa.select(*_revision_columns(revision), *_content_columns(revision))
+            .select_from(
+                identity.join(
+                    revision,
+                    sa.and_(
+                        revision.c.id == identity.c.current_revision_id,
+                        revision.c.aggregate_id == identity.c.id,
+                        revision.c.organization_id == identity.c.organization_id,
+                        revision.c.project_id == identity.c.project_id,
+                    ),
+                )
             )
+            .where(revision.c.model_family_id == REFERENCE_MODEL_FAMILY_ID)
         )
 
     def get_material_model(
@@ -560,6 +584,7 @@ class SqlAlchemyModelingRepository(ModelingRepository):
             sa.select(*_revision_columns(revision), *_content_columns(revision))
             .where(
                 revision.c.aggregate_id == material_model_id,
+                revision.c.model_family_id == REFERENCE_MODEL_FAMILY_ID,
                 revision.c.organization_id == context.organization_id,
                 revision.c.project_id == context.project_id,
             )
@@ -588,6 +613,7 @@ class SqlAlchemyModelingRepository(ModelingRepository):
         statement = sa.select(*_revision_columns(revision), *_content_columns(revision)).where(
             revision.c.aggregate_id == material_model_id,
             revision.c.id == material_model_revision_id,
+            revision.c.model_family_id == REFERENCE_MODEL_FAMILY_ID,
             revision.c.organization_id == context.organization_id,
             revision.c.project_id == context.project_id,
         )
