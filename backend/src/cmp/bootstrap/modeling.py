@@ -11,8 +11,12 @@ from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.modeling.adapters.persistence.calibration_repository import (
     SqlAlchemyCalibrationRepository,
 )
+from cmp.modules.modeling.adapters.persistence.candidate_selection_repository import (
+    SqlAlchemyCandidateSelectionRepository,
+)
 from cmp.modules.modeling.adapters.persistence.repository import SqlAlchemyModelingRepository
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
+from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
@@ -67,4 +71,34 @@ def build_reference_calibration_service(
         datasets=datasets,
         material_models=material_models,
         artifacts=artifacts,
+    )
+
+
+def build_candidate_selection_service(
+    identity: IdentityServices,
+    calibrations: ReferenceCalibrationService | None,
+    material_models: MaterialModelService | None,
+) -> CandidateSelectionService | None:
+    """Compose T-24 human Candidate Selection without bypassing Calibration/Model services."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or calibrations is None
+        or material_models is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return CandidateSelectionService(
+        repository=SqlAlchemyCandidateSelectionRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        calibrations=calibrations,
+        material_models=material_models,
     )

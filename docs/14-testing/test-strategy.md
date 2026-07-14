@@ -109,6 +109,7 @@ Mock repository만으로 통과하는 test를 persistence integration의 대체�
 - intersection/union-with-mask behavior
 - bootstrap fixed-seed result
 - outlier candidate와 adjudication scope
+- converged Calibration Candidate versus explicit human Selection reason/current-revision promotion
 - curve point 수를 늘려도 replicate `n` 불변
 - display downsample과 full calculation 분리
 
@@ -124,6 +125,8 @@ Mock repository만으로 통과하는 test를 persistence integration의 대체�
 6. failure/cancel run도 usage/agent/log lineage를 가진다.
 7. outlier decision은 input artifact를 변경하지 않는다.
 8. migration은 old entity를 보존하고 explicit activity를 만든다.
+9. a promoted IR must pin the current Candidate Selection revision, exact Candidate/diagnostics
+   digests, and evaluated source IR revision; superseded selections and stale IR heads fail.
 
 Property-based graph fixture와 intentionally corrupt DB fixture를 모두 둔다.
 

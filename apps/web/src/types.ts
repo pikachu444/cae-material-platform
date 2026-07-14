@@ -174,11 +174,23 @@ export interface ReferenceLinearElasticContent {
   applicable_strain_rate_max_per_s: number | null;
   applicability_note: string | null;
   reference_temperature_k: number;
+  calibration_evidence: ReferenceCalibrationEvidence | null;
   non_production: true;
+}
+
+export interface ReferenceCalibrationEvidence {
+  calibration_selection_id: string;
+  calibration_selection_revision_id: string;
+  calibration_run_id: string;
+  calibration_candidate_id: string;
+  calibration_candidate_sha256: string;
+  diagnostics_artifact_id: string;
+  diagnostics_sha256: string;
 }
 
 export interface MaterialModelProvenanceSummary extends ProvenanceSummary {
   source_property_set_revision_id: string;
+  calibration_selection_revision_id: string | null;
 }
 
 export interface MaterialModelRevision extends RevisionMetadata {
@@ -636,6 +648,33 @@ export interface CalibrationDiagnosticPreview {
   returned_point_count: number;
   sampled: boolean;
   points: CalibrationDiagnosticPoint[];
+}
+
+export interface CalibrationCandidateSelectionContent {
+  selection_label: string;
+  calibration_run_id: string;
+  calibration_candidate_id: string;
+  candidate_sha256: string;
+  selection_reason: string;
+  selection_decision: "accepted_for_reference_ir_promotion";
+  domain_acceptance_status: "accepted_by_human_for_reference_ir_promotion";
+  non_production: true;
+}
+
+export interface CalibrationCandidateSelectionRevision extends RevisionMetadata {
+  content: CalibrationCandidateSelectionContent;
+}
+
+export interface CalibrationCandidateSelectionResponse {
+  calibration_candidate_selection_id: string;
+  current_revision: CalibrationCandidateSelectionRevision;
+  links: Record<string, string>;
+}
+
+export interface CalibrationCandidateSelectionPromotionResponse {
+  calibration_candidate_selection_id: string;
+  calibration_candidate_selection_revision_id: string;
+  material_model: MaterialModelResponse;
 }
 
 export interface DatasetSelectionRevision extends RevisionMetadata {

@@ -370,7 +370,8 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 **Reference subset status (2026-07-19): implemented.** The bounded slice pins one normalized or
 processed tensile Selection revision and one reference linear-elastic Material Model IR revision,
 then preserves explicit Plan/Run/Attempt/Candidate records and typed diagnostics Artifacts. It is
-non-production only; candidate selection and IR promotion remain T-24.
+non-production only; the separate human Candidate Selection and append-only IR promotion are now
+implemented by T-24.
 
 - **목적:** immutable inputs, model/calibrator, objective/bounds/seed를 고정하고 isolated runner에서 보정한다.
 - **입력과 출력:** 입력은 Selection/processed dataset revisions, model schema, calibrator, plan; 출력은 attempts/candidates, parameters, residual/convergence artifacts.
@@ -382,6 +383,16 @@ non-production only; candidate selection and IR promotion remain T-24.
 - **담당:** Software/Scientific Computing 구현; Constitutive Domain이 objective/bounds/acceptance 승인.
 
 #### T-24. Candidate diagnostics, selection, IR 승격 — `P0`
+
+**Reference subset status (2026-07-20): implemented.** A stable Candidate Selection identity is
+fixed to one succeeded Calibration Run and records append-only human decision revisions. Only an
+exact converged Candidate may be selected, each decision requires a reason, and promotion only
+works from the current Selection revision while the exact evaluated Material Model IR revision is
+still current. Promotion appends a new non-production reference IR revision with typed
+Selection/Candidate/Run/diagnostics evidence; it does not overwrite any source or published
+revision. PostgreSQL tables, constraints, indexes, RLS, triggers, API contracts, unit/API/browser
+regressions, and the Material State workbench are present. General candidate comparison, formal
+approval/release, uncertainty, and solver validation remain outside this bounded subset.
 
 - **목적:** 여러 calibration candidate의 parameter/objective/residual/identifiability를 비교하고 선택 이유와 함께 IR revision을 만든다.
 - **입력과 출력:** 입력은 terminal calibration candidates; 출력은 selection decision, chosen parameter set, IR Revision/evidence.

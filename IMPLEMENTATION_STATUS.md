@@ -1,6 +1,6 @@
 # Implementation Status
 
-Date: `2026-07-19`
+Date: `2026-07-20`
 Foundation version: `0.21.0`
 
 ## Completed
@@ -89,6 +89,10 @@ Foundation version: `0.21.0`
   declared outlier-review threshold, commit a zero-or-two-candidate Detection Run, append a human
   assessment, and view the exact-scope history. The UI explicitly states that n=2 cannot identify
   an outlier and that no automatic deletion or source mutation occurs.
+- `T-32` extension: the reference Calibration workbench now distinguishes a numerically converged
+  Candidate from a human acceptance. It records a required Selection label/reason, displays the
+  non-production acceptance status, and provides a separate stale-safe action that appends the
+  promoted Material Model IR revision with its typed evidence.
 - Local demo composition: an explicit `CMP_ENVIRONMENT=demo` + `CMP_DEMO_IDENTITY=true` Docker
   Compose profile now runs PostgreSQL, owner-only migration/bootstrap, a non-owner `cmp_app` API,
   worker, React workbench, filesystem object storage, checked reference-plugin asset, and an
@@ -99,17 +103,27 @@ Foundation version: `0.21.0`
   isotropic-linear-elastic IR revision projected from one concrete Property Set revision; explicit
   SI density/Young's modulus/Poisson ratio columns, source-yield disposition, semantic/unit bounds,
   Material→State→Property lineage composite FKs, API/list/history resources, provenance/audit/lifecycle
-  hooks, PostgreSQL RLS, and non-production-only contract. Generic model-schema registration,
-  calibration evidence, and production model families remain separate work.
+  hooks, PostgreSQL RLS, and non-production-only contract. Generic model-schema registration and
+  production model families remain separate work; the bounded reference Candidate evidence path is
+  implemented by `T-24`.
 - `T-23` reference subset: a stable Calibration Plan identity with immutable typed revisions that
   pin one normalized or processed tensile Selection revision and one reference linear-elastic
   Material Model IR revision; explicit Young's-modulus bounds/initial value, normalization scale,
   point-weighting, multistart count, and seed; durable append-only Run/Attempt/Candidate records;
   typed observed/predicted/residual Parquet diagnostics Artifacts; protected API/contract and a
   Material State calibration workbench. The bounded analytic `sigma = E * epsilon` WLS evaluator
-  is explicitly non-production and R3 only for its recorded reference environment. Candidate
-  selection, IR promotion, uncertainty, production optimizer/model choice, and solver validation
-  remain separate work.
+  is explicitly non-production and R3 only for its recorded reference environment. Uncertainty,
+  production optimizer/model choice, and solver validation remain separate work.
+- `T-24` reference subset: a stable Candidate Selection identity is fixed to one succeeded
+  Calibration Run and has append-only human decision revisions. Each revision pins one converged
+  Candidate and Candidate SHA-256 with an explicit reason; numerical convergence and human
+  acceptance remain separate. Promotion only accepts the current Selection revision and only while
+  the exact Material Model revision evaluated by the Run is still current. It appends a new
+  reference IR revision with typed Selection/revision, Candidate/SHA-256, Run, and diagnostics
+  Artifact/SHA-256 evidence. Explicit PostgreSQL tables, composite tenant/classification FKs,
+  forced RLS, immutable guards, trigger-level evidence checks, protected API/contract, integration
+  coverage, and the Material State workbench are implemented. It is non-production and is not a
+  formal approval, release, uncertainty, or solver-validation decision.
 - `T-25` reference subset: an explicit OpenRadioss 2025 `/MAT/ELAST` exporter for only the
   reference linear-elastic IR and `kg_m_s` units; typed capability/preflight/mapping-report and
   immutable Solver Card identity/revision tables, source-revision FKs, SHA-256 report/card digests,
@@ -205,6 +219,11 @@ Foundation version: `0.21.0`
   a durable terminal failure if its typed curve Artifact cannot be read. Its analytic bounded WLS
   evaluator writes a separate typed diagnostics Artifact and immutable Candidate per recorded
   multistart Attempt; it never changes source curves or the IR it evaluated.
+- Candidate Selection requires a succeeded Run and exact converged Candidate digest, retains human
+  reason/history separately from convergence, and can promote only the current Selection revision
+  against the still-current evaluated IR revision. The new IR revision records concrete Selection,
+  Candidate, Run, and diagnostics Artifact evidence; all prior IR/Candidate/Run revisions remain
+  immutable.
 - The Material State workbench calls the protected Testing/Dataset/Upload APIs directly; it keeps
   raw and normalized curve revisions selectable, labels their units, and uses deterministic preview
   sampling rather than treating a browser plot as a calculation artifact.
@@ -355,6 +374,14 @@ Model IR revision -> Candidate diagnostics` without mutating the source Dataset 
 requested work is T-24 human candidate selection and append-only IR promotion, followed by T-27/T-28
 validation. Any expansion beyond the exact reference linear-elastic OpenRadioss mapping requires a
 documented target/model decision and must not be silently inferred.
+
+**Update 2026-07-20:** T-24 now completes the bounded reference path `Calibration Run ->
+converged Candidate -> human Candidate Selection revision -> appended Material Model IR revision`.
+The workbench and API make the human acceptance reason explicit, retain typed evidence, and reject
+superseded Selection revisions or stale evaluated IR heads. The next requested work is `T-27`, then
+`T-28`: a narrow non-production Validation Template/Runner slice followed by result extraction,
+numerical-health, and experimental-comparison evidence. Neither step may imply a production solver,
+HPC integration, approval, or release policy without a separate documented decision.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

@@ -90,6 +90,7 @@ Method의 default가 바뀌어도 과거 Run은 당시 method revision과 condit
 | Outlier Assessment | append-only decision | scope, decision, reason, actor | candidate와 사람 판정 분리 |
 | Model Family | plugin definition | schema/capability | core가 constitutive payload를 해석하지 않음 |
 | Calibration Plan/Run | stable plan/run | input, algorithm, config, attempts | failed run도 보존 |
+| Calibration Candidate Selection | stable selection | selected Candidate/SHA-256, human reason | one succeeded Run identity; convergence and human acceptance are separate |
 | Material Model | `material_model` | `material_model_revision` | IR document와 digest 필수 |
 | Solver Card | `solver_card` | `solver_card_revision` | IR revision과 exporter run에 연결 |
 | Validation Template | `validation_template` | revisioned geometry/BC/extraction | 변경 시 새 revision |

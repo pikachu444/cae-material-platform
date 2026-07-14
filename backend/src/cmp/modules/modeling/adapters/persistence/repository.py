@@ -26,6 +26,7 @@ from cmp.modules.modeling.application.service import (
 from cmp.modules.modeling.domain.reference_linear_elasticity import (
     REFERENCE_MODEL_FAMILY_ID,
     REFERENCE_MODEL_SCHEMA_DIGEST,
+    ReferenceCalibrationEvidence,
     ReferenceLinearElasticContent,
     ReferenceModelNotFound,
     reference_linear_elastic_canonical,
@@ -101,6 +102,14 @@ material_model_revision_table = sa.Table(
     sa.Column("applicable_strain_rate_max_per_s", sa.Double(), nullable=True),
     sa.Column("applicability_note", sa.Text(), nullable=True),
     sa.Column("reference_temperature_k", sa.Double(), nullable=False),
+    sa.Column("calibration_evidence_kind", sa.String(64), nullable=False),
+    sa.Column("calibration_selection_id", sa.Uuid(), nullable=True),
+    sa.Column("calibration_selection_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("calibration_run_id", sa.Uuid(), nullable=True),
+    sa.Column("calibration_candidate_id", sa.Uuid(), nullable=True),
+    sa.Column("calibration_candidate_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("calibration_diagnostics_artifact_id", sa.Uuid(), nullable=True),
+    sa.Column("calibration_diagnostics_sha256", sa.CHAR(64), nullable=True),
     sa.Column("non_production", sa.Boolean(), nullable=False),
     schema="modeling",
 )
@@ -175,6 +184,20 @@ def _record(row: Any) -> RevisionRecord:
     )
 
 
+def _calibration_evidence(row: Any) -> ReferenceCalibrationEvidence | None:
+    if str(row["calibration_evidence_kind"]) == "manual_catalog_projection":
+        return None
+    return ReferenceCalibrationEvidence(
+        calibration_selection_id=cast(UUID, row["calibration_selection_id"]),
+        calibration_selection_revision_id=cast(UUID, row["calibration_selection_revision_id"]),
+        calibration_run_id=cast(UUID, row["calibration_run_id"]),
+        calibration_candidate_id=cast(UUID, row["calibration_candidate_id"]),
+        calibration_candidate_sha256=str(row["calibration_candidate_sha256"]),
+        diagnostics_artifact_id=cast(UUID, row["calibration_diagnostics_artifact_id"]),
+        diagnostics_sha256=str(row["calibration_diagnostics_sha256"]),
+    )
+
+
 def _content(row: Any) -> ReferenceLinearElasticContent:
     return ReferenceLinearElasticContent(
         material_id=cast(UUID, row["material_id"]),
@@ -193,6 +216,7 @@ def _content(row: Any) -> ReferenceLinearElasticContent:
         applicable_strain_rate_max_per_s=row["applicable_strain_rate_max_per_s"],
         applicability_note=row["applicability_note"],
         reference_temperature_k=float(row["reference_temperature_k"]),
+        calibration_evidence=_calibration_evidence(row),
     )
 
 
@@ -216,6 +240,46 @@ def _content_values(content: ReferenceLinearElasticContent) -> dict[str, Any]:
         "applicable_strain_rate_max_per_s": content.applicable_strain_rate_max_per_s,
         "applicability_note": content.applicability_note,
         "reference_temperature_k": content.reference_temperature_k,
+        "calibration_evidence_kind": (
+            "reference_candidate_selection"
+            if content.calibration_evidence is not None
+            else "manual_catalog_projection"
+        ),
+        "calibration_selection_id": (
+            content.calibration_evidence.calibration_selection_id
+            if content.calibration_evidence is not None
+            else None
+        ),
+        "calibration_selection_revision_id": (
+            content.calibration_evidence.calibration_selection_revision_id
+            if content.calibration_evidence is not None
+            else None
+        ),
+        "calibration_run_id": (
+            content.calibration_evidence.calibration_run_id
+            if content.calibration_evidence is not None
+            else None
+        ),
+        "calibration_candidate_id": (
+            content.calibration_evidence.calibration_candidate_id
+            if content.calibration_evidence is not None
+            else None
+        ),
+        "calibration_candidate_sha256": (
+            content.calibration_evidence.calibration_candidate_sha256
+            if content.calibration_evidence is not None
+            else None
+        ),
+        "calibration_diagnostics_artifact_id": (
+            content.calibration_evidence.diagnostics_artifact_id
+            if content.calibration_evidence is not None
+            else None
+        ),
+        "calibration_diagnostics_sha256": (
+            content.calibration_evidence.diagnostics_sha256
+            if content.calibration_evidence is not None
+            else None
+        ),
         "non_production": True,
     }
 
@@ -272,6 +336,14 @@ def _content_columns(table: sa.Table) -> tuple[Any, ...]:
         table.c.applicable_strain_rate_max_per_s,
         table.c.applicability_note,
         table.c.reference_temperature_k,
+        table.c.calibration_evidence_kind,
+        table.c.calibration_selection_id,
+        table.c.calibration_selection_revision_id,
+        table.c.calibration_run_id,
+        table.c.calibration_candidate_id,
+        table.c.calibration_candidate_sha256,
+        table.c.calibration_diagnostics_artifact_id,
+        table.c.calibration_diagnostics_sha256,
         table.c.non_production,
     )
 

@@ -24,6 +24,9 @@ const planRevisionId = "80000000-0000-4000-8000-000000000009";
 const runId = "80000000-0000-4000-8000-00000000000a";
 const attemptId = "80000000-0000-4000-8000-00000000000b";
 const candidateId = "80000000-0000-4000-8000-00000000000c";
+const candidateSelectionId = "80000000-0000-4000-8000-000000000016";
+const candidateSelectionRevisionId = "80000000-0000-4000-8000-000000000017";
+const promotedModelRevisionId = "80000000-0000-4000-8000-000000000018";
 
 const state = {
   material_state_id: materialStateId,
@@ -180,6 +183,40 @@ describe("Reference calibration workbench", () => {
       candidates: [candidate],
       links: {},
     };
+    const candidateSelection = {
+      calibration_candidate_selection_id: candidateSelectionId,
+      current_revision: fixtureRevision(candidateSelectionRevisionId, candidateSelectionId, {
+        selection_label: "Accepted reference elastic candidate",
+        calibration_run_id: runId,
+        calibration_candidate_id: candidateId,
+        candidate_sha256: `sha256:${"c".repeat(64)}`,
+        selection_reason: "Human review accepts this converged candidate for a non-production reference IR",
+        selection_decision: "accepted_for_reference_ir_promotion",
+        domain_acceptance_status: "accepted_by_human_for_reference_ir_promotion",
+        non_production: true,
+      }),
+      links: {},
+    };
+    const promotedModel = {
+      ...model,
+      current_revision: fixtureRevision(promotedModelRevisionId, modelId, {
+        model_family_id: "reference_isotropic_linear_elasticity",
+        model_schema_version: "1.0.0",
+        model_schema_digest: "b".repeat(64),
+        material_state_id: materialStateId,
+        youngs_modulus_pa: 210_000_000_000,
+        calibration_evidence: {
+          calibration_selection_id: candidateSelectionId,
+          calibration_selection_revision_id: candidateSelectionRevisionId,
+          calibration_run_id: runId,
+          calibration_candidate_id: candidateId,
+          calibration_candidate_sha256: `sha256:${"c".repeat(64)}`,
+          diagnostics_artifact_id: "80000000-0000-4000-8000-000000000014",
+          diagnostics_sha256: `sha256:${"d".repeat(64)}`,
+        },
+        non_production: true,
+      }),
+    };
     const fetchMock = vi.fn<typeof fetch>((input, init) => {
       const url = String(input);
       const method = init?.method ?? "GET";
@@ -197,6 +234,16 @@ describe("Reference calibration workbench", () => {
       }
       if (url.endsWith("/calibration-runs") && method === "POST") {
         return Promise.resolve(jsonResponse(run, 201));
+      }
+      if (url.endsWith("/calibration-candidate-selections") && method === "POST") {
+        return Promise.resolve(jsonResponse(candidateSelection, 201));
+      }
+      if (url.endsWith(`/calibration-candidate-selections/${candidateSelectionId}/promote-material-model`) && method === "POST") {
+        return Promise.resolve(jsonResponse({
+          calibration_candidate_selection_id: candidateSelectionId,
+          calibration_candidate_selection_revision_id: candidateSelectionRevisionId,
+          material_model: promotedModel,
+        }, 201));
       }
       if (url.includes(`/calibration-candidates/${candidateId}/diagnostics-preview`)) {
         return Promise.resolve(jsonResponse({
@@ -230,6 +277,10 @@ describe("Reference calibration workbench", () => {
 
     await screen.findByText("Observed and fitted engineering-stress curve");
     expect(screen.getByText("2.1000000e+11")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Record human Candidate acceptance" }));
+    await screen.findByText(/Human acceptance recorded as Selection r1/);
+    fireEvent.click(screen.getByRole("button", { name: "Promote accepted Candidate to new IR revision" }));
+    await screen.findByText(/Promoted Material Model IR r1/);
     await waitFor(() => {
       const createPlanCall = fetchMock.mock.calls.find(([url, init]) => (
         String(url).endsWith("/calibration-plans") && init?.method === "POST"
@@ -240,6 +291,24 @@ describe("Reference calibration workbench", () => {
         selection_revision_id: selectionRevisionId,
         material_model_id: modelId,
         material_model_revision_id: modelRevisionId,
+      });
+      const candidateSelectionCall = fetchMock.mock.calls.find(([url, init]) => (
+        String(url).endsWith("/calibration-candidate-selections") && init?.method === "POST"
+      ));
+      expect(candidateSelectionCall).toBeTruthy();
+      expect(JSON.parse(String(candidateSelectionCall?.[1]?.body))).toMatchObject({
+        classification: "internal",
+        calibration_run_id: runId,
+        calibration_candidate_id: candidateId,
+      });
+      const promotionCall = fetchMock.mock.calls.find(([url, init]) => (
+        String(url).endsWith(`/calibration-candidate-selections/${candidateSelectionId}/promote-material-model`)
+        && init?.method === "POST"
+      ));
+      expect(promotionCall).toBeTruthy();
+      expect(JSON.parse(String(promotionCall?.[1]?.body))).toMatchObject({
+        selection_revision_id: candidateSelectionRevisionId,
+        expected_material_model_revision_id: modelRevisionId,
       });
     });
   });

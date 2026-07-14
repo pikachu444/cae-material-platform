@@ -186,6 +186,8 @@ def test_material_model_contract_and_runtime_expose_typed_reference_ir_workflow(
     assert '"youngs_modulus_pa"' in modeling_contract
     assert '"poisson_ratio"' in modeling_contract
     assert '"source_yield_stress_pa"' in modeling_contract
+    assert '"calibration_evidence"' in modeling_contract
+    assert '"calibration_selection_revision_id"' in modeling_contract
     assert '"key"' not in modeling_contract
     assert '"attribute"' not in modeling_contract
 
@@ -236,6 +238,55 @@ def test_reference_calibration_contract_and_runtime_expose_pinned_typed_workflow
         candidate["required"]
     )
     assert "classification" not in revise["properties"]
+
+
+def test_candidate_selection_contract_and_runtime_expose_human_acceptance_and_ir_promotion(
+) -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/calibration-candidate-selections": {
+            "post": "createReferenceCalibrationCandidateSelection",
+            "get": "listCalibrationCandidateSelections",
+        },
+        "/api/v1/calibration-candidate-selections/{selection_id}": {
+            "patch": "reviseReferenceCalibrationCandidateSelection",
+            "get": "getCalibrationCandidateSelection",
+        },
+        "/api/v1/calibration-candidate-selections/{selection_id}/promote-material-model": {
+            "post": "promoteSelectedReferenceCalibrationCandidate"
+        },
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = (
+        PROJECT_ROOT
+        / "contracts/modeling/reference-calibration-candidate-selection-resources.schema.json"
+    )
+    serialized = schema_path.read_text(encoding="utf-8")
+    assert '"selection_reason"' in serialized
+    assert '"candidate_sha256"' in serialized
+    assert '"accepted_by_human_for_reference_ir_promotion"' in serialized
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+
+    content = runtime["components"]["schemas"]["CandidateSelectionContentResponse"]
+    promotion = runtime["components"]["schemas"]["CandidateSelectionPromotionRequest"]
+    assert {
+        "selection_reason",
+        "selection_decision",
+        "domain_acceptance_status",
+    }.issubset(content["required"])
+    assert {
+        "selection_revision_id",
+        "expected_material_model_revision_id",
+        "change_reason",
+    }.issubset(promotion["required"])
 
 
 def test_me_contract_requires_project_and_runtime_bearer_security() -> None:

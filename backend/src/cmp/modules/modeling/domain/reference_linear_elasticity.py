@@ -52,6 +52,33 @@ class ReferenceModelConflict(ModelingError):
     """A stable parent, scope, or immutable model invariant conflicts."""
 
 
+@dataclass(frozen=True, slots=True)
+class ReferenceCalibrationEvidence:
+    """Typed evidence that a human-selected Candidate supplied this IR's Young's modulus."""
+
+    calibration_selection_id: UUID
+    calibration_selection_revision_id: UUID
+    calibration_run_id: UUID
+    calibration_candidate_id: UUID
+    calibration_candidate_sha256: str
+    diagnostics_artifact_id: UUID
+    diagnostics_sha256: str
+
+    def __post_init__(self) -> None:
+        for name in (
+            "calibration_selection_id",
+            "calibration_selection_revision_id",
+            "calibration_run_id",
+            "calibration_candidate_id",
+            "diagnostics_artifact_id",
+        ):
+            _nonzero(name, getattr(self, name))
+        for name in ("calibration_candidate_sha256", "diagnostics_sha256"):
+            value = getattr(self, name)
+            if len(value) != 64 or any(character not in "0123456789abcdef" for character in value):
+                raise InvalidReferenceModel(f"{name} must be a lowercase SHA-256 hex digest")
+
+
 def _nonzero(name: str, value: UUID) -> None:
     if value.int == 0:
         raise InvalidReferenceModel(f"{name} must be non-zero")
@@ -87,6 +114,7 @@ class ReferenceLinearElasticContent:
     applicable_strain_rate_max_per_s: float | None = None
     applicability_note: str | None = None
     reference_temperature_k: float = 293.15
+    calibration_evidence: ReferenceCalibrationEvidence | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -175,6 +203,28 @@ def reference_linear_elastic_canonical(
             "note": content.applicability_note,
         },
         "reference_temperature_k": content.reference_temperature_k,
+        "calibration_evidence": (
+            {
+                "status": "reference_candidate_selected",
+                "selection_id": str(content.calibration_evidence.calibration_selection_id),
+                "selection_revision_id": str(
+                    content.calibration_evidence.calibration_selection_revision_id
+                ),
+                "calibration_run_id": str(content.calibration_evidence.calibration_run_id),
+                "calibration_candidate_id": str(
+                    content.calibration_evidence.calibration_candidate_id
+                ),
+                "calibration_candidate_sha256": (
+                    content.calibration_evidence.calibration_candidate_sha256
+                ),
+                "diagnostics_artifact_id": str(
+                    content.calibration_evidence.diagnostics_artifact_id
+                ),
+                "diagnostics_sha256": content.calibration_evidence.diagnostics_sha256,
+            }
+            if content.calibration_evidence is not None
+            else {"status": "not_calibrated_manual_property_projection"}
+        ),
         "non_production": True,
     }
 
@@ -276,7 +326,29 @@ def reference_linear_elastic_ir(
             "loading_history": {"status": "not_characterized"},
             "extrapolation_policy": "disallowed_without_review",
         },
-        "calibration_evidence": {"status": "not_calibrated_manual_property_projection"},
+        "calibration_evidence": (
+            {
+                "status": "reference_candidate_selected",
+                "selection_id": str(content.calibration_evidence.calibration_selection_id),
+                "selection_revision_id": str(
+                    content.calibration_evidence.calibration_selection_revision_id
+                ),
+                "calibration_run_id": str(content.calibration_evidence.calibration_run_id),
+                "candidate_id": str(content.calibration_evidence.calibration_candidate_id),
+                "candidate_sha256": (
+                    f"sha256:{content.calibration_evidence.calibration_candidate_sha256}"
+                ),
+                "diagnostics_artifact_id": str(
+                    content.calibration_evidence.diagnostics_artifact_id
+                ),
+                "diagnostics_sha256": (
+                    f"sha256:{content.calibration_evidence.diagnostics_sha256}"
+                ),
+                "selection_decision": "accepted_for_reference_ir_promotion",
+            }
+            if content.calibration_evidence is not None
+            else {"status": "not_calibrated_manual_property_projection"}
+        ),
         "validation_evidence": [
             {
                 "kind": "semantic",
