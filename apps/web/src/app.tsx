@@ -26,6 +26,7 @@ import { ReferenceTensileWorkflow } from "./reference-tensile-workflow";
 import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench";
 import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
 import { ReviewWorkbench } from "./review-workbench";
+import { ReleaseWorkbench } from "./release-workbench";
 import type {
   DataClassification,
   ExportTarget,
@@ -394,6 +395,7 @@ function DashboardPage({
         </div>
       </section>
       <ReviewWorkbench config={config} />
+      <ReleaseWorkbench config={config} />
     </div>
   );
 }
