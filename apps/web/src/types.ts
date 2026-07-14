@@ -1061,6 +1061,29 @@ export interface DatasetSelectionResponse {
   links: Record<string, string>;
 }
 
+export interface TensileReplicateSelectionMember {
+  ordinal: number;
+  dataset_id: string;
+  dataset_revision_id: string;
+  test_run_id: string;
+  test_run_revision_id: string;
+}
+
+export interface TensileReplicateSelectionRevision extends RevisionMetadata {
+  content: {
+    selection_kind: "reference_tensile_replicate_set";
+    member_count: number;
+    members: TensileReplicateSelectionMember[];
+  };
+}
+
+export interface TensileReplicateSelectionResponse {
+  selection_id: string;
+  selection_label: string;
+  current_revision: TensileReplicateSelectionRevision;
+  links: Record<string, string>;
+}
+
 export interface ReferenceTensileCropRecipeContent {
   recipe_kind: "reference_tensile_inclusive_crop";
   step_count: 1;

@@ -1659,6 +1659,103 @@ paths:
         "409": {description: Expected Selection head or immutable Dataset state conflicts.}
         "422": {description: Selection revision request is invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-selections/reference-tensile-replicates:
+    post:
+      operationId: createReferenceTensileReplicateSelection
+      tags: [datasets]
+      summary: Pin two or more independent tensile Dataset revisions as one ordered immutable replicate Selection.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/reference-tensile-replicate-selection-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201":
+          description: Stable replicate Selection identity and first immutable membership revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-replicate-selection-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: A concrete Dataset revision is not visible.}
+        "409": {description: Members do not share one tenant, classification, or Material State.}
+        "422": {description: Membership or label is invalid.}
+        "503": {description: Dataset service unavailable.}
+    get:
+      operationId: listReferenceTensileReplicateSelections
+      tags: [datasets]
+      summary: List current replicate Selections for one Material State.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: material_state_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Visible replicate Selections.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-replicate-selection-resources.schema.json#/$defs/ListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-selections/reference-tensile-replicates/{selection_id}:
+    get:
+      operationId: getReferenceTensileReplicateSelection
+      tags: [datasets]
+      summary: Read the current immutable membership revision of a replicate Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current replicate Selection.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-replicate-selection-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: Replicate Selection is not visible.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/dataset-selections/reference-tensile-replicates/{selection_id}/revisions:
+    post:
+      operationId: reviseReferenceTensileReplicateSelection
+      tags: [datasets]
+      summary: Append a new ordered membership revision without changing an earlier replicate Selection revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/reference-tensile-replicate-selection-resources.schema.json#/$defs/ReviseRequest"}
+      responses:
+        "200":
+          description: Appended immutable replicate Selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-tensile-replicate-selection-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: Replicate Selection or member revision is not visible.}
+        "409": {description: Expected head or member scope conflicts.}
+        "422": {description: Membership is invalid.}
+        "503": {description: Dataset service unavailable.}
   /api/v1/datasets/{dataset_id}:
     get:
       operationId: getDataset

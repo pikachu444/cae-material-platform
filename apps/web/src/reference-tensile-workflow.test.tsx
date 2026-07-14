@@ -75,7 +75,7 @@ describe("Reference tensile Dataset workflow", () => {
     expect(screen.getByLabelText("Strain column")).toBeTruthy();
     expect(screen.getByLabelText("Stress column")).toBeTruthy();
     expect(screen.getByText(/Detection records header evidence only/)).toBeTruthy();
-    expect(fetchMock).toHaveBeenCalledTimes(5);
+    expect(fetchMock).toHaveBeenCalledTimes(6);
   });
 
   it("commits a pinned observed-point crop and renders the separate processed curve", async () => {

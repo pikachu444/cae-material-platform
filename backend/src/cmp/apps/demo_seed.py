@@ -22,18 +22,28 @@ from uuid import uuid4
 
 _MATERIAL_CODE = "CMP-DEMO-DP780"
 _STATE_NAME = "As received · synthetic reference"
-_SPECIMEN_CODE = "CMP-DEMO-DP780-T-001"
-_RUN_LABEL = "CMP demo tensile reference run"
-_CSV = b"""engineering_strain,engineering_stress_mpa
+_TENSILE_REPLICATES = (
+    ("CMP-DEMO-DP780-T-001", "CMP demo tensile replicate 1", 0, 1.00),
+    ("CMP-DEMO-DP780-T-002", "CMP demo tensile replicate 2", 1, 0.97),
+    ("CMP-DEMO-DP780-T-003", "CMP demo tensile replicate 3", 2, 1.04),
+)
+_CSV_TEMPLATE = """engineering_strain,engineering_stress_mpa
 0.0000,0
-0.0005,105
-0.0010,210
-0.0020,350
-0.0050,450
-0.0100,540
-0.0200,620
-0.0300,600
+0.0005,{v1}
+0.0010,{v2}
+0.0020,{v3}
+0.0050,{v4}
+0.0100,{v5}
+0.0200,{v6}
+0.0300,{v7}
 """
+
+
+def _replicate_csv(scale: float) -> bytes:
+    values = [105, 210, 350, 450, 540, 620, 600]
+    return _CSV_TEMPLATE.format(
+        **{f"v{index}": f"{value * scale:.3f}" for index, value in enumerate(values, 1)}
+    ).encode()
 
 
 class DemoSeedError(RuntimeError):
@@ -276,25 +286,28 @@ def _ensure_model_and_card(
 
 
 def _ensure_tensile_dataset(
-    api: DemoApi, material: Mapping[str, Any], state: Mapping[str, Any]
+    api: DemoApi,
+    material: Mapping[str, Any],
+    state: Mapping[str, Any],
+    *,
+    specimen_code: str,
+    run_label: str,
+    day_offset: int,
+    csv: bytes,
 ) -> dict[str, Any]:
     state_id = _current_id(state, "material_state_id")
-    datasets = api.get(f"/material-states/{state_id}/datasets")
-    existing = _find(datasets.get("items"), lambda _: True)
-    if existing is not None:
-        return existing
     specimens = api.get(f"/material-states/{state_id}/specimens")
     specimen = _find(
         specimens.get("items"),
         lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("specimen_code") == _SPECIMEN_CODE,
+        and item["current_revision"].get("content", {}).get("specimen_code") == specimen_code,
     )
     if specimen is None:
         specimen = api.post(
             f"/material-states/{state_id}/specimens",
             {
                 "material_state_revision_id": _revision_id(state),
-                "specimen_code": _SPECIMEN_CODE,
+                "specimen_code": specimen_code,
                 "orientation": "RD",
                 "preparation_note": "Synthetic local-demo specimen.",
                 "change_reason": "Seed a reference tensile specimen for the local demo.",
@@ -319,7 +332,7 @@ def _ensure_tensile_dataset(
     run = _find(
         runs.get("items"),
         lambda item: isinstance(item.get("current_revision"), dict)
-        and item["current_revision"].get("content", {}).get("run_label") == _RUN_LABEL,
+        and item["current_revision"].get("content", {}).get("run_label") == run_label,
     )
     if run is None:
         run = api.post(
@@ -329,21 +342,30 @@ def _ensure_tensile_dataset(
                 "specimen_revision_id": _revision_id(specimen),
                 "test_method_id": _current_id(method, "test_method_id"),
                 "test_method_revision_id": _revision_id(method),
-                "run_label": _RUN_LABEL,
-                "performed_at": datetime(2026, 1, 15, 10, 0, tzinfo=UTC).isoformat(),
+                "run_label": run_label,
+                "performed_at": datetime(
+                    2026, 1, 15 + day_offset, 10, 0, tzinfo=UTC
+                ).isoformat(),
                 "test_temperature_k": 293.15,
                 "crosshead_speed_mm_per_min": 5.0,
                 "change_reason": "Seed a reference tensile Test Run for the local demo.",
             },
         )
-    digest = hashlib.sha256(_CSV).hexdigest()
+    datasets = api.get(f"/material-states/{state_id}/datasets")
+    existing = _find(
+        datasets.get("items"),
+        lambda item: item.get("test_run_id") == _current_id(run, "test_run_id"),
+    )
+    if existing is not None:
+        return existing
+    digest = hashlib.sha256(csv).hexdigest()
     upload = api.post(
         "/uploads",
         {
             "classification": "internal",
-            "original_filename": "cmp-demo-dp780-tensile.csv",
+            "original_filename": f"{specimen_code.lower()}-tensile.csv",
             "media_type": "text/csv",
-            "expected_size_bytes": len(_CSV),
+            "expected_size_bytes": len(csv),
             "expected_sha256": digest,
             "test_run_revision_id": _revision_id(run),
         },
@@ -356,7 +378,7 @@ def _ensure_tensile_dataset(
     upload_id = _current_id(upload_session, "upload_id")
     api.put_bytes(
         f"/uploads/{upload_id}/parts/1",
-        _CSV,
+        csv,
         headers={"Content-Type": "text/csv", "Upload-Capability": capability},
     )
     completed = api.post(
@@ -386,6 +408,26 @@ def _ensure_tensile_dataset(
     )
     del material
     return dataset
+
+
+def _ensure_replicate_selection(
+    api: DemoApi, state: Mapping[str, Any], datasets: Sequence[Mapping[str, Any]]
+) -> None:
+    state_id = _current_id(state, "material_state_id")
+    selections = api.get(
+        f"/dataset-selections/reference-tensile-replicates?material_state_id={state_id}"
+    )
+    if _find(selections.get("items"), lambda _: True) is not None:
+        return
+    api.post(
+        "/dataset-selections/reference-tensile-replicates",
+        {
+            "classification": "internal",
+            "selection_label": "CMP demo DP780 tensile replicates",
+            "dataset_revision_ids": [_revision_id(dataset) for dataset in datasets],
+            "change_reason": "Pin three independent synthetic tensile runs for comparison.",
+        },
+    )
 
 
 def _ensure_elastoplastic_models_and_cards(
@@ -454,8 +496,20 @@ def seed_demo(api: DemoApi) -> None:
     material, state = _ensure_state(api, detail)
     properties = _ensure_properties(api, detail, state)
     _ensure_model_and_card(api, state, properties)
-    dataset = _ensure_tensile_dataset(api, material, state)
-    _ensure_elastoplastic_models_and_cards(api, state, properties, dataset)
+    datasets = [
+        _ensure_tensile_dataset(
+            api,
+            material,
+            state,
+            specimen_code=specimen_code,
+            run_label=run_label,
+            day_offset=day_offset,
+            csv=_replicate_csv(scale),
+        )
+        for specimen_code, run_label, day_offset, scale in _TENSILE_REPLICATES
+    ]
+    _ensure_replicate_selection(api, state, datasets)
+    _ensure_elastoplastic_models_and_cards(api, state, properties, datasets[0])
 
 
 def _parser() -> argparse.ArgumentParser:

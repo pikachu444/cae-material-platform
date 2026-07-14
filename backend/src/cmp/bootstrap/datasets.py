@@ -15,6 +15,7 @@ from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevision
 from cmp.modules.datasets.adapters.persistence.repository import (
     SqlAlchemyDatasetRepository,
     dataset_revision_table,
+    dataset_selection_member_table,
     dataset_selection_revision_table,
 )
 from cmp.modules.datasets.application.service import (
@@ -235,14 +236,17 @@ class SqlReferenceDatasetInputProvenanceHook:
 
 
 class SqlReferenceDatasetSelectionProvenanceHook:
-    """Link a pinned one-member Selection revision to the immutable Dataset it names."""
+    """Link every ordered Selection member to the immutable Dataset revision it names."""
 
     def __call__(self, session: Session, event: RevisionCreated) -> None:
         revision = event.revision
         if revision.aggregate_type != DATASET_SELECTION_AGGREGATE_TYPE:
             return
-        selected_revision_id = session.scalar(
-            sa.select(dataset_selection_revision_table.c.dataset_revision_id).where(
+        selection = session.execute(
+            sa.select(
+                dataset_selection_revision_table.c.selection_kind,
+                dataset_selection_revision_table.c.dataset_revision_id,
+            ).where(
                 dataset_selection_revision_table.c.organization_id
                 == revision.scope.organization_id,
                 dataset_selection_revision_table.c.project_id == revision.scope.project_id,
@@ -250,20 +254,39 @@ class SqlReferenceDatasetSelectionProvenanceHook:
                 dataset_selection_revision_table.c.aggregate_id == revision.aggregate_id,
                 dataset_selection_revision_table.c.id == revision.revision_id,
             )
-        )
-        if selected_revision_id is None:
+        ).mappings().one_or_none()
+        if selection is None:
             raise ProvenanceConflict("Selection revision is missing from its typed store")
+        selected_revision_ids: tuple[UUID, ...]
+        if selection["selection_kind"] == "reference_curve_dataset_revision":
+            selected_revision_ids = (cast(UUID, selection["dataset_revision_id"]),)
+        else:
+            selected_revision_ids = tuple(
+                cast(UUID, value)
+                for value in session.scalars(
+                    sa.select(dataset_selection_member_table.c.dataset_revision_id)
+                    .where(
+                        dataset_selection_member_table.c.organization_id
+                        == revision.scope.organization_id,
+                        dataset_selection_member_table.c.project_id
+                        == revision.scope.project_id,
+                        dataset_selection_member_table.c.classification
+                        == revision.scope.classification,
+                        dataset_selection_member_table.c.selection_id
+                        == revision.aggregate_id,
+                        dataset_selection_member_table.c.selection_revision_id
+                        == revision.revision_id,
+                    )
+                    .order_by(dataset_selection_member_table.c.ordinal.asc())
+                )
+            )
+        if not selected_revision_ids:
+            raise ProvenanceConflict("Selection revision has no concrete Dataset members")
         generated_entity_id = _revision_provenance_entity_id(
             session,
             event,
             aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
             revision_id=revision.revision_id,
-        )
-        selected_entity_id = _revision_provenance_entity_id(
-            session,
-            event,
-            aggregate_type=DATASET_AGGREGATE_TYPE,
-            revision_id=cast(UUID, selected_revision_id),
         )
         activity_id = _generated_activity_id(session, event, generated_entity_id)
         session.execute(
@@ -280,20 +303,27 @@ class SqlReferenceDatasetSelectionProvenanceHook:
                     {
                         "hook": "t19.reference_dataset_selection",
                         "selection_revision_id": str(revision.revision_id),
-                        "dataset_revision_id": str(selected_revision_id),
+                        "dataset_revision_ids": [str(value) for value in selected_revision_ids],
                     }
                 ),
             )
         )
-        session.execute(
-            sa.insert(provenance_usage_table).values(
-                **_relation_values(event),
-                activity_id=activity_id,
-                entity_id=selected_entity_id,
-                role="dataset_member",
-                ordinal=0,
+        for ordinal, selected_revision_id in enumerate(selected_revision_ids):
+            selected_entity_id = _revision_provenance_entity_id(
+                session,
+                event,
+                aggregate_type=DATASET_AGGREGATE_TYPE,
+                revision_id=selected_revision_id,
             )
-        )
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **_relation_values(event),
+                    activity_id=activity_id,
+                    entity_id=selected_entity_id,
+                    role="dataset_member",
+                    ordinal=ordinal,
+                )
+            )
 
 
 class SqlReferenceProcessedDatasetProvenanceHook:

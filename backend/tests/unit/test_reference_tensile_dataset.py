@@ -28,6 +28,8 @@ from cmp.modules.datasets.application.service import (
     ImportReferenceTensileCsv,
     ReferenceTestRunSource,
     RevisionSnapshot,
+    TensileReplicateSelectionRevisionSnapshot,
+    TensileReplicateSelectionSnapshot,
 )
 from cmp.modules.datasets.domain.reference_tensile import (
     REFERENCE_TENSILE_PARQUET_SCHEMA,
@@ -43,7 +45,10 @@ from cmp.modules.datasets.domain.reference_tensile import (
     parse_reference_tensile_csv,
     preview_points,
 )
-from cmp.modules.datasets.domain.selection import ReferenceDatasetSelectionContent
+from cmp.modules.datasets.domain.selection import (
+    ReferenceDatasetSelectionContent,
+    ReferenceTensileReplicateSelectionContent,
+)
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -310,6 +315,12 @@ class _Repository(DatasetRepository):
         del context, decision
         raise AssertionError("Selection storage is not exercised by Dataset import tests")
 
+    def replicate_selection_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceTensileReplicateSelectionContent]:
+        del context, decision
+        raise AssertionError("replicate Selection storage is not exercised by import tests")
+
     def load_reference_test_run(
         self,
         *,
@@ -422,6 +433,37 @@ class _Repository(DatasetRepository):
     ) -> DatasetSelectionRevisionSnapshot:
         del context, decision, selection_id, selection_revision_id
         raise AssertionError("Selection reads are not exercised by Dataset import tests")
+
+    def get_tensile_replicate_selection(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> TensileReplicateSelectionSnapshot:
+        del context, decision, selection_id
+        raise AssertionError("replicate Selection reads are not exercised by import tests")
+
+    def get_tensile_replicate_selection_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> TensileReplicateSelectionRevisionSnapshot:
+        del context, decision, selection_id, selection_revision_id
+        raise AssertionError("replicate Selection reads are not exercised by import tests")
+
+    def list_tensile_replicate_selections_for_material_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> tuple[TensileReplicateSelectionSnapshot, ...]:
+        del context, decision, material_state_id
+        return ()
 
 
 def _command() -> ImportReferenceTensileCsv:

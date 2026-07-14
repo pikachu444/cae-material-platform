@@ -35,6 +35,8 @@ class _DemoApi:
             return {"items": []}
         if path.endswith("/datasets") or path.endswith("/specimens") or path.endswith("/test-runs"):
             return {"items": []}
+        if path.startswith("/dataset-selections/reference-tensile-replicates?"):
+            return {"items": []}
         if path == "/test-methods":
             return {"items": []}
         raise AssertionError(f"unexpected GET {path}")
@@ -95,6 +97,8 @@ class _DemoApi:
             }
         if path == "/datasets/reference-uniaxial-tensile:import":
             return _resource("dataset_id", "dataset-1", "dataset-r2", {})
+        if path == "/dataset-selections/reference-tensile-replicates":
+            return _resource("selection_id", "selection-1", "selection-r1", {})
         if path == "/material-states/state-1/tabulated-plasticity-models":
             return _resource("material_model_id", "plastic-model-1", "plastic-model-r1", {})
         if path == "/tabulated-plasticity-models/plastic-model-1/mapping-preflight":
@@ -125,6 +129,8 @@ def test_seed_uses_the_protected_material_to_card_and_dataset_http_flow() -> Non
     assert ("post", "/uploads") in api.calls
     assert ("put", "/uploads/upload-1/parts/1") in api.calls
     assert ("post", "/datasets/reference-uniaxial-tensile:import") in api.calls
+    assert api.calls.count(("post", "/datasets/reference-uniaxial-tensile:import")) == 3
+    assert ("post", "/dataset-selections/reference-tensile-replicates") in api.calls
     assert ("post", "/material-states/state-1/tabulated-plasticity-models") in api.calls
     assert api.calls.count(
         ("post", "/tabulated-plasticity-models/plastic-model-1/mapping-preflight")

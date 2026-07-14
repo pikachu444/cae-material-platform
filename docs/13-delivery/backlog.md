@@ -806,3 +806,16 @@ visible warnings; client-side graph reconstruction, hidden payloads, and cross-o
 reads are not allowed. The inspector resolves a typed immutable revision/artifact reference to the
 opaque Entity UUID or accepts that UUID directly. Generic graph visualization and production audit
 export remain outside this slice.
+
+### P0-2 implementation note (2026-07-28)
+
+P0-2 item 1 is implemented by migration `20260728_030_p02`, the replicate Selection API, the
+connected Material State curve-overlay workbench, and three-run synthetic demo data. The Selection
+pins 2..50 ordered concrete normalized/processed Dataset revisions from distinct Test Run
+revisions. Membership uses explicit rows, foreign keys, uniqueness, forced RLS, immutable-row
+guards, and a deferred exact-count check; it is not JSON or EAV.
+
+Items 2--5 remain in order. The next increment must introduce an explicit alignment/resampling
+Recipe revision and separate processed Dataset revisions before multi-member statistics expand.
+Grid, valid domain, interpolation, and extrapolation policy must be visible and versioned; hidden
+alignment remains forbidden.

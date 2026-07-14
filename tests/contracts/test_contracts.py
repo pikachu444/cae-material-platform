@@ -514,6 +514,16 @@ def test_reference_tensile_contract_and_runtime_expose_typed_test_dataset_workfl
             "get": "listMaterialStateDatasets"
         },
         "/api/v1/dataset-revisions/{dataset_revision_id}/curve": {"get": "previewDatasetCurve"},
+        "/api/v1/dataset-selections/reference-tensile-replicates": {
+            "get": "listReferenceTensileReplicateSelections",
+            "post": "createReferenceTensileReplicateSelection",
+        },
+        "/api/v1/dataset-selections/reference-tensile-replicates/{selection_id}": {
+            "get": "getReferenceTensileReplicateSelection"
+        },
+        "/api/v1/dataset-selections/reference-tensile-replicates/{selection_id}/revisions": {
+            "post": "reviseReferenceTensileReplicateSelection"
+        },
     }
 
     for path, values in operations.items():
@@ -525,6 +535,7 @@ def test_reference_tensile_contract_and_runtime_expose_typed_test_dataset_workfl
     for relative in (
         "contracts/testing/reference-tensile-resources.schema.json",
         "contracts/datasets/reference-tensile-resources.schema.json",
+        "contracts/datasets/reference-tensile-replicate-selection-resources.schema.json",
     ):
         serialized = (PROJECT_ROOT / relative).read_text(encoding="utf-8")
         assert "postgresql.JSONB" not in serialized

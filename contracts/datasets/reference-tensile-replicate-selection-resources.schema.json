@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/datasets/reference-tensile-replicate-selection-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {"type": "string", "enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "CreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "selection_label", "dataset_revision_ids", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "dataset_revision_ids": {"type": "array", "minItems": 2, "maxItems": 50, "uniqueItems": true, "items": {"$ref": "#/$defs/Uuid"}},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_current_revision_id", "dataset_revision_ids", "change_reason"],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_ids": {"type": "array", "minItems": 2, "maxItems": 50, "uniqueItems": true, "items": {"$ref": "#/$defs/Uuid"}},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "Member": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ordinal", "dataset_id", "dataset_revision_id", "test_run_id", "test_run_revision_id"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 49},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "Content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_kind", "member_count", "members"],
+      "properties": {
+        "selection_kind": {"const": "reference_tensile_replicate_set"},
+        "member_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "members": {"type": "array", "minItems": 2, "maxItems": 50, "items": {"$ref": "#/$defs/Member"}}
+      }
+    },
+    "Revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id", "schema_version", "content_hash", "created_at", "created_by", "change_reason", "organization_id", "project_id", "classification", "lifecycle_state", "content"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string"},
+        "schema_version": {"type": "string"},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string"},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"},
+        "content": {"$ref": "#/$defs/Content"}
+      }
+    },
+    "Response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_id", "selection_label", "current_revision", "links"],
+      "properties": {
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "#/$defs/Revision"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "ListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/Response"}}}
+    }
+  }
+}
