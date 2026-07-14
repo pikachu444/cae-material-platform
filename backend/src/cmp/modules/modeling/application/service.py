@@ -279,6 +279,23 @@ class MaterialModelService:
             material_model_revision_id=material_model_revision_id,
         )
 
+    def get_material_model_revision_for_validation(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearElasticContent]:
+        """Expose one fixed IR revision to the authorized Validation capability."""
+
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_material_model_revision(
+            context=context,
+            decision=decision,
+            material_model_id=material_model_id,
+            material_model_revision_id=material_model_revision_id,
+        )
+
     def promote_reference_calibration_candidate(
         self,
         context: SecurityContext,

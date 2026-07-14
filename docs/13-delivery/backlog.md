@@ -444,6 +444,12 @@ approval/release, uncertainty, and solver validation remain outside this bounded
 
 #### T-27. Validation Template와 Solver/HPC Runner Adapter — `P0`
 
+- **상태 (2026-07-21):** reference subset 구현. `validation_template`/`validation_plan` stable
+  identity와 immutable revision, exact IR/Card/Selection pinning, `validation_run`, typed Result
+  Manifest, deck/stdout/stderr/native Artifact 증거, PostgreSQL RLS/trigger/provenance/audit,
+  protected API와 Material State workbench를 제공한다. `reference_inline_mock` 및 bounded manual
+  attach만 포함하며, 실제 solver/HPC adapter와 verdict는 구현하지 않는다(ADR-0013, T-28).
+
 - **목적:** geometry/mesh/BC/output template과 managed/manual solver 실행을 versioned plan으로 관리한다.
 - **입력과 출력:** 입력은 card/IR, template revision, solver target, runner; 출력은 deck, external job ref, logs, native result manifest.
 - **영향 데이터/API:** `validation.template*`, `plan*`, `run`, runner capability; validation submit/poll/cancel/attach API.

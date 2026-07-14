@@ -262,7 +262,9 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
 
     assert decision.database_permissions == (
         "artifact.read",
+        "artifact.write",
         "audit.append",
+        "dataset.read",
         "events.publish",
         "export.read",
         "governance.read",

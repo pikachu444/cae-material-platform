@@ -31,6 +31,7 @@ from cmp.bootstrap.security import (
 from cmp.bootstrap.settings import Settings
 from cmp.bootstrap.statistics import build_statistics_service
 from cmp.bootstrap.testing import build_testing_service
+from cmp.bootstrap.validation import build_reference_validation_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
 from cmp.modules.artifacts.adapters.api.uploads import install_upload_api
 from cmp.modules.artifacts.application.content import ArtifactService
@@ -69,6 +70,8 @@ from cmp.modules.statistics.adapters.api.statistics import install_statistics_ap
 from cmp.modules.statistics.application.service import StatisticsService
 from cmp.modules.testing.adapters.api.testing import install_testing_api
 from cmp.modules.testing.application.service import TestingService
+from cmp.modules.validation.adapters.api.validation import install_validation_api
+from cmp.modules.validation.application.service import ReferenceValidationService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
 
@@ -102,6 +105,7 @@ def create_app(
     calibration_service: ReferenceCalibrationService | None = None,
     candidate_selection_service: CandidateSelectionService | None = None,
     solver_card_service: SolverCardService | None = None,
+    validation_service: ReferenceValidationService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -338,6 +342,24 @@ def create_app(
             services.authorization, Permission.EXPORT_EXECUTE
         ),
     )
+    resolved_validation = validation_service or build_reference_validation_service(
+        services,
+        resolved_datasets,
+        resolved_material_models,
+        resolved_solver_cards,
+        resolved_artifacts,
+    )
+    install_validation_api(
+        application,
+        service=resolved_validation,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.VALIDATION_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.VALIDATION_EXECUTE
+        ),
+    )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
@@ -350,6 +372,7 @@ def create_app(
     application.state.calibration_service = resolved_calibration
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
+    application.state.validation_service = resolved_validation
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)
 

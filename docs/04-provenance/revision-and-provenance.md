@@ -292,4 +292,8 @@ Release 전 자동 검사한다.
 9. a Calibration-promoted Material Model IR references the exact current Candidate Selection
    revision, converged Candidate digest, Calibration Run, and diagnostics Artifact digest; it never
    replaces the evaluated IR revision.
+10. a T-27 Validation Run records the same terminal Result Manifest provenance shape for managed
+    mock and manual attachment: exact Plan/Template/IR/Card/Selection usage plus immutable
+    deck/log/native-result/manifest Artifact generation. A normal termination is evidence only and
+    must not be represented as a validation verdict.
 

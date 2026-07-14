@@ -29,6 +29,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260718_020_T11_reference_import_orchestration.py",
         "20260719_021_T23_reference_calibration.py",
         "20260720_022_T24_candidate_selection_promotion.py",
+        "20260721_023_T27_validation_template_runner.py",
     ]
 
 
@@ -407,4 +408,43 @@ def test_t24_uses_typed_candidate_selection_and_ir_promotion_evidence_without_ea
     assert "FORCE ROW LEVEL SECURITY" in migration
     assert "revisioning.reject_immutable_row_mutation()" in migration
     assert "guard_reference_calibrated_model_revision_insert" in migration
+
+
+def test_t27_uses_explicit_template_plan_run_and_result_manifest_relations_without_eav() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260721_023_T27_validation_template_runner.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "validation_template",
+        "validation_template_revision",
+        "validation_plan",
+        "validation_plan_revision",
+        "validation_run",
+        "validation_run_result_manifest",
+    ):
+        assert table in migration
+    for column in (
+        "gauge_length_m",
+        "cross_section_area_m2",
+        "axial_element_count",
+        "solver_card_revision_id",
+        "experimental_selection_revision_id",
+        "deck_artifact_id",
+        "stdout_artifact_id",
+        "native_result_artifact_id",
+        "manifest_artifact_id",
+    ):
+        assert column in migration
+    assert "reference_inline_mock" in migration
+    assert "manual_attach" in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+    assert "guard_validation_plan_revision_insert" in migration
+    assert "guard_validation_result_manifest_insert" in migration
 

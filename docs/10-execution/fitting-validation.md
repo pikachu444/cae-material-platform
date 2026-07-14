@@ -259,6 +259,21 @@ Template는 solver-neutral일 수 있는 부분과 target-specific deck fragment
 }
 ```
 
+### 11.1 Implemented T-27 reference evidence boundary
+
+`T-27` implements only the evidence-preservation portion of this model. A stable Validation
+Template and Validation Plan append typed immutable revisions; the Plan pins exact Template,
+Material Model IR, Solver Card, and experimental Selection revisions. The initial reference
+Template is a one-dimensional tensile bar for the already-declared OpenRadioss 2025 `kg_m_s`
+target. Its deck is explicitly a non-production reference assembly, not a qualified executable
+solver input.
+
+`reference_inline_mock` and `manual_attach` both produce a single typed immutable Result Manifest
+shape containing deck, stdout, stderr, optional native result, termination, opaque external-job
+reference where applicable, Artifact digests, provenance, and audit facts. Shell command text is
+not accepted. `normal` solver termination is evidence only: extraction, numerical-health,
+metrics, thresholds, and a validation verdict remain `T-28` responsibilities (ADR-0013).
+
 ## 12. Solver runner flow
 
 1. exporter output과 mapping report digest 확인

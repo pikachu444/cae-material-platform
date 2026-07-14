@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-20`
-Foundation version: `0.21.0`
+Date: `2026-07-21`
+Foundation version: `0.22.0`
 
 ## Completed
 
@@ -133,6 +133,16 @@ Foundation version: `0.21.0`
 - `T-26` reference subset: a byte-exact `.rad` golden fixture plus report-acknowledgement,
   unsupported-target, and text-tamper regressions. A multi-target/version matrix, semantic parser,
   and domain-review golden-update workflow remain separate work.
+- `T-27` reference subset: stable Validation Template and Validation Plan identities append typed
+  immutable revisions that pin exact Template, reference Material Model IR, OpenRadioss Solver Card,
+  and experimental Dataset Selection revisions. A durable Run retains an immutable reference deck,
+  stdout/stderr, optional bounded native result, and same-shaped Result Manifest for explicit
+  inline-mock or manual-attachment evidence. Explicit PostgreSQL tables/constraints/indexes,
+  composite tenant/classification FKs, forced RLS, state/role trigger guards, audit, and provenance
+  preserve the evidence tuple. The protected Material State workbench creates/pins/submits/collects
+  actual API resources and labels the feature as non-production. No real solver/HPC process,
+  numerical-health result, comparison metric, validation pass, approval, or release claim exists;
+  those are `T-28` and later work (ADR-0013).
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -382,6 +392,13 @@ superseded Selection revisions or stale evaluated IR heads. The next requested w
 `T-28`: a narrow non-production Validation Template/Runner slice followed by result extraction,
 numerical-health, and experimental-comparison evidence. Neither step may imply a production solver,
 HPC integration, approval, or release policy without a separate documented decision.
+
+**Update 2026-07-21:** T-27 now completes the evidence-only boundary
+`Validation Template revision -> Validation Plan revision -> deck -> Run -> Result Manifest`.
+Both mock and manual branches retain the same immutable Artifact/provenance shape; the mock runner
+does not execute a solver and `normal` termination is not a validation pass. The next requested
+work is `T-28`: bounded native-result extraction, numerical-health, experimental comparison, and
+an explicit non-production verdict that must keep abnormal/no-output runs `not_evaluated`.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

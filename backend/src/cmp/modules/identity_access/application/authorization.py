@@ -124,6 +124,12 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.ARTIFACT_READ,
+            # A reference validation run freezes a rendered deck and terminal
+            # evidence as immutable Artifacts, and reads the selected Dataset
+            # revision.  These are transaction-local dependencies of
+            # validation.execute; they do not grant public write routes.
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
             Permission.EXPORT_EXECUTE,
@@ -176,9 +182,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     # Reference import detection reads the verified immutable raw artifact before
     # it records a human-approved mapping revision.  This remains a transaction
     # capability only; the public Artifact endpoint still requires artifact.read.
-    Permission.TESTING_WRITE: frozenset(
-        {Permission.CATALOG_READ, Permission.ARTIFACT_READ}
-    ),
+    Permission.TESTING_WRITE: frozenset({Permission.CATALOG_READ, Permission.ARTIFACT_READ}),
     # A Dataset is an immutable interpretation of an Artifact.  Reading a curve
     # therefore needs the same row-visible Artifact access as reading its Dataset
     # metadata; otherwise the API could disclose metadata but not safely load the
@@ -231,6 +235,8 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.VALIDATION_EXECUTE: frozenset(
         {
             Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
             Permission.VALIDATION_READ,
