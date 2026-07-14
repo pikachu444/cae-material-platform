@@ -39,6 +39,9 @@ from cmp.modules.provenance.adapters.persistence.repository import (
 )
 from cmp.modules.provenance.domain.model import EntityReferenceKind, ProvenanceConflict
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
+from cmp.modules.statistics.adapters.persistence.replicate_outlier_repository import (
+    SqlAlchemyReplicateOutlierRepository,
+)
 from cmp.modules.statistics.adapters.persistence.replicate_repository import (
     SqlAlchemyReplicateStatisticsRepository,
 )
@@ -55,6 +58,9 @@ from cmp.modules.statistics.adapters.persistence.repository import (
     outlier_detection_plan_revision_table,
     statistical_plan_revision_table,
     statistical_result_revision_table,
+)
+from cmp.modules.statistics.application.replicate_outlier_service import (
+    ReplicateOutlierService,
 )
 from cmp.modules.statistics.application.replicate_service import (
     REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
@@ -764,6 +770,41 @@ def build_replicate_statistics_service(
                 SqlReplicateStatisticalResultProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
             ),
+        ),
+        datasets=datasets,
+        artifacts=artifacts,
+    )
+
+
+def build_replicate_outlier_service(
+    identity: IdentityServices,
+    datasets: DatasetService | None,
+    artifacts: ArtifactService | None,
+) -> ReplicateOutlierService | None:
+    """Build persisted evidence, assessment, and calibration-scope workflows."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or datasets is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    common_hooks = (
+        SqlInitialLifecycleHook(),
+        SqlAlchemyRevisionProvenanceHook(),
+        SqlAlchemyRevisionAuditHook(),
+    )
+    return ReplicateOutlierService(
+        repository=SqlAlchemyReplicateOutlierRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=common_hooks,
+        ),
+        statistics=SqlAlchemyReplicateStatisticsRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
         ),
         datasets=datasets,
         artifacts=artifacts,

@@ -90,8 +90,8 @@ class ReplicateOutlierMemberEvidence:
     peak_engineering_stress_pa: float
 
     def __post_init__(self) -> None:
-        if not 1 <= self.ordinal <= 50:
-            raise ValueError("ordinal must be between 1 and 50")
+        if not 0 <= self.ordinal < 50:
+            raise ValueError("ordinal must be between 0 and 49")
         for reference_name, reference_value in (
             ("dataset_id", self.dataset_id),
             ("dataset_revision_id", self.dataset_revision_id),
@@ -195,8 +195,8 @@ class CalibrationInputScopeMember:
     assessment_revision_id: UUID | None
 
     def __post_init__(self) -> None:
-        if not 1 <= self.ordinal <= 50:
-            raise ValueError("ordinal must be between 1 and 50")
+        if not 0 <= self.ordinal < 50:
+            raise ValueError("ordinal must be between 0 and 49")
         for reference_name, reference_value in (
             ("dataset_id", self.dataset_id),
             ("dataset_revision_id", self.dataset_revision_id),
@@ -244,9 +244,7 @@ class ReferenceCalibrationInputScopeContent:
             _uuid(name, value)
         if not 3 <= len(self.members) <= 50:
             raise ValueError("calibration input scope requires 3..50 source members")
-        if tuple(item.ordinal for item in self.members) != tuple(
-            range(1, len(self.members) + 1)
-        ):
+        if tuple(item.ordinal for item in self.members) != tuple(range(len(self.members))):
             raise ValueError("calibration input scope member ordinals must be contiguous")
         if len({item.dataset_revision_id for item in self.members}) != len(self.members):
             raise ValueError("calibration input scope Dataset revisions must be unique")
@@ -346,7 +344,7 @@ def reference_replicate_review_candidates(
         raise ValueError("reference replicate detector requires 3..50 members")
     if len(candidate_ids) != len(members):
         raise ValueError("one deterministic candidate ID is required per source member")
-    if tuple(item.ordinal for item in members) != tuple(range(1, len(members) + 1)):
+    if tuple(item.ordinal for item in members) != tuple(range(len(members))):
         raise ValueError("member ordinals must be contiguous")
     if len({item.dataset_revision_id for item in members}) != len(members):
         raise StatisticsConflict("detector input Dataset revisions must be distinct")

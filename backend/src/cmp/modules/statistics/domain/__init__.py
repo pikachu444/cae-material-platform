@@ -6,13 +6,6 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
     ReferenceTensilePairStatistics,
     StatisticalRunStatus,
 )
-from cmp.modules.statistics.domain.reference_tensile_replicates import (
-    ReferenceTensileReplicatePlanContent,
-    ReferenceTensileReplicateResultContent,
-    ReferenceTensileReplicateStatistics,
-    ReplicateCurvePoint,
-    ReplicateScalarStatistics,
-)
 from cmp.modules.statistics.domain.reference_tensile_replicate_outlier import (
     CalibrationInputScopeMember,
     CalibrationScopeDisposition,
@@ -24,6 +17,13 @@ from cmp.modules.statistics.domain.reference_tensile_replicate_outlier import (
     ReplicateOutlierEvidenceCode,
     ReplicateOutlierMemberEvidence,
     reference_replicate_review_candidates,
+)
+from cmp.modules.statistics.domain.reference_tensile_replicates import (
+    ReferenceTensileReplicatePlanContent,
+    ReferenceTensileReplicateResultContent,
+    ReferenceTensileReplicateStatistics,
+    ReplicateCurvePoint,
+    ReplicateScalarStatistics,
 )
 
 __all__ = [

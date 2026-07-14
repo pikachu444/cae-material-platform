@@ -36,6 +36,9 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
 - `statistics/reference-tensile-outlier-resources.schema.json`: typed immutable reference-pair
   Detection Plans, zero-or-two review_required candidates, append-only human Assessments, and
   exact-scope comparison resources without source mutation or automatic exclusion
+- `statistics/reference-tensile-replicate-outlier-resources.schema.json`: non-production
+  multi-replicate modified-z evidence, append-only human Assessment, and immutable calibration
+  input Scope resources that preserve every source Dataset and Selection revision
 - `validation/reference-virtual-specimen-resources.schema.json`: typed non-production reference
   virtual-specimen Template/Plan revisions, exact immutable IR/Card/Selection pins, durable Run,
   and shared mock/manual Result Manifest Artifact evidence

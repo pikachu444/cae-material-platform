@@ -8,6 +8,7 @@ from cmp.modules.statistics.domain.reference_tensile_replicate_outlier import (
     CalibrationInputScopeMember,
     CalibrationScopeDisposition,
     ReferenceCalibrationInputScopeContent,
+    ReferenceReplicateOutlierCandidate,
     ReplicateOutlierEvidenceCode,
     ReplicateOutlierMemberEvidence,
     reference_calibration_input_scope_canonical,
@@ -33,7 +34,7 @@ def member(ordinal: int, peak: float) -> ReplicateOutlierMemberEvidence:
 
 def candidates(
     members: tuple[ReplicateOutlierMemberEvidence, ...], threshold: float
-):
+) -> tuple[ReferenceReplicateOutlierCandidate, ...]:
     return reference_replicate_review_candidates(
         candidate_ids=tuple(uid(100 + index) for index in range(len(members))),
         detection_run_id=uid(200),
@@ -52,24 +53,24 @@ def candidates(
 
 def test_modified_z_detector_flags_only_threshold_evidence() -> None:
     result = candidates(
-        (member(1, 600_000_000.0), member(2, 610_000_000.0), member(3, 900_000_000.0)),
+        (member(0, 600_000_000.0), member(1, 610_000_000.0), member(2, 900_000_000.0)),
         3.5,
     )
 
     assert len(result) == 1
-    assert result[0].member.ordinal == 3
+    assert result[0].member.ordinal == 2
     assert result[0].absolute_modified_z_score == pytest.approx(19.56020275568637)
     assert result[0].evidence_code is ReplicateOutlierEvidenceCode.MODIFIED_Z_THRESHOLD_EXCEEDED
 
 
 def test_zero_mad_nonmedian_member_requires_review_without_infinite_score() -> None:
     result = candidates(
-        (member(1, 600.0), member(2, 600.0), member(3, 600.0), member(4, 900.0)),
+        (member(0, 600.0), member(1, 600.0), member(2, 600.0), member(3, 900.0)),
         3.5,
     )
 
     assert len(result) == 1
-    assert result[0].member.ordinal == 4
+    assert result[0].member.ordinal == 3
     assert result[0].absolute_modified_z_score is None
     assert result[0].sample_mad_peak_stress_pa == 0.0
     assert result[0].evidence_code is ReplicateOutlierEvidenceCode.MAD_ZERO_NONMEDIAN_REVIEW
@@ -77,17 +78,17 @@ def test_zero_mad_nonmedian_member_requires_review_without_infinite_score() -> N
 
 def test_detector_rejects_point_pseudoreplication_and_duplicate_test_runs() -> None:
     with pytest.raises(ValueError, match=r"3\.\.50"):
-        candidates((member(1, 600.0), member(2, 900.0)), 3.5)
+        candidates((member(0, 600.0), member(1, 900.0)), 3.5)
 
-    duplicated = member(2, 700.0)
-    object.__setattr__(duplicated, "test_run_revision_id", uid(14))
+    duplicated = member(1, 700.0)
+    object.__setattr__(duplicated, "test_run_revision_id", uid(4))
     with pytest.raises(StatisticsConflict, match="Test Run"):
-        candidates((member(1, 600.0), duplicated, member(3, 900.0)), 3.5)
+        candidates((member(0, 600.0), duplicated, member(2, 900.0)), 3.5)
 
 
 def test_calibration_scope_is_separate_and_requires_explicit_exclusion_evidence() -> None:
     included = CalibrationInputScopeMember(
-        ordinal=1,
+        ordinal=0,
         dataset_id=uid(11),
         dataset_revision_id=uid(12),
         test_run_id=uid(13),
@@ -98,7 +99,7 @@ def test_calibration_scope_is_separate_and_requires_explicit_exclusion_evidence(
         assessment_revision_id=None,
     )
     retained = CalibrationInputScopeMember(
-        ordinal=2,
+        ordinal=1,
         dataset_id=uid(21),
         dataset_revision_id=uid(22),
         test_run_id=uid(23),
@@ -109,7 +110,7 @@ def test_calibration_scope_is_separate_and_requires_explicit_exclusion_evidence(
         assessment_revision_id=uid(27),
     )
     excluded = CalibrationInputScopeMember(
-        ordinal=3,
+        ordinal=2,
         dataset_id=uid(31),
         dataset_revision_id=uid(32),
         test_run_id=uid(33),
@@ -138,7 +139,7 @@ def test_calibration_scope_is_separate_and_requires_explicit_exclusion_evidence(
 
     with pytest.raises(ValueError, match="explicit assessed candidate"):
         CalibrationInputScopeMember(
-            ordinal=3,
+            ordinal=2,
             dataset_id=uid(31),
             dataset_revision_id=uid(32),
             test_run_id=uid(33),
@@ -160,14 +161,14 @@ def test_calibration_scope_rejects_excluding_until_fewer_than_two_members_remain
             test_run_revision_id=uid(index * 10 + 4),
             disposition=(
                 CalibrationScopeDisposition.INCLUDED
-                if index == 1
+                if index == 0
                 else CalibrationScopeDisposition.EXCLUDED
             ),
-            candidate_id=None if index == 1 else uid(index * 10 + 5),
-            assessment_id=None if index == 1 else uid(index * 10 + 6),
-            assessment_revision_id=None if index == 1 else uid(index * 10 + 7),
+            candidate_id=None if index == 0 else uid(index * 10 + 5),
+            assessment_id=None if index == 0 else uid(index * 10 + 6),
+            assessment_revision_id=None if index == 0 else uid(index * 10 + 7),
         )
-        for index in range(1, 4)
+        for index in range(3)
     )
     with pytest.raises(ValueError, match="retain at least two"):
         ReferenceCalibrationInputScopeContent(
