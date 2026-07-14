@@ -88,6 +88,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.STATISTICAL_ANALYST: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
             Permission.DATASET_READ,
@@ -125,6 +126,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.CAE_ANALYST: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.TESTING_READ,
             Permission.ARTIFACT_READ,
             # A reference validation run freezes a rendered deck and terminal
             # evidence as immutable Artifacts, and reads the selected Dataset
@@ -201,11 +203,13 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     # it records a human-approved mapping revision.  This remains a transaction
     # capability only; the public Artifact endpoint still requires artifact.read.
     Permission.TESTING_WRITE: frozenset({Permission.CATALOG_READ, Permission.ARTIFACT_READ}),
-    # A Dataset is an immutable interpretation of an Artifact.  Reading a curve
-    # therefore needs the same row-visible Artifact access as reading its Dataset
-    # metadata; otherwise the API could disclose metadata but not safely load the
-    # immutable content it identifies.
-    Permission.DATASET_READ: frozenset({Permission.ARTIFACT_READ}),
+    # A Dataset is an immutable interpretation of an Artifact and its Material State
+    # lineage is resolved through the pinned Test Run and Specimen. Reading a curve
+    # therefore needs row-visible Artifact and Testing access. These remain
+    # transaction capabilities; their public endpoints still authorize independently.
+    Permission.DATASET_READ: frozenset(
+        {Permission.ARTIFACT_READ, Permission.TESTING_READ}
+    ),
     Permission.DATASET_WRITE: frozenset(
         {Permission.ARTIFACT_READ, Permission.ARTIFACT_WRITE, Permission.TESTING_READ}
     ),
@@ -244,6 +248,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.CATALOG_READ,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
+            Permission.TESTING_READ,
         }
     ),
     Permission.CALIBRATION_EXECUTE: frozenset(
@@ -252,6 +257,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.ARTIFACT_WRITE,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
+            Permission.TESTING_READ,
         }
     ),
     Permission.EXPORT_READ: frozenset({Permission.MODELING_READ}),
@@ -269,6 +275,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.DATASET_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
+            Permission.TESTING_READ,
             Permission.VALIDATION_READ,
         }
     ),

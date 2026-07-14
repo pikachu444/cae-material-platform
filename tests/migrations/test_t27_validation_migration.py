@@ -14,6 +14,7 @@ def test_t27_migration_renders_explicit_validation_relations_guards_and_rls() ->
     command.upgrade(configuration, "head", sql=True)
 
     sql = output.getvalue()
+    normalized_sql = " ".join(sql.split())
     required = {
         "CREATE SCHEMA validation",
         "CREATE TABLE validation.validation_template",
@@ -47,3 +48,7 @@ def test_t27_migration_renders_explicit_validation_relations_guards_and_rls() ->
     }
 
     assert all(fragment in sql for fragment in required)
+    assert (
+        "OR (execution_mode = 'manual_attach' AND external_job_reference IS NOT NULL))), "
+        "CONSTRAINT fk_validation_run_result_manifest_run"
+    ) in normalized_sql

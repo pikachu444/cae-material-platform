@@ -120,6 +120,7 @@ solver_card_revision_table = sa.Table(
     sa.Column("applicable_temperature_max_k", sa.Double(), nullable=True),
     sa.Column("applicable_strain_rate_min_per_s", sa.Double(), nullable=True),
     sa.Column("applicable_strain_rate_max_per_s", sa.Double(), nullable=True),
+    sa.Column("applicability_note", sa.Text(), nullable=True),
     sa.Column("density_mapping_status", sa.String(32), nullable=False),
     sa.Column("youngs_modulus_mapping_status", sa.String(32), nullable=False),
     sa.Column("poisson_ratio_mapping_status", sa.String(32), nullable=False),

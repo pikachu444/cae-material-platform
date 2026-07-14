@@ -50,6 +50,15 @@ def test_t20_migration_renders_typed_statistics_qc_and_immutable_result_guards()
     assert "statistics.guard_statistical_run_transition()" in sql
     assert "statistics.guard_statistical_result_revision_insert()" in sql
     assert "statistics.guard_qc_observation_insert()" in sql
+    assert (
+        "CONSTRAINT uq_statistics_statistical_plan_identity_kind "
+        "UNIQUE (organization_id, project_id, classification, id, plan_kind)"
+    ) in sql
+    assert (
+        "FOREIGN KEY(organization_id, project_id, classification, aggregate_id, plan_kind) "
+        "REFERENCES statistics.statistical_plan "
+        "(organization_id, project_id, classification, id, plan_kind)"
+    ) in sql
     assert "exact_observed_grid_match_no_alignment" in sql
     assert "not_provided_reference_pair" in sql
     assert "'statistics.read'" in sql

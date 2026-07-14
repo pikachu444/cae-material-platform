@@ -162,7 +162,7 @@ def _create_tables() -> None:
         """
     )
     op.execute(
-        """
+        f"""
         CREATE TABLE testing.import_mapping_revision (
           id uuid NOT NULL,
           aggregate_id uuid NOT NULL,
