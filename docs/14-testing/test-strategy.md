@@ -220,22 +220,25 @@ docker version
 docker compose version
 docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
 docker compose -f deploy/compose/docker-compose.demo.yml up --build -d
+docker compose -f deploy/compose/docker-compose.demo.yml --profile test up -d postgres-test
 docker compose -f deploy/compose/docker-compose.demo.yml ps --all
 Invoke-RestMethod http://127.0.0.1:8000/api/v1/health
 ```
 
 Expected state:
 
-- `postgres`, `api`, `worker`, and `web` are running; PostgreSQL and API become healthy;
+- `postgres`, `postgres-test`, `api`, `worker`, and `web` are running; both PostgreSQL services and API become healthy;
 - `migrate`, `reference-plugins`, and `seed` exit with code 0;
 - the health response reports success and `http://127.0.0.1:5173` opens;
 - the browser's local demo identity can read the seeded Material/Dataset/IR/cards.
 
-The Compose owner is exposed only for local verification on `127.0.0.1:54329`. Use that exact
-disposable owner DSN for the marked suites:
+The SCRAM-authenticated demo database on `127.0.0.1:54329` is for the running product. Do not weaken
+it for the test harness. The `test` profile starts a separate localhost-only PostgreSQL 16 owner on
+`127.0.0.1:54330`, backed by tmpfs and configured for passwordless temporary application roles.
+Use this disposable owner DSN for the marked suites:
 
 ```powershell
-$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp"
+$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres"
 uv run pytest -m postgresql tests/integration -ra
 ```
 
@@ -251,8 +254,8 @@ CI-equivalent suite:
 On a shell with GNU Make, the equivalent commands are:
 
 ```bash
-CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp make test-postgresql
-CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp make ci
+CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres make test-postgresql
+CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres make ci
 ```
 
 The test owner needs permission to create an isolated temporary database and application role.
@@ -278,10 +281,10 @@ docker compose -f deploy/compose/docker-compose.demo.yml down -v
 composition is used. Do not copy this teardown command to another project or production context.
 
 Docker is not required by the Python test implementation itself; another disposable PostgreSQL 16+
-server is acceptable when the same owner privileges and isolation rules are satisfied. The current
-development host has not yet produced live P0-1 evidence, so the PostgreSQL verification gate remains
-open until the commands above complete successfully and the result is recorded in
-`IMPLEMENTATION_STATUS.md`.
+server is acceptable when the same owner privileges and isolation rules are satisfied. The live
+P0-1 gate completed on 2026-07-27: the marker suite recorded 62 passed with zero skips or failures,
+and the CI-equivalent run recorded 452 Python tests plus 21 Vitest tests. The count may grow; skip
+zero and failure zero remain the contract. Evidence is recorded in `IMPLEMENTATION_STATUS.md`.
 
 T-31 additionally verifies append-only release lifecycle events, terminal projections, explicit
 usage facts, successor/predecessor impact, and tenant-scoped RLS. A withdrawn or superseded

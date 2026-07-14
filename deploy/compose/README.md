@@ -90,11 +90,13 @@ local inspection. The data is synthetic and not validated engineering data.
 
 ## Run the PostgreSQL integration gate
 
-The Compose owner account is deliberately privileged only for this disposable demo. From the
+Keep the demo database SCRAM-authenticated. The integration harness creates temporary passwordless
+application roles, so start its separate localhost-only, tmpfs-backed PostgreSQL profile. From the
 repository root:
 
 ```powershell
-$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp"
+docker compose -f deploy/compose/docker-compose.demo.yml --profile test up -d postgres-test
+$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres"
 uv run pytest -m postgresql tests/integration -ra
 & "C:\Program Files\Git\bin\bash.exe" scripts/ci.sh
 ```
@@ -102,6 +104,8 @@ uv run pytest -m postgresql tests/integration -ra
 The marker suite must have zero failures and zero skips; do not treat the currently observed count
 of 62 as permanent. Do not substitute the non-owner `cmp_app` credentials and never point this
 variable at a production or shared database. The tests create/drop temporary databases and roles.
+The `postgres-test` service publishes only `127.0.0.1:54330`, uses `trust` only inside this isolated
+test container, and stores its cluster in tmpfs. It must not be used as a deployment pattern.
 The full procedure and acceptance rule are in
 [the test strategy](../../docs/14-testing/test-strategy.md#p0-1-windowscompose-verification-runbook).
 
@@ -124,3 +128,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml down -v
 `down -v` deletes the Compose demo database and object-store volumes permanently. It is safe only
 for this synthetic local composition and must not be copied to a production or unrelated project
 context.
+
+If another local process owns port `8000`, the browser workbench still reaches the API through the
+Compose-internal web proxy at `http://127.0.0.1:5173/api/v1`. Stop or reconfigure the unrelated
+process before using the API's direct host URL; never terminate an unknown process automatically.

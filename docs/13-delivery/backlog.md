@@ -38,14 +38,21 @@ ADR-0019는 이미 구현된 foundation과 Material-to-card 수직 기능을 유
 1. Windows에서는 WSL 2와 Docker Desktop/Compose v2를 준비하고 Docker Engine을 실행한다.
 2. `deploy/compose/docker-compose.demo.yml`을 build/up하여 PostgreSQL 16, migration/bootstrap,
    non-owner API, worker, web, reference-plugin check, synthetic seed 상태를 확인한다.
-3. host `127.0.0.1:54329`의 disposable demo owner DSN을
-   `CMP_TEST_POSTGRES_DSN`으로 설정한다.
+3. `--profile test`의 localhost/tmpfs `postgres-test`를 시작하고
+   `127.0.0.1:54330`의 disposable owner DSN을 `CMP_TEST_POSTGRES_DSN`으로 설정한다.
 4. `pytest -m postgresql tests/integration`을 실행한다. 현재 관측된 62개는 고정 계약이
    아니며 완료 조건은 PostgreSQL marker의 **skip 0/failure 0**이다.
 5. 같은 DSN으로 CI-equivalent suite를 실행하고 결과를 `IMPLEMENTATION_STATUS.md`에 기록한다.
 
 별도 PostgreSQL 설치는 필수가 아니다. Compose의 PostgreSQL을 사용하면 된다. production,
 공유 개발, 또는 보존해야 하는 DB를 통합시험 DSN으로 사용해서는 안 된다.
+
+**완료 증거 (2026-07-27):** Docker Engine 29.6.1/Compose 5.3.0에서 PostgreSQL 16,
+migration/bootstrap, non-owner API, worker, web, reference-plugin check, synthetic seed가
+정상 실행됐다. localhost 전용 tmpfs `postgres-test` profile로 PostgreSQL marker suite
+`62 passed / 0 skipped / 0 failed`, 같은 DSN의 CI-equivalent suite `452 passed`, web
+Vitest `21 passed`를 기록했다. 브라우저 smoke는 Material/State/property/Dataset/IR과
+OpenRadioss/Abaqus 카드 preview/download를 확인했다. 따라서 현재 실행 wave는 `P0-2`다.
 
 ### P0-2 구현 순서
 
