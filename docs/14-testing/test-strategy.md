@@ -206,22 +206,82 @@ matrix.
 
 The PostgreSQL-marked suites are intentionally conditional. They are skipped when
 `CMP_TEST_POSTGRES_DSN` is not set; a skipped result is not a passing database verification.
-The DSN must point to a reachable PostgreSQL 16+ server and be accepted by SQLAlchemy/psycopg,
-for example:
+The DSN must point to a reachable disposable PostgreSQL 16+ server and be accepted by
+SQLAlchemy/psycopg. Never use a production, shared development, or otherwise valuable database.
+
+### P0-1 Windows/Compose verification runbook
+
+The repository Compose file is the canonical local P0-1 environment. Docker Desktop must already
+be installed, started, and configured with the WSL 2 backend. From the repository root in
+PowerShell:
 
 ```powershell
-$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://admin:password@localhost:5432/postgres"
-uv run pytest -m postgresql tests/integration
+docker version
+docker compose version
+docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
+docker compose -f deploy/compose/docker-compose.demo.yml up --build -d
+docker compose -f deploy/compose/docker-compose.demo.yml ps --all
+Invoke-RestMethod http://127.0.0.1:8000/api/v1/health
 ```
 
-The test role needs permission to create an isolated temporary database and application role.
-The migration owner must be able to create the schemas, RLS helper functions, triggers, and
-extensions used by the repository. Tests then migrate the isolated database to `head`, run the
-non-owner RLS paths, and remove the temporary database. Run them only against a disposable
-PostgreSQL instance; no Docker or production database is required by the code, but one reachable
-server is required to execute these tests. The current development host has no `psql`,
-`pg_isready`, Docker, or PostgreSQL service, so these suites remain skipped until that external
-prerequisite is supplied.
+Expected state:
+
+- `postgres`, `api`, `worker`, and `web` are running; PostgreSQL and API become healthy;
+- `migrate`, `reference-plugins`, and `seed` exit with code 0;
+- the health response reports success and `http://127.0.0.1:5173` opens;
+- the browser's local demo identity can read the seeded Material/Dataset/IR/cards.
+
+The Compose owner is exposed only for local verification on `127.0.0.1:54329`. Use that exact
+disposable owner DSN for the marked suites:
+
+```powershell
+$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp"
+uv run pytest -m postgresql tests/integration -ra
+```
+
+The P0-1 pass condition is **zero failures and zero PostgreSQL-marked skips**. The previously
+observed `62 skipped` is a snapshot of the current collected suite, not a stable expected count;
+new migrations/modules may add tests. With the same environment variable still set, execute the
+CI-equivalent suite:
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" scripts/ci.sh
+```
+
+On a shell with GNU Make, the equivalent commands are:
+
+```bash
+CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp make test-postgresql
+CMP_TEST_POSTGRES_DSN=postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp make ci
+```
+
+The test owner needs permission to create an isolated temporary database and application role.
+Tests migrate each temporary database to `head`, exercise non-owner RLS paths, and remove the
+temporary database. `cmp_app` is intentionally unsuitable because application roles must not create
+databases, roles, schemas, RLS helper functions, triggers, or extensions.
+
+Collect diagnostic evidence before teardown when a step fails:
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml ps --all
+docker compose -f deploy/compose/docker-compose.demo.yml logs --no-color postgres migrate api seed
+```
+
+After verification, remove the development containers and synthetic volumes:
+
+```powershell
+Remove-Item Env:CMP_TEST_POSTGRES_DSN -ErrorAction SilentlyContinue
+docker compose -f deploy/compose/docker-compose.demo.yml down -v
+```
+
+`down -v` permanently removes only the explicitly disposable local demo volume when this canonical
+composition is used. Do not copy this teardown command to another project or production context.
+
+Docker is not required by the Python test implementation itself; another disposable PostgreSQL 16+
+server is acceptable when the same owner privileges and isolation rules are satisfied. The current
+development host has not yet produced live P0-1 evidence, so the PostgreSQL verification gate remains
+open until the commands above complete successfully and the result is recorded in
+`IMPLEMENTATION_STATUS.md`.
 
 T-31 additionally verifies append-only release lifecycle events, terminal projections, explicit
 usage facts, successor/predecessor impact, and tenant-scoped RLS. A withdrawn or superseded
