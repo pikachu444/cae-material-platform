@@ -1,6 +1,6 @@
 # Implementation Status
 
-Date: `2026-07-25`
+Date: `2026-07-26`
 Foundation version: `0.27.0`
 
 ## Completed
@@ -53,6 +53,17 @@ Foundation version: `0.27.0`
   records Selection/Recipe/output revision audit facts and concrete Processing provenance, and
   provides protected API plus Material State workbench controls. Multi-input selection, resampling,
   true-strain transforms, and durable Run reconciliation remain outside this subset.
+- Reference elastoplastic multi-solver vertical (`T-D03` bounded subset): one concrete normalized
+  or processed tensile Dataset revision and one typed Property Set revision produce an immutable
+  solver-neutral isotropic tabulated-plasticity IR. The transformation converts engineering data
+  only through the first global stress maximum, retains source/pre-yield/post-necking counts and
+  necking index, rejects implicit repair/smoothing, and stores the hardening curve as a verified
+  Parquet Artifact. A user-approved constant-stress extension remains visibly `approximated`.
+  Explicit OpenRadioss 2025 `/MAT/LAW36` + `/FUNCT` and Abaqus 2025 `*DENSITY` + `*ELASTIC` +
+  isotropic `*PLASTIC` mappings share the same IR, require the exact mapping-report digest, and
+  expose protected preview/download plus byte-exact `.rad`/`.inp` golden regressions. This is a
+  non-production monotonic, ambient, rate-independent reference slice without damage/failure or
+  solver qualification.
 - `T-20` reference subset: an immutable Statistical Plan pins exactly two existing one-member
   normalized Dataset Selection revisions from distinct Test Runs; a committed Statistical Run records
   typed QC observations and either fails durably or creates a separate immutable Statistical Result
@@ -109,8 +120,9 @@ Foundation version: `0.27.0`
   Compose profile now runs PostgreSQL, owner-only migration/bootstrap, a non-owner `cmp_app` API,
   worker, React workbench, filesystem object storage, checked reference-plugin asset, and an
   API-driven synthetic seed. The seed creates a Material/State/properties/reference IR/OpenRadioss
-  card plus a reference tensile Raw Asset and raw/normalized Dataset revisions without direct
-  database writes or an authorization/RLS bypass.
+  card plus a reference tensile Raw Asset and raw/normalized Dataset revisions, then derives the
+  tabulated-plasticity IR and both OpenRadioss/Abaqus elastoplastic cards without direct database
+  writes or an authorization/RLS bypass.
 - `T-22` reference subset: a stable Material Model identity and immutable reference
   isotropic-linear-elastic IR revision projected from one concrete Property Set revision; explicit
   SI density/Young's modulus/Poisson ratio columns, source-yield disposition, semantic/unit bounds,
@@ -356,24 +368,24 @@ Foundation version: `0.27.0`
 
 ## Validation result
 
-Normal command: `make ci`. This Windows environment has no native `make`; its available WSL/Bash
-environment does not have `uv`, so the equivalent locked dependency sync, lint, typecheck,
-architecture/contract, migration-SQL, pytest, and root web-check commands were executed directly.
-The PostgreSQL integration suite additionally requires `CMP_TEST_POSTGRES_DSN`.
+Normal command: `make ci`. This Windows environment has no native `make`, so the exact underlying
+`scripts/ci.sh` target was invoked through Git Bash with the locked local environment. The
+PostgreSQL integration suite additionally requires `CMP_TEST_POSTGRES_DSN`.
 
 ```text
 Ruff: passed
-mypy strict: passed (217 source files)
+mypy strict: passed (370 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
 Alembic `upgrade head --sql`: passed
-CI-equivalent pytest: 342 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Root web check: build passed; Vitest: 16 passed
+CI-equivalent pytest: 381 passed, 62 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Root web check: build passed; Vitest: 21 passed
 Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
   token tests are implemented. Docker is not installed in this Windows environment, so the
   containers and live PostgreSQL demo could not be started here.
-T-11/T-19/T-21 have unit, API integration, migration SQL, and browser-workbench regression coverage.
+T-11/T-19/T-21/T-D03 have unit, API integration, migration SQL, and browser-workbench regression
+coverage.
 T-11 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
 because CMP_TEST_POSTGRES_DSN is unavailable; migration SQL rendering is covered offline, while a
 live PostgreSQL test remains the next verification task.
@@ -386,9 +398,9 @@ live PostgreSQL test remains the next verification task.
 - Process/Lot/Batch genealogy, richer typed property/curve families, Test Campaign/Instrument
   records, production importer plugin approval, arbitrary channel schemas, and non-reference
   Dataset channels
-- Multi-member Selection/filter semantics, resample/true-stress-strain processing, durable
-  Processing Run reconciliation, calibration-specific outlier scope, larger-replicate/CI
-  statistics, and calibration
+- General multi-member Selection/filter semantics, arbitrary recipe graphs, durable Processing Run
+  reconciliation, inverse post-necking identification, calibration-specific outlier scope,
+  larger-replicate/CI statistics, and production nonlinear calibration
 - Production release publication, external PLM replacement, and release-specific evidence policy
   beyond the bounded T-30/T-31 reference channel
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
@@ -399,8 +411,9 @@ live PostgreSQL test remains the next verification task.
 - Production plugins
 - External audit root signer, SIEM/WORM connector, retention/legal-hold policy, and deployment
   service-principal scheduling for periodic sealing
-- Fitting algorithms, production solver cards/targets, or validation thresholds; the implemented
-  reference IR and OpenRadioss card are not calibrated or production-qualified
+- Production fitting algorithms, production solver cards/targets, or qualified validation
+  thresholds; the implemented linear/tabulated IRs and OpenRadioss/Abaqus cards are bounded
+  reference outputs and are not production-qualified
 - Production web identity/session integration, external demo IdP deployment, and a production
   Compose/deployment profile; the checked-in demo issuer is explicitly local-only
 
@@ -475,6 +488,15 @@ completeness, append-only events, and chain integrity next to the existing Revie
 The next gate is a live PostgreSQL-backed demo/test run and then T-35/T-36 operational observability
 and restore drills; generic importer formats, production solver/HPC execution, and external release
 publication remain separate decisions.
+
+**Update 2026-07-26:** the product vertical now performs actual bounded tensile-data reduction and
+multi-solver card extraction. A normalized/processed engineering curve is converted only through
+its first maximum stress to true stress and true plastic strain; source/excluded counts and the
+necking index remain immutable evidence. The resulting IR drives OpenRadioss LAW36 and Abaqus
+isotropic-plasticity cards through explicit preflight, preview, and download APIs and the Material
+State workbench. The constant post-necking extension is `approximated`, never silently exact. Real
+solver execution, inverse post-necking identification, rate/temperature dependence, damage/failure,
+and production qualification remain separate decisions.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

@@ -654,6 +654,19 @@ approval/release, uncertainty, and solver validation remain outside this bounded
 
 ### T-D03. `[TBD]` Solver Exporter·Validation plugin
 
+- **Reference progress (2026-07-26):** A bounded non-production vertical is implemented before a
+  production plugin decision. One normalized/processed monotonic tensile Dataset revision and a
+  typed Property Set revision produce an immutable isotropic tabulated-plasticity IR and Parquet
+  hardening Artifact. The reduction records the engineering-to-true profile, source and excluded
+  point counts, first maximum-stress index, Catalog yield anchor, and an explicitly acknowledged
+  constant-stress extension. The same frozen IR maps to OpenRadioss 2025 `/MAT/LAW36` + `/FUNCT`
+  and Abaqus 2025 `*DENSITY` + `*ELASTIC` + isotropic `*PLASTIC`. Preflight reports the extension
+  as `approximated`; card creation pins the report digest. Protected API/UI preview/download,
+  explicit PostgreSQL columns/FKs/checks/indexes/RLS, and `.rad`/`.inp` golden fixtures are present.
+  Real solver execution, semantic parser/dry-run, rate/temperature dependence, damage/failure,
+  inverse post-necking identification, domain approval, and production plugin packaging remain
+  incomplete and keep T-D03 open.
+
 - **목적:** 선정 solver/version/card로 IR을 mapping하고 virtual specimen에서 검증한다.
 - **입력과 출력:** IR/template/reference → card, mapping report, solver result, metrics.
 - **영향 데이터/API:** exporter capability, validation template/profile; core API 변경 없음이 목표.

@@ -6,10 +6,13 @@ vertical slice:
 ```text
 Material → Material State → typed basic properties → reference IR
 → OpenRadioss /MAT/ELAST mapping → immutable Solver Card
+→ normalized tensile Dataset → tabulated-plasticity IR
+→ OpenRadioss /MAT/LAW36 and Abaqus *PLASTIC cards
 ```
 
-It also seeds a synthetic reference tensile CSV through the protected upload
-and Dataset APIs. The repository's T-18 `contract_echo` reference plugin is
+It also seeds a synthetic reference tensile CSV through the protected upload and Dataset APIs,
+derives a non-production pre-necking hardening curve, and generates downloadable `.rad` and `.inp`
+cards through the same API used by the browser. The repository's T-18 `contract_echo` reference plugin is
 included and checked by the `reference-plugins` service, but is not registered
 or activated for this Material-to-card slice because it implements no Material,
 Test, fitting, or exporter behavior. It is intentionally not a production

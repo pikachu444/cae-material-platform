@@ -1,10 +1,10 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics with human Candidate Selection/IR promotion, reference Material Model IR, reference OpenRadioss Solver Card, and reference virtual-specimen evidence/result interpretation runner
+Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics with human Candidate Selection/IR promotion, reference linear and tabulated-isotropic-plasticity Material Model IRs, OpenRadioss and Abaqus reference Solver Cards, and reference virtual-specimen evidence/result interpretation runner
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
+(`T-01`–`T-21` + reference `T-22`–`T-32` subsets + bounded `T-D03`)
 
 Version: `0.27.0`
 
@@ -26,6 +26,13 @@ records an immutable header-only Detection Report, requires a separate human-con
 revision, and then records a Processing-owned Import Run that pins the exact mapping before it
 creates separate raw and normalized Dataset revisions. Low-confidence header suggestions are never
 committed automatically.
+The same protected Material State screen can reduce one normalized or processed monotonic tensile
+Dataset through its first maximum engineering stress. The immutable solver-neutral IR records the
+engineering-to-true conversion profile, exact source/excluded point counts, Catalog yield anchor,
+and explicitly acknowledged constant-stress post-necking approximation in a Parquet hardening
+Artifact. That one IR can produce either an OpenRadioss 2025 `/MAT/LAW36` + `/FUNCT` card or an
+Abaqus 2025 `*DENSITY` + `*ELASTIC` + `*PLASTIC` card. Preflight labels the extension
+`approximated`; card creation requires acknowledgement of that exact mapping-report digest.
 The reference Statistics/QC slice pins two distinct normalized Selection revisions from distinct
 Test Runs, records immutable QC observations, and creates a separate typed scalar/curve Result only
 when their observed engineering-strain grids match exactly; it never aligns or resamples curves
@@ -76,6 +83,13 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
 - Reference IR creation, explicit OpenRadioss 2025 `/MAT/ELAST` mapping preflight, mapping-status
   report, immutable Solver Card preview, and authenticated `.rad` download in the Material State
   workbench; target/unit defaults and silent approximations are prohibited
+- Typed pre-necking tensile reduction to true stress/true plastic strain with no hidden smoothing,
+  fitting, resampling, or source mutation; immutable Parquet hardening Artifact plus explicit
+  source/excluded point evidence in the tabulated-plasticity IR revision
+- OpenRadioss 2025 `/MAT/LAW36` + `/FUNCT` and Abaqus 2025 `*DENSITY` + `*ELASTIC` +
+  `*PLASTIC, HARDENING=ISOTROPIC, EXTRAPOLATION=CONSTANT` exporters from the same IR, with
+  field-level mapping status, explicit approximation acknowledgement, byte-exact `.rad`/`.inp`
+  golden fixtures, protected preview, and authenticated download
 - Explicit reference tensile `testing.specimen`, `testing.test_method`, and `testing.test_run`
   identity/revision relations; Test Runs pin concrete source revisions and no test result overwrites
   a source run
@@ -191,10 +205,13 @@ API-only synthetic data seed. The seed follows the protected product path:
 ```text
 Material → Material State → typed properties → reference IR
 → OpenRadioss mapping report → immutable .rad Solver Card
+→ normalized tensile Dataset → tabulated-plasticity IR
+→ OpenRadioss .rad and Abaqus .inp elastoplastic cards
 ```
 
-It also creates one synthetic tensile CSV as a Raw Asset and appends raw plus
-normalized Dataset revisions. Open `http://127.0.0.1:5173`, select
+It also creates one synthetic tensile CSV as a Raw Asset, appends raw plus normalized Dataset
+revisions, reduces the normalized curve into a non-production elastoplastic IR, and generates both
+reference elastoplastic cards. Open `http://127.0.0.1:5173`, select
 **Connection**, choose **Use local demo identity**, and save. The button exists
 only because this composition explicitly sets `CMP_ENVIRONMENT=demo` and
 `CMP_DEMO_IDENTITY=true`; the issued 15-minute signed token is still verified
@@ -477,7 +494,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 ## Traceability
 
 - Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, reference `T-08`, `T-09`, `T-10`, reference `T-11`/`T-12`,
-  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`, `T-32` MVP
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`, `T-30`, `T-31`, `T-32` MVP, and bounded `T-D03`
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
@@ -486,7 +503,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012`, `ADR-013`, `ADR-014`, `ADR-015` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`–`ADR-018` (with `ADR-005` as a scope guard)
 
 ## T-30 reference Release channel
 
@@ -520,3 +537,19 @@ Release commands. Reviewers can resolve a provenance Entity from its typed immut
 artifact reference, or paste an Entity UUID directly. Truncated graphs and invalid audit chains
 are shown as warnings; the browser does not reconstruct or silently complete either result. The
 organization/project/classification RLS boundary remains authoritative.
+
+## Reference elastoplastic multi-solver slice
+
+The Material State workbench now continues the product path from an actual normalized/processed
+tensile Dataset to a solver-neutral, non-production isotropic tabulated-plasticity IR. Reduction
+stops at the first global engineering-stress maximum, preserves source and exclusion counts, and
+fails closed on non-monotone/softening data instead of repairing it silently. The user must approve
+a constant true-stress extension beyond the measured range; mapping reports expose it as
+`approximated`.
+
+The same immutable IR and hardening Artifact drive two explicit 2025 `kg_m_s` targets:
+OpenRadioss `/MAT/LAW36` + `/FUNCT`, and Abaqus `*DENSITY` + `*ELASTIC` + isotropic `*PLASTIC`.
+Both have protected preflight, preview, and download endpoints and byte-exact golden fixtures.
+This is not solver execution or qualification: inverse post-necking identification, rate and
+temperature dependence, damage/failure, licensed-solver smoke tests, and production release remain
+separate domain decisions.
