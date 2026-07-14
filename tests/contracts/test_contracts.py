@@ -559,6 +559,53 @@ def test_reference_outlier_contract_and_runtime_expose_append_only_human_scope_w
     )
 
 
+def test_reference_import_contract_and_runtime_keep_detection_and_human_approval_separate() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/imports:detect": {"post": "detectReferenceImport"},
+        "/api/v1/import-detection-reports/{detection_report_id}": {
+            "get": "getImportDetectionReport"
+        },
+        "/api/v1/import-mappings": {"post": "createReferenceImportMapping"},
+        "/api/v1/import-mappings/{mapping_id}": {"get": "getImportMapping"},
+        "/api/v1/import-mappings/{mapping_id}/revisions": {
+            "post": "reviseReferenceImportMapping"
+        },
+        "/api/v1/imports": {"post": "executeReferenceImport"},
+        "/api/v1/imports/{import_run_id}": {"get": "getImportRun"},
+    }
+
+    for path, values in operations.items():
+        for method, operation_id in values.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    testing_contract = (
+        PROJECT_ROOT / "contracts/testing/reference-import-resources.schema.json"
+    ).read_text(encoding="utf-8")
+    processing_contract = (
+        PROJECT_ROOT / "contracts/processing/reference-import-resources.schema.json"
+    ).read_text(encoding="utf-8")
+    runtime_schemas = runtime["components"]["schemas"]
+
+    assert '"needs_input"' in testing_contract
+    assert '"human_confirmed"' in testing_contract
+    assert '"reference_inline"' in processing_contract
+    assert '"key"' not in testing_contract
+    assert '"value"' not in testing_contract
+    assert {"header_columns", "strain_suggestion", "stress_suggestion"}.issubset(
+        runtime_schemas["ImportDetectionReportResponse"]["required"]
+    )
+    assert {"detection_report_id", "dataset_mapping_sha256", "approval_kind"}.issubset(
+        runtime_schemas["ImportMappingContentResponse"]["required"]
+    )
+    assert {"import_mapping_revision_id", "mapping_sha256", "reference_only"}.issubset(
+        runtime_schemas["ImportRunResponse"]["required"]
+    )
+
+
 def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
     schema = json.loads(
         (PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json").read_text(

@@ -74,7 +74,7 @@ describe("Reference tensile Dataset workflow", () => {
     expect(await screen.findByText("1. Register a concrete Specimen")).toBeTruthy();
     expect(screen.getByLabelText("Strain column")).toBeTruthy();
     expect(screen.getByLabelText("Stress column")).toBeTruthy();
-    expect(screen.getByText(/Column names are never inferred/)).toBeTruthy();
+    expect(screen.getByText(/Detection records header evidence only/)).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledTimes(5);
   });
 

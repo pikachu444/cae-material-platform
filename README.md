@@ -4,9 +4,9 @@ Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier re
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
-(`T-01`–`T-10` + `T-12`–`T-21` + reference `T-22`/`T-25`/`T-26` subsets)
+(`T-01`–`T-21` + reference `T-22`/`T-25`/`T-26` subsets)
 
-Version: `0.20.0`
+Version: `0.21.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -22,7 +22,10 @@ creates a non-production OpenRadioss 2025 `/MAT/ELAST` text card after an explic
 preflight/report acknowledgement. The workbench exposes the resulting immutable card preview and
 authenticated download. A narrow reference tensile flow now creates a concrete Specimen, pins a
 Test Run to concrete Specimen/Test Method revisions, uploads one UTF-8 CSV as a Raw Asset/Artifact,
-requires explicit column/unit mapping, and creates separate raw and normalized Dataset revisions.
+records an immutable header-only Detection Report, requires a separate human-confirmed Mapping
+revision, and then records a Processing-owned Import Run that pins the exact mapping before it
+creates separate raw and normalized Dataset revisions. Low-confidence header suggestions are never
+committed automatically.
 The reference Statistics/QC slice pins two distinct normalized Selection revisions from distinct
 Test Runs, records immutable QC observations, and creates a separate typed scalar/curve Result only
 when their observed engineering-strain grids match exactly; it never aligns or resamples curves
@@ -74,8 +77,13 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
   raw UTF-8 CSV bytes remain unchanged while one normalized SI Parquet Artifact is appended as a
   second immutable revision, with typed engineering strain/stress channel semantics
 - Material State workbench controls for Specimen, reference Test Method, Test Run, CSV upload,
-  user-confirmed column/unit mapping, and bounded raw/normalized curve preview; no column or unit
-  inference is performed in the browser or importer
+  immutable header Detection Report, explicit human-approved Mapping revision, Import Run status,
+  and bounded raw/normalized curve preview; no column or unit inference is committed by the browser
+  or importer
+- Explicit PostgreSQL `testing.import_detection_report`, `testing.import_mapping`,
+  `testing.import_mapping_revision`, and `processing.import_run` relations with frozen Raw
+  Asset/Artifact/Test Run/Mapping references, source-digest guards, tenant/classification composite
+  keys, forced RLS, indexes, and append-only transition guards; no generic importer payload/EAV
 - Explicit PostgreSQL `exporting.solver_card` and `solver_card_revision` relations with frozen
   Material Model revision FKs, typed SI card fields/status columns, mapping/card SHA-256 digests,
   tenant/classification composite keys, forced RLS, and append-only guards; no EAV/card JSON

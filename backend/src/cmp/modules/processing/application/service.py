@@ -12,11 +12,13 @@ from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.artifacts.domain.content import ArtifactRecord
 from cmp.modules.datasets.application.service import (
     DatasetService,
+    ImportReferenceTensileCsv,
     RegisterProcessedReferenceTensileDataset,
 )
 from cmp.modules.datasets.domain.reference_tensile import (
     DatasetError,
     DatasetRepresentation,
+    ReferenceTensileMapping,
     normalized_points_from_parquet,
     processed_parquet_bytes,
 )
@@ -26,6 +28,7 @@ from cmp.modules.identity_access.domain.authorization import (
     Permission,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.processing.domain.reference_import import ImportRunStatus
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_OUTPUT_SCHEMA,
     REFERENCE_TENSILE_CROP_SCHEMA_VERSION,
@@ -34,6 +37,7 @@ from cmp.modules.processing.domain.reference_tensile_crop import (
     ReferenceTensileCropRecipeContent,
     crop_reference_tensile_points,
 )
+from cmp.modules.testing.application.service import TestingService
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     ReviseAggregate,
@@ -86,6 +90,31 @@ class ProcessingRun:
 
 
 @dataclass(frozen=True, slots=True)
+class ImportRun:
+    id: UUID
+    classification: DataClassification
+    test_run_id: UUID
+    test_run_revision_id: UUID
+    raw_asset_id: UUID
+    raw_artifact_id: UUID
+    import_mapping_id: UUID
+    import_mapping_revision_id: UUID
+    mapping_sha256: str
+    importer_id: str
+    importer_version: str
+    status: ImportRunStatus
+    output_dataset_id: UUID | None
+    output_dataset_revision_id: UUID | None
+    failure_code: str | None
+    change_reason: str
+    started_at: datetime
+    ended_at: datetime | None
+    created_by: UUID
+    request_id: UUID
+    trace_id: str
+
+
+@dataclass(frozen=True, slots=True)
 class CreateReferenceTensileCropRecipe:
     classification: DataClassification
     content: ReferenceTensileCropRecipeContent
@@ -105,6 +134,17 @@ class ExecuteReferenceTensileCrop:
     selection_revision_id: UUID
     recipe_id: UUID
     recipe_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ExecuteReferenceImport:
+    test_run_id: UUID
+    test_run_revision_id: UUID
+    raw_asset_id: UUID
+    raw_artifact_id: UUID
+    import_mapping_id: UUID
+    import_mapping_revision_id: UUID
     change_reason: str
 
 
@@ -177,6 +217,41 @@ class ProcessingRepository(Protocol):
         run_id: UUID,
     ) -> ProcessingRun: ...
 
+    def create_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run: ImportRun,
+    ) -> ImportRun: ...
+
+    def succeed_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        output_dataset_id: UUID,
+        output_dataset_revision_id: UUID,
+    ) -> ImportRun: ...
+
+    def fail_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        failure_code: str,
+    ) -> ImportRun: ...
+
+    def get_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> ImportRun: ...
+
 
 def _reason(value: str) -> str:
     if not value or value != value.strip() or len(value) > 2000 or "\x00" in value:
@@ -208,11 +283,13 @@ class ProcessingService:
         *,
         repository: ProcessingRepository,
         datasets: DatasetService,
+        testing: TestingService,
         artifacts: ArtifactService,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
         self._datasets = datasets
+        self._testing = testing
         self._artifacts = artifacts
         self._id_factory = id_factory
 
@@ -454,6 +531,142 @@ class ProcessingService:
                 # path can surface a terminal-state update failure independently.
                 pass
             raise
+
+    async def execute_reference_import(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: ExecuteReferenceImport,
+    ) -> ImportRun:
+        """Run the bounded reference adapter from an immutable, human-approved Mapping revision.
+
+        The adapter is deliberately non-production and inline for this small reference slice.
+        It uses the Dataset owner's public application port; no Processing code writes Dataset
+        tables or changes raw bytes directly.
+        """
+
+        _require(context, decision, Permission.PROCESSING_EXECUTE)
+        reason = _reason(command.change_reason)
+        mapping = self._testing.get_import_mapping_revision_for_processing(
+            context,
+            decision,
+            command.import_mapping_id,
+            command.import_mapping_revision_id,
+        )
+        mapping_content = mapping.revision.content
+        test_run = self._testing.get_test_run_revision_for_processing(
+            context,
+            decision,
+            command.test_run_id,
+            command.test_run_revision_id,
+        )
+        if test_run.record.scope != mapping.revision.record.scope:
+            raise ProcessingConflict(
+                "Import Mapping and Test Run revisions must share the same tenant scope"
+            )
+        if not test_run.content.reference_only:
+            raise ProcessingConflict(
+                "reference Import Run requires a reference Test Run revision"
+            )
+        if (
+            command.raw_asset_id != mapping_content.raw_asset_id
+            or command.raw_artifact_id != mapping_content.raw_artifact_id
+        ):
+            raise ProcessingConflict(
+                "Import Run Raw Asset and Artifact must match the approved Mapping revision"
+            )
+        scope = mapping.revision.record.scope
+        run = ImportRun(
+            id=self._id(),
+            classification=DataClassification(scope.classification),
+            test_run_id=command.test_run_id,
+            test_run_revision_id=command.test_run_revision_id,
+            raw_asset_id=command.raw_asset_id,
+            raw_artifact_id=command.raw_artifact_id,
+            import_mapping_id=command.import_mapping_id,
+            import_mapping_revision_id=command.import_mapping_revision_id,
+            mapping_sha256=mapping_content.dataset_mapping_digest,
+            importer_id=mapping_content.importer_id,
+            importer_version=mapping_content.importer_version,
+            status=ImportRunStatus.EXECUTING,
+            output_dataset_id=None,
+            output_dataset_revision_id=None,
+            failure_code=None,
+            change_reason=reason,
+            started_at=datetime.now(UTC),
+            ended_at=None,
+            created_by=context.principal.id,
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+        )
+        created = self._repository.create_import_run(
+            context=context, decision=decision, run=run
+        )
+        output_registered = False
+        try:
+            output = await self._datasets.import_reference_tensile_csv_for_processing(
+                context,
+                decision,
+                ImportReferenceTensileCsv(
+                    test_run_id=created.test_run_id,
+                    test_run_revision_id=created.test_run_revision_id,
+                    raw_asset_id=created.raw_asset_id,
+                    raw_artifact_id=created.raw_artifact_id,
+                    mapping=ReferenceTensileMapping(
+                        mapping_content.strain_column,
+                        mapping_content.stress_column,
+                        mapping_content.strain_unit,
+                        mapping_content.stress_unit,
+                    ),
+                    change_reason=created.change_reason,
+                ),
+            )
+            output_registered = True
+            output_content = output.current.content
+            if (
+                output_content.representation is not DatasetRepresentation.NORMALIZED
+                or output_content.test_run_id != created.test_run_id
+                or output_content.test_run_revision_id != created.test_run_revision_id
+                or output_content.raw_asset_id != created.raw_asset_id
+                or output_content.raw_artifact_id != created.raw_artifact_id
+                or output_content.mapping.digest != created.mapping_sha256
+            ):
+                raise ProcessingConflict(
+                    "Dataset owner output does not match the pinned Import Run inputs"
+                )
+            return self._repository.succeed_import_run(
+                context=context,
+                decision=decision,
+                run_id=created.id,
+                output_dataset_id=output.id,
+                output_dataset_revision_id=output.current.record.revision_id,
+            )
+        except Exception as error:
+            if output_registered:
+                raise ProcessingConflict(
+                    "Dataset output committed but Import Run terminal state requires reconciliation"
+                ) from error
+            try:
+                self._repository.fail_import_run(
+                    context=context,
+                    decision=decision,
+                    run_id=created.id,
+                    failure_code="reference_import_failed",
+                )
+            except Exception:
+                pass
+            raise
+
+    def get_import_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> ImportRun:
+        _require(context, decision, Permission.PROCESSING_READ)
+        return self._repository.get_import_run(
+            context=context, decision=decision, run_id=run_id
+        )
 
     def get_run(
         self,

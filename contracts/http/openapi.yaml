@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.20.0
+  version: 0.21.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1383,6 +1383,131 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Testing read is not authorized.}
         "503": {description: Testing service unavailable.}
+  /api/v1/imports:detect:
+    post:
+      operationId: detectReferenceImport
+      tags: [testing]
+      summary: Record immutable header-only evidence for a non-production reference CSV import.
+      description: >-
+        Detection reads only a verified UTF-8 text/csv Raw Artifact and always returns needs_input.
+        Suggestions are low confidence at most and never commit quantity, unit, or Mapping semantics.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/DetectionRequest"}
+      responses:
+        "201":
+          description: Immutable Detection Report recorded; a human-approved Mapping is still required.
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/ImportDetectionReportResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: The named Raw Artifact is not visible.}
+        "409": {description: The Raw Artifact is not verified or not an eligible text/csv source.}
+        "422": {description: The reference detector cannot read a valid UTF-8 header.}
+        "503": {description: Testing or immutable Artifact service unavailable.}
+  /api/v1/import-detection-reports/{detection_report_id}:
+    get:
+      operationId: getImportDetectionReport
+      tags: [testing]
+      summary: Read one immutable reference import Detection Report.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: detection_report_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable detection evidence with no automatic semantic commitment.
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/ImportDetectionReportResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+        "404": {description: No visible Detection Report matches the identifier.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/import-mappings:
+    post:
+      operationId: createReferenceImportMapping
+      tags: [testing]
+      summary: Create a stable Mapping identity with its first explicit human-approved immutable revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/CreateImportMappingRequest"}
+      responses:
+        "201":
+          description: Mapping identity and immutable approval revision created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/ImportMappingResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: No visible Detection Report matches the identifier.}
+        "409": {description: Mapping identity or immutable evidence conflicts.}
+        "422": {description: Columns or units are invalid for the reference Mapping contract.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/import-mappings/{mapping_id}:
+    get:
+      operationId: getImportMapping
+      tags: [testing]
+      summary: Read the current immutable revision of one stable import Mapping.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: mapping_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current Mapping revision and its frozen source reference.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/ImportMappingResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+        "404": {description: No visible Mapping matches the identifier.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/import-mappings/{mapping_id}/revisions:
+    post:
+      operationId: reviseReferenceImportMapping
+      tags: [testing]
+      summary: Append an immutable human-approved Mapping revision without moving its stable source identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: mapping_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/ReviseImportMappingRequest"}
+      responses:
+        "200":
+          description: Mapping revision appended with an explicit expected-head check.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-import-resources.schema.json#/$defs/ImportMappingResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: No visible Mapping or Detection Report matches the identifier.}
+        "409": {description: Expected Mapping head or stable raw-source identity conflicts.}
+        "422": {description: Columns or units are invalid for the reference Mapping contract.}
+        "503": {description: Testing service unavailable.}
   /api/v1/datasets/reference-uniaxial-tensile:import:
     post:
       operationId: importReferenceTensileDataset
@@ -1734,6 +1859,53 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Processing read is not authorized.}
         "404": {description: No visible Processing Run matches the identifier.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/imports:
+    post:
+      operationId: executeReferenceImport
+      tags: [processing]
+      summary: Import a reference CSV only from a concrete human-approved Mapping revision.
+      description: >-
+        This MVP adapter is explicitly non-production and reference_inline. It pins the Test Run,
+        Raw Asset/Artifact, and Mapping revision before delegating Dataset creation to the Dataset owner.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-import-resources.schema.json#/$defs/ExecuteReferenceImportRequest"}
+      responses:
+        "201":
+          description: Terminal Import Run with raw and normalized Dataset output references, or a failed terminal Run.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-import-resources.schema.json#/$defs/ImportRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: No visible Test Run, Mapping revision, or Raw Artifact matches the request.}
+        "409": {description: The pinned Mapping, source Artifact, or immutable Dataset output conflicts.}
+        "422": {description: The reference import request is invalid.}
+        "503": {description: Processing, Testing, Dataset, or Artifact service unavailable.}
+  /api/v1/imports/{import_run_id}:
+    get:
+      operationId: getImportRun
+      tags: [processing]
+      summary: Read one append-only reference Import Run and its concrete input/output references.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: import_run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Durable Import Run state; inputs are immutable and never follow moving heads.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-import-resources.schema.json#/$defs/ImportRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: No visible Import Run matches the identifier.}
         "503": {description: Processing service unavailable.}
   /api/v1/statistical-plans/reference-tensile-pair:
     post:

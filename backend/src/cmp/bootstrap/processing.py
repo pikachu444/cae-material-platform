@@ -12,11 +12,13 @@ from cmp.modules.processing.adapters.persistence.repository import SqlAlchemyPro
 from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
+from cmp.modules.testing.application.service import TestingService
 
 
 def build_processing_service(
     identity: IdentityServices,
     datasets: DatasetService | None,
+    testing: TestingService | None,
     artifacts: ArtifactService | None,
 ) -> ProcessingService | None:
     """Build only when the authoritative Dataset and Artifact services are available."""
@@ -25,6 +27,7 @@ def build_processing_service(
         identity.engine is None
         or identity.rls_context is None
         or datasets is None
+        or testing is None
         or artifacts is None
     ):
         return None
@@ -40,5 +43,6 @@ def build_processing_service(
             ),
         ),
         datasets=datasets,
+        testing=testing,
         artifacts=artifacts,
     )

@@ -15,6 +15,9 @@ import type {
   MaterialStateCreateInput,
   MaterialStateResponse,
   MappingReport,
+  ImportDetectionReportResponse,
+  ImportMappingResponse,
+  ImportRunResponse,
   OutlierAssessmentResponse,
   OutlierDetectionPlanResponse,
   OutlierDetectionRunResponse,
@@ -665,6 +668,52 @@ export function importReferenceTensileDataset(
   },
 ): Promise<ApiResult<DatasetResponse>> {
   return request(config, "/datasets/reference-uniaxial-tensile:import", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function detectReferenceImport(
+  config: ApiConfig,
+  input: { raw_asset_id: string; raw_artifact_id: string },
+): Promise<ApiResult<ImportDetectionReportResponse>> {
+  return request(config, "/imports:detect", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createReferenceImportMapping(
+  config: ApiConfig,
+  input: {
+    detection_report_id: string;
+    mapping_label: string;
+    strain_column: string;
+    stress_column: string;
+    strain_unit: ReferenceTensileMapping["strain_unit"];
+    stress_unit: ReferenceTensileMapping["stress_unit"];
+    change_reason: string;
+  },
+): Promise<ApiResult<ImportMappingResponse>> {
+  return request(config, "/import-mappings", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceImport(
+  config: ApiConfig,
+  input: {
+    test_run_id: string;
+    test_run_revision_id: string;
+    raw_asset_id: string;
+    raw_artifact_id: string;
+    import_mapping_id: string;
+    import_mapping_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ImportRunResponse>> {
+  return request(config, "/imports", {
     method: "POST",
     body: JSON.stringify(input),
   });

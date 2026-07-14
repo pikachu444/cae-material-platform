@@ -26,6 +26,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260715_017_T19_reference_processing.py",
         "20260716_018_T20_reference_statistics.py",
         "20260717_019_T21_reference_outlier_assessment.py",
+        "20260718_020_T11_reference_import_orchestration.py",
     ]
 
 
@@ -337,4 +338,38 @@ def test_t20_uses_explicit_statistics_qc_and_result_columns_without_eav() -> Non
     assert '"value"' not in migration
     assert "FORCE ROW LEVEL SECURITY" in migration
     assert "revisioning.reject_immutable_row_mutation()" in migration
+
+
+def test_t11_uses_explicit_detection_mapping_and_import_run_records_without_eav() -> None:
+    migration = (
+        PROJECT_ROOT
+        / "backend/migrations/versions/20260718_020_T11_reference_import_orchestration.py"
+    ).read_text(encoding="utf-8")
+
+    for table in (
+        "testing.import_detection_report",
+        "testing.import_mapping",
+        "testing.import_mapping_revision",
+        "processing.import_run",
+    ):
+        assert table in migration
+    for column in (
+        "header_columns",
+        "detection_report_id",
+        "dataset_mapping_sha256",
+        "import_mapping_revision_id",
+        "mapping_sha256",
+        "output_dataset_revision_id",
+    ):
+        assert column in migration
+    assert "needs_input" in migration
+    assert "human_confirmed" in migration
+    assert "reference_inline" in migration
+    assert "postgresql.JSONB" not in migration
+    assert "sa.JSON" not in migration
+    assert '"key"' not in migration
+    assert '"value"' not in migration
+    assert "FORCE ROW LEVEL SECURITY" in migration
+    assert "revisioning.reject_immutable_row_mutation()" in migration
+    assert "revisioning.guard_identity_head_update()" in migration
 

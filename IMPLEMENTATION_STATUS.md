@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-17`
-Foundation version: `0.20.0`
+Date: `2026-07-18`
+Foundation version: `0.21.0`
 
 ## Completed
 
@@ -28,13 +28,24 @@ Foundation version: `0.20.0`
   revisions, a State-specific specimen code, optional test temperature/crosshead speed, protected
   APIs, audit/provenance/lifecycle hooks, PostgreSQL tenant/classification FKs, RLS, and immutable
   tables. Campaign, instrument, standard, and production test-method variants remain separate work.
+- `T-11` reference subset: an immutable header-only Detection Report is created only from a verified
+  UTF-8 CSV Raw Artifact and always remains `needs_input`; a stable Import Mapping identity has
+  append-only, human-confirmed typed revisions that pin the exact Detection Report/Raw source and
+  mapping digest; a Processing Import Run pins the concrete Test Run and Mapping revisions before
+  delegating through the Dataset public application port. Explicit PostgreSQL
+  `testing.import_detection_report`, `testing.import_mapping`,
+  `testing.import_mapping_revision`, and `processing.import_run` tables enforce source/digest/output
+  consistency, RLS, indexes, and append-only transitions. The Material State workbench calls the
+  separate detect → approve → import APIs; the bounded `reference_inline` adapter is
+  non-production and not a generic production importer/plugin worker.
 - `T-12` reference subset: a user-confirmed UTF-8 reference tensile CSV mapping with explicit
   engineering strain/stress columns and limited `1`/`%` and `Pa`/`kPa`/`MPa`/`GPa` units; one stable
   Dataset identity appends raw CSV and normalized SI Parquet revisions without overwriting either;
   typed channel semantics, Raw Asset/Artifact/Test Run concrete references, raw-input provenance,
   bounded curve preview, PostgreSQL constraints/RLS, protected APIs, and deterministic regression
-  coverage. Generic importer detection, arbitrary channel schemas, and other test formats remain
-  separate work.
+  coverage. The T-11 synthetic header detector/mapping orchestration is now present, while generic
+  production importer plugins, arbitrary channel schemas, and other test formats remain separate
+  work.
 - `T-19` reference subset: an immutable one-member Selection pins one normalized reference tensile
   Dataset revision; a stable Recipe with immutable typed revisions performs only inclusive observed
   engineering-strain crop; a committed Processing Run creates a typed processed Parquet Artifact
@@ -264,25 +275,25 @@ Foundation version: `0.20.0`
 
 ## Validation result
 
-Normal command: `make ci`. This Windows environment has no `make`; its WSL/Bash fallback cannot
-start a VM service, so the equivalent locked dependency sync, lint, typecheck, architecture/contract,
-migration-SQL, pytest, and root web-check commands were executed directly. The PostgreSQL integration
-suite additionally requires `CMP_TEST_POSTGRES_DSN`.
+Normal command: `make ci`. This Windows environment has no native `make`; its available WSL/Bash
+environment does not have `uv`, so the equivalent locked dependency sync, lint, typecheck,
+architecture/contract, migration-SQL, pytest, and root web-check commands were executed directly.
+The PostgreSQL integration suite additionally requires `CMP_TEST_POSTGRES_DSN`.
 
 ```text
 Ruff: passed
-mypy strict: passed (294 source files)
+mypy strict: passed (217 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
 Alembic `upgrade head --sql`: passed
-CI-equivalent pytest: 290 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
-Root web check: build passed; Vitest: 13 passed
+CI-equivalent pytest: 305 passed, 61 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+Root web check: build passed; Vitest: 14 passed
 Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
   token tests are implemented. Docker is not installed in this Windows environment, so the
   containers and live PostgreSQL demo could not be started here.
-T-19/T-21 have unit, API integration, migration SQL, and browser-workbench regression coverage.
-T-21 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
+T-11/T-19/T-21 have unit, API integration, migration SQL, and browser-workbench regression coverage.
+T-11 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
 because CMP_TEST_POSTGRES_DSN is unavailable; migration SQL rendering is covered offline, while a
 live PostgreSQL test remains the next verification task.
 ```
@@ -292,7 +303,8 @@ live PostgreSQL test remains the next verification task.
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
 - Process/Lot/Batch genealogy, richer typed property/curve families, Test Campaign/Instrument
-  records, generic importer detection/mapping approval, and non-reference Dataset channels
+  records, production importer plugin approval, arbitrary channel schemas, and non-reference
+  Dataset channels
 - Multi-member Selection/filter semantics, resample/true-stress-strain processing, durable
   Processing Run reconciliation, calibration-specific outlier scope, larger-replicate/CI
   statistics, and calibration
@@ -313,12 +325,13 @@ live PostgreSQL test remains the next verification task.
 
 ## Next gate
 
-**Updated 2026-07-17:** the reference Test/Dataset, committed Processing, exact-grid
+**Updated 2026-07-18:** the reference Test/Dataset, committed Processing, exact-grid
 two-sample Statistics/QC, and append-only outlier-review slices are implemented. The completed
 reference Material → Property Set → IR → OpenRadioss Card path remains the product's
 second-priority CAE-use vertical slice; this T-21 work supports the separate Test Data → Statistics
-demonstration and does not replace it. The next requested sequence is T-11 importer orchestration,
-then T-23/T-24 reference calibration and candidate selection, then T-27/T-28 validation. Any
+demonstration and does not replace it. T-11 now makes the reference CSV path explicitly
+detect → human mapping approval → pinned Import Run → immutable Dataset revisions. The next requested
+sequence is T-23/T-24 reference calibration and candidate selection, then T-27/T-28 validation. Any
 expansion beyond the existing exact linear-elastic OpenRadioss mapping also requires a documented
 target/model mapping decision; it must not be silently inferred.
 
