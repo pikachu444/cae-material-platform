@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/governance/review-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "AggregateType": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+    "ReviewDecision": {"enum": ["approved", "changes_requested"]},
+    "ReviewDecisionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_decision_id", "review_request_id", "aggregate_type", "aggregate_id",
+        "revision_id", "manifest_sha256", "decision", "decided_by", "decided_at", "reason"
+      ],
+      "properties": {
+        "review_decision_id": {"$ref": "#/$defs/Uuid"},
+        "review_request_id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_type": {"$ref": "#/$defs/AggregateType"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "decision": {"$ref": "#/$defs/ReviewDecision"},
+        "decided_by": {"$ref": "#/$defs/Uuid"},
+        "decided_at": {"type": "string", "format": "date-time"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "ReviewRequestResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_request_id", "classification", "aggregate_type", "aggregate_id", "revision_id",
+        "manifest_sha256", "required_role", "requested_by", "requested_at", "reason",
+        "lifecycle_state", "decision", "links"
+      ],
+      "properties": {
+        "review_request_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {
+          "enum": ["internal", "confidential", "restricted", "export_controlled"]
+        },
+        "aggregate_type": {"$ref": "#/$defs/AggregateType"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "required_role": {"const": "domain_reviewer"},
+        "requested_by": {"$ref": "#/$defs/Uuid"},
+        "requested_at": {"type": "string", "format": "date-time"},
+        "reason": {"$ref": "#/$defs/Reason"},
+        "lifecycle_state": {
+          "enum": ["draft", "review", "changes_requested", "approved"]
+        },
+        "decision": {
+          "oneOf": [{"$ref": "#/$defs/ReviewDecisionResponse"}, {"type": "null"}]
+        },
+        "links": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    },
+    "ReviewRequestListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ReviewRequestResponse"}
+        }
+      }
+    },
+    "CreateReviewRequestRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "aggregate_type", "aggregate_id", "revision_id", "manifest_sha256", "reason"
+      ],
+      "properties": {
+        "classification": {
+          "enum": ["internal", "confidential", "restricted", "export_controlled"]
+        },
+        "aggregate_type": {"$ref": "#/$defs/AggregateType"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "CreateReviewDecisionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_manifest_sha256", "decision", "reason"],
+      "properties": {
+        "expected_manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "decision": {"$ref": "#/$defs/ReviewDecision"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    }
+  }
+}

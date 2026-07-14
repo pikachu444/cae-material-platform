@@ -300,6 +300,10 @@ Release 전 자동 검사한다.
     terminal Result Manifest and experimental Selection revision, generates separate normalized
     response, numerical-health-report, and comparison-result Artifacts, and records their digests
     without changing the Run, Manifest, native Artifact, source Dataset, IR, Card, or a prior
-    result. Its pass/fail/not-evaluated value is an explicit reference profile outcome, never a
-    replacement for approval or release provenance.
+   result. Its pass/fail/not-evaluated value is an explicit reference profile outcome, never a
+   replacement for approval or release provenance.
+12. a T-29 Review Request pins one immutable aggregate revision and manifest digest. A Review
+    Decision is append-only, records the separated reviewer and exact digest, advances the shared
+    lifecycle projection transactionally, and never mutates the candidate. `changes_requested`
+    applies only to that revision; resubmission requires a newly created revision.
 

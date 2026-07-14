@@ -962,3 +962,38 @@ def test_reference_validation_result_contract_and_runtime_expose_typed_interpret
         curve["required"]
     )
     assert "validation_result" in run["required"]
+
+
+def test_review_contract_and_runtime_expose_digest_pinned_governance_flow() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/review-requests": {
+            "post": "createReviewRequest",
+            "get": "listReviewRequests",
+        },
+        "/api/v1/review-requests/{review_request_id}": {"get": "getReviewRequest"},
+        "/api/v1/review-requests/{review_request_id}/decisions": {
+            "post": "createReviewDecision"
+        },
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = PROJECT_ROOT / "contracts/governance/review-resources.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    serialized = json.dumps(schema)
+    runtime_schemas = runtime["components"]["schemas"]
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+    assert '"manifest_sha256"' in serialized
+    assert '"required_role": {"const": "domain_reviewer"}' in serialized
+    assert {"review_request_id", "manifest_sha256", "lifecycle_state", "decision"}.issubset(
+        runtime_schemas["ReviewRequestResponse"]["required"]
+    )
+    assert {"expected_manifest_sha256", "decision", "reason"}.issubset(
+        runtime_schemas["ReviewDecisionCreateRequest"]["required"]
+    )

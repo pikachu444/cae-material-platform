@@ -31,6 +31,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260720_022_T24_candidate_selection_promotion.py",
         "20260721_023_T27_validation_template_runner.py",
         "20260722_024_T28_validation_result_interpretation.py",
+        "20260723_025_T29_review_lifecycle.py",
     ]
 
 

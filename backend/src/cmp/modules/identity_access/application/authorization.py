@@ -115,6 +115,8 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
             Permission.EXPORT_READ,
             Permission.EXPORT_EXECUTE,
             Permission.CALIBRATION_EXECUTE,
+            Permission.REVIEW_REQUEST,
+            Permission.REVIEW_READ,
             Permission.JOB_READ,
             Permission.JOB_SUBMIT,
             Permission.JOB_CONTROL,
@@ -135,6 +137,8 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
             Permission.EXPORT_EXECUTE,
             Permission.VALIDATION_READ,
             Permission.VALIDATION_EXECUTE,
+            Permission.REVIEW_REQUEST,
+            Permission.REVIEW_READ,
             Permission.JOB_READ,
             Permission.JOB_SUBMIT,
             Permission.JOB_CONTROL,
@@ -176,7 +180,17 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
 }
 
 _MODIFYING_OPERATIONS = frozenset(
-    {"activate", "control", "decide", "execute", "manage", "publish", "submit", "write"}
+    {
+        "activate",
+        "control",
+        "decide",
+        "execute",
+        "manage",
+        "publish",
+        "request",
+        "submit",
+        "write",
+    }
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
     # Reference import detection reads the verified immutable raw artifact before

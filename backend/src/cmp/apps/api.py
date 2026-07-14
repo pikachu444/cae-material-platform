@@ -23,6 +23,7 @@ from cmp.bootstrap.modeling import (
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import build_processing_service
 from cmp.bootstrap.provenance import build_provenance_services
+from cmp.bootstrap.review_release import build_review_service
 from cmp.bootstrap.security import (
     IdentityServices,
     build_demo_identity_services,
@@ -66,6 +67,8 @@ from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
 from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
+from cmp.modules.review_release.adapters.api.review import install_review_api
+from cmp.modules.review_release.application.service import ReviewService
 from cmp.modules.statistics.adapters.api.statistics import install_statistics_api
 from cmp.modules.statistics.application.service import StatisticsService
 from cmp.modules.testing.adapters.api.testing import install_testing_api
@@ -106,6 +109,7 @@ def create_app(
     candidate_selection_service: CandidateSelectionService | None = None,
     solver_card_service: SolverCardService | None = None,
     validation_service: ReferenceValidationService | None = None,
+    review_service: ReviewService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -360,6 +364,21 @@ def create_app(
             services.authorization, Permission.VALIDATION_EXECUTE
         ),
     )
+    resolved_review = review_service or build_review_service(services)
+    install_review_api(
+        application,
+        service=resolved_review,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.REVIEW_READ
+        ),
+        request_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.REVIEW_REQUEST
+        ),
+        decide_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.REVIEW_DECIDE
+        ),
+    )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
@@ -373,6 +392,7 @@ def create_app(
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
     application.state.validation_service = resolved_validation
+    application.state.review_service = resolved_review
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)
 
