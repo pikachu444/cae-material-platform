@@ -1222,6 +1222,28 @@ dd {
   font-size: 10px;
 }
 
+.replicate-statistics-workbench {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.replicate-statistics-plot polygon.confidence-band {
+  fill: rgb(50 150 137 / 20%);
+  stroke: none;
+}
+
+.replicate-statistics-plot polyline.statistical-mean {
+  stroke: #258b80;
+  stroke-width: 3;
+}
+
+.replicate-statistics-plot polyline.observed-range {
+  stroke: #718788;
+  stroke-dasharray: 7 5;
+  stroke-width: 1.5;
+}
+
 .reference-chip,
 .mapping-status {
   display: inline-flex;
