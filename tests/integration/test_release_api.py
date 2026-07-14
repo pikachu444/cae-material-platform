@@ -19,9 +19,17 @@ from cmp.modules.review_release.adapters.api.release import install_release_api
 from cmp.modules.review_release.application.release_service import ReleaseService
 from cmp.modules.review_release.domain.release import (
     CreateRelease,
+    RecordReleaseUsage,
+    ReleaseImpactRecord,
+    ReleaseLifecycleState,
     ReleaseManifestRecord,
     ReleaseRecord,
     ReleaseState,
+    ReleaseTransitionKind,
+    ReleaseTransitionRecord,
+    ReleaseUsageRecord,
+    SupersedeRelease,
+    WithdrawRelease,
     candidate_manifest_sha256,
 )
 from fastapi import FastAPI, HTTPException, Request
@@ -105,6 +113,10 @@ def _command() -> CreateRelease:
 class MemoryReleaseRepository:
     def __init__(self) -> None:
         self.value: ReleaseRecord | None = None
+        self.usages: list[ReleaseUsageRecord] = []
+        self.successors: dict[UUID, UUID] = {}
+        self.predecessors: dict[UUID, UUID] = {}
+        self.transitions: list[ReleaseTransitionRecord] = []
 
     def create(self, **kwargs: object) -> ReleaseRecord:
         command = kwargs["command"]
@@ -165,11 +177,79 @@ class MemoryReleaseRepository:
     def list(self, **kwargs: object) -> tuple[ReleaseRecord, ...]:
         return (self.value,) if self.value else ()
 
+    def record_usage(self, **kwargs: object) -> ReleaseUsageRecord:
+        command = kwargs["command"]
+        assert isinstance(command, RecordReleaseUsage)
+        assert self.value is not None
+        if self.value.lifecycle_state is not ReleaseLifecycleState.RELEASED:
+            raise RuntimeError("release is terminal")
+        usage = ReleaseUsageRecord(
+            id=kwargs["usage_id"],
+            release_id=self.value.id,
+            organization_id=ORG,
+            project_id=PROJECT,
+            classification=self.value.classification,
+            usage_kind=command.usage_kind,
+            used_by=kwargs["actor_id"],
+            used_at=kwargs["occurred_at"],
+            reason=command.reason,
+        )
+        self.usages.append(usage)
+        return usage
+
+    def supersede(self, **kwargs: object) -> ReleaseRecord:
+        command = kwargs["command"]
+        assert isinstance(command, SupersedeRelease)
+        assert self.value is not None
+        if self.value.id != kwargs["release_id"]:
+            raise KeyError("release")
+        self.value = replace(self.value, lifecycle_state=ReleaseLifecycleState.SUPERSEDED)
+        self.successors[self.value.id] = command.successor_release_id
+        self.predecessors[command.successor_release_id] = self.value.id
+        return self.value
+
+    def withdraw(self, **kwargs: object) -> ReleaseRecord:
+        command = kwargs["command"]
+        assert isinstance(command, WithdrawRelease)
+        assert self.value is not None
+        transition = ReleaseTransitionRecord(
+            id=kwargs["transition_id"],
+            release_id=self.value.id,
+            organization_id=ORG,
+            project_id=PROJECT,
+            classification=self.value.classification,
+            kind=ReleaseTransitionKind.WITHDRAW,
+            from_state=ReleaseLifecycleState.RELEASED,
+            to_state=ReleaseLifecycleState.WITHDRAWN,
+            successor_release_id=None,
+            reason=command.reason,
+            occurred_at=kwargs["occurred_at"],
+            occurred_by=kwargs["actor_id"],
+        )
+        self.transitions.append(transition)
+        self.value = replace(self.value, lifecycle_state=ReleaseLifecycleState.WITHDRAWN)
+        return self.value
+
+    def impact(self, **kwargs: object) -> ReleaseImpactRecord:
+        assert self.value is not None
+        return ReleaseImpactRecord(
+            release=self.value,
+            predecessor_release_id=self.predecessors.get(self.value.id),
+            successor_release_id=self.successors.get(self.value.id),
+            usages=tuple(self.usages),
+            transitions=tuple(self.transitions),
+            warning=(
+                "Release has been withdrawn; do not use it for new solver runs."
+                if self.value.lifecycle_state is ReleaseLifecycleState.WITHDRAWN
+                else None
+            ),
+        )
+
 
 def _app(repository: MemoryReleaseRepository, *, allow_read: bool = True) -> FastAPI:
     service = ReleaseService(
         repository=repository,
-        id_factory=iter((_uid(30), _uid(31), _uid(32))).__next__,
+        id_factory=iter((_uid(30), _uid(31), _uid(32), _uid(33), _uid(34), _uid(35))).__next__,
         clock=lambda: NOW,
     )
     app = FastAPI()
@@ -238,3 +318,40 @@ async def test_release_download_rejects_unauthorized_read_before_package_lookup(
     ) as client:
         response = await client.get(f"/api/v1/releases/{_uid(30)}/download")
         assert response.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_release_usage_withdrawal_and_impact_preserve_terminal_history() -> None:
+    repository = MemoryReleaseRepository()
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=_app(repository)),
+        base_url="http://test",
+    ) as client:
+        body = {field: str(getattr(_command(), field)) for field in _command().__dataclass_fields__}
+        body["classification"] = "internal"
+        body["review_manifest_sha256"] = candidate_manifest_sha256(_command())
+        created = await client.post("/api/v1/releases", json=body)
+        release_id = created.json()["release_id"]
+
+        usage = await client.post(
+            f"/api/v1/releases/{release_id}/usage",
+            json={"usage_kind": "consume", "reason": "Explicit solver input selection"},
+        )
+        assert usage.status_code == 201
+
+        withdrawn = await client.post(
+            f"/api/v1/releases/{release_id}/withdraw",
+            json={"reason": "Reference evidence withdrawn"},
+        )
+        assert withdrawn.status_code == 200
+        assert withdrawn.json()["lifecycle_state"] == "withdrawn"
+
+        impact = await client.get(f"/api/v1/releases/{release_id}/impact")
+        assert impact.status_code == 200
+        assert impact.json()["release"]["lifecycle_state"] == "withdrawn"
+        assert impact.json()["warning"]
+        assert len(impact.json()["usages"]) == 1
+        assert len(impact.json()["transitions"]) == 1
+
+        download = await client.get(f"/api/v1/releases/{release_id}/download")
+        assert download.status_code == 409

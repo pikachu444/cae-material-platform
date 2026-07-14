@@ -16,10 +16,16 @@ from cmp.modules.review_release.application.release_service import ReleaseServic
 from cmp.modules.review_release.domain.release import (
     CreateRelease,
     InvalidRelease,
+    RecordReleaseUsage,
     ReleaseConflict,
+    ReleaseImpactRecord,
+    ReleaseLifecycleState,
     ReleaseManifestRecord,
     ReleaseNotFound,
     ReleaseRecord,
+    ReleaseUsageKind,
+    SupersedeRelease,
+    WithdrawRelease,
 )
 
 type Dependency = Callable[..., object]
@@ -56,6 +62,38 @@ class ReleaseCreateRequest(BaseModel):
 
     def to_domain(self) -> CreateRelease:
         return CreateRelease(**self.model_dump())
+
+
+class SupersedeReleaseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    successor_release_id: UUID
+    reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+    def to_domain(self) -> SupersedeRelease:
+        return SupersedeRelease(**self.model_dump())
+
+
+class WithdrawReleaseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+    def to_domain(self) -> WithdrawRelease:
+        return WithdrawRelease(**self.model_dump())
+
+
+class RecordReleaseUsageRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    usage_kind: Literal["consume"]
+    reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+    def to_domain(self) -> RecordReleaseUsage:
+        return RecordReleaseUsage(
+            usage_kind=ReleaseUsageKind(self.usage_kind),
+            reason=self.reason,
+        )
 
 
 class ReleaseManifestResponse(BaseModel):
@@ -137,6 +175,7 @@ class ReleaseResponse(BaseModel):
     release_code: str
     title: str
     channel: Literal["reference"]
+    lifecycle_state: Literal["released", "superseded", "withdrawn"]
     created_at: str
     created_by: UUID
     manifest: ReleaseManifestResponse
@@ -150,12 +189,14 @@ class ReleaseResponse(BaseModel):
             release_code=value.release_code,
             title=value.title,
             channel=cast(Literal["reference"], value.channel),
+            lifecycle_state=value.lifecycle_state.value,
             created_at=value.created_at.isoformat(),
             created_by=value.created_by,
             manifest=ReleaseManifestResponse.from_domain(value.manifest),
             links={
                 "self": f"/api/v1/releases/{value.id}",
                 "download": f"/api/v1/releases/{value.id}/download",
+                "impact": f"/api/v1/releases/{value.id}/impact",
             },
         )
 
@@ -164,6 +205,80 @@ class ReleaseListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     items: tuple[ReleaseResponse, ...]
+
+
+class ReleaseUsageResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    usage_id: UUID
+    release_id: UUID
+    usage_kind: Literal["download", "consume"]
+    used_by: UUID
+    used_at: str
+    reason: str
+
+    @classmethod
+    def from_domain(cls, value: Any) -> ReleaseUsageResponse:
+        return cls(
+            usage_id=value.id,
+            release_id=value.release_id,
+            usage_kind=cast(Literal["download", "consume"], value.usage_kind.value),
+            used_by=value.used_by,
+            used_at=value.used_at.isoformat(),
+            reason=value.reason,
+        )
+
+
+class ReleaseTransitionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    transition_id: UUID
+    release_id: UUID
+    kind: Literal["supersede", "withdraw"]
+    from_state: Literal["released"]
+    to_state: Literal["superseded", "withdrawn"]
+    successor_release_id: UUID | None
+    reason: str
+    occurred_at: str
+    occurred_by: UUID
+
+    @classmethod
+    def from_domain(cls, value: Any) -> ReleaseTransitionResponse:
+        return cls(
+            transition_id=value.id,
+            release_id=value.release_id,
+            kind=cast(Literal["supersede", "withdraw"], value.kind.value),
+            from_state=cast(Literal["released"], value.from_state.value),
+            to_state=cast(Literal["superseded", "withdrawn"], value.to_state.value),
+            successor_release_id=value.successor_release_id,
+            reason=value.reason,
+            occurred_at=value.occurred_at.isoformat(),
+            occurred_by=value.occurred_by,
+        )
+
+
+class ReleaseImpactResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    release: ReleaseResponse
+    predecessor_release_id: UUID | None
+    successor_release_id: UUID | None
+    usages: tuple[ReleaseUsageResponse, ...]
+    transitions: tuple[ReleaseTransitionResponse, ...]
+    warning: str | None
+
+    @classmethod
+    def from_domain(cls, value: ReleaseImpactRecord) -> ReleaseImpactResponse:
+        return cls(
+            release=ReleaseResponse.from_domain(value.release),
+            predecessor_release_id=value.predecessor_release_id,
+            successor_release_id=value.successor_release_id,
+            usages=tuple(ReleaseUsageResponse.from_domain(item) for item in value.usages),
+            transitions=tuple(
+                ReleaseTransitionResponse.from_domain(item) for item in value.transitions
+            ),
+            warning=value.warning,
+        )
 
 
 class ReleaseProblem(BaseModel):
@@ -355,6 +470,110 @@ def install_release_api(
             raise _translate(context, error) from error
         return ReleaseResponse.from_domain(value)
 
+    @application.post(
+        "/api/v1/releases/{release_id}/supersede",
+        operation_id="supersedeRelease",
+        response_model=ReleaseResponse,
+        status_code=status.HTTP_200_OK,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(publish_dependency)],
+        tags=["governance", "release"],
+        summary="Mark a released package superseded by an explicit successor Release.",
+    )
+    def supersede_release(
+        release_id: UUID, body: SupersedeReleaseRequest, request: Request
+    ) -> ReleaseResponse:
+        context = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.supersede(
+                context,
+                request.state.authorization_decision,
+                release_id,
+                body.to_domain(),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ReleaseResponse.from_domain(value)
+
+    @application.post(
+        "/api/v1/releases/{release_id}/withdraw",
+        operation_id="withdrawRelease",
+        response_model=ReleaseResponse,
+        status_code=status.HTTP_200_OK,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(publish_dependency)],
+        tags=["governance", "release"],
+        summary="Withdraw a released package without deleting its immutable artifact.",
+    )
+    def withdraw_release(
+        release_id: UUID, body: WithdrawReleaseRequest, request: Request
+    ) -> ReleaseResponse:
+        context = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.withdraw(
+                context,
+                request.state.authorization_decision,
+                release_id,
+                body.to_domain(),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ReleaseResponse.from_domain(value)
+
+    @application.post(
+        "/api/v1/releases/{release_id}/usage",
+        operation_id="recordReleaseUsage",
+        response_model=ReleaseUsageResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["governance", "release"],
+        summary="Record an explicit consume event for a released package.",
+    )
+    def record_release_usage(
+        release_id: UUID, body: RecordReleaseUsageRequest, request: Request
+    ) -> ReleaseUsageResponse:
+        context = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.record_usage(
+                context,
+                request.state.authorization_decision,
+                release_id,
+                body.to_domain(),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ReleaseUsageResponse.from_domain(value)
+
+    @application.get(
+        "/api/v1/releases/{release_id}/impact",
+        operation_id="getReleaseImpact",
+        response_model=ReleaseImpactResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["governance", "release"],
+        summary="Read lifecycle replacement links, usage facts, and explicit warnings.",
+    )
+    def get_release_impact(release_id: UUID, request: Request) -> ReleaseImpactResponse:
+        context = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.impact(
+                context,
+                request.state.authorization_decision,
+                release_id,
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ReleaseImpactResponse.from_domain(value)
+
     @application.get(
         "/api/v1/releases/{release_id}/download",
         operation_id="downloadRelease",
@@ -372,6 +591,23 @@ def install_release_api(
                 context,
                 request.state.authorization_decision,
                 release_id,
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        if value.lifecycle_state is not ReleaseLifecycleState.RELEASED:
+            raise _translate(
+                context,
+                ReleaseConflict("only a released package can be downloaded"),
+            )
+        try:
+            service.record_usage(
+                context,
+                request.state.authorization_decision,
+                release_id,
+                RecordReleaseUsage(
+                    usage_kind=ReleaseUsageKind.DOWNLOAD,
+                    reason="Authenticated Release package download",
+                ),
             )
         except Exception as error:
             raise _translate(context, error) from error

@@ -670,3 +670,13 @@ and package Artifact rows; fail-closed candidate/review/validation/mapping check
 create/list/read/download API; React Release workbench; and unit, integration, contract, and
 migration regression coverage. The channel is intentionally `reference` only; supersede/withdraw
 and production publication remain T-31+.
+
+### T-31 implementation note (2026-07-25)
+
+Implemented the bounded lifecycle/impact slice: explicit tenant-scoped lifecycle projection,
+append-only supersede/withdraw events, typed download/consume usage facts, protected lifecycle and
+impact APIs, and Release workbench controls. A supersede requires an explicit same-scope successor;
+withdraw has no successor. The immutable Release, Manifest, package, and downstream revisions are
+never updated or deleted. Terminal package download/consume is rejected and impact reports expose
+links, transition history, usage, and warnings. Automatic PLM replacement and production
+publication remain out of scope.

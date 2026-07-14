@@ -6,7 +6,7 @@ immutable content Artifact, typed provenance and bounded lineage, append-only au
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
 
-Version: `0.25.0`
+Version: `0.26.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -497,3 +497,14 @@ snapshot. The protected API and React workbench expose create/list/read/download
 the package stores explicit component identities and SHA-256 digests. Draft, cross-tenant,
 unsupported, approximated, stale, or partially approved inputs are rejected. Supersede/withdraw
 and production object-store publication remain outside this reference channel.
+
+## T-31 Release lifecycle and impact
+
+The reference Release channel now keeps lifecycle state in an append-only projection and records
+each supersede/withdraw transition as an immutable event. A supersede operation requires an
+explicit successor in the same organization/project/classification; a withdraw operation has no
+successor. The original Release Manifest and package are never edited or deleted. Authenticated
+downloads and explicit consume actions append typed usage facts. The protected impact endpoint and
+Release workbench show predecessor/successor links, transition history, usage, and warnings, and
+terminal Releases cannot be downloaded or consumed for new work. Automatic PLM replacement and
+production publication are not part of this bounded reference slice.

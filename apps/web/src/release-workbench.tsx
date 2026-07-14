@@ -4,9 +4,17 @@ import {
   type ApiConfig,
   createRelease,
   downloadRelease,
+  getReleaseImpact,
   listReleases,
+  supersedeRelease,
+  withdrawRelease,
 } from "./api";
-import type { DataClassification, ReleaseCreateInput, ReleaseResponse } from "./types";
+import type {
+  DataClassification,
+  ReleaseCreateInput,
+  ReleaseImpactResponse,
+  ReleaseResponse,
+} from "./types";
 
 const classifications: DataClassification[] = [
   "internal",
@@ -91,6 +99,10 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
   const [busy, setBusy] = useState(false);
   const [loadingRecent, setLoadingRecent] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+  const [successorReleaseId, setSuccessorReleaseId] = useState("");
+  const [transitionReason, setTransitionReason] = useState("Replace this release with the approved successor");
+  const [impact, setImpact] = useState<ReleaseImpactResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   function setTextField(field: TextField, value: string): void {
@@ -109,6 +121,7 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
         reason: input.reason.trim(),
       });
       setSelected(result.data);
+      setImpact(null);
       setReleases((items) => [result.data, ...items.filter((item) => item.release_id !== result.data.release_id)]);
     } catch (cause) {
       setError(errorMessage(cause));
@@ -131,7 +144,7 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
   }
 
   async function downloadSelected(): Promise<void> {
-    if (!selected) return;
+    if (!selected || selected.lifecycle_state !== "released") return;
     setDownloading(true);
     setError(null);
     try {
@@ -146,6 +159,57 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
       setError(errorMessage(cause));
     } finally {
       setDownloading(false);
+    }
+  }
+
+  function updateRelease(value: ReleaseResponse): void {
+    setSelected(value);
+    setReleases((items) => [value, ...items.filter((item) => item.release_id !== value.release_id)]);
+  }
+
+  async function supersedeSelected(): Promise<void> {
+    if (!selected || selected.lifecycle_state !== "released" || !successorReleaseId.trim()) return;
+    setTransitioning(true);
+    setError(null);
+    try {
+      const result = await supersedeRelease(config, selected.release_id, {
+        successor_release_id: successorReleaseId.trim(),
+        reason: transitionReason.trim(),
+      });
+      updateRelease(result.data);
+      setImpact(null);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setTransitioning(false);
+    }
+  }
+
+  async function withdrawSelected(): Promise<void> {
+    if (!selected || selected.lifecycle_state !== "released") return;
+    setTransitioning(true);
+    setError(null);
+    try {
+      const result = await withdrawRelease(config, selected.release_id, {
+        reason: transitionReason.trim(),
+      });
+      updateRelease(result.data);
+      setImpact(null);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setTransitioning(false);
+    }
+  }
+
+  async function loadImpact(): Promise<void> {
+    if (!selected) return;
+    setError(null);
+    try {
+      const result = await getReleaseImpact(config, selected.release_id);
+      setImpact(result.data);
+    } catch (cause) {
+      setError(errorMessage(cause));
     }
   }
 
@@ -210,7 +274,7 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
         <article className="release-result">
           <div className="section-heading compact-heading">
             <div>
-              <p className="eyebrow">Released · {selected.channel}</p>
+              <p className="eyebrow">{selected.lifecycle_state} · {selected.channel}</p>
               <h3>{selected.title}</h3>
             </div>
             <span className="revision-chip">{selected.release_code}</span>
@@ -219,10 +283,55 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
             <div><dt>Release</dt><dd>{shortId(selected.release_id)}</dd></div>
             <div><dt>Manifest</dt><dd>{shortId(selected.manifest.manifest_sha256)}</dd></div>
             <div><dt>Package</dt><dd>{selected.manifest.package_size_bytes.toLocaleString()} bytes</dd></div>
+            <div><dt>Lifecycle</dt><dd>{selected.lifecycle_state}</dd></div>
           </dl>
-          <button className="button secondary" type="button" onClick={() => void downloadSelected()} disabled={downloading}>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={() => void downloadSelected()}
+            disabled={downloading || selected.lifecycle_state !== "released"}
+          >
             {downloading ? "Preparing package…" : "Download release package"}
           </button>
+          <div className="form-actions">
+            <button className="button secondary" type="button" onClick={() => void loadImpact()}>
+              View impact
+            </button>
+          </div>
+          {selected.lifecycle_state === "released" ? (
+            <div className="release-transition-panel">
+              <label>
+                Successor Release ID
+                <input
+                  value={successorReleaseId}
+                  onChange={(event) => setSuccessorReleaseId(event.target.value)}
+                  placeholder="UUID for explicit supersede"
+                />
+              </label>
+              <label>
+                Transition reason
+                <input value={transitionReason} onChange={(event) => setTransitionReason(event.target.value)} />
+              </label>
+              <div className="form-actions">
+                <button className="button secondary" type="button" onClick={() => void supersedeSelected()} disabled={transitioning || !successorReleaseId.trim()}>
+                  Supersede
+                </button>
+                <button className="button danger" type="button" onClick={() => void withdrawSelected()} disabled={transitioning}>
+                  Withdraw
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="warning-notice">This Release is terminal. Its immutable package remains available for audit, but it cannot be downloaded or consumed for new work.</p>
+          )}
+          {impact ? (
+            <div className="release-impact" aria-live="polite">
+              <p className="eyebrow">Lifecycle impact</p>
+              {impact.warning ? <p className="warning-notice">{impact.warning}</p> : <p className="muted">No lifecycle warning.</p>}
+              <p className="muted">Predecessor: {impact.predecessor_release_id ? shortId(impact.predecessor_release_id) : "none"} · Successor: {impact.successor_release_id ? shortId(impact.successor_release_id) : "none"}</p>
+              <p className="muted">Recorded usage events: {impact.usages.length} · Lifecycle transitions: {impact.transitions.length}</p>
+            </div>
+          ) : null}
         </article>
       ) : null}
       {releases.length ? (

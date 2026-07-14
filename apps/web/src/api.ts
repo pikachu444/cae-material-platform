@@ -50,8 +50,13 @@ import type {
   ReviewRequestListResponse,
   ReviewRequestResponse,
   ReleaseCreateInput,
+  ReleaseImpactResponse,
   ReleaseListResponse,
   ReleaseResponse,
+  ReleaseUsageResponse,
+  RecordReleaseUsageInput,
+  SupersedeReleaseInput,
+  WithdrawReleaseInput,
   SpecimenResponse,
   TestMethodResponse,
   TestRunResponse,
@@ -624,6 +629,46 @@ export function getRelease(
   releaseId: string,
 ): Promise<ApiResult<ReleaseResponse>> {
   return request(config, `/releases/${encodeURIComponent(releaseId)}`);
+}
+
+export function supersedeRelease(
+  config: ApiConfig,
+  releaseId: string,
+  input: SupersedeReleaseInput,
+): Promise<ApiResult<ReleaseResponse>> {
+  return request(config, `/releases/${encodeURIComponent(releaseId)}/supersede`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function withdrawRelease(
+  config: ApiConfig,
+  releaseId: string,
+  input: WithdrawReleaseInput,
+): Promise<ApiResult<ReleaseResponse>> {
+  return request(config, `/releases/${encodeURIComponent(releaseId)}/withdraw`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function recordReleaseUsage(
+  config: ApiConfig,
+  releaseId: string,
+  input: RecordReleaseUsageInput,
+): Promise<ApiResult<ReleaseUsageResponse>> {
+  return request(config, `/releases/${encodeURIComponent(releaseId)}/usage`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getReleaseImpact(
+  config: ApiConfig,
+  releaseId: string,
+): Promise<ApiResult<ReleaseImpactResponse>> {
+  return request(config, `/releases/${encodeURIComponent(releaseId)}/impact`);
 }
 
 export async function downloadRelease(

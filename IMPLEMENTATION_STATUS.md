@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-24`
-Foundation version: `0.25.0`
+Date: `2026-07-25`
+Foundation version: `0.26.0`
 
 ## Completed
 
@@ -447,6 +447,14 @@ Validation Result, approved Review digest, and provenance snapshot by explicit I
 digests; cross-tenant, stale, draft, unsupported, approximated, or partial inputs fail closed.
 The API and dashboard expose the package, while supersede/withdraw and production publication
 remain T-31+ scope.
+
+**Update 2026-07-25:** T-31 now adds an append-only Release lifecycle projection and transition
+event relation. A released package can be explicitly superseded by a same-scope successor or
+withdrawn; the immutable Release, Manifest, and package rows remain untouched. Download and
+explicit consume operations append typed usage facts, while the impact API reports predecessor,
+successor, transition history, usage, and terminal warnings. The React Release workbench exposes
+the lifecycle controls and prevents terminal download. Automatic PLM replacement, production
+publication, and solver reruns remain outside this bounded reference slice.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

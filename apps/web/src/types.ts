@@ -79,10 +79,55 @@ export interface ReleaseResponse {
   release_code: string;
   title: string;
   channel: "reference";
+  lifecycle_state: "released" | "superseded" | "withdrawn";
   created_at: string;
   created_by: string;
   manifest: ReleaseManifestResponse;
   links: Record<string, string>;
+}
+
+export interface ReleaseUsageResponse {
+  usage_id: string;
+  release_id: string;
+  usage_kind: "download" | "consume";
+  used_by: string;
+  used_at: string;
+  reason: string;
+}
+
+export interface ReleaseTransitionResponse {
+  transition_id: string;
+  release_id: string;
+  kind: "supersede" | "withdraw";
+  from_state: "released";
+  to_state: "superseded" | "withdrawn";
+  successor_release_id: string | null;
+  reason: string;
+  occurred_at: string;
+  occurred_by: string;
+}
+
+export interface ReleaseImpactResponse {
+  release: ReleaseResponse;
+  predecessor_release_id: string | null;
+  successor_release_id: string | null;
+  usages: ReleaseUsageResponse[];
+  transitions: ReleaseTransitionResponse[];
+  warning: string | null;
+}
+
+export interface SupersedeReleaseInput {
+  successor_release_id: string;
+  reason: string;
+}
+
+export interface WithdrawReleaseInput {
+  reason: string;
+}
+
+export interface RecordReleaseUsageInput {
+  usage_kind: "consume";
+  reason: string;
 }
 
 export interface ReleaseListResponse {

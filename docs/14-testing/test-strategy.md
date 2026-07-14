@@ -178,6 +178,32 @@ Production model/solver가 `TBD`인 동안 synthetic exporter fixture만 둔다.
 6. syntax checker/dry-run hook
 7. licensed solver smoke/virtual specimen reference
 
+## T-31 PostgreSQL integration prerequisites
+
+The PostgreSQL-marked suites are intentionally conditional. They are skipped when
+`CMP_TEST_POSTGRES_DSN` is not set; a skipped result is not a passing database verification.
+The DSN must point to a reachable PostgreSQL 16+ server and be accepted by SQLAlchemy/psycopg,
+for example:
+
+```powershell
+$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://admin:password@localhost:5432/postgres"
+uv run pytest -m postgresql tests/integration
+```
+
+The test role needs permission to create an isolated temporary database and application role.
+The migration owner must be able to create the schemas, RLS helper functions, triggers, and
+extensions used by the repository. Tests then migrate the isolated database to `head`, run the
+non-owner RLS paths, and remove the temporary database. Run them only against a disposable
+PostgreSQL instance; no Docker or production database is required by the code, but one reachable
+server is required to execute these tests. The current development host has no `psql`,
+`pg_isready`, Docker, or PostgreSQL service, so these suites remain skipped until that external
+prerequisite is supplied.
+
+T-31 additionally verifies append-only release lifecycle events, terminal projections, explicit
+usage facts, successor/predecessor impact, and tenant-scoped RLS. A withdrawn or superseded
+release is never deleted or silently replaced, and package download/consume is rejected after the
+terminal transition.
+
 ### 7.4 Volatile field 처리
 
 timestamp, absolute path, random ID처럼 의미 없는 field는 exporter가 deterministic mode에서 제거하는 것이 우선이다. 제거할 수 없으면 `golden-normalization-policy`에 path와 이유를 allowlist한다.

@@ -9,6 +9,9 @@
     "Classification": {
       "enum": ["internal", "confidential", "restricted", "export_controlled"]
     },
+    "ReleaseLifecycleState": {
+      "enum": ["released", "superseded", "withdrawn"]
+    },
     "ReleaseManifestResponse": {
       "type": "object",
       "additionalProperties": false,
@@ -59,7 +62,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "release_id", "classification", "release_code", "title", "channel", "created_at",
+        "release_id", "classification", "release_code", "title", "channel", "lifecycle_state", "created_at",
         "created_by", "manifest", "links"
       ],
       "properties": {
@@ -68,6 +71,7 @@
         "release_code": {"$ref": "#/$defs/ReleaseCode"},
         "title": {"type": "string", "minLength": 1, "maxLength": 255},
         "channel": {"const": "reference"},
+        "lifecycle_state": {"$ref": "#/$defs/ReleaseLifecycleState"},
         "created_at": {"type": "string", "format": "date-time"},
         "created_by": {"$ref": "#/$defs/Uuid"},
         "manifest": {"$ref": "#/$defs/ReleaseManifestResponse"},
@@ -79,6 +83,75 @@
       "additionalProperties": false,
       "required": ["items"],
       "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ReleaseResponse"}}}
+    },
+    "SupersedeReleaseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["successor_release_id", "reason"],
+      "properties": {
+        "successor_release_id": {"$ref": "#/$defs/Uuid"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "WithdrawReleaseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": {"reason": {"$ref": "#/$defs/Reason"}}
+    },
+    "RecordReleaseUsageRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["usage_kind", "reason"],
+      "properties": {
+        "usage_kind": {"const": "consume"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "ReleaseUsageResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["usage_id", "release_id", "usage_kind", "used_by", "used_at", "reason"],
+      "properties": {
+        "usage_id": {"$ref": "#/$defs/Uuid"},
+        "release_id": {"$ref": "#/$defs/Uuid"},
+        "usage_kind": {"enum": ["download", "consume"]},
+        "used_by": {"$ref": "#/$defs/Uuid"},
+        "used_at": {"type": "string", "format": "date-time"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "ReleaseTransitionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transition_id", "release_id", "kind", "from_state", "to_state",
+        "successor_release_id", "reason", "occurred_at", "occurred_by"
+      ],
+      "properties": {
+        "transition_id": {"$ref": "#/$defs/Uuid"},
+        "release_id": {"$ref": "#/$defs/Uuid"},
+        "kind": {"enum": ["supersede", "withdraw"]},
+        "from_state": {"const": "released"},
+        "to_state": {"enum": ["superseded", "withdrawn"]},
+        "successor_release_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "reason": {"$ref": "#/$defs/Reason"},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "occurred_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "ReleaseImpactResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["release", "predecessor_release_id", "successor_release_id", "usages", "transitions", "warning"],
+      "properties": {
+        "release": {"$ref": "#/$defs/ReleaseResponse"},
+        "predecessor_release_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "successor_release_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "usages": {"type": "array", "items": {"$ref": "#/$defs/ReleaseUsageResponse"}},
+        "transitions": {"type": "array", "items": {"$ref": "#/$defs/ReleaseTransitionResponse"}},
+        "warning": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]}
+      }
     },
     "CreateReleaseRequest": {
       "type": "object",

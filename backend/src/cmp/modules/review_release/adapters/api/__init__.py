@@ -1,2 +1,1 @@
 """Governance review HTTP adapters."""
-

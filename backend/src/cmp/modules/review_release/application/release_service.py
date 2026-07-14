@@ -17,8 +17,13 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.review_release.domain.release import (
     CreateRelease,
     InvalidRelease,
+    RecordReleaseUsage,
     ReleaseConflict,
+    ReleaseImpactRecord,
     ReleaseRecord,
+    ReleaseUsageRecord,
+    SupersedeRelease,
+    WithdrawRelease,
 )
 
 
@@ -51,6 +56,50 @@ class ReleaseRepository(Protocol):
         decision: AuthorizationDecision,
         limit: int,
     ) -> tuple[ReleaseRecord, ...]: ...
+
+    def supersede(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        transition_id: UUID,
+        command: SupersedeRelease,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> ReleaseRecord: ...
+
+    def withdraw(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        transition_id: UUID,
+        command: WithdrawRelease,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> ReleaseRecord: ...
+
+    def record_usage(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        usage_id: UUID,
+        command: RecordReleaseUsage,
+        actor_id: UUID,
+        occurred_at: datetime,
+    ) -> ReleaseUsageRecord: ...
+
+    def impact(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+    ) -> ReleaseImpactRecord: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,6 +139,11 @@ class ReleaseService:
             raise ReleaseConflict(f"{name} id_factory returned a zero UUID")
         return value
 
+    @staticmethod
+    def _assert_release_id(release_id: UUID) -> None:
+        if release_id.int == 0:
+            raise InvalidRelease("release_id must be a non-zero UUID")
+
     def create(
         self,
         context: SecurityContext,
@@ -116,8 +170,7 @@ class ReleaseService:
         release_id: UUID,
     ) -> ReleaseRecord:
         self._assert_context(context, decision, Permission.RELEASE_READ)
-        if release_id.int == 0:
-            raise InvalidRelease("release_id must be a non-zero UUID")
+        self._assert_release_id(release_id)
         return self.repository.get(context=context, decision=decision, release_id=release_id)
 
     def list(
@@ -131,3 +184,72 @@ class ReleaseService:
         if not 1 <= limit <= 200:
             raise InvalidRelease("limit must be between 1 and 200")
         return self.repository.list(context=context, decision=decision, limit=limit)
+
+    def supersede(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        command: SupersedeRelease,
+    ) -> ReleaseRecord:
+        self._assert_context(context, decision, Permission.RELEASE_PUBLISH)
+        self._assert_release_id(release_id)
+        if command.successor_release_id == release_id:
+            raise InvalidRelease("a Release cannot supersede itself")
+        return self.repository.supersede(
+            context=context,
+            decision=decision,
+            release_id=release_id,
+            transition_id=self._id("transition"),
+            command=command,
+            actor_id=context.principal.id,
+            occurred_at=self.clock(),
+        )
+
+    def withdraw(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        command: WithdrawRelease,
+    ) -> ReleaseRecord:
+        self._assert_context(context, decision, Permission.RELEASE_PUBLISH)
+        self._assert_release_id(release_id)
+        return self.repository.withdraw(
+            context=context,
+            decision=decision,
+            release_id=release_id,
+            transition_id=self._id("transition"),
+            command=command,
+            actor_id=context.principal.id,
+            occurred_at=self.clock(),
+        )
+
+    def record_usage(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+        command: RecordReleaseUsage,
+    ) -> ReleaseUsageRecord:
+        self._assert_context(context, decision, Permission.RELEASE_READ)
+        self._assert_release_id(release_id)
+        return self.repository.record_usage(
+            context=context,
+            decision=decision,
+            release_id=release_id,
+            usage_id=self._id("usage"),
+            command=command,
+            actor_id=context.principal.id,
+            occurred_at=self.clock(),
+        )
+
+    def impact(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        release_id: UUID,
+    ) -> ReleaseImpactRecord:
+        self._assert_context(context, decision, Permission.RELEASE_READ)
+        self._assert_release_id(release_id)
+        return self.repository.impact(context=context, decision=decision, release_id=release_id)

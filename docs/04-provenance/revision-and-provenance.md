@@ -314,3 +314,10 @@ Release 전 자동 검사한다.
     partially approved inputs. The reference package is not a production object-store publication
     and has no supersede/withdraw transition until T-31.
 
+14. T-31 keeps that Release evidence immutable and records lifecycle separately. A typed
+    supersede/withdraw event names the source Release and (for supersede) an explicit same-scope
+    successor; a projection exposes only the current terminal state. Download and consume facts
+    are append-only usages accepted only while released. Impact reads include predecessor,
+    successor, transition history, usage, and terminal warnings without changing any Release,
+    Manifest, package, Material Model, Solver Card, or validation revision.
+
