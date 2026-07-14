@@ -39,6 +39,11 @@ import type {
   SolverCardCreateInput,
   SolverCardList,
   SolverCardResponse,
+  ValidationExecutionMode,
+  ValidationPlanResponse,
+  ValidationRunResponse,
+  ValidationTemplateResponse,
+  ReferenceRunnerOutcome,
   SpecimenResponse,
   TestMethodResponse,
   TestRunResponse,
@@ -388,6 +393,117 @@ export function promoteSelectedReferenceCalibrationCandidate(
       body: JSON.stringify(input),
     },
   );
+}
+
+export function listValidationTemplates(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: ValidationTemplateResponse[] }>> {
+  return request(config, "/validation-templates?limit=100");
+}
+
+export function createReferenceValidationTemplate(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      template_label: string;
+      gauge_length_m: number;
+      cross_section_area_m2: number;
+      axial_element_count: number;
+      axial_displacement_end_m: number;
+      output_sample_count: number;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<ValidationTemplateResponse>> {
+  return request(config, "/validation-templates", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listValidationPlans(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: ValidationPlanResponse[] }>> {
+  return request(config, "/validation-plans?limit=100");
+}
+
+export function createReferenceValidationPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      plan_label: string;
+      validation_template_id: string;
+      validation_template_revision_id: string;
+      material_model_id: string;
+      material_model_revision_id: string;
+      solver_card_id: string;
+      solver_card_revision_id: string;
+      experimental_selection_id: string;
+      experimental_selection_revision_id: string;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<ValidationPlanResponse>> {
+  return request(config, "/validation-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function submitReferenceValidationRun(
+  config: ApiConfig,
+  input: {
+    validation_plan_id: string;
+    validation_plan_revision_id: string;
+    execution_mode: ValidationExecutionMode;
+    external_job_reference?: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ValidationRunResponse>> {
+  return request(config, "/validation-runs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function pollReferenceValidationRun(
+  config: ApiConfig,
+  runId: string,
+  input: { change_reason: string; outcome: ReferenceRunnerOutcome },
+): Promise<ApiResult<ValidationRunResponse>> {
+  return request(config, `/validation-runs/${encodeURIComponent(runId)}:poll`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function cancelValidationRun(
+  config: ApiConfig,
+  runId: string,
+  input: { change_reason: string },
+): Promise<ApiResult<ValidationRunResponse>> {
+  return request(config, `/validation-runs/${encodeURIComponent(runId)}:cancel`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function attachManualValidationResult(
+  config: ApiConfig,
+  runId: string,
+  input: {
+    stdout_text: string;
+    stderr_text: string;
+    native_result_text: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ValidationRunResponse>> {
+  return request(config, `/validation-runs/${encodeURIComponent(runId)}:attach-result`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export function preflightSolverCardMapping(

@@ -317,6 +317,128 @@ export interface SolverCardCreateInput {
   change_reason: string;
 }
 
+export interface ReferenceValidationTemplateContent {
+  template_label: string;
+  template_kind: "reference_uniaxial_tensile_virtual_specimen";
+  gauge_length_m: number;
+  cross_section_area_m2: number;
+  axial_element_count: number;
+  axial_displacement_end_m: number;
+  output_sample_count: number;
+  result_extraction_profile_id: "urn:cmp:validation:reference-native-curve-extractor:1.0.0";
+  metric_profile_id: "urn:cmp:validation:reference-relative-rmse:1.0.0";
+  target_solver: "openradioss";
+  target_version: "2025";
+  target_unit_system: "kg_m_s";
+  runner_command_id: "reference_inline_mock";
+  non_production: true;
+}
+
+export interface ValidationTemplateRevision extends RevisionMetadata {
+  content: ReferenceValidationTemplateContent;
+}
+
+export interface ValidationTemplateResponse {
+  validation_template_id: string;
+  current_revision: ValidationTemplateRevision;
+  links: Record<string, string>;
+}
+
+export interface ReferenceValidationPlanContent {
+  plan_label: string;
+  plan_kind: "reference_uniaxial_tensile_validation";
+  validation_template_id: string;
+  validation_template_revision_id: string;
+  material_model_id: string;
+  material_model_revision_id: string;
+  solver_card_id: string;
+  solver_card_revision_id: string;
+  experimental_selection_id: string;
+  experimental_selection_revision_id: string;
+  runner_id: "cmp.reference.inline-mock-runner";
+  runner_version: "1.0.0";
+  runner_digest: string;
+  non_production: true;
+}
+
+export interface ValidationPlanRevision extends RevisionMetadata {
+  content: ReferenceValidationPlanContent;
+}
+
+export interface ValidationPlanResponse {
+  validation_plan_id: string;
+  current_revision: ValidationPlanRevision;
+  links: Record<string, string>;
+}
+
+export interface ValidationArtifactPointer {
+  artifact_id: string;
+  sha256: string;
+}
+
+export type ValidationExecutionMode = "reference_inline_mock" | "manual_attach";
+export type ValidationRunStatus =
+  | "queued"
+  | "waiting_manual"
+  | "running"
+  | "succeeded"
+  | "failed"
+  | "cancelled";
+export type ReferenceRunnerOutcome =
+  | "succeeded"
+  | "license_unavailable"
+  | "queue_timeout"
+  | "solver_failed";
+
+export interface ValidationResultManifestResponse {
+  validation_result_manifest_id: string;
+  validation_run_id: string;
+  execution_mode: ValidationExecutionMode;
+  solver_termination: "normal" | "abnormal" | "not_available";
+  external_job_reference: string | null;
+  deck: ValidationArtifactPointer;
+  stdout: ValidationArtifactPointer;
+  stderr: ValidationArtifactPointer;
+  native_result: ValidationArtifactPointer | null;
+  native_result_state: "available" | "not_available";
+  manifest_artifact: ValidationArtifactPointer;
+  manifest_sha256: string;
+  created_at: string;
+  created_by: string;
+}
+
+export interface ValidationRunResponse {
+  validation_run_id: string;
+  classification: DataClassification;
+  validation_plan_id: string;
+  validation_plan_revision_id: string;
+  validation_template_id: string;
+  validation_template_revision_id: string;
+  material_model_id: string;
+  material_model_revision_id: string;
+  solver_card_id: string;
+  solver_card_revision_id: string;
+  experimental_selection_id: string;
+  experimental_selection_revision_id: string;
+  execution_mode: ValidationExecutionMode;
+  runner_id: "cmp.reference.inline-mock-runner";
+  runner_version: "1.0.0";
+  runner_digest: string;
+  status: ValidationRunStatus;
+  deck: ValidationArtifactPointer;
+  external_job_reference: string | null;
+  failure_code: string | null;
+  submitted_at: string;
+  started_at: string | null;
+  ended_at: string | null;
+  created_by: string;
+  request_id: string;
+  trace_id: string;
+  change_reason: string;
+  result_manifest: ValidationResultManifestResponse | null;
+  links: Record<string, string>;
+}
+
 export interface SpecimenContent {
   material_id: string;
   material_revision_id: string;

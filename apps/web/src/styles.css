@@ -768,6 +768,76 @@ dd {
     linear-gradient(135deg, rgb(244 243 255 / 88%), rgb(253 253 255 / 94%));
 }
 
+.reference-validation-workbench {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #d8bfd1;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgb(255 245 251 / 88%), rgb(255 253 254 / 94%));
+}
+
+.validation-workbench-stack .workflow-step {
+  border-color: #ead7e4;
+  background: rgb(255 255 255 / 88%);
+}
+
+.validation-template-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.validation-run-result {
+  border-color: #e0cbd8;
+  background: #fffaff;
+}
+
+.inline-action {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
+}
+
+.inline-action label {
+  min-width: 0;
+}
+
+.manual-result-form textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #cbd8d5;
+  border-radius: 5px;
+  padding: 0.55rem 0.6rem;
+  color: #294c4a;
+  background: #fff;
+  font: 0.75rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.validation-evidence-list {
+  display: grid;
+  gap: 0.38rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.validation-evidence-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid #b16a96;
+  border-radius: 3px;
+  color: #60475a;
+  background: #fff5fb;
+  font-size: 0.74rem;
+}
+
+.validation-evidence-list span {
+  overflow-wrap: anywhere;
+  color: #765f70;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 .calibration-workbench-stack .workflow-step {
   border-color: #dcd9ef;
   background: rgb(255 255 255 / 88%);
@@ -1276,8 +1346,19 @@ summary {
   .form-grid,
   .property-grid,
   .calibration-parameter-grid,
+  .validation-template-grid,
   .calibration-residual-summary {
     grid-template-columns: 1fr;
+  }
+
+  .inline-action,
+  .validation-evidence-list li {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .validation-evidence-list li {
+    display: grid;
   }
 
   .mapping-report-heading,

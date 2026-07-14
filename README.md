@@ -1,12 +1,12 @@
 # CAE Material Platform
 
-Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics with human Candidate Selection/IR promotion, reference Material Model IR, and reference OpenRadioss Solver Card
+Status: Material Catalog MVP, reference tensile Dataset/Statistics-QC/outlier review, reference Calibration Plan/Run diagnostics with human Candidate Selection/IR promotion, reference Material Model IR, reference OpenRadioss Solver Card, and reference virtual-specimen evidence runner
 plus identity, authorization, revision, streaming Raw Asset upload,
 immutable content Artifact, typed provenance and bounded lineage, append-only audit, durable job
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
 
-Version: `0.21.0`
+Version: `0.22.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -337,6 +337,21 @@ still current. It stores typed Selection, Candidate, Run, and diagnostics Artifa
 never overwrites any source revision. See the
 [reference calibration contract](docs/10-execution/reference-linear-elastic-calibration.md).
 
+### Reference virtual-specimen evidence
+
+Within the same Material State, open **Reference virtual specimen runner** after a reference
+Material Model IR, compatible OpenRadioss card, and experimental Dataset Selection exist. The
+workbench creates a versioned one-dimensional tensile Template, then a Validation Plan that pins
+the exact Template, IR, Card, and Selection revisions. It can submit and collect an explicit
+`reference_inline_mock` outcome, or create a manual-attachment run with an opaque external job ID
+and bounded native JSON/log evidence.
+
+Both paths retain an immutable deck, stdout/stderr, optional native result, and Result Manifest
+Artifact/provenance record. The workbench deliberately labels this as **non-production only**: it
+does not execute OpenRadioss or an HPC scheduler, and a normal termination does not mean numerical
+health or experimental validation passed. Extraction, health, metrics, and verdicts are the next
+`T-28` slice; see [ADR-0013](adr/0013-reference-validation-template-and-runner-boundary.md).
+
 The T-09/T-10 filesystem adapter is enabled only outside production. Upload and download
 capability secrets are separate, must contain at least 32 bytes, and should come from a secret
 manager rather than source control:
@@ -357,7 +372,7 @@ relations. A minimal privilege baseline is:
 ```sql
 CREATE ROLE cmp_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 GRANT CONNECT ON DATABASE cmp TO cmp_app;
-GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, processing, statistics, modeling, exporting TO cmp_app;
+GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, jobs, plugin, artifact, provenance, events, audit, catalog, testing, datasets, processing, statistics, modeling, exporting, validation TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA governance TO cmp_app;
@@ -374,6 +389,7 @@ GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA processing TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA statistics TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA modeling TO cmp_app;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA exporting TO cmp_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA validation TO cmp_app;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, plugin, artifact, provenance, audit TO cmp_app;
 ```
 
@@ -419,7 +435,9 @@ calibration choices, solver cards, and validation criteria remain `TBD`; ADR-006
 linear-elastic/OpenRadioss path is an explicitly non-production reference projection and card, not
 a production material model or solver qualification. ADR-011/ADR-012's T-23/T-24 calibration path is
 likewise an explicitly non-production reference evaluator and human-selection/promotion workflow,
-not an approved optimizer/model or release policy. T-06 provides a typed-table
+not an approved optimizer/model or release policy. ADR-013's T-27 runner preserves mock/manual
+execution evidence only; it is neither an actual solver/HPC adapter nor a validation verdict.
+T-06 provides a typed-table
 pattern and never a generic revision/EAV content store. Do not add business tables or
 production-looking reference implementations before the corresponding decision gates. T-04 does
 not implement Material, artifact transfer, lifecycle approval, or export-control
@@ -447,7 +465,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
 ## Traceability
 
 - Tasks: `T-01`, `T-02`, `T-03`, `T-04`, `T-05`, `T-06`, `T-07` MVP, reference `T-08`, `T-09`, `T-10`, reference `T-11`/`T-12`,
-  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-32` MVP
+  `T-13`, `T-14`, `T-15`, `T-16`, `T-17`, `T-18`, reference `T-19`, `T-20`, `T-21`, `T-22`, `T-23`, `T-24`, `T-25`, `T-26`, `T-27`, `T-32` MVP
 - Requirements: `FR-CAT-001`, `FR-DAT-001`, `FR-DAT-006`, `FR-API-001`, `NFR-INT-001`,
   `FR-API-002`, `FR-API-003`, `FR-API-004`, `FR-PLG-004`, `NFR-DR-002`, `NFR-PERF-006`, `NFR-SEC-001`,
   `NFR-SEC-002`, `NFR-SEC-003`, `NFR-SEC-006`, `NFR-AUD-001`, `NFR-AUD-002`, `NFR-MOD-001`,
@@ -456,5 +474,5 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`, `ADR-002`, `ADR-003`, `ADR-004`, `ADR-006`, `ADR-007`, `ADR-011`, `ADR-012`, `ADR-013` (with `ADR-005` as a scope guard)
 

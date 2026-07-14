@@ -560,6 +560,23 @@ class DatasetService:
             selection_revision_id=selection_revision_id,
         )
 
+    def get_reference_dataset_selection_revision_for_validation(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> DatasetSelectionRevisionSnapshot:
+        """Resolve one immutable Selection input for an authorized Validation command."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_selection_revision(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+            selection_revision_id=selection_revision_id,
+        )
+
     def list_reference_dataset_selections_for_revision(
         self,
         context: SecurityContext,
@@ -623,6 +640,21 @@ class DatasetService:
         dataset_revision_id: UUID,
     ) -> CalibrationDatasetSource:
         """Resolve Dataset-to-Material-State lineage for Calibration without table leakage."""
+
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_calibration_dataset_source(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+
+    def get_dataset_source_for_validation(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> CalibrationDatasetSource:
+        """Resolve Dataset-to-Material-State lineage without exposing persistence to Validation."""
 
         _require_capability(context, decision, Permission.DATASET_READ)
         return self._repository.get_calibration_dataset_source(

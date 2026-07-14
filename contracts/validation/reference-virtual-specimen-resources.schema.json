@@ -1,0 +1,382 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/validation/reference-virtual-specimen-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "ChangeReason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ReferenceValidationTemplateInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "template_label", "gauge_length_m", "cross_section_area_m2",
+        "axial_element_count", "axial_displacement_end_m", "output_sample_count"
+      ],
+      "properties": {
+        "template_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "gauge_length_m": {"type": "number", "exclusiveMinimum": 0},
+        "cross_section_area_m2": {"type": "number", "exclusiveMinimum": 0},
+        "axial_element_count": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "axial_displacement_end_m": {"type": "number", "exclusiveMinimum": 0},
+        "output_sample_count": {"type": "integer", "minimum": 2, "maximum": 10000}
+      }
+    },
+    "CreateReferenceValidationTemplateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/ReferenceValidationTemplateInput"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"}
+      }
+    },
+    "ReviseReferenceValidationTemplateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_current_revision_id", "content", "change_reason"],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "content": {"$ref": "#/$defs/ReferenceValidationTemplateInput"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"}
+      }
+    },
+    "ReferenceValidationTemplateContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "template_label", "template_kind", "gauge_length_m", "cross_section_area_m2",
+        "axial_element_count", "axial_displacement_end_m", "output_sample_count",
+        "result_extraction_profile_id", "metric_profile_id", "target_solver", "target_version",
+        "target_unit_system", "runner_command_id", "non_production"
+      ],
+      "properties": {
+        "template_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "template_kind": {"const": "reference_uniaxial_tensile_virtual_specimen"},
+        "gauge_length_m": {"type": "number", "exclusiveMinimum": 0},
+        "cross_section_area_m2": {"type": "number", "exclusiveMinimum": 0},
+        "axial_element_count": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "axial_displacement_end_m": {"type": "number", "exclusiveMinimum": 0},
+        "output_sample_count": {"type": "integer", "minimum": 2, "maximum": 10000},
+        "result_extraction_profile_id": {"const": "urn:cmp:validation:reference-native-curve-extractor:1.0.0"},
+        "metric_profile_id": {"const": "urn:cmp:validation:reference-relative-rmse:1.0.0"},
+        "target_solver": {"const": "openradioss"},
+        "target_version": {"const": "2025"},
+        "target_unit_system": {"const": "kg_m_s"},
+        "runner_command_id": {"const": "reference_inline_mock"},
+        "non_production": {"const": true}
+      }
+    },
+    "ValidationTemplateRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state", "content"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"const": "urn:cmp:validation:reference-uniaxial-virtual-specimen:1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"},
+        "content": {"$ref": "#/$defs/ReferenceValidationTemplateContent"}
+      }
+    },
+    "ValidationTemplateResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validation_template_id", "current_revision", "links"],
+      "properties": {
+        "validation_template_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/ValidationTemplateRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ValidationTemplateListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ValidationTemplateResponse"}}}
+    },
+    "ReferenceValidationPlanInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_label", "validation_template_id", "validation_template_revision_id",
+        "material_model_id", "material_model_revision_id", "solver_card_id",
+        "solver_card_revision_id", "experimental_selection_id", "experimental_selection_revision_id"
+      ],
+      "properties": {
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "validation_template_id": {"$ref": "#/$defs/Uuid"},
+        "validation_template_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_revision_id": {"$ref": "#/$defs/Uuid"},
+        "experimental_selection_id": {"$ref": "#/$defs/Uuid"},
+        "experimental_selection_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "CreateReferenceValidationPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/ReferenceValidationPlanInput"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"}
+      }
+    },
+    "ReviseReferenceValidationPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_current_revision_id", "content", "change_reason"],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "content": {"$ref": "#/$defs/ReferenceValidationPlanInput"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"}
+      }
+    },
+    "ReferenceValidationPlanContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_label", "plan_kind", "validation_template_id", "validation_template_revision_id",
+        "material_model_id", "material_model_revision_id", "solver_card_id", "solver_card_revision_id",
+        "experimental_selection_id", "experimental_selection_revision_id", "runner_id", "runner_version",
+        "runner_digest", "non_production"
+      ],
+      "properties": {
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "plan_kind": {"const": "reference_uniaxial_tensile_validation"},
+        "validation_template_id": {"$ref": "#/$defs/Uuid"},
+        "validation_template_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_revision_id": {"$ref": "#/$defs/Uuid"},
+        "experimental_selection_id": {"$ref": "#/$defs/Uuid"},
+        "experimental_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "runner_id": {"const": "cmp.reference.inline-mock-runner"},
+        "runner_version": {"const": "1.0.0"},
+        "runner_digest": {"$ref": "#/$defs/Sha256"},
+        "non_production": {"const": true}
+      }
+    },
+    "ValidationPlanRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state", "content"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"const": "urn:cmp:validation:reference-uniaxial-validation-plan:1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"},
+        "content": {"$ref": "#/$defs/ReferenceValidationPlanContent"}
+      }
+    },
+    "ValidationPlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validation_plan_id", "current_revision", "links"],
+      "properties": {
+        "validation_plan_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/ValidationPlanRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ValidationPlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ValidationPlanResponse"}}}
+    },
+    "ArtifactPointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "sha256"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "SubmitReferenceValidationRunRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validation_plan_id", "validation_plan_revision_id", "execution_mode", "change_reason"],
+      "properties": {
+        "validation_plan_id": {"$ref": "#/$defs/Uuid"},
+        "validation_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "execution_mode": {"enum": ["reference_inline_mock", "manual_attach"]},
+        "external_job_reference": {
+          "type": ["string", "null"],
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$"
+        },
+        "change_reason": {"$ref": "#/$defs/ChangeReason"}
+      }
+    },
+    "PollReferenceValidationRunRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "outcome": {"enum": ["succeeded", "license_unavailable", "queue_timeout", "solver_failed"]}
+      }
+    },
+    "CancelValidationRunRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["change_reason"],
+      "properties": {"change_reason": {"$ref": "#/$defs/ChangeReason"}}
+    },
+    "AttachManualValidationResultRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stdout_text", "stderr_text", "native_result_text", "change_reason"],
+      "properties": {
+        "stdout_text": {"type": "string", "minLength": 1, "maxLength": 200000},
+        "stderr_text": {"type": "string", "minLength": 1, "maxLength": 200000},
+        "native_result_text": {"type": "string", "minLength": 1, "maxLength": 1000000},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"}
+      }
+    },
+    "ValidationResultManifestResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_result_manifest_id", "validation_run_id", "execution_mode", "solver_termination",
+        "external_job_reference", "deck", "stdout", "stderr", "native_result", "native_result_state",
+        "manifest_artifact", "manifest_sha256", "created_at", "created_by"
+      ],
+      "properties": {
+        "validation_result_manifest_id": {"$ref": "#/$defs/Uuid"},
+        "validation_run_id": {"$ref": "#/$defs/Uuid"},
+        "execution_mode": {"enum": ["reference_inline_mock", "manual_attach"]},
+        "solver_termination": {"enum": ["normal", "abnormal", "not_available"]},
+        "external_job_reference": {"type": ["string", "null"], "maxLength": 256},
+        "deck": {"$ref": "#/$defs/ArtifactPointer"},
+        "stdout": {"$ref": "#/$defs/ArtifactPointer"},
+        "stderr": {"$ref": "#/$defs/ArtifactPointer"},
+        "native_result": {"oneOf": [{"$ref": "#/$defs/ArtifactPointer"}, {"type": "null"}]},
+        "native_result_state": {"enum": ["available", "not_available"]},
+        "manifest_artifact": {"$ref": "#/$defs/ArtifactPointer"},
+        "manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "ValidationRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_run_id", "classification", "validation_plan_id", "validation_plan_revision_id",
+        "validation_template_id", "validation_template_revision_id", "material_model_id",
+        "material_model_revision_id", "solver_card_id", "solver_card_revision_id",
+        "experimental_selection_id", "experimental_selection_revision_id", "execution_mode", "runner_id",
+        "runner_version", "runner_digest", "status", "deck", "external_job_reference", "failure_code",
+        "submitted_at", "started_at", "ended_at", "created_by", "request_id", "trace_id",
+        "change_reason", "result_manifest", "links"
+      ],
+      "properties": {
+        "validation_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "validation_plan_id": {"$ref": "#/$defs/Uuid"},
+        "validation_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "validation_template_id": {"$ref": "#/$defs/Uuid"},
+        "validation_template_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_revision_id": {"$ref": "#/$defs/Uuid"},
+        "experimental_selection_id": {"$ref": "#/$defs/Uuid"},
+        "experimental_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "execution_mode": {"enum": ["reference_inline_mock", "manual_attach"]},
+        "runner_id": {"const": "cmp.reference.inline-mock-runner"},
+        "runner_version": {"const": "1.0.0"},
+        "runner_digest": {"$ref": "#/$defs/Sha256"},
+        "status": {"enum": ["queued", "waiting_manual", "running", "succeeded", "failed", "cancelled"]},
+        "deck": {"$ref": "#/$defs/ArtifactPointer"},
+        "external_job_reference": {"type": ["string", "null"], "maxLength": 256},
+        "failure_code": {"type": ["string", "null"], "maxLength": 100},
+        "submitted_at": {"type": "string", "format": "date-time"},
+        "started_at": {"type": ["string", "null"], "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "request_id": {"$ref": "#/$defs/Uuid"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "result_manifest": {"oneOf": [{"$ref": "#/$defs/ValidationResultManifestResponse"}, {"type": "null"}]},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ValidationProblem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"const": "urn:cmp:problem:validation"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "code": {"type": "string", "pattern": "^CMP-VALIDATION-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

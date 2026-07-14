@@ -24,6 +24,7 @@ import {
 } from "./api";
 import { ReferenceTensileWorkflow } from "./reference-tensile-workflow";
 import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench";
+import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
 import type {
   DataClassification,
   ExportTarget,
@@ -958,6 +959,7 @@ function MaterialStateCard({
       )}
       <ReferenceTensileWorkflow config={config} state={state} />
       <ReferenceCalibrationWorkbench config={config} state={state} />
+      <ReferenceValidationWorkbench config={config} state={state} />
       {editorOpen ? (
         <PropertySetEditor
           key={propertySet?.property_set_id ?? `new-${state.material_state_id}`}

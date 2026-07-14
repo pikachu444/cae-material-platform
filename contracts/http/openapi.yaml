@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.21.0
+  version: 0.22.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -2874,6 +2874,325 @@ paths:
         "403": {description: Export read is not authorized.}
         "404": {description: No visible Solver Card matches the identifier.}
         "503": {description: Solver Card service unavailable.}
+  /api/v1/validation-templates:
+    post:
+      operationId: createReferenceValidationTemplate
+      tags: [validation]
+      summary: Create a non-production reference virtual-specimen Template identity and immutable revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/CreateReferenceValidationTemplateRequest"}
+      responses:
+        "201":
+          description: Stable Template identity with immutable revision 1.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationTemplateResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "409": {description: Immutable Template state conflicts.}
+        "422": {description: The reference Template geometry, output, or target is invalid.}
+        "503": {description: Validation service unavailable.}
+    get:
+      operationId: listValidationTemplates
+      tags: [validation]
+      summary: List current tenant-visible reference virtual-specimen Template heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current immutable Template heads.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationTemplateListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-templates/{template_id}:
+    get:
+      operationId: getValidationTemplate
+      tags: [validation]
+      summary: Read the current immutable reference virtual-specimen Template revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Template revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationTemplateResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "404": {description: No visible Validation Template matches the identifier.}
+        "503": {description: Validation service unavailable.}
+    patch:
+      operationId: reviseReferenceValidationTemplate
+      tags: [validation]
+      summary: Append a new immutable Template revision while retaining stable Template identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ReviseReferenceValidationTemplateRequest"}
+      responses:
+        "200":
+          description: Appended immutable Template revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationTemplateResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: No visible Validation Template matches the identifier.}
+        "409": {description: Expected Template head or stable identity conflicts.}
+        "422": {description: The reference Template geometry, output, or target is invalid.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-plans:
+    post:
+      operationId: createReferenceValidationPlan
+      tags: [validation]
+      summary: Create a Plan pinning exact Template, IR, Solver Card, and experimental Selection revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/CreateReferenceValidationPlanRequest"}
+      responses:
+        "201":
+          description: Stable Validation Plan identity with its first immutable pinned revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: A pinned immutable input is not visible.}
+        "409": {description: Pinned revision, target, tenant, or classification conflicts.}
+        "422": {description: The typed reference Plan is invalid.}
+        "503": {description: Validation service unavailable.}
+    get:
+      operationId: listValidationPlans
+      tags: [validation]
+      summary: List current tenant-visible Validation Plan heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current immutable Validation Plan heads.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationPlanListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-plans/{plan_id}:
+    get:
+      operationId: getValidationPlan
+      tags: [validation]
+      summary: Read the current immutable Validation Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Validation Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "404": {description: No visible Validation Plan matches the identifier.}
+        "503": {description: Validation service unavailable.}
+    patch:
+      operationId: reviseReferenceValidationPlan
+      tags: [validation]
+      summary: Append a new immutable Plan revision while retaining stable Plan identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ReviseReferenceValidationPlanRequest"}
+      responses:
+        "200":
+          description: Appended immutable Validation Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: A pinned immutable input is not visible.}
+        "409": {description: Expected Plan head, tenant, target, or stable identity conflicts.}
+        "422": {description: The typed reference Plan is invalid.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-runs:
+    post:
+      operationId: submitReferenceValidationRun
+      tags: [validation]
+      summary: Submit a non-production reference mock run or reserve a manually attached result.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/SubmitReferenceValidationRunRequest"}
+      responses:
+        "202":
+          description: Durable Validation Run with a generated immutable deck Artifact; no experimental verdict is made.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: The pinned Plan or one of its pinned immutable inputs is not visible.}
+        "409": {description: Execution mode, source revision, or Artifact state conflicts.}
+        "422": {description: The requested reference execution is invalid.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-runs/{run_id}:
+    get:
+      operationId: getValidationRun
+      tags: [validation]
+      summary: Read a Validation Run and its immutable Result Manifest reference when terminal.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Durable Validation Run state and immutable Artifact evidence pointers.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "404": {description: No visible Validation Run matches the identifier.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-runs/{run_id}:poll:
+    post:
+      operationId: pollReferenceValidationRun
+      tags: [validation]
+      summary: Collect one explicit outcome from the non-production inline mock runner.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/PollReferenceValidationRunRequest"}
+      responses:
+        "200":
+          description: Terminal Run with immutable deck/log/native-result/manifest Artifact pointers.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: No visible Validation Run matches the identifier.}
+        "409": {description: The Run is manual, already terminal, or no longer queued.}
+        "422": {description: The explicit mock outcome is invalid.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-runs/{run_id}:cancel:
+    post:
+      operationId: cancelValidationRun
+      tags: [validation]
+      summary: Cancel a nonterminal Validation Run without changing source or published evidence facts.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/CancelValidationRunRequest"}
+      responses:
+        "200":
+          description: Cancelled durable Validation Run retaining its immutable deck Artifact.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: No visible Validation Run matches the identifier.}
+        "409": {description: The Run is terminal or a Result Manifest already exists.}
+        "422": {description: The cancellation reason is invalid.}
+        "503": {description: Validation service unavailable.}
+  /api/v1/validation-runs/{run_id}:attach-result:
+    post:
+      operationId: attachManualValidationResult
+      tags: [validation]
+      summary: Attach bounded non-production native output and logs to a waiting manual Validation Run.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/AttachManualValidationResultRequest"}
+      responses:
+        "200":
+          description: Terminal Run retaining an immutable manual Result Manifest; T-28 owns extraction and verdicts.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-virtual-specimen-resources.schema.json#/$defs/ValidationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: No visible Validation Run matches the identifier.}
+        "409": {description: The Run is not waiting for a manual attachment or already has a Result Manifest.}
+        "422": {description: The manual logs or native result do not satisfy the bounded reference contract.}
+        "503": {description: Validation service unavailable.}
 components:
   securitySchemes:
     BearerAuth:

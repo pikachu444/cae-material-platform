@@ -563,12 +563,8 @@ class SqlAlchemyExportingRepository(ExportingRepository):
             revision.c.source_yield_stress_pa.label("source_yield_stress_pa"),
             revision.c.applicable_temperature_min_k.label("applicable_temperature_min_k"),
             revision.c.applicable_temperature_max_k.label("applicable_temperature_max_k"),
-            revision.c.applicable_strain_rate_min_per_s.label(
-                "applicable_strain_rate_min_per_s"
-            ),
-            revision.c.applicable_strain_rate_max_per_s.label(
-                "applicable_strain_rate_max_per_s"
-            ),
+            revision.c.applicable_strain_rate_min_per_s.label("applicable_strain_rate_min_per_s"),
+            revision.c.applicable_strain_rate_max_per_s.label("applicable_strain_rate_max_per_s"),
             revision.c.applicability_note.label("applicability_note"),
             revision.c.reference_temperature_k.label("reference_temperature_k"),
             revision.c.non_production.label("non_production"),
@@ -780,3 +776,41 @@ class SqlAlchemyExportingRepository(ExportingRepository):
         if not rows:
             raise SolverCardNotFound("Solver Card is not visible in the selected tenant")
         return tuple(RevisionSnapshot(_record(row), _card_content(row)) for row in rows)
+
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceOpenRadiossCardContent]:
+        revision = solver_card_revision_table
+        identity = solver_card_table
+        statement = (
+            sa.select(*_revision_columns(revision))
+            .select_from(
+                identity.join(
+                    revision,
+                    sa.and_(
+                        revision.c.aggregate_id == identity.c.id,
+                        revision.c.organization_id == identity.c.organization_id,
+                        revision.c.project_id == identity.c.project_id,
+                    ),
+                )
+            )
+            .where(
+                identity.c.id == solver_card_id,
+                revision.c.id == solver_card_revision_id,
+                identity.c.organization_id == context.organization_id,
+                identity.c.project_id == context.project_id,
+            )
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+            except DBAPIError as error:
+                raise SolverCardNotFound("Solver Card revision is not available") from error
+        if row is None:
+            raise SolverCardNotFound("Solver Card revision is not visible in the selected tenant")
+        return RevisionSnapshot(_record(row), _card_content(row))

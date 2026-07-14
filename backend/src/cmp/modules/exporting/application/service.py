@@ -119,6 +119,15 @@ class ExportingRepository(Protocol):
         solver_card_id: UUID,
     ) -> tuple[RevisionSnapshot[ReferenceOpenRadiossCardContent], ...]: ...
 
+    def get_solver_card_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceOpenRadiossCardContent]: ...
+
 
 def _require_decision(
     context: SecurityContext,
@@ -277,4 +286,29 @@ class SolverCardService:
             context=context,
             decision=decision,
             solver_card_id=solver_card_id,
+        )
+
+    def get_solver_card_revision_for_validation(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        solver_card_id: UUID,
+        solver_card_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceOpenRadiossCardContent]:
+        """Expose one exact immutable Solver Card revision to Validation."""
+
+        if (
+            decision.principal_id != context.principal.id
+            or decision.organization_id != context.organization_id
+            or decision.project_id != context.project_id
+            or decision.request_id != context.request_id
+            or decision.trace_id != context.trace_id
+            or Permission.EXPORT_READ.value not in decision.database_permissions
+        ):
+            raise SolverCardConflict("authorization lacks the required Export capability")
+        return self._repository.get_solver_card_revision(
+            context=context,
+            decision=decision,
+            solver_card_id=solver_card_id,
+            solver_card_revision_id=solver_card_revision_id,
         )

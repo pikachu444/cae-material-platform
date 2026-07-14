@@ -110,6 +110,9 @@ Mock repository만으로 통과하는 test를 persistence integration의 대체�
 - bootstrap fixed-seed result
 - outlier candidate와 adjudication scope
 - converged Calibration Candidate versus explicit human Selection reason/current-revision promotion
+- reference Validation Template/Plan exact revision pinning; mock/manual Result Manifest parity;
+  normal/abnormal/not-available termination; shell-like external-job rejection; target/native-result
+  mismatch; immutable deck/log/manifest evidence without a validation verdict
 - curve point 수를 늘려도 replicate `n` 불변
 - display downsample과 full calculation 분리
 
