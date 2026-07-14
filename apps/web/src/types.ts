@@ -1376,3 +1376,127 @@ export interface CompletedUpload {
   raw_asset: RawAsset;
   available_artifact_id: string | null;
 }
+
+export type ProvenanceEntityReferenceKind = "raw_asset" | "artifact" | "revision";
+
+export type ProvenanceCompletenessState = "complete" | "incomplete";
+
+export interface ProvenanceEntityReference {
+  kind: ProvenanceEntityReferenceKind;
+  type: string;
+  id: string;
+  sha256: string;
+}
+
+export interface ProvenanceCompletenessSummary {
+  state: ProvenanceCompletenessState;
+  issues: string[];
+}
+
+export interface ProvenanceEntityResponse {
+  entity_id: string;
+  organization_id: string;
+  project_id: string;
+  classification: DataClassification;
+  entity_type: string;
+  reference: ProvenanceEntityReference;
+  generation_requirement: "none" | "primary";
+  generation_activity_id: string | null;
+  created_at: string;
+  recorded_at: string;
+  recorded_by: string;
+  completeness: ProvenanceCompletenessSummary;
+  links: {
+    self: string;
+    lineage: string;
+    impact: string;
+    completeness: string;
+  };
+}
+
+export type ProvenanceLineageDirection = "upstream" | "downstream";
+
+export interface ProvenanceLineageNode {
+  entity_id: string;
+  entity_type: string;
+  reference: ProvenanceEntityReference;
+  generation_activity_id: string | null;
+  completeness: ProvenanceCompletenessSummary;
+  depth: number;
+  path: string[];
+  via_relation: "usage_generation" | "derivation" | "revision" | null;
+}
+
+export interface ProvenanceLineagePage {
+  root_entity_id: string;
+  direction: ProvenanceLineageDirection;
+  max_depth: number;
+  limit: number;
+  target_entity_type: string | null;
+  nodes: ProvenanceLineageNode[];
+  next_cursor: string | null;
+  graph_truncated: boolean;
+  total_discovered: number;
+}
+
+export type ProvenanceCompletenessReportState = "complete" | "incomplete" | "indeterminate";
+
+export interface ProvenanceCompletenessIssue {
+  code: string;
+  entity_id: string | null;
+  activity_id: string | null;
+}
+
+export interface ProvenanceCompletenessReport {
+  root_entity_id: string;
+  state: ProvenanceCompletenessReportState;
+  eligible: boolean;
+  nodes_evaluated: number;
+  edges_evaluated: number;
+  max_depth_reached: number;
+  issues: ProvenanceCompletenessIssue[];
+}
+
+export type AuditOutcome = "success" | "failure" | "denied";
+
+export interface AuditEvent {
+  event_id: string;
+  sequence_no: number;
+  occurred_at: string;
+  recorded_at: string;
+  actor: { type: "user" | "service"; id: string };
+  organization_id: string;
+  project_id: string;
+  action: string;
+  target: { type: string; id: string | null };
+  outcome: AuditOutcome;
+  request_id: string;
+  trace_id: string;
+  ip_or_client: "policy-redacted";
+  reason: string;
+  previous_hash: string;
+  event_hash: string;
+}
+
+export interface AuditEventPage {
+  events: AuditEvent[];
+  next_after_sequence: number | null;
+}
+
+export type AuditIntegrityState = "valid" | "invalid";
+
+export interface AuditIntegrityIssue {
+  code: string;
+  event_sequence_no: number | null;
+  segment_no: number | null;
+}
+
+export interface AuditIntegrityReport {
+  state: AuditIntegrityState;
+  event_count: number;
+  last_sequence_no: number;
+  segment_count: number;
+  sealed_through_sequence_no: number;
+  unsealed_event_count: number;
+  issues: AuditIntegrityIssue[];
+}

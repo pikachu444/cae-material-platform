@@ -27,6 +27,7 @@ import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench
 import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
 import { ReviewWorkbench } from "./review-workbench";
 import { ReleaseWorkbench } from "./release-workbench";
+import { GovernanceEvidenceWorkbench } from "./governance-evidence-workbench";
 import type {
   DataClassification,
   ExportTarget,
@@ -396,6 +397,7 @@ function DashboardPage({
       </section>
       <ReviewWorkbench config={config} />
       <ReleaseWorkbench config={config} />
+      <GovernanceEvidenceWorkbench config={config} />
     </div>
   );
 }

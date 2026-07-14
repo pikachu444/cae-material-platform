@@ -680,3 +680,16 @@ withdraw has no successor. The immutable Release, Manifest, package, and downstr
 never updated or deleted. Terminal package download/consume is rejected and impact reports expose
 links, transition history, usage, and warnings. Automatic PLM replacement and production
 publication remain out of scope.
+
+### T-33/T-34 implementation note (2026-07-25)
+
+The reference web workbench now exposes the existing protected display-view APIs together: raw,
+normalized, processed, statistical, fitted/residual, and validation curves retain explicit
+representation/units, point counts, and deterministic preview-sampling status. Browser plotting is
+display-only and never becomes a calculation input. The Dashboard governance area adds a bounded
+Lineage and Audit Inspector next to the Review and Release workbenches. A reviewer can inspect an
+immutable provenance Entity, upstream lineage or downstream impact, completeness state, recent
+tenant/project audit events, and audit-chain integrity. Graph truncation and invalid integrity are
+visible warnings; client-side graph reconstruction, hidden payloads, and cross-organization/project
+reads are not allowed. The inspector consumes an explicit provenance Entity UUID from the protected
+evidence link. Generic graph visualization and production audit export remain outside this slice.
