@@ -36,6 +36,7 @@ from cmp.bootstrap.security import (
 )
 from cmp.bootstrap.settings import Settings
 from cmp.bootstrap.statistics import (
+    build_replicate_outlier_service,
     build_replicate_statistics_service,
     build_statistics_service,
 )
@@ -91,10 +92,16 @@ from cmp.modules.review_release.adapters.api.release import install_release_api
 from cmp.modules.review_release.adapters.api.review import install_review_api
 from cmp.modules.review_release.application.release_service import ReleaseService
 from cmp.modules.review_release.application.service import ReviewService
+from cmp.modules.statistics.adapters.api.replicate_outliers import (
+    install_replicate_outlier_api,
+)
 from cmp.modules.statistics.adapters.api.replicate_statistics import (
     install_replicate_statistics_api,
 )
 from cmp.modules.statistics.adapters.api.statistics import install_statistics_api
+from cmp.modules.statistics.application.replicate_outlier_service import (
+    ReplicateOutlierService,
+)
 from cmp.modules.statistics.application.replicate_service import ReplicateStatisticsService
 from cmp.modules.statistics.application.service import StatisticsService
 from cmp.modules.testing.adapters.api.testing import install_testing_api
@@ -131,6 +138,7 @@ def create_app(
     processing_service: ProcessingService | None = None,
     statistics_service: StatisticsService | None = None,
     replicate_statistics_service: ReplicateStatisticsService | None = None,
+    replicate_outlier_service: ReplicateOutlierService | None = None,
     material_model_service: MaterialModelService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
@@ -327,6 +335,25 @@ def create_app(
     install_replicate_statistics_api(
         application,
         service=resolved_replicate_statistics,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.STATISTICS_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.STATISTICS_EXECUTE
+        ),
+    )
+    resolved_replicate_outliers = (
+        replicate_outlier_service
+        or build_replicate_outlier_service(
+            services,
+            resolved_datasets,
+            resolved_artifacts,
+        )
+    )
+    install_replicate_outlier_api(
+        application,
+        service=resolved_replicate_outliers,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.STATISTICS_READ

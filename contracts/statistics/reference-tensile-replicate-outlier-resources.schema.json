@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/statistics/reference-tensile-replicate-outlier-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "CreateOutlierPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "plan_label", "statistical_result_id",
+        "statistical_result_revision_id", "absolute_modified_z_threshold", "change_reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "absolute_modified_z_threshold": {
+          "type": "number", "exclusiveMinimum": 0, "maximum": 20
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "OutlierPlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detection_plan_id", "plan_label", "current_revision", "content"],
+      "properties": {
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "statistical_result_id", "statistical_result_revision_id", "detector", "feature",
+            "absolute_modified_z_threshold", "automatic_exclusion"
+          ],
+          "properties": {
+            "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+            "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+            "detector": {"const": "absolute_modified_z_score_peak_stress"},
+            "feature": {"const": "peak_engineering_stress_pa"},
+            "absolute_modified_z_threshold": {
+              "type": "number", "exclusiveMinimum": 0, "maximum": 20
+            },
+            "automatic_exclusion": {"const": false}
+          }
+        }
+      }
+    },
+    "OutlierPlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/OutlierPlanResponse"}}
+      }
+    },
+    "ExecuteOutlierDetectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detection_plan_id", "detection_plan_revision_id"],
+      "properties": {
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "OutlierCandidateResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id", "ordinal", "dataset_id", "dataset_revision_id", "test_run_id",
+        "test_run_revision_id", "peak_engineering_stress_pa",
+        "sample_median_peak_stress_pa", "sample_mad_peak_stress_pa",
+        "absolute_modified_z_score", "threshold", "evidence_code", "review_status"
+      ],
+      "properties": {
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 49},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "peak_engineering_stress_pa": {"type": "number", "minimum": 0},
+        "sample_median_peak_stress_pa": {"type": "number", "minimum": 0},
+        "sample_mad_peak_stress_pa": {"type": "number", "minimum": 0},
+        "absolute_modified_z_score": {"type": ["number", "null"], "minimum": 0},
+        "threshold": {"type": "number", "exclusiveMinimum": 0, "maximum": 20},
+        "evidence_code": {
+          "enum": ["modified_z_threshold_exceeded", "mad_zero_nonmedian_review"]
+        },
+        "review_status": {"const": "review_required"}
+      }
+    },
+    "OutlierDetectionRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detection_run_id", "classification", "detection_plan_id",
+        "detection_plan_revision_id", "statistical_result_id",
+        "statistical_result_revision_id", "selection_id", "selection_revision_id",
+        "sample_count", "sample_median_peak_stress_pa", "sample_mad_peak_stress_pa",
+        "candidate_count", "candidates", "started_at", "ended_at"
+      ],
+      "properties": {
+        "detection_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sample_count": {"type": "integer", "minimum": 3, "maximum": 50},
+        "sample_median_peak_stress_pa": {"type": "number", "minimum": 0},
+        "sample_mad_peak_stress_pa": {"type": "number", "minimum": 0},
+        "candidate_count": {"type": "integer", "minimum": 0, "maximum": 50},
+        "candidates": {
+          "type": "array", "maxItems": 50,
+          "items": {"$ref": "#/$defs/OutlierCandidateResponse"}
+        },
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "CreateOutlierAssessmentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "candidate_id", "detection_plan_id", "detection_plan_revision_id",
+        "decision", "assessment_reason", "change_reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "decision": {"enum": ["retained", "excluded_from_calibration"]},
+        "assessment_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "OutlierAssessmentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assessment_id", "current_revision", "candidate_id", "detection_plan_id",
+        "detection_plan_revision_id", "decision", "assessment_reason", "automatic_exclusion"
+      ],
+      "properties": {
+        "assessment_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "decision": {"enum": ["retained", "excluded_from_calibration"]},
+        "assessment_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "automatic_exclusion": {"const": false}
+      }
+    },
+    "OutlierAssessmentListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/OutlierAssessmentResponse"}}
+      }
+    },
+    "CreateCalibrationScopeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "scope_label", "detection_run_id",
+        "assessment_revision_ids", "change_reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "scope_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "detection_run_id": {"$ref": "#/$defs/Uuid"},
+        "assessment_revision_ids": {
+          "type": "array", "maxItems": 50, "uniqueItems": true,
+          "items": {"$ref": "#/$defs/Uuid"}
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CalibrationScopeMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal", "dataset_id", "dataset_revision_id", "test_run_id",
+        "test_run_revision_id", "disposition", "candidate_id", "assessment_id",
+        "assessment_revision_id"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 49},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "disposition": {"enum": ["included", "excluded"]},
+        "candidate_id": {"type": ["string", "null"], "format": "uuid"},
+        "assessment_id": {"type": ["string", "null"], "format": "uuid"},
+        "assessment_revision_id": {"type": ["string", "null"], "format": "uuid"}
+      }
+    },
+    "CalibrationScopeResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope_id", "scope_label", "current_revision", "source_selection_id",
+        "source_selection_revision_id", "statistical_result_id",
+        "statistical_result_revision_id", "detection_plan_id", "detection_plan_revision_id",
+        "source_member_count", "included_member_count", "excluded_member_count", "members"
+      ],
+      "properties": {
+        "scope_id": {"$ref": "#/$defs/Uuid"},
+        "scope_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "source_selection_id": {"$ref": "#/$defs/Uuid"},
+        "source_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "statistical_result_revision_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_id": {"$ref": "#/$defs/Uuid"},
+        "detection_plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "source_member_count": {"type": "integer", "minimum": 3, "maximum": 50},
+        "included_member_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "excluded_member_count": {"type": "integer", "minimum": 0, "maximum": 48},
+        "members": {
+          "type": "array", "minItems": 3, "maxItems": 50,
+          "items": {"$ref": "#/$defs/CalibrationScopeMember"}
+        }
+      }
+    },
+    "CalibrationScopeListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/CalibrationScopeResponse"}}
+      }
+    }
+  }
+}

@@ -83,6 +83,17 @@ Foundation version: `0.27.0`
   provenance/audit hooks, contracts, APIs, and the Material State workbench expose append-only
   assessment history and a comparison projection without changing any Raw Asset, Dataset,
   Selection, or Statistics Result or creating a derived Selection.
+- `T-21` P0-2 multi-replicate extension: a typed modified-z Detection Plan pins one exact
+  multi-replicate Statistical Result revision and evaluates specimen-level peak stress from every
+  pinned processed Dataset Artifact. An immutable Run stores zero or more `review_required`
+  candidates, with explicit MAD-zero/nonmedian evidence and no infinite score. Separate append-only
+  human Assessments drive an immutable calibration input Scope that pins every original
+  Dataset/Test Run member plus the exact Candidate/Assessment revision for any decision. At least
+  two members remain included; Raw Assets, Datasets, Selections, Results, prior scopes, and
+  published outputs are never changed. Migration `20260731_034_p02`, composite tenant and
+  classification FKs, forced RLS, append-only guards, API/contracts, React controls, unit/API/web
+  regressions, and live PostgreSQL include/exclude verification are implemented. This is a bounded
+  non-production review method, not an automatic scientific outlier decision.
 - `T-32` MVP subset: React/Vite Material Catalog workbench backed by protected Catalog, Modeling,
   and Exporting APIs; Dashboard, search, Material creation, State and typed Property Set
   entry/revision, revision compare/history, provenance summary, and the reference
@@ -576,8 +587,11 @@ shows exact members, QC, peak scalar statistics, observed range, mean, and Stude
 Statistics performs no interpolation or hidden alignment, and the earlier pair workflow remains
 unchanged.
 
-The remaining P0-2 order is now: multi-member outlier evidence/assessment, followed by
-calibration-specific exclusion scope. No automatic source mutation or exclusion is permitted.
+P0-2 is now complete through multi-member outlier evidence, append-only human assessment, and an
+immutable calibration-specific input Scope. The next implementation wave is P1: bounded
+multi-curve Voce calibration, Candidate diagnostics and selection, calibrated IR and two-solver
+card generation, then solver-independent holdout validation. No automatic source mutation or
+exclusion is permitted.
 
 Verification includes a live non-owner Docker/PostgreSQL execution that committed three independent
 31-point processed Dataset revisions in one batch. Unit tests cover interpolation, common-domain,

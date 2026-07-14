@@ -20,6 +20,13 @@ const planRevisionId = "91000000-0000-4000-8000-000000000004";
 const runId = "91000000-0000-4000-8000-000000000005";
 const resultId = "91000000-0000-4000-8000-000000000006";
 const artifactId = "91000000-0000-4000-8000-000000000007";
+const outlierPlanId = "91000000-0000-4000-8000-000000000071";
+const outlierPlanRevisionId = "91000000-0000-4000-8000-000000000072";
+const outlierRunId = "91000000-0000-4000-8000-000000000073";
+const candidateId = "91000000-0000-4000-8000-000000000074";
+const assessmentId = "91000000-0000-4000-8000-000000000075";
+const assessmentRevisionId = "91000000-0000-4000-8000-000000000076";
+const scopeId = "91000000-0000-4000-8000-000000000077";
 const revisionIds = [
   "91000000-0000-4000-8000-000000000011",
   "91000000-0000-4000-8000-000000000012",
@@ -170,6 +177,83 @@ describe("Reference replicate statistics workbench", () => {
           ],
         }));
       }
+      if (url.endsWith("/replicate-outlier-detection-plans") && method === "POST") {
+        return Promise.resolve(jsonResponse({
+          detection_plan_id: outlierPlanId,
+          plan_label: "Peak stress outlier review",
+          current_revision: revision(outlierPlanRevisionId, outlierPlanId, {}),
+          content: {
+            statistical_result_id: resultId,
+            statistical_result_revision_id: run.result_revision_id,
+            detector: "absolute_modified_z_score_peak_stress",
+            feature: "peak_engineering_stress_pa",
+            absolute_modified_z_threshold: 3.5,
+            automatic_exclusion: false,
+          },
+        }, 201));
+      }
+      if (url.endsWith("/replicate-outlier-detection-runs") && method === "POST") {
+        return Promise.resolve(jsonResponse({
+          detection_run_id: outlierRunId,
+          classification: "internal",
+          detection_plan_id: outlierPlanId,
+          detection_plan_revision_id: outlierPlanRevisionId,
+          statistical_result_id: resultId,
+          statistical_result_revision_id: run.result_revision_id,
+          selection_id: selectionId,
+          selection_revision_id: selectionRevisionId,
+          sample_count: 3,
+          sample_median_peak_stress_pa: 610_000_000,
+          sample_mad_peak_stress_pa: 10_000_000,
+          candidate_count: 1,
+          candidates: [{
+            candidate_id: candidateId,
+            ordinal: 3,
+            dataset_id: "91000000-0000-4000-8000-000000000042",
+            dataset_revision_id: revisionIds[2],
+            test_run_id: "91000000-0000-4000-8000-000000000052",
+            test_run_revision_id: "91000000-0000-4000-8000-000000000062",
+            peak_engineering_stress_pa: 900_000_000,
+            sample_median_peak_stress_pa: 610_000_000,
+            sample_mad_peak_stress_pa: 10_000_000,
+            absolute_modified_z_score: 19.5602,
+            threshold: 3.5,
+            evidence_code: "modified_z_threshold_exceeded",
+            review_status: "review_required",
+          }],
+          started_at: "2026-07-31T00:00:00Z",
+          ended_at: "2026-07-31T00:00:01Z",
+        }, 201));
+      }
+      if (url.endsWith("/replicate-outlier-assessments") && method === "POST") {
+        return Promise.resolve(jsonResponse({
+          assessment_id: assessmentId,
+          current_revision: revision(assessmentRevisionId, assessmentId, {}),
+          candidate_id: candidateId,
+          detection_plan_id: outlierPlanId,
+          detection_plan_revision_id: outlierPlanRevisionId,
+          decision: "retained",
+          assessment_reason: "Reviewed against specimen and test context",
+          automatic_exclusion: false,
+        }, 201));
+      }
+      if (url.endsWith("/reference-calibration-input-scopes") && method === "POST") {
+        return Promise.resolve(jsonResponse({
+          scope_id: scopeId,
+          scope_label: "Voce calibration input scope",
+          current_revision: revision("91000000-0000-4000-8000-000000000078", scopeId, {}),
+          source_selection_id: selectionId,
+          source_selection_revision_id: selectionRevisionId,
+          statistical_result_id: resultId,
+          statistical_result_revision_id: run.result_revision_id,
+          detection_plan_id: outlierPlanId,
+          detection_plan_revision_id: outlierPlanRevisionId,
+          source_member_count: 3,
+          included_member_count: 3,
+          excluded_member_count: 0,
+          members: [],
+        }, 201));
+      }
       return Promise.resolve(jsonResponse({ detail: `Unexpected ${method} ${url}` }, 404));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -192,7 +276,15 @@ describe("Reference replicate statistics workbench", () => {
     expect(screen.getByText(/Student-t two-sided 95% CI/)).toBeTruthy();
     expect(screen.getByLabelText("Multi-replicate quality-control observations").textContent).toContain("distinct_test_runs");
     expect(screen.getByLabelText("Replicate statistical curve band")).toBeTruthy();
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5));
+    fireEvent.click(screen.getByRole("button", { name: "Create outlier review Plan" }));
+    await screen.findByText(/Review Plan 91000000/);
+    fireEvent.click(screen.getByRole("button", { name: "Run outlier evidence detector" }));
+    await screen.findByText("modified_z_threshold_exceeded");
+    fireEvent.click(screen.getByRole("button", { name: "Retain" }));
+    await screen.findByText("retained");
+    fireEvent.click(screen.getByRole("button", { name: "Create calibration input Scope" }));
+    await screen.findByText(/included 3/);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(9));
   });
 
   it("reuses an existing processed replicate Selection without duplicate alignment or pinning", async () => {
