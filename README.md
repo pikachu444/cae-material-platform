@@ -516,7 +516,7 @@ and validation curve views on their source APIs and labels preview sampling sepa
 calculation inputs. The Dashboard governance area adds a protected Lineage and Audit Inspector:
 reviewers can inspect one immutable provenance Entity, bounded upstream/downstream evidence,
 completeness state, and the append-only project audit chain before using the existing Review and
-Release commands. Truncated graphs and invalid audit chains are shown as warnings; the browser
-does not reconstruct or silently complete either result. The inspector accepts an explicit
-provenance Entity UUID from the protected evidence link, so organization/project/classification
-RLS remains authoritative.
+Release commands. Reviewers can resolve a provenance Entity from its typed immutable revision or
+artifact reference, or paste an Entity UUID directly. Truncated graphs and invalid audit chains
+are shown as warnings; the browser does not reconstruct or silently complete either result. The
+organization/project/classification RLS boundary remains authoritative.

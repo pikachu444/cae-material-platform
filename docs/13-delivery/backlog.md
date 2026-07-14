@@ -691,5 +691,6 @@ Lineage and Audit Inspector next to the Review and Release workbenches. A review
 immutable provenance Entity, upstream lineage or downstream impact, completeness state, recent
 tenant/project audit events, and audit-chain integrity. Graph truncation and invalid integrity are
 visible warnings; client-side graph reconstruction, hidden payloads, and cross-organization/project
-reads are not allowed. The inspector consumes an explicit provenance Entity UUID from the protected
-evidence link. Generic graph visualization and production audit export remain outside this slice.
+reads are not allowed. The inspector resolves a typed immutable revision/artifact reference to the
+opaque Entity UUID or accepts that UUID directly. Generic graph visualization and production audit
+export remain outside this slice.

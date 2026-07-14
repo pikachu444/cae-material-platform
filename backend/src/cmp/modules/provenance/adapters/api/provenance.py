@@ -39,6 +39,14 @@ from cmp.modules.provenance.domain.model import (
 )
 
 type Label = Annotated[str, StringConstraints(min_length=1, max_length=255)]
+type ReferenceType = Annotated[
+    str,
+    StringConstraints(
+        min_length=3,
+        max_length=100,
+        pattern=r"^[a-z][a-z0-9]*([._-][a-z0-9]+)+$",
+    ),
+]
 type Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 type Dependency = Callable[..., object]
 
@@ -360,6 +368,34 @@ def install_provenance_api(
         422: {"model": ProvenanceProblem},
         503: {"model": ProvenanceProblem},
     }
+
+    @application.get(
+        "/api/v1/provenance/entities/by-reference",
+        operation_id="findProvenanceEntityByReference",
+        response_model=ProvenanceEntityResponse,
+        responses=responses,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["provenance"],
+        summary="Resolve one immutable provenance Entity from its typed reference.",
+    )
+    def find_entity_by_reference(
+        request: Request,
+        reference_type: ReferenceType,
+        reference_id: UUID,
+    ) -> ProvenanceEntityResponse:
+        context, decision = _request_scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            record = service.find_entity_by_reference(
+                context,
+                decision,
+                reference_type=reference_type,
+                reference_id=reference_id,
+            )
+        except ProvenanceError as error:
+            raise _translate(context, error) from error
+        return ProvenanceEntityResponse.from_record(record)
 
     @application.get(
         "/api/v1/provenance/entities/{entity_id}",

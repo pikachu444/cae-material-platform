@@ -691,6 +691,54 @@ paths:
         "410": {description: Transfer capability expired.}
         "422": {description: Transfer header is invalid.}
         "503": {description: Object store unavailable.}
+  /api/v1/provenance/entities/by-reference:
+    get:
+      operationId: findProvenanceEntityByReference
+      tags: [provenance]
+      summary: Resolve one immutable provenance Entity from its typed reference.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: reference_type
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 100
+            pattern: '^[a-z][a-z0-9]*([._-][a-z0-9]+)+$'
+        - name: reference_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Tenant-visible immutable Entity metadata and completeness status.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ProvenanceEntityResponse"}
+        "401": {description: Authentication required.}
+        "403":
+          description: Provenance read is not authorized.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "404":
+          description: No Entity is visible for the typed reference.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "409":
+          description: Query conflicts with immutable provenance state.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
+        "422": {description: Typed reference input is invalid.}
+        "503":
+          description: Provenance service unavailable.
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/ProvenanceProblem"}
   /api/v1/provenance/entities/{entity_id}:
     get:
       operationId: getProvenanceEntity
