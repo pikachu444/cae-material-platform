@@ -35,7 +35,10 @@ from cmp.bootstrap.security import (
     build_identity_services,
 )
 from cmp.bootstrap.settings import Settings
-from cmp.bootstrap.statistics import build_statistics_service
+from cmp.bootstrap.statistics import (
+    build_replicate_statistics_service,
+    build_statistics_service,
+)
 from cmp.bootstrap.testing import build_testing_service
 from cmp.bootstrap.validation import build_reference_validation_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
@@ -88,7 +91,11 @@ from cmp.modules.review_release.adapters.api.release import install_release_api
 from cmp.modules.review_release.adapters.api.review import install_review_api
 from cmp.modules.review_release.application.release_service import ReleaseService
 from cmp.modules.review_release.application.service import ReviewService
+from cmp.modules.statistics.adapters.api.replicate_statistics import (
+    install_replicate_statistics_api,
+)
 from cmp.modules.statistics.adapters.api.statistics import install_statistics_api
+from cmp.modules.statistics.application.replicate_service import ReplicateStatisticsService
 from cmp.modules.statistics.application.service import StatisticsService
 from cmp.modules.testing.adapters.api.testing import install_testing_api
 from cmp.modules.testing.application.service import TestingService
@@ -123,6 +130,7 @@ def create_app(
     dataset_service: DatasetService | None = None,
     processing_service: ProcessingService | None = None,
     statistics_service: StatisticsService | None = None,
+    replicate_statistics_service: ReplicateStatisticsService | None = None,
     material_model_service: MaterialModelService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
@@ -308,6 +316,25 @@ def create_app(
             services.authorization, Permission.STATISTICS_EXECUTE
         ),
     )
+    resolved_replicate_statistics = (
+        replicate_statistics_service
+        or build_replicate_statistics_service(
+            services,
+            resolved_datasets,
+            resolved_artifacts,
+        )
+    )
+    install_replicate_statistics_api(
+        application,
+        service=resolved_replicate_statistics,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.STATISTICS_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.STATISTICS_EXECUTE
+        ),
+    )
     resolved_material_models = material_model_service or build_material_model_service(services)
     install_material_model_api(
         application,
@@ -459,14 +486,13 @@ def create_app(
     application.state.dataset_service = resolved_datasets
     application.state.processing_service = resolved_processing
     application.state.statistics_service = resolved_statistics
+    application.state.replicate_statistics_service = resolved_replicate_statistics
     application.state.material_model_service = resolved_material_models
     application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
-    application.state.elastoplastic_solver_card_service = (
-        resolved_elastoplastic_solver_cards
-    )
+    application.state.elastoplastic_solver_card_service = resolved_elastoplastic_solver_cards
     application.state.validation_service = resolved_validation
     application.state.review_service = resolved_review
     application.state.release_service = resolved_release

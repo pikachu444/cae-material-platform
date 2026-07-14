@@ -1114,3 +1114,57 @@ def test_release_contract_and_runtime_expose_digest_fixed_completeness_flow() ->
         "transitions",
         "warning",
     }.issubset(runtime_schemas["ReleaseImpactResponse"]["required"])
+
+
+def test_multi_replicate_statistics_contract_matches_runtime_and_declares_methods() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/replicate-statistical-plans": {
+            "post": "createReferenceTensileReplicateStatisticalPlan",
+            "get": "listReferenceTensileReplicateStatisticalPlans",
+        },
+        "/api/v1/replicate-statistical-plans/{plan_id}": {
+            "get": "getReferenceTensileReplicateStatisticalPlan",
+        },
+        "/api/v1/replicate-statistical-runs": {
+            "post": "executeReferenceTensileReplicateStatistics",
+        },
+        "/api/v1/replicate-statistical-runs/{run_id}": {
+            "get": "getReferenceTensileReplicateStatisticalRun",
+        },
+        "/api/v1/replicate-statistical-results/{result_id}": {
+            "get": "getReferenceTensileReplicateStatisticalResult",
+        },
+        "/api/v1/replicate-statistical-results/{result_id}/curve": {
+            "get": "previewReferenceTensileReplicateStatisticalResultCurve",
+        },
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = (
+        PROJECT_ROOT / "contracts/statistics/reference-tensile-replicate-resources.schema.json"
+    )
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    serialized = json.dumps(schema)
+    assert '"sample_count"' in serialized
+    assert "exact_processed_grid_match_no_alignment" in serialized
+    assert "student_t_95_two_sided" in serialized
+    assert '"key"' not in serialized
+    assert '"value"' not in serialized
+
+    runtime_schemas = runtime["components"]["schemas"]
+    assert {"sample_count", "members", "qc_observations"}.issubset(
+        runtime_schemas["ReplicateStatisticalRunResponse"]["required"]
+    )
+    assert {
+        "sample_standard_deviation",
+        "median_absolute_deviation",
+        "interquartile_range",
+        "mean_confidence_interval_lower_95",
+        "mean_confidence_interval_upper_95",
+    }.issubset(runtime_schemas["ReplicateScalarStatisticsResponse"]["required"])

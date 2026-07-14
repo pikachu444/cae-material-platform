@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/statistics/reference-tensile-replicate-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "CreateReplicateStatisticalPlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "plan_label", "selection_id", "selection_revision_id",
+        "sample_count", "change_reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sample_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReplicatePlanContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_kind", "selection_id", "selection_revision_id", "sample_count",
+        "required_input_representation", "scalar_feature", "curve_grid_policy",
+        "quantile_method", "confidence_interval_method", "curve_output_schema_ref"
+      ],
+      "properties": {
+        "plan_kind": {"const": "reference_tensile_replicate_scalar_and_curve"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sample_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "required_input_representation": {"const": "processed"},
+        "scalar_feature": {"const": "peak_engineering_stress_pa"},
+        "curve_grid_policy": {"const": "exact_processed_grid_match_no_alignment"},
+        "quantile_method": {"const": "linear_inclusive"},
+        "confidence_interval_method": {"const": "student_t_95_two_sided"},
+        "curve_output_schema_ref": {"const": "urn:cmp:statistics:reference-tensile-replicate-curve-parquet:1.0.0"}
+      }
+    },
+    "ReplicatePlanRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "../revisions/revision-metadata.schema.json"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {"content": {"$ref": "#/$defs/ReplicatePlanContent"}}
+        }
+      ]
+    },
+    "ReplicateStatisticalPlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statistical_plan_id", "plan_label", "current_revision", "links"],
+      "properties": {
+        "statistical_plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "#/$defs/ReplicatePlanRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReplicateStatisticalPlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/ReplicateStatisticalPlanResponse"}}
+      }
+    },
+    "ExecuteReplicateStatisticsRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "plan_revision_id", "change_reason"],
+      "properties": {
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "QcObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_code", "outcome", "detail", "expected_point_count",
+        "observed_point_count", "mismatch_index"
+      ],
+      "properties": {
+        "check_code": {
+          "enum": [
+            "distinct_test_runs", "identical_observed_engineering_strain_grid",
+            "input_artifact_readable"
+          ]
+        },
+        "outcome": {"enum": ["passed", "failed"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 500},
+        "expected_point_count": {"type": ["integer", "null"], "minimum": 0},
+        "observed_point_count": {"type": ["integer", "null"], "minimum": 0},
+        "mismatch_index": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "ReplicateRunMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal", "dataset_id", "dataset_revision_id", "test_run_id", "test_run_revision_id"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1, "maximum": 50},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "ReplicateStatisticalRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statistical_run_id", "classification", "execution_mode", "status", "plan_id",
+        "plan_revision_id", "selection_id", "selection_revision_id", "sample_count", "members",
+        "result_id", "result_revision_id", "curve_artifact_id", "curve_sha256",
+        "curve_point_count", "failure_code", "qc_observations", "change_reason",
+        "started_at", "ended_at", "links"
+      ],
+      "properties": {
+        "statistical_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "execution_mode": {"const": "committed"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sample_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "members": {"type": "array", "minItems": 2, "maxItems": 50, "items": {"$ref": "#/$defs/ReplicateRunMember"}},
+        "result_id": {"type": ["string", "null"], "format": "uuid"},
+        "result_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "curve_artifact_id": {"type": ["string", "null"], "format": "uuid"},
+        "curve_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "curve_point_count": {"type": ["integer", "null"], "minimum": 2, "maximum": 100000},
+        "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "qc_observations": {"type": "array", "items": {"$ref": "#/$defs/QcObservation"}},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReplicateScalarStatistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sample_count", "mean", "sample_standard_deviation", "median",
+        "median_absolute_deviation", "interquartile_range", "minimum", "maximum",
+        "coefficient_of_variation", "mean_confidence_interval_lower_95",
+        "mean_confidence_interval_upper_95"
+      ],
+      "properties": {
+        "sample_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "mean": {"type": "number"},
+        "sample_standard_deviation": {"type": "number", "minimum": 0},
+        "median": {"type": "number"},
+        "median_absolute_deviation": {"type": "number", "minimum": 0},
+        "interquartile_range": {"type": "number", "minimum": 0},
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "coefficient_of_variation": {"type": ["number", "null"], "minimum": 0},
+        "mean_confidence_interval_lower_95": {"type": "number"},
+        "mean_confidence_interval_upper_95": {"type": "number"}
+      }
+    },
+    "ReplicateMethods": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grid", "quantile", "confidence_interval"],
+      "properties": {
+        "grid": {"const": "exact_processed_grid_match_no_alignment"},
+        "quantile": {"const": "linear_inclusive"},
+        "confidence_interval": {"const": "student_t_95_two_sided"}
+      }
+    },
+    "ReplicateStatisticalResultResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statistical_result_id", "current_revision", "statistical_run_id", "plan_id",
+        "plan_revision_id", "selection_id", "selection_revision_id", "curve_artifact_id",
+        "curve_sha256", "curve_point_count", "peak_engineering_stress_pa", "methods", "links"
+      ],
+      "properties": {
+        "statistical_result_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "statistical_run_id": {"$ref": "#/$defs/Uuid"},
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "curve_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "curve_sha256": {"$ref": "#/$defs/Sha256"},
+        "curve_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "peak_engineering_stress_pa": {"$ref": "#/$defs/ReplicateScalarStatistics"},
+        "methods": {"$ref": "#/$defs/ReplicateMethods"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "ReplicateCurvePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engineering_strain", "statistics"],
+      "properties": {
+        "engineering_strain": {"type": "number", "minimum": 0},
+        "statistics": {"$ref": "#/$defs/ReplicateScalarStatistics"}
+      }
+    },
+    "ReplicateResultCurveResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result_id", "grid_policy", "points"],
+      "properties": {
+        "result_id": {"$ref": "#/$defs/Uuid"},
+        "grid_policy": {"const": "exact_processed_grid_match_no_alignment"},
+        "points": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 10000,
+          "items": {"$ref": "#/$defs/ReplicateCurvePoint"}
+        }
+      }
+    }
+  }
+}

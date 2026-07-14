@@ -121,6 +121,7 @@ class ReferenceTensileReplicatePlanContent:
     plan_label: str
     selection_id: UUID
     selection_revision_id: UUID
+    sample_count: int
 
     def __post_init__(self) -> None:
         if (
@@ -134,6 +135,12 @@ class ReferenceTensileReplicatePlanContent:
             )
         _uuid("selection_id", self.selection_id)
         _uuid("selection_revision_id", self.selection_revision_id)
+        if (
+            not MIN_REFERENCE_TENSILE_REPLICATES
+            <= self.sample_count
+            <= MAX_REFERENCE_TENSILE_REPLICATES
+        ):
+            raise InvalidStatisticsRequest("sample_count must be between 2 and 50")
 
 
 def reference_tensile_replicate_plan_canonical(
@@ -145,8 +152,7 @@ def reference_tensile_replicate_plan_canonical(
         "plan_kind": REFERENCE_TENSILE_REPLICATE_PLAN_KIND,
         "selection_id": str(value.selection_id),
         "selection_revision_id": str(value.selection_revision_id),
-        "minimum_sample_count": MIN_REFERENCE_TENSILE_REPLICATES,
-        "maximum_sample_count": MAX_REFERENCE_TENSILE_REPLICATES,
+        "sample_count": value.sample_count,
         "required_input_representation": "processed",
         "scalar_feature": REFERENCE_TENSILE_REPLICATE_SCALAR_FEATURE,
         "curve_grid_policy": REFERENCE_TENSILE_REPLICATE_GRID_POLICY,

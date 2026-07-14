@@ -2099,6 +2099,172 @@ paths:
         "403": {description: Processing read is not authorized.}
         "404": {description: No visible Import Run matches the identifier.}
         "503": {description: Processing service unavailable.}
+  /api/v1/replicate-statistical-plans:
+    post:
+      operationId: createReferenceTensileReplicateStatisticalPlan
+      tags: [statistics]
+      summary: Create an immutable typed Plan for one processed multi-replicate Selection revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/CreateReplicateStatisticalPlanRequest"}
+      responses:
+        "201":
+          description: Stable Statistical Plan identity and first immutable revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateStatisticalPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics execution is not authorized.}
+        "404": {description: The pinned replicate Selection revision is not visible.}
+        "409": {description: Plan scope, sample count, or immutable Selection state conflicts.}
+        "422": {description: Typed Plan request is invalid.}
+        "503": {description: Statistics service unavailable.}
+    get:
+      operationId: listReferenceTensileReplicateStatisticalPlans
+      tags: [statistics]
+      summary: List Plan heads pinned to one concrete multi-replicate Selection revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_revision_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Tenant-visible immutable Plan heads.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateStatisticalPlanListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/replicate-statistical-plans/{plan_id}:
+    get:
+      operationId: getReferenceTensileReplicateStatisticalPlan
+      tags: [statistics]
+      summary: Read one current immutable multi-replicate Statistical Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current typed Statistical Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateStatisticalPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible Plan matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/replicate-statistical-runs:
+    post:
+      operationId: executeReferenceTensileReplicateStatistics
+      tags: [statistics]
+      summary: Commit exact-grid scalar and pointwise statistics from pinned processed replicates.
+      description: No implicit alignment, resampling, interpolation, exclusion, or source mutation occurs.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ExecuteReplicateStatisticsRequest"}
+      responses:
+        "201":
+          description: Terminal committed Run with typed immutable Result and QC, or a failed terminal Run.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateStatisticalRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics execution is not authorized.}
+        "404": {description: A pinned Plan, Selection, Dataset revision, or Artifact is not visible.}
+        "409": {description: Immutable input, Artifact, Result, or terminal-state conflict.}
+        "422": {description: Typed execution request is invalid.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/replicate-statistical-runs/{run_id}:
+    get:
+      operationId: getReferenceTensileReplicateStatisticalRun
+      tags: [statistics]
+      summary: Read one committed multi-replicate Statistics Run, exact members, QC, and Result pins.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Run state, exact input members, QC observations, and immutable outputs.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateStatisticalRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible Run matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/replicate-statistical-results/{result_id}:
+    get:
+      operationId: getReferenceTensileReplicateStatisticalResult
+      tags: [statistics]
+      summary: Read one immutable typed multi-replicate scalar and curve Result revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable Result metadata, scalar statistics, methods, and curve Artifact pin.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateStatisticalResultResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible Result matches the identifier.}
+        "503": {description: Statistics service unavailable.}
+  /api/v1/replicate-statistical-results/{result_id}/curve:
+    get:
+      operationId: previewReferenceTensileReplicateStatisticalResultCurve
+      tags: [statistics]
+      summary: Read a bounded preview of pointwise replicate statistics and Student-t 95% mean CI.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: maximum_points
+          in: query
+          required: false
+          schema: {type: integer, minimum: 2, maximum: 10000, default: 1000}
+      responses:
+        "200":
+          description: Pointwise scalar statistics on the exact explicit processed grid.
+          content:
+            application/json:
+              schema: {$ref: "../statistics/reference-tensile-replicate-resources.schema.json#/$defs/ReplicateResultCurveResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Statistics read is not authorized.}
+        "404": {description: No visible Result or curve Artifact matches the identifier.}
+        "409": {description: Immutable Artifact integrity or Result state conflicts.}
+        "422": {description: Preview limit or typed curve Artifact is invalid.}
+        "503": {description: Statistics service unavailable.}
   /api/v1/statistical-plans/reference-tensile-pair:
     post:
       operationId: createReferenceTensilePairStatisticalPlan

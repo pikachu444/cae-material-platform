@@ -39,6 +39,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260728_030_P0_2_multi_replicate_selection.py",
         "20260728_031_P0_2_provenance_activity_finalization.py",
         "20260729_032_P0_2_replicate_alignment.py",
+        "20260730_033_P0_2_replicate_statistics.py",
     ]
 
 

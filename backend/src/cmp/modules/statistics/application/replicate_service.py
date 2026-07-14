@@ -38,8 +38,10 @@ from cmp.modules.statistics.domain.reference_tensile_replicates import (
     REFERENCE_TENSILE_REPLICATE_SCHEMA_VERSION,
     ReferenceTensileReplicatePlanContent,
     ReferenceTensileReplicateResultContent,
+    ReplicateCurvePoint,
     calculate_reference_tensile_replicate_statistics,
     exact_replicate_grid_qc,
+    reference_tensile_replicate_curve_from_parquet,
     reference_tensile_replicate_curve_parquet_bytes,
 )
 from cmp.shared.application.revisions import (
@@ -153,6 +155,15 @@ class ReplicateStatisticsRepository(Protocol):
         plan_id: UUID,
         plan_revision_id: UUID,
     ) -> ReplicateRevisionSnapshot[ReferenceTensileReplicatePlanContent]: ...
+
+    def list_plans(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_revision_id: UUID,
+        limit: int,
+    ) -> tuple[ReplicateStatisticalPlanSnapshot, ...]: ...
 
     def get_result(
         self,
@@ -309,6 +320,8 @@ class ReplicateStatisticsService:
         )
         if selection.revision.record.scope != scope:
             raise StatisticsConflict("Plan classification must match its pinned Selection")
+        if command.content.sample_count != len(selection.revision.content.members):
+            raise StatisticsConflict("Plan sample_count must match its pinned Selection")
         self._processed_inputs(context, decision, selection, scope)
         plan_id = self._id()
         record = RevisionService(
@@ -346,6 +359,8 @@ class ReplicateStatisticsService:
         selection = self._selection(context, decision, command.content)
         if selection.revision.record.scope != existing.current.record.scope:
             raise StatisticsConflict("Selection revision is outside the Plan tenant scope")
+        if command.content.sample_count != len(selection.revision.content.members):
+            raise StatisticsConflict("Plan sample_count must match its pinned Selection")
         self._processed_inputs(context, decision, selection, existing.current.record.scope)
         record = RevisionService(
             aggregate_type=REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
@@ -367,6 +382,33 @@ class ReplicateStatisticsService:
         )
         return ReplicateStatisticalPlanSnapshot(
             plan_id, ReplicateRevisionSnapshot(record, command.content)
+        )
+
+    def get_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+    ) -> ReplicateStatisticalPlanSnapshot:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_plan(context=context, decision=decision, plan_id=plan_id)
+
+    def list_plans(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_revision_id: UUID,
+        *,
+        limit: int = 100,
+    ) -> tuple[ReplicateStatisticalPlanSnapshot, ...]:
+        _require(context, decision, Permission.STATISTICS_READ)
+        if not 1 <= limit <= 200:
+            raise ValueError("limit must be between 1 and 200")
+        return self._repository.list_plans(
+            context=context,
+            decision=decision,
+            selection_revision_id=selection_revision_id,
+            limit=limit,
         )
 
     async def execute(
@@ -520,6 +562,57 @@ class ReplicateStatisticsService:
                 qc_observations=observations,
             )
             raise
+
+    def get_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> ReplicateStatisticalRun:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_run(context=context, decision=decision, run_id=run_id)
+
+    def get_result(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        result_id: UUID,
+    ) -> ReplicateStatisticalResultSnapshot:
+        _require(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_result(context=context, decision=decision, result_id=result_id)
+
+    async def preview_result_curve(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        result_id: UUID,
+        *,
+        maximum_points: int,
+    ) -> tuple[ReplicateCurvePoint, ...]:
+        _require(context, decision, Permission.STATISTICS_READ)
+        if not 2 <= maximum_points <= 10_000:
+            raise ValueError("preview point limit must be between 2 and 10000")
+        result = self._repository.get_result(
+            context=context, decision=decision, result_id=result_id
+        )
+        _, data = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            result.current.content.curve_artifact_id,
+            maximum_bytes=32 * 1024 * 1024,
+        )
+        curve = reference_tensile_replicate_curve_from_parquet(data)
+        if len(curve) != result.current.content.curve_point_count:
+            raise StatisticsConflict(
+                "result curve Artifact point count differs from immutable Result"
+            )
+        if len(curve) <= maximum_points:
+            return curve
+        last = len(curve) - 1
+        indexes = tuple(
+            round(index * last / (maximum_points - 1)) for index in range(maximum_points)
+        )
+        return tuple(curve[index] for index in indexes)
 
     def _register_result(
         self,

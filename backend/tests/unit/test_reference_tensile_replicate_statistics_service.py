@@ -297,7 +297,7 @@ class _Artifacts:
 class _Repository:
     def __init__(self) -> None:
         content = ReferenceTensileReplicatePlanContent(
-            "DP780 replicate statistics", SELECTION, SELECTION_REVISION
+            "DP780 replicate statistics", SELECTION, SELECTION_REVISION, 3
         )
         self.plan = ReplicateRevisionSnapshot(
             _record(PLAN_REVISION, PLAN, REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE),

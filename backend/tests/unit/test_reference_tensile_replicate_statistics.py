@@ -24,11 +24,13 @@ def test_replicate_plan_pins_one_concrete_multi_member_selection_revision() -> N
         plan_label="DP780 aligned replicate statistics",
         selection_id=UUID("10000000-0000-4000-8000-000000000001"),
         selection_revision_id=UUID("10000000-0000-4000-8000-000000000002"),
+        sample_count=3,
     )
 
     canonical = reference_tensile_replicate_plan_canonical(plan)
 
     assert canonical["required_input_representation"] == "processed"
+    assert canonical["sample_count"] == 3
     assert canonical["curve_grid_policy"] == "exact_processed_grid_match_no_alignment"
     assert canonical["confidence_interval_method"] == "student_t_95_two_sided"
 
