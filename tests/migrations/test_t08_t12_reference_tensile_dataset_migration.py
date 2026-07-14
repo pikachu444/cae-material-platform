@@ -59,3 +59,18 @@ def test_reference_tensile_migration_renders_typed_testing_dataset_tables_and_rl
     assert "sa.JSON" not in sql
     assert '"key"' not in sql
     assert '"value"' not in sql
+
+
+def test_reference_tensile_downgrade_drops_dataset_guard_trigger_first() -> None:
+    output = StringIO()
+    configuration = Config(str(PROJECT_ROOT / "alembic.ini"), output_buffer=output)
+    command.downgrade(
+        configuration,
+        "20260714_016_t08_t12:20260714_015_t25",
+        sql=True,
+    )
+
+    sql = output.getvalue()
+    assert sql.index("DROP TRIGGER datasets_dataset_revision_reference_guard") < sql.index(
+        "DROP FUNCTION datasets.guard_reference_dataset_revision_insert()"
+    )

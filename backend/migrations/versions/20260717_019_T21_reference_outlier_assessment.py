@@ -65,7 +65,7 @@ def _create_tables() -> None:
           CONSTRAINT uq_statistics_outlier_detection_plan_label
             UNIQUE (organization_id, project_id, classification, plan_label),
           CONSTRAINT uq_statistics_outlier_detection_plan_identity_kind
-            UNIQUE (organization_id, project_id, classification, id, plan_label, plan_kind),
+            UNIQUE (organization_id, project_id, classification, id, plan_kind),
           CONSTRAINT ck_statistics_outlier_detection_plan_nonzero_ids CHECK (
             id <> {_ZERO} AND current_revision_id <> {_ZERO} AND created_by <> {_ZERO}),
           CONSTRAINT ck_statistics_outlier_detection_plan_classification CHECK (
@@ -287,12 +287,17 @@ def _create_tables() -> None:
           CONSTRAINT ck_statistics_outlier_candidate_position CHECK (
             pair_position IN ('first', 'second')),
           CONSTRAINT ck_statistics_outlier_candidate_values CHECK (
-            isfinite(peak_engineering_stress_pa) AND peak_engineering_stress_pa >= 0
-            AND isfinite(peer_peak_engineering_stress_pa)
+            peak_engineering_stress_pa NOT IN
+              ('NaN'::double precision, 'Infinity'::double precision, '-Infinity'::double precision)
+            AND peak_engineering_stress_pa >= 0
+            AND peer_peak_engineering_stress_pa NOT IN
+              ('NaN'::double precision, 'Infinity'::double precision, '-Infinity'::double precision)
             AND peer_peak_engineering_stress_pa >= 0
-            AND isfinite(relative_peak_difference)
+            AND relative_peak_difference NOT IN
+              ('NaN'::double precision, 'Infinity'::double precision, '-Infinity'::double precision)
             AND relative_peak_difference BETWEEN 0 AND 1
-            AND isfinite(relative_peak_difference_threshold)
+            AND relative_peak_difference_threshold NOT IN
+              ('NaN'::double precision, 'Infinity'::double precision, '-Infinity'::double precision)
             AND relative_peak_difference_threshold > 0
             AND relative_peak_difference_threshold <= 1
             AND relative_peak_difference >= relative_peak_difference_threshold),
@@ -867,6 +872,20 @@ def downgrade() -> None:
         "guard_outlier_detection_plan_revision_insert",
     ):
         op.execute(f"DROP FUNCTION statistics.{function}()")
+    for identity, constraint in (
+        (
+            "outlier_assessment",
+            "fk_statistics_outlier_assessment_current_revision",
+        ),
+        (
+            "outlier_detection_plan",
+            "fk_statistics_outlier_detection_plan_current_revision",
+        ),
+    ):
+        op.execute(
+            f"ALTER TABLE statistics.{identity} "
+            f"DROP CONSTRAINT {constraint}"
+        )
     for table in (
         "outlier_assessment_revision",
         "outlier_assessment",

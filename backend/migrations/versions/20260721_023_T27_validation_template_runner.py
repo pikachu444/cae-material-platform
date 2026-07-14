@@ -494,7 +494,7 @@ def _create_run_tables() -> None:
                  OR (native_result_state = 'not_available'
                      AND native_result_artifact_id IS NULL AND native_result_sha256 IS NULL))
             AND ((execution_mode = 'reference_inline_mock' AND external_job_reference IS NULL)
-                 OR (execution_mode = 'manual_attach' AND external_job_reference IS NOT NULL)),
+                 OR (execution_mode = 'manual_attach' AND external_job_reference IS NOT NULL))),
           CONSTRAINT fk_validation_run_result_manifest_run FOREIGN KEY
             (organization_id, project_id, classification, validation_run_id)
             REFERENCES validation.validation_run (organization_id, project_id, classification, id)

@@ -71,7 +71,6 @@ ORG = UUID("89000000-0000-4000-8000-000000000001")
 PROJECT_A = UUID("89000000-0000-4000-8000-000000000002")
 PROJECT_B = UUID("89000000-0000-4000-8000-000000000003")
 ACTOR = UUID("89000000-0000-4000-8000-000000000004")
-TEST_RUN = UUID("89000000-0000-4000-8000-000000000005")
 OTHER_ACTOR = UUID("89000000-0000-4000-8000-000000000006")
 TRACE = "00-00000000000000000000000000000089-0000000000000089-01"
 SECRET = b"t09-postgresql-integration-secret-32-bytes-minimum"
@@ -259,7 +258,8 @@ async def _create(
             expected_sha256=digest or hashlib.sha256(payload).hexdigest(),
             idempotency_key=idempotency_key,
             part_size_bytes=64 * 1024,
-            test_run_revision_id=TEST_RUN,
+            # Generic Artifact upload tests do not fabricate a dangling Testing revision.
+            test_run_revision_id=None,
         ),
     )
 

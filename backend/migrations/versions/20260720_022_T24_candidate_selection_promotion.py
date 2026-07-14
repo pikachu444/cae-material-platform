@@ -463,6 +463,11 @@ def downgrade() -> None:
         op.execute(f"DROP POLICY IF EXISTS modeling_{table}_select ON modeling.{table}")
         op.execute(f"DROP POLICY IF EXISTS modeling_{table}_insert ON modeling.{table}")
         op.execute(f"DROP POLICY IF EXISTS modeling_{table}_update ON modeling.{table}")
+    op.execute(
+        "ALTER TABLE modeling.calibration_candidate_selection "
+        "DROP CONSTRAINT IF EXISTS "
+        "fk_modeling_calibration_candidate_selection_current_revision"
+    )
     op.drop_table("calibration_candidate_selection_revision", schema="modeling")
     op.drop_table("calibration_candidate_selection", schema="modeling")
     op.execute(

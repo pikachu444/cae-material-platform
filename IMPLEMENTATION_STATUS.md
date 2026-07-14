@@ -1,6 +1,6 @@
 # Implementation Status
 
-Date: `2026-07-26`
+Date: `2026-07-27`
 Foundation version: `0.27.0`
 
 ## Completed
@@ -374,24 +374,26 @@ PostgreSQL integration suite additionally requires `CMP_TEST_POSTGRES_DSN`.
 
 ```text
 Ruff: passed
-mypy strict: passed (370 source files)
+mypy strict: passed (374 source files)
 Architecture rules: passed
 Contract lint: passed
 OpenAPI compatibility: passed
 Alembic `upgrade head --sql`: passed
-CI-equivalent pytest: 381 passed, 62 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
+PostgreSQL marker suite: 62 passed, 0 skipped, 0 failed
+CI-equivalent pytest with the same disposable PostgreSQL DSN: 452 passed
 Root web check: build passed; Vitest: 21 passed
-Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
-  token tests are implemented. Host diagnostics show WSL 2.6.3 with an active hypervisor and
-  `winget`, but no Docker Desktop/CLI, `psql`, `pg_isready`, or native GNU Make. Git Bash is
-  available. Docker is therefore the remaining user-installed P0-1 prerequisite; a separate host
-  PostgreSQL installation is unnecessary because Compose supplies PostgreSQL 16. The containers and
-  live PostgreSQL demo have not yet been started here.
+Live P0-1 environment: Docker Engine 29.6.1, Compose 5.3.0, PostgreSQL 16, migration/bootstrap,
+  non-owner API, worker, web, reference-plugin check, and synthetic seed all completed successfully.
+  The disposable `postgres-test` profile supplied the owner DSN without weakening the
+  SCRAM-authenticated demo database. Browser smoke verified the seeded Material, Material State,
+  typed properties, normalized tensile Dataset, tabulated-plasticity IR, and OpenRadioss/Abaqus
+  card previews and downloads.
 T-11/T-19/T-21/T-D03 have unit, API integration, migration SQL, and browser-workbench regression
 coverage.
-T-11 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
-because CMP_TEST_POSTGRES_DSN is unavailable; migration SQL rendering is covered offline, while a
-live PostgreSQL test remains the next verification task.
+Online Alembic `base -> head -> base`, forced-RLS integration, and the full CI-equivalent suite now
+run against disposable PostgreSQL. This live pass exposed and fixed migration downgrade ordering,
+composite-key, finite-value, SQL construction, authorization-capability, and typed-query defects
+that offline SQL rendering could not prove.
 ```
 
 ## Intentionally absent
@@ -501,13 +503,17 @@ State workbench. The constant post-necking extension is `approximated`, never si
 solver execution, inverse post-necking identification, rate/temperature dependence, damage/failure,
 and production qualification remain separate decisions.
 
+**Update 2026-07-27:** P0-1 is complete on a live Docker/PostgreSQL stack. Migration/bootstrap/seed,
+non-owner API/worker/web, protected local-demo identity, PostgreSQL marker tests, CI-equivalent tests,
+and browser smoke all passed. The online downgrade cycle and forced-RLS paths found defects that now
+have regression coverage. The next implementation wave is P0-2 multi-replicate
+Selection/processing/statistics/QC/outlier scope and its connected curve UI.
+
 **Current delivery order (ADR-0019, accepted 2026-07-14):** all existing foundation and vertical
 results above remain in place. Remaining work is now sequenced as follows:
 
-1. `P0-1` — install/start Docker Desktop with WSL 2, bring up the canonical Compose stack, execute
-   migration/seed/browser smoke, then run the PostgreSQL marker suite with skip 0/failure 0 and the
-   CI-equivalent suite with the same disposable owner DSN. This evidence is still open; the current
-   `381 passed / 62 skipped` result is not a completed PostgreSQL gate and 62 is not a fixed contract.
+1. `P0-1` — **complete**: Docker/Compose, migration/seed, live PostgreSQL/RLS integration,
+   skip-zero marker suite, CI-equivalent suite, and protected browser smoke are recorded above.
 2. `P0-2` — expand T-19/T-20/T-21 from one/two-curve reference subsets to immutable multi-member
    repeat-test Selection, explicit processing/alignment, specimen-level statistics/pointwise bands,
    QC/outlier assessment with calibration-specific scope, and connected curve UI.
@@ -521,7 +527,7 @@ results above remain in place. Remaining work is now sequenced as follows:
 
 Product-owner direction explicitly defers actual solver execution verification to P2. Existing
 T-27/T-28 mock/manual evidence and immutable results are retained; they are neither deleted nor
-reclassified as solver qualification. The immediate implementation gate is P0-1, followed by P0-2.
+reclassified as solver qualification. The immediate implementation gate is now P0-2.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

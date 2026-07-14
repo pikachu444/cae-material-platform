@@ -493,7 +493,10 @@ def test_reference_material_model_is_immutable_source_pinned_and_tenant_scoped(
             )
         )
         audit_count = connection.scalar(
-            sa.text("SELECT count(*) FROM audit.event WHERE action = 'modeling.material_model'"),
+            sa.text(
+                "SELECT count(*) FROM audit.event "
+                "WHERE action = 'modeling.material_model.revision.create'"
+            ),
         )
     assert lifecycle_count == provenance_count == audit_count == 1
 
@@ -626,7 +629,10 @@ def test_solver_card_is_source_pinned_immutable_provenanced_and_tenant_scoped(
             )
         )
         audit_count = connection.scalar(
-            sa.text("SELECT count(*) FROM audit.event WHERE action = 'exporting.solver_card'"),
+            sa.text(
+                "SELECT count(*) FROM audit.event "
+                "WHERE action = 'exporting.solver_card.revision.create'"
+            ),
         )
     assert lifecycle_count == provenance_count == audit_count == 1
     assert usage_count == derivation_count == 1

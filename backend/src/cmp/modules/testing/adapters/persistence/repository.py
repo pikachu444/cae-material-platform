@@ -865,6 +865,32 @@ class SqlAlchemyTestingRepository(TestingRepository):
             )
         )
 
+    @classmethod
+    def _current_runs_for_material_state_statement(
+        cls,
+        *,
+        organization_id: UUID,
+        project_id: UUID,
+        material_state_id: UUID,
+    ) -> sa.Select[Any]:
+        return (
+            cls._current_run_statement()
+            .join(
+                specimen_table,
+                sa.and_(
+                    specimen_table.c.id == test_run_table.c.specimen_id,
+                    specimen_table.c.organization_id == test_run_table.c.organization_id,
+                    specimen_table.c.project_id == test_run_table.c.project_id,
+                ),
+            )
+            .where(
+                test_run_table.c.organization_id == organization_id,
+                test_run_table.c.project_id == project_id,
+                specimen_table.c.material_state_id == material_state_id,
+            )
+            .order_by(test_run_table.c.created_at.asc())
+        )
+
     @staticmethod
     def _current_mapping_statement() -> sa.Select[Any]:
         identity = import_mapping_table
@@ -1098,28 +1124,11 @@ class SqlAlchemyTestingRepository(TestingRepository):
         decision: AuthorizationDecision,
         material_state_id: UUID,
     ) -> tuple[TestRunSnapshot, ...]:
-        statement = self._current_run_statement().select_from(
-            test_run_table.join(
-                test_run_revision_table,
-                sa.and_(
-                    test_run_revision_table.c.id == test_run_table.c.current_revision_id,
-                    test_run_revision_table.c.aggregate_id == test_run_table.c.id,
-                    test_run_revision_table.c.organization_id == test_run_table.c.organization_id,
-                    test_run_revision_table.c.project_id == test_run_table.c.project_id,
-                ),
-            ).join(
-                specimen_table,
-                sa.and_(
-                    specimen_table.c.id == test_run_table.c.specimen_id,
-                    specimen_table.c.organization_id == test_run_table.c.organization_id,
-                    specimen_table.c.project_id == test_run_table.c.project_id,
-                ),
-            )
-        ).where(
-            test_run_table.c.organization_id == context.organization_id,
-            test_run_table.c.project_id == context.project_id,
-            specimen_table.c.material_state_id == material_state_id,
-        ).order_by(test_run_table.c.created_at.asc())
+        statement = self._current_runs_for_material_state_statement(
+            organization_id=context.organization_id,
+            project_id=context.project_id,
+            material_state_id=material_state_id,
+        )
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._run_snapshot(row) for row in rows)

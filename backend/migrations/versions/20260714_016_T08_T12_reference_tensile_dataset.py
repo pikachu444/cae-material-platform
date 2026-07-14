@@ -1125,6 +1125,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.execute(
+        "DROP TRIGGER datasets_dataset_revision_reference_guard "
+        "ON datasets.dataset_revision"
+    )
     op.execute("DROP FUNCTION datasets.guard_reference_dataset_revision_insert()")
     op.drop_constraint(
         "fk_datasets_dataset_current_revision", "dataset", schema="datasets", type_="foreignkey"

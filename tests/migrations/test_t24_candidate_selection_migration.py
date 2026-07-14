@@ -33,3 +33,19 @@ def test_t24_migration_renders_typed_selection_promotion_evidence_and_rls() -> N
     }
 
     assert all(fragment in sql for fragment in required)
+
+
+def test_t24_downgrade_drops_identity_head_fk_before_revision_table() -> None:
+    output = StringIO()
+    configuration = Config(str(PROJECT_ROOT / "alembic.ini"), output_buffer=output)
+    command.downgrade(
+        configuration,
+        "20260720_022_t24:20260719_021_t23",
+        sql=True,
+    )
+
+    sql = output.getvalue()
+    assert sql.index(
+        "DROP CONSTRAINT IF EXISTS "
+        "fk_modeling_calibration_candidate_selection_current_revision"
+    ) < sql.index("DROP TABLE modeling.calibration_candidate_selection_revision")

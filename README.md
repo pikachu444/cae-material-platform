@@ -232,7 +232,8 @@ owner endpoint, and require zero PostgreSQL-marked skips:
 
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml up --build -d
-$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp"
+docker compose -f deploy/compose/docker-compose.demo.yml --profile test up -d postgres-test
+$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_test_owner@127.0.0.1:54330/postgres"
 uv run pytest -m postgresql tests/integration -ra
 & "C:\Program Files\Git\bin\bash.exe" scripts/ci.sh
 ```
@@ -243,13 +244,17 @@ demo works. Never use a production or shared database for this command. See
 [the test strategy](docs/14-testing/test-strategy.md#p0-1-windowscompose-verification-runbook) for the
 full health, log, and teardown procedure.
 
+The live P0-1 gate completed with 62 PostgreSQL-marked tests passed (zero skips/failures), 452
+CI-equivalent Python tests passed, and 21 Vitest tests passed. The observed counts are not fixed;
+skip zero and failure zero are the acceptance rule.
+
 ## Current delivery order
 
 [ADR-0019](adr/0019-near-term-delivery-and-postgresql-verification-gate.md) applies this sequence
 without discarding the implemented foundation:
 
-1. `P0-1`: live Docker Compose/PostgreSQL migration, RLS, integration, CI, and browser verification.
-2. `P0-2`: multi-replicate Selection/processing, statistics, QC, outlier scope, and connected UI.
+1. `P0-1` (**complete**): live Docker Compose/PostgreSQL migration, RLS, integration, CI, and browser verification.
+2. `P0-2` (**next**): multi-replicate Selection/processing, statistics, QC, outlier scope, and connected UI.
 3. `P1`: bounded non-production nonlinear reference calibration, Candidate selection, calibrated IR,
    existing OpenRadioss/Abaqus card generation, and solver-independent holdout checks.
 4. `P2`: Process/Lot/Batch and broader domain work, actual solver/HPC execution qualification,

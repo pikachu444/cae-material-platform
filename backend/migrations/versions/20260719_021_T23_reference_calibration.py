@@ -748,6 +748,14 @@ def downgrade() -> None:
         "modeling.guard_calibration_run_insert()",
     ):
         op.execute(f"DROP FUNCTION IF EXISTS {function}")
+    op.execute(
+        "ALTER TABLE modeling.calibration_attempt "
+        "DROP CONSTRAINT IF EXISTS fk_modeling_calibration_attempt_candidate"
+    )
+    op.execute(
+        "ALTER TABLE modeling.calibration_plan "
+        "DROP CONSTRAINT IF EXISTS fk_modeling_calibration_plan_current_revision"
+    )
     for table in (
         "calibration_candidate",
         "calibration_attempt",

@@ -1,6 +1,23 @@
 name: cmp-local-demo
 
 services:
+  postgres-test:
+    image: postgres:16-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: cmp_test_owner
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:54330:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cmp_test_owner -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
   postgres:
     image: postgres:16-alpine
     environment:

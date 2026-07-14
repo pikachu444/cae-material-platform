@@ -194,7 +194,6 @@ def _create_plan_tables() -> None:
             "project_id",
             "classification",
             "id",
-            "plan_label",
             "plan_kind",
             name="uq_statistics_statistical_plan_identity_kind",
         ),
