@@ -1537,7 +1537,7 @@ paths:
     post:
       operationId: createReferenceDatasetSelection
       tags: [datasets]
-      summary: Pin one normalized reference Dataset revision as an immutable Selection revision.
+      summary: Pin one normalized or processed reference Dataset revision as an immutable Selection revision.
       security: [{BearerAuth: []}]
       requestBody:
         required: true
@@ -1554,7 +1554,7 @@ paths:
               schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/DatasetSelectionResponse"}
         "401": {description: Authentication required.}
         "403": {description: Dataset write is not authorized.}
-        "404": {description: No visible normalized Dataset revision matches the identifier.}
+        "404": {description: No visible normalized or processed Dataset revision matches the identifier.}
         "409": {description: Selection identity or immutable Dataset state conflicts.}
         "422": {description: Selection label or revision request is invalid.}
         "503": {description: Dataset service unavailable.}
@@ -1607,7 +1607,7 @@ paths:
               schema: {$ref: "../processing/reference-tensile-crop-resources.schema.json#/$defs/DatasetSelectionResponse"}
         "401": {description: Authentication required.}
         "403": {description: Dataset write is not authorized.}
-        "404": {description: No visible Selection or normalized Dataset revision matches the identifier.}
+        "404": {description: No visible Selection or normalized/processed Dataset revision matches the identifier.}
         "409": {description: Expected Selection head or immutable Dataset state conflicts.}
         "422": {description: Selection revision request is invalid.}
         "503": {description: Dataset service unavailable.}
@@ -1675,7 +1675,7 @@ paths:
     get:
       operationId: listDatasetRevisionSelections
       tags: [datasets]
-      summary: List current Selections that pin the named normalized Dataset revision.
+      summary: List current Selections that pin the named normalized or processed Dataset revision.
       security: [{BearerAuth: []}]
       parameters:
         - name: dataset_revision_id
@@ -2404,6 +2404,173 @@ paths:
         "403": {description: Modeling read is not authorized.}
         "404": {description: No visible Material Model matches the identifier.}
         "503": {description: Material Model service unavailable.}
+  /api/v1/calibration-plans:
+    post:
+      operationId: createReferenceLinearElasticCalibrationPlan
+      tags: [modeling, calibration]
+      summary: Create a Plan that pins reference tensile and Material Model revisions for non-production calibration.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CreateReferenceLinearElasticCalibrationPlanRequest"}
+      responses:
+        "201":
+          description: Stable Calibration Plan identity with its first immutable typed revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CalibrationPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execution is not authorized.}
+        "404": {description: A pinned Selection, Dataset revision, or Material Model revision is not visible.}
+        "409": {description: Immutable input, tenant scope, or Calibration Plan state conflicts.}
+        "422": {description: Calibration Plan numerical conventions or typed inputs are invalid.}
+        "503": {description: Calibration service unavailable.}
+    get:
+      operationId: listCalibrationPlans
+      tags: [modeling, calibration]
+      summary: List current tenant-visible immutable Calibration Plan heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current immutable Calibration Plan heads.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CalibrationPlanListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Calibration service unavailable.}
+  /api/v1/calibration-plans/{plan_id}:
+    get:
+      operationId: getCalibrationPlan
+      tags: [modeling, calibration]
+      summary: Read the current immutable revision of one Calibration Plan.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current Calibration Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CalibrationPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Calibration Plan matches the identifier.}
+        "503": {description: Calibration service unavailable.}
+    patch:
+      operationId: reviseReferenceLinearElasticCalibrationPlan
+      tags: [modeling, calibration]
+      summary: Append a new immutable reference Calibration Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/ReviseReferenceLinearElasticCalibrationPlanRequest"}
+      responses:
+        "200":
+          description: Appended immutable Calibration Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CalibrationPlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execution is not authorized.}
+        "404": {description: A visible Calibration Plan, Selection, Dataset revision, or Material Model revision is absent.}
+        "409": {description: Expected Plan head or immutable input state conflicts.}
+        "422": {description: Calibration Plan numerical conventions or typed inputs are invalid.}
+        "503": {description: Calibration service unavailable.}
+  /api/v1/calibration-runs:
+    post:
+      operationId: executeReferenceLinearElasticCalibration
+      tags: [modeling, calibration]
+      summary: Execute the deterministic non-production reference calibration against fixed input revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/ExecuteReferenceLinearElasticCalibrationRequest"}
+      responses:
+        "201":
+          description: Durable terminal Calibration Run retaining every Attempt and Candidate, including failed state.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CalibrationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execution is not authorized.}
+        "404": {description: A pinned Plan, Selection, Dataset revision, or Material Model revision is not visible.}
+        "409": {description: Immutable input, Artifact, or terminal Calibration Run state conflicts.}
+        "422": {description: The typed reference calibration request or curve data is invalid.}
+        "503": {description: Calibration service unavailable.}
+  /api/v1/calibration-runs/{run_id}:
+    get:
+      operationId: getCalibrationRun
+      tags: [modeling, calibration]
+      summary: Read one durable Calibration Run with preserved Attempts and Candidates.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Calibration Run state and immutable attempt/candidate diagnostics references.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CalibrationRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Calibration Run matches the identifier.}
+        "503": {description: Calibration service unavailable.}
+  /api/v1/calibration-candidates/{candidate_id}/diagnostics-preview:
+    get:
+      operationId: previewCalibrationCandidateDiagnostics
+      tags: [modeling, calibration]
+      summary: Preview typed observed, predicted, and residual diagnostics for one immutable Calibration Candidate.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: candidate_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: maximum_points
+          in: query
+          required: false
+          schema: {type: integer, minimum: 2, maximum: 10000, default: 500}
+      responses:
+        "200":
+          description: Bounded deterministic view of the immutable typed diagnostics Artifact.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-elastic-calibration-resources.schema.json#/$defs/CalibrationDiagnosticPreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Calibration Candidate or diagnostics Artifact matches the identifier.}
+        "409": {description: Immutable candidate or Artifact integrity state conflicts.}
+        "422": {description: The diagnostics preview bound or typed Artifact data is invalid.}
+        "503": {description: Calibration service unavailable.}
   /api/v1/exporters/reference-openradioss-elast/capabilities:
     get:
       operationId: getReferenceOpenRadiossExporterCapabilities

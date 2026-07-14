@@ -59,7 +59,7 @@
       "additionalProperties": false,
       "required": ["selection_kind", "member_count", "dataset_id", "dataset_revision_id"],
       "properties": {
-        "selection_kind": {"const": "reference_normalized_dataset_revision"},
+        "selection_kind": {"const": "reference_curve_dataset_revision"},
         "member_count": {"const": 1},
         "dataset_id": {"$ref": "#/$defs/Uuid"},
         "dataset_revision_id": {"$ref": "#/$defs/Uuid"}

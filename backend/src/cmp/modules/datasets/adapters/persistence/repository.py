@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.modules.datasets.application.service import (
     DATASET_AGGREGATE_TYPE,
     DATASET_SELECTION_AGGREGATE_TYPE,
+    CalibrationDatasetSource,
     DatasetRepository,
     DatasetRevisionSnapshot,
     DatasetSelectionRevisionSnapshot,
@@ -544,6 +545,64 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         return DatasetRevisionSnapshot(
             dataset_id=cast(UUID, row["aggregate_id"]),
             revision=RevisionSnapshot(_record(row), _content(row)),
+        )
+
+    def get_calibration_dataset_source(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> CalibrationDatasetSource:
+        """Resolve the concrete specimen Material State for a pinned Dataset revision.
+
+        Modeling receives this through the Dataset public application port, rather than joining
+        Testing persistence tables directly.  The join follows the immutable Dataset Test Run
+        identity and remains tenant/RLS-bound for the caller's expanded calibration capability.
+        """
+
+        dataset = self.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_revision_id=dataset_revision_id,
+        )
+        statement = (
+            sa.select(specimen_table.c.material_state_id)
+            .select_from(
+                dataset_revision_table.join(
+                    test_run_table,
+                    sa.and_(
+                        test_run_table.c.id == dataset_revision_table.c.test_run_id,
+                        test_run_table.c.organization_id
+                        == dataset_revision_table.c.organization_id,
+                        test_run_table.c.project_id == dataset_revision_table.c.project_id,
+                        test_run_table.c.classification == dataset_revision_table.c.classification,
+                    ),
+                ).join(
+                    specimen_table,
+                    sa.and_(
+                        specimen_table.c.id == test_run_table.c.specimen_id,
+                        specimen_table.c.organization_id == test_run_table.c.organization_id,
+                        specimen_table.c.project_id == test_run_table.c.project_id,
+                        specimen_table.c.classification == test_run_table.c.classification,
+                    ),
+                )
+            )
+            .where(
+                dataset_revision_table.c.organization_id == context.organization_id,
+                dataset_revision_table.c.project_id == context.project_id,
+                dataset_revision_table.c.id == dataset_revision_id,
+            )
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise DatasetNotFound(
+                "Dataset revision specimen lineage is not visible in the selected tenant"
+            )
+        return CalibrationDatasetSource(
+            dataset=dataset,
+            material_state_id=cast(UUID, row["material_state_id"]),
         )
 
     def list_dataset_revisions(

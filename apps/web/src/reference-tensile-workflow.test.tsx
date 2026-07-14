@@ -126,7 +126,7 @@ describe("Reference tensile Dataset workflow", () => {
         id: selectionRevisionId,
         aggregate_id: selectionId,
         content: {
-          selection_kind: "reference_normalized_dataset_revision" as const,
+          selection_kind: "reference_curve_dataset_revision" as const,
           member_count: 1 as const,
           dataset_id: datasetId,
           dataset_revision_id: normalizedRevisionId,
@@ -312,7 +312,7 @@ describe("Reference tensile Dataset workflow", () => {
         id: revisionId,
         aggregate_id: selectionId,
         content: {
-          selection_kind: "reference_normalized_dataset_revision" as const,
+          selection_kind: "reference_curve_dataset_revision" as const,
           member_count: 1 as const,
           dataset_id: source.dataset_id,
           dataset_revision_id: source.current_revision.id,

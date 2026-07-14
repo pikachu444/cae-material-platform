@@ -220,7 +220,7 @@ class DatasetSelectionContentResponse(BaseModel):
         cls, value: ReferenceDatasetSelectionContent
     ) -> DatasetSelectionContentResponse:
         return cls(
-            selection_kind="reference_normalized_dataset_revision",
+            selection_kind="reference_curve_dataset_revision",
             member_count=1,
             dataset_id=value.dataset_id,
             dataset_revision_id=value.dataset_revision_id,

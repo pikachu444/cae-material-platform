@@ -307,7 +307,7 @@ def test_reference_processing_api_pins_selection_recipe_and_exposes_committed_ou
     assert selection.status_code == 201
     assert selection.headers["Location"] == f"/api/v1/dataset-selections/{SELECTION}"
     assert selection.json()["current_revision"]["content"] == {
-        "selection_kind": "reference_normalized_dataset_revision",
+        "selection_kind": "reference_curve_dataset_revision",
         "member_count": 1,
         "dataset_id": str(DATASET),
         "dataset_revision_id": str(DATASET_REVISION),

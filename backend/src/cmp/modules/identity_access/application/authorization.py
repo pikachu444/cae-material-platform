@@ -212,8 +212,18 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.STATISTICS_READ,
         }
     ),
+    # Candidate diagnostics are immutable derived Artifacts exposed only through a Modeling-owned
+    # preview route. This remains an internal database capability, not public Artifact API access.
+    Permission.MODELING_READ: frozenset({Permission.ARTIFACT_READ}),
     Permission.MODELING_WRITE: frozenset({Permission.CATALOG_READ, Permission.MODELING_READ}),
-    Permission.CALIBRATION_EXECUTE: frozenset({Permission.DATASET_READ, Permission.MODELING_READ}),
+    Permission.CALIBRATION_EXECUTE: frozenset(
+        {
+            Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_READ,
+            Permission.MODELING_READ,
+        }
+    ),
     Permission.EXPORT_READ: frozenset({Permission.MODELING_READ}),
     Permission.EXPORT_EXECUTE: frozenset(
         {Permission.ARTIFACT_READ, Permission.MODELING_READ, Permission.EXPORT_READ}

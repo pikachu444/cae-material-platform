@@ -367,6 +367,11 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-23. Calibration Plan/Run/Attempt orchestration — `P0`
 
+**Reference subset status (2026-07-19): implemented.** The bounded slice pins one normalized or
+processed tensile Selection revision and one reference linear-elastic Material Model IR revision,
+then preserves explicit Plan/Run/Attempt/Candidate records and typed diagnostics Artifacts. It is
+non-production only; candidate selection and IR promotion remain T-24.
+
 - **목적:** immutable inputs, model/calibrator, objective/bounds/seed를 고정하고 isolated runner에서 보정한다.
 - **입력과 출력:** 입력은 Selection/processed dataset revisions, model schema, calibrator, plan; 출력은 attempts/candidates, parameters, residual/convergence artifacts.
 - **영향 데이터/API:** `modeling.calibration_plan*`, `calibration_run`, `calibration_attempt`; calibration API.

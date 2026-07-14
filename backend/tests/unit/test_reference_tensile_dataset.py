@@ -18,6 +18,7 @@ from cmp.modules.artifacts.domain.content import (
     content_object_key,
 )
 from cmp.modules.datasets.application.service import (
+    CalibrationDatasetSource,
     DatasetRepository,
     DatasetRevisionSnapshot,
     DatasetSelectionRevisionSnapshot,
@@ -353,6 +354,16 @@ class _Repository(DatasetRepository):
             record.aggregate_id,
             RevisionSnapshot(record, self.store.state.contents[dataset_revision_id]),
         )
+
+    def get_calibration_dataset_source(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_revision_id: UUID,
+    ) -> CalibrationDatasetSource:
+        del context, decision, dataset_revision_id
+        raise AssertionError("Calibration input reads are not exercised by Dataset import tests")
 
     def list_dataset_revisions(
         self,
