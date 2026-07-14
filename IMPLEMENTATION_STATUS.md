@@ -537,3 +537,25 @@ normalized curve viewing, and a concrete Material link. T-30 still owns Release 
 evidence policy; T-17/T-18 production Artifact composition and release-specific retention/backup
 policy are not implied complete.
 
+## P0-2 progress (2026-07-28)
+
+The first P0-2 increment is implemented. A typed `reference_tensile_replicate_set` Selection
+revision pins 2..50 ordered normalized/processed Dataset revisions from distinct concrete Test Run
+revisions and one Material State. Membership is stored in
+`datasets.dataset_selection_member` with explicit foreign keys, uniqueness constraints, forced
+RLS, immutable-row protection, and a deferred member-count guard; it is not JSON or EAV.
+
+The API supports create/list/get/append-revision. The Material State tensile workbench supports
+member selection and a common-scale overlay of pinned curves. Synthetic demo data now creates
+three independent Test Runs/Datasets and one replicate Selection. Legacy one-member Selections are
+backfilled without changing their revision hashes.
+
+The next P0-2 increment is an explicit alignment/resampling Processing Recipe and separate
+processed Dataset revisions. No statistical calculation may align or interpolate members
+implicitly.
+
+Verification for this increment: live non-owner demo API creation returned HTTP 201, the Docker
+seed completed with three pinned members, PostgreSQL marker tests recorded 62 passed with zero
+skips/failures, the CI-equivalent Python total is 456 (394 default plus 62 PostgreSQL), and the web
+suite recorded 21 passed with a successful production build.
+

@@ -27,7 +27,10 @@ from cmp.modules.datasets.domain.reference_tensile import (
 )
 from cmp.modules.datasets.domain.selection import (
     REFERENCE_DATASET_SELECTION_SCHEMA_VERSION,
+    REFERENCE_TENSILE_REPLICATE_SELECTION_SCHEMA_VERSION,
     ReferenceDatasetSelectionContent,
+    ReferenceTensileReplicateSelectionContent,
+    ReferenceTensileReplicateSelectionMember,
     validate_selection_label,
 )
 from cmp.modules.identity_access.domain.authorization import (
@@ -54,6 +57,9 @@ DATASET_AGGREGATE_TYPE = "datasets.dataset"
 DATASET_SCHEMA_ID = "urn:cmp:datasets:reference-uniaxial-tensile:1.0.0"
 DATASET_SELECTION_AGGREGATE_TYPE = "datasets.selection"
 DATASET_SELECTION_SCHEMA_ID = "urn:cmp:datasets:reference-selection:1.0.0"
+TENSILE_REPLICATE_SELECTION_SCHEMA_ID = (
+    "urn:cmp:datasets:reference-tensile-replicate-selection:1.0.0"
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +104,20 @@ class DatasetSelectionRevisionSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class TensileReplicateSelectionSnapshot:
+    id: UUID
+    selection_label: str
+    current: RevisionSnapshot[ReferenceTensileReplicateSelectionContent]
+
+
+@dataclass(frozen=True, slots=True)
+class TensileReplicateSelectionRevisionSnapshot:
+    selection_id: UUID
+    selection_label: str
+    revision: RevisionSnapshot[ReferenceTensileReplicateSelectionContent]
+
+
+@dataclass(frozen=True, slots=True)
 class ReferenceTestRunSource:
     classification: DataClassification
     test_method_code: str
@@ -125,6 +145,21 @@ class CreateReferenceDatasetSelection:
 class ReviseReferenceDatasetSelection:
     expected_current_revision_id: UUID
     dataset_revision_id: UUID
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateReferenceTensileReplicateSelection:
+    classification: DataClassification
+    selection_label: str
+    dataset_revision_ids: tuple[UUID, ...]
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseReferenceTensileReplicateSelection:
+    expected_current_revision_id: UUID
+    dataset_revision_ids: tuple[UUID, ...]
     change_reason: str
 
 
@@ -164,6 +199,10 @@ class DatasetRepository(Protocol):
     def selection_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[ReferenceDatasetSelectionContent]: ...
+
+    def replicate_selection_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceTensileReplicateSelectionContent]: ...
 
     def load_reference_test_run(
         self,
@@ -238,6 +277,31 @@ class DatasetRepository(Protocol):
         selection_id: UUID,
         selection_revision_id: UUID,
     ) -> DatasetSelectionRevisionSnapshot: ...
+
+    def get_tensile_replicate_selection(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> TensileReplicateSelectionSnapshot: ...
+
+    def get_tensile_replicate_selection_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> TensileReplicateSelectionRevisionSnapshot: ...
+
+    def list_tensile_replicate_selections_for_material_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> tuple[TensileReplicateSelectionSnapshot, ...]: ...
 
 
 def _require(
@@ -487,6 +551,181 @@ class DatasetService:
             selection_id,
             existing.selection_label,
             RevisionSnapshot(record, content),
+        )
+
+    def _replicate_selection_content(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_label: str,
+        dataset_revision_ids: tuple[UUID, ...],
+        expected_scope: TenantScope,
+    ) -> ReferenceTensileReplicateSelectionContent:
+        if len(set(dataset_revision_ids)) != len(dataset_revision_ids):
+            raise InvalidDatasetData("replicate Selection Dataset revisions must be distinct")
+        members: list[ReferenceTensileReplicateSelectionMember] = []
+        material_state_id: UUID | None = None
+        test_run_revision_ids: set[UUID] = set()
+        for ordinal, dataset_revision_id in enumerate(dataset_revision_ids):
+            source = self._repository.get_calibration_dataset_source(
+                context=context,
+                decision=decision,
+                dataset_revision_id=dataset_revision_id,
+            )
+            revision = source.dataset.revision
+            if revision.record.scope != expected_scope:
+                raise DatasetConflict(
+                    "replicate Selection members must share its tenant and classification scope"
+                )
+            if revision.content.representation not in (
+                DatasetRepresentation.NORMALIZED,
+                DatasetRepresentation.PROCESSED,
+            ):
+                raise DatasetConflict(
+                    "replicate Selection requires normalized or processed Dataset revisions"
+                )
+            if material_state_id is None:
+                material_state_id = source.material_state_id
+            elif source.material_state_id != material_state_id:
+                raise DatasetConflict(
+                    "replicate Selection members must belong to one Material State"
+                )
+            if revision.content.test_run_revision_id in test_run_revision_ids:
+                raise DatasetConflict(
+                    "replicate Selection members must come from distinct Test Run revisions"
+                )
+            test_run_revision_ids.add(revision.content.test_run_revision_id)
+            members.append(
+                ReferenceTensileReplicateSelectionMember(
+                    ordinal=ordinal,
+                    dataset_id=source.dataset.dataset_id,
+                    dataset_revision_id=revision.record.revision_id,
+                    test_run_id=revision.content.test_run_id,
+                    test_run_revision_id=revision.content.test_run_revision_id,
+                )
+            )
+        return ReferenceTensileReplicateSelectionContent(
+            selection_label=selection_label,
+            members=tuple(members),
+        )
+
+    def create_reference_tensile_replicate_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceTensileReplicateSelection,
+    ) -> TensileReplicateSelectionSnapshot:
+        _require(context, decision, Permission.DATASET_WRITE)
+        label = validate_selection_label(command.selection_label)
+        scope = TenantScope(
+            context.organization_id,
+            context.project_id,
+            command.classification.value,
+        )
+        content = self._replicate_selection_content(
+            context=context,
+            decision=decision,
+            selection_label=label,
+            dataset_revision_ids=command.dataset_revision_ids,
+            expected_scope=scope,
+        )
+        aggregate_id = uuid5(
+            NAMESPACE_URL,
+            "cmp:reference-tensile-replicate-selection:"
+            f"{context.organization_id}:{context.project_id}:"
+            f"{command.classification.value}:{label}",
+        )
+        record = RevisionService(
+            aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+            store=self._repository.replicate_selection_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=scope,
+                schema_id=TENSILE_REPLICATE_SELECTION_SCHEMA_ID,
+                schema_version=REFERENCE_TENSILE_REPLICATE_SELECTION_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return TensileReplicateSelectionSnapshot(
+            aggregate_id,
+            label,
+            RevisionSnapshot(record, content),
+        )
+
+    def revise_reference_tensile_replicate_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        command: ReviseReferenceTensileReplicateSelection,
+    ) -> TensileReplicateSelectionSnapshot:
+        _require(context, decision, Permission.DATASET_WRITE)
+        existing = self._repository.get_tensile_replicate_selection(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+        )
+        content = self._replicate_selection_content(
+            context=context,
+            decision=decision,
+            selection_label=existing.selection_label,
+            dataset_revision_ids=command.dataset_revision_ids,
+            expected_scope=existing.current.record.scope,
+        )
+        record = RevisionService(
+            aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+            store=self._repository.replicate_selection_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=selection_id,
+                scope=existing.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=TENSILE_REPLICATE_SELECTION_SCHEMA_ID,
+                schema_version=REFERENCE_TENSILE_REPLICATE_SELECTION_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return TensileReplicateSelectionSnapshot(
+            selection_id,
+            existing.selection_label,
+            RevisionSnapshot(record, content),
+        )
+
+    def get_reference_tensile_replicate_selection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> TensileReplicateSelectionSnapshot:
+        _require(context, decision, Permission.DATASET_READ)
+        return self._repository.get_tensile_replicate_selection(
+            context=context,
+            decision=decision,
+            selection_id=selection_id,
+        )
+
+    def list_reference_tensile_replicate_selections(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> tuple[TensileReplicateSelectionSnapshot, ...]:
+        _require(context, decision, Permission.DATASET_READ)
+        return self._repository.list_tensile_replicate_selections_for_material_state(
+            context=context,
+            decision=decision,
+            material_state_id=material_state_id,
         )
 
     def get_reference_dataset_selection(

@@ -22,6 +22,8 @@ from cmp.modules.datasets.application.service import (
     DatasetSnapshot,
     ReferenceTestRunSource,
     RevisionSnapshot,
+    TensileReplicateSelectionRevisionSnapshot,
+    TensileReplicateSelectionSnapshot,
 )
 from cmp.modules.datasets.domain.reference_tensile import (
     DatasetContent,
@@ -31,8 +33,12 @@ from cmp.modules.datasets.domain.reference_tensile import (
     dataset_canonical,
 )
 from cmp.modules.datasets.domain.selection import (
+    REFERENCE_TENSILE_REPLICATE_SELECTION_KIND,
     ReferenceDatasetSelectionContent,
+    ReferenceTensileReplicateSelectionContent,
+    ReferenceTensileReplicateSelectionMember,
     reference_dataset_selection_canonical,
+    reference_tensile_replicate_selection_canonical,
 )
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -121,6 +127,7 @@ dataset_selection_table = sa.Table(
     sa.Column("organization_id", sa.Uuid(), nullable=False),
     sa.Column("project_id", sa.Uuid(), nullable=False),
     sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("selection_kind", sa.String(64), nullable=False),
     sa.Column("selection_label", sa.String(160), nullable=False),
     sa.Column("current_revision_id", sa.Uuid(), nullable=False),
     sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
@@ -146,9 +153,25 @@ dataset_selection_revision_table = sa.Table(
     sa.Column("change_reason", sa.Text(), nullable=False),
     sa.Column("request_id", sa.Uuid(), nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("selection_kind", sa.String(64), nullable=False),
+    sa.Column("dataset_id", sa.Uuid(), nullable=True),
+    sa.Column("dataset_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("member_count", sa.SmallInteger(), nullable=False),
+    schema="datasets",
+)
+dataset_selection_member_table = sa.Table(
+    "dataset_selection_member",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("selection_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("ordinal", sa.SmallInteger(), nullable=False),
     sa.Column("dataset_id", sa.Uuid(), nullable=False),
     sa.Column("dataset_revision_id", sa.Uuid(), nullable=False),
-    sa.Column("member_count", sa.SmallInteger(), nullable=False),
+    sa.Column("test_run_id", sa.Uuid(), nullable=False),
+    sa.Column("test_run_revision_id", sa.Uuid(), nullable=False),
     schema="datasets",
 )
 test_run_revision_table = sa.Table(
@@ -319,11 +342,64 @@ _SELECTION_TABLES: TypedRevisionTables[ReferenceDatasetSelectionContent] = Typed
     revision_table=dataset_selection_revision_table,
     canonical_content=reference_dataset_selection_canonical,
     content_values=lambda value: {
+        "selection_kind": "reference_curve_dataset_revision",
         "dataset_id": value.dataset_id,
         "dataset_revision_id": value.dataset_revision_id,
         "member_count": 1,
     },
-    identity_values=lambda value: {"selection_label": value.selection_label},
+    identity_values=lambda value: {
+        "selection_kind": "reference_curve_dataset_revision",
+        "selection_label": value.selection_label,
+    },
+)
+
+
+def _replicate_member_values(
+    value: ReferenceTensileReplicateSelectionContent,
+) -> dict[str, object]:
+    return {
+        "selection_kind": REFERENCE_TENSILE_REPLICATE_SELECTION_KIND,
+        "dataset_id": None,
+        "dataset_revision_id": None,
+        "member_count": len(value.members),
+    }
+
+
+def _write_replicate_members(session: Session, draft: Any) -> None:
+    value = cast(ReferenceTensileReplicateSelectionContent, draft.content)
+    session.execute(
+        dataset_selection_member_table.insert(),
+        [
+            {
+                "organization_id": draft.scope.organization_id,
+                "project_id": draft.scope.project_id,
+                "classification": draft.scope.classification,
+                "selection_id": draft.aggregate_id,
+                "selection_revision_id": draft.revision_id,
+                "ordinal": member.ordinal,
+                "dataset_id": member.dataset_id,
+                "dataset_revision_id": member.dataset_revision_id,
+                "test_run_id": member.test_run_id,
+                "test_run_revision_id": member.test_run_revision_id,
+            }
+            for member in value.members
+        ],
+    )
+
+
+_REPLICATE_SELECTION_TABLES: TypedRevisionTables[
+    ReferenceTensileReplicateSelectionContent
+] = TypedRevisionTables(
+    aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+    identity_table=dataset_selection_table,
+    revision_table=dataset_selection_revision_table,
+    canonical_content=reference_tensile_replicate_selection_canonical,
+    content_values=_replicate_member_values,
+    identity_values=lambda value: {
+        "selection_kind": REFERENCE_TENSILE_REPLICATE_SELECTION_KIND,
+        "selection_label": value.selection_label,
+    },
+    revision_content_writer=_write_replicate_members,
 )
 
 
@@ -391,6 +467,16 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         return SqlAlchemyRevisionStore(
             session_factory=self._sessions,
             tables=_SELECTION_TABLES,
+            hooks=self._hooks,
+            session_binder=lambda session: self._bind(session, context, decision),
+        )
+
+    def replicate_selection_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceTensileReplicateSelectionContent]:
+        return SqlAlchemyRevisionStore(
+            session_factory=self._sessions,
+            tables=_REPLICATE_SELECTION_TABLES,
             hooks=self._hooks,
             session_binder=lambda session: self._bind(session, context, decision),
         )
@@ -701,7 +787,7 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
                     revision.c.project_id == identity.c.project_id,
                 ),
             )
-        )
+        ).where(identity.c.selection_kind == "reference_curve_dataset_revision")
 
     def get_dataset_selection(
         self,
@@ -752,6 +838,7 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
             identity.c.project_id == context.project_id,
             identity.c.id == selection_id,
             revision.c.id == selection_revision_id,
+            identity.c.selection_kind == "reference_curve_dataset_revision",
         )
         with self._session(context, decision) as session:
             row = session.execute(statement).mappings().one_or_none()
@@ -780,3 +867,164 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._selection_snapshot(row) for row in rows)
+
+    @staticmethod
+    def _replicate_content(
+        row: Any, members: Sequence[Any]
+    ) -> ReferenceTensileReplicateSelectionContent:
+        if len(members) != int(row["member_count"]):
+            raise DatasetNotFound("replicate Selection membership is incomplete")
+        return ReferenceTensileReplicateSelectionContent(
+            selection_label=str(row["identity_selection_label"]),
+            members=tuple(
+                ReferenceTensileReplicateSelectionMember(
+                    ordinal=int(member["ordinal"]),
+                    dataset_id=cast(UUID, member["dataset_id"]),
+                    dataset_revision_id=cast(UUID, member["dataset_revision_id"]),
+                    test_run_id=cast(UUID, member["test_run_id"]),
+                    test_run_revision_id=cast(UUID, member["test_run_revision_id"]),
+                )
+                for member in members
+            ),
+        )
+
+    @staticmethod
+    def _replicate_statement(*, current: bool) -> sa.Select[Any]:
+        identity = dataset_selection_table
+        revision = dataset_selection_revision_table
+        join_condition = sa.and_(
+            revision.c.aggregate_id == identity.c.id,
+            revision.c.organization_id == identity.c.organization_id,
+            revision.c.project_id == identity.c.project_id,
+        )
+        if current:
+            join_condition = sa.and_(
+                join_condition, revision.c.id == identity.c.current_revision_id
+            )
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            identity.c.selection_label.label("identity_selection_label"),
+            *_revision_columns(revision),
+            revision.c.member_count,
+        ).select_from(identity.join(revision, join_condition)).where(
+            identity.c.selection_kind == REFERENCE_TENSILE_REPLICATE_SELECTION_KIND
+        )
+
+    @staticmethod
+    def _load_replicate_members(session: Session, revision_id: UUID) -> Sequence[Any]:
+        return session.execute(
+            sa.select(
+                dataset_selection_member_table.c.ordinal,
+                dataset_selection_member_table.c.dataset_id,
+                dataset_selection_member_table.c.dataset_revision_id,
+                dataset_selection_member_table.c.test_run_id,
+                dataset_selection_member_table.c.test_run_revision_id,
+            ).where(
+                dataset_selection_member_table.c.selection_revision_id == revision_id
+            ).order_by(dataset_selection_member_table.c.ordinal.asc())
+        ).mappings().all()
+
+    def get_tensile_replicate_selection(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+    ) -> TensileReplicateSelectionSnapshot:
+        statement = self._replicate_statement(current=True).where(
+            dataset_selection_table.c.organization_id == context.organization_id,
+            dataset_selection_table.c.project_id == context.project_id,
+            dataset_selection_table.c.id == selection_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+            if row is None:
+                raise DatasetNotFound("replicate Selection is not visible in the selected tenant")
+            members = self._load_replicate_members(session, cast(UUID, row["id"]))
+        return TensileReplicateSelectionSnapshot(
+            id=cast(UUID, row["identity_id"]),
+            selection_label=str(row["identity_selection_label"]),
+            current=RevisionSnapshot(
+                _selection_record(row), self._replicate_content(row, members)
+            ),
+        )
+
+    def get_tensile_replicate_selection_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection_id: UUID,
+        selection_revision_id: UUID,
+    ) -> TensileReplicateSelectionRevisionSnapshot:
+        statement = self._replicate_statement(current=False).where(
+            dataset_selection_table.c.organization_id == context.organization_id,
+            dataset_selection_table.c.project_id == context.project_id,
+            dataset_selection_table.c.id == selection_id,
+            dataset_selection_revision_table.c.id == selection_revision_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+            if row is None:
+                raise DatasetNotFound(
+                    "replicate Selection revision is not visible in the selected tenant"
+                )
+            members = self._load_replicate_members(session, selection_revision_id)
+        return TensileReplicateSelectionRevisionSnapshot(
+            selection_id=selection_id,
+            selection_label=str(row["identity_selection_label"]),
+            revision=RevisionSnapshot(
+                _selection_record(row), self._replicate_content(row, members)
+            ),
+        )
+
+    def list_tensile_replicate_selections_for_material_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> tuple[TensileReplicateSelectionSnapshot, ...]:
+        identity = dataset_selection_table
+        revision = dataset_selection_revision_table
+        member = dataset_selection_member_table
+        statement = self._replicate_statement(current=True).join(
+            member,
+            sa.and_(
+                member.c.selection_revision_id == revision.c.id,
+                member.c.ordinal == 0,
+            ),
+        ).join(
+            test_run_table,
+            sa.and_(
+                test_run_table.c.id == member.c.test_run_id,
+                test_run_table.c.organization_id == member.c.organization_id,
+                test_run_table.c.project_id == member.c.project_id,
+            ),
+        ).join(
+            specimen_table,
+            sa.and_(
+                specimen_table.c.id == test_run_table.c.specimen_id,
+                specimen_table.c.organization_id == test_run_table.c.organization_id,
+                specimen_table.c.project_id == test_run_table.c.project_id,
+            ),
+        ).where(
+            identity.c.organization_id == context.organization_id,
+            identity.c.project_id == context.project_id,
+            specimen_table.c.material_state_id == material_state_id,
+        ).order_by(identity.c.created_at.asc())
+        results: list[TensileReplicateSelectionSnapshot] = []
+        with self._session(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+            for row in rows:
+                members = self._load_replicate_members(session, cast(UUID, row["id"]))
+                results.append(
+                    TensileReplicateSelectionSnapshot(
+                        id=cast(UUID, row["identity_id"]),
+                        selection_label=str(row["identity_selection_label"]),
+                        current=RevisionSnapshot(
+                            _selection_record(row), self._replicate_content(row, members)
+                        ),
+                    )
+                )
+        return tuple(results)

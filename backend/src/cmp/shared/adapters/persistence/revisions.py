@@ -59,6 +59,7 @@ _REVISION_COLUMNS = frozenset(
 )
 
 SqlRevisionHook = Callable[[Session, RevisionCreated], None]
+SqlRevisionContentWriter = Callable[[Session, RevisionDraft[Any]], None]
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,6 +76,7 @@ class TypedRevisionTables[ContentT]:
     canonical_content: Callable[[ContentT], object]
     content_values: Callable[[ContentT], Mapping[str, Any]]
     identity_values: Callable[[ContentT], Mapping[str, Any]] | None = None
+    revision_content_writer: SqlRevisionContentWriter | None = None
 
     def __post_init__(self) -> None:
         missing_identity = _IDENTITY_COLUMNS.difference(self.identity_table.c.keys())
@@ -275,6 +277,8 @@ class _SqlAlchemyRevisionTransaction[ContentT]:
                     )
                 )
             )
+            if self._tables.revision_content_writer is not None:
+                self._tables.revision_content_writer(self._session, draft)
         except IntegrityError as error:
             diagnostic = getattr(error.orig, "diag", None)
             if (
@@ -370,6 +374,8 @@ class _SqlAlchemyRevisionTransaction[ContentT]:
                 )
             )
         )
+        if self._tables.revision_content_writer is not None:
+            self._tables.revision_content_writer(self._session, draft)
         return self._record(
             draft,
             revision_no=revision_no,

@@ -36,6 +36,8 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260725_027_T31_release_lifecycle.py",
         "20260726_028_TD03_reference_elastoplastic_multisolver.py",
         "20260727_029_P0_solver_card_applicability_note.py",
+        "20260728_030_P0_2_multi_replicate_selection.py",
+        "20260728_031_P0_2_provenance_activity_finalization.py",
     ]
 
 

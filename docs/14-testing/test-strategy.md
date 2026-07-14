@@ -477,3 +477,23 @@ Validation/Review/provenance identity matching, passed-validation and approved-r
 unsupported or approximated mapping rejection, organization/project/classification isolation, and
 immutable Manifest/Artifact rows. The authenticated download must return the package digest as an
 ETag and the package bytes must verify against the stored SHA-256.
+
+### P0-2 multi-replicate Selection gate
+
+The first P0-2 increment adds these mandatory checks:
+
+- unit: 2..50 ordered members, distinct Dataset/Test Run revisions, one Material State and tenant
+  scope, append-only revision history, and mixed-state rejection;
+- migration/PostgreSQL: explicit member table and FKs, Dataset/Test Run uniqueness,
+  normalized/processed representation guard, exact deferred member count, forced RLS, immutable
+  rows, and downgrade refusal while multi-member evidence exists;
+- contract/API: create, list-by-Material-State, get-current, and append-revision operations match
+  source and runtime OpenAPI contracts;
+- browser: member controls use concrete Dataset revision IDs, prior revisions are not edited, and
+  pinned curves share one SI plot scale with member identity visible;
+- demo regression: three synthetic Test Runs produce three independent Dataset revisions and one
+  replicate Selection through protected HTTP APIs.
+
+This gate does not authorize hidden alignment. The next Processing increment must test declared
+grid, domain, interpolation, and extrapolation policies and persist separate processed Dataset
+revisions before pointwise statistics consume the replicate Selection.

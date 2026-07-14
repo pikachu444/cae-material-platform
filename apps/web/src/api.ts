@@ -10,6 +10,7 @@ import type {
   CalibrationRunResponse,
   CurvePreview,
   DatasetSelectionResponse,
+  TensileReplicateSelectionResponse,
   DatasetResponse,
   DataClassification,
   MaterialCreateInput,
@@ -1101,6 +1102,47 @@ export function listDatasetRevisionSelections(
   return request(
     config,
     `/dataset-revisions/${encodeURIComponent(datasetRevisionId)}/selections`,
+  );
+}
+
+export function createReferenceTensileReplicateSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    dataset_revision_ids: string[];
+    change_reason: string;
+  },
+): Promise<ApiResult<TensileReplicateSelectionResponse>> {
+  return request(config, "/dataset-selections/reference-tensile-replicates", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseReferenceTensileReplicateSelection(
+  config: ApiConfig,
+  selectionId: string,
+  input: {
+    expected_current_revision_id: string;
+    dataset_revision_ids: string[];
+    change_reason: string;
+  },
+): Promise<ApiResult<TensileReplicateSelectionResponse>> {
+  return request(
+    config,
+    `/dataset-selections/reference-tensile-replicates/${encodeURIComponent(selectionId)}/revisions`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function listReferenceTensileReplicateSelections(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: TensileReplicateSelectionResponse[] }>> {
+  return request(
+    config,
+    `/dataset-selections/reference-tensile-replicates?material_state_id=${encodeURIComponent(materialStateId)}`,
   );
 }
 

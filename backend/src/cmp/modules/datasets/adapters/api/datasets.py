@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from typing import Annotated, Any
 from uuid import UUID
@@ -20,13 +21,16 @@ from cmp.modules.artifacts.domain.content import (
 )
 from cmp.modules.datasets.application.service import (
     CreateReferenceDatasetSelection,
+    CreateReferenceTensileReplicateSelection,
     CurvePreview,
     DatasetSelectionSnapshot,
     DatasetService,
     DatasetSnapshot,
     ImportReferenceTensileCsv,
     ReviseReferenceDatasetSelection,
+    ReviseReferenceTensileReplicateSelection,
     RevisionSnapshot,
+    TensileReplicateSelectionSnapshot,
 )
 from cmp.modules.datasets.domain.reference_tensile import (
     DatasetConflict,
@@ -37,7 +41,11 @@ from cmp.modules.datasets.domain.reference_tensile import (
     InvalidDatasetData,
     ReferenceTensileMapping,
 )
-from cmp.modules.datasets.domain.selection import ReferenceDatasetSelectionContent
+from cmp.modules.datasets.domain.selection import (
+    REFERENCE_TENSILE_REPLICATE_SELECTION_KIND,
+    ReferenceDatasetSelectionContent,
+    ReferenceTensileReplicateSelectionContent,
+)
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -48,6 +56,8 @@ from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionKernelEr
 
 type Label = Annotated[str, StringConstraints(min_length=1, max_length=255)]
 type Dependency = Callable[..., object]
+
+logger = logging.getLogger(__name__)
 
 
 class ReferenceTensileMappingInput(BaseModel):
@@ -92,6 +102,23 @@ class ReferenceDatasetSelectionRevisionRequest(BaseModel):
 
     expected_current_revision_id: UUID
     dataset_revision_id: UUID
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceTensileReplicateSelectionCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classification: DataClassification
+    selection_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    dataset_revision_ids: Annotated[tuple[UUID, ...], Field(min_length=2, max_length=50)]
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceTensileReplicateSelectionRevisionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_current_revision_id: UUID
+    dataset_revision_ids: Annotated[tuple[UUID, ...], Field(min_length=2, max_length=50)]
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
@@ -264,6 +291,86 @@ class DatasetSelectionListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     items: tuple[DatasetSelectionResponse, ...]
+
+
+class TensileReplicateSelectionMemberResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ordinal: int
+    dataset_id: UUID
+    dataset_revision_id: UUID
+    test_run_id: UUID
+    test_run_revision_id: UUID
+
+
+class TensileReplicateSelectionContentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection_kind: str
+    member_count: int
+    members: tuple[TensileReplicateSelectionMemberResponse, ...]
+
+    @classmethod
+    def from_domain(
+        cls, value: ReferenceTensileReplicateSelectionContent
+    ) -> TensileReplicateSelectionContentResponse:
+        return cls(
+            selection_kind=REFERENCE_TENSILE_REPLICATE_SELECTION_KIND,
+            member_count=len(value.members),
+            members=tuple(
+                TensileReplicateSelectionMemberResponse(
+                    ordinal=member.ordinal,
+                    dataset_id=member.dataset_id,
+                    dataset_revision_id=member.dataset_revision_id,
+                    test_run_id=member.test_run_id,
+                    test_run_revision_id=member.test_run_revision_id,
+                )
+                for member in value.members
+            ),
+        )
+
+
+class TensileReplicateSelectionRevisionResponse(RevisionMetadataResponse):
+    content: TensileReplicateSelectionContentResponse
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[ReferenceTensileReplicateSelectionContent]
+    ) -> TensileReplicateSelectionRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=TensileReplicateSelectionContentResponse.from_domain(value.content),
+        )
+
+
+class TensileReplicateSelectionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection_id: UUID
+    selection_label: str
+    current_revision: TensileReplicateSelectionRevisionResponse
+    links: dict[str, str]
+
+    @classmethod
+    def from_snapshot(
+        cls, value: TensileReplicateSelectionSnapshot
+    ) -> TensileReplicateSelectionResponse:
+        root = f"/api/v1/dataset-selections/reference-tensile-replicates/{value.id}"
+        return cls(
+            selection_id=value.id,
+            selection_label=value.selection_label,
+            current_revision=TensileReplicateSelectionRevisionResponse.from_snapshot(
+                value.current
+            ),
+            links={"self": root, "revisions": f"{root}/revisions"},
+        )
+
+
+class TensileReplicateSelectionListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: tuple[TensileReplicateSelectionResponse, ...]
 
 
 class CurvePointResponse(BaseModel):
@@ -476,6 +583,123 @@ def install_dataset_api(
         response.headers["Location"] = f"/api/v1/datasets/{result.id}"
         _etag(response, result.current.record)
         return DatasetResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/dataset-selections/reference-tensile-replicates",
+        operation_id="createReferenceTensileReplicateSelection",
+        response_model=TensileReplicateSelectionResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["datasets"],
+    )
+    def create_replicate_selection(
+        request: Request,
+        response: Response,
+        body: ReferenceTensileReplicateSelectionCreateRequest,
+    ) -> TensileReplicateSelectionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_tensile_replicate_selection(
+                context,
+                decision,
+                CreateReferenceTensileReplicateSelection(
+                    classification=body.classification,
+                    selection_label=body.selection_label,
+                    dataset_revision_ids=body.dataset_revision_ids,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            logger.exception("replicate Selection create failed")
+            raise _translate(context, error) from error
+        response.headers["Location"] = (
+            f"/api/v1/dataset-selections/reference-tensile-replicates/{result.id}"
+        )
+        _etag(response, result.current.record)
+        return TensileReplicateSelectionResponse.from_snapshot(result)
+
+    @application.get(
+        "/api/v1/dataset-selections/reference-tensile-replicates",
+        operation_id="listReferenceTensileReplicateSelections",
+        response_model=TensileReplicateSelectionListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["datasets"],
+    )
+    def list_replicate_selections(
+        request: Request, material_state_id: UUID
+    ) -> TensileReplicateSelectionListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            items = service.list_reference_tensile_replicate_selections(
+                context, decision, material_state_id
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return TensileReplicateSelectionListResponse(
+            items=tuple(TensileReplicateSelectionResponse.from_snapshot(item) for item in items)
+        )
+
+    @application.get(
+        "/api/v1/dataset-selections/reference-tensile-replicates/{selection_id}",
+        operation_id="getReferenceTensileReplicateSelection",
+        response_model=TensileReplicateSelectionResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["datasets"],
+    )
+    def get_replicate_selection(
+        request: Request, response: Response, selection_id: UUID
+    ) -> TensileReplicateSelectionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_reference_tensile_replicate_selection(
+                context, decision, selection_id
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return TensileReplicateSelectionResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/dataset-selections/reference-tensile-replicates/{selection_id}/revisions",
+        operation_id="reviseReferenceTensileReplicateSelection",
+        response_model=TensileReplicateSelectionResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["datasets"],
+    )
+    def revise_replicate_selection(
+        request: Request,
+        response: Response,
+        selection_id: UUID,
+        body: ReferenceTensileReplicateSelectionRevisionRequest,
+    ) -> TensileReplicateSelectionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.revise_reference_tensile_replicate_selection(
+                context,
+                decision,
+                selection_id,
+                ReviseReferenceTensileReplicateSelection(
+                    expected_current_revision_id=body.expected_current_revision_id,
+                    dataset_revision_ids=body.dataset_revision_ids,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return TensileReplicateSelectionResponse.from_snapshot(result)
 
     @application.post(
         "/api/v1/dataset-selections",

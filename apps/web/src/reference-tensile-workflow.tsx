@@ -54,6 +54,7 @@ import type {
   TestMethodResponse,
   TestRunResponse,
 } from "./types";
+import { ReferenceReplicateSelectionWorkbench } from "./reference-replicate-selection-workbench";
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
@@ -1187,6 +1188,7 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
               </>
             )}
           </div>
+          <ReferenceReplicateSelectionWorkbench config={config} state={state} datasets={datasets} />
           <div className="workflow-step">
             <strong>7. Define the one-step observed-point crop Recipe</strong>
             <p className="form-hint">
