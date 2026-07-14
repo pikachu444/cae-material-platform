@@ -324,3 +324,11 @@ Solver runner는 라이선스 서버와 HPC scheduler 접근이 필요하므로 
 | Observability | OpenTelemetry + W3C trace context |
 | Packaging | OCI image/package digest, signature, SBOM |
 
+### T-31 release lifecycle boundary (2026-07-25)
+
+The release module keeps the T-30 immutable Release, Manifest, and package facts unchanged. Its
+current lifecycle is a separate tenant-scoped projection, and every supersede/withdraw action is
+an append-only lifecycle event. Usage is a typed append-only fact; the impact query combines
+incoming/outgoing replacement links, transition history, and usage without mutating any source
+revision. The API rejects terminal download/consume and never performs automatic PLM replacement.
+

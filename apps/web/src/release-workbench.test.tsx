@@ -8,6 +8,7 @@ const release = {
   release_code: "reference-release",
   title: "Reference release",
   channel: "reference" as const,
+  lifecycle_state: "released" as const,
   created_at: "2026-07-24T00:00:00Z",
   created_by: "00000000-0000-0000-0000-000000000003",
   manifest: {
