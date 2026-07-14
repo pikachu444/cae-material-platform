@@ -57,6 +57,12 @@ import type {
   RecordReleaseUsageInput,
   SupersedeReleaseInput,
   WithdrawReleaseInput,
+  AuditEventPage,
+  AuditIntegrityReport,
+  AuditOutcome,
+  ProvenanceCompletenessReport,
+  ProvenanceEntityResponse,
+  ProvenanceLineagePage,
   SpecimenResponse,
   TestMethodResponse,
   TestRunResponse,
@@ -669,6 +675,91 @@ export function getReleaseImpact(
   releaseId: string,
 ): Promise<ApiResult<ReleaseImpactResponse>> {
   return request(config, `/releases/${encodeURIComponent(releaseId)}/impact`);
+}
+
+export function getProvenanceEntity(
+  config: ApiConfig,
+  entityId: string,
+): Promise<ApiResult<ProvenanceEntityResponse>> {
+  return request(config, `/provenance/entities/${encodeURIComponent(entityId)}`);
+}
+
+interface ProvenanceGraphQuery {
+  max_depth?: number;
+  limit?: number;
+  cursor?: string | null;
+  target_entity_type?: string | null;
+}
+
+function provenanceGraphQuery(input: ProvenanceGraphQuery): string {
+  const query = new URLSearchParams();
+  if (input.max_depth !== undefined) query.set("max_depth", String(input.max_depth));
+  if (input.limit !== undefined) query.set("limit", String(input.limit));
+  if (input.cursor) query.set("cursor", input.cursor);
+  if (input.target_entity_type?.trim()) query.set("target_entity_type", input.target_entity_type.trim());
+  const encoded = query.toString();
+  return encoded ? `?${encoded}` : "";
+}
+
+export function getProvenanceLineage(
+  config: ApiConfig,
+  entityId: string,
+  input: ProvenanceGraphQuery & { direction?: "upstream" | "downstream" } = {},
+): Promise<ApiResult<ProvenanceLineagePage>> {
+  const query = new URLSearchParams(provenanceGraphQuery(input).slice(1));
+  query.set("direction", input.direction ?? "upstream");
+  return request(config, `/provenance/entities/${encodeURIComponent(entityId)}/lineage?${query.toString()}`);
+}
+
+export function getProvenanceImpact(
+  config: ApiConfig,
+  entityId: string,
+  input: ProvenanceGraphQuery = {},
+): Promise<ApiResult<ProvenanceLineagePage>> {
+  return request(
+    config,
+    `/provenance/entities/${encodeURIComponent(entityId)}/impact${provenanceGraphQuery(input)}`,
+  );
+}
+
+export function getProvenanceCompleteness(
+  config: ApiConfig,
+  entityId: string,
+): Promise<ApiResult<ProvenanceCompletenessReport>> {
+  return request(config, `/provenance/entities/${encodeURIComponent(entityId)}/completeness`);
+}
+
+export interface AuditEventQuery {
+  after_sequence?: number;
+  limit?: number;
+  action?: string | null;
+  actor_id?: string | null;
+  target_type?: string | null;
+  target_id?: string | null;
+  outcome?: AuditOutcome | null;
+  occurred_from?: string | null;
+  occurred_to?: string | null;
+}
+
+export function listAuditEvents(
+  config: ApiConfig,
+  input: AuditEventQuery = {},
+): Promise<ApiResult<AuditEventPage>> {
+  const query = new URLSearchParams();
+  query.set("after_sequence", String(input.after_sequence ?? 0));
+  query.set("limit", String(input.limit ?? 25));
+  for (const [key, value] of Object.entries(input)) {
+    if (key === "after_sequence" || key === "limit" || value === null || value === undefined) continue;
+    if (typeof value === "string" && !value.trim()) continue;
+    query.set(key, String(value));
+  }
+  return request(config, `/audit/events?${query.toString()}`);
+}
+
+export function getAuditIntegrity(
+  config: ApiConfig,
+): Promise<ApiResult<AuditIntegrityReport>> {
+  return request(config, "/audit/integrity");
 }
 
 export async function downloadRelease(

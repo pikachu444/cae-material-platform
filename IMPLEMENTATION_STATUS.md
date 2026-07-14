@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-25`
-Foundation version: `0.26.0`
+Foundation version: `0.27.0`
 
 ## Completed
 
@@ -93,6 +93,18 @@ Foundation version: `0.26.0`
   Candidate from a human acceptance. It records a required Selection label/reason, displays the
   non-production acceptance status, and provides a separate stale-safe action that appends the
   promoted Material Model IR revision with its typed evidence.
+- `T-33` reference workbench slice: the existing Material State workbench now presents raw,
+  normalized, processed, statistical, fitted/residual, and validation curves through their
+  protected display-view APIs. Every view labels representation, SI units, point counts, and
+  deterministic preview sampling; fitted and validation panels retain residual/health status and
+  never run fitting in the browser. This remains the bounded reference tensile path, not a generic
+  plotting or downsampling service.
+- `T-34` reference governance evidence slice: the Dashboard now includes a protected Lineage and
+  Audit Inspector alongside the Review and Release workbenches. It loads one immutable provenance
+  Entity, bounded upstream lineage or downstream impact, completeness, audit events, and audit
+  integrity with explicit truncation/invalid warnings. No graph is reconstructed client-side and
+  no audit payload, object key, or tenant scope is exposed; the inspector accepts the explicit
+  provenance Entity UUID from an evidence link.
 - Local demo composition: an explicit `CMP_ENVIRONMENT=demo` + `CMP_DEMO_IDENTITY=true` Docker
   Compose profile now runs PostgreSQL, owner-only migration/bootstrap, a non-owner `cmp_app` API,
   worker, React workbench, filesystem object storage, checked reference-plugin asset, and an
@@ -377,8 +389,8 @@ live PostgreSQL test remains the next verification task.
 - Multi-member Selection/filter semantics, resample/true-stress-strain processing, durable
   Processing Run reconciliation, calibration-specific outlier scope, larger-replicate/CI
   statistics, and calibration
-- Release resources and release-specific evidence/review/mapping gates (`T-30`); T-14 exposes only
-  the reusable provenance-completeness report
+- Production release publication, external PLM replacement, and release-specific evidence policy
+  beyond the bounded T-30/T-31 reference channel
 - Production S3 adapter, KMS/object-lock/versioning/replication provisioning, external event
   transport credentials, and deployment runner credentials
 - T-17 authoritative package-Artifact admission, T-18 materializer/committer deployment wiring,
@@ -455,6 +467,14 @@ explicit consume operations append typed usage facts, while the impact API repor
 successor, transition history, usage, and terminal warnings. The React Release workbench exposes
 the lifecycle controls and prevents terminal download. Automatic PLM replacement, production
 publication, and solver reruns remain outside this bounded reference slice.
+
+**Update 2026-07-25:** T-33/T-34 now make the workbench path reviewable end to end. Curve panels
+show raw/processed/statistical/fitted/validation evidence with explicit units and sampled-preview
+labels, while the Dashboard Lineage and Audit Inspector reads bounded provenance paths,
+completeness, append-only events, and chain integrity next to the existing Review/Release commands.
+The next gate is a live PostgreSQL-backed demo/test run and then T-35/T-36 operational observability
+and restore drills; generic importer formats, production solver/HPC execution, and external release
+publication remain separate decisions.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

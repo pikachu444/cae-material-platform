@@ -6,7 +6,7 @@ immutable content Artifact, typed provenance and bounded lineage, append-only au
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-21` + reference `T-22`/`T-23`/`T-24`/`T-25`/`T-26` subsets)
 
-Version: `0.26.0`
+Version: `0.27.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -508,3 +508,15 @@ downloads and explicit consume actions append typed usage facts. The protected i
 Release workbench show predecessor/successor links, transition history, usage, and warnings, and
 terminal Releases cannot be downloaded or consumed for new work. Automatic PLM replacement and
 production publication are not part of this bounded reference slice.
+
+## T-33/T-34 Evidence workbench
+
+The Material State page now keeps the reference raw, normalized, processed, statistical, fitted,
+and validation curve views on their source APIs and labels preview sampling separately from
+calculation inputs. The Dashboard governance area adds a protected Lineage and Audit Inspector:
+reviewers can inspect one immutable provenance Entity, bounded upstream/downstream evidence,
+completeness state, and the append-only project audit chain before using the existing Review and
+Release commands. Truncated graphs and invalid audit chains are shown as warnings; the browser
+does not reconstruct or silently complete either result. The inspector accepts an explicit
+provenance Entity UUID from the protected evidence link, so organization/project/classification
+RLS remains authoritative.

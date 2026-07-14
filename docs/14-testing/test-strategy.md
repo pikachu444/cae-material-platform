@@ -204,6 +204,13 @@ usage facts, successor/predecessor impact, and tenant-scoped RLS. A withdrawn or
 release is never deleted or silently replaced, and package download/consume is rejected after the
 terminal transition.
 
+The T-33/T-34 browser regression suite also exercises the protected evidence boundary: curve
+workbench previews keep representation/unit and deterministic sampling metadata visible, while the
+Lineage and Audit Inspector calls entity, bounded lineage, completeness, event, and integrity APIs
+without reconstructing a graph in the browser. Graph truncation and invalid audit integrity remain
+visible warning states. These browser tests use mocked HTTP responses; live tenant/RLS behavior
+still requires the PostgreSQL prerequisite above.
+
 ### 7.4 Volatile field 처리
 
 timestamp, absolute path, random ID처럼 의미 없는 field는 exporter가 deterministic mode에서 제거하는 것이 우선이다. 제거할 수 없으면 `golden-normalization-policy`에 path와 이유를 allowlist한다.
