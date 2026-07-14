@@ -16,6 +16,7 @@ import type {
   MaterialStateResponse,
   TensileReplicateSelectionResponse,
 } from "./types";
+import { ReferenceReplicateStatisticsWorkbench } from "./reference-replicate-statistics-workbench";
 
 const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b", "#9cdb5d"];
 
@@ -93,6 +94,7 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
   const [selectedSelectionId, setSelectedSelectionId] = useState("");
   const [curves, setCurves] = useState<CurvePreview[]>([]);
   const [alignedCurves, setAlignedCurves] = useState<CurvePreview[]>([]);
+  const [alignedDatasetRevisionIds, setAlignedDatasetRevisionIds] = useState<string[]>([]);
   const [label, setLabel] = useState("Reference tensile replicate set");
   const [reason, setReason] = useState("Pin independent tensile Dataset revisions");
   const [busy, setBusy] = useState(false);
@@ -107,6 +109,22 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
   const [alignmentSummary, setAlignmentSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const selectedSelection = selections.find((item) => item.selection_id === selectedSelectionId);
+  const selectedProcessedRevisionIds = selectedSelection?.current_revision.content.members.every(
+    (member) => eligible.some((dataset) => (
+      dataset.current_revision.id === member.dataset_revision_id
+      && dataset.current_revision.content.representation === "processed"
+    )),
+  )
+    ? selectedSelection.current_revision.content.members.map((member) => member.dataset_revision_id)
+    : [];
+  const statisticsInputRevisionIds = alignedDatasetRevisionIds.length
+    ? alignedDatasetRevisionIds
+    : selectedProcessedRevisionIds;
+  const pinnedStatisticsSelection = alignedDatasetRevisionIds.length
+    ? undefined
+    : selectedProcessedRevisionIds.length
+      ? selectedSelection
+      : undefined;
 
   useEffect(() => {
     void listReferenceTensileReplicateSelections(config, state.material_state_id)
@@ -229,6 +247,7 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
         return previewDatasetCurve(config, run.output_dataset_revision_id, 1000);
       }));
       setAlignedCurves(previews.map((result) => result.data));
+      setAlignedDatasetRevisionIds(batch.data.runs.map((run) => run.output_dataset_revision_id!));
       setAlignmentSummary(
         `Batch ${shortId(batch.data.alignment_batch_id)} committed ${batch.data.member_count} `
         + `processed Dataset revisions on [${batch.data.common_domain_start}, `
@@ -317,6 +336,14 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
         </form>
       ) : null}
       {alignedCurves.length ? <Overlay curves={alignedCurves} /> : null}
+      {statisticsInputRevisionIds.length ? (
+        <ReferenceReplicateStatisticsWorkbench
+          config={config}
+          classification={state.current_revision.classification}
+          alignedDatasetRevisionIds={statisticsInputRevisionIds}
+          pinnedSelection={pinnedStatisticsSelection}
+        />
+      ) : null}
     </div>
   );
 }

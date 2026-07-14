@@ -559,13 +559,31 @@ identity/revision per member. The API and Material State workbench expose the po
 batch result, processed overlays, and concrete output revision links. No source revision is edited
 and no statistical calculation performs hidden alignment.
 
-The remaining P0-2 order is now: multi-member specimen-level pointwise/scalar statistics and QC,
-then multi-member outlier evidence/assessment with calibration-specific exclusion scope.
+The third and fourth P0-2 increments implement the complete persisted multi-replicate
+Statistics/QC slice. The typed, solver-neutral kernel treats the 2..50 Selection members as the
+specimen-level sample, requires already processed exact grids, and calculates peak-stress scalar
+and pointwise mean, sample standard deviation, median, MAD, IQR, min/max, coefficient of variation,
+and two-sided 95% Student-t mean intervals. Migration `20260730_033_p02` adds explicit typed Plan,
+Plan Revision, Run, ordered Run Member, Result, Result Revision, and QC Observation tables with
+foreign keys, constraints, indexes, forced RLS, immutable revision guards, and terminal Run-state
+guards; no JSON/EAV storage is used.
+
+The protected API creates/lists/reads Plans, commits and reads Runs, and reads immutable Results and
+bounded pointwise curve previews. Provenance records the concrete Selection/Plan usages, Result
+derivation, and `statistics.reference_tensile_replicates` generation activity. The connected web
+flow explicitly pins alignment outputs as a new immutable Selection before creating a Plan; it then
+shows exact members, QC, peak scalar statistics, observed range, mean, and Student-t 95% CI band.
+Statistics performs no interpolation or hidden alignment, and the earlier pair workflow remains
+unchanged.
+
+The remaining P0-2 order is now: multi-member outlier evidence/assessment, followed by
+calibration-specific exclusion scope. No automatic source mutation or exclusion is permitted.
 
 Verification includes a live non-owner Docker/PostgreSQL execution that committed three independent
 31-point processed Dataset revisions in one batch. Unit tests cover interpolation, common-domain,
 monotonicity, and extrapolation rejection; API integration covers explicit policy and grouped output;
 migration regression covers typed columns, guards, RLS-compatible provenance finalization, and the
-absence of JSONB/EAV. The CI-equivalent result is 461 Python tests (399 default plus 62 live
-PostgreSQL, zero skips/failures), 21 web tests, and a successful production build.
+absence of JSONB/EAV. Migration 033 was also exercised as fresh upgrade, downgrade to 032, and
+re-upgrade against disposable PostgreSQL 16. Updated full-suite counts are recorded after the
+P0-2 persistence gate is merged.
 

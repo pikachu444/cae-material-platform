@@ -822,5 +822,16 @@ One grouped request creates an ordered committed Run and separate processed Data
 every pinned member. The connected workbench shows the declared policy and the resulting overlay.
 Source Dataset revisions remain immutable; hidden alignment remains forbidden.
 
-Items 3--5 remain in order: multi-member statistics/pointwise bands and QC, multi-member outlier
-evidence and assessment, then calibration-scoped exclusion integration.
+Item 3 is implemented end to end. Specimen-level `n`, scalar/pointwise mean, sample SD, median,
+MAD, IQR, min/max, coefficient of variation, two-sided 95% Student-t mean interval, exact
+processed-grid QC, and a typed Parquet result schema are persisted by migration
+`20260730_033_p02`. Explicit Plan/Plan Revision, Run/ordered Member, Result/Result Revision, and QC
+Observation tables enforce concrete revision pins, tenant/classification scope, terminal-state
+rules, forced RLS, and immutability without JSON/EAV. Protected create/list/read/execute/result/
+curve APIs and provenance hooks are connected to the Material State workbench. The browser requires
+an explicit immutable Selection of aligned outputs, then displays QC, scalar statistics, observed
+range, mean, and Student-t 95% CI band. Statistics performs no alignment or interpolation.
+
+The next P0-2 work is item 4: multi-member outlier candidate evidence and append-only human
+assessment, followed by calibration-specific exclusion scope. It must not delete, overwrite, or
+automatically exclude any source Dataset/Selection/Result revision.

@@ -39,6 +39,15 @@ from cmp.modules.provenance.adapters.persistence.repository import (
 )
 from cmp.modules.provenance.domain.model import EntityReferenceKind, ProvenanceConflict
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
+from cmp.modules.statistics.adapters.persistence.replicate_repository import (
+    SqlAlchemyReplicateStatisticsRepository,
+)
+from cmp.modules.statistics.adapters.persistence.replicate_repository import (
+    plan_revision_table as replicate_plan_revision_table,
+)
+from cmp.modules.statistics.adapters.persistence.replicate_repository import (
+    result_revision_table as replicate_result_revision_table,
+)
 from cmp.modules.statistics.adapters.persistence.repository import (
     SqlAlchemyStatisticsRepository,
     outlier_assessment_revision_table,
@@ -46,6 +55,11 @@ from cmp.modules.statistics.adapters.persistence.repository import (
     outlier_detection_plan_revision_table,
     statistical_plan_revision_table,
     statistical_result_revision_table,
+)
+from cmp.modules.statistics.application.replicate_service import (
+    REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
+    REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE,
+    ReplicateStatisticsService,
 )
 from cmp.modules.statistics.application.service import (
     OUTLIER_ASSESSMENT_AGGREGATE_TYPE,
@@ -311,6 +325,177 @@ class SqlReferenceStatisticalResultProvenanceHook:
         )
 
 
+class SqlReplicateStatisticalPlanProvenanceHook:
+    """Attach the concrete multi-member Selection revision to its immutable Plan."""
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        if revision.aggregate_type != REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE:
+            return
+        selection_revision_id = session.scalar(
+            sa.select(replicate_plan_revision_table.c.selection_revision_id).where(
+                replicate_plan_revision_table.c.organization_id == revision.scope.organization_id,
+                replicate_plan_revision_table.c.project_id == revision.scope.project_id,
+                replicate_plan_revision_table.c.classification == revision.scope.classification,
+                replicate_plan_revision_table.c.aggregate_id == revision.aggregate_id,
+                replicate_plan_revision_table.c.id == revision.revision_id,
+            )
+        )
+        if selection_revision_id is None:
+            raise ProvenanceConflict("replicate Statistical Plan revision is missing")
+        plan_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
+            revision_id=revision.revision_id,
+        )
+        selection_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+            revision_id=cast(UUID, selection_revision_id),
+        )
+        activity_id = _generated_activity_id(session, event, plan_entity_id)
+        session.execute(
+            sa.update(provenance_activity_table)
+            .where(
+                provenance_activity_table.c.organization_id == revision.scope.organization_id,
+                provenance_activity_table.c.project_id == revision.scope.project_id,
+                provenance_activity_table.c.classification == revision.scope.classification,
+                provenance_activity_table.c.id == activity_id,
+            )
+            .values(
+                input_required=True,
+                submission_digest=content_sha256(
+                    {
+                        "hook": "p02.reference_tensile_replicate_plan",
+                        "plan_revision_id": str(revision.revision_id),
+                        "selection_revision_id": str(selection_revision_id),
+                    }
+                ),
+            )
+        )
+        session.execute(
+            sa.insert(provenance_usage_table).values(
+                **_relation_values(event),
+                activity_id=activity_id,
+                entity_id=selection_entity_id,
+                role="dataset_selection",
+                ordinal=0,
+            )
+        )
+
+
+class SqlReplicateStatisticalResultProvenanceHook:
+    """Specialize one result commit as a derivation of its Plan and Selection."""
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        if (
+            revision.aggregate_type != REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE
+            or revision.revision_no != 1
+        ):
+            return
+        row = (
+            session.execute(
+                sa.select(
+                    replicate_result_revision_table.c.statistical_run_id,
+                    replicate_result_revision_table.c.plan_revision_id,
+                    replicate_result_revision_table.c.selection_revision_id,
+                ).where(
+                    replicate_result_revision_table.c.organization_id
+                    == revision.scope.organization_id,
+                    replicate_result_revision_table.c.project_id == revision.scope.project_id,
+                    replicate_result_revision_table.c.classification
+                    == revision.scope.classification,
+                    replicate_result_revision_table.c.aggregate_id == revision.aggregate_id,
+                    replicate_result_revision_table.c.id == revision.revision_id,
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            raise ProvenanceConflict("replicate Statistical Result revision is missing")
+        result_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=REPLICATE_STATISTICAL_RESULT_AGGREGATE_TYPE,
+            revision_id=revision.revision_id,
+        )
+        plan_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=REPLICATE_STATISTICAL_PLAN_AGGREGATE_TYPE,
+            revision_id=cast(UUID, row["plan_revision_id"]),
+        )
+        selection_entity_id = _revision_entity_id(
+            session,
+            event,
+            aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+            revision_id=cast(UUID, row["selection_revision_id"]),
+        )
+        activity_id = _generated_activity_id(session, event, result_entity_id)
+        run_id = cast(UUID, row["statistical_run_id"])
+        session.execute(
+            sa.update(provenance_activity_table)
+            .where(
+                provenance_activity_table.c.organization_id == revision.scope.organization_id,
+                provenance_activity_table.c.project_id == revision.scope.project_id,
+                provenance_activity_table.c.classification == revision.scope.classification,
+                provenance_activity_table.c.id == activity_id,
+            )
+            .values(
+                activity_type="statistics.reference_tensile_replicates",
+                domain_run_type="statistics.replicate_statistical_run",
+                domain_run_id=run_id,
+                input_required=True,
+                submission_digest=content_sha256(
+                    {
+                        "hook": "p02.reference_tensile_replicate_result",
+                        "statistical_run_id": str(run_id),
+                        "plan_revision_id": str(row["plan_revision_id"]),
+                        "selection_revision_id": str(row["selection_revision_id"]),
+                        "result_revision_id": str(revision.revision_id),
+                    }
+                ),
+            )
+        )
+        values = _relation_values(event)
+        for ordinal, (role, entity_id) in enumerate(
+            (("dataset_selection", selection_entity_id), ("statistical_plan", plan_entity_id))
+        ):
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **values,
+                    activity_id=activity_id,
+                    entity_id=entity_id,
+                    role=role,
+                    ordinal=ordinal,
+                )
+            )
+            session.execute(
+                sa.insert(provenance_derivation_table).values(
+                    **values,
+                    generated_entity_id=result_entity_id,
+                    used_entity_id=entity_id,
+                    activity_id=activity_id,
+                    derivation_kind="reference_tensile_replicate_statistics",
+                )
+            )
+        session.execute(
+            sa.update(provenance_association_table)
+            .where(
+                provenance_association_table.c.organization_id == revision.scope.organization_id,
+                provenance_association_table.c.project_id == revision.scope.project_id,
+                provenance_association_table.c.classification == revision.scope.classification,
+                provenance_association_table.c.activity_id == activity_id,
+                provenance_association_table.c.role == "author",
+            )
+            .values(plan_entity_id=plan_entity_id)
+        )
+
+
 class SqlReferenceOutlierDetectionPlanProvenanceHook:
     """Make a detector configuration explicitly use one immutable Statistical Result."""
 
@@ -325,8 +510,7 @@ class SqlReferenceOutlierDetectionPlanProvenanceHook:
                 ).where(
                     outlier_detection_plan_revision_table.c.organization_id
                     == revision.scope.organization_id,
-                    outlier_detection_plan_revision_table.c.project_id
-                    == revision.scope.project_id,
+                    outlier_detection_plan_revision_table.c.project_id == revision.scope.project_id,
                     outlier_detection_plan_revision_table.c.classification
                     == revision.scope.classification,
                     outlier_detection_plan_revision_table.c.aggregate_id == revision.aggregate_id,
@@ -476,9 +660,7 @@ class SqlReferenceOutlierAssessmentProvenanceHook:
                         "hook": "t21.reference_pair_outlier_assessment",
                         "assessment_revision_id": str(revision.revision_id),
                         "candidate_id": str(row["candidate_id"]),
-                        "statistical_plan_revision_id": str(
-                            row["statistical_plan_revision_id"]
-                        ),
+                        "statistical_plan_revision_id": str(row["statistical_plan_revision_id"]),
                     }
                 ),
             )
@@ -548,6 +730,38 @@ def build_statistics_service(
                 SqlReferenceStatisticalResultProvenanceHook(),
                 SqlReferenceOutlierDetectionPlanProvenanceHook(),
                 SqlReferenceOutlierAssessmentProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        datasets=datasets,
+        artifacts=artifacts,
+    )
+
+
+def build_replicate_statistics_service(
+    identity: IdentityServices,
+    datasets: DatasetService | None,
+    artifacts: ArtifactService | None,
+) -> ReplicateStatisticsService | None:
+    """Build the P0-2 multi-member Statistics slice on the same authoritative ports."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or datasets is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ReplicateStatisticsService(
+        repository=SqlAlchemyReplicateStatisticsRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlReplicateStatisticalPlanProvenanceHook(),
+                SqlReplicateStatisticalResultProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
             ),
         ),

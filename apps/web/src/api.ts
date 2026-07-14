@@ -35,6 +35,10 @@ import type {
   ProcessingRecipeResponse,
   ProcessingRunResponse,
   ReplicateAlignmentBatchResponse,
+  ReplicateStatisticalCurveResponse,
+  ReplicateStatisticalPlanResponse,
+  ReplicateStatisticalResultResponse,
+  ReplicateStatisticalRunResponse,
   StatisticalCurvePreview,
   StatisticalPlanResponse,
   StatisticalResultResponse,
@@ -1223,6 +1227,60 @@ export function executeReferenceTensileAlignment(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listReferenceTensileReplicateStatisticalPlans(
+  config: ApiConfig,
+  selectionRevisionId: string,
+): Promise<ApiResult<{ items: ReplicateStatisticalPlanResponse[] }>> {
+  const query = new URLSearchParams({ selection_revision_id: selectionRevisionId, limit: "100" });
+  return request(config, `/replicate-statistical-plans?${query.toString()}`);
+}
+
+export function createReferenceTensileReplicateStatisticalPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    selection_id: string;
+    selection_revision_id: string;
+    sample_count: number;
+    change_reason: string;
+  },
+): Promise<ApiResult<ReplicateStatisticalPlanResponse>> {
+  return request(config, "/replicate-statistical-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceTensileReplicateStatistics(
+  config: ApiConfig,
+  input: { plan_id: string; plan_revision_id: string; change_reason: string },
+): Promise<ApiResult<ReplicateStatisticalRunResponse>> {
+  return request(config, "/replicate-statistical-runs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getReferenceTensileReplicateStatisticalResult(
+  config: ApiConfig,
+  resultId: string,
+): Promise<ApiResult<ReplicateStatisticalResultResponse>> {
+  return request(config, `/replicate-statistical-results/${encodeURIComponent(resultId)}`);
+}
+
+export function previewReferenceTensileReplicateStatisticalResultCurve(
+  config: ApiConfig,
+  resultId: string,
+  maximumPoints = 1_000,
+): Promise<ApiResult<ReplicateStatisticalCurveResponse>> {
+  const query = new URLSearchParams({ maximum_points: String(maximumPoints) });
+  return request(
+    config,
+    `/replicate-statistical-results/${encodeURIComponent(resultId)}/curve?${query.toString()}`,
+  );
 }
 
 export function listStatisticalPlans(

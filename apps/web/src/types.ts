@@ -1160,6 +1160,107 @@ export interface ReplicateAlignmentBatchResponse {
   runs: ProcessingRunResponse[];
 }
 
+export interface ReferenceTensileReplicatePlanContent {
+  plan_kind: "reference_tensile_replicate_scalar_and_curve";
+  selection_id: string;
+  selection_revision_id: string;
+  sample_count: number;
+  required_input_representation: "processed";
+  scalar_feature: "peak_engineering_stress_pa";
+  curve_grid_policy: "exact_processed_grid_match_no_alignment";
+  quantile_method: "linear_inclusive";
+  confidence_interval_method: "student_t_95_two_sided";
+  curve_output_schema_ref: string;
+}
+
+export interface ReplicateStatisticalPlanRevision extends RevisionMetadata {
+  content: ReferenceTensileReplicatePlanContent;
+}
+
+export interface ReplicateStatisticalPlanResponse {
+  statistical_plan_id: string;
+  plan_label: string;
+  current_revision: ReplicateStatisticalPlanRevision;
+  links: Record<string, string>;
+}
+
+export interface ReplicateStatisticalRunMember {
+  ordinal: number;
+  dataset_id: string;
+  dataset_revision_id: string;
+  test_run_id: string;
+  test_run_revision_id: string;
+}
+
+export interface ReplicateStatisticalRunResponse {
+  statistical_run_id: string;
+  classification: DataClassification;
+  execution_mode: "committed";
+  status: "executing" | "succeeded" | "failed";
+  plan_id: string;
+  plan_revision_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  sample_count: number;
+  members: ReplicateStatisticalRunMember[];
+  result_id: string | null;
+  result_revision_id: string | null;
+  curve_artifact_id: string | null;
+  curve_sha256: string | null;
+  curve_point_count: number | null;
+  failure_code: string | null;
+  qc_observations: QcObservation[];
+  change_reason: string;
+  started_at: string;
+  ended_at: string | null;
+  links: Record<string, string>;
+}
+
+export interface ReplicateScalarStatistics {
+  sample_count: number;
+  mean: number;
+  sample_standard_deviation: number;
+  median: number;
+  median_absolute_deviation: number;
+  interquartile_range: number;
+  minimum: number;
+  maximum: number;
+  coefficient_of_variation: number | null;
+  mean_confidence_interval_lower_95: number;
+  mean_confidence_interval_upper_95: number;
+}
+
+export interface ReplicateStatisticalResultResponse {
+  statistical_result_id: string;
+  current_revision: RevisionMetadata;
+  statistical_run_id: string;
+  plan_id: string;
+  plan_revision_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  curve_artifact_id: string;
+  curve_sha256: string;
+  curve_point_count: number;
+  peak_engineering_stress_pa: ReplicateScalarStatistics;
+  methods: {
+    grid: "exact_processed_grid_match_no_alignment";
+    quantile: "linear_inclusive";
+    confidence_interval: "student_t_95_two_sided";
+  };
+  links: Record<string, string>;
+}
+
+export interface ReplicateStatisticalCurvePoint {
+  engineering_strain: number;
+  statistics: ReplicateScalarStatistics;
+}
+
+export interface ReplicateStatisticalCurveResponse {
+  result_id: string;
+  grid_policy: "exact_processed_grid_match_no_alignment";
+  points: ReplicateStatisticalCurvePoint[];
+}
+
 export interface ReferenceTensilePairPlanContent {
   plan_kind: "reference_tensile_pair_scalar_and_curve";
   sample_count: 2;

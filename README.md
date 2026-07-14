@@ -254,8 +254,9 @@ skip zero and failure zero are the acceptance rule.
 without discarding the implemented foundation:
 
 1. `P0-1` (**complete**): live Docker Compose/PostgreSQL migration, RLS, integration, CI, and browser verification.
-2. `P0-2` (**in progress**): multi-replicate Selection and explicit common-grid processing are
-   implemented; multi-member statistics, QC, outlier scope, and their connected UI remain next.
+2. `P0-2` (**in progress**): multi-replicate Selection, explicit common-grid processing, and the
+   persisted typed multi-member Statistics/QC Plan → Run → Result → pointwise CI-band web flow are
+   implemented. Multi-member outlier evidence/assessment and calibration-scoped exclusion remain.
 3. `P1`: bounded non-production nonlinear reference calibration, Candidate selection, calibrated IR,
    existing OpenRadioss/Abaqus card generation, and solver-independent holdout checks.
 4. `P2`: Process/Lot/Batch and broader domain work, actual solver/HPC execution qualification,

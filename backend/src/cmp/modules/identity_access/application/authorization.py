@@ -227,8 +227,11 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.TESTING_READ,
         }
     ),
-    # A committed Statistical Run reads two pinned Dataset Artifacts and writes one immutable
-    # typed curve-result Artifact. These are transaction-local capabilities, not public Artifact
+    # A Statistics-owned result preview reads its own typed immutable curve Artifact. This is an
+    # internal database capability only; it does not authorize the public Artifact endpoint.
+    Permission.STATISTICS_READ: frozenset({Permission.ARTIFACT_READ}),
+    # A committed Statistical Run reads pinned Dataset Artifacts and writes one immutable typed
+    # curve-result Artifact. These are transaction-local capabilities, not public Artifact
     # endpoint grants inferred by the Statistics route.
     Permission.STATISTICS_EXECUTE: frozenset(
         {
