@@ -559,7 +559,16 @@ identity/revision per member. The API and Material State workbench expose the po
 batch result, processed overlays, and concrete output revision links. No source revision is edited
 and no statistical calculation performs hidden alignment.
 
-The remaining P0-2 order is now: multi-member specimen-level pointwise/scalar statistics and QC,
+The third P0-2 increment has started with a typed, solver-neutral replicate Statistics domain
+kernel. It treats the 2..50 Selection members as the specimen-level sample, requires already
+processed exact grids, and calculates peak-stress scalar and pointwise mean, sample standard
+deviation, median, MAD, IQR, min/max, coefficient of variation, and two-sided 95% Student-t mean
+intervals. The declared plan contract pins one concrete multi-member Selection revision and the
+typed Parquet Artifact retains every reported pointwise statistic. It performs no interpolation.
+Persistence/API/UI for this plan/run/result shape are not yet implemented and are the immediate
+next increment; the existing pair workflow remains unchanged.
+
+The remaining P0-2 order is now: persist and display multi-member specimen-level statistics/QC,
 then multi-member outlier evidence/assessment with calibration-specific exclusion scope.
 
 Verification includes a live non-owner Docker/PostgreSQL execution that committed three independent

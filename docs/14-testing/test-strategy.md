@@ -510,3 +510,16 @@ The second P0-2 increment extends this gate with:
 
 Pointwise statistics may now consume only these explicit aligned processed revisions; it still may
 not align or interpolate inputs internally.
+
+The third P0-2 increment adds a domain-kernel gate before persistence is connected:
+
+- specimen count, rather than point count, defines `n` and the sample standard deviation;
+- scalar and every pointwise row retain mean, sample SD, median, MAD, IQR, min/max, CV, and the
+  declared two-sided 95% Student-t mean interval;
+- an unequal exact processed grid is rejected and Statistics performs no hidden alignment;
+- the typed Parquet round trip preserves all declared statistics and rejects a different schema;
+- the immutable plan canonical form pins one Selection revision and declares processed-only input,
+  exact-grid policy, quantile method, and confidence-interval method.
+
+The following increment must add PostgreSQL constraints/RLS/immutability, API integration, browser
+result-band rendering, provenance completeness, and live non-owner Docker verification.

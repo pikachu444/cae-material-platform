@@ -822,5 +822,9 @@ One grouped request creates an ordered committed Run and separate processed Data
 every pinned member. The connected workbench shows the declared policy and the resulting overlay.
 Source Dataset revisions remain immutable; hidden alignment remains forbidden.
 
-Items 3--5 remain in order: multi-member statistics/pointwise bands and QC, multi-member outlier
-evidence and assessment, then calibration-scoped exclusion integration.
+Item 3 domain calculation is implemented: specimen-level `n`, scalar/pointwise mean, sample SD,
+median, MAD, IQR, min/max, coefficient of variation, two-sided 95% Student-t mean interval, exact
+processed-grid QC, and a typed Parquet result schema. Its Plan pins one concrete multi-member
+Selection revision and declares that Statistics performs no alignment. Item 3 persistence/API/UI
+remain next, followed by multi-member outlier evidence and assessment, then calibration-scoped
+exclusion integration.

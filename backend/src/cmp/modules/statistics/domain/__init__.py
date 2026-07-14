@@ -6,10 +6,20 @@ from cmp.modules.statistics.domain.reference_tensile_pair import (
     ReferenceTensilePairStatistics,
     StatisticalRunStatus,
 )
+from cmp.modules.statistics.domain.reference_tensile_replicates import (
+    ReferenceTensileReplicatePlanContent,
+    ReferenceTensileReplicateStatistics,
+    ReplicateCurvePoint,
+    ReplicateScalarStatistics,
+)
 
 __all__ = [
     "ReferenceTensilePairPlanContent",
     "ReferenceTensilePairResultContent",
     "ReferenceTensilePairStatistics",
+    "ReferenceTensileReplicatePlanContent",
+    "ReferenceTensileReplicateStatistics",
+    "ReplicateCurvePoint",
+    "ReplicateScalarStatistics",
     "StatisticalRunStatus",
 ]
