@@ -491,6 +491,78 @@ select:focus {
   line-height: 1.45;
 }
 
+.review-workbench {
+  display: grid;
+  gap: 1rem;
+}
+
+.review-workbench > .muted {
+  max-width: 850px;
+  margin: 0;
+}
+
+.review-request-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #c8dedd;
+  border-radius: 10px;
+  background: #f7fcfb;
+}
+
+.revision-chip.review,
+.revision-chip.changes_requested,
+.revision-chip.approved {
+  color: #8a5a18;
+  border-color: #e5c995;
+  background: #fff8e8;
+}
+
+.revision-chip.approved {
+  color: #21635f;
+  border-color: #b8d9d3;
+  background: #eef8f6;
+}
+
+.review-decision-form {
+  padding-top: 0.5rem;
+  border-top: 1px solid #d8e6e4;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.45rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #d8e6e4;
+}
+
+.review-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d8e6e4;
+  border-radius: 7px;
+  color: #31525b;
+  background: #fff;
+  text-align: left;
+}
+
+.review-list-item:hover {
+  border-color: #16817c;
+  background: #f5fbfa;
+}
+
+.review-list-item span {
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
+.review-list-item small {
+  color: #677980;
+}
+
 .empty-state {
   display: grid;
   max-width: 720px;

@@ -4,6 +4,43 @@ export type DataClassification =
   | "restricted"
   | "export_controlled";
 
+export type LifecycleState = "draft" | "review" | "changes_requested" | "approved";
+
+export type ReviewDecisionKind = "approved" | "changes_requested";
+
+export interface ReviewDecisionResponse {
+  review_decision_id: string;
+  review_request_id: string;
+  aggregate_type: string;
+  aggregate_id: string;
+  revision_id: string;
+  manifest_sha256: string;
+  decision: ReviewDecisionKind;
+  decided_by: string;
+  decided_at: string;
+  reason: string;
+}
+
+export interface ReviewRequestResponse {
+  review_request_id: string;
+  classification: DataClassification;
+  aggregate_type: string;
+  aggregate_id: string;
+  revision_id: string;
+  manifest_sha256: string;
+  required_role: "domain_reviewer";
+  requested_by: string;
+  requested_at: string;
+  reason: string;
+  lifecycle_state: LifecycleState;
+  decision: ReviewDecisionResponse | null;
+  links: Record<string, string>;
+}
+
+export interface ReviewRequestListResponse {
+  items: ReviewRequestResponse[];
+}
+
 export type PropertySourceKind =
   | "manual"
   | "supplier_datasheet"
