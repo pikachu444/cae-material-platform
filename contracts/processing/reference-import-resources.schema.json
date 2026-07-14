@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/processing/reference-import-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "ExecuteReferenceImportRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id",
+        "import_mapping_id", "import_mapping_revision_id", "change_reason"
+      ],
+      "properties": {
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "raw_asset_id": {"$ref": "#/$defs/Uuid"},
+        "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "import_mapping_id": {"$ref": "#/$defs/Uuid"},
+        "import_mapping_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ImportRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "import_run_id", "classification", "import_kind", "execution_mode", "reference_only",
+        "status", "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id",
+        "import_mapping_id", "import_mapping_revision_id", "mapping_sha256", "importer_id",
+        "importer_version", "output_dataset_id", "output_dataset_revision_id", "failure_code",
+        "change_reason", "started_at", "ended_at", "links"
+      ],
+      "properties": {
+        "import_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "import_kind": {"const": "reference_uniaxial_tensile_csv"},
+        "execution_mode": {"const": "reference_inline"},
+        "reference_only": {"const": true},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "raw_asset_id": {"$ref": "#/$defs/Uuid"},
+        "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "import_mapping_id": {"$ref": "#/$defs/Uuid"},
+        "import_mapping_revision_id": {"$ref": "#/$defs/Uuid"},
+        "mapping_sha256": {"$ref": "#/$defs/Sha256"},
+        "importer_id": {"const": "urn:cmp:testing:synthetic-csv-header-importer:1.0.0"},
+        "importer_version": {"const": "1.0.0"},
+        "output_dataset_id": {"type": ["string", "null"], "format": "uuid"},
+        "output_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "failure_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    }
+  }
+}

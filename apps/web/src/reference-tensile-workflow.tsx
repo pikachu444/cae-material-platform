@@ -10,12 +10,14 @@ import {
   createReferenceTensileTestMethod,
   createReferenceTensileTestRun,
   createSpecimen,
+  createReferenceImportMapping,
+  detectReferenceImport,
+  executeReferenceImport,
   executeReferenceTensileCrop,
   executeReferenceTensilePairOutlierDetection,
   executeReferenceTensilePairStatistics,
   getReferenceTensilePairOutlierScopeComparison,
   getStatisticalResult,
-  importReferenceTensileDataset,
   listDatasetRevisions,
   listDatasetRevisionSelections,
   listDatasetsForMaterialState,
@@ -34,6 +36,9 @@ import type {
   DatasetSelectionResponse,
   DatasetResponse,
   DatasetRevision,
+  ImportDetectionReportResponse,
+  ImportMappingResponse,
+  ImportRunResponse,
   MaterialStateResponse,
   OutlierDetectionPlanResponse,
   OutlierDetectionRunResponse,
@@ -207,6 +212,13 @@ interface ReferenceTensileWorkflowProps {
   state: MaterialStateResponse;
 }
 
+interface DetectedImportSource {
+  testRunId: string;
+  testRunRevisionId: string;
+  rawAssetId: string;
+  rawArtifactId: string;
+}
+
 export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWorkflowProps) {
   const [open, setOpen] = useState(false);
   const [specimens, setSpecimens] = useState<SpecimenResponse[]>([]);
@@ -248,11 +260,17 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
   const [crossheadSpeed, setCrossheadSpeed] = useState("");
   const [runReason, setRunReason] = useState("Register reference tensile test run");
   const [file, setFile] = useState<File | null>(null);
+  const [detectedSource, setDetectedSource] = useState<DetectedImportSource | null>(null);
+  const [detectionReport, setDetectionReport] = useState<ImportDetectionReportResponse | null>(null);
+  const [importMapping, setImportMapping] = useState<ImportMappingResponse | null>(null);
+  const [importRun, setImportRun] = useState<ImportRunResponse | null>(null);
+  const [mappingLabel, setMappingLabel] = useState("Human-confirmed reference CSV mapping");
   const [strainColumn, setStrainColumn] = useState("");
   const [stressColumn, setStressColumn] = useState("");
   const [strainUnit, setStrainUnit] = useState<ReferenceTensileMapping["strain_unit"]>("1");
   const [stressUnit, setStressUnit] = useState<ReferenceTensileMapping["stress_unit"]>("MPa");
-  const [datasetReason, setDatasetReason] = useState("Import reference tensile CSV and normalize units");
+  const [mappingReason, setMappingReason] = useState("Human confirms reference CSV column and unit semantics");
+  const [datasetReason, setDatasetReason] = useState("Create immutable reference Dataset revisions from the approved mapping");
   const [selectionLabel, setSelectionLabel] = useState("Reference crop input");
   const [selectionReason, setSelectionReason] = useState("Pin normalized Dataset revision for processing");
   const [recipeLabel, setRecipeLabel] = useState("Observed-point crop");
@@ -601,14 +619,18 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
 
   function selectFile(event: ChangeEvent<HTMLInputElement>): void {
     setFile(event.target.files?.[0] ?? null);
+    setDetectedSource(null);
+    setDetectionReport(null);
+    setImportMapping(null);
+    setImportRun(null);
   }
 
-  async function submitDataset(event: FormEvent<HTMLFormElement>): Promise<void> {
+  async function uploadAndDetectCsv(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (!file || !selectedRun) {
       return;
     }
-    setAction("dataset");
+    setAction("detect");
     setError(null);
     try {
       const completed = await uploadReferenceTensileCsv(config, {
@@ -617,25 +639,94 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
         test_run_revision_id: selectedRun.current_revision.id,
       });
       if (!completed.data.available_artifact_id) {
-        throw new ApiError(409, "The raw CSV was stored but no immutable Artifact is available for Dataset import.");
+        throw new ApiError(409, "The raw CSV was stored but no immutable Artifact is available for detection.");
       }
-      const result = await importReferenceTensileDataset(config, {
-        test_run_id: selectedRun.test_run_id,
-        test_run_revision_id: selectedRun.current_revision.id,
+      const detection = await detectReferenceImport(config, {
         raw_asset_id: completed.data.raw_asset.raw_asset_id,
         raw_artifact_id: completed.data.available_artifact_id,
-        mapping: {
-          strain_column: strainColumn.trim(),
-          stress_column: stressColumn.trim(),
-          strain_unit: strainUnit,
-          stress_unit: stressUnit,
-        },
+      });
+      setDetectedSource({
+        testRunId: selectedRun.test_run_id,
+        testRunRevisionId: selectedRun.current_revision.id,
+        rawAssetId: completed.data.raw_asset.raw_asset_id,
+        rawArtifactId: completed.data.available_artifact_id,
+      });
+      setDetectionReport(detection.data);
+      setStrainColumn((current) => detection.data.strain_suggestion.column ?? current);
+      setStressColumn((current) => detection.data.stress_suggestion.column ?? current);
+      setStrainUnit((current) => (
+        detection.data.strain_suggestion.unit === "1" || detection.data.strain_suggestion.unit === "%"
+          ? detection.data.strain_suggestion.unit
+          : current
+      ));
+      setStressUnit((current) => (
+        detection.data.stress_suggestion.unit === "Pa"
+          || detection.data.stress_suggestion.unit === "kPa"
+          || detection.data.stress_suggestion.unit === "MPa"
+          || detection.data.stress_suggestion.unit === "GPa"
+          ? detection.data.stress_suggestion.unit
+          : current
+      ));
+      setFile(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function submitImportMapping(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!detectionReport) {
+      return;
+    }
+    if (!strainColumn.trim() || !stressColumn.trim()) {
+      setError("Explicitly choose both the strain and stress columns before approving a Mapping revision.");
+      return;
+    }
+    setAction("mapping");
+    setError(null);
+    try {
+      const result = await createReferenceImportMapping(config, {
+        detection_report_id: detectionReport.import_detection_report_id,
+        mapping_label: mappingLabel.trim(),
+        strain_column: strainColumn.trim(),
+        stress_column: stressColumn.trim(),
+        strain_unit: strainUnit,
+        stress_unit: stressUnit,
+        change_reason: mappingReason.trim(),
+      });
+      setImportMapping(result.data);
+      setImportRun(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function executeApprovedImport(): Promise<void> {
+    if (!detectedSource || !importMapping) {
+      return;
+    }
+    setAction("dataset");
+    setError(null);
+    try {
+      const result = await executeReferenceImport(config, {
+        test_run_id: detectedSource.testRunId,
+        test_run_revision_id: detectedSource.testRunRevisionId,
+        raw_asset_id: detectedSource.rawAssetId,
+        raw_artifact_id: detectedSource.rawArtifactId,
+        import_mapping_id: importMapping.import_mapping_id,
+        import_mapping_revision_id: importMapping.current_revision.id,
         change_reason: datasetReason.trim(),
       });
-      setDatasets((current) => [result.data, ...current.filter((item) => item.dataset_id !== result.data.dataset_id)]);
-      setSelectedDatasetId(result.data.dataset_id);
-      setSelectedDatasetRevisionId(result.data.current_revision.id);
-      setFile(null);
+      setImportRun(result.data);
+      if (result.data.output_dataset_id && result.data.output_dataset_revision_id) {
+        await refresh();
+        setSelectedDatasetId(result.data.output_dataset_id);
+        setSelectedDatasetRevisionId(result.data.output_dataset_revision_id);
+      }
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -914,8 +1005,8 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
         <span className="reference-chip">Reference only</span>
       </div>
       <p className="form-hint">
-        Preserve the uploaded source as an immutable Raw Asset, explicitly confirm column and unit
-        semantics, then view separate raw and normalized Dataset revisions.
+        Preserve the uploaded source as an immutable Raw Asset, detect header evidence, explicitly
+        confirm column and unit semantics, then view separate raw and normalized Dataset revisions.
       </p>
       <button className="text-button workflow-toggle" type="button" onClick={() => setOpen((current) => !current)}>
         {open ? "Close test data workflow" : "Manage reference tensile data"}
@@ -988,22 +1079,50 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
             ) : <small className="muted">Create a Test Run before uploading a Dataset source.</small>}
           </div>
           <div className="workflow-step">
-            <strong>4. Upload and explicitly map the CSV</strong>
-            <p className="form-hint">Only UTF-8 CSV up to 16 MiB is accepted. Column names are never inferred; the source bytes and their raw-unit curve remain available after normalization.</p>
-            <form className="form-stack" onSubmit={(event) => void submitDataset(event)}>
+            <strong>4. Upload, inspect, and explicitly approve the CSV mapping</strong>
+            <p className="form-hint">Only UTF-8 CSV up to 16 MiB is accepted. Detection records header evidence only: low-confidence suggestions never select columns or units on your behalf.</p>
+            <form className="form-stack" onSubmit={(event) => void uploadAndDetectCsv(event)}>
               <label>Reference tensile CSV<input type="file" accept=".csv,text/csv" onChange={selectFile} required /></label>
               {file ? <small className="source-line">{file.name} · {file.size.toLocaleString()} bytes</small> : null}
               <div className="form-grid">
-                <label>Strain column<input value={strainColumn} onChange={(event) => setStrainColumn(event.target.value)} placeholder="e.g. engineering_strain" required /></label>
-                <label>Stress column<input value={stressColumn} onChange={(event) => setStressColumn(event.target.value)} placeholder="e.g. engineering_stress" required /></label>
+                <label>Strain column<input value={strainColumn} onChange={(event) => setStrainColumn(event.target.value)} placeholder="e.g. engineering_strain" /></label>
+                <label>Stress column<input value={stressColumn} onChange={(event) => setStressColumn(event.target.value)} placeholder="e.g. engineering_stress" /></label>
                 <label>Source strain unit<select value={strainUnit} onChange={(event) => setStrainUnit(event.target.value as ReferenceTensileMapping["strain_unit"])}><option value="1">1</option><option value="%">%</option></select></label>
                 <label>Source stress unit<select value={stressUnit} onChange={(event) => setStressUnit(event.target.value as ReferenceTensileMapping["stress_unit"])}><option value="Pa">Pa</option><option value="kPa">kPa</option><option value="MPa">MPa</option><option value="GPa">GPa</option></select></label>
               </div>
-              <label>Change reason<input value={datasetReason} onChange={(event) => setDatasetReason(event.target.value)} required /></label>
+              <label>Dataset import reason<input value={datasetReason} onChange={(event) => setDatasetReason(event.target.value)} required /></label>
               <button className="button primary" type="submit" disabled={!selectedRun || !file || action !== null}>
-                {action === "dataset" ? "Uploading and normalizing…" : "Create raw and normalized Dataset revisions"}
+                {action === "detect" ? "Uploading and detecting header…" : "Upload and inspect header"}
               </button>
             </form>
+            {detectionReport ? (
+              <div className="form-stack">
+                <p className="source-line">
+                  Detection Report {shortId(detectionReport.import_detection_report_id)} is <strong>needs input</strong> and observed {detectionReport.header_columns.join(", ")}.
+                </p>
+                <p className="form-hint">
+                  Strain suggestion: {detectionReport.strain_suggestion.column ?? "none"} ({detectionReport.strain_suggestion.unit ?? "no unit"}, {detectionReport.strain_suggestion.confidence}); stress suggestion: {detectionReport.stress_suggestion.column ?? "none"} ({detectionReport.stress_suggestion.unit ?? "no unit"}, {detectionReport.stress_suggestion.confidence}). Review the draft fields above and explicitly approve them below.
+                </p>
+                <form className="form-stack" onSubmit={(event) => void submitImportMapping(event)}>
+                  <label>Mapping label<input value={mappingLabel} onChange={(event) => setMappingLabel(event.target.value)} required /></label>
+                  <label>Mapping approval reason<input value={mappingReason} onChange={(event) => setMappingReason(event.target.value)} required /></label>
+                  <button className="button secondary" type="submit" disabled={action !== null}>
+                    {action === "mapping" ? "Recording Mapping revision…" : "Create human-approved Mapping revision"}
+                  </button>
+                </form>
+              </div>
+            ) : null}
+            {importMapping && detectedSource ? (
+              <div className="form-stack">
+                <p className="source-line">
+                  Mapping {shortId(importMapping.import_mapping_id)} revision {shortId(importMapping.current_revision.id)} is human_confirmed and pins the uploaded Raw Artifact.
+                </p>
+                <button className="button primary" type="button" onClick={() => void executeApprovedImport()} disabled={action !== null}>
+                  {action === "dataset" ? "Creating immutable Dataset revisions…" : "Create raw and normalized Dataset revisions"}
+                </button>
+                {importRun ? <small className="source-line">Import Run {shortId(importRun.import_run_id)}: {importRun.status}{importRun.output_dataset_revision_id ? ` · Dataset revision ${shortId(importRun.output_dataset_revision_id)}` : ""}</small> : null}
+              </div>
+            ) : null}
           </div>
           <div className="workflow-step dataset-results">
             <strong>5. Inspect immutable raw and normalized curves</strong>

@@ -167,6 +167,13 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
 
 #### T-11. Importer detect·mapping approval·import orchestration — `P0`
 
+- **Reference progress (2026-07-18):** The bounded synthetic UTF-8 CSV header adapter is
+  implemented as a non-production `reference_inline` slice. It persists immutable Detection
+  Reports that always remain `needs_input`, stable Import Mapping identities with immutable
+  human-confirmed revisions, and Processing Import Runs pinned to concrete Test Run, Raw
+  Artifact, and Mapping revisions. The Material State workbench uses the separate
+  detect → approve → import API flow. This is not a production generic importer plugin or a claim
+  of automatic column/unit inference.
 - **목적:** format 탐지와 사용자 승인 mapping, 실제 import를 분리해 silent guessing을 막는다.
 - **입력과 출력:** 입력은 Raw Asset, hints, Importer plugin; 출력은 Detection Report, Mapping Revision, normalized import job/result.
 - **영향 데이터/API:** `testing.import_mapping*`, `processing.import_run`; `/imports:detect`, `/import-mappings`, `/imports`.

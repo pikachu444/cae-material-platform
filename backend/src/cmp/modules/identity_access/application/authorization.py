@@ -173,7 +173,12 @@ _MODIFYING_OPERATIONS = frozenset(
     {"activate", "control", "decide", "execute", "manage", "publish", "submit", "write"}
 )
 _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = {
-    Permission.TESTING_WRITE: frozenset({Permission.CATALOG_READ}),
+    # Reference import detection reads the verified immutable raw artifact before
+    # it records a human-approved mapping revision.  This remains a transaction
+    # capability only; the public Artifact endpoint still requires artifact.read.
+    Permission.TESTING_WRITE: frozenset(
+        {Permission.CATALOG_READ, Permission.ARTIFACT_READ}
+    ),
     # A Dataset is an immutable interpretation of an Artifact.  Reading a curve
     # therefore needs the same row-visible Artifact access as reading its Dataset
     # metadata; otherwise the API could disclose metadata but not safely load the
@@ -193,6 +198,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.DATASET_READ,
             Permission.DATASET_WRITE,
             Permission.PROCESSING_READ,
+            Permission.TESTING_READ,
         }
     ),
     # A committed Statistical Run reads two pinned Dataset Artifacts and writes one immutable

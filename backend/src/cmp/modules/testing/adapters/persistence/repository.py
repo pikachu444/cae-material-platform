@@ -17,15 +17,26 @@ from cmp.modules.identity_access.domain.authorization import (
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.testing.application.service import (
+    IMPORT_MAPPING_AGGREGATE_TYPE,
     SPECIMEN_AGGREGATE_TYPE,
     TEST_METHOD_AGGREGATE_TYPE,
     TEST_RUN_AGGREGATE_TYPE,
+    ImportDetectionReportSnapshot,
+    ImportMappingRevisionSnapshot,
+    ImportMappingSnapshot,
     MaterialStateSource,
     RevisionSnapshot,
     SpecimenSnapshot,
     TestingRepository,
     TestMethodSnapshot,
     TestRunSnapshot,
+)
+from cmp.modules.testing.domain.import_mapping import (
+    ImportDetectionStatus,
+    MappingSuggestionConfidence,
+    ReferenceImportMappingContent,
+    SyntheticCsvDetectionReport,
+    reference_import_mapping_canonical,
 )
 from cmp.modules.testing.domain.reference_tensile import (
     SpecimenContent,
@@ -180,6 +191,84 @@ test_run_revision_table = sa.Table(
     sa.Column("reference_only", sa.Boolean(), nullable=False),
     schema="testing",
 )
+import_detection_report_table = sa.Table(
+    "import_detection_report",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("importer_id", sa.String(255), nullable=False),
+    sa.Column("importer_version", sa.String(64), nullable=False),
+    sa.Column("status", sa.String(32), nullable=False),
+    sa.Column("header_columns", sa.ARRAY(sa.String(255)), nullable=False),
+    sa.Column("suggested_strain_column", sa.String(255), nullable=True),
+    sa.Column("suggested_strain_unit", sa.String(16), nullable=True),
+    sa.Column("strain_confidence", sa.String(16), nullable=False),
+    sa.Column("suggested_stress_column", sa.String(255), nullable=True),
+    sa.Column("suggested_stress_unit", sa.String(16), nullable=True),
+    sa.Column("stress_confidence", sa.String(16), nullable=False),
+    sa.Column("report_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("reference_only", sa.Boolean(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="testing",
+)
+import_mapping_table = sa.Table(
+    "import_mapping",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("mapping_label", sa.String(160), nullable=False),
+    sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("importer_id", sa.String(255), nullable=False),
+    sa.Column("importer_version", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    schema="testing",
+)
+import_mapping_revision_table = sa.Table(
+    "import_mapping_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("revision_no", sa.BigInteger(), nullable=False),
+    sa.Column("based_on_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("schema_id", sa.String(255), nullable=False),
+    sa.Column("schema_version", sa.String(64), nullable=False),
+    sa.Column("content_hash", sa.CHAR(64), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("detection_report_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("strain_column", sa.String(255), nullable=False),
+    sa.Column("stress_column", sa.String(255), nullable=False),
+    sa.Column("strain_original_unit", sa.String(16), nullable=False),
+    sa.Column("stress_original_unit", sa.String(16), nullable=False),
+    sa.Column("dataset_mapping_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("importer_id", sa.String(255), nullable=False),
+    sa.Column("importer_version", sa.String(64), nullable=False),
+    sa.Column("approval_kind", sa.String(32), nullable=False),
+    sa.Column("reference_only", sa.Boolean(), nullable=False),
+    schema="testing",
+)
 catalog_material_state_revision_table = sa.Table(
     "material_state_revision",
     metadata,
@@ -261,6 +350,72 @@ def _run_content(row: Any) -> TestRunContent:
     )
 
 
+def _detection_snapshot(row: Any) -> ImportDetectionReportSnapshot:
+    report = SyntheticCsvDetectionReport(
+        raw_asset_id=cast(UUID, row["raw_asset_id"]),
+        raw_artifact_id=cast(UUID, row["raw_artifact_id"]),
+        raw_sha256=str(row["raw_sha256"]),
+        header_columns=tuple(cast(list[str], row["header_columns"])),
+        status=ImportDetectionStatus(str(row["status"])),
+        suggested_strain_column=(
+            str(row["suggested_strain_column"])
+            if row["suggested_strain_column"] is not None
+            else None
+        ),
+        suggested_strain_unit=(
+            str(row["suggested_strain_unit"])
+            if row["suggested_strain_unit"] is not None
+            else None
+        ),
+        strain_confidence=MappingSuggestionConfidence(str(row["strain_confidence"])),
+        suggested_stress_column=(
+            str(row["suggested_stress_column"])
+            if row["suggested_stress_column"] is not None
+            else None
+        ),
+        suggested_stress_unit=(
+            str(row["suggested_stress_unit"])
+            if row["suggested_stress_unit"] is not None
+            else None
+        ),
+        stress_confidence=MappingSuggestionConfidence(str(row["stress_confidence"])),
+        importer_id=str(row["importer_id"]),
+        importer_version=str(row["importer_version"]),
+        reference_only=bool(row["reference_only"]),
+    )
+    if report.digest != str(row["report_sha256"]):
+        raise TestingNotFound("Import Detection Report digest is inconsistent")
+    return ImportDetectionReportSnapshot(
+        id=cast(UUID, row["id"]),
+        classification=DataClassification(str(row["classification"])),
+        report=report,
+        created_at=row["created_at"],
+        created_by=cast(UUID, row["created_by"]),
+        request_id=cast(UUID, row["request_id"]),
+        trace_id=str(row["trace_id"]),
+    )
+
+
+def _mapping_content(row: Any) -> ReferenceImportMappingContent:
+    content = ReferenceImportMappingContent(
+        mapping_label=str(row["mapping_label"]),
+        detection_report_id=cast(UUID, row["detection_report_id"]),
+        raw_asset_id=cast(UUID, row["raw_asset_id"]),
+        raw_artifact_id=cast(UUID, row["raw_artifact_id"]),
+        strain_column=str(row["strain_column"]),
+        stress_column=str(row["stress_column"]),
+        strain_unit=str(row["strain_original_unit"]),
+        stress_unit=str(row["stress_original_unit"]),
+        importer_id=str(row["importer_id"]),
+        importer_version=str(row["importer_version"]),
+        approval_kind=str(row["approval_kind"]),
+        reference_only=bool(row["reference_only"]),
+    )
+    if content.dataset_mapping_digest != str(row["dataset_mapping_sha256"]):
+        raise TestingNotFound("Import Mapping revision digest is inconsistent")
+    return content
+
+
 def _specimen_values(value: SpecimenContent) -> dict[str, object]:
     return {
         "material_id": value.material_id,
@@ -295,6 +450,23 @@ def _run_values(value: TestRunContent) -> dict[str, object]:
     }
 
 
+def _mapping_values(value: ReferenceImportMappingContent) -> dict[str, object]:
+    return {
+        "detection_report_id": value.detection_report_id,
+        "raw_asset_id": value.raw_asset_id,
+        "raw_artifact_id": value.raw_artifact_id,
+        "strain_column": value.strain_column,
+        "stress_column": value.stress_column,
+        "strain_original_unit": value.strain_unit,
+        "stress_original_unit": value.stress_unit,
+        "dataset_mapping_sha256": value.dataset_mapping_digest,
+        "importer_id": value.importer_id,
+        "importer_version": value.importer_version,
+        "approval_kind": value.approval_kind,
+        "reference_only": value.reference_only,
+    }
+
+
 _SPECIMEN_TABLES: TypedRevisionTables[SpecimenContent] = TypedRevisionTables(
     aggregate_type=SPECIMEN_AGGREGATE_TYPE,
     identity_table=specimen_table,
@@ -324,6 +496,20 @@ _RUN_TABLES: TypedRevisionTables[TestRunContent] = TypedRevisionTables(
         "specimen_id": value.specimen_id,
         "test_method_id": value.test_method_id,
         "run_label": value.run_label,
+    },
+)
+_IMPORT_MAPPING_TABLES: TypedRevisionTables[ReferenceImportMappingContent] = TypedRevisionTables(
+    aggregate_type=IMPORT_MAPPING_AGGREGATE_TYPE,
+    identity_table=import_mapping_table,
+    revision_table=import_mapping_revision_table,
+    canonical_content=reference_import_mapping_canonical,
+    content_values=_mapping_values,
+    identity_values=lambda value: {
+        "mapping_label": value.mapping_label,
+        "raw_asset_id": value.raw_asset_id,
+        "raw_artifact_id": value.raw_artifact_id,
+        "importer_id": value.importer_id,
+        "importer_version": value.importer_version,
     },
 )
 
@@ -403,6 +589,65 @@ class SqlAlchemyTestingRepository(TestingRepository):
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[TestRunContent]:
         return self._store(context, decision, _RUN_TABLES)
+
+    def import_mapping_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceImportMappingContent]:
+        return self._store(context, decision, _IMPORT_MAPPING_TABLES)
+
+    def create_import_detection_report(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        report: ImportDetectionReportSnapshot,
+    ) -> ImportDetectionReportSnapshot:
+        values = {
+            "id": report.id,
+            "organization_id": context.organization_id,
+            "project_id": context.project_id,
+            "classification": report.classification.value,
+            "raw_asset_id": report.report.raw_asset_id,
+            "raw_artifact_id": report.report.raw_artifact_id,
+            "raw_sha256": report.report.raw_sha256,
+            "importer_id": report.report.importer_id,
+            "importer_version": report.report.importer_version,
+            "status": report.report.status.value,
+            "header_columns": list(report.report.header_columns),
+            "suggested_strain_column": report.report.suggested_strain_column,
+            "suggested_strain_unit": report.report.suggested_strain_unit,
+            "strain_confidence": report.report.strain_confidence.value,
+            "suggested_stress_column": report.report.suggested_stress_column,
+            "suggested_stress_unit": report.report.suggested_stress_unit,
+            "stress_confidence": report.report.stress_confidence.value,
+            "report_sha256": report.report.digest,
+            "reference_only": report.report.reference_only,
+            "created_at": report.created_at,
+            "created_by": report.created_by,
+            "request_id": report.request_id,
+            "trace_id": report.trace_id,
+        }
+        with self._session(context, decision) as session:
+            session.execute(sa.insert(import_detection_report_table).values(**values))
+        return report
+
+    def get_import_detection_report(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        detection_report_id: UUID,
+    ) -> ImportDetectionReportSnapshot:
+        statement = sa.select(import_detection_report_table).where(
+            import_detection_report_table.c.organization_id == context.organization_id,
+            import_detection_report_table.c.project_id == context.project_id,
+            import_detection_report_table.c.id == detection_report_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise TestingNotFound("Import Detection Report is not visible in the selected tenant")
+        return _detection_snapshot(row)
 
     def load_material_state_source(
         self,
@@ -533,6 +778,15 @@ class SqlAlchemyTestingRepository(TestingRepository):
         )
 
     @staticmethod
+    def _mapping_snapshot(row: Any) -> ImportMappingSnapshot:
+        return ImportMappingSnapshot(
+            id=cast(UUID, row["identity_id"]),
+            current=RevisionSnapshot(
+                _record(row, IMPORT_MAPPING_AGGREGATE_TYPE), _mapping_content(row)
+            ),
+        )
+
+    @staticmethod
     def _current_specimen_statement() -> sa.Select[Any]:
         identity = specimen_table
         revision = specimen_revision_table
@@ -609,6 +863,148 @@ class SqlAlchemyTestingRepository(TestingRepository):
                     revision.c.project_id == identity.c.project_id,
                 ),
             )
+        )
+
+    @staticmethod
+    def _current_mapping_statement() -> sa.Select[Any]:
+        identity = import_mapping_table
+        revision = import_mapping_revision_table
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            identity.c.mapping_label,
+            *_revision_columns(revision),
+            revision.c.detection_report_id,
+            revision.c.raw_asset_id,
+            revision.c.raw_artifact_id,
+            revision.c.strain_column,
+            revision.c.stress_column,
+            revision.c.strain_original_unit,
+            revision.c.stress_original_unit,
+            revision.c.dataset_mapping_sha256,
+            revision.c.importer_id,
+            revision.c.importer_version,
+            revision.c.approval_kind,
+            revision.c.reference_only,
+        ).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.id == identity.c.current_revision_id,
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    @staticmethod
+    def _mapping_revision_statement() -> sa.Select[Any]:
+        identity = import_mapping_table
+        revision = import_mapping_revision_table
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            identity.c.mapping_label,
+            *_revision_columns(revision),
+            revision.c.detection_report_id,
+            revision.c.raw_asset_id,
+            revision.c.raw_artifact_id,
+            revision.c.strain_column,
+            revision.c.stress_column,
+            revision.c.strain_original_unit,
+            revision.c.stress_original_unit,
+            revision.c.dataset_mapping_sha256,
+            revision.c.importer_id,
+            revision.c.importer_version,
+            revision.c.approval_kind,
+            revision.c.reference_only,
+        ).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    def get_import_mapping(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        mapping_id: UUID,
+    ) -> ImportMappingSnapshot:
+        statement = self._current_mapping_statement().where(
+            import_mapping_table.c.organization_id == context.organization_id,
+            import_mapping_table.c.project_id == context.project_id,
+            import_mapping_table.c.id == mapping_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise TestingNotFound("Import Mapping is not visible in the selected tenant")
+        return self._mapping_snapshot(row)
+
+    def get_import_mapping_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        mapping_id: UUID,
+        mapping_revision_id: UUID,
+    ) -> ImportMappingRevisionSnapshot:
+        statement = self._mapping_revision_statement().where(
+            import_mapping_table.c.organization_id == context.organization_id,
+            import_mapping_table.c.project_id == context.project_id,
+            import_mapping_table.c.id == mapping_id,
+            import_mapping_revision_table.c.id == mapping_revision_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise TestingNotFound(
+                "Import Mapping revision is not visible in the selected tenant"
+            )
+        return ImportMappingRevisionSnapshot(
+            mapping_id=cast(UUID, row["identity_id"]),
+            revision=RevisionSnapshot(
+                _record(row, IMPORT_MAPPING_AGGREGATE_TYPE), _mapping_content(row)
+            ),
+        )
+
+    def get_test_run_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        test_run_id: UUID,
+        test_run_revision_id: UUID,
+    ) -> RevisionSnapshot[TestRunContent]:
+        revision = test_run_revision_table
+        statement = sa.select(
+            *_revision_columns(revision),
+            revision.c.specimen_id,
+            revision.c.specimen_revision_id,
+            revision.c.test_method_id,
+            revision.c.test_method_revision_id,
+            revision.c.run_label,
+            revision.c.performed_at,
+            revision.c.test_temperature_k,
+            revision.c.crosshead_speed_mm_per_min,
+            revision.c.reference_only,
+        ).where(
+            revision.c.organization_id == context.organization_id,
+            revision.c.project_id == context.project_id,
+            revision.c.aggregate_id == test_run_id,
+            revision.c.id == test_run_revision_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise TestingNotFound("Test Run revision is not visible in the selected tenant")
+        return RevisionSnapshot(
+            _record(row, TEST_RUN_AGGREGATE_TYPE), _run_content(row)
         )
 
     def get_specimen(

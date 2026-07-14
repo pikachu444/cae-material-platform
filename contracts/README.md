@@ -1,8 +1,8 @@
 # Public contract baseline
 
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
-`T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, and the `T-32` workbench. HTTP contract version
-`0.20.0`.
+`T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, and the `T-32` workbench. HTTP contract version
+`0.21.0`.
 
 ## Files
 
@@ -24,8 +24,12 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
 - `datasets/reference-tensile-resources.schema.json`: typed reference tensile Dataset, curve, and
   immutable one-member Selection resources
+- `testing/reference-import-resources.schema.json`: immutable header-only Detection Report and
+  human-confirmed typed Import Mapping identity/revision resources
 - `processing/reference-tensile-crop-resources.schema.json`: typed crop Recipe and committed Run
   resources for the reference Processing slice
+- `processing/reference-import-resources.schema.json`: typed pinned reference Import Run resource
+  with immutable inputs and terminal Dataset output link
 - `statistics/reference-tensile-pair-resources.schema.json`: typed two-selection reference
   Statistics/QC Plan, committed Run, scalar/curve Result, and bounded curve preview resources
 - `statistics/reference-tensile-outlier-resources.schema.json`: typed immutable reference-pair
@@ -83,6 +87,10 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
 - A reference Processing Run pins one normalized Dataset revision and one typed crop Recipe revision.
   Its processed output is a separate immutable Dataset identity, never a replacement for raw or
   normalized source bytes. Generic processing payloads and implicit interpolation are forbidden.
+- The reference importer records header evidence separately from user confirmation. A Detection
+  Report always remains `needs_input`; a human-confirmed Mapping revision pins its Raw
+  Asset/Artifact and digest, and an Import Run must pin that concrete revision before it can create
+  Dataset output. Low-confidence suggestions never become a committed mapping automatically.
 - A reference Statistical Plan pins exactly two distinct normalized Selection revisions from distinct
   Test Runs. Curve statistics require identical observed engineering-strain grids; the contract
   explicitly forbids implicit alignment/resampling and marks the two-sample confidence interval as

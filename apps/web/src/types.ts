@@ -373,6 +373,86 @@ export interface ReferenceTensileMapping {
   stress_unit: "Pa" | "kPa" | "MPa" | "GPa";
 }
 
+export type ImportMappingSuggestionConfidence = "none" | "low";
+
+export interface ImportMappingSuggestion {
+  column: string | null;
+  unit: string | null;
+  confidence: ImportMappingSuggestionConfidence;
+}
+
+export interface ImportDetectionReportResponse {
+  import_detection_report_id: string;
+  classification: DataClassification;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  raw_sha256: string;
+  importer_id: "urn:cmp:testing:synthetic-csv-header-importer:1.0.0";
+  importer_version: "1.0.0";
+  status: "needs_input";
+  header_columns: string[];
+  strain_suggestion: ImportMappingSuggestion;
+  stress_suggestion: ImportMappingSuggestion;
+  report_sha256: string;
+  reference_only: true;
+  created_at: string;
+  created_by: string;
+  request_id: string;
+  trace_id: string;
+  links: Record<string, string>;
+}
+
+export interface ReferenceImportMappingContent {
+  detection_report_id: string;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  strain_column: string;
+  stress_column: string;
+  strain_unit: ReferenceTensileMapping["strain_unit"];
+  stress_unit: ReferenceTensileMapping["stress_unit"];
+  dataset_mapping_sha256: string;
+  importer_id: "urn:cmp:testing:synthetic-csv-header-importer:1.0.0";
+  importer_version: "1.0.0";
+  approval_kind: "human_confirmed";
+  reference_only: true;
+}
+
+export interface ImportMappingRevision extends RevisionMetadata {
+  content: ReferenceImportMappingContent;
+}
+
+export interface ImportMappingResponse {
+  import_mapping_id: string;
+  mapping_label: string;
+  current_revision: ImportMappingRevision;
+  links: Record<string, string>;
+}
+
+export interface ImportRunResponse {
+  import_run_id: string;
+  classification: DataClassification;
+  import_kind: "reference_uniaxial_tensile_csv";
+  execution_mode: "reference_inline";
+  reference_only: true;
+  status: "executing" | "succeeded" | "failed";
+  test_run_id: string;
+  test_run_revision_id: string;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  import_mapping_id: string;
+  import_mapping_revision_id: string;
+  mapping_sha256: string;
+  importer_id: "urn:cmp:testing:synthetic-csv-header-importer:1.0.0";
+  importer_version: "1.0.0";
+  output_dataset_id: string | null;
+  output_dataset_revision_id: string | null;
+  failure_code: string | null;
+  change_reason: string;
+  started_at: string;
+  ended_at: string | null;
+  links: Record<string, string>;
+}
+
 export type DatasetRepresentation = "raw" | "normalized" | "processed";
 
 export interface DatasetChannel {

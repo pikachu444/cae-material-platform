@@ -655,6 +655,30 @@ class DatasetService:
         command: ImportReferenceTensileCsv,
     ) -> DatasetSnapshot:
         _require(context, decision, Permission.DATASET_WRITE)
+        return await self._import_reference_tensile_csv(context, decision, command)
+
+    async def import_reference_tensile_csv_for_processing(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: ImportReferenceTensileCsv,
+    ) -> DatasetSnapshot:
+        """Let an authorized Processing Import Run register the same immutable Dataset output.
+
+        This remains a public Dataset application port rather than a cross-module table write.
+        The caller must carry the explicitly expanded `dataset.write` database capability granted
+        by its top-level Processing command.
+        """
+
+        _require_capability(context, decision, Permission.DATASET_WRITE)
+        return await self._import_reference_tensile_csv(context, decision, command)
+
+    async def _import_reference_tensile_csv(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: ImportReferenceTensileCsv,
+    ) -> DatasetSnapshot:
         run = self._repository.load_reference_test_run(
             context=context,
             decision=decision,

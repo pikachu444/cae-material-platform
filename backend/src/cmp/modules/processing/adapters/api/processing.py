@@ -26,12 +26,19 @@ from cmp.modules.identity_access.domain.authorization import (
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.service import (
     CreateReferenceTensileCropRecipe,
+    ExecuteReferenceImport,
     ExecuteReferenceTensileCrop,
+    ImportRun,
     ProcessingRecipeSnapshot,
     ProcessingRun,
     ProcessingService,
     ReviseReferenceTensileCropRecipe,
     RevisionSnapshot,
+)
+from cmp.modules.processing.domain.reference_import import (
+    REFERENCE_IMPORT_EXECUTION_MODE,
+    REFERENCE_IMPORT_RUN_KIND,
+    ImportRunStatus,
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
@@ -92,6 +99,20 @@ class ExecuteReferenceTensileCropRequest(BaseModel):
     selection_revision_id: UUID
     recipe_id: UUID
     recipe_revision_id: UUID
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ExecuteReferenceImportRequest(BaseModel):
+    """Run only a human-approved, non-production reference CSV Mapping revision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    test_run_id: UUID
+    test_run_revision_id: UUID
+    raw_asset_id: UUID
+    raw_artifact_id: UUID
+    import_mapping_id: UUID
+    import_mapping_revision_id: UUID
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
@@ -214,6 +235,72 @@ class ProcessingRunResponse(BaseModel):
             removed_point_count=value.removed_point_count,
             result_artifact_id=value.result_artifact_id,
             result_sha256=value.result_sha256,
+            output_dataset_id=value.output_dataset_id,
+            output_dataset_revision_id=value.output_dataset_revision_id,
+            failure_code=value.failure_code,
+            change_reason=value.change_reason,
+            started_at=value.started_at.isoformat(),
+            ended_at=value.ended_at.isoformat() if value.ended_at is not None else None,
+            links=links,
+        )
+
+
+class ImportRunResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    import_run_id: UUID
+    classification: DataClassification
+    import_kind: str
+    execution_mode: str
+    reference_only: bool
+    status: ImportRunStatus
+    test_run_id: UUID
+    test_run_revision_id: UUID
+    raw_asset_id: UUID
+    raw_artifact_id: UUID
+    import_mapping_id: UUID
+    import_mapping_revision_id: UUID
+    mapping_sha256: str
+    importer_id: str
+    importer_version: str
+    output_dataset_id: UUID | None
+    output_dataset_revision_id: UUID | None
+    failure_code: str | None
+    change_reason: str
+    started_at: str
+    ended_at: str | None
+    links: dict[str, str]
+
+    @classmethod
+    def from_domain(cls, value: ImportRun) -> ImportRunResponse:
+        root = f"/api/v1/imports/{value.id}"
+        links = {
+            "self": root,
+            "mapping": f"/api/v1/import-mappings/{value.import_mapping_id}",
+            "test_run": f"/api/v1/test-runs/{value.test_run_id}",
+        }
+        if value.output_dataset_id is not None:
+            links["output_dataset"] = f"/api/v1/datasets/{value.output_dataset_id}"
+        if value.output_dataset_revision_id is not None:
+            links["output_curve"] = (
+                f"/api/v1/dataset-revisions/{value.output_dataset_revision_id}/curve"
+            )
+        return cls(
+            import_run_id=value.id,
+            classification=value.classification,
+            import_kind=REFERENCE_IMPORT_RUN_KIND,
+            execution_mode=REFERENCE_IMPORT_EXECUTION_MODE,
+            reference_only=True,
+            status=value.status,
+            test_run_id=value.test_run_id,
+            test_run_revision_id=value.test_run_revision_id,
+            raw_asset_id=value.raw_asset_id,
+            raw_artifact_id=value.raw_artifact_id,
+            import_mapping_id=value.import_mapping_id,
+            import_mapping_revision_id=value.import_mapping_revision_id,
+            mapping_sha256=value.mapping_sha256,
+            importer_id=value.importer_id,
+            importer_version=value.importer_version,
             output_dataset_id=value.output_dataset_id,
             output_dataset_revision_id=value.output_dataset_revision_id,
             failure_code=value.failure_code,
@@ -534,3 +621,58 @@ def install_processing_api(
         except Exception as error:
             raise _translate(context, error) from error
         return ProcessingRunResponse.from_domain(result)
+
+    @application.post(
+        "/api/v1/imports",
+        operation_id="executeReferenceImport",
+        response_model=ImportRunResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["processing"],
+    )
+    async def execute_import(
+        request: Request,
+        response: Response,
+        body: ExecuteReferenceImportRequest,
+    ) -> ImportRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = await service.execute_reference_import(
+                context,
+                decision,
+                ExecuteReferenceImport(
+                    test_run_id=body.test_run_id,
+                    test_run_revision_id=body.test_run_revision_id,
+                    raw_asset_id=body.raw_asset_id,
+                    raw_artifact_id=body.raw_artifact_id,
+                    import_mapping_id=body.import_mapping_id,
+                    import_mapping_revision_id=body.import_mapping_revision_id,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/imports/{result.id}"
+        response.headers["Cache-Control"] = "no-store"
+        return ImportRunResponse.from_domain(result)
+
+    @application.get(
+        "/api/v1/imports/{import_run_id}",
+        operation_id="getImportRun",
+        response_model=ImportRunResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["processing"],
+    )
+    def get_import_run(request: Request, import_run_id: UUID) -> ImportRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_import_run(context, decision, import_run_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        return ImportRunResponse.from_domain(result)

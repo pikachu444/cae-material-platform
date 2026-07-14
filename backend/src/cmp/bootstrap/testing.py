@@ -5,6 +5,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.bootstrap.security import IdentityServices
+from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
@@ -12,7 +13,10 @@ from cmp.modules.testing.adapters.persistence.repository import SqlAlchemyTestin
 from cmp.modules.testing.application.service import TestingService
 
 
-def build_testing_service(identity: IdentityServices) -> TestingService | None:
+def build_testing_service(
+    identity: IdentityServices,
+    artifacts: ArtifactService | None = None,
+) -> TestingService | None:
     """Reuse lifecycle, provenance, and audit hooks for every testing revision."""
 
     if identity.engine is None or identity.rls_context is None:
@@ -27,5 +31,6 @@ def build_testing_service(identity: IdentityServices) -> TestingService | None:
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
             ),
-        )
+        ),
+        artifacts=artifacts,
     )

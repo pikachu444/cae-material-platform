@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   ApiError,
+  createReferenceImportMapping,
+  detectReferenceImport,
+  executeReferenceImport,
   importReferenceTensileDataset,
   previewDatasetCurve,
   preflightSolverCardMapping,
@@ -150,6 +153,50 @@ describe("Catalog API client", () => {
     expect(JSON.parse(String(init?.body))).toMatchObject({
       test_run_revision_id: "00000000-0000-0000-0000-000000000012",
       raw_artifact_id: "00000000-0000-0000-0000-000000000014",
+    });
+  });
+
+  it("keeps reference importer detection, mapping approval, and execution as separate API calls", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({}));
+    vi.stubGlobal("fetch", fetchMock);
+    const config = { baseUrl: "http://localhost:8000/api/v1", accessToken: "short-lived-token" };
+
+    await detectReferenceImport(config, {
+      raw_asset_id: "00000000-0000-0000-0000-000000000020",
+      raw_artifact_id: "00000000-0000-0000-0000-000000000021",
+    });
+    await createReferenceImportMapping(config, {
+      detection_report_id: "00000000-0000-0000-0000-000000000022",
+      mapping_label: "Reference tensile columns",
+      strain_column: "engineering_strain",
+      stress_column: "engineering_stress",
+      strain_unit: "1",
+      stress_unit: "MPa",
+      change_reason: "Human mapping approval",
+    });
+    await executeReferenceImport(config, {
+      test_run_id: "00000000-0000-0000-0000-000000000023",
+      test_run_revision_id: "00000000-0000-0000-0000-000000000024",
+      raw_asset_id: "00000000-0000-0000-0000-000000000020",
+      raw_artifact_id: "00000000-0000-0000-0000-000000000021",
+      import_mapping_id: "00000000-0000-0000-0000-000000000025",
+      import_mapping_revision_id: "00000000-0000-0000-0000-000000000026",
+      change_reason: "Create immutable Dataset revisions",
+    });
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      "http://localhost:8000/api/v1/imports:detect",
+      "http://localhost:8000/api/v1/import-mappings",
+      "http://localhost:8000/api/v1/imports",
+    ]);
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toMatchObject({
+      detection_report_id: "00000000-0000-0000-0000-000000000022",
+      strain_column: "engineering_strain",
+      stress_unit: "MPa",
+    });
+    expect(JSON.parse(String(fetchMock.mock.calls[2][1]?.body))).toMatchObject({
+      import_mapping_revision_id: "00000000-0000-0000-0000-000000000026",
+      raw_artifact_id: "00000000-0000-0000-0000-000000000021",
     });
   });
 

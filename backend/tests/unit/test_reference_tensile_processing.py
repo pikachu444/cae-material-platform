@@ -69,6 +69,7 @@ from cmp.modules.processing.domain.reference_tensile_crop import (
     ReferenceTensileCropRecipeContent,
     crop_reference_tensile_points,
 )
+from cmp.modules.testing.application.service import TestingService as ServicePort
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 
 NOW = datetime(2026, 7, 15, 10, 0, tzinfo=UTC)
@@ -489,6 +490,7 @@ def _service(
         ProcessingService(
             repository=cast(ProcessingRepository, repository),
             datasets=cast(DatasetService, datasets),
+            testing=cast(ServicePort, object()),
             artifacts=cast(ArtifactService, artifacts),
             id_factory=lambda: PROCESSING_RUN,
         ),

@@ -211,7 +211,7 @@ def create_app(
             services.authorization, Permission.CATALOG_WRITE
         ),
     )
-    resolved_testing = testing_service or build_testing_service(services)
+    resolved_testing = testing_service or build_testing_service(services, resolved_artifacts)
     install_testing_api(
         application,
         service=resolved_testing,
@@ -238,6 +238,7 @@ def create_app(
     resolved_processing = processing_service or build_processing_service(
         services,
         resolved_datasets,
+        resolved_testing,
         resolved_artifacts,
     )
     install_processing_api(

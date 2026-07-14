@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/testing/reference-import-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "Links": {"type": "object", "additionalProperties": {"type": "string"}},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"const": "urn:cmp:testing:reference-import-mapping:1.0.0"},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "DetectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw_asset_id", "raw_artifact_id"],
+      "properties": {
+        "raw_asset_id": {"$ref": "#/$defs/Uuid"},
+        "raw_artifact_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "Suggestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["column", "unit", "confidence"],
+      "properties": {
+        "column": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "unit": {"type": ["string", "null"], "minLength": 1, "maxLength": 16},
+        "confidence": {"enum": ["none", "low"]}
+      }
+    },
+    "ImportDetectionReportResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "import_detection_report_id", "classification", "raw_asset_id", "raw_artifact_id",
+        "raw_sha256", "importer_id", "importer_version", "status", "header_columns",
+        "strain_suggestion", "stress_suggestion", "report_sha256", "reference_only",
+        "created_at", "created_by", "request_id", "trace_id", "links"
+      ],
+      "properties": {
+        "import_detection_report_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "raw_asset_id": {"$ref": "#/$defs/Uuid"},
+        "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "raw_sha256": {"$ref": "#/$defs/Sha256"},
+        "importer_id": {"const": "urn:cmp:testing:synthetic-csv-header-importer:1.0.0"},
+        "importer_version": {"const": "1.0.0"},
+        "status": {"const": "needs_input"},
+        "header_columns": {
+          "type": "array", "minItems": 1, "maxItems": 512,
+          "items": {"type": "string", "minLength": 1, "maxLength": 255},
+          "uniqueItems": true
+        },
+        "strain_suggestion": {"$ref": "#/$defs/Suggestion"},
+        "stress_suggestion": {"$ref": "#/$defs/Suggestion"},
+        "report_sha256": {"$ref": "#/$defs/Sha256"},
+        "reference_only": {"const": true},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "request_id": {"$ref": "#/$defs/Uuid"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "CreateImportMappingRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detection_report_id", "mapping_label", "strain_column", "stress_column",
+        "strain_unit", "stress_unit", "change_reason"
+      ],
+      "properties": {
+        "detection_report_id": {"$ref": "#/$defs/Uuid"},
+        "mapping_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "strain_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "stress_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "strain_unit": {"enum": ["1", "%"]},
+        "stress_unit": {"enum": ["Pa", "kPa", "MPa", "GPa"]},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseImportMappingRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_current_revision_id", "detection_report_id", "strain_column",
+        "stress_column", "strain_unit", "stress_unit", "change_reason"
+      ],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "detection_report_id": {"$ref": "#/$defs/Uuid"},
+        "strain_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "stress_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "strain_unit": {"enum": ["1", "%"]},
+        "stress_unit": {"enum": ["Pa", "kPa", "MPa", "GPa"]},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ImportMappingContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detection_report_id", "raw_asset_id", "raw_artifact_id", "strain_column",
+        "stress_column", "strain_unit", "stress_unit", "dataset_mapping_sha256",
+        "importer_id", "importer_version", "approval_kind", "reference_only"
+      ],
+      "properties": {
+        "detection_report_id": {"$ref": "#/$defs/Uuid"},
+        "raw_asset_id": {"$ref": "#/$defs/Uuid"},
+        "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "strain_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "stress_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "strain_unit": {"enum": ["1", "%"]},
+        "stress_unit": {"enum": ["Pa", "kPa", "MPa", "GPa"]},
+        "dataset_mapping_sha256": {"$ref": "#/$defs/Sha256"},
+        "importer_id": {"const": "urn:cmp:testing:synthetic-csv-header-importer:1.0.0"},
+        "importer_version": {"const": "1.0.0"},
+        "approval_kind": {"const": "human_confirmed"},
+        "reference_only": {"const": true}
+      }
+    },
+    "ImportMappingRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/ImportMappingContent"}}}
+      ]
+    },
+    "ImportMappingResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["import_mapping_id", "mapping_label", "current_revision", "links"],
+      "properties": {
+        "import_mapping_id": {"$ref": "#/$defs/Uuid"},
+        "mapping_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "current_revision": {"$ref": "#/$defs/ImportMappingRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    }
+  }
+}

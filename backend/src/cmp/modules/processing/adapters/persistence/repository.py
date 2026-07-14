@@ -19,10 +19,16 @@ from cmp.modules.identity_access.domain.authorization import (
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.service import (
     PROCESSING_RECIPE_AGGREGATE_TYPE,
+    ImportRun,
     ProcessingRecipeSnapshot,
     ProcessingRepository,
     ProcessingRun,
     RevisionSnapshot,
+)
+from cmp.modules.processing.domain.reference_import import (
+    REFERENCE_IMPORT_EXECUTION_MODE,
+    REFERENCE_IMPORT_RUN_KIND,
+    ImportRunStatus,
 )
 from cmp.modules.processing.domain.reference_tensile_crop import (
     REFERENCE_TENSILE_CROP_DIAGNOSTICS_SCHEMA,
@@ -116,6 +122,36 @@ processing_run_table = sa.Table(
     sa.Column("removed_point_count", sa.BigInteger(), nullable=True),
     sa.Column("result_artifact_id", sa.Uuid(), nullable=True),
     sa.Column("result_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("output_dataset_id", sa.Uuid(), nullable=True),
+    sa.Column("output_dataset_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("failure_code", sa.String(100), nullable=True),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("started_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("ended_at", sa.DateTime(timezone=True), nullable=True),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="processing",
+)
+import_run_table = sa.Table(
+    "import_run",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("import_kind", sa.String(100), nullable=False),
+    sa.Column("execution_mode", sa.String(32), nullable=False),
+    sa.Column("test_run_id", sa.Uuid(), nullable=False),
+    sa.Column("test_run_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("import_mapping_id", sa.Uuid(), nullable=False),
+    sa.Column("import_mapping_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("mapping_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("importer_id", sa.String(255), nullable=False),
+    sa.Column("importer_version", sa.String(64), nullable=False),
+    sa.Column("status", sa.String(16), nullable=False),
     sa.Column("output_dataset_id", sa.Uuid(), nullable=True),
     sa.Column("output_dataset_revision_id", sa.Uuid(), nullable=True),
     sa.Column("failure_code", sa.String(100), nullable=True),
@@ -238,6 +274,37 @@ def _run(row: Any) -> ProcessingRun:
         ),
         result_artifact_id=cast(UUID | None, row["result_artifact_id"]),
         result_sha256=cast(str | None, row["result_sha256"]),
+        output_dataset_id=cast(UUID | None, row["output_dataset_id"]),
+        output_dataset_revision_id=cast(UUID | None, row["output_dataset_revision_id"]),
+        failure_code=cast(str | None, row["failure_code"]),
+        change_reason=str(row["change_reason"]),
+        started_at=row["started_at"],
+        ended_at=row["ended_at"],
+        created_by=cast(UUID, row["created_by"]),
+        request_id=cast(UUID, row["request_id"]),
+        trace_id=str(row["trace_id"]),
+    )
+
+
+def _import_run(row: Any) -> ImportRun:
+    if (
+        str(row["import_kind"]) != REFERENCE_IMPORT_RUN_KIND
+        or str(row["execution_mode"]) != REFERENCE_IMPORT_EXECUTION_MODE
+    ):
+        raise ProcessingConflict("Import Run violates the reference orchestration contract")
+    return ImportRun(
+        id=cast(UUID, row["id"]),
+        classification=DataClassification(str(row["classification"])),
+        test_run_id=cast(UUID, row["test_run_id"]),
+        test_run_revision_id=cast(UUID, row["test_run_revision_id"]),
+        raw_asset_id=cast(UUID, row["raw_asset_id"]),
+        raw_artifact_id=cast(UUID, row["raw_artifact_id"]),
+        import_mapping_id=cast(UUID, row["import_mapping_id"]),
+        import_mapping_revision_id=cast(UUID, row["import_mapping_revision_id"]),
+        mapping_sha256=str(row["mapping_sha256"]),
+        importer_id=str(row["importer_id"]),
+        importer_version=str(row["importer_version"]),
+        status=ImportRunStatus(str(row["status"])),
         output_dataset_id=cast(UUID | None, row["output_dataset_id"]),
         output_dataset_revision_id=cast(UUID | None, row["output_dataset_revision_id"]),
         failure_code=cast(str | None, row["failure_code"]),
@@ -558,3 +625,138 @@ class SqlAlchemyProcessingRepository(ProcessingRepository):
         if row is None:
             raise ProcessingNotFound("Processing Run is not visible in the selected tenant")
         return _run(row)
+
+    def create_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run: ImportRun,
+    ) -> ImportRun:
+        values = {
+            "id": run.id,
+            "organization_id": context.organization_id,
+            "project_id": context.project_id,
+            "classification": run.classification.value,
+            "import_kind": REFERENCE_IMPORT_RUN_KIND,
+            "execution_mode": REFERENCE_IMPORT_EXECUTION_MODE,
+            "test_run_id": run.test_run_id,
+            "test_run_revision_id": run.test_run_revision_id,
+            "raw_asset_id": run.raw_asset_id,
+            "raw_artifact_id": run.raw_artifact_id,
+            "import_mapping_id": run.import_mapping_id,
+            "import_mapping_revision_id": run.import_mapping_revision_id,
+            "mapping_sha256": run.mapping_sha256,
+            "importer_id": run.importer_id,
+            "importer_version": run.importer_version,
+            "status": run.status.value,
+            "output_dataset_id": None,
+            "output_dataset_revision_id": None,
+            "failure_code": None,
+            "change_reason": run.change_reason,
+            "started_at": run.started_at,
+            "ended_at": None,
+            "created_by": run.created_by,
+            "request_id": run.request_id,
+            "trace_id": run.trace_id,
+        }
+        try:
+            with self._session(context, decision) as session:
+                session.execute(sa.insert(import_run_table).values(**values))
+        except (IntegrityError, DBAPIError) as error:
+            raise ProcessingConflict(
+                "Import Run cannot be created for these pinned inputs"
+            ) from error
+        return run
+
+    def _terminal_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        status: ImportRunStatus,
+        output_dataset_id: UUID | None,
+        output_dataset_revision_id: UUID | None,
+        failure_code: str | None,
+    ) -> ImportRun:
+        statement = (
+            sa.update(import_run_table)
+            .where(
+                import_run_table.c.organization_id == context.organization_id,
+                import_run_table.c.project_id == context.project_id,
+                import_run_table.c.id == run_id,
+                import_run_table.c.status == ImportRunStatus.EXECUTING.value,
+            )
+            .values(
+                status=status.value,
+                output_dataset_id=output_dataset_id,
+                output_dataset_revision_id=output_dataset_revision_id,
+                failure_code=failure_code,
+                ended_at=datetime.now(UTC),
+            )
+            .returning(*import_run_table.c)
+        )
+        try:
+            with self._session(context, decision) as session:
+                row = session.execute(statement).mappings().one_or_none()
+        except (IntegrityError, DBAPIError) as error:
+            raise ProcessingConflict("Import Run terminal state was rejected") from error
+        if row is None:
+            raise ProcessingConflict("Import Run is no longer executing")
+        return _import_run(row)
+
+    def succeed_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        output_dataset_id: UUID,
+        output_dataset_revision_id: UUID,
+    ) -> ImportRun:
+        return self._terminal_import_run(
+            context=context,
+            decision=decision,
+            run_id=run_id,
+            status=ImportRunStatus.SUCCEEDED,
+            output_dataset_id=output_dataset_id,
+            output_dataset_revision_id=output_dataset_revision_id,
+            failure_code=None,
+        )
+
+    def fail_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+        failure_code: str,
+    ) -> ImportRun:
+        return self._terminal_import_run(
+            context=context,
+            decision=decision,
+            run_id=run_id,
+            status=ImportRunStatus.FAILED,
+            output_dataset_id=None,
+            output_dataset_revision_id=None,
+            failure_code=failure_code,
+        )
+
+    def get_import_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> ImportRun:
+        statement = sa.select(import_run_table).where(
+            import_run_table.c.organization_id == context.organization_id,
+            import_run_table.c.project_id == context.project_id,
+            import_run_table.c.id == run_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise ProcessingNotFound("Import Run is not visible in the selected tenant")
+        return _import_run(row)
