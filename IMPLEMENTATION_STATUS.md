@@ -382,8 +382,11 @@ Alembic `upgrade head --sql`: passed
 CI-equivalent pytest: 381 passed, 62 PostgreSQL-gated tests skipped without CMP_TEST_POSTGRES_DSN
 Root web check: build passed; Vitest: 21 passed
 Local demo identity/API, Compose seed request construction, Compose YAML, and browser connection
-  token tests are implemented. Docker is not installed in this Windows environment, so the
-  containers and live PostgreSQL demo could not be started here.
+  token tests are implemented. Host diagnostics show WSL 2.6.3 with an active hypervisor and
+  `winget`, but no Docker Desktop/CLI, `psql`, `pg_isready`, or native GNU Make. Git Bash is
+  available. Docker is therefore the remaining user-installed P0-1 prerequisite; a separate host
+  PostgreSQL installation is unnecessary because Compose supplies PostgreSQL 16. The containers and
+  live PostgreSQL demo have not yet been started here.
 T-11/T-19/T-21/T-D03 have unit, API integration, migration SQL, and browser-workbench regression
 coverage.
 T-11 and earlier PostgreSQL integration coverage is implemented but not executed in this environment
@@ -497,6 +500,28 @@ isotropic-plasticity cards through explicit preflight, preview, and download API
 State workbench. The constant post-necking extension is `approximated`, never silently exact. Real
 solver execution, inverse post-necking identification, rate/temperature dependence, damage/failure,
 and production qualification remain separate decisions.
+
+**Current delivery order (ADR-0019, accepted 2026-07-14):** all existing foundation and vertical
+results above remain in place. Remaining work is now sequenced as follows:
+
+1. `P0-1` — install/start Docker Desktop with WSL 2, bring up the canonical Compose stack, execute
+   migration/seed/browser smoke, then run the PostgreSQL marker suite with skip 0/failure 0 and the
+   CI-equivalent suite with the same disposable owner DSN. This evidence is still open; the current
+   `381 passed / 62 skipped` result is not a completed PostgreSQL gate and 62 is not a fixed contract.
+2. `P0-2` — expand T-19/T-20/T-21 from one/two-curve reference subsets to immutable multi-member
+   repeat-test Selection, explicit processing/alignment, specimen-level statistics/pointwise bands,
+   QC/outlier assessment with calibration-specific scope, and connected curve UI.
+3. `P1` — add the bounded non-production reference Voce/SciPy nonlinear calibration path, nonlinear
+   Candidate diagnostics and human selection, calibrated solver-neutral IR plus explicit tabulated
+   projection, and existing OpenRadioss/Abaqus preflight/preview/download. Add solver-independent
+   material-model and disjoint-holdout validation; do not claim production model/optimizer approval.
+4. `P2` — Process/Lot/Batch and broader domain expansion, production plugins/decisions, actual
+   OpenRadioss/Abaqus execution qualification and HPC, observability, backup/restore, performance,
+   security, and external release hardening.
+
+Product-owner direction explicitly defers actual solver execution verification to P2. Existing
+T-27/T-28 mock/manual evidence and immutable results are retained; they are neither deleted nor
+reclassified as solver qualification. The immediate implementation gate is P0-1, followed by P0-2.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

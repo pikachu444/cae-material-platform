@@ -186,7 +186,15 @@ roots, a same-transaction T-06 revision hook, and auditor-only query/export/inte
 - `uv`
 - `make`
 - Node.js 20.19+ and `npm` for the web workbench
-- PostgreSQL 16+ for migration and persistence integration tests
+- Docker Engine with Docker Compose v2 for the canonical full-stack demo; on Windows use Docker
+  Desktop with the WSL 2 backend
+- PostgreSQL 16+ for migration and persistence integration tests. A separate host installation is
+  not required when the Compose PostgreSQL service is used.
+
+Windows installation requires user/admin interaction and may require a reboot: confirm hardware
+virtualization, install or update WSL 2, install Docker Desktop, start it, and wait until the Docker
+Engine is running. Exact commands, verification checks, and troubleshooting are in
+[the Compose guide](deploy/compose/README.md#windows-installation-prerequisites).
 
 ## Local end-to-end demo
 
@@ -218,6 +226,39 @@ only because this composition explicitly sets `CMP_ENVIRONMENT=demo` and
 by the normal JWT, RBAC, and PostgreSQL RLS path. No real company or validated
 engineering data is included. See [the compose guide](deploy/compose/README.md)
 for ports and teardown.
+
+For the P0-1 verification gate, run the composition detached, point the test suite at its disposable
+owner endpoint, and require zero PostgreSQL-marked skips:
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml up --build -d
+$env:CMP_TEST_POSTGRES_DSN = "postgresql+psycopg://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp"
+uv run pytest -m postgresql tests/integration -ra
+& "C:\Program Files\Git\bin\bash.exe" scripts/ci.sh
+```
+
+The current count of 62 PostgreSQL-gated tests is an observed snapshot, not a contract. P0-1 means
+the marker suite has skip 0/failure 0, the CI-equivalent suite passes with the same DSN, and the live
+demo works. Never use a production or shared database for this command. See
+[the test strategy](docs/14-testing/test-strategy.md#p0-1-windowscompose-verification-runbook) for the
+full health, log, and teardown procedure.
+
+## Current delivery order
+
+[ADR-0019](adr/0019-near-term-delivery-and-postgresql-verification-gate.md) applies this sequence
+without discarding the implemented foundation:
+
+1. `P0-1`: live Docker Compose/PostgreSQL migration, RLS, integration, CI, and browser verification.
+2. `P0-2`: multi-replicate Selection/processing, statistics, QC, outlier scope, and connected UI.
+3. `P1`: bounded non-production nonlinear reference calibration, Candidate selection, calibrated IR,
+   existing OpenRadioss/Abaqus card generation, and solver-independent holdout checks.
+4. `P2`: Process/Lot/Batch and broader domain work, actual solver/HPC execution qualification,
+   production plugins, and operational/release hardening.
+
+The P1 Voce/SciPy path is a synthetic `reference_only` implementation choice. It does not approve a
+production constitutive model, optimizer, parameter policy, card, or validation threshold. Actual
+solver execution verification is deferred to P2; deterministic card goldens continue to guard
+mapping regressions only.
 
 ## Start
 
@@ -503,7 +544,7 @@ not provide an external SIEM/WORM/KMS connector. Production DB grants should omi
   `NFR-INT-002`, `NFR-PERF-003`, `NFR-PERF-004`,
   `NFR-REP-001`, `NFR-REP-002`, `NFR-REP-003`, `NFR-SEC-004`, `NFR-SEC-005`, `NFR-MOD-002`,
   `NFR-COMP-001`, `NFR-COMP-002`, `NFR-DOC-001`
-- Decisions: `ADR-001`–`ADR-018` (with `ADR-005` as a scope guard)
+- Decisions: `ADR-001`–`ADR-019` (with `ADR-005` as a scope guard)
 
 ## T-30 reference Release channel
 

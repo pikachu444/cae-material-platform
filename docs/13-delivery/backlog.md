@@ -20,6 +20,60 @@ ADR-006에 따라 다음 delivery 순서를 적용한다.
 domain write와 UI가 재사용해야 하는 product substrate다. Process/Lot/Batch, production
 solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수 조건이 아니다.
 
+## 1.2 현재 실행 순서: P0-1 → P0-2 → P1 → P2
+
+ADR-0019는 이미 구현된 foundation과 Material-to-card 수직 기능을 유지하면서 다음 작업을
+아래 순서로 실행하도록 결정한다. 이 표의 표기는 현재 제품 increment의 실행 wave이며,
+각 Task 제목의 기존 우선순위 표기를 삭제하거나 과거 완료 상태를 되돌리지 않는다.
+
+| Wave | 범위 | 관련 Task | Exit gate |
+| --- | --- | --- | --- |
+| `P0-1` | Docker Compose 전체 서비스와 live PostgreSQL 통합검증 | T-04~T-18, T-31, T-37 | migration/seed/API/web가 동작하고 PostgreSQL marker suite가 skip 0/failure 0이며 DSN을 유지한 CI-equivalent suite가 통과한다. |
+| `P0-2` | 복수 반복시험 Selection, 명시적 processing/alignment, 통계·QC·outlier scope와 연결 UI | T-19~T-21, T-32/T-33 | 개별 curve를 보존한 채 raw/normalized/processed/statistical view가 구분되고, 계산·판정이 immutable revision/provenance를 가지며 PostgreSQL/RLS/API/browser test가 통과한다. |
+| `P1` | bounded nonlinear reference calibration, workbench, calibrated IR 승격, 기존 OpenRadioss/Abaqus card 연결, solver-independent holdout/material-model validation | T-22~T-26, T-33, T-D02 | candidate diagnostics와 사람 선택을 거쳐 새 IR revision/card가 생성되고 calibration/holdout overlap policy와 regression evidence가 명시된다. |
+| `P2` | Catalog genealogy와 production domain 확장, 실제 solver/HPC 검증, 운영·복구·release hardening | T-07/T-08 잔여, T-27/T-28 production 범위, T-34~T-38, T-D01~T-D03 production 범위 | 관련 domain/solver/운영 결정과 승인 fixture가 준비되고 각 Task gate가 통과한다. |
+
+### P0-1 실행 체크리스트
+
+1. Windows에서는 WSL 2와 Docker Desktop/Compose v2를 준비하고 Docker Engine을 실행한다.
+2. `deploy/compose/docker-compose.demo.yml`을 build/up하여 PostgreSQL 16, migration/bootstrap,
+   non-owner API, worker, web, reference-plugin check, synthetic seed 상태를 확인한다.
+3. host `127.0.0.1:54329`의 disposable demo owner DSN을
+   `CMP_TEST_POSTGRES_DSN`으로 설정한다.
+4. `pytest -m postgresql tests/integration`을 실행한다. 현재 관측된 62개는 고정 계약이
+   아니며 완료 조건은 PostgreSQL marker의 **skip 0/failure 0**이다.
+5. 같은 DSN으로 CI-equivalent suite를 실행하고 결과를 `IMPLEMENTATION_STATUS.md`에 기록한다.
+
+별도 PostgreSQL 설치는 필수가 아니다. Compose의 PostgreSQL을 사용하면 된다. production,
+공유 개발, 또는 보존해야 하는 DB를 통합시험 DSN으로 사용해서는 안 된다.
+
+### P0-2 구현 순서
+
+1. 여러 concrete Dataset revision을 pin하는 Selection과 specimen/Test Run 단위 membership
+2. explicit processing step으로서 alignment/resampling과 결과 Dataset revision
+3. specimen-level scalar statistics, pointwise curve band, QC observation
+4. outlier candidate와 사람 assessment, calibration별 exclusion scope
+5. Material State의 반복 curve 비교 및 raw/normalized/processed/statistical 화면
+
+Display downsampling은 계산 입력이 아니며, alignment/resampling/extrapolation은 브라우저나
+통계 코드가 암묵적으로 수행하지 않는다.
+
+### P1 reference 범위
+
+첫 nonlinear calibration은 ADR-0019의 non-production reference Voce saturation hardening과
+SciPy `least_squares` adapter를 권장 가정으로 사용한다. 이는 production 구성방정식이나
+optimizer policy 결정이 아니다. `TestModeAdapter`, `MaterialModelEvaluator`, `ObjectiveEngine`,
+`OptimizerAdapter`를 분리하고 initial value/bounds/scaling/seed/multistart/stopping/failure,
+objective terms/prediction/residual/convergence/warning/identifiability/uncertainty status를
+명시적으로 보존한다.
+
+선택된 Candidate는 solver-neutral calibrated IR revision을 append한다. 기존
+`isotropic-tabulated-plasticity` IR로 투영할 때 sampling grid, transform profile, Artifact
+digest와 source Candidate/Selection을 고정한 별도 activity/revision을 만들고, 그 revision에서
+OpenRadioss/Abaqus preflight/preview/download를 실행한다. 실제 solver 실행·data-check·HPC와
+solver qualification은 제품 소유자 결정에 따라 `P2`로 미루며, P1은 material-model response와
+겹치지 않는 holdout Selection 검증까지만 포함한다.
+
 ## E-01. 제품 기준선과 계약 기반
 
 ### S-01.1. 저장소와 아키텍처 규칙을 고정한다
@@ -289,7 +343,12 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
   typed processed Artifact와 별도 Dataset identity/revision 1, provenance/audit/RLS/API/웹
   흐름을 구현했다. source raw/normalized revision은 수정하지 않으며 preview output,
   interpolation, generic JSON/EAV를 사용하지 않는다. 여러 member/filter, resample/true
-  transform, durable reconciliation worker 및 production curve method는 여전히 후속 범위다.
+	  transform, durable reconciliation worker 및 production curve method는 여전히 후속 범위다.
+
+- **ADR-0019 P0-2 next subset:** 복수 Test Run의 concrete Dataset revisions를 보존하는
+  multi-member Selection, explicit alignment/resampling Recipe revision, 별도 processed Dataset
+  revision과 반복 curve UI를 다음 구현 단위로 한다. grid/method/domain/extrapolation policy가
+  없으면 계산을 거부하며 source Dataset revision은 수정하지 않는다.
 
 - **목적:** specimen/dataset membership과 ordered processing step을 재현 가능한 input으로 고정한다.
 - **입력과 출력:** 입력은 dataset revisions/member filters/step configs; 출력은 Selection Revision, Recipe Revision, processed Dataset Revision.
@@ -313,7 +372,9 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
   interpolation, extrapolation, or two-sample CI is performed (`not_provided_reference_pair`).
   PostgreSQL typed tables/RLS/constraints, provenance/audit, API, and Material State workbench are
   implemented. Multi-member grouping, approved alignment processing, larger-n uncertainty, and
-  domain-approved statistical method/tolerance profiles remain separate work.
+	  domain-approved statistical method/tolerance profiles remain separate work.
+- **ADR-0019 P0-2 next subset:** multi-member specimen-level `n`, pointwise band와 valid-domain
+  metadata를 추가하되, 승인되지 않은 CI/threshold를 production policy로 표시하지 않는다.
 - **목적:** specimen-level QC와 scalar/curve statistics를 grouping/assumption과 함께 계산한다.
 - **입력과 출력:** 입력은 Selection Revision, aligned dataset, Statistical Plan; 출력은 features, QC observations, scalar/curve result artifacts.
 - **영향 데이터/API:** `statistics.plan*`, `run`, `feature`, `qc_observation`, `result`; statistical API.
@@ -332,7 +393,10 @@ solver plugin, fitting, virtual specimen 및 release는 첫 card slice의 필수
   identities record retained or excluded_from_reference_analysis against the exact Statistical Plan
   revision. The typed comparison projection, PostgreSQL constraints/RLS, provenance/audit, API,
   contracts, and workbench preserve all source evidence and create neither automatic deletion nor a
-  derived Selection. Multi-member methods and calibration-specific scope remain outside this subset.
+	  derived Selection. Multi-member methods and calibration-specific scope remain outside this subset.
+- **ADR-0019 P0-2 next subset:** 여러 member에 대한 candidate evidence와 사람 assessment를
+  calibration-specific Selection/exclusion scope로 투영한다. 원본/normalized/processed curve는
+  삭제하거나 덮어쓰지 않는다.
 
 - **목적:** 이상치 후보 탐지와 사람 판정을 분리하고 특정 analysis/calibration exclusion만 표현한다.
 - **입력과 출력:** 입력은 QC/statistics evidence와 detector plan; 출력은 candidate, append-only assessment, derived Selection Revision/comparison.
@@ -373,6 +437,12 @@ then preserves explicit Plan/Run/Attempt/Candidate records and typed diagnostics
 non-production only; the separate human Candidate Selection and append-only IR promotion are now
 implemented by T-24.
 
+**ADR-0019 P1 next subset:** add a bounded non-production reference Voce evaluator and SciPy
+`least_squares` adapter for multi-curve monotonic tensile selections. Keep the test-mode, evaluator,
+objective, and optimizer interfaces separate; persist explicit bounds/scaling/seed/multistart,
+objective terms, convergence and failure evidence. This does not approve a production equation,
+optimizer, parameter range, weighting, or acceptance threshold.
+
 - **목적:** immutable inputs, model/calibrator, objective/bounds/seed를 고정하고 isolated runner에서 보정한다.
 - **입력과 출력:** 입력은 Selection/processed dataset revisions, model schema, calibrator, plan; 출력은 attempts/candidates, parameters, residual/convergence artifacts.
 - **영향 데이터/API:** `modeling.calibration_plan*`, `calibration_run`, `calibration_attempt`; calibration API.
@@ -392,7 +462,12 @@ still current. Promotion appends a new non-production reference IR revision with
 Selection/Candidate/Run/diagnostics evidence; it does not overwrite any source or published
 revision. PostgreSQL tables, constraints, indexes, RLS, triggers, API contracts, unit/API/browser
 regressions, and the Material State workbench are present. General candidate comparison, formal
-approval/release, uncertainty, and solver validation remain outside this bounded subset.
+	  approval/release, uncertainty, and solver validation remain outside this bounded subset.
+
+**ADR-0019 P1 next subset:** compare nonlinear Candidates across the pinned curves, retain
+prediction/residual and explicit identifiability/uncertainty status, then append a calibrated IR and
+an explicitly derived tabulated-plasticity IR suitable for the existing two exporters. No Candidate,
+source IR, Dataset, or already published card may be rewritten.
 
 - **목적:** 여러 calibration candidate의 parameter/objective/residual/identifiability를 비교하고 선택 이유와 함께 IR revision을 만든다.
 - **입력과 출력:** 입력은 terminal calibration candidates; 출력은 selection decision, chosen parameter set, IR Revision/evidence.
@@ -448,7 +523,11 @@ approval/release, uncertainty, and solver validation remain outside this bounded
   identity와 immutable revision, exact IR/Card/Selection pinning, `validation_run`, typed Result
   Manifest, deck/stdout/stderr/native Artifact 증거, PostgreSQL RLS/trigger/provenance/audit,
   protected API와 Material State workbench를 제공한다. `reference_inline_mock` 및 bounded manual
-  attach만 포함하며, 실제 solver/HPC adapter와 verdict는 구현하지 않는다(ADR-0013, T-28).
+	  attach만 포함하며, 실제 solver/HPC adapter와 verdict는 구현하지 않는다(ADR-0013, T-28).
+
+- **Current sequencing (ADR-0019):** 실제 OpenRadioss/Abaqus 실행, dry-run/data-check, HPC adapter와
+  solver qualification은 P2로 보류한다. 기존 reference evidence/run boundary는 유지하며 삭제하거나
+  production pass로 재해석하지 않는다.
 
 - **목적:** geometry/mesh/BC/output template과 managed/manual solver 실행을 versioned plan으로 관리한다.
 - **입력과 출력:** 입력은 card/IR, template revision, solver target, runner; 출력은 deck, external job ref, logs, native result manifest.
@@ -470,7 +549,11 @@ approval/release, uncertainty, and solver validation remain outside this bounded
   unit-or-alignment-invalid/overlap 결과는 `not_evaluated`이고 pass가 될 수 없다. protected
   evaluate/read/curve API와 Material State workbench가 이를 표시한다. 이는 non-production
   reference evidence이며 real solver/HPC qualification, production threshold, approval/release는
-  포함하지 않는다(ADR-0014).
+	  포함하지 않는다(ADR-0014).
+
+- **Current sequencing (ADR-0019):** P1은 solver-independent material-model response check와
+  calibration input과 겹치지 않는 holdout Selection 비교만 확장한다. 실제 solver 결과 해석과
+  production threshold 승인은 P2다.
 
 - **목적:** native result를 normalized response로 추출하고 solver health와 실험 비교 verdict를 분리한다.
 - **입력과 출력:** 입력은 native result/log, experimental Selection, extraction/metric profiles; 출력은 response artifact, health report, metrics, Validation Result.
@@ -643,6 +726,12 @@ approval/release, uncertainty, and solver validation remain outside this bounded
 
 ### T-D02. `[TBD]` Material Model·Calibrator plugin
 
+- **Reference next subset (ADR-0019):** production 결정을 기다리는 동안 synthetic monotonic
+  tensile fixtures만 사용하는 bounded Voce/SciPy reference adapter를 구현할 수 있다. formula,
+  parameter semantics, bounds, objective, grid projection, package/library version 및 diagnostics를
+  고정하고 `reference_only`로 표시한다. Domain-approved parameter ranges, reference curves,
+  tolerances와 production plugin packaging은 여전히 미결정이며 T-D02를 완료로 만들지 않는다.
+
 - **목적:** 선정 구성방정식과 calibration policy를 구현한다.
 - **입력과 출력:** processed selection/plan → parameter candidates, diagnostics, IR payload.
 - **영향 데이터/API:** model payload schema와 plugin manifest; core API 변경 없음이 목표.
@@ -665,7 +754,10 @@ approval/release, uncertainty, and solver validation remain outside this bounded
   explicit PostgreSQL columns/FKs/checks/indexes/RLS, and `.rad`/`.inp` golden fixtures are present.
   Real solver execution, semantic parser/dry-run, rate/temperature dependence, damage/failure,
   inverse post-necking identification, domain approval, and production plugin packaging remain
-  incomplete and keep T-D03 open.
+	  incomplete and keep T-D03 open.
+
+- **Current sequencing (ADR-0019):** calibrated IR에서 기존 두 reference card로 이어지는
+  deterministic mapping은 P1에 포함하지만, 실제 solver 실행과 qualification은 P2로 보류한다.
 
 - **목적:** 선정 solver/version/card로 IR을 mapping하고 virtual specimen에서 검증한다.
 - **입력과 출력:** IR/template/reference → card, mapping report, solver result, metrics.

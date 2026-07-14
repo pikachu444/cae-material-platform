@@ -7,6 +7,24 @@
 - 각 단계는 demo가 아니라 exit gate와 regression evidence로 완료한다.
 - graph DB, microservice, AI 기능은 측정된 필요가 생기기 전에는 도입하지 않는다.
 
+## 1.1 현재 delivery wave overlay
+
+장기 Stage 정의는 유지하되, 현재 구현 순서는 ADR-0019의 실행 wave를 우선한다.
+
+1. `P0-1`: Docker Compose 전체 stack과 live PostgreSQL migration/RLS/integration suite를
+   skip 없이 검증한다.
+2. `P0-2`: 여러 반복시험 curve를 보존하는 Selection, explicit processing/alignment,
+   statistics/QC/outlier scope와 연결 UI를 완성한다.
+3. `P1`: non-production nonlinear reference calibration, Candidate 비교/선택, calibrated IR,
+   기존 OpenRadioss/Abaqus card 생성, solver-independent material-model/holdout 검증을 연결한다.
+4. `P2`: Process/Lot/Batch와 broader domain, 실제 solver/HPC 실행 검증, 운영·복구·성능·보안
+   hardening을 진행한다.
+
+실제 solver 실행 검증을 P2로 미루는 것은 Stage 4를 삭제하거나 기존 evidence를 폐기하는
+결정이 아니다. 현재 P1은 solver executable 없이 수행할 수 있는 constitutive response와
+holdout 검증까지만 포함한다. Reference Voce/SciPy 선택 역시 production model/optimizer 결정이
+아니며 synthetic fixture로 계약을 검증하는 bounded 구현이다.
+
 ## 2. Stage 0 — Domain decision과 reference 확보
 
 ### 목표

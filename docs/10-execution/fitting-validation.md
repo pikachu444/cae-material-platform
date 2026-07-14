@@ -19,6 +19,30 @@ Material→IR→card 수직 기능은 calibration 없이 manual typed property�
 Calibration은 이후 `Processing`, `Modeling`, `Validation`에 흡수되는 bounded
 capability이며 MCalibration형 독립 제품이나 module을 만들지 않는다(ADR-006).
 
+### 1.1 ADR-0019의 현재 실행 경계
+
+현재 구현 순서는 live PostgreSQL gate(`P0-1`)와 multi-replicate processing/statistics
+vertical(`P0-2`) 다음에 nonlinear calibration-to-card(`P1`)를 둔다. P1의 첫 evaluator는
+synthetic monotonic tensile fixture에 한정한 non-production reference Voce saturation law다.
+
+```text
+sigma_y(epsilon_p) = sigma_0 + Q * (1 - exp(-b * epsilon_p))
+```
+
+SciPy `least_squares`는 첫 reference `OptimizerAdapter`일 뿐 production optimizer policy가
+아니다. initial value, lower/upper bounds, scaling/transform, seed, multistart, stop reason과
+library version을 Plan/Attempt evidence로 고정한다. `TestModeAdapter`,
+`MaterialModelEvaluator`, `ObjectiveEngine`, `OptimizerAdapter` 경계는 분리하고, objective
+term/curve/specimen/point weights와 missing-data/domain policy를 암묵적으로 채우지 않는다.
+
+Candidate 선택은 calibrated solver-neutral IR revision을 append한다. 기존 두 exporter에
+전달할 tabulated-plasticity IR은 별도 deterministic projection activity로 만들고 sampling
+grid, Artifact digest, source Candidate/Selection, applicability와 extrapolation을 보존한다.
+P1 검증 범위는 아래 V1 material-model response와 V3 disjoint holdout까지다. V4 실제
+OpenRadioss/Abaqus execution, data-check/dry-run, HPC와 solver qualification은 제품 소유자
+결정에 따라 P2로 보류한다. 기존 T-27/T-28 reference records는 유지하되 solver pass로
+해석하지 않는다.
+
 ## 2. 실행 계층
 
 ```mermaid
