@@ -1261,6 +1261,93 @@ export interface ReplicateStatisticalCurveResponse {
   points: ReplicateStatisticalCurvePoint[];
 }
 
+export interface ReplicateOutlierPlanResponse {
+  detection_plan_id: string;
+  plan_label: string;
+  current_revision: RevisionMetadata;
+  content: {
+    statistical_result_id: string;
+    statistical_result_revision_id: string;
+    detector: "absolute_modified_z_score_peak_stress";
+    feature: "peak_engineering_stress_pa";
+    absolute_modified_z_threshold: number;
+    automatic_exclusion: false;
+  };
+}
+
+export interface ReplicateOutlierCandidateResponse {
+  candidate_id: string;
+  ordinal: number;
+  dataset_id: string;
+  dataset_revision_id: string;
+  test_run_id: string;
+  test_run_revision_id: string;
+  peak_engineering_stress_pa: number;
+  sample_median_peak_stress_pa: number;
+  sample_mad_peak_stress_pa: number;
+  absolute_modified_z_score: number | null;
+  threshold: number;
+  evidence_code: "modified_z_threshold_exceeded" | "mad_zero_nonmedian_review";
+  review_status: "review_required";
+}
+
+export interface ReplicateOutlierRunResponse {
+  detection_run_id: string;
+  classification: DataClassification;
+  detection_plan_id: string;
+  detection_plan_revision_id: string;
+  statistical_result_id: string;
+  statistical_result_revision_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  sample_count: number;
+  sample_median_peak_stress_pa: number;
+  sample_mad_peak_stress_pa: number;
+  candidate_count: number;
+  candidates: ReplicateOutlierCandidateResponse[];
+  started_at: string;
+  ended_at: string;
+}
+
+export type ReplicateOutlierDecision = "retained" | "excluded_from_calibration";
+
+export interface ReplicateOutlierAssessmentResponse {
+  assessment_id: string;
+  current_revision: RevisionMetadata;
+  candidate_id: string;
+  detection_plan_id: string;
+  detection_plan_revision_id: string;
+  decision: ReplicateOutlierDecision;
+  assessment_reason: string;
+  automatic_exclusion: false;
+}
+
+export interface ReferenceCalibrationScopeResponse {
+  scope_id: string;
+  scope_label: string;
+  current_revision: RevisionMetadata;
+  source_selection_id: string;
+  source_selection_revision_id: string;
+  statistical_result_id: string;
+  statistical_result_revision_id: string;
+  detection_plan_id: string;
+  detection_plan_revision_id: string;
+  source_member_count: number;
+  included_member_count: number;
+  excluded_member_count: number;
+  members: Array<{
+    ordinal: number;
+    dataset_id: string;
+    dataset_revision_id: string;
+    test_run_id: string;
+    test_run_revision_id: string;
+    disposition: "included" | "excluded";
+    candidate_id: string | null;
+    assessment_id: string | null;
+    assessment_revision_id: string | null;
+  }>;
+}
+
 export interface ReferenceTensilePairPlanContent {
   plan_kind: "reference_tensile_pair_scalar_and_curve";
   sample_count: 2;

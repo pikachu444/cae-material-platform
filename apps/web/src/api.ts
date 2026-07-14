@@ -39,6 +39,11 @@ import type {
   ReplicateStatisticalPlanResponse,
   ReplicateStatisticalResultResponse,
   ReplicateStatisticalRunResponse,
+  ReplicateOutlierAssessmentResponse,
+  ReplicateOutlierDecision,
+  ReplicateOutlierPlanResponse,
+  ReplicateOutlierRunResponse,
+  ReferenceCalibrationScopeResponse,
   StatisticalCurvePreview,
   StatisticalPlanResponse,
   StatisticalResultResponse,
@@ -1281,6 +1286,67 @@ export function previewReferenceTensileReplicateStatisticalResultCurve(
     config,
     `/replicate-statistical-results/${encodeURIComponent(resultId)}/curve?${query.toString()}`,
   );
+}
+
+export function createReplicateOutlierDetectionPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    statistical_result_id: string;
+    statistical_result_revision_id: string;
+    absolute_modified_z_threshold: number;
+    change_reason: string;
+  },
+): Promise<ApiResult<ReplicateOutlierPlanResponse>> {
+  return request(config, "/replicate-outlier-detection-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReplicateOutlierDetection(
+  config: ApiConfig,
+  input: { detection_plan_id: string; detection_plan_revision_id: string },
+): Promise<ApiResult<ReplicateOutlierRunResponse>> {
+  return request(config, "/replicate-outlier-detection-runs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createReplicateOutlierAssessment(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    candidate_id: string;
+    detection_plan_id: string;
+    detection_plan_revision_id: string;
+    decision: ReplicateOutlierDecision;
+    assessment_reason: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ReplicateOutlierAssessmentResponse>> {
+  return request(config, "/replicate-outlier-assessments", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createReferenceCalibrationInputScope(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    scope_label: string;
+    detection_run_id: string;
+    assessment_revision_ids: string[];
+    change_reason: string;
+  },
+): Promise<ApiResult<ReferenceCalibrationScopeResponse>> {
+  return request(config, "/reference-calibration-input-scopes", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export function listStatisticalPlans(
