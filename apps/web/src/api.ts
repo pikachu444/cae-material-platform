@@ -49,6 +49,9 @@ import type {
   ReviewDecisionKind,
   ReviewRequestListResponse,
   ReviewRequestResponse,
+  ReleaseCreateInput,
+  ReleaseListResponse,
+  ReleaseResponse,
   SpecimenResponse,
   TestMethodResponse,
   TestRunResponse,
@@ -596,6 +599,54 @@ export function createReviewDecision(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function createRelease(
+  config: ApiConfig,
+  input: ReleaseCreateInput,
+): Promise<ApiResult<ReleaseResponse>> {
+  return request(config, "/releases", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listReleases(
+  config: ApiConfig,
+  limit = 50,
+): Promise<ApiResult<ReleaseListResponse>> {
+  const query = new URLSearchParams({ limit: String(limit) });
+  return request(config, `/releases?${query.toString()}`);
+}
+
+export function getRelease(
+  config: ApiConfig,
+  releaseId: string,
+): Promise<ApiResult<ReleaseResponse>> {
+  return request(config, `/releases/${encodeURIComponent(releaseId)}`);
+}
+
+export async function downloadRelease(
+  config: ApiConfig,
+  releaseId: string,
+): Promise<ApiResult<{ blob: Blob; filename: string }>> {
+  const headers = authenticatedHeaders(config, {}, "application/vnd.cmp.release-manifest+json");
+  const response = await fetch(
+    endpoint(config, `/releases/${encodeURIComponent(releaseId)}/download`),
+    { headers },
+  );
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  const header = response.headers.get("content-disposition") ?? "";
+  const match = header.match(/filename="?([^";]+)"?/i);
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: match?.[1] ?? `release-${releaseId}.cmp-release.json`,
+    },
+    etag: response.headers.get("etag"),
+  };
 }
 
 export function preflightSolverCardMapping(

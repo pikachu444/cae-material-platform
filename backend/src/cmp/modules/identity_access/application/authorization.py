@@ -155,6 +155,10 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     Role.RELEASE_APPROVER: frozenset(
         {
             Permission.CATALOG_READ,
+            Permission.ARTIFACT_READ,
+            Permission.MODELING_READ,
+            Permission.EXPORT_READ,
+            Permission.VALIDATION_READ,
             Permission.REVIEW_READ,
             Permission.RELEASE_READ,
             Permission.RELEASE_PUBLISH,
@@ -262,7 +266,14 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     ),
     Permission.REVIEW_DECIDE: frozenset({Permission.REVIEW_READ, Permission.PROVENANCE_READ}),
     Permission.RELEASE_PUBLISH: frozenset(
-        {Permission.REVIEW_READ, Permission.RELEASE_READ, Permission.PROVENANCE_READ}
+        {
+            Permission.REVIEW_READ,
+            Permission.RELEASE_READ,
+            Permission.PROVENANCE_READ,
+            Permission.MODELING_READ,
+            Permission.EXPORT_READ,
+            Permission.VALIDATION_READ,
+        }
     ),
     Permission.PLUGIN_SUBMIT: frozenset({Permission.PLUGIN_READ}),
     Permission.PLUGIN_ACTIVATE: frozenset({Permission.PLUGIN_READ}),

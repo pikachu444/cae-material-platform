@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-21`
-Foundation version: `0.24.0`
+Date: `2026-07-24`
+Foundation version: `0.25.0`
 
 ## Completed
 
@@ -161,6 +161,14 @@ Foundation version: `0.24.0`
   dashboard includes a digest-pinned request/decision workbench and recent-review list. The MVP
   fixes the required role to `domain_reviewer`; configurable matrices, comments/evidence, legal
   signatures, and Release publication remain outside this task.
+- `T-30` reference Release completeness subset: immutable `governance.release`, typed
+  `release_manifest`, and digest-fixed `release_artifact` rows with composite tenant/classification
+  keys, explicit Material Model/Solver Card/Validation/Review foreign keys, forced RLS, and
+  append-only guards. The publish gate requires exact lineage and SHA-256 matches, a passed
+  Validation Result, approved T-29 Review digest, non-production card, and no unsupported or
+  approximated mapping statuses. Protected create/list/read/download APIs and a React Release
+  workbench expose the reference package channel. Supersede/withdraw, production object storage,
+  and broader release evidence policy remain outside T-30.
 - `T-09`: resumable streaming multipart sessions, HMAC actor/tenant/expiry capabilities,
   immutable part manifests, verified staging Raw Assets, append-only ingestion events, duplicate
   content detection, protected API, filesystem development adapter, and forced PostgreSQL RLS
@@ -431,6 +439,14 @@ approved/changes_requested lifecycle projection`. Review facts and decisions are
 tenant-scoped, and transactionally linked to lifecycle events. A stale digest, newer revision,
 author-only decision, or repeated decision is rejected; changes requested cannot be resubmitted
 without a new revision. The next delivery work is T-30 Release completeness and evidence gating.
+
+**Update 2026-07-24:** T-30 now completes the bounded reference Release path:
+`approved candidate -> typed completeness/integrity gate -> immutable Release Manifest ->
+reference package search/download`. The gate binds one Material Model, Solver Card, passed
+Validation Result, approved Review digest, and provenance snapshot by explicit IDs and SHA-256
+digests; cross-tenant, stale, draft, unsupported, approximated, or partial inputs fail closed.
+The API and dashboard expose the package, while supersede/withdraw and production publication
+remain T-31+ scope.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report

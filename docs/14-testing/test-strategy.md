@@ -350,3 +350,10 @@ synthetic/approved raw tensile files
 - solver version/environment 차이를 결과 metadata에서 숨기지 않는다.
 - failing scientific test가 있으면 관련 plugin/release activation을 차단한다.
 
+### T-30 Release completeness invariants
+
+Release tests must verify a stable candidate-manifest digest, exact Material Model/Solver Card/
+Validation/Review/provenance identity matching, passed-validation and approved-review requirements,
+unsupported or approximated mapping rejection, organization/project/classification isolation, and
+immutable Manifest/Artifact rows. The authenticated download must return the package digest as an
+ETag and the package bytes must verify against the stored SHA-256.

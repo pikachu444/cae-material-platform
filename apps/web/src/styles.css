@@ -501,6 +501,43 @@ select:focus {
   margin: 0;
 }
 
+.release-workbench {
+  display: grid;
+  gap: 1rem;
+}
+
+.release-workbench > .muted {
+  max-width: 900px;
+  margin: 0;
+}
+
+.release-component-grid {
+  margin-top: 0.9rem;
+}
+
+.release-workbench details {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #d8e6e4;
+  border-radius: 8px;
+  background: #fbfefd;
+}
+
+.release-workbench summary {
+  cursor: pointer;
+  color: #21635f;
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.release-result {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid #b8d9d3;
+  border-radius: 10px;
+  background: #eef8f6;
+}
+
 .review-request-card {
   display: grid;
   gap: 0.85rem;

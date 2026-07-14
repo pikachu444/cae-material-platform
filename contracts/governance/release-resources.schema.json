@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/governance/release-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "ReleaseCode": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,99}$"},
+    "Classification": {
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "ReleaseManifestResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_manifest_id", "release_id", "manifest_sha256", "package_sha256",
+        "package_size_bytes", "package_media_type", "state", "material_id",
+        "material_revision_id", "material_state_id", "material_state_revision_id",
+        "property_set_id", "property_set_revision_id", "material_model_id",
+        "material_model_revision_id", "material_model_content_sha256", "solver_card_id",
+        "solver_card_revision_id", "solver_card_content_sha256", "mapping_report_sha256",
+        "card_sha256", "validation_result_id", "validation_result_sha256", "review_request_id",
+        "review_manifest_sha256", "provenance_snapshot_sha256", "created_at", "created_by",
+        "reason"
+      ],
+      "properties": {
+        "release_manifest_id": {"$ref": "#/$defs/Uuid"},
+        "release_id": {"$ref": "#/$defs/Uuid"},
+        "manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "package_sha256": {"$ref": "#/$defs/Sha256"},
+        "package_size_bytes": {"type": "integer", "minimum": 1},
+        "package_media_type": {"const": "application/vnd.cmp.release-manifest+json"},
+        "state": {"const": "released"},
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_content_sha256": {"$ref": "#/$defs/Sha256"},
+        "solver_card_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_revision_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_content_sha256": {"$ref": "#/$defs/Sha256"},
+        "mapping_report_sha256": {"$ref": "#/$defs/Sha256"},
+        "card_sha256": {"$ref": "#/$defs/Sha256"},
+        "validation_result_id": {"$ref": "#/$defs/Uuid"},
+        "validation_result_sha256": {"$ref": "#/$defs/Sha256"},
+        "review_request_id": {"$ref": "#/$defs/Uuid"},
+        "review_manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "provenance_snapshot_sha256": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "ReleaseResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_id", "classification", "release_code", "title", "channel", "created_at",
+        "created_by", "manifest", "links"
+      ],
+      "properties": {
+        "release_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "release_code": {"$ref": "#/$defs/ReleaseCode"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "channel": {"const": "reference"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "manifest": {"$ref": "#/$defs/ReleaseManifestResponse"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "ReleaseListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ReleaseResponse"}}}
+    },
+    "CreateReleaseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "release_code", "title", "material_id", "material_revision_id",
+        "material_state_id", "material_state_revision_id", "property_set_id",
+        "property_set_revision_id", "material_model_id", "material_model_revision_id",
+        "material_model_content_sha256", "solver_card_id", "solver_card_revision_id",
+        "solver_card_content_sha256", "mapping_report_sha256", "card_sha256",
+        "validation_result_id", "validation_result_sha256", "review_request_id",
+        "review_manifest_sha256", "provenance_snapshot_sha256", "reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "release_code": {"$ref": "#/$defs/ReleaseCode"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 255},
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_content_sha256": {"$ref": "#/$defs/Sha256"},
+        "solver_card_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_revision_id": {"$ref": "#/$defs/Uuid"},
+        "solver_card_content_sha256": {"$ref": "#/$defs/Sha256"},
+        "mapping_report_sha256": {"$ref": "#/$defs/Sha256"},
+        "card_sha256": {"$ref": "#/$defs/Sha256"},
+        "validation_result_id": {"$ref": "#/$defs/Uuid"},
+        "validation_result_sha256": {"$ref": "#/$defs/Sha256"},
+        "review_request_id": {"$ref": "#/$defs/Uuid"},
+        "review_manifest_sha256": {"$ref": "#/$defs/Sha256"},
+        "provenance_snapshot_sha256": {"$ref": "#/$defs/Sha256"},
+        "reason": {"$ref": "#/$defs/Reason"}
+      }
+    }
+  }
+}

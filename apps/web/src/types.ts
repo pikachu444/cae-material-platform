@@ -41,6 +41,80 @@ export interface ReviewRequestListResponse {
   items: ReviewRequestResponse[];
 }
 
+export interface ReleaseManifestResponse {
+  release_manifest_id: string;
+  release_id: string;
+  manifest_sha256: string;
+  package_sha256: string;
+  package_size_bytes: number;
+  package_media_type: "application/vnd.cmp.release-manifest+json";
+  state: "released";
+  material_id: string;
+  material_revision_id: string;
+  material_state_id: string;
+  material_state_revision_id: string;
+  property_set_id: string;
+  property_set_revision_id: string;
+  material_model_id: string;
+  material_model_revision_id: string;
+  material_model_content_sha256: string;
+  solver_card_id: string;
+  solver_card_revision_id: string;
+  solver_card_content_sha256: string;
+  mapping_report_sha256: string;
+  card_sha256: string;
+  validation_result_id: string;
+  validation_result_sha256: string;
+  review_request_id: string;
+  review_manifest_sha256: string;
+  provenance_snapshot_sha256: string;
+  created_at: string;
+  created_by: string;
+  reason: string;
+}
+
+export interface ReleaseResponse {
+  release_id: string;
+  classification: DataClassification;
+  release_code: string;
+  title: string;
+  channel: "reference";
+  created_at: string;
+  created_by: string;
+  manifest: ReleaseManifestResponse;
+  links: Record<string, string>;
+}
+
+export interface ReleaseListResponse {
+  items: ReleaseResponse[];
+}
+
+export interface ReleaseCreateInput {
+  classification: DataClassification;
+  release_code: string;
+  title: string;
+  material_id: string;
+  material_revision_id: string;
+  material_state_id: string;
+  material_state_revision_id: string;
+  property_set_id: string;
+  property_set_revision_id: string;
+  material_model_id: string;
+  material_model_revision_id: string;
+  material_model_content_sha256: string;
+  solver_card_id: string;
+  solver_card_revision_id: string;
+  solver_card_content_sha256: string;
+  mapping_report_sha256: string;
+  card_sha256: string;
+  validation_result_id: string;
+  validation_result_sha256: string;
+  review_request_id: string;
+  review_manifest_sha256: string;
+  provenance_snapshot_sha256: string;
+  reason: string;
+}
+
 export type PropertySourceKind =
   | "manual"
   | "supplier_datasheet"

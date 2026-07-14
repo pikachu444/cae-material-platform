@@ -23,6 +23,7 @@ from cmp.bootstrap.modeling import (
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import build_processing_service
 from cmp.bootstrap.provenance import build_provenance_services
+from cmp.bootstrap.release import build_release_service
 from cmp.bootstrap.review_release import build_review_service
 from cmp.bootstrap.security import (
     IdentityServices,
@@ -67,7 +68,9 @@ from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
 from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
+from cmp.modules.review_release.adapters.api.release import install_release_api
 from cmp.modules.review_release.adapters.api.review import install_review_api
+from cmp.modules.review_release.application.release_service import ReleaseService
 from cmp.modules.review_release.application.service import ReviewService
 from cmp.modules.statistics.adapters.api.statistics import install_statistics_api
 from cmp.modules.statistics.application.service import StatisticsService
@@ -110,6 +113,7 @@ def create_app(
     solver_card_service: SolverCardService | None = None,
     validation_service: ReferenceValidationService | None = None,
     review_service: ReviewService | None = None,
+    release_service: ReleaseService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -379,6 +383,18 @@ def create_app(
             services.authorization, Permission.REVIEW_DECIDE
         ),
     )
+    resolved_release = release_service or build_release_service(services)
+    install_release_api(
+        application,
+        service=resolved_release,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.RELEASE_READ
+        ),
+        publish_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.RELEASE_PUBLISH
+        ),
+    )
     application.state.authorization_service = services.authorization
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
@@ -393,6 +409,7 @@ def create_app(
     application.state.solver_card_service = resolved_solver_cards
     application.state.validation_service = resolved_validation
     application.state.review_service = resolved_review
+    application.state.release_service = resolved_release
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)
 
