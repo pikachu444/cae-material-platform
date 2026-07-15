@@ -660,6 +660,23 @@ OpenRadioss LAW62 cards; then Process/Lot/Batch genealogy. These are reference/n
 capabilities until domain-approved schemas, numeric fixtures and mappings are available. Actual
 solver execution validation remains excluded.
 
+### Shear-relaxation Dataset increment
+
+Migration 042 and the Dataset/Testing applications now implement the data-ingress half of P2 item
+3. A declared `reference_shear_relaxation` Test Method and Test Run pin exact Specimen and Material
+State revisions. The browser uploads a UTF-8 CSV as an immutable Raw Asset, requires explicit time
+and shear-modulus columns and units, then creates separate raw and normalized Dataset revisions.
+Normalized points are stored as a typed SI Parquet Artifact (`s`, `Pa`); the original units remain
+in the revision. PostgreSQL uses dedicated non-EAV identity/revision tables, composite tenant/source
+foreign keys, RLS, immutable revision triggers, and indexes. Raw-Asset usage is recorded in the
+Provenance graph. The Material State screen renders a bounded deterministic curve preview.
+
+This increment does not infer Prony terms from the curve. Remaining P2 item 3 work is an explicit,
+revisioned processing/calibration activity with parameter bounds, deterministic multistart,
+residual/candidate diagnostics, human selection, and promotion to a new linear-Prony IR revision.
+P2 item 4 Ogden-Prony/Abaqus/OpenRadioss LAW62 and item 5 Process/Lot/Batch genealogy remain after
+that. Actual solver execution qualification remains excluded by product-owner direction.
+
 ### Steel elastoplastic routing increment
 
 The existing tabulated-plasticity and calibrated Voce paths now require the exact source Material

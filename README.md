@@ -40,10 +40,34 @@ Metal / Steel Material
 
 ### Polymer 점탄성
 
-Material class와 호환성 라우팅을 먼저 제공하고 있습니다. 다음 구현 단위에서 shear
-relaxation 데이터, linear Prony IR, Abaqus `*VISCOELASTIC`, Ogden-Prony IR과 OpenRadioss
-LAW62를 순차적으로 연결합니다. 공식 mapping과 domain review가 완료되기 전 결과물은
-`reference/non-production`으로 표시됩니다.
+```text
+Polymer / Elastomer Material
+→ Material State와 기본 물성
+→ shear-relaxation CSV 원본 보존과 명시적 column/unit mapping
+→ raw revision + normalized SI Dataset revision과 curve 확인
+→ manual linear Prony IR
+→ Abaqus *VISCOELASTIC mapping report → preview → .inp download
+```
+
+현재 Dataset과 수동 Prony IR은 연결된 근거로 표시되지만, 시험 curve를 Prony 계수로
+자동 fitting하지는 않습니다. bounded calibration과 candidate 진단·승격이 다음 구현
+단위입니다. Ogden-Prony와 OpenRadioss LAW62는 그 이후의 별도 초점탄성 수직 기능이며,
+선형 Prony를 LAW62로 조용히 변환하지 않습니다. 공식 mapping과 domain review가 완료되기
+전 결과물은 `reference/non-production`으로 표시됩니다.
+
+### 웹 화면에서 시작하는 순서
+
+1. **Materials**에서 Material을 만들고 class를 `metal`, `polymer` 또는 `elastomer`로 선택합니다.
+2. Material 상세에서 State를 만들고 density, Young's modulus, Poisson ratio를 입력합니다.
+3. Steel은 **Test data workflow**, Polymer/Elastomer는 **Shear-relaxation Dataset**을 엽니다.
+4. 시험 방법과 Test Run을 만든 뒤 CSV와 실제 column/unit 의미를 입력합니다.
+5. normalized curve를 확인하고 해당 Material State의 모델 workbench에서 IR을 만듭니다.
+6. solver/version을 고른 뒤 mapping 상태를 확인하고 card를 미리 보거나 다운로드합니다.
+
+화면에 표시된 `reference` 결과는 실행 가능한 독립 구현 예제이지, 특정 회사의 재료나
+제품 설계에 대해 승인된 값이 아닙니다.
+점탄성 업로드 형식은 [reference-shear-relaxation.csv](examples/data/reference-shear-relaxation.csv)를
+사용해 볼 수 있습니다(`time_s`, `shear_modulus_mpa`, 단위 `s`/`MPa`).
 
 ## 지원 상태
 
@@ -51,7 +75,7 @@ LAW62를 순차적으로 연결합니다. 공식 mapping과 domain review가 완
 | --- | --- | --- | --- |
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
-| Polymer 선형 점탄성 | generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | IR·DB·API·UI·preflight·`.inp` preview/download 구현 |
+| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized data·IR·DB·API·UI·preflight·`.inp` preview/download 구현; fitting 후속 |
 | Elastomer 초점탄성 | Ogden + Prony | Abaqus, OpenRadioss LAW62 | 후속 수직 기능 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 

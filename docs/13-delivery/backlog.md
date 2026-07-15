@@ -897,6 +897,9 @@ application/API/UI now add the Abaqus 2025 `*DENSITY`, instantaneous `*ELASTIC`,
 `*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC` vertical: exact source revision pinning, explicit mapping
 preflight, immutable typed Prony card rows, byte-digest golden output, preview, and `.inp` download.
 Bulk relaxation remains evidence-bearing (`characterized` or `not_characterized`) and is never a
-silent default. Shear-relaxation Dataset import, normalization, processing and calibration remain
-the next P2 item 3 increment. OpenRadioss LAW62 remains explicitly outside this linear family and
-belongs to P2 item 4.
+silent default. Migration 042 completes the shear-relaxation ingress increment with an explicit
+Test Method/Run, immutable raw CSV, typed raw/normalized Dataset revisions, SI Parquet Artifact,
+tenant/source FKs, RLS, Provenance usage and a connected browser curve preview. Processing and
+bounded Prony calibration remain the next P2 item 3 increment; they must create revisioned
+activities/candidates and may not overwrite the raw or normalized curve. OpenRadioss LAW62 remains
+explicitly outside this linear family and belongs to P2 item 4.

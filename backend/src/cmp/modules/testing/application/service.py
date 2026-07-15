@@ -24,6 +24,8 @@ from cmp.modules.testing.domain.import_mapping import (
     detect_synthetic_csv_header,
 )
 from cmp.modules.testing.domain.reference_tensile import (
+    REFERENCE_SHEAR_RELAXATION_METHOD_CODE,
+    REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME,
     REFERENCE_TENSILE_METHOD_CODE,
     REFERENCE_TENSILE_METHOD_DISPLAY_NAME,
     REFERENCE_TENSILE_SCHEMA_VERSION,
@@ -47,6 +49,8 @@ IMPORT_MAPPING_AGGREGATE_TYPE = "testing.import_mapping"
 SPECIMEN_SCHEMA_ID = "urn:cmp:testing:reference-specimen:1.0.0"
 TEST_METHOD_SCHEMA_ID = "urn:cmp:testing:reference-uniaxial-tensile-method:1.0.0"
 TEST_RUN_SCHEMA_ID = "urn:cmp:testing:reference-uniaxial-tensile-run:1.0.0"
+SHEAR_RELAXATION_METHOD_SCHEMA_ID = "urn:cmp:testing:reference-shear-relaxation-method:1.0.0"
+SHEAR_RELAXATION_RUN_SCHEMA_ID = "urn:cmp:testing:reference-shear-relaxation-run:1.0.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,6 +126,12 @@ class CreateReferenceTensileMethod:
 
 
 @dataclass(frozen=True, slots=True)
+class CreateReferenceShearRelaxationMethod:
+    classification: DataClassification
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
 class CreateReferenceTensileRun:
     specimen_id: UUID
     specimen_revision_id: UUID
@@ -131,6 +141,18 @@ class CreateReferenceTensileRun:
     performed_at: datetime
     test_temperature_k: float | None
     crosshead_speed_mm_per_min: float | None
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateReferenceShearRelaxationRun:
+    specimen_id: UUID
+    specimen_revision_id: UUID
+    test_method_id: UUID
+    test_method_revision_id: UUID
+    run_label: str
+    performed_at: datetime
+    test_temperature_k: float | None
     change_reason: str
 
 
@@ -428,6 +450,41 @@ class TestingService:
         )
         return TestMethodSnapshot(method_id, RevisionSnapshot(record, content))
 
+    def create_reference_shear_relaxation_method(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceShearRelaxationMethod,
+    ) -> TestMethodSnapshot:
+        """Create the explicit reference method used by the viscoelastic data slice."""
+
+        _require(context, decision, Permission.TESTING_WRITE)
+        content = TestMethodContent(
+            REFERENCE_SHEAR_RELAXATION_METHOD_CODE,
+            REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME,
+        )
+        method_id = self._id()
+        scope = TenantScope(
+            context.organization_id, context.project_id, command.classification.value
+        )
+        record = RevisionService(
+            aggregate_type=TEST_METHOD_AGGREGATE_TYPE,
+            store=self._repository.test_method_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=method_id,
+                scope=scope,
+                schema_id=SHEAR_RELAXATION_METHOD_SCHEMA_ID,
+                schema_version=REFERENCE_TENSILE_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return TestMethodSnapshot(method_id, RevisionSnapshot(record, content))
+
     def create_reference_tensile_run(
         self,
         context: SecurityContext,
@@ -473,6 +530,68 @@ class TestingService:
                 aggregate_id=run_id,
                 scope=scope,
                 schema_id=TEST_RUN_SCHEMA_ID,
+                schema_version=REFERENCE_TENSILE_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return TestRunSnapshot(
+            run_id,
+            content.specimen_id,
+            content.test_method_id,
+            RevisionSnapshot(record, content),
+        )
+
+    def create_reference_shear_relaxation_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceShearRelaxationRun,
+    ) -> TestRunSnapshot:
+        """Pin a shear-relaxation run to exact Specimen and Test Method revisions."""
+
+        _require(context, decision, Permission.TESTING_WRITE)
+        specimen_classification, _specimen = self._repository.load_specimen_source(
+            context=context,
+            decision=decision,
+            specimen_id=command.specimen_id,
+            specimen_revision_id=command.specimen_revision_id,
+        )
+        method_classification, method = self._repository.load_test_method_source(
+            context=context,
+            decision=decision,
+            test_method_id=command.test_method_id,
+            test_method_revision_id=command.test_method_revision_id,
+        )
+        if specimen_classification is not method_classification:
+            raise TestingConflict("Specimen and Test Method classifications must match")
+        if method.method_code != REFERENCE_SHEAR_RELAXATION_METHOD_CODE:
+            raise TestingConflict("Test Run requires the reference shear-relaxation method")
+        content = TestRunContent(
+            specimen_id=command.specimen_id,
+            specimen_revision_id=command.specimen_revision_id,
+            test_method_id=command.test_method_id,
+            test_method_revision_id=command.test_method_revision_id,
+            run_label=command.run_label,
+            performed_at=command.performed_at,
+            test_temperature_k=command.test_temperature_k,
+            crosshead_speed_mm_per_min=None,
+        )
+        run_id = self._id()
+        scope = TenantScope(
+            context.organization_id, context.project_id, specimen_classification.value
+        )
+        record = RevisionService(
+            aggregate_type=TEST_RUN_AGGREGATE_TYPE,
+            store=self._repository.test_run_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=run_id,
+                scope=scope,
+                schema_id=SHEAR_RELAXATION_RUN_SCHEMA_ID,
                 schema_version=REFERENCE_TENSILE_SCHEMA_VERSION,
                 content=content,
                 created_by=context.principal.id,

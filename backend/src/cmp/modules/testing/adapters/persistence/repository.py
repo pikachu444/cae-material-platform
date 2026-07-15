@@ -337,9 +337,7 @@ def _run_content(row: Any) -> TestRunContent:
         run_label=str(row["run_label"]),
         performed_at=row["performed_at"],
         test_temperature_k=(
-            float(row["test_temperature_k"])
-            if row["test_temperature_k"] is not None
-            else None
+            float(row["test_temperature_k"]) if row["test_temperature_k"] is not None else None
         ),
         crosshead_speed_mm_per_min=(
             float(row["crosshead_speed_mm_per_min"])
@@ -363,9 +361,7 @@ def _detection_snapshot(row: Any) -> ImportDetectionReportSnapshot:
             else None
         ),
         suggested_strain_unit=(
-            str(row["suggested_strain_unit"])
-            if row["suggested_strain_unit"] is not None
-            else None
+            str(row["suggested_strain_unit"]) if row["suggested_strain_unit"] is not None else None
         ),
         strain_confidence=MappingSuggestionConfidence(str(row["strain_confidence"])),
         suggested_stress_column=(
@@ -374,9 +370,7 @@ def _detection_snapshot(row: Any) -> ImportDetectionReportSnapshot:
             else None
         ),
         suggested_stress_unit=(
-            str(row["suggested_stress_unit"])
-            if row["suggested_stress_unit"] is not None
-            else None
+            str(row["suggested_stress_unit"]) if row["suggested_stress_unit"] is not None else None
         ),
         stress_confidence=MappingSuggestionConfidence(str(row["stress_confidence"])),
         importer_id=str(row["importer_id"]),
@@ -700,18 +694,21 @@ class SqlAlchemyTestingRepository(TestingRepository):
         specimen_revision_id: UUID,
     ) -> tuple[DataClassification, SpecimenContent]:
         revision = specimen_revision_table
-        statement = sa.select(*_revision_columns(revision), *(
-            revision.c[name].label(name)
-            for name in (
-                "material_id",
-                "material_revision_id",
-                "material_state_id",
-                "material_state_revision_id",
-                "specimen_code",
-                "orientation",
-                "preparation_note",
-            )
-        )).where(
+        statement = sa.select(
+            *_revision_columns(revision),
+            *(
+                revision.c[name].label(name)
+                for name in (
+                    "material_id",
+                    "material_revision_id",
+                    "material_state_id",
+                    "material_state_revision_id",
+                    "specimen_code",
+                    "orientation",
+                    "preparation_note",
+                )
+            ),
+        ).where(
             revision.c.organization_id == context.organization_id,
             revision.c.project_id == context.project_id,
             revision.c.aggregate_id == specimen_id,
@@ -754,9 +751,7 @@ class SqlAlchemyTestingRepository(TestingRepository):
         return SpecimenSnapshot(
             id=cast(UUID, row["identity_id"]),
             material_state_id=cast(UUID, row["identity_material_state_id"]),
-            current=RevisionSnapshot(
-                _record(row, SPECIMEN_AGGREGATE_TYPE), _specimen_content(row)
-            ),
+            current=RevisionSnapshot(_record(row, SPECIMEN_AGGREGATE_TYPE), _specimen_content(row)),
         )
 
     @staticmethod
@@ -989,9 +984,7 @@ class SqlAlchemyTestingRepository(TestingRepository):
         with self._session(context, decision) as session:
             row = session.execute(statement).mappings().one_or_none()
         if row is None:
-            raise TestingNotFound(
-                "Import Mapping revision is not visible in the selected tenant"
-            )
+            raise TestingNotFound("Import Mapping revision is not visible in the selected tenant")
         return ImportMappingRevisionSnapshot(
             mapping_id=cast(UUID, row["identity_id"]),
             revision=RevisionSnapshot(
@@ -1029,9 +1022,7 @@ class SqlAlchemyTestingRepository(TestingRepository):
             row = session.execute(statement).mappings().one_or_none()
         if row is None:
             raise TestingNotFound("Test Run revision is not visible in the selected tenant")
-        return RevisionSnapshot(
-            _record(row, TEST_RUN_AGGREGATE_TYPE), _run_content(row)
-        )
+        return RevisionSnapshot(_record(row, TEST_RUN_AGGREGATE_TYPE), _run_content(row))
 
     def get_specimen(
         self,
@@ -1058,11 +1049,15 @@ class SqlAlchemyTestingRepository(TestingRepository):
         decision: AuthorizationDecision,
         material_state_id: UUID,
     ) -> tuple[SpecimenSnapshot, ...]:
-        statement = self._current_specimen_statement().where(
-            specimen_table.c.organization_id == context.organization_id,
-            specimen_table.c.project_id == context.project_id,
-            specimen_table.c.material_state_id == material_state_id,
-        ).order_by(specimen_table.c.created_at.asc())
+        statement = (
+            self._current_specimen_statement()
+            .where(
+                specimen_table.c.organization_id == context.organization_id,
+                specimen_table.c.project_id == context.project_id,
+                specimen_table.c.material_state_id == material_state_id,
+            )
+            .order_by(specimen_table.c.created_at.asc())
+        )
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._specimen_snapshot(row) for row in rows)
@@ -1091,10 +1086,14 @@ class SqlAlchemyTestingRepository(TestingRepository):
         context: SecurityContext,
         decision: AuthorizationDecision,
     ) -> tuple[TestMethodSnapshot, ...]:
-        statement = self._current_method_statement().where(
-            test_method_table.c.organization_id == context.organization_id,
-            test_method_table.c.project_id == context.project_id,
-        ).order_by(test_method_table.c.created_at.asc())
+        statement = (
+            self._current_method_statement()
+            .where(
+                test_method_table.c.organization_id == context.organization_id,
+                test_method_table.c.project_id == context.project_id,
+            )
+            .order_by(test_method_table.c.created_at.asc())
+        )
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._method_snapshot(row) for row in rows)

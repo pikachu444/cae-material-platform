@@ -25,6 +25,8 @@ from cmp.modules.identity_access.domain.authorization import (
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.testing.application.service import (
     CreateReferenceImportMapping,
+    CreateReferenceShearRelaxationMethod,
+    CreateReferenceShearRelaxationRun,
     CreateReferenceTensileMethod,
     CreateReferenceTensileRun,
     CreateSpecimen,
@@ -87,6 +89,19 @@ class TestRunCreateRequest(BaseModel):
     performed_at: datetime
     test_temperature_k: float | None = Field(default=None, gt=0.0)
     crosshead_speed_mm_per_min: float | None = Field(default=None, gt=0.0)
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ShearRelaxationRunCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    specimen_id: UUID
+    specimen_revision_id: UUID
+    test_method_id: UUID
+    test_method_revision_id: UUID
+    run_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    performed_at: datetime
+    test_temperature_k: float | None = Field(default=None, gt=0.0)
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
@@ -222,9 +237,7 @@ class ImportDetectionReportResponse(BaseModel):
     links: dict[str, str]
 
     @classmethod
-    def from_snapshot(
-        cls, value: ImportDetectionReportSnapshot
-    ) -> ImportDetectionReportResponse:
+    def from_snapshot(cls, value: ImportDetectionReportSnapshot) -> ImportDetectionReportResponse:
         report = value.report
         root = f"/api/v1/import-detection-reports/{value.id}"
         return cls(
@@ -657,6 +670,33 @@ def install_testing_api(
         _etag(response, result.current.record)
         return TestMethodResponse.from_snapshot(result)
 
+    @application.post(
+        "/api/v1/test-methods/reference-shear-relaxation",
+        operation_id="createReferenceShearRelaxationTestMethod",
+        response_model=TestMethodResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+    )
+    def create_reference_shear_relaxation_method(
+        request: Request, response: Response, body: ReferenceMethodCreateRequest
+    ) -> TestMethodResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_shear_relaxation_method(
+                context,
+                decision,
+                CreateReferenceShearRelaxationMethod(body.classification, body.change_reason),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/test-methods/{result.id}"
+        _etag(response, result.current.record)
+        return TestMethodResponse.from_snapshot(result)
+
     @application.get(
         "/api/v1/test-methods",
         operation_id="listTestMethods",
@@ -705,6 +745,44 @@ def install_testing_api(
                     body.performed_at,
                     body.test_temperature_k,
                     body.crosshead_speed_mm_per_min,
+                    body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/test-runs/{result.id}"
+        _etag(response, result.current.record)
+        return TestRunResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/test-runs/reference-shear-relaxation",
+        operation_id="createReferenceShearRelaxationTestRun",
+        response_model=TestRunResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+    )
+    def create_shear_relaxation_test_run(
+        request: Request,
+        response: Response,
+        body: ShearRelaxationRunCreateRequest,
+    ) -> TestRunResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_shear_relaxation_run(
+                context,
+                decision,
+                CreateReferenceShearRelaxationRun(
+                    body.specimen_id,
+                    body.specimen_revision_id,
+                    body.test_method_id,
+                    body.test_method_revision_id,
+                    body.run_label,
+                    body.performed_at,
+                    body.test_temperature_k,
                     body.change_reason,
                 ),
             )

@@ -91,6 +91,8 @@ import type {
   ProvenanceEntityResponse,
   ProvenanceLineagePage,
   SpecimenResponse,
+  ShearRelaxationCurvePreview,
+  ShearRelaxationDatasetResponse,
   TestMethodResponse,
   TestRunResponse,
   ReferenceTensileMapping,
@@ -1347,6 +1349,16 @@ export function createReferenceTensileTestMethod(
   });
 }
 
+export function createReferenceShearRelaxationTestMethod(
+  config: ApiConfig,
+  input: { classification: DataClassification; change_reason: string },
+): Promise<ApiResult<TestMethodResponse>> {
+  return request(config, "/test-methods/reference-shear-relaxation", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function createReferenceTensileTestRun(
   config: ApiConfig,
   input: {
@@ -1367,6 +1379,25 @@ export function createReferenceTensileTestRun(
   });
 }
 
+export function createReferenceShearRelaxationTestRun(
+  config: ApiConfig,
+  input: {
+    specimen_id: string;
+    specimen_revision_id: string;
+    test_method_id: string;
+    test_method_revision_id: string;
+    run_label: string;
+    performed_at: string;
+    test_temperature_k: number | null;
+    change_reason: string;
+  },
+): Promise<ApiResult<TestRunResponse>> {
+  return request(config, "/test-runs/reference-shear-relaxation", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function listTestRunsForMaterialState(
   config: ApiConfig,
   materialStateId: string,
@@ -1379,6 +1410,49 @@ export function listDatasetsForMaterialState(
   materialStateId: string,
 ): Promise<ApiResult<{ items: DatasetResponse[] }>> {
   return request(config, `/material-states/${encodeURIComponent(materialStateId)}/datasets`);
+}
+
+export function listShearRelaxationDatasetsForMaterialState(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: ShearRelaxationDatasetResponse[] }>> {
+  return request(
+    config,
+    `/material-states/${encodeURIComponent(materialStateId)}/shear-relaxation-datasets`,
+  );
+}
+
+export function importReferenceShearRelaxationDataset(
+  config: ApiConfig,
+  input: {
+    test_run_id: string;
+    test_run_revision_id: string;
+    raw_asset_id: string;
+    raw_artifact_id: string;
+    mapping: {
+      time_column: string;
+      shear_modulus_column: string;
+      time_unit: "s" | "ms" | "min" | "h";
+      shear_modulus_unit: "Pa" | "kPa" | "MPa" | "GPa";
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<ShearRelaxationDatasetResponse>> {
+  return request(config, "/shear-relaxation-datasets", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewShearRelaxationDataset(
+  config: ApiConfig,
+  datasetId: string,
+  maximumPoints = 500,
+): Promise<ApiResult<ShearRelaxationCurvePreview>> {
+  return request(
+    config,
+    `/shear-relaxation-datasets/${encodeURIComponent(datasetId)}/preview?maximum_points=${maximumPoints}`,
+  );
 }
 
 export function listDatasetRevisions(

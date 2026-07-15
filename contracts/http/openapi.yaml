@@ -1356,6 +1356,30 @@ paths:
         "409": {description: The reference Test Method already exists for this classification.}
         "422": {description: Reference Test Method request is invalid.}
         "503": {description: Testing service unavailable.}
+  /api/v1/test-methods/reference-shear-relaxation:
+    post:
+      operationId: createReferenceShearRelaxationTestMethod
+      tags: [testing]
+      summary: Register the non-production reference shear-relaxation CSV method.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ReferenceMethodCreateRequest"}
+      responses:
+        "201":
+          description: Stable reference Test Method identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestMethodResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "409": {description: The reference Test Method already exists for this classification.}
+        "422": {description: Reference Test Method request is invalid.}
+        "503": {description: Testing service unavailable.}
   /api/v1/test-methods:
     get:
       operationId: listTestMethods
@@ -1382,6 +1406,31 @@ paths:
         content:
           application/json:
             schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunCreateRequest"}
+      responses:
+        "201":
+          description: Stable Test Run identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: Concrete Specimen or reference Test Method revision is not visible.}
+        "409": {description: Immutable source or Test Run identity conflicts.}
+        "422": {description: Test Run content is invalid.}
+        "503": {description: Testing service unavailable.}
+  /api/v1/test-runs/reference-shear-relaxation:
+    post:
+      operationId: createReferenceShearRelaxationTestRun
+      tags: [testing]
+      summary: Create a reference shear-relaxation Test Run pinned to exact source revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ShearRelaxationRunCreateRequest"}
       responses:
         "201":
           description: Stable Test Run identity and immutable revision 1 created.
@@ -1584,6 +1633,73 @@ paths:
         "404": {description: Concrete reference Test Run or raw Artifact is not visible.}
         "409": {description: Immutable source, Artifact, or Dataset state conflicts.}
         "422": {description: Mapping, unit, or reference CSV values are invalid.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/shear-relaxation-datasets:
+    post:
+      operationId: importReferenceShearRelaxationDataset
+      tags: [datasets]
+      summary: Preserve raw and normalized shear-relaxation Dataset revisions.
+      description: Explicit user-confirmed time and shear-modulus columns and units are required.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/reference-shear-relaxation-resources.schema.json#/$defs/ImportRequest"}
+      responses:
+        "201":
+          description: Raw revision and normalized SI Parquet revision created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-shear-relaxation-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: Concrete Test Run or raw Artifact is not visible.}
+        "409": {description: Immutable source or Dataset state conflicts.}
+        "422": {description: Mapping, units, or relaxation curve values are invalid.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/material-states/{material_state_id}/shear-relaxation-datasets:
+    get:
+      operationId: listMaterialStateShearRelaxationDatasets
+      tags: [datasets]
+      summary: List current shear-relaxation Dataset heads for one Material State.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Tenant-scoped current Dataset heads.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-shear-relaxation-resources.schema.json#/$defs/ListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/shear-relaxation-datasets/{dataset_id}/preview:
+    get:
+      operationId: previewShearRelaxationDataset
+      tags: [datasets]
+      summary: Preview a bounded deterministic sample of the current immutable curve.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: maximum_points
+          in: query
+          required: false
+          schema: {type: integer, minimum: 3, maximum: 10000, default: 500}
+      responses:
+        "200":
+          description: Raw original-unit or normalized SI curve preview.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/reference-shear-relaxation-resources.schema.json#/$defs/Preview"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: No visible Dataset matches the identifier.}
         "503": {description: Dataset service unavailable.}
   /api/v1/dataset-selections:
     post:

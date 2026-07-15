@@ -51,6 +51,13 @@ and relaxation time in seconds. The mapping report records `exact`, `transformed
 `not_applicable` per item before creation. A deferred database guard compares every stored card
 term with the exact source IR revision. This is a reference mapping and not solver-qualified.
 
+Migration 042 implements the first shear-relaxation input boundary without changing the manual IR
+contract. A dedicated Test Method/Run pins an exact Specimen and Material State revision. Dedicated
+non-EAV Dataset identity/revision tables preserve the verified raw CSV and a normalized SI Parquet
+Artifact as separate immutable revisions, including original column/unit semantics and Raw Asset
+provenance. Time must increase strictly and the bounded reference relaxation modulus must not
+increase. The web curve is evidence for later fitting; import never selects or changes Prony terms.
+
 Official mapping references:
 
 - [Abaqus `*VISCOELASTIC` keyword](https://docs.software.vt.edu/abaqusv2024/English/SIMACAEKEYRefMap/simakey-r-viscoelastic.htm)

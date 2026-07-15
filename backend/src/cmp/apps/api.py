@@ -11,7 +11,10 @@ from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import build_catalog_service
-from cmp.bootstrap.datasets import build_dataset_service
+from cmp.bootstrap.datasets import (
+    build_dataset_service,
+    build_shear_relaxation_dataset_service,
+)
 from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
 from cmp.bootstrap.exporting import (
     build_elastoplastic_solver_card_service,
@@ -56,7 +59,11 @@ from cmp.modules.audit.application.service import AuditService
 from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
+from cmp.modules.datasets.adapters.api.shear_relaxation import (
+    install_shear_relaxation_dataset_api,
+)
 from cmp.modules.datasets.application.service import DatasetService
+from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
     install_elastoplastic_solver_card_api,
 )
@@ -166,6 +173,7 @@ def create_app(
     catalog_service: CatalogService | None = None,
     testing_service: TestingService | None = None,
     dataset_service: DatasetService | None = None,
+    shear_relaxation_dataset_service: ShearRelaxationDatasetService | None = None,
     processing_service: ProcessingService | None = None,
     statistics_service: StatisticsService | None = None,
     replicate_statistics_service: ReplicateStatisticsService | None = None,
@@ -319,6 +327,21 @@ def create_app(
     install_dataset_api(
         application,
         service=resolved_datasets,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_WRITE
+        ),
+    )
+    resolved_shear_relaxation_datasets = (
+        shear_relaxation_dataset_service
+        or build_shear_relaxation_dataset_service(services, resolved_artifacts)
+    )
+    install_shear_relaxation_dataset_api(
+        application,
+        service=resolved_shear_relaxation_datasets,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.DATASET_READ
@@ -636,6 +659,7 @@ def create_app(
     application.state.catalog_service = resolved_catalog
     application.state.testing_service = resolved_testing
     application.state.dataset_service = resolved_datasets
+    application.state.shear_relaxation_dataset_service = resolved_shear_relaxation_datasets
     application.state.processing_service = resolved_processing
     application.state.statistics_service = resolved_statistics
     application.state.replicate_statistics_service = resolved_replicate_statistics
