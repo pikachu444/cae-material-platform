@@ -31,6 +31,8 @@ import type {
   MaterialStateReviseInput,
   MaterialStateResponse,
   LinearViscoelasticModelResponse,
+  LinearViscoelasticCardResponse,
+  LinearViscoelasticMappingReport,
   LinearViscoelasticResponse,
   MappingReport,
   ImportDetectionReportResponse,
@@ -1108,6 +1110,88 @@ export function previewLinearViscoelasticResponse(
     config,
     `/linear-viscoelastic-models/${encodeURIComponent(materialModelId)}/response`,
   );
+}
+
+export function preflightLinearViscoelasticMapping(
+  config: ApiConfig,
+  materialModelId: string,
+  materialModelRevisionId: string,
+): Promise<ApiResult<LinearViscoelasticMappingReport>> {
+  return request(
+    config,
+    `/linear-viscoelastic-models/${encodeURIComponent(materialModelId)}/mapping-preflight`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        material_model_revision_id: materialModelRevisionId,
+        target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s" },
+      }),
+    },
+  );
+}
+
+export function listLinearViscoelasticSolverCards(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<{ items: LinearViscoelasticCardResponse[] }>> {
+  return request(
+    config,
+    `/linear-viscoelastic-models/${encodeURIComponent(materialModelId)}/solver-cards`,
+  );
+}
+
+export function createLinearViscoelasticSolverCard(
+  config: ApiConfig,
+  materialModelId: string,
+  input: {
+    material_model_revision_id: string;
+    expected_mapping_report_sha256: string;
+    solver_material_id: number;
+    material_name: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<{ card: LinearViscoelasticCardResponse; mapping_report: LinearViscoelasticMappingReport }>> {
+  return request(
+    config,
+    `/linear-viscoelastic-models/${encodeURIComponent(materialModelId)}/solver-cards`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ...input,
+        target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s" },
+      }),
+    },
+  );
+}
+
+export async function previewLinearViscoelasticSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<string>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/linear-viscoelastic-solver-cards/${encodeURIComponent(solverCardId)}/preview`),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  return { data: await response.text(), etag: response.headers.get("etag") };
+}
+
+export async function downloadLinearViscoelasticSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<{ blob: Blob; filename: string }>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/linear-viscoelastic-solver-cards/${encodeURIComponent(solverCardId)}/download`),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const filename = /filename="([^"]+)"/.exec(disposition)?.[1] ?? "material.inp";
+  return { data: { blob: await response.blob(), filename }, etag: response.headers.get("etag") };
 }
 
 export function createTabulatedPlasticityModel(

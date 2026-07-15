@@ -891,11 +891,12 @@ does not expose the Steel workbench for polymer, elastomer or unclassified State
 legacy States can explicitly append a revision that adopts the current classified Material. This
 does not add a production constitutive model or solver qualification.
 
-P2 item 3 is in progress as ordered vertical increments. Migration 040, the typed Modeling
-application/API and the React Material State workbench complete the manual linear Prony IR half:
-exact polymer/elastomer source revisions, explicit ordered Prony rows, bulk-evidence status and a
-deterministic relaxation response are persisted and displayed against live PostgreSQL. The next
-increment is Abaqus time-domain `*VISCOELASTIC, TIME=PRONY` capability/preflight/report/card
-preview/download with a golden fixture. Shear-relaxation CSV processing and bounded calibration
-follow that exporter and remain unimplemented; OpenRadioss LAW62 remains explicitly outside this
-linear family and belongs to P2 item 4.
+P2 item 3 is in progress as ordered vertical increments. Migration 040 and the typed Modeling
+application/API/UI implement the manual linear Prony IR. Migration 041 and the Exporting
+application/API/UI now add the Abaqus 2025 `*DENSITY`, instantaneous `*ELASTIC`, and
+`*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC` vertical: exact source revision pinning, explicit mapping
+preflight, immutable typed Prony card rows, byte-digest golden output, preview, and `.inp` download.
+Bulk relaxation remains evidence-bearing (`characterized` or `not_characterized`) and is never a
+silent default. Shear-relaxation Dataset import, normalization, processing and calibration remain
+the next P2 item 3 increment. OpenRadioss LAW62 remains explicitly outside this linear family and
+belongs to P2 item 4.

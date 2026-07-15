@@ -15,6 +15,7 @@ from cmp.bootstrap.datasets import build_dataset_service
 from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
 from cmp.bootstrap.exporting import (
     build_elastoplastic_solver_card_service,
+    build_linear_viscoelastic_solver_card_service,
     build_solver_card_service,
 )
 from cmp.bootstrap.jobs import build_job_service
@@ -59,9 +60,15 @@ from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
     install_elastoplastic_solver_card_api,
 )
+from cmp.modules.exporting.adapters.api.linear_viscoelastic_solver_cards import (
+    install_linear_viscoelastic_solver_card_api,
+)
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
+)
+from cmp.modules.exporting.application.linear_viscoelastic_service import (
+    LinearViscoelasticSolverCardService,
 )
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.identity_access.adapters.api.authorization import (
@@ -172,6 +179,7 @@ def create_app(
     candidate_selection_service: CandidateSelectionService | None = None,
     solver_card_service: SolverCardService | None = None,
     elastoplastic_solver_card_service: ElastoplasticSolverCardService | None = None,
+    linear_viscoelastic_solver_card_service: LinearViscoelasticSolverCardService | None = None,
     validation_service: ReferenceValidationService | None = None,
     voce_holdout_service: ReferenceVoceHoldoutService | None = None,
     review_service: ReviewService | None = None,
@@ -541,6 +549,24 @@ def create_app(
             services.authorization, Permission.EXPORT_EXECUTE
         ),
     )
+    resolved_linear_viscoelastic_solver_cards = (
+        linear_viscoelastic_solver_card_service
+        or build_linear_viscoelastic_solver_card_service(
+            services,
+            resolved_linear_viscoelastic,
+        )
+    )
+    install_linear_viscoelastic_solver_card_api(
+        application,
+        service=resolved_linear_viscoelastic_solver_cards,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_EXECUTE
+        ),
+    )
     resolved_validation = validation_service or build_reference_validation_service(
         services,
         resolved_datasets,
@@ -622,6 +648,9 @@ def create_app(
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
     application.state.elastoplastic_solver_card_service = resolved_elastoplastic_solver_cards
+    application.state.linear_viscoelastic_solver_card_service = (
+        resolved_linear_viscoelastic_solver_cards
+    )
     application.state.validation_service = resolved_validation
     application.state.voce_holdout_service = resolved_voce_holdout
     application.state.review_service = resolved_review

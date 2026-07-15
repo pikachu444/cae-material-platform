@@ -9,11 +9,20 @@ from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevision
 from cmp.modules.exporting.adapters.persistence.elastoplastic_repository import (
     SqlAlchemyElastoplasticExportingRepository,
 )
+from cmp.modules.exporting.adapters.persistence.linear_viscoelastic_repository import (
+    SqlAlchemyLinearViscoelasticExportingRepository,
+)
 from cmp.modules.exporting.adapters.persistence.repository import SqlAlchemyExportingRepository
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
 )
+from cmp.modules.exporting.application.linear_viscoelastic_service import (
+    LinearViscoelasticSolverCardService,
+)
 from cmp.modules.exporting.application.service import SolverCardService
+from cmp.modules.modeling.application.linear_viscoelasticity import (
+    LinearViscoelasticModelService,
+)
 from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelService,
 )
@@ -46,15 +55,34 @@ def build_elastoplastic_solver_card_service(
 ) -> ElastoplasticSolverCardService | None:
     """Compose both bounded elastoplastic exporters over one solver-neutral IR."""
 
-    if (
-        identity.engine is None
-        or identity.rls_context is None
-        or material_models is None
-    ):
+    if identity.engine is None or identity.rls_context is None or material_models is None:
         return None
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
     return ElastoplasticSolverCardService(
         repository=SqlAlchemyElastoplasticExportingRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        material_models=material_models,
+    )
+
+
+def build_linear_viscoelastic_solver_card_service(
+    identity: IdentityServices,
+    material_models: LinearViscoelasticModelService | None,
+) -> LinearViscoelasticSolverCardService | None:
+    """Compose the bounded Abaqus Prony exporter over the typed reference IR."""
+
+    if identity.engine is None or identity.rls_context is None or material_models is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return LinearViscoelasticSolverCardService(
+        repository=SqlAlchemyLinearViscoelasticExportingRepository(
             session_factory=sessions,
             rls_context=identity.rls_context,
             revision_hooks=(

@@ -47,6 +47,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260804_038_material_classification.py",
         "20260805_039_steel_elastoplastic_routing.py",
         "20260806_040_linear_viscoelastic_ir.py",
+        "20260807_041_abaqus_linear_prony_card.py",
     ]
 
 

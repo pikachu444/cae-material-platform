@@ -198,3 +198,26 @@ class LinearViscoelasticModelService:
             decision=decision,
             material_state_id=material_state_id,
         )
+
+    def get_model_revision_for_export(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearViscoelasticContent]:
+        if decision.permission not in {Permission.EXPORT_READ, Permission.EXPORT_EXECUTE}:
+            raise LinearViscoelasticConflict(
+                "linear-viscoelastic export requires export.read or export.execute"
+            )
+        _require_decision(context, decision, decision.permission)
+        snapshot = self._repository.get_material_model(
+            context=context,
+            decision=decision,
+            material_model_id=material_model_id,
+        )
+        if snapshot.current.record.revision_id != material_model_revision_id:
+            raise LinearViscoelasticConflict(
+                "the exact requested immutable Material Model revision is not current"
+            )
+        return snapshot.current
