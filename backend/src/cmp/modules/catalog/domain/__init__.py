@@ -2,6 +2,7 @@
 
 from cmp.modules.catalog.domain.model import (
     Applicability,
+    MaterialClass,
     MaterialContent,
     MaterialStateContent,
     PropertySetContent,
@@ -11,6 +12,7 @@ from cmp.modules.catalog.domain.model import (
 
 __all__ = [
     "Applicability",
+    "MaterialClass",
     "MaterialContent",
     "MaterialStateContent",
     "PropertySetContent",

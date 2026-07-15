@@ -212,7 +212,17 @@ export interface MaterialContent {
   material_code: string | null;
   material_family: string | null;
   description: string | null;
+  material_class: MaterialClass;
 }
+
+export type MaterialClass =
+  | "unclassified"
+  | "metal"
+  | "polymer"
+  | "elastomer"
+  | "composite"
+  | "ceramic"
+  | "other";
 
 export interface MaterialRevision extends RevisionMetadata {
   content: MaterialContent;
@@ -297,6 +307,11 @@ export interface MaterialRevisionComparison {
 export interface MaterialCreateInput {
   classification: DataClassification;
   content: Omit<MaterialContent, "material_id">;
+  change_reason: string;
+}
+
+export interface MaterialReviseInput {
+  content: MaterialContent;
   change_reason: string;
 }
 

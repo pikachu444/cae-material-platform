@@ -1007,6 +1007,10 @@ paths:
           in: query
           required: false
           schema: {type: string, minLength: 1, maxLength: 200}
+        - name: material_class
+          in: query
+          required: false
+          schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialClass"}
         - name: limit
           in: query
           required: false

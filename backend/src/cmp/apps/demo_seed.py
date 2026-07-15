@@ -52,6 +52,14 @@ def _replicate_csv(scale: float) -> bytes:
     ).encode()
 
 
+def _revision_etag(revision: Mapping[str, Any]) -> str:
+    revision_no = revision.get("revision_no")
+    content_hash = revision.get("content_hash")
+    if not isinstance(revision_no, int) or not isinstance(content_hash, str):
+        raise DemoSeedError("revision metadata cannot produce a strong ETag")
+    return f'"revision:{revision_no}:sha256:{content_hash}"'
+
+
 class DemoSeedError(RuntimeError):
     """The local composition is not ready or rejected a synthetic request."""
 
@@ -173,7 +181,31 @@ def _ensure_material(api: DemoApi) -> dict[str, Any]:
         and item["current_revision"].get("content", {}).get("material_code") == _MATERIAL_CODE,
     )
     if found is not None:
-        return api.get(f"/materials/{_current_id(found, 'material_id')}")
+        detail = api.get(f"/materials/{_current_id(found, 'material_id')}")
+        material = detail.get("material")
+        current = material.get("current_revision") if isinstance(material, dict) else None
+        content = current.get("content") if isinstance(current, dict) else None
+        if (
+            isinstance(current, dict)
+            and isinstance(content, dict)
+            and content.get("material_class") in {None, "unclassified"}
+        ):
+            revised = api.post(
+                f"/materials/{_current_id(found, 'material_id')}/revisions",
+                {
+                    "content": {
+                        "name": content.get("name"),
+                        "material_code": content.get("material_code"),
+                        "material_family": content.get("material_family"),
+                        "description": content.get("description"),
+                        "material_class": "metal",
+                    },
+                    "change_reason": "Classify the legacy demo Material as metal.",
+                },
+                headers={"If-Match": _revision_etag(current)},
+            )
+            detail["material"] = revised
+        return detail
     material = api.post(
         "/materials",
         {
@@ -182,6 +214,7 @@ def _ensure_material(api: DemoApi) -> dict[str, Any]:
                 "name": "DP780 synthetic demo steel",
                 "material_code": _MATERIAL_CODE,
                 "material_family": "dual-phase steel",
+                "material_class": "metal",
                 "description": "Synthetic local-demo data; not validated engineering data.",
             },
             "change_reason": "Seed the local Material-to-card demonstration.",

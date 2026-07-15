@@ -33,6 +33,7 @@ const visibleMaterial = {
       material_code: "DP780",
       material_family: "steel",
       description: null,
+      material_class: "metal",
     },
     provenance: {
       entity_type: "catalog.material.revision",

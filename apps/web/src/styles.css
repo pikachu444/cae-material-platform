@@ -421,6 +421,33 @@ h4 {
   font-weight: 800;
 }
 
+.material-class-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.2rem 0.48rem;
+  border: 1px solid #cbd7df;
+  border-radius: 99px;
+  color: #405666;
+  background: #f4f7f9;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.material-class-chip.metal {
+  border-color: #b7c9d8;
+  color: #294f6b;
+  background: #edf4f8;
+}
+
+.material-class-chip.polymer,
+.material-class-chip.elastomer {
+  border-color: #c7bde2;
+  color: #5b3f86;
+  background: #f3effb;
+}
+
 .material-chevron {
   color: #54747a;
   font-size: 1.5rem;

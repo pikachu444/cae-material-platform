@@ -9,6 +9,7 @@ from uuid import UUID, uuid4
 
 from cmp.modules.catalog.domain.model import (
     CatalogConflict,
+    MaterialClass,
     MaterialContent,
     MaterialStateContent,
     PropertySetContent,
@@ -31,10 +32,11 @@ MATERIAL_AGGREGATE_TYPE = "catalog.material"
 MATERIAL_STATE_AGGREGATE_TYPE = "catalog.material_state"
 PROPERTY_SET_AGGREGATE_TYPE = "catalog.property_set"
 
-MATERIAL_SCHEMA_ID = "urn:cmp:catalog:material:1.0.0"
+MATERIAL_SCHEMA_ID = "urn:cmp:catalog:material:2.0.0"
 MATERIAL_STATE_SCHEMA_ID = "urn:cmp:catalog:material-state:1.0.0"
 PROPERTY_SET_SCHEMA_ID = "urn:cmp:catalog:property-set:1.0.0"
 SCHEMA_VERSION = "1.0.0"
+MATERIAL_SCHEMA_VERSION = "2.0.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -131,6 +133,7 @@ class CatalogRepository(Protocol):
         context: SecurityContext,
         decision: AuthorizationDecision,
         query: str | None,
+        material_class: MaterialClass | None,
         limit: int,
     ) -> tuple[MaterialSnapshot, ...]: ...
 
@@ -314,7 +317,7 @@ class CatalogService:
                 aggregate_id=aggregate_id,
                 scope=self._scope(context, command.classification.value),
                 schema_id=MATERIAL_SCHEMA_ID,
-                schema_version=SCHEMA_VERSION,
+                schema_version=MATERIAL_SCHEMA_VERSION,
                 content=command.content,
                 created_by=context.principal.id,
                 change_reason=reason,
@@ -345,7 +348,7 @@ class CatalogService:
                 expected_current_revision_id=command.expected_current_revision_id,
                 based_on_revision_id=command.expected_current_revision_id,
                 schema_id=MATERIAL_SCHEMA_ID,
-                schema_version=SCHEMA_VERSION,
+                schema_version=MATERIAL_SCHEMA_VERSION,
                 content=command.content,
                 created_by=context.principal.id,
                 change_reason=_reason(command.change_reason),
@@ -531,6 +534,7 @@ class CatalogService:
         decision: AuthorizationDecision,
         *,
         query: str | None = None,
+        material_class: MaterialClass | None = None,
         limit: int = 50,
     ) -> tuple[MaterialSnapshot, ...]:
         _require_decision(context, decision, Permission.CATALOG_READ)
@@ -539,7 +543,11 @@ class CatalogService:
         if not 1 <= limit <= 100:
             raise ValueError("material search limit must be between 1 and 100")
         return self._repository.list_materials(
-            context=context, decision=decision, query=query, limit=limit
+            context=context,
+            decision=decision,
+            query=query,
+            material_class=material_class,
+            limit=limit,
         )
 
     def get_material(
@@ -678,7 +686,13 @@ class CatalogService:
         )
         changed = tuple(
             name
-            for name in ("name", "material_code", "material_family", "description")
+            for name in (
+                "name",
+                "material_code",
+                "material_family",
+                "description",
+                "material_class",
+            )
             if getattr(left.content, name) != getattr(right.content, name)
         )
         return left, right, changed

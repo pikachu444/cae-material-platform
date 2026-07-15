@@ -25,6 +25,7 @@ from cmp.modules.catalog.application.service import (
 )
 from cmp.modules.catalog.domain.model import (
     CatalogNotFound,
+    MaterialClass,
     MaterialContent,
     MaterialStateContent,
     PropertySetContent,
@@ -290,7 +291,12 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
         write,
         CreateMaterial(
             DataClassification.INTERNAL,
-            MaterialContent("S355 Structural Steel", "S355", "steel"),
+            MaterialContent(
+                "S355 Structural Steel",
+                "S355",
+                "steel",
+                material_class=MaterialClass.METAL,
+            ),
             "create reference material",
         ),
     )
@@ -328,6 +334,10 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
 
     detail = postgres.service.get_material_detail(context, read, material.id)
     assert detail.material.current.content.material_code == "S355"
+    assert detail.material.current.content.material_class is MaterialClass.METAL
+    assert postgres.service.list_materials(
+        context, read, material_class=MaterialClass.METAL
+    ) == (material,)
     assert detail.states == (state,)
     assert detail.property_sets == (property_set,)
     assert detail.property_sets[0].current.content.youngs_modulus_pa == 210_000_000_000.0
@@ -338,7 +348,12 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
         material.id,
         ReviseMaterial(
             material.current.record.revision_id,
-            MaterialContent("S355 Structural Steel", "S355JR", "steel"),
+            MaterialContent(
+                "S355 Structural Steel",
+                "S355JR",
+                "steel",
+                material_class=MaterialClass.METAL,
+            ),
             "correct material code",
         ),
     )
@@ -352,7 +367,12 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
             material.id,
             ReviseMaterial(
                 material.current.record.revision_id,
-                MaterialContent("S355 Structural Steel", "stale", "steel"),
+                MaterialContent(
+                    "S355 Structural Steel",
+                    "stale",
+                    "steel",
+                    material_class=MaterialClass.METAL,
+                ),
                 "prove stale revision is rejected",
             ),
         )

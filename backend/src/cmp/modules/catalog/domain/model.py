@@ -37,6 +37,18 @@ class PropertySourceKind(StrEnum):
     CALIBRATION = "calibration"
 
 
+class MaterialClass(StrEnum):
+    """Governed top-level class used to route compatible modeling workflows."""
+
+    UNCLASSIFIED = "unclassified"
+    METAL = "metal"
+    POLYMER = "polymer"
+    ELASTOMER = "elastomer"
+    COMPOSITE = "composite"
+    CERAMIC = "ceramic"
+    OTHER = "other"
+
+
 def _nonzero(name: str, value: UUID) -> None:
     if value.int == 0:
         raise InvalidCatalogCommand(f"{name} must be non-zero")
@@ -129,6 +141,7 @@ class MaterialContent:
     material_code: str | None = None
     material_family: str | None = None
     description: str | None = None
+    material_class: MaterialClass = MaterialClass.UNCLASSIFIED
 
     def __post_init__(self) -> None:
         _required_text("material name", self.name, 200)
@@ -209,6 +222,7 @@ def material_canonical(content: MaterialContent) -> dict[str, str | None]:
         "material_code": content.material_code,
         "material_family": content.material_family,
         "description": content.description,
+        "material_class": content.material_class.value,
     }
 
 

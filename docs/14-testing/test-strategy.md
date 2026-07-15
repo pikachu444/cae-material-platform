@@ -569,3 +569,21 @@ includes modified-z and MAD-zero unit tests, protected API and React flow regres
 suite, a `033 → 034 → 033 → 034` PostgreSQL exercise, and a live two-candidate flow that records
 one retained and one calibration-only excluded Assessment before producing a 2-included/
 1-excluded immutable Scope.
+
+### P2 Material-class and viscoelastic gates
+
+- Catalog: legacy v1 revisions remain hash-stable and read as `unclassified`; v2 revisions require
+  a checked class, support tenant-scoped filtering, and cannot be updated in place.
+- Steel regression: existing tabulated/Voce IR, two-solver preflight, preview, download and golden
+  files remain byte/semantically stable after classification routing.
+- Linear viscoelasticity: Prony ratio sums, positive ordered relaxation times, finite values,
+  deterministic response evaluation, typed persistence/RLS, Abaqus golden card, and explicit
+  missing-bulk acknowledgement are mandatory.
+- Data/calibration: raw and normalized shear-relaxation curves remain distinct; processing is an
+  explicit revisioned activity; bounded deterministic fitting stores attempts, candidates,
+  residuals, selection reason and promoted IR lineage.
+- Hyper-viscoelasticity: canonical Ogden/Prony conventions and solver transforms require analytical
+  equivalence tests; non-representable bulk relaxation must be `unsupported` for LAW62.
+- End to end: Material class -> State -> property/test data -> exact IR revision -> mapping report
+  -> preview/download must pass in the browser against PostgreSQL. Golden/semantic tests do not
+  claim real solver acceptance.

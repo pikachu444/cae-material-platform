@@ -19,6 +19,7 @@ from cmp.modules.catalog.application.service import (
     RevisionSnapshot,
 )
 from cmp.modules.catalog.domain.model import (
+    MaterialClass,
     MaterialContent,
     MaterialStateContent,
     PropertySetContent,
@@ -188,9 +189,10 @@ class _CatalogService:
         decision: AuthorizationDecision,
         *,
         query: str | None,
+        material_class: MaterialClass | None,
         limit: int,
     ) -> tuple[MaterialSnapshot, ...]:
-        del context, decision, query, limit
+        del context, decision, query, material_class, limit
         return (self.material,)
 
     def get_material_detail(
@@ -379,7 +381,11 @@ def test_catalog_api_supports_material_to_typed_properties_with_revision_etags()
         "/api/v1/materials",
         json={
             "classification": "internal",
-            "content": {"name": "S355 Structural Steel", "material_code": "S355"},
+            "content": {
+                "name": "S355 Structural Steel",
+                "material_code": "S355",
+                "material_class": "metal",
+            },
             "change_reason": "create demo material",
         },
     )
@@ -390,9 +396,10 @@ def test_catalog_api_supports_material_to_typed_properties_with_revision_etags()
         "catalog.material.revision"
     )
 
-    listed = _request(application, "GET", "/api/v1/materials?q=S355")
+    listed = _request(application, "GET", "/api/v1/materials?q=S355&material_class=metal")
     assert listed.status_code == 200
     assert listed.json()["items"][0]["current_revision"]["content"]["material_code"] == "S355"
+    assert listed.json()["items"][0]["current_revision"]["content"]["material_class"] == "metal"
 
     missing_precondition = _request(
         application,
@@ -418,6 +425,7 @@ def test_catalog_api_supports_material_to_typed_properties_with_revision_etags()
     )
     assert revised.status_code == 200
     assert revised.json()["current_revision"]["revision_no"] == 2
+    assert revised.json()["current_revision"]["content"]["material_class"] == "metal"
 
     state = _request(
         application,

@@ -24,6 +24,7 @@ from cmp.modules.catalog.application.service import (
 from cmp.modules.catalog.domain.model import (
     Applicability,
     CatalogNotFound,
+    MaterialClass,
     MaterialContent,
     MaterialStateContent,
     PropertySetContent,
@@ -90,6 +91,7 @@ material_revision_table = sa.Table(
     sa.Column("material_code", sa.String(100), nullable=True),
     sa.Column("material_family", sa.String(100), nullable=True),
     sa.Column("description", sa.Text(), nullable=True),
+    sa.Column("material_class", sa.String(32), nullable=True),
     schema="catalog",
 )
 
@@ -217,6 +219,7 @@ def _material_content(row: Any) -> MaterialContent:
         material_code=row["material_code"],
         material_family=row["material_family"],
         description=row["description"],
+        material_class=MaterialClass(row["material_class"] or MaterialClass.UNCLASSIFIED.value),
     )
 
 
@@ -460,6 +463,7 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
             material_revision_table.c.material_code,
             material_revision_table.c.material_family,
             material_revision_table.c.description,
+            material_revision_table.c.material_class,
         ).select_from(
             SqlAlchemyCatalogRepository._current_join(material_table, material_revision_table)
         )
@@ -524,6 +528,7 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
         context: SecurityContext,
         decision: AuthorizationDecision,
         query: str | None,
+        material_class: MaterialClass | None,
         limit: int,
     ) -> tuple[MaterialSnapshot, ...]:
         statement = self._current_material_statement()
@@ -537,6 +542,19 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
                     material_revision_table.c.material_family.ilike(pattern, escape="!"),
                 )
             )
+        if material_class is not None:
+            if material_class is MaterialClass.UNCLASSIFIED:
+                statement = statement.where(
+                    sa.or_(
+                        material_revision_table.c.material_class.is_(None),
+                        material_revision_table.c.material_class
+                        == MaterialClass.UNCLASSIFIED.value,
+                    )
+                )
+            else:
+                statement = statement.where(
+                    material_revision_table.c.material_class == material_class.value
+                )
         statement = statement.order_by(
             material_revision_table.c.name.asc(), material_table.c.id.asc()
         ).limit(limit)
