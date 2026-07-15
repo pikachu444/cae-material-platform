@@ -199,6 +199,15 @@ class ReplicateOutlierRepository(Protocol):
         scope_id: UUID,
     ) -> CalibrationInputScopeSnapshot: ...
 
+    def get_scope_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        scope_id: UUID,
+        scope_revision_id: UUID,
+    ) -> CalibrationInputScopeSnapshot: ...
+
     def list_scopes(
         self,
         *,
@@ -228,6 +237,22 @@ def _require(
         or decision.trace_id != context.trace_id
     ):
         raise StatisticsConflict("authorization decision does not match outlier request")
+
+
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise StatisticsConflict("authorization decision lacks the required outlier capability")
 
 
 class ReplicateOutlierService:
@@ -594,6 +619,23 @@ class ReplicateOutlierService:
         _require(context, decision, Permission.STATISTICS_READ)
         return self._repository.get_scope(
             context=context, decision=decision, scope_id=scope_id
+        )
+
+    def get_scope_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        scope_id: UUID,
+        scope_revision_id: UUID,
+    ) -> CalibrationInputScopeSnapshot:
+        """Resolve one exact reviewed Scope through the Statistics application boundary."""
+
+        _require_capability(context, decision, Permission.STATISTICS_READ)
+        return self._repository.get_scope_revision(
+            context=context,
+            decision=decision,
+            scope_id=scope_id,
+            scope_revision_id=scope_revision_id,
         )
 
     def list_scopes(

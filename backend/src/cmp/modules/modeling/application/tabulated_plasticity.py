@@ -37,6 +37,9 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     hardening_curve_from_parquet,
     hardening_curve_parquet_bytes,
 )
+from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
+    ReferenceVoceTabulatedPlasticityContent,
+)
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     RevisionService,
@@ -46,6 +49,10 @@ from cmp.shared.domain.revisions import TenantScope
 
 MAX_REFERENCE_TENSILE_ARTIFACT_BYTES = 16 * 1024 * 1024
 MAX_REFERENCE_HARDENING_ARTIFACT_BYTES = 4 * 1024 * 1024
+
+type TabulatedPlasticityContent = (
+    ReferenceIsotropicTabulatedPlasticityContent | ReferenceVoceTabulatedPlasticityContent
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,13 +69,13 @@ class CreateReferenceTabulatedPlasticityModel:
 class TabulatedPlasticityModelSnapshot:
     id: UUID
     material_state_id: UUID
-    current: RevisionSnapshot[ReferenceIsotropicTabulatedPlasticityContent]
+    current: RevisionSnapshot[TabulatedPlasticityContent]
 
 
 class TabulatedPlasticityRepository(Protocol):
     def material_model_store(
         self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> RevisionStore[ReferenceIsotropicTabulatedPlasticityContent]: ...
+    ) -> RevisionStore[TabulatedPlasticityContent]: ...
 
     def get_material_model(
         self,
@@ -93,7 +100,7 @@ class TabulatedPlasticityRepository(Protocol):
         decision: AuthorizationDecision,
         material_model_id: UUID,
         material_model_revision_id: UUID,
-    ) -> RevisionSnapshot[ReferenceIsotropicTabulatedPlasticityContent]: ...
+    ) -> RevisionSnapshot[TabulatedPlasticityContent]: ...
 
 
 def _require_decision(
@@ -351,7 +358,7 @@ class TabulatedPlasticityModelService:
         decision: AuthorizationDecision,
         material_model_id: UUID,
         material_model_revision_id: UUID,
-    ) -> RevisionSnapshot[ReferenceIsotropicTabulatedPlasticityContent]:
+    ) -> RevisionSnapshot[TabulatedPlasticityContent]:
         _require_capability(context, decision, Permission.MODELING_READ)
         return self._repository.get_material_model_revision(
             context=context,
@@ -364,7 +371,7 @@ class TabulatedPlasticityModelService:
         self,
         context: SecurityContext,
         decision: AuthorizationDecision,
-        content: ReferenceIsotropicTabulatedPlasticityContent,
+        content: TabulatedPlasticityContent,
     ) -> tuple[HardeningCurvePoint, ...]:
         """Read and revalidate the exact curve Artifact for an authorized exporter."""
 

@@ -810,8 +810,15 @@ class SqlAlchemyReplicateOutlierRepository(ReplicateOutlierRepository):
         return tuple(self._assessment_snapshot(row) for row in rows)
 
     @staticmethod
-    def _scope_statement() -> sa.Select[Any]:
+    def _scope_statement(*, current_only: bool = True) -> sa.Select[Any]:
         revision = scope_revision_table
+        join_predicates = [
+            revision.c.aggregate_id == scope_table.c.id,
+            revision.c.organization_id == scope_table.c.organization_id,
+            revision.c.project_id == scope_table.c.project_id,
+        ]
+        if current_only:
+            join_predicates.append(revision.c.id == scope_table.c.current_revision_id)
         return sa.select(
             scope_table.c.id.label("identity_id"),
             scope_table.c.scope_label,
@@ -829,12 +836,7 @@ class SqlAlchemyReplicateOutlierRepository(ReplicateOutlierRepository):
         ).select_from(
             scope_table.join(
                 revision,
-                sa.and_(
-                    revision.c.id == scope_table.c.current_revision_id,
-                    revision.c.aggregate_id == scope_table.c.id,
-                    revision.c.organization_id == scope_table.c.organization_id,
-                    revision.c.project_id == scope_table.c.project_id,
-                ),
+                sa.and_(*join_predicates),
             )
         )
 
@@ -885,6 +887,35 @@ class SqlAlchemyReplicateOutlierRepository(ReplicateOutlierRepository):
                     scope_member_table.c.organization_id == context.organization_id,
                     scope_member_table.c.project_id == context.project_id,
                     scope_member_table.c.scope_revision_id == row["id"],
+                )
+                .order_by(scope_member_table.c.ordinal)
+            ).mappings().all()
+        return self._scope_snapshot(row, tuple(_scope_member(item) for item in member_rows))
+
+    def get_scope_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        scope_id: UUID,
+        scope_revision_id: UUID,
+    ) -> CalibrationInputScopeSnapshot:
+        statement = self._scope_statement(current_only=False).where(
+            scope_table.c.organization_id == context.organization_id,
+            scope_table.c.project_id == context.project_id,
+            scope_table.c.id == scope_id,
+            scope_revision_table.c.id == scope_revision_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+            if row is None:
+                raise StatisticsNotFound("calibration input Scope revision is not visible")
+            member_rows = session.execute(
+                sa.select(scope_member_table)
+                .where(
+                    scope_member_table.c.organization_id == context.organization_id,
+                    scope_member_table.c.project_id == context.project_id,
+                    scope_member_table.c.scope_revision_id == scope_revision_id,
                 )
                 .order_by(scope_member_table.c.ordinal)
             ).mappings().all()

@@ -112,6 +112,7 @@ class TabulatedPlasticityNotFound(TabulatedPlasticityError):
 class HardeningPointOrigin(StrEnum):
     CATALOG_YIELD_ANCHOR = "catalog_yield_anchor"
     PRE_NECKING_OBSERVATION = "pre_necking_observation"
+    CALIBRATED_VOCE_SAMPLE = "calibrated_voce_sample"
     APPROVED_CONSTANT_EXTENSION = "approved_constant_extension"
 
 
@@ -341,8 +342,13 @@ def validate_hardening_curve(points: tuple[HardeningCurvePoint, ...]) -> None:
         )
     if points[0].true_plastic_strain != 0.0:
         raise InvalidTabulatedPlasticity("first hardening point must have zero plastic strain")
-    if points[0].origin is not HardeningPointOrigin.CATALOG_YIELD_ANCHOR:
-        raise InvalidTabulatedPlasticity("first hardening point must be the Catalog yield anchor")
+    if points[0].origin not in {
+        HardeningPointOrigin.CATALOG_YIELD_ANCHOR,
+        HardeningPointOrigin.CALIBRATED_VOCE_SAMPLE,
+    }:
+        raise InvalidTabulatedPlasticity(
+            "first hardening point must be a Catalog yield anchor or calibrated Voce sample"
+        )
     previous_strain = -1.0
     previous_stress = 0.0
     for point in points:

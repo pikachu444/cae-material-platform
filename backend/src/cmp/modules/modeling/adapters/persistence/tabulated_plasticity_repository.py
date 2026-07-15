@@ -28,6 +28,11 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     TabulatedPlasticityNotFound,
     reference_isotropic_tabulated_plasticity_canonical,
 )
+from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
+    REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
+    ReferenceVoceTabulatedPlasticityContent,
+    reference_voce_tabulated_plasticity_canonical,
+)
 from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
     SqlRevisionHook,
@@ -69,7 +74,69 @@ def _record(row: Any) -> RevisionRecord:
     )
 
 
-def _content(row: Any) -> ReferenceIsotropicTabulatedPlasticityContent:
+type TabulatedPlasticityContent = (
+    ReferenceIsotropicTabulatedPlasticityContent | ReferenceVoceTabulatedPlasticityContent
+)
+
+
+def _content(row: Any) -> TabulatedPlasticityContent:
+    if str(row["model_family_id"]) == REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID:
+        return ReferenceVoceTabulatedPlasticityContent(
+            material_id=cast(UUID, row["material_id"]),
+            material_revision_id=cast(UUID, row["material_revision_id"]),
+            material_state_id=cast(UUID, row["material_state_id"]),
+            material_state_revision_id=cast(UUID, row["material_state_revision_id"]),
+            property_set_id=cast(UUID, row["property_set_id"]),
+            property_set_revision_id=cast(UUID, row["property_set_revision_id"]),
+            calibration_input_scope_id=cast(UUID, row["calibration_input_scope_id"]),
+            calibration_input_scope_revision_id=cast(
+                UUID, row["calibration_input_scope_revision_id"]
+            ),
+            voce_calibration_plan_id=cast(UUID, row["voce_calibration_plan_id"]),
+            voce_calibration_plan_revision_id=cast(
+                UUID, row["voce_calibration_plan_revision_id"]
+            ),
+            voce_calibration_run_id=cast(UUID, row["voce_calibration_run_id"]),
+            voce_calibration_candidate_id=cast(UUID, row["voce_calibration_candidate_id"]),
+            voce_calibration_candidate_sha256=str(
+                row["voce_calibration_candidate_sha256"]
+            ),
+            voce_candidate_selection_id=cast(UUID, row["voce_candidate_selection_id"]),
+            voce_candidate_selection_revision_id=cast(
+                UUID, row["voce_candidate_selection_revision_id"]
+            ),
+            hardening_curve_artifact_id=cast(UUID, row["hardening_curve_artifact_id"]),
+            hardening_curve_sha256=str(row["hardening_curve_sha256"]),
+            hardening_curve_point_count=int(row["hardening_curve_point_count"]),
+            sampling_point_count=int(row["voce_sampling_point_count"]),
+            density_kg_per_m3=float(row["density_kg_per_m3"]),
+            youngs_modulus_pa=float(row["youngs_modulus_pa"]),
+            poisson_ratio=float(row["poisson_ratio"]),
+            initial_yield_stress_pa=float(row["source_yield_stress_pa"]),
+            q_pa=float(row["voce_q_pa"]),
+            b=float(row["voce_b"]),
+            characterized_max_true_plastic_strain=float(
+                row["characterized_max_true_plastic_strain"]
+            ),
+            extension_max_true_plastic_strain=float(row["extension_max_true_plastic_strain"]),
+            post_necking_approximation_acknowledged=bool(
+                row["post_necking_approximation_acknowledged"]
+            ),
+            applicable_temperature_min_k=row["applicable_temperature_min_k"],
+            applicable_temperature_max_k=row["applicable_temperature_max_k"],
+            applicable_strain_rate_min_per_s=row["applicable_strain_rate_min_per_s"],
+            applicable_strain_rate_max_per_s=row["applicable_strain_rate_max_per_s"],
+            applicability_note=row["applicability_note"],
+            reference_temperature_k=float(row["reference_temperature_k"]),
+            model_family_id=str(row["model_family_id"]),
+            model_schema_digest=str(row["model_schema_digest"]),
+            hardening_curve_schema_ref=str(row["hardening_curve_schema_ref"]),
+            transformation_profile_id=str(row["transformation_profile_id"]),
+            transformation_profile_version=str(row["transformation_profile_version"]),
+            transformation_profile_digest=str(row["transformation_profile_digest"]),
+            post_necking_extension_policy=str(row["post_necking_extension_policy"]),
+            non_production=bool(row["non_production"]),
+        )
     return ReferenceIsotropicTabulatedPlasticityContent(
         material_id=cast(UUID, row["material_id"]),
         material_revision_id=cast(UUID, row["material_revision_id"]),
@@ -115,8 +182,8 @@ def _content(row: Any) -> ReferenceIsotropicTabulatedPlasticityContent:
     )
 
 
-def _content_values(content: ReferenceIsotropicTabulatedPlasticityContent) -> dict[str, Any]:
-    return {
+def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
+    values: dict[str, Any] = {
         "model_family_id": content.model_family_id,
         "model_schema_digest": content.model_schema_digest,
         "material_id": content.material_id,
@@ -125,20 +192,24 @@ def _content_values(content: ReferenceIsotropicTabulatedPlasticityContent) -> di
         "material_state_revision_id": content.material_state_revision_id,
         "property_set_id": content.property_set_id,
         "property_set_revision_id": content.property_set_revision_id,
-        "source_dataset_id": content.source_dataset_id,
-        "source_dataset_revision_id": content.source_dataset_revision_id,
+        "source_dataset_id": getattr(content, "source_dataset_id", None),
+        "source_dataset_revision_id": getattr(content, "source_dataset_revision_id", None),
         "hardening_curve_artifact_id": content.hardening_curve_artifact_id,
         "hardening_curve_sha256": content.hardening_curve_sha256,
         "hardening_curve_schema_ref": content.hardening_curve_schema_ref,
         "hardening_curve_point_count": content.hardening_curve_point_count,
-        "source_point_count": content.source_point_count,
-        "pre_yield_excluded_point_count": content.pre_yield_excluded_point_count,
-        "post_necking_excluded_point_count": content.post_necking_excluded_point_count,
-        "necking_source_point_index": content.necking_source_point_index,
+        "source_point_count": getattr(content, "source_point_count", None),
+        "pre_yield_excluded_point_count": getattr(
+            content, "pre_yield_excluded_point_count", None
+        ),
+        "post_necking_excluded_point_count": getattr(
+            content, "post_necking_excluded_point_count", None
+        ),
+        "necking_source_point_index": getattr(content, "necking_source_point_index", None),
         "transformation_profile_id": content.transformation_profile_id,
         "transformation_profile_version": content.transformation_profile_version,
         "transformation_profile_digest": content.transformation_profile_digest,
-        "necking_engineering_strain": content.necking_engineering_strain,
+        "necking_engineering_strain": getattr(content, "necking_engineering_strain", None),
         "characterized_max_true_plastic_strain": (
             content.characterized_max_true_plastic_strain
         ),
@@ -165,16 +236,45 @@ def _content_values(content: ReferenceIsotropicTabulatedPlasticityContent) -> di
         "calibration_candidate_sha256": None,
         "calibration_diagnostics_artifact_id": None,
         "calibration_diagnostics_sha256": None,
+        "calibration_input_scope_id": getattr(content, "calibration_input_scope_id", None),
+        "calibration_input_scope_revision_id": getattr(
+            content, "calibration_input_scope_revision_id", None
+        ),
+        "voce_calibration_plan_id": getattr(content, "voce_calibration_plan_id", None),
+        "voce_calibration_plan_revision_id": getattr(
+            content, "voce_calibration_plan_revision_id", None
+        ),
+        "voce_calibration_run_id": getattr(content, "voce_calibration_run_id", None),
+        "voce_calibration_candidate_id": getattr(
+            content, "voce_calibration_candidate_id", None
+        ),
+        "voce_calibration_candidate_sha256": getattr(
+            content, "voce_calibration_candidate_sha256", None
+        ),
+        "voce_candidate_selection_id": getattr(content, "voce_candidate_selection_id", None),
+        "voce_candidate_selection_revision_id": getattr(
+            content, "voce_candidate_selection_revision_id", None
+        ),
+        "voce_sampling_point_count": getattr(content, "sampling_point_count", None),
+        "voce_q_pa": getattr(content, "q_pa", None),
+        "voce_b": getattr(content, "b", None),
         "non_production": True,
     }
+    return values
 
 
-_TABLES: TypedRevisionTables[ReferenceIsotropicTabulatedPlasticityContent] = (
+def _canonical(content: TabulatedPlasticityContent) -> dict[str, object]:
+    if isinstance(content, ReferenceVoceTabulatedPlasticityContent):
+        return reference_voce_tabulated_plasticity_canonical(content)
+    return reference_isotropic_tabulated_plasticity_canonical(content)
+
+
+_TABLES: TypedRevisionTables[TabulatedPlasticityContent] = (
     TypedRevisionTables(
         aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
         identity_table=material_model_table,
         revision_table=material_model_revision_table,
-        canonical_content=reference_isotropic_tabulated_plasticity_canonical,
+        canonical_content=_canonical,
         content_values=_content_values,
         identity_values=lambda content: {"material_state_id": content.material_state_id},
     )
@@ -239,6 +339,18 @@ def _content_columns(table: sa.Table) -> tuple[Any, ...]:
         table.c.applicable_strain_rate_max_per_s,
         table.c.applicability_note,
         table.c.reference_temperature_k,
+        table.c.calibration_input_scope_id,
+        table.c.calibration_input_scope_revision_id,
+        table.c.voce_calibration_plan_id,
+        table.c.voce_calibration_plan_revision_id,
+        table.c.voce_calibration_run_id,
+        table.c.voce_calibration_candidate_id,
+        table.c.voce_calibration_candidate_sha256,
+        table.c.voce_candidate_selection_id,
+        table.c.voce_candidate_selection_revision_id,
+        table.c.voce_sampling_point_count,
+        table.c.voce_q_pa,
+        table.c.voce_b,
         table.c.non_production,
     )
 
@@ -273,7 +385,7 @@ class SqlAlchemyTabulatedPlasticityRepository(TabulatedPlasticityRepository):
 
     def material_model_store(
         self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> RevisionStore[ReferenceIsotropicTabulatedPlasticityContent]:
+    ) -> RevisionStore[TabulatedPlasticityContent]:
         return SqlAlchemyRevisionStore(
             session_factory=self._sessions,
             tables=_TABLES,
@@ -298,7 +410,12 @@ class SqlAlchemyTabulatedPlasticityRepository(TabulatedPlasticityRepository):
                 )
             )
             .where(
-                revision.c.model_family_id == REFERENCE_TABULATED_PLASTICITY_FAMILY_ID
+                revision.c.model_family_id.in_(
+                    (
+                        REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
+                        REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
+                    )
+                )
             )
         )
 
@@ -368,12 +485,17 @@ class SqlAlchemyTabulatedPlasticityRepository(TabulatedPlasticityRepository):
         decision: AuthorizationDecision,
         material_model_id: UUID,
         material_model_revision_id: UUID,
-    ) -> RevisionSnapshot[ReferenceIsotropicTabulatedPlasticityContent]:
+    ) -> RevisionSnapshot[TabulatedPlasticityContent]:
         revision = material_model_revision_table
         statement = sa.select(*_revision_columns(revision), *_content_columns(revision)).where(
             revision.c.aggregate_id == material_model_id,
             revision.c.id == material_model_revision_id,
-            revision.c.model_family_id == REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
+            revision.c.model_family_id.in_(
+                (
+                    REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
+                    REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
+                )
+            ),
             revision.c.organization_id == context.organization_id,
             revision.c.project_id == context.project_id,
         )

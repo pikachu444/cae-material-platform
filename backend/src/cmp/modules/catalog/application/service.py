@@ -218,6 +218,22 @@ def _require_decision(
         raise CatalogConflict("authorization decision does not match catalog request context")
 
 
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise CatalogConflict("authorization decision lacks the required catalog capability")
+
+
 def _reason(value: str) -> str:
     if not value or value != value.strip() or len(value) > 2000 or "\x00" in value:
         raise ValueError("change_reason must be trimmed and contain 1..2000 characters")
@@ -607,6 +623,23 @@ class CatalogService:
         _require_decision(context, decision, Permission.CATALOG_READ)
         return self._repository.get_property_set(
             context=context, decision=decision, property_set_id=property_set_id
+        )
+
+    def get_property_set_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        property_set_id: UUID,
+        property_set_revision_id: UUID,
+    ) -> RevisionSnapshot[PropertySetContent]:
+        """Resolve the exact typed property source for an authorized calibration command."""
+
+        _require_capability(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_property_set_revision(
+            context=context,
+            decision=decision,
+            property_set_id=property_set_id,
+            revision_id=property_set_revision_id,
         )
 
     def list_material_revisions(

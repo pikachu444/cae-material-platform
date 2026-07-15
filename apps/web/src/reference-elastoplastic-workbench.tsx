@@ -428,14 +428,20 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
                   {models.map((model) => (
                     <option key={model.material_model_id} value={model.material_model_id}>
                       r{model.current_revision.revision_no} · {shortId(model.current_revision.id)} · source Dataset{" "}
-                      {shortId(model.current_revision.content.source_dataset_revision_id)}
+                      {model.current_revision.content.source_dataset_revision_id
+                        ? shortId(model.current_revision.content.source_dataset_revision_id)
+                        : "accepted Voce Candidate"}
                     </option>
                   ))}
                 </select>
               </label>
               {selectedModel ? (
                 <div className="transformation-facts">
-                  <span>Necking cutoff: {selectedModel.current_revision.content.necking_engineering_strain.toFixed(6)}</span>
+                  <span>
+                    {selectedModel.current_revision.content.necking_engineering_strain === null
+                      ? "Origin: calibrated fixed-grid projection"
+                      : `Necking cutoff: ${selectedModel.current_revision.content.necking_engineering_strain.toFixed(6)}`}
+                  </span>
                   <span>
                     Source points: {selectedModel.current_revision.content.source_point_count} · pre-yield excluded: {selectedModel.current_revision.content.pre_yield_excluded_point_count}
                   </span>

@@ -258,8 +258,10 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
         {
             Permission.ARTIFACT_READ,
             Permission.ARTIFACT_WRITE,
+            Permission.CATALOG_READ,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
+            Permission.STATISTICS_READ,
             Permission.TESTING_READ,
         }
     ),

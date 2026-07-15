@@ -3204,6 +3204,252 @@ paths:
         "409": {description: Immutable candidate or Artifact integrity state conflicts.}
         "422": {description: The diagnostics preview bound or typed Artifact data is invalid.}
         "503": {description: Calibration service unavailable.}
+  /api/v1/voce-calibration-plans:
+    post:
+      operationId: createReferenceVoceCalibrationPlan
+      tags: [modeling, calibration]
+      summary: Create an immutable non-production multi-curve Voce/SciPy Plan.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/CreatePlanRequest"}
+      responses:
+        "201":
+          description: Stable Voce Plan identity with its first immutable typed revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/PlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execution is not authorized.}
+        "404": {description: A reviewed Scope, Property Set, or Dataset revision is not visible.}
+        "409": {description: Immutable input lineage or tenant scope conflicts.}
+        "422": {description: Parameter, objective, or stopping conventions are invalid.}
+        "503": {description: Voce calibration service unavailable.}
+    get:
+      operationId: listReferenceVoceCalibrationPlans
+      tags: [modeling, calibration]
+      summary: List current tenant-visible Voce Calibration Plan heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current immutable Voce Plan heads.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/PlanListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Voce calibration service unavailable.}
+  /api/v1/voce-calibration-plans/{plan_id}:
+    get:
+      operationId: getReferenceVoceCalibrationPlan
+      tags: [modeling, calibration]
+      summary: Read the current immutable revision of one Voce Plan.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Voce Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/PlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Voce Plan matches the identifier.}
+        "503": {description: Voce calibration service unavailable.}
+  /api/v1/voce-calibration-plans/{plan_id}/revisions:
+    post:
+      operationId: reviseReferenceVoceCalibrationPlan
+      tags: [modeling, calibration]
+      summary: Append a new immutable Voce Plan revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/RevisePlanRequest"}
+      responses:
+        "201":
+          description: Appended immutable Voce Plan revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/PlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execution is not authorized.}
+        "404": {description: A visible Voce Plan or pinned input revision is absent.}
+        "409": {description: Expected Plan head or immutable input state conflicts.}
+        "422": {description: Voce Plan conventions are invalid.}
+        "503": {description: Voce calibration service unavailable.}
+  /api/v1/voce-calibration-plans/{plan_id}/runs:
+    post:
+      operationId: executeReferenceVoceCalibration
+      tags: [modeling, calibration]
+      summary: Execute deterministic multistart SciPy fitting over the reviewed curve Scope.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/ExecuteRequest"}
+      responses:
+        "201":
+          description: Durable Run with every Attempt, Candidate, objective term, and diagnostic digest.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execution is not authorized.}
+        "404": {description: A pinned Plan, Scope, Property Set, Dataset, or Artifact is not visible.}
+        "409": {description: Immutable input, Artifact, or terminal Run state conflicts.}
+        "422": {description: A curve or numerical convention violates the reference domain.}
+        "503": {description: Voce calibration service unavailable.}
+  /api/v1/voce-calibration-runs/{run_id}:
+    get:
+      operationId: getReferenceVoceCalibrationRun
+      tags: [modeling, calibration]
+      summary: Read one durable Voce Run with retained Attempts and Candidates.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Durable Voce Run and immutable diagnostic references.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Voce Run matches the identifier.}
+        "503": {description: Voce calibration service unavailable.}
+  /api/v1/voce-calibration-candidates/{candidate_id}/diagnostics-preview:
+    get:
+      operationId: previewReferenceVoceCalibrationCandidateDiagnostics
+      tags: [modeling, calibration]
+      summary: Verify and preview observed, fitted, residual, and weighting channels.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: candidate_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: maximum_points
+          in: query
+          required: false
+          schema: {type: integer, minimum: 6, maximum: 10000, default: 1000}
+      responses:
+        "200":
+          description: Bounded deterministic preview of the immutable typed diagnostics Artifact.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-calibration-resources.schema.json#/$defs/DiagnosticPreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Candidate or diagnostics Artifact matches the identifier.}
+        "409": {description: Candidate digest or Artifact point count conflicts.}
+        "422": {description: Preview bound or typed diagnostic Artifact data is invalid.}
+        "503": {description: Voce calibration service unavailable.}
+  /api/v1/voce-candidate-selections:
+    post:
+      operationId: createReferenceVoceCandidateSelection
+      tags: [modeling, calibration]
+      summary: Record human acceptance of one converged multi-curve Voce Candidate.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/CreateSelectionRequest"}
+      responses:
+        "201":
+          description: Stable Voce Selection identity and immutable first decision revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Candidate lineage, convergence, or immutable state conflicts.}
+        "422": {description: Selection label or reason is invalid.}
+  /api/v1/voce-candidate-selections/{selection_id}:
+    get:
+      operationId: getReferenceVoceCandidateSelection
+      tags: [modeling, calibration]
+      summary: Read one current immutable human Voce Candidate Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Voce Candidate Selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Voce Candidate Selection matches.}
+  /api/v1/voce-candidate-selections/{selection_id}/tabulated-plasticity-models:
+    post:
+      operationId: projectSelectedReferenceVoceCandidate
+      tags: [modeling, calibration]
+      summary: Project an accepted Voce Candidate onto an explicit solver-neutral fixed grid.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/ProjectRequest"}
+      responses:
+        "201":
+          description: Immutable calibrated tabulated-plasticity 1.1 IR revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/MaterialModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Selection, Candidate, Run, Plan, or Property lineage conflicts.}
+        "422": {description: Sampling grid or explicit extension acknowledgement is invalid.}
   /api/v1/calibration-candidate-selections:
     post:
       operationId: createReferenceCalibrationCandidateSelection

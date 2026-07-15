@@ -1023,6 +1023,158 @@ export interface CalibrationDiagnosticPreview {
   points: CalibrationDiagnosticPoint[];
 }
 
+export interface VoceParameterResponse {
+  name: "sigma_0_pa" | "q_pa" | "b";
+  unit: "Pa" | "1";
+  lower: number;
+  initial: number;
+  upper: number;
+  scale: number;
+  transform: "none";
+}
+
+export interface VoceCalibrationPlanResponse {
+  voce_calibration_plan_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      plan_kind: "reference_multi_curve_voce_saturation";
+      plan_label: string;
+      calibration_input_scope_id: string;
+      calibration_input_scope_revision_id: string;
+      material_state_id: string;
+      material_state_revision_id: string;
+      property_set_id: string;
+      property_set_revision_id: string;
+      youngs_modulus_pa: number;
+      parameters: VoceParameterResponse[];
+      normalization_stress_scale_pa: number;
+      multistart_count: number;
+      random_seed: number;
+      maximum_function_evaluations: number;
+      ftol: number;
+      xtol: number;
+      gtol: number;
+      model_family_id: string;
+      test_mode_adapter_id: string;
+      evaluator_id: string;
+      objective_engine_id: string;
+      optimizer_adapter_id: string;
+      evaluation_mode: "closed_form_curve";
+      residual_definition: string;
+      specimen_weighting: "equal_specimen";
+      point_weighting: "uniform_within_specimen";
+      objective_aggregation: string;
+      x_domain_policy: string;
+      missing_data_policy: "reject";
+      optimizer_method: "trf";
+      rng_algorithm: "numpy.random.PCG64";
+      non_production: true;
+    };
+  };
+}
+
+export interface VoceCalibrationCandidateResponse {
+  voce_calibration_candidate_id: string;
+  attempt_ordinal: number;
+  status: "converged" | "nonconverged";
+  candidate_sha256: string;
+  sigma_0_pa: number;
+  q_pa: number;
+  b: number;
+  objective_total: number;
+  residual_root_mean_square_pa: number;
+  residual_mean_pa: number;
+  bound_sticking_parameters: string[];
+  convergence_status_code: number;
+  convergence_reason: string;
+  function_evaluations: number;
+  jacobian_evaluations: number | null;
+  optimality: number;
+  warnings: string[];
+  identifiability_status: string;
+  uncertainty_status: string;
+  diagnostics_artifact_id: string;
+  diagnostics_sha256: string;
+  diagnostics_point_count: number;
+  objective_terms: Array<{
+    member_ordinal: number;
+    dataset_id: string;
+    dataset_revision_id: string;
+    point_count: number;
+    mean_normalized_squared_residual: number;
+  }>;
+}
+
+export interface VoceCalibrationRunResponse {
+  voce_calibration_run_id: string;
+  classification: DataClassification;
+  plan_id: string;
+  plan_revision_id: string;
+  calibration_input_scope_id: string;
+  calibration_input_scope_revision_id: string;
+  property_set_id: string;
+  property_set_revision_id: string;
+  source_curve_count: number;
+  execution_mode: "reference_inline_scipy";
+  reproducibility_level: "R3";
+  environment_digest: string;
+  status: "executing" | "succeeded" | "failed";
+  attempt_count: number;
+  candidate_count: number;
+  failure_code: string | null;
+  change_reason: string;
+  started_at: string;
+  ended_at: string | null;
+  attempts: Array<{
+    voce_calibration_attempt_id: string;
+    attempt_ordinal: number;
+    initial_sigma_0_pa: number;
+    initial_q_pa: number;
+    initial_b: number;
+    random_seed: number;
+    status: "executing" | "succeeded" | "failed";
+    candidate_id: string | null;
+    failure_code: string | null;
+    started_at: string;
+    ended_at: string | null;
+  }>;
+  candidates: VoceCalibrationCandidateResponse[];
+}
+
+export interface VoceCalibrationDiagnosticPreview {
+  calibration_candidate_id: string;
+  point_count: number;
+  returned_point_count: number;
+  sampled: boolean;
+  points: Array<{
+    member_ordinal: number;
+    dataset_revision_id: string;
+    point_ordinal: number;
+    true_plastic_strain: number;
+    observed_true_yield_stress_pa: number;
+    predicted_true_yield_stress_pa: number;
+    residual_true_yield_stress_pa: number;
+    normalized_residual: number;
+    effective_weight: number;
+  }>;
+}
+
+export interface VoceCandidateSelectionResponse {
+  voce_candidate_selection_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      selection_label: string;
+      voce_calibration_run_id: string;
+      voce_calibration_candidate_id: string;
+      candidate_sha256: string;
+      selection_reason: string;
+      selection_decision: "accepted_for_tabulated_ir_projection";
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
 export interface CalibrationCandidateSelectionContent {
   selection_label: string;
   calibration_run_id: string;
@@ -1638,27 +1790,42 @@ export interface TabulatedPlasticityContent {
   material_state_revision_id: string;
   property_set_id: string;
   property_set_revision_id: string;
-  source_dataset_id: string;
-  source_dataset_revision_id: string;
+  source_dataset_id: string | null;
+  source_dataset_revision_id: string | null;
   density_kg_per_m3: number;
   youngs_modulus_pa: number;
   poisson_ratio: number;
   initial_yield_stress_pa: number;
   hardening_curve: TabulatedPlasticityHardeningReference;
-  source_point_count: number;
-  pre_yield_excluded_point_count: number;
-  post_necking_excluded_point_count: number;
-  necking_source_point_index: number;
+  source_point_count: number | null;
+  pre_yield_excluded_point_count: number | null;
+  post_necking_excluded_point_count: number | null;
+  necking_source_point_index: number | null;
   transformation_profile_id: string;
   transformation_profile_version: string;
   transformation_profile_digest: string;
-  necking_engineering_strain: number;
+  necking_engineering_strain: number | null;
   characterized_max_true_plastic_strain: number;
   extension_max_true_plastic_strain: number;
   post_necking_extension_policy: "approved_constant_true_stress";
   post_necking_approximation_acknowledged: true;
   applicability: Applicability;
   reference_temperature_k: number;
+  calibration_projection: {
+    input_scope_id: string;
+    input_scope_revision_id: string;
+    plan_id: string;
+    plan_revision_id: string;
+    run_id: string;
+    candidate_id: string;
+    candidate_sha256: string;
+    selection_id: string;
+    selection_revision_id: string;
+    sigma_0_pa: number;
+    q_pa: number;
+    b: number;
+    sampling_point_count: number;
+  } | null;
   non_production: true;
 }
 
@@ -1669,7 +1836,8 @@ export interface TabulatedPlasticityProvenanceSummary {
   content_sha256: string;
   based_on_revision_id: string | null;
   source_property_set_revision_id: string;
-  source_dataset_revision_id: string;
+  source_dataset_revision_id: string | null;
+  source_voce_selection_revision_id: string | null;
   hardening_curve_artifact_id: string;
   hardening_curve_sha256: string;
   transformation_profile_digest: string;
@@ -1693,7 +1861,11 @@ export interface TabulatedPlasticityModelResponse {
 export interface HardeningCurvePoint {
   true_plastic_strain: number;
   true_yield_stress_pa: number;
-  origin: "catalog_yield_anchor" | "pre_necking_observation" | "approved_constant_extension";
+  origin:
+    | "catalog_yield_anchor"
+    | "pre_necking_observation"
+    | "calibrated_voce_sample"
+    | "approved_constant_extension";
 }
 
 export interface HardeningCurveResponse {

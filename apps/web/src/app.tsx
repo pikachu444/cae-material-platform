@@ -964,7 +964,7 @@ function MaterialStateCard({
           <button className="text-button" type="button" onClick={() => setEditorOpen(true)}>Add properties</button>
         </section>
       )}
-      <ReferenceTensileWorkflow config={config} state={state} />
+      <ReferenceTensileWorkflow config={config} state={state} propertySet={propertySet} />
       {propertySet ? (
         <ReferenceElastoplasticWorkbench
           key={`elastoplastic-${propertySet.current_revision.id}`}

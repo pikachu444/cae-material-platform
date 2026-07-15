@@ -8,6 +8,10 @@ import type {
   CalibrationCandidateSelectionResponse,
   CalibrationPlanResponse,
   CalibrationRunResponse,
+  VoceCalibrationPlanResponse,
+  VoceCalibrationDiagnosticPreview,
+  VoceCalibrationRunResponse,
+  VoceCandidateSelectionResponse,
   CurvePreview,
   DatasetSelectionResponse,
   TensileReplicateSelectionResponse,
@@ -391,6 +395,101 @@ export function previewCalibrationCandidateDiagnostics(
   return request(
     config,
     `/calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics-preview?maximum_points=${maximumPoints}`,
+  );
+}
+
+export interface VoceParameterInput {
+  lower: number;
+  initial: number;
+  upper: number;
+  scale: number;
+}
+
+export function createReferenceVoceCalibrationPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    calibration_input_scope_id: string;
+    calibration_input_scope_revision_id: string;
+    material_state_id: string;
+    material_state_revision_id: string;
+    property_set_id: string;
+    property_set_revision_id: string;
+    youngs_modulus_pa: number;
+    sigma_0_pa: VoceParameterInput;
+    q_pa: VoceParameterInput;
+    b: VoceParameterInput;
+    normalization_stress_scale_pa: number;
+    multistart_count: number;
+    random_seed: number;
+    maximum_function_evaluations: number;
+    ftol: number;
+    xtol: number;
+    gtol: number;
+    change_reason: string;
+  },
+): Promise<ApiResult<VoceCalibrationPlanResponse>> {
+  return request(config, "/voce-calibration-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceVoceCalibration(
+  config: ApiConfig,
+  planId: string,
+  input: { plan_revision_id: string; change_reason: string },
+): Promise<ApiResult<VoceCalibrationRunResponse>> {
+  return request(
+    config,
+    `/voce-calibration-plans/${encodeURIComponent(planId)}/runs`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function previewReferenceVoceCalibrationDiagnostics(
+  config: ApiConfig,
+  candidateId: string,
+  maximumPoints = 1000,
+): Promise<ApiResult<VoceCalibrationDiagnosticPreview>> {
+  return request(
+    config,
+    `/voce-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics-preview?maximum_points=${maximumPoints}`,
+  );
+}
+
+export function createReferenceVoceCandidateSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    voce_calibration_run_id: string;
+    voce_calibration_candidate_id: string;
+    selection_reason: string;
+  },
+): Promise<ApiResult<VoceCandidateSelectionResponse>> {
+  return request(config, "/voce-candidate-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function projectSelectedReferenceVoceCandidate(
+  config: ApiConfig,
+  selectionId: string,
+  input: {
+    selection_revision_id: string;
+    sampling_point_count: number;
+    extension_max_true_plastic_strain: number;
+    acknowledge_constant_extension: boolean;
+    change_reason: string;
+  },
+): Promise<ApiResult<TabulatedPlasticityModelResponse>> {
+  return request(
+    config,
+    `/voce-candidate-selections/${encodeURIComponent(selectionId)}/tabulated-plasticity-models`,
+    { method: "POST", body: JSON.stringify(input) },
   );
 }
 

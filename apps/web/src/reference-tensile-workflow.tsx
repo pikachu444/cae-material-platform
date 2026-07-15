@@ -43,6 +43,7 @@ import type {
   OutlierDetectionPlanResponse,
   OutlierDetectionRunResponse,
   OutlierScopeComparisonResponse,
+  PropertySetResponse,
   ProcessingRecipeResponse,
   ProcessingRunResponse,
   ReferenceTensileMapping,
@@ -211,6 +212,7 @@ function StatisticsCurvePanel({ curve }: { curve: StatisticalCurvePreview }) {
 interface ReferenceTensileWorkflowProps {
   config: ApiConfig;
   state: MaterialStateResponse;
+  propertySet?: PropertySetResponse;
 }
 
 interface DetectedImportSource {
@@ -220,7 +222,7 @@ interface DetectedImportSource {
   rawArtifactId: string;
 }
 
-export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWorkflowProps) {
+export function ReferenceTensileWorkflow({ config, state, propertySet }: ReferenceTensileWorkflowProps) {
   const [open, setOpen] = useState(false);
   const [specimens, setSpecimens] = useState<SpecimenResponse[]>([]);
   const [methods, setMethods] = useState<TestMethodResponse[]>([]);
@@ -1189,7 +1191,12 @@ export function ReferenceTensileWorkflow({ config, state }: ReferenceTensileWork
               </>
             )}
           </div>
-          <ReferenceReplicateSelectionWorkbench config={config} state={state} datasets={datasets} />
+          <ReferenceReplicateSelectionWorkbench
+            config={config}
+            state={state}
+            datasets={datasets}
+            propertySet={propertySet}
+          />
           <div className="workflow-step">
             <strong>7. Define the one-step observed-point crop Recipe</strong>
             <p className="form-hint">

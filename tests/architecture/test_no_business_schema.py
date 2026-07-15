@@ -41,6 +41,8 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260729_032_P0_2_replicate_alignment.py",
         "20260730_033_P0_2_replicate_statistics.py",
         "20260731_034_P0_2_replicate_outlier_scope.py",
+        "20260801_035_P1_reference_voce_calibration.py",
+        "20260802_036_P1_voce_candidate_projection.py",
     ]
 
 
