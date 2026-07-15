@@ -34,6 +34,7 @@ import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
 import { ReviewWorkbench } from "./review-workbench";
 import { ReleaseWorkbench } from "./release-workbench";
 import { GovernanceEvidenceWorkbench } from "./governance-evidence-workbench";
+import { CatalogGenealogyWorkbench } from "./catalog-genealogy-workbench";
 import type {
   DataClassification,
   ExportTarget,
@@ -1132,6 +1133,7 @@ function MaterialStateCard({
         <div><dt>Lot / batch</dt><dd>{content.lot_or_batch ?? "—"}</dd></div>
       </dl>
       {content.description ? <p className="state-description">{content.description}</p> : null}
+      <CatalogGenealogyWorkbench config={config} state={state} />
       {!stateUsesCurrentMaterial ? (
         <section className="property-summary compatibility-notice">
           <p className="eyebrow">Pinned Material revision</p>

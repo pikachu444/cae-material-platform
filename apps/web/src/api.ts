@@ -30,6 +30,13 @@ import type {
   MaterialStateCreateInput,
   MaterialStateReviseInput,
   MaterialStateResponse,
+  MaterialLotCreateInput,
+  MaterialLotResponse,
+  ProcessDefinitionCreateInput,
+  ProcessDefinitionResponse,
+  ProcessKind,
+  StateGenealogyCreateInput,
+  StateGenealogyResponse,
   LinearViscoelasticModelResponse,
   LinearViscoelasticCardResponse,
   LinearViscoelasticMappingReport,
@@ -343,6 +350,73 @@ export function reviseMaterialState(
   input: MaterialStateReviseInput,
 ): Promise<ApiResult<MaterialStateResponse>> {
   return request(config, `/material-states/${encodeURIComponent(materialStateId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function listProcessDefinitions(
+  config: ApiConfig,
+  kind?: ProcessKind,
+): Promise<ApiResult<{ items: ProcessDefinitionResponse[] }>> {
+  const query = kind ? `?kind=${encodeURIComponent(kind)}` : "";
+  return request(config, `/process-definitions${query}`);
+}
+
+export function createProcessDefinition(
+  config: ApiConfig,
+  input: ProcessDefinitionCreateInput,
+): Promise<ApiResult<ProcessDefinitionResponse>> {
+  return request(config, "/process-definitions", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listMaterialLots(
+  config: ApiConfig,
+  materialId: string,
+): Promise<ApiResult<{ items: MaterialLotResponse[] }>> {
+  return request(config, `/materials/${encodeURIComponent(materialId)}/lots`);
+}
+
+export function createMaterialLot(
+  config: ApiConfig,
+  materialId: string,
+  input: MaterialLotCreateInput,
+): Promise<ApiResult<MaterialLotResponse>> {
+  return request(config, `/materials/${encodeURIComponent(materialId)}/lots`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getStateGenealogy(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<StateGenealogyResponse | null>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/genealogy`);
+}
+
+export function createStateGenealogy(
+  config: ApiConfig,
+  materialStateId: string,
+  input: StateGenealogyCreateInput,
+): Promise<ApiResult<StateGenealogyResponse>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/genealogy`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseStateGenealogy(
+  config: ApiConfig,
+  genealogyId: string,
+  etag: string,
+  input: StateGenealogyCreateInput,
+): Promise<ApiResult<StateGenealogyResponse>> {
+  return request(config, `/state-genealogies/${encodeURIComponent(genealogyId)}/revisions`, {
     method: "POST",
     headers: { "If-Match": etag },
     body: JSON.stringify(input),
