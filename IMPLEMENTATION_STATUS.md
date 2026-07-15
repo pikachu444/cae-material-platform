@@ -633,3 +633,17 @@ solver-output parsing and qualification; and observability, disaster-recovery, p
 security, external release and connector hardening. Solver execution validation remains excluded by
 product-owner direction until that P2 scope is explicitly resumed.
 
+## P2 product vertical started (2026-07-15)
+
+ADR-0020 changes the next execution order without discarding the completed foundation. Material
+revision schema v2 adds a governed class for workflow guidance; legacy v1 revisions remain
+unchanged and read as `unclassified`. The user-facing README now leads with Material management,
+test/processing, IR and card workflows while the detailed engineering runbook lives in
+`DEVELOPMENT.md`.
+
+The ordered remaining delivery is: Steel elastoplastic regression protection; linear Prony IR and
+Abaqus viscoelastic card; shear-relaxation import/processing/calibration; Ogden-Prony Abaqus and
+OpenRadioss LAW62 cards; then Process/Lot/Batch genealogy. These are reference/non-production
+capabilities until domain-approved schemas, numeric fixtures and mappings are available. Actual
+solver execution validation remains excluded.
+

@@ -867,3 +867,20 @@ Catalog/Test genealogy expansion, (2) real solver data-check/execution/HPC adapt
 result evidence when the product owner re-enables that scope, (3) approved solver-result parsers,
 scientific fixtures, thresholds, and qualification, and (4) observability, backup/restore,
 performance/security, and external release hardening. No P2 item is silently treated as complete.
+
+### P2 product-vertical amendment (ADR-0020)
+
+Before broader operational foundation work, P2 proceeds through user-visible verticals:
+
+1. Governed Material class revisions and workflow compatibility guidance, preserving legacy
+   revisions as `unclassified`.
+2. Steel elastoplastic regression protection using the existing tabulated/Voce IR and
+   OpenRadioss LAW36/Abaqus exporters.
+3. Linear generalized-Maxwell/Prony IR, shear-relaxation data processing and Abaqus time-domain
+   viscoelastic card preview/download.
+4. Ogden-Prony hyper-viscoelastic IR with explicit Abaqus and OpenRadioss LAW62 mappings.
+5. Explicit Process Definition/Run, Material Lot/Batch, Batch Input and Process Output genealogy.
+
+Every increment includes typed PostgreSQL persistence, protected API, connected frontend, and
+unit/integration/regression tests. Solver execution qualification remains excluded until explicitly
+re-enabled. Reference outputs do not close the production T-D02/T-D03 approval tasks.

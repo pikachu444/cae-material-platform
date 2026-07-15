@@ -364,3 +364,16 @@ IR은 calibration raw log를 복사하지 않고 immutable run/evidence를 참�
 
 첫 vertical model이 결정되면 domain expert와 exporter expert가 실제 IR instance 세 개 이상을 작성하여 envelope/payload 경계를 검증한 뒤 schema를 동결한다.
 
+## 15. Material class compatibility routing
+
+Material class is Catalog metadata and is not a constitutive-model discriminator inside the IR.
+The first routed families are:
+
+- `metal`: existing isotropic elasticity and tabulated/Voce elastoplastic reference IRs;
+- `polymer`: planned linear generalized-Maxwell/Prony reference IR;
+- `polymer` or `elastomer`: planned Ogden-Prony hyper-viscoelastic reference IR.
+
+The linear Prony family is not exportable to OpenRadioss LAW62. The hyper-viscoelastic family owns
+that mapping. Exporters must inspect the concrete IR family/schema digest and emit an explicit
+mapping status; Material class alone never authorizes card generation.
+
