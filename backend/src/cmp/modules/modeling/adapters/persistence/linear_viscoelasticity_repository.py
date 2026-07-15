@@ -1,0 +1,384 @@
+"""PostgreSQL persistence for typed linear-viscoelastic IR and Prony terms."""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from contextlib import contextmanager
+from typing import Any, Protocol, cast
+from uuid import UUID
+
+import sqlalchemy as sa
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.orm import Session, sessionmaker
+
+from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
+from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.modeling.adapters.persistence.repository import (
+    material_model_revision_table,
+    material_model_table,
+)
+from cmp.modules.modeling.application.linear_viscoelasticity import (
+    LinearViscoelasticModelSnapshot,
+    LinearViscoelasticRepository,
+)
+from cmp.modules.modeling.application.service import MATERIAL_MODEL_AGGREGATE_TYPE, RevisionSnapshot
+from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
+    REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID,
+    BulkRelaxationStatus,
+    LinearViscoelasticNotFound,
+    PronyTerm,
+    ReferenceLinearViscoelasticContent,
+    reference_linear_viscoelastic_canonical,
+)
+from cmp.shared.adapters.persistence.revisions import (
+    SqlAlchemyRevisionStore,
+    SqlRevisionHook,
+    TypedRevisionTables,
+)
+from cmp.shared.application.revisions import RevisionStore
+from cmp.shared.domain.revisions import RevisionDraft, RevisionRecord, TenantScope
+
+metadata = material_model_table.metadata
+
+linear_viscoelastic_revision_table = sa.Table(
+    "linear_viscoelastic_revision",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_model_id", sa.Uuid(), nullable=False),
+    sa.Column("material_model_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("bulk_relaxation_status", sa.String(32), nullable=False),
+    sa.Column("term_count", sa.Integer(), nullable=False),
+    schema="modeling",
+)
+linear_viscoelastic_prony_term_table = sa.Table(
+    "linear_viscoelastic_prony_term",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_model_id", sa.Uuid(), nullable=False),
+    sa.Column("material_model_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+    sa.Column("g_ratio", sa.Double(), nullable=False),
+    sa.Column("k_ratio", sa.Double(), nullable=False),
+    sa.Column("relaxation_time_s", sa.Double(), nullable=False),
+    schema="modeling",
+)
+
+
+class RlsContext(Protocol):
+    def bind_authorization(
+        self,
+        session: Session,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> None: ...
+
+
+def _record(row: Any) -> RevisionRecord:
+    return RevisionRecord(
+        revision_id=cast(UUID, row["id"]),
+        aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
+        aggregate_id=cast(UUID, row["aggregate_id"]),
+        scope=TenantScope(
+            cast(UUID, row["organization_id"]),
+            cast(UUID, row["project_id"]),
+            str(row["classification"]),
+        ),
+        revision_no=int(row["revision_no"]),
+        based_on_revision_id=cast(UUID | None, row["based_on_revision_id"]),
+        schema_id=str(row["schema_id"]),
+        schema_version=str(row["schema_version"]),
+        content_hash=str(row["content_hash"]),
+        created_at=row["created_at"],
+        created_by=cast(UUID, row["created_by"]),
+        change_reason=str(row["change_reason"]),
+        request_id=cast(UUID, row["request_id"]),
+        trace_id=str(row["trace_id"]),
+    )
+
+
+def _content_values(content: ReferenceLinearViscoelasticContent) -> dict[str, Any]:
+    return {
+        "model_family_id": content.model_family_id,
+        "model_schema_digest": content.model_schema_digest,
+        "material_id": content.material_id,
+        "material_revision_id": content.material_revision_id,
+        "material_state_id": content.material_state_id,
+        "material_state_revision_id": content.material_state_revision_id,
+        "property_set_id": content.property_set_id,
+        "property_set_revision_id": content.property_set_revision_id,
+        "density_kg_per_m3": content.density_kg_per_m3,
+        "youngs_modulus_pa": content.youngs_modulus_pa,
+        "poisson_ratio": content.poisson_ratio,
+        "source_yield_stress_pa": None,
+        "applicable_temperature_min_k": content.applicable_temperature_min_k,
+        "applicable_temperature_max_k": content.applicable_temperature_max_k,
+        "applicable_strain_rate_min_per_s": content.applicable_strain_rate_min_per_s,
+        "applicable_strain_rate_max_per_s": content.applicable_strain_rate_max_per_s,
+        "applicability_note": content.applicability_note,
+        "reference_temperature_k": content.reference_temperature_k,
+        "calibration_evidence_kind": "manual_catalog_projection",
+        "non_production": True,
+    }
+
+
+def _write_terms(
+    session: Session, draft: RevisionDraft[ReferenceLinearViscoelasticContent]
+) -> None:
+    content = draft.content
+    scope = draft.scope
+    session.execute(
+        sa.insert(linear_viscoelastic_revision_table).values(
+            organization_id=scope.organization_id,
+            project_id=scope.project_id,
+            classification=scope.classification,
+            material_model_id=draft.aggregate_id,
+            material_model_revision_id=draft.revision_id,
+            bulk_relaxation_status=content.bulk_relaxation_status.value,
+            term_count=len(content.terms),
+        )
+    )
+    session.execute(
+        sa.insert(linear_viscoelastic_prony_term_table),
+        [
+            {
+                "organization_id": scope.organization_id,
+                "project_id": scope.project_id,
+                "classification": scope.classification,
+                "material_model_id": draft.aggregate_id,
+                "material_model_revision_id": draft.revision_id,
+                "ordinal": ordinal,
+                "g_ratio": term.g_ratio,
+                "k_ratio": term.k_ratio,
+                "relaxation_time_s": term.relaxation_time_s,
+            }
+            for ordinal, term in enumerate(content.terms, 1)
+        ],
+    )
+
+
+_TABLES = TypedRevisionTables[ReferenceLinearViscoelasticContent](
+    aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
+    identity_table=material_model_table,
+    revision_table=material_model_revision_table,
+    canonical_content=reference_linear_viscoelastic_canonical,
+    content_values=_content_values,
+    identity_values=lambda content: {"material_state_id": content.material_state_id},
+    revision_content_writer=_write_terms,
+)
+
+
+def _revision_columns(table: sa.Table) -> tuple[Any, ...]:
+    names = (
+        "id",
+        "aggregate_id",
+        "organization_id",
+        "project_id",
+        "classification",
+        "revision_no",
+        "based_on_revision_id",
+        "schema_id",
+        "schema_version",
+        "content_hash",
+        "created_at",
+        "created_by",
+        "change_reason",
+        "request_id",
+        "trace_id",
+        "model_family_id",
+        "model_schema_digest",
+        "material_id",
+        "material_revision_id",
+        "material_state_id",
+        "material_state_revision_id",
+        "property_set_id",
+        "property_set_revision_id",
+        "density_kg_per_m3",
+        "youngs_modulus_pa",
+        "poisson_ratio",
+        "applicable_temperature_min_k",
+        "applicable_temperature_max_k",
+        "applicable_strain_rate_min_per_s",
+        "applicable_strain_rate_max_per_s",
+        "applicability_note",
+        "reference_temperature_k",
+        "non_production",
+    )
+    return tuple(table.c[name] for name in names)
+
+
+def _content(row: Any, terms: tuple[PronyTerm, ...]) -> ReferenceLinearViscoelasticContent:
+    return ReferenceLinearViscoelasticContent(
+        material_id=cast(UUID, row["material_id"]),
+        material_revision_id=cast(UUID, row["material_revision_id"]),
+        material_state_id=cast(UUID, row["material_state_id"]),
+        material_state_revision_id=cast(UUID, row["material_state_revision_id"]),
+        property_set_id=cast(UUID, row["property_set_id"]),
+        property_set_revision_id=cast(UUID, row["property_set_revision_id"]),
+        density_kg_per_m3=float(row["density_kg_per_m3"]),
+        youngs_modulus_pa=float(row["youngs_modulus_pa"]),
+        poisson_ratio=float(row["poisson_ratio"]),
+        bulk_relaxation_status=BulkRelaxationStatus(row["bulk_relaxation_status"]),
+        terms=terms,
+        applicable_temperature_min_k=row["applicable_temperature_min_k"],
+        applicable_temperature_max_k=row["applicable_temperature_max_k"],
+        applicable_strain_rate_min_per_s=row["applicable_strain_rate_min_per_s"],
+        applicable_strain_rate_max_per_s=row["applicable_strain_rate_max_per_s"],
+        applicability_note=row["applicability_note"],
+        reference_temperature_k=float(row["reference_temperature_k"]),
+        model_family_id=str(row["model_family_id"]),
+        model_schema_digest=str(row["model_schema_digest"]),
+        non_production=bool(row["non_production"]),
+    )
+
+
+class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
+    def __init__(
+        self,
+        *,
+        session_factory: sessionmaker[Session],
+        rls_context: RlsContext,
+        revision_hooks: Sequence[SqlRevisionHook] = (),
+    ) -> None:
+        self._sessions = session_factory
+        self._rls = rls_context
+        self._hooks = tuple(revision_hooks)
+
+    def _bind(
+        self, session: Session, context: SecurityContext, decision: AuthorizationDecision
+    ) -> None:
+        self._rls.bind_authorization(session, context, decision)
+
+    @contextmanager
+    def _session(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> Any:
+        with self._sessions() as session, session.begin():
+            self._bind(session, context, decision)
+            yield session
+
+    def material_model_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ReferenceLinearViscoelasticContent]:
+        return SqlAlchemyRevisionStore(
+            session_factory=self._sessions,
+            tables=_TABLES,
+            hooks=self._hooks,
+            session_binder=lambda session: self._bind(session, context, decision),
+        )
+
+    @staticmethod
+    def _base_statement() -> sa.Select[Any]:
+        revision = material_model_revision_table
+        summary = linear_viscoelastic_revision_table
+        return (
+            sa.select(*_revision_columns(revision), summary.c.bulk_relaxation_status)
+            .select_from(
+                material_model_table.join(
+                    revision,
+                    sa.and_(
+                        revision.c.id == material_model_table.c.current_revision_id,
+                        revision.c.aggregate_id == material_model_table.c.id,
+                        revision.c.organization_id == material_model_table.c.organization_id,
+                        revision.c.project_id == material_model_table.c.project_id,
+                    ),
+                ).join(
+                    summary,
+                    sa.and_(
+                        summary.c.material_model_id == revision.c.aggregate_id,
+                        summary.c.material_model_revision_id == revision.c.id,
+                        summary.c.organization_id == revision.c.organization_id,
+                        summary.c.project_id == revision.c.project_id,
+                    ),
+                )
+            )
+            .where(revision.c.model_family_id == REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID)
+        )
+
+    @staticmethod
+    def _terms(session: Session, row: Any) -> tuple[PronyTerm, ...]:
+        rows = session.execute(
+            sa.select(
+                linear_viscoelastic_prony_term_table.c.g_ratio,
+                linear_viscoelastic_prony_term_table.c.k_ratio,
+                linear_viscoelastic_prony_term_table.c.relaxation_time_s,
+            )
+            .where(
+                linear_viscoelastic_prony_term_table.c.organization_id
+                == row["organization_id"],
+                linear_viscoelastic_prony_term_table.c.project_id == row["project_id"],
+                linear_viscoelastic_prony_term_table.c.material_model_id
+                == row["aggregate_id"],
+                linear_viscoelastic_prony_term_table.c.material_model_revision_id == row["id"],
+            )
+            .order_by(linear_viscoelastic_prony_term_table.c.ordinal)
+        ).mappings()
+        return tuple(
+            PronyTerm(
+                float(value["g_ratio"]),
+                float(value["k_ratio"]),
+                float(value["relaxation_time_s"]),
+            )
+            for value in rows
+        )
+
+    def _snapshot(self, session: Session, row: Any) -> LinearViscoelasticModelSnapshot:
+        content = _content(row, self._terms(session, row))
+        return LinearViscoelasticModelSnapshot(
+            cast(UUID, row["aggregate_id"]),
+            content.material_state_id,
+            RevisionSnapshot(_record(row), content),
+        )
+
+    def get_material_model(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+    ) -> LinearViscoelasticModelSnapshot:
+        statement = self._base_statement().where(
+            material_model_table.c.id == material_model_id,
+            material_model_table.c.organization_id == context.organization_id,
+            material_model_table.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+                if row is None:
+                    raise LinearViscoelasticNotFound(
+                        "linear-viscoelastic Material Model is not visible"
+                    )
+                return self._snapshot(session, row)
+            except DBAPIError as error:
+                raise LinearViscoelasticNotFound(
+                    "linear-viscoelastic Material Model is not available"
+                ) from error
+
+    def list_material_models_for_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> tuple[LinearViscoelasticModelSnapshot, ...]:
+        statement = (
+            self._base_statement()
+            .where(
+                material_model_table.c.material_state_id == material_state_id,
+                material_model_table.c.organization_id == context.organization_id,
+                material_model_table.c.project_id == context.project_id,
+            )
+            .order_by(material_model_revision_table.c.created_at.desc())
+        )
+        with self._session(context, decision) as session:
+            try:
+                rows = session.execute(statement).mappings().all()
+                return tuple(self._snapshot(session, row) for row in rows)
+            except DBAPIError as error:
+                raise LinearViscoelasticNotFound(
+                    "linear-viscoelastic Material Models are not available"
+                ) from error

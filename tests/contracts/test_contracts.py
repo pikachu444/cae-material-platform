@@ -1168,3 +1168,37 @@ def test_multi_replicate_statistics_contract_matches_runtime_and_declares_method
         "mean_confidence_interval_lower_95",
         "mean_confidence_interval_upper_95",
     }.issubset(runtime_schemas["ReplicateScalarStatisticsResponse"]["required"])
+
+
+def test_linear_viscoelastic_contract_matches_runtime_and_is_typed() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/material-states/{material_state_id}/linear-viscoelastic-models": {
+            "get": "listLinearViscoelasticModels",
+            "post": "createLinearViscoelasticModel",
+        },
+        "/api/v1/linear-viscoelastic-models/{material_model_id}": {
+            "get": "getLinearViscoelasticModel",
+        },
+        "/api/v1/linear-viscoelastic-models/{material_model_id}/response": {
+            "get": "previewLinearViscoelasticResponse",
+        },
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema_path = (
+        PROJECT_ROOT
+        / "contracts/modeling/reference-linear-viscoelastic-resources.schema.json"
+    )
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    serialized = json.dumps(schema)
+    assert "bulk_relaxation_status" in serialized
+    assert "relaxation_time_s" in serialized
+    assert "instantaneous" in serialized
+    assert '"attribute"' not in serialized
+    assert '"value"' not in serialized

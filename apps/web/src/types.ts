@@ -1942,6 +1942,58 @@ export interface TabulatedPlasticityModelResponse {
   links: Record<string, string>;
 }
 
+export type BulkRelaxationStatus = "characterized" | "not_characterized";
+
+export interface LinearViscoelasticPronyTerm {
+  ordinal: number;
+  g_ratio: number;
+  k_ratio: number;
+  relaxation_time_s: number;
+}
+
+export interface LinearViscoelasticModelResponse {
+  material_model_id: string;
+  material_state_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      model_family_id: string;
+      model_schema_version: "1.0.0";
+      model_schema_digest: string;
+      material_id: string;
+      material_revision_id: string;
+      material_state_id: string;
+      material_state_revision_id: string;
+      property_set_id: string;
+      property_set_revision_id: string;
+      density_kg_per_m3: number;
+      youngs_modulus_pa: number;
+      poisson_ratio: number;
+      elastic_moduli_convention: "instantaneous";
+      bulk_relaxation_status: BulkRelaxationStatus;
+      terms: LinearViscoelasticPronyTerm[];
+      reference_temperature_k: number;
+      non_production: true;
+    };
+    ir: Record<string, unknown>;
+  };
+  links: Record<string, string>;
+}
+
+export interface LinearViscoelasticResponsePoint {
+  time_s: number;
+  shear_modulus_pa: number;
+  bulk_modulus_pa: number;
+}
+
+export interface LinearViscoelasticResponse {
+  material_model_id: string;
+  material_model_revision_id: string;
+  elastic_moduli_convention: "instantaneous";
+  time_unit: "s";
+  modulus_unit: "Pa";
+  points: LinearViscoelasticResponsePoint[];
+}
+
 export interface HardeningCurvePoint {
   true_plastic_strain: number;
   true_yield_stress_pa: number;

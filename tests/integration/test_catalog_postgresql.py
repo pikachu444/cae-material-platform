@@ -57,15 +57,26 @@ from cmp.modules.identity_access.domain.security import (
     PrincipalType,
     SecurityContext,
 )
+from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
+    SqlAlchemyLinearViscoelasticRepository,
+)
 from cmp.modules.modeling.adapters.persistence.repository import (
     SqlAlchemyModelingRepository,
     material_model_revision_table,
+)
+from cmp.modules.modeling.application.linear_viscoelasticity import (
+    CreateReferenceLinearViscoelasticModel,
+    LinearViscoelasticModelService,
 )
 from cmp.modules.modeling.application.service import (
     CreateReferenceLinearElasticModel,
     MaterialModelService,
 )
 from cmp.modules.modeling.domain.reference_linear_elasticity import ReferenceModelNotFound
+from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
+    BulkRelaxationStatus,
+    PronyTerm,
+)
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.shared.domain.revisions import RevisionConflict
@@ -99,6 +110,7 @@ class PostgresHarness:
     rls: SqlAlchemyRlsContext
     service: CatalogService
     modeling: MaterialModelService
+    linear_viscoelasticity: LinearViscoelasticModelService
     exporting: SolverCardService
 
 
@@ -209,12 +221,25 @@ def postgres() -> Iterator[PostgresHarness]:
                 ),
             )
         )
+        linear_viscoelasticity = LinearViscoelasticModelService(
+            repository=SqlAlchemyLinearViscoelasticRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            ),
+            material_models=modeling,
+        )
         yield PostgresHarness(
             admin_engine=admin_engine,
             sessions=sessions,
             rls=rls,
             service=CatalogService(repository=repository),
             modeling=modeling,
+            linear_viscoelasticity=linear_viscoelasticity,
             exporting=exporting,
         )
     finally:
@@ -656,6 +681,142 @@ def test_solver_card_is_source_pinned_immutable_provenanced_and_tenant_scoped(
         )
     assert lifecycle_count == provenance_count == audit_count == 1
     assert usage_count == derivation_count == 1
+
+
+def test_linear_viscoelastic_model_persists_ordered_terms_and_exact_source_revisions(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    catalog_write = _decision(context, Permission.CATALOG_WRITE)
+    modeling_write = _decision(context, Permission.MODELING_WRITE)
+    modeling_read = _decision(context, Permission.MODELING_READ)
+    material = postgres.service.create_material(
+        context,
+        catalog_write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent(
+                "Reference polymer",
+                "REF-PRONY",
+                "polymer",
+                material_class=MaterialClass.POLYMER,
+            ),
+            "create polymer source",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        catalog_write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "Conditioned 23 C",
+            ),
+            "create conditioned source state",
+        ),
+    )
+    property_set = postgres.service.create_property_set(
+        context,
+        catalog_write,
+        CreatePropertySet(
+            PropertySetContent(
+                state.id,
+                state.current.record.revision_id,
+                density_kg_per_m3=1_200.0,
+                density_source=_source(),
+                youngs_modulus_pa=3_000_000_000.0,
+                youngs_modulus_source=_source(),
+                poisson_ratio=0.35,
+                poisson_ratio_source=_source(),
+            ),
+            "record polymer instantaneous elastic values",
+        ),
+    )
+    model = postgres.linear_viscoelasticity.create_model(
+        context,
+        modeling_write,
+        CreateReferenceLinearViscoelasticModel(
+            material_state_id=state.id,
+            property_set_revision_id=property_set.current.record.revision_id,
+            bulk_relaxation_status=BulkRelaxationStatus.NOT_CHARACTERIZED,
+            terms=(PronyTerm(0.2, 0.0, 0.1), PronyTerm(0.3, 0.0, 10.0)),
+            change_reason="create typed reference Prony IR",
+        ),
+    )
+    restored = postgres.linear_viscoelasticity.get_model(context, modeling_read, model.id)
+    assert restored == model
+    assert restored.current.content.material_revision_id == material.current.record.revision_id
+    assert restored.current.content.material_state_revision_id == state.current.record.revision_id
+    assert (
+        restored.current.content.property_set_revision_id
+        == property_set.current.record.revision_id
+    )
+    assert tuple(term.relaxation_time_s for term in restored.current.content.terms) == (
+        0.1,
+        10.0,
+    )
+
+    with postgres.admin_engine.connect() as connection:
+        row = connection.execute(
+            sa.text(
+                "SELECT r.term_count, count(t.ordinal), sum(t.g_ratio), sum(t.k_ratio) "
+                "FROM modeling.linear_viscoelastic_revision r "
+                "JOIN modeling.linear_viscoelastic_prony_term t "
+                "ON t.organization_id=r.organization_id AND t.project_id=r.project_id "
+                "AND t.material_model_revision_id=r.material_model_revision_id "
+                "WHERE r.material_model_revision_id=:revision_id GROUP BY r.term_count"
+            ),
+            {"revision_id": model.current.record.revision_id},
+        ).one()
+    assert row == (2, 2, pytest.approx(0.5), pytest.approx(0.0))
+
+
+def test_linear_viscoelastic_migration_installs_typed_rls_constraints_and_guards(
+    postgres: PostgresHarness,
+) -> None:
+    with postgres.admin_engine.connect() as connection:
+        tables = {
+            str(row[0]): bool(row[1])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT t.relname, t.relrowsecurity AND t.relforcerowsecurity "
+                    "FROM pg_class t JOIN pg_namespace n ON n.oid=t.relnamespace "
+                    "WHERE n.nspname='modeling' AND t.relname IN "
+                    "('linear_viscoelastic_revision','linear_viscoelastic_prony_term')"
+                )
+            ).all()
+        }
+        triggers = {
+            str(row[0])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT g.tgname FROM pg_trigger g JOIN pg_class t ON t.oid=g.tgrelid "
+                    "JOIN pg_namespace n ON n.oid=t.relnamespace "
+                    "WHERE n.nspname='modeling' AND NOT g.tgisinternal"
+                )
+            ).all()
+        }
+        constraints = {
+            str(row[0])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT c.conname FROM pg_constraint c JOIN pg_class t ON t.oid=c.conrelid "
+                    "JOIN pg_namespace n ON n.oid=t.relnamespace "
+                    "WHERE n.nspname='modeling' AND t.relname IN "
+                    "('linear_viscoelastic_revision','linear_viscoelastic_prony_term')"
+                )
+            ).all()
+        }
+    assert tables == {
+        "linear_viscoelastic_revision": True,
+        "linear_viscoelastic_prony_term": True,
+    }
+    assert "modeling_linear_viscoelastic_source_guard" in triggers
+    assert "modeling_linear_viscoelastic_revision_immutable" in triggers
+    assert "modeling_linear_viscoelastic_prony_term_immutable" in triggers
+    assert "fk_modeling_linear_viscoelastic_revision_model" in constraints
+    assert "fk_modeling_linear_viscoelastic_prony_summary" in constraints
 
 
 def test_elastoplastic_migration_installs_typed_scoped_constraints_and_guards(

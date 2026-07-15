@@ -15,6 +15,9 @@ from cmp.modules.modeling.adapters.persistence.calibration_repository import (
 from cmp.modules.modeling.adapters.persistence.candidate_selection_repository import (
     SqlAlchemyCandidateSelectionRepository,
 )
+from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
+    SqlAlchemyLinearViscoelasticRepository,
+)
 from cmp.modules.modeling.adapters.persistence.repository import SqlAlchemyModelingRepository
 from cmp.modules.modeling.adapters.persistence.tabulated_plasticity_repository import (
     SqlAlchemyTabulatedPlasticityRepository,
@@ -27,6 +30,9 @@ from cmp.modules.modeling.adapters.persistence.voce_candidate_selection_reposito
 )
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
+from cmp.modules.modeling.application.linear_viscoelasticity import (
+    LinearViscoelasticModelService,
+)
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelService,
@@ -60,6 +66,29 @@ def build_material_model_service(identity: IdentityServices) -> MaterialModelSer
                 SqlAlchemyRevisionAuditHook(),
             ),
         )
+    )
+
+
+def build_linear_viscoelastic_model_service(
+    identity: IdentityServices,
+    material_models: MaterialModelService | None,
+) -> LinearViscoelasticModelService | None:
+    """Compose manual polymer/elastomer Prony IR creation over shared revision hooks."""
+
+    if identity.engine is None or identity.rls_context is None or material_models is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return LinearViscoelasticModelService(
+        repository=SqlAlchemyLinearViscoelasticRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        material_models=material_models,
     )
 
 

@@ -370,10 +370,18 @@ Material class is Catalog metadata and is not a constitutive-model discriminator
 The first routed families are:
 
 - `metal`: existing isotropic elasticity and tabulated/Voce elastoplastic reference IRs;
-- `polymer`: planned linear generalized-Maxwell/Prony reference IR;
+- `polymer` or `elastomer`: implemented bounded linear generalized-Maxwell/Prony reference IR;
 - `polymer` or `elastomer`: planned Ogden-Prony hyper-viscoelastic reference IR.
 
 The linear Prony family is not exportable to OpenRadioss LAW62. The hyper-viscoelastic family owns
 that mapping. Exporters must inspect the concrete IR family/schema digest and emit an explicit
 mapping status; Material class alone never authorizes card generation.
+
+The implemented linear family is
+`urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0`. It pins exact Material, Material
+State and Property Set revisions, interprets the Catalog elastic moduli as instantaneous, stores
+one to five ordered `(g_ratio, k_ratio, relaxation_time_s)` rows, and records bulk relaxation as
+either `characterized` or `not_characterized`. The latter requires every `k_ratio` to be explicit
+zero; it is not a silent incompressibility default. Both ratio sums remain below one. This bounded
+family is reference/non-production until the domain and solver mapping fixtures are approved.
 

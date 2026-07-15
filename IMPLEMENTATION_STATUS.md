@@ -64,6 +64,16 @@ Foundation version: `0.27.0`
   expose protected preview/download plus byte-exact `.rad`/`.inp` golden regressions. This is a
   non-production monotonic, ambient, rate-independent reference slice without damage/failure or
   solver qualification.
+- P2 linear-viscoelastic IR increment (ADR-0020 item 3, first half): a polymer/elastomer Material
+  revision and one exact Property Set revision can create a stable Material Model identity with an
+  immutable typed generalized-Maxwell/Prony revision. Explicit PostgreSQL companion tables store
+  one to five ordered shear/bulk ratios and SI relaxation times under composite tenant keys, forced
+  RLS, immutable triggers, deferred sum/order/evidence guards, and an exact source-class trigger.
+  Protected create/list/read/response APIs and the connected Material State workbench expose manual
+  term entry, explicit characterized/not-characterized bulk evidence, and a deterministic
+  solver-neutral relaxation preview. The live Compose/PostgreSQL flow is verified. Abaqus
+  `*VISCOELASTIC, TIME=PRONY`, shear-relaxation Dataset/calibration, and Ogden-Prony/LAW62 remain the
+  next separate increments; no solver execution or production qualification is claimed.
 - `T-20` reference subset: an immutable Statistical Plan pins exactly two existing one-member
   normalized Dataset Selection revisions from distinct Test Runs; a committed Statistical Run records
   typed QC observations and either fails durably or creates a separate immutable Statistical Result

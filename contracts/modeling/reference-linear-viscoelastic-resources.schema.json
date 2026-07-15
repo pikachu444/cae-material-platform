@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/reference-linear-viscoelastic-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": ["id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id", "schema_version", "content_hash", "created_at", "created_by", "change_reason", "organization_id", "project_id", "classification", "lifecycle_state"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"const": "1.0.0"},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "PronyTerm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ordinal", "g_ratio", "k_ratio", "relaxation_time_s"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1, "maximum": 5},
+        "g_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "k_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "relaxation_time_s": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "Content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_family_id", "model_schema_version", "model_schema_digest", "material_id", "material_revision_id", "material_state_id", "material_state_revision_id", "property_set_id", "property_set_revision_id", "density_kg_per_m3", "youngs_modulus_pa", "poisson_ratio", "elastic_moduli_convention", "bulk_relaxation_status", "terms", "reference_temperature_k", "non_production"],
+      "properties": {
+        "model_family_id": {"const": "urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0"},
+        "model_schema_version": {"const": "1.0.0"},
+        "model_schema_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "density_kg_per_m3": {"type": "number", "exclusiveMinimum": 0},
+        "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "poisson_ratio": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5},
+        "elastic_moduli_convention": {"const": "instantaneous"},
+        "bulk_relaxation_status": {"enum": ["characterized", "not_characterized"]},
+        "terms": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"$ref": "#/$defs/PronyTerm"}},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "non_production": {"const": true}
+      }
+    },
+    "Revision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content", "ir"], "properties": {"content": {"$ref": "#/$defs/Content"}, "ir": {"type": "object"}}}
+      ]
+    },
+    "ModelResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_model_id", "material_state_id", "current_revision", "links"],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/Revision"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "ListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ModelResponse"}}}
+    },
+    "CreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property_set_revision_id", "bulk_relaxation_status", "terms", "change_reason"],
+      "properties": {
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "bulk_relaxation_status": {"enum": ["characterized", "not_characterized"]},
+        "terms": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"$ref": "#/$defs/PronyTermInput"}},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "PronyTermInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["g_ratio", "k_ratio", "relaxation_time_s"],
+      "properties": {
+        "g_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "k_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "relaxation_time_s": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "RelaxationPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["time_s", "shear_modulus_pa", "bulk_modulus_pa"],
+      "properties": {
+        "time_s": {"type": "number", "minimum": 0},
+        "shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "bulk_modulus_pa": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "RelaxationResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_model_id", "material_model_revision_id", "elastic_moduli_convention", "time_unit", "modulus_unit", "points"],
+      "properties": {
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "elastic_moduli_convention": {"const": "instantaneous"},
+        "time_unit": {"const": "s"},
+        "modulus_unit": {"const": "Pa"},
+        "points": {"type": "array", "minItems": 1, "maxItems": 200, "items": {"$ref": "#/$defs/RelaxationPoint"}}
+      }
+    }
+  }
+}

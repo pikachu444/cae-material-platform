@@ -20,6 +20,7 @@ from cmp.bootstrap.exporting import (
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
+    build_linear_viscoelastic_model_service,
     build_material_model_service,
     build_reference_calibration_service,
     build_reference_voce_calibration_service,
@@ -74,6 +75,9 @@ from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
 from cmp.modules.jobs.application.jobs import JobService
 from cmp.modules.modeling.adapters.api.calibration import install_calibration_api
 from cmp.modules.modeling.adapters.api.candidate_selection import install_candidate_selection_api
+from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
+    install_linear_viscoelastic_api,
+)
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
 from cmp.modules.modeling.adapters.api.tabulated_plasticity import (
     install_tabulated_plasticity_api,
@@ -86,6 +90,9 @@ from cmp.modules.modeling.adapters.api.voce_candidate_projection import (
 )
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
+from cmp.modules.modeling.application.linear_viscoelasticity import (
+    LinearViscoelasticModelService,
+)
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelService,
@@ -157,6 +164,7 @@ def create_app(
     replicate_statistics_service: ReplicateStatisticsService | None = None,
     replicate_outlier_service: ReplicateOutlierService | None = None,
     material_model_service: MaterialModelService | None = None,
+    linear_viscoelastic_model_service: LinearViscoelasticModelService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
     voce_calibration_service: ReferenceVoceCalibrationService | None = None,
@@ -391,6 +399,21 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_linear_viscoelastic = (
+        linear_viscoelastic_model_service
+        or build_linear_viscoelastic_model_service(services, resolved_material_models)
+    )
+    install_linear_viscoelastic_api(
+        application,
+        service=resolved_linear_viscoelastic,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+    )
     resolved_tabulated_plasticity = (
         tabulated_plasticity_model_service
         or build_tabulated_plasticity_model_service(
@@ -591,6 +614,7 @@ def create_app(
     application.state.statistics_service = resolved_statistics
     application.state.replicate_statistics_service = resolved_replicate_statistics
     application.state.material_model_service = resolved_material_models
+    application.state.linear_viscoelastic_model_service = resolved_linear_viscoelastic
     application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
     application.state.voce_calibration_service = resolved_voce_calibration

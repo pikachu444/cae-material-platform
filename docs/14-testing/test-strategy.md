@@ -587,3 +587,11 @@ one retained and one calibration-only excluded Assessment before producing a 2-i
 - End to end: Material class -> State -> property/test data -> exact IR revision -> mapping report
   -> preview/download must pass in the browser against PostgreSQL. Golden/semantic tests do not
   claim real solver acceptance.
+
+The first linear-viscoelastic gate is implemented by migration 040 and its offline migration test,
+domain limit/invariant tests, a PostgreSQL repository integration that restores ordered terms and
+exact source revision pins, protected OpenAPI/JSON Schema contract checks, and a React regression
+that creates an IR and renders the backend response curve. The Docker demo was also exercised with
+a synthetic polymer Material: two terms produced 41 response points and the expected instantaneous
+to long-time shear-modulus decrease. The Abaqus golden/export gate and shear-relaxation
+data/calibration gates remain pending and must not be reported as passed by this increment.

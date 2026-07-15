@@ -890,3 +890,12 @@ application require tabulated/Voce plasticity IRs to pin an exact `metal` Materi
 does not expose the Steel workbench for polymer, elastomer or unclassified State revisions, and
 legacy States can explicitly append a revision that adopts the current classified Material. This
 does not add a production constitutive model or solver qualification.
+
+P2 item 3 is in progress as ordered vertical increments. Migration 040, the typed Modeling
+application/API and the React Material State workbench complete the manual linear Prony IR half:
+exact polymer/elastomer source revisions, explicit ordered Prony rows, bulk-evidence status and a
+deterministic relaxation response are persisted and displayed against live PostgreSQL. The next
+increment is Abaqus time-domain `*VISCOELASTIC, TIME=PRONY` capability/preflight/report/card
+preview/download with a golden fixture. Shear-relaxation CSV processing and bounded calibration
+follow that exporter and remain unimplemented; OpenRadioss LAW62 remains explicitly outside this
+linear family and belongs to P2 item 4.
