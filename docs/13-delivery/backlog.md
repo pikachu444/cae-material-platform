@@ -907,7 +907,11 @@ derived Artifact, separate processed Dataset identity, provenance, forced RLS an
 Migration 044 completes bounded two-term generalized-Maxwell fitting: exact processed Dataset and
 baseline IR pins, bounded/log-transformed parameters, deterministic PCG64 multistart, typed
 Plan/Run/Attempt/Candidate rows, immutable residual diagnostics Artifacts, API and connected UI.
-Human selection and promotion to a new immutable linear-Prony IR revision are next; the currently
-best displayed objective is not an automatic engineering decision.
+Migration 045 completes human selection and promotion. A reviewed Candidate and reason become an
+immutable typed Selection revision; an exact-baseline compare-and-swap then appends schema 1.1 to
+the same Material Model identity. The promoted IR pins Selection, Run, Candidate and diagnostics
+digests, and the existing Abaqus exporter pins that promoted revision through preflight, preview
+and download. The lowest displayed objective remains only a sorting aid, never an automatic
+engineering decision.
 OpenRadioss LAW62 remains
 explicitly outside this linear family and belongs to P2 item 4.

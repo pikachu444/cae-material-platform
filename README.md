@@ -90,6 +90,15 @@ OpenRadioss LAW62는 그 이후의 별도 초점탄성 수직 기능이며,
 `reference`는 데이터 흐름과 mapping 계약을 실행할 수 있다는 뜻이며, 실제 제품 설계에
 바로 사용할 수 있도록 검증·승인된 재료 모델이라는 뜻이 아닙니다.
 
+### 현재 Polymer 사용자 흐름
+
+사용자는 shear-relaxation CSV를 raw/normalized/processed Dataset으로 보존한 뒤 bounded Prony
+calibration을 실행할 수 있습니다. 각 candidate의 fitted curve, residual, convergence 및 bound
+warning을 검토하고 직접 candidate와 선택 사유를 확정해야 합니다. 이 작업은 기존 Material
+Model identity를 유지하면서 새 immutable IR revision을 추가합니다. 승격된 revision에서
+Abaqus 2025 mapping report, `*VISCOELASTIC` card preview와 `.inp` 다운로드를 바로 생성할 수
+있으며, 자동 candidate 승인이나 원본 데이터 덮어쓰기는 없습니다.
+
 ## 로컬에서 실행
 
 Docker Desktop이 실행 중인 상태에서 다음 명령을 사용합니다.

@@ -17,6 +17,10 @@ REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_ID = (
     "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.0.0"
 )
 REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_VERSION = "1.0.0"
+REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_ID = (
+    "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.1.0"
+)
+REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION = "1.1.0"
 
 _SCHEMA_DOCUMENT = {
     "family": REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID,
@@ -51,6 +55,31 @@ class LinearViscoelasticNotFound(LinearViscoelasticError):
 class BulkRelaxationStatus(StrEnum):
     CHARACTERIZED = "characterized"
     NOT_CHARACTERIZED = "not_characterized"
+
+
+@dataclass(frozen=True, slots=True)
+class ReferencePronyPromotionEvidence:
+    selection_id: UUID
+    selection_revision_id: UUID
+    calibration_run_id: UUID
+    calibration_candidate_id: UUID
+    candidate_sha256: str
+    diagnostics_artifact_id: UUID
+    diagnostics_sha256: str
+
+    def __post_init__(self) -> None:
+        for name in (
+            "selection_id",
+            "selection_revision_id",
+            "calibration_run_id",
+            "calibration_candidate_id",
+            "diagnostics_artifact_id",
+        ):
+            _nonzero(name, getattr(self, name))
+        for name in ("candidate_sha256", "diagnostics_sha256"):
+            value = getattr(self, name)
+            if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
+                raise InvalidLinearViscoelasticModel(f"{name} must be lowercase SHA-256")
 
 
 def _finite_positive(name: str, value: float) -> None:
@@ -95,6 +124,7 @@ class ReferenceLinearViscoelasticContent:
     applicable_strain_rate_max_per_s: float | None = None
     applicability_note: str | None = None
     reference_temperature_k: float = 293.15
+    prony_promotion_evidence: ReferencePronyPromotionEvidence | None = None
     model_family_id: str = REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID
     model_schema_digest: str = REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
     elastic_moduli_convention: str = "instantaneous"
@@ -205,7 +235,7 @@ def evaluate_relaxation(
 def reference_linear_viscoelastic_canonical(
     content: ReferenceLinearViscoelasticContent,
 ) -> dict[str, object]:
-    return {
+    result: dict[str, object] = {
         "model_family_id": content.model_family_id,
         "model_schema_digest": content.model_schema_digest,
         "material_id": str(content.material_id),
@@ -238,3 +268,15 @@ def reference_linear_viscoelastic_canonical(
         "reference_temperature_k": content.reference_temperature_k,
         "non_production": content.non_production,
     }
+    if content.prony_promotion_evidence is not None:
+        evidence = content.prony_promotion_evidence
+        result["prony_promotion_evidence"] = {
+            "selection_id": str(evidence.selection_id),
+            "selection_revision_id": str(evidence.selection_revision_id),
+            "calibration_run_id": str(evidence.calibration_run_id),
+            "calibration_candidate_id": str(evidence.calibration_candidate_id),
+            "candidate_sha256": evidence.candidate_sha256,
+            "diagnostics_artifact_id": str(evidence.diagnostics_artifact_id),
+            "diagnostics_sha256": evidence.diagnostics_sha256,
+        }
+    return result

@@ -606,8 +606,13 @@ round-trip, protected API tests, typed/non-EAV offline migration assertions, Pos
 live four-start Run execution, persisted Candidate readback, and connected React/build regression.
 The gate preserves exact Dataset/model revision pins, rejects fewer than five processed points,
 shows bound/rank/uncertainty status, and proves that execution does not create a selection or IR
-revision. Human selection/promotion remains a separate gate and must not be inferred from the
-lowest displayed objective.
+revision. Migration 045 implements the separate human selection/promotion gate. Tests require an
+explicit selection reason, exact succeeded-Run/converged-Candidate membership and digests,
+compare-and-swap against the still-current baseline, stable Material Model identity with revision
+increment, schema 1.1 promotion evidence, typed non-EAV persistence, forced RLS and DB trigger
+validation. A browser regression proves no Candidate is selected automatically. The Abaqus
+regression uses promoted evidence-bearing IR content, pins the exact promoted revision, previews
+`*VISCOELASTIC`, downloads the same bytes and verifies the card digest.
 The 2026-07-16 CI-equivalent evidence for migration 043 is 527 Python tests and 27 Vitest tests with
 zero failures, plus a successful TypeScript/Vite production build and live Docker Run execution.
 
@@ -616,3 +621,9 @@ PostgreSQL-without-DSN skips, 27 Vitest passed, and a successful production buil
 PostgreSQL marker suite against Compose PostgreSQL 16 with the isolated test DSN produced 64
 passed, zero skipped and zero failed. Live demo persistence also produced one six-point processed
 Dataset, four Candidates, and six diagnostic rows per Candidate.
+
+The migration 045 gate on 2026-07-16 recorded 471 Python tests and 27 Vitest tests with zero
+failures, a successful production frontend build, and 64/64 PostgreSQL marker tests against the
+isolated Compose PostgreSQL 16 service. Live verification promoted one reviewed Candidate to
+revision 2 of the same model, generated an Abaqus card from that exact revision, and matched the
+downloaded bytes to the persisted card SHA-256.

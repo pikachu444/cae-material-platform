@@ -22,6 +22,9 @@ from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository
 from cmp.modules.modeling.adapters.persistence.prony_calibration_repository import (
     SqlAlchemyPronyCalibrationRepository,
 )
+from cmp.modules.modeling.adapters.persistence.prony_candidate_selection_repository import (
+    SqlAlchemyPronyCandidateSelectionRepository,
+)
 from cmp.modules.modeling.adapters.persistence.repository import SqlAlchemyModelingRepository
 from cmp.modules.modeling.adapters.persistence.tabulated_plasticity_repository import (
     SqlAlchemyTabulatedPlasticityRepository,
@@ -39,6 +42,9 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
 )
 from cmp.modules.modeling.application.prony_calibration import (
     ReferencePronyCalibrationService,
+)
+from cmp.modules.modeling.application.prony_candidate_promotion import (
+    PronyCandidatePromotionService,
 )
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
@@ -162,6 +168,36 @@ def build_reference_prony_calibration_service(
         datasets=datasets,
         models=models,
         artifacts=artifacts,
+    )
+
+
+def build_prony_candidate_promotion_service(
+    identity: IdentityServices,
+    calibrations: ReferencePronyCalibrationService | None,
+    models: LinearViscoelasticModelService | None,
+) -> PronyCandidatePromotionService | None:
+    """Compose explicit human Candidate Selection and append-only IR promotion."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or calibrations is None
+        or models is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return PronyCandidatePromotionService(
+        selections=SqlAlchemyPronyCandidateSelectionRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        calibrations=calibrations,
+        models=models,
     )
 
 

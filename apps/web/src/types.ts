@@ -1074,6 +1074,24 @@ export interface PronyCalibrationDiagnosticsResponse {
   }>;
 }
 
+export interface PronyCandidateSelectionResponse {
+  prony_candidate_selection_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      selection_label: string;
+      prony_calibration_run_id: string;
+      prony_calibration_candidate_id: string;
+      candidate_sha256: string;
+      baseline_model_id: string;
+      baseline_model_revision_id: string;
+      selection_reason: string;
+      selection_decision: "accepted_for_linear_prony_ir_revision";
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
 export interface DatasetSelectionContent {
   selection_kind: "reference_curve_dataset_revision";
   member_count: 1;
@@ -2119,7 +2137,7 @@ export interface LinearViscoelasticModelResponse {
   current_revision: RevisionMetadata & {
     content: {
       model_family_id: string;
-      model_schema_version: "1.0.0";
+      model_schema_version: "1.0.0" | "1.1.0";
       model_schema_digest: string;
       material_id: string;
       material_revision_id: string;
@@ -2135,6 +2153,7 @@ export interface LinearViscoelasticModelResponse {
       terms: LinearViscoelasticPronyTerm[];
       reference_temperature_k: number;
       non_production: true;
+      prony_promotion_evidence?: Record<string, unknown> | null;
     };
     ir: Record<string, unknown>;
   };

@@ -130,6 +130,14 @@ material_model_revision_table = sa.Table(
     sa.Column("calibration_candidate_sha256", sa.CHAR(64), nullable=True),
     sa.Column("calibration_diagnostics_artifact_id", sa.Uuid(), nullable=True),
     sa.Column("calibration_diagnostics_sha256", sa.CHAR(64), nullable=True),
+    # Typed evidence for human-selected reference Prony promotion.
+    sa.Column("prony_selection_id", sa.Uuid(), nullable=True),
+    sa.Column("prony_selection_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("prony_calibration_run_id", sa.Uuid(), nullable=True),
+    sa.Column("prony_calibration_candidate_id", sa.Uuid(), nullable=True),
+    sa.Column("prony_calibration_candidate_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("prony_diagnostics_artifact_id", sa.Uuid(), nullable=True),
+    sa.Column("prony_diagnostics_sha256", sa.CHAR(64), nullable=True),
     # Typed evidence for the separate Voce-projected tabulated-plasticity 1.1 family.
     sa.Column("calibration_input_scope_id", sa.Uuid(), nullable=True),
     sa.Column("calibration_input_scope_revision_id", sa.Uuid(), nullable=True),

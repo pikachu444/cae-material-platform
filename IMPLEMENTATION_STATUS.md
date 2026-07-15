@@ -708,10 +708,30 @@ then run against the isolated Compose PostgreSQL 16 service with `CMP_TEST_POSTG
 64 passed, zero skipped and zero failed. Type checking covered 450 source files; architecture,
 contract lint/compatibility and the production frontend build also passed.
 
-Remaining P2 item 3 work is explicit human Candidate selection and promotion to a new immutable
-linear-Prony IR revision, followed by Abaqus card generation from that promoted revision. P2 item 4
-Ogden-Prony/Abaqus/OpenRadioss LAW62 and item 5 Process/Lot/Batch genealogy follow. Actual solver
-execution qualification remains excluded by product-owner direction.
+Migration 045 completes P2 item 3. A human explicitly selects one converged Candidate, records a
+reason, and creates an immutable Candidate Selection revision. Promotion uses compare-and-swap on
+the exact baseline revision and appends schema 1.1 to the same stable Material Model identity. The
+new IR pins the Selection, Run, Candidate and diagnostics Artifact digests. PostgreSQL validates
+the exact tenant-scoped lineage and prevents the earlier linear-elastic Candidate guard from
+handling the distinct Prony evidence kind. The connected UI requires an explicit Review action;
+it never defaults to the lowest objective Candidate.
+
+Live Docker/PostgreSQL verification selected Candidate
+`0b8bd19e-5a0c-4ef2-923f-bec290f19c0f`, retained its visible slow-time lower-bound warning, and
+promoted model `5ffc8864-e995-49d7-8fc9-f421ec48d45f` from revision 1 to revision 2
+`4241a279-9e92-40df-ba7c-54c42d9cb75c`. Abaqus preflight reported density, elasticity and shear
+Prony terms as exact, bulk/temperature as not applicable, and SI target transformation as
+transformed. Solver Card `8c1569a4-b55a-4be2-969c-4c8abea1a656` pins that promoted revision;
+preview and downloaded bytes matched SHA-256
+`fdb9b4bdbb66e706d0350185940dbbfe9be4fe42d1156178fcee930a5638a1ce`.
+
+The CI-equivalent gate passed with 471 Python tests and 27 Vitest tests, plus ruff, mypy over 456
+source files, architecture rules, contract lint/compatibility and the production frontend build.
+The isolated Compose PostgreSQL 16 marker suite then passed 64/64 with zero skips or failures.
+
+Remaining ordered work is P2 item 4 Ogden-Prony/Abaqus/OpenRadioss LAW62, then P2 item 5
+Process/Lot/Batch genealogy. Actual solver execution qualification remains excluded by
+product-owner direction.
 
 ### Steel elastoplastic routing increment
 
