@@ -8,8 +8,15 @@ from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.datasets.application.service import DatasetService
+from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.processing.adapters.persistence.repository import SqlAlchemyProcessingRepository
+from cmp.modules.processing.adapters.persistence.shear_relaxation_repository import (
+    SqlAlchemyShearRelaxationProcessingRepository,
+)
 from cmp.modules.processing.application.service import ProcessingService
+from cmp.modules.processing.application.shear_relaxation import (
+    ShearRelaxationProcessingService,
+)
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.modules.testing.application.service import TestingService
@@ -44,5 +51,33 @@ def build_processing_service(
         ),
         datasets=datasets,
         testing=testing,
+        artifacts=artifacts,
+    )
+
+
+def build_shear_relaxation_processing_service(
+    identity: IdentityServices,
+    datasets: ShearRelaxationDatasetService | None,
+    artifacts: ArtifactService | None,
+) -> ShearRelaxationProcessingService | None:
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or datasets is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ShearRelaxationProcessingService(
+        repository=SqlAlchemyShearRelaxationProcessingRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        datasets=datasets,
         artifacts=artifacts,
     )

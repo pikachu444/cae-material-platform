@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/processing/reference-shear-relaxation-processing-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string"},
+        "schema_version": {"type": "string"},
+        "content_hash": {"$ref": "#/$defs/Sha256"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string"},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "CreateRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "recipe_label", "minimum_time_s", "maximum_time_s", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "recipe_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "minimum_time_s": {"type": "number", "minimum": 0},
+        "maximum_time_s": {"type": "number", "exclusiveMinimum": 0},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ExecuteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_id", "recipe_revision_id", "input_dataset_id", "input_dataset_revision_id", "change_reason"],
+      "properties": {
+        "recipe_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_revision_id": {"$ref": "#/$defs/Uuid"},
+        "input_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "input_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "RecipeResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_id", "current_revision", "content", "links"],
+      "properties": {
+        "recipe_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/RevisionMetadata"},
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "recipe_kind", "recipe_label", "minimum_time_s", "maximum_time_s",
+            "input_schema_ref", "output_schema_ref", "boundary_policy"
+          ],
+          "properties": {
+            "recipe_kind": {"const": "reference_shear_relaxation_inclusive_time_crop"},
+            "recipe_label": {"type": "string"},
+            "minimum_time_s": {"type": "number", "minimum": 0},
+            "maximum_time_s": {"type": "number", "exclusiveMinimum": 0},
+            "input_schema_ref": {"const": "urn:cmp:datasets:reference-shear-relaxation-normalized-parquet:1.0.0"},
+            "output_schema_ref": {"const": "urn:cmp:datasets:reference-shear-relaxation-processed-parquet:1.0.0"},
+            "boundary_policy": {"const": "select_observed_points_inclusive_no_interpolation"}
+          }
+        },
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "RunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processing_run_id", "classification", "recipe_id", "recipe_revision_id",
+        "input_dataset_id", "input_dataset_revision_id", "status", "input_point_count",
+        "output_point_count", "removed_point_count", "result_artifact_id", "result_sha256",
+        "output_dataset_id", "output_dataset_revision_id", "failure_code", "started_at",
+        "ended_at", "links"
+      ],
+      "properties": {
+        "processing_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "recipe_id": {"$ref": "#/$defs/Uuid"},
+        "recipe_revision_id": {"$ref": "#/$defs/Uuid"},
+        "input_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "input_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "input_point_count": {"type": "integer", "minimum": 3, "maximum": 100000},
+        "output_point_count": {"type": ["integer", "null"], "minimum": 3, "maximum": 100000},
+        "removed_point_count": {"type": ["integer", "null"], "minimum": 0},
+        "result_artifact_id": {"type": ["string", "null"], "format": "uuid"},
+        "result_sha256": {"oneOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]},
+        "output_dataset_id": {"type": ["string", "null"], "format": "uuid"},
+        "output_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "failure_code": {"type": ["string", "null"]},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    }
+  }
+}

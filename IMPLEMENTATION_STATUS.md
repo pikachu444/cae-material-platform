@@ -671,8 +671,23 @@ in the revision. PostgreSQL uses dedicated non-EAV identity/revision tables, com
 foreign keys, RLS, immutable revision triggers, and indexes. Raw-Asset usage is recorded in the
 Provenance graph. The Material State screen renders a bounded deterministic curve preview.
 
-This increment does not infer Prony terms from the curve. Remaining P2 item 3 work is an explicit,
-revisioned processing/calibration activity with parameter bounds, deterministic multistart,
+Migration 043 completes the explicit Processing half. An inclusive observed-point time crop is
+stored as a stable Recipe plus immutable revision; a committed Run pins exact normalized Dataset
+and Recipe revisions and produces a verified derived Parquet Artifact. Its output is revision 1 of
+a separate processed Dataset identity rather than a mutation of the imported Dataset. PostgreSQL
+enforces typed columns, composite tenant FKs, normalized-input and terminal-transition guards,
+forced RLS, and immutable Recipe revisions. Provenance records the source Dataset and Recipe as
+inputs to the concrete Run. The Material State screen exposes time bounds, states that no
+interpolation occurs, and previews the processed curve.
+
+Live Docker/PostgreSQL verification on 2026-07-16 migrated to
+`20260809_043_shear_proc` and committed a 6-point normalized input to a 3-point processed output
+from `1 s` through `100 s`, with two provenance usages. Backend unit, contract, API, offline
+migration, frontend test, and frontend build gates passed for this increment. The CI-equivalent
+gate completed with 527 Python tests and 27 Vitest tests, plus a successful production web build.
+
+This increment does not infer Prony terms from the curve. Remaining P2 item 3 work is a revisioned
+calibration activity with parameter bounds, deterministic multistart,
 residual/candidate diagnostics, human selection, and promotion to a new linear-Prony IR revision.
 P2 item 4 Ogden-Prony/Abaqus/OpenRadioss LAW62 and item 5 Process/Lot/Batch genealogy remain after
 that. Actual solver execution qualification remains excluded by product-owner direction.

@@ -7,7 +7,7 @@ from typing import Protocol
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from cmp.modules.artifacts.application.content import ArtifactService
-from cmp.modules.artifacts.domain.content import ArtifactKind
+from cmp.modules.artifacts.domain.content import ArtifactKind, ArtifactRecord, IntegrityStatus
 from cmp.modules.datasets.application.service import ReferenceTestRunSource, RevisionSnapshot
 from cmp.modules.datasets.domain.reference_shear_relaxation import (
     REFERENCE_SHEAR_RELAXATION_IMPORTER_ID,
@@ -57,6 +57,7 @@ class ShearRelaxationDatasetContent:
     mapping: ShearRelaxationMapping
     importer_id: str = REFERENCE_SHEAR_RELAXATION_IMPORTER_ID
     importer_version: str = REFERENCE_SHEAR_RELAXATION_SCHEMA_VERSION
+    processing_run_id: UUID | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -70,8 +71,10 @@ class ShearRelaxationDatasetContent:
         ):
             if getattr(self, name).int == 0:
                 raise InvalidShearRelaxationData(f"{name} must be non-zero")
-        if self.representation not in {"raw", "normalized"}:
-            raise InvalidShearRelaxationData("representation must be raw or normalized")
+        if self.representation not in {"raw", "normalized", "processed"}:
+            raise InvalidShearRelaxationData(
+                "representation must be raw, normalized, or processed"
+            )
         if not 3 <= self.point_count <= 100_000:
             raise InvalidShearRelaxationData("point_count must be within 3..100000")
         if len(self.data_sha256) != 64 or any(
@@ -81,14 +84,27 @@ class ShearRelaxationDatasetContent:
         if self.representation == "raw":
             if (
                 self.source_dataset_revision_id is not None
+                or self.processing_run_id is not None
                 or self.data_artifact_id != self.raw_artifact_id
             ):
                 raise InvalidShearRelaxationData("raw revision must point only to its raw Artifact")
+        elif self.representation == "normalized":
+            if (
+                self.source_dataset_revision_id is None
+                or self.processing_run_id is not None
+                or self.data_artifact_id == self.raw_artifact_id
+            ):
+                raise InvalidShearRelaxationData(
+                    "normalized revision requires a distinct Artifact and exact raw source revision"
+                )
         elif (
-            self.source_dataset_revision_id is None or self.data_artifact_id == self.raw_artifact_id
+            self.source_dataset_revision_id is None
+            or self.processing_run_id is None
+            or self.processing_run_id.int == 0
+            or self.data_artifact_id == self.raw_artifact_id
         ):
             raise InvalidShearRelaxationData(
-                "normalized revision requires a distinct Artifact and exact raw source revision"
+                "processed revision requires a source, Processing Run, and derived Artifact"
             )
 
     def canonical(self) -> dict[str, object]:
@@ -106,6 +122,9 @@ class ShearRelaxationDatasetContent:
                 str(self.source_dataset_revision_id)
                 if self.source_dataset_revision_id is not None
                 else None
+            ),
+            "processing_run_id": (
+                str(self.processing_run_id) if self.processing_run_id is not None else None
             ),
             "point_count": self.point_count,
             "mapping": self.mapping.canonical(),
@@ -139,6 +158,16 @@ class ImportReferenceShearRelaxationCsv:
     raw_asset_id: UUID
     raw_artifact_id: UUID
     mapping: ShearRelaxationMapping
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class RegisterProcessedShearRelaxationDataset:
+    source_dataset_id: UUID
+    source_dataset_revision_id: UUID
+    processing_run_id: UUID
+    artifact: ArtifactRecord
+    point_count: int
     change_reason: str
 
 
@@ -183,6 +212,15 @@ class ShearRelaxationDatasetRepository(Protocol):
         dataset_id: UUID,
     ) -> ShearRelaxationDatasetSnapshot: ...
 
+    def get_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[ShearRelaxationDatasetContent]: ...
+
     def list_for_material_state(
         self,
         *,
@@ -206,12 +244,131 @@ def _require(
         raise ShearRelaxationConflict("authorization decision does not match Dataset request")
 
 
+def _require_capability(
+    context: SecurityContext, decision: AuthorizationDecision, permission: Permission
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise ShearRelaxationConflict(
+            "authorization decision lacks the required Dataset capability"
+        )
+
+
 class ShearRelaxationDatasetService:
     def __init__(
         self, *, repository: ShearRelaxationDatasetRepository, artifacts: ArtifactService
     ) -> None:
         self._repository = repository
         self._artifacts = artifacts
+
+    @staticmethod
+    def _processed_dataset_id(context: SecurityContext, processing_run_id: UUID) -> UUID:
+        return uuid5(
+            NAMESPACE_URL,
+            "cmp:processed-reference-shear-relaxation:"
+            f"{context.organization_id}:{context.project_id}:{processing_run_id}",
+        )
+
+    def get_revision_for_processing(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[ShearRelaxationDatasetContent]:
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_revision(
+            context=context,
+            decision=decision,
+            dataset_id=dataset_id,
+            dataset_revision_id=dataset_revision_id,
+        )
+
+    def register_processed(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: RegisterProcessedShearRelaxationDataset,
+    ) -> ShearRelaxationDatasetSnapshot:
+        _require_capability(context, decision, Permission.DATASET_WRITE)
+        source = self._repository.get_revision(
+            context=context,
+            decision=decision,
+            dataset_id=command.source_dataset_id,
+            dataset_revision_id=command.source_dataset_revision_id,
+        )
+        if source.content.representation != "normalized":
+            raise ShearRelaxationConflict(
+                "processed shear-relaxation Dataset must derive from a normalized revision"
+            )
+        artifact = command.artifact
+        if (
+            artifact.integrity_status is not IntegrityStatus.VERIFIED
+            or artifact.artifact.artifact_kind is not ArtifactKind.DERIVED
+            or artifact.artifact.schema_ref
+            != "urn:cmp:datasets:reference-shear-relaxation-processed-parquet:1.0.0"
+            or artifact.artifact.media_type != "application/vnd.apache.parquet"
+            or artifact.artifact.organization_id != context.organization_id
+            or artifact.artifact.project_id != context.project_id
+            or artifact.artifact.classification.value != source.record.scope.classification
+        ):
+            raise ShearRelaxationConflict(
+                "processed Dataset requires a verified typed derived Parquet Artifact"
+            )
+        dataset_id = self._processed_dataset_id(context, command.processing_run_id)
+        content = ShearRelaxationDatasetContent(
+            material_state_id=source.content.material_state_id,
+            material_state_revision_id=source.content.material_state_revision_id,
+            test_run_id=source.content.test_run_id,
+            test_run_revision_id=source.content.test_run_revision_id,
+            raw_asset_id=source.content.raw_asset_id,
+            raw_artifact_id=source.content.raw_artifact_id,
+            data_artifact_id=artifact.artifact.id,
+            data_sha256=artifact.artifact.sha256,
+            representation="processed",
+            source_dataset_revision_id=source.record.revision_id,
+            point_count=command.point_count,
+            mapping=source.content.mapping,
+            processing_run_id=command.processing_run_id,
+        )
+        revisions = RevisionService(
+            aggregate_type=SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+            store=self._repository.shear_relaxation_store(context, decision),
+        )
+        try:
+            record = revisions.create(
+                CreateRevisionedAggregate(
+                    aggregate_id=dataset_id,
+                    scope=source.record.scope,
+                    schema_id=SHEAR_RELAXATION_DATASET_SCHEMA_ID,
+                    schema_version=REFERENCE_SHEAR_RELAXATION_SCHEMA_VERSION,
+                    content=content,
+                    created_by=context.principal.id,
+                    change_reason=command.change_reason,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                )
+            )
+        except AggregateAlreadyExists as error:
+            existing = self._repository.get(
+                context=context, decision=decision, dataset_id=dataset_id
+            )
+            if existing.current.content != content:
+                raise ShearRelaxationConflict(
+                    "processed Dataset identity is already bound to different output"
+                ) from error
+            return existing
+        return ShearRelaxationDatasetSnapshot(
+            dataset_id,
+            content.material_state_id,
+            RevisionSnapshot(record, content),
+        )
 
     async def import_csv(
         self,

@@ -901,5 +901,9 @@ silent default. Migration 042 completes the shear-relaxation ingress increment w
 Test Method/Run, immutable raw CSV, typed raw/normalized Dataset revisions, SI Parquet Artifact,
 tenant/source FKs, RLS, Provenance usage and a connected browser curve preview. Processing and
 bounded Prony calibration remain the next P2 item 3 increment; they must create revisioned
-activities/candidates and may not overwrite the raw or normalized curve. OpenRadioss LAW62 remains
+activities/candidates and may not overwrite the raw or normalized curve. Migration 043 completes
+the Processing portion with a typed observed-point time-crop Recipe revision, exact-input Run,
+derived Artifact, separate processed Dataset identity, provenance, forced RLS and connected UI.
+Bounded Prony multistart calibration, diagnostics, human selection and IR promotion are next.
+OpenRadioss LAW62 remains
 explicitly outside this linear family and belongs to P2 item 4.

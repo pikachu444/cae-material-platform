@@ -597,5 +597,10 @@ to long-time shear-modulus decrease. The Abaqus golden/export gate is implemente
 041, typed term persistence, official keyword mapping evidence and byte-golden regression. The
 shear-relaxation ingress gate is implemented by migration 042, CSV mapping/unit/parser tests,
 raw-versus-normalized revision constraints, PostgreSQL migration execution, protected contract
-checks and the connected React workflow. The processing/calibration gate remains pending and must
-not be inferred from successful data import or manual Prony-card generation.
+checks and the connected React workflow. Migration 043 implements the Processing half with
+observed-point crop unit tests, protected API tests, typed/non-EAV offline migration assertions,
+live PostgreSQL migration and Run execution, source/output revision checks, two-input provenance
+verification, React regression and production frontend build. The bounded calibration half remains
+pending and must not be inferred from successful processing or manual Prony-card generation.
+The 2026-07-16 CI-equivalent evidence for migration 043 is 527 Python tests and 27 Vitest tests with
+zero failures, plus a successful TypeScript/Vite production build and live Docker Run execution.

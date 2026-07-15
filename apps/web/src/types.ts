@@ -921,8 +921,9 @@ export interface ShearRelaxationDatasetContent {
   raw_artifact_id: string;
   data_artifact_id: string;
   data_sha256: string;
-  representation: "raw" | "normalized";
+  representation: "raw" | "normalized" | "processed";
   source_dataset_revision_id: string | null;
+  processing_run_id: string | null;
   point_count: number;
   time_column: string;
   shear_modulus_column: string;
@@ -944,12 +945,48 @@ export interface ShearRelaxationDatasetResponse {
 export interface ShearRelaxationCurvePreview {
   dataset_id: string;
   dataset_revision_id: string;
-  representation: "raw" | "normalized";
+  representation: "raw" | "normalized" | "processed";
   point_count: number;
   returned_point_count: number;
   time_unit: string;
   shear_modulus_unit: string;
   points: Array<{ time: number; shear_modulus: number }>;
+}
+
+export interface ShearRelaxationProcessingRecipeResponse {
+  recipe_id: string;
+  current_revision: RevisionMetadata;
+  content: {
+    recipe_kind: "reference_shear_relaxation_inclusive_time_crop";
+    recipe_label: string;
+    minimum_time_s: number;
+    maximum_time_s: number;
+    input_schema_ref: string;
+    output_schema_ref: string;
+    boundary_policy: "select_observed_points_inclusive_no_interpolation";
+  };
+  links: Record<string, string>;
+}
+
+export interface ShearRelaxationProcessingRunResponse {
+  processing_run_id: string;
+  classification: DataClassification;
+  recipe_id: string;
+  recipe_revision_id: string;
+  input_dataset_id: string;
+  input_dataset_revision_id: string;
+  status: "executing" | "succeeded" | "failed";
+  input_point_count: number;
+  output_point_count: number | null;
+  removed_point_count: number | null;
+  result_artifact_id: string | null;
+  result_sha256: string | null;
+  output_dataset_id: string | null;
+  output_dataset_revision_id: string | null;
+  failure_code: string | null;
+  started_at: string;
+  ended_at: string | null;
+  links: Record<string, string>;
 }
 
 export interface DatasetSelectionContent {
