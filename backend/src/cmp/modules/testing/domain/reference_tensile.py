@@ -13,6 +13,8 @@ from uuid import UUID
 
 REFERENCE_TENSILE_METHOD_CODE = "reference_uniaxial_tensile"
 REFERENCE_TENSILE_METHOD_DISPLAY_NAME = "Reference uniaxial tensile CSV"
+REFERENCE_SHEAR_RELAXATION_METHOD_CODE = "reference_shear_relaxation"
+REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME = "Reference shear relaxation CSV"
 REFERENCE_TENSILE_SCHEMA_VERSION = "1.0.0"
 
 
@@ -92,12 +94,16 @@ class TestMethodContent:
     reference_only: bool = True
 
     def __post_init__(self) -> None:
-        if self.method_code != REFERENCE_TENSILE_METHOD_CODE:
-            raise InvalidTestingData("only the reference uniaxial tensile method is available")
-        if self.display_name != REFERENCE_TENSILE_METHOD_DISPLAY_NAME:
-            raise InvalidTestingData("reference tensile method display name is fixed")
+        expected = {
+            REFERENCE_TENSILE_METHOD_CODE: REFERENCE_TENSILE_METHOD_DISPLAY_NAME,
+            REFERENCE_SHEAR_RELAXATION_METHOD_CODE: (
+                REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME
+            ),
+        }
+        if expected.get(self.method_code) != self.display_name:
+            raise InvalidTestingData("reference Test Method code and display name are not declared")
         if not self.reference_only:
-            raise InvalidTestingData("reference tensile method must remain non-production")
+            raise InvalidTestingData("reference Test Method must remain non-production")
 
 
 @dataclass(frozen=True, slots=True)

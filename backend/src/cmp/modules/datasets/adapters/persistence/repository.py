@@ -25,6 +25,15 @@ from cmp.modules.datasets.application.service import (
     TensileReplicateSelectionRevisionSnapshot,
     TensileReplicateSelectionSnapshot,
 )
+from cmp.modules.datasets.application.shear_relaxation import (
+    SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+    ShearRelaxationDatasetContent,
+    ShearRelaxationDatasetSnapshot,
+)
+from cmp.modules.datasets.domain.reference_shear_relaxation import (
+    ShearRelaxationMapping,
+    ShearRelaxationNotFound,
+)
 from cmp.modules.datasets.domain.reference_tensile import (
     DatasetContent,
     DatasetNotFound,
@@ -45,7 +54,10 @@ from cmp.modules.identity_access.domain.authorization import (
     DataClassification,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
-from cmp.modules.testing.domain.reference_tensile import REFERENCE_TENSILE_METHOD_CODE
+from cmp.modules.testing.domain.reference_tensile import (
+    REFERENCE_SHEAR_RELAXATION_METHOD_CODE,
+    REFERENCE_TENSILE_METHOD_CODE,
+)
 from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
     SqlRevisionHook,
@@ -120,6 +132,62 @@ dataset_revision_table = sa.Table(
     sa.Column("importer_version", sa.String(64), nullable=False),
     schema="datasets",
 )
+shear_relaxation_dataset_table = sa.Table(
+    "shear_relaxation_dataset",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_state_id", sa.Uuid(), nullable=False),
+    sa.Column("test_run_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("mapping_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    schema="datasets",
+)
+shear_relaxation_dataset_revision_table = sa.Table(
+    "shear_relaxation_dataset_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("revision_no", sa.BigInteger(), nullable=False),
+    sa.Column("based_on_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("schema_id", sa.String(255), nullable=False),
+    sa.Column("schema_version", sa.String(64), nullable=False),
+    sa.Column("content_hash", sa.CHAR(64), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("material_state_id", sa.Uuid(), nullable=False),
+    sa.Column("material_state_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("test_run_id", sa.Uuid(), nullable=False),
+    sa.Column("test_run_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
+    sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("data_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("data_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("representation", sa.String(16), nullable=False),
+    sa.Column("source_dataset_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("point_count", sa.BigInteger(), nullable=False),
+    sa.Column("time_column", sa.String(255), nullable=False),
+    sa.Column("shear_modulus_column", sa.String(255), nullable=False),
+    sa.Column("time_original_unit", sa.String(16), nullable=False),
+    sa.Column("shear_modulus_original_unit", sa.String(16), nullable=False),
+    sa.Column("mapping_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("importer_id", sa.String(255), nullable=False),
+    sa.Column("importer_version", sa.String(64), nullable=False),
+    schema="datasets",
+)
 dataset_selection_table = sa.Table(
     "dataset_selection",
     metadata,
@@ -182,6 +250,8 @@ test_run_revision_table = sa.Table(
     sa.Column("organization_id", sa.Uuid(), nullable=False),
     sa.Column("project_id", sa.Uuid(), nullable=False),
     sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("specimen_id", sa.Uuid(), nullable=False),
+    sa.Column("specimen_revision_id", sa.Uuid(), nullable=False),
     sa.Column("test_method_id", sa.Uuid(), nullable=False),
     sa.Column("test_method_revision_id", sa.Uuid(), nullable=False),
     sa.Column("reference_only", sa.Boolean(), nullable=False),
@@ -219,10 +289,24 @@ specimen_table = sa.Table(
     sa.Column("material_state_id", sa.Uuid(), nullable=False),
     schema="testing",
 )
-def _record(row: Any) -> RevisionRecord:
+specimen_revision_table = sa.Table(
+    "specimen_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_state_id", sa.Uuid(), nullable=False),
+    sa.Column("material_state_revision_id", sa.Uuid(), nullable=False),
+    schema="testing",
+)
+
+
+def _record(row: Any, aggregate_type: str = DATASET_AGGREGATE_TYPE) -> RevisionRecord:
     return RevisionRecord(
         revision_id=cast(UUID, row["id"]),
-        aggregate_type=DATASET_AGGREGATE_TYPE,
+        aggregate_type=aggregate_type,
         aggregate_id=cast(UUID, row["aggregate_id"]),
         scope=TenantScope(
             cast(UUID, row["organization_id"]),
@@ -299,6 +383,69 @@ _TABLES: TypedRevisionTables[DatasetContent] = TypedRevisionTables(
         "raw_artifact_id": value.raw_artifact_id,
         "mapping_sha256": value.mapping_sha256,
         "processing_run_id": value.processing_run_id,
+    },
+)
+
+
+def _shear_relaxation_content(row: Any) -> ShearRelaxationDatasetContent:
+    return ShearRelaxationDatasetContent(
+        material_state_id=cast(UUID, row["material_state_id"]),
+        material_state_revision_id=cast(UUID, row["material_state_revision_id"]),
+        test_run_id=cast(UUID, row["test_run_id"]),
+        test_run_revision_id=cast(UUID, row["test_run_revision_id"]),
+        raw_asset_id=cast(UUID, row["raw_asset_id"]),
+        raw_artifact_id=cast(UUID, row["raw_artifact_id"]),
+        data_artifact_id=cast(UUID, row["data_artifact_id"]),
+        data_sha256=str(row["data_sha256"]),
+        representation=str(row["representation"]),
+        source_dataset_revision_id=cast(UUID | None, row["source_dataset_revision_id"]),
+        point_count=int(row["point_count"]),
+        mapping=ShearRelaxationMapping(
+            time_column=str(row["time_column"]),
+            shear_modulus_column=str(row["shear_modulus_column"]),
+            time_unit=str(row["time_original_unit"]),
+            shear_modulus_unit=str(row["shear_modulus_original_unit"]),
+        ),
+        importer_id=str(row["importer_id"]),
+        importer_version=str(row["importer_version"]),
+    )
+
+
+def _shear_relaxation_values(value: ShearRelaxationDatasetContent) -> dict[str, object]:
+    return {
+        "material_state_id": value.material_state_id,
+        "material_state_revision_id": value.material_state_revision_id,
+        "test_run_id": value.test_run_id,
+        "test_run_revision_id": value.test_run_revision_id,
+        "raw_asset_id": value.raw_asset_id,
+        "raw_artifact_id": value.raw_artifact_id,
+        "data_artifact_id": value.data_artifact_id,
+        "data_sha256": value.data_sha256,
+        "representation": value.representation,
+        "source_dataset_revision_id": value.source_dataset_revision_id,
+        "point_count": value.point_count,
+        "time_column": value.mapping.time_column,
+        "shear_modulus_column": value.mapping.shear_modulus_column,
+        "time_original_unit": value.mapping.time_unit,
+        "shear_modulus_original_unit": value.mapping.shear_modulus_unit,
+        "mapping_sha256": value.mapping.digest,
+        "importer_id": value.importer_id,
+        "importer_version": value.importer_version,
+    }
+
+
+_SHEAR_RELAXATION_TABLES: TypedRevisionTables[ShearRelaxationDatasetContent] = TypedRevisionTables(
+    aggregate_type=SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+    identity_table=shear_relaxation_dataset_table,
+    revision_table=shear_relaxation_dataset_revision_table,
+    canonical_content=lambda value: value.canonical(),
+    content_values=_shear_relaxation_values,
+    identity_values=lambda value: {
+        "material_state_id": value.material_state_id,
+        "test_run_id": value.test_run_id,
+        "raw_asset_id": value.raw_asset_id,
+        "raw_artifact_id": value.raw_artifact_id,
+        "mapping_sha256": value.mapping.digest,
     },
 )
 
@@ -387,19 +534,19 @@ def _write_replicate_members(session: Session, draft: Any) -> None:
     )
 
 
-_REPLICATE_SELECTION_TABLES: TypedRevisionTables[
-    ReferenceTensileReplicateSelectionContent
-] = TypedRevisionTables(
-    aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
-    identity_table=dataset_selection_table,
-    revision_table=dataset_selection_revision_table,
-    canonical_content=reference_tensile_replicate_selection_canonical,
-    content_values=_replicate_member_values,
-    identity_values=lambda value: {
-        "selection_kind": REFERENCE_TENSILE_REPLICATE_SELECTION_KIND,
-        "selection_label": value.selection_label,
-    },
-    revision_content_writer=_write_replicate_members,
+_REPLICATE_SELECTION_TABLES: TypedRevisionTables[ReferenceTensileReplicateSelectionContent] = (
+    TypedRevisionTables(
+        aggregate_type=DATASET_SELECTION_AGGREGATE_TYPE,
+        identity_table=dataset_selection_table,
+        revision_table=dataset_selection_revision_table,
+        canonical_content=reference_tensile_replicate_selection_canonical,
+        content_values=_replicate_member_values,
+        identity_values=lambda value: {
+            "selection_kind": REFERENCE_TENSILE_REPLICATE_SELECTION_KIND,
+            "selection_label": value.selection_label,
+        },
+        revision_content_writer=_write_replicate_members,
+    )
 )
 
 
@@ -461,6 +608,16 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
             session_binder=lambda session: self._bind(session, context, decision),
         )
 
+    def shear_relaxation_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ShearRelaxationDatasetContent]:
+        return SqlAlchemyRevisionStore(
+            session_factory=self._sessions,
+            tables=_SHEAR_RELAXATION_TABLES,
+            hooks=self._hooks,
+            session_binder=lambda session: self._bind(session, context, decision),
+        )
+
     def selection_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[ReferenceDatasetSelectionContent]:
@@ -491,26 +648,41 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
     ) -> ReferenceTestRunSource:
         run = test_run_revision_table
         method = test_method_revision_table
-        statement = sa.select(
-            run.c.classification,
-            method.c.method_code,
-            run.c.reference_only.label("run_reference_only"),
-            method.c.reference_only.label("method_reference_only"),
-        ).select_from(
-            run.join(
-                method,
-                sa.and_(
-                    method.c.id == run.c.test_method_revision_id,
-                    method.c.aggregate_id == run.c.test_method_id,
-                    method.c.organization_id == run.c.organization_id,
-                    method.c.project_id == run.c.project_id,
-                ),
+        specimen = specimen_revision_table
+        statement = (
+            sa.select(
+                run.c.classification,
+                method.c.method_code,
+                specimen.c.material_state_id,
+                specimen.c.material_state_revision_id,
+                run.c.reference_only.label("run_reference_only"),
+                method.c.reference_only.label("method_reference_only"),
             )
-        ).where(
-            run.c.organization_id == context.organization_id,
-            run.c.project_id == context.project_id,
-            run.c.aggregate_id == test_run_id,
-            run.c.id == test_run_revision_id,
+            .select_from(
+                run.join(
+                    method,
+                    sa.and_(
+                        method.c.id == run.c.test_method_revision_id,
+                        method.c.aggregate_id == run.c.test_method_id,
+                        method.c.organization_id == run.c.organization_id,
+                        method.c.project_id == run.c.project_id,
+                    ),
+                ).join(
+                    specimen,
+                    sa.and_(
+                        specimen.c.id == run.c.specimen_revision_id,
+                        specimen.c.aggregate_id == run.c.specimen_id,
+                        specimen.c.organization_id == run.c.organization_id,
+                        specimen.c.project_id == run.c.project_id,
+                    ),
+                )
+            )
+            .where(
+                run.c.organization_id == context.organization_id,
+                run.c.project_id == context.project_id,
+                run.c.aggregate_id == test_run_id,
+                run.c.id == test_run_revision_id,
+            )
         )
         with self._session(context, decision) as session:
             try:
@@ -519,17 +691,108 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
                 raise DatasetNotFound("Test Run revision is not available") from error
         if (
             row is None
-            or str(row["method_code"]) != REFERENCE_TENSILE_METHOD_CODE
+            or str(row["method_code"])
+            not in {REFERENCE_TENSILE_METHOD_CODE, REFERENCE_SHEAR_RELAXATION_METHOD_CODE}
             or not bool(row["run_reference_only"])
             or not bool(row["method_reference_only"])
         ):
-            raise DatasetNotFound(
-                "reference tensile Test Run is not visible in the selected tenant"
-            )
+            raise DatasetNotFound("reference Test Run is not visible in the selected tenant")
         return ReferenceTestRunSource(
             classification=DataClassification(str(row["classification"])),
             test_method_code=str(row["method_code"]),
+            material_state_id=cast(UUID, row["material_state_id"]),
+            material_state_revision_id=cast(UUID, row["material_state_revision_id"]),
         )
+
+    @staticmethod
+    def _shear_relaxation_statement() -> sa.Select[Any]:
+        identity = shear_relaxation_dataset_table
+        revision_row = shear_relaxation_dataset_revision_table
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            *_revision_columns(revision_row),
+            revision_row.c.material_state_id,
+            revision_row.c.material_state_revision_id,
+            revision_row.c.test_run_id,
+            revision_row.c.test_run_revision_id,
+            revision_row.c.raw_asset_id,
+            revision_row.c.raw_artifact_id,
+            revision_row.c.data_artifact_id,
+            revision_row.c.data_sha256,
+            revision_row.c.representation,
+            revision_row.c.source_dataset_revision_id,
+            revision_row.c.point_count,
+            revision_row.c.time_column,
+            revision_row.c.shear_modulus_column,
+            revision_row.c.time_original_unit,
+            revision_row.c.shear_modulus_original_unit,
+            revision_row.c.importer_id,
+            revision_row.c.importer_version,
+        ).select_from(
+            identity.join(
+                revision_row,
+                sa.and_(
+                    revision_row.c.id == identity.c.current_revision_id,
+                    revision_row.c.aggregate_id == identity.c.id,
+                    revision_row.c.organization_id == identity.c.organization_id,
+                    revision_row.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    @staticmethod
+    def _shear_relaxation_snapshot(row: Any) -> ShearRelaxationDatasetSnapshot:
+        content = _shear_relaxation_content(row)
+        return ShearRelaxationDatasetSnapshot(
+            id=cast(UUID, row["identity_id"]),
+            material_state_id=content.material_state_id,
+            current=RevisionSnapshot(
+                _record(row, SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE), content
+            ),
+        )
+
+    def get(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+    ) -> ShearRelaxationDatasetSnapshot:
+        statement = self._shear_relaxation_statement().where(
+            shear_relaxation_dataset_table.c.organization_id == context.organization_id,
+            shear_relaxation_dataset_table.c.project_id == context.project_id,
+            shear_relaxation_dataset_table.c.id == dataset_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise ShearRelaxationNotFound(
+                "shear-relaxation Dataset is not visible in the selected tenant"
+            )
+        return self._shear_relaxation_snapshot(row)
+
+    def list_for_material_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> tuple[ShearRelaxationDatasetSnapshot, ...]:
+        statement = (
+            self._shear_relaxation_statement()
+            .where(
+                shear_relaxation_dataset_table.c.organization_id == context.organization_id,
+                shear_relaxation_dataset_table.c.project_id == context.project_id,
+                shear_relaxation_dataset_table.c.material_state_id == material_state_id,
+            )
+            .order_by(
+                shear_relaxation_dataset_table.c.updated_at.desc(),
+                shear_relaxation_dataset_table.c.id,
+            )
+        )
+        with self._session(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+        return tuple(self._shear_relaxation_snapshot(row) for row in rows)
 
     @staticmethod
     def _snapshot(row: Any) -> DatasetSnapshot:
@@ -699,29 +962,33 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         dataset_id: UUID,
     ) -> tuple[RevisionSnapshot[DatasetContent], ...]:
         row_table = dataset_revision_table
-        statement = sa.select(
-            *_revision_columns(row_table),
-            row_table.c.test_run_id,
-            row_table.c.test_run_revision_id,
-            row_table.c.raw_asset_id,
-            row_table.c.raw_artifact_id,
-            row_table.c.data_artifact_id,
-            row_table.c.data_sha256,
-            row_table.c.representation,
-            row_table.c.source_dataset_revision_id,
-            row_table.c.processing_run_id,
-            row_table.c.point_count,
-            row_table.c.strain_column,
-            row_table.c.stress_column,
-            row_table.c.strain_original_unit,
-            row_table.c.stress_original_unit,
-            row_table.c.importer_id,
-            row_table.c.importer_version,
-        ).where(
-            row_table.c.organization_id == context.organization_id,
-            row_table.c.project_id == context.project_id,
-            row_table.c.aggregate_id == dataset_id,
-        ).order_by(row_table.c.revision_no.asc())
+        statement = (
+            sa.select(
+                *_revision_columns(row_table),
+                row_table.c.test_run_id,
+                row_table.c.test_run_revision_id,
+                row_table.c.raw_asset_id,
+                row_table.c.raw_artifact_id,
+                row_table.c.data_artifact_id,
+                row_table.c.data_sha256,
+                row_table.c.representation,
+                row_table.c.source_dataset_revision_id,
+                row_table.c.processing_run_id,
+                row_table.c.point_count,
+                row_table.c.strain_column,
+                row_table.c.stress_column,
+                row_table.c.strain_original_unit,
+                row_table.c.stress_original_unit,
+                row_table.c.importer_id,
+                row_table.c.importer_version,
+            )
+            .where(
+                row_table.c.organization_id == context.organization_id,
+                row_table.c.project_id == context.project_id,
+                row_table.c.aggregate_id == dataset_id,
+            )
+            .order_by(row_table.c.revision_no.asc())
+        )
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         if not rows:
@@ -735,25 +1002,31 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         decision: AuthorizationDecision,
         material_state_id: UUID,
     ) -> tuple[DatasetSnapshot, ...]:
-        statement = self._current_statement().join(
-            test_run_table,
-            sa.and_(
-                test_run_table.c.id == dataset_table.c.test_run_id,
-                test_run_table.c.organization_id == dataset_table.c.organization_id,
-                test_run_table.c.project_id == dataset_table.c.project_id,
-            ),
-        ).join(
-            specimen_table,
-            sa.and_(
-                specimen_table.c.id == test_run_table.c.specimen_id,
-                specimen_table.c.organization_id == test_run_table.c.organization_id,
-                specimen_table.c.project_id == test_run_table.c.project_id,
-            ),
-        ).where(
-            dataset_table.c.organization_id == context.organization_id,
-            dataset_table.c.project_id == context.project_id,
-            specimen_table.c.material_state_id == material_state_id,
-        ).order_by(dataset_table.c.created_at.asc())
+        statement = (
+            self._current_statement()
+            .join(
+                test_run_table,
+                sa.and_(
+                    test_run_table.c.id == dataset_table.c.test_run_id,
+                    test_run_table.c.organization_id == dataset_table.c.organization_id,
+                    test_run_table.c.project_id == dataset_table.c.project_id,
+                ),
+            )
+            .join(
+                specimen_table,
+                sa.and_(
+                    specimen_table.c.id == test_run_table.c.specimen_id,
+                    specimen_table.c.organization_id == test_run_table.c.organization_id,
+                    specimen_table.c.project_id == test_run_table.c.project_id,
+                ),
+            )
+            .where(
+                dataset_table.c.organization_id == context.organization_id,
+                dataset_table.c.project_id == context.project_id,
+                specimen_table.c.material_state_id == material_state_id,
+            )
+            .order_by(dataset_table.c.created_at.asc())
+        )
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._snapshot(row) for row in rows)
@@ -770,24 +1043,28 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
     def _selection_current_statement() -> sa.Select[Any]:
         identity = dataset_selection_table
         revision = dataset_selection_revision_table
-        return sa.select(
-            identity.c.id.label("identity_id"),
-            identity.c.selection_label.label("identity_selection_label"),
-            *_revision_columns(revision),
-            revision.c.dataset_id,
-            revision.c.dataset_revision_id,
-            revision.c.member_count,
-        ).select_from(
-            identity.join(
-                revision,
-                sa.and_(
-                    revision.c.id == identity.c.current_revision_id,
-                    revision.c.aggregate_id == identity.c.id,
-                    revision.c.organization_id == identity.c.organization_id,
-                    revision.c.project_id == identity.c.project_id,
-                ),
+        return (
+            sa.select(
+                identity.c.id.label("identity_id"),
+                identity.c.selection_label.label("identity_selection_label"),
+                *_revision_columns(revision),
+                revision.c.dataset_id,
+                revision.c.dataset_revision_id,
+                revision.c.member_count,
             )
-        ).where(identity.c.selection_kind == "reference_curve_dataset_revision")
+            .select_from(
+                identity.join(
+                    revision,
+                    sa.and_(
+                        revision.c.id == identity.c.current_revision_id,
+                        revision.c.aggregate_id == identity.c.id,
+                        revision.c.organization_id == identity.c.organization_id,
+                        revision.c.project_id == identity.c.project_id,
+                    ),
+                )
+            )
+            .where(identity.c.selection_kind == "reference_curve_dataset_revision")
+        )
 
     def get_dataset_selection(
         self,
@@ -817,28 +1094,32 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
     ) -> DatasetSelectionRevisionSnapshot:
         identity = dataset_selection_table
         revision = dataset_selection_revision_table
-        statement = sa.select(
-            identity.c.id.label("identity_id"),
-            identity.c.selection_label.label("identity_selection_label"),
-            *_revision_columns(revision),
-            revision.c.dataset_id,
-            revision.c.dataset_revision_id,
-            revision.c.member_count,
-        ).select_from(
-            identity.join(
-                revision,
-                sa.and_(
-                    revision.c.aggregate_id == identity.c.id,
-                    revision.c.organization_id == identity.c.organization_id,
-                    revision.c.project_id == identity.c.project_id,
-                ),
+        statement = (
+            sa.select(
+                identity.c.id.label("identity_id"),
+                identity.c.selection_label.label("identity_selection_label"),
+                *_revision_columns(revision),
+                revision.c.dataset_id,
+                revision.c.dataset_revision_id,
+                revision.c.member_count,
             )
-        ).where(
-            identity.c.organization_id == context.organization_id,
-            identity.c.project_id == context.project_id,
-            identity.c.id == selection_id,
-            revision.c.id == selection_revision_id,
-            identity.c.selection_kind == "reference_curve_dataset_revision",
+            .select_from(
+                identity.join(
+                    revision,
+                    sa.and_(
+                        revision.c.aggregate_id == identity.c.id,
+                        revision.c.organization_id == identity.c.organization_id,
+                        revision.c.project_id == identity.c.project_id,
+                    ),
+                )
+            )
+            .where(
+                identity.c.organization_id == context.organization_id,
+                identity.c.project_id == context.project_id,
+                identity.c.id == selection_id,
+                revision.c.id == selection_revision_id,
+                identity.c.selection_kind == "reference_curve_dataset_revision",
+            )
         )
         with self._session(context, decision) as session:
             row = session.execute(statement).mappings().one_or_none()
@@ -859,11 +1140,15 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         decision: AuthorizationDecision,
         dataset_revision_id: UUID,
     ) -> tuple[DatasetSelectionSnapshot, ...]:
-        statement = self._selection_current_statement().where(
-            dataset_selection_table.c.organization_id == context.organization_id,
-            dataset_selection_table.c.project_id == context.project_id,
-            dataset_selection_revision_table.c.dataset_revision_id == dataset_revision_id,
-        ).order_by(dataset_selection_table.c.created_at.asc())
+        statement = (
+            self._selection_current_statement()
+            .where(
+                dataset_selection_table.c.organization_id == context.organization_id,
+                dataset_selection_table.c.project_id == context.project_id,
+                dataset_selection_revision_table.c.dataset_revision_id == dataset_revision_id,
+            )
+            .order_by(dataset_selection_table.c.created_at.asc())
+        )
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()
         return tuple(self._selection_snapshot(row) for row in rows)
@@ -901,28 +1186,34 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
             join_condition = sa.and_(
                 join_condition, revision.c.id == identity.c.current_revision_id
             )
-        return sa.select(
-            identity.c.id.label("identity_id"),
-            identity.c.selection_label.label("identity_selection_label"),
-            *_revision_columns(revision),
-            revision.c.member_count,
-        ).select_from(identity.join(revision, join_condition)).where(
-            identity.c.selection_kind == REFERENCE_TENSILE_REPLICATE_SELECTION_KIND
+        return (
+            sa.select(
+                identity.c.id.label("identity_id"),
+                identity.c.selection_label.label("identity_selection_label"),
+                *_revision_columns(revision),
+                revision.c.member_count,
+            )
+            .select_from(identity.join(revision, join_condition))
+            .where(identity.c.selection_kind == REFERENCE_TENSILE_REPLICATE_SELECTION_KIND)
         )
 
     @staticmethod
     def _load_replicate_members(session: Session, revision_id: UUID) -> Sequence[Any]:
-        return session.execute(
-            sa.select(
-                dataset_selection_member_table.c.ordinal,
-                dataset_selection_member_table.c.dataset_id,
-                dataset_selection_member_table.c.dataset_revision_id,
-                dataset_selection_member_table.c.test_run_id,
-                dataset_selection_member_table.c.test_run_revision_id,
-            ).where(
-                dataset_selection_member_table.c.selection_revision_id == revision_id
-            ).order_by(dataset_selection_member_table.c.ordinal.asc())
-        ).mappings().all()
+        return (
+            session.execute(
+                sa.select(
+                    dataset_selection_member_table.c.ordinal,
+                    dataset_selection_member_table.c.dataset_id,
+                    dataset_selection_member_table.c.dataset_revision_id,
+                    dataset_selection_member_table.c.test_run_id,
+                    dataset_selection_member_table.c.test_run_revision_id,
+                )
+                .where(dataset_selection_member_table.c.selection_revision_id == revision_id)
+                .order_by(dataset_selection_member_table.c.ordinal.asc())
+            )
+            .mappings()
+            .all()
+        )
 
     def get_tensile_replicate_selection(
         self,
@@ -944,9 +1235,7 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         return TensileReplicateSelectionSnapshot(
             id=cast(UUID, row["identity_id"]),
             selection_label=str(row["identity_selection_label"]),
-            current=RevisionSnapshot(
-                _selection_record(row), self._replicate_content(row, members)
-            ),
+            current=RevisionSnapshot(_selection_record(row), self._replicate_content(row, members)),
         )
 
     def get_tensile_replicate_selection_revision(
@@ -988,31 +1277,38 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
         identity = dataset_selection_table
         revision = dataset_selection_revision_table
         member = dataset_selection_member_table
-        statement = self._replicate_statement(current=True).join(
-            member,
-            sa.and_(
-                member.c.selection_revision_id == revision.c.id,
-                member.c.ordinal == 0,
-            ),
-        ).join(
-            test_run_table,
-            sa.and_(
-                test_run_table.c.id == member.c.test_run_id,
-                test_run_table.c.organization_id == member.c.organization_id,
-                test_run_table.c.project_id == member.c.project_id,
-            ),
-        ).join(
-            specimen_table,
-            sa.and_(
-                specimen_table.c.id == test_run_table.c.specimen_id,
-                specimen_table.c.organization_id == test_run_table.c.organization_id,
-                specimen_table.c.project_id == test_run_table.c.project_id,
-            ),
-        ).where(
-            identity.c.organization_id == context.organization_id,
-            identity.c.project_id == context.project_id,
-            specimen_table.c.material_state_id == material_state_id,
-        ).order_by(identity.c.created_at.asc())
+        statement = (
+            self._replicate_statement(current=True)
+            .join(
+                member,
+                sa.and_(
+                    member.c.selection_revision_id == revision.c.id,
+                    member.c.ordinal == 0,
+                ),
+            )
+            .join(
+                test_run_table,
+                sa.and_(
+                    test_run_table.c.id == member.c.test_run_id,
+                    test_run_table.c.organization_id == member.c.organization_id,
+                    test_run_table.c.project_id == member.c.project_id,
+                ),
+            )
+            .join(
+                specimen_table,
+                sa.and_(
+                    specimen_table.c.id == test_run_table.c.specimen_id,
+                    specimen_table.c.organization_id == test_run_table.c.organization_id,
+                    specimen_table.c.project_id == test_run_table.c.project_id,
+                ),
+            )
+            .where(
+                identity.c.organization_id == context.organization_id,
+                identity.c.project_id == context.project_id,
+                specimen_table.c.material_state_id == material_state_id,
+            )
+            .order_by(identity.c.created_at.asc())
+        )
         results: list[TensileReplicateSelectionSnapshot] = []
         with self._session(context, decision) as session:
             rows = session.execute(statement).mappings().all()

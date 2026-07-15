@@ -60,6 +60,7 @@ DATASET_SELECTION_SCHEMA_ID = "urn:cmp:datasets:reference-selection:1.0.0"
 TENSILE_REPLICATE_SELECTION_SCHEMA_ID = (
     "urn:cmp:datasets:reference-tensile-replicate-selection:1.0.0"
 )
+_ZERO_UUID = UUID(int=0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,6 +122,8 @@ class TensileReplicateSelectionRevisionSnapshot:
 class ReferenceTestRunSource:
     classification: DataClassification
     test_method_code: str
+    material_state_id: UUID = _ZERO_UUID
+    material_state_revision_id: UUID = _ZERO_UUID
 
 
 @dataclass(frozen=True, slots=True)

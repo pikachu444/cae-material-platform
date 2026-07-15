@@ -729,8 +729,8 @@ export interface SpecimenResponse {
 }
 
 export interface TestMethodContent {
-  method_code: "reference_uniaxial_tensile";
-  display_name: "Reference uniaxial tensile CSV";
+  method_code: "reference_uniaxial_tensile" | "reference_shear_relaxation";
+  display_name: "Reference uniaxial tensile CSV" | "Reference shear relaxation CSV";
   reference_only: true;
 }
 
@@ -910,6 +910,46 @@ export interface CurvePreview {
   strain_unit: "1" | "%";
   stress_unit: "Pa" | "kPa" | "MPa" | "GPa";
   points: CurvePoint[];
+}
+
+export interface ShearRelaxationDatasetContent {
+  material_state_id: string;
+  material_state_revision_id: string;
+  test_run_id: string;
+  test_run_revision_id: string;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  data_artifact_id: string;
+  data_sha256: string;
+  representation: "raw" | "normalized";
+  source_dataset_revision_id: string | null;
+  point_count: number;
+  time_column: string;
+  shear_modulus_column: string;
+  time_original_unit: "s" | "ms" | "min" | "h";
+  shear_modulus_original_unit: "Pa" | "kPa" | "MPa" | "GPa";
+  normalized_time_unit: "s";
+  normalized_shear_modulus_unit: "Pa";
+  importer_id: string;
+  importer_version: string;
+}
+
+export interface ShearRelaxationDatasetResponse {
+  dataset_id: string;
+  material_state_id: string;
+  current_revision: RevisionMetadata & { content: ShearRelaxationDatasetContent };
+  links: Record<string, string>;
+}
+
+export interface ShearRelaxationCurvePreview {
+  dataset_id: string;
+  dataset_revision_id: string;
+  representation: "raw" | "normalized";
+  point_count: number;
+  returned_point_count: number;
+  time_unit: string;
+  shear_modulus_unit: string;
+  points: Array<{ time: number; shear_modulus: number }>;
 }
 
 export interface DatasetSelectionContent {

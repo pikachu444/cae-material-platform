@@ -17,11 +17,16 @@ from cmp.modules.datasets.adapters.persistence.repository import (
     dataset_revision_table,
     dataset_selection_member_table,
     dataset_selection_revision_table,
+    shear_relaxation_dataset_revision_table,
 )
 from cmp.modules.datasets.application.service import (
     DATASET_AGGREGATE_TYPE,
     DATASET_SELECTION_AGGREGATE_TYPE,
     DatasetService,
+)
+from cmp.modules.datasets.application.shear_relaxation import (
+    SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+    ShearRelaxationDatasetService,
 )
 from cmp.modules.datasets.domain.reference_tensile import DatasetRepresentation
 from cmp.modules.identity_access.domain.authorization import DataClassification
@@ -145,18 +150,27 @@ class SqlReferenceDatasetInputProvenanceHook:
 
     def __call__(self, session: Session, event: RevisionCreated) -> None:
         revision = event.revision
-        if revision.aggregate_type != DATASET_AGGREGATE_TYPE or revision.revision_no != 1:
+        if (
+            revision.aggregate_type
+            not in {DATASET_AGGREGATE_TYPE, SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE}
+            or revision.revision_no != 1
+        ):
             return
+        revision_table = (
+            dataset_revision_table
+            if revision.aggregate_type == DATASET_AGGREGATE_TYPE
+            else shear_relaxation_dataset_revision_table
+        )
         dataset_row = (
             session.execute(
                 sa.select(
-                    dataset_revision_table.c.raw_asset_id,
-                    dataset_revision_table.c.representation,
+                    revision_table.c.raw_asset_id,
+                    revision_table.c.representation,
                 ).where(
-                    dataset_revision_table.c.organization_id == revision.scope.organization_id,
-                    dataset_revision_table.c.project_id == revision.scope.project_id,
-                    dataset_revision_table.c.aggregate_id == revision.aggregate_id,
-                    dataset_revision_table.c.id == revision.revision_id,
+                    revision_table.c.organization_id == revision.scope.organization_id,
+                    revision_table.c.project_id == revision.scope.project_id,
+                    revision_table.c.aggregate_id == revision.aggregate_id,
+                    revision_table.c.id == revision.revision_id,
                 )
             )
             .mappings()
@@ -211,7 +225,7 @@ class SqlReferenceDatasetInputProvenanceHook:
         generated_entity_id = _revision_provenance_entity_id(
             session,
             event,
-            aggregate_type=DATASET_AGGREGATE_TYPE,
+            aggregate_type=revision.aggregate_type,
             revision_id=revision.revision_id,
         )
         activity_id = _generated_activity_id(session, event, generated_entity_id)
@@ -231,7 +245,11 @@ class SqlReferenceDatasetInputProvenanceHook:
                 generated_entity_id=generated_entity_id,
                 used_entity_id=raw_entity.id,
                 activity_id=activity_id,
-                derivation_kind="reference_tensile_import",
+                derivation_kind=(
+                    "reference_tensile_import"
+                    if revision.aggregate_type == DATASET_AGGREGATE_TYPE
+                    else "reference_shear_relaxation_import"
+                ),
             )
         )
 
@@ -243,19 +261,24 @@ class SqlReferenceDatasetSelectionProvenanceHook:
         revision = event.revision
         if revision.aggregate_type != DATASET_SELECTION_AGGREGATE_TYPE:
             return
-        selection = session.execute(
-            sa.select(
-                dataset_selection_revision_table.c.selection_kind,
-                dataset_selection_revision_table.c.dataset_revision_id,
-            ).where(
-                dataset_selection_revision_table.c.organization_id
-                == revision.scope.organization_id,
-                dataset_selection_revision_table.c.project_id == revision.scope.project_id,
-                dataset_selection_revision_table.c.classification == revision.scope.classification,
-                dataset_selection_revision_table.c.aggregate_id == revision.aggregate_id,
-                dataset_selection_revision_table.c.id == revision.revision_id,
+        selection = (
+            session.execute(
+                sa.select(
+                    dataset_selection_revision_table.c.selection_kind,
+                    dataset_selection_revision_table.c.dataset_revision_id,
+                ).where(
+                    dataset_selection_revision_table.c.organization_id
+                    == revision.scope.organization_id,
+                    dataset_selection_revision_table.c.project_id == revision.scope.project_id,
+                    dataset_selection_revision_table.c.classification
+                    == revision.scope.classification,
+                    dataset_selection_revision_table.c.aggregate_id == revision.aggregate_id,
+                    dataset_selection_revision_table.c.id == revision.revision_id,
+                )
             )
-        ).mappings().one_or_none()
+            .mappings()
+            .one_or_none()
+        )
         if selection is None:
             raise ProvenanceConflict("Selection revision is missing from its typed store")
         selected_revision_ids: tuple[UUID, ...]
@@ -269,12 +292,10 @@ class SqlReferenceDatasetSelectionProvenanceHook:
                     .where(
                         dataset_selection_member_table.c.organization_id
                         == revision.scope.organization_id,
-                        dataset_selection_member_table.c.project_id
-                        == revision.scope.project_id,
+                        dataset_selection_member_table.c.project_id == revision.scope.project_id,
                         dataset_selection_member_table.c.classification
                         == revision.scope.classification,
-                        dataset_selection_member_table.c.selection_id
-                        == revision.aggregate_id,
+                        dataset_selection_member_table.c.selection_id == revision.aggregate_id,
                         dataset_selection_member_table.c.selection_revision_id
                         == revision.revision_id,
                     )
@@ -490,6 +511,30 @@ def build_dataset_service(
                 SqlReferenceDatasetInputProvenanceHook(),
                 SqlReferenceDatasetSelectionProvenanceHook(),
                 SqlReferenceProcessedDatasetProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        artifacts=artifacts,
+    )
+
+
+def build_shear_relaxation_dataset_service(
+    identity: IdentityServices,
+    artifacts: ArtifactService | None,
+) -> ShearRelaxationDatasetService | None:
+    """Build the reference viscoelastic data slice on the shared revision infrastructure."""
+
+    if identity.engine is None or identity.rls_context is None or artifacts is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ShearRelaxationDatasetService(
+        repository=SqlAlchemyDatasetRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlReferenceDatasetInputProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
             ),
         ),

@@ -124,6 +124,23 @@ def test_runtime_openapi_exposes_revision_etag_and_metadata_components() -> None
     assert "sha256" in etag["schema"]["pattern"]
 
 
+def test_shear_relaxation_vertical_contract_matches_runtime_operations() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/test-methods/reference-shear-relaxation": "post",
+        "/api/v1/test-runs/reference-shear-relaxation": "post",
+        "/api/v1/shear-relaxation-datasets": "post",
+        "/api/v1/material-states/{material_state_id}/shear-relaxation-datasets": "get",
+        "/api/v1/shear-relaxation-datasets/{dataset_id}/preview": "get",
+    }
+    for path, method in operations.items():
+        assert path in source["paths"]
+        assert source["paths"][path][method]["operationId"] == runtime["paths"][path][method][
+            "operationId"
+        ]
+
+
 def test_catalog_contract_and_runtime_expose_typed_material_state_property_workflow() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

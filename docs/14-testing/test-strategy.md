@@ -593,5 +593,9 @@ domain limit/invariant tests, a PostgreSQL repository integration that restores 
 exact source revision pins, protected OpenAPI/JSON Schema contract checks, and a React regression
 that creates an IR and renders the backend response curve. The Docker demo was also exercised with
 a synthetic polymer Material: two terms produced 41 response points and the expected instantaneous
-to long-time shear-modulus decrease. The Abaqus golden/export gate and shear-relaxation
-data/calibration gates remain pending and must not be reported as passed by this increment.
+to long-time shear-modulus decrease. The Abaqus golden/export gate is implemented by migration
+041, typed term persistence, official keyword mapping evidence and byte-golden regression. The
+shear-relaxation ingress gate is implemented by migration 042, CSV mapping/unit/parser tests,
+raw-versus-normalized revision constraints, PostgreSQL migration execution, protected contract
+checks and the connected React workflow. The processing/calibration gate remains pending and must
+not be inferred from successful data import or manual Prony-card generation.
