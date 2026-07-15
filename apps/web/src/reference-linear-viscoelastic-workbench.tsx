@@ -6,6 +6,7 @@ import {
   listLinearViscoelasticModels,
   previewLinearViscoelasticResponse,
 } from "./api";
+import { ReferenceLinearViscoelasticExport } from "./reference-linear-viscoelastic-export";
 import type {
   BulkRelaxationStatus,
   LinearViscoelasticModelResponse,
@@ -232,6 +233,7 @@ export function ReferenceLinearViscoelasticWorkbench({
             <span><small>Prony terms</small><strong>{content.terms.length}</strong></span>
             <span><small>Bulk status</small><strong>{content.bulk_relaxation_status.replace("_", " ")}</strong></span>
           </div>
+          <ReferenceLinearViscoelasticExport config={config} model={selected} />
           {response ? (
             <div className="relaxation-chart">
               <div><strong>Shear relaxation response</strong><small>G(t), Pa · log-spaced time preview</small></div>

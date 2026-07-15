@@ -3051,6 +3051,130 @@ paths:
         "404": {description: No visible linear-viscoelastic model matches the identifier.}
         "422": {description: Explicit response times are invalid.}
         "503": {description: Linear-viscoelastic service unavailable.}
+  /api/v1/exporters/reference-linear-viscoelastic/capabilities:
+    get:
+      operationId: getReferenceLinearViscoelasticExporterCapabilities
+      tags: [exporting]
+      summary: Read the bounded Abaqus time-domain Prony exporter capability.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Exact target tuple, exporter digest, and keyword capability.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/Capabilities"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+  /api/v1/linear-viscoelastic-models/{material_model_id}/mapping-preflight:
+    post:
+      operationId: preflightReferenceLinearViscoelasticMapping
+      tags: [exporting]
+      summary: Map one exact linear-Prony IR revision to Abaqus 2025.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/PreflightRequest"}
+      responses:
+        "200":
+          description: Item-level mapping report with explicit bulk evidence.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/MappingReport"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No exact visible linear-Prony IR revision exists.}
+        "409": {description: Immutable model evidence conflicts.}
+        "422": {description: Target is unsupported or invalid.}
+        "503": {description: Linear-viscoelastic export service unavailable.}
+  /api/v1/linear-viscoelastic-models/{material_model_id}/solver-cards:
+    get:
+      operationId: listReferenceLinearViscoelasticSolverCards
+      tags: [exporting]
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Current immutable Abaqus linear-Prony card heads.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/CardListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "503": {description: Linear-viscoelastic export service unavailable.}
+    post:
+      operationId: createReferenceLinearViscoelasticSolverCard
+      tags: [exporting]
+      summary: Generate an immutable Abaqus .inp from an acknowledged mapping report.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/CardCreateRequest"}
+      responses:
+        "201":
+          description: Stable card identity and immutable typed card revision created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/CardCreatedResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export execute is not authorized.}
+        "404": {description: No exact visible linear-Prony IR revision exists.}
+        "409": {description: Mapping acknowledgement or source revision conflicts.}
+        "422": {description: Target, material name, or solver material ID is invalid.}
+        "503": {description: Linear-viscoelastic export service unavailable.}
+  /api/v1/linear-viscoelastic-solver-cards/{solver_card_id}:
+    get:
+      operationId: getReferenceLinearViscoelasticSolverCard
+      tags: [exporting]
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Current immutable Abaqus linear-Prony card revision.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/CardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible card matches the identifier.}
+  /api/v1/linear-viscoelastic-solver-cards/{solver_card_id}/preview:
+    get:
+      operationId: previewReferenceLinearViscoelasticSolverCard
+      tags: [exporting]
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Exact plain-text Abaqus card.
+          content:
+            text/plain: {schema: {type: string}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible card matches the identifier.}
+  /api/v1/linear-viscoelastic-solver-cards/{solver_card_id}/download:
+    get:
+      operationId: downloadReferenceLinearViscoelasticSolverCard
+      tags: [exporting]
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/SolverCardId"}]
+      responses:
+        "200":
+          description: Exact .inp attachment and its byte SHA-256 header.
+          headers:
+            Content-Disposition: {required: true, schema: {type: string}}
+            X-CMP-Card-SHA256: {required: true, schema: {$ref: "../exporting/reference-linear-viscoelastic-resources.schema.json#/$defs/Sha256"}}
+          content:
+            text/plain: {schema: {type: string}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: No visible card matches the identifier.}
   /api/v1/material-states/{material_state_id}/tabulated-plasticity-models:
     get:
       operationId: listReferenceTabulatedPlasticityModels

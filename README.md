@@ -51,7 +51,7 @@ LAW62를 순차적으로 연결합니다. 공식 mapping과 domain review가 완
 | --- | --- | --- | --- |
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
-| Polymer 선형 점탄성 | generalized Maxwell/Prony | Abaqus time-domain viscoelasticity | IR·DB·API·UI 구현, Abaqus card 다음 단계 |
+| Polymer 선형 점탄성 | generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | IR·DB·API·UI·preflight·`.inp` preview/download 구현 |
 | Elastomer 초점탄성 | Ogden + Prony | Abaqus, OpenRadioss LAW62 | 후속 수직 기능 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 

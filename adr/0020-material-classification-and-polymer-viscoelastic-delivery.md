@@ -44,6 +44,18 @@ revisions store one explicit enum value under a database check and tenant-scoped
 family-specific modeling tables will hold Prony and Ogden terms; no generic EAV or unrestricted
 model JSON is introduced.
 
+The implemented linear stage uses migration 040 for the IR and migration 041 for the immutable
+Solver Card projection. Abaqus 2025 `kg_m_s` cards emit `*DENSITY`, instantaneous `*ELASTIC`, and
+`*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC`; each data row is ordered as shear ratio, bulk ratio,
+and relaxation time in seconds. The mapping report records `exact`, `transformed`, or
+`not_applicable` per item before creation. A deferred database guard compares every stored card
+term with the exact source IR revision. This is a reference mapping and not solver-qualified.
+
+Official mapping references:
+
+- [Abaqus `*VISCOELASTIC` keyword](https://docs.software.vt.edu/abaqusv2024/English/SIMACAEKEYRefMap/simakey-r-viscoelastic.htm)
+- [Abaqus time-domain viscoelasticity](https://docs.software.vt.edu/abaqusv2024/English/SIMACAEMATRefMap/simamat-c-timevisco.htm)
+
 ## Consequences
 
 - The web catalog can explain why a workflow is available, planned, or unsupported.

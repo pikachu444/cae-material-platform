@@ -1994,6 +1994,40 @@ export interface LinearViscoelasticResponse {
   points: LinearViscoelasticResponsePoint[];
 }
 
+export interface LinearViscoelasticMappingReport {
+  material_model_id: string;
+  material_model_revision_id: string;
+  model_schema_digest: string;
+  target: ExportTarget;
+  items: MappingItem[];
+  exporter_id: string;
+  exporter_version: string;
+  exporter_digest: string;
+  mapping_report_sha256: string;
+  exportable: boolean;
+  non_production: true;
+}
+
+export interface LinearViscoelasticCardResponse {
+  solver_card_id: string;
+  material_model_id: string;
+  target: ExportTarget;
+  solver_material_id: number;
+  material_name: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      material_model_id: string;
+      material_model_revision_id: string;
+      bulk_relaxation_status: BulkRelaxationStatus;
+      terms: LinearViscoelasticPronyTerm[];
+      mapping_statuses: Record<string, MappingStatus>;
+      card_sha256: string;
+      non_production: true;
+    };
+  };
+  links: { self: string; preview: string; download: string };
+}
+
 export interface HardeningCurvePoint {
   true_plastic_strain: number;
   true_yield_stress_pa: number;
