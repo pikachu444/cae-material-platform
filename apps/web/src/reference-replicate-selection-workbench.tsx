@@ -346,6 +346,7 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets, 
           pinnedSelection={pinnedStatisticsSelection}
           state={state}
           propertySet={propertySet}
+          datasets={datasets}
         />
       ) : null}
     </div>

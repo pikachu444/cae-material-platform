@@ -15,6 +15,7 @@ import {
 } from "./api";
 import type {
   DataClassification,
+  DatasetResponse,
   MaterialStateResponse,
   PropertySetResponse,
   ReplicateStatisticalCurveResponse,
@@ -98,6 +99,7 @@ interface Props {
   pinnedSelection?: TensileReplicateSelectionResponse;
   state?: MaterialStateResponse;
   propertySet?: PropertySetResponse;
+  datasets?: DatasetResponse[];
 }
 
 export function ReferenceReplicateStatisticsWorkbench({
@@ -107,6 +109,7 @@ export function ReferenceReplicateStatisticsWorkbench({
   pinnedSelection,
   state,
   propertySet,
+  datasets = [],
 }: Props) {
   const alignmentKey = useMemo(
     () => alignedDatasetRevisionIds.join(","),
@@ -530,6 +533,7 @@ export function ReferenceReplicateStatisticsWorkbench({
           state={state}
           propertySet={propertySet}
           scope={calibrationScope}
+          datasets={datasets}
         />
       ) : null}
       {curve ? <StatisticsCurve curve={curve} /> : null}

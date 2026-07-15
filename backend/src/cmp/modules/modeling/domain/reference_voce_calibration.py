@@ -287,71 +287,90 @@ class ReferenceUniaxialTensionTestModeAdapter:
             raise InvalidVoceCalibration("input Dataset revisions must be distinct")
         if len({item.test_run_revision_id for item in curves}) != len(curves):
             raise InvalidVoceCalibration("input Test Run revisions must be distinct")
-        return tuple(self._adapt_curve(curve, youngs_modulus_pa) for curve in curves)
+        return tuple(
+            adapt_reference_voce_uniaxial_curve(curve, youngs_modulus_pa=youngs_modulus_pa)
+            for curve in curves
+        )
 
     @staticmethod
     def _adapt_curve(
         curve: VoceEngineeringCurveInput, youngs_modulus_pa: float
     ) -> VoceCalibrationCurve:
-        if not 4 <= len(curve.points) <= 5_000:
-            raise InvalidVoceCalibration("each input curve requires 4..5000 observations")
-        previous_strain = -1.0
-        for point in curve.points:
-            if (
-                not math.isfinite(point.engineering_strain)
-                or not math.isfinite(point.engineering_stress)
-                or point.engineering_strain < 0.0
-                or point.engineering_stress < 0.0
-                or point.engineering_strain <= previous_strain
-            ):
-                raise InvalidVoceCalibration(
-                    "engineering tensile points must be finite, non-negative and strictly ordered"
-                )
-            previous_strain = point.engineering_strain
-        peak_stress = max(point.engineering_stress for point in curve.points)
-        necking_index = next(
-            index
-            for index, point in enumerate(curve.points)
-            if point.engineering_stress == peak_stress
+        return adapt_reference_voce_uniaxial_curve(
+            curve, youngs_modulus_pa=youngs_modulus_pa
         )
-        if necking_index < 2:
-            raise InvalidVoceCalibration("engineering stress maximum occurs before a usable domain")
-        observations: list[VocePlasticObservation] = []
-        previous_plastic_strain = -1.0
-        previous_true_stress = -1.0
-        for point_ordinal, point in enumerate(curve.points[: necking_index + 1]):
-            true_stress = point.engineering_stress * (1.0 + point.engineering_strain)
-            true_plastic_strain = math.log1p(point.engineering_strain) - (
-                true_stress / youngs_modulus_pa
-            )
-            if true_plastic_strain <= 0.0:
-                continue
-            if true_plastic_strain <= previous_plastic_strain:
-                raise InvalidVoceCalibration(
-                    "derived plastic strain is not strictly increasing; "
-                    "explicit processing is required"
-                )
-            if true_stress < previous_true_stress:
-                raise InvalidVoceCalibration(
-                    "derived pre-necking true stress softens; explicit QC is required"
-                )
-            observations.append(
-                VocePlasticObservation(point_ordinal, true_plastic_strain, true_stress)
-            )
-            previous_plastic_strain = true_plastic_strain
-            previous_true_stress = true_stress
-        if len(observations) < 3:
+
+
+def adapt_reference_voce_uniaxial_curve(
+    curve: VoceEngineeringCurveInput,
+    *,
+    youngs_modulus_pa: float,
+) -> VoceCalibrationCurve:
+    """Apply the declared uniaxial adapter to one curve for fit or holdout use.
+
+    The multi-curve adapter retains calibration-specific cardinality checks.  Validation uses
+    this single-curve entry point so it cannot silently construct a second calibration scope.
+    """
+
+    _positive("youngs_modulus_pa", youngs_modulus_pa)
+    if not 4 <= len(curve.points) <= 5_000:
+        raise InvalidVoceCalibration("each input curve requires 4..5000 observations")
+    previous_strain = -1.0
+    for point in curve.points:
+        if (
+            not math.isfinite(point.engineering_strain)
+            or not math.isfinite(point.engineering_stress)
+            or point.engineering_strain < 0.0
+            or point.engineering_stress < 0.0
+            or point.engineering_strain <= previous_strain
+        ):
             raise InvalidVoceCalibration(
-                "each curve requires at least three positive pre-necking plastic observations"
+                "engineering tensile points must be finite, non-negative and strictly ordered"
             )
-        return VoceCalibrationCurve(
-            member_ordinal=curve.member_ordinal,
-            dataset_id=curve.dataset_id,
-            dataset_revision_id=curve.dataset_revision_id,
-            test_run_id=curve.test_run_id,
-            test_run_revision_id=curve.test_run_revision_id,
-            observations=tuple(observations),
+        previous_strain = point.engineering_strain
+    peak_stress = max(point.engineering_stress for point in curve.points)
+    necking_index = next(
+        index
+        for index, point in enumerate(curve.points)
+        if point.engineering_stress == peak_stress
+    )
+    if necking_index < 2:
+        raise InvalidVoceCalibration("engineering stress maximum occurs before a usable domain")
+    observations: list[VocePlasticObservation] = []
+    previous_plastic_strain = -1.0
+    previous_true_stress = -1.0
+    for point_ordinal, point in enumerate(curve.points[: necking_index + 1]):
+        true_stress = point.engineering_stress * (1.0 + point.engineering_strain)
+        true_plastic_strain = math.log1p(point.engineering_strain) - (
+            true_stress / youngs_modulus_pa
         )
+        if true_plastic_strain <= 0.0:
+            continue
+        if true_plastic_strain <= previous_plastic_strain:
+            raise InvalidVoceCalibration(
+                "derived plastic strain is not strictly increasing; explicit processing is required"
+            )
+        if true_stress < previous_true_stress:
+            raise InvalidVoceCalibration(
+                "derived pre-necking true stress softens; explicit QC is required"
+            )
+        observations.append(
+            VocePlasticObservation(point_ordinal, true_plastic_strain, true_stress)
+        )
+        previous_plastic_strain = true_plastic_strain
+        previous_true_stress = true_stress
+    if len(observations) < 3:
+        raise InvalidVoceCalibration(
+            "each curve requires at least three positive pre-necking plastic observations"
+        )
+    return VoceCalibrationCurve(
+        member_ordinal=curve.member_ordinal,
+        dataset_id=curve.dataset_id,
+        dataset_revision_id=curve.dataset_revision_id,
+        test_run_id=curve.test_run_id,
+        test_run_revision_id=curve.test_run_revision_id,
+        observations=tuple(observations),
+    )
 
 
 class ReferenceVoceMaterialModelEvaluator:

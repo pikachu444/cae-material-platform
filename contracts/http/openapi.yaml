@@ -3450,6 +3450,123 @@ paths:
         "403": {description: Modeling write is not authorized.}
         "409": {description: Selection, Candidate, Run, Plan, or Property lineage conflicts.}
         "422": {description: Sampling grid or explicit extension acknowledgement is invalid.}
+  /api/v1/voce-holdout-validation-plans:
+    post:
+      operationId: createReferenceVoceHoldoutValidationPlan
+      tags: [validation, calibration]
+      summary: Pin one calibrated reference Voce IR and one disjoint holdout Dataset revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-voce-holdout-resources.schema.json#/$defs/PlanCreateRequest"}
+      responses:
+        "201":
+          description: Stable holdout Plan identity and immutable first revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-voce-holdout-resources.schema.json#/$defs/PlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: A pinned IR, Scope, Dataset, or Artifact is absent.}
+        "409": {description: Tenant, Material State, or holdout-independence lineage conflicts.}
+        "422": {description: Holdout Plan inputs are invalid.}
+        "503": {description: Voce holdout service unavailable.}
+    get:
+      operationId: listReferenceVoceHoldoutValidationPlans
+      tags: [validation, calibration]
+      summary: List current immutable solver-independent holdout Plan heads.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Current holdout Plan heads.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-voce-holdout-resources.schema.json#/$defs/PlanListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "503": {description: Voce holdout service unavailable.}
+  /api/v1/voce-holdout-validation-plans/{plan_id}/runs:
+    post:
+      operationId: executeReferenceVoceHoldoutValidation
+      tags: [validation, calibration]
+      summary: Evaluate the accepted Voce equation against a disjoint holdout curve without a solver.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../validation/reference-voce-holdout-resources.schema.json#/$defs/ExecuteRequest"}
+      responses:
+        "201":
+          description: Immutable V3 comparison result and residual Artifact evidence.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-voce-holdout-resources.schema.json#/$defs/ResultResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation execution is not authorized.}
+        "404": {description: A pinned Plan, IR, Dataset, Scope, or Artifact is absent.}
+        "409": {description: Dataset or Test Run overlaps calibration scope, or lineage is stale.}
+        "422": {description: The holdout curve cannot be evaluated by the fixed reference profile.}
+        "503": {description: Voce holdout service unavailable.}
+  /api/v1/voce-holdout-results/{result_id}:
+    get:
+      operationId: getReferenceVoceHoldoutValidationResult
+      tags: [validation, calibration]
+      summary: Read one immutable solver-independent holdout Result.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: result_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Holdout metric, provenance pointers, and observed/predicted/residual points.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-voce-holdout-resources.schema.json#/$defs/ResultResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "404": {description: No visible holdout Result matches.}
+        "503": {description: Voce holdout service unavailable.}
+  /api/v1/tabulated-plasticity-models/{material_model_id}/voce-holdout-results:
+    get:
+      operationId: listReferenceVoceHoldoutValidationResults
+      tags: [validation, calibration]
+      summary: List immutable holdout Results for one calibrated IR stable identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: material_model_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 200, default: 100}
+      responses:
+        "200":
+          description: Holdout Results ordered newest first.
+          content:
+            application/json:
+              schema: {$ref: "../validation/reference-voce-holdout-resources.schema.json#/$defs/ResultListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Validation read is not authorized.}
+        "503": {description: Voce holdout service unavailable.}
   /api/v1/calibration-candidate-selections:
     post:
       operationId: createReferenceCalibrationCandidateSelection

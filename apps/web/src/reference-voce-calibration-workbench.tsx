@@ -11,6 +11,8 @@ import {
   previewElastoplasticSolverCard,
   downloadElastoplasticSolverCard,
   executeReferenceVoceCalibration,
+  createReferenceVoceHoldoutPlan,
+  executeReferenceVoceHoldout,
   previewReferenceVoceCalibrationDiagnostics,
 } from "./api";
 import type {
@@ -24,6 +26,9 @@ import type {
   TabulatedPlasticityModelResponse,
   MappingReport,
   ElastoplasticCardResponse,
+  DatasetResponse,
+  VoceHoldoutPlanResponse,
+  VoceHoldoutResultResponse,
 } from "./types";
 
 const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b"];
@@ -94,14 +99,60 @@ function VoceFitPlot({ diagnostics }: { diagnostics: VoceCalibrationDiagnosticPr
   );
 }
 
+function VoceHoldoutPlot({ result }: { result: VoceHoldoutResultResponse }) {
+  if (!result.points.length) return null;
+  const maxX = Math.max(...result.points.map((point) => point.true_plastic_strain)) || 1;
+  const values = result.points.flatMap((point) => [
+    point.observed_true_yield_stress_pa,
+    point.predicted_true_yield_stress_pa,
+  ]);
+  const minY = Math.min(...values);
+  const maxY = Math.max(...values);
+  const span = maxY - minY || 1;
+  const x = (value: number) => 48 + (value / maxX) * 654;
+  const y = (value: number) => 226 - ((value - minY) / span) * 202;
+  return (
+    <section className="curve-panel" aria-label="Voce holdout observed and predicted curve">
+      <div className="curve-heading">
+        <div><p className="eyebrow">V3 holdout evidence</p><h5>Independent observed vs predicted true stress</h5></div>
+        <span className={`reference-chip ${result.verdict === "passed" ? "success" : "warning"}`}>
+          {result.verdict} · {(result.relative_root_mean_squared_error * 100).toFixed(2)}%
+        </span>
+      </div>
+      <svg className="curve-plot" viewBox="0 0 720 280" role="img">
+        <line x1="48" x2="702" y1="226" y2="226" />
+        <line x1="48" x2="48" y1="24" y2="226" />
+        <polyline
+          className="fitted-curve"
+          points={result.points.map((point) => `${x(point.true_plastic_strain).toFixed(2)},${y(point.predicted_true_yield_stress_pa).toFixed(2)}`).join(" ")}
+        />
+        {result.points.map((point) => (
+          <circle
+            key={point.source_point_ordinal}
+            cx={x(point.true_plastic_strain)}
+            cy={y(point.observed_true_yield_stress_pa)}
+            r="3"
+          />
+        ))}
+        <text x="330" y="274">true plastic strain (1)</text>
+        <text x="14" y="150" transform="rotate(-90 14 150)">true yield stress (Pa)</text>
+      </svg>
+      <p className="form-hint">
+        Closed-form material response only · no solver/card execution · residual is predicted minus observed.
+      </p>
+    </section>
+  );
+}
+
 interface Props {
   config: ApiConfig;
   state: MaterialStateResponse;
   propertySet: PropertySetResponse;
   scope: ReferenceCalibrationScopeResponse;
+  datasets: DatasetResponse[];
 }
 
-export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, scope }: Props) {
+export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, scope, datasets }: Props) {
   const properties = propertySet.current_revision.content;
   const yieldStress = properties.yield_stress_pa ?? 300e6;
   const [plan, setPlan] = useState<VoceCalibrationPlanResponse | null>(null);
@@ -112,6 +163,8 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
   const [mapping, setMapping] = useState<MappingReport | null>(null);
   const [card, setCard] = useState<ElastoplasticCardResponse | null>(null);
   const [cardPreview, setCardPreview] = useState<string | null>(null);
+  const [holdoutPlan, setHoldoutPlan] = useState<VoceHoldoutPlanResponse | null>(null);
+  const [holdoutResult, setHoldoutResult] = useState<VoceHoldoutResultResponse | null>(null);
   const [planLabel, setPlanLabel] = useState("Reviewed replicate Voce reference calibration");
   const [sigmaLowerMpa, setSigmaLowerMpa] = useState(String(yieldStress * 0.6 / 1e6));
   const [sigmaInitialMpa, setSigmaInitialMpa] = useState(String(yieldStress / 1e6));
@@ -132,7 +185,20 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
   const [targetSolver, setTargetSolver] = useState<"openradioss" | "abaqus">("openradioss");
   const [materialName, setMaterialName] = useState("CALIBRATED_MATERIAL");
   const [solverMaterialId, setSolverMaterialId] = useState("101");
-  const [action, setAction] = useState<"plan" | "run" | "select" | "project" | "preflight" | "card" | "download" | null>(null);
+  const holdoutCandidates = useMemo(() => datasets.filter((dataset) => {
+    const revision = dataset.current_revision;
+    return (revision.content.representation === "normalized" || revision.content.representation === "processed")
+      && !scope.members.some((member) => (
+        member.dataset_revision_id === revision.id
+        || member.test_run_revision_id === revision.content.test_run_revision_id
+      ));
+  }), [datasets, scope.members]);
+  const [holdoutDatasetRevisionId, setHoldoutDatasetRevisionId] = useState("");
+  const selectedHoldout = holdoutCandidates.find(
+    (dataset) => dataset.current_revision.id === holdoutDatasetRevisionId,
+  ) ?? holdoutCandidates[0] ?? null;
+  const [holdoutReason, setHoldoutReason] = useState("Validate the accepted Voce IR against an independent Test Run");
+  const [action, setAction] = useState<"plan" | "run" | "select" | "project" | "preflight" | "card" | "download" | "holdout-plan" | "holdout-run" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const best = useMemo(
     () => run?.candidates.find((candidate) => candidate.status === "converged") ?? null,
@@ -188,6 +254,8 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
       setModel(null);
       setMapping(null);
       setCard(null);
+      setHoldoutPlan(null);
+      setHoldoutResult(null);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -308,6 +376,52 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
       anchor.click();
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function createHoldoutPlan(): Promise<void> {
+    if (!model || !selectedHoldout) return;
+    setAction("holdout-plan");
+    setError(null);
+    try {
+      const created = await createReferenceVoceHoldoutPlan(config, {
+        classification: state.current_revision.classification,
+        content: {
+          plan_label: `${planLabel.trim()} independent holdout`,
+          material_model_id: model.material_model_id,
+          material_model_revision_id: model.current_revision.id,
+          holdout_dataset_id: selectedHoldout.dataset_id,
+          holdout_dataset_revision_id: selectedHoldout.current_revision.id,
+        },
+        change_reason: holdoutReason.trim(),
+      });
+      setHoldoutPlan(created.data);
+      setHoldoutResult(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function executeHoldout(): Promise<void> {
+    if (!holdoutPlan) return;
+    setAction("holdout-run");
+    setError(null);
+    try {
+      const result = await executeReferenceVoceHoldout(
+        config,
+        holdoutPlan.voce_holdout_plan_id,
+        {
+          plan_revision_id: holdoutPlan.current_revision.id,
+          change_reason: holdoutReason.trim(),
+        },
+      );
+      setHoldoutResult(result.data);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -469,6 +583,68 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
               <button className="button secondary" type="button" disabled={action !== null} onClick={() => void downloadCard()}>{action === "download" ? "Preparing download…" : "Download solver card"}</button>
               {cardPreview ? <pre className="card-preview"><code>{cardPreview}</code></pre> : null}
             </div>
+          ) : null}
+        </section>
+      ) : null}
+      {model ? (
+        <section className="workflow-stack voce-holdout-workflow" aria-label="Solver-independent Voce holdout validation">
+          <div className="section-heading compact-heading">
+            <div><p className="eyebrow">P1 · V3 Validation</p><h5>Independent tensile holdout</h5></div>
+            <span className="reference-chip">closed-form · no solver</span>
+          </div>
+          <p className="form-hint">
+            Dataset revision and Test Run revision must both be absent from the complete calibration review Scope.
+            A 5% relative-RMSE threshold is reference evidence only, not production approval.
+          </p>
+          {holdoutCandidates.length ? (
+            <div className="workflow-step">
+              <label>
+                Independent holdout Dataset
+                <select
+                  aria-label="Independent holdout Dataset"
+                  value={selectedHoldout?.current_revision.id ?? ""}
+                  onChange={(event) => {
+                    setHoldoutDatasetRevisionId(event.target.value);
+                    setHoldoutPlan(null);
+                    setHoldoutResult(null);
+                  }}
+                >
+                  {holdoutCandidates.map((dataset) => (
+                    <option key={dataset.current_revision.id} value={dataset.current_revision.id}>
+                      {dataset.current_revision.content.representation} · {shortId(dataset.current_revision.id)} · Test Run {shortId(dataset.current_revision.content.test_run_revision_id)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>Validation reason<input value={holdoutReason} onChange={(event) => setHoldoutReason(event.target.value)} required /></label>
+              {!holdoutPlan ? (
+                <button className="button secondary" type="button" disabled={action !== null || !holdoutReason.trim()} onClick={() => void createHoldoutPlan()}>
+                  {action === "holdout-plan" ? "Pinning independent inputs…" : "Create immutable holdout Plan"}
+                </button>
+              ) : (
+                <button className="button primary" type="button" disabled={action !== null} onClick={() => void executeHoldout()}>
+                  {action === "holdout-run" ? "Evaluating holdout…" : "Evaluate closed-form holdout"}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="warning-banner">
+              No independent Dataset is available. Upload a tensile Test Run that is not part of the calibration review Scope.
+            </div>
+          )}
+          {holdoutResult ? (
+            <>
+              <div className="property-grid">
+                <div><span>Holdout independence</span><strong>Dataset + Test Run disjoint</strong></div>
+                <div><span>RMSE</span><strong>{mpa(holdoutResult.root_mean_squared_error_pa)}</strong></div>
+                <div><span>Relative RMSE</span><strong>{(holdoutResult.relative_root_mean_squared_error * 100).toFixed(3)}%</strong></div>
+                <div><span>Reference verdict</span><strong>{holdoutResult.verdict}</strong></div>
+              </div>
+              <p className="source-line">
+                Result {shortId(holdoutResult.voce_holdout_result_id)} · comparison Artifact {shortId(holdoutResult.comparison_artifact_id)} · {holdoutResult.comparison_point_count} points
+              </p>
+              <VoceHoldoutPlot result={holdoutResult} />
+            </>
           ) : null}
         </section>
       ) : null}

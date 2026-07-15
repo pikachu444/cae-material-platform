@@ -272,6 +272,7 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
         "modeling.read",
         "provenance.read",
         "provenance.write",
+        "statistics.read",
         "testing.read",
         "validation.execute",
         "validation.read",

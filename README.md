@@ -254,18 +254,25 @@ skip zero and failure zero are the acceptance rule.
 without discarding the implemented foundation:
 
 1. `P0-1` (**complete**): live Docker Compose/PostgreSQL migration, RLS, integration, CI, and browser verification.
-2. `P0-2` (**in progress**): multi-replicate Selection, explicit common-grid processing, and the
-   persisted typed multi-member Statistics/QC Plan → Run → Result → pointwise CI-band web flow are
-   implemented. Multi-member outlier evidence/assessment and calibration-scoped exclusion remain.
-3. `P1`: bounded non-production nonlinear reference calibration, Candidate selection, calibrated IR,
-   existing OpenRadioss/Abaqus card generation, and solver-independent holdout checks.
-4. `P2`: Process/Lot/Batch and broader domain work, actual solver/HPC execution qualification,
+2. `P0-2` (**complete**): multi-replicate Selection, explicit common-grid processing, persisted
+   Statistics/QC, outlier evidence, human assessment, and calibration-scoped inclusion/exclusion.
+3. `P1` (**complete, non-production reference scope**): bounded Voce/SciPy calibration, Candidate
+   selection, calibrated IR, OpenRadioss/Abaqus cards, and disjoint solver-independent holdout.
+4. `P2` (**next**): Process/Lot/Batch and broader domain work, actual solver/HPC execution qualification,
    production plugins, and operational/release hardening.
 
 The P1 Voce/SciPy path is a synthetic `reference_only` implementation choice. It does not approve a
 production constitutive model, optimizer, parameter policy, card, or validation threshold. Actual
 solver execution verification is deferred to P2; deterministic card goldens continue to guard
 mapping regressions only.
+
+The demo seed creates three calibration replicate Test Runs plus a fourth, disjoint holdout Test
+Run. In the Material State workbench, align the three-member Selection, calculate Statistics/QC,
+review outlier evidence, freeze a calibration input Scope, run and accept a Voce Candidate, generate
+the calibrated OpenRadioss or Abaqus card, then select the fourth Dataset for the holdout check.
+The holdout compares the frozen model response directly with the independent curve and explicitly
+reports `solver_execution=not_used`; its fixed 5% relative-RMSE threshold is reference evidence,
+not engineering approval.
 
 ## Start
 

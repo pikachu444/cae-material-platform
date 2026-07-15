@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, cast
 
-from cmp.apps.demo import _grant_runtime_privileges
+from cmp.apps.demo import _DEMO_ROLES, _grant_runtime_privileges
 
 
 @dataclass
@@ -45,3 +45,12 @@ def test_demo_bootstrap_grants_processing_and_statistics_schemas_to_non_owner_ap
         == statement
         for statement in connection.statements
     )
+    assert any(
+        "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA \"validation\" TO cmp_app"
+        == statement
+        for statement in connection.statements
+    )
+
+
+def test_demo_group_has_the_explicit_cae_analyst_role_for_validation_commands() -> None:
+    assert "cae_analyst" in _DEMO_ROLES

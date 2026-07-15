@@ -54,6 +54,9 @@ migration/bootstrap, non-owner API, worker, web, reference-plugin check, synthet
 Vitest `21 passed`를 기록했다. 브라우저 smoke는 Material/State/property/Dataset/IR과
 OpenRadioss/Abaqus 카드 preview/download를 확인했다. 따라서 현재 실행 wave는 `P0-2`다.
 
+이 문단은 `P0-1` 완료 당시의 관측 기록이다. 이후 `P0-2`와 bounded reference `P1`은 아래
+implementation note의 범위로 완료됐으며, 현재 다음 실행 wave는 `P2`다.
+
 ### P0-2 구현 순서
 
 1. 여러 concrete Dataset revision을 pin하는 Selection과 specimen/Test Run 단위 membership
@@ -841,6 +844,26 @@ Candidate/Assessment pins and at least two retained members. Protected APIs, JSO
 the connected workbench, unit/API/web tests, migration downgrade/re-upgrade, and live PostgreSQL
 include/exclude flows are present. No source Dataset/Selection/Result revision is changed.
 
-The next execution wave is P1: bounded multi-curve Voce calibration, Candidate diagnostics and
-selection, calibrated IR plus OpenRadioss/Abaqus card generation, and solver-independent holdout
-validation. Actual solver execution remains deferred to P2.
+### P1 implementation note (2026-08-03)
+
+P1 is implemented for the bounded non-production reference scope. Migration `20260801_035_p1`
+adds explicit Voce Plan/Run/Attempt/Candidate tables and deterministic SciPy `least_squares`
+execution over an immutable calibration input Scope. Migration `20260802_036_p1` adds append-only
+human Candidate selection and the calibrated `1.1` IR projection. The projection freezes a declared
+51-point true-plastic-strain grid and explicit constant extension; the existing OpenRadioss LAW36
+and Abaqus `*ELASTIC`/`*PLASTIC` exporters then provide preflight, preview, and download without
+placing solver keywords in the IR.
+
+Migration `20260803_037_p1` completes solver-independent holdout validation with typed Plan,
+Plan Revision, Run, Result, and comparison-point tables. A holdout Dataset and Test Run must be
+disjoint from every calibration Scope member, including excluded members. Evaluation calls the
+same public Voce material-model evaluator at the observed holdout points, performs no refit and no
+solver/card execution, and stores a comparison Artifact, RMSE, relative RMSE, and the explicit
+non-production `0.05` reference verdict with audit/provenance lineage. The connected workbench
+shows observed/predicted curves and the `solver_execution=not_used` boundary.
+
+The next execution wave is P2. Ordered priorities are: (1) approved production domain decisions and
+Catalog/Test genealogy expansion, (2) real solver data-check/execution/HPC adapters and immutable
+result evidence when the product owner re-enables that scope, (3) approved solver-result parsers,
+scientific fixtures, thresholds, and qualification, and (4) observability, backup/restore,
+performance/security, and external release hardening. No P2 item is silently treated as complete.

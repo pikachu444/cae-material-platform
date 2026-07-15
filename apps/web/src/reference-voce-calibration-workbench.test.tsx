@@ -2,9 +2,9 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ReferenceVoceCalibrationWorkbench } from "./reference-voce-calibration-workbench";
-import type { MaterialStateResponse, PropertySetResponse, ReferenceCalibrationScopeResponse } from "./types";
+import type { DatasetResponse, MaterialStateResponse, PropertySetResponse, ReferenceCalibrationScopeResponse } from "./types";
 
-const ids = Array.from({ length: 20 }, (_, index) => `a1000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`);
+const ids = Array.from({ length: 32 }, (_, index) => `a1000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`);
 
 function revision<T extends object>(id: string, aggregateId: string, content: T) {
   return {
@@ -66,8 +66,25 @@ describe("Reference Voce calibration workbench", () => {
       scope_id: ids[6], scope_label: "Reviewed scope", current_revision: revision(ids[7], ids[6], {}),
       source_selection_id: ids[8], source_selection_revision_id: ids[9], statistical_result_id: ids[1],
       statistical_result_revision_id: ids[2], detection_plan_id: ids[3], detection_plan_revision_id: ids[4],
-      source_member_count: 3, included_member_count: 3, excluded_member_count: 0, members: [],
+      source_member_count: 3, included_member_count: 3, excluded_member_count: 0,
+      members: [0, 1, 2].map((ordinal) => ({
+        ordinal, dataset_id: ids[ordinal], dataset_revision_id: ids[ordinal + 3],
+        test_run_id: ids[ordinal + 20], test_run_revision_id: ids[ordinal + 23],
+        disposition: "included" as const, candidate_id: null, assessment_id: null,
+        assessment_revision_id: null,
+      })),
     } satisfies ReferenceCalibrationScopeResponse;
+    const holdout = {
+      dataset_id: ids[18], test_run_id: ids[19],
+      current_revision: revision(ids[20], ids[18], {
+        test_run_id: ids[19], test_run_revision_id: ids[21], raw_asset_id: ids[22],
+        raw_artifact_id: ids[23], data_artifact_id: ids[24], data_sha256: "9".repeat(64),
+        representation: "normalized" as const, source_dataset_revision_id: ids[25],
+        processing_run_id: null, point_count: 7, mapping_sha256: "8".repeat(64),
+        importer_id: "cmp.reference.uniaxial_tensile_csv", importer_version: "1.0.0",
+        reference_only: true as const, channels: [],
+      }), links: {},
+    } satisfies DatasetResponse;
     const planId = ids[8];
     const planRevisionId = ids[9];
     const plan = {
@@ -153,6 +170,43 @@ describe("Reference Voce calibration workbench", () => {
       items: [{ name: "isotropic_hardening_curve", ir_path: "/hardening", target_representation: "*PLASTIC", status: "exact", detail: "Mapped from the shared IR." }],
       non_production: true,
     };
+    const holdoutPlanId = ids[26];
+    const holdoutPlanRevisionId = ids[27];
+    const holdoutPlan = {
+      voce_holdout_plan_id: holdoutPlanId,
+      current_revision: revision(holdoutPlanRevisionId, holdoutPlanId, {
+        plan_label: "Independent holdout", material_model_id: modelId,
+        material_model_revision_id: modelRevisionId, holdout_dataset_id: holdout.dataset_id,
+        holdout_dataset_revision_id: holdout.current_revision.id,
+        metric_profile_id: "metric", threshold_profile_id: "threshold",
+        relative_rmse_threshold: 0.05, overlap_policy: "reject_any_calibration_scope_dataset_or_test_run_overlap",
+        evaluation_mode: "closed_form_curve", solver_execution: "not_used", non_production: true,
+      }), links: {},
+    };
+    const holdoutResult = {
+      voce_holdout_result_id: ids[28], voce_holdout_run_id: ids[29], plan_id: holdoutPlanId,
+      plan_revision_id: holdoutPlanRevisionId, material_model_id: modelId,
+      material_model_revision_id: modelRevisionId, calibration_input_scope_id: scope.scope_id,
+      calibration_input_scope_revision_id: scope.current_revision.id,
+      voce_calibration_run_id: run.voce_calibration_run_id,
+      voce_calibration_candidate_id: ids[1], voce_candidate_selection_id: selectionId,
+      voce_candidate_selection_revision_id: selectionRevisionId, holdout_dataset_id: holdout.dataset_id,
+      holdout_dataset_revision_id: holdout.current_revision.id, holdout_test_run_id: ids[19],
+      holdout_test_run_revision_id: ids[21], holdout_independence: "disjoint_dataset_and_test_run",
+      source_data_artifact_id: ids[24], source_data_sha256: `sha256:${"9".repeat(64)}`,
+      comparison_artifact_id: ids[30], comparison_sha256: `sha256:${"7".repeat(64)}`,
+      comparison_point_count: 3, root_mean_squared_error_pa: 2e6,
+      relative_root_mean_squared_error: 0.004, normalization_stress_scale_pa: 500e6,
+      characterized_max_true_plastic_strain: 0.03, relative_rmse_threshold: 0.05,
+      verdict: "passed", evaluation_mode: "closed_form_curve", solver_execution: "not_used",
+      non_production: true, created_at: "2026-07-15T00:00:02Z", created_by: ids[9],
+      points: [1, 2, 3].map((ordinal) => ({
+        source_point_ordinal: ordinal, true_plastic_strain: ordinal * 0.01,
+        observed_true_yield_stress_pa: 400e6 + ordinal * 20e6,
+        predicted_true_yield_stress_pa: 402e6 + ordinal * 20e6,
+        residual_true_yield_stress_pa: 2e6,
+      })), links: {},
+    };
     const fetchMock = vi.fn<typeof fetch>((input, init) => {
       const url = String(input);
       if (url.endsWith("/voce-calibration-plans") && init?.method === "POST") return Promise.resolve(response(plan));
@@ -175,11 +229,13 @@ describe("Reference Voce calibration workbench", () => {
       if (url.endsWith(`/tabulated-plasticity-models/${modelId}/mapping-preflight`) && init?.method === "POST") return Promise.resolve(response(mapping, 200));
       if (url.endsWith(`/tabulated-plasticity-models/${modelId}/solver-cards`) && init?.method === "POST") return Promise.resolve(response({ card: { solver_card_id: cardId }, mapping_report: mapping }));
       if (url.endsWith(`/elastoplastic-solver-cards/${cardId}/preview`)) return Promise.resolve(textResponse("*MATERIAL, NAME=CALIBRATED_MATERIAL\n*PLASTIC"));
+      if (url.endsWith("/voce-holdout-validation-plans") && init?.method === "POST") return Promise.resolve(response(holdoutPlan));
+      if (url.endsWith(`/voce-holdout-validation-plans/${holdoutPlanId}/runs`) && init?.method === "POST") return Promise.resolve(response(holdoutResult));
       return Promise.resolve(response({ detail: "unexpected" }, 404));
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<ReferenceVoceCalibrationWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} state={state} propertySet={propertySet} scope={scope} />);
+    render(<ReferenceVoceCalibrationWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} state={state} propertySet={propertySet} scope={scope} datasets={[holdout]} />);
     fireEvent.click(screen.getByRole("button", { name: "Create immutable Voce Plan" }));
     await screen.findByText(/Plan a1000000/);
     fireEvent.click(screen.getByRole("button", { name: "Execute multi-curve Calibration Run" }));
@@ -197,6 +253,11 @@ describe("Reference Voce calibration workbench", () => {
     await screen.findByText(/Mapped from the shared IR/);
     fireEvent.click(screen.getByRole("button", { name: "Generate Abaqus .inp" }));
     expect(await screen.findByText(/\*MATERIAL, NAME=CALIBRATED_MATERIAL/)).toBeTruthy();
-    expect(fetchMock).toHaveBeenCalledTimes(8);
+    fireEvent.click(screen.getByRole("button", { name: "Create immutable holdout Plan" }));
+    await screen.findByRole("button", { name: "Evaluate closed-form holdout" });
+    fireEvent.click(screen.getByRole("button", { name: "Evaluate closed-form holdout" }));
+    expect(await screen.findByLabelText("Voce holdout observed and predicted curve")).toBeTruthy();
+    expect(screen.getByText("Dataset + Test Run disjoint")).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledTimes(10);
   });
 });

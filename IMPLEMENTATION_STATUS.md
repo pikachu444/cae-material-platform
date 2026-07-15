@@ -525,10 +525,10 @@ results above remain in place. Remaining work is now sequenced as follows:
 
 1. `P0-1` — **complete**: Docker/Compose, migration/seed, live PostgreSQL/RLS integration,
    skip-zero marker suite, CI-equivalent suite, and protected browser smoke are recorded above.
-2. `P0-2` — expand T-19/T-20/T-21 from one/two-curve reference subsets to immutable multi-member
+2. `P0-2` — **complete**: expand T-19/T-20/T-21 from one/two-curve reference subsets to immutable multi-member
    repeat-test Selection, explicit processing/alignment, specimen-level statistics/pointwise bands,
    QC/outlier assessment with calibration-specific scope, and connected curve UI.
-3. `P1` — add the bounded non-production reference Voce/SciPy nonlinear calibration path, nonlinear
+3. `P1` — **complete for the bounded non-production reference scope**: add the reference Voce/SciPy nonlinear calibration path, nonlinear
    Candidate diagnostics and human selection, calibrated solver-neutral IR plus explicit tabulated
    projection, and existing OpenRadioss/Abaqus preflight/preview/download. Add solver-independent
    material-model and disjoint-holdout validation; do not claim production model/optimizer approval.
@@ -538,7 +538,8 @@ results above remain in place. Remaining work is now sequenced as follows:
 
 Product-owner direction explicitly defers actual solver execution verification to P2. Existing
 T-27/T-28 mock/manual evidence and immutable results are retained; they are neither deleted nor
-reclassified as solver qualification. The immediate implementation gate is now P0-2.
+reclassified as solver qualification. The immediate implementation gate is now the explicitly
+documented `P2` decision and hardening wave.
 
 Prior planning note (superseded): the first vertical flow was described as a non-production reference subset:
 Material → State → typed Property Set → frozen reference IR → explicit OpenRadioss mapping report
@@ -587,11 +588,11 @@ shows exact members, QC, peak scalar statistics, observed range, mean, and Stude
 Statistics performs no interpolation or hidden alignment, and the earlier pair workflow remains
 unchanged.
 
-P0-2 is now complete through multi-member outlier evidence, append-only human assessment, and an
-immutable calibration-specific input Scope. The next implementation wave is P1: bounded
-multi-curve Voce calibration, Candidate diagnostics and selection, calibrated IR and two-solver
-card generation, then solver-independent holdout validation. No automatic source mutation or
-exclusion is permitted.
+P0-2 is complete through multi-member outlier evidence, append-only human assessment, and an
+immutable calibration-specific input Scope. The bounded P1 wave described below subsequently added
+multi-curve Voce calibration, Candidate diagnostics and selection, calibrated IR, two-solver card
+generation, and solver-independent holdout validation. No automatic source mutation or exclusion
+is permitted.
 
 Verification includes a live non-owner Docker/PostgreSQL execution that committed three independent
 31-point processed Dataset revisions in one batch. Unit tests cover interpolation, common-domain,
@@ -600,4 +601,35 @@ migration regression covers typed columns, guards, RLS-compatible provenance fin
 absence of JSONB/EAV. Migration 033 was also exercised as fresh upgrade, downgrade to 032, and
 re-upgrade against disposable PostgreSQL 16. Updated full-suite counts are recorded after the
 P0-2 persistence gate is merged.
+
+## P1 completion (2026-08-03)
+
+P1 is complete for the explicitly non-production reference scope. The platform consumes an
+immutable calibration input Scope containing multiple preserved processed tensile curves, runs a
+bounded deterministic Voce/SciPy `least_squares` calibration, stores every Attempt/Candidate and
+diagnostic, requires append-only human Candidate selection, and promotes the accepted Candidate to
+a calibrated solver-neutral Material Model IR. A separate frozen 51-point tabulated projection
+feeds the existing OpenRadioss LAW36 and Abaqus elastoplastic exporters, including mapping preflight,
+preview, Artifact-backed download, and deterministic regression fixtures.
+
+Migration `20260803_037_p1` and the connected API/workbench add solver-independent holdout
+validation. One immutable Plan pins the calibrated IR and an independent tensile Dataset. Both the
+Dataset revision and Test Run revision must be disjoint from every calibration Scope member. The
+Result retains exact observed/predicted/residual points, RMSE, relative RMSE, source/comparison
+Artifact digests, full calibration lineage, audit, and provenance. The fixed `0.05` reference
+threshold and `solver_execution=not_used` marker prevent this evidence from being mistaken for
+production or solver qualification. The demo seed now provides three calibration curves and a
+fourth disjoint holdout curve.
+
+The completion gate passed 497 Python tests and 24 web tests, plus ruff, mypy, architecture,
+OpenAPI contract lint/compatibility, TypeScript, and production web build checks. A live non-owner
+Docker/PostgreSQL run also persisted both calibrated OpenRadioss and Abaqus cards and a four-point
+disjoint holdout result with comparison Artifact/provenance evidence.
+
+Remaining P2 work is deliberately not implemented: broader Process/Lot/Batch/Campaign/Instrument
+domain depth and importer/property families; approved production constitutive models, objectives,
+bounds and scientific fixtures; actual OpenRadioss/Abaqus data-check/execution, HPC adapters,
+solver-output parsing and qualification; and observability, disaster-recovery, performance,
+security, external release and connector hardening. Solver execution validation remains excluded by
+product-owner direction until that P2 scope is explicitly resumed.
 
