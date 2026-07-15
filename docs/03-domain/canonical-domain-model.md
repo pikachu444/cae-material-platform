@@ -38,6 +38,14 @@
 
 Batch는 여러 input lot을 소비할 수 있고, 한 lot은 여러 batch에 나뉠 수 있다. `BatchInput`이 material balance와 관계를 표현한다. 조직 용어가 다르면 UI label을 바꿀 수 있지만 canonical 의미는 유지한다.
 
+T-07의 현재 bounded 구현은 `ProcessDefinition`, `MaterialLot(kind=lot|batch)`,
+`StateGenealogy`를 stable identity와 immutable revision으로 분리한다. `StateGenealogyRevision`은
+하나의 concrete Material State revision과 선택된 manufacturing/heat-treatment Process
+revision, Material Lot revision을 정확히 고정한다. 기존 State의 문자열 descriptor는 과거
+입력 보존용이며 governed link를 대신하지 않는다. `ProcessRun`, 별도 `MaterialBatch`,
+`BatchInput`, split/merge와 multi-lot material balance는 이 bounded 구현에 포함되지 않으며
+위 canonical 모델의 후속 T-07 범위로 유지한다(ADR-0024).
+
 ### 2.5 Specimen
 
 시험에 사용되는 물리적 개체다. source lot/batch, 채취 위치, orientation, nominal/actual geometry, preparation, conditioning을 갖는다. 하나의 specimen에 여러 비파괴 test run이 있을 수 있으나 파괴시험 재사용은 method policy로 경고한다.

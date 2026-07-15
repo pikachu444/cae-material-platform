@@ -996,6 +996,241 @@ paths:
             application/problem+json:
               schema: {$ref: "#/components/schemas/AuditProblem"}
         "503": {description: Audit service unavailable.}
+  /api/v1/process-definitions:
+    get:
+      operationId: listProcessDefinitions
+      tags: [catalog]
+      summary: List current governed Process revisions by typed role.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: kind
+          in: query
+          required: false
+          schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessKind"}
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 100, default: 100}
+      responses:
+        "200":
+          description: Current Process Definition heads visible to catalog.read.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessDefinitionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "422": {description: Process query is invalid.}
+        "503": {description: Catalog service unavailable.}
+    post:
+      operationId: createProcessDefinition
+      tags: [catalog]
+      summary: Create a stable governed Process identity and immutable revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessDefinitionCreateRequest"}
+      responses:
+        "201":
+          description: Process Definition revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessDefinitionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Immutable Process state conflicts.}
+        "422": {description: Typed Process content is invalid.}
+  /api/v1/process-definitions/{process_definition_id}/revisions:
+    post:
+      operationId: reviseProcessDefinition
+      tags: [catalog]
+      summary: Append an immutable Process revision using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: process_definition_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessDefinitionReviseRequest"}
+      responses:
+        "200":
+          description: New Process revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessDefinitionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: Process Definition is not visible.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/materials/{material_id}/lots:
+    get:
+      operationId: listMaterialLots
+      tags: [catalog]
+      summary: List current Lot and Batch revisions for one Material.
+      security: [{BearerAuth: []}]
+      parameters:
+        - $ref: "#/components/parameters/MaterialId"
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 100, default: 100}
+      responses:
+        "200":
+          description: Current typed Lot and Batch identities.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialLotResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: Material is not visible.}
+    post:
+      operationId: createMaterialLot
+      tags: [catalog]
+      summary: Create a Lot or Batch identity pinned to a Material revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialLotCreateRequest"}
+      responses:
+        "201":
+          description: Material Lot revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialLotResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: Material revision is not visible.}
+        "422": {description: Typed Lot content is invalid.}
+  /api/v1/material-lots/{material_lot_id}/revisions:
+    post:
+      operationId: reviseMaterialLot
+      tags: [catalog]
+      summary: Append an immutable Lot or Batch revision using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: material_lot_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialLotCreateRequest"}
+      responses:
+        "200":
+          description: New Material Lot revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialLotResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: Material Lot is not visible.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/material-states/{material_state_id}/genealogy:
+    get:
+      operationId: getStateGenealogy
+      tags: [catalog]
+      summary: Read exact current Process and Lot revision links for a Material State.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Current genealogy, or null before it is established.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - {$ref: "../catalog/catalog-resources.schema.json#/$defs/StateGenealogyResponse"}
+                  - {type: "null"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+    post:
+      operationId: createStateGenealogy
+      tags: [catalog]
+      summary: Create exact Process and Lot revision links for a Material State revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/StateGenealogyCreateRequest"}
+      responses:
+        "201":
+          description: Stable State Genealogy identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/StateGenealogyResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Typed revision link conflicts.}
+        "422": {description: Genealogy links are invalid.}
+  /api/v1/state-genealogies/{state_genealogy_id}/revisions:
+    post:
+      operationId: reviseStateGenealogy
+      tags: [catalog]
+      summary: Append exact genealogy links using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: state_genealogy_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/StateGenealogyCreateRequest"}
+      responses:
+        "200":
+          description: New State Genealogy revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/StateGenealogyResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: State Genealogy is not visible.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/materials:
     get:
       operationId: listMaterials

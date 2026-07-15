@@ -261,6 +261,80 @@ export interface MaterialStateResponse {
   property_sets_url: string;
 }
 
+export type ProcessKind = "manufacturing" | "heat_treatment" | "conditioning" | "other";
+export type LotKind = "lot" | "batch";
+
+export interface ProcessDefinitionContent {
+  process_code: string;
+  name: string;
+  kind: ProcessKind;
+  description: string | null;
+}
+
+export interface ProcessDefinitionResponse {
+  process_definition_id: string;
+  current_revision: RevisionMetadata & {
+    content: ProcessDefinitionContent;
+    provenance: ProvenanceSummary;
+  };
+}
+
+export interface MaterialLotContent {
+  material_id: string;
+  material_revision_id: string;
+  lot_code: string;
+  kind: LotKind;
+  manufacturer: string | null;
+  supplier: string | null;
+  description: string | null;
+}
+
+export interface MaterialLotResponse {
+  material_lot_id: string;
+  material_id: string;
+  current_revision: RevisionMetadata & {
+    content: MaterialLotContent;
+    provenance: ProvenanceSummary;
+  };
+}
+
+export interface StateGenealogyContent {
+  material_state_id: string;
+  material_state_revision_id: string;
+  manufacturing_process_id: string | null;
+  manufacturing_process_revision_id: string | null;
+  heat_treatment_process_id: string | null;
+  heat_treatment_process_revision_id: string | null;
+  material_lot_id: string | null;
+  material_lot_revision_id: string | null;
+  note: string | null;
+}
+
+export interface StateGenealogyResponse {
+  state_genealogy_id: string;
+  material_state_id: string;
+  current_revision: RevisionMetadata & {
+    content: StateGenealogyContent;
+    provenance: ProvenanceSummary;
+  };
+}
+
+export interface ProcessDefinitionCreateInput {
+  classification: DataClassification;
+  content: ProcessDefinitionContent;
+  change_reason: string;
+}
+
+export interface MaterialLotCreateInput {
+  content: Omit<MaterialLotContent, "material_id">;
+  change_reason: string;
+}
+
+export interface StateGenealogyCreateInput {
+  content: Omit<StateGenealogyContent, "material_state_id">;
+  change_reason: string;
+}
+
 export interface PropertySetContent {
   material_state_id: string;
   material_state_revision_id: string;

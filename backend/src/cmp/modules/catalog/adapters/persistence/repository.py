@@ -12,27 +12,41 @@ from sqlalchemy.orm import Session
 
 from cmp.modules.catalog.application.service import (
     MATERIAL_AGGREGATE_TYPE,
+    MATERIAL_LOT_AGGREGATE_TYPE,
     MATERIAL_STATE_AGGREGATE_TYPE,
+    PROCESS_DEFINITION_AGGREGATE_TYPE,
     PROPERTY_SET_AGGREGATE_TYPE,
+    STATE_GENEALOGY_AGGREGATE_TYPE,
     CatalogRepository,
     MaterialDetail,
+    MaterialLotSnapshot,
     MaterialSnapshot,
     MaterialStateSnapshot,
+    ProcessDefinitionSnapshot,
     PropertySetSnapshot,
     RevisionSnapshot,
+    StateGenealogySnapshot,
 )
 from cmp.modules.catalog.domain.model import (
     Applicability,
     CatalogNotFound,
+    LotKind,
     MaterialClass,
     MaterialContent,
+    MaterialLotContent,
     MaterialStateContent,
+    ProcessDefinitionContent,
+    ProcessKind,
     PropertySetContent,
     PropertySource,
     PropertySourceKind,
+    StateGenealogyContent,
     material_canonical,
+    material_lot_canonical,
     material_state_canonical,
+    process_definition_canonical,
     property_set_canonical,
+    state_genealogy_canonical,
 )
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
 from cmp.modules.identity_access.domain.security import SecurityContext
@@ -191,6 +205,130 @@ property_set_revision_table = sa.Table(
     schema="catalog",
 )
 
+process_definition_table = sa.Table(
+    "process_definition",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    schema="catalog",
+)
+process_definition_revision_table = sa.Table(
+    "process_definition_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("revision_no", sa.BigInteger(), nullable=False),
+    sa.Column("based_on_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("schema_id", sa.String(255), nullable=False),
+    sa.Column("schema_version", sa.String(64), nullable=False),
+    sa.Column("content_hash", sa.CHAR(64), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("process_code", sa.String(100), nullable=False),
+    sa.Column("name", sa.String(200), nullable=False),
+    sa.Column("kind", sa.String(32), nullable=False),
+    sa.Column("description", sa.Text(), nullable=True),
+    schema="catalog",
+)
+
+material_lot_table = sa.Table(
+    "material_lot",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_id", sa.Uuid(), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    schema="catalog",
+)
+material_lot_revision_table = sa.Table(
+    "material_lot_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("revision_no", sa.BigInteger(), nullable=False),
+    sa.Column("based_on_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("schema_id", sa.String(255), nullable=False),
+    sa.Column("schema_version", sa.String(64), nullable=False),
+    sa.Column("content_hash", sa.CHAR(64), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("material_id", sa.Uuid(), nullable=False),
+    sa.Column("material_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("lot_code", sa.String(100), nullable=False),
+    sa.Column("kind", sa.String(16), nullable=False),
+    sa.Column("manufacturer", sa.String(200), nullable=True),
+    sa.Column("supplier", sa.String(200), nullable=True),
+    sa.Column("description", sa.Text(), nullable=True),
+    schema="catalog",
+)
+
+state_genealogy_table = sa.Table(
+    "state_genealogy",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_state_id", sa.Uuid(), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    schema="catalog",
+)
+state_genealogy_revision_table = sa.Table(
+    "state_genealogy_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("revision_no", sa.BigInteger(), nullable=False),
+    sa.Column("based_on_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("schema_id", sa.String(255), nullable=False),
+    sa.Column("schema_version", sa.String(64), nullable=False),
+    sa.Column("content_hash", sa.CHAR(64), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("material_state_id", sa.Uuid(), nullable=False),
+    sa.Column("material_state_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("manufacturing_process_id", sa.Uuid(), nullable=True),
+    sa.Column("manufacturing_process_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("heat_treatment_process_id", sa.Uuid(), nullable=True),
+    sa.Column("heat_treatment_process_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("material_lot_id", sa.Uuid(), nullable=True),
+    sa.Column("material_lot_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("note", sa.Text(), nullable=True),
+    schema="catalog",
+)
+
 
 def _record(row: Any) -> RevisionRecord:
     return RevisionRecord(
@@ -232,6 +370,41 @@ def _material_state_content(row: Any) -> MaterialStateContent:
         heat_treatment=row["heat_treatment"],
         lot_or_batch=row["lot_or_batch"],
         description=row["description"],
+    )
+
+
+def _process_definition_content(row: Any) -> ProcessDefinitionContent:
+    return ProcessDefinitionContent(
+        process_code=row["process_code"],
+        name=row["name"],
+        kind=ProcessKind(row["kind"]),
+        description=row["description"],
+    )
+
+
+def _material_lot_content(row: Any) -> MaterialLotContent:
+    return MaterialLotContent(
+        material_id=row["material_id"],
+        material_revision_id=row["material_revision_id"],
+        lot_code=row["lot_code"],
+        kind=LotKind(row["kind"]),
+        manufacturer=row["manufacturer"],
+        supplier=row["supplier"],
+        description=row["description"],
+    )
+
+
+def _state_genealogy_content(row: Any) -> StateGenealogyContent:
+    return StateGenealogyContent(
+        material_state_id=row["material_state_id"],
+        material_state_revision_id=row["material_state_revision_id"],
+        manufacturing_process_id=row["manufacturing_process_id"],
+        manufacturing_process_revision_id=row["manufacturing_process_revision_id"],
+        heat_treatment_process_id=row["heat_treatment_process_id"],
+        heat_treatment_process_revision_id=row["heat_treatment_process_revision_id"],
+        material_lot_id=row["material_lot_id"],
+        material_lot_revision_id=row["material_lot_revision_id"],
+        note=row["note"],
     )
 
 
@@ -282,6 +455,41 @@ def _material_state_values(content: MaterialStateContent) -> dict[str, Any]:
         "heat_treatment": content.heat_treatment,
         "lot_or_batch": content.lot_or_batch,
         "description": content.description,
+    }
+
+
+def _process_definition_values(content: ProcessDefinitionContent) -> dict[str, Any]:
+    return {
+        "process_code": content.process_code,
+        "name": content.name,
+        "kind": content.kind.value,
+        "description": content.description,
+    }
+
+
+def _material_lot_values(content: MaterialLotContent) -> dict[str, Any]:
+    return {
+        "material_id": content.material_id,
+        "material_revision_id": content.material_revision_id,
+        "lot_code": content.lot_code,
+        "kind": content.kind.value,
+        "manufacturer": content.manufacturer,
+        "supplier": content.supplier,
+        "description": content.description,
+    }
+
+
+def _state_genealogy_values(content: StateGenealogyContent) -> dict[str, Any]:
+    return {
+        "material_state_id": content.material_state_id,
+        "material_state_revision_id": content.material_state_revision_id,
+        "manufacturing_process_id": content.manufacturing_process_id,
+        "manufacturing_process_revision_id": content.manufacturing_process_revision_id,
+        "heat_treatment_process_id": content.heat_treatment_process_id,
+        "heat_treatment_process_revision_id": content.heat_treatment_process_revision_id,
+        "material_lot_id": content.material_lot_id,
+        "material_lot_revision_id": content.material_lot_revision_id,
+        "note": content.note,
     }
 
 
@@ -338,6 +546,29 @@ _PROPERTY_SET_TABLES: TypedRevisionTables[PropertySetContent] = TypedRevisionTab
     revision_table=property_set_revision_table,
     canonical_content=property_set_canonical,
     content_values=_property_set_values,
+    identity_values=lambda content: {"material_state_id": content.material_state_id},
+)
+_PROCESS_DEFINITION_TABLES: TypedRevisionTables[ProcessDefinitionContent] = TypedRevisionTables(
+    aggregate_type=PROCESS_DEFINITION_AGGREGATE_TYPE,
+    identity_table=process_definition_table,
+    revision_table=process_definition_revision_table,
+    canonical_content=process_definition_canonical,
+    content_values=_process_definition_values,
+)
+_MATERIAL_LOT_TABLES: TypedRevisionTables[MaterialLotContent] = TypedRevisionTables(
+    aggregate_type=MATERIAL_LOT_AGGREGATE_TYPE,
+    identity_table=material_lot_table,
+    revision_table=material_lot_revision_table,
+    canonical_content=material_lot_canonical,
+    content_values=_material_lot_values,
+    identity_values=lambda content: {"material_id": content.material_id},
+)
+_STATE_GENEALOGY_TABLES: TypedRevisionTables[StateGenealogyContent] = TypedRevisionTables(
+    aggregate_type=STATE_GENEALOGY_AGGREGATE_TYPE,
+    identity_table=state_genealogy_table,
+    revision_table=state_genealogy_revision_table,
+    canonical_content=state_genealogy_canonical,
+    content_values=_state_genealogy_values,
     identity_values=lambda content: {"material_state_id": content.material_state_id},
 )
 
@@ -418,6 +649,25 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
     ) -> RevisionStore[PropertySetContent]:
         return self._store(context=context, decision=decision, tables=_PROPERTY_SET_TABLES)
 
+    def process_definition_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ProcessDefinitionContent]:
+        return self._store(
+            context=context, decision=decision, tables=_PROCESS_DEFINITION_TABLES
+        )
+
+    def material_lot_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[MaterialLotContent]:
+        return self._store(context=context, decision=decision, tables=_MATERIAL_LOT_TABLES)
+
+    def state_genealogy_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[StateGenealogyContent]:
+        return self._store(
+            context=context, decision=decision, tables=_STATE_GENEALOGY_TABLES
+        )
+
     @staticmethod
     def _current_join(identity: sa.Table, revision: sa.Table) -> Any:
         return identity.join(
@@ -452,6 +702,29 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
             row["identity_id"],
             row["identity_material_state_id"],
             RevisionSnapshot(_record(row), _property_set_content(row)),
+        )
+
+    @staticmethod
+    def _process_definition_snapshot(row: Any) -> ProcessDefinitionSnapshot:
+        return ProcessDefinitionSnapshot(
+            row["identity_id"],
+            RevisionSnapshot(_record(row), _process_definition_content(row)),
+        )
+
+    @staticmethod
+    def _material_lot_snapshot(row: Any) -> MaterialLotSnapshot:
+        return MaterialLotSnapshot(
+            row["identity_id"],
+            row["identity_material_id"],
+            RevisionSnapshot(_record(row), _material_lot_content(row)),
+        )
+
+    @staticmethod
+    def _state_genealogy_snapshot(row: Any) -> StateGenealogySnapshot:
+        return StateGenealogySnapshot(
+            row["identity_id"],
+            row["identity_material_state_id"],
+            RevisionSnapshot(_record(row), _state_genealogy_content(row)),
         )
 
     @staticmethod
@@ -515,6 +788,65 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
         ).select_from(
             SqlAlchemyCatalogRepository._current_join(
                 property_set_table, property_set_revision_table
+            )
+        )
+
+    @staticmethod
+    def _current_process_definition_statement() -> sa.Select[Any]:
+        return sa.select(
+            process_definition_table.c.id.label("identity_id"),
+            *_revision_columns(
+                process_definition_revision_table, PROCESS_DEFINITION_AGGREGATE_TYPE
+            ),
+            process_definition_revision_table.c.process_code,
+            process_definition_revision_table.c.name,
+            process_definition_revision_table.c.kind,
+            process_definition_revision_table.c.description,
+        ).select_from(
+            SqlAlchemyCatalogRepository._current_join(
+                process_definition_table, process_definition_revision_table
+            )
+        )
+
+    @staticmethod
+    def _current_material_lot_statement() -> sa.Select[Any]:
+        return sa.select(
+            material_lot_table.c.id.label("identity_id"),
+            material_lot_table.c.material_id.label("identity_material_id"),
+            *_revision_columns(material_lot_revision_table, MATERIAL_LOT_AGGREGATE_TYPE),
+            material_lot_revision_table.c.material_id,
+            material_lot_revision_table.c.material_revision_id,
+            material_lot_revision_table.c.lot_code,
+            material_lot_revision_table.c.kind,
+            material_lot_revision_table.c.manufacturer,
+            material_lot_revision_table.c.supplier,
+            material_lot_revision_table.c.description,
+        ).select_from(
+            SqlAlchemyCatalogRepository._current_join(
+                material_lot_table, material_lot_revision_table
+            )
+        )
+
+    @staticmethod
+    def _current_state_genealogy_statement() -> sa.Select[Any]:
+        return sa.select(
+            state_genealogy_table.c.id.label("identity_id"),
+            state_genealogy_table.c.material_state_id.label("identity_material_state_id"),
+            *_revision_columns(
+                state_genealogy_revision_table, STATE_GENEALOGY_AGGREGATE_TYPE
+            ),
+            state_genealogy_revision_table.c.material_state_id,
+            state_genealogy_revision_table.c.material_state_revision_id,
+            state_genealogy_revision_table.c.manufacturing_process_id,
+            state_genealogy_revision_table.c.manufacturing_process_revision_id,
+            state_genealogy_revision_table.c.heat_treatment_process_id,
+            state_genealogy_revision_table.c.heat_treatment_process_revision_id,
+            state_genealogy_revision_table.c.material_lot_id,
+            state_genealogy_revision_table.c.material_lot_revision_id,
+            state_genealogy_revision_table.c.note,
+        ).select_from(
+            SqlAlchemyCatalogRepository._current_join(
+                state_genealogy_table, state_genealogy_revision_table
             )
         )
 
@@ -721,3 +1053,147 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
             states,
             tuple(self._property_set_snapshot(row) for row in property_rows),
         )
+
+    def list_process_definitions(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        kind: ProcessKind | None,
+        limit: int,
+    ) -> tuple[ProcessDefinitionSnapshot, ...]:
+        statement = self._current_process_definition_statement()
+        if kind is not None:
+            statement = statement.where(
+                process_definition_revision_table.c.kind == kind.value
+            )
+        statement = statement.order_by(
+            process_definition_revision_table.c.name.asc(),
+            process_definition_table.c.id.asc(),
+        ).limit(limit)
+        with self._transaction(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+        return tuple(self._process_definition_snapshot(row) for row in rows)
+
+    def get_process_definition(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_definition_id: UUID,
+    ) -> ProcessDefinitionSnapshot:
+        statement = self._current_process_definition_statement().where(
+            process_definition_table.c.id == process_definition_id
+        )
+        with self._transaction(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise CatalogNotFound(str(process_definition_id))
+        return self._process_definition_snapshot(row)
+
+    def get_process_definition_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_definition_id: UUID,
+        revision_id: UUID,
+    ) -> RevisionSnapshot[ProcessDefinitionContent]:
+        statement = self._revision_statement(
+            process_definition_revision_table, PROCESS_DEFINITION_AGGREGATE_TYPE
+        ).where(
+            process_definition_revision_table.c.aggregate_id == process_definition_id,
+            process_definition_revision_table.c.id == revision_id,
+        )
+        with self._transaction(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise CatalogNotFound(str(revision_id))
+        return RevisionSnapshot(_record(row), _process_definition_content(row))
+
+    def list_material_lots(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_id: UUID,
+        limit: int,
+    ) -> tuple[MaterialLotSnapshot, ...]:
+        statement = (
+            self._current_material_lot_statement()
+            .where(material_lot_table.c.material_id == material_id)
+            .order_by(
+                material_lot_revision_table.c.lot_code.asc(),
+                material_lot_table.c.id.asc(),
+            )
+            .limit(limit)
+        )
+        with self._transaction(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+        return tuple(self._material_lot_snapshot(row) for row in rows)
+
+    def get_material_lot(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_lot_id: UUID,
+    ) -> MaterialLotSnapshot:
+        statement = self._current_material_lot_statement().where(
+            material_lot_table.c.id == material_lot_id
+        )
+        with self._transaction(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise CatalogNotFound(str(material_lot_id))
+        return self._material_lot_snapshot(row)
+
+    def get_material_lot_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_lot_id: UUID,
+        revision_id: UUID,
+    ) -> RevisionSnapshot[MaterialLotContent]:
+        statement = self._revision_statement(
+            material_lot_revision_table, MATERIAL_LOT_AGGREGATE_TYPE
+        ).where(
+            material_lot_revision_table.c.aggregate_id == material_lot_id,
+            material_lot_revision_table.c.id == revision_id,
+        )
+        with self._transaction(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise CatalogNotFound(str(revision_id))
+        return RevisionSnapshot(_record(row), _material_lot_content(row))
+
+    def get_state_genealogy_for_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> StateGenealogySnapshot | None:
+        statement = self._current_state_genealogy_statement().where(
+            state_genealogy_table.c.material_state_id == material_state_id
+        )
+        with self._transaction(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        return self._state_genealogy_snapshot(row) if row is not None else None
+
+    def get_state_genealogy(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        state_genealogy_id: UUID,
+    ) -> StateGenealogySnapshot:
+        statement = self._current_state_genealogy_statement().where(
+            state_genealogy_table.c.id == state_genealogy_id
+        )
+        with self._transaction(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise CatalogNotFound(str(state_genealogy_id))
+        return self._state_genealogy_snapshot(row)

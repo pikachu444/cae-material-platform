@@ -14,23 +14,35 @@ from alembic.config import Config
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.adapters.persistence.repository import (
     SqlAlchemyCatalogRepository,
+    material_lot_revision_table,
     material_revision_table,
+    state_genealogy_revision_table,
 )
 from cmp.modules.catalog.application.service import (
     CatalogService,
     CreateMaterial,
+    CreateMaterialLot,
     CreateMaterialState,
+    CreateProcessDefinition,
     CreatePropertySet,
+    CreateStateGenealogy,
     ReviseMaterial,
+    ReviseStateGenealogy,
 )
 from cmp.modules.catalog.domain.model import (
+    CatalogConflict,
     CatalogNotFound,
+    LotKind,
     MaterialClass,
     MaterialContent,
+    MaterialLotContent,
     MaterialStateContent,
+    ProcessDefinitionContent,
+    ProcessKind,
     PropertySetContent,
     PropertySource,
     PropertySourceKind,
+    StateGenealogyContent,
 )
 from cmp.modules.exporting.adapters.persistence.repository import (
     SqlAlchemyExportingRepository,
@@ -433,6 +445,202 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
             sa.text("SELECT count(*) FROM audit.event WHERE action LIKE 'catalog.%'")
         )
     assert lifecycle_count == provenance_count == audit_count == 4
+
+
+def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.CATALOG_WRITE)
+    read = _decision(context, Permission.CATALOG_READ)
+    material = postgres.service.create_material(
+        context,
+        write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent("Reference genealogy steel", "GEN-01", "steel"),
+            "create genealogy material",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "Quenched and tempered",
+            ),
+            "create genealogy state",
+        ),
+    )
+    manufacturing = postgres.service.create_process_definition(
+        context,
+        write,
+        CreateProcessDefinition(
+            DataClassification.INTERNAL,
+            ProcessDefinitionContent(
+                "MFG-FORGING-01", "Closed-die forging", ProcessKind.MANUFACTURING
+            ),
+            "register manufacturing process",
+        ),
+    )
+    heat = postgres.service.create_process_definition(
+        context,
+        write,
+        CreateProcessDefinition(
+            DataClassification.INTERNAL,
+            ProcessDefinitionContent(
+                "HT-QT-01", "Quench and temper", ProcessKind.HEAT_TREATMENT
+            ),
+            "register heat-treatment process",
+        ),
+    )
+    lot = postgres.service.create_material_lot(
+        context,
+        write,
+        CreateMaterialLot(
+            MaterialLotContent(
+                material.id,
+                material.current.record.revision_id,
+                "HEAT-2026-0716",
+                LotKind.BATCH,
+                manufacturer="Reference mill",
+            ),
+            "register source heat",
+        ),
+    )
+    genealogy = postgres.service.create_state_genealogy(
+        context,
+        write,
+        CreateStateGenealogy(
+            StateGenealogyContent(
+                material_state_id=state.id,
+                material_state_revision_id=state.current.record.revision_id,
+                manufacturing_process_id=manufacturing.id,
+                manufacturing_process_revision_id=manufacturing.current.record.revision_id,
+                heat_treatment_process_id=heat.id,
+                heat_treatment_process_revision_id=heat.current.record.revision_id,
+                material_lot_id=lot.id,
+                material_lot_revision_id=lot.current.record.revision_id,
+            ),
+            "pin exact genealogy sources",
+        ),
+    )
+
+    assert postgres.service.list_process_definitions(context, read) == (
+        manufacturing,
+        heat,
+    )
+    assert postgres.service.list_material_lots(context, read, material.id) == (lot,)
+    assert postgres.service.get_state_genealogy_for_state(context, read, state.id) == genealogy
+
+    with pytest.raises(CatalogConflict, match="matching process kind"):
+        postgres.service.revise_state_genealogy(
+            context,
+            write,
+            genealogy.id,
+            ReviseStateGenealogy(
+                genealogy.current.record.revision_id,
+                StateGenealogyContent(
+                    material_state_id=state.id,
+                    material_state_revision_id=state.current.record.revision_id,
+                    heat_treatment_process_id=manufacturing.id,
+                    heat_treatment_process_revision_id=(
+                        manufacturing.current.record.revision_id
+                    ),
+                ),
+                "reject role mismatch",
+            ),
+        )
+
+    revised = postgres.service.revise_state_genealogy(
+        context,
+        write,
+        genealogy.id,
+        ReviseStateGenealogy(
+            genealogy.current.record.revision_id,
+            StateGenealogyContent(
+                material_state_id=state.id,
+                material_state_revision_id=state.current.record.revision_id,
+                manufacturing_process_id=manufacturing.id,
+                manufacturing_process_revision_id=manufacturing.current.record.revision_id,
+                heat_treatment_process_id=heat.id,
+                heat_treatment_process_revision_id=heat.current.record.revision_id,
+                material_lot_id=lot.id,
+                material_lot_revision_id=lot.current.record.revision_id,
+                note="Reviewed genealogy",
+            ),
+            "record genealogy review note",
+        ),
+    )
+    assert revised.current.record.revision_no == 2
+    assert revised.current.record.based_on_revision_id == genealogy.current.record.revision_id
+
+    with pytest.raises(DBAPIError):
+        with postgres.sessions() as session, session.begin():
+            postgres.rls.bind_authorization(session, context, write)
+            session.execute(
+                sa.update(state_genealogy_revision_table)
+                .where(
+                    state_genealogy_revision_table.c.id
+                    == genealogy.current.record.revision_id
+                )
+                .values(note="mutated immutable link")
+            )
+
+    other_context = _context(PROJECT_B)
+    assert (
+        postgres.service.get_state_genealogy_for_state(
+            other_context,
+            _decision(other_context, Permission.CATALOG_READ),
+            state.id,
+        )
+        is None
+    )
+
+    with postgres.admin_engine.connect() as connection:
+        secured_tables = {
+            str(row[0]): bool(row[1])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT c.relname, c.relrowsecurity AND c.relforcerowsecurity "
+                    "FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
+                    "WHERE n.nspname='catalog' AND c.relname IN "
+                    "('process_definition','process_definition_revision','material_lot',"
+                    "'material_lot_revision','state_genealogy','state_genealogy_revision')"
+                )
+            ).all()
+        }
+        triggers = {
+            str(row[0])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT g.tgname FROM pg_trigger g JOIN pg_class c ON c.oid=g.tgrelid "
+                    "JOIN pg_namespace n ON n.oid=c.relnamespace "
+                    "WHERE n.nspname='catalog' AND c.relname='state_genealogy_revision' "
+                    "AND NOT g.tgisinternal"
+                )
+            ).all()
+        }
+    assert secured_tables == {
+        "process_definition": True,
+        "process_definition_revision": True,
+        "material_lot": True,
+        "material_lot_revision": True,
+        "state_genealogy": True,
+        "state_genealogy_revision": True,
+    }
+    assert "catalog_state_genealogy_source_guard" in triggers
+
+    with pytest.raises(DBAPIError):
+        with postgres.sessions() as session, session.begin():
+            postgres.rls.bind_authorization(session, context, write)
+            session.execute(
+                sa.update(material_lot_revision_table)
+                .where(material_lot_revision_table.c.id == lot.current.record.revision_id)
+                .values(lot_code="MUTATED")
+            )
 
 
 def test_reference_material_model_is_immutable_source_pinned_and_tenant_scoped(

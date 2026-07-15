@@ -168,11 +168,13 @@ solver qualification은 제품 소유자 결정에 따라 `P2`로 미루며, P1�
 
 #### T-07. Material/State/Process/Lot/Batch domain — `P0`
 
-- **MVP progress (2026-07-13):** Material, Material State, and typed basic Property Set revisions
-  are implemented with explicit PostgreSQL tables/constraints/indexes/RLS, create/search/detail/
-  compare APIs, and same-transaction lifecycle/provenance/audit hooks. Process/Lot/Batch genealogy
-  and its multi-lot acceptance fixtures remain pending; this records a completed MVP subset, not the
-  full T-07 task.
+- **Expanded vertical progress (2026-07-16):** Material, Material State, and typed basic Property
+  Set revisions are joined by governed Process Definition, Material Lot/Batch, and State Genealogy
+  stable identities with immutable typed revisions. Genealogy revisions pin exact State, Process,
+  and Lot revisions; role, tenant/classification, and Material-revision equality are enforced in
+  the service and PostgreSQL. Protected APIs and the Material State UI create/select/revise these
+  links. Process-run input/output graphs, lot split/merge, multi-lot acceptance fixtures, and ERP
+  integration remain pending, so this is still a bounded T-07 subset rather than the full Task.
 
 - **목적:** material identity, state, process definition/run, lot, batch 및 input/output 관계를 구현한다.
 - **입력과 출력:** 입력은 metadata/revision commands; 출력은 typed catalog revisions와 batch genealogy.

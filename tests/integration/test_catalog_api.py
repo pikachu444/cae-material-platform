@@ -9,19 +9,29 @@ import httpx
 from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.application.service import (
     MATERIAL_AGGREGATE_TYPE,
+    MATERIAL_LOT_AGGREGATE_TYPE,
     MATERIAL_STATE_AGGREGATE_TYPE,
+    PROCESS_DEFINITION_AGGREGATE_TYPE,
     PROPERTY_SET_AGGREGATE_TYPE,
+    STATE_GENEALOGY_AGGREGATE_TYPE,
     CatalogService,
     MaterialDetail,
+    MaterialLotSnapshot,
     MaterialSnapshot,
     MaterialStateSnapshot,
+    ProcessDefinitionSnapshot,
     PropertySetSnapshot,
     RevisionSnapshot,
+    StateGenealogySnapshot,
 )
 from cmp.modules.catalog.domain.model import (
+    LotKind,
     MaterialClass,
     MaterialContent,
+    MaterialLotContent,
     MaterialStateContent,
+    ProcessDefinitionContent,
+    ProcessKind,
     PropertySetContent,
     PropertySource,
     PropertySourceKind,
@@ -52,6 +62,12 @@ STATE = UUID("c8000000-0000-4000-8000-000000000007")
 STATE_REVISION = UUID("c8000000-0000-4000-8000-000000000008")
 PROPERTY_SET = UUID("c8000000-0000-4000-8000-000000000009")
 PROPERTY_SET_REVISION = UUID("c8000000-0000-4000-8000-00000000000a")
+PROCESS = UUID("c8000000-0000-4000-8000-00000000000b")
+PROCESS_REVISION = UUID("c8000000-0000-4000-8000-00000000000c")
+LOT = UUID("c8000000-0000-4000-8000-00000000000d")
+LOT_REVISION = UUID("c8000000-0000-4000-8000-00000000000e")
+GENEALOGY = UUID("c8000000-0000-4000-8000-00000000000f")
+GENEALOGY_REVISION = UUID("c8000000-0000-4000-8000-000000000010")
 TRACE = "00-000000000000000000000000000000c8-00000000000000c8-01"
 
 
@@ -169,6 +185,32 @@ class _CatalogService:
                 property_content,
             ),
         )
+        self.process = ProcessDefinitionSnapshot(
+            PROCESS,
+            RevisionSnapshot(
+                _record(
+                    PROCESS_DEFINITION_AGGREGATE_TYPE,
+                    PROCESS,
+                    PROCESS_REVISION,
+                    1,
+                    "e" * 64,
+                ),
+                ProcessDefinitionContent(
+                    "HT-QT-01", "Quench and temper", ProcessKind.HEAT_TREATMENT
+                ),
+            ),
+        )
+        self.lot = MaterialLotSnapshot(
+            LOT,
+            MATERIAL,
+            RevisionSnapshot(
+                _record(MATERIAL_LOT_AGGREGATE_TYPE, LOT, LOT_REVISION, 1, "f" * 64),
+                MaterialLotContent(
+                    MATERIAL, MATERIAL_REVISION_1, "HEAT-001", LotKind.BATCH
+                ),
+            ),
+        )
+        self.genealogy: StateGenealogySnapshot | None = None
 
     def create_material(
         self, context: SecurityContext, decision: AuthorizationDecision, command: Any
@@ -333,6 +375,92 @@ class _CatalogService:
         del context, decision, property_set_id, command
         return self.property_set
 
+    def create_process_definition(
+        self, context: SecurityContext, decision: AuthorizationDecision, command: Any
+    ) -> ProcessDefinitionSnapshot:
+        del context, decision
+        self.process = ProcessDefinitionSnapshot(
+            PROCESS,
+            RevisionSnapshot(
+                _record(
+                    PROCESS_DEFINITION_AGGREGATE_TYPE,
+                    PROCESS,
+                    PROCESS_REVISION,
+                    1,
+                    "e" * 64,
+                ),
+                command.content,
+            ),
+        )
+        return self.process
+
+    def list_process_definitions(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        kind: ProcessKind | None,
+        limit: int,
+    ) -> tuple[ProcessDefinitionSnapshot, ...]:
+        del context, decision, kind, limit
+        return (self.process,)
+
+    def create_material_lot(
+        self, context: SecurityContext, decision: AuthorizationDecision, command: Any
+    ) -> MaterialLotSnapshot:
+        del context, decision
+        self.lot = MaterialLotSnapshot(
+            LOT,
+            MATERIAL,
+            RevisionSnapshot(
+                _record(MATERIAL_LOT_AGGREGATE_TYPE, LOT, LOT_REVISION, 1, "f" * 64),
+                command.content,
+            ),
+        )
+        return self.lot
+
+    def list_material_lots(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_id: UUID,
+        *,
+        limit: int,
+    ) -> tuple[MaterialLotSnapshot, ...]:
+        del context, decision, limit
+        assert material_id == MATERIAL
+        return (self.lot,)
+
+    def create_state_genealogy(
+        self, context: SecurityContext, decision: AuthorizationDecision, command: Any
+    ) -> StateGenealogySnapshot:
+        del context, decision
+        self.genealogy = StateGenealogySnapshot(
+            GENEALOGY,
+            STATE,
+            RevisionSnapshot(
+                _record(
+                    STATE_GENEALOGY_AGGREGATE_TYPE,
+                    GENEALOGY,
+                    GENEALOGY_REVISION,
+                    1,
+                    "1" * 64,
+                ),
+                command.content,
+            ),
+        )
+        return self.genealogy
+
+    def get_state_genealogy_for_state(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> StateGenealogySnapshot | None:
+        del context, decision
+        assert material_state_id == STATE
+        return self.genealogy
+
 
 def _application() -> FastAPI:
     application = FastAPI()
@@ -466,3 +594,69 @@ def test_catalog_api_supports_material_to_typed_properties_with_revision_etags()
     assert content["youngs_modulus_pa"] == 210000000000.0
     assert content["poisson_ratio"] == 0.3
     assert "key" not in content and "value" not in content
+
+
+def test_catalog_api_creates_exact_process_lot_and_state_genealogy_links() -> None:
+    application = _application()
+    process = _request(
+        application,
+        "POST",
+        "/api/v1/process-definitions",
+        json={
+            "classification": "internal",
+            "content": {
+                "process_code": "HT-QT-01",
+                "name": "Quench and temper",
+                "kind": "heat_treatment",
+            },
+            "change_reason": "register governed heat treatment",
+        },
+    )
+    assert process.status_code == 201
+    assert process.json()["current_revision"]["content"]["kind"] == "heat_treatment"
+
+    lot = _request(
+        application,
+        "POST",
+        f"/api/v1/materials/{MATERIAL}/lots",
+        json={
+            "content": {
+                "material_revision_id": str(MATERIAL_REVISION_1),
+                "lot_code": "HEAT-001",
+                "kind": "batch",
+            },
+            "change_reason": "register source heat",
+        },
+    )
+    assert lot.status_code == 201
+    assert lot.json()["current_revision"]["content"]["material_revision_id"] == str(
+        MATERIAL_REVISION_1
+    )
+
+    genealogy = _request(
+        application,
+        "POST",
+        f"/api/v1/material-states/{STATE}/genealogy",
+        json={
+            "content": {
+                "material_state_revision_id": str(STATE_REVISION),
+                "heat_treatment_process_id": str(PROCESS),
+                "heat_treatment_process_revision_id": str(PROCESS_REVISION),
+                "material_lot_id": str(LOT),
+                "material_lot_revision_id": str(LOT_REVISION),
+            },
+            "change_reason": "pin exact genealogy links",
+        },
+    )
+    assert genealogy.status_code == 201
+    genealogy_content = genealogy.json()["current_revision"]["content"]
+    assert genealogy_content["heat_treatment_process_revision_id"] == str(
+        PROCESS_REVISION
+    )
+    assert genealogy_content["material_lot_revision_id"] == str(LOT_REVISION)
+
+    read_back = _request(
+        application, "GET", f"/api/v1/material-states/{STATE}/genealogy"
+    )
+    assert read_back.status_code == 200
+    assert read_back.headers["ETag"] == genealogy.headers["ETag"]
