@@ -18,6 +18,8 @@ from cmp.modules.modeling.domain.reference_voce_calibration import (
     VocePlasticObservation,
     calibrate_reference_voce_curves,
     reference_voce_calibration_plan_canonical,
+    reference_voce_diagnostics_from_parquet,
+    reference_voce_diagnostics_parquet_bytes,
 )
 
 
@@ -194,6 +196,19 @@ def test_plan_canonical_pins_scope_weighting_optimizer_and_environment() -> None
     assert optimizer["rng_algorithm"] == "numpy.random.PCG64"
     assert isinstance(optimizer["environment_digest"], str)
     assert len(optimizer["environment_digest"]) == 64
+
+
+def test_candidate_diagnostics_round_trip_as_typed_parquet() -> None:
+    candidate = calibrate_reference_voce_curves(
+        _plan(multistart_count=1),
+        (_engineering_curve(0), _engineering_curve(1)),
+    )[0]
+
+    restored = reference_voce_diagnostics_from_parquet(
+        reference_voce_diagnostics_parquet_bytes(candidate.diagnostics)
+    )
+
+    assert restored == candidate.diagnostics
 
 
 def test_parameter_plan_rejects_initial_value_outside_bounds() -> None:

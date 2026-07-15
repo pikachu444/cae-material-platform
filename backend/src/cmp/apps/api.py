@@ -22,6 +22,7 @@ from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
     build_material_model_service,
     build_reference_calibration_service,
+    build_reference_voce_calibration_service,
     build_tabulated_plasticity_model_service,
 )
 from cmp.bootstrap.plugins import build_plugin_registry_service
@@ -75,11 +76,17 @@ from cmp.modules.modeling.adapters.api.material_models import install_material_m
 from cmp.modules.modeling.adapters.api.tabulated_plasticity import (
     install_tabulated_plasticity_api,
 )
+from cmp.modules.modeling.adapters.api.voce_calibration import (
+    install_voce_calibration_api,
+)
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelService,
+)
+from cmp.modules.modeling.application.voce_calibration import (
+    ReferenceVoceCalibrationService,
 )
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
@@ -142,6 +149,7 @@ def create_app(
     material_model_service: MaterialModelService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
+    voce_calibration_service: ReferenceVoceCalibrationService | None = None,
     candidate_selection_service: CandidateSelectionService | None = None,
     solver_card_service: SolverCardService | None = None,
     elastoplastic_solver_card_service: ElastoplasticSolverCardService | None = None,
@@ -343,13 +351,10 @@ def create_app(
             services.authorization, Permission.STATISTICS_EXECUTE
         ),
     )
-    resolved_replicate_outliers = (
-        replicate_outlier_service
-        or build_replicate_outlier_service(
-            services,
-            resolved_datasets,
-            resolved_artifacts,
-        )
+    resolved_replicate_outliers = replicate_outlier_service or build_replicate_outlier_service(
+        services,
+        resolved_datasets,
+        resolved_artifacts,
     )
     install_replicate_outlier_api(
         application,
@@ -403,6 +408,27 @@ def create_app(
     install_calibration_api(
         application,
         service=resolved_calibration,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CALIBRATION_EXECUTE
+        ),
+    )
+    resolved_voce_calibration = (
+        voce_calibration_service
+        or build_reference_voce_calibration_service(
+            services,
+            resolved_datasets,
+            resolved_catalog,
+            resolved_replicate_outliers,
+            resolved_artifacts,
+        )
+    )
+    install_voce_calibration_api(
+        application,
+        service=resolved_voce_calibration,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.MODELING_READ
@@ -517,6 +543,7 @@ def create_app(
     application.state.material_model_service = resolved_material_models
     application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
+    application.state.voce_calibration_service = resolved_voce_calibration
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
     application.state.elastoplastic_solver_card_service = resolved_elastoplastic_solver_cards

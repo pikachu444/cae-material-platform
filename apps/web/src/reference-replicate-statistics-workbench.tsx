@@ -15,6 +15,8 @@ import {
 } from "./api";
 import type {
   DataClassification,
+  MaterialStateResponse,
+  PropertySetResponse,
   ReplicateStatisticalCurveResponse,
   ReplicateStatisticalPlanResponse,
   ReplicateStatisticalResultResponse,
@@ -25,6 +27,7 @@ import type {
   ReferenceCalibrationScopeResponse,
   TensileReplicateSelectionResponse,
 } from "./types";
+import { ReferenceVoceCalibrationWorkbench } from "./reference-voce-calibration-workbench";
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
@@ -93,6 +96,8 @@ interface Props {
   classification: DataClassification;
   alignedDatasetRevisionIds: string[];
   pinnedSelection?: TensileReplicateSelectionResponse;
+  state?: MaterialStateResponse;
+  propertySet?: PropertySetResponse;
 }
 
 export function ReferenceReplicateStatisticsWorkbench({
@@ -100,6 +105,8 @@ export function ReferenceReplicateStatisticsWorkbench({
   classification,
   alignedDatasetRevisionIds,
   pinnedSelection,
+  state,
+  propertySet,
 }: Props) {
   const alignmentKey = useMemo(
     () => alignedDatasetRevisionIds.join(","),
@@ -516,6 +523,14 @@ export function ReferenceReplicateStatisticsWorkbench({
             </div>
           ) : null}
         </form>
+      ) : null}
+      {calibrationScope && propertySet && state ? (
+        <ReferenceVoceCalibrationWorkbench
+          config={config}
+          state={state}
+          propertySet={propertySet}
+          scope={calibrationScope}
+        />
       ) : null}
       {curve ? <StatisticsCurve curve={curve} /> : null}
     </div>

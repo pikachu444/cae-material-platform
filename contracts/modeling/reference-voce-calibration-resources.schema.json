@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:modeling:reference-voce-calibration-resources:1.0.0",
+  "$defs": {
+    "ParameterInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lower", "initial", "upper", "scale"],
+      "properties": {
+        "lower": {"type": "number", "exclusiveMinimum": 0},
+        "initial": {"type": "number", "exclusiveMinimum": 0},
+        "upper": {"type": "number", "exclusiveMinimum": 0},
+        "scale": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "PlanFields": {
+      "type": "object",
+      "required": [
+        "plan_label", "calibration_input_scope_id", "calibration_input_scope_revision_id",
+        "material_state_id", "material_state_revision_id", "property_set_id",
+        "property_set_revision_id", "youngs_modulus_pa", "sigma_0_pa", "q_pa", "b",
+        "normalization_stress_scale_pa", "multistart_count", "random_seed",
+        "maximum_function_evaluations", "ftol", "xtol", "gtol", "change_reason"
+      ],
+      "properties": {
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "calibration_input_scope_id": {"type": "string", "format": "uuid"},
+        "calibration_input_scope_revision_id": {"type": "string", "format": "uuid"},
+        "material_state_id": {"type": "string", "format": "uuid"},
+        "material_state_revision_id": {"type": "string", "format": "uuid"},
+        "property_set_id": {"type": "string", "format": "uuid"},
+        "property_set_revision_id": {"type": "string", "format": "uuid"},
+        "youngs_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "sigma_0_pa": {"$ref": "#/$defs/ParameterInput"},
+        "q_pa": {"$ref": "#/$defs/ParameterInput"},
+        "b": {"$ref": "#/$defs/ParameterInput"},
+        "normalization_stress_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "multistart_count": {"type": "integer", "minimum": 1, "maximum": 16},
+        "random_seed": {"type": "integer", "minimum": 0, "maximum": 9223372036854775807},
+        "maximum_function_evaluations": {"type": "integer", "minimum": 10, "maximum": 1000000},
+        "ftol": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "xtol": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "gtol": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CreatePlanRequest": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/PlanFields"},
+        {
+          "type": "object",
+          "required": ["classification"],
+          "properties": {
+            "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]}
+          }
+        }
+      ]
+    },
+    "RevisePlanRequest": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/PlanFields"},
+        {
+          "type": "object",
+          "required": ["expected_current_revision_id"],
+          "properties": {"expected_current_revision_id": {"type": "string", "format": "uuid"}}
+        }
+      ]
+    },
+    "ExecuteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_revision_id", "change_reason"],
+      "properties": {
+        "plan_revision_id": {"type": "string", "format": "uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "PlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voce_calibration_plan_id", "current_revision"],
+      "properties": {
+        "voce_calibration_plan_id": {"type": "string", "format": "uuid"},
+        "current_revision": {
+          "allOf": [
+            {"$ref": "../revisions/revision-metadata.schema.json"},
+            {
+              "type": "object",
+              "required": ["content"],
+              "properties": {
+                "content": {
+                  "type": "object",
+                  "required": ["plan_kind", "plan_label", "calibration_input_scope_revision_id", "parameters", "optimizer_method", "non_production"],
+                  "properties": {
+                    "plan_kind": {"const": "reference_multi_curve_voce_saturation"},
+                    "plan_label": {"type": "string"},
+                    "calibration_input_scope_revision_id": {"type": "string", "format": "uuid"},
+                    "parameters": {"type": "array", "minItems": 3, "maxItems": 3},
+                    "optimizer_method": {"const": "trf"},
+                    "non_production": {"const": true}
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "PlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/PlanResponse"}}}
+    },
+    "RunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "voce_calibration_run_id", "classification", "plan_id", "plan_revision_id",
+        "calibration_input_scope_id", "calibration_input_scope_revision_id", "property_set_id",
+        "property_set_revision_id", "source_curve_count", "execution_mode", "reproducibility_level",
+        "environment_digest", "status", "attempt_count", "candidate_count", "failure_code",
+        "change_reason", "started_at", "ended_at", "attempts", "candidates"
+      ],
+      "properties": {
+        "voce_calibration_run_id": {"type": "string", "format": "uuid"},
+        "classification": {"type": "string"},
+        "plan_id": {"type": "string", "format": "uuid"},
+        "plan_revision_id": {"type": "string", "format": "uuid"},
+        "calibration_input_scope_id": {"type": "string", "format": "uuid"},
+        "calibration_input_scope_revision_id": {"type": "string", "format": "uuid"},
+        "property_set_id": {"type": "string", "format": "uuid"},
+        "property_set_revision_id": {"type": "string", "format": "uuid"},
+        "source_curve_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "execution_mode": {"const": "reference_inline_scipy"},
+        "reproducibility_level": {"const": "R3"},
+        "environment_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "attempt_count": {"type": "integer", "minimum": 1, "maximum": 16},
+        "candidate_count": {"type": "integer", "minimum": 0, "maximum": 16},
+        "failure_code": {"type": ["string", "null"]},
+        "change_reason": {"type": "string"},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "attempts": {"type": "array"},
+        "candidates": {"type": "array"}
+      }
+    },
+    "DiagnosticPreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["calibration_candidate_id", "point_count", "returned_point_count", "sampled", "points"],
+      "properties": {
+        "calibration_candidate_id": {"type": "string", "format": "uuid"},
+        "point_count": {"type": "integer", "minimum": 6},
+        "returned_point_count": {"type": "integer", "minimum": 6, "maximum": 10000},
+        "sampled": {"type": "boolean"},
+        "points": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 10000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "member_ordinal", "dataset_revision_id", "point_ordinal", "true_plastic_strain",
+              "observed_true_yield_stress_pa", "predicted_true_yield_stress_pa",
+              "residual_true_yield_stress_pa", "normalized_residual", "effective_weight"
+            ],
+            "properties": {
+              "member_ordinal": {"type": "integer", "minimum": 0, "maximum": 49},
+              "dataset_revision_id": {"type": "string", "format": "uuid"},
+              "point_ordinal": {"type": "integer", "minimum": 0},
+              "true_plastic_strain": {"type": "number", "minimum": 0},
+              "observed_true_yield_stress_pa": {"type": "number"},
+              "predicted_true_yield_stress_pa": {"type": "number"},
+              "residual_true_yield_stress_pa": {"type": "number"},
+              "normalized_residual": {"type": "number"},
+              "effective_weight": {"type": "number", "exclusiveMinimum": 0}
+            }
+          }
+        }
+      }
+    }
+  }
+}

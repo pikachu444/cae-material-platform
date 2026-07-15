@@ -8,13 +8,16 @@ reference capability for monotonic tensile fixtures, not a production-qualified 
 
 from __future__ import annotations
 
+import io
 import math
 from dataclasses import dataclass
 from importlib.metadata import version
-from typing import Protocol, cast
+from typing import Any, Protocol, cast
 from uuid import UUID
 
 import numpy as np
+import pyarrow as pa
+import pyarrow.parquet as pq
 from numpy.typing import NDArray
 from scipy.optimize import least_squares  # type: ignore[import-untyped]
 
@@ -31,6 +34,9 @@ REFERENCE_VOCE_EVALUATOR_ID = "urn:cmp:reference:voce-closed-form-curve-evaluato
 REFERENCE_VOCE_OBJECTIVE_ID = "urn:cmp:reference:equal-specimen-normalized-wls:1.0.0"
 REFERENCE_SCIPY_OPTIMIZER_ID = "urn:cmp:reference:scipy-least-squares:1.0.0"
 REFERENCE_VOCE_EVALUATION_MODE = "closed_form_curve"
+REFERENCE_VOCE_DIAGNOSTICS_SCHEMA = (
+    "urn:cmp:modeling:reference-voce-calibration-diagnostics-parquet:1.0.0"
+)
 
 REFERENCE_VOCE_ENVIRONMENT_DIGEST = content_sha256(
     {
@@ -175,8 +181,7 @@ class ReferenceVoceCalibrationPlanContent:
             and self.residual_definition == "predicted_minus_observed_true_yield_stress"
             and self.specimen_weighting == "equal_specimen"
             and self.point_weighting == "uniform_within_specimen"
-            and self.objective_aggregation
-            == "mean_of_specimen_mean_normalized_squared_residual"
+            and self.objective_aggregation == "mean_of_specimen_mean_normalized_squared_residual"
             and self.x_domain_policy == "observed_pre_necking_positive_true_plastic_strain"
             and self.missing_data_policy == "reject"
             and self.optimizer_method == "trf"
@@ -473,10 +478,28 @@ class VoceDiagnosticPoint:
     normalized_residual: float
     effective_weight: float
 
+    def __post_init__(self) -> None:
+        if not 0 <= self.member_ordinal < 50 or self.point_ordinal < 0:
+            raise InvalidVoceCalibration("diagnostic ordinals are invalid")
+        _uuid("diagnostic dataset_revision_id", self.dataset_revision_id)
+        for name in (
+            "true_plastic_strain",
+            "observed_true_yield_stress_pa",
+            "predicted_true_yield_stress_pa",
+            "residual_true_yield_stress_pa",
+            "normalized_residual",
+            "effective_weight",
+        ):
+            if not math.isfinite(getattr(self, name)):
+                raise InvalidVoceCalibration(f"diagnostic {name} must be finite")
+        if self.true_plastic_strain < 0 or self.effective_weight <= 0:
+            raise InvalidVoceCalibration("diagnostic strain and effective weight are invalid")
+
 
 @dataclass(frozen=True, slots=True)
 class VoceObjectiveTerm:
     member_ordinal: int
+    dataset_id: UUID
     dataset_revision_id: UUID
     point_count: int
     mean_normalized_squared_residual: float
@@ -504,19 +527,19 @@ class ReferenceVoceCalibrationCandidate:
     uncertainty_status: str = "not_provided_reference"
 
 
-def _multistart_parameters(
+def reference_voce_multistart_parameters(
     plan: ReferenceVoceCalibrationPlanContent,
-) -> tuple[NDArray[np.float64], ...]:
+) -> tuple[tuple[float, float, float], ...]:
     initial = np.asarray([plan.sigma_0.initial, plan.q.initial, plan.b.initial], dtype=np.float64)
     starts = [initial]
     if plan.multistart_count == 1:
-        return tuple(starts)
+        return tuple((float(item[0]), float(item[1]), float(item[2])) for item in starts)
     rng = np.random.Generator(np.random.PCG64(plan.random_seed))
     lower = np.asarray([plan.sigma_0.lower, plan.q.lower, plan.b.lower], dtype=np.float64)
     upper = np.asarray([plan.sigma_0.upper, plan.q.upper, plan.b.upper], dtype=np.float64)
     for _ in range(plan.multistart_count - 1):
         starts.append(lower + rng.random(3, dtype=np.float64) * (upper - lower))
-    return tuple(starts)
+    return tuple((float(item[0]), float(item[1]), float(item[2])) for item in starts)
 
 
 def calibrate_reference_voce_curves(
@@ -536,7 +559,10 @@ def calibrate_reference_voce_curves(
     optimizer = optimizer_adapter or ScipyLeastSquaresOptimizerAdapter()
     curves = test_mode.adapt(inputs, youngs_modulus_pa=plan.youngs_modulus_pa)
     candidates: list[ReferenceVoceCalibrationCandidate] = []
-    for attempt_ordinal, start in enumerate(_multistart_parameters(plan), start=1):
+    for attempt_ordinal, start_values in enumerate(
+        reference_voce_multistart_parameters(plan), start=1
+    ):
+        start = np.asarray(start_values, dtype=np.float64)
         result = optimizer.optimize(
             plan=plan,
             curves=curves,
@@ -576,6 +602,7 @@ def calibrate_reference_voce_curves(
             terms.append(
                 VoceObjectiveTerm(
                     member_ordinal=curve.member_ordinal,
+                    dataset_id=curve.dataset_id,
                     dataset_revision_id=curve.dataset_revision_id,
                     point_count=len(curve.observations),
                     mean_normalized_squared_residual=(
@@ -668,3 +695,119 @@ def reference_voce_calibration_plan_canonical(
         },
         "non_production": value.non_production,
     }
+
+
+def reference_voce_diagnostics_parquet_bytes(
+    points: tuple[VoceDiagnosticPoint, ...],
+) -> bytes:
+    if len(points) < 6:
+        raise InvalidVoceCalibration("multi-curve diagnostics require at least six points")
+    table = pa.table(
+        {
+            "member_ordinal": pa.array([point.member_ordinal for point in points], type=pa.int16()),
+            "dataset_revision_id": pa.array(
+                [str(point.dataset_revision_id) for point in points], type=pa.string()
+            ),
+            "point_ordinal": pa.array([point.point_ordinal for point in points], type=pa.int32()),
+            "true_plastic_strain": pa.array(
+                [point.true_plastic_strain for point in points], type=pa.float64()
+            ),
+            "observed_true_yield_stress_pa": pa.array(
+                [point.observed_true_yield_stress_pa for point in points], type=pa.float64()
+            ),
+            "predicted_true_yield_stress_pa": pa.array(
+                [point.predicted_true_yield_stress_pa for point in points], type=pa.float64()
+            ),
+            "residual_true_yield_stress_pa": pa.array(
+                [point.residual_true_yield_stress_pa for point in points], type=pa.float64()
+            ),
+            "normalized_residual": pa.array(
+                [point.normalized_residual for point in points], type=pa.float64()
+            ),
+            "effective_weight": pa.array(
+                [point.effective_weight for point in points], type=pa.float64()
+            ),
+        }
+    ).replace_schema_metadata({b"cmp_schema_ref": REFERENCE_VOCE_DIAGNOSTICS_SCHEMA.encode()})
+    sink = io.BytesIO()
+    writer = cast(Any, pq.write_table)
+    writer(table, sink, compression="zstd", use_dictionary=False)
+    return sink.getvalue()
+
+
+def reference_voce_diagnostics_from_parquet(
+    value: bytes,
+) -> tuple[VoceDiagnosticPoint, ...]:
+    columns = (
+        "member_ordinal",
+        "dataset_revision_id",
+        "point_ordinal",
+        "true_plastic_strain",
+        "observed_true_yield_stress_pa",
+        "predicted_true_yield_stress_pa",
+        "residual_true_yield_stress_pa",
+        "normalized_residual",
+        "effective_weight",
+    )
+    try:
+        reader = cast(Any, pq.read_table)
+        table = reader(io.BytesIO(value), columns=list(columns))
+    except Exception as error:
+        raise InvalidVoceCalibration("Voce diagnostics are not valid typed Parquet") from error
+    if tuple(table.column_names) != columns:
+        raise InvalidVoceCalibration("Voce diagnostic channels do not match the schema")
+    if (table.schema.metadata or {}).get(b"cmp_schema_ref") != (
+        REFERENCE_VOCE_DIAGNOSTICS_SCHEMA.encode()
+    ):
+        raise InvalidVoceCalibration("Voce diagnostic schema reference is invalid")
+    values = [table.column(name).to_pylist() for name in columns]
+    if len({len(column) for column in values}) != 1 or len(values[0]) < 6:
+        raise InvalidVoceCalibration("Voce diagnostic point count is invalid")
+    try:
+        return tuple(
+            VoceDiagnosticPoint(
+                member_ordinal=int(row[0]),
+                dataset_revision_id=UUID(str(row[1])),
+                point_ordinal=int(row[2]),
+                true_plastic_strain=float(row[3]),
+                observed_true_yield_stress_pa=float(row[4]),
+                predicted_true_yield_stress_pa=float(row[5]),
+                residual_true_yield_stress_pa=float(row[6]),
+                normalized_residual=float(row[7]),
+                effective_weight=float(row[8]),
+            )
+            for row in zip(*values, strict=True)
+        )
+    except (TypeError, ValueError) as error:
+        raise InvalidVoceCalibration("Voce diagnostic values are invalid") from error
+
+
+def reference_voce_candidate_content_hash(
+    *,
+    run_id: UUID,
+    candidate: ReferenceVoceCalibrationCandidate,
+    diagnostics_sha256: str,
+) -> str:
+    return content_sha256(
+        {
+            "run_id": str(run_id),
+            "attempt_ordinal": candidate.attempt_ordinal,
+            "initial_parameters": candidate.initial_parameters,
+            "calibrated_parameters": candidate.calibrated_parameters,
+            "objective_total": candidate.objective_total,
+            "objective_terms": [
+                {
+                    "member_ordinal": term.member_ordinal,
+                    "dataset_id": str(term.dataset_id),
+                    "dataset_revision_id": str(term.dataset_revision_id),
+                    "point_count": term.point_count,
+                    "mean_normalized_squared_residual": (term.mean_normalized_squared_residual),
+                }
+                for term in candidate.objective_terms
+            ],
+            "converged": candidate.converged,
+            "status_code": candidate.status_code,
+            "diagnostics_sha256": diagnostics_sha256,
+            "environment_digest": REFERENCE_VOCE_ENVIRONMENT_DIGEST,
+        }
+    )

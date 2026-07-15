@@ -14,6 +14,7 @@ import type {
   CurvePreview,
   DatasetResponse,
   MaterialStateResponse,
+  PropertySetResponse,
   TensileReplicateSelectionResponse,
 } from "./types";
 import { ReferenceReplicateStatisticsWorkbench } from "./reference-replicate-statistics-workbench";
@@ -82,9 +83,10 @@ interface Props {
   config: ApiConfig;
   state: MaterialStateResponse;
   datasets: DatasetResponse[];
+  propertySet?: PropertySetResponse;
 }
 
-export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }: Props) {
+export function ReferenceReplicateSelectionWorkbench({ config, state, datasets, propertySet }: Props) {
   const eligible = useMemo(() => datasets.filter((dataset) => (
     dataset.current_revision.content.representation === "normalized"
     || dataset.current_revision.content.representation === "processed"
@@ -342,6 +344,8 @@ export function ReferenceReplicateSelectionWorkbench({ config, state, datasets }
           classification={state.current_revision.classification}
           alignedDatasetRevisionIds={statisticsInputRevisionIds}
           pinnedSelection={pinnedStatisticsSelection}
+          state={state}
+          propertySet={propertySet}
         />
       ) : null}
     </div>
