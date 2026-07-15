@@ -11,8 +11,12 @@ from cmp.modules.catalog.domain.model import (
     CatalogConflict,
     MaterialClass,
     MaterialContent,
+    MaterialLotContent,
     MaterialStateContent,
+    ProcessDefinitionContent,
+    ProcessKind,
     PropertySetContent,
+    StateGenealogyContent,
 )
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -31,10 +35,16 @@ from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 MATERIAL_AGGREGATE_TYPE = "catalog.material"
 MATERIAL_STATE_AGGREGATE_TYPE = "catalog.material_state"
 PROPERTY_SET_AGGREGATE_TYPE = "catalog.property_set"
+PROCESS_DEFINITION_AGGREGATE_TYPE = "catalog.process_definition"
+MATERIAL_LOT_AGGREGATE_TYPE = "catalog.material_lot"
+STATE_GENEALOGY_AGGREGATE_TYPE = "catalog.state_genealogy"
 
 MATERIAL_SCHEMA_ID = "urn:cmp:catalog:material:2.0.0"
 MATERIAL_STATE_SCHEMA_ID = "urn:cmp:catalog:material-state:1.0.0"
 PROPERTY_SET_SCHEMA_ID = "urn:cmp:catalog:property-set:1.0.0"
+PROCESS_DEFINITION_SCHEMA_ID = "urn:cmp:catalog:process-definition:1.0.0"
+MATERIAL_LOT_SCHEMA_ID = "urn:cmp:catalog:material-lot:1.0.0"
+STATE_GENEALOGY_SCHEMA_ID = "urn:cmp:catalog:state-genealogy:1.0.0"
 SCHEMA_VERSION = "1.0.0"
 MATERIAL_SCHEMA_VERSION = "2.0.0"
 
@@ -63,6 +73,26 @@ class PropertySetSnapshot:
     id: UUID
     material_state_id: UUID
     current: RevisionSnapshot[PropertySetContent]
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessDefinitionSnapshot:
+    id: UUID
+    current: RevisionSnapshot[ProcessDefinitionContent]
+
+
+@dataclass(frozen=True, slots=True)
+class MaterialLotSnapshot:
+    id: UUID
+    material_id: UUID
+    current: RevisionSnapshot[MaterialLotContent]
+
+
+@dataclass(frozen=True, slots=True)
+class StateGenealogySnapshot:
+    id: UUID
+    material_state_id: UUID
+    current: RevisionSnapshot[StateGenealogyContent]
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,6 +142,46 @@ class RevisePropertySet:
     change_reason: str
 
 
+@dataclass(frozen=True, slots=True)
+class CreateProcessDefinition:
+    classification: DataClassification
+    content: ProcessDefinitionContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseProcessDefinition:
+    expected_current_revision_id: UUID
+    content: ProcessDefinitionContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateMaterialLot:
+    content: MaterialLotContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseMaterialLot:
+    expected_current_revision_id: UUID
+    content: MaterialLotContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateStateGenealogy:
+    content: StateGenealogyContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseStateGenealogy:
+    expected_current_revision_id: UUID
+    content: StateGenealogyContent
+    change_reason: str
+
+
 class CatalogRepository(Protocol):
     """Catalog-owned persistence port; all methods enforce tenant RLS in their adapter."""
 
@@ -126,6 +196,18 @@ class CatalogRepository(Protocol):
     def property_set_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[PropertySetContent]: ...
+
+    def process_definition_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ProcessDefinitionContent]: ...
+
+    def material_lot_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[MaterialLotContent]: ...
+
+    def state_genealogy_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[StateGenealogyContent]: ...
 
     def list_materials(
         self,
@@ -203,6 +285,46 @@ class CatalogRepository(Protocol):
         decision: AuthorizationDecision,
         material_id: UUID,
     ) -> MaterialDetail: ...
+
+    def list_process_definitions(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        kind: ProcessKind | None, limit: int,
+    ) -> tuple[ProcessDefinitionSnapshot, ...]: ...
+
+    def get_process_definition(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        process_definition_id: UUID,
+    ) -> ProcessDefinitionSnapshot: ...
+
+    def get_process_definition_revision(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        process_definition_id: UUID, revision_id: UUID,
+    ) -> RevisionSnapshot[ProcessDefinitionContent]: ...
+
+    def list_material_lots(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        material_id: UUID, limit: int,
+    ) -> tuple[MaterialLotSnapshot, ...]: ...
+
+    def get_material_lot(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        material_lot_id: UUID,
+    ) -> MaterialLotSnapshot: ...
+
+    def get_material_lot_revision(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        material_lot_id: UUID, revision_id: UUID,
+    ) -> RevisionSnapshot[MaterialLotContent]: ...
+
+    def get_state_genealogy_for_state(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> StateGenealogySnapshot | None: ...
+
+    def get_state_genealogy(
+        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        state_genealogy_id: UUID,
+    ) -> StateGenealogySnapshot: ...
 
 
 def _require_decision(
@@ -528,6 +650,286 @@ class CatalogService:
             RevisionSnapshot(record, command.content),
         )
 
+    def create_process_definition(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateProcessDefinition,
+    ) -> ProcessDefinitionSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        aggregate_id = self._id()
+        record = self._revision_service(
+            PROCESS_DEFINITION_AGGREGATE_TYPE,
+            self._repository.process_definition_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=self._scope(context, command.classification.value),
+                schema_id=PROCESS_DEFINITION_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ProcessDefinitionSnapshot(
+            aggregate_id, RevisionSnapshot(record, command.content)
+        )
+
+    def revise_process_definition(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_definition_id: UUID,
+        command: ReviseProcessDefinition,
+    ) -> ProcessDefinitionSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        current = self._repository.get_process_definition(
+            context=context,
+            decision=decision,
+            process_definition_id=process_definition_id,
+        )
+        record = self._revision_service(
+            PROCESS_DEFINITION_AGGREGATE_TYPE,
+            self._repository.process_definition_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=process_definition_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=PROCESS_DEFINITION_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ProcessDefinitionSnapshot(
+            process_definition_id, RevisionSnapshot(record, command.content)
+        )
+
+    def create_material_lot(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateMaterialLot,
+    ) -> MaterialLotSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        material_revision = self._repository.get_material_revision(
+            context=context,
+            decision=decision,
+            material_id=command.content.material_id,
+            revision_id=command.content.material_revision_id,
+        )
+        aggregate_id = self._id()
+        record = self._revision_service(
+            MATERIAL_LOT_AGGREGATE_TYPE,
+            self._repository.material_lot_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=material_revision.record.scope,
+                schema_id=MATERIAL_LOT_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return MaterialLotSnapshot(
+            aggregate_id,
+            command.content.material_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def revise_material_lot(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_lot_id: UUID,
+        command: ReviseMaterialLot,
+    ) -> MaterialLotSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        current = self._repository.get_material_lot(
+            context=context, decision=decision, material_lot_id=material_lot_id
+        )
+        if command.content.material_id != current.material_id:
+            raise CatalogConflict("Material Lot cannot move to another Material identity")
+        material_revision = self._repository.get_material_revision(
+            context=context,
+            decision=decision,
+            material_id=current.material_id,
+            revision_id=command.content.material_revision_id,
+        )
+        if material_revision.record.scope != current.current.record.scope:
+            raise CatalogConflict("Material Lot cannot cross classification boundaries")
+        record = self._revision_service(
+            MATERIAL_LOT_AGGREGATE_TYPE,
+            self._repository.material_lot_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=material_lot_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=MATERIAL_LOT_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return MaterialLotSnapshot(
+            material_lot_id,
+            current.material_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def _validate_genealogy_sources(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: StateGenealogyContent,
+    ) -> RevisionSnapshot[MaterialStateContent]:
+        state = self._repository.get_material_state_revision(
+            context=context,
+            decision=decision,
+            material_state_id=content.material_state_id,
+            revision_id=content.material_state_revision_id,
+        )
+        process_links = (
+            (
+                content.manufacturing_process_id,
+                content.manufacturing_process_revision_id,
+                ProcessKind.MANUFACTURING,
+            ),
+            (
+                content.heat_treatment_process_id,
+                content.heat_treatment_process_revision_id,
+                ProcessKind.HEAT_TREATMENT,
+            ),
+        )
+        for identity, revision_id, required_kind in process_links:
+            if identity is None:
+                continue
+            assert revision_id is not None
+            process = self._repository.get_process_definition_revision(
+                context=context,
+                decision=decision,
+                process_definition_id=identity,
+                revision_id=revision_id,
+            )
+            if process.record.scope != state.record.scope:
+                raise CatalogConflict("State genealogy cannot cross process scope boundaries")
+            if process.content.kind is not required_kind:
+                raise CatalogConflict(
+                    f"{required_kind.value} link must reference a matching process kind"
+                )
+        if content.material_lot_id is not None:
+            assert content.material_lot_revision_id is not None
+            lot = self._repository.get_material_lot_revision(
+                context=context,
+                decision=decision,
+                material_lot_id=content.material_lot_id,
+                revision_id=content.material_lot_revision_id,
+            )
+            if lot.record.scope != state.record.scope:
+                raise CatalogConflict("State genealogy cannot cross Material Lot scope boundaries")
+            if (
+                lot.content.material_id != state.content.material_id
+                or lot.content.material_revision_id != state.content.material_revision_id
+            ):
+                raise CatalogConflict(
+                    "State genealogy Lot must pin the same Material identity and revision"
+                )
+        return state
+
+    def create_state_genealogy(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateStateGenealogy,
+    ) -> StateGenealogySnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        state_revision = self._validate_genealogy_sources(context, decision, command.content)
+        if self._repository.get_state_genealogy_for_state(
+            context=context,
+            decision=decision,
+            material_state_id=command.content.material_state_id,
+        ) is not None:
+            raise CatalogConflict("Material State already has a stable genealogy identity")
+        aggregate_id = self._id()
+        record = self._revision_service(
+            STATE_GENEALOGY_AGGREGATE_TYPE,
+            self._repository.state_genealogy_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=state_revision.record.scope,
+                schema_id=STATE_GENEALOGY_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return StateGenealogySnapshot(
+            aggregate_id,
+            command.content.material_state_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def revise_state_genealogy(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        state_genealogy_id: UUID,
+        command: ReviseStateGenealogy,
+    ) -> StateGenealogySnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        current = self._repository.get_state_genealogy(
+            context=context, decision=decision, state_genealogy_id=state_genealogy_id
+        )
+        if command.content.material_state_id != current.material_state_id:
+            raise CatalogConflict("State Genealogy cannot move to another Material State")
+        state_revision = self._validate_genealogy_sources(context, decision, command.content)
+        if state_revision.record.scope != current.current.record.scope:
+            raise CatalogConflict("State Genealogy cannot cross classification boundaries")
+        record = self._revision_service(
+            STATE_GENEALOGY_AGGREGATE_TYPE,
+            self._repository.state_genealogy_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=state_genealogy_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=STATE_GENEALOGY_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return StateGenealogySnapshot(
+            state_genealogy_id,
+            current.material_state_id,
+            RevisionSnapshot(record, command.content),
+        )
+
     def list_materials(
         self,
         context: SecurityContext,
@@ -548,6 +950,88 @@ class CatalogService:
             query=query,
             material_class=material_class,
             limit=limit,
+        )
+
+    def list_process_definitions(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        kind: ProcessKind | None = None,
+        limit: int = 100,
+    ) -> tuple[ProcessDefinitionSnapshot, ...]:
+        _require_decision(context, decision, Permission.CATALOG_READ)
+        if not 1 <= limit <= 100:
+            raise ValueError("process definition limit must be between 1 and 100")
+        return self._repository.list_process_definitions(
+            context=context, decision=decision, kind=kind, limit=limit
+        )
+
+    def list_material_lots(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_id: UUID,
+        *,
+        limit: int = 100,
+    ) -> tuple[MaterialLotSnapshot, ...]:
+        _require_decision(context, decision, Permission.CATALOG_READ)
+        if not 1 <= limit <= 100:
+            raise ValueError("Material Lot limit must be between 1 and 100")
+        self._repository.get_material(
+            context=context, decision=decision, material_id=material_id
+        )
+        return self._repository.list_material_lots(
+            context=context,
+            decision=decision,
+            material_id=material_id,
+            limit=limit,
+        )
+
+    def get_state_genealogy_for_state(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+    ) -> StateGenealogySnapshot | None:
+        _require_decision(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_state_genealogy_for_state(
+            context=context, decision=decision, material_state_id=material_state_id
+        )
+
+    def get_state_genealogy_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        state_genealogy_id: UUID,
+    ) -> StateGenealogySnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        return self._repository.get_state_genealogy(
+            context=context, decision=decision, state_genealogy_id=state_genealogy_id
+        )
+
+    def get_process_definition_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_definition_id: UUID,
+    ) -> ProcessDefinitionSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        return self._repository.get_process_definition(
+            context=context,
+            decision=decision,
+            process_definition_id=process_definition_id,
+        )
+
+    def get_material_lot_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_lot_id: UUID,
+    ) -> MaterialLotSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        return self._repository.get_material_lot(
+            context=context, decision=decision, material_lot_id=material_lot_id
         )
 
     def get_material(

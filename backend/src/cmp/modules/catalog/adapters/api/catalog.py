@@ -17,28 +17,42 @@ from sqlalchemy.exc import IntegrityError
 from cmp.modules.catalog.application.service import (
     CatalogService,
     CreateMaterial,
+    CreateMaterialLot,
     CreateMaterialState,
+    CreateProcessDefinition,
     CreatePropertySet,
+    CreateStateGenealogy,
     MaterialDetail,
+    MaterialLotSnapshot,
     MaterialSnapshot,
     MaterialStateSnapshot,
+    ProcessDefinitionSnapshot,
     PropertySetSnapshot,
     ReviseMaterial,
+    ReviseMaterialLot,
     ReviseMaterialState,
+    ReviseProcessDefinition,
     RevisePropertySet,
+    ReviseStateGenealogy,
     RevisionSnapshot,
+    StateGenealogySnapshot,
 )
 from cmp.modules.catalog.domain.model import (
     Applicability,
     CatalogConflict,
     CatalogError,
     CatalogNotFound,
+    LotKind,
     MaterialClass,
     MaterialContent,
+    MaterialLotContent,
     MaterialStateContent,
+    ProcessDefinitionContent,
+    ProcessKind,
     PropertySetContent,
     PropertySource,
     PropertySourceKind,
+    StateGenealogyContent,
 )
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -136,6 +150,105 @@ class MaterialStateReviseRequest(BaseModel):
 
     content: MaterialStateContentInput
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ProcessDefinitionContentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    process_code: Annotated[str, StringConstraints(min_length=1, max_length=100)]
+    name: Annotated[str, StringConstraints(min_length=1, max_length=200)]
+    kind: ProcessKind
+    description: Annotated[str | None, StringConstraints(min_length=1, max_length=4000)] = None
+
+    def to_domain(self) -> ProcessDefinitionContent:
+        return ProcessDefinitionContent(
+            self.process_code, self.name, self.kind, self.description
+        )
+
+
+class ProcessDefinitionCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classification: DataClassification = DataClassification.INTERNAL
+    content: ProcessDefinitionContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ProcessDefinitionReviseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    content: ProcessDefinitionContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class MaterialLotContentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_revision_id: UUID
+    lot_code: Annotated[str, StringConstraints(min_length=1, max_length=100)]
+    kind: LotKind
+    manufacturer: Annotated[str | None, StringConstraints(min_length=1, max_length=200)] = None
+    supplier: Annotated[str | None, StringConstraints(min_length=1, max_length=200)] = None
+    description: Annotated[str | None, StringConstraints(min_length=1, max_length=4000)] = None
+
+    def to_domain(self, material_id: UUID) -> MaterialLotContent:
+        return MaterialLotContent(
+            material_id,
+            self.material_revision_id,
+            self.lot_code,
+            self.kind,
+            self.manufacturer,
+            self.supplier,
+            self.description,
+        )
+
+
+class MaterialLotCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    content: MaterialLotContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class MaterialLotReviseRequest(MaterialLotCreateRequest):
+    pass
+
+
+class StateGenealogyContentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_state_revision_id: UUID
+    manufacturing_process_id: UUID | None = None
+    manufacturing_process_revision_id: UUID | None = None
+    heat_treatment_process_id: UUID | None = None
+    heat_treatment_process_revision_id: UUID | None = None
+    material_lot_id: UUID | None = None
+    material_lot_revision_id: UUID | None = None
+    note: Annotated[str | None, StringConstraints(min_length=1, max_length=2000)] = None
+
+    def to_domain(self, material_state_id: UUID) -> StateGenealogyContent:
+        return StateGenealogyContent(
+            material_state_id=material_state_id,
+            material_state_revision_id=self.material_state_revision_id,
+            manufacturing_process_id=self.manufacturing_process_id,
+            manufacturing_process_revision_id=self.manufacturing_process_revision_id,
+            heat_treatment_process_id=self.heat_treatment_process_id,
+            heat_treatment_process_revision_id=self.heat_treatment_process_revision_id,
+            material_lot_id=self.material_lot_id,
+            material_lot_revision_id=self.material_lot_revision_id,
+            note=self.note,
+        )
+
+
+class StateGenealogyCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    content: StateGenealogyContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class StateGenealogyReviseRequest(StateGenealogyCreateRequest):
+    pass
 
 
 class PropertySourceInput(BaseModel):
@@ -242,6 +355,55 @@ class MaterialStateContentResponse(MaterialStateContentInput):
             heat_treatment=content.heat_treatment,
             lot_or_batch=content.lot_or_batch,
             description=content.description,
+        )
+
+
+class ProcessDefinitionContentResponse(ProcessDefinitionContentInput):
+    @classmethod
+    def from_domain(
+        cls, content: ProcessDefinitionContent
+    ) -> ProcessDefinitionContentResponse:
+        return cls(
+            process_code=content.process_code,
+            name=content.name,
+            kind=content.kind,
+            description=content.description,
+        )
+
+
+class MaterialLotContentResponse(MaterialLotContentInput):
+    material_id: UUID
+
+    @classmethod
+    def from_domain(cls, content: MaterialLotContent) -> MaterialLotContentResponse:
+        return cls(
+            material_id=content.material_id,
+            material_revision_id=content.material_revision_id,
+            lot_code=content.lot_code,
+            kind=content.kind,
+            manufacturer=content.manufacturer,
+            supplier=content.supplier,
+            description=content.description,
+        )
+
+
+class StateGenealogyContentResponse(StateGenealogyContentInput):
+    material_state_id: UUID
+
+    @classmethod
+    def from_domain(
+        cls, content: StateGenealogyContent
+    ) -> StateGenealogyContentResponse:
+        return cls(
+            material_state_id=content.material_state_id,
+            material_state_revision_id=content.material_state_revision_id,
+            manufacturing_process_id=content.manufacturing_process_id,
+            manufacturing_process_revision_id=content.manufacturing_process_revision_id,
+            heat_treatment_process_id=content.heat_treatment_process_id,
+            heat_treatment_process_revision_id=content.heat_treatment_process_revision_id,
+            material_lot_id=content.material_lot_id,
+            material_lot_revision_id=content.material_lot_revision_id,
+            note=content.note,
         )
 
 
@@ -369,6 +531,56 @@ class PropertySetRevisionResponse(RevisionMetadataResponse):
         )
 
 
+class ProcessDefinitionRevisionResponse(RevisionMetadataResponse):
+    content: ProcessDefinitionContentResponse
+    provenance: ProvenanceSummary
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[ProcessDefinitionContent]
+    ) -> ProcessDefinitionRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=ProcessDefinitionContentResponse.from_domain(value.content),
+            provenance=ProvenanceSummary.from_record(
+                "catalog.process_definition", value.record
+            ),
+        )
+
+
+class MaterialLotRevisionResponse(RevisionMetadataResponse):
+    content: MaterialLotContentResponse
+    provenance: ProvenanceSummary
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[MaterialLotContent]
+    ) -> MaterialLotRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=MaterialLotContentResponse.from_domain(value.content),
+            provenance=ProvenanceSummary.from_record("catalog.material_lot", value.record),
+        )
+
+
+class StateGenealogyRevisionResponse(RevisionMetadataResponse):
+    content: StateGenealogyContentResponse
+    provenance: ProvenanceSummary
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[StateGenealogyContent]
+    ) -> StateGenealogyRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=StateGenealogyContentResponse.from_domain(value.content),
+            provenance=ProvenanceSummary.from_record("catalog.state_genealogy", value.record),
+        )
+
+
 class MaterialLinks(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -426,6 +638,62 @@ class PropertySetResponse(BaseModel):
             material_state_id=value.material_state_id,
             current_revision=PropertySetRevisionResponse.from_snapshot(value.current),
         )
+
+
+class ProcessDefinitionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    process_definition_id: UUID
+    current_revision: ProcessDefinitionRevisionResponse
+
+    @classmethod
+    def from_snapshot(cls, value: ProcessDefinitionSnapshot) -> ProcessDefinitionResponse:
+        return cls(
+            process_definition_id=value.id,
+            current_revision=ProcessDefinitionRevisionResponse.from_snapshot(value.current),
+        )
+
+
+class MaterialLotResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_lot_id: UUID
+    material_id: UUID
+    current_revision: MaterialLotRevisionResponse
+
+    @classmethod
+    def from_snapshot(cls, value: MaterialLotSnapshot) -> MaterialLotResponse:
+        return cls(
+            material_lot_id=value.id,
+            material_id=value.material_id,
+            current_revision=MaterialLotRevisionResponse.from_snapshot(value.current),
+        )
+
+
+class StateGenealogyResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    state_genealogy_id: UUID
+    material_state_id: UUID
+    current_revision: StateGenealogyRevisionResponse
+
+    @classmethod
+    def from_snapshot(cls, value: StateGenealogySnapshot) -> StateGenealogyResponse:
+        return cls(
+            state_genealogy_id=value.id,
+            material_state_id=value.material_state_id,
+            current_revision=StateGenealogyRevisionResponse.from_snapshot(value.current),
+        )
+
+
+class ProcessDefinitionListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[ProcessDefinitionResponse, ...]
+
+
+class MaterialLotListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[MaterialLotResponse, ...]
 
 
 class MaterialListResponse(BaseModel):
@@ -607,7 +875,14 @@ def install_catalog_api(
     async def catalog_validation_error_handler(
         request: Request, error: RequestValidationError
     ) -> Response:
-        prefixes = ("/api/v1/materials", "/api/v1/material-states", "/api/v1/property-sets")
+        prefixes = (
+            "/api/v1/materials",
+            "/api/v1/material-states",
+            "/api/v1/property-sets",
+            "/api/v1/process-definitions",
+            "/api/v1/material-lots",
+            "/api/v1/state-genealogies",
+        )
         if not request.url.path.startswith(prefixes):
             return await previous_validation_handler(request, error)
         context = getattr(request.state, "security_context", None)
@@ -630,6 +905,295 @@ def install_catalog_api(
         422: {"model": CatalogProblem},
         503: {"model": CatalogProblem},
     }
+
+    @application.post(
+        "/api/v1/process-definitions",
+        operation_id="createProcessDefinition",
+        response_model=ProcessDefinitionResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog"],
+        summary="Create a governed stable Process identity and first immutable revision.",
+    )
+    def create_process_definition(
+        request: Request, response: Response, body: ProcessDefinitionCreateRequest
+    ) -> ProcessDefinitionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.create_process_definition(
+                context,
+                decision,
+                CreateProcessDefinition(
+                    body.classification, body.content.to_domain(), body.change_reason
+                ),
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        _etag(response, value.current.record)
+        return ProcessDefinitionResponse.from_snapshot(value)
+
+    @application.get(
+        "/api/v1/process-definitions",
+        operation_id="listProcessDefinitions",
+        response_model=ProcessDefinitionListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog"],
+        summary="List current governed Process revisions by typed role.",
+    )
+    def list_process_definitions(
+        request: Request,
+        kind: ProcessKind | None = None,
+        limit: Annotated[int, Query(ge=1, le=100)] = 100,
+    ) -> ProcessDefinitionListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            values = service.list_process_definitions(
+                context, decision, kind=kind, limit=limit
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        return ProcessDefinitionListResponse(
+            items=tuple(ProcessDefinitionResponse.from_snapshot(item) for item in values)
+        )
+
+    @application.post(
+        "/api/v1/process-definitions/{process_definition_id}/revisions",
+        operation_id="reviseProcessDefinition",
+        response_model=ProcessDefinitionResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog"],
+        summary="Append an immutable Process revision using a strong ETag precondition.",
+    )
+    def revise_process_definition(
+        request: Request,
+        response: Response,
+        process_definition_id: UUID,
+        body: ProcessDefinitionReviseRequest,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> ProcessDefinitionResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            current = service.get_process_definition_for_write(
+                context, decision, process_definition_id
+            )
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            value = service.revise_process_definition(
+                context,
+                decision,
+                process_definition_id,
+                ReviseProcessDefinition(
+                    expected, body.content.to_domain(), body.change_reason
+                ),
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        _etag(response, value.current.record)
+        return ProcessDefinitionResponse.from_snapshot(value)
+
+    @application.post(
+        "/api/v1/materials/{material_id}/lots",
+        operation_id="createMaterialLot",
+        response_model=MaterialLotResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog"],
+        summary="Create a Lot/Batch identity pinned to a concrete Material revision.",
+    )
+    def create_material_lot(
+        request: Request,
+        response: Response,
+        material_id: UUID,
+        body: MaterialLotCreateRequest,
+    ) -> MaterialLotResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.create_material_lot(
+                context,
+                decision,
+                CreateMaterialLot(
+                    body.content.to_domain(material_id), body.change_reason
+                ),
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        _etag(response, value.current.record)
+        return MaterialLotResponse.from_snapshot(value)
+
+    @application.get(
+        "/api/v1/materials/{material_id}/lots",
+        operation_id="listMaterialLots",
+        response_model=MaterialLotListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog"],
+        summary="List current Lot/Batch revisions for one Material.",
+    )
+    def list_material_lots(
+        request: Request,
+        material_id: UUID,
+        limit: Annotated[int, Query(ge=1, le=100)] = 100,
+    ) -> MaterialLotListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            values = service.list_material_lots(
+                context, decision, material_id, limit=limit
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        return MaterialLotListResponse(
+            items=tuple(MaterialLotResponse.from_snapshot(item) for item in values)
+        )
+
+    @application.post(
+        "/api/v1/material-lots/{material_lot_id}/revisions",
+        operation_id="reviseMaterialLot",
+        response_model=MaterialLotResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog"],
+        summary="Append an immutable Lot/Batch revision using a strong ETag precondition.",
+    )
+    def revise_material_lot(
+        request: Request,
+        response: Response,
+        material_lot_id: UUID,
+        body: MaterialLotReviseRequest,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> MaterialLotResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            current = service.get_material_lot_for_write(
+                context, decision, material_lot_id
+            )
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            value = service.revise_material_lot(
+                context,
+                decision,
+                material_lot_id,
+                ReviseMaterialLot(
+                    expected,
+                    body.content.to_domain(current.material_id),
+                    body.change_reason,
+                ),
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        _etag(response, value.current.record)
+        return MaterialLotResponse.from_snapshot(value)
+
+    @application.get(
+        "/api/v1/material-states/{material_state_id}/genealogy",
+        operation_id="getStateGenealogy",
+        response_model=StateGenealogyResponse | None,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog"],
+        summary="Read the current exact revision links for a Material State genealogy.",
+    )
+    def get_state_genealogy(
+        request: Request, response: Response, material_state_id: UUID
+    ) -> StateGenealogyResponse | None:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.get_state_genealogy_for_state(
+                context, decision, material_state_id
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        if value is None:
+            response.headers["Cache-Control"] = "no-store"
+            return None
+        _etag(response, value.current.record)
+        return StateGenealogyResponse.from_snapshot(value)
+
+    @application.post(
+        "/api/v1/material-states/{material_state_id}/genealogy",
+        operation_id="createStateGenealogy",
+        response_model=StateGenealogyResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog"],
+        summary="Create exact Process and Lot revision links for one Material State revision.",
+    )
+    def create_state_genealogy(
+        request: Request,
+        response: Response,
+        material_state_id: UUID,
+        body: StateGenealogyCreateRequest,
+    ) -> StateGenealogyResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = service.create_state_genealogy(
+                context,
+                decision,
+                CreateStateGenealogy(
+                    body.content.to_domain(material_state_id), body.change_reason
+                ),
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        _etag(response, value.current.record)
+        return StateGenealogyResponse.from_snapshot(value)
+
+    @application.post(
+        "/api/v1/state-genealogies/{state_genealogy_id}/revisions",
+        operation_id="reviseStateGenealogy",
+        response_model=StateGenealogyResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog"],
+        summary="Append exact genealogy links using a strong ETag precondition.",
+    )
+    def revise_state_genealogy(
+        request: Request,
+        response: Response,
+        state_genealogy_id: UUID,
+        body: StateGenealogyReviseRequest,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> StateGenealogyResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            current = service.get_state_genealogy_for_write(
+                context, decision, state_genealogy_id
+            )
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            value = service.revise_state_genealogy(
+                context,
+                decision,
+                state_genealogy_id,
+                ReviseStateGenealogy(
+                    expected,
+                    body.content.to_domain(current.material_state_id),
+                    body.change_reason,
+                ),
+            )
+        except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
+            raise _translate(context, error) from error
+        _etag(response, value.current.record)
+        return StateGenealogyResponse.from_snapshot(value)
 
     @application.post(
         "/api/v1/materials",

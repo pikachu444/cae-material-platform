@@ -49,6 +49,22 @@ class MaterialClass(StrEnum):
     OTHER = "other"
 
 
+class ProcessKind(StrEnum):
+    """Typed role of a governed process definition."""
+
+    MANUFACTURING = "manufacturing"
+    HEAT_TREATMENT = "heat_treatment"
+    CONDITIONING = "conditioning"
+    OTHER = "other"
+
+
+class LotKind(StrEnum):
+    """Physical traceability unit represented by a Material Lot identity."""
+
+    LOT = "lot"
+    BATCH = "batch"
+
+
 def _nonzero(name: str, value: UUID) -> None:
     if value.int == 0:
         raise InvalidCatalogCommand(f"{name} must be non-zero")
@@ -173,6 +189,86 @@ class MaterialStateContent:
 
 
 @dataclass(frozen=True, slots=True)
+class ProcessDefinitionContent:
+    """Governed process metadata, separated from the Material State that uses it."""
+
+    process_code: str
+    name: str
+    kind: ProcessKind
+    description: str | None = None
+
+    def __post_init__(self) -> None:
+        _required_text("process code", self.process_code, 100)
+        _required_text("process name", self.name, 200)
+        _optional_text("process description", self.description, 4000)
+
+
+@dataclass(frozen=True, slots=True)
+class MaterialLotContent:
+    """A versioned Lot/Batch pinned to the Material revision it represents."""
+
+    material_id: UUID
+    material_revision_id: UUID
+    lot_code: str
+    kind: LotKind
+    manufacturer: str | None = None
+    supplier: str | None = None
+    description: str | None = None
+
+    def __post_init__(self) -> None:
+        _nonzero("material_id", self.material_id)
+        _nonzero("material_revision_id", self.material_revision_id)
+        _required_text("lot code", self.lot_code, 100)
+        _optional_text("lot manufacturer", self.manufacturer, 200)
+        _optional_text("lot supplier", self.supplier, 200)
+        _optional_text("lot description", self.description, 4000)
+
+
+@dataclass(frozen=True, slots=True)
+class StateGenealogyContent:
+    """Exact revision links from one Material State revision to its genealogy sources."""
+
+    material_state_id: UUID
+    material_state_revision_id: UUID
+    manufacturing_process_id: UUID | None = None
+    manufacturing_process_revision_id: UUID | None = None
+    heat_treatment_process_id: UUID | None = None
+    heat_treatment_process_revision_id: UUID | None = None
+    material_lot_id: UUID | None = None
+    material_lot_revision_id: UUID | None = None
+    note: str | None = None
+
+    def __post_init__(self) -> None:
+        _nonzero("material_state_id", self.material_state_id)
+        _nonzero("material_state_revision_id", self.material_state_revision_id)
+        pairs = (
+            (
+                "manufacturing process",
+                self.manufacturing_process_id,
+                self.manufacturing_process_revision_id,
+            ),
+            (
+                "heat-treatment process",
+                self.heat_treatment_process_id,
+                self.heat_treatment_process_revision_id,
+            ),
+            ("material lot", self.material_lot_id, self.material_lot_revision_id),
+        )
+        if not any(identity is not None for _, identity, _ in pairs):
+            raise InvalidCatalogCommand("state genealogy requires at least one typed link")
+        for name, identity, revision in pairs:
+            if (identity is None) != (revision is None):
+                raise InvalidCatalogCommand(
+                    f"{name} identity and revision must be supplied together"
+                )
+            if identity is not None:
+                _nonzero(f"{name} id", identity)
+                assert revision is not None
+                _nonzero(f"{name} revision id", revision)
+        _optional_text("state genealogy note", self.note, 2000)
+
+
+@dataclass(frozen=True, slots=True)
 class PropertySetContent:
     """Initial explicitly typed mechanical property set.
 
@@ -235,6 +331,48 @@ def material_state_canonical(content: MaterialStateContent) -> dict[str, str | N
         "heat_treatment": content.heat_treatment,
         "lot_or_batch": content.lot_or_batch,
         "description": content.description,
+    }
+
+
+def process_definition_canonical(content: ProcessDefinitionContent) -> dict[str, str | None]:
+    return {
+        "process_code": content.process_code,
+        "name": content.name,
+        "kind": content.kind.value,
+        "description": content.description,
+    }
+
+
+def material_lot_canonical(content: MaterialLotContent) -> dict[str, str | None]:
+    return {
+        "material_id": str(content.material_id),
+        "material_revision_id": str(content.material_revision_id),
+        "lot_code": content.lot_code,
+        "kind": content.kind.value,
+        "manufacturer": content.manufacturer,
+        "supplier": content.supplier,
+        "description": content.description,
+    }
+
+
+def state_genealogy_canonical(content: StateGenealogyContent) -> dict[str, str | None]:
+    def value(item: UUID | None) -> str | None:
+        return str(item) if item is not None else None
+
+    return {
+        "material_state_id": str(content.material_state_id),
+        "material_state_revision_id": str(content.material_state_revision_id),
+        "manufacturing_process_id": value(content.manufacturing_process_id),
+        "manufacturing_process_revision_id": value(
+            content.manufacturing_process_revision_id
+        ),
+        "heat_treatment_process_id": value(content.heat_treatment_process_id),
+        "heat_treatment_process_revision_id": value(
+            content.heat_treatment_process_revision_id
+        ),
+        "material_lot_id": value(content.material_lot_id),
+        "material_lot_revision_id": value(content.material_lot_revision_id),
+        "note": content.note,
     }
 
 

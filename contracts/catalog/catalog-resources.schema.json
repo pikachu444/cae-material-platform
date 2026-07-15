@@ -314,6 +314,191 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "ProcessKind": {
+      "type": "string",
+      "enum": ["manufacturing", "heat_treatment", "conditioning", "other"]
+    },
+    "LotKind": {"type": "string", "enum": ["lot", "batch"]},
+    "ProcessDefinitionContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["process_code", "name", "kind", "description"],
+      "properties": {
+        "process_code": {"type": "string", "minLength": 1, "maxLength": 100},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "kind": {"$ref": "#/$defs/ProcessKind"},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "MaterialLotContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_id", "material_revision_id", "lot_code", "kind",
+        "manufacturer", "supplier", "description"
+      ],
+      "properties": {
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "material_revision_id": {"$ref": "#/$defs/Uuid"},
+        "lot_code": {"type": "string", "minLength": 1, "maxLength": 100},
+        "kind": {"$ref": "#/$defs/LotKind"},
+        "manufacturer": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+        "supplier": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "StateGenealogyContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_state_id", "material_state_revision_id", "manufacturing_process_id",
+        "manufacturing_process_revision_id", "heat_treatment_process_id",
+        "heat_treatment_process_revision_id", "material_lot_id",
+        "material_lot_revision_id", "note"
+      ],
+      "properties": {
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "manufacturing_process_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "manufacturing_process_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "heat_treatment_process_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "heat_treatment_process_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "material_lot_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "material_lot_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProcessDefinitionRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content", "provenance"], "properties": {
+          "content": {"$ref": "#/$defs/ProcessDefinitionContent"},
+          "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+        }}
+      ]
+    },
+    "MaterialLotRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content", "provenance"], "properties": {
+          "content": {"$ref": "#/$defs/MaterialLotContent"},
+          "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+        }}
+      ]
+    },
+    "StateGenealogyRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content", "provenance"], "properties": {
+          "content": {"$ref": "#/$defs/StateGenealogyContent"},
+          "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+        }}
+      ]
+    },
+    "ProcessDefinitionResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["process_definition_id", "current_revision"],
+      "properties": {
+        "process_definition_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/ProcessDefinitionRevision"}
+      }
+    },
+    "MaterialLotResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["material_lot_id", "material_id", "current_revision"],
+      "properties": {
+        "material_lot_id": {"$ref": "#/$defs/Uuid"},
+        "material_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/MaterialLotRevision"}
+      }
+    },
+    "StateGenealogyResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state_genealogy_id", "material_state_id", "current_revision"],
+      "properties": {
+        "state_genealogy_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/StateGenealogyRevision"}
+      }
+    },
+    "ProcessDefinitionCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["process_code", "name", "kind"],
+          "properties": {
+            "process_code": {"type": "string", "minLength": 1, "maxLength": 100},
+            "name": {"type": "string", "minLength": 1, "maxLength": 200},
+            "kind": {"$ref": "#/$defs/ProcessKind"},
+            "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProcessDefinitionReviseRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["process_code", "name", "kind"],
+          "properties": {
+            "process_code": {"type": "string", "minLength": 1, "maxLength": 100},
+            "name": {"type": "string", "minLength": 1, "maxLength": 200},
+            "kind": {"$ref": "#/$defs/ProcessKind"},
+            "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "MaterialLotCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["material_revision_id", "lot_code", "kind"],
+          "properties": {
+            "material_revision_id": {"$ref": "#/$defs/Uuid"},
+            "lot_code": {"type": "string", "minLength": 1, "maxLength": 100},
+            "kind": {"$ref": "#/$defs/LotKind"},
+            "manufacturer": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+            "supplier": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+            "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "StateGenealogyCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["material_state_revision_id"],
+          "properties": {
+            "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+            "manufacturing_process_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+            "manufacturing_process_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+            "heat_treatment_process_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+            "heat_treatment_process_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+            "material_lot_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+            "material_lot_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+            "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "CatalogProblem": {
       "type": "object",
       "additionalProperties": false,

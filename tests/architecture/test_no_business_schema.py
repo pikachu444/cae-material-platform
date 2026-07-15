@@ -54,6 +54,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260811_045_prony_candidate_promotion.py",
         "20260812_046_ogden_prony_ir.py",
         "20260813_047_ogden_prony_cards.py",
+        "20260814_048_catalog_genealogy.py",
     ]
 
 
