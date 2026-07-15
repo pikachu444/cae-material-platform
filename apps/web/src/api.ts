@@ -28,6 +28,7 @@ import type {
   MaterialReviseInput,
   MaterialRevisionList,
   MaterialStateCreateInput,
+  MaterialStateReviseInput,
   MaterialStateResponse,
   MappingReport,
   ImportDetectionReportResponse,
@@ -316,6 +317,19 @@ export function createMaterialState(
 ): Promise<ApiResult<MaterialStateResponse>> {
   return request(config, `/materials/${encodeURIComponent(materialId)}/states`, {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseMaterialState(
+  config: ApiConfig,
+  materialStateId: string,
+  etag: string,
+  input: MaterialStateReviseInput,
+): Promise<ApiResult<MaterialStateResponse>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
     body: JSON.stringify(input),
   });
 }

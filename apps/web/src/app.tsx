@@ -20,6 +20,7 @@ import {
   previewSolverCard,
   requestLocalDemoAccessToken,
   reviseMaterial,
+  reviseMaterialState,
   revisePropertySet,
   saveApiConfig,
 } from "./api";
@@ -796,6 +797,13 @@ function MaterialDetailPage({
             propertySet={detail.property_sets.find(
               (propertySet) => propertySet.material_state_id === state.material_state_id,
             )}
+            materialClass={
+              revisions.find(
+                (revision) => revision.id === state.current_revision.content.material_revision_id,
+              )?.content.material_class ?? "unclassified"
+            }
+            currentMaterialRevisionId={current.id}
+            currentMaterialClass={current.content.material_class}
             onChanged={reload}
           />
         ))}
@@ -1058,16 +1066,54 @@ function MaterialStateCard({
   config,
   state,
   propertySet,
+  materialClass,
+  currentMaterialRevisionId,
+  currentMaterialClass,
   onChanged,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   propertySet: PropertySetResponse | undefined;
+  materialClass: MaterialClass;
+  currentMaterialRevisionId: string;
+  currentMaterialClass: MaterialClass;
   onChanged: () => void;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
+  const [rebasing, setRebasing] = useState(false);
+  const [rebaseError, setRebaseError] = useState<string | null>(null);
   const content = state.current_revision.content;
   const property = propertySet?.current_revision.content;
+  const stateUsesCurrentMaterial = content.material_revision_id === currentMaterialRevisionId;
+
+  async function rebaseState(): Promise<void> {
+    setRebasing(true);
+    setRebaseError(null);
+    const revision = state.current_revision;
+    try {
+      await reviseMaterialState(
+        config,
+        state.material_state_id,
+        `"revision:${revision.revision_no}:sha256:${revision.content_hash}"`,
+        {
+          content: {
+            material_revision_id: currentMaterialRevisionId,
+            name: content.name,
+            manufacturing_route: content.manufacturing_route,
+            heat_treatment: content.heat_treatment,
+            lot_or_batch: content.lot_or_batch,
+            description: content.description,
+          },
+          change_reason: `Rebase State to explicitly classified ${currentMaterialClass} Material revision`,
+        },
+      );
+      onChanged();
+    } catch (cause) {
+      setRebaseError(errorMessage(cause));
+    } finally {
+      setRebasing(false);
+    }
+  }
   return (
     <article className="state-card">
       <div className="state-heading">
@@ -1083,6 +1129,20 @@ function MaterialStateCard({
         <div><dt>Lot / batch</dt><dd>{content.lot_or_batch ?? "—"}</dd></div>
       </dl>
       {content.description ? <p className="state-description">{content.description}</p> : null}
+      {!stateUsesCurrentMaterial ? (
+        <section className="property-summary compatibility-notice">
+          <p className="eyebrow">Pinned Material revision</p>
+          <h4>This State uses an earlier {materialClass} Material revision</h4>
+          <p>
+            Append a State revision to adopt the current {currentMaterialClass} classification.
+            The earlier State and Material revisions remain unchanged.
+          </p>
+          {rebaseError ? <ErrorNotice message={rebaseError} /> : null}
+          <button className="text-button" type="button" onClick={() => void rebaseState()} disabled={rebasing}>
+            {rebasing ? "Appending…" : "Append State revision with current Material"}
+          </button>
+        </section>
+      ) : null}
       {property && propertySet ? (
         <>
           <section className="property-summary">
@@ -1119,12 +1179,24 @@ function MaterialStateCard({
       )}
       <ReferenceTensileWorkflow config={config} state={state} propertySet={propertySet} />
       {propertySet ? (
-        <ReferenceElastoplasticWorkbench
-          key={`elastoplastic-${propertySet.current_revision.id}`}
-          config={config}
-          state={state}
-          propertySet={propertySet}
-        />
+        materialClass === "metal" ? (
+          <ReferenceElastoplasticWorkbench
+            key={`elastoplastic-${propertySet.current_revision.id}`}
+            config={config}
+            state={state}
+            propertySet={propertySet}
+          />
+        ) : (
+          <section className="property-summary compatibility-notice">
+            <p className="eyebrow">Model compatibility</p>
+            <h4>Steel elastoplastic workflow unavailable</h4>
+            <p>
+              This State pins a {materialClass} Material revision. LAW36 and Abaqus isotropic
+              plasticity require an explicitly metal-classified revision; no model is inferred
+              from its name or family.
+            </p>
+          </section>
+        )
       ) : null}
       <ReferenceCalibrationWorkbench config={config} state={state} />
       <ReferenceValidationWorkbench config={config} state={state} />

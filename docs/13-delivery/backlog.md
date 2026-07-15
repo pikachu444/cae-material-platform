@@ -884,3 +884,9 @@ Before broader operational foundation work, P2 proceeds through user-visible ver
 Every increment includes typed PostgreSQL persistence, protected API, connected frontend, and
 unit/integration/regression tests. Solver execution qualification remains excluded until explicitly
 re-enabled. Reference outputs do not close the production T-D02/T-D03 approval tasks.
+
+P2 item 2 is complete for the bounded reference routing scope. Migration 039 and the Modeling
+application require tabulated/Voce plasticity IRs to pin an exact `metal` Material revision. The UI
+does not expose the Steel workbench for polymer, elastomer or unclassified State revisions, and
+legacy States can explicitly append a revision that adopts the current classified Material. This
+does not add a production constitutive model or solver qualification.

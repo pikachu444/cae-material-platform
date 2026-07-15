@@ -183,6 +183,10 @@ class TabulatedPlasticityModelService:
             material_state_id=command.material_state_id,
             property_set_revision_id=command.property_set_revision_id,
         )
+        if properties.material_class != "metal":
+            raise TabulatedPlasticityConflict(
+                "tabulated plasticity requires a Material revision classified as metal"
+            )
         initial_yield_stress_pa = properties.content.source_yield_stress_pa
         if initial_yield_stress_pa is None:
             raise TabulatedPlasticityConflict(

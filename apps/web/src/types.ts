@@ -320,6 +320,8 @@ export interface MaterialStateCreateInput {
   change_reason: string;
 }
 
+export type MaterialStateReviseInput = MaterialStateCreateInput;
+
 export interface PropertySetCreateInput {
   content: Omit<PropertySetContent, "material_state_id">;
   change_reason: string;

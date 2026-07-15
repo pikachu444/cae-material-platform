@@ -45,6 +45,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260802_036_P1_voce_candidate_projection.py",
         "20260803_037_P1_voce_holdout_validation.py",
         "20260804_038_material_classification.py",
+        "20260805_039_steel_elastoplastic_routing.py",
     ]
 
 

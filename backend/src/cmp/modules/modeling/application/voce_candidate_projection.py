@@ -250,6 +250,10 @@ class VoceCandidateProjectionService:
             material_state_id=plan.content.material_state_id,
             property_set_revision_id=run.property_set_revision_id,
         )
+        if properties.material_class != "metal":
+            raise VoceCandidateSelectionConflict(
+                "Voce plasticity projection requires a Material revision classified as metal"
+            )
         if selection.record.scope.classification != properties.classification.value:
             raise VoceCandidateSelectionConflict("Selection and Property Set scope differ")
         diagnostics = await self._calibrations.read_candidate_diagnostics_for_projection(

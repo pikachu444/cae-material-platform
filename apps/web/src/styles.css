@@ -448,6 +448,15 @@ h4 {
   background: #f3effb;
 }
 
+.compatibility-notice {
+  border-color: #d8cfae;
+  background: #fffaf0;
+}
+
+.compatibility-notice h4 {
+  color: #6d5422;
+}
+
 .material-chevron {
   color: #54747a;
   font-size: 1.5rem;
