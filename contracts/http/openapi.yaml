@@ -2963,6 +2963,94 @@ paths:
         "403": {description: Modeling read is not authorized.}
         "404": {description: No visible Material Model matches the identifier.}
         "503": {description: Material Model service unavailable.}
+  /api/v1/material-states/{material_state_id}/linear-viscoelastic-models:
+    get:
+      operationId: listLinearViscoelasticModels
+      tags: [modeling]
+      summary: List current typed reference Prony IR heads for one Material State.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      responses:
+        "200":
+          description: Visible immutable linear-viscoelastic IR heads.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Linear-viscoelastic service unavailable.}
+    post:
+      operationId: createLinearViscoelasticModel
+      tags: [modeling]
+      summary: Create a non-production typed Prony IR from one pinned Property Set revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201":
+          description: Stable model identity and immutable typed Prony IR revision created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: The pinned Property Set revision is not visible.}
+        "409": {description: Source class, tenant, classification, or lineage conflicts.}
+        "422": {description: Prony terms or declared bulk evidence are invalid.}
+        "503": {description: Linear-viscoelastic service unavailable.}
+  /api/v1/linear-viscoelastic-models/{material_model_id}:
+    get:
+      operationId: getLinearViscoelasticModel
+      tags: [modeling]
+      summary: Read one current immutable typed reference Prony IR revision.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialModelId"}]
+      responses:
+        "200":
+          description: Current typed reference Prony IR revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible linear-viscoelastic model matches the identifier.}
+        "503": {description: Linear-viscoelastic service unavailable.}
+  /api/v1/linear-viscoelastic-models/{material_model_id}/response:
+    get:
+      operationId: previewLinearViscoelasticResponse
+      tags: [modeling]
+      summary: Evaluate a deterministic solver-neutral shear and bulk relaxation preview.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {$ref: "#/components/parameters/MaterialModelId"}
+        - name: time_s
+          in: query
+          required: false
+          description: Repeated strictly increasing non-negative SI time values; defaults to 41 bounded log-spaced points.
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 200
+            items: {type: number, minimum: 0}
+      responses:
+        "200":
+          description: Deterministic relaxation response in Pa over seconds.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/RelaxationResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible linear-viscoelastic model matches the identifier.}
+        "422": {description: Explicit response times are invalid.}
+        "503": {description: Linear-viscoelastic service unavailable.}
   /api/v1/material-states/{material_state_id}/tabulated-plasticity-models:
     get:
       operationId: listReferenceTabulatedPlasticityModels

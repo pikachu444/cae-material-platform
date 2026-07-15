@@ -26,6 +26,7 @@ import {
 } from "./api";
 import { ReferenceTensileWorkflow } from "./reference-tensile-workflow";
 import { ReferenceElastoplasticWorkbench } from "./reference-elastoplastic-workbench";
+import { ReferenceLinearViscoelasticWorkbench } from "./reference-linear-viscoelastic-workbench";
 import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench";
 import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
 import { ReviewWorkbench } from "./review-workbench";
@@ -1197,6 +1198,14 @@ function MaterialStateCard({
             </p>
           </section>
         )
+      ) : null}
+      {propertySet && (materialClass === "polymer" || materialClass === "elastomer") ? (
+        <ReferenceLinearViscoelasticWorkbench
+          key={`linear-viscoelastic-${propertySet.current_revision.id}`}
+          config={config}
+          state={state}
+          propertySet={propertySet}
+        />
       ) : null}
       <ReferenceCalibrationWorkbench config={config} state={state} />
       <ReferenceValidationWorkbench config={config} state={state} />

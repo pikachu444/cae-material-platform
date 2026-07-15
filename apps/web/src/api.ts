@@ -30,6 +30,8 @@ import type {
   MaterialStateCreateInput,
   MaterialStateReviseInput,
   MaterialStateResponse,
+  LinearViscoelasticModelResponse,
+  LinearViscoelasticResponse,
   MappingReport,
   ImportDetectionReportResponse,
   ImportMappingResponse,
@@ -1068,6 +1070,43 @@ export function listTabulatedPlasticityModels(
   return request(
     config,
     `/material-states/${encodeURIComponent(materialStateId)}/tabulated-plasticity-models`,
+  );
+}
+
+export function listLinearViscoelasticModels(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: LinearViscoelasticModelResponse[] }>> {
+  return request(
+    config,
+    `/material-states/${encodeURIComponent(materialStateId)}/linear-viscoelastic-models`,
+  );
+}
+
+export function createLinearViscoelasticModel(
+  config: ApiConfig,
+  materialStateId: string,
+  input: {
+    property_set_revision_id: string;
+    bulk_relaxation_status: "characterized" | "not_characterized";
+    terms: Array<{ g_ratio: number; k_ratio: number; relaxation_time_s: number }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<LinearViscoelasticModelResponse>> {
+  return request(
+    config,
+    `/material-states/${encodeURIComponent(materialStateId)}/linear-viscoelastic-models`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function previewLinearViscoelasticResponse(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<LinearViscoelasticResponse>> {
+  return request(
+    config,
+    `/linear-viscoelastic-models/${encodeURIComponent(materialModelId)}/response`,
   );
 }
 
