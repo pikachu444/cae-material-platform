@@ -49,6 +49,7 @@ import type {
   PronyCalibrationDiagnosticsResponse,
   PronyCalibrationPlanResponse,
   PronyCalibrationRunResponse,
+  PronyCandidateSelectionResponse,
   ReplicateAlignmentBatchResponse,
   ReplicateStatisticalCurveResponse,
   ReplicateStatisticalPlanResponse,
@@ -1535,6 +1536,34 @@ export function getReferencePronyCandidateDiagnostics(
   return request(
     config,
     `/prony-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
+  );
+}
+
+export function createReferencePronyCandidateSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    calibration_run_id: string;
+    calibration_candidate_id: string;
+    selection_reason: string;
+  },
+): Promise<ApiResult<PronyCandidateSelectionResponse>> {
+  return request(config, "/prony-candidate-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function promoteReferencePronyCandidate(
+  config: ApiConfig,
+  selectionId: string,
+  input: { selection_revision_id: string; change_reason: string },
+): Promise<ApiResult<LinearViscoelasticModelResponse>> {
+  return request(
+    config,
+    `/prony-candidate-selections/${encodeURIComponent(selectionId)}/promotions`,
+    { method: "POST", body: JSON.stringify(input) },
   );
 }
 

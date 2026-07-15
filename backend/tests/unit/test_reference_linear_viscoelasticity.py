@@ -1,3 +1,4 @@
+from dataclasses import replace
 from uuid import UUID
 
 import pytest
@@ -6,6 +7,7 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     InvalidLinearViscoelasticModel,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
+    ReferencePronyPromotionEvidence,
     evaluate_relaxation,
     reference_linear_viscoelastic_canonical,
 )
@@ -87,3 +89,22 @@ def test_canonical_ir_pins_every_catalog_revision_and_uses_si_time() -> None:
     assert isinstance(terms, list)
     assert terms[0]["relaxation_time_s"] == 0.1
     assert canonical["non_production"] is True
+
+
+def test_promoted_ir_pins_human_selection_candidate_and_diagnostics() -> None:
+    evidence = ReferencePronyPromotionEvidence(
+        selection_id=_id(7),
+        selection_revision_id=_id(8),
+        calibration_run_id=_id(9),
+        calibration_candidate_id=_id(10),
+        candidate_sha256="a" * 64,
+        diagnostics_artifact_id=_id(11),
+        diagnostics_sha256="b" * 64,
+    )
+    content = replace(_content(), prony_promotion_evidence=evidence)
+    canonical = reference_linear_viscoelastic_canonical(content)
+    promotion = canonical["prony_promotion_evidence"]
+    assert isinstance(promotion, dict)
+    assert promotion["selection_revision_id"] == str(_id(8))
+    assert promotion["candidate_sha256"] == "a" * 64
+    assert promotion["diagnostics_sha256"] == "b" * 64

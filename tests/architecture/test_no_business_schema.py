@@ -51,6 +51,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260808_042_shear_relaxation_dataset.py",
         "20260809_043_shear_relaxation_processing.py",
         "20260810_044_reference_prony_calibration.py",
+        "20260811_045_prony_candidate_promotion.py",
     ]
 
 

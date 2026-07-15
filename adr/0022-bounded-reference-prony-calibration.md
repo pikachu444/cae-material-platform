@@ -45,3 +45,12 @@ preflight/card boundary.
 This ADR does not define production term-count selection, time-temperature superposition,
 frequency-domain fitting, nonlinear hyperelasticity, solver execution qualification, or
 OpenRadioss LAW62. Ogden-Prony/LAW62 is a separate model family and vertical feature.
+
+## Implementation note
+
+Migration 045 implements the subsequent human decision described above. Selection is a dedicated
+stable identity with an immutable typed revision. Promotion appends schema 1.1 to the baseline
+Material Model identity and pins Selection, Run, Candidate and diagnostics digests. Database
+triggers independently validate the exact organization/project/classification lineage. The
+existing Abaqus exporter consumes the promoted revision without changing the solver-neutral model
+family; the card remains explicitly reference/non-production.

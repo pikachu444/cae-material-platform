@@ -38,6 +38,7 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     BulkRelaxationStatus,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
+    ReferencePronyPromotionEvidence,
 )
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope, content_sha256
 from fastapi import FastAPI, Request
@@ -96,6 +97,15 @@ CONTENT = ReferenceLinearViscoelasticContent(
     poisson_ratio=0.35,
     bulk_relaxation_status=BulkRelaxationStatus.NOT_CHARACTERIZED,
     terms=(PronyTerm(0.2, 0.0, 0.1), PronyTerm(0.3, 0.0, 10.0)),
+    prony_promotion_evidence=ReferencePronyPromotionEvidence(
+        selection_id=UUID(int=20),
+        selection_revision_id=UUID(int=21),
+        calibration_run_id=UUID(int=22),
+        calibration_candidate_id=UUID(int=23),
+        candidate_sha256="a" * 64,
+        diagnostics_artifact_id=UUID(int=24),
+        diagnostics_sha256="b" * 64,
+    ),
 )
 
 
@@ -271,6 +281,9 @@ def test_prony_ir_to_abaqus_preview_and_download() -> None:
         },
     )
     assert created.status_code == 201
+    assert created.json()["card"]["current_revision"]["content"][
+        "material_model_revision_id"
+    ] == str(MODEL_REVISION)
     assert created.json()["card"]["current_revision"]["content"]["terms"][1][
         "relaxation_time_s"
     ] == 10.0

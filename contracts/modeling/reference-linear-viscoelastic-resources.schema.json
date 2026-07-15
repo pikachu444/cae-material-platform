@@ -12,7 +12,7 @@
         "revision_no": {"type": "integer", "minimum": 1},
         "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
         "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
-        "schema_version": {"const": "1.0.0"},
+        "schema_version": {"enum": ["1.0.0", "1.1.0"]},
         "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "created_at": {"type": "string", "format": "date-time"},
         "created_by": {"$ref": "#/$defs/Uuid"},
@@ -40,7 +40,7 @@
       "required": ["model_family_id", "model_schema_version", "model_schema_digest", "material_id", "material_revision_id", "material_state_id", "material_state_revision_id", "property_set_id", "property_set_revision_id", "density_kg_per_m3", "youngs_modulus_pa", "poisson_ratio", "elastic_moduli_convention", "bulk_relaxation_status", "terms", "reference_temperature_k", "non_production"],
       "properties": {
         "model_family_id": {"const": "urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0"},
-        "model_schema_version": {"const": "1.0.0"},
+        "model_schema_version": {"enum": ["1.0.0", "1.1.0"]},
         "model_schema_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
         "material_id": {"$ref": "#/$defs/Uuid"},
         "material_revision_id": {"$ref": "#/$defs/Uuid"},
@@ -55,7 +55,20 @@
         "bulk_relaxation_status": {"enum": ["characterized", "not_characterized"]},
         "terms": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"$ref": "#/$defs/PronyTerm"}},
         "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
-        "non_production": {"const": true}
+        "non_production": {"const": true},
+        "prony_promotion_evidence": {
+          "type": ["object", "null"],
+          "required": ["selection_id", "selection_revision_id", "calibration_run_id", "calibration_candidate_id", "candidate_sha256", "diagnostics_artifact_id", "diagnostics_sha256"],
+          "properties": {
+            "selection_id": {"$ref": "#/$defs/Uuid"},
+            "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+            "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+            "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+            "candidate_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "diagnostics_artifact_id": {"$ref": "#/$defs/Uuid"},
+            "diagnostics_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
       }
     },
     "Revision": {

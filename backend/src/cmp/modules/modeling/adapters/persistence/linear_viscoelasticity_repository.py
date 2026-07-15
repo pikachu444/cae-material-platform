@@ -28,6 +28,7 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     LinearViscoelasticNotFound,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
+    ReferencePronyPromotionEvidence,
     reference_linear_viscoelastic_canonical,
 )
 from cmp.shared.adapters.persistence.revisions import (
@@ -101,6 +102,7 @@ def _record(row: Any) -> RevisionRecord:
 
 
 def _content_values(content: ReferenceLinearViscoelasticContent) -> dict[str, Any]:
+    evidence = content.prony_promotion_evidence
     return {
         "model_family_id": content.model_family_id,
         "model_schema_digest": content.model_schema_digest,
@@ -120,7 +122,30 @@ def _content_values(content: ReferenceLinearViscoelasticContent) -> dict[str, An
         "applicable_strain_rate_max_per_s": content.applicable_strain_rate_max_per_s,
         "applicability_note": content.applicability_note,
         "reference_temperature_k": content.reference_temperature_k,
-        "calibration_evidence_kind": "manual_catalog_projection",
+        "calibration_evidence_kind": (
+            "reference_prony_candidate_selection"
+            if evidence is not None
+            else "manual_catalog_projection"
+        ),
+        "prony_selection_id": evidence.selection_id if evidence is not None else None,
+        "prony_selection_revision_id": (
+            evidence.selection_revision_id if evidence is not None else None
+        ),
+        "prony_calibration_run_id": (
+            evidence.calibration_run_id if evidence is not None else None
+        ),
+        "prony_calibration_candidate_id": (
+            evidence.calibration_candidate_id if evidence is not None else None
+        ),
+        "prony_calibration_candidate_sha256": (
+            evidence.candidate_sha256 if evidence is not None else None
+        ),
+        "prony_diagnostics_artifact_id": (
+            evidence.diagnostics_artifact_id if evidence is not None else None
+        ),
+        "prony_diagnostics_sha256": (
+            evidence.diagnostics_sha256 if evidence is not None else None
+        ),
         "non_production": True,
     }
 
@@ -206,11 +231,32 @@ def _revision_columns(table: sa.Table) -> tuple[Any, ...]:
         "applicability_note",
         "reference_temperature_k",
         "non_production",
+        "calibration_evidence_kind",
+        "prony_selection_id",
+        "prony_selection_revision_id",
+        "prony_calibration_run_id",
+        "prony_calibration_candidate_id",
+        "prony_calibration_candidate_sha256",
+        "prony_diagnostics_artifact_id",
+        "prony_diagnostics_sha256",
     )
     return tuple(table.c[name] for name in names)
 
 
 def _content(row: Any, terms: tuple[PronyTerm, ...]) -> ReferenceLinearViscoelasticContent:
+    evidence = (
+        ReferencePronyPromotionEvidence(
+            selection_id=cast(UUID, row["prony_selection_id"]),
+            selection_revision_id=cast(UUID, row["prony_selection_revision_id"]),
+            calibration_run_id=cast(UUID, row["prony_calibration_run_id"]),
+            calibration_candidate_id=cast(UUID, row["prony_calibration_candidate_id"]),
+            candidate_sha256=str(row["prony_calibration_candidate_sha256"]),
+            diagnostics_artifact_id=cast(UUID, row["prony_diagnostics_artifact_id"]),
+            diagnostics_sha256=str(row["prony_diagnostics_sha256"]),
+        )
+        if row["calibration_evidence_kind"] == "reference_prony_candidate_selection"
+        else None
+    )
     return ReferenceLinearViscoelasticContent(
         material_id=cast(UUID, row["material_id"]),
         material_revision_id=cast(UUID, row["material_revision_id"]),
@@ -229,6 +275,7 @@ def _content(row: Any, terms: tuple[PronyTerm, ...]) -> ReferenceLinearViscoelas
         applicable_strain_rate_max_per_s=row["applicable_strain_rate_max_per_s"],
         applicability_note=row["applicability_note"],
         reference_temperature_k=float(row["reference_temperature_k"]),
+        prony_promotion_evidence=evidence,
         model_family_id=str(row["model_family_id"]),
         model_schema_digest=str(row["model_schema_digest"]),
         non_production=bool(row["non_production"]),

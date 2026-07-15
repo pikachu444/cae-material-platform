@@ -19,7 +19,6 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelSnapshot,
 )
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
-    REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
     BulkRelaxationStatus,
     InvalidLinearViscoelasticModel,
     LinearViscoelasticConflict,
@@ -81,14 +80,19 @@ class LinearViscoelasticContentResponse(BaseModel):
     terms: tuple[PronyTermResponse, ...]
     reference_temperature_k: float
     non_production: bool
+    prony_promotion_evidence: dict[str, object] | None = None
 
     @classmethod
     def from_domain(
-        cls, value: ReferenceLinearViscoelasticContent
+        cls, value: ReferenceLinearViscoelasticContent, schema_version: str
     ) -> LinearViscoelasticContentResponse:
+        canonical = reference_linear_viscoelastic_canonical(value)
+        promotion_evidence = canonical.get("prony_promotion_evidence")
+        if not isinstance(promotion_evidence, dict):
+            promotion_evidence = None
         return cls(
             model_family_id=value.model_family_id,
-            model_schema_version=REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+            model_schema_version=schema_version,
             model_schema_digest=f"sha256:{value.model_schema_digest}",
             material_id=value.material_id,
             material_revision_id=value.material_revision_id,
@@ -112,6 +116,7 @@ class LinearViscoelasticContentResponse(BaseModel):
             ),
             reference_temperature_k=value.reference_temperature_k,
             non_production=value.non_production,
+            prony_promotion_evidence=promotion_evidence,
         )
 
 
@@ -139,7 +144,9 @@ class LinearViscoelasticModelResponse(BaseModel):
             material_state_id=value.material_state_id,
             current_revision=LinearViscoelasticRevisionResponse(
                 **metadata.model_dump(),
-                content=LinearViscoelasticContentResponse.from_domain(value.current.content),
+                content=LinearViscoelasticContentResponse.from_domain(
+                    value.current.content, value.current.record.schema_version
+                ),
                 ir=reference_linear_viscoelastic_canonical(value.current.content),
             ),
             links={"self": root, "response": f"{root}/response"},

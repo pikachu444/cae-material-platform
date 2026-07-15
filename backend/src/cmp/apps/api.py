@@ -26,6 +26,7 @@ from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
     build_linear_viscoelastic_model_service,
     build_material_model_service,
+    build_prony_candidate_promotion_service,
     build_reference_calibration_service,
     build_reference_prony_calibration_service,
     build_reference_voce_calibration_service,
@@ -98,6 +99,9 @@ from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
 )
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
 from cmp.modules.modeling.adapters.api.prony_calibration import install_prony_calibration_api
+from cmp.modules.modeling.adapters.api.prony_candidate_promotion import (
+    install_prony_candidate_promotion_api,
+)
 from cmp.modules.modeling.adapters.api.tabulated_plasticity import (
     install_tabulated_plasticity_api,
 )
@@ -114,6 +118,9 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
 )
 from cmp.modules.modeling.application.prony_calibration import (
     ReferencePronyCalibrationService,
+)
+from cmp.modules.modeling.application.prony_candidate_promotion import (
+    PronyCandidatePromotionService,
 )
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
@@ -199,6 +206,7 @@ def create_app(
     calibration_service: ReferenceCalibrationService | None = None,
     voce_calibration_service: ReferenceVoceCalibrationService | None = None,
     prony_calibration_service: ReferencePronyCalibrationService | None = None,
+    prony_candidate_promotion_service: PronyCandidatePromotionService | None = None,
     voce_candidate_projection_service: VoceCandidateProjectionService | None = None,
     candidate_selection_service: CandidateSelectionService | None = None,
     solver_card_service: SolverCardService | None = None,
@@ -558,6 +566,25 @@ def create_app(
             services.authorization, Permission.CALIBRATION_EXECUTE
         ),
     )
+    resolved_prony_candidate_promotion = (
+        prony_candidate_promotion_service
+        or build_prony_candidate_promotion_service(
+            services,
+            resolved_prony_calibration,
+            resolved_linear_viscoelastic,
+        )
+    )
+    install_prony_candidate_promotion_api(
+        application,
+        service=resolved_prony_candidate_promotion,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+    )
     resolved_voce_projection = (
         voce_candidate_projection_service
         or build_voce_candidate_projection_service(
@@ -727,6 +754,9 @@ def create_app(
     application.state.calibration_service = resolved_calibration
     application.state.voce_calibration_service = resolved_voce_calibration
     application.state.prony_calibration_service = resolved_prony_calibration
+    application.state.prony_candidate_promotion_service = (
+        resolved_prony_candidate_promotion
+    )
     application.state.voce_candidate_projection_service = resolved_voce_projection
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards

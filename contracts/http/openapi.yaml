@@ -5157,6 +5157,53 @@ paths:
           content:
             application/json:
               schema: {$ref: "../modeling/reference-prony-calibration-resources.schema.json#/$defs/DiagnosticsResponse"}
+  /api/v1/prony-candidate-selections:
+    post:
+      operationId: createReferencePronyCandidateSelection
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-prony-candidate-promotion-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201":
+          description: Immutable human Prony Candidate Selection created.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-prony-candidate-promotion-resources.schema.json#/$defs/SelectionResponse"}
+  /api/v1/prony-candidate-selections/{selection_id}:
+    get:
+      operationId: getReferencePronyCandidateSelection
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: selection_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: One visible immutable human Prony Candidate Selection.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-prony-candidate-promotion-resources.schema.json#/$defs/SelectionResponse"}
+  /api/v1/prony-candidate-selections/{selection_id}/promotions:
+    post:
+      operationId: promoteReferencePronyCandidate
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: selection_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-prony-candidate-promotion-resources.schema.json#/$defs/PromoteRequest"}
+      responses:
+        "201":
+          description: Selected Candidate appended as a new immutable linear-Prony IR revision.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ModelResponse"}
 components:
   securitySchemes:
     BearerAuth:

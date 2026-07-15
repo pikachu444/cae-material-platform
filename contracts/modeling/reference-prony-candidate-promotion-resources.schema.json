@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/reference-prony-candidate-promotion-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "CreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_label", "calibration_run_id", "calibration_candidate_id", "selection_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "selection_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "PromoteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_revision_id", "change_reason"],
+      "properties": {
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "SelectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prony_candidate_selection_id", "current_revision", "links"],
+      "properties": {
+        "prony_candidate_selection_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"type": "object"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    }
+  }
+}

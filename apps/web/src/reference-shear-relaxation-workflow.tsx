@@ -4,6 +4,7 @@ import {
   ApiError,
   type ApiConfig,
   createReferencePronyCalibrationPlan,
+  createReferencePronyCandidateSelection,
   createReferenceShearRelaxationTestMethod,
   createReferenceShearRelaxationCropRecipe,
   createReferenceShearRelaxationTestRun,
@@ -18,6 +19,7 @@ import {
   listTestMethods,
   listTestRunsForMaterialState,
   previewShearRelaxationDataset,
+  promoteReferencePronyCandidate,
   uploadReferenceTensileCsv,
 } from "./api";
 import type {
@@ -154,6 +156,11 @@ export function ReferenceShearRelaxationWorkflow({
   const [multistartCount, setMultistartCount] = useState("4");
   const [calibrationRun, setCalibrationRun] = useState<PronyCalibrationRunResponse | null>(null);
   const [diagnostics, setDiagnostics] = useState<PronyCalibrationDiagnosticsResponse | null>(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState("");
+  const [selectionReason, setSelectionReason] = useState(
+    "Reviewed fitted response, residual evidence, convergence, and parameter-bound warnings.",
+  );
+  const [promotedModel, setPromotedModel] = useState<LinearViscoelasticModelResponse | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -360,6 +367,8 @@ export function ReferenceShearRelaxationWorkflow({
     setBusy("calibration");
     setError(null);
     setDiagnostics(null);
+    setSelectedCandidateId("");
+    setPromotedModel(null);
     try {
       const preview = await previewShearRelaxationDataset(config, input.dataset_id);
       const observed = preview.data.points.map((point) => point.shear_modulus);
@@ -389,16 +398,53 @@ export function ReferenceShearRelaxationWorkflow({
         },
       );
       setCalibrationRun(run.data);
-      const best = [...run.data.candidates].sort(
-        (left, right) => left.objective_total - right.objective_total,
-      )[0];
-      if (best) {
-        const result = await getReferencePronyCandidateDiagnostics(
-          config,
-          best.prony_calibration_candidate_id,
-        );
-        setDiagnostics(result.data);
-      }
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function inspectCandidate(candidateId: string): Promise<void> {
+    setSelectedCandidateId(candidateId);
+    setBusy("diagnostics");
+    setError(null);
+    try {
+      const result = await getReferencePronyCandidateDiagnostics(config, candidateId);
+      setDiagnostics(result.data);
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function selectAndPromote(): Promise<void> {
+    if (!calibrationRun || !selectedCandidateId || !selectionReason.trim()) return;
+    const candidate = calibrationRun.candidates.find(
+      (item) => item.prony_calibration_candidate_id === selectedCandidateId,
+    );
+    if (!candidate || candidate.status !== "converged") return;
+    setBusy("promotion");
+    setError(null);
+    try {
+      const selection = await createReferencePronyCandidateSelection(config, {
+        classification: state.current_revision.classification,
+        selection_label: `Prony candidate ${candidate.attempt_ordinal} selection`,
+        calibration_run_id: calibrationRun.prony_calibration_run_id,
+        calibration_candidate_id: selectedCandidateId,
+        selection_reason: selectionReason.trim(),
+      });
+      const promoted = await promoteReferencePronyCandidate(
+        config,
+        selection.data.prony_candidate_selection_id,
+        {
+          selection_revision_id: selection.data.current_revision.id,
+          change_reason: "Promote the reviewed Prony candidate as a new immutable IR revision",
+        },
+      );
+      setPromotedModel(promoted.data);
+      await refresh();
     } catch (cause) {
       setError(message(cause));
     } finally {
@@ -561,12 +607,23 @@ export function ReferenceShearRelaxationWorkflow({
             {calibrationRun ? (
               <div className="table-wrap">
                 <table>
-                  <thead><tr><th>Attempt</th><th>Status</th><th>g fast</th><th>g slow</th><th>tau fast</th><th>tau slow</th><th>Objective</th><th>Warnings</th></tr></thead>
+                  <thead><tr><th>Select</th><th>Attempt</th><th>Status</th><th>g fast</th><th>g slow</th><th>tau fast</th><th>tau slow</th><th>Objective</th><th>Warnings</th></tr></thead>
                   <tbody>
                     {[...calibrationRun.candidates]
                       .sort((left, right) => left.objective_total - right.objective_total)
                       .map((candidate) => (
                         <tr key={candidate.prony_calibration_candidate_id}>
+                          <td>
+                            <button
+                              type="button"
+                              className="text-button"
+                              aria-pressed={selectedCandidateId === candidate.prony_calibration_candidate_id}
+                              disabled={candidate.status !== "converged" || busy !== null}
+                              onClick={() => void inspectCandidate(candidate.prony_calibration_candidate_id)}
+                            >
+                              {selectedCandidateId === candidate.prony_calibration_candidate_id ? "Selected" : "Review"}
+                            </button>
+                          </td>
                           <td>{candidate.attempt_ordinal}</td>
                           <td>{candidate.status}</td>
                           <td>{candidate.fast_g_ratio.toPrecision(4)}</td>
@@ -582,6 +639,31 @@ export function ReferenceShearRelaxationWorkflow({
               </div>
             ) : null}
             {diagnostics ? <PronyDiagnostics value={diagnostics} /> : null}
+            {selectedCandidateId ? (
+              <div className="form-stack">
+                <label>
+                  Human selection reason
+                  <textarea
+                    rows={3}
+                    value={selectionReason}
+                    onChange={(event) => setSelectionReason(event.target.value)}
+                  />
+                </label>
+                <button
+                  className="button primary"
+                  type="button"
+                  disabled={!selectionReason.trim() || busy !== null}
+                  onClick={() => void selectAndPromote()}
+                >
+                  {busy === "promotion" ? "Promoting..." : "Select candidate and promote IR revision"}
+                </button>
+              </div>
+            ) : null}
+            {promotedModel ? (
+              <p className="success-notice" role="status">
+                Promoted to the same Material Model identity as revision r{promotedModel.current_revision.revision_no}. The selected Candidate and diagnostics digests are pinned in the IR.
+              </p>
+            ) : null}
           </form>
           {error ? <div className="error-notice" role="alert">{error}</div> : null}
           {datasets.length > 0 ? (
