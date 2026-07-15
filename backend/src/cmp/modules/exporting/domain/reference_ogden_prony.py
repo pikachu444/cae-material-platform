@@ -12,6 +12,7 @@ from uuid import UUID
 from cmp.modules.modeling.domain.reference_ogden_prony import (
     REFERENCE_OGDEN_PRONY_SCHEMA_DIGEST,
     ReferenceOgdenPronyContent,
+    ReferenceShearPronyTerm,
 )
 from cmp.shared.domain.revisions import content_sha256
 
@@ -42,6 +43,14 @@ class InvalidOgdenPronyExport(OgdenPronyExportError, ValueError):
 
 class OgdenPronyMappingReportMismatch(OgdenPronyExportError):
     """The caller did not acknowledge the current mapping report."""
+
+
+class OgdenPronySolverCardNotFound(OgdenPronyExportError):
+    """A card is unavailable in the active tenant scope."""
+
+
+class OgdenPronySolverCardConflict(OgdenPronyExportError):
+    """The immutable card request conflicts with its source or identity."""
 
 
 def _sha256(name: str, value: str) -> None:
@@ -315,18 +324,33 @@ class ReferenceOgdenPronySolverCardContent:
     target: OgdenPronyExportTarget
     solver_material_id: int
     material_name: str
+    density_kg_per_m3: float
+    catalog_youngs_modulus_pa: float
+    catalog_poisson_ratio: float
+    ogden_mu_pa: float
+    ogden_alpha: float
+    law62_poisson_ratio: float
+    prony_terms: tuple[ReferenceShearPronyTerm, ...]
+    density_mapping_status: MappingStatus
+    ogden_mapping_status: MappingStatus
+    prony_mapping_status: MappingStatus
+    volumetric_mapping_status: MappingStatus
+    temperature_mapping_status: MappingStatus
+    unit_system_mapping_status: MappingStatus
     mapping_report_sha256: str
     card_text: str
     card_sha256: str
     exporter_id: str
     exporter_version: str
     exporter_digest: str
+    model_schema_digest: str = REFERENCE_OGDEN_PRONY_SCHEMA_DIGEST
     non_production: bool = True
 
     def canonical(self) -> dict[str, object]:
         return {
             "material_model_id": str(self.material_model_id),
             "material_model_revision_id": str(self.material_model_revision_id),
+            "model_schema_digest": self.model_schema_digest,
             "target": {
                 "solver": self.target.solver,
                 "version": self.target.version,
@@ -334,6 +358,28 @@ class ReferenceOgdenPronySolverCardContent:
             },
             "solver_material_id": self.solver_material_id,
             "material_name": self.material_name,
+            "density_kg_per_m3": self.density_kg_per_m3,
+            "catalog_youngs_modulus_pa": self.catalog_youngs_modulus_pa,
+            "catalog_poisson_ratio": self.catalog_poisson_ratio,
+            "ogden_mu_pa": self.ogden_mu_pa,
+            "ogden_alpha": self.ogden_alpha,
+            "law62_poisson_ratio": self.law62_poisson_ratio,
+            "prony_terms": [
+                {
+                    "ordinal": ordinal,
+                    "g_ratio": term.g_ratio,
+                    "relaxation_time_s": term.relaxation_time_s,
+                }
+                for ordinal, term in enumerate(self.prony_terms, 1)
+            ],
+            "mapping_statuses": {
+                "density": self.density_mapping_status,
+                "ogden_term": self.ogden_mapping_status,
+                "shear_prony_terms": self.prony_mapping_status,
+                "volumetric_response": self.volumetric_mapping_status,
+                "temperature_dependence": self.temperature_mapping_status,
+                "unit_system": self.unit_system_mapping_status,
+            },
             "mapping_report_sha256": self.mapping_report_sha256,
             "card_sha256": self.card_sha256,
             "exporter": {
@@ -373,18 +419,32 @@ def build_reference_ogden_prony_solver_card(
             material_name=material_name,
             source=source,
         )
+    statuses = {item.name: item.status for item in report.items}
     card = ReferenceOgdenPronySolverCardContent(
-        material_model_id,
-        material_model_revision_id,
-        target,
-        solver_material_id,
-        material_name,
-        report.digest,
-        card_text,
-        hashlib.sha256(card_text.encode("utf-8")).hexdigest(),
-        report.exporter_id,
-        report.exporter_version,
-        report.exporter_digest,
+        material_model_id=material_model_id,
+        material_model_revision_id=material_model_revision_id,
+        target=target,
+        solver_material_id=solver_material_id,
+        material_name=material_name,
+        density_kg_per_m3=source.density_kg_per_m3,
+        catalog_youngs_modulus_pa=source.catalog_youngs_modulus_pa,
+        catalog_poisson_ratio=source.catalog_poisson_ratio,
+        ogden_mu_pa=source.ogden_term.mu_pa,
+        ogden_alpha=source.ogden_term.alpha,
+        law62_poisson_ratio=source.law62_poisson_ratio,
+        prony_terms=source.prony_terms,
+        density_mapping_status=statuses["density"],
+        ogden_mapping_status=statuses["ogden_term"],
+        prony_mapping_status=statuses["shear_prony_terms"],
+        volumetric_mapping_status=statuses["volumetric_response"],
+        temperature_mapping_status=statuses["temperature_dependence"],
+        unit_system_mapping_status=statuses["unit_system"],
+        mapping_report_sha256=report.digest,
+        card_text=card_text,
+        card_sha256=hashlib.sha256(card_text.encode("utf-8")).hexdigest(),
+        exporter_id=report.exporter_id,
+        exporter_version=report.exporter_version,
+        exporter_digest=report.exporter_digest,
     )
     _sha256("card_sha256", card.card_sha256)
     return report, card

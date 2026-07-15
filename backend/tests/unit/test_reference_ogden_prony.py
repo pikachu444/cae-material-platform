@@ -19,6 +19,8 @@ def _content() -> ReferenceOgdenPronyContent:
         property_set_id=UUID(int=5),
         property_set_revision_id=UUID(int=6),
         density_kg_per_m3=1100.0,
+        catalog_youngs_modulus_pa=3_000_000.0,
+        catalog_poisson_ratio=0.49,
         ogden_term=ReferenceOgdenTerm(mu_pa=1_200_000.0, alpha=2.4),
         prony_terms=(
             ReferenceShearPronyTerm(0.2, 0.1),
@@ -62,6 +64,8 @@ def test_prony_invariants(
             property_set_id=UUID(int=5),
             property_set_revision_id=UUID(int=6),
             density_kg_per_m3=1100.0,
+            catalog_youngs_modulus_pa=3_000_000.0,
+            catalog_poisson_ratio=0.49,
             ogden_term=ReferenceOgdenTerm(1e6, 2.0),
             prony_terms=terms,
         )

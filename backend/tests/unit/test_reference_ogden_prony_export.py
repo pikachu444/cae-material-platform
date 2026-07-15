@@ -29,6 +29,8 @@ def _source() -> ReferenceOgdenPronyContent:
         property_set_id=_id(5),
         property_set_revision_id=_id(6),
         density_kg_per_m3=1_100.0,
+        catalog_youngs_modulus_pa=3_000_000.0,
+        catalog_poisson_ratio=0.49,
         ogden_term=ReferenceOgdenTerm(1_200_000.0, 2.4),
         prony_terms=(
             ReferenceShearPronyTerm(0.2, 0.1),

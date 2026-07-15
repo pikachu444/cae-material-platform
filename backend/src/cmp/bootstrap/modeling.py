@@ -19,6 +19,9 @@ from cmp.modules.modeling.adapters.persistence.candidate_selection_repository im
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
 )
+from cmp.modules.modeling.adapters.persistence.ogden_prony_repository import (
+    SqlAlchemyOgdenPronyRepository,
+)
 from cmp.modules.modeling.adapters.persistence.prony_calibration_repository import (
     SqlAlchemyPronyCalibrationRepository,
 )
@@ -40,6 +43,7 @@ from cmp.modules.modeling.application.candidate_selection import CandidateSelect
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
+from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.prony_calibration import (
     ReferencePronyCalibrationService,
 )
@@ -93,6 +97,29 @@ def build_linear_viscoelastic_model_service(
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
     return LinearViscoelasticModelService(
         repository=SqlAlchemyLinearViscoelasticRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        material_models=material_models,
+    )
+
+
+def build_ogden_prony_model_service(
+    identity: IdentityServices,
+    material_models: MaterialModelService | None,
+) -> OgdenPronyModelService | None:
+    """Compose the elastomer-only manual Ogden-Prony reference IR."""
+
+    if identity.engine is None or identity.rls_context is None or material_models is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return OgdenPronyModelService(
+        repository=SqlAlchemyOgdenPronyRepository(
             session_factory=sessions,
             rls_context=identity.rls_context,
             revision_hooks=(

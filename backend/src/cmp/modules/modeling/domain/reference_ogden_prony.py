@@ -33,6 +33,14 @@ class InvalidReferenceOgdenProny(ValueError):
     pass
 
 
+class ReferenceOgdenPronyNotFound(Exception):
+    pass
+
+
+class ReferenceOgdenPronyConflict(Exception):
+    pass
+
+
 def _positive(name: str, value: float) -> None:
     if not math.isfinite(value) or value <= 0:
         raise InvalidReferenceOgdenProny(f"{name} must be finite and greater than zero")
@@ -73,6 +81,8 @@ class ReferenceOgdenPronyContent:
     property_set_id: UUID
     property_set_revision_id: UUID
     density_kg_per_m3: float
+    catalog_youngs_modulus_pa: float
+    catalog_poisson_ratio: float
     ogden_term: ReferenceOgdenTerm
     prony_terms: tuple[ReferenceShearPronyTerm, ...]
     reference_temperature_k: float = 293.15
@@ -96,6 +106,14 @@ class ReferenceOgdenPronyContent:
         ):
             _nonzero(name, getattr(self, name))
         _positive("density_kg_per_m3", self.density_kg_per_m3)
+        _positive("catalog_youngs_modulus_pa", self.catalog_youngs_modulus_pa)
+        if (
+            not math.isfinite(self.catalog_poisson_ratio)
+            or not -1 < self.catalog_poisson_ratio < 0.5
+        ):
+            raise InvalidReferenceOgdenProny(
+                "catalog_poisson_ratio must be within the stable isotropic interval"
+            )
         _positive("reference_temperature_k", self.reference_temperature_k)
         if not 1 <= len(self.prony_terms) <= 5:
             raise InvalidReferenceOgdenProny("Prony term count must be between 1 and 5")
@@ -139,6 +157,10 @@ class ReferenceOgdenPronyContent:
             "property_set_id": str(self.property_set_id),
             "property_set_revision_id": str(self.property_set_revision_id),
             "density_kg_per_m3": self.density_kg_per_m3,
+            "catalog_source_properties": {
+                "youngs_modulus_pa": self.catalog_youngs_modulus_pa,
+                "poisson_ratio": self.catalog_poisson_ratio,
+            },
             "hyperelastic_potential": self.hyperelastic_potential,
             "moduli_convention": self.moduli_convention,
             "volumetric_response": self.volumetric_response,
@@ -162,6 +184,12 @@ class ReferenceOgdenPronyContent:
             "reference_temperature_k": self.reference_temperature_k,
             "non_production": self.non_production,
         }
+
+
+def reference_ogden_prony_canonical(
+    content: ReferenceOgdenPronyContent,
+) -> dict[str, object]:
+    return content.canonical()
 
 
 def incompressible_uniaxial_nominal_stress_pa(
