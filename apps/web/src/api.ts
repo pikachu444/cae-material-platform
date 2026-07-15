@@ -34,6 +34,9 @@ import type {
   LinearViscoelasticCardResponse,
   LinearViscoelasticMappingReport,
   LinearViscoelasticResponse,
+  OgdenPronyCardResponse,
+  OgdenPronyMappingResponse,
+  OgdenPronyModelResponse,
   MappingReport,
   ImportDetectionReportResponse,
   ImportMappingResponse,
@@ -1199,6 +1202,114 @@ export async function downloadLinearViscoelasticSolverCard(
   if (!response.ok) return throwResponseError(response);
   const disposition = response.headers.get("content-disposition") ?? "";
   const filename = /filename="([^"]+)"/.exec(disposition)?.[1] ?? "material.inp";
+  return { data: { blob: await response.blob(), filename }, etag: response.headers.get("etag") };
+}
+
+export function listOgdenPronyModels(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: OgdenPronyModelResponse[] }>> {
+  return request(
+    config,
+    `/material-states/${encodeURIComponent(materialStateId)}/ogden-prony-models`,
+  );
+}
+
+export function createOgdenPronyModel(
+  config: ApiConfig,
+  materialStateId: string,
+  input: {
+    property_set_revision_id: string;
+    ogden_mu_pa: number;
+    ogden_alpha: number;
+    prony_terms: Array<{ g_ratio: number; relaxation_time_s: number }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<OgdenPronyModelResponse>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/ogden-prony-models`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function preflightOgdenPronyCard(
+  config: ApiConfig,
+  materialModelId: string,
+  materialModelRevisionId: string,
+  solver: "abaqus" | "openradioss",
+): Promise<ApiResult<OgdenPronyMappingResponse>> {
+  return request(
+    config,
+    `/ogden-prony-models/${encodeURIComponent(materialModelId)}/solver-card-preflight`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        material_model_revision_id: materialModelRevisionId,
+        target: { solver, version: "2025", unit_system: "kg_m_s" },
+      }),
+    },
+  );
+}
+
+export function listOgdenPronyCards(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<{ items: OgdenPronyCardResponse[] }>> {
+  return request(config, `/ogden-prony-models/${encodeURIComponent(materialModelId)}/solver-cards`);
+}
+
+export function createOgdenPronyCard(
+  config: ApiConfig,
+  materialModelId: string,
+  input: {
+    material_model_revision_id: string;
+    solver: "abaqus" | "openradioss";
+    expected_mapping_report_sha256: string;
+    solver_material_id: number;
+    material_name: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<OgdenPronyCardResponse>> {
+  return request(config, `/ogden-prony-models/${encodeURIComponent(materialModelId)}/solver-cards`, {
+    method: "POST",
+    body: JSON.stringify({
+      material_model_revision_id: input.material_model_revision_id,
+      target: { solver: input.solver, version: "2025", unit_system: "kg_m_s" },
+      expected_mapping_report_sha256: input.expected_mapping_report_sha256,
+      solver_material_id: input.solver_material_id,
+      material_name: input.material_name,
+      change_reason: input.change_reason,
+    }),
+  });
+}
+
+export async function previewOgdenPronyCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<string>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/ogden-prony-solver-cards/${encodeURIComponent(solverCardId)}/preview`),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  return { data: await response.text(), etag: response.headers.get("etag") };
+}
+
+export async function downloadOgdenPronyCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<{ blob: Blob; filename: string }>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "text/plain");
+  const response = await fetch(
+    endpoint(config, `/ogden-prony-solver-cards/${encodeURIComponent(solverCardId)}/download`),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const filename = /filename="([^"]+)"/.exec(disposition)?.[1] ?? "elastomer-card.txt";
   return { data: { blob: await response.blob(), filename }, etag: response.headers.get("etag") };
 }
 

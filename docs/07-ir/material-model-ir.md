@@ -371,7 +371,7 @@ The first routed families are:
 
 - `metal`: existing isotropic elasticity and tabulated/Voce elastoplastic reference IRs;
 - `polymer` or `elastomer`: implemented bounded linear generalized-Maxwell/Prony reference IR;
-- `polymer` or `elastomer`: planned Ogden-Prony hyper-viscoelastic reference IR.
+- `elastomer`: implemented bounded Ogden-Prony hyper-viscoelastic reference IR.
 
 The linear Prony family is not exportable to OpenRadioss LAW62. The hyper-viscoelastic family owns
 that mapping. Exporters must inspect the concrete IR family/schema digest and emit an explicit
@@ -384,4 +384,32 @@ one to five ordered `(g_ratio, k_ratio, relaxation_time_s)` rows, and records bu
 either `characterized` or `not_characterized`. The latter requires every `k_ratio` to be explicit
 zero; it is not a silent incompressibility default. Both ratio sums remain below one. This bounded
 family is reference/non-production until the domain and solver mapping fixtures are approved.
+
+## 16. Bounded reference Ogden–Prony family
+
+ADR-0023 adds a separate non-production family rather than widening linear viscoelasticity:
+
+`urn:cmp:reference:ogden-prony-hyperviscoelastic:1.0.0`
+
+Its immutable revision pins the exact Material, Material State, and Property Set revisions and
+contains explicit SI density, one Ogden term `(mu_pa, alpha)`, and one-to-five ordered normalized
+shear-Prony terms `(g_ratio, relaxation_time_s)`. The model declares `instantaneous` moduli,
+`incompressible` volumetric response, temperature-independent behavior, and `elastomer` class.
+Catalog E and ν remain source-property provenance and do not replace Ogden parameters.
+
+The two declared projections are:
+
+| IR concept | Abaqus 2025 | OpenRadioss 2025 LAW62 |
+| --- | --- | --- |
+| density | `*DENSITY` — exact | `RHO_I` — exact |
+| Ogden μ/α | `*HYPERELASTIC, OGDEN, N=1` — exact | LAW62 `MU1`/`ALPHA1` — exact |
+| shear Prony | `*VISCOELASTIC, TIME=PRONY` — exact | LAW62 `GAMMA_i`/`TAU_i` — exact |
+| incompressibility | `D1=0` — exact | `nu=0.495` — approximated |
+| unit declaration | kg-m-s comment — transformed | kg-m-s comment — transformed |
+
+The reference scope excludes generic parameter maps, EAV properties, multiple Ogden terms,
+bulk-Prony terms, temperature shift functions, and production calibration. The mapping report
+SHA-256 must be acknowledged before card creation. A card revision pins its exact source IR
+revision and duplicates its ordered terms in typed card tables so deferred database constraints
+can reject a mismatched projection.
 

@@ -19,6 +19,7 @@ from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
 from cmp.bootstrap.exporting import (
     build_elastoplastic_solver_card_service,
     build_linear_viscoelastic_solver_card_service,
+    build_ogden_prony_solver_card_service,
     build_solver_card_service,
 )
 from cmp.bootstrap.jobs import build_job_service
@@ -26,6 +27,7 @@ from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
     build_linear_viscoelastic_model_service,
     build_material_model_service,
+    build_ogden_prony_model_service,
     build_prony_candidate_promotion_service,
     build_reference_calibration_service,
     build_reference_prony_calibration_service,
@@ -75,6 +77,9 @@ from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
 from cmp.modules.exporting.adapters.api.linear_viscoelastic_solver_cards import (
     install_linear_viscoelastic_solver_card_api,
 )
+from cmp.modules.exporting.adapters.api.ogden_prony_solver_cards import (
+    install_ogden_prony_solver_card_api,
+)
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
@@ -82,6 +87,7 @@ from cmp.modules.exporting.application.elastoplastic_service import (
 from cmp.modules.exporting.application.linear_viscoelastic_service import (
     LinearViscoelasticSolverCardService,
 )
+from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
@@ -98,6 +104,7 @@ from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
     install_linear_viscoelastic_api,
 )
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
+from cmp.modules.modeling.adapters.api.ogden_prony import install_ogden_prony_api
 from cmp.modules.modeling.adapters.api.prony_calibration import install_prony_calibration_api
 from cmp.modules.modeling.adapters.api.prony_candidate_promotion import (
     install_prony_candidate_promotion_api,
@@ -116,6 +123,7 @@ from cmp.modules.modeling.application.candidate_selection import CandidateSelect
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
+from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.prony_calibration import (
     ReferencePronyCalibrationService,
 )
@@ -202,6 +210,7 @@ def create_app(
     replicate_outlier_service: ReplicateOutlierService | None = None,
     material_model_service: MaterialModelService | None = None,
     linear_viscoelastic_model_service: LinearViscoelasticModelService | None = None,
+    ogden_prony_model_service: OgdenPronyModelService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
     voce_calibration_service: ReferenceVoceCalibrationService | None = None,
@@ -212,6 +221,7 @@ def create_app(
     solver_card_service: SolverCardService | None = None,
     elastoplastic_solver_card_service: ElastoplasticSolverCardService | None = None,
     linear_viscoelastic_solver_card_service: LinearViscoelasticSolverCardService | None = None,
+    ogden_prony_solver_card_service: OgdenPronySolverCardService | None = None,
     validation_service: ReferenceValidationService | None = None,
     voce_holdout_service: ReferenceVoceHoldoutService | None = None,
     review_service: ReviewService | None = None,
@@ -488,6 +498,21 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_ogden_prony = (
+        ogden_prony_model_service
+        or build_ogden_prony_model_service(services, resolved_material_models)
+    )
+    install_ogden_prony_api(
+        application,
+        service=resolved_ogden_prony,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+    )
     resolved_tabulated_plasticity = (
         tabulated_plasticity_model_service
         or build_tabulated_plasticity_model_service(
@@ -672,6 +697,21 @@ def create_app(
             services.authorization, Permission.EXPORT_EXECUTE
         ),
     )
+    resolved_ogden_prony_solver_cards = (
+        ogden_prony_solver_card_service
+        or build_ogden_prony_solver_card_service(services, resolved_ogden_prony)
+    )
+    install_ogden_prony_solver_card_api(
+        application,
+        service=resolved_ogden_prony_solver_cards,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_EXECUTE
+        ),
+    )
     resolved_validation = validation_service or build_reference_validation_service(
         services,
         resolved_datasets,
@@ -750,6 +790,7 @@ def create_app(
     application.state.replicate_statistics_service = resolved_replicate_statistics
     application.state.material_model_service = resolved_material_models
     application.state.linear_viscoelastic_model_service = resolved_linear_viscoelastic
+    application.state.ogden_prony_model_service = resolved_ogden_prony
     application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
     application.state.voce_calibration_service = resolved_voce_calibration
@@ -764,6 +805,7 @@ def create_app(
     application.state.linear_viscoelastic_solver_card_service = (
         resolved_linear_viscoelastic_solver_cards
     )
+    application.state.ogden_prony_solver_card_service = resolved_ogden_prony_solver_cards
     application.state.validation_service = resolved_validation
     application.state.voce_holdout_service = resolved_voce_holdout
     application.state.review_service = resolved_review

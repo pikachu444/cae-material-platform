@@ -584,6 +584,25 @@ one retained and one calibration-only excluded Assessment before producing a 2-i
   residuals, selection reason and promoted IR lineage.
 - Hyper-viscoelasticity: canonical Ogden/Prony conventions and solver transforms require analytical
   equivalence tests; non-representable bulk relaxation must be `unsupported` for LAW62.
+
+#### ADR-0023 bounded Ogden–Prony gate
+
+The reference elastomer slice must pass all of the following without external solver execution:
+
+- domain invariants for positive finite μ/α, one-to-five positive ordered relaxation times,
+  normalized shear-ratio sum below one, exact source revision pins, and elastomer-only routing;
+- analytical N=1 incompressible uniaxial reference response checks;
+- byte-exact Abaqus and OpenRadioss golden fixtures plus card SHA-256 verification;
+- preflight digest acknowledgement and explicit `exact`/`transformed`/`approximated`/
+  `not_applicable` statuses, including mandatory `approximated` LAW62 volumetric response;
+- PostgreSQL migration, tenant/classification FK, RLS, immutable revision, deferred term-count/order,
+  and source-IR/card-term equality checks;
+- protected API create/list/read/preflight/create-card/preview/download and Material State browser
+  workflow for both targets.
+
+Solver execution and solver-result equivalence are intentionally excluded by product decision.
+They require a separate version/license/element/formulation matrix and must not be inferred from
+keyword rendering or golden text equality.
 - End to end: Material class -> State -> property/test data -> exact IR revision -> mapping report
   -> preview/download must pass in the browser against PostgreSQL. Golden/semantic tests do not
   claim real solver acceptance.

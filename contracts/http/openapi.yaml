@@ -5204,6 +5204,212 @@ paths:
           content:
             application/json:
               schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ModelResponse"}
+  /api/v1/material-states/{material_state_id}/ogden-prony-models:
+    parameters:
+      - name: material_state_id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+    get:
+      operationId: listOgdenPronyModels
+      tags: [modeling]
+      summary: List immutable reference Ogden-Prony models for an elastomer State.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Visible Ogden-Prony model heads.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/OgdenPronyModelResponse"}}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Modeling service unavailable.}
+    post:
+      operationId: createOgdenPronyModel
+      tags: [modeling]
+      summary: Create an immutable one-term Ogden plus shear-Prony reference IR.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OgdenPronyModelCreateRequest"}
+      responses:
+        "201":
+          description: Stable model identity and first immutable IR revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OgdenPronyModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Material class or pinned source conflicts.}
+        "422": {description: Ogden or Prony values violate the bounded contract.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-prony-models/{material_model_id}:
+    get:
+      operationId: getOgdenPronyModel
+      tags: [modeling]
+      summary: Read one immutable Ogden-Prony model head.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: material_model_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable model revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OgdenPronyModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Model is not visible.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-prony-models/{material_model_id}/solver-card-preflight:
+    post:
+      operationId: preflightOgdenPronySolverCard
+      tags: [exporting]
+      summary: Inspect every Abaqus or OpenRadioss LAW62 mapping disposition.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: material_model_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OgdenPronyPreflightRequest"}
+      responses:
+        "200":
+          description: Deterministic mapping report and acknowledgement SHA-256.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OgdenPronyMappingReportResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "409": {description: Exact immutable source revision is not current.}
+        "422": {description: Target is malformed or unsupported.}
+        "503": {description: Export service unavailable.}
+  /api/v1/ogden-prony-models/{material_model_id}/solver-cards:
+    parameters:
+      - name: material_model_id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+    get:
+      operationId: listOgdenPronySolverCards
+      tags: [exporting]
+      summary: List immutable cards generated from one Ogden-Prony model identity.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Visible solver cards.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/OgdenPronyCardResponse"}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "503": {description: Export service unavailable.}
+    post:
+      operationId: createOgdenPronySolverCard
+      tags: [exporting]
+      summary: Create an immutable card after exact mapping-report acknowledgement.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OgdenPronyCardCreateRequest"}
+      responses:
+        "201":
+          description: Immutable solver card revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OgdenPronyCardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export execute is not authorized.}
+        "409": {description: Mapping report is stale or source revision conflicts.}
+        "422": {description: Card request violates the bounded target contract.}
+        "503": {description: Export service unavailable.}
+  /api/v1/ogden-prony-solver-cards/{solver_card_id}:
+    get:
+      operationId: getOgdenPronySolverCard
+      tags: [exporting]
+      summary: Read one immutable Ogden-Prony card head.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: solver_card_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Immutable card metadata and mapping evidence.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OgdenPronyCardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
+        "503": {description: Export service unavailable.}
+  /api/v1/ogden-prony-solver-cards/{solver_card_id}/preview:
+    get:
+      operationId: previewOgdenPronySolverCard
+      tags: [exporting]
+      summary: Preview exact stored Abaqus or OpenRadioss card bytes as text.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: solver_card_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact stored card text.
+          content:
+            text/plain: {schema: {type: string}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
+  /api/v1/ogden-prony-solver-cards/{solver_card_id}/download:
+    get:
+      operationId: downloadOgdenPronySolverCard
+      tags: [exporting]
+      summary: Download exact stored `.inp` or `.rad` card bytes.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: solver_card_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact stored card bytes with filename and SHA-256 headers.
+          headers:
+            Content-Disposition: {schema: {type: string}}
+            X-CMP-Card-Sha256: {schema: {type: string, pattern: '^[0-9a-f]{64}$'}}
+          content:
+            text/plain: {schema: {type: string}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
 components:
   securitySchemes:
     BearerAuth:
@@ -5283,6 +5489,110 @@ components:
         type: string
         pattern: '^"revision:[1-9][0-9]*:sha256:[0-9a-f]{64}"$'
   schemas:
+    OgdenPronyTarget:
+      type: object
+      additionalProperties: false
+      required: [solver, version, unit_system]
+      properties:
+        solver: {type: string, enum: [abaqus, openradioss]}
+        version: {type: string, const: "2025"}
+        unit_system: {type: string, const: kg_m_s}
+    OgdenPronyTerm:
+      type: object
+      additionalProperties: false
+      required: [g_ratio, relaxation_time_s]
+      properties:
+        g_ratio: {type: number, exclusiveMinimum: 0, exclusiveMaximum: 1}
+        relaxation_time_s: {type: number, exclusiveMinimum: 0}
+    OgdenPronyModelCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [property_set_revision_id, ogden_mu_pa, ogden_alpha, prony_terms, change_reason]
+      properties:
+        property_set_revision_id: {type: string, format: uuid}
+        ogden_mu_pa: {type: number, exclusiveMinimum: 0}
+        ogden_alpha: {type: number, exclusiveMinimum: 0}
+        prony_terms:
+          type: array
+          minItems: 1
+          maxItems: 5
+          items: {$ref: "#/components/schemas/OgdenPronyTerm"}
+        change_reason: {type: string, minLength: 1, maxLength: 2000}
+    OgdenPronyPreflightRequest:
+      type: object
+      additionalProperties: false
+      required: [material_model_revision_id, target]
+      properties:
+        material_model_revision_id: {type: string, format: uuid}
+        target: {$ref: "#/components/schemas/OgdenPronyTarget"}
+    OgdenPronyCardCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        [material_model_revision_id, target, expected_mapping_report_sha256,
+         solver_material_id, material_name, change_reason]
+      properties:
+        material_model_revision_id: {type: string, format: uuid}
+        target: {$ref: "#/components/schemas/OgdenPronyTarget"}
+        expected_mapping_report_sha256:
+          {type: string, pattern: '^[0-9a-f]{64}$'}
+        solver_material_id: {type: integer, minimum: 1, maximum: 9999999999}
+        material_name:
+          {type: string, pattern: '^[A-Za-z][A-Za-z0-9_-]{0,79}$'}
+        change_reason: {type: string, minLength: 1, maxLength: 2000}
+    OgdenPronyMappingItem:
+      type: object
+      additionalProperties: false
+      required: [name, ir_path, target_representation, status, detail]
+      properties:
+        name: {type: string, minLength: 1}
+        ir_path: {type: string, minLength: 1}
+        target_representation: {type: [string, "null"]}
+        status:
+          type: string
+          enum: [exact, transformed, approximated, ignored, unsupported, not_applicable]
+        detail: {type: string, minLength: 1}
+    OgdenPronyMappingReportResponse:
+      type: object
+      additionalProperties: false
+      required: [mapping_report_sha256, exportable, report]
+      properties:
+        mapping_report_sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        exportable: {type: boolean}
+        report:
+          type: object
+          required: [material_model_id, material_model_revision_id, target, items, exporter,
+            model_schema_digest, non_production]
+          properties:
+            material_model_id: {type: string, format: uuid}
+            material_model_revision_id: {type: string, format: uuid}
+            model_schema_digest: {type: string, pattern: '^[0-9a-f]{64}$'}
+            target: {$ref: "#/components/schemas/OgdenPronyTarget"}
+            items:
+              type: array
+              minItems: 1
+              items: {$ref: "#/components/schemas/OgdenPronyMappingItem"}
+            exporter: {type: object}
+            non_production: {type: boolean, const: true}
+    OgdenPronyModelResponse:
+      type: object
+      additionalProperties: false
+      required: [material_model_id, material_state_id, current_revision, links]
+      properties:
+        material_model_id: {type: string, format: uuid}
+        material_state_id: {type: string, format: uuid}
+        current_revision: {type: object}
+        links: {type: object, additionalProperties: {type: string}}
+    OgdenPronyCardResponse:
+      type: object
+      additionalProperties: false
+      required: [solver_card_id, material_model_id, target, current_revision, links]
+      properties:
+        solver_card_id: {type: string, format: uuid}
+        material_model_id: {type: string, format: uuid}
+        target: {$ref: "#/components/schemas/OgdenPronyTarget"}
+        current_revision: {type: object}
+        links: {type: object, additionalProperties: {type: string}}
     HealthResponse:
       type: object
       additionalProperties: false

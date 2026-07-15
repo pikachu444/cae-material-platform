@@ -12,6 +12,9 @@ from cmp.modules.exporting.adapters.persistence.elastoplastic_repository import 
 from cmp.modules.exporting.adapters.persistence.linear_viscoelastic_repository import (
     SqlAlchemyLinearViscoelasticExportingRepository,
 )
+from cmp.modules.exporting.adapters.persistence.ogden_prony_repository import (
+    SqlAlchemyOgdenPronyExportingRepository,
+)
 from cmp.modules.exporting.adapters.persistence.repository import SqlAlchemyExportingRepository
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
@@ -19,10 +22,12 @@ from cmp.modules.exporting.application.elastoplastic_service import (
 from cmp.modules.exporting.application.linear_viscoelastic_service import (
     LinearViscoelasticSolverCardService,
 )
+from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
 from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
+from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelService,
 )
@@ -83,6 +88,29 @@ def build_linear_viscoelastic_solver_card_service(
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
     return LinearViscoelasticSolverCardService(
         repository=SqlAlchemyLinearViscoelasticExportingRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        material_models=material_models,
+    )
+
+
+def build_ogden_prony_solver_card_service(
+    identity: IdentityServices,
+    material_models: OgdenPronyModelService | None,
+) -> OgdenPronySolverCardService | None:
+    """Compose Abaqus Ogden-Prony and OpenRadioss LAW62 exporters."""
+
+    if identity.engine is None or identity.rls_context is None or material_models is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return OgdenPronySolverCardService(
+        repository=SqlAlchemyOgdenPronyExportingRepository(
             session_factory=sessions,
             rls_context=identity.rls_context,
             revision_hooks=(

@@ -2209,6 +2209,56 @@ export interface LinearViscoelasticCardResponse {
   links: { self: string; preview: string; download: string };
 }
 
+export interface OgdenPronyModelResponse {
+  material_model_id: string;
+  material_state_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      model_family_id: string;
+      material_state_revision_id: string;
+      property_set_revision_id: string;
+      density_kg_per_m3: number;
+      ogden_terms: Array<{ ordinal: number; mu_pa: number; alpha: number }>;
+      prony_terms: Array<{
+        ordinal: number;
+        g_ratio: number;
+        k_ratio: number;
+        relaxation_time_s: number;
+      }>;
+      moduli_convention: "instantaneous";
+      volumetric_response: "incompressible";
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
+export interface OgdenPronyMappingResponse {
+  mapping_report_sha256: string;
+  exportable: boolean;
+  report: {
+    items: MappingItem[];
+    exporter: { id: string; version: string; digest: string };
+    target: ExportTarget;
+    non_production: true;
+  };
+}
+
+export interface OgdenPronyCardResponse {
+  solver_card_id: string;
+  material_model_id: string;
+  target: ExportTarget;
+  current_revision: RevisionMetadata & {
+    content: {
+      material_name: string;
+      card_sha256: string;
+      mapping_statuses: Record<string, MappingStatus>;
+      non_production: true;
+    };
+  };
+  links: { self: string; preview: string; download: string };
+}
+
 export interface HardeningCurvePoint {
   true_plastic_strain: number;
   true_yield_stress_pa: number;
