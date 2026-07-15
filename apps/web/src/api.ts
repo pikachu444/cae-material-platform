@@ -93,6 +93,8 @@ import type {
   SpecimenResponse,
   ShearRelaxationCurvePreview,
   ShearRelaxationDatasetResponse,
+  ShearRelaxationProcessingRecipeResponse,
+  ShearRelaxationProcessingRunResponse,
   TestMethodResponse,
   TestRunResponse,
   ReferenceTensileMapping,
@@ -1453,6 +1455,38 @@ export function previewShearRelaxationDataset(
     config,
     `/shear-relaxation-datasets/${encodeURIComponent(datasetId)}/preview?maximum_points=${maximumPoints}`,
   );
+}
+
+export function createReferenceShearRelaxationCropRecipe(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    recipe_label: string;
+    minimum_time_s: number;
+    maximum_time_s: number;
+    change_reason: string;
+  },
+): Promise<ApiResult<ShearRelaxationProcessingRecipeResponse>> {
+  return request(config, "/processing-recipes/reference-shear-relaxation-crop", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceShearRelaxationCrop(
+  config: ApiConfig,
+  input: {
+    recipe_id: string;
+    recipe_revision_id: string;
+    input_dataset_id: string;
+    input_dataset_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<ShearRelaxationProcessingRunResponse>> {
+  return request(config, "/processing-runs/reference-shear-relaxation-crop", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export function listDatasetRevisions(

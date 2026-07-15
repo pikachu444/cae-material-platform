@@ -144,6 +144,7 @@ shear_relaxation_dataset_table = sa.Table(
     sa.Column("raw_asset_id", sa.Uuid(), nullable=False),
     sa.Column("raw_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("mapping_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("processing_run_id", sa.Uuid(), nullable=True),
     sa.Column("current_revision_id", sa.Uuid(), nullable=False),
     sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("created_by", sa.Uuid(), nullable=False),
@@ -178,6 +179,7 @@ shear_relaxation_dataset_revision_table = sa.Table(
     sa.Column("data_sha256", sa.CHAR(64), nullable=False),
     sa.Column("representation", sa.String(16), nullable=False),
     sa.Column("source_dataset_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_run_id", sa.Uuid(), nullable=True),
     sa.Column("point_count", sa.BigInteger(), nullable=False),
     sa.Column("time_column", sa.String(255), nullable=False),
     sa.Column("shear_modulus_column", sa.String(255), nullable=False),
@@ -408,6 +410,7 @@ def _shear_relaxation_content(row: Any) -> ShearRelaxationDatasetContent:
         ),
         importer_id=str(row["importer_id"]),
         importer_version=str(row["importer_version"]),
+        processing_run_id=cast(UUID | None, row["processing_run_id"]),
     )
 
 
@@ -431,6 +434,7 @@ def _shear_relaxation_values(value: ShearRelaxationDatasetContent) -> dict[str, 
         "mapping_sha256": value.mapping.digest,
         "importer_id": value.importer_id,
         "importer_version": value.importer_version,
+        "processing_run_id": value.processing_run_id,
     }
 
 
@@ -446,6 +450,7 @@ _SHEAR_RELAXATION_TABLES: TypedRevisionTables[ShearRelaxationDatasetContent] = T
         "raw_asset_id": value.raw_asset_id,
         "raw_artifact_id": value.raw_artifact_id,
         "mapping_sha256": value.mapping.digest,
+        "processing_run_id": value.processing_run_id,
     },
 )
 
@@ -721,6 +726,7 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
             revision_row.c.data_sha256,
             revision_row.c.representation,
             revision_row.c.source_dataset_revision_id,
+            revision_row.c.processing_run_id,
             revision_row.c.point_count,
             revision_row.c.time_column,
             revision_row.c.shear_modulus_column,
@@ -770,6 +776,66 @@ class SqlAlchemyDatasetRepository(DatasetRepository):
                 "shear-relaxation Dataset is not visible in the selected tenant"
             )
         return self._shear_relaxation_snapshot(row)
+
+    def get_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[ShearRelaxationDatasetContent]:
+        identity = shear_relaxation_dataset_table
+        revision_row = shear_relaxation_dataset_revision_table
+        statement = (
+            sa.select(
+                *_revision_columns(revision_row),
+                revision_row.c.material_state_id,
+                revision_row.c.material_state_revision_id,
+                revision_row.c.test_run_id,
+                revision_row.c.test_run_revision_id,
+                revision_row.c.raw_asset_id,
+                revision_row.c.raw_artifact_id,
+                revision_row.c.data_artifact_id,
+                revision_row.c.data_sha256,
+                revision_row.c.representation,
+                revision_row.c.source_dataset_revision_id,
+                revision_row.c.processing_run_id,
+                revision_row.c.point_count,
+                revision_row.c.time_column,
+                revision_row.c.shear_modulus_column,
+                revision_row.c.time_original_unit,
+                revision_row.c.shear_modulus_original_unit,
+                revision_row.c.importer_id,
+                revision_row.c.importer_version,
+            )
+            .select_from(
+                identity.join(
+                    revision_row,
+                    sa.and_(
+                        revision_row.c.aggregate_id == identity.c.id,
+                        revision_row.c.organization_id == identity.c.organization_id,
+                        revision_row.c.project_id == identity.c.project_id,
+                    ),
+                )
+            )
+            .where(
+                identity.c.organization_id == context.organization_id,
+                identity.c.project_id == context.project_id,
+                identity.c.id == dataset_id,
+                revision_row.c.id == dataset_revision_id,
+            )
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise ShearRelaxationNotFound(
+                "shear-relaxation Dataset revision is not visible in the selected tenant"
+            )
+        return RevisionSnapshot(
+            _record(row, SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE),
+            _shear_relaxation_content(row),
+        )
 
     def list_for_material_state(
         self,

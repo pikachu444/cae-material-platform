@@ -61,7 +61,7 @@
       "required": [
         "material_state_id", "material_state_revision_id", "test_run_id",
         "test_run_revision_id", "raw_asset_id", "raw_artifact_id", "data_artifact_id",
-        "data_sha256", "representation", "source_dataset_revision_id", "point_count",
+        "data_sha256", "representation", "source_dataset_revision_id", "processing_run_id", "point_count",
         "time_column", "shear_modulus_column", "time_original_unit",
         "shear_modulus_original_unit", "normalized_time_unit",
         "normalized_shear_modulus_unit", "importer_id", "importer_version"
@@ -75,8 +75,9 @@
         "raw_artifact_id": {"$ref": "#/$defs/Uuid"},
         "data_artifact_id": {"$ref": "#/$defs/Uuid"},
         "data_sha256": {"$ref": "#/$defs/Sha256"},
-        "representation": {"enum": ["raw", "normalized"]},
+        "representation": {"enum": ["raw", "normalized", "processed"]},
         "source_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "processing_run_id": {"type": ["string", "null"], "format": "uuid"},
         "point_count": {"type": "integer", "minimum": 3, "maximum": 100000},
         "time_column": {"type": "string"},
         "shear_modulus_column": {"type": "string"},
@@ -125,7 +126,7 @@
       "properties": {
         "dataset_id": {"$ref": "#/$defs/Uuid"},
         "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
-        "representation": {"enum": ["raw", "normalized"]},
+        "representation": {"enum": ["raw", "normalized", "processed"]},
         "point_count": {"type": "integer", "minimum": 3},
         "returned_point_count": {"type": "integer", "minimum": 3, "maximum": 10000},
         "time_unit": {"type": "string"},

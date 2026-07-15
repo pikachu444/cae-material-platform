@@ -31,6 +31,9 @@ from cmp.modules.datasets.application.shear_relaxation import (
 from cmp.modules.datasets.domain.reference_tensile import DatasetRepresentation
 from cmp.modules.identity_access.domain.authorization import DataClassification
 from cmp.modules.processing.application.service import PROCESSING_RECIPE_AGGREGATE_TYPE
+from cmp.modules.processing.application.shear_relaxation import (
+    SHEAR_RELAXATION_RECIPE_AGGREGATE_TYPE,
+)
 from cmp.modules.provenance.adapters.persistence.repository import (
     SqlAlchemyProvenanceRepository,
     SqlAlchemyRevisionProvenanceHook,
@@ -86,6 +89,17 @@ _processing_run_table = sa.Table(
     sa.Column("recipe_revision_id", sa.Uuid(), nullable=False),
     sa.Column("input_dataset_revision_id", sa.Uuid(), nullable=False),
     sa.Column("run_kind", sa.String(100), nullable=False),
+    schema="processing",
+)
+_shear_processing_run_table = sa.Table(
+    "shear_relaxation_run",
+    _metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("recipe_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("input_dataset_revision_id", sa.Uuid(), nullable=False),
     schema="processing",
 )
 
@@ -492,6 +506,152 @@ class SqlReferenceProcessedDatasetProvenanceHook:
         )
 
 
+class SqlShearRelaxationProcessedDatasetProvenanceHook:
+    """Bind a processed shear curve to its normalized input, Recipe, and Run."""
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        if (
+            revision.aggregate_type != SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE
+            or revision.revision_no != 1
+        ):
+            return
+        output = (
+            session.execute(
+                sa.select(
+                    shear_relaxation_dataset_revision_table.c.representation,
+                    shear_relaxation_dataset_revision_table.c.source_dataset_revision_id,
+                    shear_relaxation_dataset_revision_table.c.processing_run_id,
+                ).where(
+                    shear_relaxation_dataset_revision_table.c.organization_id
+                    == revision.scope.organization_id,
+                    shear_relaxation_dataset_revision_table.c.project_id
+                    == revision.scope.project_id,
+                    shear_relaxation_dataset_revision_table.c.aggregate_id
+                    == revision.aggregate_id,
+                    shear_relaxation_dataset_revision_table.c.id == revision.revision_id,
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if output is None:
+            raise ProvenanceConflict("processed shear Dataset revision is missing")
+        if str(output["representation"]) != "processed":
+            return
+        source_revision_id = cast(UUID | None, output["source_dataset_revision_id"])
+        processing_run_id = cast(UUID | None, output["processing_run_id"])
+        if source_revision_id is None or processing_run_id is None:
+            raise ProvenanceConflict("processed shear Dataset lacks source or Run")
+        processing = (
+            session.execute(
+                sa.select(
+                    _shear_processing_run_table.c.recipe_revision_id,
+                    _shear_processing_run_table.c.input_dataset_revision_id,
+                ).where(
+                    _shear_processing_run_table.c.organization_id
+                    == revision.scope.organization_id,
+                    _shear_processing_run_table.c.project_id == revision.scope.project_id,
+                    _shear_processing_run_table.c.classification
+                    == revision.scope.classification,
+                    _shear_processing_run_table.c.id == processing_run_id,
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if processing is None or cast(
+            UUID, processing["input_dataset_revision_id"]
+        ) != source_revision_id:
+            raise ProvenanceConflict("processed shear Dataset does not match its Run input")
+        recipe_revision_id = cast(UUID, processing["recipe_revision_id"])
+        generated_entity_id = _revision_provenance_entity_id(
+            session,
+            event,
+            aggregate_type=SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+            revision_id=revision.revision_id,
+        )
+        source_entity_id = _revision_provenance_entity_id(
+            session,
+            event,
+            aggregate_type=SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+            revision_id=source_revision_id,
+        )
+        recipe_entity_id = _revision_provenance_entity_id(
+            session,
+            event,
+            aggregate_type=SHEAR_RELAXATION_RECIPE_AGGREGATE_TYPE,
+            revision_id=recipe_revision_id,
+        )
+        activity_id = _generated_activity_id(session, event, generated_entity_id)
+        activity_type = "processing.reference_shear_relaxation_time_crop"
+        session.execute(
+            sa.update(provenance_activity_table)
+            .where(
+                provenance_activity_table.c.organization_id
+                == revision.scope.organization_id,
+                provenance_activity_table.c.project_id == revision.scope.project_id,
+                provenance_activity_table.c.classification == revision.scope.classification,
+                provenance_activity_table.c.id == activity_id,
+            )
+            .values(
+                activity_type=activity_type,
+                domain_run_type="processing.shear_relaxation_run",
+                domain_run_id=processing_run_id,
+                input_required=True,
+                submission_digest=content_sha256(
+                    {
+                        "hook": activity_type,
+                        "processing_run_id": str(processing_run_id),
+                        "recipe_revision_id": str(recipe_revision_id),
+                        "source_dataset_revision_id": str(source_revision_id),
+                        "output_dataset_revision_id": str(revision.revision_id),
+                    }
+                ),
+            )
+        )
+        values = _relation_values(event)
+        session.execute(
+            sa.insert(provenance_usage_table).values(
+                **values,
+                activity_id=activity_id,
+                entity_id=source_entity_id,
+                role="normalized_dataset_revision",
+                ordinal=0,
+            )
+        )
+        session.execute(
+            sa.insert(provenance_usage_table).values(
+                **values,
+                activity_id=activity_id,
+                entity_id=recipe_entity_id,
+                role="processing_recipe_revision",
+                ordinal=1,
+            )
+        )
+        session.execute(
+            sa.insert(provenance_derivation_table).values(
+                **values,
+                generated_entity_id=generated_entity_id,
+                used_entity_id=source_entity_id,
+                activity_id=activity_id,
+                derivation_kind="reference_shear_relaxation_inclusive_time_crop",
+            )
+        )
+        session.execute(
+            sa.update(provenance_association_table)
+            .where(
+                provenance_association_table.c.organization_id
+                == revision.scope.organization_id,
+                provenance_association_table.c.project_id == revision.scope.project_id,
+                provenance_association_table.c.classification == revision.scope.classification,
+                provenance_association_table.c.activity_id == activity_id,
+                provenance_association_table.c.role == "author",
+            )
+            .values(plan_entity_id=recipe_entity_id)
+        )
+
+
 def build_dataset_service(
     identity: IdentityServices,
     artifacts: ArtifactService | None,
@@ -535,6 +695,7 @@ def build_shear_relaxation_dataset_service(
                 SqlInitialLifecycleHook(),
                 SqlAlchemyRevisionProvenanceHook(),
                 SqlReferenceDatasetInputProvenanceHook(),
+                SqlShearRelaxationProcessedDatasetProvenanceHook(),
                 SqlAlchemyRevisionAuditHook(),
             ),
         ),

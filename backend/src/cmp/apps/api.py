@@ -32,7 +32,10 @@ from cmp.bootstrap.modeling import (
     build_voce_candidate_projection_service,
 )
 from cmp.bootstrap.plugins import build_plugin_registry_service
-from cmp.bootstrap.processing import build_processing_service
+from cmp.bootstrap.processing import (
+    build_processing_service,
+    build_shear_relaxation_processing_service,
+)
 from cmp.bootstrap.provenance import build_provenance_services
 from cmp.bootstrap.release import build_release_service
 from cmp.bootstrap.review_release import build_review_service
@@ -120,7 +123,13 @@ from cmp.modules.modeling.application.voce_candidate_projection import (
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.processing.adapters.api.processing import install_processing_api
+from cmp.modules.processing.adapters.api.shear_relaxation import (
+    install_shear_relaxation_processing_api,
+)
 from cmp.modules.processing.application.service import ProcessingService
+from cmp.modules.processing.application.shear_relaxation import (
+    ShearRelaxationProcessingService,
+)
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
 from cmp.modules.provenance.application.lineage import ProvenanceLineageService
 from cmp.modules.provenance.application.service import ProvenanceService
@@ -175,6 +184,7 @@ def create_app(
     dataset_service: DatasetService | None = None,
     shear_relaxation_dataset_service: ShearRelaxationDatasetService | None = None,
     processing_service: ProcessingService | None = None,
+    shear_relaxation_processing_service: ShearRelaxationProcessingService | None = None,
     statistics_service: StatisticsService | None = None,
     replicate_statistics_service: ReplicateStatisticsService | None = None,
     replicate_outlier_service: ReplicateOutlierService | None = None,
@@ -359,6 +369,25 @@ def create_app(
     install_processing_api(
         application,
         service=resolved_processing,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_EXECUTE
+        ),
+    )
+    resolved_shear_relaxation_processing = (
+        shear_relaxation_processing_service
+        or build_shear_relaxation_processing_service(
+            services,
+            resolved_shear_relaxation_datasets,
+            resolved_artifacts,
+        )
+    )
+    install_shear_relaxation_processing_api(
+        application,
+        service=resolved_shear_relaxation_processing,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ
@@ -661,6 +690,9 @@ def create_app(
     application.state.dataset_service = resolved_datasets
     application.state.shear_relaxation_dataset_service = resolved_shear_relaxation_datasets
     application.state.processing_service = resolved_processing
+    application.state.shear_relaxation_processing_service = (
+        resolved_shear_relaxation_processing
+    )
     application.state.statistics_service = resolved_statistics
     application.state.replicate_statistics_service = resolved_replicate_statistics
     application.state.material_model_service = resolved_material_models

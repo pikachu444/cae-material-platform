@@ -4,9 +4,11 @@ import {
   ApiError,
   type ApiConfig,
   createReferenceShearRelaxationTestMethod,
+  createReferenceShearRelaxationCropRecipe,
   createReferenceShearRelaxationTestRun,
   createSpecimen,
   importReferenceShearRelaxationDataset,
+  executeReferenceShearRelaxationCrop,
   listShearRelaxationDatasetsForMaterialState,
   listSpecimensForMaterialState,
   listTestMethods,
@@ -18,6 +20,7 @@ import type {
   MaterialStateResponse,
   ShearRelaxationCurvePreview,
   ShearRelaxationDatasetResponse,
+  ShearRelaxationProcessingRunResponse,
   SpecimenResponse,
   TestMethodResponse,
   TestRunResponse,
@@ -101,6 +104,9 @@ export function ReferenceShearRelaxationWorkflow({
   const [timeUnit, setTimeUnit] = useState<"s" | "ms" | "min" | "h">("s");
   const [modulusUnit, setModulusUnit] = useState<"Pa" | "kPa" | "MPa" | "GPa">("MPa");
   const [curve, setCurve] = useState<ShearRelaxationCurvePreview | null>(null);
+  const [minimumTimeS, setMinimumTimeS] = useState("0");
+  const [maximumTimeS, setMaximumTimeS] = useState("100");
+  const [processingRun, setProcessingRun] = useState<ShearRelaxationProcessingRunResponse | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -259,6 +265,38 @@ export function ReferenceShearRelaxationWorkflow({
     }
   }
 
+  async function processCurve(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    const source = datasets.find(
+      (item) => item.current_revision.content.representation === "normalized",
+    );
+    if (!source) return;
+    setBusy("processing");
+    setError(null);
+    try {
+      const recipe = await createReferenceShearRelaxationCropRecipe(config, {
+        classification: state.current_revision.classification,
+        recipe_label: `Time crop ${new Date().toISOString()}`,
+        minimum_time_s: Number(minimumTimeS),
+        maximum_time_s: Number(maximumTimeS),
+        change_reason: "Define observed-point shear-relaxation time crop",
+      });
+      const result = await executeReferenceShearRelaxationCrop(config, {
+        recipe_id: recipe.data.recipe_id,
+        recipe_revision_id: recipe.data.current_revision.id,
+        input_dataset_id: source.dataset_id,
+        input_dataset_revision_id: source.current_revision.id,
+        change_reason: "Commit processed shear-relaxation Dataset",
+      });
+      setProcessingRun(result.data);
+      await refresh();
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <section className="workflow-card">
       <div className="section-heading compact-heading">
@@ -331,6 +369,44 @@ export function ReferenceShearRelaxationWorkflow({
             <button className="button primary" type="submit" disabled={!runId || !file || busy !== null}>
               {busy === "import" ? "Importing…" : "Upload and normalize Dataset"}
             </button>
+          </form>
+          <form className="form-stack" onSubmit={processCurve}>
+            <div className="section-heading compact-heading">
+              <div>
+                <p className="eyebrow">Explicit processing revision</p>
+                <h5>Observed-point time crop</h5>
+              </div>
+              <span className="reference-chip">no interpolation</span>
+            </div>
+            <p className="form-hint">
+              Select an inclusive time window from the normalized SI curve. The source revision
+              remains immutable; the result is a separate processed Dataset identity.
+            </p>
+            <div className="form-grid">
+              <label>
+                Minimum time (s)
+                <input type="number" min="0" step="any" value={minimumTimeS} onChange={(event) => setMinimumTimeS(event.target.value)} />
+              </label>
+              <label>
+                Maximum time (s)
+                <input type="number" min="0" step="any" value={maximumTimeS} onChange={(event) => setMaximumTimeS(event.target.value)} />
+              </label>
+            </div>
+            <button
+              className="button secondary"
+              type="submit"
+              disabled={
+                !datasets.some((item) => item.current_revision.content.representation === "normalized")
+                || busy !== null
+              }
+            >
+              {busy === "processing" ? "Processing…" : "Create recipe and processed Dataset"}
+            </button>
+            {processingRun ? (
+              <p className="success-notice" role="status">
+                Processing {processingRun.status}: {processingRun.output_point_count} of {processingRun.input_point_count} observed points retained.
+              </p>
+            ) : null}
           </form>
           {error ? <div className="error-notice" role="alert">{error}</div> : null}
           {datasets.length > 0 ? (

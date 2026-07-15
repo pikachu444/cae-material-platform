@@ -69,6 +69,7 @@ class ShearRelaxationContentResponse(BaseModel):
     data_sha256: str
     representation: str
     source_dataset_revision_id: UUID | None
+    processing_run_id: UUID | None
     point_count: int
     time_column: str
     shear_modulus_column: str
@@ -113,6 +114,7 @@ class ShearRelaxationDatasetResponse(BaseModel):
                     data_sha256=content.data_sha256,
                     representation=content.representation,
                     source_dataset_revision_id=content.source_dataset_revision_id,
+                    processing_run_id=content.processing_run_id,
                     point_count=content.point_count,
                     time_column=content.mapping.time_column,
                     shear_modulus_column=content.mapping.shear_modulus_column,

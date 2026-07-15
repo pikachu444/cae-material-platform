@@ -78,5 +78,8 @@ describe("Reference shear-relaxation workflow", () => {
       `/api/v1/material-states/${stateId}/shear-relaxation-datasets`,
     );
     expect(screen.getByText(/not silently fitted into Prony terms/i)).toBeTruthy();
+    expect(screen.getByText("Observed-point time crop")).toBeTruthy();
+    expect(screen.getByText(/separate processed Dataset identity/i)).toBeTruthy();
+    expect(screen.getByText("no interpolation")).toBeTruthy();
   });
 });

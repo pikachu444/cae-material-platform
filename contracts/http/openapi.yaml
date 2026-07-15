@@ -1984,6 +1984,74 @@ paths:
         "409": {description: Immutable Artifact integrity or Dataset state conflicts.}
         "422": {description: Preview point limit or Dataset data is invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/processing-recipes/reference-shear-relaxation-crop:
+    post:
+      operationId: createReferenceShearRelaxationCropRecipe
+      tags: [processing]
+      summary: Create an immutable observed-point time crop Recipe for normalized shear-relaxation data.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-shear-relaxation-processing-resources.schema.json#/$defs/CreateRecipeRequest"}
+      responses:
+        "201":
+          description: Stable Recipe identity with its first immutable typed revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-shear-relaxation-processing-resources.schema.json#/$defs/RecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Immutable Recipe identity state conflicts.}
+        "422": {description: Time bounds or Recipe label are invalid.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/reference-shear-relaxation-crop:
+    post:
+      operationId: executeReferenceShearRelaxationCrop
+      tags: [processing]
+      summary: Commit a separate processed Dataset from exact normalized Dataset and Recipe revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/reference-shear-relaxation-processing-resources.schema.json#/$defs/ExecuteRequest"}
+      responses:
+        "201":
+          description: Terminal Run with immutable Artifact and processed Dataset references.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-shear-relaxation-processing-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: A pinned Recipe or normalized Dataset revision is absent.}
+        "409": {description: Immutable input, Artifact, or output state conflicts.}
+        "422": {description: The typed time crop request is invalid.}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/reference-shear-relaxation/{run_id}:
+    get:
+      operationId: getReferenceShearRelaxationProcessingRun
+      tags: [processing]
+      summary: Read a tenant-visible shear-relaxation Processing Run and exact result references.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Run state with immutable input and output references.
+          content:
+            application/json:
+              schema: {$ref: "../processing/reference-shear-relaxation-processing-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: No visible Run matches the identifier.}
+        "503": {description: Processing service unavailable.}
   /api/v1/processing-recipes/reference-tensile-crop:
     post:
       operationId: createReferenceTensileCropRecipe
