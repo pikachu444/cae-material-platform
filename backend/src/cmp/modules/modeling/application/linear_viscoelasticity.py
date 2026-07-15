@@ -67,6 +67,15 @@ class LinearViscoelasticRepository(Protocol):
         material_state_id: UUID,
     ) -> tuple[LinearViscoelasticModelSnapshot, ...]: ...
 
+    def get_material_model_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearViscoelasticContent]: ...
+
 
 def _require_decision(
     context: SecurityContext,
@@ -83,6 +92,24 @@ def _require_decision(
     ):
         raise LinearViscoelasticConflict(
             "authorization decision does not match linear-viscoelastic request"
+        )
+
+
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise LinearViscoelasticConflict(
+            "authorization decision lacks the required Modeling capability"
         )
 
 
@@ -221,3 +248,18 @@ class LinearViscoelasticModelService:
                 "the exact requested immutable Material Model revision is not current"
             )
         return snapshot.current
+
+    def get_model_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearViscoelasticContent]:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_material_model_revision(
+            context=context,
+            decision=decision,
+            material_model_id=material_model_id,
+            material_model_revision_id=material_model_revision_id,
+        )

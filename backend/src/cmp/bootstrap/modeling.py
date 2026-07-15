@@ -9,6 +9,7 @@ from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.application.service import DatasetService
+from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.modeling.adapters.persistence.calibration_repository import (
     SqlAlchemyCalibrationRepository,
 )
@@ -17,6 +18,9 @@ from cmp.modules.modeling.adapters.persistence.candidate_selection_repository im
 )
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
+)
+from cmp.modules.modeling.adapters.persistence.prony_calibration_repository import (
+    SqlAlchemyPronyCalibrationRepository,
 )
 from cmp.modules.modeling.adapters.persistence.repository import SqlAlchemyModelingRepository
 from cmp.modules.modeling.adapters.persistence.tabulated_plasticity_repository import (
@@ -32,6 +36,9 @@ from cmp.modules.modeling.application.calibration import ReferenceCalibrationSer
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
+)
+from cmp.modules.modeling.application.prony_calibration import (
+    ReferencePronyCalibrationService,
 )
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
@@ -121,6 +128,39 @@ def build_reference_calibration_service(
         ),
         datasets=datasets,
         material_models=material_models,
+        artifacts=artifacts,
+    )
+
+
+def build_reference_prony_calibration_service(
+    identity: IdentityServices,
+    datasets: ShearRelaxationDatasetService | None,
+    models: LinearViscoelasticModelService | None,
+    artifacts: ArtifactService | None,
+) -> ReferencePronyCalibrationService | None:
+    """Compose processed shear data with the bounded two-term Prony adapter."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or datasets is None
+        or models is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ReferencePronyCalibrationService(
+        repository=SqlAlchemyPronyCalibrationRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        datasets=datasets,
+        models=models,
         artifacts=artifacts,
     )
 

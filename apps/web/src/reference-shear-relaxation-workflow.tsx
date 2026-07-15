@@ -3,12 +3,16 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react
 import {
   ApiError,
   type ApiConfig,
+  createReferencePronyCalibrationPlan,
   createReferenceShearRelaxationTestMethod,
   createReferenceShearRelaxationCropRecipe,
   createReferenceShearRelaxationTestRun,
   createSpecimen,
   importReferenceShearRelaxationDataset,
   executeReferenceShearRelaxationCrop,
+  executeReferencePronyCalibration,
+  getReferencePronyCandidateDiagnostics,
+  listLinearViscoelasticModels,
   listShearRelaxationDatasetsForMaterialState,
   listSpecimensForMaterialState,
   listTestMethods,
@@ -18,6 +22,9 @@ import {
 } from "./api";
 import type {
   MaterialStateResponse,
+  LinearViscoelasticModelResponse,
+  PronyCalibrationDiagnosticsResponse,
+  PronyCalibrationRunResponse,
   ShearRelaxationCurvePreview,
   ShearRelaxationDatasetResponse,
   ShearRelaxationProcessingRunResponse,
@@ -80,6 +87,41 @@ function Curve({ value }: { value: ShearRelaxationCurvePreview }) {
   );
 }
 
+function PronyDiagnostics({ value }: { value: PronyCalibrationDiagnosticsResponse }) {
+  const times = value.points.map((point) => Math.log10(Math.max(point.time_s, 1e-12)));
+  const moduli = value.points.flatMap((point) => [
+    point.observed_shear_modulus_pa,
+    point.predicted_shear_modulus_pa,
+  ]);
+  const minX = Math.min(...times);
+  const maxX = Math.max(...times);
+  const minY = Math.min(...moduli);
+  const maxY = Math.max(...moduli);
+  const points = (kind: "observed" | "predicted") => value.points.map((point, index) => {
+    const modulus = kind === "observed"
+      ? point.observed_shear_modulus_pa
+      : point.predicted_shear_modulus_pa;
+    const x = 48 + ((times[index] - minX) / (maxX - minX || 1)) * 654;
+    const y = 240 - ((modulus - minY) / (maxY - minY || 1)) * 222;
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(" ");
+  return (
+    <section className="curve-panel" aria-label="Prony candidate diagnostics">
+      <div className="curve-heading">
+        <div><p className="eyebrow">Candidate diagnostics</p><h5>Observed vs fitted response</h5></div>
+        <span className="reference-chip">residual evidence</span>
+      </div>
+      <svg className="curve-plot" viewBox="0 0 720 280" role="img" aria-label="Observed and fitted shear relaxation">
+        <line x1="48" x2="702" y1="240" y2="240" />
+        <line x1="48" x2="48" y1="18" y2="240" />
+        <polyline points={points("observed")} />
+        <polyline className="prediction-line" points={points("predicted")} />
+        <text x="300" y="276">time (s, logarithmic axis)</text>
+      </svg>
+    </section>
+  );
+}
+
 export function ReferenceShearRelaxationWorkflow({
   config,
   state,
@@ -92,6 +134,7 @@ export function ReferenceShearRelaxationWorkflow({
   const [methods, setMethods] = useState<TestMethodResponse[]>([]);
   const [runs, setRuns] = useState<TestRunResponse[]>([]);
   const [datasets, setDatasets] = useState<ShearRelaxationDatasetResponse[]>([]);
+  const [models, setModels] = useState<LinearViscoelasticModelResponse[]>([]);
   const [specimenId, setSpecimenId] = useState("");
   const [specimenCode, setSpecimenCode] = useState("SR-001");
   const [runId, setRunId] = useState("");
@@ -107,6 +150,10 @@ export function ReferenceShearRelaxationWorkflow({
   const [minimumTimeS, setMinimumTimeS] = useState("0");
   const [maximumTimeS, setMaximumTimeS] = useState("100");
   const [processingRun, setProcessingRun] = useState<ShearRelaxationProcessingRunResponse | null>(null);
+  const [baselineModelId, setBaselineModelId] = useState("");
+  const [multistartCount, setMultistartCount] = useState("4");
+  const [calibrationRun, setCalibrationRun] = useState<PronyCalibrationRunResponse | null>(null);
+  const [diagnostics, setDiagnostics] = useState<PronyCalibrationDiagnosticsResponse | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,16 +176,18 @@ export function ReferenceShearRelaxationWorkflow({
   const refresh = useCallback(async () => {
     setError(null);
     try {
-      const [nextSpecimens, nextMethods, nextRuns, nextDatasets] = await Promise.all([
+      const [nextSpecimens, nextMethods, nextRuns, nextDatasets, nextModels] = await Promise.all([
         listSpecimensForMaterialState(config, state.material_state_id),
         listTestMethods(config),
         listTestRunsForMaterialState(config, state.material_state_id),
         listShearRelaxationDatasetsForMaterialState(config, state.material_state_id),
+        listLinearViscoelasticModels(config, state.material_state_id),
       ]);
       setSpecimens(nextSpecimens.data.items);
       setMethods(nextMethods.data.items);
       setRuns(nextRuns.data.items);
       setDatasets(nextDatasets.data.items);
+      setModels(nextModels.data.items);
       setSpecimenId((current) => current || nextSpecimens.data.items[0]?.specimen_id || "");
     } catch (cause) {
       setError(message(cause));
@@ -152,6 +201,10 @@ export function ReferenceShearRelaxationWorkflow({
   useEffect(() => {
     if (!runId && shearRuns[0]) setRunId(shearRuns[0].test_run_id);
   }, [runId, shearRuns]);
+
+  useEffect(() => {
+    if (!baselineModelId && models[0]) setBaselineModelId(models[0].material_model_id);
+  }, [baselineModelId, models]);
 
   useEffect(() => {
     const head = datasets[0];
@@ -297,6 +350,62 @@ export function ReferenceShearRelaxationWorkflow({
     }
   }
 
+  async function calibrateProny(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    const input = datasets.find(
+      (item) => item.current_revision.content.representation === "processed",
+    );
+    const baseline = models.find((item) => item.material_model_id === baselineModelId);
+    if (!input || !baseline) return;
+    setBusy("calibration");
+    setError(null);
+    setDiagnostics(null);
+    try {
+      const preview = await previewShearRelaxationDataset(config, input.dataset_id);
+      const observed = preview.data.points.map((point) => point.shear_modulus);
+      const normalization = Math.max(...observed);
+      const plan = await createReferencePronyCalibrationPlan(config, {
+        classification: state.current_revision.classification,
+        plan_label: `Two-term Prony ${new Date().toISOString()}`,
+        input_dataset_id: input.dataset_id,
+        input_dataset_revision_id: input.current_revision.id,
+        baseline_model_id: baseline.material_model_id,
+        baseline_model_revision_id: baseline.current_revision.id,
+        total_g_ratio: { lower: 0.01, initial: 0.35, upper: 0.95 },
+        fast_term_fraction: { lower: 0.05, initial: 0.5, upper: 0.95 },
+        fast_relaxation_time_s: { lower: 0.001, initial: 0.1, upper: 1 },
+        slow_relaxation_time_s: { lower: 2, initial: 20, upper: 10000 },
+        normalization_modulus_pa: normalization,
+        multistart_count: Number(multistartCount),
+        random_seed: 20260716,
+        change_reason: "Pin processed shear data and baseline IR for bounded calibration",
+      });
+      const run = await executeReferencePronyCalibration(
+        config,
+        plan.data.prony_calibration_plan_id,
+        {
+          plan_revision_id: plan.data.current_revision.id,
+          change_reason: "Execute deterministic bounded two-term Prony calibration",
+        },
+      );
+      setCalibrationRun(run.data);
+      const best = [...run.data.candidates].sort(
+        (left, right) => left.objective_total - right.objective_total,
+      )[0];
+      if (best) {
+        const result = await getReferencePronyCandidateDiagnostics(
+          config,
+          best.prony_calibration_candidate_id,
+        );
+        setDiagnostics(result.data);
+      }
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <section className="workflow-card">
       <div className="section-heading compact-heading">
@@ -407,6 +516,72 @@ export function ReferenceShearRelaxationWorkflow({
                 Processing {processingRun.status}: {processingRun.output_point_count} of {processingRun.input_point_count} observed points retained.
               </p>
             ) : null}
+          </form>
+          <form className="form-stack" onSubmit={calibrateProny}>
+            <div className="section-heading compact-heading">
+              <div>
+                <p className="eyebrow">Bounded reference calibration</p>
+                <h5>Two-term generalized Maxwell</h5>
+              </div>
+              <span className="reference-chip">deterministic multistart</span>
+            </div>
+            <p className="form-hint">
+              Pin one processed Dataset revision and one baseline linear-Prony IR revision.
+              The instantaneous modulus stays fixed; no candidate is selected or promoted
+              automatically.
+            </p>
+            <div className="form-grid">
+              <label>
+                Baseline linear-Prony IR
+                <select value={baselineModelId} onChange={(event) => setBaselineModelId(event.target.value)}>
+                  <option value="">Choose a baseline IR</option>
+                  {models.map((item) => (
+                    <option key={item.material_model_id} value={item.material_model_id}>
+                      r{item.current_revision.revision_no} 쨌 {item.current_revision.content.terms.length} term(s)
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Multistart count
+                <input type="number" min="1" max="16" step="1" value={multistartCount} onChange={(event) => setMultistartCount(event.target.value)} />
+              </label>
+            </div>
+            <button
+              className="button primary"
+              type="submit"
+              disabled={
+                !baselineModelId
+                || !datasets.some((item) => item.current_revision.content.representation === "processed")
+                || busy !== null
+              }
+            >
+              {busy === "calibration" ? "Calibrating..." : "Run bounded Prony calibration"}
+            </button>
+            {calibrationRun ? (
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Attempt</th><th>Status</th><th>g fast</th><th>g slow</th><th>tau fast</th><th>tau slow</th><th>Objective</th><th>Warnings</th></tr></thead>
+                  <tbody>
+                    {[...calibrationRun.candidates]
+                      .sort((left, right) => left.objective_total - right.objective_total)
+                      .map((candidate) => (
+                        <tr key={candidate.prony_calibration_candidate_id}>
+                          <td>{candidate.attempt_ordinal}</td>
+                          <td>{candidate.status}</td>
+                          <td>{candidate.fast_g_ratio.toPrecision(4)}</td>
+                          <td>{candidate.slow_g_ratio.toPrecision(4)}</td>
+                          <td>{candidate.fast_relaxation_time_s.toPrecision(4)} s</td>
+                          <td>{candidate.slow_relaxation_time_s.toPrecision(4)} s</td>
+                          <td>{candidate.objective_total.toExponential(3)}</td>
+                          <td>{candidate.parameter_at_bound ? "bound" : candidate.identifiability_status}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+            {diagnostics ? <PronyDiagnostics value={diagnostics} /> : null}
           </form>
           {error ? <div className="error-notice" role="alert">{error}</div> : null}
           {datasets.length > 0 ? (

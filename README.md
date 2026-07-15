@@ -47,13 +47,16 @@ Polymer / Elastomer Material
 → raw revision + normalized SI Dataset revision과 curve 확인
 → 관측점 시간 구간 Recipe/Run과 별도 processed Dataset
 → manual linear Prony IR
+→ bounded two-term Prony calibration과 multistart candidate/residual 비교
 → Abaqus *VISCOELASTIC mapping report → preview → .inp download
 ```
 
 현재 Dataset은 raw/normalized/processed로 구분되고 처리 Recipe와 Run이 정확한 revision을
-고정하지만, 시험 curve를 Prony 계수로 자동 fitting하지는 않습니다. bounded calibration과
-candidate 진단·승격이 다음 구현
-단위입니다. Ogden-Prony와 OpenRadioss LAW62는 그 이후의 별도 초점탄성 수직 기능이며,
+고정합니다. 처리된 curve는 bounded two-term generalized-Maxwell reference model에 fitting할
+수 있고, deterministic multistart candidate, 관측/예측 curve, residual, 수렴·bound·식별성
+상태를 화면에서 비교할 수 있습니다. 사람의 candidate 선택과 새 IR revision 승격은 다음
+구현 단위이며 현재 가장 낮은 objective를 자동 승인하지 않습니다. Ogden-Prony와
+OpenRadioss LAW62는 그 이후의 별도 초점탄성 수직 기능이며,
 선형 Prony를 LAW62로 조용히 변환하지 않습니다. 공식 mapping과 domain review가 완료되기
 전 결과물은 `reference/non-production`으로 표시됩니다.
 
@@ -64,8 +67,10 @@ candidate 진단·승격이 다음 구현
 3. Steel은 **Test data workflow**, Polymer/Elastomer는 **Shear-relaxation Dataset**을 엽니다.
 4. 시험 방법과 Test Run을 만든 뒤 CSV와 실제 column/unit 의미를 입력합니다.
 5. normalized curve를 확인하고 필요한 시간 구간을 processed Dataset으로 커밋합니다.
-6. 해당 Material State의 모델 workbench에서 IR을 만듭니다.
-7. solver/version을 고른 뒤 mapping 상태를 확인하고 card를 미리 보거나 다운로드합니다.
+6. baseline linear-Prony IR을 만든 뒤 processed Dataset으로 bounded calibration을 실행합니다.
+7. candidate의 objective, fitted curve, residual과 warning을 비교합니다. 현재 단계에서는
+   candidate 선택과 IR 승격을 자동 수행하지 않습니다.
+8. solver/version을 고른 뒤 mapping 상태를 확인하고 card를 미리 보거나 다운로드합니다.
 
 화면에 표시된 `reference` 결과는 실행 가능한 독립 구현 예제이지, 특정 회사의 재료나
 제품 설계에 대해 승인된 값이 아닙니다.
@@ -78,7 +83,7 @@ candidate 진단·승격이 다음 구현
 | --- | --- | --- | --- |
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
-| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed data·Recipe/Run·IR·DB·API·UI·preflight·`.inp` preview/download 구현; fitting 후속 |
+| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | processing·bounded multistart fitting·candidate/residual UI와 manual IR card 구현; human selection/IR 승격 후속 |
 | Elastomer 초점탄성 | Ogden + Prony | Abaqus, OpenRadioss LAW62 | 후속 수직 기능 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 
