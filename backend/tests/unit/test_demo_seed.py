@@ -129,7 +129,7 @@ def test_seed_uses_the_protected_material_to_card_and_dataset_http_flow() -> Non
     assert ("post", "/uploads") in api.calls
     assert ("put", "/uploads/upload-1/parts/1") in api.calls
     assert ("post", "/datasets/reference-uniaxial-tensile:import") in api.calls
-    assert api.calls.count(("post", "/datasets/reference-uniaxial-tensile:import")) == 3
+    assert api.calls.count(("post", "/datasets/reference-uniaxial-tensile:import")) == 4
     assert ("post", "/dataset-selections/reference-tensile-replicates") in api.calls
     assert ("post", "/material-states/state-1/tabulated-plasticity-models") in api.calls
     assert api.calls.count(

@@ -27,6 +27,12 @@ _TENSILE_REPLICATES = (
     ("CMP-DEMO-DP780-T-002", "CMP demo tensile replicate 2", 1, 0.97),
     ("CMP-DEMO-DP780-T-003", "CMP demo tensile replicate 3", 2, 1.04),
 )
+_TENSILE_HOLDOUT = (
+    "CMP-DEMO-DP780-T-004",
+    "CMP demo tensile holdout",
+    3,
+    1.02,
+)
 _CSV_TEMPLATE = """engineering_strain,engineering_stress_mpa
 0.0000,0
 0.0005,{v1}
@@ -509,6 +515,16 @@ def seed_demo(api: DemoApi) -> None:
         for specimen_code, run_label, day_offset, scale in _TENSILE_REPLICATES
     ]
     _ensure_replicate_selection(api, state, datasets)
+    specimen_code, run_label, day_offset, scale = _TENSILE_HOLDOUT
+    _ensure_tensile_dataset(
+        api,
+        material,
+        state,
+        specimen_code=specimen_code,
+        run_label=run_label,
+        day_offset=day_offset,
+        csv=_replicate_csv(scale),
+    )
     _ensure_elastoplastic_models_and_cards(api, state, properties, datasets[0])
 
 

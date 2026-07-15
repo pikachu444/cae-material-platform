@@ -44,6 +44,7 @@ from cmp.bootstrap.statistics import (
 )
 from cmp.bootstrap.testing import build_testing_service
 from cmp.bootstrap.validation import build_reference_validation_service
+from cmp.bootstrap.voce_holdout import build_reference_voce_holdout_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
 from cmp.modules.artifacts.adapters.api.uploads import install_upload_api
 from cmp.modules.artifacts.application.content import ArtifactService
@@ -121,7 +122,9 @@ from cmp.modules.statistics.application.service import StatisticsService
 from cmp.modules.testing.adapters.api.testing import install_testing_api
 from cmp.modules.testing.application.service import TestingService
 from cmp.modules.validation.adapters.api.validation import install_validation_api
+from cmp.modules.validation.adapters.api.voce_holdout import install_voce_holdout_api
 from cmp.modules.validation.application.service import ReferenceValidationService
+from cmp.modules.validation.application.voce_holdout import ReferenceVoceHoldoutService
 from cmp.shared.contracts.revisions import revision_openapi_components
 
 
@@ -162,6 +165,7 @@ def create_app(
     solver_card_service: SolverCardService | None = None,
     elastoplastic_solver_card_service: ElastoplasticSolverCardService | None = None,
     validation_service: ReferenceValidationService | None = None,
+    voce_holdout_service: ReferenceVoceHoldoutService | None = None,
     review_service: ReviewService | None = None,
     release_service: ReleaseService | None = None,
 ) -> FastAPI:
@@ -532,6 +536,24 @@ def create_app(
             services.authorization, Permission.VALIDATION_EXECUTE
         ),
     )
+    resolved_voce_holdout = voce_holdout_service or build_reference_voce_holdout_service(
+        services,
+        resolved_tabulated_plasticity,
+        resolved_replicate_outliers,
+        resolved_datasets,
+        resolved_artifacts,
+    )
+    install_voce_holdout_api(
+        application,
+        service=resolved_voce_holdout,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.VALIDATION_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.VALIDATION_EXECUTE
+        ),
+    )
     resolved_review = review_service or build_review_service(services)
     install_review_api(
         application,
@@ -577,6 +599,7 @@ def create_app(
     application.state.solver_card_service = resolved_solver_cards
     application.state.elastoplastic_solver_card_service = resolved_elastoplastic_solver_cards
     application.state.validation_service = resolved_validation
+    application.state.voce_holdout_service = resolved_voce_holdout
     application.state.review_service = resolved_review
     application.state.release_service = resolved_release
     if services.engine is not None:

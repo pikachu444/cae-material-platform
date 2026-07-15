@@ -430,3 +430,24 @@ Metric plugin은 다음을 선언한다.
 | metric/threshold | 계산 구현 | 적합성 기준 승인 |
 | release evidence | 자동 gate | 기술 승인 |
 
+## 19. P1 reference Voce holdout validation
+
+The implemented P1 holdout boundary validates the accepted calibrated material-model response,
+not a solver executable or generated card. A stable `ReferenceVoceHoldoutPlan` revision pins one
+calibrated `1.1` Voce-derived Material Model revision and one normalized or processed tensile
+Dataset revision. The application and PostgreSQL constraints require the holdout Dataset revision
+and Test Run revision to be disjoint from every member of the calibration input Scope, including
+members a reviewer excluded from fitting.
+
+Execution adapts the independent uniaxial curve using the same public `TestModeAdapter` rules and
+evaluates the frozen Voce parameters at those observed plastic-strain points. It never optimizes,
+refits, interpolates, executes OpenRadioss/Abaqus, or parses a card. The immutable Result preserves
+the observed/predicted/residual point rows, source and comparison Artifact digests, RMSE, normalized
+RMSE, characterized domain, exact calibration Candidate/Selection/Scope revisions, and provenance
+activity. The versioned reference threshold is relative RMSE `<= 0.05`; pass/fail is explicitly
+non-production and is not a review, release, card, or solver qualification decision.
+
+Actual solver data-check/execution, numerical-health parsing, experimental comparison of solver
+outputs, and approved acceptance thresholds remain P2. Existing T-27/T-28 evidence boundaries stay
+available and are not relabeled as successful solver qualification.
+

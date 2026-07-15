@@ -31,7 +31,9 @@ def test_reference_voce_migration_is_typed_scoped_solver_neutral_and_non_eav() -
         "revisioning.reject_immutable_row_mutation()",
     ):
         assert value in sql
-    voce_sql = sql[sql.index("CREATE TABLE modeling.voce_calibration_plan (") :]
+    voce_start = sql.index("CREATE TABLE modeling.voce_calibration_plan (")
+    voce_end = sql.index("CREATE TABLE modeling.voce_candidate_selection (", voce_start)
+    voce_sql = sql[voce_start:voce_end]
     assert "postgresql.JSON" not in voce_sql
     assert "JSONB" not in voce_sql
     assert "abaqus" not in voce_sql.lower()

@@ -146,3 +146,23 @@ P2 contains work that does not block the preceding product vertical:
 - The local Compose topology no longer represents the supported developer runtime.
 - P0-2 evidence shows a different processing or statistics capability must precede nonlinear
   calibration.
+
+## Delivery update: P0-2 and P1 reference scope complete
+
+P0-2 now persists the complete bounded repeat-test path: explicit common-grid processing,
+specimen-level scalar/curve Statistics and QC, immutable outlier evidence, append-only human
+assessment, and a calibration-specific input Scope. P1 now persists bounded multi-curve Voce
+calibration Attempts and Candidates, human Candidate selection, a calibrated solver-neutral IR,
+an explicit frozen tabulated projection, and OpenRadioss/Abaqus card generation.
+
+P1 validation uses a stable holdout Plan revision and a typed immutable Run/Result. The holdout
+Dataset and Test Run must both be disjoint from every included or excluded calibration Scope member.
+The public reference Voce evaluator predicts the observed holdout points directly; it does not
+refit, interpolate, execute a solver, or reinterpret a card. The comparison Artifact and provenance
+activity preserve every exact input revision. The fixed relative-RMSE threshold of `0.05` is a
+versioned non-production reference profile only.
+
+P2 remains the next wave. It includes actual OpenRadioss/Abaqus data-check or execution evidence,
+HPC adapters, solver-result extraction and qualification, approved constitutive/threshold fixtures,
+broader Catalog/Test domain support, and operational/release hardening. Product-owner direction to
+exclude solver execution validation from the current wave is therefore preserved explicitly.

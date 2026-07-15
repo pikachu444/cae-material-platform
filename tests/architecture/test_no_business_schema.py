@@ -43,6 +43,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260731_034_P0_2_replicate_outlier_scope.py",
         "20260801_035_P1_reference_voce_calibration.py",
         "20260802_036_P1_voce_candidate_projection.py",
+        "20260803_037_P1_voce_holdout_validation.py",
     ]
 
 

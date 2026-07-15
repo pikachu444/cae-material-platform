@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/validation/reference-voce-holdout-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "PlanCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plan_label", "material_model_id", "material_model_revision_id", "holdout_dataset_id", "holdout_dataset_revision_id"],
+          "properties": {
+            "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+            "material_model_id": {"$ref": "#/$defs/Uuid"},
+            "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+            "holdout_dataset_id": {"$ref": "#/$defs/Uuid"},
+            "holdout_dataset_revision_id": {"$ref": "#/$defs/Uuid"}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ExecuteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_revision_id", "change_reason"],
+      "properties": {
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "PlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voce_holdout_plan_id", "current_revision", "links"],
+      "properties": {
+        "voce_holdout_plan_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"type": "object"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "PlanListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/PlanResponse"}}}
+    },
+    "ComparisonPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_point_ordinal", "true_plastic_strain", "observed_true_yield_stress_pa", "predicted_true_yield_stress_pa", "residual_true_yield_stress_pa"],
+      "properties": {
+        "source_point_ordinal": {"type": "integer", "minimum": 0},
+        "true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
+        "observed_true_yield_stress_pa": {"type": "number", "minimum": 0},
+        "predicted_true_yield_stress_pa": {"type": "number", "minimum": 0},
+        "residual_true_yield_stress_pa": {"type": "number"}
+      }
+    },
+    "ResultResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voce_holdout_result_id", "voce_holdout_run_id", "plan_id", "plan_revision_id", "material_model_id", "material_model_revision_id", "calibration_input_scope_id", "calibration_input_scope_revision_id", "voce_calibration_run_id", "voce_calibration_candidate_id", "voce_candidate_selection_id", "voce_candidate_selection_revision_id", "holdout_dataset_id", "holdout_dataset_revision_id", "holdout_test_run_id", "holdout_test_run_revision_id", "holdout_independence", "source_data_artifact_id", "source_data_sha256", "comparison_artifact_id", "comparison_sha256", "comparison_point_count", "root_mean_squared_error_pa", "relative_root_mean_squared_error", "normalization_stress_scale_pa", "characterized_max_true_plastic_strain", "relative_rmse_threshold", "verdict", "evaluation_mode", "solver_execution", "non_production", "created_at", "created_by", "points", "links"],
+      "properties": {
+        "voce_holdout_result_id": {"$ref": "#/$defs/Uuid"},
+        "voce_holdout_run_id": {"$ref": "#/$defs/Uuid"},
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_id": {"$ref": "#/$defs/Uuid"},
+        "material_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_input_scope_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_input_scope_revision_id": {"$ref": "#/$defs/Uuid"},
+        "voce_calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "voce_calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "voce_candidate_selection_id": {"$ref": "#/$defs/Uuid"},
+        "voce_candidate_selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "holdout_dataset_id": {"$ref": "#/$defs/Uuid"},
+        "holdout_dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "holdout_test_run_id": {"$ref": "#/$defs/Uuid"},
+        "holdout_test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "holdout_independence": {"const": "disjoint_dataset_and_test_run"},
+        "source_data_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "source_data_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "comparison_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "comparison_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "comparison_point_count": {"type": "integer", "minimum": 3},
+        "root_mean_squared_error_pa": {"type": "number", "minimum": 0},
+        "relative_root_mean_squared_error": {"type": "number", "minimum": 0},
+        "normalization_stress_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "characterized_max_true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
+        "relative_rmse_threshold": {"const": 0.05},
+        "verdict": {"enum": ["passed", "failed"]},
+        "evaluation_mode": {"const": "closed_form_curve"},
+        "solver_execution": {"const": "not_used"},
+        "non_production": {"const": true},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "points": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/ComparisonPoint"}},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "ResultListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ResultResponse"}}}
+    }
+  }
+}

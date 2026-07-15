@@ -134,6 +134,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
             # validation.execute; they do not grant public write routes.
             Permission.ARTIFACT_WRITE,
             Permission.DATASET_READ,
+            Permission.STATISTICS_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
             Permission.EXPORT_EXECUTE,
@@ -280,6 +281,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.DATASET_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
+            Permission.STATISTICS_READ,
             Permission.TESTING_READ,
             Permission.VALIDATION_READ,
         }

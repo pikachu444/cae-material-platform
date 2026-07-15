@@ -12,6 +12,8 @@ import type {
   VoceCalibrationDiagnosticPreview,
   VoceCalibrationRunResponse,
   VoceCandidateSelectionResponse,
+  VoceHoldoutPlanResponse,
+  VoceHoldoutResultResponse,
   CurvePreview,
   DatasetSelectionResponse,
   TensileReplicateSelectionResponse,
@@ -490,6 +492,48 @@ export function projectSelectedReferenceVoceCandidate(
     config,
     `/voce-candidate-selections/${encodeURIComponent(selectionId)}/tabulated-plasticity-models`,
     { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function createReferenceVoceHoldoutPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: {
+      plan_label: string;
+      material_model_id: string;
+      material_model_revision_id: string;
+      holdout_dataset_id: string;
+      holdout_dataset_revision_id: string;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<VoceHoldoutPlanResponse>> {
+  return request(config, "/voce-holdout-validation-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceVoceHoldout(
+  config: ApiConfig,
+  planId: string,
+  input: { plan_revision_id: string; change_reason: string },
+): Promise<ApiResult<VoceHoldoutResultResponse>> {
+  return request(
+    config,
+    `/voce-holdout-validation-plans/${encodeURIComponent(planId)}/runs`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function listReferenceVoceHoldoutResults(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<{ items: VoceHoldoutResultResponse[] }>> {
+  return request(
+    config,
+    `/tabulated-plasticity-models/${encodeURIComponent(materialModelId)}/voce-holdout-results`,
   );
 }
 

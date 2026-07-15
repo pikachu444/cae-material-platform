@@ -1175,6 +1175,73 @@ export interface VoceCandidateSelectionResponse {
   links: Record<string, string>;
 }
 
+export interface VoceHoldoutPlanResponse {
+  voce_holdout_plan_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      plan_label: string;
+      material_model_id: string;
+      material_model_revision_id: string;
+      holdout_dataset_id: string;
+      holdout_dataset_revision_id: string;
+      metric_profile_id: string;
+      threshold_profile_id: string;
+      relative_rmse_threshold: 0.05;
+      overlap_policy: "reject_any_calibration_scope_dataset_or_test_run_overlap";
+      evaluation_mode: "closed_form_curve";
+      solver_execution: "not_used";
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
+export interface VoceHoldoutPoint {
+  source_point_ordinal: number;
+  true_plastic_strain: number;
+  observed_true_yield_stress_pa: number;
+  predicted_true_yield_stress_pa: number;
+  residual_true_yield_stress_pa: number;
+}
+
+export interface VoceHoldoutResultResponse {
+  voce_holdout_result_id: string;
+  voce_holdout_run_id: string;
+  plan_id: string;
+  plan_revision_id: string;
+  material_model_id: string;
+  material_model_revision_id: string;
+  calibration_input_scope_id: string;
+  calibration_input_scope_revision_id: string;
+  voce_calibration_run_id: string;
+  voce_calibration_candidate_id: string;
+  voce_candidate_selection_id: string;
+  voce_candidate_selection_revision_id: string;
+  holdout_dataset_id: string;
+  holdout_dataset_revision_id: string;
+  holdout_test_run_id: string;
+  holdout_test_run_revision_id: string;
+  holdout_independence: "disjoint_dataset_and_test_run";
+  source_data_artifact_id: string;
+  source_data_sha256: string;
+  comparison_artifact_id: string;
+  comparison_sha256: string;
+  comparison_point_count: number;
+  root_mean_squared_error_pa: number;
+  relative_root_mean_squared_error: number;
+  normalization_stress_scale_pa: number;
+  characterized_max_true_plastic_strain: number;
+  relative_rmse_threshold: 0.05;
+  verdict: "passed" | "failed";
+  evaluation_mode: "closed_form_curve";
+  solver_execution: "not_used";
+  non_production: true;
+  created_at: string;
+  created_by: string;
+  points: VoceHoldoutPoint[];
+  links: Record<string, string>;
+}
+
 export interface CalibrationCandidateSelectionContent {
   selection_label: string;
   calibration_run_id: string;

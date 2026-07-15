@@ -491,8 +491,30 @@ The first P0-2 increment adds these mandatory checks:
   source and runtime OpenAPI contracts;
 - browser: member controls use concrete Dataset revision IDs, prior revisions are not edited, and
   pinned curves share one SI plot scale with member identity visible;
-- demo regression: three synthetic Test Runs produce three independent Dataset revisions and one
-  replicate Selection through protected HTTP APIs.
+- demo regression: three synthetic calibration Test Runs produce three independent Dataset
+  revisions and one replicate Selection, while a fourth Test Run/Dataset remains disjoint for
+  holdout validation, all through protected HTTP APIs.
+
+### P1 Voce-to-card and holdout gate
+
+- unit: public Voce response evaluation, bounded deterministic calibration, parameter diagnostics,
+  fixed tabulated projection, exact-response holdout pass, perturbed-response fail, and no refit;
+- PostgreSQL/migration: explicit Plan/Attempt/Candidate/Selection/IR and holdout Plan/Run/Result/
+  point tables, exact foreign keys, immutable guards, forced RLS, no JSONB/EAV payload, and online
+  upgrade/downgrade/re-upgrade through migration 037;
+- API/contract: calibration, Candidate acceptance, IR promotion, two-solver preflight/card preview/
+  download, holdout Plan execution, complete lineage identifiers, Artifact digests, and explicit
+  `solver_execution=not_used`;
+- browser: experimental/fitted/residual Candidate comparison, human acceptance, calibrated card
+  controls, independent Dataset selector, observed/predicted holdout curve, RMSE and reference
+  verdict;
+- regression: reject calibration/holdout Dataset or Test Run overlap, stale revisions, cross-scope
+  inputs, malformed Artifacts, unsupported IR versions, and silent solver approximation.
+
+The gate proves only the non-production reference material-model workflow. Golden cards verify
+deterministic mapping, not solver acceptance. Real OpenRadioss/Abaqus execution and qualification
+remain P2 and must receive separate fixtures, licenses, version matrices, parsers, and owner-approved
+thresholds before their tests can be enabled.
 
 The second P0-2 increment extends this gate with:
 
