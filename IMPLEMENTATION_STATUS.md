@@ -77,6 +77,18 @@ Foundation version: `0.27.0`
   Material State UI runs this full IR-to-card flow. Shear-relaxation Dataset/calibration and the
   separate Ogden-Prony/LAW62 family remain the ordered next increments; no solver execution or
   production qualification is claimed.
+- P2 hyper-viscoelastic vertical (ADR-0020 item 4 / ADR-0023 bounded reference scope): an
+  explicitly elastomer-classified Material revision and exact Property Set revision create a
+  stable Material Model identity with an immutable one-term Ogden plus one-to-five shear-Prony
+  revision. Migrations 046/047 add explicit typed IR/card summary and term tables, composite
+  tenant/classification foreign keys, forced RLS, immutable triggers, deferred source-term equality
+  checks, and no EAV payload. Protected API and the Material State UI provide manual IR entry,
+  Abaqus/OpenRadioss target selection, complete mapping status inspection, preflight digest
+  acknowledgement, immutable card preview, and `.inp`/`.rad` download. Abaqus incompressibility
+  maps exactly through D1=0; OpenRadioss LAW62's fixed ν=0.495 is recorded as `approximated`.
+  Byte-exact golden fixtures and live PostgreSQL/API/UI verification cover both targets. Multiple
+  Ogden terms, temperature dependence, compressible data, production calibration, and solver
+  execution/qualification remain excluded.
 - `T-20` reference subset: an immutable Statistical Plan pins exactly two existing one-member
   normalized Dataset Selection revisions from distinct Test Runs; a committed Statistical Run records
   typed QC observations and either fails durably or creates a separate immutable Statistical Result

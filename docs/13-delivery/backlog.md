@@ -915,3 +915,19 @@ and download. The lowest displayed objective remains only a sorting aid, never a
 engineering decision.
 OpenRadioss LAW62 remains
 explicitly outside this linear family and belongs to P2 item 4.
+
+### P2 item 4 implementation note (2026-08-13)
+
+The bounded reference Ogden–Prony vertical is implemented by ADR-0023 and migrations 046/047.
+It stores one Ogden μ/α pair and one-to-five normalized shear-Prony terms in explicit immutable
+tables for elastomer Material revisions only. The protected API and Material State UI now execute
+Material/State/Property Set → Ogden–Prony IR → mapping preflight → immutable card → preview/download.
+Abaqus 2025 `*HYPERELASTIC` + `*VISCOELASTIC` and OpenRadioss 2025 `/MAT/LAW62` are the only
+declared targets. LAW62 ν=0.495 remains visibly `approximated`; linear-Prony is never silently
+routed to LAW62. Golden byte fixtures and live PostgreSQL/API/UI checks cover both targets.
+
+This completes only the ADR-0023 reference slice. Production hyperelastic calibration, additional
+Ogden terms, compressible/temperature-dependent response, external solver execution, and solver
+qualification remain P2 work. The next product priority is the remaining T-07 Process/Lot/Batch
+genealogy linked to Material State and test/model/card evidence, followed by production-domain
+decisions and operational qualification gates.

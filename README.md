@@ -1,5 +1,32 @@
 # CAE Material Data Platform
 
+## 서비스 사용자가 할 수 있는 일
+
+이 서비스는 재료를 등록하고 시험·처리·모델 이력을 연결한 뒤 CAE solver용 material card를
+얻는 재료 데이터 플랫폼입니다. 로컬 데모에서는 다음 세 흐름을 실제 화면에서 실행할 수
+있습니다.
+
+- 금속: Material/State/기본 물성 → tensile data → tabulated plasticity 또는 reference Voce
+  → OpenRadioss LAW36 또는 Abaqus `*PLASTIC` card
+- 폴리머: shear-relaxation raw/normalized/processed Dataset → bounded Prony calibration과 사람
+  candidate 선택 → 새 immutable linear-Prony IR revision → Abaqus `*VISCOELASTIC` card
+- 엘라스토머: Material/State/기본 물성 → one-term Ogden + shear-Prony IR → mapping preflight
+  → Abaqus Ogden `.inp` 또는 OpenRadioss LAW62 `.rad` preview/download
+
+결과에 표시되는 `reference / non-production`은 실제 입력·저장·다운로드가 동작한다는
+뜻이지만, 특정 회사 재료의 승인값이나 solver qualification을 의미하지 않습니다. 특히
+LAW62의 incompressibility는 ν=0.495로 근사되므로 mapping report에 `approximated`로 표시됩니다.
+
+빠른 시작은 Docker Desktop 실행 후 아래 명령을 사용합니다.
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml up --build
+```
+
+[http://127.0.0.1:5173](http://127.0.0.1:5173)에서 **Connected token → Use local demo
+identity → Save connection**을 선택합니다. 개발·migration·테스트 상세는
+[DEVELOPMENT.md](DEVELOPMENT.md)에 분리되어 있습니다.
+
 재료의 출처와 변경 이력을 보존하면서 시험 데이터, 재료 모델, CAE solver용 material
 card를 하나의 흐름으로 관리하는 웹 서비스입니다. 제품의 중심은 calibration 도구 하나가
 아니라 다음 전체 연결입니다.

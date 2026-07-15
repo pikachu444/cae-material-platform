@@ -28,6 +28,7 @@ import { ReferenceTensileWorkflow } from "./reference-tensile-workflow";
 import { ReferenceShearRelaxationWorkflow } from "./reference-shear-relaxation-workflow";
 import { ReferenceElastoplasticWorkbench } from "./reference-elastoplastic-workbench";
 import { ReferenceLinearViscoelasticWorkbench } from "./reference-linear-viscoelastic-workbench";
+import { ReferenceOgdenPronyWorkbench } from "./reference-ogden-prony-workbench";
 import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench";
 import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
 import { ReviewWorkbench } from "./review-workbench";
@@ -1210,6 +1211,14 @@ function MaterialStateCard({
             propertySet={propertySet}
           />
         </>
+      ) : null}
+      {propertySet && materialClass === "elastomer" ? (
+        <ReferenceOgdenPronyWorkbench
+          key={`ogden-prony-${propertySet.current_revision.id}`}
+          config={config}
+          state={state}
+          propertySet={propertySet}
+        />
       ) : null}
       <ReferenceCalibrationWorkbench config={config} state={state} />
       <ReferenceValidationWorkbench config={config} state={state} />
