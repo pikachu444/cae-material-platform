@@ -601,6 +601,18 @@ checks and the connected React workflow. Migration 043 implements the Processing
 observed-point crop unit tests, protected API tests, typed/non-EAV offline migration assertions,
 live PostgreSQL migration and Run execution, source/output revision checks, two-input provenance
 verification, React regression and production frontend build. The bounded calibration half remains
-pending and must not be inferred from successful processing or manual Prony-card generation.
+implemented by migration 044 with deterministic synthetic-recovery unit tests, diagnostic Parquet
+round-trip, protected API tests, typed/non-EAV offline migration assertions, PostgreSQL migration,
+live four-start Run execution, persisted Candidate readback, and connected React/build regression.
+The gate preserves exact Dataset/model revision pins, rejects fewer than five processed points,
+shows bound/rank/uncertainty status, and proves that execution does not create a selection or IR
+revision. Human selection/promotion remains a separate gate and must not be inferred from the
+lowest displayed objective.
 The 2026-07-16 CI-equivalent evidence for migration 043 is 527 Python tests and 27 Vitest tests with
 zero failures, plus a successful TypeScript/Vite production build and live Docker Run execution.
+
+The migration 044 gate on 2026-07-16 recorded `make ci` as 467 passed plus 64 expected
+PostgreSQL-without-DSN skips, 27 Vitest passed, and a successful production build. Re-running the
+PostgreSQL marker suite against Compose PostgreSQL 16 with the isolated test DSN produced 64
+passed, zero skipped and zero failed. Live demo persistence also produced one six-point processed
+Dataset, four Candidates, and six diagnostic rows per Candidate.

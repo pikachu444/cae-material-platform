@@ -904,6 +904,10 @@ bounded Prony calibration remain the next P2 item 3 increment; they must create 
 activities/candidates and may not overwrite the raw or normalized curve. Migration 043 completes
 the Processing portion with a typed observed-point time-crop Recipe revision, exact-input Run,
 derived Artifact, separate processed Dataset identity, provenance, forced RLS and connected UI.
-Bounded Prony multistart calibration, diagnostics, human selection and IR promotion are next.
+Migration 044 completes bounded two-term generalized-Maxwell fitting: exact processed Dataset and
+baseline IR pins, bounded/log-transformed parameters, deterministic PCG64 multistart, typed
+Plan/Run/Attempt/Candidate rows, immutable residual diagnostics Artifacts, API and connected UI.
+Human selection and promotion to a new immutable linear-Prony IR revision are next; the currently
+best displayed objective is not an automatic engineering decision.
 OpenRadioss LAW62 remains
 explicitly outside this linear family and belongs to P2 item 4.

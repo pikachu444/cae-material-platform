@@ -290,6 +290,21 @@ class ShearRelaxationDatasetService:
             dataset_revision_id=dataset_revision_id,
         )
 
+    def get_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[ShearRelaxationDatasetContent]:
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_revision(
+            context=context,
+            decision=decision,
+            dataset_id=dataset_id,
+            dataset_revision_id=dataset_revision_id,
+        )
+
     def register_processed(
         self,
         context: SecurityContext,

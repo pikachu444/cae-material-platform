@@ -73,9 +73,12 @@ describe("Reference shear-relaxation workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open workflow" }));
 
     expect(await screen.findByText("Register shear-relaxation method")).toBeTruthy();
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5));
     expect(fetchMock.mock.calls.map(([url]) => String(url))).toContain(
       `/api/v1/material-states/${stateId}/shear-relaxation-datasets`,
+    );
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toContain(
+      `/api/v1/material-states/${stateId}/linear-viscoelastic-models`,
     );
     expect(screen.getByText(/not silently fitted into Prony terms/i)).toBeTruthy();
     expect(screen.getByText("Observed-point time crop")).toBeTruthy();

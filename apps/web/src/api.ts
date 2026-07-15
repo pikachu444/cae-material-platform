@@ -46,6 +46,9 @@ import type {
   PropertySetResponse,
   ProcessingRecipeResponse,
   ProcessingRunResponse,
+  PronyCalibrationDiagnosticsResponse,
+  PronyCalibrationPlanResponse,
+  PronyCalibrationRunResponse,
   ReplicateAlignmentBatchResponse,
   ReplicateStatisticalCurveResponse,
   ReplicateStatisticalPlanResponse,
@@ -1487,6 +1490,52 @@ export function executeReferenceShearRelaxationCrop(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function createReferencePronyCalibrationPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    input_dataset_id: string;
+    input_dataset_revision_id: string;
+    baseline_model_id: string;
+    baseline_model_revision_id: string;
+    total_g_ratio: { lower: number; initial: number; upper: number };
+    fast_term_fraction: { lower: number; initial: number; upper: number };
+    fast_relaxation_time_s: { lower: number; initial: number; upper: number };
+    slow_relaxation_time_s: { lower: number; initial: number; upper: number };
+    normalization_modulus_pa: number;
+    multistart_count: number;
+    random_seed: number;
+    change_reason: string;
+  },
+): Promise<ApiResult<PronyCalibrationPlanResponse>> {
+  return request(config, "/prony-calibration-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferencePronyCalibration(
+  config: ApiConfig,
+  planId: string,
+  input: { plan_revision_id: string; change_reason: string },
+): Promise<ApiResult<PronyCalibrationRunResponse>> {
+  return request(config, `/prony-calibration-plans/${encodeURIComponent(planId)}/runs`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getReferencePronyCandidateDiagnostics(
+  config: ApiConfig,
+  candidateId: string,
+): Promise<ApiResult<PronyCalibrationDiagnosticsResponse>> {
+  return request(
+    config,
+    `/prony-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
+  );
 }
 
 export function listDatasetRevisions(

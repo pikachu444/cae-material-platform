@@ -299,6 +299,33 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
         )
 
     @staticmethod
+    def _exact_revision_statement() -> sa.Select[Any]:
+        revision = material_model_revision_table
+        summary = linear_viscoelastic_revision_table
+        return (
+            sa.select(*_revision_columns(revision), summary.c.bulk_relaxation_status)
+            .select_from(
+                material_model_table.join(
+                    revision,
+                    sa.and_(
+                        revision.c.aggregate_id == material_model_table.c.id,
+                        revision.c.organization_id == material_model_table.c.organization_id,
+                        revision.c.project_id == material_model_table.c.project_id,
+                    ),
+                ).join(
+                    summary,
+                    sa.and_(
+                        summary.c.material_model_id == revision.c.aggregate_id,
+                        summary.c.material_model_revision_id == revision.c.id,
+                        summary.c.organization_id == revision.c.organization_id,
+                        summary.c.project_id == revision.c.project_id,
+                    ),
+                )
+            )
+            .where(revision.c.model_family_id == REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID)
+        )
+
+    @staticmethod
     def _terms(session: Session, row: Any) -> tuple[PronyTerm, ...]:
         rows = session.execute(
             sa.select(
@@ -381,4 +408,31 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
             except DBAPIError as error:
                 raise LinearViscoelasticNotFound(
                     "linear-viscoelastic Material Models are not available"
+                ) from error
+
+    def get_material_model_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceLinearViscoelasticContent]:
+        statement = self._exact_revision_statement().where(
+            material_model_table.c.id == material_model_id,
+            material_model_table.c.organization_id == context.organization_id,
+            material_model_table.c.project_id == context.project_id,
+            material_model_revision_table.c.id == material_model_revision_id,
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+                if row is None:
+                    raise LinearViscoelasticNotFound(
+                        "linear-viscoelastic Material Model revision is not visible"
+                    )
+                return RevisionSnapshot(_record(row), _content(row, self._terms(session, row)))
+            except DBAPIError as error:
+                raise LinearViscoelasticNotFound(
+                    "linear-viscoelastic Material Model revision is not available"
                 ) from error

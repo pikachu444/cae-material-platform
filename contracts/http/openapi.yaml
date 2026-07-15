@@ -5097,6 +5097,66 @@ paths:
         "403": {description: Release read is not authorized.}
         "404": {description: No visible Release matches.}
         "503": {description: Release service unavailable.}
+  /api/v1/prony-calibration-plans:
+    post:
+      operationId: createReferencePronyCalibrationPlan
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-prony-calibration-resources.schema.json#/$defs/PlanCreateRequest"}
+      responses:
+        "201":
+          description: Immutable bounded Prony Calibration Plan revision created.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-prony-calibration-resources.schema.json#/$defs/PlanResponse"}
+  /api/v1/prony-calibration-plans/{plan_id}/runs:
+    post:
+      operationId: executeReferencePronyCalibration
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: plan_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-prony-calibration-resources.schema.json#/$defs/ExecuteRequest"}
+      responses:
+        "201":
+          description: Deterministic multistart Run and Candidates committed.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-prony-calibration-resources.schema.json#/$defs/RunResponse"}
+  /api/v1/prony-calibration-runs/{run_id}:
+    get:
+      operationId: getReferencePronyCalibrationRun
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: run_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Pinned Run and ordered Candidate evidence.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-prony-calibration-resources.schema.json#/$defs/RunResponse"}
+  /api/v1/prony-calibration-candidates/{candidate_id}/diagnostics:
+    get:
+      operationId: getReferencePronyCandidateDiagnostics
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: candidate_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Observed, predicted, and residual points from immutable Parquet evidence.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-prony-calibration-resources.schema.json#/$defs/DiagnosticsResponse"}
 components:
   securitySchemes:
     BearerAuth:

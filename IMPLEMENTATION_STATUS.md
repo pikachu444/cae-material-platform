@@ -686,11 +686,32 @@ from `1 s` through `100 s`, with two provenance usages. Backend unit, contract, 
 migration, frontend test, and frontend build gates passed for this increment. The CI-equivalent
 gate completed with 527 Python tests and 27 Vitest tests, plus a successful production web build.
 
-This increment does not infer Prony terms from the curve. Remaining P2 item 3 work is a revisioned
-calibration activity with parameter bounds, deterministic multistart,
-residual/candidate diagnostics, human selection, and promotion to a new linear-Prony IR revision.
-P2 item 4 Ogden-Prony/Abaqus/OpenRadioss LAW62 and item 5 Process/Lot/Batch genealogy remain after
-that. Actual solver execution qualification remains excluded by product-owner direction.
+Migration 044 implements the next bounded calibration increment. A revisioned Plan pins one exact
+processed shear-relaxation Dataset revision and one exact baseline linear-Prony IR revision. The
+reference two-term generalized-Maxwell evaluator fixes the baseline instantaneous shear modulus,
+fits bounded total shear ratio, fast-term fraction and two separated log-time constants, and runs
+deterministic SciPy TRF multistart with PCG64. Runs, Attempts and Candidates use explicit non-EAV
+tables; observed/predicted/residual points are immutable Parquet Artifacts. Candidate objective,
+RMSE, mean residual, convergence reason, evaluation counts, bound warning, Jacobian-rank
+identifiability and explicit unassessed uncertainty are returned by the API and rendered in the
+Material State workflow. No Candidate is selected or promoted automatically.
+
+Live Docker/PostgreSQL verification migrated to `20260810_044_prony_cal`, retained all six observed
+points in a separate processed Dataset, executed four deterministic starts, persisted four
+Candidates and read back six diagnostic rows for the displayed Candidate. The successful live Run
+is `40192c69-7491-4b68-828c-f76e5f491280`. The fixture reached the slow-time lower bound, and that
+fact remains visible as a warning rather than being silently accepted.
+
+The repository `make ci` gate passed with 467 Python tests and 27 Vitest tests; its 64 PostgreSQL
+cases were expected skips because that command had no DSN. The same PostgreSQL marker suite was
+then run against the isolated Compose PostgreSQL 16 service with `CMP_TEST_POSTGRES_DSN`, producing
+64 passed, zero skipped and zero failed. Type checking covered 450 source files; architecture,
+contract lint/compatibility and the production frontend build also passed.
+
+Remaining P2 item 3 work is explicit human Candidate selection and promotion to a new immutable
+linear-Prony IR revision, followed by Abaqus card generation from that promoted revision. P2 item 4
+Ogden-Prony/Abaqus/OpenRadioss LAW62 and item 5 Process/Lot/Batch genealogy follow. Actual solver
+execution qualification remains excluded by product-owner direction.
 
 ### Steel elastoplastic routing increment
 

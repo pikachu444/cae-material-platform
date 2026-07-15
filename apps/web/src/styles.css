@@ -1252,6 +1252,11 @@ dd {
   vector-effect: non-scaling-stroke;
 }
 
+.curve-plot polyline.prediction-line {
+  stroke: #287d78;
+  stroke-dasharray: 7 4;
+}
+
 .curve-plot text {
   fill: #60797a;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;

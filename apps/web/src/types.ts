@@ -989,6 +989,91 @@ export interface ShearRelaxationProcessingRunResponse {
   links: Record<string, string>;
 }
 
+export interface PronyParameterPlan {
+  name: string;
+  unit: string;
+  lower: number;
+  initial: number;
+  upper: number;
+  transform: "none" | "log";
+}
+
+export interface PronyCalibrationPlanResponse {
+  prony_calibration_plan_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      plan_kind: "reference_two_term_shear_relaxation_prony";
+      plan_label: string;
+      input_dataset_id: string;
+      input_dataset_revision_id: string;
+      baseline_model_id: string;
+      baseline_model_revision_id: string;
+      total_g_ratio: PronyParameterPlan;
+      fast_term_fraction: PronyParameterPlan;
+      fast_relaxation_time_s: PronyParameterPlan;
+      slow_relaxation_time_s: PronyParameterPlan;
+      normalization_modulus_pa: number;
+      multistart_count: number;
+      random_seed: number;
+      optimizer_adapter_id: string;
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
+export interface PronyCalibrationCandidateResponse {
+  prony_calibration_candidate_id: string;
+  attempt_ordinal: number;
+  status: "converged" | "nonconverged";
+  candidate_sha256: string;
+  total_g_ratio: number;
+  fast_term_fraction: number;
+  fast_g_ratio: number;
+  slow_g_ratio: number;
+  fast_relaxation_time_s: number;
+  slow_relaxation_time_s: number;
+  objective_total: number;
+  residual_root_mean_square_pa: number;
+  residual_mean_pa: number;
+  convergence_reason: string;
+  function_evaluations: number;
+  optimality: number;
+  parameter_at_bound: boolean;
+  identifiability_status: "full_rank" | "rank_deficient";
+  uncertainty_status: "not_assessed_reference";
+  diagnostics_artifact_id: string;
+  diagnostics_point_count: number;
+  links: Record<string, string>;
+}
+
+export interface PronyCalibrationRunResponse {
+  prony_calibration_run_id: string;
+  status: "succeeded";
+  plan_id: string;
+  plan_revision_id: string;
+  input_dataset_id: string;
+  input_dataset_revision_id: string;
+  baseline_model_id: string;
+  baseline_model_revision_id: string;
+  environment_digest: string;
+  attempt_count: number;
+  candidate_count: number;
+  candidates: PronyCalibrationCandidateResponse[];
+  links: Record<string, string>;
+}
+
+export interface PronyCalibrationDiagnosticsResponse {
+  candidate_id: string;
+  points: Array<{
+    point_ordinal: number;
+    time_s: number;
+    observed_shear_modulus_pa: number;
+    predicted_shear_modulus_pa: number;
+    residual_pa: number;
+  }>;
+}
+
 export interface DatasetSelectionContent {
   selection_kind: "reference_curve_dataset_revision";
   member_count: 1;

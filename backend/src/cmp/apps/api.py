@@ -27,6 +27,7 @@ from cmp.bootstrap.modeling import (
     build_linear_viscoelastic_model_service,
     build_material_model_service,
     build_reference_calibration_service,
+    build_reference_prony_calibration_service,
     build_reference_voce_calibration_service,
     build_tabulated_plasticity_model_service,
     build_voce_candidate_projection_service,
@@ -96,6 +97,7 @@ from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
     install_linear_viscoelastic_api,
 )
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
+from cmp.modules.modeling.adapters.api.prony_calibration import install_prony_calibration_api
 from cmp.modules.modeling.adapters.api.tabulated_plasticity import (
     install_tabulated_plasticity_api,
 )
@@ -109,6 +111,9 @@ from cmp.modules.modeling.application.calibration import ReferenceCalibrationSer
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
+)
+from cmp.modules.modeling.application.prony_calibration import (
+    ReferencePronyCalibrationService,
 )
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
@@ -193,6 +198,7 @@ def create_app(
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
     voce_calibration_service: ReferenceVoceCalibrationService | None = None,
+    prony_calibration_service: ReferencePronyCalibrationService | None = None,
     voce_candidate_projection_service: VoceCandidateProjectionService | None = None,
     candidate_selection_service: CandidateSelectionService | None = None,
     solver_card_service: SolverCardService | None = None,
@@ -532,6 +538,26 @@ def create_app(
             services.authorization, Permission.CALIBRATION_EXECUTE
         ),
     )
+    resolved_prony_calibration = (
+        prony_calibration_service
+        or build_reference_prony_calibration_service(
+            services,
+            resolved_shear_relaxation_datasets,
+            resolved_linear_viscoelastic,
+            resolved_artifacts,
+        )
+    )
+    install_prony_calibration_api(
+        application,
+        service=resolved_prony_calibration,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CALIBRATION_EXECUTE
+        ),
+    )
     resolved_voce_projection = (
         voce_candidate_projection_service
         or build_voce_candidate_projection_service(
@@ -700,6 +726,7 @@ def create_app(
     application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
     application.state.voce_calibration_service = resolved_voce_calibration
+    application.state.prony_calibration_service = resolved_prony_calibration
     application.state.voce_candidate_projection_service = resolved_voce_projection
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards
