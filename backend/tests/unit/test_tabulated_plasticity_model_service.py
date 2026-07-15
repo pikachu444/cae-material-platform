@@ -59,6 +59,7 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     HardeningPointOrigin,
     InvalidTabulatedPlasticity,
     ReferenceIsotropicTabulatedPlasticityContent,
+    TabulatedPlasticityConflict,
     hardening_curve_from_parquet,
     reference_isotropic_tabulated_plasticity_canonical,
 )
@@ -211,6 +212,9 @@ def _dataset_source() -> CalibrationDatasetSource:
 
 
 class _MaterialModels:
+    def __init__(self, material_class: str = "metal") -> None:
+        self.material_class = material_class
+
     def get_reference_property_source_for_tabulated_plasticity(
         self,
         context: SecurityContext,
@@ -223,6 +227,7 @@ class _MaterialModels:
         assert material_state_id == STATE and property_set_revision_id == PROPERTY_REVISION
         return ReferencePropertySource(
             DataClassification.INTERNAL,
+            self.material_class,
             ReferenceLinearElasticContent(
                 material_id=UUID("e4000000-0000-4000-8000-000000000020"),
                 material_revision_id=UUID("e4000000-0000-4000-8000-000000000021"),
@@ -363,10 +368,15 @@ class _Repository:
         return self.store
 
 
-def _service(repository: _Repository, artifacts: _Artifacts) -> TabulatedPlasticityModelService:
+def _service(
+    repository: _Repository,
+    artifacts: _Artifacts,
+    *,
+    material_class: str = "metal",
+) -> TabulatedPlasticityModelService:
     return TabulatedPlasticityModelService(
         repository=cast(TabulatedPlasticityRepository, repository),
-        material_models=cast(MaterialModelService, _MaterialModels()),
+        material_models=cast(MaterialModelService, _MaterialModels(material_class)),
         datasets=cast(DatasetService, _Datasets()),
         artifacts=cast(ArtifactService, artifacts),
         id_factory=lambda: MODEL,
@@ -419,6 +429,24 @@ def test_service_rejects_unacknowledged_post_necking_extension_before_persistenc
                 CONTEXT,
                 WRITE,
                 _command(acknowledge=False),
+            )
+        )
+
+    assert repository.content is None
+    assert artifacts.hardening_bytes is None
+
+
+def test_service_rejects_nonmetal_material_before_reading_or_deriving_curve_data() -> None:
+    repository = _Repository()
+    artifacts = _Artifacts()
+
+    with pytest.raises(
+        TabulatedPlasticityConflict,
+        match="requires a Material revision classified as metal",
+    ):
+        asyncio.run(
+            _service(repository, artifacts, material_class="polymer").create_model(
+                CONTEXT, WRITE, _command()
             )
         )
 

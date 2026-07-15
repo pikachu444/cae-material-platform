@@ -49,6 +49,7 @@ class ReferencePropertySource:
     """Concrete Catalog revisions selected as the immutable IR source."""
 
     classification: DataClassification
+    material_class: str
     content: ReferenceLinearElasticContent
 
 

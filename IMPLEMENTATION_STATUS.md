@@ -647,3 +647,14 @@ OpenRadioss LAW62 cards; then Process/Lot/Batch genealogy. These are reference/n
 capabilities until domain-approved schemas, numeric fixtures and mappings are available. Actual
 solver execution validation remains excluded.
 
+### Steel elastoplastic routing increment
+
+The existing tabulated-plasticity and calibrated Voce paths now require the exact source Material
+revision to be classified as `metal`. Modeling resolves that pinned revision through the Property
+Set and Material State chain; an application guard rejects non-metal input before reading curve
+bytes, and migration 039 adds a PostgreSQL insert trigger for the same invariant. The frontend
+shows the elastoplastic workbench only for the class pinned by the State and offers explicit
+append-only State rebase guidance when the Material head changed. The demo seed reclassifies and
+rebases legacy demo Material/State/Property revisions through protected APIs. Existing
+OpenRadioss LAW36 and Abaqus golden outputs are unchanged.
+

@@ -192,6 +192,17 @@ catalog_material_state_revision_table = sa.Table(
     sa.Column("material_revision_id", sa.Uuid(), nullable=False),
     schema="catalog",
 )
+catalog_material_revision_table = sa.Table(
+    "material_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_class", sa.String(32), nullable=True),
+    schema="catalog",
+)
 
 
 def _record(row: Any) -> RevisionRecord:
@@ -455,6 +466,7 @@ class SqlAlchemyModelingRepository(ModelingRepository):
                 property_revision.c.applicability_note.label("applicability_note"),
                 state_revision.c.material_id.label("material_id"),
                 state_revision.c.material_revision_id.label("material_revision_id"),
+                catalog_material_revision_table.c.material_class.label("material_class"),
             )
             .select_from(
                 property_set.join(
@@ -471,6 +483,20 @@ class SqlAlchemyModelingRepository(ModelingRepository):
                         state_revision.c.aggregate_id == property_revision.c.material_state_id,
                         state_revision.c.organization_id == property_revision.c.organization_id,
                         state_revision.c.project_id == property_revision.c.project_id,
+                    ),
+                ).join(
+                    catalog_material_revision_table,
+                    sa.and_(
+                        catalog_material_revision_table.c.id
+                        == state_revision.c.material_revision_id,
+                        catalog_material_revision_table.c.aggregate_id
+                        == state_revision.c.material_id,
+                        catalog_material_revision_table.c.organization_id
+                        == state_revision.c.organization_id,
+                        catalog_material_revision_table.c.project_id
+                        == state_revision.c.project_id,
+                        catalog_material_revision_table.c.classification
+                        == state_revision.c.classification,
                     ),
                 )
             )
@@ -511,6 +537,7 @@ class SqlAlchemyModelingRepository(ModelingRepository):
         )
         return ReferencePropertySource(
             DataClassification(str(row["classification"])),
+            str(row["material_class"] or "unclassified"),
             content,
         )
 

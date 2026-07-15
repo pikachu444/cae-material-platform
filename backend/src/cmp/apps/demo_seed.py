@@ -233,6 +233,28 @@ def _ensure_state(api: DemoApi, detail: Mapping[str, Any]) -> tuple[dict[str, An
         and item["current_revision"].get("content", {}).get("name") == _STATE_NAME,
     )
     if existing is not None:
+        current = existing.get("current_revision")
+        content = current.get("content") if isinstance(current, dict) else None
+        if (
+            isinstance(current, dict)
+            and isinstance(content, dict)
+            and content.get("material_revision_id") != str(_revision_id(material))
+        ):
+            existing = api.post(
+                f"/material-states/{_current_id(existing, 'material_state_id')}/revisions",
+                {
+                    "content": {
+                        "material_revision_id": str(_revision_id(material)),
+                        "name": content.get("name"),
+                        "manufacturing_route": content.get("manufacturing_route"),
+                        "heat_treatment": content.get("heat_treatment"),
+                        "lot_or_batch": content.get("lot_or_batch"),
+                        "description": content.get("description"),
+                    },
+                    "change_reason": "Rebase the demo State to the classified Material revision.",
+                },
+                headers={"If-Match": _revision_etag(current)},
+            )
         return material, existing
     state = api.post(
         f"/materials/{_current_id(material, 'material_id')}/states",
@@ -260,6 +282,32 @@ def _ensure_properties(
         lambda item: item.get("material_state_id") == state_id,
     )
     if existing is not None:
+        current = existing.get("current_revision")
+        content = current.get("content") if isinstance(current, dict) else None
+        if (
+            isinstance(current, dict)
+            and isinstance(content, dict)
+            and content.get("material_state_revision_id") != str(_revision_id(state))
+        ):
+            existing = api.post(
+                f"/property-sets/{_current_id(existing, 'property_set_id')}/revisions",
+                {
+                    "content": {
+                        "material_state_revision_id": str(_revision_id(state)),
+                        "density_kg_per_m3": content.get("density_kg_per_m3"),
+                        "density_source": content.get("density_source"),
+                        "youngs_modulus_pa": content.get("youngs_modulus_pa"),
+                        "youngs_modulus_source": content.get("youngs_modulus_source"),
+                        "poisson_ratio": content.get("poisson_ratio"),
+                        "poisson_ratio_source": content.get("poisson_ratio_source"),
+                        "yield_stress_pa": content.get("yield_stress_pa"),
+                        "yield_stress_source": content.get("yield_stress_source"),
+                        "applicability": content.get("applicability"),
+                    },
+                    "change_reason": "Rebase demo properties to the classified State revision.",
+                },
+                headers={"If-Match": _revision_etag(current)},
+            )
         return existing
     source = {"kind": "manual", "reference": "Synthetic local demo input"}
     return api.post(
