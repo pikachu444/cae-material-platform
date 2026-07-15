@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/reference-voce-candidate-projection-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "CreateSelectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "selection_label", "voce_calibration_run_id", "voce_calibration_candidate_id", "selection_reason"],
+      "properties": {
+        "classification": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "voce_calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "voce_calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProjectRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_revision_id", "sampling_point_count", "extension_max_true_plastic_strain", "acknowledge_constant_extension", "change_reason"],
+      "properties": {
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sampling_point_count": {"type": "integer", "minimum": 21, "maximum": 501},
+        "extension_max_true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
+        "acknowledge_constant_extension": {"const": true},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "SelectionResponse": {
+      "type": "object",
+      "required": ["voce_candidate_selection_id", "current_revision", "links"],
+      "properties": {
+        "voce_candidate_selection_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {
+          "type": "object",
+          "required": ["id", "aggregate_id", "revision_no", "schema_id", "schema_version", "content_hash", "content"],
+          "properties": {
+            "id": {"$ref": "#/$defs/Uuid"},
+            "aggregate_id": {"$ref": "#/$defs/Uuid"},
+            "revision_no": {"type": "integer", "minimum": 1},
+            "schema_id": {"const": "urn:cmp:modeling:reference-voce-candidate-selection:1.0.0"},
+            "schema_version": {"const": "1.0.0"},
+            "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "content": {
+              "type": "object",
+              "required": ["selection_label", "voce_calibration_run_id", "voce_calibration_candidate_id", "candidate_sha256", "selection_reason", "selection_decision", "non_production"],
+              "properties": {
+                "selection_label": {"type": "string"},
+                "voce_calibration_run_id": {"$ref": "#/$defs/Uuid"},
+                "voce_calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+                "candidate_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+                "selection_reason": {"type": "string"},
+                "selection_decision": {"const": "accepted_for_tabulated_ir_projection"},
+                "non_production": {"const": true}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      },
+      "additionalProperties": false
+    }
+  }
+}

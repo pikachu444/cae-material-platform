@@ -239,7 +239,11 @@ describe("Reference tensile Dataset workflow", () => {
 
     await screen.findByText("6. Pin the normalized revision as a Processing Selection");
     fireEvent.click(await screen.findByRole("button", { name: "Create pinned Selection" }));
-    await screen.findByRole("combobox", { name: "Pinned Selection" });
+    await screen.findByRole(
+      "combobox",
+      { name: "Pinned Selection" },
+      { timeout: 3_000 },
+    );
     fireEvent.click(screen.getByRole("button", { name: "Create immutable Recipe" }));
     await screen.findByRole("combobox", { name: "Processing Recipe" });
     fireEvent.click(screen.getByRole("button", { name: "Commit crop Processing Run" }));

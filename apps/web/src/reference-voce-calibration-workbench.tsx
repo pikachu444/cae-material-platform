@@ -4,6 +4,12 @@ import {
   ApiError,
   type ApiConfig,
   createReferenceVoceCalibrationPlan,
+  createReferenceVoceCandidateSelection,
+  projectSelectedReferenceVoceCandidate,
+  preflightElastoplasticMapping,
+  createElastoplasticSolverCard,
+  previewElastoplasticSolverCard,
+  downloadElastoplasticSolverCard,
   executeReferenceVoceCalibration,
   previewReferenceVoceCalibrationDiagnostics,
 } from "./api";
@@ -14,6 +20,10 @@ import type {
   VoceCalibrationPlanResponse,
   VoceCalibrationDiagnosticPreview,
   VoceCalibrationRunResponse,
+  VoceCandidateSelectionResponse,
+  TabulatedPlasticityModelResponse,
+  MappingReport,
+  ElastoplasticCardResponse,
 } from "./types";
 
 const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b"];
@@ -97,6 +107,11 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
   const [plan, setPlan] = useState<VoceCalibrationPlanResponse | null>(null);
   const [run, setRun] = useState<VoceCalibrationRunResponse | null>(null);
   const [diagnostics, setDiagnostics] = useState<VoceCalibrationDiagnosticPreview | null>(null);
+  const [selection, setSelection] = useState<VoceCandidateSelectionResponse | null>(null);
+  const [model, setModel] = useState<TabulatedPlasticityModelResponse | null>(null);
+  const [mapping, setMapping] = useState<MappingReport | null>(null);
+  const [card, setCard] = useState<ElastoplasticCardResponse | null>(null);
+  const [cardPreview, setCardPreview] = useState<string | null>(null);
   const [planLabel, setPlanLabel] = useState("Reviewed replicate Voce reference calibration");
   const [sigmaLowerMpa, setSigmaLowerMpa] = useState(String(yieldStress * 0.6 / 1e6));
   const [sigmaInitialMpa, setSigmaInitialMpa] = useState(String(yieldStress / 1e6));
@@ -111,7 +126,13 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
   const [normalizationMpa, setNormalizationMpa] = useState("100");
   const [reason, setReason] = useState("Pin reviewed curves and explicit Voce/SciPy conventions");
   const [runReason, setRunReason] = useState("Execute deterministic multi-curve reference calibration");
-  const [action, setAction] = useState<"plan" | "run" | null>(null);
+  const [selectionReason, setSelectionReason] = useState("Accept the best converged candidate after reviewing fitted curves and residuals");
+  const [extension, setExtension] = useState("0.5");
+  const [extensionAcknowledged, setExtensionAcknowledged] = useState(false);
+  const [targetSolver, setTargetSolver] = useState<"openradioss" | "abaqus">("openradioss");
+  const [materialName, setMaterialName] = useState("CALIBRATED_MATERIAL");
+  const [solverMaterialId, setSolverMaterialId] = useState("101");
+  const [action, setAction] = useState<"plan" | "run" | "select" | "project" | "preflight" | "card" | "download" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const best = useMemo(
     () => run?.candidates.find((candidate) => candidate.status === "converged") ?? null,
@@ -163,6 +184,130 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
       setPlan(result.data);
       setRun(null);
       setDiagnostics(null);
+      setSelection(null);
+      setModel(null);
+      setMapping(null);
+      setCard(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function acceptCandidate(): Promise<void> {
+    if (!run || !best) return;
+    setAction("select");
+    setError(null);
+    try {
+      const result = await createReferenceVoceCandidateSelection(config, {
+        classification: run.classification,
+        selection_label: `${planLabel.trim()} accepted candidate`,
+        voce_calibration_run_id: run.voce_calibration_run_id,
+        voce_calibration_candidate_id: best.voce_calibration_candidate_id,
+        selection_reason: selectionReason.trim(),
+      });
+      setSelection(result.data);
+      setModel(null);
+      setMapping(null);
+      setCard(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function projectCandidate(): Promise<void> {
+    if (!selection) return;
+    setAction("project");
+    setError(null);
+    try {
+      const result = await projectSelectedReferenceVoceCandidate(
+        config,
+        selection.voce_candidate_selection_id,
+        {
+          selection_revision_id: selection.current_revision.id,
+          sampling_point_count: 51,
+          extension_max_true_plastic_strain: Number(extension),
+          acknowledge_constant_extension: extensionAcknowledged,
+          change_reason: "Project accepted Voce Candidate on the fixed 51-point solver-neutral grid",
+        },
+      );
+      setModel(result.data);
+      setMapping(null);
+      setCard(null);
+      setCardPreview(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  const target = {
+    solver: targetSolver,
+    version: "2025" as const,
+    unit_system: "kg_m_s" as const,
+  };
+
+  async function preflight(): Promise<void> {
+    if (!model) return;
+    setAction("preflight");
+    setError(null);
+    try {
+      const result = await preflightElastoplasticMapping(
+        config,
+        model.material_model_id,
+        model.current_revision.id,
+        target,
+      );
+      setMapping(result.data);
+      setCard(null);
+      setCardPreview(null);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function generateCard(): Promise<void> {
+    if (!model || !mapping) return;
+    setAction("card");
+    setError(null);
+    try {
+      const result = await createElastoplasticSolverCard(config, model.material_model_id, {
+        material_model_revision_id: model.current_revision.id,
+        target,
+        expected_mapping_report_sha256: mapping.mapping_report_sha256,
+        solver_material_id: Number(solverMaterialId),
+        material_name: materialName.trim(),
+        change_reason: `Generate ${targetSolver} card from accepted calibrated IR`,
+      });
+      setCard(result.data.card);
+      const preview = await previewElastoplasticSolverCard(config, result.data.card.solver_card_id);
+      setCardPreview(preview.data);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function downloadCard(): Promise<void> {
+    if (!card) return;
+    setAction("download");
+    try {
+      const result = await downloadElastoplasticSolverCard(config, card.solver_card_id);
+      const url = URL.createObjectURL(result.data.blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = result.data.filename;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -271,6 +416,60 @@ export function ReferenceVoceCalibrationWorkbench({ config, state, propertySet, 
               {diagnostics ? <VoceFitPlot diagnostics={diagnostics} /> : null}
             </>
           ) : <p>No converged candidate is available. Review the persisted attempt diagnostics.</p>}
+        </section>
+      ) : null}
+      {best ? (
+        <section className="workflow-stack calibrated-card-workflow" aria-label="Accepted Voce candidate to solver card">
+          <div className="section-heading compact-heading">
+            <div><p className="eyebrow">P1 · Candidate promotion</p><h5>Accepted Candidate → IR 1.1 → Solver Card</h5></div>
+            <span className="reference-chip">OpenRadioss + Abaqus</span>
+          </div>
+          {!selection ? (
+            <div className="workflow-step">
+              <label>Human selection reason<input value={selectionReason} onChange={(event) => setSelectionReason(event.target.value)} required /></label>
+              <button className="button primary" type="button" disabled={action !== null || !selectionReason.trim()} onClick={() => void acceptCandidate()}>
+                {action === "select" ? "Recording immutable selection…" : "Accept this converged Candidate"}
+              </button>
+            </div>
+          ) : (
+            <div className="workflow-step">
+              <strong>Accepted Selection {shortId(selection.voce_candidate_selection_id)}</strong>
+              <p className="form-hint">The Candidate digest and human reason are pinned in an immutable revision.</p>
+              <div className="form-grid three-columns">
+                <label>Fixed-grid points<input type="number" value="51" disabled /></label>
+                <label>Constant extension max εp<input type="number" min="0.001" step="any" value={extension} onChange={(event) => setExtension(event.target.value)} /></label>
+                <label className="checkbox-line"><input type="checkbox" checked={extensionAcknowledged} onChange={(event) => setExtensionAcknowledged(event.target.checked)} /> Acknowledge constant extension approximation</label>
+              </div>
+              <button className="button primary" type="button" disabled={action !== null || !extensionAcknowledged} onClick={() => void projectCandidate()}>
+                {action === "project" ? "Projecting calibrated IR…" : "Create solver-neutral calibrated IR"}
+              </button>
+            </div>
+          )}
+          {model ? (
+            <div className="workflow-step">
+              <strong>IR {shortId(model.material_model_id)} · {model.current_revision.content.model_family_id}</strong>
+              <p className="form-hint">51 exact Voce samples plus one explicitly acknowledged constant extension point. No solver keyword is stored in the IR.</p>
+              <div className="form-grid three-columns">
+                <label>Target solver<select value={targetSolver} onChange={(event) => { setTargetSolver(event.target.value as "openradioss" | "abaqus"); setMapping(null); setCard(null); setCardPreview(null); }}><option value="openradioss">OpenRadioss 2025 · LAW36</option><option value="abaqus">Abaqus 2025 · isotropic *PLASTIC</option></select></label>
+                <label>Material name<input value={materialName} onChange={(event) => setMaterialName(event.target.value)} /></label>
+                <label>Solver material ID<input type="number" min="1" value={solverMaterialId} onChange={(event) => setSolverMaterialId(event.target.value)} /></label>
+              </div>
+              <button className="button secondary" type="button" disabled={action !== null} onClick={() => void preflight()}>{action === "preflight" ? "Checking mapping…" : "Run mapping preflight"}</button>
+              {mapping ? (
+                <>
+                  <ul className="qc-list">{mapping.items.map((item) => <li key={item.name}><strong>{item.status}</strong> · {item.name} · {item.detail}</li>)}</ul>
+                  <button className="button primary" type="button" disabled={action !== null || !mapping.exportable} onClick={() => void generateCard()}>{action === "card" ? "Generating card…" : `Generate ${targetSolver === "abaqus" ? "Abaqus .inp" : "OpenRadioss .rad"}`}</button>
+                </>
+              ) : null}
+            </div>
+          ) : null}
+          {card ? (
+            <div className="workflow-step">
+              <strong>Immutable card {shortId(card.solver_card_id)}</strong>
+              <button className="button secondary" type="button" disabled={action !== null} onClick={() => void downloadCard()}>{action === "download" ? "Preparing download…" : "Download solver card"}</button>
+              {cardPreview ? <pre className="card-preview"><code>{cardPreview}</code></pre> : null}
+            </div>
+          ) : null}
         </section>
       ) : null}
       {error ? <div className="error-banner" role="alert">{error}</div> : null}

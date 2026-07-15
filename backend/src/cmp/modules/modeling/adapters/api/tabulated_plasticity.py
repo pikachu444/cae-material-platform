@@ -29,6 +29,10 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     TabulatedPlasticityNotFound,
     reference_isotropic_tabulated_plasticity_ir,
 )
+from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
+    ReferenceVoceTabulatedPlasticityContent,
+    reference_voce_tabulated_plasticity_ir,
+)
 from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataResponse
 from cmp.shared.domain.revisions import AggregateNotFound, RevisionKernelError, RevisionRecord
 
@@ -80,32 +84,35 @@ class TabulatedPlasticityContentResponse(BaseModel):
     material_state_revision_id: UUID
     property_set_id: UUID
     property_set_revision_id: UUID
-    source_dataset_id: UUID
-    source_dataset_revision_id: UUID
+    source_dataset_id: UUID | None
+    source_dataset_revision_id: UUID | None
     density_kg_per_m3: float
     youngs_modulus_pa: float
     poisson_ratio: float
     initial_yield_stress_pa: float
     hardening_curve: HardeningCurveReferenceResponse
-    source_point_count: int
-    pre_yield_excluded_point_count: int
-    post_necking_excluded_point_count: int
-    necking_source_point_index: int
+    source_point_count: int | None
+    pre_yield_excluded_point_count: int | None
+    post_necking_excluded_point_count: int | None
+    necking_source_point_index: int | None
     transformation_profile_id: str
     transformation_profile_version: str
     transformation_profile_digest: str
-    necking_engineering_strain: float
+    necking_engineering_strain: float | None
     characterized_max_true_plastic_strain: float
     extension_max_true_plastic_strain: float
     post_necking_extension_policy: str
     post_necking_approximation_acknowledged: bool
     applicability: TabulatedPlasticityApplicabilityResponse
     reference_temperature_k: float
+    calibration_projection: dict[str, Any] | None
     non_production: bool
 
     @classmethod
     def from_domain(
-        cls, value: ReferenceIsotropicTabulatedPlasticityContent
+        cls,
+        value: ReferenceIsotropicTabulatedPlasticityContent
+        | ReferenceVoceTabulatedPlasticityContent,
     ) -> TabulatedPlasticityContentResponse:
         return cls(
             model_family_id=value.model_family_id,
@@ -117,8 +124,8 @@ class TabulatedPlasticityContentResponse(BaseModel):
             material_state_revision_id=value.material_state_revision_id,
             property_set_id=value.property_set_id,
             property_set_revision_id=value.property_set_revision_id,
-            source_dataset_id=value.source_dataset_id,
-            source_dataset_revision_id=value.source_dataset_revision_id,
+            source_dataset_id=getattr(value, "source_dataset_id", None),
+            source_dataset_revision_id=getattr(value, "source_dataset_revision_id", None),
             density_kg_per_m3=value.density_kg_per_m3,
             youngs_modulus_pa=value.youngs_modulus_pa,
             poisson_ratio=value.poisson_ratio,
@@ -129,14 +136,18 @@ class TabulatedPlasticityContentResponse(BaseModel):
                 schema_ref=value.hardening_curve_schema_ref,
                 point_count=value.hardening_curve_point_count,
             ),
-            source_point_count=value.source_point_count,
-            pre_yield_excluded_point_count=value.pre_yield_excluded_point_count,
-            post_necking_excluded_point_count=value.post_necking_excluded_point_count,
-            necking_source_point_index=value.necking_source_point_index,
+            source_point_count=getattr(value, "source_point_count", None),
+            pre_yield_excluded_point_count=getattr(
+                value, "pre_yield_excluded_point_count", None
+            ),
+            post_necking_excluded_point_count=getattr(
+                value, "post_necking_excluded_point_count", None
+            ),
+            necking_source_point_index=getattr(value, "necking_source_point_index", None),
             transformation_profile_id=value.transformation_profile_id,
             transformation_profile_version=value.transformation_profile_version,
             transformation_profile_digest=value.transformation_profile_digest,
-            necking_engineering_strain=value.necking_engineering_strain,
+            necking_engineering_strain=getattr(value, "necking_engineering_strain", None),
             characterized_max_true_plastic_strain=(
                 value.characterized_max_true_plastic_strain
             ),
@@ -153,6 +164,25 @@ class TabulatedPlasticityContentResponse(BaseModel):
                 note=value.applicability_note,
             ),
             reference_temperature_k=value.reference_temperature_k,
+            calibration_projection=(
+                {
+                    "input_scope_id": value.calibration_input_scope_id,
+                    "input_scope_revision_id": value.calibration_input_scope_revision_id,
+                    "plan_id": value.voce_calibration_plan_id,
+                    "plan_revision_id": value.voce_calibration_plan_revision_id,
+                    "run_id": value.voce_calibration_run_id,
+                    "candidate_id": value.voce_calibration_candidate_id,
+                    "candidate_sha256": f"sha256:{value.voce_calibration_candidate_sha256}",
+                    "selection_id": value.voce_candidate_selection_id,
+                    "selection_revision_id": value.voce_candidate_selection_revision_id,
+                    "sigma_0_pa": value.initial_yield_stress_pa,
+                    "q_pa": value.q_pa,
+                    "b": value.b,
+                    "sampling_point_count": value.sampling_point_count,
+                }
+                if isinstance(value, ReferenceVoceTabulatedPlasticityContent)
+                else None
+            ),
             non_production=value.non_production,
         )
 
@@ -166,7 +196,8 @@ class TabulatedPlasticityProvenanceSummary(BaseModel):
     content_sha256: str
     based_on_revision_id: UUID | None
     source_property_set_revision_id: UUID
-    source_dataset_revision_id: UUID
+    source_dataset_revision_id: UUID | None
+    source_voce_selection_revision_id: UUID | None
     hardening_curve_artifact_id: UUID
     hardening_curve_sha256: str
     transformation_profile_digest: str
@@ -177,7 +208,8 @@ class TabulatedPlasticityProvenanceSummary(BaseModel):
     def from_record(
         cls,
         record: RevisionRecord,
-        content: ReferenceIsotropicTabulatedPlasticityContent,
+        content: ReferenceIsotropicTabulatedPlasticityContent
+        | ReferenceVoceTabulatedPlasticityContent,
     ) -> TabulatedPlasticityProvenanceSummary:
         reference_type = "modeling.material_model.revision"
         return cls(
@@ -187,7 +219,10 @@ class TabulatedPlasticityProvenanceSummary(BaseModel):
             content_sha256=record.content_hash,
             based_on_revision_id=record.based_on_revision_id,
             source_property_set_revision_id=content.property_set_revision_id,
-            source_dataset_revision_id=content.source_dataset_revision_id,
+            source_dataset_revision_id=getattr(content, "source_dataset_revision_id", None),
+            source_voce_selection_revision_id=getattr(
+                content, "voce_candidate_selection_revision_id", None
+            ),
             hardening_curve_artifact_id=content.hardening_curve_artifact_id,
             hardening_curve_sha256=content.hardening_curve_sha256,
             transformation_profile_digest=content.transformation_profile_digest,
@@ -211,10 +246,18 @@ class TabulatedPlasticityRevisionResponse(RevisionMetadataResponse):
         return cls(
             **metadata.model_dump(),
             content=TabulatedPlasticityContentResponse.from_domain(snapshot.content),
-            ir=reference_isotropic_tabulated_plasticity_ir(
-                material_model_id=material_model_id,
-                material_model_revision_id=snapshot.record.revision_id,
-                content=snapshot.content,
+            ir=(
+                reference_voce_tabulated_plasticity_ir(
+                    material_model_id=material_model_id,
+                    material_model_revision_id=snapshot.record.revision_id,
+                    content=snapshot.content,
+                )
+                if isinstance(snapshot.content, ReferenceVoceTabulatedPlasticityContent)
+                else reference_isotropic_tabulated_plasticity_ir(
+                    material_model_id=material_model_id,
+                    material_model_revision_id=snapshot.record.revision_id,
+                    content=snapshot.content,
+                )
             ),
             provenance=TabulatedPlasticityProvenanceSummary.from_record(
                 snapshot.record, snapshot.content

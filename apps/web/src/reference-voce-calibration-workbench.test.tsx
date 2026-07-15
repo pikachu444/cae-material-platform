@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ReferenceVoceCalibrationWorkbench } from "./reference-voce-calibration-workbench";
 import type { MaterialStateResponse, PropertySetResponse, ReferenceCalibrationScopeResponse } from "./types";
 
-const ids = Array.from({ length: 12 }, (_, index) => `a1000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`);
+const ids = Array.from({ length: 20 }, (_, index) => `a1000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`);
 
 function revision<T extends object>(id: string, aggregateId: string, content: T) {
   return {
@@ -28,6 +28,15 @@ function response(body: unknown, status = 201): Response {
     status,
     headers: new Headers({ "content-type": "application/json" }),
     json: async () => body,
+  } as Response;
+}
+
+function textResponse(body: string): Response {
+  return {
+    ok: true,
+    status: 200,
+    headers: new Headers({ "content-type": "text/plain" }),
+    text: async () => body,
   } as Response;
 }
 
@@ -101,6 +110,49 @@ describe("Reference Voce calibration workbench", () => {
         })),
       }],
     };
+    const selectionId = ids[12];
+    const selectionRevisionId = ids[13];
+    const modelId = ids[14];
+    const modelRevisionId = ids[15];
+    const cardId = ids[16];
+    const selection = {
+      voce_candidate_selection_id: selectionId,
+      current_revision: revision(selectionRevisionId, selectionId, {
+        selection_label: "Accepted Voce", voce_calibration_run_id: run.voce_calibration_run_id,
+        voce_calibration_candidate_id: ids[1], candidate_sha256: `sha256:${"c".repeat(64)}`,
+        selection_reason: "reviewed", selection_decision: "accepted_for_tabulated_ir_projection",
+        non_production: true,
+      }), links: {},
+    };
+    const model = {
+      material_model_id: modelId, material_state_id: state.material_state_id,
+      current_revision: revision(modelRevisionId, modelId, {
+        model_family_id: "urn:cmp:reference:isotropic-tabulated-plasticity:1.1.0",
+        model_schema_version: "1.1.0", model_schema_digest: "f".repeat(64),
+        material_id: state.material_id, material_revision_id: state.current_revision.content.material_revision_id,
+        material_state_id: state.material_state_id, material_state_revision_id: state.current_revision.id,
+        property_set_id: propertySet.property_set_id, property_set_revision_id: propertySet.current_revision.id,
+        source_dataset_id: null, source_dataset_revision_id: null, density_kg_per_m3: 7850,
+        youngs_modulus_pa: 210e9, poisson_ratio: 0.3, initial_yield_stress_pa: 301e6,
+        hardening_curve: { artifact_id: ids[17], sha256: "d".repeat(64), schema_ref: "curve", point_count: 52,
+          independent_quantity: "true_plastic_strain", independent_unit: "1", dependent_quantity: "true_yield_stress", dependent_unit: "Pa" },
+        source_point_count: null, pre_yield_excluded_point_count: null, post_necking_excluded_point_count: null,
+        necking_source_point_index: null, transformation_profile_id: "voce-grid", transformation_profile_version: "1.0.0",
+        transformation_profile_digest: "e".repeat(64), necking_engineering_strain: null,
+        characterized_max_true_plastic_strain: 0.18, extension_max_true_plastic_strain: 0.5,
+        post_necking_extension_policy: "approved_constant_true_stress", post_necking_approximation_acknowledged: true,
+        applicability: { temperature_min_k: null, temperature_max_k: null, strain_rate_min_per_s: null, strain_rate_max_per_s: null, note: null },
+        reference_temperature_k: 293.15, calibration_projection: { candidate_id: ids[1] }, non_production: true,
+      }), links: {},
+    };
+    const mapping = {
+      material_model_id: modelId, material_model_revision_id: modelRevisionId,
+      model_schema_digest: "f".repeat(64), target: { solver: "abaqus", version: "2025", unit_system: "kg_m_s" },
+      exportable: true, requires_acknowledgement: true, mapping_report_sha256: "m".repeat(64),
+      exporter_id: "cmp.reference.abaqus-isotropic-plasticity", exporter_version: "1.0.0", exporter_digest: "e".repeat(64),
+      items: [{ name: "isotropic_hardening_curve", ir_path: "/hardening", target_representation: "*PLASTIC", status: "exact", detail: "Mapped from the shared IR." }],
+      non_production: true,
+    };
     const fetchMock = vi.fn<typeof fetch>((input, init) => {
       const url = String(input);
       if (url.endsWith("/voce-calibration-plans") && init?.method === "POST") return Promise.resolve(response(plan));
@@ -118,6 +170,11 @@ describe("Reference Voce calibration workbench", () => {
           })),
         }, 200));
       }
+      if (url.endsWith("/voce-candidate-selections") && init?.method === "POST") return Promise.resolve(response(selection));
+      if (url.endsWith(`/voce-candidate-selections/${selectionId}/tabulated-plasticity-models`) && init?.method === "POST") return Promise.resolve(response(model));
+      if (url.endsWith(`/tabulated-plasticity-models/${modelId}/mapping-preflight`) && init?.method === "POST") return Promise.resolve(response(mapping, 200));
+      if (url.endsWith(`/tabulated-plasticity-models/${modelId}/solver-cards`) && init?.method === "POST") return Promise.resolve(response({ card: { solver_card_id: cardId }, mapping_report: mapping }));
+      if (url.endsWith(`/elastoplastic-solver-cards/${cardId}/preview`)) return Promise.resolve(textResponse("*MATERIAL, NAME=CALIBRATED_MATERIAL\n*PLASTIC"));
       return Promise.resolve(response({ detail: "unexpected" }, 404));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -130,6 +187,16 @@ describe("Reference Voce calibration workbench", () => {
     expect(screen.getByText(/3 curves · 3 starts/)).toBeTruthy();
     expect(screen.getAllByText(/objective 2.00000e-4/)).toHaveLength(3);
     expect(await screen.findByLabelText("Observed and fitted Voce curves")).toBeTruthy();
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    fireEvent.click(screen.getByRole("button", { name: "Accept this converged Candidate" }));
+    await screen.findByText(/Accepted Selection/);
+    fireEvent.click(screen.getByLabelText(/Acknowledge constant extension approximation/));
+    fireEvent.click(screen.getByRole("button", { name: "Create solver-neutral calibrated IR" }));
+    await screen.findByText(/IR a1000000/);
+    fireEvent.change(screen.getByLabelText("Target solver"), { target: { value: "abaqus" } });
+    fireEvent.click(screen.getByRole("button", { name: "Run mapping preflight" }));
+    await screen.findByText(/Mapped from the shared IR/);
+    fireEvent.click(screen.getByRole("button", { name: "Generate Abaqus .inp" }));
+    expect(await screen.findByText(/\*MATERIAL, NAME=CALIBRATED_MATERIAL/)).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledTimes(8);
   });
 });

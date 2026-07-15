@@ -1159,6 +1159,22 @@ export interface VoceCalibrationDiagnosticPreview {
   }>;
 }
 
+export interface VoceCandidateSelectionResponse {
+  voce_candidate_selection_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      selection_label: string;
+      voce_calibration_run_id: string;
+      voce_calibration_candidate_id: string;
+      candidate_sha256: string;
+      selection_reason: string;
+      selection_decision: "accepted_for_tabulated_ir_projection";
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
 export interface CalibrationCandidateSelectionContent {
   selection_label: string;
   calibration_run_id: string;
@@ -1774,27 +1790,42 @@ export interface TabulatedPlasticityContent {
   material_state_revision_id: string;
   property_set_id: string;
   property_set_revision_id: string;
-  source_dataset_id: string;
-  source_dataset_revision_id: string;
+  source_dataset_id: string | null;
+  source_dataset_revision_id: string | null;
   density_kg_per_m3: number;
   youngs_modulus_pa: number;
   poisson_ratio: number;
   initial_yield_stress_pa: number;
   hardening_curve: TabulatedPlasticityHardeningReference;
-  source_point_count: number;
-  pre_yield_excluded_point_count: number;
-  post_necking_excluded_point_count: number;
-  necking_source_point_index: number;
+  source_point_count: number | null;
+  pre_yield_excluded_point_count: number | null;
+  post_necking_excluded_point_count: number | null;
+  necking_source_point_index: number | null;
   transformation_profile_id: string;
   transformation_profile_version: string;
   transformation_profile_digest: string;
-  necking_engineering_strain: number;
+  necking_engineering_strain: number | null;
   characterized_max_true_plastic_strain: number;
   extension_max_true_plastic_strain: number;
   post_necking_extension_policy: "approved_constant_true_stress";
   post_necking_approximation_acknowledged: true;
   applicability: Applicability;
   reference_temperature_k: number;
+  calibration_projection: {
+    input_scope_id: string;
+    input_scope_revision_id: string;
+    plan_id: string;
+    plan_revision_id: string;
+    run_id: string;
+    candidate_id: string;
+    candidate_sha256: string;
+    selection_id: string;
+    selection_revision_id: string;
+    sigma_0_pa: number;
+    q_pa: number;
+    b: number;
+    sampling_point_count: number;
+  } | null;
   non_production: true;
 }
 
@@ -1805,7 +1836,8 @@ export interface TabulatedPlasticityProvenanceSummary {
   content_sha256: string;
   based_on_revision_id: string | null;
   source_property_set_revision_id: string;
-  source_dataset_revision_id: string;
+  source_dataset_revision_id: string | null;
+  source_voce_selection_revision_id: string | null;
   hardening_curve_artifact_id: string;
   hardening_curve_sha256: string;
   transformation_profile_digest: string;
@@ -1829,7 +1861,11 @@ export interface TabulatedPlasticityModelResponse {
 export interface HardeningCurvePoint {
   true_plastic_strain: number;
   true_yield_stress_pa: number;
-  origin: "catalog_yield_anchor" | "pre_necking_observation" | "approved_constant_extension";
+  origin:
+    | "catalog_yield_anchor"
+    | "pre_necking_observation"
+    | "calibrated_voce_sample"
+    | "approved_constant_extension";
 }
 
 export interface HardeningCurveResponse {

@@ -309,6 +309,22 @@ def _require(
         raise VoceCalibrationConflict("authorization decision does not match Voce request")
 
 
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise VoceCalibrationConflict("authorization decision lacks Voce read capability")
+
+
 class ReferenceVoceCalibrationService:
     def __init__(
         self,
@@ -728,3 +744,63 @@ class ReferenceVoceCalibrationService:
             sampled=len(returned) != len(points),
             points=returned,
         )
+
+    def get_candidate_for_projection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> VoceCalibrationCandidate:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_candidate(
+            context=context, decision=decision, candidate_id=candidate_id
+        )
+
+    def get_run_for_projection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> VoceCalibrationRun:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_run(context=context, decision=decision, run_id=run_id)
+
+    def get_plan_revision_for_projection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+        plan_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceVoceCalibrationPlanContent]:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_plan_revision(
+            context=context,
+            decision=decision,
+            plan_id=plan_id,
+            plan_revision_id=plan_revision_id,
+        )
+
+    async def read_candidate_diagnostics_for_projection(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> tuple[VoceDiagnosticPoint, ...]:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        candidate = self._repository.get_candidate(
+            context=context, decision=decision, candidate_id=candidate_id
+        )
+        artifact, value = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            candidate.diagnostics_artifact_id,
+            maximum_bytes=32 * 1024 * 1024,
+        )
+        if artifact.artifact.sha256 != candidate.diagnostics_sha256:
+            raise VoceCalibrationConflict("Candidate diagnostic digest does not match Artifact")
+        points = reference_voce_diagnostics_from_parquet(value)
+        if len(points) != candidate.diagnostics_point_count:
+            raise VoceCalibrationConflict(
+                "Candidate diagnostic point count does not match Artifact"
+            )
+        return points

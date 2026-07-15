@@ -113,10 +113,13 @@ def upgrade() -> None:
             AND missing_data_policy = 'reject' AND optimizer_method = 'trf'
             AND rng_algorithm = 'numpy.random.PCG64' AND non_production),
           CONSTRAINT ck_mdl_voce_plan_rev_numeric CHECK (
-            youngs_modulus_pa > 0 AND sigma_0_lower_pa > 0 AND sigma_0_lower_pa < sigma_0_initial_pa
-            AND sigma_0_initial_pa < sigma_0_upper_pa AND sigma_0_scale_pa > 0
-            AND q_lower_pa > 0 AND q_lower_pa < q_initial_pa AND q_initial_pa < q_upper_pa
-            AND q_scale_pa > 0 AND b_lower > 0 AND b_lower < b_initial AND b_initial < b_upper
+            youngs_modulus_pa > 0 AND sigma_0_lower_pa > 0 AND sigma_0_lower_pa <= sigma_0_initial_pa
+            AND sigma_0_initial_pa <= sigma_0_upper_pa AND sigma_0_lower_pa < sigma_0_upper_pa
+            AND sigma_0_scale_pa > 0
+            AND q_lower_pa > 0 AND q_lower_pa <= q_initial_pa AND q_initial_pa <= q_upper_pa
+            AND q_lower_pa < q_upper_pa AND q_scale_pa > 0
+            AND b_lower > 0 AND b_lower <= b_initial AND b_initial <= b_upper
+            AND b_lower < b_upper
             AND b_scale > 0 AND normalization_stress_scale_pa > 0
             AND multistart_count BETWEEN 1 AND 16 AND random_seed >= 0
             AND maximum_function_evaluations BETWEEN 10 AND 1000000

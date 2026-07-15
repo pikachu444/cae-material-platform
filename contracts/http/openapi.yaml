@@ -3377,6 +3377,79 @@ paths:
         "409": {description: Candidate digest or Artifact point count conflicts.}
         "422": {description: Preview bound or typed diagnostic Artifact data is invalid.}
         "503": {description: Voce calibration service unavailable.}
+  /api/v1/voce-candidate-selections:
+    post:
+      operationId: createReferenceVoceCandidateSelection
+      tags: [modeling, calibration]
+      summary: Record human acceptance of one converged multi-curve Voce Candidate.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/CreateSelectionRequest"}
+      responses:
+        "201":
+          description: Stable Voce Selection identity and immutable first decision revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Candidate lineage, convergence, or immutable state conflicts.}
+        "422": {description: Selection label or reason is invalid.}
+  /api/v1/voce-candidate-selections/{selection_id}:
+    get:
+      operationId: getReferenceVoceCandidateSelection
+      tags: [modeling, calibration]
+      summary: Read one current immutable human Voce Candidate Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Voce Candidate Selection revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: No visible Voce Candidate Selection matches.}
+  /api/v1/voce-candidate-selections/{selection_id}/tabulated-plasticity-models:
+    post:
+      operationId: projectSelectedReferenceVoceCandidate
+      tags: [modeling, calibration]
+      summary: Project an accepted Voce Candidate onto an explicit solver-neutral fixed grid.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-voce-candidate-projection-resources.schema.json#/$defs/ProjectRequest"}
+      responses:
+        "201":
+          description: Immutable calibrated tabulated-plasticity 1.1 IR revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/MaterialModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Selection, Candidate, Run, Plan, or Property lineage conflicts.}
+        "422": {description: Sampling grid or explicit extension acknowledgement is invalid.}
   /api/v1/calibration-candidate-selections:
     post:
       operationId: createReferenceCalibrationCandidateSelection

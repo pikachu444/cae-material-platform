@@ -22,6 +22,9 @@ from cmp.modules.modeling.adapters.persistence.tabulated_plasticity_repository i
 from cmp.modules.modeling.adapters.persistence.voce_calibration_repository import (
     SqlAlchemyVoceCalibrationRepository,
 )
+from cmp.modules.modeling.adapters.persistence.voce_candidate_selection_repository import (
+    SqlAlchemyVoceCandidateSelectionRepository,
+)
 from cmp.modules.modeling.application.calibration import ReferenceCalibrationService
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.service import MaterialModelService
@@ -30,6 +33,9 @@ from cmp.modules.modeling.application.tabulated_plasticity import (
 )
 from cmp.modules.modeling.application.voce_calibration import (
     ReferenceVoceCalibrationService,
+)
+from cmp.modules.modeling.application.voce_candidate_projection import (
+    VoceCandidateProjectionService,
 )
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
@@ -186,4 +192,43 @@ def build_candidate_selection_service(
         ),
         calibrations=calibrations,
         material_models=material_models,
+    )
+
+
+def build_voce_candidate_projection_service(
+    identity: IdentityServices,
+    calibrations: ReferenceVoceCalibrationService | None,
+    material_models: MaterialModelService | None,
+    artifacts: ArtifactService | None,
+) -> VoceCandidateProjectionService | None:
+    """Compose human Voce acceptance with the shared tabulated-IR persistence boundary."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or calibrations is None
+        or material_models is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    hooks = (
+        SqlInitialLifecycleHook(),
+        SqlAlchemyRevisionProvenanceHook(),
+        SqlAlchemyRevisionAuditHook(),
+    )
+    return VoceCandidateProjectionService(
+        selections=SqlAlchemyVoceCandidateSelectionRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=hooks,
+        ),
+        material_model_repository=SqlAlchemyTabulatedPlasticityRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=hooks,
+        ),
+        calibrations=calibrations,
+        material_models=material_models,
+        artifacts=artifacts,
     )

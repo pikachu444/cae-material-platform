@@ -18,6 +18,12 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     ReferenceIsotropicTabulatedPlasticityContent,
     validate_hardening_curve,
 )
+from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
+    REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
+    REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+    REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_VERSION,
+    ReferenceVoceTabulatedPlasticityContent,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 OPENRADIOSS_SOLVER = "openradioss"
@@ -41,6 +47,9 @@ MappingStatus = Literal[
     "unsupported",
     "not_applicable",
 ]
+type ExportableTabulatedPlasticityContent = (
+    ReferenceIsotropicTabulatedPlasticityContent | ReferenceVoceTabulatedPlasticityContent
+)
 
 _VALID_MAPPING_STATUSES = frozenset(
     {
@@ -237,6 +246,11 @@ class ElastoplasticMappingReport:
             expected is not None and expected != actual
         ):
             raise InvalidElastoplasticExport("mapping report exporter does not own the target")
+        if self.model_schema_digest not in {
+            REFERENCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+            REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+        }:
+            raise InvalidElastoplasticExport("mapping report model schema is not exportable")
         if not self.non_production:
             raise InvalidElastoplasticExport("reference mapping report must remain non-production")
 
@@ -384,7 +398,7 @@ def preflight_reference_elastoplastic_export(
     *,
     material_model_id: UUID,
     material_model_revision_id: UUID,
-    content: ReferenceIsotropicTabulatedPlasticityContent,
+    content: ExportableTabulatedPlasticityContent,
     target: ElastoplasticExportTarget,
 ) -> ElastoplasticMappingReport:
     exporter = _exporter_identity(target)
@@ -664,6 +678,11 @@ class ReferenceElastoplasticSolverCardContent:
             raise InvalidElastoplasticExport("card_text must contain 1..2000000 characters")
         if hashlib.sha256(self.card_text.encode("utf-8")).hexdigest() != self.card_sha256:
             raise InvalidElastoplasticExport("card_sha256 does not match UTF-8 card_text")
+        if self.model_schema_digest not in {
+            REFERENCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+            REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+        }:
+            raise InvalidElastoplasticExport("stored model schema is not exportable")
         if not self.non_production:
             raise InvalidElastoplasticExport("reference solver card must remain non-production")
 
@@ -730,7 +749,7 @@ def build_reference_elastoplastic_solver_card(
     *,
     material_model_id: UUID,
     material_model_revision_id: UUID,
-    source: ReferenceIsotropicTabulatedPlasticityContent,
+    source: ExportableTabulatedPlasticityContent,
     points: tuple[HardeningCurvePoint, ...],
     target: ElastoplasticExportTarget,
     expected_mapping_report_sha256: str,
@@ -815,6 +834,7 @@ def build_reference_elastoplastic_solver_card(
         exporter_id=report.exporter_id,
         exporter_version=report.exporter_version,
         exporter_digest=report.exporter_digest,
+        model_schema_digest=source.model_schema_digest,
     )
 
 
@@ -864,11 +884,20 @@ def validate_reference_elastoplastic_card_with_curve(
 def elastoplastic_exporter_capability_manifest() -> dict[str, object]:
     return {
         "non_production": True,
-        "model_family": {
-            "id": REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
-            "schema_version": REFERENCE_TABULATED_PLASTICITY_SCHEMA_VERSION,
-            "schema_digest": f"sha256:{REFERENCE_TABULATED_PLASTICITY_SCHEMA_DIGEST}",
-        },
+        "model_families": [
+            {
+                "id": REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
+                "schema_version": REFERENCE_TABULATED_PLASTICITY_SCHEMA_VERSION,
+                "schema_digest": f"sha256:{REFERENCE_TABULATED_PLASTICITY_SCHEMA_DIGEST}",
+                "origin": "single_tensile_reduction",
+            },
+            {
+                "id": REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
+                "schema_version": REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_VERSION,
+                "schema_digest": f"sha256:{REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST}",
+                "origin": "accepted_multi_curve_voce_candidate",
+            },
+        ],
         "exporters": [
             {
                 "id": OPENRADIOSS_LAW36_EXPORTER_ID,

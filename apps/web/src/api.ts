@@ -11,6 +11,7 @@ import type {
   VoceCalibrationPlanResponse,
   VoceCalibrationDiagnosticPreview,
   VoceCalibrationRunResponse,
+  VoceCandidateSelectionResponse,
   CurvePreview,
   DatasetSelectionResponse,
   TensileReplicateSelectionResponse,
@@ -455,6 +456,40 @@ export function previewReferenceVoceCalibrationDiagnostics(
   return request(
     config,
     `/voce-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics-preview?maximum_points=${maximumPoints}`,
+  );
+}
+
+export function createReferenceVoceCandidateSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    voce_calibration_run_id: string;
+    voce_calibration_candidate_id: string;
+    selection_reason: string;
+  },
+): Promise<ApiResult<VoceCandidateSelectionResponse>> {
+  return request(config, "/voce-candidate-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function projectSelectedReferenceVoceCandidate(
+  config: ApiConfig,
+  selectionId: string,
+  input: {
+    selection_revision_id: string;
+    sampling_point_count: number;
+    extension_max_true_plastic_strain: number;
+    acknowledge_constant_extension: boolean;
+    change_reason: string;
+  },
+): Promise<ApiResult<TabulatedPlasticityModelResponse>> {
+  return request(
+    config,
+    `/voce-candidate-selections/${encodeURIComponent(selectionId)}/tabulated-plasticity-models`,
+    { method: "POST", body: JSON.stringify(input) },
   );
 }
 
