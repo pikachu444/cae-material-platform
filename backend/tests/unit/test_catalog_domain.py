@@ -6,9 +6,12 @@ import pytest
 from cmp.modules.catalog.domain.model import (
     Applicability,
     InvalidCatalogCommand,
+    MaterialClass,
+    MaterialContent,
     PropertySetContent,
     PropertySource,
     PropertySourceKind,
+    material_canonical,
     property_set_canonical,
 )
 
@@ -18,6 +21,19 @@ STATE_REVISION = UUID("c7000000-0000-4000-8000-000000000002")
 
 def _source() -> PropertySource:
     return PropertySource(PropertySourceKind.MANUAL)
+
+
+def test_material_class_is_explicit_canonical_routing_metadata() -> None:
+    legacy = MaterialContent("Legacy material")
+    steel = MaterialContent(
+        "Reference steel",
+        material_code="REF-STEEL",
+        material_family="steel",
+        material_class=MaterialClass.METAL,
+    )
+
+    assert material_canonical(legacy)["material_class"] == "unclassified"
+    assert material_canonical(steel)["material_class"] == "metal"
 
 
 def test_initial_property_set_is_typed_si_content_not_a_generic_attribute_map() -> None:

@@ -19,6 +19,7 @@ import {
   preflightSolverCardMapping,
   previewSolverCard,
   requestLocalDemoAccessToken,
+  reviseMaterial,
   revisePropertySet,
   saveApiConfig,
 } from "./api";
@@ -33,6 +34,7 @@ import type {
   DataClassification,
   ExportTarget,
   MaterialDetail,
+  MaterialClass,
   MaterialModelResponse,
   MaterialResponse,
   MaterialRevision,
@@ -58,6 +60,15 @@ const sourceKinds: PropertySourceKind[] = [
   "test_derived",
   "literature",
   "calibration",
+];
+
+const materialClasses: MaterialClass[] = [
+  "metal",
+  "polymer",
+  "elastomer",
+  "composite",
+  "ceramic",
+  "other",
 ];
 
 function useLocationPath(): [string, Navigate] {
@@ -424,6 +435,9 @@ function MaterialRow({ material, navigate }: { material: MaterialResponse; navig
         <strong>{content.name}</strong>
         <small>{content.material_code ?? content.material_family ?? "Unclassified material"}</small>
       </span>
+      <span className={`material-class-chip ${content.material_class}`}>
+        {content.material_class.replaceAll("_", " ")}
+      </span>
       <span className="revision-chip">r{material.current_revision.revision_no}</span>
       <span className="material-chevron">›</span>
     </button>
@@ -440,17 +454,18 @@ function MaterialListPage({
   onOpenConnection: () => void;
 }) {
   const [query, setQuery] = useState("");
+  const [materialClass, setMaterialClass] = useState<MaterialClass | "">("");
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = (nextQuery: string) => {
+  const load = (nextQuery: string, nextClass = materialClass) => {
     if (!config.accessToken.trim()) {
       return;
     }
     setLoading(true);
     setError(null);
-    void listMaterials(config, nextQuery)
+    void listMaterials(config, nextQuery, nextClass)
       .then((result) => setMaterials(result.data.items))
       .catch((reason: unknown) => setError(errorMessage(reason)))
       .finally(() => setLoading(false));
@@ -468,7 +483,7 @@ function MaterialListPage({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    load(query);
+    load(query, materialClass);
   }
 
   return (
@@ -492,6 +507,19 @@ function MaterialListPage({
               onChange={(event) => setQuery(event.target.value)}
               placeholder="e.g. DP780, aluminum, PA6"
             />
+          </label>
+          <label>
+            Material class
+            <select
+              value={materialClass}
+              onChange={(event) => setMaterialClass(event.target.value as MaterialClass | "")}
+            >
+              <option value="">All classes</option>
+              <option value="unclassified">unclassified</option>
+              {materialClasses.map((value) => (
+                <option key={value} value={value}>{value}</option>
+              ))}
+            </select>
           </label>
           <button className="button secondary" type="submit">
             Search
@@ -524,6 +552,7 @@ function MaterialCreatePage({
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [family, setFamily] = useState("");
+  const [materialClass, setMaterialClass] = useState<MaterialClass | "">("");
   const [description, setDescription] = useState("");
   const [classification, setClassification] = useState<DataClassification>("internal");
   const [reason, setReason] = useState("Initial Material catalog entry");
@@ -536,6 +565,10 @@ function MaterialCreatePage({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!materialClass) {
+      setError("Select a Material class before creating the immutable revision.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -546,6 +579,7 @@ function MaterialCreatePage({
           material_code: blankToNull(code),
           material_family: blankToNull(family),
           description: blankToNull(description),
+          material_class: materialClass,
         },
         change_reason: reason.trim(),
       });
@@ -583,6 +617,19 @@ function MaterialCreatePage({
             <label>
               Material family
               <input value={family} onChange={(event) => setFamily(event.target.value)} placeholder="Optional" />
+            </label>
+            <label>
+              Material class
+              <select
+                value={materialClass}
+                onChange={(event) => setMaterialClass(event.target.value as MaterialClass | "")}
+                required
+              >
+                <option value="" disabled>Select a governed class</option>
+                {materialClasses.map((value) => (
+                  <option key={value} value={value}>{value}</option>
+                ))}
+              </select>
             </label>
             <label>
               Classification
@@ -634,6 +681,7 @@ function MaterialDetailPage({
 }) {
   const [detail, setDetail] = useState<MaterialDetail | null>(null);
   const [revisions, setRevisions] = useState<MaterialRevision[]>([]);
+  const [materialEtag, setMaterialEtag] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -646,6 +694,7 @@ function MaterialDetailPage({
     void Promise.all([getMaterialDetail(config, materialId), getMaterialRevisions(config, materialId)])
       .then(([detailResult, revisionResult]) => {
         setDetail(detailResult.data);
+        setMaterialEtag(detailResult.etag);
         setRevisions(revisionResult.data.revisions);
       })
       .catch((reason: unknown) => setError(errorMessage(reason)))
@@ -689,6 +738,9 @@ function MaterialDetailPage({
           </button>
           <p className="eyebrow">Material / {current.classification.replaceAll("_", " ")}</p>
           <h1>{current.content.name}</h1>
+          <span className={`material-class-chip ${current.content.material_class}`}>
+            {current.content.material_class.replaceAll("_", " ")}
+          </span>
           <p className="detail-subtitle">
             {[current.content.material_code, current.content.material_family].filter(Boolean).join(" · ") ||
               "Material catalog entry"}
@@ -703,6 +755,13 @@ function MaterialDetailPage({
         </div>
       </section>
       {error ? <ErrorNotice message={error} /> : null}
+      <MaterialRevisionEditor
+        key={current.id}
+        config={config}
+        material={material}
+        etag={materialEtag}
+        onSaved={reload}
+      />
       <section className="detail-grid">
         <article className="content-card provenance-card">
           <p className="eyebrow">Provenance summary</p>
@@ -748,6 +807,100 @@ function MaterialDetailPage({
         onCreated={reload}
       />
     </div>
+  );
+}
+
+function MaterialRevisionEditor({
+  config,
+  material,
+  etag,
+  onSaved,
+}: {
+  config: ApiConfig;
+  material: MaterialResponse;
+  etag: string | null;
+  onSaved: () => void;
+}) {
+  const current = material.current_revision.content;
+  const [open, setOpen] = useState(current.material_class === "unclassified");
+  const [name, setName] = useState(current.name);
+  const [code, setCode] = useState(current.material_code ?? "");
+  const [family, setFamily] = useState(current.material_family ?? "");
+  const [description, setDescription] = useState(current.description ?? "");
+  const [materialClass, setMaterialClass] = useState<MaterialClass | "">(
+    current.material_class === "unclassified" ? "" : current.material_class,
+  );
+  const [reason, setReason] = useState(
+    current.material_class === "unclassified"
+      ? "Classify legacy Material without changing prior revisions"
+      : "Revise Material metadata",
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!etag || !materialClass) {
+      setError("A current revision ETag and explicit Material class are required.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await reviseMaterial(config, material.material_id, etag, {
+        content: {
+          name: name.trim(),
+          material_code: blankToNull(code),
+          material_family: blankToNull(family),
+          description: blankToNull(description),
+          material_class: materialClass,
+        },
+        change_reason: reason.trim(),
+      });
+      setOpen(false);
+      onSaved();
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button className="button secondary" type="button" onClick={() => setOpen(true)}>
+        Revise Material metadata
+      </button>
+    );
+  }
+
+  return (
+    <section className="content-card">
+      <p className="eyebrow">Append-only Material revision</p>
+      <h2>{current.material_class === "unclassified" ? "Classify this Material" : "Revise metadata"}</h2>
+      <p className="muted">The current and earlier revisions remain immutable.</p>
+      <form className="form-stack" onSubmit={submit}>
+        <div className="form-grid">
+          <label>Material name<input value={name} onChange={(event) => setName(event.target.value)} required /></label>
+          <label>Material code<input value={code} onChange={(event) => setCode(event.target.value)} /></label>
+          <label>Material family<input value={family} onChange={(event) => setFamily(event.target.value)} /></label>
+          <label>
+            Material class
+            <select value={materialClass} onChange={(event) => setMaterialClass(event.target.value as MaterialClass | "")} required>
+              <option value="" disabled>Select a governed class</option>
+              {materialClasses.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+          </label>
+        </div>
+        <label>Description<textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} /></label>
+        <label>Change reason<input value={reason} onChange={(event) => setReason(event.target.value)} required /></label>
+        {error ? <ErrorNotice message={error} /> : null}
+        <div className="form-actions">
+          <button className="button secondary" type="button" onClick={() => setOpen(false)}>Cancel</button>
+          <button className="button primary" type="submit" disabled={saving}>{saving ? "Saving…" : "Append revision"}</button>
+        </div>
+      </form>
+    </section>
   );
 }
 

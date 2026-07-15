@@ -33,6 +33,7 @@ from cmp.modules.catalog.domain.model import (
     CatalogConflict,
     CatalogError,
     CatalogNotFound,
+    MaterialClass,
     MaterialContent,
     MaterialStateContent,
     PropertySetContent,
@@ -70,13 +71,17 @@ class MaterialContentInput(BaseModel):
     material_code: Annotated[str | None, StringConstraints(min_length=1, max_length=100)] = None
     material_family: Annotated[str | None, StringConstraints(min_length=1, max_length=100)] = None
     description: Annotated[str | None, StringConstraints(min_length=1, max_length=4000)] = None
+    material_class: MaterialClass | None = None
 
-    def to_domain(self) -> MaterialContent:
+    def to_domain(
+        self, default_class: MaterialClass = MaterialClass.UNCLASSIFIED
+    ) -> MaterialContent:
         return MaterialContent(
             name=self.name,
             material_code=self.material_code,
             material_family=self.material_family,
             description=self.description,
+            material_class=self.material_class or default_class,
         )
 
 
@@ -211,6 +216,8 @@ class PropertySetReviseRequest(BaseModel):
 
 
 class MaterialContentResponse(MaterialContentInput):
+    material_class: MaterialClass
+
     @classmethod
     def from_domain(cls, content: MaterialContent) -> MaterialContentResponse:
         return cls(
@@ -218,6 +225,7 @@ class MaterialContentResponse(MaterialContentInput):
             material_code=content.material_code,
             material_family=content.material_family,
             description=content.description,
+            material_class=content.material_class,
         )
 
 
@@ -662,13 +670,20 @@ def install_catalog_api(
     def list_materials(
         request: Request,
         q: Annotated[str | None, Query(max_length=200)] = None,
+        material_class: MaterialClass | None = None,
         limit: Annotated[int, Query(ge=1, le=100)] = 50,
     ) -> MaterialListResponse:
         context, decision = _scope(request)
         if service is None:
             raise _unavailable(context)
         try:
-            values = service.list_materials(context, decision, query=q, limit=limit)
+            values = service.list_materials(
+                context,
+                decision,
+                query=q,
+                material_class=material_class,
+                limit=limit,
+            )
         except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
             raise _translate(context, error) from error
         return MaterialListResponse(
@@ -785,7 +800,11 @@ def install_catalog_api(
                 context,
                 decision,
                 material_id,
-                ReviseMaterial(expected, body.content.to_domain(), body.change_reason),
+                ReviseMaterial(
+                    expected,
+                    body.content.to_domain(current.current.content.material_class),
+                    body.change_reason,
+                ),
             )
         except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
             raise _translate(context, error) from error

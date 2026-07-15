@@ -25,6 +25,7 @@ import type {
   MaterialModelResponse,
   MaterialResponse,
   MaterialRevisionComparison,
+  MaterialReviseInput,
   MaterialRevisionList,
   MaterialStateCreateInput,
   MaterialStateResponse,
@@ -243,10 +244,14 @@ export async function requestLocalDemoAccessToken(
 export function listMaterials(
   config: ApiConfig,
   query: string,
+  materialClass?: string,
 ): Promise<ApiResult<{ items: MaterialResponse[] }>> {
   const search = new URLSearchParams({ limit: "50" });
   if (query.trim()) {
     search.set("q", query.trim());
+  }
+  if (materialClass) {
+    search.set("material_class", materialClass);
   }
   return request(config, `/materials?${search.toString()}`);
 }
@@ -287,6 +292,19 @@ export function createMaterial(
 ): Promise<ApiResult<MaterialResponse>> {
   return request(config, "/materials", {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseMaterial(
+  config: ApiConfig,
+  materialId: string,
+  etag: string,
+  input: MaterialReviseInput,
+): Promise<ApiResult<MaterialResponse>> {
+  return request(config, `/materials/${encodeURIComponent(materialId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
     body: JSON.stringify(input),
   });
 }

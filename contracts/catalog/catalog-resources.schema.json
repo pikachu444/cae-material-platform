@@ -41,12 +41,13 @@
     "MaterialContent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "material_code", "material_family", "description"],
+      "required": ["name", "material_code", "material_family", "description", "material_class"],
       "properties": {
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
         "material_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
         "material_family": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
-        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000},
+        "material_class": {"$ref": "#/$defs/MaterialClass"}
       }
     },
     "MaterialContentInput": {
@@ -57,8 +58,18 @@
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
         "material_code": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
         "material_family": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
-        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000},
+        "material_class": {
+          "anyOf": [
+            {"$ref": "#/$defs/MaterialClass"},
+            {"type": "null"}
+          ]
+        }
       }
+    },
+    "MaterialClass": {
+      "type": "string",
+      "enum": ["unclassified", "metal", "polymer", "elastomer", "composite", "ceramic", "other"]
     },
     "MaterialStateContent": {
       "type": "object",
