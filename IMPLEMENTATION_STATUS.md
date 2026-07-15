@@ -18,11 +18,14 @@ Foundation version: `0.27.0`
 - `T-06`: framework-free aggregate revision kernel, explicit typed-table SQLAlchemy adapter,
   PostgreSQL/Alembic immutability and tenant primitives, initial lifecycle event/projection,
   strong ETag and revision metadata contracts
-- `T-07` MVP subset: Material and Material State stable identities separated from immutable typed
+- `T-07` expanded vertical: Material and Material State stable identities separated from immutable typed
   revisions; explicit SI density/Young's modulus/Poisson ratio/optional yield property columns,
   per-value source and applicability; search/detail/history/compare APIs; provenance/audit/lifecycle
-  hooks; PostgreSQL composite tenant/classification FKs, indexes, and forced RLS. Process/Lot/Batch
-  genealogy remains outside this subset.
+  hooks; PostgreSQL composite tenant/classification FKs, indexes, and forced RLS. Typed Process
+  Definition, Material Lot/Batch, and State Genealogy identities now have append-only revisions;
+  genealogy revisions pin exact State, Process, and Lot revisions with role/scope/material guards,
+  protected APIs, and a connected Material State UI. Full process-run input/output graphs,
+  lot split/merge, and multi-lot acceptance remain outside this bounded subset.
 - `T-08` reference subset: explicit Specimen, reference uniaxial tensile Test Method, and Test Run
   stable identities with immutable typed revisions; a Test Run pins concrete Specimen/Test Method
   revisions, a State-specific specimen code, optional test temperature/crosshead speed, protected

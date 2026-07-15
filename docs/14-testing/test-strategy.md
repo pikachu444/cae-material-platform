@@ -646,3 +646,17 @@ failures, a successful production frontend build, and 64/64 PostgreSQL marker te
 isolated Compose PostgreSQL 16 service. Live verification promoted one reviewed Candidate to
 revision 2 of the same model, generated an Abaqus card from that exact revision, and matched the
 downloaded bytes to the persisted card SHA-256.
+# T-07 Catalog genealogy verification
+
+The bounded Process/Lot/State Genealogy vertical is verified at four layers:
+
+- domain tests reject an empty genealogy and identity/revision half-pairs;
+- API tests prove that selected Process and Lot revision IDs, never `latest`, cross the HTTP
+  contract;
+- PostgreSQL tests create and revise the full Material -> State -> Process/Lot -> Genealogy graph,
+  verify forced RLS, tenant isolation, composite scoped foreign keys, and immutable-row triggers;
+- frontend tests prove that visible governed selections submit the exact revision IDs returned by
+  the API.
+
+Future full T-07 fixtures must add multi-lot acceptance, split/merge, Process Run input/output,
+cycle rejection, and material-balance cases without weakening these revision-pinning regressions.

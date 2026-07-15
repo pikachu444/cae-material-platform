@@ -23,6 +23,25 @@ LAW62의 incompressibility는 ν=0.495로 근사되므로 mapping report에 `app
 docker compose -f deploy/compose/docker-compose.demo.yml up --build
 ```
 
+### Material genealogy (Process / Lot / Batch)
+
+Material State 화면의 **Catalog genealogy** 영역에서는 제조 공정, 열처리 공정, Lot/Batch를
+별도 관리 레코드로 등록하고 연결할 수 있습니다. 각 레코드는 고정 ID와 변경 불가능한
+revision을 따로 가지며, State genealogy는 화면에 보이는 최신 값을 암묵적으로 참조하지 않고
+선택 당시의 정확한 State/Process/Lot revision을 저장합니다. 기존 State의 자유 텍스트 route,
+heat treatment, lot 필드는 과거 입력과 출처 보존을 위해 그대로 유지됩니다.
+
+사용 순서는 다음과 같습니다.
+
+1. Material과 Material State를 생성합니다.
+2. State 카드에서 Process 또는 Lot/Batch revision 1을 등록합니다.
+3. 제조 공정, 열처리 공정, Lot/Batch를 선택하고 **Establish genealogy**를 실행합니다.
+4. 이후 연결을 고치면 기존 연결을 덮어쓰지 않고 새 genealogy revision이 추가됩니다.
+
+현재는 단일 State에 제조 공정 1개, 열처리 공정 1개, Lot/Batch 1개를 고정하는 bounded
+T-07 범위입니다. 공정 run의 입력·출력, lot split/merge, multi-lot acceptance, ERP 연동은
+후속 범위입니다.
+
 [http://127.0.0.1:5173](http://127.0.0.1:5173)에서 **Connected token → Use local demo
 identity → Save connection**을 선택합니다. 개발·migration·테스트 상세는
 [DEVELOPMENT.md](DEVELOPMENT.md)에 분리되어 있습니다.
