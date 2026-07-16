@@ -14,6 +14,7 @@
 5. [Revision, provenance와 다운로드 이해](05-revisions-downloads.md)
 6. [Process Run과 Specimen source Lot 연결](06-process-run-genealogy.md)
 7. [시험 Campaign·장비 교정·실행 조건 고정](07-test-execution-context.md)
+8. [CSV/TSV/XLSX 시험 데이터 승인과 Dataset 생성](08-governed-tabular-import.md)
 
 ## 현재 할 수 있는 일
 
@@ -21,7 +22,7 @@
 - Process Definition, Lot/Batch와 State genealogy 연결
 - Process Run의 consumed/produced Lot split·merge와 Specimen source Lot exact-pin
 - Test Campaign, 표준 적합성, Instrument 교정과 typed 실행 조건의 exact Test Run Context
-- 인장 또는 shear-relaxation CSV 원본 등록과 명시적 column/unit mapping
+- CSV/TSV/XLSX 원본 등록, 안전 preview, reusable Profile 승인과 명시적 column/unit mapping
 - raw, normalized, processed Dataset과 curve 확인
 - 반복 인장 curve의 alignment/statistics/outlier assessment
 - reference Voce 또는 two-term Prony automatic fitting과 수동 IR 입력
@@ -31,8 +32,7 @@
 
 ## 아직 제한된 일
 
-- CSV 외 일반 XLSX/TSV와 laboratory vendor format
-- Test Campaign, Instrument calibration과 완전한 condition snapshot
+- proprietary laboratory vendor format과 임의 channel schema
 - 점탄성 반복시험 통계, 온도 shift와 master curve
 - promoted IR을 다시 보정하는 iterative promotion
 - 여러 Dataset/IR/Card를 한 ZIP으로 받는 Bulk Export Bundle
@@ -46,6 +46,8 @@
 ![Material 상세와 immutable revision](../15-demo/images/e2e-material-detail.png)
 
 ![시험 데이터와 processing workflow](../15-demo/images/e2e-shear-workflow.png)
+
+![Governed CSV/TSV/XLSX import 작업대](../15-demo/images/governed-tabular-import.png)
 
 문제가 생기면 먼저 브라우저의 Connection 상태, Material class, exact State/Property revision,
 CSV column/unit, mapping report의 `unsupported` 또는 `approximated` 항목을 확인하십시오.

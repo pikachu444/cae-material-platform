@@ -859,6 +859,17 @@ disposable PostgreSQL 16 DSN enabled, the CI-equivalent suite passed 553 Python 
 skips or failures, 28 Vitest tests, ruff, mypy over 469 source files, architecture and contract
 checks, OpenAPI compatibility and the production Vite build. T-39 then added migration 049 and the
 connected Process Run/Lot/Specimen source workflow. T-40 added migration 050 and the exact
-Campaign/Instrument/Calibration/Condition execution-context workflow. The next implementation
-unit is T-41.
+Campaign/Instrument/Calibration/Condition execution-context workflow. T-41 adds migration 051 and
+an end-to-end governed CSV/TSV/XLSX intake: immutable source Artifact, explicit `needs_input`
+preview, human-approved reusable Import Profile revision, terminal exact-pinned Import Run and
+separate raw/normalized SI Dataset revisions. CSV/TSV locale and XLSX sheet/formula/macro/external
+link/decompression constraints are explicit; force/displacement derivation requires pinned
+geometry. The next implementation unit is T-42 viscoelastic replicate/TTS/master-curve processing.
+
+T-41 verification on 2026-07-16: migration 051 completed an upgrade/downgrade/re-upgrade round trip
+on disposable PostgreSQL 16. The CI-equivalent gate passed 576 Python tests with zero skips or
+failures, 32 Vitest tests, ruff, mypy over 486 source files, architecture and contract lint,
+OpenAPI compatibility and the production Vite build; clean npm install/audit reported zero
+vulnerabilities. Live protected API execution imported nine synthetic tensile rows into distinct
+raw and normalized revisions, and the connected browser workbench reported no warning/error.
 

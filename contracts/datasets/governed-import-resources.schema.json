@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/datasets/governed-import-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "FileFormat": {"enum": ["csv", "tsv", "xlsx"]},
+    "DataSchema": {"enum": ["monotonic_tension", "monotonic_compression", "planar_tension", "biaxial_tension", "simple_shear", "shear_relaxation"]},
+    "Quantity": {"enum": ["engineering_strain", "engineering_stress", "shear_strain", "shear_stress", "time", "shear_modulus", "displacement", "force"]},
+    "RevisionMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id", "schema_version", "content_hash", "created_at", "created_by", "change_reason", "organization_id", "project_id", "classification", "lifecycle_state"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"}, "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string"}, "schema_version": {"type": "string"},
+        "content_hash": {"$ref": "#/$defs/Sha256"}, "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"}, "change_reason": {"type": "string"},
+        "organization_id": {"$ref": "#/$defs/Uuid"}, "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"}, "lifecycle_state": {"const": "draft"}
+      }
+    },
+    "ChannelInput": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ordinal", "source_column", "source_quantity", "original_unit", "axis_role"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 1},
+        "source_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "source_quantity": {"$ref": "#/$defs/Quantity"}, "original_unit": {"type": "string", "minLength": 1, "maxLength": 32},
+        "axis_role": {"enum": ["independent", "dependent"]}
+      }
+    },
+    "ChannelResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ordinal", "source_column", "source_quantity", "original_unit", "axis_role", "normalized_quantity", "normalized_unit"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 1},
+        "source_column": {"type": "string", "minLength": 1, "maxLength": 255},
+        "source_quantity": {"$ref": "#/$defs/Quantity"}, "original_unit": {"type": "string", "minLength": 1, "maxLength": 32},
+        "axis_role": {"enum": ["independent", "dependent"]},
+        "normalized_quantity": {"$ref": "#/$defs/Quantity"}, "normalized_unit": {"type": "string", "minLength": 1, "maxLength": 32}
+      }
+    },
+    "ProfileContentInput": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profile_label", "data_schema", "file_format", "header_row", "encoding", "delimiter", "decimal_separator", "channels", "approval_kind"],
+      "properties": {
+        "profile_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "data_schema": {"$ref": "#/$defs/DataSchema"}, "file_format": {"$ref": "#/$defs/FileFormat"},
+        "sheet_name": {"type": ["string", "null"], "maxLength": 255},
+        "header_row": {"type": "integer", "minimum": 1, "maximum": 100},
+        "encoding": {"enum": ["utf-8", "utf-8-sig", "binary"]},
+        "delimiter": {"type": ["string", "null"], "maxLength": 1},
+        "decimal_separator": {"enum": [".", ","]},
+        "channels": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/ChannelInput"}},
+        "initial_gauge_length_m": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "initial_cross_section_area_m2": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "approval_kind": {"const": "human_confirmed"}
+      }
+    },
+    "ProfileContentResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profile_label", "data_schema", "file_format", "sheet_name", "header_row", "encoding", "delimiter", "decimal_separator", "channels", "initial_gauge_length_m", "initial_cross_section_area_m2", "approval_kind", "profile_sha256"],
+      "properties": {
+        "profile_label": {"type": "string"}, "data_schema": {"$ref": "#/$defs/DataSchema"}, "file_format": {"$ref": "#/$defs/FileFormat"},
+        "sheet_name": {"type": ["string", "null"]}, "header_row": {"type": "integer"}, "encoding": {"type": "string"},
+        "delimiter": {"type": ["string", "null"]}, "decimal_separator": {"type": "string"},
+        "channels": {"type": "array", "items": {"$ref": "#/$defs/ChannelResponse"}},
+        "initial_gauge_length_m": {"type": ["number", "null"]}, "initial_cross_section_area_m2": {"type": ["number", "null"]},
+        "approval_kind": {"const": "human_confirmed"}, "profile_sha256": {"$ref": "#/$defs/Sha256"}
+      }
+    },
+    "CreateProfileRequest": {
+      "type": "object", "additionalProperties": false, "required": ["classification", "content", "change_reason"],
+      "properties": {"classification": {"$ref": "#/$defs/Classification"}, "content": {"$ref": "#/$defs/ProfileContentInput"}, "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}}
+    },
+    "ReviseProfileRequest": {
+      "type": "object", "additionalProperties": false, "required": ["expected_current_revision_id", "content", "change_reason"],
+      "properties": {"expected_current_revision_id": {"$ref": "#/$defs/Uuid"}, "content": {"$ref": "#/$defs/ProfileContentInput"}, "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}}
+    },
+    "ProfileResponse": {
+      "type": "object", "additionalProperties": false, "required": ["import_profile_id", "current_revision", "content"],
+      "properties": {"import_profile_id": {"$ref": "#/$defs/Uuid"}, "current_revision": {"$ref": "#/$defs/RevisionMetadata"}, "content": {"$ref": "#/$defs/ProfileContentResponse"}}
+    },
+    "ProfileListResponse": {"type": "object", "additionalProperties": false, "required": ["items"], "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ProfileResponse"}}}},
+    "PreviewRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["raw_asset_id", "raw_artifact_id", "file_format", "header_row", "encoding", "decimal_separator"],
+      "properties": {"raw_asset_id": {"$ref": "#/$defs/Uuid"}, "raw_artifact_id": {"$ref": "#/$defs/Uuid"}, "file_format": {"$ref": "#/$defs/FileFormat"}, "sheet_name": {"type": ["string", "null"]}, "header_row": {"type": "integer", "minimum": 1, "maximum": 100}, "encoding": {"type": "string"}, "delimiter": {"type": ["string", "null"]}, "decimal_separator": {"enum": [".", ","]}}
+    },
+    "PreviewResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["preview_report_id", "classification", "raw_asset_id", "raw_artifact_id", "raw_sha256", "file_format", "sheet_names", "selected_sheet_name", "header_row", "encoding", "delimiter", "decimal_separator", "header_columns", "sample_rows", "status", "report_sha256"],
+      "properties": {"preview_report_id": {"$ref": "#/$defs/Uuid"}, "classification": {"$ref": "#/$defs/Classification"}, "raw_asset_id": {"$ref": "#/$defs/Uuid"}, "raw_artifact_id": {"$ref": "#/$defs/Uuid"}, "raw_sha256": {"$ref": "#/$defs/Sha256"}, "file_format": {"$ref": "#/$defs/FileFormat"}, "sheet_names": {"type": "array", "items": {"type": "string"}}, "selected_sheet_name": {"type": ["string", "null"]}, "header_row": {"type": "integer"}, "encoding": {"type": "string"}, "delimiter": {"type": ["string", "null"]}, "decimal_separator": {"type": "string"}, "header_columns": {"type": "array", "items": {"type": "string"}}, "sample_rows": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}}, "status": {"const": "needs_input"}, "report_sha256": {"$ref": "#/$defs/Sha256"}}
+    },
+    "ImportRunRequest": {
+      "type": "object", "additionalProperties": false, "required": ["test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id", "import_profile_id", "import_profile_revision_id", "change_reason"],
+      "properties": {"test_run_id": {"$ref": "#/$defs/Uuid"}, "test_run_revision_id": {"$ref": "#/$defs/Uuid"}, "raw_asset_id": {"$ref": "#/$defs/Uuid"}, "raw_artifact_id": {"$ref": "#/$defs/Uuid"}, "import_profile_id": {"$ref": "#/$defs/Uuid"}, "import_profile_revision_id": {"$ref": "#/$defs/Uuid"}, "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}}
+    },
+    "ImportRunResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["import_run_id", "classification", "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id", "import_profile_id", "import_profile_revision_id", "profile_sha256", "status", "started_at", "finished_at", "raw_dataset_id", "raw_dataset_revision_id", "normalized_dataset_id", "normalized_dataset_revision_id", "row_count", "failure_code", "failure_detail"],
+      "properties": {"import_run_id": {"$ref": "#/$defs/Uuid"}, "classification": {"$ref": "#/$defs/Classification"}, "test_run_id": {"$ref": "#/$defs/Uuid"}, "test_run_revision_id": {"$ref": "#/$defs/Uuid"}, "raw_asset_id": {"$ref": "#/$defs/Uuid"}, "raw_artifact_id": {"$ref": "#/$defs/Uuid"}, "import_profile_id": {"$ref": "#/$defs/Uuid"}, "import_profile_revision_id": {"$ref": "#/$defs/Uuid"}, "profile_sha256": {"$ref": "#/$defs/Sha256"}, "status": {"enum": ["executing", "succeeded", "failed"]}, "started_at": {"type": "string", "format": "date-time"}, "finished_at": {"type": ["string", "null"], "format": "date-time"}, "raw_dataset_id": {"type": ["string", "null"], "format": "uuid"}, "raw_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"}, "normalized_dataset_id": {"type": ["string", "null"], "format": "uuid"}, "normalized_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"}, "row_count": {"type": ["integer", "null"]}, "failure_code": {"type": ["string", "null"]}, "failure_detail": {"type": ["string", "null"]}}
+    },
+    "DatasetResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["dataset_id", "current_revision", "representation", "data_schema", "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id", "data_artifact_id", "data_sha256", "import_profile_id", "import_profile_revision_id", "source_dataset_revision_id", "row_count", "channels"],
+      "properties": {"dataset_id": {"$ref": "#/$defs/Uuid"}, "current_revision": {"$ref": "#/$defs/RevisionMetadata"}, "representation": {"enum": ["raw", "normalized"]}, "data_schema": {"$ref": "#/$defs/DataSchema"}, "test_run_id": {"$ref": "#/$defs/Uuid"}, "test_run_revision_id": {"$ref": "#/$defs/Uuid"}, "raw_asset_id": {"$ref": "#/$defs/Uuid"}, "raw_artifact_id": {"$ref": "#/$defs/Uuid"}, "data_artifact_id": {"$ref": "#/$defs/Uuid"}, "data_sha256": {"$ref": "#/$defs/Sha256"}, "import_profile_id": {"$ref": "#/$defs/Uuid"}, "import_profile_revision_id": {"$ref": "#/$defs/Uuid"}, "source_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"}, "row_count": {"type": "integer", "minimum": 2, "maximum": 100000}, "channels": {"type": "array", "items": {"$ref": "#/$defs/ChannelResponse"}}
+    }
+  }
+}
+}

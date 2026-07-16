@@ -6,7 +6,7 @@
 얻는 재료 데이터 플랫폼입니다. 로컬 데모에서는 다음 세 흐름을 실제 화면에서 실행할 수
 있습니다.
 
-- 금속: Material/State/기본 물성 → tensile data → tabulated plasticity 또는 reference Voce
+- 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce
   → OpenRadioss LAW36 또는 Abaqus `*PLASTIC` card
 - 폴리머: shear-relaxation raw/normalized/processed Dataset → bounded Prony calibration과 사람
   candidate 선택 → 새 immutable linear-Prony IR revision → Abaqus `*VISCOELASTIC` card
@@ -38,9 +38,9 @@ heat treatment, lot 필드는 과거 입력과 출처 보존을 위해 그대로
 3. 제조 공정, 열처리 공정, Lot/Batch를 선택하고 **Establish genealogy**를 실행합니다.
 4. 이후 연결을 고치면 기존 연결을 덮어쓰지 않고 새 genealogy revision이 추가됩니다.
 
-현재는 단일 State에 제조 공정 1개, 열처리 공정 1개, Lot/Batch 1개를 고정하는 bounded
-T-07 범위입니다. 공정 run의 입력·출력, lot split/merge, multi-lot acceptance, ERP 연동은
-후속 범위입니다.
+State genealogy와 별도로 Process Run은 consumed/produced Lot revision을 여러 개 고정하고
+mass/volume/count balance, split/merge와 Specimen source Lot를 보존합니다. ERP/PLM 연동은
+아직 후속 범위입니다.
 
 [http://127.0.0.1:5173](http://127.0.0.1:5173)에서 **Connected token → Use local demo
 identity → Save connection**을 선택합니다. 개발·migration·테스트 상세는
@@ -65,7 +65,7 @@ MCalibration은 시험 전처리, fitting diagnostics와 candidate 비교 기능
 - Material을 등록하고 organization/project 범위에서 이름, 코드, family와 class로 검색
 - 제조·열처리 상태와 출처가 명시된 density, Young's modulus, Poisson ratio, yield stress 기록
 - 모든 변경을 원본 덮어쓰기 대신 새 immutable revision으로 보존하고 비교
-- 시험 CSV를 Raw Asset으로 보존한 뒤 column/unit mapping을 승인하고 normalized Dataset 생성
+- CSV/TSV/XLSX를 Raw Asset으로 보존한 뒤 reusable column/unit Profile을 승인하고 normalized Dataset 생성
 - 반복시험 curve, 통계, QC, outlier candidate와 사람의 판정을 분리해 검토
 - solver-neutral Material Model IR과 mapping report를 확인
 - OpenRadioss 또는 Abaqus material card를 미리 보고 다운로드
@@ -120,8 +120,11 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 
 화면에 표시된 `reference` 결과는 실행 가능한 독립 구현 예제이지, 특정 회사의 재료나
 제품 설계에 대해 승인된 값이 아닙니다.
-점탄성 업로드 형식은 [reference-shear-relaxation.csv](examples/data/reference-shear-relaxation.csv)를
-사용해 볼 수 있습니다(`time_s`, `shear_modulus_mpa`, 단위 `s`/`MPa`).
+인장 governed import는 [reference-tensile.csv](examples/data/reference-tensile.csv)를 사용해
+볼 수 있습니다(`engineering_strain_pct`, `engineering_stress_mpa`, 단위 `%`/`MPa`). 점탄성
+기존 흐름은 [reference-shear-relaxation.csv](examples/data/reference-shear-relaxation.csv)를
+사용합니다(`time_s`, `shear_modulus_mpa`, 단위 `s`/`MPa`). 자세한 절차는
+[governed tabular import 가이드](docs/user-guide/08-governed-tabular-import.md)에 있습니다.
 
 ## 지원 상태
 

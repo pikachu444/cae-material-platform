@@ -1030,6 +1030,14 @@ in the same vertical increment. Actual solver execution remains excluded.
 - **범위 제외:** proprietary laboratory formats and arbitrary vendor reverse engineering.
 - **테스트:** parser/locale/formula/decompression limits, unit/schema fixtures, PostgreSQL
   persistence/RLS, mapping approval UI and raw/normalized immutability regression.
+- **구현 상태 (2026-07-16):** 완료. Migration 051은 Import Profile, Preview Report,
+  terminal Import Run, raw/normalized governed Dataset과 channel을 명시적 typed table로
+  저장하며 강제 RLS, exact composite FK, immutable revision/head guard를 적용한다. CSV/TSV는
+  encoding/delimiter/decimal을, XLSX는 sheet를 명시하고 formula, macro, external link와
+  decompression 한계를 검사한다. UI는 immutable upload → `needs_input` preview → 사람의
+  reusable Profile 승인 → exact Run 실행 → 별도 raw/normalized SI Dataset을 연결한다.
+  Force/displacement 변환은 monotonic tension/compression과 양수 geometry pin이 있을 때만
+  허용된다. Proprietary vendor parser는 범위 밖이다.
 
 #### T-42. Viscoelastic replicate statistics, temperature shift and master curve — `P0`
 

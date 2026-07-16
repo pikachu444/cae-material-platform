@@ -36,6 +36,7 @@ import { ReleaseWorkbench } from "./release-workbench";
 import { GovernanceEvidenceWorkbench } from "./governance-evidence-workbench";
 import { CatalogGenealogyWorkbench } from "./catalog-genealogy-workbench";
 import { TestContextWorkbench } from "./test-context-workbench";
+import { GovernedImportWorkbench } from "./governed-import-workbench";
 import type {
   DataClassification,
   ExportTarget,
@@ -1136,6 +1137,7 @@ function MaterialStateCard({
       {content.description ? <p className="state-description">{content.description}</p> : null}
       <CatalogGenealogyWorkbench config={config} state={state} />
       <TestContextWorkbench config={config} state={state} />
+      <GovernedImportWorkbench config={config} state={state} />
       {!stateUsesCurrentMaterial ? (
         <section className="property-summary compatibility-notice">
           <p className="eyebrow">Pinned Material revision</p>

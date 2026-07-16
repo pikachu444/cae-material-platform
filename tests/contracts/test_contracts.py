@@ -815,6 +815,47 @@ def test_reference_import_contract_and_runtime_keep_detection_and_human_approval
     )
 
 
+def test_governed_tabular_import_contract_matches_runtime_operations() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/tabular-import-previews": {"post": "previewGovernedTabularImport"},
+        "/api/v1/import-profiles": {
+            "get": "listGovernedImportProfiles",
+            "post": "createGovernedImportProfile",
+        },
+        "/api/v1/import-profiles/{profile_id}": {"get": "getGovernedImportProfile"},
+        "/api/v1/import-profiles/{profile_id}/revisions": {
+            "post": "reviseGovernedImportProfile"
+        },
+        "/api/v1/tabular-import-runs": {"post": "executeGovernedTabularImport"},
+        "/api/v1/tabular-import-runs/{run_id}": {"get": "getGovernedTabularImportRun"},
+        "/api/v1/governed-datasets/{dataset_id}": {"get": "getGovernedTabularDataset"},
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    contract = (
+        PROJECT_ROOT / "contracts/datasets/governed-import-resources.schema.json"
+    ).read_text(encoding="utf-8")
+    assert all(name in contract for name in ("csv", "tsv", "xlsx", "needs_input"))
+    assert all(
+        name in contract
+        for name in (
+            "monotonic_tension",
+            "monotonic_compression",
+            "planar_tension",
+            "biaxial_tension",
+            "simple_shear",
+            "shear_relaxation",
+        )
+    )
+    assert '"key"' not in contract and '"value"' not in contract
+
+
 def test_raw_asset_public_contract_never_exposes_internal_storage_key() -> None:
     schema = json.loads(
         (PROJECT_ROOT / "contracts/artifacts/raw-asset-resource.schema.json").read_text(

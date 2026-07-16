@@ -2048,3 +2048,22 @@ summary {
     padding: 1rem;
   }
 }
+
+.governed-import {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+
+.governed-import .workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.preview-table-wrap {
+  margin-top: 1.25rem;
+  overflow-x: auto;
+}
+
+.preview-table-wrap .data-table {
+  min-width: 36rem;
+}
