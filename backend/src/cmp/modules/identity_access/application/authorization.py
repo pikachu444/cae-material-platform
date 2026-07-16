@@ -159,6 +159,8 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
         {
             Permission.CATALOG_READ,
             Permission.ARTIFACT_READ,
+            Permission.TESTING_READ,
+            Permission.DATASET_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
             Permission.VALIDATION_READ,
@@ -272,9 +274,27 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.TESTING_READ,
         }
     ),
-    Permission.EXPORT_READ: frozenset({Permission.MODELING_READ}),
+    # The exporting projection reads exact immutable sources across bounded modules. These
+    # remain transaction-local database capabilities; they do not authorize the caller to use
+    # the Catalog, Dataset, Testing, Modeling, or Artifact HTTP APIs directly.
+    Permission.EXPORT_READ: frozenset(
+        {
+            Permission.ARTIFACT_READ,
+            Permission.CATALOG_READ,
+            Permission.DATASET_READ,
+            Permission.MODELING_READ,
+            Permission.TESTING_READ,
+        }
+    ),
     Permission.EXPORT_EXECUTE: frozenset(
-        {Permission.ARTIFACT_READ, Permission.MODELING_READ, Permission.EXPORT_READ}
+        {
+            Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_READ,
+            Permission.EXPORT_READ,
+            Permission.MODELING_READ,
+            Permission.TESTING_READ,
+        }
     ),
     # Validation result previews read only Validation-owned typed reports, but those reports
     # are immutable Artifacts.  The capability is transaction-local; it does not make the

@@ -1,7 +1,7 @@
 # Implementation Status
 
-Date: `2026-07-27`
-Foundation version: `0.30.0`
+Date: `2026-07-16`
+Foundation version: `0.31.0`
 
 ## Completed
 
@@ -964,4 +964,35 @@ production Vite build; clean npm install/audit reported zero vulnerabilities. Tw
 promotion rounds produced r2 then r3 on one stable model identity and verified three prior Solver
 Card revision/digest pairs unchanged. Connected-browser verification recorded the three-revision
 history and cards with no warning or error logs.
+
+## T-45 immutable Bulk Export Bundle (2026-07-16)
+
+Foundation version `0.31.0` adds migration 056 without changing any prior Raw Asset, Dataset,
+Material Model IR, Solver Card, Release or Artifact. Explicit `export_selection`, append-only
+`export_selection_revision`, ordered typed member/omission, durable job and immutable bundle tables
+pin concrete raw/artifact/Dataset/model/card revision references. Composite tenant/project/
+classification foreign keys, forced RLS, maximum-classification and job-transition guards, a
+1,000-component/5-GiB domain limit and lifecycle/provenance/audit revision hooks are enforced in
+PostgreSQL. No generic EAV or untyped options payload is used.
+
+The protected `/exports` workbench discovers one Material's exact representations, creates an
+immutable Selection, assembles a normalized deterministic ZIP and downloads it with the existing
+short-lived Artifact transfer capability. Archives contain the requested raw originals, canonical
+Parquet, readable CSV, IR JSON/schema, mapping reports and native Abaqus/OpenRadioss cards plus
+`manifest.json`, `checksums.sha256` and `README.md`. Required missing/unauthorized inputs block;
+optional omissions remain explicit. Release approval semantics are unchanged. The bounded API
+assembles up to 64 MiB inline while persisting queued→running→succeeded/failed; larger external
+worker assembly remains T-47 work.
+
+Live Docker/PostgreSQL evidence created a 22-component DP780 Bundle and obtained `201` download
+authorization followed by `200` Artifact transfer. A second Selection created after hook wiring
+recorded one lifecycle projection, one provenance Entity and one append-only audit event. The ZIP
+download path, manifest/checksum contents and exact representation labels were verified in the
+connected browser without visible token or confidential data. Full CI evidence is recorded after
+the T-45 gate below.
+
+T-45 verification on 2026-07-16 passed a fresh PostgreSQL 16 `001→056` migration and
+`056→055→056` round trip. The CI-equivalent gate passed 613 Python tests with zero skips or
+failures, 36 Vitest tests, ruff, mypy over 526 source files, architecture/contract lint, OpenAPI
+compatibility and the production Vite build; clean npm install/audit reported zero vulnerabilities.
 

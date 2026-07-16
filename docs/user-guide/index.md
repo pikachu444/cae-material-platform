@@ -15,6 +15,7 @@
 6. [Process Run과 Specimen source Lot 연결](06-process-run-genealogy.md)
 7. [시험 Campaign·장비 교정·실행 조건 고정](07-test-execution-context.md)
 8. [CSV/TSV/XLSX 시험 데이터 승인과 Dataset 생성](08-governed-tabular-import.md)
+9. [시험 데이터·중립 IR·Solver Card를 ZIP으로 받기](09-bulk-export.md)
 
 ## 현재 할 수 있는 일
 
@@ -30,12 +31,12 @@
 - 사람의 Candidate 선택과 새 IR revision 승격
 - Abaqus/OpenRadioss mapping report, card preview와 개별 download
 - one-term Ogden--Prony IR의 Abaqus/OpenRadioss LAW62 card 생성
+- 선택한 raw/Parquet/CSV/IR/schema/mapping report/card revision을 하나의 검증 가능한 ZIP으로 다운로드
 
 ## 아직 제한된 일
 
 - proprietary laboratory vendor format과 임의 channel schema
 - promoted IR을 다시 보정하는 iterative promotion
-- 여러 Dataset/IR/Card를 한 ZIP으로 받는 Bulk Export Bundle
 - 실제 Abaqus/OpenRadioss solver 실행과 qualification
 
 위 항목의 구현 순서는 [production-pilot 실행 계획](../13-delivery/production-pilot-execution-plan.md)에
@@ -52,6 +53,10 @@
 ![점탄성 반복시험 통계와 shift evidence](../15-demo/images/viscoelastic-master-statistics.png)
 
 ![Shifted relaxation curve와 master curve](../15-demo/images/viscoelastic-master-curve.png)
+
+![정확한 revision을 선택하는 Bulk Export Center](../15-demo/images/t45-bulk-export-selection.png)
+
+![생성된 immutable ZIP Bundle](../15-demo/images/t45-immutable-bundles.png)
 
 문제가 생기면 먼저 브라우저의 Connection 상태, Material class, exact State/Property revision,
 CSV column/unit, mapping report의 `unsupported` 또는 `approximated` 항목을 확인하십시오.

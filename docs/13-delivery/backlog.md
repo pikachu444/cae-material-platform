@@ -1118,6 +1118,12 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   1,000 components/5 GiB initial limit and existing short-lived Artifact download authorization.
 - **테스트:** deterministic ZIP/digest, missing/unsupported preflight, RLS/classification, retry,
   large-job failure and browser Export Center download.
+- **2026-07-16 reference subset:** migration 056, typed exact-revision Selection/member/omission,
+  durable state-guarded Job, immutable deterministic ZIP Artifact, maximum classification/RLS,
+  lifecycle/provenance/audit hooks, protected discovery/create/read/download APIs and connected
+  `/exports` UI are complete. The Docker/PostgreSQL workflow downloaded a 22-component Bundle and
+  verified manifest/checksum evidence. Up to 64 MiB is assembled inline; external worker assembly
+  for the 5-GiB domain ceiling remains explicitly assigned to T-47.
 
 #### T-46. User navigation, manuals and screenshot maintenance — `P0`
 

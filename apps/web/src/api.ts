@@ -144,6 +144,11 @@ import type {
   GovernedTabularFileFormat,
   ReferenceTensileMapping,
   UploadSession,
+  BulkExportBundleResponse,
+  BulkExportCandidate,
+  BulkExportJobResponse,
+  BulkExportSourceRef,
+  ExportSelectionResponse,
 } from "./types";
 
 export interface ApiConfig {
@@ -308,6 +313,81 @@ export function listMaterials(
     search.set("material_class", materialClass);
   }
   return request(config, `/materials?${search.toString()}`);
+}
+
+export function listBulkExportCandidates(
+  config: ApiConfig,
+  materialId: string,
+): Promise<ApiResult<{ items: BulkExportCandidate[] }>> {
+  const query = new URLSearchParams({ material_id: materialId });
+  return request(config, `/bulk-export-candidates?${query.toString()}`);
+}
+
+export function createBulkExportSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    members: Array<{
+      ordinal: number;
+      source: BulkExportSourceRef;
+      required: boolean;
+      archive_path: string | null;
+    }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<ExportSelectionResponse>> {
+  return request(config, "/export-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createBulkExportJob(
+  config: ApiConfig,
+  selectionId: string,
+): Promise<ApiResult<BulkExportJobResponse>> {
+  return request(config, "/export-jobs", {
+    method: "POST",
+    body: JSON.stringify({ export_selection_id: selectionId }),
+  });
+}
+
+export function listBulkExportBundles(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: BulkExportBundleResponse[] }>> {
+  return request(config, "/export-bundles");
+}
+
+export async function downloadBulkExportBundle(
+  config: ApiConfig,
+  bundleId: string,
+): Promise<ApiResult<{ blob: Blob; filename: string }>> {
+  const authorization = await request<{
+    transfer_url: string;
+    transfer_token: string;
+    sha256: string;
+    size_bytes: number;
+    media_type: string;
+  }>(config, `/export-bundles/${encodeURIComponent(bundleId)}/download-authorizations`, {
+    method: "POST",
+  });
+  const transferUrl = authorization.data.transfer_url.startsWith("http")
+    ? authorization.data.transfer_url
+    : new URL(authorization.data.transfer_url, window.location.origin).toString();
+  const headers = authenticatedHeaders(config, {}, "application/zip");
+  headers.set("Artifact-Transfer-Token", authorization.data.transfer_token);
+  const response = await fetch(transferUrl, { headers });
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: `cmp-bulk-export-${bundleId}.zip`,
+    },
+    etag: response.headers.get("etag"),
+  };
 }
 
 export function getMaterialDetail(

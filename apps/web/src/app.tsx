@@ -37,6 +37,7 @@ import { GovernanceEvidenceWorkbench } from "./governance-evidence-workbench";
 import { CatalogGenealogyWorkbench } from "./catalog-genealogy-workbench";
 import { TestContextWorkbench } from "./test-context-workbench";
 import { GovernedImportWorkbench } from "./governed-import-workbench";
+import { BulkExportCenter } from "./bulk-export-center";
 import type {
   DataClassification,
   ExportTarget,
@@ -144,6 +145,7 @@ function Header({
   onOpenConnection: () => void;
 }) {
   const isMaterials = path === "/materials" || path.startsWith("/materials/");
+  const isExports = path === "/exports";
   return (
     <header className="app-header">
       <button className="brand" type="button" onClick={() => navigate("/")}>
@@ -167,6 +169,13 @@ function Header({
           onClick={() => navigate("/materials")}
         >
           Materials
+        </button>
+        <button
+          className={isExports ? "nav-link active" : "nav-link"}
+          type="button"
+          onClick={() => navigate("/exports")}
+        >
+          Exports
         </button>
       </nav>
       <button className="connection-button" type="button" onClick={onOpenConnection}>
@@ -1730,6 +1739,8 @@ export function App() {
     page = <MaterialDetailPage config={config} materialId={materialId} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/materials") {
     page = <MaterialListPage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (path === "/exports") {
+    page = <BulkExportCenter config={config} onOpenConnection={() => setConnectionOpen(true)} />;
   } else {
     page = <DashboardPage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   }

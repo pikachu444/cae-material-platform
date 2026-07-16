@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.30.0
+  version: 0.31.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -6672,6 +6672,90 @@ paths:
         "412": {description: Current Material Model ETag no longer matches.}
         "422": {description: If-Match or promotion reason is invalid.}
         "503": {description: Modeling service unavailable.}
+  /api/v1/bulk-export-candidates:
+    get:
+      operationId: listBulkExportCandidates
+      tags: [exporting]
+      summary: Discover typed exact-revision representations visible for one Material.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: material_id, in: query, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Visible typed representations., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/CandidateList"}}}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+  /api/v1/export-selections:
+    post:
+      operationId: createBulkExportSelection
+      tags: [exporting]
+      summary: Pin an ordered immutable set of exact source revisions.
+      security: [{BearerAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/CreateSelectionRequest"}}}}
+      responses:
+        "201": {description: Immutable Export Selection., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/SelectionResponse"}}}}
+        "409": {description: A required exact source is unavailable.}
+        "413": {description: Selection exceeds component or byte limits.}
+        "422": {description: Selection shape or classification is invalid.}
+  /api/v1/export-selections/{selection_id}:
+    get:
+      operationId: getBulkExportSelection
+      tags: [exporting]
+      summary: Read one immutable Export Selection.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: selection_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Immutable Export Selection., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/SelectionResponse"}}}}
+        "404": {description: No visible Selection matches.}
+  /api/v1/export-jobs:
+    post:
+      operationId: createBulkExportJob
+      tags: [exporting]
+      summary: Assemble a deterministic ZIP for an exact Selection.
+      description: The bounded initial adapter persists queued, running, and terminal states while assembling small bundles inline. Larger selections require the external worker adapter.
+      security: [{BearerAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/CreateJobRequest"}}}}
+      responses:
+        "201": {description: Durable terminal assembly Job., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/JobResponse"}}}}
+        "413": {description: Selection exceeds the 64 MiB inline assembly limit.}
+  /api/v1/export-jobs/{job_id}:
+    get:
+      operationId: getBulkExportJob
+      tags: [exporting]
+      summary: Read durable Bulk Export Job state.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: job_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Durable Job state., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/JobResponse"}}}}
+  /api/v1/export-bundles:
+    get:
+      operationId: listBulkExportBundles
+      tags: [exporting]
+      summary: List immutable project-visible bundles.
+      security: [{BearerAuth: []}]
+      responses:
+        "200": {description: Immutable bundles., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/BundleList"}}}}
+  /api/v1/export-bundles/{bundle_id}:
+    get:
+      operationId: getBulkExportBundle
+      tags: [exporting]
+      summary: Read one immutable bundle identity and digests.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: bundle_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Immutable bundle., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/BundleResponse"}}}}
+  /api/v1/export-bundles/{bundle_id}/download-authorizations:
+    post:
+      operationId: authorizeBulkExportBundleDownload
+      tags: [exporting]
+      summary: Issue a short-lived transfer capability for the immutable ZIP Artifact.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: bundle_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "201": {description: Short-lived download authorization., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/DownloadAuthorization"}}}}
 components:
   securitySchemes:
     BearerAuth:

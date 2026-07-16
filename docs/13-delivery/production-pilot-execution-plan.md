@@ -29,13 +29,13 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 055
+- latest schema: migration 056
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-45 and T-47
+- missing product depth: T-47 operations and large external-worker bundle assembly
 - user experience gap: global navigation and task-oriented user manual from T-46
 
 Migrations 001~055, raw objects, prior revisions, cards, releases and golden fixtures are never
@@ -52,7 +52,7 @@ rewritten. The next schema unit begins at migration 056.
 | 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | complete |
 | 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | complete |
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
-| 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | pending |
+| 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | pending |
 | 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security evidence | pending |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
@@ -139,6 +139,21 @@ CI-equivalent suite recorded 606 Python tests plus 35 Vitest tests with zero ski
 mypy over 518 source files, architecture/contracts/OpenAPI/build and npm audit all passed. Two live
 promotion rounds appended r2 and r3; three existing Solver Card revision/digest pairs remained
 unchanged and the connected browser reported no warning/error.
+
+PR 8 implements T-45 with migration 056. A revisioned Export Selection pins ordered typed
+Raw Asset/Artifact, Dataset revision, Material Model revision and Solver Card revision sources.
+The durable Job commits or digest-reuses an immutable deterministic ZIP Artifact; required missing
+or unauthorized inputs block and optional omissions are visible in the manifest. The connected
+`/exports` workbench selects one Material's exact raw/Parquet/CSV/IR/schema/mapping/card
+representations and downloads the Bundle through a short-lived transfer capability without
+changing Release semantics. The browser created a 22-component Bundle, the API returned `201` for
+authorization and `200` for content, and PostgreSQL recorded Selection lifecycle, provenance and
+audit facts. The complete CI result is appended when the PR gate finishes.
+
+The PR 8 exit gate passed a fresh PostgreSQL 16 `001→056` migration and `056→055→056` round trip,
+613 Python tests with zero skips/failures, 36 Vitest tests, ruff, mypy over 526 source files,
+architecture/contracts/OpenAPI compatibility, production Vite build and npm audit with zero
+vulnerabilities.
 
 The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
 the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,

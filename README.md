@@ -73,6 +73,8 @@ MCalibration은 시험 전처리, fitting diagnostics와 candidate 비교 기능
 - 반복시험 curve, 통계, QC, outlier candidate와 사람의 판정을 분리해 검토
 - solver-neutral Material Model IR과 mapping report를 확인
 - OpenRadioss 또는 Abaqus material card를 미리 보고 다운로드
+- **Exports**에서 raw/Parquet/CSV/IR/schema/mapping report/native card exact revision을 선택해
+  manifest와 SHA-256이 포함된 immutable ZIP Bundle로 다운로드
 - model, card, validation, review와 release까지 provenance/lineage를 추적
 
 ## 현재 제공되는 시연 흐름
@@ -125,6 +127,8 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 7. candidate의 objective, fitted curve, residual과 warning을 비교하고 선택 이유를 기록한 뒤
    새 IR revision으로 승격합니다.
 8. solver/version을 고른 뒤 mapping 상태를 확인하고 card를 미리 보거나 다운로드합니다.
+9. 여러 결과를 함께 전달하려면 상단 **Exports**에서 exact revision을 선택하고 Bundle을 만든 뒤
+   ZIP을 다운로드합니다.
 
 화면에 표시된 `reference` 결과는 실행 가능한 독립 구현 예제이지, 특정 회사의 재료나
 제품 설계에 대해 승인된 값이 아닙니다.
@@ -133,6 +137,8 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 기존 흐름은 [reference-shear-relaxation.csv](examples/data/reference-shear-relaxation.csv)를
 사용합니다(`time_s`, `shear_modulus_mpa`, 단위 `s`/`MPa`). 자세한 절차는
 [governed tabular import 가이드](docs/user-guide/08-governed-tabular-import.md)에 있습니다.
+여러 표현을 한 번에 받는 절차는
+[Bulk Export Bundle 가이드](docs/user-guide/09-bulk-export.md)를 참고하십시오.
 
 ## 지원 상태
 
