@@ -819,9 +819,25 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
     detail = postgres.service.get_material_detail(context, read, material.id)
     assert detail.material.current.content.material_code == "S355"
     assert detail.material.current.content.material_class is MaterialClass.METAL
-    assert postgres.service.list_materials(context, read, material_class=MaterialClass.METAL) == (
-        material,
+    postgres.service.create_material(
+        context,
+        write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent(
+                "ZZ second visible steel",
+                "ZZ-002",
+                "steel",
+                material_class=MaterialClass.METAL,
+            ),
+            "exercise RLS-filtered search cardinality",
+        ),
     )
+    material_search = postgres.service.list_materials(
+        context, read, material_class=MaterialClass.METAL, limit=1
+    )
+    assert material_search.items == (material,)
+    assert material_search.total_count == 2
     assert detail.states == (state,)
     assert detail.property_sets == (property_set,)
     assert detail.property_sets[0].current.content.youngs_modulus_pa == 210_000_000_000.0
@@ -891,7 +907,7 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
         audit_count = connection.scalar(
             sa.text("SELECT count(*) FROM audit.event WHERE action LIKE 'catalog.%'")
         )
-    assert lifecycle_count == provenance_count == audit_count == 4
+    assert lifecycle_count == provenance_count == audit_count == 5
 
 
 def test_process_run_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(

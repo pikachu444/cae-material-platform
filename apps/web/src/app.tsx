@@ -421,12 +421,14 @@ function DashboardPage({
   onOpenConnection: () => void;
 }) {
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!config.accessToken.trim()) {
       setMaterials([]);
+      setTotalCount(0);
       return;
     }
     let current = true;
@@ -436,6 +438,7 @@ function DashboardPage({
       .then((result) => {
         if (current) {
           setMaterials(result.data.items.slice(0, 5));
+          setTotalCount(result.data.total_count);
         }
       })
       .catch((reason: unknown) => current && setError(errorMessage(reason)))
@@ -473,7 +476,7 @@ function DashboardPage({
       <section className="metrics-grid" aria-label="Catalog summary">
         <article className="metric-card">
           <span>Visible materials</span>
-          <strong>{loading ? "…" : materials.length}</strong>
+          <strong>{loading ? "…" : totalCount.toLocaleString()}</strong>
           <small>Current tenant and classification scope</small>
         </article>
         <article className="metric-card">
@@ -554,6 +557,7 @@ function MaterialListPage({
   const [query, setQuery] = useState("");
   const [materialClass, setMaterialClass] = useState<MaterialClass | "">("");
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -564,7 +568,10 @@ function MaterialListPage({
     setLoading(true);
     setError(null);
     void listMaterials(config, nextQuery, nextClass)
-      .then((result) => setMaterials(result.data.items))
+      .then((result) => {
+        setMaterials(result.data.items);
+        setTotalCount(result.data.total_count);
+      })
       .catch((reason: unknown) => setError(errorMessage(reason)))
       .finally(() => setLoading(false));
   };
@@ -625,6 +632,12 @@ function MaterialListPage({
         </form>
         {error ? <ErrorNotice message={error} /> : null}
         {loading ? <p className="muted">Loading materials…</p> : null}
+        {!loading && !error && totalCount > 0 ? (
+          <p className="muted" aria-live="polite">
+            Showing {materials.length.toLocaleString()} of {totalCount.toLocaleString()} Materials
+            visible in this authorization scope.
+          </p>
+        ) : null}
         {!loading && !error && materials.length === 0 ? (
           <p className="muted">No Material matches this search in the current scope.</p>
         ) : null}
@@ -682,6 +695,7 @@ function ModuleHubPage({
   onOpenConnection: () => void;
 }) {
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const copy = moduleHubContent[area];
@@ -689,13 +703,19 @@ function ModuleHubPage({
   useEffect(() => {
     if (!config.accessToken.trim()) {
       setMaterials([]);
+      setTotalCount(0);
       return;
     }
     let current = true;
     setLoading(true);
     setError(null);
     void listMaterials(config, "")
-      .then((result) => current && setMaterials(result.data.items))
+      .then((result) => {
+        if (current) {
+          setMaterials(result.data.items);
+          setTotalCount(result.data.total_count);
+        }
+      })
       .catch((cause: unknown) => current && setError(errorMessage(cause)))
       .finally(() => current && setLoading(false));
     return () => {
@@ -722,7 +742,7 @@ function ModuleHubPage({
             <p className="eyebrow">Material context</p>
             <h2>Select a Material</h2>
           </div>
-          <span className="count-chip">{materials.length} visible</span>
+          <span className="count-chip">{totalCount.toLocaleString()} visible</span>
         </div>
         {error ? <ErrorNotice message={error} /> : null}
         {loading ? <p className="muted">Loading Material contexts…</p> : null}

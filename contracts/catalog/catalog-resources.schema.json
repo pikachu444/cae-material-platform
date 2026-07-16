@@ -225,6 +225,15 @@
         }
       }
     },
+    "MaterialListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items", "total_count"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/MaterialResponse"}},
+        "total_count": {"type": "integer", "minimum": 0}
+      }
+    },
     "MaterialStateResponse": {
       "type": "object",
       "additionalProperties": false,

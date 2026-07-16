@@ -65,6 +65,18 @@ class MaterialSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class MaterialSearchResult:
+    """One bounded page plus the RLS-filtered cardinality of the same search."""
+
+    items: tuple[MaterialSnapshot, ...]
+    total_count: int
+
+    def __post_init__(self) -> None:
+        if self.total_count < len(self.items):
+            raise ValueError("Material search total cannot be smaller than its page")
+
+
+@dataclass(frozen=True, slots=True)
 class MaterialStateSnapshot:
     id: UUID
     material_id: UUID
@@ -244,7 +256,7 @@ class CatalogRepository(Protocol):
         query: str | None,
         material_class: MaterialClass | None,
         limit: int,
-    ) -> tuple[MaterialSnapshot, ...]: ...
+    ) -> MaterialSearchResult: ...
 
     def get_material(
         self,
@@ -1131,7 +1143,7 @@ class CatalogService:
         query: str | None = None,
         material_class: MaterialClass | None = None,
         limit: int = 50,
-    ) -> tuple[MaterialSnapshot, ...]:
+    ) -> MaterialSearchResult:
         _require_decision(context, decision, Permission.CATALOG_READ)
         if query is not None and (query != query.strip() or not query or len(query) > 200):
             raise ValueError("material search query must be trimmed and contain 1..200 characters")

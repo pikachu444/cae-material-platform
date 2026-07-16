@@ -18,6 +18,7 @@ from cmp.modules.catalog.application.service import (
     CatalogService,
     MaterialDetail,
     MaterialLotSnapshot,
+    MaterialSearchResult,
     MaterialSnapshot,
     MaterialStateSnapshot,
     ProcessDefinitionSnapshot,
@@ -238,9 +239,9 @@ class _CatalogService:
         query: str | None,
         material_class: MaterialClass | None,
         limit: int,
-    ) -> tuple[MaterialSnapshot, ...]:
+    ) -> MaterialSearchResult:
         del context, decision, query, material_class, limit
-        return (self.material,)
+        return MaterialSearchResult((self.material,), 1)
 
     def get_material_detail(
         self, context: SecurityContext, decision: AuthorizationDecision, material_id: UUID
@@ -573,6 +574,7 @@ def test_catalog_api_supports_material_to_typed_properties_with_revision_etags()
 
     listed = _request(application, "GET", "/api/v1/materials?q=S355&material_class=metal")
     assert listed.status_code == 200
+    assert listed.json()["total_count"] == 1
     assert listed.json()["items"][0]["current_revision"]["content"]["material_code"] == "S355"
     assert listed.json()["items"][0]["current_revision"]["content"]["material_class"] == "metal"
 

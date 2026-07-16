@@ -73,12 +73,18 @@ describe("Material Catalog workbench", () => {
       "cmp.material-platform.api-config",
       JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
     );
-    vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ items: [visibleMaterial] })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>().mockResolvedValue(
+        jsonResponse({ items: [visibleMaterial], total_count: 10_000 }),
+      ),
+    );
 
     render(<App />);
 
     expect(await screen.findByText("Demo DP780 Steel")).toBeTruthy();
     expect(screen.getByText("DP780")).toBeTruthy();
+    expect(screen.getByText("10,000")).toBeTruthy();
   });
 
   it("can request an explicitly enabled local demo token without treating it as a normal fallback", async () => {
@@ -111,7 +117,12 @@ describe("Material Catalog workbench", () => {
       "cmp.material-platform.api-config",
       JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
     );
-    vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ items: [visibleMaterial] })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>().mockResolvedValue(
+        jsonResponse({ items: [visibleMaterial], total_count: 1 }),
+      ),
+    );
 
     render(<App />);
 
