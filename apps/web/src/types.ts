@@ -2711,6 +2711,41 @@ export interface OgdenPronyModelResponse {
       }>;
       moduli_convention: "instantaneous";
       volumetric_response: "incompressible";
+      promotion_evidence?: {
+        selection_id: string;
+        selection_revision_id: string;
+        calibration_run_id: string;
+        calibration_candidate_id: string;
+        candidate_sha256: string;
+        diagnostics_artifact_id: string;
+        diagnostics_sha256: string;
+        promoted_from_model_revision_id: string;
+      };
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
+export interface OgdenPronyRevisionListResponse {
+  material_model_id: string;
+  items: OgdenPronyModelResponse["current_revision"][];
+}
+
+export interface OgdenCandidateSelectionResponse {
+  ogden_candidate_selection_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      selection_label: string;
+      ogden_calibration_run_id: string;
+      ogden_calibration_candidate_id: string;
+      candidate_sha256: string;
+      diagnostics_artifact_id: string;
+      diagnostics_sha256: string;
+      baseline_model_id: string;
+      baseline_model_revision_id: string;
+      selection_reason: string;
+      selection_decision: "accepted_for_ogden_prony_ir_revision";
       non_production: true;
     };
   };

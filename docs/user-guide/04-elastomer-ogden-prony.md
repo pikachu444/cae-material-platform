@@ -3,7 +3,8 @@
 현재 Elastomer workflow는 one-term Ogden과 1~5 shear-Prony term을 수동 입력하거나,
 governed normalized tension curve들에서 `mu`와 `alpha`를 fitting하는
 `reference/non-production` 수직 기능입니다. shear-Prony term은 baseline IR에서 보존되며,
-fitted Candidate를 새 IR revision으로 승격하는 절차는 T-44에서 구현합니다.
+fitted Candidate는 사람의 명시적 선택과 사유를 거친 뒤 같은 Material Model identity의 새
+immutable IR revision으로 승격할 수 있습니다.
 
 ## 절차
 
@@ -45,9 +46,27 @@ uv run python scripts/seed_ogden_calibration_demo.py
    identifiability, uncertainty/95% CI와 warning을 비교합니다.
 8. observed/fitted nominal-stress curve와 residual plot을 확인합니다. single-mode이면
    `insufficient test modes`, holdout이 없으면 `no holdout data`가 명시됩니다.
-9. 현재 T-43은 Candidate를 자동 승인하거나 baseline IR을 덮어쓰지 않습니다. 검토 후
-   수동 baseline 값으로 새 모델을 만들 수 있으며, governed append-only promotion은 T-44에서
-   제공합니다.
+9. Candidate row를 눌러 diagnostics를 고른 뒤 fitted/residual, holdout, convergence, bounds,
+   rank와 uncertainty를 검토합니다. 시스템은 가장 작은 objective를 자동 승인하지 않습니다.
+10. **Human decision gate**에서 Selection label과 검토 사유를 기록합니다. Selection revision은
+    exact Run/Candidate/candidate digest/diagnostics Artifact digest/baseline IR revision을 pin합니다.
+11. IR promotion reason을 입력하고 승격합니다. 요청은 화면이 읽은 current IR의 strong ETag를
+    사용하므로 다른 사용자가 먼저 새 revision을 만든 경우 412로 거부되고 새로고침이 필요합니다.
+12. **Append-only IR revision history**에서 r1, r2, r3를 비교합니다. 각 promoted revision은
+    자신의 Selection/Run/Candidate/diagnostics evidence만 소유하며 과거 evidence를 복사하거나
+    덮어쓰지 않습니다. 과거 IR에서 만든 Card와 Release는 그 concrete revision을 계속 pin합니다.
+
+두 번 이상의 calibration round를 회귀 데이터로 확인하려면 아래 명령을 두 번 실행할 수 있습니다.
+각 실행은 실행 시점의 current IR을 새 baseline으로 pin하고 r2, r3처럼 새 revision을 추가합니다.
+
+```powershell
+uv run python scripts/seed_ogden_calibration_demo.py --promote
+uv run python scripts/seed_ogden_calibration_demo.py --promote
+```
+
+![같은 stable identity의 append-only r1-r3 이력](../15-demo/images/t44-ogden-selection-promotion-history.png)
+
+![r3 승격 후에도 유지되는 r1/r2 solver cards](../15-demo/images/t44-prior-solver-cards-stable.png)
 
 ![다중시험 Ogden 후보 비교](../15-demo/images/t43-ogden-candidates.png)
 

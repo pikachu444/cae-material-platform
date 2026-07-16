@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:modeling:reference-ogden-candidate-promotion-resources:1.0.0",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "Reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "SelectionCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_label", "calibration_run_id", "calibration_candidate_id", "selection_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "selection_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "SelectionContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_label", "ogden_calibration_run_id", "ogden_calibration_candidate_id", "candidate_sha256", "diagnostics_artifact_id", "diagnostics_sha256", "baseline_model_id", "baseline_model_revision_id", "selection_reason", "selection_decision", "non_production"],
+      "properties": {
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "ogden_calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "ogden_calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "diagnostics_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "diagnostics_sha256": {"$ref": "#/$defs/Sha256"},
+        "baseline_model_id": {"$ref": "#/$defs/Uuid"},
+        "baseline_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_reason": {"$ref": "#/$defs/Reason"},
+        "selection_decision": {"const": "accepted_for_ogden_prony_ir_revision"},
+        "non_production": {"const": true}
+      }
+    },
+    "SelectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ogden_candidate_selection_id", "current_revision", "links"],
+      "properties": {
+        "ogden_candidate_selection_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {
+          "allOf": [
+            {"$ref": "../revisions/revision-metadata.schema.json"},
+            {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/SelectionContent"}}}
+          ]
+        },
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "PromotionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_revision_id", "change_reason"],
+      "properties": {
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "PromotionEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_id", "selection_revision_id", "calibration_run_id", "calibration_candidate_id", "candidate_sha256", "diagnostics_artifact_id", "diagnostics_sha256", "promoted_from_model_revision_id"],
+      "properties": {
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "candidate_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "diagnostics_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "diagnostics_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "promoted_from_model_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    }
+  }
+}

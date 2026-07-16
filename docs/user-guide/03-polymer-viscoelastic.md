@@ -73,4 +73,6 @@ immutable revision으로 저장됩니다. 온도별 curve가 겹치지 않거나
   곧바로 production-qualified Prony parameter를 뜻하지 않습니다.
 - uncertainty가 `unassessed`이거나 identifiability warning이 있으면 그대로 보존됩니다.
 - linear-Prony IR은 OpenRadioss LAW62로 변환되지 않습니다.
-- promoted r2를 다시 승격하는 iterative workflow는 T-44 전까지 안전하게 거부됩니다.
+- T-44의 반복 승격 계약은 governed Ogden Candidate 흐름에 먼저 적용되었습니다. 이 문서의
+  bounded linear-Prony 흐름은 아직 기존 단일 승격 guard를 유지하므로 promoted r2의 재승격은
+  안전하게 거부됩니다.

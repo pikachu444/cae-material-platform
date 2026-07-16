@@ -14,6 +14,10 @@ REFERENCE_OGDEN_PRONY_SCHEMA_ID = (
     "urn:cmp:modeling:reference-ogden-prony-hyperviscoelastic:1.0.0"
 )
 REFERENCE_OGDEN_PRONY_SCHEMA_VERSION = "1.0.0"
+REFERENCE_CALIBRATED_OGDEN_PRONY_SCHEMA_ID = (
+    "urn:cmp:modeling:reference-ogden-prony-hyperviscoelastic:1.1.0"
+)
+REFERENCE_CALIBRATED_OGDEN_PRONY_SCHEMA_VERSION = "1.1.0"
 
 _SCHEMA_DOCUMENT = {
     "family": REFERENCE_OGDEN_PRONY_FAMILY_ID,
@@ -73,6 +77,35 @@ class ReferenceShearPronyTerm:
 
 
 @dataclass(frozen=True, slots=True)
+class ReferenceOgdenPromotionEvidence:
+    """Exact human decision and diagnostics owned by one promoted IR revision."""
+
+    selection_id: UUID
+    selection_revision_id: UUID
+    calibration_run_id: UUID
+    calibration_candidate_id: UUID
+    candidate_sha256: str
+    diagnostics_artifact_id: UUID
+    diagnostics_sha256: str
+    promoted_from_model_revision_id: UUID
+
+    def __post_init__(self) -> None:
+        for name in (
+            "selection_id",
+            "selection_revision_id",
+            "calibration_run_id",
+            "calibration_candidate_id",
+            "diagnostics_artifact_id",
+            "promoted_from_model_revision_id",
+        ):
+            _nonzero(name, getattr(self, name))
+        for name in ("candidate_sha256", "diagnostics_sha256"):
+            value = getattr(self, name)
+            if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
+                raise InvalidReferenceOgdenProny(f"{name} must be lowercase SHA-256")
+
+
+@dataclass(frozen=True, slots=True)
 class ReferenceOgdenPronyContent:
     material_id: UUID
     material_revision_id: UUID
@@ -86,6 +119,7 @@ class ReferenceOgdenPronyContent:
     ogden_term: ReferenceOgdenTerm
     prony_terms: tuple[ReferenceShearPronyTerm, ...]
     reference_temperature_k: float = 293.15
+    promotion_evidence: ReferenceOgdenPromotionEvidence | None = None
     law62_poisson_ratio: float = 0.495
     material_class: str = "elastomer"
     hyperelastic_potential: str = "abaqus_ogden_two_mu_over_alpha_squared"
@@ -146,7 +180,7 @@ class ReferenceOgdenPronyContent:
         return self.ogden_term.mu_pa * (1 - sum(term.g_ratio for term in self.prony_terms))
 
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "model_family_id": self.model_family_id,
             "model_schema_digest": self.model_schema_digest,
             "material_class": self.material_class,
@@ -184,6 +218,21 @@ class ReferenceOgdenPronyContent:
             "reference_temperature_k": self.reference_temperature_k,
             "non_production": self.non_production,
         }
+        if self.promotion_evidence is not None:
+            evidence = self.promotion_evidence
+            result["promotion_evidence"] = {
+                "selection_id": str(evidence.selection_id),
+                "selection_revision_id": str(evidence.selection_revision_id),
+                "calibration_run_id": str(evidence.calibration_run_id),
+                "calibration_candidate_id": str(evidence.calibration_candidate_id),
+                "candidate_sha256": evidence.candidate_sha256,
+                "diagnostics_artifact_id": str(evidence.diagnostics_artifact_id),
+                "diagnostics_sha256": evidence.diagnostics_sha256,
+                "promoted_from_model_revision_id": str(
+                    evidence.promoted_from_model_revision_id
+                ),
+            }
+        return result
 
 
 def reference_ogden_prony_canonical(

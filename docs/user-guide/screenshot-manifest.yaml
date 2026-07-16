@@ -1,4 +1,4 @@
-version: 3
+version: 4
 verified_at: 2026-07-16
 source_evidence: ../15-demo/user-e2e-evidence-2026-07-16.md
 captures:
@@ -72,3 +72,13 @@ captures:
     workflow: ogden-fitted-residual-diagnostics-and-card-download
     fixture: deterministic T-43 52-point diagnostics Artifact
     image: ../15-demo/images/t43-ogden-diagnostics-and-cards.png
+  - id: ogden-iterative-promotion-history
+    route: /materials/{demo-elastomer-material-id}
+    workflow: human-candidate-selection-and-append-only-ir-promotion
+    fixture: deterministic T-44 repeated r1-to-r2-to-r3 promotion
+    image: ../15-demo/images/t44-ogden-selection-promotion-history.png
+  - id: ogden-prior-cards-stable
+    route: /materials/{demo-elastomer-material-id}
+    workflow: prior-solver-card-stability-after-ir-promotion
+    fixture: deterministic T-44 cards pinned to r1 and r2
+    image: ../15-demo/images/t44-prior-solver-cards-stable.png

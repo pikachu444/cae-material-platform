@@ -1,8 +1,10 @@
+from dataclasses import replace
 from uuid import UUID
 
 import pytest
 from cmp.modules.modeling.domain.reference_ogden_prony import (
     InvalidReferenceOgdenProny,
+    ReferenceOgdenPromotionEvidence,
     ReferenceOgdenPronyContent,
     ReferenceOgdenTerm,
     ReferenceShearPronyTerm,
@@ -43,6 +45,26 @@ def test_uniaxial_response_has_zero_reference_stress_and_positive_tension() -> N
     content = _content()
     assert incompressible_uniaxial_nominal_stress_pa(content, 1.0) == pytest.approx(0.0)
     assert incompressible_uniaxial_nominal_stress_pa(content, 1.5) > 0
+
+
+def test_each_promoted_revision_canonicalizes_its_own_exact_evidence() -> None:
+    content = replace(
+        _content(),
+        promotion_evidence=ReferenceOgdenPromotionEvidence(
+            selection_id=UUID(int=10),
+            selection_revision_id=UUID(int=11),
+            calibration_run_id=UUID(int=12),
+            calibration_candidate_id=UUID(int=13),
+            candidate_sha256="a" * 64,
+            diagnostics_artifact_id=UUID(int=14),
+            diagnostics_sha256="b" * 64,
+            promoted_from_model_revision_id=UUID(int=15),
+        ),
+    )
+    evidence = content.canonical()["promotion_evidence"]
+    assert isinstance(evidence, dict)
+    assert evidence["calibration_candidate_id"] == str(UUID(int=13))
+    assert evidence["promoted_from_model_revision_id"] == str(UUID(int=15))
 
 
 @pytest.mark.parametrize(

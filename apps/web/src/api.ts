@@ -46,6 +46,8 @@ import type {
   OgdenPronyCardResponse,
   OgdenPronyMappingResponse,
   OgdenPronyModelResponse,
+  OgdenPronyRevisionListResponse,
+  OgdenCandidateSelectionResponse,
   ScientificProfileResponse,
   OgdenCalibrationPlanResponse,
   OgdenCalibrationRunResponse,
@@ -1442,6 +1444,49 @@ export function getReferenceOgdenCandidateDiagnostics(
   return request(
     config,
     `/ogden-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
+  );
+}
+
+export function createReferenceOgdenCandidateSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    calibration_run_id: string;
+    calibration_candidate_id: string;
+    selection_reason: string;
+  },
+): Promise<ApiResult<OgdenCandidateSelectionResponse>> {
+  return request(config, "/ogden-candidate-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function promoteReferenceOgdenCandidate(
+  config: ApiConfig,
+  selectionId: string,
+  modelEtag: string,
+  input: { selection_revision_id: string; change_reason: string },
+): Promise<ApiResult<OgdenPronyModelResponse>> {
+  return request(
+    config,
+    `/ogden-candidate-selections/${encodeURIComponent(selectionId)}/promotions`,
+    {
+      method: "POST",
+      headers: { "If-Match": modelEtag },
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export function listOgdenPronyModelRevisions(
+  config: ApiConfig,
+  materialModelId: string,
+): Promise<ApiResult<OgdenPronyRevisionListResponse>> {
+  return request(
+    config,
+    `/ogden-prony-models/${encodeURIComponent(materialModelId)}/revisions`,
   );
 }
 

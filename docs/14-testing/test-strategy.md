@@ -221,7 +221,11 @@ The live synthetic gate can be prepared with
 `uv run python scripts/seed_ogden_calibration_demo.py`. It creates governed public fixtures only;
 recovering the analytical `mu` and `alpha` is a scientific regression for this reference equation,
 not constitutive-model validation or Abaqus/OpenRadioss qualification. Candidate-to-IR promotion
-is deliberately tested separately in T-44.
+is deliberately tested separately in T-44. T-44 tests require a strong current ETag, reject stale
+heads, preserve one-time Candidate/Selection use, enforce organization/project/classification and
+exact Run/Candidate/diagnostics lineage in PostgreSQL, append r2/r3 on one stable identity, expose
+revision-owned evidence in the browser, and prove that an earlier Solver Card payload and SHA-256
+do not change after a later promotion.
 
 ## T-31 PostgreSQL integration prerequisites
 

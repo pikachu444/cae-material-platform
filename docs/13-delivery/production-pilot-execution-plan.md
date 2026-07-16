@@ -29,17 +29,17 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 054
+- latest schema: migration 055
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-44~T-45 and T-47
+- missing product depth: T-45 and T-47
 - user experience gap: global navigation and task-oriented user manual from T-46
 
-Migrations 001~054, raw objects, prior revisions, cards, releases and golden fixtures are never
-rewritten. The next schema unit begins at migration 055.
+Migrations 001~055, raw objects, prior revisions, cards, releases and golden fixtures are never
+rewritten. The next schema unit begins at migration 056.
 
 ## 3. PR 순서와 exit gate
 
@@ -51,7 +51,7 @@ rewritten. The next schema unit begins at migration 055.
 | 4 | T-41 tabular importer/schema | parser/security/contract/PostgreSQL/browser fixtures | complete |
 | 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | complete |
 | 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | complete |
-| 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | pending |
+| 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | pending |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | pending |
 | 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security evidence | pending |
@@ -125,7 +125,20 @@ keeps calibration and holdout evidence disjoint, and stores every multistart Can
 objective, convergence, rank, covariance/95% CI or explicit not-estimable state, warnings and
 Parquet diagnostics Artifact. The connected React workbench displays Dataset roles/weights,
 candidate comparison and fitted/residual curves. It remains reference/unapproved, runs no solver
-and performs no automatic Candidate promotion; append-only promotion is T-44.
+and performs no automatic Candidate promotion. PR 7 adds the separate human Selection and
+append-only promotion described below.
+
+PR 7 implements T-44 with migration 055. A human Selection pins the exact succeeded Run,
+converged Candidate, diagnostics Artifact and baseline IR revision. Promotion requires the current
+strong IR ETag and appends a new revision to the same stable model identity. Candidate and
+Selection reuse, stale heads, cross-scope evidence and overwrite attempts are rejected; prior
+cards and releases retain their exact IR revision and digest.
+
+The PR 7 exit gate completed on PostgreSQL 16: fresh 001→055 and 055→054→055 passed, and the
+CI-equivalent suite recorded 606 Python tests plus 35 Vitest tests with zero skip/failure. Ruff,
+mypy over 518 source files, architecture/contracts/OpenAPI/build and npm audit all passed. Two live
+promotion rounds appended r2 and r3; three existing Solver Card revision/digest pairs remained
+unchanged and the connected browser reported no warning/error.
 
 The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
 the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,

@@ -220,7 +220,10 @@ ADR-0026은 같은 logical Material Model의 재보정을 새 stable identity로
 새 Candidate Selection은 current IR revision에 compare-and-swap하고 다음 immutable revision을
 append한다. 각 IR revision은 자신의 exact Selection/Run/Candidate/diagnostics evidence만
 소유하며 과거 evidence를 덮어쓰거나 하나의 mutable list로 합치지 않는다. Card와 Release는
-계속 한 concrete IR revision을 pin한다. 이 계약은 T-44에서 schema/API/UI로 구현한다.
+계속 한 concrete IR revision을 pin한다. T-44의 Ogden--Prony 구현은 strong `If-Match`, mandatory
+human reason, revision-owned typed evidence, reused Candidate/Selection uniqueness와 newest-first
+revision comparison을 제공한다. 새 calibration Plan은 항상 그 시점의 current IR revision을
+baseline으로 다시 pin해야 하며 자동 Candidate 선택이나 solver 실행은 수행하지 않는다.
 
 ## 8. Reproducibility 수준
 

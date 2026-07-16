@@ -199,7 +199,22 @@ export function ReferenceOgdenPronyWorkbench({
 
       {model ? (
         <>
-        <ReferenceOgdenCalibrationWorkbench config={config} state={state} model={model} />
+        <ReferenceOgdenCalibrationWorkbench
+          config={config}
+          state={state}
+          model={model}
+          onPromoted={(promoted) => {
+            setModels((current) => [
+              promoted,
+              ...current.filter((item) => item.material_model_id !== promoted.material_model_id),
+            ]);
+            setReport(null);
+            setPreview(null);
+            void reloadCards(promoted.material_model_id).catch((cause: unknown) =>
+              setError(errorMessage(cause)),
+            );
+          }}
+        />
         <div className="workflow-stack">
           <div className="workflow-step">
             <strong>Saved model revision {model.current_revision.revision_no}</strong>

@@ -24,6 +24,7 @@ from cmp.modules.modeling.application.ogden_prony import (
 from cmp.modules.modeling.application.service import MATERIAL_MODEL_AGGREGATE_TYPE, RevisionSnapshot
 from cmp.modules.modeling.domain.reference_ogden_prony import (
     REFERENCE_OGDEN_PRONY_FAMILY_ID,
+    ReferenceOgdenPromotionEvidence,
     ReferenceOgdenPronyContent,
     ReferenceOgdenPronyNotFound,
     ReferenceOgdenTerm,
@@ -65,6 +66,24 @@ ogden_prony_term_table = sa.Table(
     sa.Column("ordinal", sa.Integer(), nullable=False),
     sa.Column("g_ratio", sa.Double(), nullable=False),
     sa.Column("relaxation_time_s", sa.Double(), nullable=False),
+    schema="modeling",
+)
+ogden_promotion_evidence_table = sa.Table(
+    "ogden_promotion_evidence",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_model_id", sa.Uuid(), nullable=False),
+    sa.Column("material_model_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("promoted_from_model_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("calibration_run_id", sa.Uuid(), nullable=False),
+    sa.Column("calibration_candidate_id", sa.Uuid(), nullable=False),
+    sa.Column("candidate_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("diagnostics_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("diagnostics_sha256", sa.CHAR(64), nullable=False),
     schema="modeling",
 )
 
@@ -113,7 +132,11 @@ def _content_values(content: ReferenceOgdenPronyContent) -> dict[str, Any]:
         "poisson_ratio": content.catalog_poisson_ratio,
         "source_yield_stress_pa": None,
         "reference_temperature_k": content.reference_temperature_k,
-        "calibration_evidence_kind": "manual_catalog_projection",
+        "calibration_evidence_kind": (
+            "reference_ogden_candidate_selection"
+            if content.promotion_evidence is not None
+            else "manual_catalog_projection"
+        ),
         "non_production": True,
     }
 
@@ -150,6 +173,27 @@ def _write_terms(session: Session, draft: RevisionDraft[ReferenceOgdenPronyConte
             for ordinal, term in enumerate(content.prony_terms, 1)
         ],
     )
+    evidence = content.promotion_evidence
+    if evidence is not None:
+        session.execute(
+            sa.insert(ogden_promotion_evidence_table).values(
+                organization_id=scope.organization_id,
+                project_id=scope.project_id,
+                classification=scope.classification,
+                material_model_id=draft.aggregate_id,
+                material_model_revision_id=draft.revision_id,
+                promoted_from_model_revision_id=(
+                    evidence.promoted_from_model_revision_id
+                ),
+                selection_id=evidence.selection_id,
+                selection_revision_id=evidence.selection_revision_id,
+                calibration_run_id=evidence.calibration_run_id,
+                calibration_candidate_id=evidence.calibration_candidate_id,
+                candidate_sha256=evidence.candidate_sha256,
+                diagnostics_artifact_id=evidence.diagnostics_artifact_id,
+                diagnostics_sha256=evidence.diagnostics_sha256,
+            )
+        )
 
 
 _TABLES = TypedRevisionTables[ReferenceOgdenPronyContent](
@@ -194,6 +238,17 @@ _REVISION_NAMES = (
     "non_production",
 )
 
+_EVIDENCE_NAMES = (
+    "promoted_from_model_revision_id",
+    "selection_id",
+    "selection_revision_id",
+    "calibration_run_id",
+    "calibration_candidate_id",
+    "candidate_sha256",
+    "diagnostics_artifact_id",
+    "diagnostics_sha256",
+)
+
 
 class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
     def __init__(
@@ -234,6 +289,7 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
     def _statement() -> sa.Select[Any]:
         revision = material_model_revision_table
         summary = ogden_prony_revision_table
+        evidence = ogden_promotion_evidence_table
         return (
             sa.select(
                 *(revision.c[name] for name in _REVISION_NAMES),
@@ -241,6 +297,7 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
                 summary.c.ogden_alpha,
                 summary.c.law62_poisson_ratio,
                 summary.c.term_count,
+                *(evidence.c[name] for name in _EVIDENCE_NAMES),
             )
             .select_from(
                 material_model_table.join(
@@ -258,6 +315,14 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
                         summary.c.material_model_revision_id == revision.c.id,
                         summary.c.organization_id == revision.c.organization_id,
                         summary.c.project_id == revision.c.project_id,
+                    ),
+                ).outerjoin(
+                    evidence,
+                    sa.and_(
+                        evidence.c.material_model_id == revision.c.aggregate_id,
+                        evidence.c.material_model_revision_id == revision.c.id,
+                        evidence.c.organization_id == revision.c.organization_id,
+                        evidence.c.project_id == revision.c.project_id,
                     ),
                 )
             )
@@ -285,6 +350,22 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
 
     @classmethod
     def _snapshot(cls, session: Session, row: Any) -> OgdenPronyModelSnapshot:
+        evidence = (
+            ReferenceOgdenPromotionEvidence(
+                selection_id=cast(UUID, row["selection_id"]),
+                selection_revision_id=cast(UUID, row["selection_revision_id"]),
+                calibration_run_id=cast(UUID, row["calibration_run_id"]),
+                calibration_candidate_id=cast(UUID, row["calibration_candidate_id"]),
+                candidate_sha256=str(row["candidate_sha256"]),
+                diagnostics_artifact_id=cast(UUID, row["diagnostics_artifact_id"]),
+                diagnostics_sha256=str(row["diagnostics_sha256"]),
+                promoted_from_model_revision_id=cast(
+                    UUID, row["promoted_from_model_revision_id"]
+                ),
+            )
+            if row["selection_id"] is not None
+            else None
+        )
         content = ReferenceOgdenPronyContent(
             material_id=cast(UUID, row["material_id"]),
             material_revision_id=cast(UUID, row["material_revision_id"]),
@@ -300,6 +381,7 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
             ),
             prony_terms=cls._terms(session, row),
             reference_temperature_k=float(row["reference_temperature_k"]),
+            promotion_evidence=evidence,
             law62_poisson_ratio=float(row["law62_poisson_ratio"]),
             model_family_id=str(row["model_family_id"]),
             model_schema_digest=str(row["model_schema_digest"]),
@@ -342,6 +424,7 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
     ) -> RevisionSnapshot[ReferenceOgdenPronyContent]:
         revision = material_model_revision_table
         summary = ogden_prony_revision_table
+        evidence = ogden_promotion_evidence_table
         statement = (
             sa.select(
                 *(revision.c[name] for name in _REVISION_NAMES),
@@ -349,6 +432,7 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
                 summary.c.ogden_alpha,
                 summary.c.law62_poisson_ratio,
                 summary.c.term_count,
+                *(evidence.c[name] for name in _EVIDENCE_NAMES),
             )
             .select_from(
                 revision.join(
@@ -358,6 +442,14 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
                         summary.c.material_model_revision_id == revision.c.id,
                         summary.c.organization_id == revision.c.organization_id,
                         summary.c.project_id == revision.c.project_id,
+                    ),
+                ).outerjoin(
+                    evidence,
+                    sa.and_(
+                        evidence.c.material_model_id == revision.c.aggregate_id,
+                        evidence.c.material_model_revision_id == revision.c.id,
+                        evidence.c.organization_id == revision.c.organization_id,
+                        evidence.c.project_id == revision.c.project_id,
                     ),
                 )
             )
@@ -380,6 +472,65 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
             except DBAPIError as error:
                 raise ReferenceOgdenPronyNotFound(
                     "Ogden-Prony model revision is unavailable"
+                ) from error
+
+    def list_material_model_revisions(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+    ) -> tuple[RevisionSnapshot[ReferenceOgdenPronyContent], ...]:
+        revision = material_model_revision_table
+        summary = ogden_prony_revision_table
+        evidence = ogden_promotion_evidence_table
+        statement = (
+            sa.select(
+                *(revision.c[name] for name in _REVISION_NAMES),
+                summary.c.ogden_mu_pa,
+                summary.c.ogden_alpha,
+                summary.c.law62_poisson_ratio,
+                summary.c.term_count,
+                *(evidence.c[name] for name in _EVIDENCE_NAMES),
+            )
+            .select_from(
+                revision.join(
+                    summary,
+                    sa.and_(
+                        summary.c.material_model_id == revision.c.aggregate_id,
+                        summary.c.material_model_revision_id == revision.c.id,
+                        summary.c.organization_id == revision.c.organization_id,
+                        summary.c.project_id == revision.c.project_id,
+                    ),
+                ).outerjoin(
+                    evidence,
+                    sa.and_(
+                        evidence.c.material_model_id == revision.c.aggregate_id,
+                        evidence.c.material_model_revision_id == revision.c.id,
+                        evidence.c.organization_id == revision.c.organization_id,
+                        evidence.c.project_id == revision.c.project_id,
+                    ),
+                )
+            )
+            .where(
+                revision.c.model_family_id == REFERENCE_OGDEN_PRONY_FAMILY_ID,
+                revision.c.aggregate_id == material_model_id,
+                revision.c.organization_id == context.organization_id,
+                revision.c.project_id == context.project_id,
+            )
+            .order_by(revision.c.revision_no.desc())
+        )
+        with self._session(context, decision) as session:
+            try:
+                rows = session.execute(statement).mappings().all()
+                if not rows:
+                    raise ReferenceOgdenPronyNotFound(
+                        "Ogden-Prony model revisions are not visible"
+                    )
+                return tuple(self._snapshot(session, row).current for row in rows)
+            except DBAPIError as error:
+                raise ReferenceOgdenPronyNotFound(
+                    "Ogden-Prony model revisions are unavailable"
                 ) from error
 
     def list_material_models_for_state(

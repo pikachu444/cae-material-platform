@@ -1,6 +1,6 @@
 # ADR-0026: iterative calibration appends IR revisions and evidence
 
-- Status: Accepted
+- Status: Accepted and implemented for the bounded Ogden Candidate workflow
 - Date: 2026-07-16
 - Related: ADR-0012, ADR-0022; T-44
 
@@ -28,5 +28,7 @@ analysis harder.
 ## Consequences
 
 - Users can compare calibration rounds without losing stable model identity.
-- The current safe rejection remains until the T-44 migration, contract and UI are implemented.
+- Migration 055, the protected contract and the connected T-44 UI implement this decision for
+  governed multi-test Ogden Candidates. The older bounded linear-Prony path retains its original
+  single-promotion guard until it is migrated to the same evidence-chain contract.
 - Release impact analysis can distinguish a new model revision from a new logical model.
