@@ -17,4 +17,11 @@ COPY plugins ./plugins
 
 RUN uv sync --frozen --no-dev
 
+# The long-running API/worker image never invokes Debian's Perl runtime. Remove
+# this essential-for-package-management component after the final install so it
+# cannot contribute a dormant runtime attack surface. This image is immutable;
+# package installation belongs in the build above, not in a running container.
+RUN rm -rf /root/.cache/uv \
+    && dpkg --force-depends --force-remove-essential --remove perl-base
+
 CMD ["cmp-api"]
