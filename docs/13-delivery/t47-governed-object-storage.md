@@ -65,6 +65,26 @@ provisioning remains outside the application process.
    secrets, verify an immutable final digest/version/retention date, and exercise an independently
    managed object-storage interruption and recovery.
 
+After exporting the required `CMP_S3_*` values and provider workload credentials, run:
+
+```powershell
+uv run cmp-governed-storage-acceptance `
+  --root . `
+  --acknowledge-retained-test-object
+```
+
+The acknowledgement is mandatory because the command intentionally leaves one compliance-retained
+final object in the configured bucket. It creates a deterministic payload larger than two
+configured parts, exercises real multipart staging and conditional promotion, downloads and
+rehashes the final bytes, verifies listing and final-delete rejection, and writes a canonical
+redacted report under `.cache/governed-storage-acceptance/<run-id>/report.json`. Bucket, KMS key,
+logical key and version identities are represented only by SHA-256 in the report. Do not run it in
+an account where a retained acceptance object has not been approved.
+
+The command proves the configured endpoint at one point in time. Independently pause or deny the
+object-storage service under the operator's fault procedure and repeat the wider soak/recovery gate;
+the application does not disrupt an external production service automatically.
+
 Unit tests use an in-memory SDK double to prove request shape, checksum, conditional write,
 retention, encryption and fail-closed behavior. They are not evidence that a cloud account, KMS
 policy, WORM compliance control or independent failover has passed. Live qualification is blocked

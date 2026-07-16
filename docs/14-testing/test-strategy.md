@@ -865,6 +865,20 @@ This gate exercises the local shared-volume adapter only. Independent S3-compati
 object lock/KMS/retention, multi-node failover and overnight endurance must be evaluated when those
 production adapters and infrastructure are available.
 
+### Governed S3-compatible control extension
+
+The live storage gate requires `CMP_ENVIRONMENT=production`, the explicit S3 adapter and an operator
+acknowledgement that one retained test object will remain. It must inspect versioning, Object Lock
+and the exact default SSE-KMS identity, stage a deterministic payload across at least two parts,
+promote with a conditional final write, independently download and rehash the final object, observe
+its retention/version evidence and reject application-level final deletion. Reports hash bucket,
+KMS, logical-key and version identities rather than storing raw infrastructure names.
+
+An SDK double proves request shape in CI, but it is not live KMS/WORM evidence. The release record
+must distinguish `contract_passed` from `live_infrastructure_passed`; the latter is set only by the
+canonical `cmp-governed-storage-acceptance` report from the approved endpoint. External service
+interruption and recovery remain an operator-controlled extension to the soak gate.
+
 ## T-47 external Bundle worker and reconciliation gate
 
 The Compose demo deliberately sets `CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES=16384` so its small public

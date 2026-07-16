@@ -8,13 +8,18 @@ from io import BytesIO
 from typing import Any
 
 import pytest
-from cmp.bootstrap.artifacts import _build_object_store
+from cmp.bootstrap.artifacts import build_object_store
 from cmp.bootstrap.settings import Settings
 from cmp.modules.artifacts.adapters.storage.s3 import (
     S3GovernancePolicy,
     S3GovernedObjectStore,
 )
 from cmp.modules.artifacts.domain.uploads import ObjectStoreError
+from cmp.tools.governed_storage_acceptance import (
+    deterministic_chunks,
+    deterministic_digest,
+    run_acceptance,
+)
 
 NOW = datetime(2026, 7, 17, 12, 0, tzinfo=UTC)
 BUCKET = "cmp-production-artifacts"
@@ -171,9 +176,9 @@ def test_s3_policy_and_bootstrap_fail_closed_for_unsafe_production_storage() -> 
     with pytest.raises(ValueError, match="canonical"):
         S3GovernancePolicy(BUCKET, KMS_KEY, 3650, prefix="/cmp")
     with pytest.raises(ValueError, match="governed S3"):
-        _build_object_store(Settings(environment="production"))
+        build_object_store(Settings(environment="production"))
     with pytest.raises(ValueError, match="HTTPS"):
-        _build_object_store(
+        build_object_store(
             Settings(
                 environment="production",
                 object_store_backend="s3",
@@ -284,3 +289,28 @@ def test_s3_multipart_upload_sends_part_checksums_and_verifies_completed_bytes()
     )
     assert initiated["ServerSideEncryption"] == "aws:kms"
     assert initiated["ChecksumAlgorithm"] == "SHA256"
+
+
+def test_live_storage_acceptance_logic_is_redacted_and_retains_one_final_object() -> None:
+    client = _FakeS3()
+    store = _store(client)
+    size = 9 * 1024 * 1024 + 173
+
+    report = asyncio.run(
+        run_acceptance(
+            store,
+            payload_size_bytes=size,
+            source_commit="c" * 40,
+        )
+    )
+
+    assert report["passed"] is True
+    final = report["final_object"]
+    assert isinstance(final, dict)
+    assert final["sha256"] == deterministic_digest(size)
+    assert final["deletion_rejected"] is True
+    serialized = str(report)
+    assert BUCKET not in serialized
+    assert KMS_KEY not in serialized
+    assert sum(len(chunk) for chunk in deterministic_chunks(12345)) == 12345
+    assert len([key for key in client.objects if "/final/acceptance/" in key]) == 1

@@ -186,8 +186,8 @@ class S3GovernedObjectStore:
         if not matched:
             raise ObjectStoreError("S3 bucket default encryption must use the configured KMS key")
         return {
-            "bucket": self._policy.bucket,
-            "kms_key_id": self._policy.kms_key_id,
+            "bucket_sha256": hashlib.sha256(self._policy.bucket.encode()).hexdigest(),
+            "kms_key_id_sha256": hashlib.sha256(self._policy.kms_key_id.encode()).hexdigest(),
             "object_lock_enabled": True,
             "retention_days": self._policy.retention_days,
             "retention_mode": self._policy.retention_mode,
@@ -480,6 +480,36 @@ class S3GovernedObjectStore:
         retain_until = head.get("ObjectLockRetainUntilDate")
         if not isinstance(retain_until, datetime) or retain_until <= self._clock():
             raise ObjectStoreError("final S3 object retention date is missing or expired")
+
+    async def governance_evidence(self, object_key: str) -> dict[str, Any]:
+        """Return non-secret evidence for one validated final object."""
+
+        if not object_key.startswith("final/"):
+            raise ObjectStoreError("governance evidence requires a final object")
+        remote = self._remote_key(object_key)
+        try:
+            head = await asyncio.to_thread(
+                self._client.head_object,
+                Bucket=self._policy.bucket,
+                Key=remote,
+                ChecksumMode="ENABLED",
+                **self._owner(),
+            )
+        except Exception as error:
+            raise ObjectStoreError("S3 failed to inspect governance evidence") from error
+        self._validate_final_head(head)
+        retained_until = head["ObjectLockRetainUntilDate"]
+        if not isinstance(retained_until, datetime):
+            raise ObjectStoreError("final S3 object retention date is unavailable")
+        version_id = self._version(head)
+        return {
+            "bucket_sha256": hashlib.sha256(self._policy.bucket.encode()).hexdigest(),
+            "kms_key_id_sha256": hashlib.sha256(self._policy.kms_key_id.encode()).hexdigest(),
+            "object_lock_mode": head["ObjectLockMode"],
+            "retained_until": retained_until.isoformat(),
+            "server_side_encryption": head["ServerSideEncryption"],
+            "version_id_sha256": hashlib.sha256(version_id.encode()).hexdigest(),
+        }
 
     async def promote(
         self,

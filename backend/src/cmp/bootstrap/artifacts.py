@@ -58,7 +58,7 @@ def build_artifact_services(
 ) -> ArtifactServices:
     if identity.engine is None or identity.rls_context is None:
         return ArtifactServices(None, None)
-    store = _build_object_store(settings)
+    store = build_object_store(settings)
     if store is None:
         return ArtifactServices(None, None)
     sessions = sessionmaker(
@@ -99,7 +99,7 @@ def build_artifact_services(
     return ArtifactServices(upload, content)
 
 
-def _build_object_store(
+def build_object_store(
     settings: Settings,
 ) -> ArtifactObjectStore | None:
     backend = settings.object_store_backend.strip().lower()

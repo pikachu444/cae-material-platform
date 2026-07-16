@@ -1252,8 +1252,9 @@ final promotion reads a pinned staging version and uses an atomic `If-None-Match
 explicit checksum, KMS key and retain-until date. Only non-authoritative staging versions can be
 discarded through the application port.
 
-Four SDK-contract tests cover unsafe production fallback, governance mismatch, KMS/COMPLIANCE
-promotion and multipart checksum verification; the complete Artifact-focused subset passes 13
+Five SDK-contract/acceptance tests cover unsafe production fallback, governance mismatch,
+KMS/COMPLIANCE promotion, multipart checksum verification and the redacted live-gate workflow;
+the complete Artifact-focused subset passes 14
 tests. These tests do not qualify a real cloud KMS or WORM bucket. Live bucket/KMS/failover evidence
 remains pending credentials and approved infrastructure. The current atomic promotion ceiling is
 5,000,000,000 bytes, which covers the qualified 2-GiB ingestion path but not the domain 5-GiB Bundle
