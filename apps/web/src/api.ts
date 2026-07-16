@@ -46,6 +46,12 @@ import type {
   OgdenPronyCardResponse,
   OgdenPronyMappingResponse,
   OgdenPronyModelResponse,
+  ScientificProfileResponse,
+  OgdenCalibrationPlanResponse,
+  OgdenCalibrationRunResponse,
+  OgdenDiagnosticsResponse,
+  OgdenCalibrationRole,
+  OgdenTestMode,
   MappingReport,
   ImportDetectionReportResponse,
   ImportMappingResponse,
@@ -132,6 +138,7 @@ import type {
   GovernedImportProfileContent,
   GovernedImportProfileResponse,
   GovernedImportRunResponse,
+  GovernedDatasetResponse,
   GovernedTabularFileFormat,
   ReferenceTensileMapping,
   UploadSession,
@@ -1344,6 +1351,98 @@ export function createOgdenPronyModel(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export async function listScientificProfiles(
+  config: ApiConfig,
+  family: "steel_voce" | "polymer_linear_prony" | "elastomer_ogden_prony",
+): Promise<ApiResult<ScientificProfileResponse[]>> {
+  const result = await request<{ items: ScientificProfileResponse[] }>(
+    config,
+    `/scientific-profiles?family=${encodeURIComponent(family)}`,
+  );
+  return { data: result.data.items, etag: result.etag };
+}
+
+export function createOgdenScientificProfile(
+  config: ApiConfig,
+): Promise<ApiResult<ScientificProfileResponse>> {
+  return request(config, "/scientific-profiles", {
+    method: "POST",
+    body: JSON.stringify({
+      classification: "internal",
+      content: {
+        profile_label: "Reference elastomer multi-test Ogden",
+        family: "elastomer_ogden_prony",
+        approval_status: "reference_unapproved",
+        multistart_count: 8,
+        seed: 20260716,
+        status_note: "Synthetic/public reference bounds; domain sign-off is not recorded.",
+        ogden: {
+          mu_initial_pa: 1200000,
+          mu_lower_pa: 1000,
+          mu_upper_pa: 100000000,
+          mu_scale_pa: 1000000,
+          alpha_initial: 2.4,
+          alpha_lower: 0.1,
+          alpha_upper: 20,
+          alpha_scale: 2,
+          uniaxial_weight: 1,
+          planar_weight: 1,
+          biaxial_weight: 1,
+        },
+      },
+      change_reason: "Create explicit reference Ogden scientific profile",
+    }),
+  });
+}
+
+export function createReferenceOgdenCalibrationPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    scientific_profile_id: string;
+    scientific_profile_revision_id: string;
+    material_state_id: string;
+    material_state_revision_id: string;
+    baseline_model_id: string;
+    baseline_model_revision_id: string;
+    members: Array<{
+      role: OgdenCalibrationRole;
+      test_mode: OgdenTestMode;
+      dataset_id: string;
+      dataset_revision_id: string;
+      weight: number;
+    }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<OgdenCalibrationPlanResponse>> {
+  return request(config, "/ogden-calibration-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceOgdenCalibration(
+  config: ApiConfig,
+  planId: string,
+  input: { plan_revision_id: string; change_reason: string },
+): Promise<ApiResult<OgdenCalibrationRunResponse>> {
+  return request(config, `/ogden-calibration-plans/${encodeURIComponent(planId)}/runs`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getReferenceOgdenCandidateDiagnostics(
+  config: ApiConfig,
+  candidateId: string,
+): Promise<ApiResult<OgdenDiagnosticsResponse>> {
+  return request(
+    config,
+    `/ogden-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
+  );
 }
 
 export function preflightOgdenPronyCard(
@@ -2570,6 +2669,16 @@ export function executeGovernedTabularImport(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listGovernedDatasetsForTestRun(
+  config: ApiConfig,
+  testRunId: string,
+): Promise<ApiResult<{ items: GovernedDatasetResponse[] }>> {
+  return request(
+    config,
+    `/governed-datasets?test_run_id=${encodeURIComponent(testRunId)}`,
+  );
 }
 
 export function createViscoelasticSelection(

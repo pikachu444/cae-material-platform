@@ -17,6 +17,8 @@ import type {
   OgdenPronyModelResponse,
   PropertySetResponse,
 } from "./types";
+import { OgdenScientificProfilePanel } from "./scientific-profile-panel";
+import { ReferenceOgdenCalibrationWorkbench } from "./reference-ogden-calibration-workbench";
 
 interface EditableTerm {
   ratio: string;
@@ -172,6 +174,8 @@ export function ReferenceOgdenPronyWorkbench({
         <span className="revision-chip">reference · non-production</span>
       </div>
 
+      <OgdenScientificProfilePanel config={config} />
+
       <form className="viscoelastic-form" onSubmit={createModel}>
         <div className="form-grid">
           <label>Ogden μ (MPa)<input type="number" min="0.000001" step="any" value={muMpa} onChange={(event) => setMuMpa(event.target.value)} /></label>
@@ -194,6 +198,8 @@ export function ReferenceOgdenPronyWorkbench({
       </form>
 
       {model ? (
+        <>
+        <ReferenceOgdenCalibrationWorkbench config={config} state={state} model={model} />
         <div className="workflow-stack">
           <div className="workflow-step">
             <strong>Saved model revision {model.current_revision.revision_no}</strong>
@@ -212,6 +218,7 @@ export function ReferenceOgdenPronyWorkbench({
             </div>
           ) : null}
         </div>
+        </>
       ) : <p className="muted">No Ogden–Prony IR exists for this elastomer State yet.</p>}
 
       {error ? <p className="error-notice" role="alert">{error}</p> : null}

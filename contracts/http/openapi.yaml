@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.28.0
+  version: 0.29.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -1792,6 +1792,30 @@ paths:
         "409": {description: The reference Test Method already exists for this classification.}
         "422": {description: Reference Test Method request is invalid.}
         "503": {description: Testing service unavailable.}
+  /api/v1/test-methods/reference-multiaxial-tension:
+    post:
+      operationId: createReferenceMultiaxialTensionTestMethod
+      tags: [testing]
+      summary: Register an explicit non-production reference planar or biaxial tension method.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/ReferenceMultiaxialMethodCreateRequest"}
+      responses:
+        "201":
+          description: Stable mode-specific Test Method identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/TestMethodResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "409": {description: The mode-specific Test Method already exists for this classification.}
+        "422": {description: Reference Test Method request or mode is invalid.}
+        "503": {description: Testing service unavailable.}
   /api/v1/test-methods:
     get:
       operationId: listTestMethods
@@ -1811,7 +1835,7 @@ paths:
     post:
       operationId: createReferenceTensileTestRun
       tags: [testing]
-      summary: Create an immutable reference Test Run bound to concrete Specimen and Method revisions.
+      summary: Create an immutable reference tension Test Run bound to concrete Specimen and Method revisions.
       security: [{BearerAuth: []}]
       requestBody:
         required: true
@@ -2357,6 +2381,23 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Dataset read is not authorized.}
         "404": {description: Import Run is not visible.}
+        "503": {description: Governed importer unavailable.}
+  /api/v1/governed-datasets:
+    get:
+      operationId: listGovernedTabularDatasets
+      tags: [datasets]
+      summary: List governed Dataset heads linked to one exact Test Run identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: test_run_id, in: query, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Visible raw and normalized Dataset heads for the Test Run.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/DatasetListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
         "503": {description: Governed importer unavailable.}
   /api/v1/governed-datasets/{dataset_id}:
     get:
@@ -6349,6 +6390,193 @@ paths:
             application/problem+json:
               schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
         "503": {description: Processing service unavailable.}
+  /api/v1/scientific-profiles:
+    post:
+      operationId: createScientificProfile
+      tags: [modeling]
+      summary: Create a stable scientific profile identity and immutable reference revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201":
+          description: Versioned family-specific parameter, objective and diagnostic policy.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409":
+          description: Stable identity or governed approval transition conflicts.
+          content:
+            application/problem+json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Problem"}
+        "422": {description: Family-specific bounds or policy are invalid.}
+        "503": {description: Modeling service unavailable.}
+    get:
+      operationId: listScientificProfiles
+      tags: [modeling]
+      summary: List current scientific profile heads, optionally filtered by model family.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: family
+          in: query
+          required: false
+          schema: {enum: [steel_voce, polymer_linear_prony, elastomer_ogden_prony]}
+      responses:
+        "200":
+          description: Visible current scientific profile revisions.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/ListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/scientific-profiles/{profile_id}:
+    get:
+      operationId: getScientificProfile
+      tags: [modeling]
+      summary: Read one current immutable scientific profile revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Scientific profile head and exact revision metadata.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Scientific profile is not visible.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/scientific-profiles/{profile_id}/revisions:
+    post:
+      operationId: reviseScientificProfile
+      tags: [modeling]
+      summary: Append a new immutable revision without changing the stable family identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/ReviseRequest"}
+      responses:
+        "201":
+          description: Newly appended scientific profile revision.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: Scientific profile is not visible.}
+        "409": {description: Expected head, stable family, label, or approval transition conflicts.}
+        "422": {description: Family-specific bounds or policy are invalid.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-calibration-plans:
+    post:
+      operationId: createReferenceOgdenCalibrationPlan
+      tags: [modeling]
+      summary: Pin exact governed Dataset, scientific profile, State and baseline IR revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-ogden-calibration-resources.schema.json#/$defs/PlanCreateRequest"}
+      responses:
+        "201":
+          description: Immutable multi-test reference Ogden calibration Plan revision.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-ogden-calibration-resources.schema.json#/$defs/PlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execute is not authorized.}
+        "409": {description: Pinned scope, State, profile, model, or Dataset evidence conflicts.}
+        "422": {description: Member role, mode, weight, or Plan content is invalid.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-calibration-plans/{plan_id}/runs:
+    post:
+      operationId: executeReferenceOgdenCalibration
+      tags: [modeling]
+      summary: Fit a bounded one-term incompressible Ogden model to exact normalized curves.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: plan_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-ogden-calibration-resources.schema.json#/$defs/ExecuteRequest"}
+      responses:
+        "201":
+          description: Deterministic multistart candidates with holdout and uncertainty diagnostics.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-ogden-calibration-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Calibration execute is not authorized.}
+        "404": {description: Exact Plan revision or an input revision is not visible.}
+        "409": {description: Exact Dataset, Test Run, Specimen, State or Artifact evidence conflicts.}
+        "422": {description: Curve values or scientific bounds are invalid.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-calibration-runs/{run_id}:
+    get:
+      operationId: getReferenceOgdenCalibrationRun
+      tags: [modeling]
+      summary: Read immutable candidate, convergence, holdout and uncertainty evidence.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: run_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Terminal reference Ogden calibration Run.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-ogden-calibration-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Calibration Run is not visible.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-calibration-candidates/{candidate_id}/diagnostics:
+    get:
+      operationId: getReferenceOgdenCandidateDiagnostics
+      tags: [modeling]
+      summary: Read observed, predicted and residual points from the immutable Parquet Artifact.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: candidate_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Per-mode calibration and holdout diagnostic points.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-ogden-calibration-resources.schema.json#/$defs/DiagnosticsResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Candidate or diagnostics Artifact is not visible.}
+        "409": {description: Stored diagnostics digest or point count conflicts.}
+        "503": {description: Modeling service unavailable.}
 components:
   securitySchemes:
     BearerAuth:

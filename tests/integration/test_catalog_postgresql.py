@@ -83,6 +83,9 @@ from cmp.modules.datasets.adapters.persistence.viscoelastic_master_repository im
 )
 from cmp.modules.datasets.application.governed_import import (
     IMPORT_PROFILE_AGGREGATE_TYPE,
+    CreateImportProfile,
+    ExecuteGovernedImport,
+    GovernedImportService,
 )
 from cmp.modules.datasets.application.shear_relaxation import (
     ImportReferenceShearRelaxationCsv,
@@ -135,13 +138,37 @@ from cmp.modules.jobs.adapters.persistence.artifact_events import SqlArtifactAva
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
 )
+from cmp.modules.modeling.adapters.persistence.ogden_calibration_repository import (
+    SqlAlchemyOgdenCalibrationRepository,
+)
+from cmp.modules.modeling.adapters.persistence.ogden_prony_repository import (
+    SqlAlchemyOgdenPronyRepository,
+)
 from cmp.modules.modeling.adapters.persistence.repository import (
     SqlAlchemyModelingRepository,
     material_model_revision_table,
 )
+from cmp.modules.modeling.adapters.persistence.scientific_profile_repository import (
+    SqlAlchemyScientificProfileRepository,
+)
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     CreateReferenceLinearViscoelasticModel,
     LinearViscoelasticModelService,
+)
+from cmp.modules.modeling.application.ogden_calibration import (
+    CreateReferenceOgdenCalibrationPlan,
+    ExecuteReferenceOgdenCalibration,
+    OgdenCalibrationNotFound,
+    ReferenceOgdenCalibrationService,
+)
+from cmp.modules.modeling.application.ogden_prony import (
+    CreateReferenceOgdenPronyModel,
+    OgdenPronyModelService,
+)
+from cmp.modules.modeling.application.scientific_profile import (
+    CreateScientificProfile,
+    ReviseScientificProfile,
+    ScientificProfileService,
 )
 from cmp.modules.modeling.application.service import (
     CreateReferenceLinearElasticModel,
@@ -151,6 +178,20 @@ from cmp.modules.modeling.domain.reference_linear_elasticity import ReferenceMod
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     BulkRelaxationStatus,
     PronyTerm,
+)
+from cmp.modules.modeling.domain.reference_ogden_calibration import (
+    OgdenCalibrationMember,
+    OgdenCalibrationRole,
+    OgdenTestMode,
+    ReferenceOgdenCalibrationPlanContent,
+)
+from cmp.modules.modeling.domain.reference_ogden_prony import ReferenceShearPronyTerm
+from cmp.modules.modeling.domain.scientific_profile import (
+    OgdenScientificParameters,
+    ScientificApprovalStatus,
+    ScientificProfileContent,
+    ScientificProfileFamily,
+    ScientificProfileNotFound,
 )
 from cmp.modules.processing.adapters.persistence.viscoelastic_master_curve_repository import (
     SqlAlchemyViscoelasticMasterRepository,
@@ -178,6 +219,7 @@ from cmp.modules.testing.adapters.persistence.test_context_repository import (
     calibration_revision_table,
 )
 from cmp.modules.testing.application.service import (
+    CreateReferenceMultiaxialTensionMethod,
     CreateReferenceShearRelaxationMethod,
     CreateReferenceShearRelaxationRun,
     CreateReferenceTensileMethod,
@@ -196,7 +238,12 @@ from cmp.modules.testing.application.test_context import (
 from cmp.modules.testing.application.test_context import (
     TestContextService as _TestContextApplicationService,
 )
-from cmp.modules.testing.domain.reference_tensile import TestingConflict as _TestingConflict
+from cmp.modules.testing.domain.reference_tensile import (
+    ReferenceTensionMode,
+)
+from cmp.modules.testing.domain.reference_tensile import (
+    TestingConflict as _TestingConflict,
+)
 from cmp.modules.testing.domain.specimen_source import (
     SpecimenSourceContent,
     SpecimenSourceLot,
@@ -250,10 +297,14 @@ class PostgresHarness:
     service: CatalogService
     modeling: MaterialModelService
     linear_viscoelasticity: LinearViscoelasticModelService
+    scientific_profiles: ScientificProfileService
+    ogden_prony: OgdenPronyModelService
+    ogden_calibration: ReferenceOgdenCalibrationService
     exporting: SolverCardService
     testing: _TestingApplicationService
     test_context: _TestContextApplicationService
     governed_import_repository: SqlAlchemyGovernedImportRepository
+    governed_imports: GovernedImportService
     artifacts: ArtifactService
     uploads: UploadService
     shear_datasets: ShearRelaxationDatasetService
@@ -389,6 +440,29 @@ def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[PostgresHarne
             ),
             material_models=modeling,
         )
+        scientific_profiles = ScientificProfileService(
+            repository=SqlAlchemyScientificProfileRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            )
+        )
+        ogden_prony = OgdenPronyModelService(
+            repository=SqlAlchemyOgdenPronyRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            ),
+            material_models=modeling,
+        )
         testing = _TestingApplicationService(
             repository=SqlAlchemyTestingRepository(
                 session_factory=sessions,
@@ -453,6 +527,30 @@ def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[PostgresHarne
             ),
             clock=lambda: NOW,
         )
+        governed_imports = GovernedImportService(
+            repository=governed_import_repository,
+            testing=testing,
+            artifacts=artifacts,
+            clock=lambda: NOW,
+        )
+        ogden_calibration = ReferenceOgdenCalibrationService(
+            repository=SqlAlchemyOgdenCalibrationRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            ),
+            profiles=scientific_profiles,
+            catalog=CatalogService(repository=repository),
+            datasets=governed_imports,
+            testing=testing,
+            models=ogden_prony,
+            artifacts=artifacts,
+            clock=lambda: NOW,
+        )
         shear_datasets = ShearRelaxationDatasetService(
             repository=SqlAlchemyDatasetRepository(
                 session_factory=sessions,
@@ -505,10 +603,14 @@ def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[PostgresHarne
             service=CatalogService(repository=repository),
             modeling=modeling,
             linear_viscoelasticity=linear_viscoelasticity,
+            scientific_profiles=scientific_profiles,
+            ogden_prony=ogden_prony,
+            ogden_calibration=ogden_calibration,
             exporting=exporting,
             testing=testing,
             test_context=test_context,
             governed_import_repository=governed_import_repository,
+            governed_imports=governed_imports,
             artifacts=artifacts,
             uploads=uploads,
             shear_datasets=shear_datasets,
@@ -1865,6 +1967,336 @@ async def _single_chunk(value: bytes) -> AsyncIterator[bytes]:
     yield value
 
 
+def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    catalog_write = _decision(context, Permission.CATALOG_WRITE)
+    modeling_write = _decision(context, Permission.MODELING_WRITE)
+    testing_write = _decision(context, Permission.TESTING_WRITE)
+    dataset_write = _decision(context, Permission.DATASET_WRITE)
+    calibration_execute = _decision(context, Permission.CALIBRATION_EXECUTE)
+    material = postgres.service.create_material(
+        context,
+        catalog_write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent(
+                f"T43 Elastomer {uuid4().hex[:8]}",
+                f"T43-OGDEN-{uuid4().hex[:8]}",
+                "elastomer",
+                material_class=MaterialClass.ELASTOMER,
+            ),
+            "create exact T43 elastomer",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        catalog_write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "Conditioned reference state",
+            ),
+            "create exact T43 State",
+        ),
+    )
+    properties = postgres.service.create_property_set(
+        context,
+        catalog_write,
+        CreatePropertySet(
+            PropertySetContent(
+                state.id,
+                state.current.record.revision_id,
+                density_kg_per_m3=1_100.0,
+                density_source=_source(),
+                youngs_modulus_pa=6_000_000.0,
+                youngs_modulus_source=_source(),
+                poisson_ratio=0.49,
+                poisson_ratio_source=_source(),
+            ),
+            "record exact T43 source properties",
+        ),
+    )
+    baseline = postgres.ogden_prony.create_model(
+        context,
+        modeling_write,
+        CreateReferenceOgdenPronyModel(
+            material_state_id=state.id,
+            property_set_revision_id=properties.current.record.revision_id,
+            ogden_mu_pa=2_000_000.0,
+            ogden_alpha=2.0,
+            prony_terms=(ReferenceShearPronyTerm(0.2, 1.0),),
+            change_reason="create exact T43 baseline IR",
+        ),
+    )
+    profile = postgres.scientific_profiles.create(
+        context,
+        modeling_write,
+        CreateScientificProfile(
+            "internal",
+            ScientificProfileContent(
+                profile_label=f"T43 multi-test {uuid4().hex[:8]}",
+                family=ScientificProfileFamily.ELASTOMER_OGDEN_PRONY,
+                approval_status=ScientificApprovalStatus.REFERENCE_UNAPPROVED,
+                multistart_count=3,
+                seed=43,
+                ogden=OgdenScientificParameters(
+                    1_500_000.0,
+                    100_000.0,
+                    10_000_000.0,
+                    1_000_000.0,
+                    1.5,
+                    0.5,
+                    8.0,
+                    1.0,
+                ),
+            ),
+            "create exact T43 scientific profile",
+        ),
+    )
+    specimen = postgres.testing.create_specimen(
+        context,
+        testing_write,
+        CreateSpecimen(
+            state.id,
+            state.current.record.revision_id,
+            f"T43-{uuid4().hex[:8]}",
+            None,
+            "public synthetic calibration fixture",
+            "create exact T43 specimen",
+        ),
+    )
+    method = next(
+        (
+            item
+            for item in postgres.testing.list_test_methods(
+                context, _decision(context, Permission.TESTING_READ)
+            )
+            if item.current.content.method_code == "reference_uniaxial_tensile"
+        ),
+        None,
+    )
+    if method is None:
+        method = postgres.testing.create_reference_tensile_method(
+            context,
+            testing_write,
+            CreateReferenceTensileMethod(
+                DataClassification.INTERNAL, "create exact T43 method"
+            ),
+        )
+    planar_method = postgres.testing.create_reference_multiaxial_tension_method(
+        context,
+        testing_write,
+        CreateReferenceMultiaxialTensionMethod(
+            DataClassification.INTERNAL,
+            ReferenceTensionMode.PLANAR_TENSION,
+            "create exact T43 planar method",
+        ),
+    )
+    biaxial_method = postgres.testing.create_reference_multiaxial_tension_method(
+        context,
+        testing_write,
+        CreateReferenceMultiaxialTensionMethod(
+            DataClassification.INTERNAL,
+            ReferenceTensionMode.BIAXIAL_TENSION,
+            "create exact T43 biaxial method",
+        ),
+    )
+    assert planar_method.current.content.method_code == "reference_planar_tension"
+    assert biaxial_method.current.content.method_code == "reference_biaxial_tension"
+    test_run = postgres.testing.create_reference_tensile_run(
+        context,
+        testing_write,
+        CreateReferenceTensileRun(
+            specimen.id,
+            specimen.current.record.revision_id,
+            method.id,
+            method.current.record.revision_id,
+            f"T43-RUN-{uuid4().hex[:8]}",
+            NOW,
+            296.15,
+            2.0,
+            "create exact T43 run",
+        ),
+    )
+    import_profile = postgres.governed_imports.create_profile(
+        context,
+        dataset_write,
+        CreateImportProfile(
+            DataClassification.INTERNAL,
+            GovernedImportProfileContent(
+                profile_label=f"T43 nominal curve {uuid4().hex[:8]}",
+                data_schema=TabularDataSchema.MONOTONIC_TENSION,
+                file_format=TabularFileFormat.CSV,
+                sheet_name=None,
+                header_row=1,
+                encoding="utf-8",
+                delimiter=",",
+                decimal_separator=".",
+                channels=(
+                    GovernedChannelMapping(
+                        0,
+                        "engineering_strain",
+                        QuantityKind.ENGINEERING_STRAIN,
+                        "1",
+                        AxisRole.INDEPENDENT,
+                    ),
+                    GovernedChannelMapping(
+                        1,
+                        "engineering_stress_pa",
+                        QuantityKind.ENGINEERING_STRESS,
+                        "Pa",
+                        AxisRole.DEPENDENT,
+                    ),
+                ),
+            ),
+            "approve exact T43 mapping",
+        ),
+    )
+
+    async def upload_import_and_fit() -> tuple[UUID, UUID, UUID]:
+        strain = (0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30)
+        rows = ["engineering_strain,engineering_stress_pa"]
+        rows.extend(
+            f"{item:.8g},{2_000_000.0 * ((1 + item) - (1 + item) ** -2):.12g}"
+            for item in strain
+        )
+        payload = ("\n".join(rows) + "\n").encode()
+        artifact_write = _decision(context, Permission.ARTIFACT_WRITE)
+        upload = await postgres.uploads.create(
+            context,
+            artifact_write,
+            CreateUpload(
+                classification=DataClassification.INTERNAL,
+                original_filename="t43-public-synthetic.csv",
+                media_type="text/csv",
+                expected_size_bytes=len(payload),
+                expected_sha256=hashlib.sha256(payload).hexdigest(),
+                idempotency_key=f"t43-ogden-{uuid4()}",
+                part_size_bytes=64 * 1024,
+                test_run_revision_id=test_run.current.record.revision_id,
+            ),
+        )
+        await postgres.uploads.record_part(
+            context,
+            artifact_write,
+            RecordUploadPart(upload.session.id, 1, upload.capability),
+            _single_chunk(payload),
+        )
+        completed = await postgres.uploads.complete(
+            context,
+            artifact_write,
+            CompleteUpload(upload.session.id, upload.capability),
+        )
+        assert completed.available_artifact_id is not None
+        imported = await postgres.governed_imports.execute(
+            context,
+            dataset_write,
+            ExecuteGovernedImport(
+                test_run.id,
+                test_run.current.record.revision_id,
+                completed.raw_asset.id,
+                completed.available_artifact_id,
+                import_profile.id,
+                import_profile.current.record.revision_id,
+                "normalize exact T43 public synthetic curve",
+            ),
+        )
+        assert imported.normalized_dataset_id is not None
+        assert imported.normalized_dataset_revision_id is not None
+        plan = postgres.ogden_calibration.create_plan(
+            context,
+            calibration_execute,
+            CreateReferenceOgdenCalibrationPlan(
+                DataClassification.INTERNAL,
+                ReferenceOgdenCalibrationPlanContent(
+                    plan_label=f"T43 fit {uuid4().hex[:8]}",
+                    scientific_profile_id=profile.id,
+                    scientific_profile_revision_id=profile.current.record.revision_id,
+                    material_state_id=state.id,
+                    material_state_revision_id=state.current.record.revision_id,
+                    baseline_model_id=baseline.id,
+                    baseline_model_revision_id=baseline.current.record.revision_id,
+                    members=(
+                        OgdenCalibrationMember(
+                            0,
+                            OgdenCalibrationRole.CALIBRATION,
+                            OgdenTestMode.UNIAXIAL_TENSION,
+                            imported.normalized_dataset_id,
+                            imported.normalized_dataset_revision_id,
+                        ),
+                    ),
+                ),
+                "pin exact T43 evidence",
+            ),
+        )
+        fitted = await postgres.ogden_calibration.execute(
+            context,
+            calibration_execute,
+            ExecuteReferenceOgdenCalibration(
+                plan.id,
+                plan.current.record.revision_id,
+                "execute deterministic T43 fit",
+            ),
+        )
+        fitted_best = min(fitted.candidates, key=lambda item: item.value.objective_total)
+        return fitted.id, plan.id, fitted_best.id
+
+    run_id, plan_id, candidate_id = asyncio.run(upload_import_and_fit())
+    restored = postgres.ogden_calibration.get_run(
+        context,
+        _decision(context, Permission.MODELING_READ),
+        run_id,
+    )
+    best = min(restored.candidates, key=lambda item: item.value.objective_total)
+    assert best.id == candidate_id
+    assert best.value.mu_pa == pytest.approx(2_000_000.0, rel=1e-6)
+    assert best.value.alpha == pytest.approx(2.0, rel=1e-6)
+    assert best.value.uncertainty_status == "estimated_jacobian_covariance"
+    assert "no_holdout_data" in best.value.warnings
+    assert restored.plan_id == plan_id
+
+    other = _context(PROJECT_B)
+    with pytest.raises(OgdenCalibrationNotFound, match="not visible"):
+        postgres.ogden_calibration.get_run(
+            other,
+            _decision(other, Permission.MODELING_READ),
+            run_id,
+        )
+    with postgres.admin_engine.connect() as connection:
+        candidate_row = connection.execute(
+            sa.text(
+                "SELECT mu_pa, alpha, uncertainty_status FROM "
+                "modeling.ogden_calibration_candidate WHERE id=:id"
+            ),
+            {"id": candidate_id},
+        ).one()
+        rls = connection.scalar(
+            sa.text(
+                "SELECT relrowsecurity AND relforcerowsecurity FROM pg_class t "
+                "JOIN pg_namespace n ON n.oid=t.relnamespace "
+                "WHERE n.nspname='modeling' AND t.relname='ogden_calibration_candidate'"
+            )
+        )
+    assert candidate_row == (
+        pytest.approx(2_000_000.0, rel=1e-6),
+        pytest.approx(2.0, rel=1e-6),
+        "estimated_jacobian_covariance",
+    )
+    assert rls is True
+    with pytest.raises(DBAPIError, match="immutable"):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE modeling.ogden_calibration_candidate "
+                    "SET mu_pa=mu_pa+1 WHERE id=:id"
+                ),
+                {"id": candidate_id},
+            )
+
+
 async def _import_shear_curve(
     postgres: PostgresHarness,
     context: SecurityContext,
@@ -2138,4 +2570,112 @@ def test_viscoelastic_master_curve_is_typed_provenanced_and_previewable_in_postg
                     "WHERE selection_revision_id=:revision_id"
                 ),
                 {"revision_id": selection.current.record.revision_id},
+            )
+
+
+def test_scientific_profile_revisions_are_typed_historical_and_project_isolated(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.MODELING_WRITE)
+    read = _decision(context, Permission.MODELING_READ)
+    original_content = ScientificProfileContent(
+        profile_label=f"T43 Ogden profile {uuid4().hex[:8]}",
+        family=ScientificProfileFamily.ELASTOMER_OGDEN_PRONY,
+        approval_status=ScientificApprovalStatus.REFERENCE_UNAPPROVED,
+        multistart_count=4,
+        seed=43,
+        ogden=OgdenScientificParameters(
+            1_200_000.0,
+            1_000.0,
+            100_000_000.0,
+            1_000_000.0,
+            2.4,
+            0.1,
+            20.0,
+            2.0,
+        ),
+    )
+    created = postgres.scientific_profiles.create(
+        context,
+        write,
+        CreateScientificProfile(
+            "internal", original_content, "create exact T43 reference profile"
+        ),
+    )
+    revised_content = ScientificProfileContent(
+        profile_label=original_content.profile_label,
+        family=original_content.family,
+        approval_status=original_content.approval_status,
+        multistart_count=12,
+        seed=43,
+        ogden=original_content.ogden,
+    )
+    revised = postgres.scientific_profiles.revise(
+        context,
+        write,
+        created.id,
+        ReviseScientificProfile(
+            created.current.record.revision_id,
+            revised_content,
+            "increase deterministic multistart coverage",
+        ),
+    )
+    restored = postgres.scientific_profiles.get(context, read, created.id)
+    historical = postgres.scientific_profiles.get_revision_for_calibration(
+        context,
+        _decision(context, Permission.CALIBRATION_EXECUTE),
+        created.id,
+        created.current.record.revision_id,
+    )
+    assert restored.current.record.revision_id == revised.current.record.revision_id
+    assert restored.current.content.multistart_count == 12
+    assert historical.content.multistart_count == 4
+    assert historical.content.ogden is not None
+    assert historical.content.ogden.alpha_upper == 20.0
+
+    other = _context(PROJECT_B)
+    with pytest.raises(ScientificProfileNotFound, match="not visible"):
+        postgres.scientific_profiles.get(
+            other,
+            _decision(other, Permission.MODELING_READ),
+            created.id,
+        )
+
+    with postgres.admin_engine.connect() as connection:
+        rows = connection.execute(
+            sa.text(
+                "SELECT revision_no, multistart_count, ogden_alpha_upper, "
+                "voce_sigma0_initial_pa, prony_term_count_min "
+                "FROM modeling.scientific_profile_revision "
+                "WHERE aggregate_id=:profile_id ORDER BY revision_no"
+            ),
+            {"profile_id": created.id},
+        ).all()
+        rls = connection.execute(
+            sa.text(
+                "SELECT relrowsecurity AND relforcerowsecurity FROM pg_class t "
+                "JOIN pg_namespace n ON n.oid=t.relnamespace "
+                "WHERE n.nspname='modeling' AND t.relname='scientific_profile_revision'"
+            )
+        ).scalar_one()
+    assert len(rows) == 2
+    assert rows[0][0] == 1
+    assert rows[0][1] == 4
+    assert rows[0][2] == pytest.approx(20.0)
+    assert rows[0][3] is None and rows[0][4] is None
+    assert rows[1][0] == 2
+    assert rows[1][1] == 12
+    assert rows[1][2] == pytest.approx(20.0)
+    assert rows[1][3] is None and rows[1][4] is None
+    assert rls is True
+
+    with pytest.raises(DBAPIError, match="immutable"):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE modeling.scientific_profile_revision "
+                    "SET multistart_count=16 WHERE id=:revision_id"
+                ),
+                {"revision_id": created.current.record.revision_id},
             )

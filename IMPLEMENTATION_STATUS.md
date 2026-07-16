@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-27`
-Foundation version: `0.28.0`
+Foundation version: `0.29.0`
 
 ## Completed
 
@@ -882,8 +882,8 @@ separate raw/normalized SI Dataset revisions. CSV/TSV locale and XLSX sheet/form
 link/decompression constraints are explicit; force/displacement derivation requires pinned
    geometry. T-42 then adds exact multi-temperature replicate selection, explicit common-domain
    alignment/statistics, manual or deterministic WLF shift evidence and separate immutable master-
-   curve output. The next implementation unit is T-43 scientific profiles, uncertainty and
-   hyper-viscoelastic fitting.
+   curve output. T-43 then adds typed scientific profiles and bounded multi-test Ogden fitting;
+   the next implementation unit is T-44 append-only Candidate promotion.
 
 T-41 verification on 2026-07-16: migration 051 completed an upgrade/downgrade/re-upgrade round trip
 on disposable PostgreSQL 16. The CI-equivalent gate passed 576 Python tests with zero skips or
@@ -900,4 +900,34 @@ warnings/errors. Migration 052 completed a fresh 001--052 upgrade plus 052--051-
 PostgreSQL 16. The CI-equivalent gate passed 585 Python tests with zero skips/failures, 33 Vitest
 tests, ruff, mypy over 497 source files, architecture/contract/OpenAPI compatibility and the
 production frontend build; npm audit reported zero vulnerabilities.
+
+## T-43 scientific profiles and multi-test Ogden fitting (2026-07-16)
+
+Foundation version `0.29.0` adds migrations 053 and 054 without rewriting prior revisions.
+Migration 053 stores typed Steel Voce, Polymer linear-Prony and Elastomer Ogden--Prony scientific
+profile identities/revisions with forced RLS; it does not use JSON/EAV and refuses direct
+`domain_approved` self-assertion. Migration 054 stores typed exact-revision Ogden Plans and ordered
+calibration/holdout members, terminal Runs, multistart Attempts/Candidates, mode objectives,
+convergence, rank/condition, covariance/95% CI or explicit not-estimable state, warnings and exact
+diagnostics Artifact references. The same migration expands the typed Test Method constraint with
+separate reference planar- and biaxial-tension methods so multi-mode evidence is not mislabeled as
+uniaxial execution.
+
+The bounded numerical adapter consumes governed normalized engineering-strain/nominal-stress
+curves and supports public one-term incompressible Ogden uniaxial, planar and equibiaxial nominal
+responses. Weighting is normalized point → curve → mode; PCG64 starts and SciPy TRF execution are
+deterministic. The React workbench is connected to the real API and database and exposes exact
+Dataset selection, calibration/holdout roles, mode/curve weights, Candidate comparison,
+uncertainty and fitted/residual plots. Single-mode and missing-holdout evidence remain allowed but
+visibly warned. No solver is run, no Candidate is automatically accepted and no baseline or source
+revision is overwritten. T-44 remains next for human Candidate selection and repeated append-only
+IR promotion.
+
+Verification: analytic limit/recovery/weight/rank/holdout/deterministic-Parquet tests, protected API
+tests, PostgreSQL 001→054→053→054 migration round trip, and a live PostgreSQL
+upload→governed normalized Dataset→Plan→multistart fit→Candidate/Artifact persistence test all
+pass. Project RLS and immutable-row rejection are exercised. The CI-equivalent gate passed 600
+Python tests with zero skips/failures, 35 Vitest tests, ruff, mypy over 512 source files,
+architecture/contract/OpenAPI compatibility and the production Vite build; npm audit reported zero
+vulnerabilities. Browser verification found no console errors.
 

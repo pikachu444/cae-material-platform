@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:modeling:reference-ogden-calibration-resources:1.0.0",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "Reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "MemberRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["role", "test_mode", "dataset_id", "dataset_revision_id"],
+      "properties": {
+        "role": {"enum": ["calibration", "holdout"]},
+        "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "weight": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "PlanCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plan_label", "scientific_profile_id", "scientific_profile_revision_id", "material_state_id", "material_state_revision_id", "baseline_model_id", "baseline_model_revision_id", "members", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "scientific_profile_id": {"$ref": "#/$defs/Uuid"},
+        "scientific_profile_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "baseline_model_id": {"$ref": "#/$defs/Uuid"},
+        "baseline_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "members": {"type": "array", "minItems": 1, "maxItems": 24, "items": {"$ref": "#/$defs/MemberRequest"}},
+        "change_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "ExecuteRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plan_revision_id", "change_reason"],
+      "properties": {"plan_revision_id": {"$ref": "#/$defs/Uuid"}, "change_reason": {"$ref": "#/$defs/Reason"}}
+    },
+    "PlanResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ogden_calibration_plan_id", "current_revision", "links"],
+      "properties": {
+        "ogden_calibration_plan_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"type": "object"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "Candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ogden_calibration_candidate_id", "attempt_ordinal", "status", "candidate_sha256", "initial_mu_pa", "initial_alpha", "mu_pa", "alpha", "objective_total", "objective_by_mode", "calibration_rmse_pa", "calibration_normalized_rmse", "holdout_rmse_pa", "holdout_normalized_rmse", "convergence_status_code", "convergence_reason", "function_evaluations", "jacobian_evaluations", "optimality", "parameter_at_bound", "jacobian_rank", "jacobian_condition_number", "identifiability_status", "uncertainty_status", "mu_standard_error_pa", "alpha_standard_error", "mu_confidence_interval_pa", "alpha_confidence_interval", "warnings", "diagnostics_artifact_id", "diagnostics_point_count", "links"],
+      "properties": {
+        "ogden_calibration_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "attempt_ordinal": {"type": "integer", "minimum": 0, "maximum": 31},
+        "status": {"enum": ["converged", "nonconverged"]},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "initial_mu_pa": {"type": "number", "exclusiveMinimum": 0},
+        "initial_alpha": {"type": "number", "exclusiveMinimum": 0},
+        "mu_pa": {"type": "number", "exclusiveMinimum": 0},
+        "alpha": {"type": "number", "exclusiveMinimum": 0},
+        "objective_total": {"type": "number", "minimum": 0},
+        "objective_by_mode": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+        "calibration_rmse_pa": {"type": "number", "minimum": 0},
+        "calibration_normalized_rmse": {"type": "number", "minimum": 0},
+        "holdout_rmse_pa": {"type": ["number", "null"], "minimum": 0},
+        "holdout_normalized_rmse": {"type": ["number", "null"], "minimum": 0},
+        "convergence_status_code": {"type": "integer"},
+        "convergence_reason": {"type": "string", "minLength": 1, "maxLength": 255},
+        "function_evaluations": {"type": "integer", "minimum": 1},
+        "jacobian_evaluations": {"type": ["integer", "null"], "minimum": 0},
+        "optimality": {"type": "number", "minimum": 0},
+        "parameter_at_bound": {"type": "boolean"},
+        "jacobian_rank": {"type": "integer", "minimum": 0, "maximum": 2},
+        "jacobian_condition_number": {"type": ["number", "null"], "minimum": 0},
+        "identifiability_status": {"enum": ["full_rank", "rank_deficient"]},
+        "uncertainty_status": {"enum": ["estimated_jacobian_covariance", "not_estimable_rank_deficient", "not_estimable_insufficient_dof", "not_estimable_nonfinite"]},
+        "mu_standard_error_pa": {"type": ["number", "null"]},
+        "alpha_standard_error": {"type": ["number", "null"]},
+        "mu_confidence_interval_pa": {"type": ["array", "null"], "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "alpha_confidence_interval": {"type": ["array", "null"], "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "diagnostics_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "diagnostics_point_count": {"type": "integer", "minimum": 5, "maximum": 50000},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "RunResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ogden_calibration_run_id", "status", "plan_id", "plan_revision_id", "scientific_profile_id", "scientific_profile_revision_id", "material_state_id", "material_state_revision_id", "baseline_model_id", "baseline_model_revision_id", "environment_digest", "calibration_curve_count", "holdout_curve_count", "test_mode_count", "attempt_count", "candidate_count", "candidates", "links"],
+      "properties": {
+        "ogden_calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "status": {"const": "succeeded"},
+        "plan_id": {"$ref": "#/$defs/Uuid"}, "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "scientific_profile_id": {"$ref": "#/$defs/Uuid"}, "scientific_profile_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"}, "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "baseline_model_id": {"$ref": "#/$defs/Uuid"}, "baseline_model_revision_id": {"$ref": "#/$defs/Uuid"},
+        "environment_digest": {"$ref": "#/$defs/Sha256"},
+        "calibration_curve_count": {"type": "integer", "minimum": 1, "maximum": 24},
+        "holdout_curve_count": {"type": "integer", "minimum": 0, "maximum": 23},
+        "test_mode_count": {"type": "integer", "minimum": 1, "maximum": 3},
+        "attempt_count": {"type": "integer", "minimum": 1, "maximum": 32},
+        "candidate_count": {"type": "integer", "minimum": 1, "maximum": 32},
+        "candidates": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/Candidate"}},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "DiagnosticsResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidate_id", "points"],
+      "properties": {
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "points": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["member_ordinal", "role", "test_mode", "dataset_id", "dataset_revision_id", "point_ordinal", "engineering_strain", "stretch", "observed_nominal_stress_pa", "predicted_nominal_stress_pa", "residual_pa", "normalized_residual", "effective_weight"],
+          "properties": {
+            "member_ordinal": {"type": "integer", "minimum": 0}, "role": {"enum": ["calibration", "holdout"]},
+            "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
+            "dataset_id": {"$ref": "#/$defs/Uuid"}, "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+            "point_ordinal": {"type": "integer", "minimum": 0}, "engineering_strain": {"type": "number", "minimum": 0},
+            "stretch": {"type": "number", "minimum": 1}, "observed_nominal_stress_pa": {"type": "number", "minimum": 0},
+            "predicted_nominal_stress_pa": {"type": "number"}, "residual_pa": {"type": "number"},
+            "normalized_residual": {"type": "number"}, "effective_weight": {"type": "number", "exclusiveMinimum": 0}
+          }
+        }}
+      }
+    }
+  }
+}

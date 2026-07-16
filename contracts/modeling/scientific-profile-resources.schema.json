@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:modeling:scientific-profile-resources:1.0.0",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "VoceParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sigma0_initial_pa", "sigma0_lower_pa", "sigma0_upper_pa", "sigma0_scale_pa", "q_initial_pa", "q_lower_pa", "q_upper_pa", "q_scale_pa", "b_initial", "b_lower", "b_upper", "b_scale"],
+      "properties": {
+        "sigma0_initial_pa": {"type": "number", "exclusiveMinimum": 0},
+        "sigma0_lower_pa": {"type": "number", "exclusiveMinimum": 0},
+        "sigma0_upper_pa": {"type": "number", "exclusiveMinimum": 0},
+        "sigma0_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "q_initial_pa": {"type": "number", "exclusiveMinimum": 0},
+        "q_lower_pa": {"type": "number", "exclusiveMinimum": 0},
+        "q_upper_pa": {"type": "number", "exclusiveMinimum": 0},
+        "q_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "b_initial": {"type": "number", "exclusiveMinimum": 0},
+        "b_lower": {"type": "number", "exclusiveMinimum": 0},
+        "b_upper": {"type": "number", "exclusiveMinimum": 0},
+        "b_scale": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "PronyParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["term_count_min", "term_count_max", "total_shear_ratio_upper", "relaxation_time_lower_s", "relaxation_time_upper_s"],
+      "properties": {
+        "term_count_min": {"type": "integer", "minimum": 1, "maximum": 10},
+        "term_count_max": {"type": "integer", "minimum": 1, "maximum": 10},
+        "total_shear_ratio_upper": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "relaxation_time_lower_s": {"type": "number", "exclusiveMinimum": 0},
+        "relaxation_time_upper_s": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "PronyCanonicalParameters": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/PronyParameters"},
+        {"type": "object", "required": ["time_transform"], "properties": {"time_transform": {"const": "log"}}}
+      ]
+    },
+    "OgdenParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mu_initial_pa", "mu_lower_pa", "mu_upper_pa", "mu_scale_pa", "alpha_initial", "alpha_lower", "alpha_upper", "alpha_scale", "uniaxial_weight", "planar_weight", "biaxial_weight"],
+      "properties": {
+        "mu_initial_pa": {"type": "number", "exclusiveMinimum": 0},
+        "mu_lower_pa": {"type": "number", "exclusiveMinimum": 0},
+        "mu_upper_pa": {"type": "number", "exclusiveMinimum": 0},
+        "mu_scale_pa": {"type": "number", "exclusiveMinimum": 0},
+        "alpha_initial": {"type": "number", "exclusiveMinimum": 0},
+        "alpha_lower": {"type": "number", "exclusiveMinimum": 0},
+        "alpha_upper": {"type": "number", "exclusiveMinimum": 0},
+        "alpha_scale": {"type": "number", "exclusiveMinimum": 0},
+        "uniaxial_weight": {"type": "number", "exclusiveMinimum": 0},
+        "planar_weight": {"type": "number", "exclusiveMinimum": 0},
+        "biaxial_weight": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "RequestContentCommon": {
+      "type": "object",
+      "required": ["profile_label", "family", "approval_status", "multistart_count", "seed", "status_note"],
+      "properties": {
+        "profile_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "family": {"enum": ["steel_voce", "polymer_linear_prony", "elastomer_ogden_prony"]},
+        "approval_status": {"const": "reference_unapproved"},
+        "multistart_count": {"type": "integer", "minimum": 1, "maximum": 32},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+        "status_note": {"type": "string", "minLength": 1, "maxLength": 500}
+      }
+    },
+    "RequestContent": {
+      "oneOf": [
+        {
+          "unevaluatedProperties": false,
+          "allOf": [
+            {"$ref": "#/$defs/RequestContentCommon"},
+            {"type": "object", "required": ["voce"], "properties": {"family": {"const": "steel_voce"}, "voce": {"$ref": "#/$defs/VoceParameters"}}}
+          ]
+        },
+        {
+          "unevaluatedProperties": false,
+          "allOf": [
+            {"$ref": "#/$defs/RequestContentCommon"},
+            {"type": "object", "required": ["prony"], "properties": {"family": {"const": "polymer_linear_prony"}, "prony": {"$ref": "#/$defs/PronyParameters"}}}
+          ]
+        },
+        {
+          "unevaluatedProperties": false,
+          "allOf": [
+            {"$ref": "#/$defs/RequestContentCommon"},
+            {"type": "object", "required": ["ogden"], "properties": {"family": {"const": "elastomer_ogden_prony"}, "ogden": {"$ref": "#/$defs/OgdenParameters"}}}
+          ]
+        }
+      ]
+    },
+    "CanonicalCommon": {
+      "type": "object",
+      "required": ["profile_label", "family", "model_family_id", "approval_status", "optimizer", "residual_definition", "aggregation_order", "missing_data_policy", "holdout_policy", "uncertainty_policy", "multistart_count", "seed", "status_note", "parameters"],
+      "properties": {
+        "profile_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "family": {"enum": ["steel_voce", "polymer_linear_prony", "elastomer_ogden_prony"]},
+        "model_family_id": {"type": "string", "minLength": 1},
+        "approval_status": {"enum": ["reference_unapproved", "domain_approved"]},
+        "optimizer": {"const": "scipy_least_squares_trf"},
+        "residual_definition": {"const": "normalized_weighted_least_squares"},
+        "aggregation_order": {"const": "point_then_curve_then_mode"},
+        "missing_data_policy": {"const": "reject"},
+        "holdout_policy": {"const": "explicit_disjoint"},
+        "uncertainty_policy": {"const": "jacobian_covariance_or_not_estimable"},
+        "multistart_count": {"type": "integer", "minimum": 1, "maximum": 32},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+        "status_note": {"type": "string", "minLength": 1, "maxLength": 500}
+      }
+    },
+    "CanonicalContent": {
+      "oneOf": [
+        {"unevaluatedProperties": false, "allOf": [{"$ref": "#/$defs/CanonicalCommon"}, {"type": "object", "properties": {"family": {"const": "steel_voce"}, "model_family_id": {"const": "urn:cmp:reference:voce-saturation-hardening:1.0.0"}, "parameters": {"$ref": "#/$defs/VoceParameters"}}}]},
+        {"unevaluatedProperties": false, "allOf": [{"$ref": "#/$defs/CanonicalCommon"}, {"type": "object", "properties": {"family": {"const": "polymer_linear_prony"}, "model_family_id": {"const": "urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0"}, "parameters": {"$ref": "#/$defs/PronyCanonicalParameters"}}}]},
+        {"unevaluatedProperties": false, "allOf": [{"$ref": "#/$defs/CanonicalCommon"}, {"type": "object", "properties": {"family": {"const": "elastomer_ogden_prony"}, "model_family_id": {"const": "urn:cmp:reference:ogden-prony-hyperviscoelastic:1.0.0"}, "parameters": {"$ref": "#/$defs/OgdenParameters"}}}]}
+      ]
+    },
+    "CreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/RequestContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_current_revision_id", "content", "change_reason"],
+      "properties": {
+        "expected_current_revision_id": {"$ref": "#/$defs/Uuid"},
+        "content": {"$ref": "#/$defs/RequestContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "Response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scientific_profile_id", "current_revision", "links"],
+      "properties": {
+        "scientific_profile_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {
+          "unevaluatedProperties": false,
+          "allOf": [
+            {"$ref": "../revisions/revision-metadata.schema.json"},
+            {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/CanonicalContent"}}}
+          ]
+        },
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "ListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/Response"}}}
+    },
+    "Problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"type": "string"}, "title": {"type": "string"},
+        "status": {"type": "integer"}, "detail": {"type": "string"},
+        "code": {"type": "string"}, "trace_id": {"type": "string"}
+      }
+    }
+  }
+}

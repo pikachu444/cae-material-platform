@@ -379,6 +379,11 @@ class GovernedDatasetResponse(BaseModel):
         )
 
 
+class GovernedDatasetListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[GovernedDatasetResponse, ...]
+
+
 def install_governed_import_api(
     application: FastAPI,
     *,
@@ -560,6 +565,33 @@ def install_governed_import_api(
         except Exception as error:
             raise _translate_governed(context, error) from error
         return GovernedImportRunResponse.from_domain(result)
+
+    @application.get(
+        "/api/v1/governed-datasets",
+        operation_id="listGovernedTabularDatasets",
+        response_model=GovernedDatasetListResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        responses=errors,
+        tags=["datasets"],
+    )
+    def list_datasets(
+        request: Request,
+        test_run_id: UUID,
+    ) -> GovernedDatasetListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            values = service.list_datasets_for_test_run(
+                context,
+                decision,
+                test_run_id,
+            )
+        except Exception as error:
+            raise _translate_governed(context, error) from error
+        return GovernedDatasetListResponse(
+            items=tuple(GovernedDatasetResponse.from_snapshot(value) for value in values)
+        )
 
     @application.get(
         "/api/v1/governed-datasets/{dataset_id}",

@@ -803,3 +803,78 @@ class SqlAlchemyGovernedImportRepository(GovernedImportRepository):
             return GovernedDatasetSnapshot(
                 dataset_id, RevisionSnapshot(record, _dataset(row, channels))
             )
+
+    def get_dataset_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[GovernedDatasetContent]:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(governed_dataset_revision_table).where(
+                        governed_dataset_revision_table.c.aggregate_id == dataset_id,
+                        governed_dataset_revision_table.c.id == dataset_revision_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise GovernedImportNotFound("governed Dataset revision is not visible")
+            channels = self._load_channels(
+                session,
+                governed_dataset_channel_table,
+                "dataset_revision_id",
+                dataset_revision_id,
+            )
+            return RevisionSnapshot(
+                _record(row, GOVERNED_DATASET_AGGREGATE_TYPE),
+                _dataset(row, channels),
+            )
+
+    def list_datasets_for_test_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        test_run_id: UUID,
+    ) -> tuple[GovernedDatasetSnapshot, ...]:
+        with self._session(context, decision) as session:
+            rows = (
+                session.execute(
+                    sa.select(governed_dataset_revision_table)
+                    .join(
+                        governed_dataset_table,
+                        governed_dataset_table.c.current_revision_id
+                        == governed_dataset_revision_table.c.id,
+                    )
+                    .where(governed_dataset_revision_table.c.test_run_id == test_run_id)
+                    .order_by(
+                        governed_dataset_revision_table.c.representation.desc(),
+                        governed_dataset_revision_table.c.created_at.desc(),
+                    )
+                )
+                .mappings()
+                .all()
+            )
+            result: list[GovernedDatasetSnapshot] = []
+            for row in rows:
+                revision_id = cast(UUID, row["id"])
+                channels = self._load_channels(
+                    session,
+                    governed_dataset_channel_table,
+                    "dataset_revision_id",
+                    revision_id,
+                )
+                record = _record(row, GOVERNED_DATASET_AGGREGATE_TYPE)
+                result.append(
+                    GovernedDatasetSnapshot(
+                        record.aggregate_id,
+                        RevisionSnapshot(record, _dataset(row, channels)),
+                    )
+                )
+            return tuple(result)

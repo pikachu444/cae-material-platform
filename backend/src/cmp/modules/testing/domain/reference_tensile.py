@@ -9,13 +9,38 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import datetime
+from enum import StrEnum
 from uuid import UUID
 
 REFERENCE_TENSILE_METHOD_CODE = "reference_uniaxial_tensile"
 REFERENCE_TENSILE_METHOD_DISPLAY_NAME = "Reference uniaxial tensile CSV"
+REFERENCE_PLANAR_TENSION_METHOD_CODE = "reference_planar_tension"
+REFERENCE_PLANAR_TENSION_METHOD_DISPLAY_NAME = "Reference planar tension CSV"
+REFERENCE_BIAXIAL_TENSION_METHOD_CODE = "reference_biaxial_tension"
+REFERENCE_BIAXIAL_TENSION_METHOD_DISPLAY_NAME = "Reference biaxial tension CSV"
 REFERENCE_SHEAR_RELAXATION_METHOD_CODE = "reference_shear_relaxation"
 REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME = "Reference shear relaxation CSV"
 REFERENCE_TENSILE_SCHEMA_VERSION = "1.0.0"
+
+
+class ReferenceTensionMode(StrEnum):
+    """Explicit physical loading modes supported by the bounded tension intake."""
+
+    PLANAR_TENSION = "planar_tension"
+    BIAXIAL_TENSION = "biaxial_tension"
+
+
+REFERENCE_TENSION_METHODS = {
+    REFERENCE_TENSILE_METHOD_CODE: REFERENCE_TENSILE_METHOD_DISPLAY_NAME,
+    REFERENCE_PLANAR_TENSION_METHOD_CODE: REFERENCE_PLANAR_TENSION_METHOD_DISPLAY_NAME,
+    REFERENCE_BIAXIAL_TENSION_METHOD_CODE: REFERENCE_BIAXIAL_TENSION_METHOD_DISPLAY_NAME,
+}
+
+
+def reference_tension_method(mode: ReferenceTensionMode) -> tuple[str, str]:
+    if mode is ReferenceTensionMode.PLANAR_TENSION:
+        return REFERENCE_PLANAR_TENSION_METHOD_CODE, REFERENCE_PLANAR_TENSION_METHOD_DISPLAY_NAME
+    return REFERENCE_BIAXIAL_TENSION_METHOD_CODE, REFERENCE_BIAXIAL_TENSION_METHOD_DISPLAY_NAME
 
 
 class TestingError(Exception):
@@ -95,7 +120,7 @@ class TestMethodContent:
 
     def __post_init__(self) -> None:
         expected = {
-            REFERENCE_TENSILE_METHOD_CODE: REFERENCE_TENSILE_METHOD_DISPLAY_NAME,
+            **REFERENCE_TENSION_METHODS,
             REFERENCE_SHEAR_RELAXATION_METHOD_CODE: (
                 REFERENCE_SHEAR_RELAXATION_METHOD_DISPLAY_NAME
             ),

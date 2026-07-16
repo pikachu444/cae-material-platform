@@ -332,6 +332,56 @@ class SqlAlchemyOgdenPronyRepository(OgdenPronyRepository):
             except DBAPIError as error:
                 raise ReferenceOgdenPronyNotFound("Ogden-Prony model is unavailable") from error
 
+    def get_material_model_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceOgdenPronyContent]:
+        revision = material_model_revision_table
+        summary = ogden_prony_revision_table
+        statement = (
+            sa.select(
+                *(revision.c[name] for name in _REVISION_NAMES),
+                summary.c.ogden_mu_pa,
+                summary.c.ogden_alpha,
+                summary.c.law62_poisson_ratio,
+                summary.c.term_count,
+            )
+            .select_from(
+                revision.join(
+                    summary,
+                    sa.and_(
+                        summary.c.material_model_id == revision.c.aggregate_id,
+                        summary.c.material_model_revision_id == revision.c.id,
+                        summary.c.organization_id == revision.c.organization_id,
+                        summary.c.project_id == revision.c.project_id,
+                    ),
+                )
+            )
+            .where(
+                revision.c.model_family_id == REFERENCE_OGDEN_PRONY_FAMILY_ID,
+                revision.c.aggregate_id == material_model_id,
+                revision.c.id == material_model_revision_id,
+                revision.c.organization_id == context.organization_id,
+                revision.c.project_id == context.project_id,
+            )
+        )
+        with self._session(context, decision) as session:
+            try:
+                row = session.execute(statement).mappings().one_or_none()
+                if row is None:
+                    raise ReferenceOgdenPronyNotFound(
+                        "Ogden-Prony model revision is not visible"
+                    )
+                return self._snapshot(session, row).current
+            except DBAPIError as error:
+                raise ReferenceOgdenPronyNotFound(
+                    "Ogden-Prony model revision is unavailable"
+                ) from error
+
     def list_material_models_for_state(
         self,
         *,

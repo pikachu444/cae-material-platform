@@ -224,6 +224,23 @@ class GovernedImportRepository(Protocol):
         dataset_id: UUID,
     ) -> GovernedDatasetSnapshot: ...
 
+    def get_dataset_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[GovernedDatasetContent]: ...
+
+    def list_datasets_for_test_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        test_run_id: UUID,
+    ) -> tuple[GovernedDatasetSnapshot, ...]: ...
+
 
 def _require(
     context: SecurityContext,
@@ -239,6 +256,22 @@ def _require(
         or decision.trace_id != context.trace_id
     ):
         raise GovernedImportConflict("authorization decision does not match Dataset request")
+
+
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise GovernedImportConflict("authorization decision lacks Dataset read capability")
 
 
 def _reason(value: str) -> str:
@@ -578,4 +611,32 @@ class GovernedImportService:
         _require(context, decision, Permission.DATASET_READ)
         return self._repository.get_dataset(
             context=context, decision=decision, dataset_id=dataset_id
+        )
+
+    def list_datasets_for_test_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        test_run_id: UUID,
+    ) -> tuple[GovernedDatasetSnapshot, ...]:
+        _require(context, decision, Permission.DATASET_READ)
+        return self._repository.list_datasets_for_test_run(
+            context=context,
+            decision=decision,
+            test_run_id=test_run_id,
+        )
+
+    def get_dataset_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        dataset_id: UUID,
+        dataset_revision_id: UUID,
+    ) -> RevisionSnapshot[GovernedDatasetContent]:
+        _require_capability(context, decision, Permission.DATASET_READ)
+        return self._repository.get_dataset_revision(
+            context=context,
+            decision=decision,
+            dataset_id=dataset_id,
+            dataset_revision_id=dataset_revision_id,
         )

@@ -29,10 +29,13 @@ from cmp.modules.testing.domain.reference_tensile import (
     REFERENCE_TENSILE_METHOD_CODE,
     REFERENCE_TENSILE_METHOD_DISPLAY_NAME,
     REFERENCE_TENSILE_SCHEMA_VERSION,
+    REFERENCE_TENSION_METHODS,
+    ReferenceTensionMode,
     SpecimenContent,
     TestingConflict,
     TestMethodContent,
     TestRunContent,
+    reference_tension_method,
 )
 from cmp.modules.testing.domain.specimen_source import SpecimenSourceContent
 from cmp.shared.application.revisions import (
@@ -53,6 +56,8 @@ TEST_METHOD_SCHEMA_ID = "urn:cmp:testing:reference-uniaxial-tensile-method:1.0.0
 TEST_RUN_SCHEMA_ID = "urn:cmp:testing:reference-uniaxial-tensile-run:1.0.0"
 SHEAR_RELAXATION_METHOD_SCHEMA_ID = "urn:cmp:testing:reference-shear-relaxation-method:1.0.0"
 SHEAR_RELAXATION_RUN_SCHEMA_ID = "urn:cmp:testing:reference-shear-relaxation-run:1.0.0"
+MULTIAXIAL_TENSION_METHOD_SCHEMA_ID = "urn:cmp:testing:reference-multiaxial-tension-method:1.0.0"
+MULTIAXIAL_TENSION_RUN_SCHEMA_ID = "urn:cmp:testing:reference-multiaxial-tension-run:1.0.0"
 SPECIMEN_SOURCE_SCHEMA_ID = "urn:cmp:testing:specimen-source-genealogy:1.0.0"
 
 
@@ -158,6 +163,13 @@ class CreateReferenceTensileMethod:
 @dataclass(frozen=True, slots=True)
 class CreateReferenceShearRelaxationMethod:
     classification: DataClassification
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateReferenceMultiaxialTensionMethod:
+    classification: DataClassification
+    test_mode: ReferenceTensionMode
     change_reason: str
 
 
@@ -656,6 +668,39 @@ class TestingService:
         )
         return TestMethodSnapshot(method_id, RevisionSnapshot(record, content))
 
+    def create_reference_multiaxial_tension_method(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceMultiaxialTensionMethod,
+    ) -> TestMethodSnapshot:
+        """Register an exact planar or biaxial reference Test Method."""
+
+        _require(context, decision, Permission.TESTING_WRITE)
+        method_code, display_name = reference_tension_method(command.test_mode)
+        content = TestMethodContent(method_code, display_name)
+        method_id = self._id()
+        scope = TenantScope(
+            context.organization_id, context.project_id, command.classification.value
+        )
+        record = RevisionService(
+            aggregate_type=TEST_METHOD_AGGREGATE_TYPE,
+            store=self._repository.test_method_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=method_id,
+                scope=scope,
+                schema_id=MULTIAXIAL_TENSION_METHOD_SCHEMA_ID,
+                schema_version=REFERENCE_TENSILE_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return TestMethodSnapshot(method_id, RevisionSnapshot(record, content))
+
     def create_reference_tensile_run(
         self,
         context: SecurityContext,
@@ -677,8 +722,8 @@ class TestingService:
         )
         if specimen_classification is not method_classification:
             raise TestingConflict("Specimen and Test Method classifications must match")
-        if method.method_code != REFERENCE_TENSILE_METHOD_CODE:
-            raise TestingConflict("Test Run requires the reference tensile method")
+        if method.method_code not in REFERENCE_TENSION_METHODS:
+            raise TestingConflict("Test Run requires an explicit reference tension method")
         content = TestRunContent(
             specimen_id=command.specimen_id,
             specimen_revision_id=command.specimen_revision_id,
@@ -700,7 +745,11 @@ class TestingService:
             CreateRevisionedAggregate(
                 aggregate_id=run_id,
                 scope=scope,
-                schema_id=TEST_RUN_SCHEMA_ID,
+                schema_id=(
+                    TEST_RUN_SCHEMA_ID
+                    if method.method_code == REFERENCE_TENSILE_METHOD_CODE
+                    else MULTIAXIAL_TENSION_RUN_SCHEMA_ID
+                ),
                 schema_version=REFERENCE_TENSILE_SCHEMA_VERSION,
                 content=content,
                 created_by=context.principal.id,
@@ -1006,6 +1055,23 @@ class TestingService:
             decision=decision,
             test_run_id=test_run_id,
             test_run_revision_id=test_run_revision_id,
+        )
+
+    def get_specimen_revision_for_processing(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_id: UUID,
+        specimen_revision_id: UUID,
+    ) -> tuple[DataClassification, SpecimenContent]:
+        """Resolve the exact specimen-to-Material-State link for an authorized activity."""
+
+        _require_capability(context, decision, Permission.TESTING_READ)
+        return self._repository.load_specimen_source(
+            context=context,
+            decision=decision,
+            specimen_id=specimen_id,
+            specimen_revision_id=specimen_revision_id,
         )
 
     def get_specimen(

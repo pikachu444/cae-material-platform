@@ -731,3 +731,45 @@ def normalized_parquet_bytes(value: NormalizedTabularData) -> bytes:
         write_statistics=True,
     )
     return cast(bytes, sink.getvalue().to_pybytes())
+
+
+def normalized_rows_from_parquet(
+    value: bytes,
+    content: GovernedDatasetContent,
+) -> NormalizedTabularData:
+    """Decode one exact normalized Artifact under its typed Dataset contract."""
+
+    if content.representation is not GovernedDatasetRepresentation.NORMALIZED:
+        raise InvalidGovernedImport("only normalized Dataset Artifacts can be decoded")
+    expected_quantities = tuple(channel.normalized_quantity for channel in content.channels)
+    expected_names = tuple(
+        f"{quantity.value}_{_NORMALIZED_UNITS[quantity].lower().replace('%', 'pct')}"
+        for quantity in expected_quantities
+    )
+    try:
+        table = cast(Callable[..., pa.Table], pq.read_table)(pa.BufferReader(value))
+    except Exception as error:
+        raise InvalidGovernedImport("normalized Dataset Artifact is not valid Parquet") from error
+    if (
+        tuple(table.column_names) != expected_names
+        or table.num_rows != content.row_count
+        or table.num_columns != 2
+    ):
+        raise InvalidGovernedImport(
+            "normalized Dataset Artifact does not match its immutable schema and row count"
+        )
+    try:
+        first = table.column(expected_names[0]).to_pylist()
+        second = table.column(expected_names[1]).to_pylist()
+        rows = tuple(
+            (float(left), float(right))
+            for left, right in zip(first, second, strict=True)
+        )
+    except (TypeError, ValueError) as error:
+        raise InvalidGovernedImport(
+            "normalized Dataset Artifact contains invalid values"
+        ) from error
+    return NormalizedTabularData(
+        columns=(expected_quantities[0], expected_quantities[1]),
+        rows=rows,
+    )

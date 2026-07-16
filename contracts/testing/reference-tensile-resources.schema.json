@@ -52,6 +52,16 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "ReferenceMultiaxialMethodCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "test_mode", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "test_mode": {"enum": ["planar_tension", "biaxial_tension"]},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "TestRunCreateRequest": {
       "type": "object",
       "additionalProperties": false,
@@ -119,14 +129,26 @@
         },
         {
           "properties": {
+            "method_code": {"const": "reference_planar_tension"},
+            "display_name": {"const": "Reference planar tension CSV"}
+          }
+        },
+        {
+          "properties": {
+            "method_code": {"const": "reference_biaxial_tension"},
+            "display_name": {"const": "Reference biaxial tension CSV"}
+          }
+        },
+        {
+          "properties": {
             "method_code": {"const": "reference_shear_relaxation"},
             "display_name": {"const": "Reference shear relaxation CSV"}
           }
         }
       ],
       "properties": {
-        "method_code": {"enum": ["reference_uniaxial_tensile", "reference_shear_relaxation"]},
-        "display_name": {"enum": ["Reference uniaxial tensile CSV", "Reference shear relaxation CSV"]},
+        "method_code": {"enum": ["reference_uniaxial_tensile", "reference_planar_tension", "reference_biaxial_tension", "reference_shear_relaxation"]},
+        "display_name": {"enum": ["Reference uniaxial tensile CSV", "Reference planar tension CSV", "Reference biaxial tension CSV", "Reference shear relaxation CSV"]},
         "reference_only": {"const": true}
       }
     },

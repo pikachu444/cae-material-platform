@@ -540,6 +540,9 @@ def test_reference_tensile_contract_and_runtime_expose_typed_test_dataset_workfl
         "/api/v1/test-methods/reference-uniaxial-tensile": {
             "post": "createReferenceTensileTestMethod"
         },
+        "/api/v1/test-methods/reference-multiaxial-tension": {
+            "post": "createReferenceMultiaxialTensionTestMethod"
+        },
         "/api/v1/test-methods": {"get": "listTestMethods"},
         "/api/v1/test-runs": {"post": "createReferenceTensileTestRun"},
         "/api/v1/test-runs/{test_run_id}": {"get": "getTestRun"},
@@ -1336,6 +1339,45 @@ def test_viscoelastic_master_curve_contract_matches_runtime_and_is_typed() -> No
         "log10_a_t",
         "common_intersection_no_extrapolation",
         "time_divided_by_a_t",
+    ):
+        assert required in serialized
+
+
+def test_scientific_profile_contract_matches_runtime_and_is_typed() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/scientific-profiles": {
+            "post": "createScientificProfile",
+            "get": "listScientificProfiles",
+        },
+        "/api/v1/scientific-profiles/{profile_id}": {
+            "get": "getScientificProfile",
+        },
+        "/api/v1/scientific-profiles/{profile_id}/revisions": {
+            "post": "reviseScientificProfile",
+        },
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schema = json.loads(
+        (
+            PROJECT_ROOT / "contracts/modeling/scientific-profile-resources.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    serialized = json.dumps(schema)
+    for required in (
+        "sigma0_initial_pa",
+        "term_count_max",
+        "mu_initial_pa",
+        "alpha_initial",
+        "jacobian_covariance_or_not_estimable",
+        "explicit_disjoint",
+        "reference_unapproved",
     ):
         assert required in serialized
     assert '"attribute"' not in serialized

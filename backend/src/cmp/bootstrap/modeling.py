@@ -8,6 +8,7 @@ from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.application.service import CatalogService
+from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.modeling.adapters.persistence.calibration_repository import (
@@ -19,6 +20,9 @@ from cmp.modules.modeling.adapters.persistence.candidate_selection_repository im
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
 )
+from cmp.modules.modeling.adapters.persistence.ogden_calibration_repository import (
+    SqlAlchemyOgdenCalibrationRepository,
+)
 from cmp.modules.modeling.adapters.persistence.ogden_prony_repository import (
     SqlAlchemyOgdenPronyRepository,
 )
@@ -29,6 +33,9 @@ from cmp.modules.modeling.adapters.persistence.prony_candidate_selection_reposit
     SqlAlchemyPronyCandidateSelectionRepository,
 )
 from cmp.modules.modeling.adapters.persistence.repository import SqlAlchemyModelingRepository
+from cmp.modules.modeling.adapters.persistence.scientific_profile_repository import (
+    SqlAlchemyScientificProfileRepository,
+)
 from cmp.modules.modeling.adapters.persistence.tabulated_plasticity_repository import (
     SqlAlchemyTabulatedPlasticityRepository,
 )
@@ -43,6 +50,9 @@ from cmp.modules.modeling.application.candidate_selection import CandidateSelect
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
+from cmp.modules.modeling.application.ogden_calibration import (
+    ReferenceOgdenCalibrationService,
+)
 from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.prony_calibration import (
     ReferencePronyCalibrationService,
@@ -50,6 +60,7 @@ from cmp.modules.modeling.application.prony_calibration import (
 from cmp.modules.modeling.application.prony_candidate_promotion import (
     PronyCandidatePromotionService,
 )
+from cmp.modules.modeling.application.scientific_profile import ScientificProfileService
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelService,
@@ -65,6 +76,7 @@ from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitial
 from cmp.modules.statistics.application.replicate_outlier_service import (
     ReplicateOutlierService,
 )
+from cmp.modules.testing.application.service import TestingService
 
 
 def build_material_model_service(identity: IdentityServices) -> MaterialModelService | None:
@@ -129,6 +141,69 @@ def build_ogden_prony_model_service(
             ),
         ),
         material_models=material_models,
+    )
+
+
+def build_scientific_profile_service(
+    identity: IdentityServices,
+) -> ScientificProfileService | None:
+    """Compose versioned family-specific scientific calibration profiles."""
+
+    if identity.engine is None or identity.rls_context is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ScientificProfileService(
+        repository=SqlAlchemyScientificProfileRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        )
+    )
+
+
+def build_reference_ogden_calibration_service(
+    identity: IdentityServices,
+    profiles: ScientificProfileService | None,
+    catalog: CatalogService | None,
+    datasets: GovernedImportService | None,
+    testing: TestingService | None,
+    models: OgdenPronyModelService | None,
+    artifacts: ArtifactService | None,
+) -> ReferenceOgdenCalibrationService | None:
+    """Compose exact governed Datasets with the bounded multi-test Ogden kernel."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or profiles is None
+        or catalog is None
+        or datasets is None
+        or testing is None
+        or models is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ReferenceOgdenCalibrationService(
+        repository=SqlAlchemyOgdenCalibrationRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        profiles=profiles,
+        catalog=catalog,
+        datasets=datasets,
+        testing=testing,
+        models=models,
+        artifacts=artifacts,
     )
 
 
