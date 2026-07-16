@@ -1069,12 +1069,17 @@ This closes only the bounded local baseline. The report explicitly says
 the documented 2-MiB CI upload rather than 2 GiB. Production-scale load/soak/fault injection,
 10,000-Material PostgreSQL search and 2-GiB object infrastructure acceptance remain T-47 work.
 
+The complete performance/security branch gate passed 649 Python tests with the disposable
+PostgreSQL 16 DSN and zero skip/failure, all 39 frontend tests, ruff, mypy over 540 source files,
+architecture/contract/OpenAPI and 13-document/21-capture user-guide checks, the production bundle
+budget and npm audit with zero vulnerabilities.
+
 ## T-47 supply-chain quality and frontend budget subset (2026-07-16)
 
 `cmp-release-quality` now exports production Python and Node CycloneDX SBOMs, runs `uv audit` and
 `npm audit`, records CycloneDX SBOMs and HIGH/CRITICAL Trivy reports for the exact API, worker, web
 and restore image IDs, and fails closed on a scanner command/schema error, any known Python
-Python or Node vulnerability or any critical image finding. The evidence index is canonical JSON signed with
+or Node vulnerability or any critical image finding. The evidence index is canonical JSON signed with
 Ed25519; verification binds every relative path, byte size and SHA-256 and rejects manifest,
 signature, public-key, evidence and path substitution. The local ephemeral signing option is
 explicitly an integrity proof rather than builder identity. Production KMS/keyless identity and
