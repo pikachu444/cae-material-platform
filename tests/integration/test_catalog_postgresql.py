@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+import hashlib
 import os
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, Iterator
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -12,6 +14,28 @@ import pytest
 import sqlalchemy as sa
 from alembic import command
 from alembic.config import Config
+from cmp.bootstrap.datasets import (
+    SqlReferenceDatasetInputProvenanceHook,
+    SqlShearRelaxationProcessedDatasetProvenanceHook,
+    SqlViscoelasticDerivedDatasetProvenanceHook,
+    SqlViscoelasticSelectionProvenanceHook,
+)
+from cmp.modules.artifacts.adapters.persistence.content import SqlAlchemyArtifactRepository
+from cmp.modules.artifacts.adapters.persistence.uploads import SqlAlchemyUploadRepository
+from cmp.modules.artifacts.adapters.storage.filesystem import FilesystemMultipartObjectStore
+from cmp.modules.artifacts.application.content import (
+    ArtifactPolicy,
+    ArtifactService,
+    ArtifactTransferCodec,
+)
+from cmp.modules.artifacts.application.uploads import (
+    CompleteUpload,
+    CreateUpload,
+    RecordUploadPart,
+    UploadCapabilityCodec,
+    UploadPolicy,
+    UploadService,
+)
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.adapters.persistence.repository import (
     SqlAlchemyCatalogRepository,
@@ -53,8 +77,23 @@ from cmp.modules.catalog.domain.process_run import BalanceBasis, LotFlow, Proces
 from cmp.modules.datasets.adapters.persistence.governed_import_repository import (
     SqlAlchemyGovernedImportRepository,
 )
+from cmp.modules.datasets.adapters.persistence.repository import SqlAlchemyDatasetRepository
+from cmp.modules.datasets.adapters.persistence.viscoelastic_master_repository import (
+    SqlAlchemyViscoelasticDatasetRepository,
+)
 from cmp.modules.datasets.application.governed_import import (
     IMPORT_PROFILE_AGGREGATE_TYPE,
+)
+from cmp.modules.datasets.application.shear_relaxation import (
+    ImportReferenceShearRelaxationCsv,
+    ShearRelaxationDatasetService,
+)
+from cmp.modules.datasets.application.viscoelastic_master import (
+    CreateViscoelasticSelection,
+    ViscoelasticDatasetNotFound,
+    ViscoelasticDatasetService,
+    ViscoelasticSelectionMemberRef,
+    ViscoelasticSelectionSnapshot,
 )
 from cmp.modules.datasets.domain.governed_tabular import (
     GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
@@ -66,6 +105,7 @@ from cmp.modules.datasets.domain.governed_tabular import (
     TabularDataSchema,
     TabularFileFormat,
 )
+from cmp.modules.datasets.domain.reference_shear_relaxation import ShearRelaxationMapping
 from cmp.modules.exporting.adapters.persistence.repository import (
     SqlAlchemyExportingRepository,
     solver_card_revision_table,
@@ -91,6 +131,7 @@ from cmp.modules.identity_access.domain.security import (
     PrincipalType,
     SecurityContext,
 )
+from cmp.modules.jobs.adapters.persistence.artifact_events import SqlArtifactAvailableOutboxHook
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
 )
@@ -111,6 +152,21 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     BulkRelaxationStatus,
     PronyTerm,
 )
+from cmp.modules.processing.adapters.persistence.viscoelastic_master_curve_repository import (
+    SqlAlchemyViscoelasticMasterRepository,
+)
+from cmp.modules.processing.application.viscoelastic_master_curve import (
+    CreateViscoelasticMasterPlan,
+    ExecuteViscoelasticMasterPlan,
+    ViscoelasticMasterPreview,
+    ViscoelasticMasterRun,
+    ViscoelasticMasterService,
+)
+from cmp.modules.processing.domain.viscoelastic_master_curve import (
+    ManualShiftFactor,
+    ShiftMethod,
+    ViscoelasticMasterPlanContent,
+)
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.modules.testing.adapters.persistence.repository import (
@@ -122,6 +178,8 @@ from cmp.modules.testing.adapters.persistence.test_context_repository import (
     calibration_revision_table,
 )
 from cmp.modules.testing.application.service import (
+    CreateReferenceShearRelaxationMethod,
+    CreateReferenceShearRelaxationRun,
     CreateReferenceTensileMethod,
     CreateReferenceTensileRun,
     CreateSpecimen,
@@ -196,6 +254,11 @@ class PostgresHarness:
     testing: _TestingApplicationService
     test_context: _TestContextApplicationService
     governed_import_repository: SqlAlchemyGovernedImportRepository
+    artifacts: ArtifactService
+    uploads: UploadService
+    shear_datasets: ShearRelaxationDatasetService
+    viscoelastic_datasets: ViscoelasticDatasetService
+    viscoelastic_processing: ViscoelasticMasterService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -217,7 +280,7 @@ def _alembic_config(database_url: URL) -> Config:
 
 
 @pytest.fixture(scope="module")
-def postgres() -> Iterator[PostgresHarness]:
+def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[PostgresHarness]:
     assert POSTGRES_DSN is not None
     admin_url = _psycopg_url(POSTGRES_DSN)
     database_name = f"cmp_t07_{uuid4().hex}"
@@ -247,7 +310,7 @@ def postgres() -> Iterator[PostgresHarness]:
             connection.exec_driver_sql(
                 "GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, "
                 "provenance, audit, catalog, testing, datasets, modeling, exporting, artifact, "
-                f'plugin TO "{app_role}"'
+                f'processing, events, plugin TO "{app_role}"'
             )
             for schema in (
                 "identity",
@@ -260,6 +323,8 @@ def postgres() -> Iterator[PostgresHarness]:
                 "modeling",
                 "exporting",
                 "artifact",
+                "processing",
+                "events",
                 "plugin",
             ):
                 connection.exec_driver_sql(
@@ -268,6 +333,10 @@ def postgres() -> Iterator[PostgresHarness]:
                 )
             connection.exec_driver_sql(
                 "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA access_control, revisioning, audit "
+                f'TO "{app_role}"'
+            )
+            connection.exec_driver_sql(
+                "GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA artifact "
                 f'TO "{app_role}"'
             )
         app_engine = sa.create_engine(
@@ -351,6 +420,84 @@ def postgres() -> Iterator[PostgresHarness]:
                 SqlAlchemyRevisionAuditHook(),
             ),
         )
+        object_store = FilesystemMultipartObjectStore(
+            Path(tmp_path_factory.mktemp("t42-object-store"))
+        )
+        artifacts = ArtifactService(
+            repository=SqlAlchemyArtifactRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                available_hooks=(SqlArtifactAvailableOutboxHook(),),
+            ),
+            object_store=object_store,
+            transfers=ArtifactTransferCodec(b"t42-transfer-secret-32-bytes-minimum"),
+            policy=ArtifactPolicy(transfer_ttl=timedelta(minutes=5)),
+            clock=lambda: NOW,
+        )
+        uploads = UploadService(
+            repository=SqlAlchemyUploadRepository(
+                session_factory=sessions,
+                rls_context=rls,
+            ),
+            object_store=object_store,
+            capabilities=UploadCapabilityCodec(
+                b"t42-upload-secret-32-bytes-minimum!", clock=lambda: NOW
+            ),
+            raw_asset_finalizer=artifacts,
+            policy=UploadPolicy(
+                max_object_bytes=2 * 1024 * 1024,
+                default_part_bytes=64 * 1024,
+                min_part_bytes=64 * 1024,
+                max_part_bytes=512 * 1024,
+                session_ttl=timedelta(hours=1),
+            ),
+            clock=lambda: NOW,
+        )
+        shear_datasets = ShearRelaxationDatasetService(
+            repository=SqlAlchemyDatasetRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlReferenceDatasetInputProvenanceHook(),
+                    SqlShearRelaxationProcessedDatasetProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            ),
+            artifacts=artifacts,
+        )
+        viscoelastic_repository = SqlAlchemyViscoelasticDatasetRepository(
+            session_factory=sessions,
+            rls_context=rls,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlViscoelasticSelectionProvenanceHook(),
+                SqlViscoelasticDerivedDatasetProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        )
+        viscoelastic_datasets = ViscoelasticDatasetService(
+            repository=viscoelastic_repository,
+            shear_datasets=shear_datasets,
+            testing=testing,
+        )
+        viscoelastic_processing = ViscoelasticMasterService(
+            repository=SqlAlchemyViscoelasticMasterRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            ),
+            datasets=viscoelastic_datasets,
+            shear_datasets=shear_datasets,
+            artifacts=artifacts,
+            clock=lambda: NOW,
+        )
         yield PostgresHarness(
             admin_engine=admin_engine,
             sessions=sessions,
@@ -362,6 +509,11 @@ def postgres() -> Iterator[PostgresHarness]:
             testing=testing,
             test_context=test_context,
             governed_import_repository=governed_import_repository,
+            artifacts=artifacts,
+            uploads=uploads,
+            shear_datasets=shear_datasets,
+            viscoelastic_datasets=viscoelastic_datasets,
+            viscoelastic_processing=viscoelastic_processing,
         )
     finally:
         if app_engine is not None:
@@ -1707,3 +1859,283 @@ def test_elastoplastic_migration_installs_typed_scoped_constraints_and_guards(
         "exporting.solver_card_revision": True,
         "modeling.material_model_revision": True,
     }
+
+
+async def _single_chunk(value: bytes) -> AsyncIterator[bytes]:
+    yield value
+
+
+async def _import_shear_curve(
+    postgres: PostgresHarness,
+    context: SecurityContext,
+    *,
+    test_run_id: UUID,
+    test_run_revision_id: UUID,
+    label: str,
+    scale: float,
+) -> tuple[UUID, UUID]:
+    rows = ["time_s,shear_modulus_mpa"]
+    for index in range(9):
+        time_s = 10.0 ** (-2.0 + index * 0.5)
+        modulus_mpa = scale * (2.0 + 8.0 / (1.0 + time_s**0.6))
+        rows.append(f"{time_s:.12g},{modulus_mpa:.12g}")
+    payload = ("\n".join(rows) + "\n").encode()
+    artifact_write = _decision(context, Permission.ARTIFACT_WRITE)
+    created = await postgres.uploads.create(
+        context,
+        artifact_write,
+        CreateUpload(
+            classification=DataClassification.INTERNAL,
+            original_filename=f"{label}.csv",
+            media_type="text/csv",
+            expected_size_bytes=len(payload),
+            expected_sha256=hashlib.sha256(payload).hexdigest(),
+            idempotency_key=f"t42-{label}",
+            part_size_bytes=64 * 1024,
+            test_run_revision_id=test_run_revision_id,
+        ),
+    )
+    await postgres.uploads.record_part(
+        context,
+        artifact_write,
+        RecordUploadPart(created.session.id, 1, created.capability),
+        _single_chunk(payload),
+    )
+    completed = await postgres.uploads.complete(
+        context,
+        artifact_write,
+        CompleteUpload(created.session.id, created.capability),
+    )
+    assert completed.available_artifact_id is not None
+    dataset = await postgres.shear_datasets.import_csv(
+        context,
+        _decision(context, Permission.DATASET_WRITE),
+        ImportReferenceShearRelaxationCsv(
+            test_run_id=test_run_id,
+            test_run_revision_id=test_run_revision_id,
+            raw_asset_id=completed.raw_asset.id,
+            raw_artifact_id=completed.available_artifact_id,
+            mapping=ShearRelaxationMapping(
+                "time_s", "shear_modulus_mpa", "s", "MPa"
+            ),
+            change_reason="normalize T42 PostgreSQL fixture",
+        ),
+    )
+    return dataset.id, dataset.current.record.revision_id
+
+
+def test_viscoelastic_master_curve_is_typed_provenanced_and_previewable_in_postgresql(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    catalog_write = _decision(context, Permission.CATALOG_WRITE)
+    testing_write = _decision(context, Permission.TESTING_WRITE)
+    material = postgres.service.create_material(
+        context,
+        catalog_write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent(
+                f"T42 Polymer {uuid4()}",
+                f"T42-{uuid4().hex[:10]}",
+                "polymer",
+                material_class=MaterialClass.POLYMER,
+            ),
+            "create T42 PostgreSQL material",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        catalog_write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "Conditioned reference state",
+            ),
+            "create exact T42 state",
+        ),
+    )
+    method = postgres.testing.create_reference_shear_relaxation_method(
+        context,
+        testing_write,
+        CreateReferenceShearRelaxationMethod(
+            DataClassification.INTERNAL, "create T42 shear method"
+        ),
+    )
+
+    async def arrange_and_execute() -> tuple[
+        ViscoelasticSelectionSnapshot,
+        ViscoelasticMasterRun,
+        ViscoelasticMasterPreview,
+    ]:
+        member_refs: list[ViscoelasticSelectionMemberRef] = []
+        for temperature_k, replicate, scale in (
+            (293.15, 1, 1.00),
+            (293.15, 2, 1.02),
+            (313.15, 1, 0.99),
+            (313.15, 2, 1.01),
+        ):
+            specimen = postgres.testing.create_specimen(
+                context,
+                testing_write,
+                CreateSpecimen(
+                    state.id,
+                    state.current.record.revision_id,
+                    f"T42-{temperature_k}-{replicate}-{uuid4().hex[:6]}",
+                    None,
+                    "public synthetic PostgreSQL fixture",
+                    "create T42 specimen",
+                ),
+            )
+            test_run = postgres.testing.create_reference_shear_relaxation_run(
+                context,
+                testing_write,
+                CreateReferenceShearRelaxationRun(
+                    specimen.id,
+                    specimen.current.record.revision_id,
+                    method.id,
+                    method.current.record.revision_id,
+                    f"T42 {temperature_k} K replicate {replicate} {uuid4().hex[:6]}",
+                    NOW,
+                    temperature_k,
+                    "pin exact temperature evidence",
+                ),
+            )
+            dataset_id, dataset_revision_id = await _import_shear_curve(
+                postgres,
+                context,
+                test_run_id=test_run.id,
+                test_run_revision_id=test_run.current.record.revision_id,
+                label=f"{int(temperature_k)}-{replicate}-{uuid4().hex[:6]}",
+                scale=scale,
+            )
+            member_refs.append(
+                ViscoelasticSelectionMemberRef(dataset_id, dataset_revision_id)
+            )
+        selection = postgres.viscoelastic_datasets.create_selection(
+            context,
+            _decision(context, Permission.DATASET_WRITE),
+            CreateViscoelasticSelection(
+                classification=DataClassification.INTERNAL,
+                selection_label=f"T42 exact replicates {uuid4().hex[:8]}",
+                members=tuple(member_refs),
+                change_reason="pin exact T42 source revisions",
+            ),
+        )
+        plan = postgres.viscoelastic_processing.create_plan(
+            context,
+            _decision(context, Permission.PROCESSING_EXECUTE),
+            CreateViscoelasticMasterPlan(
+                classification=DataClassification.INTERNAL,
+                content=ViscoelasticMasterPlanContent(
+                    plan_label=f"T42 manual master {uuid4().hex[:8]}",
+                    selection_id=selection.id,
+                    selection_revision_id=selection.current.record.revision_id,
+                    reference_temperature_k=293.15,
+                    grid_point_count=31,
+                    shift_method=ShiftMethod.MANUAL,
+                    manual_shift_factors=(
+                        ManualShiftFactor(293.15, 0.0),
+                        ManualShiftFactor(313.15, -1.0),
+                    ),
+                ),
+                change_reason="define explicit T42 shift evidence",
+            ),
+        )
+        run = await postgres.viscoelastic_processing.execute(
+            context,
+            _decision(context, Permission.PROCESSING_EXECUTE),
+            ExecuteViscoelasticMasterPlan(
+                plan.id,
+                plan.current.record.revision_id,
+                "commit three T42 derived Dataset revisions",
+            ),
+        )
+        preview = await postgres.viscoelastic_processing.preview(
+            context,
+            _decision(context, Permission.PROCESSING_READ),
+            run.id,
+        )
+        return selection, run, preview
+
+    selection_value, run_value, preview_value = asyncio.run(arrange_and_execute())
+    selection = selection_value
+    run = run_value
+    preview = preview_value
+    assert run.status.value == "succeeded"
+    assert run.source_curve_count == 4
+    assert run.temperature_count == 2
+    assert run.aligned_dataset_revision_id is not None
+    assert run.statistics_dataset_revision_id is not None
+    assert run.master_dataset_revision_id is not None
+    assert len(preview.aligned_curves) == 4
+    assert len(preview.temperature_statistics) == 2
+    assert len(preview.master_curve) == 31
+    assert tuple(item.source for item in run.shift_factors) == ("reference", "manual")
+
+    with postgres.admin_engine.connect() as connection:
+        domain_activities = connection.execute(
+            sa.text(
+                "SELECT activity_type, domain_run_type FROM provenance.activity "
+                "WHERE domain_run_id=:run_id ORDER BY domain_run_type"
+            ),
+            {"run_id": run.id},
+        ).all()
+        output_relations = connection.execute(
+            sa.text(
+                "SELECT d.representation, "
+                "(SELECT count(*) FROM provenance.usage u WHERE u.activity_id=g.activity_id), "
+                "(SELECT count(*) FROM provenance.derivation x "
+                " WHERE x.generated_entity_id=e.id) "
+                "FROM datasets.viscoelastic_derived_dataset_revision d "
+                "JOIN provenance.entity e ON e.reference_id=d.id "
+                " AND e.reference_type='datasets.viscoelastic_derived_dataset.revision' "
+                "JOIN provenance.generation g ON g.entity_id=e.id "
+                "WHERE d.processing_run_id=:run_id ORDER BY d.representation"
+            ),
+            {"run_id": run.id},
+        ).all()
+        selection_relations = connection.execute(
+            sa.text(
+                "SELECT (SELECT count(*) FROM provenance.usage u "
+                "        WHERE u.activity_id=g.activity_id), "
+                "       (SELECT count(*) FROM provenance.derivation x "
+                "        WHERE x.generated_entity_id=e.id) "
+                "FROM provenance.entity e JOIN provenance.generation g ON g.entity_id=e.id "
+                "WHERE e.reference_type='datasets.viscoelastic_selection.revision' "
+                "AND e.reference_id=:revision_id"
+            ),
+            {"revision_id": selection.current.record.revision_id},
+        ).one()
+    assert {str(row[1]) for row in domain_activities} == {
+        "processing.viscoelastic_master_output.aligned",
+        "processing.viscoelastic_master_output.statistics",
+        "processing.viscoelastic_master_output.master_curve",
+    }
+    assert [
+        (str(row[0]), int(row[1]), int(row[2])) for row in output_relations
+    ] == [
+        ("aligned", 6, 4),
+        ("master_curve", 6, 4),
+        ("statistics", 6, 4),
+    ]
+    assert (int(selection_relations[0]), int(selection_relations[1])) == (4, 4)
+
+    other_context = _context(PROJECT_B)
+    with pytest.raises(ViscoelasticDatasetNotFound, match="not visible"):
+        postgres.viscoelastic_datasets.get_selection(
+            other_context,
+            _decision(other_context, Permission.DATASET_READ),
+            selection.id,
+        )
+    with pytest.raises(DBAPIError, match="immutable"):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE datasets.viscoelastic_selection_member "
+                    "SET temperature_k=temperature_k + 1 "
+                    "WHERE selection_revision_id=:revision_id"
+                ),
+                {"revision_id": selection.current.record.revision_id},
+            )

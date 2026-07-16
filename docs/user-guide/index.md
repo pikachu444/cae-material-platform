@@ -24,6 +24,7 @@
 - Test Campaign, 표준 적합성, Instrument 교정과 typed 실행 조건의 exact Test Run Context
 - CSV/TSV/XLSX 원본 등록, 안전 preview, reusable Profile 승인과 명시적 column/unit mapping
 - raw, normalized, processed Dataset과 curve 확인
+- 다온도 relaxation 반복시험의 common-domain 통계, 수동/WLF shift와 master curve 확인
 - 반복 인장 curve의 alignment/statistics/outlier assessment
 - reference Voce 또는 two-term Prony automatic fitting과 수동 IR 입력
 - 사람의 Candidate 선택과 새 IR revision 승격
@@ -33,7 +34,6 @@
 ## 아직 제한된 일
 
 - proprietary laboratory vendor format과 임의 channel schema
-- 점탄성 반복시험 통계, 온도 shift와 master curve
 - promoted IR을 다시 보정하는 iterative promotion
 - 여러 Dataset/IR/Card를 한 ZIP으로 받는 Bulk Export Bundle
 - 실제 Abaqus/OpenRadioss solver 실행과 qualification
@@ -48,6 +48,10 @@
 ![시험 데이터와 processing workflow](../15-demo/images/e2e-shear-workflow.png)
 
 ![Governed CSV/TSV/XLSX import 작업대](../15-demo/images/governed-tabular-import.png)
+
+![점탄성 반복시험 통계와 shift evidence](../15-demo/images/viscoelastic-master-statistics.png)
+
+![Shifted relaxation curve와 master curve](../15-demo/images/viscoelastic-master-curve.png)
 
 문제가 생기면 먼저 브라우저의 Connection 상태, Material class, exact State/Property revision,
 CSV column/unit, mapping report의 `unsupported` 또는 `approximated` 항목을 확인하십시오.

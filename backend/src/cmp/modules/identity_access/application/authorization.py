@@ -214,6 +214,12 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     Permission.DATASET_WRITE: frozenset(
         {Permission.ARTIFACT_READ, Permission.ARTIFACT_WRITE, Permission.TESTING_READ}
     ),
+    # Processing previews reconstruct their typed result from immutable output Artifacts and
+    # pinned Dataset/Test evidence. These are transaction-local read capabilities only; they do
+    # not authorize the public Dataset, Artifact, or Testing endpoints.
+    Permission.PROCESSING_READ: frozenset(
+        {Permission.ARTIFACT_READ, Permission.DATASET_READ, Permission.TESTING_READ}
+    ),
     # A committed Processing Run reads a pinned Dataset Artifact, writes a new immutable derived
     # Artifact, and asks the Dataset owner to register the resulting processed Dataset revision.
     # These are transaction-local capabilities only; the public Dataset/Artifact write endpoints

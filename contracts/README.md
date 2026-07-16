@@ -2,8 +2,8 @@
 
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
 `T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`,
-the `T-32` workbench, and product-depth slices `T-39` through `T-41`. HTTP contract version
-`0.27.0`.
+the `T-32` workbench, and product-depth slices `T-39` through `T-42`. HTTP contract version
+`0.28.0`.
 
 ## Files
 
@@ -25,6 +25,8 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-41`. HTTP contr
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
 - `datasets/reference-tensile-resources.schema.json`: typed reference tensile Dataset, curve, and
   immutable one-member Selection resources
+- `datasets/viscoelastic-master-resources.schema.json`: ordered exact-revision viscoelastic
+  replicate Selections with temperature and explicit outlier-assessment status
 - `datasets/governed-import-resources.schema.json`: approved reusable CSV/TSV/XLSX Import
   Profiles, needs-input previews, terminal Import Runs, and raw/normalized typed Dataset metadata
 - `testing/reference-import-resources.schema.json`: immutable header-only Detection Report and
@@ -36,6 +38,8 @@ the `T-32` workbench, and product-depth slices `T-39` through `T-41`. HTTP contr
   resources for the reference Processing slice
 - `processing/reference-import-resources.schema.json`: typed pinned reference Import Run resource
   with immutable inputs and terminal Dataset output link
+- `processing/viscoelastic-master-curve-resources.schema.json`: explicit manual/WLF shift Plan,
+  terminal Run, three typed output revisions, and bounded aligned/statistics/master preview
 - `statistics/reference-tensile-pair-resources.schema.json`: typed two-selection reference
   Statistics/QC Plan, committed Run, scalar/curve Result, and bounded curve preview resources
 - `statistics/reference-tensile-outlier-resources.schema.json`: typed immutable reference-pair

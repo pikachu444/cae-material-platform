@@ -1041,6 +1041,11 @@ in the same vertical increment. Actual solver execution remains excluded.
 
 #### T-42. Viscoelastic replicate statistics, temperature shift and master curve — `P0`
 
+**구현 상태 (2026-07-16): complete, reference/non-production.** Migration 052와 protected API,
+React workbench가 exact normalized Dataset/Test Run/temperature Selection, manual 또는 WLF Plan,
+별도 aligned/statistics/master Dataset revision과 ordered shift evidence를 구현한다. 실제
+PostgreSQL provenance/RLS와 browser curve가 검증 대상이며 source revision은 변경하지 않는다.
+
 - **목적:** 여러 relaxation curve와 온도를 보존하면서 비교·정렬·통계·master curve를
   명시적 Processing으로 만든다.
 - **입력과 출력:** exact replicate Selection and temperature conditions → aligned Dataset,
@@ -1108,7 +1113,8 @@ in the same vertical increment. Actual solver execution remains excluded.
 - **목적:** production-pilot의 failure/복구/배포/외부 전달 evidence를 완성한다.
 - **범위:** T-35 OpenTelemetry and redaction dashboard, T-36 DB/object restore drill, T-37 full
   matrix, T-38 benchmark/security, object lock/KMS/retention adapters, SBOM/vulnerability/signature,
-  signed manifest REST/webhook/object-storage connector.
+  signed manifest REST/webhook/object-storage connector, and reconciliation/visibility for an
+  immutable derived output committed before a later multi-output Run step fails.
 - **제외:** credential 없는 proprietary Teamcenter/PLM connector and licensed solver execution.
 - **완료 조건:** RPO/RTO drill, bundle/release digest restore, critical security finding zero or
   explicit risk acceptance, benchmark report and traceable connector delivery.

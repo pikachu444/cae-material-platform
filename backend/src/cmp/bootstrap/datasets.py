@@ -22,6 +22,15 @@ from cmp.modules.datasets.adapters.persistence.repository import (
     dataset_selection_revision_table,
     shear_relaxation_dataset_revision_table,
 )
+from cmp.modules.datasets.adapters.persistence.viscoelastic_master_repository import (
+    SqlAlchemyViscoelasticDatasetRepository,
+)
+from cmp.modules.datasets.adapters.persistence.viscoelastic_master_repository import (
+    derived_dataset_revision_table as viscoelastic_derived_revision_table,
+)
+from cmp.modules.datasets.adapters.persistence.viscoelastic_master_repository import (
+    selection_member_table as viscoelastic_selection_member_table,
+)
 from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import (
     DATASET_AGGREGATE_TYPE,
@@ -32,11 +41,19 @@ from cmp.modules.datasets.application.shear_relaxation import (
     SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
     ShearRelaxationDatasetService,
 )
+from cmp.modules.datasets.application.viscoelastic_master import (
+    VISCOELASTIC_DERIVED_DATASET_AGGREGATE_TYPE,
+    VISCOELASTIC_SELECTION_AGGREGATE_TYPE,
+    ViscoelasticDatasetService,
+)
 from cmp.modules.datasets.domain.reference_tensile import DatasetRepresentation
 from cmp.modules.identity_access.domain.authorization import DataClassification
 from cmp.modules.processing.application.service import PROCESSING_RECIPE_AGGREGATE_TYPE
 from cmp.modules.processing.application.shear_relaxation import (
     SHEAR_RELAXATION_RECIPE_AGGREGATE_TYPE,
+)
+from cmp.modules.processing.application.viscoelastic_master_curve import (
+    VISCOELASTIC_MASTER_PLAN_AGGREGATE_TYPE,
 )
 from cmp.modules.provenance.adapters.persistence.repository import (
     SqlAlchemyProvenanceRepository,
@@ -653,6 +670,227 @@ class SqlShearRelaxationProcessedDatasetProvenanceHook:
         )
 
 
+class SqlViscoelasticSelectionProvenanceHook:
+    """Record every exact replicate Dataset revision used by a T-42 Selection."""
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        if revision.aggregate_type != VISCOELASTIC_SELECTION_AGGREGATE_TYPE:
+            return
+        members = (
+            session.execute(
+                sa.select(viscoelastic_selection_member_table)
+                .where(
+                    viscoelastic_selection_member_table.c.organization_id
+                    == revision.scope.organization_id,
+                    viscoelastic_selection_member_table.c.project_id
+                    == revision.scope.project_id,
+                    viscoelastic_selection_member_table.c.selection_revision_id
+                    == revision.revision_id,
+                )
+                .order_by(viscoelastic_selection_member_table.c.ordinal)
+            )
+            .mappings()
+            .all()
+        )
+        if not members:
+            raise ProvenanceConflict("viscoelastic Selection members are missing")
+        generated_entity_id = _revision_provenance_entity_id(
+            session,
+            event,
+            aggregate_type=VISCOELASTIC_SELECTION_AGGREGATE_TYPE,
+            revision_id=revision.revision_id,
+        )
+        activity_id = _generated_activity_id(session, event, generated_entity_id)
+        session.execute(
+            sa.update(provenance_activity_table)
+            .where(
+                provenance_activity_table.c.organization_id == revision.scope.organization_id,
+                provenance_activity_table.c.project_id == revision.scope.project_id,
+                provenance_activity_table.c.classification == revision.scope.classification,
+                provenance_activity_table.c.id == activity_id,
+            )
+            .values(
+                input_required=True,
+                submission_digest=content_sha256(
+                    {
+                        "hook": "datasets.viscoelastic_replicate_selection",
+                        "selection_revision_id": str(revision.revision_id),
+                        "member_revision_ids": [str(row["dataset_revision_id"]) for row in members],
+                    }
+                ),
+            )
+        )
+        values = _relation_values(event)
+        for ordinal, row in enumerate(members):
+            source_entity_id = _revision_provenance_entity_id(
+                session,
+                event,
+                aggregate_type=SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+                revision_id=cast(UUID, row["dataset_revision_id"]),
+            )
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **values,
+                    activity_id=activity_id,
+                    entity_id=source_entity_id,
+                    role="shear_relaxation_dataset_revision",
+                    ordinal=ordinal,
+                )
+            )
+            session.execute(
+                sa.insert(provenance_derivation_table).values(
+                    **values,
+                    generated_entity_id=generated_entity_id,
+                    used_entity_id=source_entity_id,
+                    activity_id=activity_id,
+                    derivation_kind="selection_membership",
+                )
+            )
+
+
+class SqlViscoelasticDerivedDatasetProvenanceHook:
+    """Bind every derived representation to its Selection, Plan, Run, and curves."""
+
+    def __call__(self, session: Session, event: RevisionCreated) -> None:
+        revision = event.revision
+        if revision.aggregate_type != VISCOELASTIC_DERIVED_DATASET_AGGREGATE_TYPE:
+            return
+        output = (
+            session.execute(
+                sa.select(viscoelastic_derived_revision_table).where(
+                    viscoelastic_derived_revision_table.c.organization_id
+                    == revision.scope.organization_id,
+                    viscoelastic_derived_revision_table.c.project_id
+                    == revision.scope.project_id,
+                    viscoelastic_derived_revision_table.c.id == revision.revision_id,
+                )
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if output is None:
+            raise ProvenanceConflict("viscoelastic derived Dataset revision is missing")
+        selection_revision_id = cast(UUID, output["selection_revision_id"])
+        plan_revision_id = cast(UUID, output["processing_plan_revision_id"])
+        processing_run_id = cast(UUID, output["processing_run_id"])
+        members = (
+            session.execute(
+                sa.select(viscoelastic_selection_member_table)
+                .where(
+                    viscoelastic_selection_member_table.c.organization_id
+                    == revision.scope.organization_id,
+                    viscoelastic_selection_member_table.c.project_id
+                    == revision.scope.project_id,
+                    viscoelastic_selection_member_table.c.selection_revision_id
+                    == selection_revision_id,
+                )
+                .order_by(viscoelastic_selection_member_table.c.ordinal)
+            )
+            .mappings()
+            .all()
+        )
+        generated_entity_id = _revision_provenance_entity_id(
+            session,
+            event,
+            aggregate_type=VISCOELASTIC_DERIVED_DATASET_AGGREGATE_TYPE,
+            revision_id=revision.revision_id,
+        )
+        selection_entity_id = _revision_provenance_entity_id(
+            session,
+            event,
+            aggregate_type=VISCOELASTIC_SELECTION_AGGREGATE_TYPE,
+            revision_id=selection_revision_id,
+        )
+        plan_entity_id = _revision_provenance_entity_id(
+            session,
+            event,
+            aggregate_type=VISCOELASTIC_MASTER_PLAN_AGGREGATE_TYPE,
+            revision_id=plan_revision_id,
+        )
+        activity_id = _generated_activity_id(session, event, generated_entity_id)
+        activity_type = f"processing.viscoelastic_{output['representation']}"
+        domain_run_type = (
+            f"processing.viscoelastic_master_output.{output['representation']}"
+        )
+        session.execute(
+            sa.update(provenance_activity_table)
+            .where(
+                provenance_activity_table.c.organization_id == revision.scope.organization_id,
+                provenance_activity_table.c.project_id == revision.scope.project_id,
+                provenance_activity_table.c.classification == revision.scope.classification,
+                provenance_activity_table.c.id == activity_id,
+            )
+            .values(
+                activity_type=activity_type,
+                domain_run_type=domain_run_type,
+                domain_run_id=processing_run_id,
+                input_required=True,
+                submission_digest=content_sha256(
+                    {
+                        "hook": activity_type,
+                        "processing_run_id": str(processing_run_id),
+                        "selection_revision_id": str(selection_revision_id),
+                        "plan_revision_id": str(plan_revision_id),
+                        "output_revision_id": str(revision.revision_id),
+                    }
+                ),
+            )
+        )
+        values = _relation_values(event)
+        for ordinal, (entity_id, role) in enumerate(
+            (
+                (selection_entity_id, "viscoelastic_selection_revision"),
+                (plan_entity_id, "viscoelastic_master_plan_revision"),
+            )
+        ):
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **values,
+                    activity_id=activity_id,
+                    entity_id=entity_id,
+                    role=role,
+                    ordinal=ordinal,
+                )
+            )
+        for offset, row in enumerate(members, start=2):
+            source_entity_id = _revision_provenance_entity_id(
+                session,
+                event,
+                aggregate_type=SHEAR_RELAXATION_DATASET_AGGREGATE_TYPE,
+                revision_id=cast(UUID, row["dataset_revision_id"]),
+            )
+            session.execute(
+                sa.insert(provenance_usage_table).values(
+                    **values,
+                    activity_id=activity_id,
+                    entity_id=source_entity_id,
+                    role="source_curve_revision",
+                    ordinal=offset,
+                )
+            )
+            session.execute(
+                sa.insert(provenance_derivation_table).values(
+                    **values,
+                    generated_entity_id=generated_entity_id,
+                    used_entity_id=source_entity_id,
+                    activity_id=activity_id,
+                    derivation_kind=str(output["representation"]),
+                )
+            )
+        session.execute(
+            sa.update(provenance_association_table)
+            .where(
+                provenance_association_table.c.organization_id == revision.scope.organization_id,
+                provenance_association_table.c.project_id == revision.scope.project_id,
+                provenance_association_table.c.classification == revision.scope.classification,
+                provenance_association_table.c.activity_id == activity_id,
+                provenance_association_table.c.role == "author",
+            )
+            .values(plan_entity_id=plan_entity_id)
+        )
+
+
 def build_dataset_service(
     identity: IdentityServices,
     artifacts: ArtifactService | None,
@@ -731,4 +969,36 @@ def build_shear_relaxation_dataset_service(
             ),
         ),
         artifacts=artifacts,
+    )
+
+
+def build_viscoelastic_dataset_service(
+    identity: IdentityServices,
+    shear_datasets: ShearRelaxationDatasetService | None,
+    testing: TestingService | None,
+) -> ViscoelasticDatasetService | None:
+    """Compose immutable T-42 replicate Selections and derived Datasets."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or shear_datasets is None
+        or testing is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ViscoelasticDatasetService(
+        repository=SqlAlchemyViscoelasticDatasetRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlViscoelasticSelectionProvenanceHook(),
+                SqlViscoelasticDerivedDatasetProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        shear_datasets=shear_datasets,
+        testing=testing,
     )

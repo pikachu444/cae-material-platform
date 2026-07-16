@@ -112,6 +112,11 @@ import type {
   ShearRelaxationDatasetResponse,
   ShearRelaxationProcessingRecipeResponse,
   ShearRelaxationProcessingRunResponse,
+  ViscoelasticMasterPlanResponse,
+  ViscoelasticMasterPreviewResponse,
+  ViscoelasticMasterRunResponse,
+  ViscoelasticSelectionResponse,
+  ViscoelasticShiftMethod,
   TestMethodResponse,
   TestRunResponse,
   TestCampaignResponse,
@@ -2565,4 +2570,59 @@ export function executeGovernedTabularImport(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function createViscoelasticSelection(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    selection_label: string;
+    members: Array<{ dataset_id: string; dataset_revision_id: string }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<ViscoelasticSelectionResponse>> {
+  return request(config, "/viscoelastic-selections", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createViscoelasticMasterPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    selection_id: string;
+    selection_revision_id: string;
+    reference_temperature_k: number;
+    grid_point_count: number;
+    shift_method: ViscoelasticShiftMethod;
+    manual_shift_factors: Array<{ temperature_k: number; log10_a_t: number }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<ViscoelasticMasterPlanResponse>> {
+  return request(config, "/processing-plans/viscoelastic-master-curve", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeViscoelasticMasterPlan(
+  config: ApiConfig,
+  input: { plan_id: string; plan_revision_id: string; change_reason: string },
+): Promise<ApiResult<ViscoelasticMasterRunResponse>> {
+  return request(config, "/processing-runs/viscoelastic-master-curve", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewViscoelasticMasterRun(
+  config: ApiConfig,
+  runId: string,
+): Promise<ApiResult<ViscoelasticMasterPreviewResponse>> {
+  return request(
+    config,
+    `/processing-runs/viscoelastic-master-curve/${encodeURIComponent(runId)}/preview`,
+  );
 }

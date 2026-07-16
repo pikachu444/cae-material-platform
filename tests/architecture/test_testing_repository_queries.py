@@ -33,6 +33,16 @@ def test_dataset_read_carries_its_artifact_and_testing_lineage_capabilities() ->
     } <= permissions
 
 
+def test_processing_preview_carries_typed_output_and_source_read_capabilities() -> None:
+    permissions = set(database_permissions_for(Permission.PROCESSING_READ))
+    assert {
+        Permission.PROCESSING_READ.value,
+        Permission.DATASET_READ.value,
+        Permission.ARTIFACT_READ.value,
+        Permission.TESTING_READ.value,
+    } <= permissions
+
+
 def test_modeling_workflows_carry_testing_lineage_capability_directly() -> None:
     for permission in (
         Permission.MODELING_WRITE,

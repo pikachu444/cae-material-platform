@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.27.0
+  version: 0.28.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -6154,6 +6154,201 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Export read is not authorized.}
         "404": {description: Card is not visible.}
+  /api/v1/viscoelastic-selections:
+    post:
+      operationId: createViscoelasticSelection
+      tags: [datasets]
+      summary: Pin ordered shear-relaxation Dataset and Test Run revisions across temperatures.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/viscoelastic-master-resources.schema.json#/$defs/CreateSelectionRequest"}
+      responses:
+        "201":
+          description: Stable Selection identity with an immutable revision and exact members.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/viscoelastic-master-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "409":
+          description: Source evidence or immutable Selection identity conflicts.
+          content:
+            application/problem+json:
+              schema: {$ref: "../datasets/viscoelastic-master-resources.schema.json#/$defs/Problem"}
+        "422":
+          description: Selection membership or temperature evidence is invalid.
+          content:
+            application/problem+json:
+              schema: {$ref: "../datasets/viscoelastic-master-resources.schema.json#/$defs/Problem"}
+        "503": {description: Dataset service unavailable.}
+    get:
+      operationId: listViscoelasticSelections
+      tags: [datasets]
+      summary: List current viscoelastic Selection heads for one Material State.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: material_state_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Visible current Selection heads.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/viscoelastic-master-resources.schema.json#/$defs/SelectionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/viscoelastic-selections/{selection_id}:
+    get:
+      operationId: getViscoelasticSelection
+      tags: [datasets]
+      summary: Read one current immutable viscoelastic Selection revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: selection_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact current Selection revision and ordered members.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/viscoelastic-master-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404":
+          description: Selection not visible in the selected tenant/project.
+          content:
+            application/problem+json:
+              schema: {$ref: "../datasets/viscoelastic-master-resources.schema.json#/$defs/Problem"}
+        "503": {description: Dataset service unavailable.}
+  /api/v1/processing-plans/viscoelastic-master-curve:
+    post:
+      operationId: createViscoelasticMasterPlan
+      tags: [processing]
+      summary: Define explicit alignment, shift-factor, grid and no-extrapolation policy.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/CreatePlanRequest"}
+      responses:
+        "201":
+          description: Stable Processing Plan with an immutable current revision.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/PlanResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Pinned Selection revision is not visible.}
+        "409":
+          description: Plan or exact Selection evidence conflicts.
+          content:
+            application/problem+json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
+        "422":
+          description: Shift policy or reference temperature is invalid.
+          content:
+            application/problem+json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/viscoelastic-master-curve:
+    post:
+      operationId: executeViscoelasticMasterPlan
+      tags: [processing]
+      summary: Commit aligned, statistical and master-curve Dataset revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/ExecuteRequest"}
+      responses:
+        "201":
+          description: Terminal Run with exact source, shift and three output revision links.
+          headers:
+            Location: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Pinned Plan or Selection revision is not visible.}
+        "409":
+          description: Source Artifact, curve domain or processing state conflicts.
+          content:
+            application/problem+json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
+        "422":
+          description: Numeric processing policy is invalid.
+          content:
+            application/problem+json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/viscoelastic-master-curve/{run_id}:
+    get:
+      operationId: getViscoelasticMasterRun
+      tags: [processing]
+      summary: Read a terminal viscoelastic master-curve Run and exact output links.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Visible terminal Run and shift-factor evidence.
+          content:
+            application/json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/RunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404":
+          description: Run not visible in the selected tenant/project.
+          content:
+            application/problem+json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
+        "503": {description: Processing service unavailable.}
+  /api/v1/processing-runs/viscoelastic-master-curve/{run_id}/preview:
+    get:
+      operationId: previewViscoelasticMasterRun
+      tags: [processing]
+      summary: Reconstruct shifted replicates, pointwise statistics and master curve from Artifacts.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Bounded typed preview with no implicit extrapolation.
+          content:
+            application/json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Run or derived Dataset revision is not visible.}
+        "409":
+          description: Run is not successful or stored Artifact evidence is inconsistent.
+          content:
+            application/problem+json:
+              schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
+        "503": {description: Processing service unavailable.}
 components:
   securitySchemes:
     BearerAuth:

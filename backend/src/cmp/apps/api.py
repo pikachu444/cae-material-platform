@@ -15,6 +15,7 @@ from cmp.bootstrap.datasets import (
     build_dataset_service,
     build_governed_import_service,
     build_shear_relaxation_dataset_service,
+    build_viscoelastic_dataset_service,
 )
 from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
 from cmp.bootstrap.exporting import (
@@ -40,6 +41,7 @@ from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import (
     build_processing_service,
     build_shear_relaxation_processing_service,
+    build_viscoelastic_master_service,
 )
 from cmp.bootstrap.provenance import build_provenance_services
 from cmp.bootstrap.release import build_release_service
@@ -71,9 +73,13 @@ from cmp.modules.datasets.adapters.api.governed_import import install_governed_i
 from cmp.modules.datasets.adapters.api.shear_relaxation import (
     install_shear_relaxation_dataset_api,
 )
+from cmp.modules.datasets.adapters.api.viscoelastic_master import (
+    install_viscoelastic_selection_api,
+)
 from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
+from cmp.modules.datasets.application.viscoelastic_master import ViscoelasticDatasetService
 from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
     install_elastoplastic_solver_card_api,
 )
@@ -149,9 +155,15 @@ from cmp.modules.processing.adapters.api.processing import install_processing_ap
 from cmp.modules.processing.adapters.api.shear_relaxation import (
     install_shear_relaxation_processing_api,
 )
+from cmp.modules.processing.adapters.api.viscoelastic_master_curve import (
+    install_viscoelastic_master_api,
+)
 from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.processing.application.shear_relaxation import (
     ShearRelaxationProcessingService,
+)
+from cmp.modules.processing.application.viscoelastic_master_curve import (
+    ViscoelasticMasterService,
 )
 from cmp.modules.provenance.adapters.api.provenance import install_provenance_api
 from cmp.modules.provenance.application.lineage import ProvenanceLineageService
@@ -210,8 +222,10 @@ def create_app(
     dataset_service: DatasetService | None = None,
     governed_import_service: GovernedImportService | None = None,
     shear_relaxation_dataset_service: ShearRelaxationDatasetService | None = None,
+    viscoelastic_dataset_service: ViscoelasticDatasetService | None = None,
     processing_service: ProcessingService | None = None,
     shear_relaxation_processing_service: ShearRelaxationProcessingService | None = None,
+    viscoelastic_master_service: ViscoelasticMasterService | None = None,
     statistics_service: StatisticsService | None = None,
     replicate_statistics_service: ReplicateStatisticsService | None = None,
     replicate_outlier_service: ReplicateOutlierService | None = None,
@@ -417,6 +431,25 @@ def create_app(
             services.authorization, Permission.DATASET_WRITE
         ),
     )
+    resolved_viscoelastic_datasets = (
+        viscoelastic_dataset_service
+        or build_viscoelastic_dataset_service(
+            services,
+            resolved_shear_relaxation_datasets,
+            resolved_testing,
+        )
+    )
+    install_viscoelastic_selection_api(
+        application,
+        service=resolved_viscoelastic_datasets,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_WRITE
+        ),
+    )
     resolved_processing = processing_service or build_processing_service(
         services,
         resolved_datasets,
@@ -445,6 +478,26 @@ def create_app(
     install_shear_relaxation_processing_api(
         application,
         service=resolved_shear_relaxation_processing,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_EXECUTE
+        ),
+    )
+    resolved_viscoelastic_master = (
+        viscoelastic_master_service
+        or build_viscoelastic_master_service(
+            services,
+            resolved_viscoelastic_datasets,
+            resolved_shear_relaxation_datasets,
+            resolved_artifacts,
+        )
+    )
+    install_viscoelastic_master_api(
+        application,
+        service=resolved_viscoelastic_master,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ
@@ -816,8 +869,10 @@ def create_app(
     application.state.dataset_service = resolved_datasets
     application.state.governed_import_service = resolved_governed_import
     application.state.shear_relaxation_dataset_service = resolved_shear_relaxation_datasets
+    application.state.viscoelastic_dataset_service = resolved_viscoelastic_datasets
     application.state.processing_service = resolved_processing
     application.state.shear_relaxation_processing_service = resolved_shear_relaxation_processing
+    application.state.viscoelastic_master_service = resolved_viscoelastic_master
     application.state.statistics_service = resolved_statistics
     application.state.replicate_statistics_service = resolved_replicate_statistics
     application.state.material_model_service = resolved_material_models
