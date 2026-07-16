@@ -178,6 +178,12 @@ class _Service:
     def get_job(self, *_: object) -> BulkExportJob:
         return JOB_RECORD
 
+    def list_jobs(self, *_: object) -> tuple[BulkExportJob, ...]:
+        return (JOB_RECORD,)
+
+    def get_output_commit(self, *_: object) -> None:
+        return None
+
     def get_bundle(self, *_: object) -> BulkExportBundle:
         return BUNDLE_RECORD
 
@@ -240,10 +246,11 @@ def test_bulk_export_api_exposes_typed_selection_job_and_bundle_resources() -> N
             job = await client.post(
                 "/api/v1/export-jobs", json={"export_selection_id": str(SELECTION)}
             )
+            jobs = await client.get("/api/v1/export-jobs")
             bundles = await client.get("/api/v1/export-bundles")
-        return candidates, selection, job, bundles
+        return candidates, selection, job, jobs, bundles
 
-    candidates, selection, job, bundles = asyncio.run(exercise())
+    candidates, selection, job, jobs, bundles = asyncio.run(exercise())
 
     assert candidates.status_code == 200
     assert candidates.json()["items"][0]["source"]["kind"] == "model_ir_json"
@@ -251,4 +258,5 @@ def test_bulk_export_api_exposes_typed_selection_job_and_bundle_resources() -> N
     assert selection.headers["etag"].startswith('"revision:1:sha256:')
     assert service.command is not None and service.command.members[0].source == SOURCE
     assert job.status_code == 201 and job.json()["state"] == "succeeded"
+    assert jobs.status_code == 200 and jobs.json()["items"][0]["committed_output"] is None
     assert bundles.json()["items"][0]["archive_sha256"] == f"sha256:{'a' * 64}"

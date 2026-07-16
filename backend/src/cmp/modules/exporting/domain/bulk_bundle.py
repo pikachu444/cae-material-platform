@@ -52,6 +52,8 @@ class ExportMemberKind(StrEnum):
 class BulkExportJobState(StrEnum):
     QUEUED = "queued"
     RUNNING = "running"
+    RECONCILIATION_REQUIRED = "reconciliation_required"
+    RECONCILING = "reconciling"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
 
@@ -298,8 +300,46 @@ class BuiltBulkExportBundle:
     manifest_sha256: str
     checksums: bytes
 
+    @property
+    def evidence(self) -> BulkExportArchiveEvidence:
+        return BulkExportArchiveEvidence(
+            archive_sha256=self.archive_sha256,
+            archive_size_bytes=len(self.archive),
+            manifest_sha256=self.manifest_sha256,
+        )
 
-def _zip_info(path: str) -> zipfile.ZipInfo:
+
+@dataclass(frozen=True, slots=True)
+class BulkExportArchiveEvidence:
+    archive_sha256: str
+    archive_size_bytes: int
+    manifest_sha256: str
+
+    def __post_init__(self) -> None:
+        if _SHA256.fullmatch(self.archive_sha256) is None:
+            raise InvalidBulkExport("archive_sha256 must be lowercase SHA-256")
+        if _SHA256.fullmatch(self.manifest_sha256) is None:
+            raise InvalidBulkExport("manifest_sha256 must be lowercase SHA-256")
+        if not 1 <= self.archive_size_bytes <= 5 * 1024 * 1024 * 1024:
+            raise InvalidBulkExport("archive_size_bytes is outside the Bundle limit")
+
+
+@dataclass(frozen=True, slots=True)
+class BundleControlFiles:
+    manifest: bytes
+    manifest_sha256: str
+    checksums: bytes
+    readme: bytes
+
+    def archive_entries(self) -> dict[str, bytes]:
+        return {
+            "README.md": self.readme,
+            "checksums.sha256": self.checksums,
+            "manifest.json": self.manifest,
+        }
+
+
+def deterministic_zip_info(path: str) -> zipfile.ZipInfo:
     info = zipfile.ZipInfo(path, date_time=_ZIP_TIMESTAMP)
     info.compress_type = zipfile.ZIP_DEFLATED
     info.create_system = 3
@@ -308,28 +348,21 @@ def _zip_info(path: str) -> zipfile.ZipInfo:
     return info
 
 
-def build_deterministic_bundle(
+def build_bundle_control_files(
     *,
     selection_id: UUID,
     selection_revision_id: UUID,
     content: ExportSelectionContent,
-    files: tuple[ResolvedBundleFile, ...],
-) -> BuiltBulkExportBundle:
-    if tuple(file.member for file in files) != content.members:
-        raise InvalidBulkExport("resolved files must follow immutable member order")
-    component_entries = []
-    archive_entries: dict[str, bytes] = {}
-    for resolved in files:
-        member = resolved.member
-        archive_entries[member.archive_path] = resolved.value
-        component_entries.append(
-            {
-                **member.canonical(),
-                "bundle_sha256": sha256_bytes(resolved.value),
-                "bundle_size_bytes": len(resolved.value),
-                "status": "included",
-            }
-        )
+) -> BundleControlFiles:
+    component_entries = [
+        {
+            **member.canonical(),
+            "bundle_sha256": member.source_sha256,
+            "bundle_size_bytes": member.source_size_bytes,
+            "status": "included",
+        }
+        for member in content.members
+    ]
     manifest_document = {
         "schema": "urn:cmp:exporting:bulk-bundle-manifest:1.0.0",
         "selection_id": str(selection_id),
@@ -351,23 +384,52 @@ def build_deterministic_bundle(
         b"Verify every line in checksums.sha256 before use. Exact source identities, "
         b"revisions, classifications and omissions are recorded in manifest.json.\n"
     )
-    archive_entries["README.md"] = readme
-    archive_entries["manifest.json"] = manifest
+    checksummed = {
+        **{member.archive_path: member.source_sha256 for member in content.members},
+        "README.md": sha256_bytes(readme),
+        "manifest.json": sha256_bytes(manifest),
+    }
     checksums = "".join(
-        f"{sha256_bytes(value)}  {path}\n" for path, value in sorted(archive_entries.items())
+        f"{digest}  {path}\n" for path, digest in sorted(checksummed.items())
     ).encode("utf-8")
-    archive_entries["checksums.sha256"] = checksums
+    return BundleControlFiles(
+        manifest=manifest,
+        manifest_sha256=sha256_bytes(manifest),
+        checksums=checksums,
+        readme=readme,
+    )
+
+
+def build_deterministic_bundle(
+    *,
+    selection_id: UUID,
+    selection_revision_id: UUID,
+    content: ExportSelectionContent,
+    files: tuple[ResolvedBundleFile, ...],
+) -> BuiltBulkExportBundle:
+    if tuple(file.member for file in files) != content.members:
+        raise InvalidBulkExport("resolved files must follow immutable member order")
+    archive_entries: dict[str, bytes] = {}
+    for resolved in files:
+        member = resolved.member
+        archive_entries[member.archive_path] = resolved.value
+    control = build_bundle_control_files(
+        selection_id=selection_id,
+        selection_revision_id=selection_revision_id,
+        content=content,
+    )
+    archive_entries.update(control.archive_entries())
     output = io.BytesIO()
     with zipfile.ZipFile(
         output, mode="w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
     ) as bundle:
         for path, value in sorted(archive_entries.items()):
-            bundle.writestr(_zip_info(path), value)
+            bundle.writestr(deterministic_zip_info(path), value)
     archive = output.getvalue()
     return BuiltBulkExportBundle(
         archive,
         sha256_bytes(archive),
-        manifest,
-        sha256_bytes(manifest),
-        checksums,
+        control.manifest,
+        control.manifest_sha256,
+        control.checksums,
     )

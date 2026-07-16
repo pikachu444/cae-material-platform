@@ -3194,7 +3194,13 @@ export interface BulkExportJobResponse {
   classification: DataClassification;
   export_selection_id: string;
   export_selection_revision_id: string;
-  state: "queued" | "running" | "succeeded" | "failed";
+  state:
+    | "queued"
+    | "running"
+    | "reconciliation_required"
+    | "reconciling"
+    | "succeeded"
+    | "failed";
   attempt_count: number;
   bundle_id: string | null;
   failure_code: string | null;
@@ -3203,6 +3209,15 @@ export interface BulkExportJobResponse {
   submitted_by: string;
   started_at: string | null;
   completed_at: string | null;
+  committed_output: {
+    output_commit_id: string;
+    archive_artifact_id: string;
+    archive_sha256: string;
+    archive_size_bytes: number;
+    manifest_sha256: string;
+    committed_at: string;
+    committed_by: string;
+  } | null;
   links: Record<string, string | null>;
 }
 

@@ -63,6 +63,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260820_054_T43_ogden_calibration.py",
         "20260821_055_T44_iterative_ogden_promotion.py",
         "20260822_056_T45_bulk_export_bundle.py",
+        "20260823_057_T47_external_bundle_reconciliation.py",
     ]
 
 

@@ -119,6 +119,16 @@ class ContentObjectStore(Protocol):
         media_type: str,
     ) -> StoredObject: ...
 
+    async def stage_stream(
+        self,
+        *,
+        object_key: str,
+        chunks: AsyncIterable[bytes],
+        media_type: str,
+        expected_sha256: str,
+        expected_size_bytes: int,
+    ) -> StoredObject: ...
+
     async def inspect(self, object_key: str) -> StoredObject | None: ...
 
     async def promote(
@@ -480,6 +490,61 @@ class ArtifactService:
                 media_type=media_type,
                 expected_size_bytes=len(value),
                 expected_sha256=sha256,
+                staging_object_key=staging_key,
+                idempotency_key=idempotency_key,
+            ),
+        )
+        if result.replayed:
+            try:
+                await self._store.discard(staging_key)
+            except ObjectStoreError:
+                pass
+        return result.record
+
+    async def finalize_derived_stream(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        classification: DataClassification,
+        artifact_role: str,
+        schema_ref: str,
+        media_type: str,
+        chunks: AsyncIterable[bytes],
+        expected_sha256: str,
+        expected_size_bytes: int,
+        idempotency_key: str,
+    ) -> ArtifactRecord:
+        """Finalize a validated large derived stream without materializing it in API memory."""
+
+        _require_database_capability(context, decision, Permission.ARTIFACT_WRITE)
+        if re.fullmatch(r"[0-9a-f]{64}", expected_sha256) is None:
+            raise InvalidArtifact("derived Artifact SHA-256 is invalid")
+        if expected_size_bytes < 1:
+            raise InvalidArtifact("derived Artifact size must be positive")
+        if _IDEMPOTENCY_KEY.fullmatch(idempotency_key) is None:
+            raise InvalidArtifact("Artifact idempotency key must contain visible ASCII")
+        staging_key = self._derived_staging_key(context, classification, idempotency_key)
+        stored = await self._store.stage_stream(
+            object_key=staging_key,
+            chunks=chunks,
+            media_type=media_type,
+            expected_sha256=expected_sha256,
+            expected_size_bytes=expected_size_bytes,
+        )
+        if not _matches(stored, expected_sha256, expected_size_bytes):
+            raise ArtifactIntegrityError("derived staging stream differs from supplied evidence")
+        result = await self.finalize_staged(
+            context,
+            decision,
+            PrepareArtifact(
+                classification=classification,
+                artifact_kind=ArtifactKind.DERIVED,
+                artifact_role=artifact_role,
+                schema_ref=schema_ref,
+                media_type=media_type,
+                expected_size_bytes=expected_size_bytes,
+                expected_sha256=expected_sha256,
                 staging_object_key=staging_key,
                 idempotency_key=idempotency_key,
             ),

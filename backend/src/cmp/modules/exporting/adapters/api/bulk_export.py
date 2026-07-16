@@ -16,6 +16,7 @@ from cmp.modules.exporting.application.bulk_export import (
     BulkExportBundle,
     BulkExportJob,
     BulkExportService,
+    CommittedBulkExportOutput,
     CreateExportSelection,
     ExportCandidate,
     ExportSelectionSnapshot,
@@ -242,6 +243,32 @@ class CreateExportJobRequest(BaseModel):
     export_selection_id: UUID
 
 
+class BulkExportCommittedOutputResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    output_commit_id: UUID
+    archive_artifact_id: UUID
+    archive_sha256: str
+    archive_size_bytes: int
+    manifest_sha256: str
+    committed_at: datetime
+    committed_by: UUID
+
+    @classmethod
+    def from_domain(
+        cls, value: CommittedBulkExportOutput
+    ) -> BulkExportCommittedOutputResponse:
+        return cls(
+            output_commit_id=value.id,
+            archive_artifact_id=value.archive_artifact_id,
+            archive_sha256=f"sha256:{value.archive_sha256}",
+            archive_size_bytes=value.archive_size_bytes,
+            manifest_sha256=f"sha256:{value.manifest_sha256}",
+            committed_at=value.committed_at,
+            committed_by=value.committed_by,
+        )
+
+
 class BulkExportJobResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -258,10 +285,15 @@ class BulkExportJobResponse(BaseModel):
     submitted_by: UUID
     started_at: datetime | None
     completed_at: datetime | None
+    committed_output: BulkExportCommittedOutputResponse | None
     links: ResourceLinks
 
     @classmethod
-    def from_domain(cls, value: BulkExportJob) -> BulkExportJobResponse:
+    def from_domain(
+        cls,
+        value: BulkExportJob,
+        output: CommittedBulkExportOutput | None = None,
+    ) -> BulkExportJobResponse:
         return cls(
             export_job_id=value.id,
             classification=value.classification,
@@ -276,11 +308,21 @@ class BulkExportJobResponse(BaseModel):
             submitted_by=value.submitted_by,
             started_at=value.started_at,
             completed_at=value.completed_at,
+            committed_output=(
+                BulkExportCommittedOutputResponse.from_domain(output)
+                if output is not None
+                else None
+            ),
             links=ResourceLinks(
                 self=f"/api/v1/export-jobs/{value.id}",
                 bundle=(f"/api/v1/export-bundles/{value.bundle_id}" if value.bundle_id else None),
             ),
         )
+
+class BulkExportJobListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: tuple[BulkExportJobResponse, ...]
 
 
 class BulkExportBundleResponse(BaseModel):
@@ -488,7 +530,13 @@ def install_bulk_export_api(
         operation_id="createBulkExportJob",
         response_model=BulkExportJobResponse,
         status_code=status.HTTP_201_CREATED,
-        responses=errors,
+        responses={
+            **errors,
+            status.HTTP_202_ACCEPTED: {
+                "model": BulkExportJobResponse,
+                "description": "Durable Job queued for external Bundle assembly.",
+            },
+        },
         dependencies=[Depends(security_dependency), Depends(execute_dependency)],
         tags=["exporting"],
     )
@@ -503,8 +551,36 @@ def install_bulk_export_api(
         except Exception as error:
             raise _translate(context, error) from error
         response.headers["Location"] = f"/api/v1/export-jobs/{job.id}"
-        response.headers["X-CMP-Bundle"] = f"/api/v1/export-bundles/{bundle.id}"
-        return BulkExportJobResponse.from_domain(job)
+        if bundle is None:
+            response.status_code = status.HTTP_202_ACCEPTED
+        else:
+            response.headers["X-CMP-Bundle"] = f"/api/v1/export-bundles/{bundle.id}"
+        output = require(context).get_output_commit(context, decision, job.id)
+        return BulkExportJobResponse.from_domain(job, output)
+
+    @application.get(
+        "/api/v1/export-jobs",
+        operation_id="listBulkExportJobs",
+        response_model=BulkExportJobListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["exporting"],
+    )
+    def list_jobs(request: Request) -> BulkExportJobListResponse:
+        context, decision = _scope(request)
+        try:
+            exporting = require(context)
+            values = exporting.list_jobs(context, decision)
+            items = tuple(
+                BulkExportJobResponse.from_domain(
+                    value,
+                    exporting.get_output_commit(context, decision, value.id),
+                )
+                for value in values
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return BulkExportJobListResponse(items=items)
 
     @application.get(
         "/api/v1/export-jobs/{job_id}",
@@ -517,10 +593,12 @@ def install_bulk_export_api(
     def get_job(request: Request, job_id: UUID) -> BulkExportJobResponse:
         context, decision = _scope(request)
         try:
-            value = require(context).get_job(context, decision, job_id)
+            exporting = require(context)
+            value = exporting.get_job(context, decision, job_id)
+            output = exporting.get_output_commit(context, decision, job_id)
         except Exception as error:
             raise _translate(context, error) from error
-        return BulkExportJobResponse.from_domain(value)
+        return BulkExportJobResponse.from_domain(value, output)
 
     @application.get(
         "/api/v1/export-bundles",

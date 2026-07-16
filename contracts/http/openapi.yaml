@@ -6728,16 +6728,23 @@ paths:
         "200": {description: Immutable Export Selection., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/SelectionResponse"}}}}
         "404": {description: No visible Selection matches.}
   /api/v1/export-jobs:
+    get:
+      operationId: listBulkExportJobs
+      tags: [exporting]
+      summary: List durable Bundle assembly and reconciliation states.
+      security: [{BearerAuth: []}]
+      responses:
+        "200": {description: Visible Bundle assembly Jobs and committed outputs., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/JobList"}}}}
     post:
       operationId: createBulkExportJob
       tags: [exporting]
       summary: Assemble a deterministic ZIP for an exact Selection.
-      description: The bounded initial adapter persists queued, running, and terminal states while assembling small bundles inline. Larger selections require the external worker adapter.
+      description: Bundles up to the configured inline limit may complete synchronously. Larger selections return a queued durable Job for the external worker; already committed output remains visible if later Bundle projection requires reconciliation.
       security: [{BearerAuth: []}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/CreateJobRequest"}}}}
       responses:
         "201": {description: Durable terminal assembly Job., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/JobResponse"}}}}
-        "413": {description: Selection exceeds the 64 MiB inline assembly limit.}
+        "202": {description: Durable Job queued for external assembly., content: {application/json: {schema: {$ref: "../exporting/bulk-export-resources.schema.json#/$defs/JobResponse"}}}}
   /api/v1/export-jobs/{job_id}:
     get:
       operationId: getBulkExportJob

@@ -15,10 +15,12 @@ from cmp.modules.exporting.application.bulk_export import (
     BulkExportBundle,
     BulkExportJob,
     BulkExportRepository,
+    CommittedBulkExportOutput,
     ExportSelectionSnapshot,
 )
 from cmp.modules.exporting.domain.bulk_bundle import (
-    BuiltBulkExportBundle,
+    BulkExportArchiveEvidence,
+    BulkExportConflict,
     BulkExportJobState,
     BulkExportNotFound,
     ExportMemberKind,
@@ -167,6 +169,23 @@ bundle_table = sa.Table(
     sa.Column("created_by", sa.Uuid(), nullable=False),
     schema="exporting",
 )
+output_commit_table = sa.Table(
+    "bulk_export_output_commit",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("job_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("archive_artifact_id", sa.Uuid(), nullable=False),
+    sa.Column("archive_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("archive_size_bytes", sa.BigInteger(), nullable=False),
+    sa.Column("manifest_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("committed_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("committed_by", sa.Uuid(), nullable=False),
+    schema="exporting",
+)
 
 
 def _source(row: Any) -> ExportSourceRef:
@@ -256,6 +275,23 @@ def _bundle(row: Any) -> BulkExportBundle:
         int(row["omission_count"]),
         row["created_at"],
         cast(UUID, row["created_by"]),
+    )
+
+
+def _output_commit(row: Any) -> CommittedBulkExportOutput:
+    return CommittedBulkExportOutput(
+        cast(UUID, row["id"]),
+        cast(UUID, row["organization_id"]),
+        cast(UUID, row["project_id"]),
+        DataClassification(str(row["classification"])),
+        cast(UUID, row["job_id"]),
+        cast(UUID, row["selection_revision_id"]),
+        cast(UUID, row["archive_artifact_id"]),
+        str(row["archive_sha256"]),
+        int(row["archive_size_bytes"]),
+        str(row["manifest_sha256"]),
+        row["committed_at"],
+        cast(UUID, row["committed_by"]),
     )
 
 
@@ -549,6 +585,147 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             raise BulkExportNotFound("queued Bulk Export Job is not visible")
         return _job(row)
 
+    def claim_next_job(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        now: Any,
+    ) -> BulkExportJob | None:
+        with self._session(context, decision) as session:
+            current = (
+                session.execute(
+                    sa.select(job_table)
+                    .where(
+                        job_table.c.state.in_(
+                            ("reconciliation_required", "queued")
+                        )
+                    )
+                    .order_by(
+                        sa.case(
+                            (job_table.c.state == "reconciliation_required", 0),
+                            else_=1,
+                        ),
+                        job_table.c.submitted_at,
+                        job_table.c.id,
+                    )
+                    .with_for_update(skip_locked=True)
+                    .limit(1)
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if current is None:
+                return None
+            if current["state"] == "queued":
+                values: dict[str, object] = {
+                    "state": "running",
+                    "started_at": now,
+                }
+            else:
+                values = {
+                    "state": "reconciling",
+                    "attempt_count": int(current["attempt_count"]) + 1,
+                    "failure_code": None,
+                    "failure_detail": None,
+                    "completed_at": None,
+                }
+            row = (
+                session.execute(
+                    sa.update(job_table)
+                    .where(
+                        job_table.c.id == current["id"],
+                        job_table.c.state == current["state"],
+                    )
+                    .values(**values)
+                    .returning(*job_table.c)
+                )
+                .mappings()
+                .one()
+            )
+        return _job(row)
+
+    def record_output_commit(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        job_id: UUID,
+        archive_artifact_id: UUID,
+        evidence: BulkExportArchiveEvidence,
+        now: Any,
+    ) -> CommittedBulkExportOutput:
+        with self._session(context, decision) as session:
+            current = (
+                session.execute(
+                    sa.select(job_table).where(job_table.c.id == job_id).with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if current is None or current["state"] not in ("running", "reconciling"):
+                raise BulkExportNotFound("running Bulk Export Job is not visible")
+            existing = (
+                session.execute(
+                    sa.select(output_commit_table).where(
+                        output_commit_table.c.job_id == job_id
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if existing is None:
+                existing = (
+                    session.execute(
+                        sa.insert(output_commit_table)
+                        .values(
+                            id=output_id,
+                            organization_id=context.organization_id,
+                            project_id=context.project_id,
+                            classification=current["classification"],
+                            job_id=job_id,
+                            selection_revision_id=current["selection_revision_id"],
+                            archive_artifact_id=archive_artifact_id,
+                            archive_sha256=evidence.archive_sha256,
+                            archive_size_bytes=evidence.archive_size_bytes,
+                            manifest_sha256=evidence.manifest_sha256,
+                            committed_at=now,
+                            committed_by=context.principal.id,
+                        )
+                        .returning(*output_commit_table.c)
+                    )
+                    .mappings()
+                    .one()
+                )
+            elif (
+                existing["archive_artifact_id"] != archive_artifact_id
+                or existing["archive_sha256"] != evidence.archive_sha256
+                or int(existing["archive_size_bytes"]) != evidence.archive_size_bytes
+                or existing["manifest_sha256"] != evidence.manifest_sha256
+            ):
+                raise BulkExportConflict("Bulk Export Job already committed different output")
+        return _output_commit(existing)
+
+    def get_output_commit(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job_id: UUID,
+    ) -> CommittedBulkExportOutput | None:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(output_commit_table).where(
+                        output_commit_table.c.job_id == job_id
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        return _output_commit(row) if row is not None else None
+
     def complete_job(
         self,
         *,
@@ -557,7 +734,7 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
         job_id: UUID,
         bundle_id: UUID,
         archive_artifact_id: UUID,
-        built: BuiltBulkExportBundle,
+        evidence: BulkExportArchiveEvidence,
         content: ExportSelectionContent,
         now: Any,
     ) -> tuple[BulkExportJob, BulkExportBundle]:
@@ -569,13 +746,29 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
                 .mappings()
                 .one_or_none()
             )
-            if current is None or current["state"] != "running":
+            if current is None or current["state"] not in ("running", "reconciling"):
                 raise BulkExportNotFound("running Bulk Export Job is not visible")
+            output = (
+                session.execute(
+                    sa.select(output_commit_table).where(
+                        output_commit_table.c.job_id == job_id,
+                        output_commit_table.c.archive_artifact_id == archive_artifact_id,
+                        output_commit_table.c.archive_sha256 == evidence.archive_sha256,
+                        output_commit_table.c.archive_size_bytes
+                        == evidence.archive_size_bytes,
+                        output_commit_table.c.manifest_sha256 == evidence.manifest_sha256,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if output is None:
+                raise BulkExportConflict("committed Bundle output evidence is missing")
             existing = (
                 session.execute(
                     sa.select(bundle_table).where(
                         bundle_table.c.selection_revision_id == current["selection_revision_id"],
-                        bundle_table.c.archive_sha256 == built.archive_sha256,
+                        bundle_table.c.archive_sha256 == evidence.archive_sha256,
                     )
                 )
                 .mappings()
@@ -593,9 +786,9 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
                             selection_id=current["selection_id"],
                             selection_revision_id=current["selection_revision_id"],
                             archive_artifact_id=archive_artifact_id,
-                            archive_sha256=built.archive_sha256,
-                            archive_size_bytes=len(built.archive),
-                            manifest_sha256=built.manifest_sha256,
+                            archive_sha256=evidence.archive_sha256,
+                            archive_size_bytes=evidence.archive_size_bytes,
+                            manifest_sha256=evidence.manifest_sha256,
                             component_count=len(content.members),
                             omission_count=len(content.omissions),
                             created_at=now,
@@ -609,7 +802,10 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             job_row = (
                 session.execute(
                     sa.update(job_table)
-                    .where(job_table.c.id == job_id, job_table.c.state == "running")
+                    .where(
+                        job_table.c.id == job_id,
+                        job_table.c.state.in_(("running", "reconciling")),
+                    )
                     .values(
                         state="succeeded",
                         bundle_id=existing["id"],
@@ -638,7 +834,10 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             row = (
                 session.execute(
                     sa.update(job_table)
-                    .where(job_table.c.id == job_id, job_table.c.state == "running")
+                    .where(
+                        job_table.c.id == job_id,
+                        job_table.c.state.in_(("running", "reconciling")),
+                    )
                     .values(
                         state="failed",
                         failure_code=failure_code,
@@ -652,6 +851,43 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             )
         if row is None:
             raise BulkExportNotFound("running Bulk Export Job is not visible")
+        return _job(row)
+
+    def require_output_reconciliation(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job_id: UUID,
+        failure_detail: str,
+        now: Any,
+    ) -> BulkExportJob:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.update(job_table)
+                    .where(
+                        job_table.c.id == job_id,
+                        job_table.c.state.in_(("running", "reconciling")),
+                        sa.exists(
+                            sa.select(output_commit_table.c.id).where(
+                                output_commit_table.c.job_id == job_id
+                            )
+                        ),
+                    )
+                    .values(
+                        state="reconciliation_required",
+                        failure_code="committed_output_pending",
+                        failure_detail=failure_detail,
+                        completed_at=now,
+                    )
+                    .returning(*job_table.c)
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise BulkExportNotFound("committed output requiring reconciliation is not visible")
         return _job(row)
 
     def get_job(
@@ -670,6 +906,20 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
         if row is None:
             raise BulkExportNotFound("Bulk Export Job is not visible")
         return _job(row)
+
+    def list_jobs(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> tuple[BulkExportJob, ...]:
+        with self._session(context, decision) as session:
+            rows = session.execute(
+                sa.select(job_table).order_by(
+                    job_table.c.submitted_at.desc(), job_table.c.id
+                )
+            ).mappings()
+            return tuple(_job(row) for row in rows)
 
     def get_bundle(
         self,

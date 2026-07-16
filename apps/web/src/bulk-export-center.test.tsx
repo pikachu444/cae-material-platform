@@ -93,8 +93,13 @@ describe("BulkExportCenter", () => {
         return response({ export_selection_id: materialId });
       }
       if (url.endsWith("/export-jobs") && init?.method === "POST") {
-        return response({ bundle_id: revisionId });
+        return response({
+          export_job_id: modelId,
+          state: "succeeded",
+          bundle_id: revisionId,
+        });
       }
+      if (url.endsWith("/export-jobs")) return response({ items: [] });
       if (url.endsWith("/export-bundles")) return response({ items: [] });
       throw new Error(`unexpected request ${url}`);
     });
@@ -118,5 +123,59 @@ describe("BulkExportCenter", () => {
       classification: "internal",
       members: [{ ordinal: 1, required: true, source }],
     });
+  });
+
+  it("keeps committed output visible while a later Bundle step awaits reconciliation", async () => {
+    const digest = `sha256:${"c".repeat(64)}`;
+    const fetchMock = vi.fn<typeof fetch>(async (input) => {
+      const url = String(input);
+      if (url.includes("/materials?")) return response({ items: [material] });
+      if (url.endsWith(`/bulk-export-candidates?material_id=${materialId}`)) {
+        return response({ items: [] });
+      }
+      if (url.endsWith("/export-bundles")) return response({ items: [] });
+      if (url.endsWith("/export-jobs")) {
+        return response({
+          items: [{
+            export_job_id: modelId,
+            classification: "internal",
+            export_selection_id: materialId,
+            export_selection_revision_id: revisionId,
+            state: "reconciliation_required",
+            attempt_count: 1,
+            bundle_id: null,
+            failure_code: "committed_output_pending",
+            failure_detail: "Bundle projection will be retried",
+            submitted_at: "2026-07-16T00:00:00Z",
+            submitted_by: materialId,
+            started_at: "2026-07-16T00:00:01Z",
+            completed_at: "2026-07-16T00:00:02Z",
+            committed_output: {
+              output_commit_id: revisionId,
+              archive_artifact_id: modelRevisionId,
+              archive_sha256: digest,
+              archive_size_bytes: 2_097_152,
+              manifest_sha256: `sha256:${"d".repeat(64)}`,
+              committed_at: "2026-07-16T00:00:02Z",
+              committed_by: materialId,
+            },
+            links: {},
+          }],
+        });
+      }
+      throw new Error(`unexpected request ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <BulkExportCenter
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    expect(await screen.findByText("output preserved")).toBeTruthy();
+    expect(screen.getByText(digest)).toBeTruthy();
+    expect(screen.getByText(/Bundle projection will be retried/)).toBeTruthy();
   });
 });

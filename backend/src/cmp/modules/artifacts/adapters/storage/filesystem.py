@@ -263,6 +263,70 @@ class FilesystemMultipartObjectStore:
             raise RuntimeError("derived staging object disappeared after write")
         return result
 
+    async def stage_stream(
+        self,
+        *,
+        object_key: str,
+        chunks: AsyncIterable[bytes],
+        media_type: str,
+        expected_sha256: str,
+        expected_size_bytes: int,
+    ) -> StoredObject:
+        """Stage a large derived object incrementally under the immutable staging contract."""
+
+        key = self._safe_key(object_key)
+        if key.parts[:2] != ("staging", "derived"):
+            raise ObjectStoreError("derived stream must use the dedicated staging namespace")
+        if (
+            not media_type
+            or len(media_type) > 255
+            or len(expected_sha256) != 64
+            or expected_size_bytes < 1
+        ):
+            raise ObjectStoreError("derived stream evidence is invalid")
+        target = self._object_path(object_key)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists():
+            digest, size = _hash_file(target)
+            if digest != expected_sha256 or size != expected_size_bytes:
+                raise ObjectStoreError(
+                    "derived staging key is already bound to different bytes"
+                )
+            result = await self.inspect(object_key)
+            if result is None:
+                raise RuntimeError("derived staging object disappeared after inspection")
+            return result
+
+        stream_digest = hashlib.sha256()
+        observed = 0
+        try:
+            with target.open("xb") as stream:
+                async for chunk in chunks:
+                    if not isinstance(chunk, bytes) or not chunk:
+                        raise ObjectStoreError("derived stream chunks must be non-empty bytes")
+                    observed += len(chunk)
+                    if observed > expected_size_bytes:
+                        raise ObjectStoreError("derived stream exceeds its declared size")
+                    stream_digest.update(chunk)
+                    stream.write(chunk)
+                stream.flush()
+                os.fsync(stream.fileno())
+            if (
+                observed != expected_size_bytes
+                or stream_digest.hexdigest() != expected_sha256
+            ):
+                raise ObjectStoreError("derived stream differs from its declared digest or size")
+        except ObjectStoreError:
+            target.unlink(missing_ok=True)
+            raise
+        except (OSError, TypeError) as error:
+            target.unlink(missing_ok=True)
+            raise ObjectStoreError("failed to stage derived object stream") from error
+        result = await self.inspect(object_key)
+        if result is None:
+            raise RuntimeError("derived staging object disappeared after write")
+        return result
+
     async def discard(self, object_key: str) -> None:
         key = self._safe_key(object_key)
         if key.parts[0] != "staging":

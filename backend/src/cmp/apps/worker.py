@@ -11,14 +11,27 @@ from contextlib import nullcontext
 from dataclasses import asdict, dataclass
 from datetime import timedelta
 from typing import Protocol
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from opentelemetry.context import Context
 from opentelemetry.trace import SpanKind, Tracer
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 from cmp import __version__
+from cmp.bootstrap.artifacts import build_artifact_services
+from cmp.bootstrap.demo_identity import DemoIdentity
+from cmp.bootstrap.exporting import build_bulk_export_service
+from cmp.bootstrap.security import (
+    IdentityServices,
+    build_demo_identity_services,
+    build_identity_services,
+)
 from cmp.bootstrap.settings import Settings
+from cmp.modules.exporting.application.bulk_export import BulkExportService
+from cmp.modules.identity_access.application.authorization import AuthorizationService
+from cmp.modules.identity_access.application.security import SecurityContextService
+from cmp.modules.identity_access.domain.authorization import Permission
+from cmp.modules.identity_access.domain.security import AuthenticationRequest
 from cmp.modules.jobs.application.jobs import (
     ClaimedAttempt,
     FinalizeAttempt,
@@ -41,6 +54,7 @@ class WorkerCycleResult:
     service: str = "cmp-worker"
     version: str = __version__
     handlers_registered: int = 0
+    bulk_export_enabled: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -239,6 +253,122 @@ class EmptyWorker(DurableJobWorker):
         super().__init__(poll_interval_seconds=poll_interval_seconds)
 
 
+class BulkExportQueueWorker:
+    """Out-of-process bounded Bundle assembler over the typed durable Export Job queue."""
+
+    def __init__(
+        self,
+        *,
+        service: BulkExportService,
+        security: SecurityContextService,
+        authorization: AuthorizationService,
+        access_token: Callable[[], str],
+    ) -> None:
+        self._service = service
+        self._security = security
+        self._authorization = authorization
+        self._access_token = access_token
+
+    async def run_once(self) -> WorkerCycleResult:
+        request_id = uuid4()
+        context = self._security.authenticate(
+            AuthenticationRequest(
+                self._access_token(),
+                request_id,
+                f"00-{uuid4().hex}-{uuid4().hex[:16]}-01",
+            )
+        )
+        decision = self._authorization.authorize(context, Permission.EXPORT_EXECUTE)
+        result = await self._service.execute_next_external(context, decision)
+        return WorkerCycleResult(
+            status=result[0].state.value if result is not None else "idle",
+            bulk_export_enabled=True,
+        )
+
+
+class CompositeWorker:
+    """Poll generic leased handlers first, then the typed external Bundle queue."""
+
+    def __init__(
+        self,
+        *,
+        generic: DurableJobWorker,
+        bulk_exports: BulkExportQueueWorker | None,
+        poll_interval_seconds: float,
+    ) -> None:
+        self._generic = generic
+        self._bulk_exports = bulk_exports
+        self._poll_interval_seconds = poll_interval_seconds
+        self._stop = asyncio.Event()
+
+    async def run_once(self) -> WorkerCycleResult:
+        generic = await self._generic.run_once()
+        if generic.status != "idle" or self._bulk_exports is None:
+            return WorkerCycleResult(
+                status=generic.status,
+                handlers_registered=generic.handlers_registered,
+                bulk_export_enabled=self._bulk_exports is not None,
+            )
+        return await self._bulk_exports.run_once()
+
+    async def serve(self) -> None:
+        LOGGER.info("worker_started", extra={"version": __version__})
+        try:
+            while not self._stop.is_set():
+                await self.run_once()
+                try:
+                    await asyncio.wait_for(
+                        self._stop.wait(), timeout=self._poll_interval_seconds
+                    )
+                except TimeoutError:
+                    continue
+        finally:
+            LOGGER.info("worker_stopped")
+
+    def stop(self) -> None:
+        self._stop.set()
+
+
+def _build_bulk_export_worker(
+    settings: Settings,
+) -> tuple[BulkExportQueueWorker | None, IdentityServices]:
+    demo = DemoIdentity.from_settings(settings)
+    identity = (
+        build_demo_identity_services(settings, demo.idp)
+        if demo is not None
+        else build_identity_services(settings)
+    )
+    if (
+        identity.security is None
+        or identity.authorization is None
+        or identity.engine is None
+    ):
+        return None, identity
+    token = demo.issue_access_token if demo is not None else None
+    if token is None and settings.worker_access_token is not None:
+        fixed = settings.worker_access_token
+
+        def configured_token() -> str:
+            return fixed
+
+        token = configured_token
+    if token is None:
+        return None, identity
+    artifacts = build_artifact_services(identity, settings).content
+    service = build_bulk_export_service(identity, artifacts, settings)
+    if service is None:
+        return None, identity
+    return (
+        BulkExportQueueWorker(
+            service=service,
+            security=identity.security,
+            authorization=identity.authorization,
+            access_token=token,
+        ),
+        identity,
+    )
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the CMP durable worker shell.")
     parser.add_argument("--once", action="store_true", help="Run one cycle and exit.")
@@ -256,10 +386,16 @@ async def _run(args: argparse.Namespace) -> int:
         endpoint=settings.otel_exporter_otlp_endpoint,
         export_interval_ms=settings.otel_metric_export_interval_ms,
     )
-    # Production composition requires a trusted service principal plus T-10 package/input
-    # materializer and result committer. When they are absent, the deployable stays safely
-    # idle instead of fabricating credentials or mutable artifact references.
-    worker = DurableJobWorker(poll_interval_seconds=interval, tracer=telemetry.tracer)
+    # Generic plugin handlers still require their isolated production composition. The typed
+    # Bulk Export worker is enabled only when identity, database, object storage and an explicit
+    # demo/operator token are all configured; otherwise the process remains safely idle.
+    generic = DurableJobWorker(poll_interval_seconds=interval, tracer=telemetry.tracer)
+    bulk_exports, identity = _build_bulk_export_worker(settings)
+    worker = CompositeWorker(
+        generic=generic,
+        bulk_exports=bulk_exports,
+        poll_interval_seconds=interval,
+    )
     if args.once:
         try:
             result = await worker.run_once()
@@ -269,6 +405,8 @@ async def _run(args: argparse.Namespace) -> int:
                 print(f"{result.service}: {result.status} ({result.handlers_registered} handlers)")
             return 0
         finally:
+            if identity.engine is not None:
+                identity.engine.dispose()
             telemetry.shutdown()
 
     try:
@@ -277,6 +415,8 @@ async def _run(args: argparse.Namespace) -> int:
         worker.stop()
         raise
     finally:
+        if identity.engine is not None:
+            identity.engine.dispose()
         telemetry.shutdown()
     return 0
 

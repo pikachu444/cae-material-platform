@@ -981,8 +981,9 @@ short-lived Artifact transfer capability. Archives contain the requested raw ori
 Parquet, readable CSV, IR JSON/schema, mapping reports and native Abaqus/OpenRadioss cards plus
 `manifest.json`, `checksums.sha256` and `README.md`. Required missing/unauthorized inputs block;
 optional omissions remain explicit. Release approval semantics are unchanged. The bounded API
-assembles up to 64 MiB inline while persisting queued→running→succeeded/failed; larger external
-worker assembly remains T-47 work.
+assembles up to 64 MiB inline while persisting queued→running→succeeded/failed. The later T-47
+migration 057 adds external worker assembly, committed-output visibility and reconciliation without
+rewriting this T-45 Selection/Bundle model.
 
 Live Docker/PostgreSQL evidence created a 22-component DP780 Bundle and obtained `201` download
 authorization followed by `200` Artifact transfer. A second Selection created after hook wiring
@@ -1040,8 +1041,9 @@ provenance references. The successful live run completed in 32.018 seconds, matc
 total object samples 100/100, found zero dangling lineage edges and cleaned the temporary database.
 The demo source contained no Release, which is reported as `not_present_in_source`; Release digest
 recovery, scheduled/versioned backups, object lock/KMS/retention, production signing trust,
-benchmark/security acceptance, large external-worker Bundle assembly and signed connectors remain
-the ordered T-47 work.
+production-scale benchmark/security acceptance and signed connectors remain ordered T-47 work.
+Bounded local benchmark/security and external-worker Bundle assembly are now implemented in later
+T-47 subsets below.
 
 The T-47 subset gate passed 627 Python tests with the disposable PostgreSQL 16 DSN and zero
 skip/failure, 39 Vitest tests, ruff, mypy over 536 source files, architecture/contract/OpenAPI and
@@ -1098,4 +1100,39 @@ enforces a 300,000-byte entry and 120,000-byte lazy-chunk ceiling. The complete 
 skip/failure, all 39 frontend tests, ruff, mypy over 538 source files, architecture/contract/OpenAPI,
 13-document/21-capture user-guide checks, the production bundle budget and npm audit with zero
 vulnerabilities.
+
+## T-47 external Bundle worker and output reconciliation subset (2026-07-16)
+
+Migration 057 adds a typed, append-only `exporting.bulk_export_output_commit` with explicit
+organization/project/classification foreign keys, SHA-256/size constraints and forced RLS. Bulk
+Export Job transitions now include `reconciliation_required` and `reconciling`; PostgreSQL guards
+attempt increments and legal state changes. Existing Selection, source revision, Bundle and Artifact
+rows are neither rewritten nor replaced.
+
+Estimates above the default 64-MiB inline limit return `202 Accepted`. The composed worker claims a
+Job with `FOR UPDATE SKIP LOCKED`, builds the same normalized deterministic ZIP bytes in a temporary
+file, streams them through Artifact staging/finalization, records immutable output evidence, and
+then projects the Bundle. If that last projection fails, the Job and Export Center expose the
+committed SHA-256/size as `reconciliation_required`; a later worker claim links the existing output
+without reading sources or assembling a second archive. The API lists Job history, attempt, state
+and committed output, and the React Export Center polls active states and distinguishes output
+commit from Bundle availability.
+
+The Docker/PostgreSQL demo deliberately lowered the inline limit to 16 KiB and completed a
+22-component DP780 Job. Output commit `7842eac7-aa26-4b4e-9492-2d84382b52ae` projected Bundle
+`8ba6290e-cb2d-4722-9dc3-7d786d6e8251`; the 21,822-byte Artifact and downloaded ZIP both matched
+SHA-256 `04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
+
+This subset does not claim the 1,000-component/5-GiB domain limit as production-qualified. The
+external path currently bounds each source member at 64 MiB. Hard-kill recovery for a claimed
+`running` Job, worker token refresh/rotation, 10,000-Material/2-GiB load and soak/fault acceptance,
+object-lock/KMS/retention, production signing identity and signed connectors remain ordered T-47
+work.
+
+Verification passed migration 057 on PostgreSQL 16, including the 057→056→057 round trip. The
+CI-equivalent gate passed all 654 Python tests and all 40 Vitest tests with zero skips or failures,
+ruff, mypy over 542 source files, architecture and contract lint, OpenAPI compatibility,
+13-document/22-capture/7-route user-guide checks, the production Vite build and npm audit with zero
+vulnerabilities. The entry JavaScript remained within budget at 269,827 bytes and the largest lazy
+chunk remained 88,163 bytes.
 

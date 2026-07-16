@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -168,6 +169,50 @@ def test_filesystem_promotes_streams_lists_and_never_replaces_content_key(
                 source_key=staging_key,
                 target_key=final_key,
                 expected_sha256=digest,
+                expected_size_bytes=len(payload),
+            )
+
+    asyncio.run(run())
+
+
+def test_filesystem_stages_large_derived_stream_with_digest_and_size_fencing(
+    tmp_path: Path,
+) -> None:
+    payload = b"disk-backed-bundle" * 131_072
+    digest = hashlib.sha256(payload).hexdigest()
+    key = f"staging/derived/{ORG}/{PROJECT}/internal/{digest}"
+    store = FilesystemMultipartObjectStore(tmp_path / "objects")
+
+    async def chunks(value: bytes) -> AsyncIterator[bytes]:
+        for offset in range(0, len(value), 65_536):
+            yield value[offset : offset + 65_536]
+
+    async def run() -> None:
+        stored = await store.stage_stream(
+            object_key=key,
+            chunks=chunks(payload),
+            media_type="application/zip",
+            expected_sha256=digest,
+            expected_size_bytes=len(payload),
+        )
+        assert stored.sha256 == digest
+        assert stored.size_bytes == len(payload)
+        replayed = await store.stage_stream(
+            object_key=key,
+            chunks=chunks(b"ignored because exact staging evidence already exists"),
+            media_type="application/zip",
+            expected_sha256=digest,
+            expected_size_bytes=len(payload),
+        )
+        assert replayed == stored
+
+        bad_key = f"staging/derived/{ORG}/{PROJECT}/internal/{'f' * 64}"
+        with pytest.raises(ObjectStoreError, match="digest or size"):
+            await store.stage_stream(
+                object_key=bad_key,
+                chunks=chunks(payload),
+                media_type="application/zip",
+                expected_sha256="f" * 64,
                 expected_size_bytes=len(payload),
             )
 

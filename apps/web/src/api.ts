@@ -354,6 +354,12 @@ export function createBulkExportJob(
   });
 }
 
+export function listBulkExportJobs(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: BulkExportJobResponse[] }>> {
+  return request(config, "/export-jobs");
+}
+
 export function listBulkExportBundles(
   config: ApiConfig,
 ): Promise<ApiResult<{ items: BulkExportBundleResponse[] }>> {

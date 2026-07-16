@@ -35,7 +35,8 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-47 operations and large external-worker bundle assembly
+- missing product depth: T-47 production-scale acceptance, hard-kill lease recovery,
+  object-lock/KMS/signing and signed connectors
 - user experience: T-46 global navigation, contextual Material tabs and task-oriented guide gate complete
 
 Migrations 001~055, raw objects, prior revisions, cards, releases and golden fixtures are never
@@ -54,7 +55,7 @@ rewritten. The next schema unit begins at migration 056.
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
-| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security evidence | in progress: observability, isolated restore, supply-chain and bounded local performance/security subsets complete; production-scale/KMS/connector work remains |
+| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded local performance/security and external assembly/reconciliation complete; production-scale/lease/KMS/connector work remains |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
 Each PR is branched from the freshly merged `main`, uses meaningful commits, passes its relevant
@@ -177,6 +178,15 @@ The CI-equivalent gate passed 627 Python tests against disposable PostgreSQL 16 
 skip/failure, 39 Vitest tests, ruff/mypy/architecture/contracts/OpenAPI/user-guide/build and npm
 audit with zero vulnerabilities. The 541.66-kB frontend chunk warning is retained as explicit input
 to the next T-47 performance unit rather than hidden by raising the warning threshold.
+
+The external Bundle unit adds migration 057 and keeps existing Selection and Bundle revisions
+unchanged. Estimates above the configured inline boundary return `202` and are claimed by the
+composed worker with `FOR UPDATE SKIP LOCKED`; the worker creates deterministic ZIP bytes on disk,
+streams them into an immutable Artifact and records a typed output commit before the Bundle
+projection. A later projection failure becomes `reconciliation_required`, remains visible through
+the API/UI and is linked on retry without reassembly. The live Docker path forced a 22-component
+DP780 Selection above the 16-KiB demo limit and verified the stored and downloaded 21,822-byte ZIP
+against SHA-256 `04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
 
 The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
 the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,
