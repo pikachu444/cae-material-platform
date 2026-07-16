@@ -7,7 +7,7 @@ import tempfile
 import zipfile
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 from uuid import UUID, uuid4
 
@@ -42,6 +42,7 @@ class BulkExportPolicy:
     maximum_bytes: int = 5 * 1024 * 1024 * 1024
     inline_assembly_maximum_bytes: int = 64 * 1024 * 1024
     external_member_maximum_bytes: int = 64 * 1024 * 1024
+    external_job_lease_seconds: int = 120
 
     def __post_init__(self) -> None:
         if not 1 <= self.maximum_components <= 1000:
@@ -52,6 +53,8 @@ class BulkExportPolicy:
             raise ValueError("inline assembly limit must fit the bundle limit")
         if not 1 <= self.external_member_maximum_bytes <= self.maximum_bytes:
             raise ValueError("external member limit must fit the bundle limit")
+        if not 5 <= self.external_job_lease_seconds <= 3600:
+            raise ValueError("external job lease must be between 5 and 3600 seconds")
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,6 +120,9 @@ class BulkExportJob:
     submitted_by: UUID
     started_at: datetime | None
     completed_at: datetime | None
+    lease_token: UUID | None = None
+    lease_expires_at: datetime | None = None
+    heartbeat_at: datetime | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -233,8 +239,21 @@ class BulkExportRepository(Protocol):
         *,
         context: SecurityContext,
         decision: AuthorizationDecision,
+        lease_token: UUID,
+        lease_duration: timedelta,
         now: datetime,
     ) -> BulkExportJob | None: ...
+
+    def renew_job_lease(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job_id: UUID,
+        lease_token: UUID,
+        lease_duration: timedelta,
+        now: datetime,
+    ) -> BulkExportJob: ...
 
     def record_output_commit(
         self,
@@ -245,6 +264,7 @@ class BulkExportRepository(Protocol):
         job_id: UUID,
         archive_artifact_id: UUID,
         evidence: BulkExportArchiveEvidence,
+        lease_token: UUID | None,
         now: datetime,
     ) -> CommittedBulkExportOutput: ...
 
@@ -266,6 +286,7 @@ class BulkExportRepository(Protocol):
         archive_artifact_id: UUID,
         evidence: BulkExportArchiveEvidence,
         content: ExportSelectionContent,
+        lease_token: UUID | None,
         now: datetime,
     ) -> tuple[BulkExportJob, BulkExportBundle]: ...
 
@@ -277,6 +298,7 @@ class BulkExportRepository(Protocol):
         job_id: UUID,
         failure_code: str,
         failure_detail: str,
+        lease_token: UUID | None,
         now: datetime,
     ) -> BulkExportJob: ...
 
@@ -287,6 +309,7 @@ class BulkExportRepository(Protocol):
         decision: AuthorizationDecision,
         job_id: UUID,
         failure_detail: str,
+        lease_token: UUID | None,
         now: datetime,
     ) -> BulkExportJob: ...
 
@@ -469,6 +492,7 @@ class BulkExportService:
             job_id=job.id,
             archive_artifact_id=artifact_id,
             evidence=evidence,
+            lease_token=job.lease_token,
             now=self._clock(),
         )
 
@@ -488,6 +512,7 @@ class BulkExportService:
             archive_artifact_id=output.archive_artifact_id,
             evidence=output.evidence,
             content=selection.content,
+            lease_token=job.lease_token,
             now=self._clock(),
         )
 
@@ -506,6 +531,7 @@ class BulkExportService:
                 decision=decision,
                 job_id=job.id,
                 failure_detail=detail,
+                lease_token=job.lease_token,
                 now=self._clock(),
             )
             return
@@ -515,7 +541,31 @@ class BulkExportService:
             job_id=job.id,
             failure_code="assembly_failed",
             failure_detail=detail,
+            lease_token=job.lease_token,
             now=self._clock(),
+        )
+
+    def _renew_external_lease(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job: BulkExportJob,
+    ) -> BulkExportJob:
+        if job.lease_token is None or job.heartbeat_at is None:
+            return job
+        now = self._clock()
+        heartbeat_interval = timedelta(
+            seconds=max(1, self._policy.external_job_lease_seconds // 3)
+        )
+        if now < job.heartbeat_at + heartbeat_interval:
+            return job
+        return self._repository.renew_job_lease(
+            context=context,
+            decision=decision,
+            job_id=job.id,
+            lease_token=job.lease_token,
+            lease_duration=timedelta(seconds=self._policy.external_job_lease_seconds),
+            now=now,
         )
 
     async def _assemble_inline(
@@ -572,6 +622,7 @@ class BulkExportService:
         job: BulkExportJob,
     ) -> tuple[BulkExportJob, BulkExportBundle]:
         output_commit: CommittedBulkExportOutput | None = None
+        leased_job = job
         try:
             control = build_bundle_control_files(
                 selection_id=selection.id,
@@ -589,6 +640,9 @@ class BulkExportService:
                     compresslevel=9,
                 ) as bundle:
                     for path in archive_paths:
+                        leased_job = self._renew_external_lease(
+                            context, decision, leased_job
+                        )
                         value = control_entries.get(path)
                         if value is None:
                             resolved = await self._sources.resolve(
@@ -605,14 +659,21 @@ class BulkExportService:
                 archive.seek(0)
                 digest = hashlib.sha256()
                 while chunk := archive.read(1024 * 1024):
+                    leased_job = self._renew_external_lease(
+                        context, decision, leased_job
+                    )
                     digest.update(chunk)
                 evidence = BulkExportArchiveEvidence(
                     digest.hexdigest(), size_bytes, control.manifest_sha256
                 )
 
                 async def chunks() -> AsyncIterator[bytes]:
+                    nonlocal leased_job
                     archive.seek(0)
                     while chunk := archive.read(1024 * 1024):
+                        leased_job = self._renew_external_lease(
+                            context, decision, leased_job
+                        )
                         yield chunk
 
                 record = await self._artifacts.finalize_derived_stream(
@@ -630,11 +691,13 @@ class BulkExportService:
                     ),
                 )
             output_commit = self._record_output(
-                context, decision, job, record.artifact.id, evidence
+                context, decision, leased_job, record.artifact.id, evidence
             )
-            return self._complete_output(context, decision, job, selection, output_commit)
+            return self._complete_output(
+                context, decision, leased_job, selection, output_commit
+            )
         except Exception as error:
-            self._record_failure(context, decision, job, error, output_commit)
+            self._record_failure(context, decision, leased_job, error, output_commit)
             raise
 
     async def execute_next_external(
@@ -646,7 +709,11 @@ class BulkExportService:
 
         _require(context, decision, Permission.EXPORT_EXECUTE)
         job = self._repository.claim_next_job(
-            context=context, decision=decision, now=self._clock()
+            context=context,
+            decision=decision,
+            lease_token=self._id_factory(),
+            lease_duration=timedelta(seconds=self._policy.external_job_lease_seconds),
+            now=self._clock(),
         )
         if job is None:
             return None
