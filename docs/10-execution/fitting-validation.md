@@ -194,7 +194,27 @@ worker/runner 재시도 또는 multi-start candidate 실행 단위다. infrastru
 
 `converged`는 domain acceptance가 아니다. 사용자가 candidate를 IR로 승격할 때 이유와 비교 evidence를 기록한다.
 
-### 7.1 반복 calibration promotion
+### 7.1.1 Implemented bounded multi-test Ogden evidence
+
+T-43 migration 054와 protected API는 one-term incompressible Ogden reference fitting에 대해
+다음 concrete 계약을 구현한다.
+
+- Plan은 exact scientific Profile, Material State, baseline Ogden--Prony IR과 1~24 governed
+  normalized Dataset revisions를 pin한다.
+- 각 member는 calibration/holdout 역할, uniaxial/planar/equibiaxial mode와 positive weight를
+  명시하며 같은 Dataset revision을 중복 사용하지 않는다. Governed Dataset의 Test Run은
+  해당 mode의 explicit reference Test Method revision도 고정한다.
+- normalized weighted residual은 point, curve, mode 순서로 집계한다. mode별 curve 수와
+  point 수가 많다는 이유만으로 objective를 지배하지 않는다.
+- deterministic PCG64 multistart와 SciPy `least_squares(method="trf")` 결과마다 초기값,
+  parameter, objective terms, RMSE, convergence, bound sticking, Jacobian rank/condition을 저장한다.
+- full-rank와 충분한 자유도가 있을 때 Jacobian covariance 기반 standard error와 95% CI를
+  저장한다. 계산할 수 없으면 이유별 `not_estimable_*` 상태이며 null을 성공처럼 채우지 않는다.
+- observed/predicted/residual/effective-weight point는 immutable Parquet Artifact다. 단일 mode와
+  holdout 부재는 warning이며 source Dataset이나 baseline IR을 변경하지 않는다.
+- 이 Run은 solver를 실행하지 않고 Candidate를 자동 승인 또는 승격하지 않는다.
+
+### 7.2 반복 calibration promotion
 
 ADR-0026은 같은 logical Material Model의 재보정을 새 stable identity로 분리하지 않는다.
 새 Candidate Selection은 current IR revision에 compare-and-swap하고 다음 immutable revision을

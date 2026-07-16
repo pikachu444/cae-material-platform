@@ -12,8 +12,10 @@
   candidate 선택 → 새 immutable linear-Prony IR revision → Abaqus `*VISCOELASTIC` card. 여러
   온도의 반복시험은 common log-time 구간 통계와 수동/WLF shift를 거쳐 master-curve Dataset으로
   별도 보존
-- 엘라스토머: Material/State/기본 물성 → one-term Ogden + shear-Prony IR → mapping preflight
-  → Abaqus Ogden `.inp` 또는 OpenRadioss LAW62 `.rad` preview/download
+- 엘라스토머: governed uniaxial/planar/biaxial normalized curve → versioned scientific profile
+  → deterministic multi-test Ogden fitting/holdout/uncertainty → one-term Ogden + shear-Prony IR
+  → Abaqus Ogden `.inp` 또는 OpenRadioss LAW62 `.rad` preview/download. Candidate의 governed
+  append-only IR promotion은 T-44 범위
 
 결과에 표시되는 `reference / non-production`은 실제 입력·저장·다운로드가 동작한다는
 뜻이지만, 특정 회사 재료의 승인값이나 solver qualification을 의미하지 않습니다. 특히
@@ -139,7 +141,7 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
 | Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed 보존, 다온도 replicate 통계와 수동/WLF master curve, bounded multistart fitting, candidate/residual 검토, 사람 선택, 새 IR revision 승격, card preview/download reference 구현 |
-| Elastomer 초점탄성 | one-term Ogden + 1~5 shear-Prony | Abaqus Ogden, OpenRadioss LAW62 | 명시적 preflight와 card preview/download reference 구현; LAW62 ν=0.495 근사는 mapping report에 표시 |
+| Elastomer 초점탄성 | governed multi-test fitting + one-term Ogden + 1~5 shear-Prony | Abaqus Ogden, OpenRadioss LAW62 | exact Dataset/Profile/State/baseline revision Plan, deterministic candidates, holdout, rank/uncertainty, fitted/residual UI와 card preview/download reference 구현; Candidate promotion은 T-44, LAW62 ν=0.495 근사는 mapping report에 표시 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 
 `reference`는 데이터 흐름과 mapping 계약을 실행할 수 있다는 뜻이며, 실제 제품 설계에
@@ -167,6 +169,14 @@ uv run python scripts/seed_viscoelastic_master_demo.py
 생성된 Material 상세의 **Viscoelastic master curve**에서 두 개 이상의 온도와 반복 curve를
 선택하고 reference temperature 및 수동/WLF shift 방식을 정하면 aligned/statistical/master
 Dataset이 각각 새 immutable revision으로 생성됩니다.
+
+Elastomer 다중시험 fitting 예제는 다음 helper로 추가할 수 있습니다. analytical
+uniaxial/planar/biaxial curve 3개와 별도 holdout 1개를 governed normalized Dataset으로 만든 뒤
+deterministic Ogden Run까지 실행합니다.
+
+```powershell
+uv run python scripts/seed_ogden_calibration_demo.py
+```
 
 ## 로컬에서 실행
 

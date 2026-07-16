@@ -63,6 +63,23 @@ preview에서 고정 `nu=0.495` incompressibility 근사를 명시한다.
 
 ![OpenRadioss LAW62 preview](images/ogden-openradioss-law62.png)
 
+### Governed multi-test Ogden fitting
+
+T-43 공개 합성 fixture로 uniaxial, planar, biaxial calibration curve 3개와 별도 uniaxial
+holdout 1개를 등록했다. 네 원본은 각각 immutable Raw Asset과 normalized Dataset revision으로
+보존된다. Plan은 exact scientific Profile, Material State, baseline Ogden--Prony IR과 네
+Dataset revision을 고정한다. PCG64/SciPy TRF 8-start Run은 `mu=2.0000 MPa`, `alpha=2.00000`을
+회복했고 Jacobian rank `2/2`, estimated covariance와 95% CI를 기록했다. 1% stress scale을
+적용한 holdout RMSE는 `0.0087561 MPa`이며 calibration과 섞이지 않았다.
+
+![Multi-test Ogden Candidates](images/t43-ogden-candidates.png)
+
+Candidate diagnostics는 52개 observed/fitted/residual point를 exact Parquet Artifact로
+보존한다. 같은 화면에서 별도 manual baseline IR의 Abaqus/OpenRadioss card preview와 download
+진입점도 확인했다. Candidate를 baseline IR에 append-only promotion하는 단계는 T-44 범위다.
+
+![Ogden fitted curve, residual and cards](images/t43-ogden-diagnostics-and-cards.png)
+
 ## 불변성 negative check
 
 최초 `r1 -> r2` 승격은 성공했다. 이후 이미 promotion evidence가 있는 `r2`를 새
@@ -82,12 +99,12 @@ decision이다.
 
 ## 검증 명령과 회귀 상태
 
-현재 `main` 기준 회귀 결과는 Python `488 passed, 65 skipped`이며, skip은 DSN 없는 기본
-실행에서 의도된 PostgreSQL marker다. Compose의 별도 PostgreSQL 16 DSN으로 marker suite를
-재실행하면 `65 passed, 0 skipped, 0 failed`다. Frontend는 15 files/28 tests가 통과했고,
-ruff, mypy(469 source files), architecture, OpenAPI lint/compatibility와 production build도
-통과했다. Windows PowerShell에는 GNU Make가 없어 `make ci`의 각 명령을 같은 환경 변수와
-순서로 직접 실행했다.
+T-43 branch의 최신 CI-equivalent 회귀는 disposable PostgreSQL 16 DSN을 사용해 Python
+`600 passed, 0 skipped, 0 failed`, frontend `20 files / 35 tests`를 기록했다. ruff,
+mypy(512 source files), architecture, contract lint, OpenAPI compatibility와 production build가
+통과했고 npm audit는 취약점 0건이었다. Migration 054는 별도 임시 DB에서
+`001→054→053→054` 왕복을 완료했다. Windows PowerShell에서는 Git Bash로 `scripts/ci.sh`를
+실행해 `make ci`와 동일한 순서를 검증했다.
 
 다운로드 무결성은 아래 계약으로 확인했다.
 

@@ -1062,6 +1062,19 @@ PostgreSQL provenance/RLS와 browser curve가 검증 대상이며 source revisio
 
 #### T-43. Scientific profiles, uncertainty and hyper-viscoelastic fitting — `P0/P1`
 
+**구현 상태 (2026-07-16): complete for the bounded reference Ogden slice.** Migration 053은
+Steel Voce, Polymer linear-Prony, Elastomer Ogden--Prony별 typed scientific profile identity와
+immutable revision을 제공한다. Migration 054는 exact profile/Material State/baseline IR/governed
+Dataset revisions를 pin하는 Plan, ordered calibration/holdout members, deterministic multistart
+Run/Attempt/Candidate, per-mode objective, convergence, rank/covariance/95% CI 또는 명시적
+`not_estimable` 상태, warning과 Parquet diagnostics Artifact를 저장한다. React workbench는
+curve 역할·mode·weight, candidate 비교, fitted/residual plot을 실제 API와 DB에서 표시한다.
+각 governed curve의 Test Run은 uniaxial, planar 또는 biaxial reference Test Method revision을
+별도로 pin하므로 Dataset schema만 바꿔 loading mode를 가장하지 않는다.
+현재 fitter는 normalized engineering-strain/nominal-stress와 one-term incompressible Ogden의
+uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapproved`이고 solver를
+실행하거나 Candidate를 자동 승인하지 않는다. Candidate promotion은 T-44에서 이어진다.
+
 - **목적:** reference Steel Voce/tabulated, Polymer linear-Prony and Elastomer Ogden--Prony paths에
   versioned parameter/objective/diagnostic profiles를 제공한다.
 - **입력과 출력:** multi-test processed Selections, initial/bounds/scaling/objective/weights →

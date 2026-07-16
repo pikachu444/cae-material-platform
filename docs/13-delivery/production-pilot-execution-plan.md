@@ -29,16 +29,17 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 052
+- latest schema: migration 054
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
-  Candidate selection, immutable IR promotion, Abaqus/OpenRadioss cards, review/release/provenance
+  Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
+  Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-43~T-45 and T-47
+- missing product depth: T-44~T-45 and T-47
 - user experience gap: global navigation and task-oriented user manual from T-46
 
-Migrations 001~051, raw objects, prior revisions, cards, releases and golden fixtures are never
-rewritten. The next schema unit begins at migration 052.
+Migrations 001~054, raw objects, prior revisions, cards, releases and golden fixtures are never
+rewritten. The next schema unit begins at migration 055.
 
 ## 3. PR 순서와 exit gate
 
@@ -49,7 +50,7 @@ rewritten. The next schema unit begins at migration 052.
 | 3 | T-40 Campaign/Instrument/conditions | same vertical gate plus exact calibration snapshot | complete |
 | 4 | T-41 tabular importer/schema | parser/security/contract/PostgreSQL/browser fixtures | complete |
 | 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | complete |
-| 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | pending |
+| 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | complete |
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | pending |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | pending |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | pending |
@@ -113,6 +114,24 @@ upgrade and a 052--051--052 round trip on PostgreSQL 16. The CI-equivalent gate 
 tests without skips/failures, 33 Vitest tests, ruff, mypy over 497 source files,
 architecture/contract/OpenAPI compatibility, production Vite build and npm audit with zero
 vulnerabilities.
+
+PR 6 implements the bounded T-43 reference slice with migrations 053/054. Family-specific
+scientific profiles are stable identities with immutable typed revisions; direct self-assertion of
+domain approval is rejected. The Ogden Plan pins exact profile, Material State, baseline
+Ogden--Prony IR and governed normalized Dataset revisions. The deterministic SciPy TRF kernel fits
+one-term incompressible Ogden nominal responses across uniaxial, planar and equibiaxial modes,
+whose Test Runs pin separate mode-specific reference Test Method revisions,
+keeps calibration and holdout evidence disjoint, and stores every multistart Candidate, per-mode
+objective, convergence, rank, covariance/95% CI or explicit not-estimable state, warnings and
+Parquet diagnostics Artifact. The connected React workbench displays Dataset roles/weights,
+candidate comparison and fitted/residual curves. It remains reference/unapproved, runs no solver
+and performs no automatic Candidate promotion; append-only promotion is T-44.
+
+The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
+the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,
+ruff/mypy/architecture/contracts/OpenAPI/build all passed, and npm audit reported zero
+vulnerabilities. The live Docker workbench recorded candidate comparison, covariance/95% CI and a
+52-point fitted/residual diagnostics Artifact without browser console errors.
 
 ## 4. Acceptance scenarios
 

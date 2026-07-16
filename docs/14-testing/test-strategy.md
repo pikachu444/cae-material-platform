@@ -202,6 +202,27 @@ installed solver execution is not part of normal CI; an eventual production gate
 OpenRadioss Starter/dry-run and licensed Abaqus data-check fixtures under an approved version
 matrix.
 
+## T-43 governed multi-test Ogden regression matrix
+
+The bounded elastomer calibration slice is verified independently of solver execution:
+
+1. Domain tests pin the public one-term incompressible Ogden nominal-stress equations for
+   uniaxial, planar and equibiaxial tension, deterministic PCG64 multistart, normalized weighted
+   point → curve → mode aggregation, calibration/holdout separation and single-mode warnings.
+2. Diagnostics tests verify parameter recovery, per-mode objective, calibration/holdout RMSE,
+   convergence facts, Jacobian rank/condition, covariance or an explicit not-estimable status,
+   and exact Parquet diagnostic points.
+3. API and browser tests verify exact Dataset/Profile/State/baseline revision Plan members,
+   immutable Candidates, candidate comparison, fitted/residual chart and warning visibility.
+4. PostgreSQL tests migrate through T-43, exercise composite organization/project/classification
+   foreign keys, forced RLS, immutable triggers, exact Artifact evidence and project isolation.
+
+The live synthetic gate can be prepared with
+`uv run python scripts/seed_ogden_calibration_demo.py`. It creates governed public fixtures only;
+recovering the analytical `mu` and `alpha` is a scientific regression for this reference equation,
+not constitutive-model validation or Abaqus/OpenRadioss qualification. Candidate-to-IR promotion
+is deliberately tested separately in T-44.
+
 ## T-31 PostgreSQL integration prerequisites
 
 The PostgreSQL-marked suites are intentionally conditional. They are skipped when
