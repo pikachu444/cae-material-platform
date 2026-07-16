@@ -540,6 +540,9 @@ def test_reference_tensile_contract_and_runtime_expose_typed_test_dataset_workfl
         "/api/v1/test-methods/reference-uniaxial-tensile": {
             "post": "createReferenceTensileTestMethod"
         },
+        "/api/v1/test-methods/reference-multiaxial-tension": {
+            "post": "createReferenceMultiaxialTensionTestMethod"
+        },
         "/api/v1/test-methods": {"get": "listTestMethods"},
         "/api/v1/test-runs": {"post": "createReferenceTensileTestRun"},
         "/api/v1/test-runs/{test_run_id}": {"get": "getTestRun"},

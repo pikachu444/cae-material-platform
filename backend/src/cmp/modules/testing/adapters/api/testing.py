@@ -25,6 +25,7 @@ from cmp.modules.identity_access.domain.authorization import (
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.testing.application.service import (
     CreateReferenceImportMapping,
+    CreateReferenceMultiaxialTensionMethod,
     CreateReferenceShearRelaxationMethod,
     CreateReferenceShearRelaxationRun,
     CreateReferenceTensileMethod,
@@ -50,6 +51,7 @@ from cmp.modules.testing.domain.import_mapping import (
 )
 from cmp.modules.testing.domain.reference_tensile import (
     InvalidTestingData,
+    ReferenceTensionMode,
     SpecimenContent,
     TestingConflict,
     TestingError,
@@ -131,6 +133,10 @@ class ReferenceMethodCreateRequest(BaseModel):
 
     classification: DataClassification
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ReferenceMultiaxialMethodCreateRequest(ReferenceMethodCreateRequest):
+    test_mode: ReferenceTensionMode
 
 
 class TestRunCreateRequest(BaseModel):
@@ -923,6 +929,38 @@ def install_testing_api(
                 context,
                 decision,
                 CreateReferenceShearRelaxationMethod(body.classification, body.change_reason),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/test-methods/{result.id}"
+        _etag(response, result.current.record)
+        return TestMethodResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/test-methods/reference-multiaxial-tension",
+        operation_id="createReferenceMultiaxialTensionTestMethod",
+        response_model=TestMethodResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+        summary="Register an explicit reference planar or biaxial tension method.",
+    )
+    def create_reference_multiaxial_tension_method(
+        request: Request,
+        response: Response,
+        body: ReferenceMultiaxialMethodCreateRequest,
+    ) -> TestMethodResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_reference_multiaxial_tension_method(
+                context,
+                decision,
+                CreateReferenceMultiaxialTensionMethod(
+                    body.classification, body.test_mode, body.change_reason
+                ),
             )
         except Exception as error:
             raise _translate(context, error) from error

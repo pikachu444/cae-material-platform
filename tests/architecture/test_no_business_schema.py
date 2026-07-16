@@ -60,6 +60,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260817_051_T41_governed_tabular_import.py",
         "20260818_052_T42_viscoelastic_master_curve.py",
         "20260819_053_T43_scientific_profiles.py",
+        "20260820_054_T43_ogden_calibration.py",
     ]
 
 

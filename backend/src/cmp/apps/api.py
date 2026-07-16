@@ -32,6 +32,7 @@ from cmp.bootstrap.modeling import (
     build_ogden_prony_model_service,
     build_prony_candidate_promotion_service,
     build_reference_calibration_service,
+    build_reference_ogden_calibration_service,
     build_reference_prony_calibration_service,
     build_reference_voce_calibration_service,
     build_scientific_profile_service,
@@ -114,6 +115,9 @@ from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
     install_linear_viscoelastic_api,
 )
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
+from cmp.modules.modeling.adapters.api.ogden_calibration import (
+    install_ogden_calibration_api,
+)
 from cmp.modules.modeling.adapters.api.ogden_prony import install_ogden_prony_api
 from cmp.modules.modeling.adapters.api.prony_calibration import install_prony_calibration_api
 from cmp.modules.modeling.adapters.api.prony_candidate_promotion import (
@@ -133,6 +137,9 @@ from cmp.modules.modeling.application.calibration import ReferenceCalibrationSer
 from cmp.modules.modeling.application.candidate_selection import CandidateSelectionService
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
+)
+from cmp.modules.modeling.application.ogden_calibration import (
+    ReferenceOgdenCalibrationService,
 )
 from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.prony_calibration import (
@@ -236,6 +243,7 @@ def create_app(
     linear_viscoelastic_model_service: LinearViscoelasticModelService | None = None,
     ogden_prony_model_service: OgdenPronyModelService | None = None,
     scientific_profile_service: ScientificProfileService | None = None,
+    ogden_calibration_service: ReferenceOgdenCalibrationService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
     voce_calibration_service: ReferenceVoceCalibrationService | None = None,
@@ -616,6 +624,29 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_ogden_calibration = (
+        ogden_calibration_service
+        or build_reference_ogden_calibration_service(
+            services,
+            resolved_scientific_profiles,
+            resolved_catalog,
+            resolved_governed_import,
+            resolved_testing,
+            resolved_ogden_prony,
+            resolved_artifacts,
+        )
+    )
+    install_ogden_calibration_api(
+        application,
+        service=resolved_ogden_calibration,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CALIBRATION_EXECUTE
+        ),
+    )
     resolved_tabulated_plasticity = (
         tabulated_plasticity_model_service
         or build_tabulated_plasticity_model_service(
@@ -897,6 +928,7 @@ def create_app(
     application.state.linear_viscoelastic_model_service = resolved_linear_viscoelastic
     application.state.ogden_prony_model_service = resolved_ogden_prony
     application.state.scientific_profile_service = resolved_scientific_profiles
+    application.state.ogden_calibration_service = resolved_ogden_calibration
     application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
     application.state.voce_calibration_service = resolved_voce_calibration

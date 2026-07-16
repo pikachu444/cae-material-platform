@@ -60,6 +60,15 @@ class OgdenPronyRepository(Protocol):
         material_model_id: UUID,
     ) -> OgdenPronyModelSnapshot: ...
 
+    def get_material_model_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceOgdenPronyContent]: ...
+
     def list_material_models_for_state(
         self,
         *,
@@ -91,6 +100,24 @@ def _reason(value: str) -> str:
     if not value or value != value.strip() or len(value) > 2_000 or "\x00" in value:
         raise ValueError("change_reason must be trimmed and contain 1..2000 characters")
     return value
+
+
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise ReferenceOgdenPronyConflict(
+            "authorization decision lacks Ogden-Prony model read capability"
+        )
 
 
 class OgdenPronyModelService:
@@ -206,3 +233,18 @@ class OgdenPronyModelService:
                 "the requested immutable Ogden-Prony revision is not current"
             )
         return snapshot.current
+
+    def get_model_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+        material_model_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferenceOgdenPronyContent]:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_material_model_revision(
+            context=context,
+            decision=decision,
+            material_model_id=material_model_id,
+            material_model_revision_id=material_model_revision_id,
+        )

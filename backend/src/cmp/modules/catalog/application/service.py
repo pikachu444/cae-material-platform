@@ -1368,6 +1368,23 @@ class CatalogService:
             revision_id=property_set_revision_id,
         )
 
+    def get_material_state_revision_for_calibration(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+        material_state_revision_id: UUID,
+    ) -> RevisionSnapshot[MaterialStateContent]:
+        """Resolve one exact Material State revision for a calibration Plan."""
+
+        _require_capability(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_material_state_revision(
+            context=context,
+            decision=decision,
+            material_state_id=material_state_id,
+            revision_id=material_state_revision_id,
+        )
+
     def list_material_revisions(
         self,
         context: SecurityContext,

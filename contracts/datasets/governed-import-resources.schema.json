@@ -105,6 +105,11 @@
       "required": ["import_run_id", "classification", "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id", "import_profile_id", "import_profile_revision_id", "profile_sha256", "status", "started_at", "finished_at", "raw_dataset_id", "raw_dataset_revision_id", "normalized_dataset_id", "normalized_dataset_revision_id", "row_count", "failure_code", "failure_detail"],
       "properties": {"import_run_id": {"$ref": "#/$defs/Uuid"}, "classification": {"$ref": "#/$defs/Classification"}, "test_run_id": {"$ref": "#/$defs/Uuid"}, "test_run_revision_id": {"$ref": "#/$defs/Uuid"}, "raw_asset_id": {"$ref": "#/$defs/Uuid"}, "raw_artifact_id": {"$ref": "#/$defs/Uuid"}, "import_profile_id": {"$ref": "#/$defs/Uuid"}, "import_profile_revision_id": {"$ref": "#/$defs/Uuid"}, "profile_sha256": {"$ref": "#/$defs/Sha256"}, "status": {"enum": ["executing", "succeeded", "failed"]}, "started_at": {"type": "string", "format": "date-time"}, "finished_at": {"type": ["string", "null"], "format": "date-time"}, "raw_dataset_id": {"type": ["string", "null"], "format": "uuid"}, "raw_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"}, "normalized_dataset_id": {"type": ["string", "null"], "format": "uuid"}, "normalized_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"}, "row_count": {"type": ["integer", "null"]}, "failure_code": {"type": ["string", "null"]}, "failure_detail": {"type": ["string", "null"]}}
     },
+    "DatasetListResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/DatasetResponse"}}}
+    },
     "DatasetResponse": {
       "type": "object", "additionalProperties": false,
       "required": ["dataset_id", "current_revision", "representation", "data_schema", "test_run_id", "test_run_revision_id", "raw_asset_id", "raw_artifact_id", "data_artifact_id", "data_sha256", "import_profile_id", "import_profile_revision_id", "source_dataset_revision_id", "row_count", "channels"],

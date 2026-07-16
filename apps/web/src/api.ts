@@ -47,6 +47,11 @@ import type {
   OgdenPronyMappingResponse,
   OgdenPronyModelResponse,
   ScientificProfileResponse,
+  OgdenCalibrationPlanResponse,
+  OgdenCalibrationRunResponse,
+  OgdenDiagnosticsResponse,
+  OgdenCalibrationRole,
+  OgdenTestMode,
   MappingReport,
   ImportDetectionReportResponse,
   ImportMappingResponse,
@@ -133,6 +138,7 @@ import type {
   GovernedImportProfileContent,
   GovernedImportProfileResponse,
   GovernedImportRunResponse,
+  GovernedDatasetResponse,
   GovernedTabularFileFormat,
   ReferenceTensileMapping,
   UploadSession,
@@ -1391,6 +1397,54 @@ export function createOgdenScientificProfile(
   });
 }
 
+export function createReferenceOgdenCalibrationPlan(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    plan_label: string;
+    scientific_profile_id: string;
+    scientific_profile_revision_id: string;
+    material_state_id: string;
+    material_state_revision_id: string;
+    baseline_model_id: string;
+    baseline_model_revision_id: string;
+    members: Array<{
+      role: OgdenCalibrationRole;
+      test_mode: OgdenTestMode;
+      dataset_id: string;
+      dataset_revision_id: string;
+      weight: number;
+    }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<OgdenCalibrationPlanResponse>> {
+  return request(config, "/ogden-calibration-plans", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeReferenceOgdenCalibration(
+  config: ApiConfig,
+  planId: string,
+  input: { plan_revision_id: string; change_reason: string },
+): Promise<ApiResult<OgdenCalibrationRunResponse>> {
+  return request(config, `/ogden-calibration-plans/${encodeURIComponent(planId)}/runs`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getReferenceOgdenCandidateDiagnostics(
+  config: ApiConfig,
+  candidateId: string,
+): Promise<ApiResult<OgdenDiagnosticsResponse>> {
+  return request(
+    config,
+    `/ogden-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
+  );
+}
+
 export function preflightOgdenPronyCard(
   config: ApiConfig,
   materialModelId: string,
@@ -2615,6 +2669,16 @@ export function executeGovernedTabularImport(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listGovernedDatasetsForTestRun(
+  config: ApiConfig,
+  testRunId: string,
+): Promise<ApiResult<{ items: GovernedDatasetResponse[] }>> {
+  return request(
+    config,
+    `/governed-datasets?test_run_id=${encodeURIComponent(testRunId)}`,
+  );
 }
 
 export function createViscoelasticSelection(

@@ -897,7 +897,11 @@ export interface SpecimenSourceResponse {
 }
 
 export interface TestMethodContent {
-  method_code: "reference_uniaxial_tensile" | "reference_shear_relaxation";
+  method_code:
+    | "reference_uniaxial_tensile"
+    | "reference_planar_tension"
+    | "reference_biaxial_tension"
+    | "reference_shear_relaxation";
   display_name: "Reference uniaxial tensile CSV" | "Reference shear relaxation CSV";
   reference_only: true;
 }
@@ -2489,6 +2493,24 @@ export interface GovernedImportRunResponse {
   failure_detail: string | null;
 }
 
+export interface GovernedDatasetResponse {
+  dataset_id: string;
+  current_revision: RevisionMetadata;
+  representation: "raw" | "normalized";
+  data_schema: GovernedTabularDataSchema;
+  test_run_id: string;
+  test_run_revision_id: string;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  data_artifact_id: string;
+  data_sha256: string;
+  import_profile_id: string;
+  import_profile_revision_id: string;
+  source_dataset_revision_id: string | null;
+  row_count: number;
+  channels: GovernedChannelMapping[];
+}
+
 export interface CompletedUpload {
   upload: UploadSession;
   raw_asset: RawAsset;
@@ -2735,6 +2757,122 @@ export interface ScientificProfileResponse {
     };
   };
   links: Record<string, string>;
+}
+
+export type OgdenCalibrationRole = "calibration" | "holdout";
+export type OgdenTestMode = "uniaxial_tension" | "planar_tension" | "biaxial_tension";
+
+export interface OgdenCalibrationMember {
+  ordinal: number;
+  role: OgdenCalibrationRole;
+  test_mode: OgdenTestMode;
+  dataset_id: string;
+  dataset_revision_id: string;
+  weight: number;
+}
+
+export interface OgdenCalibrationPlanResponse {
+  ogden_calibration_plan_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      plan_label: string;
+      scientific_profile_id: string;
+      scientific_profile_revision_id: string;
+      material_state_id: string;
+      material_state_revision_id: string;
+      baseline_model_id: string;
+      baseline_model_revision_id: string;
+      members: OgdenCalibrationMember[];
+      evaluator: "one_term_incompressible_ogden_nominal";
+      objective: "normalized_weighted_least_squares";
+      aggregation_order: "point_then_curve_then_mode";
+      holdout_policy: "explicit_disjoint";
+      maximum_function_evaluations: 5000;
+      non_production: true;
+    };
+  };
+  links: Record<string, string>;
+}
+
+export interface OgdenCalibrationCandidateResponse {
+  ogden_calibration_candidate_id: string;
+  attempt_ordinal: number;
+  status: "converged" | "nonconverged";
+  candidate_sha256: string;
+  initial_mu_pa: number;
+  initial_alpha: number;
+  mu_pa: number;
+  alpha: number;
+  objective_total: number;
+  objective_by_mode: Record<OgdenTestMode, number>;
+  calibration_rmse_pa: number;
+  calibration_normalized_rmse: number;
+  holdout_rmse_pa: number | null;
+  holdout_normalized_rmse: number | null;
+  convergence_status_code: number;
+  convergence_reason: string;
+  function_evaluations: number;
+  jacobian_evaluations: number | null;
+  optimality: number;
+  parameter_at_bound: boolean;
+  jacobian_rank: number;
+  jacobian_condition_number: number | null;
+  identifiability_status: "full_rank" | "rank_deficient";
+  uncertainty_status:
+    | "estimated_jacobian_covariance"
+    | "not_estimable_rank_deficient"
+    | "not_estimable_insufficient_dof"
+    | "not_estimable_nonfinite";
+  mu_standard_error_pa: number | null;
+  alpha_standard_error: number | null;
+  mu_confidence_interval_pa: [number, number] | null;
+  alpha_confidence_interval: [number, number] | null;
+  warnings: string[];
+  diagnostics_artifact_id: string;
+  diagnostics_point_count: number;
+  links: Record<string, string>;
+}
+
+export interface OgdenCalibrationRunResponse {
+  ogden_calibration_run_id: string;
+  status: "succeeded";
+  plan_id: string;
+  plan_revision_id: string;
+  scientific_profile_id: string;
+  scientific_profile_revision_id: string;
+  material_state_id: string;
+  material_state_revision_id: string;
+  baseline_model_id: string;
+  baseline_model_revision_id: string;
+  environment_digest: string;
+  calibration_curve_count: number;
+  holdout_curve_count: number;
+  test_mode_count: number;
+  attempt_count: number;
+  candidate_count: number;
+  candidates: OgdenCalibrationCandidateResponse[];
+  links: Record<string, string>;
+}
+
+export interface OgdenDiagnosticPoint {
+  member_ordinal: number;
+  role: OgdenCalibrationRole;
+  test_mode: OgdenTestMode;
+  dataset_id: string;
+  dataset_revision_id: string;
+  point_ordinal: number;
+  engineering_strain: number;
+  stretch: number;
+  observed_nominal_stress_pa: number;
+  predicted_nominal_stress_pa: number;
+  residual_pa: number;
+  normalized_residual: number;
+  effective_weight: number;
+}
+
+export interface OgdenDiagnosticsResponse {
+  candidate_id: string;
+  points: OgdenDiagnosticPoint[];
 }
 
 export interface OgdenPronyMappingResponse {

@@ -41,6 +41,7 @@ from cmp.modules.testing.application.service import (
     SPECIMEN_SOURCE_AGGREGATE_TYPE,
     TEST_METHOD_AGGREGATE_TYPE,
     TEST_RUN_AGGREGATE_TYPE,
+    CreateReferenceMultiaxialTensionMethod,
     CreateReferenceTensileMethod,
     CreateReferenceTensileRun,
     CreateSpecimen,
@@ -64,6 +65,7 @@ from cmp.modules.testing.application.service import (
 from cmp.modules.testing.domain.reference_tensile import (
     REFERENCE_TENSILE_METHOD_CODE,
     REFERENCE_TENSILE_METHOD_DISPLAY_NAME,
+    ReferenceTensionMode,
     SpecimenContent,
 )
 from cmp.modules.testing.domain.reference_tensile import (
@@ -395,6 +397,17 @@ class _TestingService:
         assert command.classification is DataClassification.INTERNAL
         return self.method
 
+    def create_reference_multiaxial_tension_method(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceMultiaxialTensionMethod,
+    ) -> MethodSnapshot:
+        assert context is CONTEXT
+        assert decision is TESTING_WRITE
+        assert command.test_mode is ReferenceTensionMode.PLANAR_TENSION
+        return self.method
+
     def list_test_methods(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> tuple[MethodSnapshot, ...]:
@@ -580,6 +593,17 @@ def test_reference_tensile_api_creates_links_and_previews_immutable_dataset_revi
     )
     assert methods.status_code == 201
     assert methods.json()["current_revision"]["content"]["reference_only"] is True
+    planar_method = _request(
+        application,
+        "POST",
+        "/api/v1/test-methods/reference-multiaxial-tension",
+        json={
+            "classification": "internal",
+            "test_mode": "planar_tension",
+            "change_reason": "register exact planar reference method",
+        },
+    )
+    assert planar_method.status_code == 201
     assert _request(application, "GET", "/api/v1/test-methods").json()["items"][0][
         "test_method_id"
     ] == str(METHOD)
