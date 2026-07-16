@@ -34,6 +34,18 @@ Foundation version: `0.27.0`
   PostgreSQL migration 049 and exposed through protected APIs and the Material State workbench.
   Verification passed 561 Python tests, 30 web tests, production frontend build, live PostgreSQL
   constraints/RLS and a Docker browser workflow without skips or browser console errors.
+- `T-40`: governed Test Campaign, Instrument, dated Calibration, typed Test Condition Snapshot and
+  one-to-one Test Run Context stable identities use immutable revisions in PostgreSQL migration
+  050. Campaigns explicitly declare standard designation/edition/conformance or an approved
+  deviation; common conditions use typed temperature, humidity, loading-rate, orientation and
+  medium columns rather than EAV/JSON. Each Context pins the exact Test Run, Method-backed
+  Campaign/Condition, Instrument and Calibration revisions. Service and deferred database guards
+  reject cross-scope or mismatched sources, stale/failed calibration, overlapping usable validity
+  intervals and revision mutation. Protected APIs and the connected Material State workbench show
+  only calibration records valid at the historical Run time. Verification passed 568 Python tests,
+  31 web tests, ruff, mypy over 480 source files, architecture/contracts, the production frontend
+  build, a fresh PostgreSQL 001--050 migration and a live Docker browser workflow without skips,
+  test warnings or browser console errors.
 - `T-08` reference subset: explicit Specimen, reference uniaxial tensile Test Method, and Test Run
   stable identities with immutable typed revisions; a Test Run pins concrete Specimen/Test Method
   revisions, a State-specific specimen code, optional test temperature/crosshead speed, protected
@@ -839,12 +851,14 @@ a Processing/Modeling/Validation reference, not a product boundary. The stale pr
 design index and README Candidate-selection claims are corrected. Requirements, domain, IR, API,
 fitting and test documents now define iterative promotion evidence, governed CSV/TSV/XLSX intake,
 immutable Bulk Export Bundles and the user-guide/screenshot gate. A Korean task-oriented guide
-covers current Steel, Polymer and Elastomer workflows and reuses seven dated E2E screenshots through
+covers current Steel, Polymer and Elastomer workflows and reuses nine dated E2E screenshots through
 an explicit manifest; future GUI changes must update the affected guide and capture evidence.
 
 Verification: the guide link/manifest check validated nine documents and seven images. With the
 disposable PostgreSQL 16 DSN enabled, the CI-equivalent suite passed 553 Python tests with zero
 skips or failures, 28 Vitest tests, ruff, mypy over 469 source files, architecture and contract
 checks, OpenAPI compatibility and the production Vite build. T-39 then added migration 049 and the
-connected Process Run/Lot/Specimen source workflow. The next implementation unit is T-40.
+connected Process Run/Lot/Specimen source workflow. T-40 added migration 050 and the exact
+Campaign/Instrument/Calibration/Condition execution-context workflow. The next implementation
+unit is T-41.
 

@@ -1832,6 +1832,17 @@ summary {
   background: #f8fcfb;
 }
 
+.test-context-workbench {
+  display: grid;
+  gap: 0.9rem;
+  border-color: #cfdbea;
+  background: #f8faff;
+}
+
+.test-context-workbench .mini-form {
+  border-color: #dbe3ef;
+}
+
 .genealogy-link-form,
 .genealogy-create-grid,
 .mini-form {

@@ -1896,6 +1896,170 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Testing read is not authorized.}
         "503": {description: Testing service unavailable.}
+  /api/v1/test-campaigns:
+    get:
+      operationId: listCampaigns
+      tags: [testing-context]
+      summary: List current governed Test Campaign revisions.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Campaign heads.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+    post:
+      operationId: createCampaign
+      tags: [testing-context]
+      summary: Create a Campaign pinned to one exact Test Method revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/CampaignCreateRequest"}
+      responses:
+        "201":
+          description: Stable Campaign identity and revision 1 created.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextResourceResponse"}
+        "409": {description: Campaign identity or exact source conflict.}
+        "422": {description: Campaign or standard conformance is invalid.}
+  /api/v1/instruments:
+    get:
+      operationId: listInstruments
+      tags: [testing-context]
+      summary: List current governed Instrument revisions.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Instrument heads.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextListResponse"}
+    post:
+      operationId: createInstrument
+      tags: [testing-context]
+      summary: Create an Instrument stable identity and immutable revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/InstrumentCreateRequest"}
+      responses:
+        "201":
+          description: Instrument created.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextResourceResponse"}
+        "409": {description: Instrument identity conflict.}
+        "422": {description: Instrument content is invalid.}
+  /api/v1/instruments/{instrument_id}/calibrations:
+    parameters:
+      - name: instrument_id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+    get:
+      operationId: listCalibrations
+      tags: [testing-context]
+      summary: List current calibration revisions for an Instrument.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current calibration heads.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextListResponse"}
+    post:
+      operationId: createCalibration
+      tags: [testing-context]
+      summary: Create a dated calibration pinned to an exact Instrument revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/CalibrationCreateRequest"}
+      responses:
+        "201":
+          description: Calibration created.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextResourceResponse"}
+        "409": {description: Usable calibration interval overlaps or source conflicts.}
+        "422": {description: Calibration interval or result is invalid.}
+  /api/v1/test-conditions:
+    get:
+      operationId: listConditions
+      tags: [testing-context]
+      summary: List typed Test Condition snapshots.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Condition Snapshot heads.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextListResponse"}
+    post:
+      operationId: createCondition
+      tags: [testing-context]
+      summary: Capture explicit typed environment, rate, orientation and medium values.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ConditionCreateRequest"}
+      responses:
+        "201":
+          description: Condition Snapshot created.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextResourceResponse"}
+        "422": {description: Condition Snapshot is empty or inconsistent.}
+  /api/v1/test-runs/{test_run_id}/context:
+    parameters:
+      - name: test_run_id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+    get:
+      operationId: getRunContext
+      tags: [testing-context]
+      summary: Read exact Campaign, Condition, Instrument and calibration revision pins.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Exact Test Run Context, or null before binding.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextResourceResponse"}
+                  - {type: "null"}
+    post:
+      operationId: createRunContext
+      tags: [testing-context]
+      summary: Bind immutable exact execution context to a Test Run revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/RunContextCreateRequest"}
+      responses:
+        "201":
+          description: Stable Test Run Context identity and revision 1 created.
+          content:
+            application/json:
+              schema: {$ref: "../testing/test-context-resources.schema.json#/$defs/ContextResourceResponse"}
+        "409": {description: Exact revisions mismatch or calibration is stale.}
+        "422": {description: Context is invalid.}
   /api/v1/imports:detect:
     post:
       operationId: detectReferenceImport

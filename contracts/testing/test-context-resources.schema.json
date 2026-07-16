@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/testing/test-context-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "ChangeReason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "CampaignCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["test_method_id", "test_method_revision_id", "campaign_code", "name", "objective", "population_description", "planned_specimen_count", "standard_conformance", "reference_only"],
+          "properties": {
+            "test_method_id": {"$ref": "#/$defs/Uuid"},
+            "test_method_revision_id": {"$ref": "#/$defs/Uuid"},
+            "campaign_code": {"type": "string", "minLength": 1, "maxLength": 100},
+            "name": {"type": "string", "minLength": 1, "maxLength": 200},
+            "objective": {"type": "string", "minLength": 1, "maxLength": 2000},
+            "population_description": {"type": "string", "minLength": 1, "maxLength": 2000},
+            "planned_specimen_count": {"type": "integer", "minimum": 1, "maximum": 1000000},
+            "standard_conformance": {"enum": ["conformant", "deviation_approved", "not_claimed"]},
+            "standard_designation": {"type": ["string", "null"]},
+            "standard_edition": {"type": ["string", "null"]},
+            "standard_deviation_reason": {"type": ["string", "null"]},
+            "reference_only": {"const": true}
+          }
+        }
+      }
+    },
+    "InstrumentCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["instrument_code", "name", "serial_number"],
+          "properties": {
+            "instrument_code": {"type": "string", "minLength": 1, "maxLength": 100},
+            "name": {"type": "string", "minLength": 1, "maxLength": 200},
+            "serial_number": {"type": "string", "minLength": 1, "maxLength": 200},
+            "manufacturer": {"type": ["string", "null"]},
+            "model": {"type": ["string", "null"]},
+            "location": {"type": ["string", "null"]},
+            "description": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "CalibrationCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["instrument_revision_id", "calibration_code", "certificate_reference", "provider", "calibrated_at", "valid_from", "valid_until", "result"],
+          "properties": {
+            "instrument_revision_id": {"$ref": "#/$defs/Uuid"},
+            "calibration_code": {"type": "string", "minLength": 1, "maxLength": 100},
+            "certificate_reference": {"type": "string", "minLength": 1, "maxLength": 255},
+            "provider": {"type": "string", "minLength": 1, "maxLength": 200},
+            "calibrated_at": {"type": "string", "format": "date-time"},
+            "valid_from": {"type": "string", "format": "date-time"},
+            "valid_until": {"type": "string", "format": "date-time"},
+            "result": {"enum": ["passed", "limited", "failed"]},
+            "limitation_note": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "ConditionCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["test_method_id", "test_method_revision_id", "captured_at"],
+          "properties": {
+            "test_method_id": {"$ref": "#/$defs/Uuid"},
+            "test_method_revision_id": {"$ref": "#/$defs/Uuid"},
+            "captured_at": {"type": "string", "format": "date-time"},
+            "temperature_setpoint_k": {"type": ["number", "null"], "minimum": 0},
+            "temperature_observed_k": {"type": ["number", "null"], "minimum": 0},
+            "humidity_setpoint_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+            "humidity_observed_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+            "loading_rate_value": {"type": ["number", "null"], "minimum": 0},
+            "loading_rate_unit": {"type": ["string", "null"], "enum": ["mm/min", "1/s", "N/s", "Pa/s", null]},
+            "orientation": {"type": ["string", "null"]},
+            "medium": {"type": ["string", "null"]},
+            "note": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "RunContextCreateRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "change_reason": {"$ref": "#/$defs/ChangeReason"},
+        "content": {
+          "type": "object", "additionalProperties": false,
+          "required": ["test_run_revision_id", "test_campaign_id", "test_campaign_revision_id", "test_condition_id", "test_condition_revision_id", "instrument_id", "instrument_revision_id", "calibration_id", "calibration_revision_id"],
+          "properties": {
+            "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+            "test_campaign_id": {"$ref": "#/$defs/Uuid"},
+            "test_campaign_revision_id": {"$ref": "#/$defs/Uuid"},
+            "test_condition_id": {"$ref": "#/$defs/Uuid"},
+            "test_condition_revision_id": {"$ref": "#/$defs/Uuid"},
+            "instrument_id": {"$ref": "#/$defs/Uuid"},
+            "instrument_revision_id": {"$ref": "#/$defs/Uuid"},
+            "calibration_id": {"$ref": "#/$defs/Uuid"},
+            "calibration_revision_id": {"$ref": "#/$defs/Uuid"},
+            "note": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "ContextResourceResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["resource_id", "current_revision", "links"],
+      "properties": {
+        "resource_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"type": "object"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "ContextListResponse": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/ContextResourceResponse"}}}
+    }
+  }
+}

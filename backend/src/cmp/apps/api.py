@@ -54,7 +54,7 @@ from cmp.bootstrap.statistics import (
     build_replicate_statistics_service,
     build_statistics_service,
 )
-from cmp.bootstrap.testing import build_testing_service
+from cmp.bootstrap.testing import build_test_context_service, build_testing_service
 from cmp.bootstrap.validation import build_reference_validation_service
 from cmp.bootstrap.voce_holdout import build_reference_voce_holdout_service
 from cmp.modules.artifacts.adapters.api.content import install_content_artifact_api
@@ -169,8 +169,10 @@ from cmp.modules.statistics.application.replicate_outlier_service import (
 )
 from cmp.modules.statistics.application.replicate_service import ReplicateStatisticsService
 from cmp.modules.statistics.application.service import StatisticsService
+from cmp.modules.testing.adapters.api.test_context import install_test_context_api
 from cmp.modules.testing.adapters.api.testing import install_testing_api
 from cmp.modules.testing.application.service import TestingService
+from cmp.modules.testing.application.test_context import TestContextService
 from cmp.modules.validation.adapters.api.validation import install_validation_api
 from cmp.modules.validation.adapters.api.voce_holdout import install_voce_holdout_api
 from cmp.modules.validation.application.service import ReferenceValidationService
@@ -201,6 +203,7 @@ def create_app(
     audit_service: AuditService | None = None,
     catalog_service: CatalogService | None = None,
     testing_service: TestingService | None = None,
+    test_context_service: TestContextService | None = None,
     dataset_service: DatasetService | None = None,
     shear_relaxation_dataset_service: ShearRelaxationDatasetService | None = None,
     processing_service: ProcessingService | None = None,
@@ -349,6 +352,18 @@ def create_app(
     install_testing_api(
         application,
         service=resolved_testing,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.TESTING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.TESTING_WRITE
+        ),
+    )
+    resolved_test_context = test_context_service or build_test_context_service(services)
+    install_test_context_api(
+        application,
+        service=resolved_test_context,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.TESTING_READ
@@ -780,6 +795,7 @@ def create_app(
     application.state.identity_engine = services.engine
     application.state.catalog_service = resolved_catalog
     application.state.testing_service = resolved_testing
+    application.state.test_context_service = resolved_test_context
     application.state.dataset_service = resolved_datasets
     application.state.shear_relaxation_dataset_service = resolved_shear_relaxation_datasets
     application.state.processing_service = resolved_processing

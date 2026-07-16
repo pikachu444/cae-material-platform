@@ -1007,6 +1007,14 @@ in the same vertical increment. Actual solver execution remains excluded.
 - **테스트:** expiration/overlap/deviation rules, PostgreSQL exact FK/RLS, API/browser workflow,
   stale calibration and hidden-default regression.
 
+- **구현 상태 (2026-07-16):** 완료. Migration 050은 Campaign, Instrument, Calibration,
+  Condition Snapshot, Test Run Context를 각각 stable identity와 immutable revision으로
+  분리한다. Test Run Context는 Campaign/Method/Condition/Instrument/Calibration의 exact
+  revision을 고정하며 실행 시각을 벗어난 교정, usable 교정 기간 중복, Method 불일치,
+  cross-scope 연결을 서비스와 PostgreSQL 제약에서 거부한다. 공통 조건은 온도·습도·속도·
+  방향·매질의 명시적 typed column으로 저장하고 generic EAV/JSON payload를 사용하지 않는다.
+  protected API와 Material State 화면은 유효 교정만 선택 가능하게 표시한다.
+
 ### S-13.2. Make test-data ingestion and processing usable
 
 #### T-41. Governed CSV/TSV/XLSX importer and channel schemas — `P0`
