@@ -58,7 +58,7 @@ the durable Bulk Export Job; the production-scale unit adds no migration.
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
-| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded and 10k/2-GiB scale, five-minute mixed-workload Compose fault drill, external assembly/reconciliation and hard-kill recovery complete; KMS/object storage/signing and connector work remains |
+| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded and 10k/2-GiB scale, five-minute mixed-workload Compose fault drill, external assembly/reconciliation, hard-kill recovery and governed S3 adapter contracts complete; live bucket/KMS acceptance, production signing and connectors remain |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
 Each PR is branched from the freshly merged `main`, uses meaningful commits, passes its relevant

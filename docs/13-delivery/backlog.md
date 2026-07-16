@@ -1192,3 +1192,10 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   대표하지 않는다. 남은 순서는 (1) object lock/KMS/retention 및 production signing adapter,
   (2) signed-manifest
   REST/webhook/object-storage connector와 운영 token rotation이다.
+
+- **2026-07-17 governed storage subset:** production composition은 명시적인 S3-compatible
+  adapter를 선택하고 bucket versioning, Object Lock, 정확한 SSE-KMS key가 아니면 fail closed
+  한다. Staging은 암호화하되 정리 가능하고, final promotion은 조건부 write, checksum 검증과
+  retention lock을 적용한다. Contract test는 완료했다. 실제 bucket/KMS/failover acceptance,
+  production signing identity와 signed connector는 순서대로 남아 있다. 상세 계약은
+  `docs/13-delivery/t47-governed-object-storage.md`에 기록한다.

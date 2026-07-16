@@ -1243,3 +1243,19 @@ failures, ruff, mypy over 547 source files, architecture and contract lint, Open
 13-document/24-capture/7-route user-guide checks, the production Vite bundle budget and npm audit
 with zero vulnerabilities.
 
+## T-47 governed S3-compatible storage adapter subset (2026-07-17)
+
+Production composition no longer permits the local filesystem object store. The new adapter keeps
+SDK types outside domain/application code and validates bucket versioning, Object Lock and exact
+default SSE-KMS key identity before serving traffic. Multipart staging sends SHA-256 checksums;
+final promotion reads a pinned staging version and uses an atomic `If-None-Match: *` write with an
+explicit checksum, KMS key and retain-until date. Only non-authoritative staging versions can be
+discarded through the application port.
+
+Four SDK-contract tests cover unsafe production fallback, governance mismatch, KMS/COMPLIANCE
+promotion and multipart checksum verification; the complete Artifact-focused subset passes 13
+tests. These tests do not qualify a real cloud KMS or WORM bucket. Live bucket/KMS/failover evidence
+remains pending credentials and approved infrastructure. The current atomic promotion ceiling is
+5,000,000,000 bytes, which covers the qualified 2-GiB ingestion path but not the domain 5-GiB Bundle
+ceiling. Production signing identity and signed connectors remain the next implementation units.
+
