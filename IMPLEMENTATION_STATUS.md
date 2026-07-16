@@ -1299,3 +1299,21 @@ The complete connector branch gate passed 690 Python/PostgreSQL tests and 41 Vit
 skips/failures, ruff, mypy over 555 source files, architecture and user-guide checks, the production
 web bundle budget and npm audit with zero vulnerabilities.
 
+## Final composed product-pilot acceptance gate (2026-07-17)
+
+`cmp-product-pilot-acceptance` is the read-only final gate for the local PostgreSQL composition. It
+authenticates through the explicit demo issuer and resolves the exact DP780 Steel, linear-Prony
+Polymer and Ogden--Prony Elastomer Material identities. For each path it verifies typed
+Material/State/Property revisions, required test context, normalized/processed evidence, a
+human-promoted fitted solver-neutral IR, and the required downloadable Solver Cards. Card preview
+and download bytes must match the persisted card SHA-256 and required Abaqus/OpenRadioss keyword
+markers; mapping values are restricted to the six published statuses.
+
+The same gate downloads a complete 22-component Bulk Export ZIP and independently verifies the
+archive digest, manifest digest, every `checksums.sha256` entry, safe unique paths, zero omissions,
+and raw/Dataset/IR/schema/mapping/native-card representation coverage. A read-only PostgreSQL
+transaction then confirms the API's Material, Material Model and Bundle stable identities are
+durable rows. Unit regression covers valid bundles, component tampering, missing representations
+and archive digest mismatch. Actual solver execution remains excluded, and live external
+KMS/WORM/HSM/receiver/endurance acceptance still requires approved infrastructure and credentials.
+

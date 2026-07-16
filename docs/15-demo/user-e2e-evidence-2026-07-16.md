@@ -245,8 +245,17 @@ SHA-256(downloaded bytes) == solver_card_revision.card_sha256
 
 ## 다음 우선순위
 
-1. T-47 object lock/KMS/retention 및 production signing identity adapter.
-2. signed-manifest REST/webhook/object-storage connector와 운영 token rotation.
-3. production infrastructure의 independent object-storage fault와 overnight endurance acceptance.
+The implementation gaps previously listed here are now closed in code: governed S3 Object
+Lock/SSE-KMS, external signing, signed REST/webhook/object-storage delivery, and rotating
+worker/receiver token-file boundaries are implemented. The composed pilot's final automated gate
+is `make product-pilot-acceptance`. It verifies the three exact live Material workflows, downloads
+and hashes the required Abaqus/OpenRadioss cards, validates every component in the 22-component ZIP,
+and cross-checks the same stable identities in PostgreSQL.
+
+Remaining release-environment acceptance requires supplied external infrastructure and credentials:
+
+1. run the governed storage gate against the approved live WORM/KMS bucket;
+2. run signing and connector acceptance against the approved HSM/keyless signer and receiver;
+3. run independent object-storage outage and overnight endurance acceptance.
 
 실제 solver 실행과 solver qualification은 제품 소유자 지시에 따라 이 우선순위에서 제외한다.
