@@ -3137,3 +3137,87 @@ export interface AuditIntegrityReport {
   unsealed_event_count: number;
   issues: AuditIntegrityIssue[];
 }
+
+export type BulkExportMemberKind =
+  | "raw_original"
+  | "dataset_parquet"
+  | "dataset_csv"
+  | "model_ir_json"
+  | "model_ir_schema"
+  | "solver_mapping_report"
+  | "solver_card_native";
+
+export interface BulkExportSourceRef {
+  kind: BulkExportMemberKind;
+  raw_asset_id: string | null;
+  artifact_id: string | null;
+  dataset_id: string | null;
+  dataset_revision_id: string | null;
+  material_model_id: string | null;
+  material_model_revision_id: string | null;
+  solver_card_id: string | null;
+  solver_card_revision_id: string | null;
+}
+
+export interface BulkExportCandidate {
+  source: BulkExportSourceRef;
+  classification: DataClassification;
+  source_sha256: string;
+  source_size_bytes: number;
+  media_type: string;
+  default_archive_path: string;
+  label: string;
+}
+
+export interface ExportSelectionResponse {
+  export_selection_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      selection_label: string;
+      classification: DataClassification;
+      expected_size_bytes: number;
+      selection_digest: string;
+      members: Array<BulkExportCandidate & { ordinal: number; archive_path: string }>;
+      omissions: Array<{
+        ordinal: number;
+        source: BulkExportSourceRef;
+        reason_code: string;
+        reason: string;
+      }>;
+    };
+  };
+  links: Record<string, string | null>;
+}
+
+export interface BulkExportJobResponse {
+  export_job_id: string;
+  classification: DataClassification;
+  export_selection_id: string;
+  export_selection_revision_id: string;
+  state: "queued" | "running" | "succeeded" | "failed";
+  attempt_count: number;
+  bundle_id: string | null;
+  failure_code: string | null;
+  failure_detail: string | null;
+  submitted_at: string;
+  submitted_by: string;
+  started_at: string | null;
+  completed_at: string | null;
+  links: Record<string, string | null>;
+}
+
+export interface BulkExportBundleResponse {
+  export_bundle_id: string;
+  classification: DataClassification;
+  export_selection_id: string;
+  export_selection_revision_id: string;
+  archive_artifact_id: string;
+  archive_sha256: string;
+  archive_size_bytes: number;
+  manifest_sha256: string;
+  component_count: number;
+  omission_count: number;
+  created_at: string;
+  created_by: string;
+  links: Record<string, string | null>;
+}
