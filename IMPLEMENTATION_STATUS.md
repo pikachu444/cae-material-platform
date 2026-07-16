@@ -1067,7 +1067,9 @@ findings and zero critical findings across all four images.
 
 React domain workbenches are now route/context lazy-loaded. The initial production JavaScript fell
 from 541,662 to 269,778 bytes and the largest lazy chunk is 88,163 bytes. Every production build
-enforces a 300,000-byte entry and 120,000-byte lazy-chunk ceiling. The pre-documentation gate passed
-eight supply-chain unit tests plus all 39 existing frontend tests. Full PostgreSQL CI and final
-evidence counts are recorded after the branch-wide verification run.
+enforces a 300,000-byte entry and 120,000-byte lazy-chunk ceiling. The complete branch gate passed
+637 Python tests (including nine supply-chain regressions and the PostgreSQL suite) with zero
+skip/failure, all 39 frontend tests, ruff, mypy over 538 source files, architecture/contract/OpenAPI,
+13-document/21-capture user-guide checks, the production bundle budget and npm audit with zero
+vulnerabilities.
 
