@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+from collections.abc import AsyncIterable
 from dataclasses import replace
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from typing import cast
 from uuid import UUID, uuid4
 
 from cmp.modules.exporting.application.bulk_export import (
@@ -138,8 +140,8 @@ class _Artifacts:
         self.streams: list[bytes] = []
 
     async def finalize_derived_stream(self, *_args: object, **kwargs: object) -> object:
-        chunks = kwargs["chunks"]
-        value = b"".join([chunk async for chunk in chunks])  # type: ignore[union-attr]
+        chunks = cast(AsyncIterable[bytes], kwargs["chunks"])
+        value = b"".join([chunk async for chunk in chunks])
         assert hashlib.sha256(value).hexdigest() == kwargs["expected_sha256"]
         assert len(value) == kwargs["expected_size_bytes"]
         self.streams.append(value)
