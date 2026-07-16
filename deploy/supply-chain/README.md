@@ -21,7 +21,7 @@ The default output is `.cache/release-quality/<UTC timestamp>/` and contains:
   `quality-manifest.json`;
 - detached Ed25519 signature and public key.
 
-The policy fails on any known Python vulnerability, any critical npm vulnerability, any critical
+The policy fails on any known Python or npm vulnerability, any critical
 container finding, a failed audit command, or malformed scanner output. HIGH image findings remain
 visible in the signed report and require release review; they are not silently discarded.
 

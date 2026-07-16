@@ -1053,7 +1053,7 @@ vulnerabilities.
 `cmp-release-quality` now exports production Python and Node CycloneDX SBOMs, runs `uv audit` and
 `npm audit`, records CycloneDX SBOMs and HIGH/CRITICAL Trivy reports for the exact API, worker, web
 and restore image IDs, and fails closed on a scanner command/schema error, any known Python
-vulnerability or any critical npm/image finding. The evidence index is canonical JSON signed with
+Python or Node vulnerability or any critical image finding. The evidence index is canonical JSON signed with
 Ed25519; verification binds every relative path, byte size and SHA-256 and rejects manifest,
 signature, public-key, evidence and path substitution. The local ephemeral signing option is
 explicitly an integrity proof rather than builder identity. Production KMS/keyless identity and
@@ -1062,7 +1062,7 @@ trusted-key distribution remain unfinished.
 API/worker images discard the unused Debian Perl runtime after the final immutable build step. The
 separate restore image calls PostgreSQL 16 binaries directly and also removes its package-management
 wrapper/Perl runtime. A live restore drill after minimization still passed all metadata, object and
-lineage checks. The signed live scan reported zero known Python vulnerabilities, zero npm critical
+lineage checks. The signed live scan reported zero known Python vulnerabilities, zero known npm
 findings and zero critical findings across all four images.
 
 React domain workbenches are now route/context lazy-loaded. The initial production JavaScript fell

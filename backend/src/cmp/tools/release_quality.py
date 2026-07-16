@@ -349,6 +349,10 @@ def generate_bundle(
     node_counts = node_metadata.get("vulnerabilities") if isinstance(node_metadata, dict) else None
     if not isinstance(node_counts, dict):
         raise ReleaseQualityError("npm audit vulnerability metadata is missing")
+    for name in ("info", "low", "moderate", "high", "critical", "total"):
+        value = node_counts.get(name)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise ReleaseQualityError(f"npm audit vulnerability count is invalid: {name}")
     evidence.append(_component(node_audit, root=output, media_type="application/json"))
 
     policy_results: dict[str, Any] = {
@@ -402,11 +406,13 @@ def generate_bundle(
             _component(vulnerability_report, root=output, media_type="application/json")
         )
 
-    critical = int(node_counts.get("critical", 0))
-    critical += sum(
+    image_critical = sum(
         int(result["counts"]["CRITICAL"]) for result in policy_results["images"].values()
     )
-    blocking_findings = critical + len(python_vulnerabilities)
+    critical = int(node_counts["critical"]) + image_critical
+    blocking_findings = (
+        len(python_vulnerabilities) + int(node_counts["total"]) + image_critical
+    )
     passed = (
         blocking_findings == 0
         and python_result.returncode == 0
@@ -419,6 +425,7 @@ def generate_bundle(
         "policy": {
             "blocking_findings": blocking_findings,
             "critical_vulnerability_limit": 0,
+            "known_node_vulnerability_limit": 0,
             "known_python_vulnerability_limit": 0,
             "observed_critical_vulnerabilities": critical,
             "passed": passed,

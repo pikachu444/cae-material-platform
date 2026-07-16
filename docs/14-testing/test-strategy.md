@@ -777,8 +777,8 @@ uv run cmp-release-quality verify --bundle .cache/release-quality/<run-id>
 ```
 
 Acceptance requires production-only Python and Node CycloneDX documents, explicit audit JSON,
-container SBOM and HIGH/CRITICAL reports for all four images, zero known Python findings, zero
-critical npm/image findings, exact source commit and image IDs, and a verified canonical manifest.
+container SBOM and HIGH/CRITICAL reports for all four images, zero known Python/Node findings, zero
+critical image findings, exact source commit and image IDs, and a verified canonical manifest.
 Unit regressions substitute manifest bytes, signature bytes, the public key and evidence bytes and
 also exercise path traversal, duplicate path and malformed scanner boundaries. A production signer
 must additionally pass `--trusted-public-key`; an ephemeral local key proves bundle integrity only.
