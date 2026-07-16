@@ -86,7 +86,19 @@ through normal JWT verification, RBAC, PostgreSQL RLS, immutable revision/proven
 non-owner `cmp_app` role.
 
 The local API is `http://127.0.0.1:8000/api/v1`; PostgreSQL is exposed on `127.0.0.1:54329` only for
-local inspection. The data is synthetic and not validated engineering data.
+local inspection. OTLP/HTTP is localhost `4318` and the Collector's Prometheus endpoint is
+`http://127.0.0.1:8889/metrics`. The data is synthetic and not validated engineering data.
+
+The optional recovery profile uses a separate image with a PostgreSQL 16 client and never replaces
+the running demo database:
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml --profile operations run --rm restore-drill
+```
+
+It restores into a random temporary database, verifies the independent filesystem-object snapshot
+and writes a JSON report below `.cache/restore-drill/`. See the
+[operations and recovery guide](../../docs/user-guide/11-operations-and-recovery.md).
 
 ## Run the PostgreSQL integration gate
 

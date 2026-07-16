@@ -54,7 +54,7 @@ rewritten. The next schema unit begins at migration 056.
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
-| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security evidence | pending |
+| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security evidence | in progress: observability + isolated restore subset complete |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
 Each PR is branched from the freshly merged `main`, uses meaningful commits, passes its relevant
@@ -163,6 +163,20 @@ Material view. The machine-readable navigation contract, Korean troubleshooting 
 Python tests, 38 Vitest tests, ruff/mypy/architecture/contracts/OpenAPI/build and the
 12-document/20-capture/7-route guide check. Docker browser evidence covered Models and Governance
 hubs plus the DP780 model context without visible application errors.
+
+PR 10 begins T-47 without a domain migration. API and worker emit OTLP/HTTP traces and metrics to a
+vendor-neutral Collector; worker execution continues the exact W3C trace context stored on its Job.
+Allow-listed JSON logs exclude URL/query/header/body/raw payload and credential fields, and the
+Governance operations panel reads a bounded route-template snapshot only with `audit.read`.
+The isolated recovery command restores a PostgreSQL 16 custom dump to a random temporary database,
+copies immutable objects to a distinct snapshot and verifies relation counts, object digests and
+provenance references before deleting only the temporary database. The live demo drill passed in
+32.018 seconds with raw 18/18, total object samples 100/100 and zero dangling lineage edges. No
+Release existed in the source, so Release digest recovery remains an explicit next drill condition.
+The CI-equivalent gate passed 627 Python tests against disposable PostgreSQL 16 with zero
+skip/failure, 39 Vitest tests, ruff/mypy/architecture/contracts/OpenAPI/user-guide/build and npm
+audit with zero vulnerabilities. The 541.66-kB frontend chunk warning is retained as explicit input
+to the next T-47 performance unit rather than hidden by raising the warning threshold.
 
 The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
 the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,
