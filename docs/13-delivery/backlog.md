@@ -1169,7 +1169,10 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   vulnerability gate, canonical Ed25519 quality manifest와 signature/evidence/key substitution
   회귀, frontend workbench code splitting 및 hard bundle budget까지 구현·실데이터 검증 완료.
   local ephemeral key는 builder identity가 아니며 production KMS/keyless trust는 완료로 간주하지
-  않는다. 남은 순서는 (1) representative catalog/upload/bundle benchmark와 security acceptance,
-  (2) 64 MiB 초과 Bundle external-worker assembly와 failed-later-step output reconciliation
-  visibility, (3) object lock/KMS/retention 및 production signing adapter, (4) signed-manifest
-  REST/webhook/object-storage connector이다.
+  않는다. 실제 Catalog/API, 2 MiB/32-part upload, capability/auth/path threat, governed Bundle
+  download와 64 MiB inline assembly의 bounded local benchmark/report gate도 완료했으나 4개
+  Material/2 MiB fixture를 10,000개/2 GiB production scale 달성으로 표시하지 않는다. 남은 순서는
+  (1) 10,000-Material/2-GiB production-scale 및 soak/fault acceptance, (2) 64 MiB 초과 Bundle
+  external-worker assembly와 failed-later-step output reconciliation visibility, (3) object
+  lock/KMS/retention 및 production signing adapter, (4) signed-manifest REST/webhook/object-storage
+  connector이다.

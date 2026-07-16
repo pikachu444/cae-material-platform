@@ -3,7 +3,7 @@ export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
 export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
-.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client release-quality \
+.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client release-quality performance-acceptance \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
 	web-build web-test run-api run-worker run-worker-once ci
 
@@ -37,6 +37,9 @@ generate-client:
 
 release-quality:
 	$(UV) run cmp-release-quality generate --root . --ephemeral-local-key
+
+performance-acceptance:
+	$(UV) run cmp-performance-acceptance --acknowledge-immutable-demo-write
 
 migrate:
 	@test -n "$(CMP_DATABASE_URL)" || (echo "CMP_DATABASE_URL is required" && exit 2)

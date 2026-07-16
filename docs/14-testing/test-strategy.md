@@ -788,3 +788,23 @@ lazy workbench chunk at or below 120,000 bytes. The checker runs after every Vit
 on regression. On 2026-07-16 code splitting reduced the entry from 541,662 to 269,778 bytes; the
 largest lazy chunk was 88,163 bytes. These are observed sizes, while the two budgets are enforced
 limits.
+
+## T-47 bounded full-stack performance/security gate
+
+`cmp-performance-acceptance` uses the running Docker API rather than a mocked transport. It measures
+Catalog reads, appends a real 2 MiB/32-part upload, proves a tampered upload capability is denied,
+downloads an existing governed Bundle through a short-lived transfer authorization and assembles
+the full 64-MiB inline Bundle boundary through the production domain builder. All uploaded and
+downloaded bytes are digest/size checked. Unauthenticated, malformed-bearer and unsafe-filename
+negative requests must remain rejected without reflecting secrets or unsafe input.
+
+Harness unit tests cover nearest-rank percentile correctness, non-finite samples, actual Bundle
+construction/checksum coverage, report canonicalization/digest substitution, unsafe base URLs and
+absolute transfer-path normalization. The live command requires an explicit immutable-write
+acknowledgement and a clean Git tree.
+
+On 2026-07-16 the bounded gate recorded Catalog p95/p99 44.292/45.978 ms, 2 MiB upload at 1.266
+MiB/s, governed Bundle download p95 21.894 ms and 64 MiB inline assembly in 1.950184 seconds. The
+Catalog contained 4 Materials and the upload was the documented CI fixture, so 10,000-Material
+search and 2-GiB infrastructure streaming remain `not_evaluated_at_production_scale`. A release
+environment must run `--require-production-scale`; a laptop pass cannot waive those NFRs.
