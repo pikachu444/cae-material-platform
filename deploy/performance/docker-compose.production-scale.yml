@@ -1,0 +1,9 @@
+services:
+  api:
+    ports:
+      - "127.0.0.1:18000:8000"
+    environment:
+      # T-47/NFR-PERF-004 isolated acceptance override. Do not use this local filesystem adapter
+      # as a production object-store configuration.
+      CMP_UPLOAD_MAX_OBJECT_BYTES: "2147483648"
+      CMP_UPLOAD_PART_BYTES: "67108864"

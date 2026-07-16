@@ -15,7 +15,7 @@ import sys
 import time
 import tracemalloc
 import zipfile
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -37,6 +37,7 @@ from cmp.modules.identity_access.domain.authorization import DataClassification
 from cmp.shared.domain.revisions import canonical_json_bytes
 
 _MIB = 1024 * 1024
+_GIB = 1024 * _MIB
 
 
 class PerformanceAcceptanceError(RuntimeError):
@@ -48,6 +49,41 @@ class HttpResult:
     status: int
     body: bytes
     headers: Mapping[str, str]
+
+
+class DeterministicByteSource:
+    """Regenerate an exact large fixture while retaining only one bounded chunk."""
+
+    def __init__(self, size_bytes: int, *, seed: int = 20260717) -> None:
+        if size_bytes < 1:
+            raise ValueError("deterministic byte source size must be positive")
+        self.size_bytes = size_bytes
+        self.seed = seed
+        self._pattern = random.Random(seed).randbytes(min(_MIB, size_bytes))
+        self.maximum_generated_chunk_bytes = 0
+
+    def read(self, offset: int, length: int) -> bytes:
+        if offset < 0 or length < 1 or offset + length > self.size_bytes:
+            raise ValueError("deterministic byte source read is outside its immutable range")
+        pattern_size = len(self._pattern)
+        pattern_offset = offset % pattern_size
+        required = pattern_offset + length
+        repeats = math.ceil(required / pattern_size)
+        value = (self._pattern * repeats)[pattern_offset : pattern_offset + length]
+        self.maximum_generated_chunk_bytes = max(self.maximum_generated_chunk_bytes, len(value))
+        return value
+
+    def chunks(self, chunk_size: int) -> Iterator[bytes]:
+        if chunk_size < 1:
+            raise ValueError("deterministic byte source chunk size must be positive")
+        for offset in range(0, self.size_bytes, chunk_size):
+            yield self.read(offset, min(chunk_size, self.size_bytes - offset))
+
+    def sha256(self, *, chunk_size: int = 8 * _MIB) -> str:
+        digest = hashlib.sha256()
+        for chunk in self.chunks(chunk_size):
+            digest.update(chunk)
+        return digest.hexdigest()
 
 
 def percentile(values: list[float], percentile_value: float) -> float:
@@ -200,7 +236,12 @@ def _measure(action: Callable[[], object], *, samples: int, warmups: int) -> dic
 
 
 def _catalog_benchmark(
-    client: FullStackClient, *, samples: int, warmups: int, p95_limit_ms: float
+    client: FullStackClient,
+    *,
+    samples: int,
+    warmups: int,
+    p95_limit_ms: float,
+    production_p95_limit_ms: float,
 ) -> dict[str, Any]:
     path = f"/materials?{urlencode({'limit': 100})}"
     latest: dict[str, Any] = {}
@@ -213,15 +254,35 @@ def _catalog_benchmark(
     items = latest.get("items")
     if not isinstance(items, list):
         raise PerformanceAcceptanceError("Catalog response items must be an array")
+    total_count = latest.get("total_count")
+    if (
+        not isinstance(total_count, int)
+        or isinstance(total_count, bool)
+        or total_count < len(items)
+    ):
+        raise PerformanceAcceptanceError(
+            "Catalog response must expose its RLS-filtered non-negative total_count"
+        )
+    production_evaluated = total_count >= 10_000
+    production_passed = (
+        production_evaluated
+        and float(latency["p95_ms"]) < production_p95_limit_ms
+    )
     return {
-        "cardinality_visible": len(items),
+        "cardinality_visible": total_count,
         "latency": latency,
         "passed_bounded_latency": float(latency["p95_ms"]) < p95_limit_ms
         and float(latency["p99_ms"]) < 1500,
         "p95_limit_ms": p95_limit_ms,
+        "production_p95_limit_ms": production_p95_limit_ms,
         "production_10000_material_search": (
-            "evaluated" if len(items) >= 10_000 else "not_evaluated_at_production_scale"
+            "evaluated_passed"
+            if production_passed
+            else "evaluated_failed"
+            if production_evaluated
+            else "not_evaluated_at_production_scale"
         ),
+        "returned_count": len(items),
     }
 
 
@@ -269,11 +330,19 @@ def _upload_benchmark(
     size_bytes: int,
     part_size_bytes: int,
     minimum_mib_per_second: float,
+    maximum_python_memory_bytes: int,
 ) -> dict[str, Any]:
     if size_bytes < 1 or part_size_bytes < 1 or size_bytes % part_size_bytes:
         raise PerformanceAcceptanceError("upload fixture must use positive, evenly sized parts")
-    payload = (b"CMP-PERFORMANCE-REFERENCE-FIXTURE-" * (size_bytes // 34 + 1))[:size_bytes]
-    digest = hashlib.sha256(payload).hexdigest()
+    if maximum_python_memory_bytes < max(part_size_bytes, 8 * _MIB):
+        raise PerformanceAcceptanceError(
+            "upload Python memory limit must hold the configured bounded chunk"
+        )
+    source = DeterministicByteSource(size_bytes)
+    tracemalloc.start()
+    digest_started = time.perf_counter()
+    digest = source.sha256(chunk_size=min(part_size_bytes, 8 * _MIB))
+    digest_duration = time.perf_counter() - digest_started
     started = time.perf_counter()
     _, created = client.json_request(
         "/uploads",
@@ -297,7 +366,7 @@ def _upload_benchmark(
     upload_id = upload.get("upload_id")
     if not isinstance(upload_id, str):
         raise PerformanceAcceptanceError("upload creation omitted upload_id")
-    first_part = payload[:part_size_bytes]
+    first_part = source.read(0, min(part_size_bytes, size_bytes))
     tampered = ("x" if capability[0] != "x" else "y") + capability[1:]
     denied = client.request(
         f"/uploads/{upload_id}/parts/1",
@@ -309,16 +378,19 @@ def _upload_benchmark(
         },
         expected=(403,),
     )
+    del first_part
     for index, offset in enumerate(range(0, size_bytes, part_size_bytes), start=1):
+        part = source.read(offset, min(part_size_bytes, size_bytes - offset))
         client.request(
             f"/uploads/{upload_id}/parts/{index}",
             method="PUT",
-            body=payload[offset : offset + part_size_bytes],
+            body=part,
             headers={
                 "Content-Type": "application/octet-stream",
                 "Upload-Capability": capability,
             },
         )
+        del part
     _, completed = client.json_request(
         f"/uploads/{upload_id}:complete",
         method="POST",
@@ -326,22 +398,40 @@ def _upload_benchmark(
         headers={"Upload-Capability": capability},
     )
     elapsed = time.perf_counter() - started
+    _, peak_python_bytes = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
     raw_asset = completed.get("raw_asset")
     if not isinstance(raw_asset, dict):
         raise PerformanceAcceptanceError("completed upload omitted Raw Asset evidence")
     exact = raw_asset.get("sha256") == digest and raw_asset.get("size_bytes") == size_bytes
     throughput = size_bytes / _MIB / elapsed
     leaked = capability.encode("utf-8") in denied.body
+    memory_bounded = (
+        peak_python_bytes <= maximum_python_memory_bytes
+        and source.maximum_generated_chunk_bytes < size_bytes
+    )
+    operation_passed = exact and not leaked and throughput >= minimum_mib_per_second
+    production_evaluated = size_bytes >= 2 * _GIB
+    production_passed = production_evaluated and operation_passed and memory_bounded
     return {
         "capability_tamper_status": denied.status,
         "digest_and_size_verified": exact,
+        "digest_preflight_seconds": round(digest_duration, 6),
         "duration_seconds": round(elapsed, 6),
+        "maximum_generated_chunk_bytes": source.maximum_generated_chunk_bytes,
         "minimum_mib_per_second": minimum_mib_per_second,
+        "memory_bounded": memory_bounded,
+        "python_memory_limit_bytes": maximum_python_memory_bytes,
+        "peak_incremental_python_bytes": peak_python_bytes,
         "part_count": size_bytes // part_size_bytes,
         "part_size_bytes": part_size_bytes,
-        "passed": exact and not leaked and throughput >= minimum_mib_per_second,
+        "passed": operation_passed and memory_bounded,
         "production_2gib_streaming": (
-            "evaluated" if size_bytes >= 2 * 1024**3 else "not_evaluated_at_production_scale"
+            "evaluated_passed"
+            if production_passed
+            else "evaluated_failed"
+            if production_evaluated
+            else "not_evaluated_at_production_scale"
         ),
         "response_capability_leak": leaked,
         "size_bytes": size_bytes,
@@ -506,7 +596,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--upload-part-bytes", type=int, default=64 * 1024)
     parser.add_argument("--inline-bundle-bytes", type=int, default=64 * _MIB)
     parser.add_argument("--catalog-p95-limit-ms", type=float, default=500)
+    parser.add_argument("--catalog-production-p95-limit-ms", type=float, default=2000)
     parser.add_argument("--upload-minimum-mib-per-second", type=float, default=1)
+    parser.add_argument("--upload-maximum-python-memory-mib", type=int, default=128)
     parser.add_argument("--inline-bundle-limit-seconds", type=float, default=30)
     parser.add_argument("--acknowledge-immutable-demo-write", action="store_true")
     parser.add_argument("--require-production-scale", action="store_true")
@@ -532,6 +624,7 @@ def main(argv: list[str] | None = None) -> None:
         samples=args.samples,
         warmups=args.warmups,
         p95_limit_ms=args.catalog_p95_limit_ms,
+        production_p95_limit_ms=args.catalog_production_p95_limit_ms,
     )
     security = _security_checks(client)
     upload = _upload_benchmark(
@@ -539,14 +632,15 @@ def main(argv: list[str] | None = None) -> None:
         size_bytes=args.upload_bytes,
         part_size_bytes=args.upload_part_bytes,
         minimum_mib_per_second=args.upload_minimum_mib_per_second,
+        maximum_python_memory_bytes=args.upload_maximum_python_memory_mib * _MIB,
     )
     download = _bundle_download_benchmark(client, samples=args.bundle_download_samples, warmups=1)
     inline = build_inline_bundle_fixture(args.inline_bundle_bytes)
     inline["limit_seconds"] = args.inline_bundle_limit_seconds
     inline["passed"] = inline["duration_seconds"] <= args.inline_bundle_limit_seconds
     production_scale = (
-        catalog["production_10000_material_search"] == "evaluated"
-        and upload["production_2gib_streaming"] == "evaluated"
+        catalog["production_10000_material_search"] == "evaluated_passed"
+        and upload["production_2gib_streaming"] == "evaluated_passed"
     )
     bounded_passed = all(
         (
@@ -578,7 +672,7 @@ def main(argv: list[str] | None = None) -> None:
             "streaming_upload": upload,
         },
         "passed": passed,
-        "schema": "cmp.performance-security-acceptance.v1",
+        "schema": "cmp.performance-security-acceptance.v2",
         "security": security,
         "source_commit": source_commit,
     }
