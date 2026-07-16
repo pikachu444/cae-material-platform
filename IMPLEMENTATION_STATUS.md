@@ -1129,3 +1129,10 @@ external path currently bounds each source member at 64 MiB. Hard-kill recovery 
 object-lock/KMS/retention, production signing identity and signed connectors remain ordered T-47
 work.
 
+Verification passed migration 057 on PostgreSQL 16, including the 057→056→057 round trip. The
+CI-equivalent gate passed all 654 Python tests and all 40 Vitest tests with zero skips or failures,
+ruff, mypy over 542 source files, architecture and contract lint, OpenAPI compatibility,
+13-document/22-capture/7-route user-guide checks, the production Vite build and npm audit with zero
+vulnerabilities. The entry JavaScript remained within budget at 269,827 bytes and the largest lazy
+chunk remained 88,163 bytes.
+
