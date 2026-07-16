@@ -1,4 +1,4 @@
-version: 8
+version: 9
 verified_at: 2026-07-16
 source_evidence: ../15-demo/user-e2e-evidence-2026-07-16.md
 captures:
@@ -127,3 +127,10 @@ captures:
     image: ../15-demo/images/t47-worker-lease-recovery.png
     width: 917
     height: 1196
+  - id: production-scale-catalog
+    route: /
+    workflow: authorized-10000-material-catalog-and-2-gib-streaming-acceptance
+    fixture: T-47 isolated PostgreSQL composition with exactly 10,000 visible Material heads
+    image: ../15-demo/images/t47-production-scale-catalog.png
+    width: 1265
+    height: 712

@@ -821,6 +821,27 @@ Catalog contained 4 Materials and the upload was the documented CI fixture, so 1
 search and 2-GiB infrastructure streaming remain `not_evaluated_at_production_scale`. A release
 environment must run `--require-production-scale`; a laptop pass cannot waive those NFRs.
 
+### Production-scale extension
+
+The isolated production-scale composition appends deterministic immutable Material identities and
+revisions until the same RLS scope contains exactly 10,000 current heads. The Catalog contract must
+return the authorized total independently of its bounded page, and the count and page must derive
+from the same filtered query. The 2-GiB source is generated deterministically in bounded chunks,
+prehashed, uploaded through the real multipart API and accepted only when terminal server digest,
+size, throughput and peak Python allocation all meet their gates.
+
+The 2026-07-16 run evaluated both previously missing scale conditions: Catalog p95/p99 were
+182.128/187.088 ms over 30 requests with 10,000 visible Materials; 2,147,483,648 bytes were uploaded
+as 32 64-MiB parts in 89.048012 seconds at 22.999 MiB/s. Digest and size matched, maximum generated
+chunk was 67,108,864 bytes and peak incremental Python allocation was 67,164,359 bytes under the
+201,326,592-byte limit. Report SHA-256 is
+`96d75ca787695ad5848b0b65562554a93f8aa63dd204b82d92e159f723cef481` and
+`production_scale_accepted=true`.
+
+This is not the soak/fault gate. The next performance unit must add a time-bounded long-running
+mixed workload, controlled API/worker/object-storage/PostgreSQL interruption, recovery assertions,
+immutable digest checks and resource-growth thresholds.
+
 ## T-47 external Bundle worker and reconciliation gate
 
 The Compose demo deliberately sets `CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES=16384` so its small public
@@ -837,5 +858,6 @@ lease fields. The 2026-07-16 Compose drill observed `idle` before the 15-second 
 `succeeded` at attempt 2 after it.
 
 This gate does not claim the 5-GiB domain ceiling is operationally qualified. Per-component source
-reads remain capped at 64 MiB, and production-scale 10,000-Material/2-GiB load, long-running soak,
-broad fault injection and worker identity/token rotation remain explicit release conditions.
+reads remain capped at 64 MiB. Long-running soak, broad fault injection and worker identity/token
+rotation remain explicit release conditions; the separate production-scale extension above closes
+only the 10,000-Material and 2-GiB streaming conditions.

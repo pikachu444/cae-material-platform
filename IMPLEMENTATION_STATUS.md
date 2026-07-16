@@ -1067,9 +1067,10 @@ digests passed. Its canonical report digest is
 `3a2464dbf27f5359f19dfc865e0254b68dc55a3040f665a85eb84491b7bbdaa7`.
 
 This closes only the bounded local baseline. The report explicitly says
-`production_scale_accepted=false` because the demo exposed 4 Materials rather than 10,000 and used
-the documented 2-MiB CI upload rather than 2 GiB. Production-scale load/soak/fault injection,
-10,000-Material PostgreSQL search and 2-GiB object infrastructure acceptance remain T-47 work.
+`production_scale_accepted=false` because the bounded demo exposed 4 Materials rather than 10,000
+and used the documented 2-MiB CI upload rather than 2 GiB. The later production-scale subset below
+closes the 10,000-Material PostgreSQL search and 2-GiB object streaming conditions without changing
+this bounded report.
 
 The complete performance/security branch gate passed 649 Python tests with the disposable
 PostgreSQL 16 DSN and zero skip/failure, all 39 frontend tests, ruff, mypy over 540 source files,
@@ -1125,9 +1126,9 @@ SHA-256 `04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
 
 This subset does not claim the 1,000-component/5-GiB domain limit as production-qualified. The
 external path currently bounds each source member at 64 MiB. Hard-kill recovery for a claimed
-`running` Job is implemented in the next subset; worker identity/token rotation,
-10,000-Material/2-GiB load and soak/fault acceptance, object-lock/KMS/retention, production signing
-identity and signed connectors remain ordered T-47 work.
+`running` Job is implemented in the next subset; worker identity/token rotation, soak/fault
+acceptance, object-lock/KMS/retention, production signing identity and signed connectors remain
+ordered T-47 work. The production-scale subset below closes the 10,000-Material/2-GiB conditions.
 
 Verification passed migration 057 on PostgreSQL 16, including the 057→056→057 round trip. The
 CI-equivalent gate passed all 654 Python tests and all 40 Vitest tests with zero skips or failures,
@@ -1166,4 +1167,39 @@ compatibility, 13-document/23-capture/7-route user-guide checks, the production 
 and npm audit with zero vulnerabilities. Migration 058 also passed 058→057→058 against the live
 Docker PostgreSQL database before the hard-kill drill. A separate live 057-active→058 upgrade gave
 the legacy Job an expired bootstrap lease, rejected an unsafe downgrade and completed it as attempt 2.
+
+## T-47 10,000-Material and 2-GiB production-scale subset (2026-07-16)
+
+No migration or existing row rewrite is introduced. Catalog search now returns an explicit
+`total_count` computed by `count(*) OVER()` on the same organization/project/classification RLS
+filtered current-head query as the bounded result page. Dashboard, Material list and global module
+hubs display this authorized total rather than misrepresenting a page length as Catalog size.
+
+`cmp-performance-fixture` is an acknowledged, opt-in tool for an isolated PostgreSQL composition.
+It appends deterministic synthetic Material identities and immutable r1 revisions until the target
+cardinality is reached, rejects unsafe database targets by default and is idempotent at the revision
+level. `cmp-performance-acceptance` schema v2 generates deterministic source bytes in bounded
+chunks, prehashes them, streams them through the actual multipart API and records maximum chunk and
+incremental Python allocation as first-class evidence. `--require-production-scale` fails unless at
+least 10,000 Materials are visible and exactly 2 GiB is digest/size verified.
+
+The live isolated Docker/PostgreSQL run inserted 9,996 synthetic rows beside four demo Materials in
+17.418893 seconds. Thirty Catalog requests returned 100 bounded rows with `total_count=10000` at
+p95/p99 182.128/187.088 ms. The API finalized 2,147,483,648 bytes as 32 64-MiB parts in 89.048012
+seconds at 22.999 MiB/s; terminal digest and size matched. The maximum generated chunk was
+67,108,864 bytes and peak incremental Python allocation was 67,164,359 bytes, below the 192-MiB
+gate. Bundle download, the 64-MiB inline builder and auth/capability/path negative checks also
+passed. Report source commit is `b506f6415f49774fb32692cf680ed56c866e9902`; canonical report
+SHA-256 is `96d75ca787695ad5848b0b65562554a93f8aa63dd204b82d92e159f723cef481`.
+
+The complete branch gate passed 661 Python/PostgreSQL tests and 41 Vitest tests with zero skips or
+failures, ruff, mypy over 545 source files, architecture and contract lint, OpenAPI compatibility,
+13-document/24-capture/7-route user-guide checks, the production Vite bundle budget and npm audit
+with zero vulnerabilities. Focused deterministic-source, fixture-safety and request-timeout tests
+also passed after the final timeout bound.
+
+This subset does not qualify the 5-GiB Bundle domain ceiling and does not replace long-running
+mixed-workload soak or broad API/worker/PostgreSQL/object-storage fault injection. Those are the
+next T-47 unit, followed by object lock/KMS/retention plus production signing identity, then signed
+connectors and worker identity/token rotation. Licensed solver execution remains out of scope.
 
