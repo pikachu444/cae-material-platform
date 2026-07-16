@@ -63,6 +63,9 @@ describe("Material Catalog workbench", () => {
     render(<App />);
 
     expect(screen.getByText("Connect this workbench to the protected Material Catalog.")).toBeTruthy();
+    for (const label of ["Dashboard", "Materials", "Tests", "Datasets", "Models", "Exports", "Governance"]) {
+      expect(screen.getByRole("button", { name: label })).toBeTruthy();
+    }
   });
 
   it("renders Material data returned by the real Catalog API contract", async () => {
@@ -100,5 +103,43 @@ describe("Material Catalog workbench", () => {
       "/api/v1/demo-identity/token",
       expect.objectContaining({ headers: expect.anything() }),
     );
+  });
+
+  it("opens a connected Tests hub that routes work through a Material context", async () => {
+    window.history.pushState({}, "", "/tests");
+    window.localStorage.setItem(
+      "cmp.material-platform.api-config",
+      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
+    );
+    vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ items: [visibleMaterial] })));
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Test data" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Open test workspace" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Tests" }).getAttribute("aria-current")).toBe("page");
+  });
+
+  it("keeps a contextual Material model deep link addressable and selected", async () => {
+    const materialId = visibleMaterial.material_id;
+    window.history.pushState({}, "", `/materials/${materialId}/models`);
+    window.localStorage.setItem(
+      "cmp.material-platform.api-config",
+      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
+    );
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/revisions")) {
+        return jsonResponse({ material_id: materialId, revisions: [visibleMaterial.current_revision] });
+      }
+      return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Demo DP780 Steel" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Models & Cards" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("button", { name: "Models" }).getAttribute("aria-current")).toBe("page");
   });
 });

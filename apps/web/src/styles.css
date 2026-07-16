@@ -141,6 +141,95 @@ button:disabled {
   background: #59cf9b;
 }
 
+.material-context-tabs {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0.4rem;
+  border: 1px solid #cbdadc;
+  border-radius: 10px;
+  background: #f8fbfb;
+}
+
+.material-context-tabs button {
+  flex: 0 0 auto;
+  padding: 0.65rem 0.9rem;
+  border: 0;
+  border-radius: 7px;
+  color: #536a73;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.material-context-tabs button:hover,
+.material-context-tabs button.active {
+  color: #fff;
+  background: #176f70;
+}
+
+.module-material-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.2rem;
+}
+
+.module-material-card {
+  display: flex;
+  min-height: 190px;
+  padding: 1rem;
+  border: 1px solid #d4e0e1;
+  border-radius: 10px;
+  background: #fbfdfd;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.module-material-card h3 {
+  margin-top: 0.8rem;
+  color: #18323d;
+}
+
+.module-material-card p {
+  margin-bottom: 0;
+  color: #64777f;
+  font-size: 0.82rem;
+}
+
+.module-material-card .button {
+  align-self: flex-start;
+}
+
+.count-chip {
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #c8dcda;
+  border-radius: 999px;
+  color: #416d6b;
+  background: #f1f8f6;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+@media (max-width: 1100px) {
+  .app-header {
+    grid-template-columns: 1fr auto;
+    gap: 0.65rem 1rem;
+  }
+
+  .app-header nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+  }
+}
+
 main {
   width: min(1180px, calc(100% - 3rem));
   margin: 0 auto;

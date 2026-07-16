@@ -130,6 +130,11 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 9. 여러 결과를 함께 전달하려면 상단 **Exports**에서 exact revision을 선택하고 Bundle을 만든 뒤
    ZIP을 다운로드합니다.
 
+전역 **Tests / Datasets / Models / Governance**는 독립된 데이터 사일로가 아니라 선택한
+Material의 **Test data / Datasets & Processing / Models & Cards / Governance** 문맥 탭으로
+연결됩니다. 메뉴 설명과 문제 해결은
+[사용자 내비게이션 가이드](docs/user-guide/10-navigation-and-troubleshooting.md)에 있습니다.
+
 화면에 표시된 `reference` 결과는 실행 가능한 독립 구현 예제이지, 특정 회사의 재료나
 제품 설계에 대해 승인된 값이 아닙니다.
 인장 governed import는 [reference-tensile.csv](examples/data/reference-tensile.csv)를 사용해

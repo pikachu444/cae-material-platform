@@ -14,6 +14,7 @@ uv run cmp-check-contracts lint --root .
 uv run cmp-check-contracts compat \
   --baseline contracts/http/openapi.baseline.yaml \
   --current contracts/http/openapi.yaml
+uv run cmp-check-user-guide --root .
 uv run pytest
 npm ci --workspaces --include-workspace-root
 npm run check

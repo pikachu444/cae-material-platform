@@ -3,7 +3,7 @@ export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
 export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
-.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts generate-client \
+.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
 	web-build web-test run-api run-worker run-worker-once ci
 
@@ -28,6 +28,9 @@ check-architecture:
 check-contracts:
 	$(UV) run cmp-check-contracts lint --root .
 	$(UV) run cmp-check-contracts compat --baseline contracts/http/openapi.baseline.yaml --current contracts/http/openapi.yaml
+
+docs-screenshots:
+	$(UV) run cmp-check-user-guide --root .
 
 generate-client:
 	$(UV) run cmp-generate-client --contract contracts/http/openapi.yaml --output generated/python/cmp_api_client/client.py

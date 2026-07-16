@@ -36,7 +36,7 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
 - missing product depth: T-47 operations and large external-worker bundle assembly
-- user experience gap: global navigation and task-oriented user manual from T-46
+- user experience: T-46 global navigation, contextual Material tabs and task-oriented guide gate complete
 
 Migrations 001~055, raw objects, prior revisions, cards, releases and golden fixtures are never
 rewritten. The next schema unit begins at migration 056.
@@ -53,7 +53,7 @@ rewritten. The next schema unit begins at migration 056.
 | 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | complete |
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
-| 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | pending |
+| 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
 | 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security evidence | pending |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
@@ -154,6 +154,15 @@ The PR 8 exit gate passed a fresh PostgreSQL 16 `001→056` migration and `056�
 613 Python tests with zero skips/failures, 36 Vitest tests, ruff, mypy over 526 source files,
 architecture/contracts/OpenAPI compatibility, production Vite build and npm audit with zero
 vulnerabilities.
+
+PR 9 implements T-46 without a schema migration. Seven global routes select a real visible Material
+before entering contextual Overview/Test data/Datasets & Processing/Models & Cards/Governance
+deep links. Existing Material URLs remain valid, and unrelated workbenches no longer load on every
+Material view. The machine-readable navigation contract, Korean troubleshooting guide and
+`cmp-check-user-guide` add a CI gate for route/guide/screenshot drift. Verification passed 614
+Python tests, 38 Vitest tests, ruff/mypy/architecture/contracts/OpenAPI/build and the
+12-document/20-capture/7-route guide check. Docker browser evidence covered Models and Governance
+hubs plus the DP780 model context without visible application errors.
 
 The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
 the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,

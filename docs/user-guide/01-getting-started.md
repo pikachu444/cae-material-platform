@@ -47,6 +47,9 @@ Demo identity는 `demo` mode에서만 발급됩니다. production identity 또�
 저장할 때마다 새 immutable revision이 생깁니다. 브라우저 form을 고치는 것이 이미 저장된
 revision을 바꾸지 않습니다.
 
+상단 메뉴와 Material 문맥 탭의 역할, 연결·분류·mapping·다운로드 문제 해결은
+[메뉴와 Material 작업공간 사용법](10-navigation-and-troubleshooting.md)을 참고하십시오.
+
 ![Material 상세](../15-demo/images/e2e-material-detail.png)
 
 ## 종료와 데이터 주의

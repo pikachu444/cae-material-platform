@@ -8,12 +8,14 @@ download 동작을 바꾸는 PR은 코드만으로 완료되지 않는다.
 1. 영향을 받는 `docs/user-guide/` 문서를 갱신한다.
 2. `screenshot-manifest.yaml`의 workflow/route/fixture/이미지 항목을 갱신한다.
 3. deterministic demo seed와 연결된 browser E2E를 실행한다.
-4. 1440x900 viewport에서 새 화면을 capture한다.
+4. 기본 1440x900 desktop viewport에서 capture한다. Codex in-app browser처럼 host가 viewport를
+   고정하면 manifest에 실제 `width`/`height`를 기록하고 최소 800x700을 유지한다.
 5. token, confidential data, 개인 계정과 로컬 개인 경로가 이미지에 없는지 검토한다.
 6. 이미지가 단순 장식이 아니라 해당 작업의 입력·결과·warning을 보여 주는지 확인한다.
 
-T-46은 `make docs-screenshots`와 CI verification을 구현한다. 그 전까지는 현재 browser E2E
-evidence 절차를 사용하고 PR 본문에 수동 capture/검토 결과를 기록한다.
+`make docs-screenshots`는 guide link, 전역 navigation contract, manifest, PNG 크기와 선언된
+viewport drift를 검증한다. 화면 capture 자체는 deterministic demo fixture와 연결된 browser
+E2E로 수행하고 PR 본문에 token/confidential-data 검토 결과를 기록한다.
 
 ## 이미지 변경 원칙
 

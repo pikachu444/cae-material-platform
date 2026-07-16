@@ -996,3 +996,25 @@ T-45 verification on 2026-07-16 passed a fresh PostgreSQL 16 `001→056` migrati
 failures, 36 Vitest tests, ruff, mypy over 526 source files, architecture/contract lint, OpenAPI
 compatibility and the production Vite build; clean npm install/audit reported zero vulnerabilities.
 
+## T-46 product navigation and user-guide gate (2026-07-16)
+
+The React service now exposes global Dashboard, Materials, Tests, Datasets, Models, Exports and
+Governance routes. Tests/Datasets/Models/Governance read the real scoped Material Catalog and route
+the user into stable Material identity context. Existing `/materials/{id}` deep links remain the
+Overview; `/testing`, `/datasets`, `/models` and `/governance` render only the relevant workbenches
+for each exact Material State, reducing unrelated API calls and long-page ambiguity. The global
+Governance hub contains the connected Review, Release and Lineage/Audit inspectors.
+
+A Korean navigation/troubleshooting guide describes the end-to-end task order and token, empty
+context, class compatibility, mapping and Bundle failures. The machine-readable navigation
+contract and `cmp-check-user-guide` verify guide links, seven route labels, screenshot manifest
+uniqueness, image existence/size and declared viewport dimensions. The command is available as
+`make docs-screenshots` and runs in CI. Docker browser evidence records both the Models hub and
+DP780 Models & Cards context with no token or confidential data visible.
+
+T-46 verification on 2026-07-16 passed 614 Python tests with zero skips/failures, 38 Vitest
+tests, ruff, mypy over 528 source files, architecture/contract/OpenAPI compatibility, the new
+12-document/20-capture/7-route guide gate and the production Vite build. The connected Docker
+browser also opened the global Governance hub with the real Review, Release and Lineage/Audit
+workbenches and showed no visible application error.
+
