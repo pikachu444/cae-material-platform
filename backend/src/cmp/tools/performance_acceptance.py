@@ -589,6 +589,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--base-url", default="http://127.0.0.1:5173/api/v1")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--http-timeout-seconds", type=float, default=60)
     parser.add_argument("--samples", type=int, default=30)
     parser.add_argument("--warmups", type=int, default=5)
     parser.add_argument("--bundle-download-samples", type=int, default=5)
@@ -614,9 +615,11 @@ def main(argv: list[str] | None = None) -> None:
         )
     if not 1 <= args.samples <= 1000 or not 0 <= args.warmups <= 100:
         raise PerformanceAcceptanceError("sample and warmup counts are outside bounded policy")
+    if not 1 <= args.http_timeout_seconds <= 3600:
+        raise PerformanceAcceptanceError("HTTP timeout must be between 1 and 3600 seconds")
     root = args.root.resolve(strict=True)
     source_commit = _git_commit(root)
-    client = FullStackClient(args.base_url)
+    client = FullStackClient(args.base_url, timeout_seconds=args.http_timeout_seconds)
     health = client.request("/health", authenticated=False)
     client.authenticate_demo()
     catalog = _catalog_benchmark(
@@ -662,6 +665,7 @@ def main(argv: list[str] | None = None) -> None:
         "environment": {
             "api_base_url": args.base_url,
             "health_status": health.status,
+            "http_timeout_seconds": args.http_timeout_seconds,
             "platform": platform.platform(),
             "python": platform.python_version(),
         },

@@ -46,7 +46,7 @@ performance-fixture:
 	$(UV) run cmp-performance-fixture --postgres-dsn "$(CMP_PERFORMANCE_POSTGRES_DSN)" --acknowledge-immutable-synthetic-write
 
 performance-production-scale:
-	$(UV) run cmp-performance-acceptance --base-url http://127.0.0.1:18000/api/v1 --upload-bytes 2147483648 --upload-part-bytes 67108864 --upload-maximum-python-memory-mib 192 --acknowledge-immutable-demo-write --require-production-scale
+	$(UV) run cmp-performance-acceptance --base-url http://127.0.0.1:18000/api/v1 --http-timeout-seconds 900 --upload-bytes 2147483648 --upload-part-bytes 67108864 --upload-maximum-python-memory-mib 192 --acknowledge-immutable-demo-write --require-production-scale
 
 migrate:
 	@test -n "$(CMP_DATABASE_URL)" || (echo "CMP_DATABASE_URL is required" && exit 2)
