@@ -90,8 +90,19 @@ class FullStackClient:
                 "API base URL must be an HTTP(S) origin/path without credentials"
             )
         self.base_url = base_url.rstrip("/")
+        self._base_path = parsed.path.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self._token: str | None = None
+
+    def url_for(self, path: str) -> str:
+        if not path.startswith("/") or "\x00" in path:
+            raise PerformanceAcceptanceError("API request path must be absolute and safe")
+        relative = path
+        if self._base_path and (
+            path == self._base_path or path.startswith(f"{self._base_path}/")
+        ):
+            relative = path[len(self._base_path) :] or "/"
+        return f"{self.base_url}{relative}"
 
     def authenticate_demo(self) -> None:
         result = self.request("/demo-identity/token", authenticated=False)
@@ -111,15 +122,13 @@ class FullStackClient:
         authenticated: bool = True,
         expected: tuple[int, ...] = (200,),
     ) -> HttpResult:
-        if not path.startswith("/") or "\x00" in path:
-            raise PerformanceAcceptanceError("API request path must be absolute and safe")
         request_headers = {"Accept": "application/json", **(headers or {})}
         if authenticated:
             if self._token is None:
                 raise PerformanceAcceptanceError("API request requires demo authentication")
             request_headers["Authorization"] = f"Bearer {self._token}"
         request = Request(
-            f"{self.base_url}{path}", data=body, headers=request_headers, method=method
+            self.url_for(path), data=body, headers=request_headers, method=method
         )
         try:
             with urlopen(request, timeout=self.timeout_seconds) as response:

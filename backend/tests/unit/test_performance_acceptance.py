@@ -78,3 +78,12 @@ def test_performance_report_rejects_substitution(tmp_path: Path) -> None:
 def test_full_stack_client_rejects_unsafe_base_url(url: str) -> None:
     with pytest.raises(PerformanceAcceptanceError, match="base URL"):
         FullStackClient(url)
+
+
+def test_full_stack_client_does_not_duplicate_absolute_api_base_path() -> None:
+    client = FullStackClient("http://127.0.0.1:5173/api/v1")
+
+    assert client.url_for("/materials") == "http://127.0.0.1:5173/api/v1/materials"
+    assert client.url_for("/api/v1/artifacts/one/content") == (
+        "http://127.0.0.1:5173/api/v1/artifacts/one/content"
+    )
