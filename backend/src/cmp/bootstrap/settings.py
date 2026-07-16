@@ -35,6 +35,15 @@ class Settings:
     bulk_export_external_member_maximum_bytes: int = 64 * 1024 * 1024
     bulk_export_job_lease_seconds: int = 120
     worker_access_token: str | None = None
+    worker_access_token_file: str | None = None
+    event_connector_kind: str = "none"
+    event_connector_endpoint: str | None = None
+    event_connector_allow_loopback_http: bool = False
+    event_connector_bearer_token_file: str | None = None
+    event_signer_command_json: str | None = None
+    event_signer_trusted_public_key: str | None = None
+    event_signer_expected_key_id: str | None = None
+    event_signer_timeout_seconds: float = 30.0
     otel_exporter_otlp_endpoint: str | None = None
     otel_metric_export_interval_ms: int = 10_000
     oidc_issuer: str | None = None
@@ -128,6 +137,15 @@ class Settings:
                 os.getenv("CMP_BULK_EXPORT_JOB_LEASE_SECONDS", "120")
             ),
             worker_access_token=optional("CMP_WORKER_ACCESS_TOKEN"),
+            worker_access_token_file=optional("CMP_WORKER_ACCESS_TOKEN_FILE"),
+            event_connector_kind=os.getenv("CMP_EVENT_CONNECTOR_KIND", "none"),
+            event_connector_endpoint=optional("CMP_EVENT_CONNECTOR_ENDPOINT"),
+            event_connector_allow_loopback_http=boolean("CMP_EVENT_CONNECTOR_ALLOW_LOOPBACK_HTTP"),
+            event_connector_bearer_token_file=optional("CMP_EVENT_CONNECTOR_BEARER_TOKEN_FILE"),
+            event_signer_command_json=optional("CMP_EVENT_SIGNER_COMMAND_JSON"),
+            event_signer_trusted_public_key=optional("CMP_EVENT_SIGNER_TRUSTED_PUBLIC_KEY"),
+            event_signer_expected_key_id=optional("CMP_EVENT_SIGNER_EXPECTED_KEY_ID"),
+            event_signer_timeout_seconds=float(os.getenv("CMP_EVENT_SIGNER_TIMEOUT_SECONDS", "30")),
             otel_exporter_otlp_endpoint=optional("OTEL_EXPORTER_OTLP_ENDPOINT"),
             otel_metric_export_interval_ms=int(
                 os.getenv("CMP_OTEL_METRIC_EXPORT_INTERVAL_MS", "10000")

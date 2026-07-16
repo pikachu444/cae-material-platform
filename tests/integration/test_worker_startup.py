@@ -25,9 +25,10 @@ def test_worker_starts_one_empty_cycle_and_exits() -> None:
 
     assert json.loads(completed.stdout) == {
         "bulk_export_enabled": False,
+        "event_delivery_enabled": False,
+        "events_published": 0,
         "handlers_registered": 0,
         "service": "cmp-worker",
         "status": "idle",
-            "version": "0.32.0",
+        "version": "0.32.0",
     }
-

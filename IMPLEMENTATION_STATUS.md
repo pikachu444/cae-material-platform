@@ -1280,3 +1280,18 @@ failures, ruff, mypy over 551 source files, architecture and contract lint, Open
 with zero vulnerabilities. The workstation has neither GNU Make nor Git Bash, so the exact commands
 from `scripts/ci.sh` were run in PowerShell rather than through the `make ci` wrapper.
 
+## T-47 signed connector and worker identity subset (2026-07-17)
+
+Existing tenant-scoped transactional-outbox events can now be wrapped in a deterministic externally
+signed delivery manifest and published through HTTPS REST/webhook or immutable object storage.
+HTTP delivery requires an exact digest acknowledgement and event-ID idempotency key; redirects,
+URL credentials/query secrets and non-loopback HTTP are rejected. Object delivery uses immutable
+organization/project/event/digest keys and is replay-idempotent. Existing outbox lease, retry,
+poison and published-time records remain the delivery authority.
+
+Worker OIDC tokens and optional receiver bearer tokens can be atomically rotated through bounded,
+non-symlink files and are read for every cycle/delivery. Production rejects an inline worker token.
+Ten new connector/rotation tests pass together with the existing event/worker tests. A real external
+receiver, signer, IdP/workload-identity sidecar and during-delivery token-rotation/outage drill were
+not available and remain live production acceptance conditions.
+
