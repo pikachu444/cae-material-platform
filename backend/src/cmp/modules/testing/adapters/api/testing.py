@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Header, Request, Response, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
@@ -30,12 +30,15 @@ from cmp.modules.testing.application.service import (
     CreateReferenceTensileMethod,
     CreateReferenceTensileRun,
     CreateSpecimen,
+    CreateSpecimenSource,
     DetectSyntheticCsvImport,
     ImportDetectionReportSnapshot,
     ImportMappingSnapshot,
     ReviseReferenceImportMapping,
+    ReviseSpecimenSource,
     RevisionSnapshot,
     SpecimenSnapshot,
+    SpecimenSourceSnapshot,
     TestingService,
     TestMethodSnapshot,
     TestRunSnapshot,
@@ -54,8 +57,23 @@ from cmp.modules.testing.domain.reference_tensile import (
     TestMethodContent,
     TestRunContent,
 )
-from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataResponse
-from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionKernelError, RevisionRecord
+from cmp.modules.testing.domain.specimen_source import (
+    SpecimenSourceContent,
+    SpecimenSourceLot,
+)
+from cmp.shared.contracts.revisions import (
+    InvalidRevisionETag,
+    RevisionETag,
+    RevisionMetadataResponse,
+    RevisionPreconditionFailed,
+    require_matching_if_match,
+)
+from cmp.shared.domain.revisions import (
+    AggregateAlreadyExists,
+    RevisionConflict,
+    RevisionKernelError,
+    RevisionRecord,
+)
 
 type Label = Annotated[str, StringConstraints(min_length=1, max_length=255)]
 type Dependency = Callable[..., object]
@@ -69,6 +87,43 @@ class SpecimenCreateRequest(BaseModel):
     orientation: Annotated[str, StringConstraints(min_length=1, max_length=100)] | None = None
     preparation_note: Annotated[str, StringConstraints(min_length=1, max_length=2000)] | None = None
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class SpecimenSourceLotInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_lot_id: UUID
+    material_lot_revision_id: UUID
+    note: Annotated[str | None, StringConstraints(min_length=1, max_length=1000)] = None
+
+    def to_domain(self) -> SpecimenSourceLot:
+        return SpecimenSourceLot(self.material_lot_id, self.material_lot_revision_id, self.note)
+
+
+class SpecimenSourceContentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    specimen_revision_id: UUID
+    sources: tuple[SpecimenSourceLotInput, ...] = Field(min_length=1)
+    note: Annotated[str | None, StringConstraints(min_length=1, max_length=2000)] = None
+
+    def to_domain(self, specimen_id: UUID) -> SpecimenSourceContent:
+        return SpecimenSourceContent(
+            specimen_id=specimen_id,
+            specimen_revision_id=self.specimen_revision_id,
+            sources=tuple(item.to_domain() for item in self.sources),
+            note=self.note,
+        )
+
+
+class SpecimenSourceCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    content: SpecimenSourceContentInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class SpecimenSourceReviseRequest(SpecimenSourceCreateRequest):
+    pass
 
 
 class ReferenceMethodCreateRequest(BaseModel):
@@ -159,6 +214,40 @@ class SpecimenContentResponse(BaseModel):
             specimen_code=value.specimen_code,
             orientation=value.orientation,
             preparation_note=value.preparation_note,
+        )
+
+
+class SpecimenSourceLotResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_lot_id: UUID
+    material_lot_revision_id: UUID
+    note: str | None
+
+    @classmethod
+    def from_domain(cls, value: SpecimenSourceLot) -> SpecimenSourceLotResponse:
+        return cls(
+            material_lot_id=value.material_lot_id,
+            material_lot_revision_id=value.material_lot_revision_id,
+            note=value.note,
+        )
+
+
+class SpecimenSourceContentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    specimen_id: UUID
+    specimen_revision_id: UUID
+    sources: tuple[SpecimenSourceLotResponse, ...]
+    note: str | None
+
+    @classmethod
+    def from_domain(cls, value: SpecimenSourceContent) -> SpecimenSourceContentResponse:
+        return cls(
+            specimen_id=value.specimen_id,
+            specimen_revision_id=value.specimen_revision_id,
+            sources=tuple(SpecimenSourceLotResponse.from_domain(item) for item in value.sources),
+            note=value.note,
         )
 
 
@@ -349,6 +438,20 @@ class SpecimenRevisionResponse(RevisionMetadataResponse):
         )
 
 
+class SpecimenSourceRevisionResponse(RevisionMetadataResponse):
+    content: SpecimenSourceContentResponse
+
+    @classmethod
+    def from_snapshot(
+        cls, value: RevisionSnapshot[SpecimenSourceContent]
+    ) -> SpecimenSourceRevisionResponse:
+        metadata = RevisionMetadataResponse.from_record(value.record, "draft")
+        return cls(
+            **metadata.model_dump(),
+            content=SpecimenSourceContentResponse.from_domain(value.content),
+        )
+
+
 class TestMethodRevisionResponse(RevisionMetadataResponse):
     content: TestMethodContentResponse
 
@@ -390,6 +493,25 @@ class SpecimenResponse(BaseModel):
             material_state_id=value.material_state_id,
             current_revision=SpecimenRevisionResponse.from_snapshot(value.current),
             links={"self": f"/api/v1/specimens/{value.id}"},
+        )
+
+
+class SpecimenSourceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    specimen_source_genealogy_id: UUID
+    specimen_id: UUID
+    current_revision: SpecimenSourceRevisionResponse
+    links: dict[str, str]
+
+    @classmethod
+    def from_snapshot(cls, value: SpecimenSourceSnapshot) -> SpecimenSourceResponse:
+        root = f"/api/v1/specimen-source-genealogies/{value.id}"
+        return cls(
+            specimen_source_genealogy_id=value.id,
+            specimen_id=value.specimen_id,
+            current_revision=SpecimenSourceRevisionResponse.from_snapshot(value.current),
+            links={"self": root, "revisions": f"{root}/revisions"},
         )
 
 
@@ -467,6 +589,7 @@ class TestingHttpError(Exception):
         title: str,
         detail: str,
         code: str,
+        current_etag: RevisionETag | None = None,
     ) -> None:
         self.context = context
         self.problem = TestingProblem(
@@ -477,6 +600,7 @@ class TestingHttpError(Exception):
             code=code,
             trace_id=context.trace_id,
         )
+        self.current_etag = current_etag
         super().__init__(title)
 
 
@@ -507,7 +631,16 @@ def _translate(context: SecurityContext, error: Exception) -> TestingHttpError:
             detail="No requested concrete testing record is visible in the selected tenant.",
             code="CMP-TESTING-0001",
         )
-    if isinstance(error, (InvalidTestingData, ValueError)):
+    if isinstance(error, (RevisionPreconditionFailed, RevisionConflict)):
+        return TestingHttpError(
+            context=context,
+            status_code=412,
+            title="Revision precondition failed",
+            detail="The immutable revision head changed; reload it before retrying.",
+            code="CMP-TESTING-0004",
+            current_etag=RevisionETag.from_ref(error.current),
+        )
+    if isinstance(error, (InvalidRevisionETag, InvalidTestingData, ValueError)):
         return TestingHttpError(
             context=context,
             status_code=422,
@@ -570,11 +703,17 @@ def install_testing_api(
     @application.exception_handler(TestingHttpError)
     async def testing_error_handler(request: Request, error: TestingHttpError) -> JSONResponse:
         del request
+        headers = {
+            "Cache-Control": "no-store",
+            "X-Request-ID": str(error.context.request_id),
+        }
+        if error.current_etag is not None:
+            headers["ETag"] = str(error.current_etag)
         return JSONResponse(
             status_code=error.problem.status,
             content=error.problem.model_dump(mode="json"),
             media_type="application/problem+json",
-            headers={"Cache-Control": "no-store", "X-Request-ID": str(error.context.request_id)},
+            headers=headers,
         )
 
     errors: dict[int | str, dict[str, Any]] = {
@@ -582,6 +721,7 @@ def install_testing_api(
         403: {"model": TestingProblem},
         404: {"model": TestingProblem},
         409: {"model": TestingProblem},
+        412: {"model": TestingProblem},
         422: {"model": TestingProblem},
         503: {"model": TestingProblem},
     }
@@ -642,6 +782,99 @@ def install_testing_api(
         return SpecimenListResponse(
             items=tuple(SpecimenResponse.from_snapshot(item) for item in items)
         )
+
+    @application.post(
+        "/api/v1/specimens/{specimen_id}/source-genealogy",
+        operation_id="createSpecimenSourceGenealogy",
+        response_model=SpecimenSourceResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+        summary="Create ordered exact Material Lot sources for a Specimen revision.",
+    )
+    def create_specimen_source(
+        request: Request,
+        response: Response,
+        specimen_id: UUID,
+        body: SpecimenSourceCreateRequest,
+    ) -> SpecimenSourceResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.create_specimen_source(
+                context,
+                decision,
+                CreateSpecimenSource(body.content.to_domain(specimen_id), body.change_reason),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/specimen-source-genealogies/{result.id}"
+        _etag(response, result.current.record)
+        return SpecimenSourceResponse.from_snapshot(result)
+
+    @application.get(
+        "/api/v1/specimens/{specimen_id}/source-genealogy",
+        operation_id="getSpecimenSourceGenealogy",
+        response_model=SpecimenSourceResponse | None,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["testing"],
+        summary="Read exact Material Lot revisions used by the current Specimen source head.",
+    )
+    def get_specimen_source(
+        request: Request, response: Response, specimen_id: UUID
+    ) -> SpecimenSourceResponse | None:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            result = service.get_specimen_source_for_specimen(context, decision, specimen_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        if result is None:
+            response.headers["Cache-Control"] = "no-store"
+            return None
+        _etag(response, result.current.record)
+        return SpecimenSourceResponse.from_snapshot(result)
+
+    @application.post(
+        "/api/v1/specimen-source-genealogies/{specimen_source_id}/revisions",
+        operation_id="reviseSpecimenSourceGenealogy",
+        response_model=SpecimenSourceResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["testing"],
+        summary="Append a Specimen source correction using a strong ETag precondition.",
+    )
+    def revise_specimen_source(
+        request: Request,
+        response: Response,
+        specimen_source_id: UUID,
+        body: SpecimenSourceReviseRequest,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> SpecimenSourceResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            current = service.get_specimen_source_for_write(context, decision, specimen_source_id)
+            expected = require_matching_if_match(if_match, current.current.record.ref)
+            result = service.revise_specimen_source(
+                context,
+                decision,
+                specimen_source_id,
+                ReviseSpecimenSource(
+                    expected,
+                    body.content.to_domain(current.specimen_id),
+                    body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        _etag(response, result.current.record)
+        return SpecimenSourceResponse.from_snapshot(result)
 
     @application.post(
         "/api/v1/test-methods/reference-uniaxial-tensile",

@@ -19,6 +19,9 @@ genealogy도 화면에 보이는 최신 label이 아니라 선택한 exact revis
 
 ![Process와 Lot exact-revision genealogy](../15-demo/images/process-lot-genealogy.png)
 
+Process Run split/merge와 Specimen 원재료 연결 절차는
+[Process Run과 Specimen source Lot 연결](06-process-run-genealogy.md)을 따르십시오.
+
 ## Mapping status
 
 | 상태 | 사용자 해석 |

@@ -34,6 +34,7 @@ from cmp.modules.testing.domain.reference_tensile import (
     TestMethodContent,
     TestRunContent,
 )
+from cmp.modules.testing.domain.specimen_source import SpecimenSourceContent
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     ReviseAggregate,
@@ -46,11 +47,13 @@ SPECIMEN_AGGREGATE_TYPE = "testing.specimen"
 TEST_METHOD_AGGREGATE_TYPE = "testing.test_method"
 TEST_RUN_AGGREGATE_TYPE = "testing.test_run"
 IMPORT_MAPPING_AGGREGATE_TYPE = "testing.import_mapping"
+SPECIMEN_SOURCE_AGGREGATE_TYPE = "testing.specimen_source_genealogy"
 SPECIMEN_SCHEMA_ID = "urn:cmp:testing:reference-specimen:1.0.0"
 TEST_METHOD_SCHEMA_ID = "urn:cmp:testing:reference-uniaxial-tensile-method:1.0.0"
 TEST_RUN_SCHEMA_ID = "urn:cmp:testing:reference-uniaxial-tensile-run:1.0.0"
 SHEAR_RELAXATION_METHOD_SCHEMA_ID = "urn:cmp:testing:reference-shear-relaxation-method:1.0.0"
 SHEAR_RELAXATION_RUN_SCHEMA_ID = "urn:cmp:testing:reference-shear-relaxation-run:1.0.0"
+SPECIMEN_SOURCE_SCHEMA_ID = "urn:cmp:testing:specimen-source-genealogy:1.0.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +81,13 @@ class TestRunSnapshot:
     specimen_id: UUID
     test_method_id: UUID
     current: RevisionSnapshot[TestRunContent]
+
+
+@dataclass(frozen=True, slots=True)
+class SpecimenSourceSnapshot:
+    id: UUID
+    specimen_id: UUID
+    current: RevisionSnapshot[SpecimenSourceContent]
 
 
 @dataclass(frozen=True, slots=True)
@@ -110,12 +120,32 @@ class MaterialStateSource:
 
 
 @dataclass(frozen=True, slots=True)
+class MaterialLotSource:
+    classification: DataClassification
+    material_id: UUID
+    material_revision_id: UUID
+
+
+@dataclass(frozen=True, slots=True)
 class CreateSpecimen:
     material_state_id: UUID
     material_state_revision_id: UUID
     specimen_code: str
     orientation: str | None
     preparation_note: str | None
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class CreateSpecimenSource:
+    content: SpecimenSourceContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseSpecimenSource:
+    expected_current_revision_id: UUID
+    content: SpecimenSourceContent
     change_reason: str
 
 
@@ -201,6 +231,10 @@ class TestingRepository(Protocol):
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[ReferenceImportMappingContent]: ...
 
+    def specimen_source_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[SpecimenSourceContent]: ...
+
     def create_import_detection_report(
         self,
         *,
@@ -273,6 +307,15 @@ class TestingRepository(Protocol):
         test_method_revision_id: UUID,
     ) -> tuple[DataClassification, TestMethodContent]: ...
 
+    def load_material_lot_source(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_lot_id: UUID,
+        material_lot_revision_id: UUID,
+    ) -> MaterialLotSource: ...
+
     def get_specimen(
         self,
         *,
@@ -319,6 +362,22 @@ class TestingRepository(Protocol):
         decision: AuthorizationDecision,
         material_state_id: UUID,
     ) -> tuple[TestRunSnapshot, ...]: ...
+
+    def get_specimen_source_for_specimen(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_id: UUID,
+    ) -> SpecimenSourceSnapshot | None: ...
+
+    def get_specimen_source(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_source_id: UUID,
+    ) -> SpecimenSourceSnapshot: ...
 
 
 def _require(
@@ -415,6 +474,118 @@ class TestingService:
             specimen_id,
             source.content.material_state_id,
             RevisionSnapshot(record, source.content),
+        )
+
+    def _validate_specimen_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: SpecimenSourceContent,
+    ) -> tuple[DataClassification, SpecimenContent]:
+        classification, specimen = self._repository.load_specimen_source(
+            context=context,
+            decision=decision,
+            specimen_id=content.specimen_id,
+            specimen_revision_id=content.specimen_revision_id,
+        )
+        for item in content.sources:
+            lot = self._repository.load_material_lot_source(
+                context=context,
+                decision=decision,
+                material_lot_id=item.material_lot_id,
+                material_lot_revision_id=item.material_lot_revision_id,
+            )
+            if lot.classification is not classification:
+                raise TestingConflict("Specimen source Lot cannot cross classification boundaries")
+            if (
+                lot.material_id != specimen.material_id
+                or lot.material_revision_id != specimen.material_revision_id
+            ):
+                raise TestingConflict(
+                    "Specimen source Lot must pin the Material revision used by the Specimen"
+                )
+        return classification, specimen
+
+    def create_specimen_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateSpecimenSource,
+    ) -> SpecimenSourceSnapshot:
+        _require(context, decision, Permission.TESTING_WRITE)
+        classification, _ = self._validate_specimen_source(context, decision, command.content)
+        if (
+            self._repository.get_specimen_source_for_specimen(
+                context=context,
+                decision=decision,
+                specimen_id=command.content.specimen_id,
+            )
+            is not None
+        ):
+            raise TestingConflict("Specimen already has a stable source genealogy identity")
+        aggregate_id = self._id()
+        record = RevisionService(
+            aggregate_type=SPECIMEN_SOURCE_AGGREGATE_TYPE,
+            store=self._repository.specimen_source_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=TenantScope(
+                    context.organization_id, context.project_id, classification.value
+                ),
+                schema_id=SPECIMEN_SOURCE_SCHEMA_ID,
+                schema_version="1.0.0",
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return SpecimenSourceSnapshot(
+            aggregate_id,
+            command.content.specimen_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def revise_specimen_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_source_id: UUID,
+        command: ReviseSpecimenSource,
+    ) -> SpecimenSourceSnapshot:
+        _require(context, decision, Permission.TESTING_WRITE)
+        current = self._repository.get_specimen_source(
+            context=context, decision=decision, specimen_source_id=specimen_source_id
+        )
+        if command.content.specimen_id != current.specimen_id:
+            raise TestingConflict("Specimen source genealogy cannot move to another Specimen")
+        classification, _ = self._validate_specimen_source(context, decision, command.content)
+        if classification.value != current.current.record.scope.classification:
+            raise TestingConflict("Specimen source genealogy cannot cross classification")
+        record = RevisionService(
+            aggregate_type=SPECIMEN_SOURCE_AGGREGATE_TYPE,
+            store=self._repository.specimen_source_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=specimen_source_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=SPECIMEN_SOURCE_SCHEMA_ID,
+                schema_version="1.0.0",
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return SpecimenSourceSnapshot(
+            specimen_source_id,
+            current.specimen_id,
+            RevisionSnapshot(record, command.content),
         )
 
     def create_reference_tensile_method(
@@ -846,6 +1017,28 @@ class TestingService:
         _require(context, decision, Permission.TESTING_READ)
         return self._repository.get_specimen(
             context=context, decision=decision, specimen_id=specimen_id
+        )
+
+    def get_specimen_source_for_specimen(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_id: UUID,
+    ) -> SpecimenSourceSnapshot | None:
+        _require(context, decision, Permission.TESTING_READ)
+        return self._repository.get_specimen_source_for_specimen(
+            context=context, decision=decision, specimen_id=specimen_id
+        )
+
+    def get_specimen_source_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_source_id: UUID,
+    ) -> SpecimenSourceSnapshot:
+        _require(context, decision, Permission.TESTING_WRITE)
+        return self._repository.get_specimen_source(
+            context=context, decision=decision, specimen_source_id=specimen_source_id
         )
 
     def list_specimens_for_material_state(

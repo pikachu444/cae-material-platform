@@ -19,14 +19,17 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.testing.application.service import (
     IMPORT_MAPPING_AGGREGATE_TYPE,
     SPECIMEN_AGGREGATE_TYPE,
+    SPECIMEN_SOURCE_AGGREGATE_TYPE,
     TEST_METHOD_AGGREGATE_TYPE,
     TEST_RUN_AGGREGATE_TYPE,
     ImportDetectionReportSnapshot,
     ImportMappingRevisionSnapshot,
     ImportMappingSnapshot,
+    MaterialLotSource,
     MaterialStateSource,
     RevisionSnapshot,
     SpecimenSnapshot,
+    SpecimenSourceSnapshot,
     TestingRepository,
     TestMethodSnapshot,
     TestRunSnapshot,
@@ -46,6 +49,11 @@ from cmp.modules.testing.domain.reference_tensile import (
     specimen_canonical,
     test_method_canonical,
     test_run_canonical,
+)
+from cmp.modules.testing.domain.specimen_source import (
+    SpecimenSourceContent,
+    SpecimenSourceLot,
+    specimen_source_canonical,
 )
 from cmp.shared.adapters.persistence.revisions import (
     SqlAlchemyRevisionStore,
@@ -281,6 +289,69 @@ catalog_material_state_revision_table = sa.Table(
     sa.Column("material_revision_id", sa.Uuid(), nullable=False),
     schema="catalog",
 )
+catalog_material_lot_revision_table = sa.Table(
+    "material_lot_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_id", sa.Uuid(), nullable=False),
+    sa.Column("material_revision_id", sa.Uuid(), nullable=False),
+    schema="catalog",
+)
+specimen_source_table = sa.Table(
+    "specimen_source_genealogy",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("specimen_id", sa.Uuid(), nullable=False),
+    sa.Column("current_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+    schema="testing",
+)
+specimen_source_revision_table = sa.Table(
+    "specimen_source_genealogy_revision",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("aggregate_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("revision_no", sa.BigInteger(), nullable=False),
+    sa.Column("based_on_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("schema_id", sa.String(255), nullable=False),
+    sa.Column("schema_version", sa.String(64), nullable=False),
+    sa.Column("content_hash", sa.CHAR(64), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    sa.Column("change_reason", sa.Text(), nullable=False),
+    sa.Column("request_id", sa.Uuid(), nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    sa.Column("specimen_id", sa.Uuid(), nullable=False),
+    sa.Column("specimen_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("note", sa.Text(), nullable=True),
+    schema="testing",
+)
+specimen_source_lot_table = sa.Table(
+    "specimen_source_lot",
+    metadata,
+    sa.Column("specimen_source_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("specimen_source_genealogy_id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("ordinal", sa.Integer(), nullable=False),
+    sa.Column("material_lot_id", sa.Uuid(), nullable=False),
+    sa.Column("material_lot_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("note", sa.Text(), nullable=True),
+    schema="testing",
+)
 
 
 def _record(row: Any, aggregate_type: str) -> RevisionRecord:
@@ -410,6 +481,17 @@ def _mapping_content(row: Any) -> ReferenceImportMappingContent:
     return content
 
 
+def _specimen_source_content(
+    row: Any, sources: tuple[SpecimenSourceLot, ...]
+) -> SpecimenSourceContent:
+    return SpecimenSourceContent(
+        specimen_id=cast(UUID, row["specimen_id"]),
+        specimen_revision_id=cast(UUID, row["specimen_revision_id"]),
+        sources=sources,
+        note=str(row["note"]) if row["note"] is not None else None,
+    )
+
+
 def _specimen_values(value: SpecimenContent) -> dict[str, object]:
     return {
         "material_id": value.material_id,
@@ -461,6 +543,37 @@ def _mapping_values(value: ReferenceImportMappingContent) -> dict[str, object]:
     }
 
 
+def _specimen_source_values(value: SpecimenSourceContent) -> dict[str, object]:
+    return {
+        "specimen_id": value.specimen_id,
+        "specimen_revision_id": value.specimen_revision_id,
+        "note": value.note,
+    }
+
+
+def _write_specimen_source_lots(session: Session, draft: Any) -> None:
+    content = draft.content
+    if not isinstance(content, SpecimenSourceContent):
+        raise TypeError("Specimen source child writer requires SpecimenSourceContent")
+    session.execute(
+        sa.insert(specimen_source_lot_table),
+        [
+            {
+                "specimen_source_revision_id": draft.revision_id,
+                "specimen_source_genealogy_id": draft.aggregate_id,
+                "organization_id": draft.scope.organization_id,
+                "project_id": draft.scope.project_id,
+                "classification": draft.scope.classification,
+                "ordinal": ordinal,
+                "material_lot_id": source.material_lot_id,
+                "material_lot_revision_id": source.material_lot_revision_id,
+                "note": source.note,
+            }
+            for ordinal, source in enumerate(content.sources)
+        ],
+    )
+
+
 _SPECIMEN_TABLES: TypedRevisionTables[SpecimenContent] = TypedRevisionTables(
     aggregate_type=SPECIMEN_AGGREGATE_TYPE,
     identity_table=specimen_table,
@@ -505,6 +618,15 @@ _IMPORT_MAPPING_TABLES: TypedRevisionTables[ReferenceImportMappingContent] = Typ
         "importer_id": value.importer_id,
         "importer_version": value.importer_version,
     },
+)
+_SPECIMEN_SOURCE_TABLES: TypedRevisionTables[SpecimenSourceContent] = TypedRevisionTables(
+    aggregate_type=SPECIMEN_SOURCE_AGGREGATE_TYPE,
+    identity_table=specimen_source_table,
+    revision_table=specimen_source_revision_table,
+    canonical_content=specimen_source_canonical,
+    content_values=_specimen_source_values,
+    identity_values=lambda value: {"specimen_id": value.specimen_id},
+    revision_content_writer=_write_specimen_source_lots,
 )
 
 
@@ -588,6 +710,11 @@ class SqlAlchemyTestingRepository(TestingRepository):
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[ReferenceImportMappingContent]:
         return self._store(context, decision, _IMPORT_MAPPING_TABLES)
+
+    def specimen_source_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[SpecimenSourceContent]:
+        return self._store(context, decision, _SPECIMEN_SOURCE_TABLES)
 
     def create_import_detection_report(
         self,
@@ -746,6 +873,33 @@ class SqlAlchemyTestingRepository(TestingRepository):
             raise TestingNotFound("Test Method revision is not visible in the selected tenant")
         return DataClassification(str(row["classification"])), _method_content(row)
 
+    def load_material_lot_source(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_lot_id: UUID,
+        material_lot_revision_id: UUID,
+    ) -> MaterialLotSource:
+        lot = catalog_material_lot_revision_table
+        statement = sa.select(
+            lot.c.classification, lot.c.material_id, lot.c.material_revision_id
+        ).where(
+            lot.c.organization_id == context.organization_id,
+            lot.c.project_id == context.project_id,
+            lot.c.aggregate_id == material_lot_id,
+            lot.c.id == material_lot_revision_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+        if row is None:
+            raise TestingNotFound("Material Lot revision is not visible in the selected tenant")
+        return MaterialLotSource(
+            classification=DataClassification(str(row["classification"])),
+            material_id=cast(UUID, row["material_id"]),
+            material_revision_id=cast(UUID, row["material_revision_id"]),
+        )
+
     @staticmethod
     def _specimen_snapshot(row: Any) -> SpecimenSnapshot:
         return SpecimenSnapshot(
@@ -782,6 +936,42 @@ class SqlAlchemyTestingRepository(TestingRepository):
         )
 
     @staticmethod
+    def _specimen_source_content_for_row(session: Session, row: Any) -> SpecimenSourceContent:
+        source_rows = (
+            session.execute(
+                sa.select(specimen_source_lot_table)
+                .where(
+                    specimen_source_lot_table.c.organization_id == row["organization_id"],
+                    specimen_source_lot_table.c.project_id == row["project_id"],
+                    specimen_source_lot_table.c.specimen_source_revision_id == row["id"],
+                )
+                .order_by(specimen_source_lot_table.c.ordinal.asc())
+            )
+            .mappings()
+            .all()
+        )
+        sources = tuple(
+            SpecimenSourceLot(
+                material_lot_id=cast(UUID, source["material_lot_id"]),
+                material_lot_revision_id=cast(UUID, source["material_lot_revision_id"]),
+                note=str(source["note"]) if source["note"] is not None else None,
+            )
+            for source in source_rows
+        )
+        return _specimen_source_content(row, sources)
+
+    @classmethod
+    def _specimen_source_snapshot(cls, session: Session, row: Any) -> SpecimenSourceSnapshot:
+        return SpecimenSourceSnapshot(
+            id=cast(UUID, row["identity_id"]),
+            specimen_id=cast(UUID, row["identity_specimen_id"]),
+            current=RevisionSnapshot(
+                _record(row, SPECIMEN_SOURCE_AGGREGATE_TYPE),
+                cls._specimen_source_content_for_row(session, row),
+            ),
+        )
+
+    @staticmethod
     def _current_specimen_statement() -> sa.Select[Any]:
         identity = specimen_table
         revision = specimen_revision_table
@@ -796,6 +986,29 @@ class SqlAlchemyTestingRepository(TestingRepository):
             revision.c.specimen_code,
             revision.c.orientation,
             revision.c.preparation_note,
+        ).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.id == identity.c.current_revision_id,
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    @staticmethod
+    def _current_specimen_source_statement() -> sa.Select[Any]:
+        identity = specimen_source_table
+        revision = specimen_source_revision_table
+        return sa.select(
+            identity.c.id.label("identity_id"),
+            identity.c.specimen_id.label("identity_specimen_id"),
+            *_revision_columns(revision),
+            revision.c.specimen_id,
+            revision.c.specimen_revision_id,
+            revision.c.note,
         ).select_from(
             identity.join(
                 revision,
@@ -1041,6 +1254,42 @@ class SqlAlchemyTestingRepository(TestingRepository):
         if row is None:
             raise TestingNotFound("Specimen is not visible in the selected tenant")
         return self._specimen_snapshot(row)
+
+    def get_specimen_source_for_specimen(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_id: UUID,
+    ) -> SpecimenSourceSnapshot | None:
+        statement = self._current_specimen_source_statement().where(
+            specimen_source_table.c.specimen_id == specimen_id,
+            specimen_source_table.c.organization_id == context.organization_id,
+            specimen_source_table.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+            return self._specimen_source_snapshot(session, row) if row is not None else None
+
+    def get_specimen_source(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_source_id: UUID,
+    ) -> SpecimenSourceSnapshot:
+        statement = self._current_specimen_source_statement().where(
+            specimen_source_table.c.id == specimen_source_id,
+            specimen_source_table.c.organization_id == context.organization_id,
+            specimen_source_table.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+            if row is None:
+                raise TestingNotFound(
+                    "Specimen source genealogy is not visible in the selected tenant"
+                )
+            return self._specimen_source_snapshot(session, row)
 
     def list_specimens_for_material_state(
         self,

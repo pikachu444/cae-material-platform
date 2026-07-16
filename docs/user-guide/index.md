@@ -12,11 +12,13 @@
 3. [Polymer 완화시험에서 Abaqus 점탄성 카드까지](03-polymer-viscoelastic.md)
 4. [Elastomer Ogden--Prony 카드](04-elastomer-ogden-prony.md)
 5. [Revision, provenance와 다운로드 이해](05-revisions-downloads.md)
+6. [Process Run과 Specimen source Lot 연결](06-process-run-genealogy.md)
 
 ## 현재 할 수 있는 일
 
 - Material, Material State, 기본 물성과 immutable revision 등록·조회
 - Process Definition, Lot/Batch와 State genealogy 연결
+- Process Run의 consumed/produced Lot split·merge와 Specimen source Lot exact-pin
 - 인장 또는 shear-relaxation CSV 원본 등록과 명시적 column/unit mapping
 - raw, normalized, processed Dataset과 curve 확인
 - 반복 인장 curve의 alignment/statistics/outlier assessment

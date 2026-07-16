@@ -29,23 +29,23 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 048
+- latest schema: migration 049
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-39~T-45 and T-47
+- missing product depth: T-40~T-45 and T-47
 - user experience gap: global navigation and task-oriented user manual from T-46
 
-Migrations 001~048, raw objects, prior revisions, cards, releases and golden fixtures are never
-rewritten. New schema begins at migration 049.
+Migrations 001~049, raw objects, prior revisions, cards, releases and golden fixtures are never
+rewritten. The next schema unit begins at migration 050.
 
 ## 3. PR 순서와 exit gate
 
 | PR | Task | Required exit gate | Status |
 | --- | --- | --- | --- |
 | 1 | docs/research/user-guide baseline | docs links, contracts and guide checks; no stale README claim | complete |
-| 2 | T-39 Process Run/Lot/Specimen genealogy | unit + migration + live PostgreSQL + API + React + `make ci` | pending |
+| 2 | T-39 Process Run/Lot/Specimen genealogy | unit + migration + live PostgreSQL + API + React + `make ci` | complete |
 | 3 | T-40 Campaign/Instrument/conditions | same vertical gate plus exact calibration snapshot | pending |
 | 4 | T-41 tabular importer/schema | parser/security/contract/PostgreSQL/browser fixtures | pending |
 | 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | pending |
@@ -64,6 +64,14 @@ PR 1 verification on 2026-07-16: user-guide link/manifest validation covered nin
 seven screenshots. The CI-equivalent suite with disposable PostgreSQL 16 completed 553 Python tests
 with zero skip/failure, 28 Vitest tests, ruff, mypy, architecture/contract/OpenAPI checks and the
 production web build.
+
+PR 2 implements T-39 with migration 049: Process Run input/output split/merge, typed decimal and
+unit normalization, balance evidence, cycle rejection, exact Specimen source Lot pinning, protected
+API and connected React controls. The CI-equivalent run on 2026-07-16 passed 561 Python tests and
+30 Vitest tests with no skip/failure, plus ruff, mypy over 473 source files, architecture/contracts,
+OpenAPI compatibility and the production Vite build. Live Docker/PostgreSQL browser verification
+created one balanced Process Run and one current-revision Specimen source link; the resulting image
+is `docs/15-demo/images/process-run-specimen-source.png`.
 
 ## 4. Acceptance scenarios
 

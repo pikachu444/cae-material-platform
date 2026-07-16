@@ -38,12 +38,16 @@ from cmp.modules.identity_access.domain.security import (
 from cmp.modules.testing.adapters.api.testing import install_testing_api
 from cmp.modules.testing.application.service import (
     SPECIMEN_AGGREGATE_TYPE,
+    SPECIMEN_SOURCE_AGGREGATE_TYPE,
     TEST_METHOD_AGGREGATE_TYPE,
     TEST_RUN_AGGREGATE_TYPE,
     CreateReferenceTensileMethod,
     CreateReferenceTensileRun,
     CreateSpecimen,
+    CreateSpecimenSource,
+    ReviseSpecimenSource,
     SpecimenSnapshot,
+    SpecimenSourceSnapshot,
 )
 from cmp.modules.testing.application.service import (
     RevisionSnapshot as RevisionView,
@@ -68,6 +72,10 @@ from cmp.modules.testing.domain.reference_tensile import (
 from cmp.modules.testing.domain.reference_tensile import (
     TestRunContent as RunContent,
 )
+from cmp.modules.testing.domain.specimen_source import (
+    SpecimenSourceContent,
+    SpecimenSourceLot,
+)
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 from fastapi import FastAPI, Request
 
@@ -91,6 +99,10 @@ DATASET = UUID("f2000000-0000-4000-8000-000000000010")
 DATASET_RAW_REVISION = UUID("f2000000-0000-4000-8000-000000000011")
 DATASET_NORMALIZED_REVISION = UUID("f2000000-0000-4000-8000-000000000012")
 NORMALIZED_ARTIFACT = UUID("f2000000-0000-4000-8000-000000000013")
+LOT = UUID("f2000000-0000-4000-8000-000000000014")
+LOT_REVISION = UUID("f2000000-0000-4000-8000-000000000015")
+SPECIMEN_SOURCE = UUID("f2000000-0000-4000-8000-000000000016")
+SPECIMEN_SOURCE_REVISION = UUID("f2000000-0000-4000-8000-000000000017")
 TRACE = "00-000000000000000000000000000000f2-00000000000000f2-01"
 
 
@@ -229,6 +241,26 @@ def _run() -> RunSnapshot:
     )
 
 
+def _specimen_source() -> SpecimenSourceSnapshot:
+    content = SpecimenSourceContent(
+        specimen_id=SPECIMEN,
+        specimen_revision_id=SPECIMEN_REVISION,
+        sources=(SpecimenSourceLot(LOT, LOT_REVISION, "source heat"),),
+    )
+    return SpecimenSourceSnapshot(
+        SPECIMEN_SOURCE,
+        SPECIMEN,
+        RevisionView(
+            _record(
+                revision_id=SPECIMEN_SOURCE_REVISION,
+                aggregate_id=SPECIMEN_SOURCE,
+                aggregate_type=SPECIMEN_SOURCE_AGGREGATE_TYPE,
+            ),
+            content,
+        ),
+    )
+
+
 def _dataset() -> tuple[DatasetSnapshot, DatasetRevisionSnapshot[DatasetContent]]:
     mapping = ReferenceTensileMapping("strain_pct", "stress_mpa", "%", "MPa")
     raw_content = DatasetContent(
@@ -281,6 +313,7 @@ class _TestingService:
         self.specimen = _specimen()
         self.method = _method()
         self.run = _run()
+        self.specimen_source: SpecimenSourceSnapshot | None = None
 
     def create_specimen(
         self,
@@ -301,6 +334,55 @@ class _TestingService:
         assert decision is TESTING_READ
         assert material_state_id == STATE
         return (self.specimen,)
+
+    def create_specimen_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateSpecimenSource,
+    ) -> SpecimenSourceSnapshot:
+        assert context is CONTEXT
+        assert decision is TESTING_WRITE
+        assert command.content.specimen_revision_id == SPECIMEN_REVISION
+        self.specimen_source = _specimen_source()
+        return self.specimen_source
+
+    def get_specimen_source_for_specimen(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_id: UUID,
+    ) -> SpecimenSourceSnapshot | None:
+        assert context is CONTEXT
+        assert decision is TESTING_READ
+        assert specimen_id == SPECIMEN
+        return self.specimen_source
+
+    def get_specimen_source_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_source_id: UUID,
+    ) -> SpecimenSourceSnapshot:
+        assert context is CONTEXT
+        assert decision is TESTING_WRITE
+        assert specimen_source_id == SPECIMEN_SOURCE
+        assert self.specimen_source is not None
+        return self.specimen_source
+
+    def revise_specimen_source(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        specimen_source_id: UUID,
+        command: ReviseSpecimenSource,
+    ) -> SpecimenSourceSnapshot:
+        assert context is CONTEXT
+        assert decision is TESTING_WRITE
+        assert specimen_source_id == SPECIMEN_SOURCE
+        assert command.expected_current_revision_id == SPECIMEN_SOURCE_REVISION
+        assert self.specimen_source is not None
+        return self.specimen_source
 
     def create_reference_tensile_method(
         self,
@@ -458,12 +540,13 @@ def _request(
     method: str,
     path: str,
     *,
+    headers: dict[str, str] | None = None,
     json: dict[str, object] | None = None,
 ) -> httpx.Response:
     async def send() -> httpx.Response:
         transport = httpx.ASGITransport(app=application)
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-            return await client.request(method, path, json=json)
+            return await client.request(method, path, headers=headers, json=json)
 
     return asyncio.run(send())
 
@@ -544,9 +627,14 @@ def test_reference_tensile_api_creates_links_and_previews_immutable_dataset_revi
     assert imported.status_code == 201
     assert imported.json()["current_revision"]["content"]["representation"] == "normalized"
     assert _request(application, "GET", f"/api/v1/datasets/{DATASET}").status_code == 200
-    assert len(
-        _request(application, "GET", f"/api/v1/datasets/{DATASET}/revisions").json()["revisions"]
-    ) == 2
+    assert (
+        len(
+            _request(application, "GET", f"/api/v1/datasets/{DATASET}/revisions").json()[
+                "revisions"
+            ]
+        )
+        == 2
+    )
     assert _request(application, "GET", f"/api/v1/material-states/{STATE}/datasets").json()[
         "items"
     ][0]["dataset_id"] == str(DATASET)
@@ -560,3 +648,99 @@ def test_reference_tensile_api_creates_links_and_previews_immutable_dataset_revi
     assert curve.json()["sampled"] is True
     assert curve.json()["stress_unit"] == "Pa"
     assert curve.json()["points"][-1]["engineering_stress"] == 125_000_000.0
+
+
+def test_testing_api_pins_exact_specimen_source_lot_revision() -> None:
+    application = _application()
+    created = _request(
+        application,
+        "POST",
+        f"/api/v1/specimens/{SPECIMEN}/source-genealogy",
+        json={
+            "content": {
+                "specimen_revision_id": str(SPECIMEN_REVISION),
+                "sources": [
+                    {
+                        "material_lot_id": str(LOT),
+                        "material_lot_revision_id": str(LOT_REVISION),
+                        "note": "source heat",
+                    }
+                ],
+            },
+            "change_reason": "pin source heat",
+        },
+    )
+
+    assert created.status_code == 201, created.text
+    content = created.json()["current_revision"]["content"]
+    assert content["specimen_revision_id"] == str(SPECIMEN_REVISION)
+    assert content["sources"][0]["material_lot_revision_id"] == str(LOT_REVISION)
+
+    read_back = _request(application, "GET", f"/api/v1/specimens/{SPECIMEN}/source-genealogy")
+    assert read_back.status_code == 200
+    assert read_back.headers["ETag"] == created.headers["ETag"]
+
+    missing_precondition = _request(
+        application,
+        "POST",
+        f"/api/v1/specimen-source-genealogies/{SPECIMEN_SOURCE}/revisions",
+        json={
+            "content": {
+                "specimen_revision_id": str(SPECIMEN_REVISION),
+                "sources": [
+                    {
+                        "material_lot_id": str(LOT),
+                        "material_lot_revision_id": str(LOT_REVISION),
+                        "note": "source heat",
+                    }
+                ],
+            },
+            "change_reason": "missing optimistic concurrency evidence",
+        },
+    )
+    assert missing_precondition.status_code == 422
+    assert missing_precondition.json()["code"] == "CMP-TESTING-0002"
+
+    stale_precondition = _request(
+        application,
+        "POST",
+        f"/api/v1/specimen-source-genealogies/{SPECIMEN_SOURCE}/revisions",
+        headers={"If-Match": f'"revision:1:sha256:{"0" * 64}"'},
+        json={
+            "content": {
+                "specimen_revision_id": str(SPECIMEN_REVISION),
+                "sources": [
+                    {
+                        "material_lot_id": str(LOT),
+                        "material_lot_revision_id": str(LOT_REVISION),
+                        "note": "source heat",
+                    }
+                ],
+            },
+            "change_reason": "stale optimistic concurrency evidence",
+        },
+    )
+    assert stale_precondition.status_code == 412
+    assert stale_precondition.json()["code"] == "CMP-TESTING-0004"
+    assert stale_precondition.headers["ETag"] == created.headers["ETag"]
+
+    revised = _request(
+        application,
+        "POST",
+        f"/api/v1/specimen-source-genealogies/{SPECIMEN_SOURCE}/revisions",
+        headers={"If-Match": created.headers["ETag"]},
+        json={
+            "content": {
+                "specimen_revision_id": str(SPECIMEN_REVISION),
+                "sources": [
+                    {
+                        "material_lot_id": str(LOT),
+                        "material_lot_revision_id": str(LOT_REVISION),
+                        "note": "source heat",
+                    }
+                ],
+            },
+            "change_reason": "confirm source heat",
+        },
+    )
+    assert revised.status_code == 200

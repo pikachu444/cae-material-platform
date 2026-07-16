@@ -24,8 +24,16 @@ Foundation version: `0.27.0`
   hooks; PostgreSQL composite tenant/classification FKs, indexes, and forced RLS. Typed Process
   Definition, Material Lot/Batch, and State Genealogy identities now have append-only revisions;
   genealogy revisions pin exact State, Process, and Lot revisions with role/scope/material guards,
-  protected APIs, and a connected Material State UI. Full process-run input/output graphs,
-  lot split/merge, and multi-lot acceptance remain outside this bounded subset.
+  protected APIs, and a connected Material State UI.
+- `T-39`: explicit Process Run stable identities and immutable revisions pin one exact Process
+  Definition and Material State revision plus ordered consumed/produced Lot revisions. Decimal
+  quantities preserve original governed units and normalized SI evidence; assessed mass, volume,
+  or count balances reject dimension/tolerance mismatches, while `not_assessed` requires a reason.
+  Multi-lot split/merge, current-head graph-cycle rejection, tenant/classification isolation,
+  forced RLS, immutable child rows, and exact Specimen-to-source-Lot genealogy are enforced in
+  PostgreSQL migration 049 and exposed through protected APIs and the Material State workbench.
+  Verification passed 561 Python tests, 30 web tests, production frontend build, live PostgreSQL
+  constraints/RLS and a Docker browser workflow without skips or browser console errors.
 - `T-08` reference subset: explicit Specimen, reference uniaxial tensile Test Method, and Test Run
   stable identities with immutable typed revisions; a Test Run pins concrete Specimen/Test Method
   revisions, a State-specific specimen code, optional test temperature/crosshead speed, protected
@@ -837,6 +845,6 @@ an explicit manifest; future GUI changes must update the affected guide and capt
 Verification: the guide link/manifest check validated nine documents and seven images. With the
 disposable PostgreSQL 16 DSN enabled, the CI-equivalent suite passed 553 Python tests with zero
 skips or failures, 28 Vitest tests, ruff, mypy over 469 source files, architecture and contract
-checks, OpenAPI compatibility and the production Vite build. The next implementation unit is T-39
-and migration 049.
+checks, OpenAPI compatibility and the production Vite build. T-39 then added migration 049 and the
+connected Process Run/Lot/Specimen source workflow. The next implementation unit is T-40.
 
