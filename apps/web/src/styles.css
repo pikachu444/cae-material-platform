@@ -2075,6 +2075,33 @@ summary {
   background: linear-gradient(145deg, rgb(249 253 253 / 96%), rgb(250 248 253 / 96%));
 }
 
+.scientific-profile-panel {
+  align-items: center;
+  background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr);
+  margin: 18px 0;
+  padding: 18px;
+}
+
+.profile-summary {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-summary .revision-chip {
+  justify-self: start;
+}
+
+@media (max-width: 780px) {
+  .scientific-profile-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
 .selection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));

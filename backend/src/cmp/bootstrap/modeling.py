@@ -29,6 +29,9 @@ from cmp.modules.modeling.adapters.persistence.prony_candidate_selection_reposit
     SqlAlchemyPronyCandidateSelectionRepository,
 )
 from cmp.modules.modeling.adapters.persistence.repository import SqlAlchemyModelingRepository
+from cmp.modules.modeling.adapters.persistence.scientific_profile_repository import (
+    SqlAlchemyScientificProfileRepository,
+)
 from cmp.modules.modeling.adapters.persistence.tabulated_plasticity_repository import (
     SqlAlchemyTabulatedPlasticityRepository,
 )
@@ -50,6 +53,7 @@ from cmp.modules.modeling.application.prony_calibration import (
 from cmp.modules.modeling.application.prony_candidate_promotion import (
     PronyCandidatePromotionService,
 )
+from cmp.modules.modeling.application.scientific_profile import ScientificProfileService
 from cmp.modules.modeling.application.service import MaterialModelService
 from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelService,
@@ -129,6 +133,27 @@ def build_ogden_prony_model_service(
             ),
         ),
         material_models=material_models,
+    )
+
+
+def build_scientific_profile_service(
+    identity: IdentityServices,
+) -> ScientificProfileService | None:
+    """Compose versioned family-specific scientific calibration profiles."""
+
+    if identity.engine is None or identity.rls_context is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return ScientificProfileService(
+        repository=SqlAlchemyScientificProfileRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        )
     )
 
 

@@ -17,6 +17,7 @@ import type {
   OgdenPronyModelResponse,
   PropertySetResponse,
 } from "./types";
+import { OgdenScientificProfilePanel } from "./scientific-profile-panel";
 
 interface EditableTerm {
   ratio: string;
@@ -171,6 +172,8 @@ export function ReferenceOgdenPronyWorkbench({
         </div>
         <span className="revision-chip">reference · non-production</span>
       </div>
+
+      <OgdenScientificProfilePanel config={config} />
 
       <form className="viscoelastic-form" onSubmit={createModel}>
         <div className="form-grid">

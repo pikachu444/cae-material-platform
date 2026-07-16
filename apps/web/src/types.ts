@@ -2695,6 +2695,48 @@ export interface OgdenPronyModelResponse {
   links: Record<string, string>;
 }
 
+export type ScientificProfileFamily =
+  | "steel_voce"
+  | "polymer_linear_prony"
+  | "elastomer_ogden_prony";
+
+export interface OgdenScientificParameters {
+  mu_initial_pa: number;
+  mu_lower_pa: number;
+  mu_upper_pa: number;
+  mu_scale_pa: number;
+  alpha_initial: number;
+  alpha_lower: number;
+  alpha_upper: number;
+  alpha_scale: number;
+  uniaxial_weight: number;
+  planar_weight: number;
+  biaxial_weight: number;
+}
+
+export interface ScientificProfileResponse {
+  scientific_profile_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      profile_label: string;
+      family: ScientificProfileFamily;
+      model_family_id: string;
+      approval_status: "reference_unapproved" | "domain_approved";
+      optimizer: "scipy_least_squares_trf";
+      residual_definition: "normalized_weighted_least_squares";
+      aggregation_order: "point_then_curve_then_mode";
+      missing_data_policy: "reject";
+      holdout_policy: "explicit_disjoint";
+      uncertainty_policy: "jacobian_covariance_or_not_estimable";
+      multistart_count: number;
+      seed: number;
+      status_note: string;
+      parameters: Record<string, number | string>;
+    };
+  };
+  links: Record<string, string>;
+}
+
 export interface OgdenPronyMappingResponse {
   mapping_report_sha256: string;
   exportable: boolean;

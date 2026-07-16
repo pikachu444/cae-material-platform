@@ -6349,6 +6349,106 @@ paths:
             application/problem+json:
               schema: {$ref: "../processing/viscoelastic-master-curve-resources.schema.json#/$defs/Problem"}
         "503": {description: Processing service unavailable.}
+  /api/v1/scientific-profiles:
+    post:
+      operationId: createScientificProfile
+      tags: [modeling]
+      summary: Create a stable scientific profile identity and immutable reference revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201":
+          description: Versioned family-specific parameter, objective and diagnostic policy.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409":
+          description: Stable identity or governed approval transition conflicts.
+          content:
+            application/problem+json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Problem"}
+        "422": {description: Family-specific bounds or policy are invalid.}
+        "503": {description: Modeling service unavailable.}
+    get:
+      operationId: listScientificProfiles
+      tags: [modeling]
+      summary: List current scientific profile heads, optionally filtered by model family.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: family
+          in: query
+          required: false
+          schema: {enum: [steel_voce, polymer_linear_prony, elastomer_ogden_prony]}
+      responses:
+        "200":
+          description: Visible current scientific profile revisions.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/ListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/scientific-profiles/{profile_id}:
+    get:
+      operationId: getScientificProfile
+      tags: [modeling]
+      summary: Read one current immutable scientific profile revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Scientific profile head and exact revision metadata.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Scientific profile is not visible.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/scientific-profiles/{profile_id}/revisions:
+    post:
+      operationId: reviseScientificProfile
+      tags: [modeling]
+      summary: Append a new immutable revision without changing the stable family identity.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/ReviseRequest"}
+      responses:
+        "201":
+          description: Newly appended scientific profile revision.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/scientific-profile-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: Scientific profile is not visible.}
+        "409": {description: Expected head, stable family, label, or approval transition conflicts.}
+        "422": {description: Family-specific bounds or policy are invalid.}
+        "503": {description: Modeling service unavailable.}
 components:
   securitySchemes:
     BearerAuth:

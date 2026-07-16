@@ -139,9 +139,17 @@ from cmp.modules.modeling.adapters.persistence.repository import (
     SqlAlchemyModelingRepository,
     material_model_revision_table,
 )
+from cmp.modules.modeling.adapters.persistence.scientific_profile_repository import (
+    SqlAlchemyScientificProfileRepository,
+)
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     CreateReferenceLinearViscoelasticModel,
     LinearViscoelasticModelService,
+)
+from cmp.modules.modeling.application.scientific_profile import (
+    CreateScientificProfile,
+    ReviseScientificProfile,
+    ScientificProfileService,
 )
 from cmp.modules.modeling.application.service import (
     CreateReferenceLinearElasticModel,
@@ -151,6 +159,13 @@ from cmp.modules.modeling.domain.reference_linear_elasticity import ReferenceMod
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     BulkRelaxationStatus,
     PronyTerm,
+)
+from cmp.modules.modeling.domain.scientific_profile import (
+    OgdenScientificParameters,
+    ScientificApprovalStatus,
+    ScientificProfileContent,
+    ScientificProfileFamily,
+    ScientificProfileNotFound,
 )
 from cmp.modules.processing.adapters.persistence.viscoelastic_master_curve_repository import (
     SqlAlchemyViscoelasticMasterRepository,
@@ -250,6 +265,7 @@ class PostgresHarness:
     service: CatalogService
     modeling: MaterialModelService
     linear_viscoelasticity: LinearViscoelasticModelService
+    scientific_profiles: ScientificProfileService
     exporting: SolverCardService
     testing: _TestingApplicationService
     test_context: _TestContextApplicationService
@@ -389,6 +405,17 @@ def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[PostgresHarne
             ),
             material_models=modeling,
         )
+        scientific_profiles = ScientificProfileService(
+            repository=SqlAlchemyScientificProfileRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            )
+        )
         testing = _TestingApplicationService(
             repository=SqlAlchemyTestingRepository(
                 session_factory=sessions,
@@ -505,6 +532,7 @@ def postgres(tmp_path_factory: pytest.TempPathFactory) -> Iterator[PostgresHarne
             service=CatalogService(repository=repository),
             modeling=modeling,
             linear_viscoelasticity=linear_viscoelasticity,
+            scientific_profiles=scientific_profiles,
             exporting=exporting,
             testing=testing,
             test_context=test_context,
@@ -2138,4 +2166,112 @@ def test_viscoelastic_master_curve_is_typed_provenanced_and_previewable_in_postg
                     "WHERE selection_revision_id=:revision_id"
                 ),
                 {"revision_id": selection.current.record.revision_id},
+            )
+
+
+def test_scientific_profile_revisions_are_typed_historical_and_project_isolated(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.MODELING_WRITE)
+    read = _decision(context, Permission.MODELING_READ)
+    original_content = ScientificProfileContent(
+        profile_label=f"T43 Ogden profile {uuid4().hex[:8]}",
+        family=ScientificProfileFamily.ELASTOMER_OGDEN_PRONY,
+        approval_status=ScientificApprovalStatus.REFERENCE_UNAPPROVED,
+        multistart_count=4,
+        seed=43,
+        ogden=OgdenScientificParameters(
+            1_200_000.0,
+            1_000.0,
+            100_000_000.0,
+            1_000_000.0,
+            2.4,
+            0.1,
+            20.0,
+            2.0,
+        ),
+    )
+    created = postgres.scientific_profiles.create(
+        context,
+        write,
+        CreateScientificProfile(
+            "internal", original_content, "create exact T43 reference profile"
+        ),
+    )
+    revised_content = ScientificProfileContent(
+        profile_label=original_content.profile_label,
+        family=original_content.family,
+        approval_status=original_content.approval_status,
+        multistart_count=12,
+        seed=43,
+        ogden=original_content.ogden,
+    )
+    revised = postgres.scientific_profiles.revise(
+        context,
+        write,
+        created.id,
+        ReviseScientificProfile(
+            created.current.record.revision_id,
+            revised_content,
+            "increase deterministic multistart coverage",
+        ),
+    )
+    restored = postgres.scientific_profiles.get(context, read, created.id)
+    historical = postgres.scientific_profiles.get_revision_for_calibration(
+        context,
+        _decision(context, Permission.CALIBRATION_EXECUTE),
+        created.id,
+        created.current.record.revision_id,
+    )
+    assert restored.current.record.revision_id == revised.current.record.revision_id
+    assert restored.current.content.multistart_count == 12
+    assert historical.content.multistart_count == 4
+    assert historical.content.ogden is not None
+    assert historical.content.ogden.alpha_upper == 20.0
+
+    other = _context(PROJECT_B)
+    with pytest.raises(ScientificProfileNotFound, match="not visible"):
+        postgres.scientific_profiles.get(
+            other,
+            _decision(other, Permission.MODELING_READ),
+            created.id,
+        )
+
+    with postgres.admin_engine.connect() as connection:
+        rows = connection.execute(
+            sa.text(
+                "SELECT revision_no, multistart_count, ogden_alpha_upper, "
+                "voce_sigma0_initial_pa, prony_term_count_min "
+                "FROM modeling.scientific_profile_revision "
+                "WHERE aggregate_id=:profile_id ORDER BY revision_no"
+            ),
+            {"profile_id": created.id},
+        ).all()
+        rls = connection.execute(
+            sa.text(
+                "SELECT relrowsecurity AND relforcerowsecurity FROM pg_class t "
+                "JOIN pg_namespace n ON n.oid=t.relnamespace "
+                "WHERE n.nspname='modeling' AND t.relname='scientific_profile_revision'"
+            )
+        ).scalar_one()
+    assert len(rows) == 2
+    assert rows[0][0] == 1
+    assert rows[0][1] == 4
+    assert rows[0][2] == pytest.approx(20.0)
+    assert rows[0][3] is None and rows[0][4] is None
+    assert rows[1][0] == 2
+    assert rows[1][1] == 12
+    assert rows[1][2] == pytest.approx(20.0)
+    assert rows[1][3] is None and rows[1][4] is None
+    assert rls is True
+
+    with pytest.raises(DBAPIError, match="immutable"):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE modeling.scientific_profile_revision "
+                    "SET multistart_count=16 WHERE id=:revision_id"
+                ),
+                {"revision_id": created.current.record.revision_id},
             )

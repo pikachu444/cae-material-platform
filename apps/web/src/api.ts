@@ -46,6 +46,7 @@ import type {
   OgdenPronyCardResponse,
   OgdenPronyMappingResponse,
   OgdenPronyModelResponse,
+  ScientificProfileResponse,
   MappingReport,
   ImportDetectionReportResponse,
   ImportMappingResponse,
@@ -1343,6 +1344,50 @@ export function createOgdenPronyModel(
   return request(config, `/material-states/${encodeURIComponent(materialStateId)}/ogden-prony-models`, {
     method: "POST",
     body: JSON.stringify(input),
+  });
+}
+
+export async function listScientificProfiles(
+  config: ApiConfig,
+  family: "steel_voce" | "polymer_linear_prony" | "elastomer_ogden_prony",
+): Promise<ApiResult<ScientificProfileResponse[]>> {
+  const result = await request<{ items: ScientificProfileResponse[] }>(
+    config,
+    `/scientific-profiles?family=${encodeURIComponent(family)}`,
+  );
+  return { data: result.data.items, etag: result.etag };
+}
+
+export function createOgdenScientificProfile(
+  config: ApiConfig,
+): Promise<ApiResult<ScientificProfileResponse>> {
+  return request(config, "/scientific-profiles", {
+    method: "POST",
+    body: JSON.stringify({
+      classification: "internal",
+      content: {
+        profile_label: "Reference elastomer multi-test Ogden",
+        family: "elastomer_ogden_prony",
+        approval_status: "reference_unapproved",
+        multistart_count: 8,
+        seed: 20260716,
+        status_note: "Synthetic/public reference bounds; domain sign-off is not recorded.",
+        ogden: {
+          mu_initial_pa: 1200000,
+          mu_lower_pa: 1000,
+          mu_upper_pa: 100000000,
+          mu_scale_pa: 1000000,
+          alpha_initial: 2.4,
+          alpha_lower: 0.1,
+          alpha_upper: 20,
+          alpha_scale: 2,
+          uniaxial_weight: 1,
+          planar_weight: 1,
+          biaxial_weight: 1,
+        },
+      },
+      change_reason: "Create explicit reference Ogden scientific profile",
+    }),
   });
 }
 
