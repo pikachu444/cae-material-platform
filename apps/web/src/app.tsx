@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ApiError,
   type ApiConfig,
@@ -24,21 +24,6 @@ import {
   revisePropertySet,
   saveApiConfig,
 } from "./api";
-import { ReferenceTensileWorkflow } from "./reference-tensile-workflow";
-import { ReferenceShearRelaxationWorkflow } from "./reference-shear-relaxation-workflow";
-import { ReferenceElastoplasticWorkbench } from "./reference-elastoplastic-workbench";
-import { ReferenceLinearViscoelasticWorkbench } from "./reference-linear-viscoelastic-workbench";
-import { ReferenceOgdenPronyWorkbench } from "./reference-ogden-prony-workbench";
-import { ReferenceCalibrationWorkbench } from "./reference-calibration-workbench";
-import { ReferenceValidationWorkbench } from "./reference-validation-workbench";
-import { ReviewWorkbench } from "./review-workbench";
-import { ReleaseWorkbench } from "./release-workbench";
-import { GovernanceEvidenceWorkbench } from "./governance-evidence-workbench";
-import { CatalogGenealogyWorkbench } from "./catalog-genealogy-workbench";
-import { TestContextWorkbench } from "./test-context-workbench";
-import { GovernedImportWorkbench } from "./governed-import-workbench";
-import { BulkExportCenter } from "./bulk-export-center";
-import { OperationsDashboard } from "./operations-dashboard";
 import type {
   DataClassification,
   ExportTarget,
@@ -53,6 +38,76 @@ import type {
   PropertySourceKind,
   SolverCardResponse,
 } from "./types";
+
+const ReferenceTensileWorkflow = lazy(() =>
+  import("./reference-tensile-workflow").then((module) => ({
+    default: module.ReferenceTensileWorkflow,
+  })),
+);
+const ReferenceShearRelaxationWorkflow = lazy(() =>
+  import("./reference-shear-relaxation-workflow").then((module) => ({
+    default: module.ReferenceShearRelaxationWorkflow,
+  })),
+);
+const ReferenceElastoplasticWorkbench = lazy(() =>
+  import("./reference-elastoplastic-workbench").then((module) => ({
+    default: module.ReferenceElastoplasticWorkbench,
+  })),
+);
+const ReferenceLinearViscoelasticWorkbench = lazy(() =>
+  import("./reference-linear-viscoelastic-workbench").then((module) => ({
+    default: module.ReferenceLinearViscoelasticWorkbench,
+  })),
+);
+const ReferenceOgdenPronyWorkbench = lazy(() =>
+  import("./reference-ogden-prony-workbench").then((module) => ({
+    default: module.ReferenceOgdenPronyWorkbench,
+  })),
+);
+const ReferenceCalibrationWorkbench = lazy(() =>
+  import("./reference-calibration-workbench").then((module) => ({
+    default: module.ReferenceCalibrationWorkbench,
+  })),
+);
+const ReferenceValidationWorkbench = lazy(() =>
+  import("./reference-validation-workbench").then((module) => ({
+    default: module.ReferenceValidationWorkbench,
+  })),
+);
+const ReviewWorkbench = lazy(() =>
+  import("./review-workbench").then((module) => ({ default: module.ReviewWorkbench })),
+);
+const ReleaseWorkbench = lazy(() =>
+  import("./release-workbench").then((module) => ({ default: module.ReleaseWorkbench })),
+);
+const GovernanceEvidenceWorkbench = lazy(() =>
+  import("./governance-evidence-workbench").then((module) => ({
+    default: module.GovernanceEvidenceWorkbench,
+  })),
+);
+const CatalogGenealogyWorkbench = lazy(() =>
+  import("./catalog-genealogy-workbench").then((module) => ({
+    default: module.CatalogGenealogyWorkbench,
+  })),
+);
+const TestContextWorkbench = lazy(() =>
+  import("./test-context-workbench").then((module) => ({
+    default: module.TestContextWorkbench,
+  })),
+);
+const GovernedImportWorkbench = lazy(() =>
+  import("./governed-import-workbench").then((module) => ({
+    default: module.GovernedImportWorkbench,
+  })),
+);
+const BulkExportCenter = lazy(() =>
+  import("./bulk-export-center").then((module) => ({ default: module.BulkExportCenter })),
+);
+const OperationsDashboard = lazy(() =>
+  import("./operations-dashboard").then((module) => ({
+    default: module.OperationsDashboard,
+  })),
+);
 
 type Navigate = (path: string) => void;
 type MaterialArea = "overview" | "testing" | "datasets" | "models" | "governance";
@@ -1951,7 +2006,9 @@ export function App() {
   return (
     <div className="app-shell">
       <Header path={path} navigate={navigate} connected={Boolean(config.accessToken.trim())} onOpenConnection={() => setConnectionOpen(true)} />
-      <main>{page}</main>
+      <main>
+        <Suspense fallback={<p className="loading-state">Loading workspace…</p>}>{page}</Suspense>
+      </main>
       <ConnectionPanel config={config} open={connectionOpen} onClose={() => setConnectionOpen(false)} onSave={persistConfig} />
     </div>
   );
