@@ -79,6 +79,20 @@ services and must exit with code 0. Check the API independently:
 Invoke-RestMethod http://127.0.0.1:8000/api/v1/health
 ```
 
+When rebuilding selected services after a schema change, build and run `migrate` before starting
+the new API or worker image. Compose gives `migrate` its own image even though it shares the API
+Dockerfile:
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml build migrate api worker web
+docker compose -f deploy/compose/docker-compose.demo.yml run --rm migrate
+docker compose -f deploy/compose/docker-compose.demo.yml up -d --force-recreate api worker web
+```
+
+Starting new application images against the previous schema is intentionally unsupported. A full
+`up --build -d` already builds the one-shot migration image and applies this order through
+`depends_on`.
+
 Open `http://127.0.0.1:5173`, select **Connection**, choose **Use local demo identity**, then save the
 connection. The browser receives a 15-minute signed token only because the API is explicitly started
 with both `CMP_ENVIRONMENT=demo` and `CMP_DEMO_IDENTITY=true`. Every subsequent request still travels

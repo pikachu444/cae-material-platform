@@ -109,6 +109,11 @@
 | `POST /validation-runs` | managed 또는 external validation 실행 |
 | `POST /validation-runs/{id}:attach-external-result` | 수동 실행 Result Manifest 반입 |
 
+Bulk Export Job 응답은 외부 worker 작업에 대해 nullable `heartbeat_at`과 `lease_expires_at`을
+제공한다. `lease_token`은 worker fencing credential이므로 API와 event payload에 노출하지 않는다.
+만료된 active Job의 재선점은 같은 Job identity에서 `attempt_count`를 증가시키며 Selection, output
+commit 또는 Bundle revision을 덮어쓰지 않는다.
+
 ### 3.4 Review·release·lineage·plugin
 
 | Method/path | 목적 |

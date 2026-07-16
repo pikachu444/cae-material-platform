@@ -511,9 +511,13 @@ T-47 external assembly tests force work above the inline boundary and require by
 with the inline deterministic builder. They also verify streaming Artifact staging/finalization,
 `queued→running→succeeded` transitions, immutable output-commit digest/size, and
 `reconciliation_required→reconciling→succeeded` recovery without reading source components or
-assembling a second archive. PostgreSQL migration tests cover transition/attempt guards, composite
-tenant/classification foreign keys, RLS and a 057→056→057 round trip. Frontend tests require Job
-state, attempt and committed-output evidence to remain visible before Bundle linkage.
+assembling a second archive. Migration 058 tests add heartbeat extension, unexpired-claim exclusion,
+expired `running` reclamation with an incremented attempt, direct expired-heartbeat rejection and
+stale-token fencing of terminal writes. PostgreSQL migration tests cover transition/attempt guards,
+composite tenant/classification foreign keys, RLS, a 057 active-Job→058 bootstrap recovery and the
+058→057→058 round trip. Downgrade must fail while an active leased Job exists. Frontend tests require
+Job state, attempt, worker heartbeat/recovery deadline and committed-output evidence to remain
+visible before Bundle linkage. The API must never expose the fencing token.
 
 ### T-30 Release completeness invariants
 
@@ -826,7 +830,12 @@ projection and a downloaded archive whose byte size and SHA-256 match the commit
 2026-07-16 run produced 22 components, 21,822 bytes and SHA-256
 `04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
 
+Migration 058 adds a separate hard-kill gate. A worker-held Job must be invisible to a second worker
+before `lease_expires_at`; after expiry it must complete under a new token as the next attempt. The
+old token must be unable to commit output or any terminal transition, and success must clear all
+lease fields. The 2026-07-16 Compose drill observed `idle` before the 15-second demo deadline and
+`succeeded` at attempt 2 after it.
+
 This gate does not claim the 5-GiB domain ceiling is operationally qualified. Per-component source
 reads remain capped at 64 MiB, and production-scale 10,000-Material/2-GiB load, long-running soak,
-hard-kill lease reclamation, fault injection and worker token rotation remain explicit release
-conditions.
+broad fault injection and worker identity/token rotation remain explicit release conditions.

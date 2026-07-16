@@ -332,3 +332,14 @@ an append-only lifecycle event. Usage is a typed append-only fact; the impact qu
 incoming/outgoing replacement links, transition history, and usage without mutating any source
 revision. The API rejects terminal download/consume and never performs automatic PLM replacement.
 
+### T-47 external Bulk Export lease boundary (2026-08-24)
+
+Large Bulk Export assembly remains in the `exporting` bounded module but runs in the existing
+out-of-process worker. Its Job stores explicit heartbeat, expiry and opaque UUID fencing token
+columns; it does not reuse a JSON payload or generic EAV structure. PostgreSQL atomically claims
+queued/reconcilable/expired work with `FOR UPDATE SKIP LOCKED`. Expired active work keeps the stable
+Job identity, increments the attempt and replaces the token. Every output and terminal mutation
+checks the current unexpired token, while inline API assembly remains lease-free. API/UI consumers
+receive only heartbeat and recovery-deadline timestamps. This recovery projection never mutates an
+Export Selection, source revision, committed Artifact output or immutable Bundle.
+

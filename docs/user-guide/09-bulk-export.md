@@ -36,6 +36,8 @@ Steel reference 흐름을 처음부터 수행하려면
 
 ![외부 worker 작업과 커밋된 Bundle](../15-demo/images/t47-external-bundle-worker.png)
 
+![외부 worker heartbeat와 복구 가능 시각](../15-demo/images/t47-worker-lease-recovery.png)
+
 ## ZIP에서 확인할 파일
 
 | 파일/폴더 | 의미 |
@@ -65,8 +67,12 @@ manifest 내용이 달라지면 새 digest가 생성됩니다.
   5 GiB지만, 10,000 Material 검색과 2 GiB object streaming/soak/fault는 production-scale 검증 전입니다.
 - Artifact 커밋 뒤 Bundle projection 단계가 실패하면 Job은 `reconciliation_required`로 남습니다.
   커밋된 SHA-256과 크기는 화면에서 숨기지 않으며 다음 worker 실행이 기존 출력을 재조립하지 않고
-  Bundle에 연결합니다. `running` 작업의 hard-kill lease 회수와 운영 token 자동 회전은 후속 운영
-  보강 범위입니다.
+  Bundle에 연결합니다.
+- 외부 worker의 `running`/`reconciling` 작업에는 heartbeat와 복구 가능 시각이 표시됩니다. worker가
+  강제 종료되면 만료 전에는 다른 worker가 가져가지 않고, 만료 후 새 fencing token과 증가한 attempt로
+  자동 회수합니다. 이전 worker는 늦게 돌아와도 output이나 최종 상태를 기록할 수 없습니다. 기본
+  lease는 120초이고 Docker demo만 확인 편의를 위해 15초입니다. 운영 worker identity/token 자동
+  회전은 별도 보강 범위입니다.
 
 ## Release와 구분
 
