@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-27`
-Foundation version: `0.29.0`
+Foundation version: `0.30.0`
 
 ## Completed
 
@@ -883,7 +883,7 @@ link/decompression constraints are explicit; force/displacement derivation requi
    geometry. T-42 then adds exact multi-temperature replicate selection, explicit common-domain
    alignment/statistics, manual or deterministic WLF shift evidence and separate immutable master-
    curve output. T-43 then adds typed scientific profiles and bounded multi-test Ogden fitting;
-   the next implementation unit is T-44 append-only Candidate promotion.
+   T-44 adds append-only human Candidate promotion and T-45 Bulk Export is the next unit.
 
 T-41 verification on 2026-07-16: migration 051 completed an upgrade/downgrade/re-upgrade round trip
 on disposable PostgreSQL 16. The CI-equivalent gate passed 576 Python tests with zero skips or
@@ -920,8 +920,8 @@ deterministic. The React workbench is connected to the real API and database and
 Dataset selection, calibration/holdout roles, mode/curve weights, Candidate comparison,
 uncertainty and fitted/residual plots. Single-mode and missing-holdout evidence remain allowed but
 visibly warned. No solver is run, no Candidate is automatically accepted and no baseline or source
-revision is overwritten. T-44 remains next for human Candidate selection and repeated append-only
-IR promotion.
+revision is overwritten. T-44 adds the separate human Candidate selection and repeated append-only
+IR promotion gate described below.
 
 Verification: analytic limit/recovery/weight/rank/holdout/deterministic-Parquet tests, protected API
 tests, PostgreSQL 001→054→053→054 migration round trip, and a live PostgreSQL
@@ -930,4 +930,38 @@ pass. Project RLS and immutable-row rejection are exercised. The CI-equivalent g
 Python tests with zero skips/failures, 35 Vitest tests, ruff, mypy over 512 source files,
 architecture/contract/OpenAPI compatibility and the production Vite build; npm audit reported zero
 vulnerabilities. Browser verification found no console errors.
+
+## T-44 iterative Ogden promotion evidence (2026-07-16)
+
+Foundation version `0.30.0` adds migration 055 without rewriting any T-43 Plan, Run, Candidate,
+diagnostics Artifact, Material Model revision, Solver Card or Release. The migration adds explicit
+`ogden_candidate_selection`, `ogden_candidate_selection_revision` and
+`ogden_promotion_evidence` tables; no JSON/EAV payload is used. Composite foreign keys and forced
+RLS bind every row to one organization/project/classification. PostgreSQL validates succeeded Run,
+converged Candidate, candidate/diagnostics digests, exact prior model revision, schema 1.1 owner,
+and fitted `mu`/`alpha`. Unique constraints reject Candidate or Selection reuse, and immutable-row
+triggers reject updates and deletes.
+
+The protected API records a mandatory human Selection reason and requires the current Material
+Model strong `If-Match` before promotion. A successful decision keeps the stable Material Model
+identity and appends r2/r3 with one revision-owned evidence record; prior evidence is read through
+the revision chain and is never copied into a mutable collection. The React workbench exposes the
+human gate, promotion reason, 412 stale-head behavior and newest-first IR history. The existing
+Abaqus Ogden and OpenRadioss LAW62 preflight/card paths immediately use the new current revision,
+while cards already generated from prior revisions retain their payload and SHA-256. No solver is
+executed and no Candidate is automatically accepted.
+
+Verification includes 001→055 and 055→054→055 PostgreSQL 16 migration runs, exact-evidence API
+tests, stale ETag rejection, browser selection/promotion/history coverage and a semantic regression
+that proves a later IR promotion cannot alter a prior Solver Card payload or digest. The opt-in
+`uv run python scripts/seed_ogden_calibration_demo.py --promote` helper creates only public
+synthetic evidence and verifies any existing card digests during a local repeated-promotion round.
+
+T-44 verification on 2026-07-16 passed fresh 001→055 and 055→054→055 PostgreSQL 16 migration
+runs. The CI-equivalent gate passed 606 Python tests with zero skips or failures, 35 Vitest tests,
+ruff, mypy over 518 source files, architecture and contract lint, OpenAPI compatibility and the
+production Vite build; clean npm install/audit reported zero vulnerabilities. Two live protected
+promotion rounds produced r2 then r3 on one stable model identity and verified three prior Solver
+Card revision/digest pairs unchanged. Connected-browser verification recorded the three-revision
+history and cards with no warning or error logs.
 

@@ -1073,7 +1073,8 @@ curve 역할·mode·weight, candidate 비교, fitted/residual plot을 실제 API
 별도로 pin하므로 Dataset schema만 바꿔 loading mode를 가장하지 않는다.
 현재 fitter는 normalized engineering-strain/nominal-stress와 one-term incompressible Ogden의
 uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapproved`이고 solver를
-실행하거나 Candidate를 자동 승인하지 않는다. Candidate promotion은 T-44에서 이어진다.
+실행하거나 Candidate를 자동 승인하지 않는다. 별도 human Selection과 Candidate promotion은
+아래 T-44에서 구현되었다.
 
 - **목적:** reference Steel Voce/tabulated, Polymer linear-Prony and Elastomer Ogden--Prony paths에
   versioned parameter/objective/diagnostic profiles를 제공한다.
@@ -1087,7 +1088,7 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
 - **테스트:** analytic limits, bounded recovery, objective weighting, rank/covariance, holdout,
   deterministic artifact and UI candidate comparison.
 
-#### T-44. Iterative Calibration and append-only promotion evidence — `P0`
+#### T-44. Iterative Calibration and append-only promotion evidence — `P0` — implemented 2026-07-16
 
 - **목적:** 같은 Material Model stable identity에서 이전 evidence를 잃지 않고 `r3+`를 만든다.
 - **결정:** ADR-0026의 revision-owned evidence chain을 구현한다.
@@ -1097,6 +1098,13 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   IR/Card/Release가 byte/digest stable하다.
 - **테스트:** repeated promotion, stale head, reused Candidate, cross-scope, prior-card stability
   and browser calibration-round comparison.
+- **구현 결과:** migration 055가 typed Ogden Candidate Selection identity/revision과 각 promoted
+  IR revision이 소유하는 `ogden_promotion_evidence`를 추가했다. Selection은 exact succeeded Run,
+  converged Candidate, candidate/diagnostics digest와 baseline model revision을 pin한다. Promotion은
+  strong current `If-Match`를 요구하고 같은 Material Model에 schema 1.1 revision을 append한다.
+  Candidate/Selection 재사용, stale head, cross-scope/lineage 불일치는 API와 PostgreSQL 양쪽에서
+  거부한다. 화면은 선택 사유, 승격 사유, current revision과 newest-first evidence history를 표시하며
+  prior card payload/digest 안정성을 회귀 테스트한다. Solver 실행과 자동 Candidate 승격은 없다.
 
 ### S-13.4. Deliver data and keep the service operable
 

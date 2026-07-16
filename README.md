@@ -15,7 +15,7 @@
 - 엘라스토머: governed uniaxial/planar/biaxial normalized curve → versioned scientific profile
   → deterministic multi-test Ogden fitting/holdout/uncertainty → one-term Ogden + shear-Prony IR
   → Abaqus Ogden `.inp` 또는 OpenRadioss LAW62 `.rad` preview/download. Candidate의 governed
-  append-only IR promotion은 T-44 범위
+  human Selection → current-ETag 확인 → 같은 Material Model identity에 append-only IR revision
 
 결과에 표시되는 `reference / non-production`은 실제 입력·저장·다운로드가 동작한다는
 뜻이지만, 특정 회사 재료의 승인값이나 solver qualification을 의미하지 않습니다. 특히
@@ -141,7 +141,7 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
 | Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed 보존, 다온도 replicate 통계와 수동/WLF master curve, bounded multistart fitting, candidate/residual 검토, 사람 선택, 새 IR revision 승격, card preview/download reference 구현 |
-| Elastomer 초점탄성 | governed multi-test fitting + one-term Ogden + 1~5 shear-Prony | Abaqus Ogden, OpenRadioss LAW62 | exact Dataset/Profile/State/baseline revision Plan, deterministic candidates, holdout, rank/uncertainty, fitted/residual UI와 card preview/download reference 구현; Candidate promotion은 T-44, LAW62 ν=0.495 근사는 mapping report에 표시 |
+| Elastomer 초점탄성 | governed multi-test fitting + one-term Ogden + 1~5 shear-Prony | Abaqus Ogden, OpenRadioss LAW62 | exact Dataset/Profile/State/baseline revision Plan, deterministic candidates, holdout, rank/uncertainty, fitted/residual UI, human Candidate Selection, 반복 append-only IR promotion, revision history와 card preview/download reference 구현; LAW62 ν=0.495 근사는 mapping report에 표시 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 
 `reference`는 데이터 흐름과 mapping 계약을 실행할 수 있다는 뜻이며, 실제 제품 설계에
@@ -176,6 +176,14 @@ deterministic Ogden Run까지 실행합니다.
 
 ```powershell
 uv run python scripts/seed_ogden_calibration_demo.py
+```
+
+사람이 화면에서 수행하는 선택·승격 흐름까지 로컬 회귀 데이터로 준비하려면 명시적으로
+`--promote`를 붙입니다. 이 옵션은 자동 승인 정책이 아니라 사용자가 실행한 demo-only 명령이며,
+Selection 사유와 current IR ETag를 기록하고 기존 Solver Card digest가 그대로인지 확인합니다.
+
+```powershell
+uv run python scripts/seed_ogden_calibration_demo.py --promote
 ```
 
 ## 로컬에서 실행

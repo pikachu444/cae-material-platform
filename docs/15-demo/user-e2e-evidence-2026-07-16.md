@@ -80,22 +80,37 @@ Candidate diagnostics는 52개 observed/fitted/residual point를 exact Parquet A
 
 ![Ogden fitted curve, residual and cards](images/t43-ogden-diagnostics-and-cards.png)
 
+### Human Selection and iterative Ogden promotion
+
+T-44 migration 055 적용 후 같은 Ogden--Prony stable identity에 두 개의 독립적인 succeeded
+Run과 converged Candidate를 차례로 human Selection으로 기록했다. 각 promotion은 실행 시점의
+strong current IR ETag를 요구했으며 r1→r2→r3을 append했다. r2와 r3은 각각 자신의 Selection,
+Run, Candidate, diagnostics digest와 정확한 prior revision을 소유한다.
+
+![Append-only Ogden r1-r3 history](images/t44-ogden-selection-promotion-history.png)
+
+r2 승격 전에 존재한 Abaqus/OpenRadioss 카드 2개와 r2에서 추가한 Abaqus 카드 1개의 stable ID,
+revision ID 및 card SHA를 r3 승격 후 재조회해 모두 동일함을 확인했다. 화면에는 current model이
+r3이어도 이전 concrete IR revision에 고정된 카드 3개가 그대로 남는다.
+
+![Prior solver cards remain immutable](images/t44-prior-solver-cards-stable.png)
+
 ## 불변성 negative check
 
-최초 `r1 -> r2` 승격은 성공했다. 이후 이미 promotion evidence가 있는 `r2`를 새
+bounded linear-Prony의 최초 `r1 -> r2` 승격은 성공했다. 이후 이미 promotion evidence가 있는 `r2`를 새
 Calibration baseline으로 사용해 다른 evidence로 다시 승격하려는 시도는
 `a promoted linear-Prony revision cannot silently replace its evidence`로 거부됐다. 이는 이전
 승격 증거의 silent replacement를 막는 현재 계약에 부합한다.
 
-반복 보정을 제품 기능으로 제공하려면 다음 중 하나를 결정해야 한다.
+T-44는 같은 stable identity에 `r3+`를 추가하고 revision마다 promotion evidence를 소유하게
+하는 결정을 governed Ogden Candidate 경로에 구현했다. 이 결정은 다음과 같다.
 
-- 매 calibration promotion마다 새 Material Model stable identity를 만든다.
-- 같은 stable identity에 `r3+`를 추가하되 과거와 새 promotion evidence를 chain으로 보존하는
-  새 IR schema를 정의한다.
+- 같은 stable identity에 `r3+`를 추가한다.
+- 과거와 새 promotion evidence를 revision chain으로 보존한다.
+- 기존 bounded linear-Prony 경로는 별도 migration 전까지 원래 single-promotion guard를 유지한다.
 
-결정 전까지 UI는 이미 승격된 current revision을 재승격 대상으로 오인하지 않도록 안내해야
-한다. 이 항목은 데이터 손실 defect가 아니라 안전하게 닫힌 iterative-calibration UX/domain
-decision이다.
+따라서 Ogden 경로의 반복 승격과 linear-Prony 경로의 안전한 거부는 서로 다른 명시적 bounded
+계약이며 어느 쪽도 이전 evidence를 덮어쓰지 않는다.
 
 ## 검증 명령과 회귀 상태
 
