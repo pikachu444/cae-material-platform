@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.29.0
+  version: 0.30.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -6059,6 +6059,29 @@ paths:
         "403": {description: Modeling read is not authorized.}
         "404": {description: Model is not visible.}
         "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-prony-models/{material_model_id}/revisions:
+    get:
+      operationId: listOgdenPronyModelRevisions
+      tags: [modeling]
+      summary: List every immutable revision and its revision-owned promotion evidence.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: material_model_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Newest-first append-only history for one stable Material Model identity.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [material_model_id, items]
+                properties:
+                  material_model_id: {type: string, format: uuid}
+                  items: {type: array, minItems: 1, items: {type: object}}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Model revisions are not visible.}
+        "503": {description: Modeling service unavailable.}
   /api/v1/ogden-prony-models/{material_model_id}/solver-card-preflight:
     post:
       operationId: preflightOgdenPronySolverCard
@@ -6576,6 +6599,78 @@ paths:
         "403": {description: Modeling read is not authorized.}
         "404": {description: Candidate or diagnostics Artifact is not visible.}
         "409": {description: Stored diagnostics digest or point count conflicts.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-candidate-selections:
+    post:
+      operationId: createReferenceOgdenCandidateSelection
+      tags: [modeling]
+      summary: Record an immutable human decision for one exact converged Ogden Candidate.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-ogden-candidate-promotion-resources.schema.json#/$defs/SelectionCreateRequest"}
+      responses:
+        "201":
+          description: Human Candidate Selection and exact diagnostics pins recorded.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-ogden-candidate-promotion-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Candidate, Run, baseline or tenant scope conflicts.}
+        "422": {description: Selection label or human reason is invalid.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-candidate-selections/{selection_id}:
+    get:
+      operationId: getReferenceOgdenCandidateSelection
+      tags: [modeling]
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: selection_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: One visible immutable human Ogden Candidate Selection.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-ogden-candidate-promotion-resources.schema.json#/$defs/SelectionResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Selection is not visible.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/ogden-candidate-selections/{selection_id}/promotions:
+    post:
+      operationId: promoteReferenceOgdenCandidate
+      tags: [modeling]
+      summary: Append a selected Candidate to the same Material Model using current-head CAS.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: selection_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: "#/components/parameters/IfMatchRevision"}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-ogden-candidate-promotion-resources.schema.json#/$defs/PromotionRequest"}
+      responses:
+        "201":
+          description: New immutable Ogden-Prony IR revision with revision-owned evidence.
+          headers:
+            Location: {schema: {type: string}}
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OgdenPronyModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: Selection or model is not visible.}
+        "409": {description: Selection lineage, reused Candidate, or immutable evidence conflicts.}
+        "412": {description: Current Material Model ETag no longer matches.}
+        "422": {description: If-Match or promotion reason is invalid.}
         "503": {description: Modeling service unavailable.}
 components:
   securitySchemes:

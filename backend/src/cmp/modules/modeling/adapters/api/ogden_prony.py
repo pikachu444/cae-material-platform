@@ -68,7 +68,11 @@ class OgdenPronyModelResponse(BaseModel):
             current_revision=OgdenPronyRevisionResponse(
                 **metadata.model_dump(), content=value.current.content.canonical()
             ),
-            links={"self": root, "solver_cards": f"{root}/solver-cards"},
+            links={
+                "self": root,
+                "revisions": f"{root}/revisions",
+                "solver_cards": f"{root}/solver-cards",
+            },
         )
 
 
@@ -76,6 +80,13 @@ class OgdenPronyListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     items: tuple[OgdenPronyModelResponse, ...]
+
+
+class OgdenPronyRevisionListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_model_id: UUID
+    items: tuple[OgdenPronyRevisionResponse, ...]
 
 
 class OgdenPronyProblem(BaseModel):
@@ -211,3 +222,32 @@ def install_ogden_prony_api(
             raise _translate(context, error) from error
         response.headers["ETag"] = str(RevisionETag.from_ref(snapshot.current.record.ref))
         return OgdenPronyModelResponse.from_snapshot(snapshot)
+
+    @application.get(
+        "/api/v1/ogden-prony-models/{material_model_id}/revisions",
+        operation_id="listOgdenPronyModelRevisions",
+        response_model=OgdenPronyRevisionListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+    )
+    def list_revisions(
+        request: Request, material_model_id: UUID
+    ) -> OgdenPronyRevisionListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise OgdenPronyHttpError(context, 503, "service is unavailable")
+        try:
+            values = service.list_model_revisions(context, decision, material_model_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        return OgdenPronyRevisionListResponse(
+            material_model_id=material_model_id,
+            items=tuple(
+                OgdenPronyRevisionResponse(
+                    **RevisionMetadataResponse.from_record(value.record, "draft").model_dump(),
+                    content=value.content.canonical(),
+                )
+                for value in values
+            ),
+        )

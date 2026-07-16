@@ -1,3 +1,4 @@
+from dataclasses import replace
 from pathlib import Path
 from uuid import UUID
 
@@ -10,6 +11,7 @@ from cmp.modules.exporting.domain.reference_ogden_prony import (
     preflight_reference_ogden_prony_export,
 )
 from cmp.modules.modeling.domain.reference_ogden_prony import (
+    ReferenceOgdenPromotionEvidence,
     ReferenceOgdenPronyContent,
     ReferenceOgdenTerm,
     ReferenceShearPronyTerm,
@@ -119,3 +121,59 @@ def test_card_requires_current_preflight_and_declared_target() -> None:
             solver_material_id=42,
             material_name="ELASTOMER_REFERENCE",
         )
+
+
+def test_later_ir_promotion_cannot_change_a_prior_card_payload_or_digest() -> None:
+    target = OgdenPronyExportTarget("abaqus", "2025", "kg_m_s")
+    prior_source = _source()
+    prior_report = preflight_reference_ogden_prony_export(
+        material_model_id=_id(10),
+        material_model_revision_id=_id(11),
+        source=prior_source,
+        target=target,
+    )
+    _, prior_card = build_reference_ogden_prony_solver_card(
+        material_model_id=_id(10),
+        material_model_revision_id=_id(11),
+        source=prior_source,
+        target=target,
+        expected_mapping_report_sha256=prior_report.digest,
+        solver_material_id=42,
+        material_name="ELASTOMER_REFERENCE",
+    )
+    frozen_text = prior_card.card_text
+    frozen_digest = prior_card.card_sha256
+
+    promoted_source = replace(
+        prior_source,
+        ogden_term=ReferenceOgdenTerm(2_000_000.0, 2.0),
+        promotion_evidence=ReferenceOgdenPromotionEvidence(
+            _id(20),
+            _id(21),
+            _id(22),
+            _id(23),
+            "a" * 64,
+            _id(24),
+            "b" * 64,
+            _id(11),
+        ),
+    )
+    promoted_report = preflight_reference_ogden_prony_export(
+        material_model_id=_id(10),
+        material_model_revision_id=_id(12),
+        source=promoted_source,
+        target=target,
+    )
+    _, promoted_card = build_reference_ogden_prony_solver_card(
+        material_model_id=_id(10),
+        material_model_revision_id=_id(12),
+        source=promoted_source,
+        target=target,
+        expected_mapping_report_sha256=promoted_report.digest,
+        solver_material_id=42,
+        material_name="ELASTOMER_REFERENCE",
+    )
+
+    assert prior_card.card_text == frozen_text
+    assert prior_card.card_sha256 == frozen_digest
+    assert promoted_card.card_sha256 != frozen_digest

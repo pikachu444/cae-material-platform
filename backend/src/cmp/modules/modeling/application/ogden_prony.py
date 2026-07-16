@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol
 from uuid import UUID, uuid4
 
@@ -15,8 +15,11 @@ from cmp.modules.modeling.application.service import (
     RevisionSnapshot,
 )
 from cmp.modules.modeling.domain.reference_ogden_prony import (
+    REFERENCE_CALIBRATED_OGDEN_PRONY_SCHEMA_ID,
+    REFERENCE_CALIBRATED_OGDEN_PRONY_SCHEMA_VERSION,
     REFERENCE_OGDEN_PRONY_SCHEMA_ID,
     REFERENCE_OGDEN_PRONY_SCHEMA_VERSION,
+    ReferenceOgdenPromotionEvidence,
     ReferenceOgdenPronyConflict,
     ReferenceOgdenPronyContent,
     ReferenceOgdenTerm,
@@ -24,6 +27,7 @@ from cmp.modules.modeling.domain.reference_ogden_prony import (
 )
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
+    ReviseAggregate,
     RevisionService,
     RevisionStore,
 )
@@ -37,6 +41,15 @@ class CreateReferenceOgdenPronyModel:
     ogden_mu_pa: float
     ogden_alpha: float
     prony_terms: tuple[ReferenceShearPronyTerm, ...]
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class PromoteReferenceOgdenCandidate:
+    material_model_id: UUID
+    expected_current_revision_id: UUID
+    ogden_term: ReferenceOgdenTerm
+    evidence: ReferenceOgdenPromotionEvidence
     change_reason: str
 
 
@@ -76,6 +89,14 @@ class OgdenPronyRepository(Protocol):
         decision: AuthorizationDecision,
         material_state_id: UUID,
     ) -> tuple[OgdenPronyModelSnapshot, ...]: ...
+
+    def list_material_model_revisions(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+    ) -> tuple[RevisionSnapshot[ReferenceOgdenPronyContent], ...]: ...
 
 
 def _require_decision(
@@ -204,6 +225,83 @@ class OgdenPronyModelService:
             context=context, decision=decision, material_model_id=material_model_id
         )
 
+    def get_model_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+    ) -> OgdenPronyModelSnapshot:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_material_model(
+            context=context, decision=decision, material_model_id=material_model_id
+        )
+
+    def promote_candidate(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PromoteReferenceOgdenCandidate,
+    ) -> OgdenPronyModelSnapshot:
+        _require_decision(context, decision, Permission.MODELING_WRITE)
+        baseline = self._repository.get_material_model(
+            context=context,
+            decision=decision,
+            material_model_id=command.material_model_id,
+        )
+        if baseline.current.record.revision_id != command.expected_current_revision_id:
+            raise ReferenceOgdenPronyConflict(
+                "Candidate promotion requires the exact current Ogden-Prony revision"
+            )
+        if (
+            command.evidence.promoted_from_model_revision_id
+            != command.expected_current_revision_id
+        ):
+            raise ReferenceOgdenPronyConflict(
+                "promotion evidence must pin the exact revision it supersedes"
+            )
+        history = self._repository.list_material_model_revisions(
+            context=context,
+            decision=decision,
+            material_model_id=command.material_model_id,
+        )
+        if any(
+            item.content.promotion_evidence is not None
+            and item.content.promotion_evidence.calibration_candidate_id
+            == command.evidence.calibration_candidate_id
+            for item in history
+        ):
+            raise ReferenceOgdenPronyConflict(
+                "an Ogden calibration Candidate can be promoted only once"
+            )
+        content = replace(
+            baseline.current.content,
+            ogden_term=command.ogden_term,
+            promotion_evidence=command.evidence,
+        )
+        record = RevisionService(
+            aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
+            store=self._repository.material_model_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=command.material_model_id,
+                scope=baseline.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=REFERENCE_CALIBRATED_OGDEN_PRONY_SCHEMA_ID,
+                schema_version=REFERENCE_CALIBRATED_OGDEN_PRONY_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return OgdenPronyModelSnapshot(
+            command.material_model_id,
+            content.material_state_id,
+            RevisionSnapshot(record, content),
+        )
+
     def list_models_for_state(
         self,
         context: SecurityContext,
@@ -213,6 +311,19 @@ class OgdenPronyModelService:
         _require_decision(context, decision, Permission.MODELING_READ)
         return self._repository.list_material_models_for_state(
             context=context, decision=decision, material_state_id=material_state_id
+        )
+
+    def list_model_revisions(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_model_id: UUID,
+    ) -> tuple[RevisionSnapshot[ReferenceOgdenPronyContent], ...]:
+        _require_decision(context, decision, Permission.MODELING_READ)
+        return self._repository.list_material_model_revisions(
+            context=context,
+            decision=decision,
+            material_model_id=material_model_id,
         )
 
     def get_model_revision_for_export(

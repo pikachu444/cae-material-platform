@@ -23,6 +23,9 @@ from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository
 from cmp.modules.modeling.adapters.persistence.ogden_calibration_repository import (
     SqlAlchemyOgdenCalibrationRepository,
 )
+from cmp.modules.modeling.adapters.persistence.ogden_candidate_selection_repository import (
+    SqlAlchemyOgdenCandidateSelectionRepository,
+)
 from cmp.modules.modeling.adapters.persistence.ogden_prony_repository import (
     SqlAlchemyOgdenPronyRepository,
 )
@@ -52,6 +55,9 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
 )
 from cmp.modules.modeling.application.ogden_calibration import (
     ReferenceOgdenCalibrationService,
+)
+from cmp.modules.modeling.application.ogden_candidate_promotion import (
+    OgdenCandidatePromotionService,
 )
 from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.prony_calibration import (
@@ -204,6 +210,36 @@ def build_reference_ogden_calibration_service(
         testing=testing,
         models=models,
         artifacts=artifacts,
+    )
+
+
+def build_ogden_candidate_promotion_service(
+    identity: IdentityServices,
+    calibrations: ReferenceOgdenCalibrationService | None,
+    models: OgdenPronyModelService | None,
+) -> OgdenCandidatePromotionService | None:
+    """Compose human Ogden selection and repeated append-only IR promotion."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or calibrations is None
+        or models is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return OgdenCandidatePromotionService(
+        selections=SqlAlchemyOgdenCandidateSelectionRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        calibrations=calibrations,
+        models=models,
     )
 
 

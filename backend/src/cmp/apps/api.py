@@ -29,6 +29,7 @@ from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
     build_linear_viscoelastic_model_service,
     build_material_model_service,
+    build_ogden_candidate_promotion_service,
     build_ogden_prony_model_service,
     build_prony_candidate_promotion_service,
     build_reference_calibration_service,
@@ -118,6 +119,9 @@ from cmp.modules.modeling.adapters.api.material_models import install_material_m
 from cmp.modules.modeling.adapters.api.ogden_calibration import (
     install_ogden_calibration_api,
 )
+from cmp.modules.modeling.adapters.api.ogden_candidate_promotion import (
+    install_ogden_candidate_promotion_api,
+)
 from cmp.modules.modeling.adapters.api.ogden_prony import install_ogden_prony_api
 from cmp.modules.modeling.adapters.api.prony_calibration import install_prony_calibration_api
 from cmp.modules.modeling.adapters.api.prony_candidate_promotion import (
@@ -140,6 +144,9 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
 )
 from cmp.modules.modeling.application.ogden_calibration import (
     ReferenceOgdenCalibrationService,
+)
+from cmp.modules.modeling.application.ogden_candidate_promotion import (
+    OgdenCandidatePromotionService,
 )
 from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.prony_calibration import (
@@ -244,6 +251,7 @@ def create_app(
     ogden_prony_model_service: OgdenPronyModelService | None = None,
     scientific_profile_service: ScientificProfileService | None = None,
     ogden_calibration_service: ReferenceOgdenCalibrationService | None = None,
+    ogden_candidate_promotion_service: OgdenCandidatePromotionService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
     voce_calibration_service: ReferenceVoceCalibrationService | None = None,
@@ -645,6 +653,25 @@ def create_app(
         ),
         execute_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CALIBRATION_EXECUTE
+        ),
+    )
+    resolved_ogden_candidate_promotion = (
+        ogden_candidate_promotion_service
+        or build_ogden_candidate_promotion_service(
+            services,
+            resolved_ogden_calibration,
+            resolved_ogden_prony,
+        )
+    )
+    install_ogden_candidate_promotion_api(
+        application,
+        service=resolved_ogden_candidate_promotion,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
         ),
     )
     resolved_tabulated_plasticity = (

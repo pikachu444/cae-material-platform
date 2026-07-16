@@ -4,11 +4,14 @@ import {
   ApiError,
   type ApiConfig,
   createReferenceOgdenCalibrationPlan,
+  createReferenceOgdenCandidateSelection,
   executeReferenceOgdenCalibration,
   getReferenceOgdenCandidateDiagnostics,
   listGovernedDatasetsForTestRun,
+  listOgdenPronyModelRevisions,
   listScientificProfiles,
   listTestRunsForMaterialState,
+  promoteReferenceOgdenCandidate,
 } from "./api";
 import type {
   GovernedDatasetResponse,
@@ -16,6 +19,7 @@ import type {
   OgdenCalibrationPlanResponse,
   OgdenCalibrationRole,
   OgdenCalibrationRunResponse,
+  OgdenCandidateSelectionResponse,
   OgdenDiagnosticPoint,
   OgdenDiagnosticsResponse,
   OgdenPronyModelResponse,
@@ -132,10 +136,12 @@ export function ReferenceOgdenCalibrationWorkbench({
   config,
   state,
   model,
+  onPromoted,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   model: OgdenPronyModelResponse;
+  onPromoted?: (value: OgdenPronyModelResponse) => void;
 }) {
   const [profiles, setProfiles] = useState<ScientificProfileResponse[]>([]);
   const [choices, setChoices] = useState<DatasetChoice[]>([]);
@@ -143,20 +149,31 @@ export function ReferenceOgdenCalibrationWorkbench({
   const [run, setRun] = useState<OgdenCalibrationRunResponse | null>(null);
   const [diagnostics, setDiagnostics] = useState<OgdenDiagnosticsResponse | null>(null);
   const [selectedCandidateId, setSelectedCandidateId] = useState("");
+  const [selection, setSelection] = useState<OgdenCandidateSelectionResponse | null>(null);
+  const [history, setHistory] = useState<OgdenPronyModelResponse["current_revision"][]>([]);
+  const [selectionLabel, setSelectionLabel] = useState("Reviewed multi-test Ogden Candidate");
+  const [selectionReason, setSelectionReason] = useState(
+    "Reviewed fitted curves, residuals, convergence, bounds, and uncertainty evidence",
+  );
+  const [promotionReason, setPromotionReason] = useState(
+    "Append the human-selected Ogden Candidate as a new immutable IR revision",
+  );
   const [planLabel, setPlanLabel] = useState("Governed multi-test Ogden reference fit");
   const [reason, setReason] = useState("Pin exact governed curves and scientific profile revision");
   const [runReason, setRunReason] = useState("Execute deterministic multi-test Ogden reference fitting");
-  const [busy, setBusy] = useState<"load" | "plan" | "run" | "diagnostics" | null>(null);
+  const [busy, setBusy] = useState<"load" | "plan" | "run" | "diagnostics" | "selection" | "promotion" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadInputs(): Promise<void> {
     setBusy("load");
     setError(null);
     try {
-      const [profileResult, runResult] = await Promise.all([
+      const [profileResult, runResult, revisionResult] = await Promise.all([
         listScientificProfiles(config, "elastomer_ogden_prony"),
         listTestRunsForMaterialState(config, state.material_state_id),
+        listOgdenPronyModelRevisions(config, model.material_model_id),
       ]);
+      setHistory(revisionResult.data.items);
       const datasets = await Promise.all(
         runResult.data.items.map(async (testRun) => ({
           testRun,
@@ -181,6 +198,11 @@ export function ReferenceOgdenCalibrationWorkbench({
   }
 
   useEffect(() => {
+    setPlan(null);
+    setRun(null);
+    setSelection(null);
+    setDiagnostics(null);
+    setSelectedCandidateId("");
     void loadInputs();
   }, [config.baseUrl, config.accessToken, state.material_state_id, model.current_revision.id]);
 
@@ -219,6 +241,7 @@ export function ReferenceOgdenCalibrationWorkbench({
       setRun(null);
       setDiagnostics(null);
       setSelectedCandidateId("");
+      setSelection(null);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -254,6 +277,54 @@ export function ReferenceOgdenCalibrationWorkbench({
         (left, right) => left.objective_total - right.objective_total,
       )[0];
       if (candidate) await showDiagnostics(candidate.ogden_calibration_candidate_id);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function createSelection(): Promise<void> {
+    if (!run || !selectedCandidateId) return;
+    setBusy("selection");
+    setError(null);
+    try {
+      const result = await createReferenceOgdenCandidateSelection(config, {
+        classification: state.current_revision.classification,
+        selection_label: selectionLabel.trim(),
+        calibration_run_id: run.ogden_calibration_run_id,
+        calibration_candidate_id: selectedCandidateId,
+        selection_reason: selectionReason.trim(),
+      });
+      setSelection(result.data);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function promoteSelection(): Promise<void> {
+    if (!selection) return;
+    setBusy("promotion");
+    setError(null);
+    try {
+      const modelEtag = `"revision:${model.current_revision.revision_no}:sha256:${model.current_revision.content_hash}"`;
+      const result = await promoteReferenceOgdenCandidate(
+        config,
+        selection.ogden_candidate_selection_id,
+        modelEtag,
+        {
+          selection_revision_id: selection.current_revision.id,
+          change_reason: promotionReason.trim(),
+        },
+      );
+      const revisions = await listOgdenPronyModelRevisions(
+        config,
+        result.data.material_model_id,
+      );
+      setHistory(revisions.data.items);
+      onPromoted?.(result.data);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -380,6 +451,58 @@ export function ReferenceOgdenCalibrationWorkbench({
         </section>
       ) : null}
       {diagnostics ? <OgdenDiagnosticsPlot value={diagnostics} /> : null}
+      {run && selectedCandidateId ? (
+        <section className="workflow-step ogden-promotion-panel" aria-label="Human Ogden Candidate selection and promotion">
+          <div className="curve-heading">
+            <div>
+              <p className="eyebrow">T-44 · human decision gate</p>
+              <h5>Select, explain, then append an IR revision</h5>
+            </div>
+            <span className="reference-chip">current r{model.current_revision.revision_no}</span>
+          </div>
+          <p className="form-hint">
+            Candidate {shortId(selectedCandidateId)} is not promoted automatically. The exact current IR ETag is required.
+          </p>
+          <label>Selection label<input value={selectionLabel} onChange={(event) => setSelectionLabel(event.target.value)} required /></label>
+          <label>Human selection reason<textarea value={selectionReason} onChange={(event) => setSelectionReason(event.target.value)} required /></label>
+          <button className="button secondary" type="button" disabled={busy !== null || !selectionLabel.trim() || !selectionReason.trim()} onClick={() => void createSelection()}>
+            {busy === "selection" ? "Recording immutable Selection…" : "Record immutable Candidate Selection"}
+          </button>
+          {selection ? (
+            <div className="promotion-confirmation">
+              <strong>Selection r{selection.current_revision.revision_no} recorded</strong>
+              <small>{selection.current_revision.content.selection_decision.replaceAll("_", " ")}</small>
+              <label>IR promotion reason<input value={promotionReason} onChange={(event) => setPromotionReason(event.target.value)} required /></label>
+              <button className="button primary" type="button" disabled={busy !== null || !promotionReason.trim()} onClick={() => void promoteSelection()}>
+                {busy === "promotion" ? "Appending immutable IR revision…" : `Promote into model r${model.current_revision.revision_no + 1}`}
+              </button>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+      {history.length ? (
+        <section className="statistics-result ogden-revision-history" aria-label="Ogden IR revision and promotion evidence history">
+          <div className="curve-heading">
+            <div><p className="eyebrow">Same stable Material Model identity</p><h5>Append-only IR revision history</h5></div>
+            <span className="reference-chip">{history.length} revisions</span>
+          </div>
+          <div className="candidate-table" role="table" aria-label="Ogden IR revisions">
+            {history.map((revision) => {
+              const term = revision.content.ogden_terms[0];
+              const evidence = revision.content.promotion_evidence;
+              return (
+                <div className="candidate-row" role="row" key={revision.id}>
+                  <strong>r{revision.revision_no}</strong>
+                  <span>μ {mpa(term?.mu_pa ?? null)}</span>
+                  <span>α {term?.alpha.toPrecision(6)}</span>
+                  <span>{evidence ? `Candidate ${shortId(evidence.calibration_candidate_id)}` : "manual baseline"}</span>
+                  <span>{evidence ? `from ${shortId(evidence.promoted_from_model_revision_id)}` : "initial revision"}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
       {error ? <p className="error-notice" role="alert">{error}</p> : null}
     </section>
   );

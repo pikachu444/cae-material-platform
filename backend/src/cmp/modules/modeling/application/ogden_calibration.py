@@ -180,6 +180,24 @@ def _require(
         )
 
 
+def _require_capability(
+    context: SecurityContext,
+    decision: AuthorizationDecision,
+    permission: Permission,
+) -> None:
+    if (
+        decision.principal_id != context.principal.id
+        or decision.organization_id != context.organization_id
+        or decision.project_id != context.project_id
+        or decision.request_id != context.request_id
+        or decision.trace_id != context.trace_id
+        or permission.value not in decision.database_permissions
+    ):
+        raise OgdenCalibrationConflict(
+            "authorization decision lacks Ogden calibration read capability"
+        )
+
+
 def _reason(value: str) -> str:
     if not value or value != value.strip() or len(value) > 2000 or "\x00" in value:
         raise ValueError("change_reason must be trimmed and contain 1..2000 characters")
@@ -448,6 +466,26 @@ class ReferenceOgdenCalibrationService:
     ) -> OgdenCalibrationRun:
         _require(context, decision, Permission.MODELING_READ)
         return self._repository.get_run(context=context, decision=decision, run_id=run_id)
+
+    def get_run_for_promotion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        run_id: UUID,
+    ) -> OgdenCalibrationRun:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_run(context=context, decision=decision, run_id=run_id)
+
+    def get_candidate_for_promotion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> PersistedOgdenCandidate:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_candidate(
+            context=context, decision=decision, candidate_id=candidate_id
+        )
 
     async def candidate_diagnostics(
         self,

@@ -7,6 +7,7 @@ claiming that the result is suitable for material qualification.
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import io
@@ -296,7 +297,7 @@ def _import_curve(
     }
 
 
-def main() -> None:
+def main(*, promote: bool = False) -> None:
     with httpx.Client(base_url=BASE_URL, timeout=60.0) as anonymous:
         token = str(_json(anonymous.get("/demo-identity/token"))["access_token"])
     with httpx.Client(
@@ -367,26 +368,103 @@ def main() -> None:
         )
         candidates = cast(list[dict[str, Any]], run["candidates"])
         best = min(candidates, key=lambda item: float(item["objective_total"]))
-        print(
-            json.dumps(
-                {
-                    "fixture_stamp": stamp,
-                    "material_id": material["material_id"],
-                    "material_state_id": state["material_state_id"],
-                    "plan_id": plan["ogden_calibration_plan_id"],
-                    "run_id": run["ogden_calibration_run_id"],
-                    "candidate_id": best["ogden_calibration_candidate_id"],
-                    "calibration_curve_count": run["calibration_curve_count"],
-                    "holdout_curve_count": run["holdout_curve_count"],
-                    "test_mode_count": run["test_mode_count"],
-                    "mu_pa": best["mu_pa"],
-                    "alpha": best["alpha"],
-                    "uncertainty_status": best["uncertainty_status"],
-                },
-                indent=2,
+        result: dict[str, object] = {
+            "fixture_stamp": stamp,
+            "material_id": material["material_id"],
+            "material_state_id": state["material_state_id"],
+            "plan_id": plan["ogden_calibration_plan_id"],
+            "run_id": run["ogden_calibration_run_id"],
+            "candidate_id": best["ogden_calibration_candidate_id"],
+            "calibration_curve_count": run["calibration_curve_count"],
+            "holdout_curve_count": run["holdout_curve_count"],
+            "test_mode_count": run["test_mode_count"],
+            "mu_pa": best["mu_pa"],
+            "alpha": best["alpha"],
+            "uncertainty_status": best["uncertainty_status"],
+        }
+        if promote:
+            model_id = str(baseline["material_model_id"])
+            before_cards = cast(
+                list[dict[str, Any]],
+                _json(client.get(f"/ogden-prony-models/{model_id}/solver-cards"))["items"],
             )
+            frozen_cards = {
+                str(item["solver_card_id"]): (
+                    str(item["current_revision"]["id"]),
+                    str(item["current_revision"]["content"]["card_sha256"]),
+                )
+                for item in before_cards
+            }
+            selection = _json(
+                client.post(
+                    "/ogden-candidate-selections",
+                    json={
+                        "classification": "internal",
+                        "selection_label": f"Public synthetic Ogden Candidate {stamp}",
+                        "calibration_run_id": run["ogden_calibration_run_id"],
+                        "calibration_candidate_id": best[
+                            "ogden_calibration_candidate_id"
+                        ],
+                        "selection_reason": (
+                            "Reviewed fitted and residual curves, holdout response, "
+                            "convergence, bounds, rank, and uncertainty evidence."
+                        ),
+                    },
+                )
+            )
+            current = cast(dict[str, Any], baseline["current_revision"])
+            model_etag = (
+                f'"revision:{current["revision_no"]}:sha256:'
+                f'{current["content_hash"]}"'
+            )
+            promoted = _json(
+                client.post(
+                    f"/ogden-candidate-selections/"
+                    f"{selection['ogden_candidate_selection_id']}/promotions",
+                    headers={"If-Match": model_etag},
+                    json={
+                        "selection_revision_id": selection["current_revision"]["id"],
+                        "change_reason": (
+                            "Append the reviewed public synthetic Candidate as a new "
+                            "immutable Ogden-Prony IR revision."
+                        ),
+                    },
+                )
+            )
+            after_cards = cast(
+                list[dict[str, Any]],
+                _json(client.get(f"/ogden-prony-models/{model_id}/solver-cards"))["items"],
+            )
+            after_frozen = {
+                str(item["solver_card_id"]): (
+                    str(item["current_revision"]["id"]),
+                    str(item["current_revision"]["content"]["card_sha256"]),
+                )
+                for item in after_cards
+                if str(item["solver_card_id"]) in frozen_cards
+            }
+            if after_frozen != frozen_cards:
+                raise RuntimeError("a prior immutable Solver Card changed during promotion")
+            result.update(
+                {
+                    "selection_id": selection["ogden_candidate_selection_id"],
+                    "promoted_model_id": promoted["material_model_id"],
+                    "promoted_revision_id": promoted["current_revision"]["id"],
+                    "promoted_revision_no": promoted["current_revision"]["revision_no"],
+                    "prior_solver_cards_verified_stable": len(frozen_cards),
+                }
+            )
+        print(
+            json.dumps(result, indent=2)
         )
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--promote",
+        action="store_true",
+        help="record a human-style Selection and append the Candidate to the current IR",
+    )
+    arguments = parser.parse_args()
+    main(promote=arguments.promote)
