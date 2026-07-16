@@ -24,12 +24,17 @@ Steel reference 흐름을 처음부터 수행하려면
 4. 경로, classification, 크기와 종류를 확인합니다. 같은 stable identity라도 revision이 다르면
    서로 다른 입력입니다.
 5. **Create immutable ZIP**을 선택합니다.
-6. 완료 메시지와 **Immutable bundles** 목록에서 component 수, 크기와 SHA-256을 확인합니다.
-7. **Download ZIP**을 선택합니다. 서버는 짧게 유효한 전송 권한을 발급한 뒤 ZIP을 전달합니다.
+6. **Jobs and committed output**에서 작업 상태, 시도 횟수와 커밋된 출력의 SHA-256을 확인합니다.
+   작은 작업은 요청 안에서 완료되고, 큰 작업은 `queued`로 접수된 뒤 worker가 디스크 기반으로
+   조립합니다.
+7. 완료 메시지와 **Immutable bundles** 목록에서 component 수, 크기와 SHA-256을 확인합니다.
+8. **Download ZIP**을 선택합니다. 서버는 짧게 유효한 전송 권한을 발급한 뒤 ZIP을 전달합니다.
 
 ![22개 exact representation 선택](../15-demo/images/t45-bulk-export-selection.png)
 
 ![Immutable Bundle과 다운로드](../15-demo/images/t45-immutable-bundles.png)
+
+![외부 worker 작업과 커밋된 Bundle](../15-demo/images/t47-external-bundle-worker.png)
 
 ## ZIP에서 확인할 파일
 
@@ -53,8 +58,15 @@ manifest 내용이 달라지면 새 digest가 생성됩니다.
 - optional component를 포함하지 못한 경우 `manifest.json`의 omission에 이유가 기록됩니다.
 - 한 Bundle은 하나의 organization/project에만 속하며 classification은 포함 항목 중 가장 높은
   등급보다 낮을 수 없습니다.
-- 현재 inline demo assembly는 64 MiB까지입니다. 도메인 상한은 1,000개 또는 5 GiB이며 큰 작업의
-  외부 worker assembly는 T-47 운영 보강 범위입니다.
+- 기본 inline assembly 상한은 64 MiB입니다. 이보다 큰 예상 작업은 `202 Accepted`와 `queued`
+  Job으로 접수되며 worker가 API 메모리 밖의 임시 파일에 deterministic ZIP을 조립한 뒤 Artifact로
+  커밋합니다. Docker demo는 이 경로를 쉽게 확인하도록 상한을 16 KiB로 낮춥니다.
+- 외부 worker도 현재 component 하나당 64 MiB 상한을 적용합니다. 전체 도메인 상한은 1,000개 또는
+  5 GiB지만, 10,000 Material 검색과 2 GiB object streaming/soak/fault는 production-scale 검증 전입니다.
+- Artifact 커밋 뒤 Bundle projection 단계가 실패하면 Job은 `reconciliation_required`로 남습니다.
+  커밋된 SHA-256과 크기는 화면에서 숨기지 않으며 다음 worker 실행이 기존 출력을 재조립하지 않고
+  Bundle에 연결합니다. `running` 작업의 hard-kill lease 회수와 운영 token 자동 회전은 후속 운영
+  보강 범위입니다.
 
 ## Release와 구분
 

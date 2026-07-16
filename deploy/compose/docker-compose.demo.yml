@@ -72,9 +72,9 @@ services:
       CMP_UPLOAD_STORAGE_ROOT: /var/lib/cmp/object-store
       CMP_UPLOAD_CAPABILITY_SECRET: demo-upload-capability-secret-not-for-production-2026
       CMP_ARTIFACT_TRANSFER_SECRET: demo-artifact-transfer-secret-not-for-production-2026
-      # Deliberately lower than the production/default 64 MiB so the local demo exercises the
-      # external worker with the synthetic 2 MiB performance fixture.
-      CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES: "1048576"
+      # Deliberately lower than the production/default 64 MiB so the local demo's multi-component
+      # synthetic Material selections exercise the external worker path.
+      CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES: "16384"
       CMP_BULK_EXPORT_EXTERNAL_MEMBER_MAXIMUM_BYTES: "67108864"
       CMP_UPLOAD_MAX_OBJECT_BYTES: "16777216"
       CMP_UPLOAD_PART_BYTES: "8388608"

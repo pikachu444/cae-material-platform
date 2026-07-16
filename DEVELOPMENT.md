@@ -282,6 +282,13 @@ This appends an immutable demo Ingestion Event and therefore must not target pro
 environment. Results and the production-scale exclusions are described in
 [the performance acceptance runbook](deploy/performance/README.md).
 
+Bulk Export defaults to 64 MiB inline assembly. The Compose demo sets
+`CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES=16384` only so the public 22-component fixture exercises the
+external worker. `CMP_BULK_EXPORT_EXTERNAL_MEMBER_MAXIMUM_BYTES` bounds each source member read.
+The worker requires `CMP_WORKER_ACCESS_TOKEN` outside demo identity; the token must resolve to a
+principal with `export.execute`. Production token rotation and hard-kill lease reclamation remain
+release-hardening work.
+
 The live P0-1 gate completed with 62 PostgreSQL-marked tests passed (zero skips/failures), 452
 CI-equivalent Python tests passed, and 21 Vitest tests passed. The observed counts are not fixed;
 skip zero and failure zero are the acceptance rule.

@@ -148,7 +148,9 @@ Material의 **Test data / Datasets & Processing / Models & Cards / Governance** 
 사용합니다(`time_s`, `shear_modulus_mpa`, 단위 `s`/`MPa`). 자세한 절차는
 [governed tabular import 가이드](docs/user-guide/08-governed-tabular-import.md)에 있습니다.
 여러 표현을 한 번에 받는 절차는
-[Bulk Export Bundle 가이드](docs/user-guide/09-bulk-export.md)를 참고하십시오.
+[Bulk Export Bundle 가이드](docs/user-guide/09-bulk-export.md)를 참고하십시오. Export Center는
+작은 Bundle을 즉시 만들고, 큰 Bundle은 durable Job으로 접수해 외부 worker에서 조립합니다.
+Artifact가 커밋된 뒤 Bundle 연결이 실패해도 digest와 크기를 숨기지 않고 재조정 상태로 표시합니다.
 
 ## 지원 상태
 

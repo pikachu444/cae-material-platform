@@ -111,6 +111,22 @@ Release 또는 기존 source/card revision은 변경되지 않았다.
 
 ![Immutable Bulk Export Bundles](images/t45-immutable-bundles.png)
 
+### External worker assembly and committed-output reconciliation
+
+T-47 migration 057 적용 후 Docker demo의 inline 상한을 16 KiB로 낮춰 같은 DP780 22-component
+Selection을 외부 worker 경로로 실행했다. API는 `202 Accepted`와 queued Job
+`ff0a4030-44d2-4ab6-8e42-db478e7455fe`를 반환했고, worker는 디스크 기반으로 archive를 조립해
+immutable output commit `7842eac7-aa26-4b4e-9492-2d84382b52ae`와 Bundle
+`8ba6290e-cb2d-4722-9dc3-7d786d6e8251`를 만들었다. 최종 ZIP은 21,822 bytes이며 저장·API·실제
+다운로드의 SHA-256은 모두
+`04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`로 일치했다.
+
+회귀 테스트는 output Artifact와 output commit이 만들어진 뒤 Bundle projection이 실패하도록
+강제한다. 첫 실행은 `reconciliation_required`와 커밋된 digest/size를 노출하고, 두 번째 claim은
+source를 다시 읽거나 archive를 재조립하지 않고 기존 output을 Bundle에 연결한다.
+
+![External worker Job and immutable Bundle](images/t47-external-bundle-worker.png)
+
 ### Global module navigation and Material context tabs
 
 T-46은 Dashboard/Materials/Tests/Datasets/Models/Exports/Governance 전역 메뉴를 제공한다.
@@ -168,9 +184,8 @@ SHA-256(downloaded bytes) == solver_card_revision.card_sha256
 
 ## 다음 우선순위
 
-1. T-46 global Materials/Tests/Datasets/Models/Exports/Governance navigation과 contextual Material
-   tabs, deterministic screenshot/guide gate.
-2. T-47 observability, backup/restore, package signing/SBOM/scanning, performance/security,
-   large external-worker Bundle assembly와 외부 PLM/CAE connector hardening.
+1. T-47 production-scale 10,000-Material/2-GiB load·soak·fault acceptance와 worker hard-kill lease 회수.
+2. object lock/KMS/retention 및 production signing identity adapter.
+3. signed-manifest REST/webhook/object-storage connector와 운영 token rotation.
 
 실제 solver 실행과 solver qualification은 제품 소유자 지시에 따라 이 우선순위에서 제외한다.

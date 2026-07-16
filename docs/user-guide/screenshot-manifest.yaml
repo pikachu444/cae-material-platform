@@ -1,4 +1,4 @@
-version: 7
+version: 8
 verified_at: 2026-07-16
 source_evidence: ../15-demo/user-e2e-evidence-2026-07-16.md
 captures:
@@ -111,5 +111,12 @@ captures:
     workflow: auditor-redacted-route-template-observability
     fixture: deterministic T-47 Docker demo with OpenTelemetry Collector
     image: ../15-demo/images/t47-api-observability.png
+    width: 885
+    height: 1196
+  - id: external-bundle-worker
+    route: /exports
+    workflow: external-worker-assembly-output-commit-and-bundle-reconciliation
+    fixture: T-47 22-component Docker/PostgreSQL DP780 bundle forced above the 16-KiB demo inline limit
+    image: ../15-demo/images/t47-external-bundle-worker.png
     width: 885
     height: 1196

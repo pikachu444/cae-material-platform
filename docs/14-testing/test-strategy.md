@@ -507,6 +507,14 @@ T-45 Bulk Export tests additionally verify deterministic ZIP ordering/timestamps
 source revisions, manifest/checksum completeness, no silent omission, cross-tenant/classification
 denial, retry idempotency, size/component limits and downloaded archive integrity.
 
+T-47 external assembly tests force work above the inline boundary and require byte-for-byte equality
+with the inline deterministic builder. They also verify streaming Artifact staging/finalization,
+`queued→running→succeeded` transitions, immutable output-commit digest/size, and
+`reconciliation_required→reconciling→succeeded` recovery without reading source components or
+assembling a second archive. PostgreSQL migration tests cover transition/attempt guards, composite
+tenant/classification foreign keys, RLS and a 057→056→057 round trip. Frontend tests require Job
+state, attempt and committed-output evidence to remain visible before Bundle linkage.
+
 ### T-30 Release completeness invariants
 
 Release tests must verify a stable candidate-manifest digest, exact Material Model/Solver Card/
@@ -808,3 +816,17 @@ MiB/s, governed Bundle download p95 21.894 ms and 64 MiB inline assembly in 1.95
 Catalog contained 4 Materials and the upload was the documented CI fixture, so 10,000-Material
 search and 2-GiB infrastructure streaming remain `not_evaluated_at_production_scale`. A release
 environment must run `--require-production-scale`; a laptop pass cannot waive those NFRs.
+
+## T-47 external Bundle worker and reconciliation gate
+
+The Compose demo deliberately sets `CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES=16384` so its small public
+fixtures exercise the same external path that the default 64-MiB boundary protects. Acceptance
+requires a `202` queued response, worker completion, a typed immutable output commit, Bundle
+projection and a downloaded archive whose byte size and SHA-256 match the commit. The reference
+2026-07-16 run produced 22 components, 21,822 bytes and SHA-256
+`04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
+
+This gate does not claim the 5-GiB domain ceiling is operationally qualified. Per-component source
+reads remain capped at 64 MiB, and production-scale 10,000-Material/2-GiB load, long-running soak,
+hard-kill lease reclamation, fault injection and worker token rotation remain explicit release
+conditions.

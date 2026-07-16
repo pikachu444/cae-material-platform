@@ -1134,8 +1134,11 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   durable state-guarded Job, immutable deterministic ZIP Artifact, maximum classification/RLS,
   lifecycle/provenance/audit hooks, protected discovery/create/read/download APIs and connected
   `/exports` UI are complete. The Docker/PostgreSQL workflow downloaded a 22-component Bundle and
-  verified manifest/checksum evidence. Up to 64 MiB is assembled inline; external worker assembly
-  for the 5-GiB domain ceiling remains explicitly assigned to T-47.
+  verified manifest/checksum evidence. Up to 64 MiB is assembled inline by default; migration 057
+  and the T-47 worker now queue larger estimates, assemble deterministic bytes on disk, stream the
+  Artifact commit, expose immutable output evidence and reconcile a later Bundle-projection failure
+  without reassembly. The 1,000-component/5-GiB ceiling is a domain limit, not production-scale
+  acceptance; the current external worker still caps each source component at 64 MiB.
 
 #### T-46. User navigation, manuals and screenshot maintenance — `P0`
 
@@ -1171,8 +1174,10 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   local ephemeral key는 builder identity가 아니며 production KMS/keyless trust는 완료로 간주하지
   않는다. 실제 Catalog/API, 2 MiB/32-part upload, capability/auth/path threat, governed Bundle
   download와 64 MiB inline assembly의 bounded local benchmark/report gate도 완료했으나 4개
-  Material/2 MiB fixture를 10,000개/2 GiB production scale 달성으로 표시하지 않는다. 남은 순서는
-  (1) 10,000-Material/2-GiB production-scale 및 soak/fault acceptance, (2) 64 MiB 초과 Bundle
-  external-worker assembly와 failed-later-step output reconciliation visibility, (3) object
-  lock/KMS/retention 및 production signing adapter, (4) signed-manifest REST/webhook/object-storage
-  connector이다.
+  Material/2 MiB fixture를 10,000개/2 GiB production scale 달성으로 표시하지 않는다. migration
+  057, streaming Artifact finalization, composed worker와 Export Center Job 목록으로 64 MiB 초과
+  예상 작업의 외부 조립 및 failed-later-step output reconciliation visibility를 구현했고, 실제
+  Docker/PostgreSQL 22-component Bundle의 저장/다운로드 digest를 검증했다. 남은 순서는
+  (1) 10,000-Material/2-GiB production-scale 및 soak/fault acceptance와 hard-kill lease 회수,
+  (2) object lock/KMS/retention 및 production signing adapter, (3) signed-manifest
+  REST/webhook/object-storage connector와 운영 token rotation이다.
