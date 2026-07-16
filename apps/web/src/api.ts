@@ -35,6 +35,8 @@ import type {
   ProcessDefinitionCreateInput,
   ProcessDefinitionResponse,
   ProcessKind,
+  ProcessRunCreateInput,
+  ProcessRunResponse,
   StateGenealogyCreateInput,
   StateGenealogyResponse,
   LinearViscoelasticModelResponse,
@@ -105,6 +107,7 @@ import type {
   ProvenanceEntityResponse,
   ProvenanceLineagePage,
   SpecimenResponse,
+  SpecimenSourceResponse,
   ShearRelaxationCurvePreview,
   ShearRelaxationDatasetResponse,
   ShearRelaxationProcessingRecipeResponse,
@@ -419,6 +422,24 @@ export function reviseStateGenealogy(
   return request(config, `/state-genealogies/${encodeURIComponent(genealogyId)}/revisions`, {
     method: "POST",
     headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function listProcessRuns(
+  config: ApiConfig,
+  materialStateId: string,
+): Promise<ApiResult<{ items: ProcessRunResponse[] }>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/process-runs`);
+}
+
+export function createProcessRun(
+  config: ApiConfig,
+  materialStateId: string,
+  input: ProcessRunCreateInput,
+): Promise<ApiResult<ProcessRunResponse>> {
+  return request(config, `/material-states/${encodeURIComponent(materialStateId)}/process-runs`, {
+    method: "POST",
     body: JSON.stringify(input),
   });
 }
@@ -1519,6 +1540,35 @@ export function createSpecimen(
   },
 ): Promise<ApiResult<SpecimenResponse>> {
   return request(config, `/material-states/${encodeURIComponent(materialStateId)}/specimens`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getSpecimenSource(
+  config: ApiConfig,
+  specimenId: string,
+): Promise<ApiResult<SpecimenSourceResponse | null>> {
+  return request(config, `/specimens/${encodeURIComponent(specimenId)}/source-genealogy`);
+}
+
+export function createSpecimenSource(
+  config: ApiConfig,
+  specimenId: string,
+  input: {
+    content: {
+      specimen_revision_id: string;
+      sources: Array<{
+        material_lot_id: string;
+        material_lot_revision_id: string;
+        note: string | null;
+      }>;
+      note: string | null;
+    };
+    change_reason: string;
+  },
+): Promise<ApiResult<SpecimenSourceResponse>> {
+  return request(config, `/specimens/${encodeURIComponent(specimenId)}/source-genealogy`, {
     method: "POST",
     body: JSON.stringify(input),
   });

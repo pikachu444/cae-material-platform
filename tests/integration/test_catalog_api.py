@@ -12,6 +12,7 @@ from cmp.modules.catalog.application.service import (
     MATERIAL_LOT_AGGREGATE_TYPE,
     MATERIAL_STATE_AGGREGATE_TYPE,
     PROCESS_DEFINITION_AGGREGATE_TYPE,
+    PROCESS_RUN_AGGREGATE_TYPE,
     PROPERTY_SET_AGGREGATE_TYPE,
     STATE_GENEALOGY_AGGREGATE_TYPE,
     CatalogService,
@@ -20,6 +21,7 @@ from cmp.modules.catalog.application.service import (
     MaterialSnapshot,
     MaterialStateSnapshot,
     ProcessDefinitionSnapshot,
+    ProcessRunSnapshot,
     PropertySetSnapshot,
     RevisionSnapshot,
     StateGenealogySnapshot,
@@ -68,6 +70,10 @@ LOT = UUID("c8000000-0000-4000-8000-00000000000d")
 LOT_REVISION = UUID("c8000000-0000-4000-8000-00000000000e")
 GENEALOGY = UUID("c8000000-0000-4000-8000-00000000000f")
 GENEALOGY_REVISION = UUID("c8000000-0000-4000-8000-000000000010")
+PROCESS_RUN = UUID("c8000000-0000-4000-8000-000000000011")
+PROCESS_RUN_REVISION = UUID("c8000000-0000-4000-8000-000000000012")
+OUTPUT_LOT = UUID("c8000000-0000-4000-8000-000000000013")
+OUTPUT_LOT_REVISION = UUID("c8000000-0000-4000-8000-000000000014")
 TRACE = "00-000000000000000000000000000000c8-00000000000000c8-01"
 
 
@@ -205,12 +211,11 @@ class _CatalogService:
             MATERIAL,
             RevisionSnapshot(
                 _record(MATERIAL_LOT_AGGREGATE_TYPE, LOT, LOT_REVISION, 1, "f" * 64),
-                MaterialLotContent(
-                    MATERIAL, MATERIAL_REVISION_1, "HEAT-001", LotKind.BATCH
-                ),
+                MaterialLotContent(MATERIAL, MATERIAL_REVISION_1, "HEAT-001", LotKind.BATCH),
             ),
         )
         self.genealogy: StateGenealogySnapshot | None = None
+        self.process_run: ProcessRunSnapshot | None = None
 
     def create_material(
         self, context: SecurityContext, decision: AuthorizationDecision, command: Any
@@ -461,6 +466,48 @@ class _CatalogService:
         assert material_state_id == STATE
         return self.genealogy
 
+    def create_process_run(
+        self, context: SecurityContext, decision: AuthorizationDecision, command: Any
+    ) -> ProcessRunSnapshot:
+        del context, decision
+        self.process_run = ProcessRunSnapshot(
+            PROCESS_RUN,
+            STATE,
+            RevisionSnapshot(
+                _record(
+                    PROCESS_RUN_AGGREGATE_TYPE,
+                    PROCESS_RUN,
+                    PROCESS_RUN_REVISION,
+                    1,
+                    "2" * 64,
+                ),
+                command.content,
+            ),
+        )
+        return self.process_run
+
+    def list_process_runs_for_state(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+        *,
+        limit: int,
+    ) -> tuple[ProcessRunSnapshot, ...]:
+        del context, decision, limit
+        assert material_state_id == STATE
+        return (self.process_run,) if self.process_run is not None else ()
+
+    def get_process_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_run_id: UUID,
+    ) -> ProcessRunSnapshot:
+        del context, decision
+        assert process_run_id == PROCESS_RUN and self.process_run is not None
+        return self.process_run
+
 
 def _application() -> FastAPI:
     application = FastAPI()
@@ -650,13 +697,70 @@ def test_catalog_api_creates_exact_process_lot_and_state_genealogy_links() -> No
     )
     assert genealogy.status_code == 201
     genealogy_content = genealogy.json()["current_revision"]["content"]
-    assert genealogy_content["heat_treatment_process_revision_id"] == str(
-        PROCESS_REVISION
-    )
+    assert genealogy_content["heat_treatment_process_revision_id"] == str(PROCESS_REVISION)
     assert genealogy_content["material_lot_revision_id"] == str(LOT_REVISION)
 
-    read_back = _request(
-        application, "GET", f"/api/v1/material-states/{STATE}/genealogy"
-    )
+    read_back = _request(application, "GET", f"/api/v1/material-states/{STATE}/genealogy")
     assert read_back.status_code == 200
     assert read_back.headers["ETag"] == genealogy.headers["ETag"]
+
+
+def test_catalog_api_creates_split_process_run_with_explicit_balance_evidence() -> None:
+    application = _application()
+    created = _request(
+        application,
+        "POST",
+        f"/api/v1/material-states/{STATE}/process-runs",
+        json={
+            "content": {
+                "process_definition_id": str(PROCESS),
+                "process_definition_revision_id": str(PROCESS_REVISION),
+                "material_state_revision_id": str(STATE_REVISION),
+                "run_code": "SPLIT-001",
+                "started_at": "2026-07-16T09:00:00Z",
+                "ended_at": "2026-07-16T10:00:00Z",
+                "operator_name": "Demo operator",
+                "equipment_reference": "CUTTER-01",
+                "balance_basis": "mass",
+                "balance_tolerance_fraction": "0.001",
+                "inputs": [
+                    {
+                        "material_lot_id": str(LOT),
+                        "material_lot_revision_id": str(LOT_REVISION),
+                        "original_quantity": "1",
+                        "original_unit": "kg",
+                    }
+                ],
+                "outputs": [
+                    {
+                        "material_lot_id": str(OUTPUT_LOT),
+                        "material_lot_revision_id": str(OUTPUT_LOT_REVISION),
+                        "original_quantity": "400",
+                        "original_unit": "g",
+                    },
+                    {
+                        "material_lot_id": str(UUID(int=OUTPUT_LOT.int + 2)),
+                        "material_lot_revision_id": str(UUID(int=OUTPUT_LOT_REVISION.int + 2)),
+                        "original_quantity": "600",
+                        "original_unit": "g",
+                    },
+                ],
+            },
+            "change_reason": "record split flow",
+        },
+    )
+
+    assert created.status_code == 201, created.text
+    content = created.json()["current_revision"]["content"]
+    assert content["balance"]["within_tolerance"] is True
+    assert content["balance"]["input_total"] == "1"
+    assert content["outputs"][0]["normalized_unit"] == "kg"
+    assert content["outputs"][0]["normalization_factor"] == "0.001"
+
+    listed = _request(application, "GET", f"/api/v1/material-states/{STATE}/process-runs")
+    assert listed.status_code == 200
+    assert listed.json()["items"][0]["process_run_id"] == str(PROCESS_RUN)
+
+    read_back = _request(application, "GET", f"/api/v1/process-runs/{PROCESS_RUN}")
+    assert read_back.status_code == 200
+    assert read_back.headers["ETag"] == created.headers["ETag"]

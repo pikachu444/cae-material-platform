@@ -18,6 +18,7 @@ from cmp.modules.catalog.domain.model import (
     PropertySetContent,
     StateGenealogyContent,
 )
+from cmp.modules.catalog.domain.process_run import ProcessRunContent
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -38,6 +39,7 @@ PROPERTY_SET_AGGREGATE_TYPE = "catalog.property_set"
 PROCESS_DEFINITION_AGGREGATE_TYPE = "catalog.process_definition"
 MATERIAL_LOT_AGGREGATE_TYPE = "catalog.material_lot"
 STATE_GENEALOGY_AGGREGATE_TYPE = "catalog.state_genealogy"
+PROCESS_RUN_AGGREGATE_TYPE = "catalog.process_run"
 
 MATERIAL_SCHEMA_ID = "urn:cmp:catalog:material:2.0.0"
 MATERIAL_STATE_SCHEMA_ID = "urn:cmp:catalog:material-state:1.0.0"
@@ -45,6 +47,7 @@ PROPERTY_SET_SCHEMA_ID = "urn:cmp:catalog:property-set:1.0.0"
 PROCESS_DEFINITION_SCHEMA_ID = "urn:cmp:catalog:process-definition:1.0.0"
 MATERIAL_LOT_SCHEMA_ID = "urn:cmp:catalog:material-lot:1.0.0"
 STATE_GENEALOGY_SCHEMA_ID = "urn:cmp:catalog:state-genealogy:1.0.0"
+PROCESS_RUN_SCHEMA_ID = "urn:cmp:catalog:process-run:1.0.0"
 SCHEMA_VERSION = "1.0.0"
 MATERIAL_SCHEMA_VERSION = "2.0.0"
 
@@ -93,6 +96,13 @@ class StateGenealogySnapshot:
     id: UUID
     material_state_id: UUID
     current: RevisionSnapshot[StateGenealogyContent]
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessRunSnapshot:
+    id: UUID
+    material_state_id: UUID
+    current: RevisionSnapshot[ProcessRunContent]
 
 
 @dataclass(frozen=True, slots=True)
@@ -182,6 +192,19 @@ class ReviseStateGenealogy:
     change_reason: str
 
 
+@dataclass(frozen=True, slots=True)
+class CreateProcessRun:
+    content: ProcessRunContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseProcessRun:
+    expected_current_revision_id: UUID
+    content: ProcessRunContent
+    change_reason: str
+
+
 class CatalogRepository(Protocol):
     """Catalog-owned persistence port; all methods enforce tenant RLS in their adapter."""
 
@@ -208,6 +231,10 @@ class CatalogRepository(Protocol):
     def state_genealogy_store(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[StateGenealogyContent]: ...
+
+    def process_run_store(
+        self, context: SecurityContext, decision: AuthorizationDecision
+    ) -> RevisionStore[ProcessRunContent]: ...
 
     def list_materials(
         self,
@@ -287,44 +314,98 @@ class CatalogRepository(Protocol):
     ) -> MaterialDetail: ...
 
     def list_process_definitions(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
-        kind: ProcessKind | None, limit: int,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        kind: ProcessKind | None,
+        limit: int,
     ) -> tuple[ProcessDefinitionSnapshot, ...]: ...
 
     def get_process_definition(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
         process_definition_id: UUID,
     ) -> ProcessDefinitionSnapshot: ...
 
     def get_process_definition_revision(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
-        process_definition_id: UUID, revision_id: UUID,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_definition_id: UUID,
+        revision_id: UUID,
     ) -> RevisionSnapshot[ProcessDefinitionContent]: ...
 
     def list_material_lots(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
-        material_id: UUID, limit: int,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_id: UUID,
+        limit: int,
     ) -> tuple[MaterialLotSnapshot, ...]: ...
 
     def get_material_lot(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
         material_lot_id: UUID,
     ) -> MaterialLotSnapshot: ...
 
     def get_material_lot_revision(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
-        material_lot_id: UUID, revision_id: UUID,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_lot_id: UUID,
+        revision_id: UUID,
     ) -> RevisionSnapshot[MaterialLotContent]: ...
 
     def get_state_genealogy_for_state(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
         material_state_id: UUID,
     ) -> StateGenealogySnapshot | None: ...
 
     def get_state_genealogy(
-        self, *, context: SecurityContext, decision: AuthorizationDecision,
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
         state_genealogy_id: UUID,
     ) -> StateGenealogySnapshot: ...
+
+    def list_process_runs_for_state(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+        limit: int,
+    ) -> tuple[ProcessRunSnapshot, ...]: ...
+
+    def get_process_run(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_run_id: UUID,
+    ) -> ProcessRunSnapshot: ...
+
+    def get_process_run_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_run_id: UUID,
+        revision_id: UUID,
+    ) -> RevisionSnapshot[ProcessRunContent]: ...
 
 
 def _require_decision(
@@ -674,9 +755,7 @@ class CatalogService:
                 trace_id=context.trace_id,
             )
         )
-        return ProcessDefinitionSnapshot(
-            aggregate_id, RevisionSnapshot(record, command.content)
-        )
+        return ProcessDefinitionSnapshot(aggregate_id, RevisionSnapshot(record, command.content))
 
     def revise_process_definition(
         self,
@@ -861,11 +940,14 @@ class CatalogService:
     ) -> StateGenealogySnapshot:
         _require_decision(context, decision, Permission.CATALOG_WRITE)
         state_revision = self._validate_genealogy_sources(context, decision, command.content)
-        if self._repository.get_state_genealogy_for_state(
-            context=context,
-            decision=decision,
-            material_state_id=command.content.material_state_id,
-        ) is not None:
+        if (
+            self._repository.get_state_genealogy_for_state(
+                context=context,
+                decision=decision,
+                material_state_id=command.content.material_state_id,
+            )
+            is not None
+        ):
             raise CatalogConflict("Material State already has a stable genealogy identity")
         aggregate_id = self._id()
         record = self._revision_service(
@@ -930,6 +1012,117 @@ class CatalogService:
             RevisionSnapshot(record, command.content),
         )
 
+    def _validate_process_run_sources(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        content: ProcessRunContent,
+    ) -> RevisionSnapshot[MaterialStateContent]:
+        state = self._repository.get_material_state_revision(
+            context=context,
+            decision=decision,
+            material_state_id=content.material_state_id,
+            revision_id=content.material_state_revision_id,
+        )
+        process = self._repository.get_process_definition_revision(
+            context=context,
+            decision=decision,
+            process_definition_id=content.process_definition_id,
+            revision_id=content.process_definition_revision_id,
+        )
+        if process.record.scope != state.record.scope:
+            raise CatalogConflict("Process Run definition and Material State scopes must match")
+        for flow in (*content.inputs, *content.outputs):
+            lot = self._repository.get_material_lot_revision(
+                context=context,
+                decision=decision,
+                material_lot_id=flow.material_lot_id,
+                revision_id=flow.material_lot_revision_id,
+            )
+            if lot.record.scope != state.record.scope:
+                raise CatalogConflict("Process Run Lot cannot cross scope boundaries")
+            if (
+                lot.content.material_id != state.content.material_id
+                or lot.content.material_revision_id != state.content.material_revision_id
+            ):
+                raise CatalogConflict(
+                    "Process Run Lot must pin the Material revision used by the State"
+                )
+        return state
+
+    def create_process_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateProcessRun,
+    ) -> ProcessRunSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        state = self._validate_process_run_sources(context, decision, command.content)
+        aggregate_id = self._id()
+        record = self._revision_service(
+            PROCESS_RUN_AGGREGATE_TYPE,
+            self._repository.process_run_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=state.record.scope,
+                schema_id=PROCESS_RUN_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ProcessRunSnapshot(
+            aggregate_id,
+            command.content.material_state_id,
+            RevisionSnapshot(record, command.content),
+        )
+
+    def revise_process_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_run_id: UUID,
+        command: ReviseProcessRun,
+    ) -> ProcessRunSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        current = self._repository.get_process_run(
+            context=context, decision=decision, process_run_id=process_run_id
+        )
+        if command.content.material_state_id != current.material_state_id:
+            raise CatalogConflict("Process Run cannot move to another Material State")
+        state = self._validate_process_run_sources(context, decision, command.content)
+        if state.record.scope != current.current.record.scope:
+            raise CatalogConflict("Process Run cannot cross classification boundaries")
+        if command.content.run_code != current.current.content.run_code:
+            raise CatalogConflict("Process Run stable code cannot change across revisions")
+        record = self._revision_service(
+            PROCESS_RUN_AGGREGATE_TYPE,
+            self._repository.process_run_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=process_run_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=PROCESS_RUN_SCHEMA_ID,
+                schema_version=SCHEMA_VERSION,
+                content=command.content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return ProcessRunSnapshot(
+            process_run_id,
+            current.material_state_id,
+            RevisionSnapshot(record, command.content),
+        )
+
     def list_materials(
         self,
         context: SecurityContext,
@@ -978,14 +1171,55 @@ class CatalogService:
         _require_decision(context, decision, Permission.CATALOG_READ)
         if not 1 <= limit <= 100:
             raise ValueError("Material Lot limit must be between 1 and 100")
-        self._repository.get_material(
-            context=context, decision=decision, material_id=material_id
-        )
+        self._repository.get_material(context=context, decision=decision, material_id=material_id)
         return self._repository.list_material_lots(
             context=context,
             decision=decision,
             material_id=material_id,
             limit=limit,
+        )
+
+    def list_process_runs_for_state(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_state_id: UUID,
+        *,
+        limit: int = 100,
+    ) -> tuple[ProcessRunSnapshot, ...]:
+        _require_decision(context, decision, Permission.CATALOG_READ)
+        if not 1 <= limit <= 100:
+            raise ValueError("Process Run limit must be between 1 and 100")
+        self._repository.get_material_state(
+            context=context, decision=decision, material_state_id=material_state_id
+        )
+        return self._repository.list_process_runs_for_state(
+            context=context,
+            decision=decision,
+            material_state_id=material_state_id,
+            limit=limit,
+        )
+
+    def get_process_run(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_run_id: UUID,
+    ) -> ProcessRunSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_process_run(
+            context=context, decision=decision, process_run_id=process_run_id
+        )
+
+    def get_process_run_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        process_run_id: UUID,
+    ) -> ProcessRunSnapshot:
+        _require_decision(context, decision, Permission.CATALOG_WRITE)
+        return self._repository.get_process_run(
+            context=context, decision=decision, process_run_id=process_run_id
         )
 
     def get_state_genealogy_for_state(

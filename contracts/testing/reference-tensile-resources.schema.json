@@ -220,6 +220,85 @@
       "type": "object", "additionalProperties": false, "required": ["items"],
       "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/TestRunResponse"}}}
     },
+    "SpecimenSourceLot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_lot_id", "material_lot_revision_id", "note"],
+      "properties": {
+        "material_lot_id": {"$ref": "#/$defs/Uuid"},
+        "material_lot_revision_id": {"$ref": "#/$defs/Uuid"},
+        "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 1000}
+      }
+    },
+    "SpecimenSourceContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["specimen_id", "specimen_revision_id", "sources", "note"],
+      "properties": {
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_revision_id": {"$ref": "#/$defs/Uuid"},
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/SpecimenSourceLot"}
+        },
+        "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "SpecimenSourceRevision": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {
+          "content": {"$ref": "#/$defs/SpecimenSourceContent"}
+        }}
+      ]
+    },
+    "SpecimenSourceResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "specimen_source_genealogy_id", "specimen_id", "current_revision", "links"
+      ],
+      "properties": {
+        "specimen_source_genealogy_id": {"$ref": "#/$defs/Uuid"},
+        "specimen_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/SpecimenSourceRevision"},
+        "links": {"$ref": "#/$defs/Links"}
+      }
+    },
+    "SpecimenSourceCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["specimen_revision_id", "sources"],
+          "properties": {
+            "specimen_revision_id": {"$ref": "#/$defs/Uuid"},
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["material_lot_id", "material_lot_revision_id"],
+                "properties": {
+                  "material_lot_id": {"$ref": "#/$defs/Uuid"},
+                  "material_lot_revision_id": {"$ref": "#/$defs/Uuid"},
+                  "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 1000}
+                }
+              }
+            },
+            "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "TestingProblem": {
       "type": "object",
       "additionalProperties": false,

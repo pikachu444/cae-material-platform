@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import os
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -16,6 +17,8 @@ from cmp.modules.catalog.adapters.persistence.repository import (
     SqlAlchemyCatalogRepository,
     material_lot_revision_table,
     material_revision_table,
+    process_run_lot_flow_table,
+    process_run_revision_table,
     state_genealogy_revision_table,
 )
 from cmp.modules.catalog.application.service import (
@@ -24,9 +27,11 @@ from cmp.modules.catalog.application.service import (
     CreateMaterialLot,
     CreateMaterialState,
     CreateProcessDefinition,
+    CreateProcessRun,
     CreatePropertySet,
     CreateStateGenealogy,
     ReviseMaterial,
+    ReviseProcessRun,
     ReviseStateGenealogy,
 )
 from cmp.modules.catalog.domain.model import (
@@ -44,6 +49,7 @@ from cmp.modules.catalog.domain.model import (
     PropertySourceKind,
     StateGenealogyContent,
 )
+from cmp.modules.catalog.domain.process_run import BalanceBasis, LotFlow, ProcessRunContent
 from cmp.modules.exporting.adapters.persistence.repository import (
     SqlAlchemyExportingRepository,
     solver_card_revision_table,
@@ -91,6 +97,19 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
 )
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
+from cmp.modules.testing.adapters.persistence.repository import (
+    SqlAlchemyTestingRepository,
+    specimen_source_lot_table,
+)
+from cmp.modules.testing.application.service import (
+    CreateSpecimen,
+    CreateSpecimenSource,
+)
+from cmp.modules.testing.application.service import TestingService as _TestingApplicationService
+from cmp.modules.testing.domain.specimen_source import (
+    SpecimenSourceContent,
+    SpecimenSourceLot,
+)
 from cmp.shared.domain.revisions import RevisionConflict
 from sqlalchemy.engine import URL, Engine, make_url
 from sqlalchemy.exc import DBAPIError
@@ -124,6 +143,7 @@ class PostgresHarness:
     modeling: MaterialModelService
     linear_viscoelasticity: LinearViscoelasticModelService
     exporting: SolverCardService
+    testing: _TestingApplicationService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -174,7 +194,8 @@ def postgres() -> Iterator[PostgresHarness]:
             )
             connection.exec_driver_sql(
                 "GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, "
-                f'provenance, audit, catalog, modeling, exporting, artifact, plugin TO "{app_role}"'
+                "provenance, audit, catalog, testing, modeling, exporting, artifact, "
+                f'plugin TO "{app_role}"'
             )
             for schema in (
                 "identity",
@@ -182,6 +203,7 @@ def postgres() -> Iterator[PostgresHarness]:
                 "provenance",
                 "audit",
                 "catalog",
+                "testing",
                 "modeling",
                 "exporting",
                 "artifact",
@@ -245,6 +267,17 @@ def postgres() -> Iterator[PostgresHarness]:
             ),
             material_models=modeling,
         )
+        testing = _TestingApplicationService(
+            repository=SqlAlchemyTestingRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            )
+        )
         yield PostgresHarness(
             admin_engine=admin_engine,
             sessions=sessions,
@@ -253,6 +286,7 @@ def postgres() -> Iterator[PostgresHarness]:
             modeling=modeling,
             linear_viscoelasticity=linear_viscoelasticity,
             exporting=exporting,
+            testing=testing,
         )
     finally:
         if app_engine is not None:
@@ -372,9 +406,9 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
     detail = postgres.service.get_material_detail(context, read, material.id)
     assert detail.material.current.content.material_code == "S355"
     assert detail.material.current.content.material_class is MaterialClass.METAL
-    assert postgres.service.list_materials(
-        context, read, material_class=MaterialClass.METAL
-    ) == (material,)
+    assert postgres.service.list_materials(context, read, material_class=MaterialClass.METAL) == (
+        material,
+    )
     assert detail.states == (state,)
     assert detail.property_sets == (property_set,)
     assert detail.property_sets[0].current.content.youngs_modulus_pa == 210_000_000_000.0
@@ -447,7 +481,7 @@ def test_material_state_property_revisions_are_immutable_tenant_scoped_and_prove
     assert lifecycle_count == provenance_count == audit_count == 4
 
 
-def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
+def test_process_run_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
     postgres: PostgresHarness,
 ) -> None:
     context = _context()
@@ -490,9 +524,7 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
         write,
         CreateProcessDefinition(
             DataClassification.INTERNAL,
-            ProcessDefinitionContent(
-                "HT-QT-01", "Quench and temper", ProcessKind.HEAT_TREATMENT
-            ),
+            ProcessDefinitionContent("HT-QT-01", "Quench and temper", ProcessKind.HEAT_TREATMENT),
             "register heat-treatment process",
         ),
     )
@@ -508,6 +540,32 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
                 manufacturer="Reference mill",
             ),
             "register source heat",
+        ),
+    )
+    output_lot_a = postgres.service.create_material_lot(
+        context,
+        write,
+        CreateMaterialLot(
+            MaterialLotContent(
+                material.id,
+                material.current.record.revision_id,
+                "HEAT-2026-0716-A",
+                LotKind.BATCH,
+            ),
+            "register first split output",
+        ),
+    )
+    output_lot_b = postgres.service.create_material_lot(
+        context,
+        write,
+        CreateMaterialLot(
+            MaterialLotContent(
+                material.id,
+                material.current.record.revision_id,
+                "HEAT-2026-0716-B",
+                LotKind.BATCH,
+            ),
+            "register second split output",
         ),
     )
     genealogy = postgres.service.create_state_genealogy(
@@ -527,13 +585,146 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
             "pin exact genealogy sources",
         ),
     )
+    run_content = ProcessRunContent(
+        process_definition_id=manufacturing.id,
+        process_definition_revision_id=manufacturing.current.record.revision_id,
+        material_state_id=state.id,
+        material_state_revision_id=state.current.record.revision_id,
+        run_code="SPLIT-2026-0716",
+        started_at=NOW,
+        ended_at=NOW + timedelta(hours=1),
+        operator_name="Reference operator",
+        equipment_reference="PRESS-01",
+        balance_basis=BalanceBasis.MASS,
+        balance_tolerance_fraction=Decimal("0.001"),
+        balance_not_assessed_reason=None,
+        inputs=(
+            LotFlow.from_original(
+                material_lot_id=lot.id,
+                material_lot_revision_id=lot.current.record.revision_id,
+                original_quantity=Decimal("1"),
+                original_unit="kg",
+            ),
+        ),
+        outputs=(
+            LotFlow.from_original(
+                material_lot_id=output_lot_a.id,
+                material_lot_revision_id=output_lot_a.current.record.revision_id,
+                original_quantity=Decimal("400"),
+                original_unit="g",
+            ),
+            LotFlow.from_original(
+                material_lot_id=output_lot_b.id,
+                material_lot_revision_id=output_lot_b.current.record.revision_id,
+                original_quantity=Decimal("600"),
+                original_unit="g",
+            ),
+        ),
+    )
+    process_run = postgres.service.create_process_run(
+        context, write, CreateProcessRun(run_content, "record physical split")
+    )
+    testing_write = _decision(context, Permission.TESTING_WRITE)
+    testing_read = _decision(context, Permission.TESTING_READ)
+    specimen = postgres.testing.create_specimen(
+        context,
+        testing_write,
+        CreateSpecimen(
+            state.id,
+            state.current.record.revision_id,
+            "GEN-SPECIMEN-01",
+            "rolling",
+            "cut from first split output",
+            "register genealogy specimen",
+        ),
+    )
+    specimen_source = postgres.testing.create_specimen_source(
+        context,
+        testing_write,
+        CreateSpecimenSource(
+            SpecimenSourceContent(
+                specimen_id=specimen.id,
+                specimen_revision_id=specimen.current.record.revision_id,
+                sources=(
+                    SpecimenSourceLot(
+                        output_lot_a.id,
+                        output_lot_a.current.record.revision_id,
+                        "source split Lot",
+                    ),
+                ),
+            ),
+            "pin specimen source Lot",
+        ),
+    )
 
     assert postgres.service.list_process_definitions(context, read) == (
         manufacturing,
         heat,
     )
-    assert postgres.service.list_material_lots(context, read, material.id) == (lot,)
+    assert postgres.service.list_material_lots(context, read, material.id) == (
+        lot,
+        output_lot_a,
+        output_lot_b,
+    )
     assert postgres.service.get_state_genealogy_for_state(context, read, state.id) == genealogy
+    assert postgres.service.list_process_runs_for_state(context, read, state.id) == (process_run,)
+    assert process_run.current.content.balance is not None
+    assert process_run.current.content.balance.input_total == Decimal("1.000000000000")
+    assert (
+        postgres.testing.get_specimen_source_for_specimen(context, testing_read, specimen.id)
+        == specimen_source
+    )
+
+    revised_run = postgres.service.revise_process_run(
+        context,
+        write,
+        process_run.id,
+        ReviseProcessRun(
+            process_run.current.record.revision_id,
+            replace(run_content, note="reviewed physical split"),
+            "record Process Run review",
+        ),
+    )
+    assert revised_run.current.record.revision_no == 2
+
+    with pytest.raises(DBAPIError):
+        postgres.service.create_process_run(
+            context,
+            write,
+            CreateProcessRun(
+                ProcessRunContent(
+                    process_definition_id=manufacturing.id,
+                    process_definition_revision_id=(manufacturing.current.record.revision_id),
+                    material_state_id=state.id,
+                    material_state_revision_id=state.current.record.revision_id,
+                    run_code="CYCLE-REJECTED",
+                    started_at=NOW + timedelta(hours=2),
+                    ended_at=None,
+                    operator_name=None,
+                    equipment_reference=None,
+                    balance_basis=BalanceBasis.MASS,
+                    balance_tolerance_fraction=Decimal("0"),
+                    balance_not_assessed_reason=None,
+                    inputs=(
+                        LotFlow.from_original(
+                            material_lot_id=output_lot_a.id,
+                            material_lot_revision_id=(output_lot_a.current.record.revision_id),
+                            original_quantity=Decimal("1"),
+                            original_unit="kg",
+                        ),
+                    ),
+                    outputs=(
+                        LotFlow.from_original(
+                            material_lot_id=lot.id,
+                            material_lot_revision_id=lot.current.record.revision_id,
+                            original_quantity=Decimal("1"),
+                            original_unit="kg",
+                        ),
+                    ),
+                ),
+                "prove graph cycle is rejected",
+            ),
+        )
 
     with pytest.raises(CatalogConflict, match="matching process kind"):
         postgres.service.revise_state_genealogy(
@@ -546,9 +737,7 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
                     material_state_id=state.id,
                     material_state_revision_id=state.current.record.revision_id,
                     heat_treatment_process_id=manufacturing.id,
-                    heat_treatment_process_revision_id=(
-                        manufacturing.current.record.revision_id
-                    ),
+                    heat_treatment_process_revision_id=(manufacturing.current.record.revision_id),
                 ),
                 "reject role mismatch",
             ),
@@ -582,10 +771,7 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
             postgres.rls.bind_authorization(session, context, write)
             session.execute(
                 sa.update(state_genealogy_revision_table)
-                .where(
-                    state_genealogy_revision_table.c.id
-                    == genealogy.current.record.revision_id
-                )
+                .where(state_genealogy_revision_table.c.id == genealogy.current.record.revision_id)
                 .values(note="mutated immutable link")
             )
 
@@ -608,7 +794,8 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
                     "FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
                     "WHERE n.nspname='catalog' AND c.relname IN "
                     "('process_definition','process_definition_revision','material_lot',"
-                    "'material_lot_revision','state_genealogy','state_genealogy_revision')"
+                    "'material_lot_revision','state_genealogy','state_genealogy_revision',"
+                    "'process_run','process_run_revision','process_run_lot_flow')"
                 )
             ).all()
         }
@@ -623,6 +810,18 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
                 )
             ).all()
         }
+        testing_secured = {
+            str(row[0]): bool(row[1])
+            for row in connection.execute(
+                sa.text(
+                    "SELECT c.relname, c.relrowsecurity AND c.relforcerowsecurity "
+                    "FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
+                    "WHERE n.nspname='testing' AND c.relname IN "
+                    "('specimen_source_genealogy','specimen_source_genealogy_revision',"
+                    "'specimen_source_lot')"
+                )
+            ).all()
+        }
     assert secured_tables == {
         "process_definition": True,
         "process_definition_revision": True,
@@ -630,8 +829,16 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
         "material_lot_revision": True,
         "state_genealogy": True,
         "state_genealogy_revision": True,
+        "process_run": True,
+        "process_run_revision": True,
+        "process_run_lot_flow": True,
     }
     assert "catalog_state_genealogy_source_guard" in triggers
+    assert testing_secured == {
+        "specimen_source_genealogy": True,
+        "specimen_source_genealogy_revision": True,
+        "specimen_source_lot": True,
+    }
 
     with pytest.raises(DBAPIError):
         with postgres.sessions() as session, session.begin():
@@ -641,6 +848,34 @@ def test_process_lot_and_state_genealogy_are_revision_pinned_and_tenant_scoped(
                 .where(material_lot_revision_table.c.id == lot.current.record.revision_id)
                 .values(lot_code="MUTATED")
             )
+
+    with pytest.raises(DBAPIError):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.update(process_run_lot_flow_table)
+                .where(
+                    process_run_lot_flow_table.c.process_run_revision_id
+                    == process_run.current.record.revision_id
+                )
+                .values(original_quantity=Decimal("2"))
+            )
+
+    with pytest.raises(DBAPIError):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.update(specimen_source_lot_table)
+                .where(
+                    specimen_source_lot_table.c.specimen_source_revision_id
+                    == specimen_source.current.record.revision_id
+                )
+                .values(note="mutated immutable source")
+            )
+
+    with postgres.admin_engine.connect() as connection:
+        revision_count = connection.scalar(
+            sa.select(sa.func.count()).select_from(process_run_revision_table)
+        )
+    assert revision_count == 2
 
 
 def test_reference_material_model_is_immutable_source_pinned_and_tenant_scoped(
@@ -957,8 +1192,7 @@ def test_linear_viscoelastic_model_persists_ordered_terms_and_exact_source_revis
     assert restored.current.content.material_revision_id == material.current.record.revision_id
     assert restored.current.content.material_state_revision_id == state.current.record.revision_id
     assert (
-        restored.current.content.property_set_revision_id
-        == property_set.current.record.revision_id
+        restored.current.content.property_set_revision_id == property_set.current.record.revision_id
     )
     assert tuple(term.relaxation_time_s for term in restored.current.content.terms) == (
         0.1,
@@ -1080,9 +1314,7 @@ def test_elastoplastic_migration_installs_typed_scoped_constraints_and_guards(
         assert "project_id" in definition
         assert "classification" in definition
         assert "ON DELETE RESTRICT" in definition
-    assert "source_point_count" in constraints[
-        "ck_modeling_material_model_plastic_counts"
-    ]
+    assert "source_point_count" in constraints["ck_modeling_material_model_plastic_counts"]
     assert "modeling_material_model_family_stable" in triggers
     assert "modeling_material_model_hardening_artifact_valid" in triggers
     assert rls == {

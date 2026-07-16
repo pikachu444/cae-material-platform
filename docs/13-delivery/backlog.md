@@ -988,6 +988,10 @@ in the same vertical increment. Actual solver execution remains excluded.
   immutable history와 connected genealogy UI가 동작한다.
 - **테스트:** unit balance/split/merge; PostgreSQL deferred constraints/RLS; API/browser exact-pin;
   source revision mutation and cross-project regression.
+- **구현 상태 (2026-07-16):** 완료. Migration 049의 explicit typed tables, immutable revisions,
+  ordered Lot flows, deferred material/balance/cycle guards, forced RLS와 Specimen source exact-pin을
+  protected API 및 Material State 화면에 연결했다. 지원 수량 단위는 현재 `kg|g|mg`,
+  `m3|L|mL|cm3`, `1`로 제한하며 원본 단위와 normalized SI를 함께 보존한다.
 
 #### T-40. Test Campaign, Instrument calibration and condition snapshots — `P0`
 

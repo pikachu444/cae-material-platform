@@ -1231,6 +1231,102 @@ paths:
         "403": {description: Catalog write is not authorized.}
         "404": {description: State Genealogy is not visible.}
         "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/material-states/{material_state_id}/process-runs:
+    get:
+      operationId: listProcessRuns
+      tags: [catalog]
+      summary: List current Process Runs and exact Lot flows for a Material State.
+      security: [{BearerAuth: []}]
+      parameters:
+        - $ref: "#/components/parameters/MaterialStateId"
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 100, default: 100}
+      responses:
+        "200":
+          description: Current Process Run heads with ordered immutable Lot flows.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessRunListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: Material State is not visible.}
+    post:
+      operationId: createProcessRun
+      tags: [catalog]
+      summary: Create a Process Run with exact input and output Lot revisions.
+      security: [{BearerAuth: []}]
+      parameters: [{$ref: "#/components/parameters/MaterialStateId"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessRunCreateRequest"}
+      responses:
+        "201":
+          description: Stable Process Run identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Lot graph, scope, balance or identity conflict.}
+        "422": {description: Typed Process Run content is invalid.}
+  /api/v1/process-runs/{process_run_id}:
+    get:
+      operationId: getProcessRun
+      tags: [catalog]
+      summary: Read a current Process Run revision and immutable Lot flows.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: process_run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current Process Run head.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: Process Run is not visible.}
+  /api/v1/process-runs/{process_run_id}/revisions:
+    post:
+      operationId: reviseProcessRun
+      tags: [catalog]
+      summary: Append a Process Run correction using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: process_run_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessRunCreateRequest"}
+      responses:
+        "200":
+          description: New immutable Process Run revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/ProcessRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: Process Run is not visible.}
+        "409": {description: Lot graph, scope or balance conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/materials:
     get:
       operationId: listMaterials
@@ -1567,6 +1663,87 @@ paths:
         "409": {description: Immutable source or Specimen identity conflicts.}
         "422": {description: Specimen content is invalid.}
         "503": {description: Testing service unavailable.}
+  /api/v1/specimens/{specimen_id}/source-genealogy:
+    get:
+      operationId: getSpecimenSourceGenealogy
+      tags: [testing]
+      summary: Read exact Material Lot sources for the current Specimen genealogy head.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: specimen_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current source genealogy, or null before it is established.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenSourceResponse"}
+                  - {type: "null"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing read is not authorized.}
+    post:
+      operationId: createSpecimenSourceGenealogy
+      tags: [testing]
+      summary: Pin ordered exact Material Lot revisions to a Specimen revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: specimen_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenSourceCreateRequest"}
+      responses:
+        "201":
+          description: Stable Specimen source identity and immutable revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenSourceResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "409": {description: Source Lot, scope or identity conflict.}
+        "422": {description: Specimen source content is invalid.}
+  /api/v1/specimen-source-genealogies/{specimen_source_id}/revisions:
+    post:
+      operationId: reviseSpecimenSourceGenealogy
+      tags: [testing]
+      summary: Append a Specimen source correction using If-Match.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: specimen_source_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenSourceCreateRequest"}
+      responses:
+        "200":
+          description: New immutable Specimen source revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../testing/reference-tensile-resources.schema.json#/$defs/SpecimenSourceResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Testing write is not authorized.}
+        "404": {description: Specimen source genealogy is not visible.}
+        "409": {description: Source Lot, scope or identity conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/test-methods/reference-uniaxial-tensile:
     post:
       operationId: createReferenceTensileTestMethod

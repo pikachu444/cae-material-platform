@@ -32,6 +32,11 @@ captures:
     workflow: catalog-genealogy
     fixture: live-e2e-genealogy-2026-07-16
     image: ../15-demo/images/process-lot-genealogy.png
+  - id: process-run-specimen-source
+    route: /materials/{material_id}
+    workflow: process-run-and-specimen-source-genealogy
+    fixture: live-e2e-genealogy-2026-07-16
+    image: ../15-demo/images/process-run-specimen-source.png
   - id: law62-card
     route: /materials/{material_id}
     workflow: openradioss-law62-card

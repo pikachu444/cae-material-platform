@@ -499,6 +499,155 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "BalanceBasis": {
+      "type": "string",
+      "enum": ["mass", "volume", "count", "not_assessed"]
+    },
+    "LotFlowInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_lot_id", "material_lot_revision_id", "original_quantity", "original_unit"
+      ],
+      "properties": {
+        "material_lot_id": {"$ref": "#/$defs/Uuid"},
+        "material_lot_revision_id": {"$ref": "#/$defs/Uuid"},
+        "original_quantity": {
+          "anyOf": [
+            {"type": "number", "exclusiveMinimum": 0},
+            {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+          ]
+        },
+        "original_unit": {
+          "type": "string",
+          "enum": ["kg", "g", "mg", "m3", "L", "mL", "cm3", "1"]
+        }
+      }
+    },
+    "LotFlowContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_lot_id", "material_lot_revision_id", "original_quantity", "original_unit",
+        "quantity_basis", "normalized_quantity", "normalized_unit", "normalization_factor"
+      ],
+      "properties": {
+        "material_lot_id": {"$ref": "#/$defs/Uuid"},
+        "material_lot_revision_id": {"$ref": "#/$defs/Uuid"},
+        "original_quantity": {"type": "string"},
+        "original_unit": {"type": "string"},
+        "quantity_basis": {"type": "string", "enum": ["mass", "volume", "count"]},
+        "normalized_quantity": {"type": "string"},
+        "normalized_unit": {"type": "string", "enum": ["kg", "m3", "1"]},
+        "normalization_factor": {"type": "string"}
+      }
+    },
+    "ProcessBalance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_total", "output_total", "relative_difference", "within_tolerance"],
+      "properties": {
+        "input_total": {"type": "string"},
+        "output_total": {"type": "string"},
+        "relative_difference": {"type": "string"},
+        "within_tolerance": {"const": true}
+      }
+    },
+    "ProcessRunContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_definition_id", "process_definition_revision_id", "material_state_id",
+        "material_state_revision_id", "run_code", "started_at", "ended_at", "operator_name",
+        "equipment_reference", "balance_basis", "balance_tolerance_fraction",
+        "balance_not_assessed_reason", "balance", "inputs", "outputs", "note"
+      ],
+      "properties": {
+        "process_definition_id": {"$ref": "#/$defs/Uuid"},
+        "process_definition_revision_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "run_code": {"type": "string", "minLength": 1, "maxLength": 100},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "operator_name": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+        "equipment_reference": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "balance_basis": {"$ref": "#/$defs/BalanceBasis"},
+        "balance_tolerance_fraction": {"type": ["string", "null"]},
+        "balance_not_assessed_reason": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "balance": {"anyOf": [{"$ref": "#/$defs/ProcessBalance"}, {"type": "null"}]},
+        "inputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/LotFlowContent"}},
+        "outputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/LotFlowContent"}},
+        "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProcessRunRevision": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content", "provenance"], "properties": {
+          "content": {"$ref": "#/$defs/ProcessRunContent"},
+          "provenance": {"$ref": "#/$defs/ProvenanceSummary"}
+        }}
+      ]
+    },
+    "ProcessRunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["process_run_id", "material_state_id", "current_revision"],
+      "properties": {
+        "process_run_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/ProcessRunRevision"}
+      }
+    },
+    "ProcessRunListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/ProcessRunResponse"}}
+      }
+    },
+    "ProcessRunCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "process_definition_id", "process_definition_revision_id",
+            "material_state_revision_id", "run_code", "started_at", "balance_basis",
+            "inputs", "outputs"
+          ],
+          "properties": {
+            "process_definition_id": {"$ref": "#/$defs/Uuid"},
+            "process_definition_revision_id": {"$ref": "#/$defs/Uuid"},
+            "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+            "run_code": {"type": "string", "minLength": 1, "maxLength": 100},
+            "started_at": {"type": "string", "format": "date-time"},
+            "ended_at": {"type": ["string", "null"], "format": "date-time"},
+            "operator_name": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+            "equipment_reference": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+            "balance_basis": {"$ref": "#/$defs/BalanceBasis"},
+            "balance_tolerance_fraction": {
+              "anyOf": [
+                {"type": "number", "minimum": 0, "maximum": 1},
+                {"type": "string"},
+                {"type": "null"}
+              ]
+            },
+            "balance_not_assessed_reason": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+            "inputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/LotFlowInput"}},
+            "outputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/LotFlowInput"}},
+            "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+          }
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "CatalogProblem": {
       "type": "object",
       "additionalProperties": false,

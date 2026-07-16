@@ -319,6 +319,52 @@ export interface StateGenealogyResponse {
   };
 }
 
+export type BalanceBasis = "mass" | "volume" | "count" | "not_assessed";
+
+export interface LotFlowContent {
+  material_lot_id: string;
+  material_lot_revision_id: string;
+  original_quantity: string;
+  original_unit: string;
+  quantity_basis: Exclude<BalanceBasis, "not_assessed">;
+  normalized_quantity: string;
+  normalized_unit: string;
+  normalization_factor: string;
+}
+
+export interface ProcessRunContent {
+  process_definition_id: string;
+  process_definition_revision_id: string;
+  material_state_id: string;
+  material_state_revision_id: string;
+  run_code: string;
+  started_at: string;
+  ended_at: string | null;
+  operator_name: string | null;
+  equipment_reference: string | null;
+  balance_basis: BalanceBasis;
+  balance_tolerance_fraction: string | null;
+  balance_not_assessed_reason: string | null;
+  balance: {
+    input_total: string;
+    output_total: string;
+    relative_difference: string;
+    within_tolerance: boolean;
+  } | null;
+  inputs: LotFlowContent[];
+  outputs: LotFlowContent[];
+  note: string | null;
+}
+
+export interface ProcessRunResponse {
+  process_run_id: string;
+  material_state_id: string;
+  current_revision: RevisionMetadata & {
+    content: ProcessRunContent;
+    provenance: ProvenanceSummary;
+  };
+}
+
 export interface ProcessDefinitionCreateInput {
   classification: DataClassification;
   content: ProcessDefinitionContent;
@@ -332,6 +378,36 @@ export interface MaterialLotCreateInput {
 
 export interface StateGenealogyCreateInput {
   content: Omit<StateGenealogyContent, "material_state_id">;
+  change_reason: string;
+}
+
+export interface ProcessRunCreateInput {
+  content: {
+    process_definition_id: string;
+    process_definition_revision_id: string;
+    material_state_revision_id: string;
+    run_code: string;
+    started_at: string;
+    ended_at: string | null;
+    operator_name: string | null;
+    equipment_reference: string | null;
+    balance_basis: BalanceBasis;
+    balance_tolerance_fraction: string | null;
+    balance_not_assessed_reason: string | null;
+    inputs: Array<{
+      material_lot_id: string;
+      material_lot_revision_id: string;
+      original_quantity: string;
+      original_unit: string;
+    }>;
+    outputs: Array<{
+      material_lot_id: string;
+      material_lot_revision_id: string;
+      original_quantity: string;
+      original_unit: string;
+    }>;
+    note: string | null;
+  };
   change_reason: string;
 }
 
@@ -799,6 +875,24 @@ export interface SpecimenResponse {
   specimen_id: string;
   material_state_id: string;
   current_revision: SpecimenRevision;
+  links: Record<string, string>;
+}
+
+export interface SpecimenSourceResponse {
+  specimen_source_genealogy_id: string;
+  specimen_id: string;
+  current_revision: RevisionMetadata & {
+    content: {
+      specimen_id: string;
+      specimen_revision_id: string;
+      sources: Array<{
+        material_lot_id: string;
+        material_lot_revision_id: string;
+        note: string | null;
+      }>;
+      note: string | null;
+    };
+  };
   links: Record<string, string>;
 }
 
