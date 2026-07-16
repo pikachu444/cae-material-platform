@@ -36,6 +36,7 @@
 | `FR-ING-007` | unit conversion은 conversion factor와 offset, library/version, mapping rule을 기록해야 한다. | 동일 conversion을 재계산하고 original/normalized value를 비교할 수 있다. |
 | `FR-ING-008` | 알 수 없는 단위·column은 자동 추측으로 확정하지 않아야 한다. | unresolved mapping이 있으면 normalization job이 `needs_input`으로 종료된다. |
 | `FR-ING-009` | importer 실패 시 원본 asset과 오류 report를 보존해야 한다. | partial normalized dataset을 성공으로 발행하지 않는다. |
+| `FR-ING-010` | 첫 governed tabular importer는 CSV, TSV, XLSX의 sheet/header/encoding/locale을 명시해야 한다. | detect/preview 이후 승인된 Mapping revision만 import하며 spreadsheet formula는 data로 실행하지 않는다. |
 
 ### 2.3 Dataset, revision, provenance
 
@@ -81,6 +82,7 @@
 | `FR-CAL-005` | multi-start 및 candidate comparison을 지원해야 한다. | 각 attempt와 최종 선택 이유가 분리된다. |
 | `FR-CAL-006` | train/calibration selection과 holdout/validation selection을 구분해야 한다. | 동일 specimen 중복 사용을 policy에 따라 차단 또는 경고한다. |
 | `FR-CAL-007` | parameter uncertainty 또는 식별성 diagnostic의 schema를 제공해야 한다. | 미지원 calibrator는 `not_provided`를 명시하고 빈 값을 성공처럼 표시하지 않는다. |
+| `FR-CAL-008` | 같은 Material Model을 반복 보정할 때 prior promotion evidence를 보존해야 한다. | 같은 stable identity에 새 IR revision과 revision-owned evidence를 append하고 과거 IR/Card/Release digest가 변하지 않는다. |
 
 ### 2.6 Material Model IR와 solver card
 
@@ -95,6 +97,8 @@
 | `FR-EXP-002` | unsupported mapping은 실패해야 하며 approximation은 policy 승인 없이는 release할 수 없어야 한다. | negative contract test가 통과한다. |
 | `FR-EXP-003` | card text와 semantic normalized representation을 비교할 수 있어야 한다. | golden test가 volatile text와 semantic change를 구분한다. |
 | `FR-EXP-004` | exporter는 target solver card를 parsing하거나 최소 syntax validation hook을 제공해야 한다. | 잘못된 keyword/field fixture가 validation에서 실패한다. |
+| `FR-EXP-005` | 사용자는 선택한 test data, neutral IR, mapping report와 card를 immutable Bulk Export Bundle로 받을 수 있어야 한다. | archive의 manifest/checksum이 모든 파일과 exact source revision을 검증하고 누락·미지원 항목을 조용히 제외하지 않는다. |
+| `FR-EXP-006` | Bulk Export와 governed Release의 의미를 분리해야 한다. | Release lifecycle 또는 manifest를 변경하지 않고 별도 Export Selection/Job/Bundle이 생성된다. |
 
 ### 2.7 가상 시편 검증
 
@@ -190,6 +194,7 @@
 | `NFR-COMP-002` | 하나의 major 전 버전 plugin contract를 최소 migration window 동안 지원한다는 목표를 둔다. |
 | `NFR-OBS-001` | request/job/plugin/solver 실행에 trace ID를 전달하고 logs, metrics, traces를 연계한다. |
 | `NFR-DOC-001` | public contract는 OpenAPI, AsyncAPI 또는 JSON Schema로 machine-readable하게 제공한다. |
+| `NFR-DOC-002` | 사용자가 Material 등록부터 시험 데이터 처리와 card 다운로드를 수행하는 task-oriented guide를 제공하고 user-visible GUI 변경 시 관련 이미지와 절차를 갱신한다. |
 
 ### 3.6 과학적 품질과 사용성
 

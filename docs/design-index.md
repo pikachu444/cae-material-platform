@@ -1,8 +1,10 @@
 # CAE Material Platform — 기획·설계 기준선
 
-문서 버전: `0.1.0-draft`  
-기준일: `2026-07-11`  
-상태: 구현 전 설계 패키지
+문서 버전: `0.2.0-production-pilot`
+
+기준일: `2026-07-16`
+
+상태: 구현 중인 제품 기준선
 
 ## 1. 이 패키지의 목적
 
@@ -38,47 +40,54 @@
 - `ASSUMPTION` 첫 운영 대상은 단일 기업용 온프레미스 또는 사설 클라우드다.
 - `ASSUMPTION` 초기에는 검토·서명된 내부/파트너 플러그인만 설치한다.
 - `ASSUMPTION` 가상 시편 검증은 고객사 라이선스 및 HPC에 연결된 runner를 통해 실행할 수 있고, 수동 결과 반입도 허용한다.
-- `TBD` 대표 인장시험의 재료군, 시험 표준, 구성방정식, 솔버 및 카드 종류는 결정하지 않았다.
+- `DECISION` 첫 reference 범위는 metal 탄소성, polymer 선형 점탄성, elastomer
+  Ogden--Prony이며 Abaqus 2025와 OpenRadioss 2025 exporter를 사용한다.
+- `CONFIRMED` 이 reference 범위는 실제 solver qualification 또는 production domain 승인을
+  뜻하지 않는다.
 
-## 4. 대표 MVP 흐름
+## 4. 구현된 reference 흐름과 다음 production-pilot 범위
 
 ```mermaid
 flowchart TD
-    A["반복 인장시험 업로드"] --> B["메타데이터·단위 정규화"]
-    B --> C["시편 QC·산포 분석"]
-    C --> D["곡선 전처리"]
-    D --> E["구성방정식 보정"]
-    E --> F["Material Model IR"]
-    F --> G["솔버 카드 생성"]
-    G --> H["가상 시편 검증"]
-    H --> I["검토·승인·발행"]
+    A["Material / State / Lot"] --> B["Test Run / immutable Raw Asset"]
+    B --> C["raw / normalized / processed Dataset"]
+    C --> D["통계·QC·명시적 Processing"]
+    D --> E["자동 또는 수동 Calibration"]
+    E --> F["solver-neutral Material Model IR revision"]
+    F --> G["mapping preflight"]
+    G --> H["Abaqus / OpenRadioss Card"]
+    H --> I["개별·Bulk 전달 / Governance"]
 ```
 
-`E`, `G`의 구체적인 모델·카드는 `TBD`다. core는 이 선택을 알지 못하며, 선택된 플러그인 manifest와 schema만 처리한다.
+현재 bounded reference 구현은 Material 저장, 시험 CSV 등록, normalized/processed Dataset,
+Voce 또는 Prony fitting, 사람의 Candidate 선택, IR 승격, Abaqus/OpenRadioss card preview와
+download를 포함한다. 다음 기준선은 Process Run·Campaign·Instrument, CSV/TSV/XLSX importer,
+점탄성 반복시험/master curve, iterative calibration과 Bulk Export Bundle이다. 세부 순서는
+[production-pilot 실행 계획](13-delivery/production-pilot-execution-plan.md)을 따른다.
 
 ## 5. 문서 목록과 읽는 순서
 
-1. [공식 제품 조사](docs/00-research/official-product-research.md)
-2. [제품 비전·역할·흐름·범위](docs/01-product/product-vision.md)
-3. [기능·비기능 요구사항](docs/02-requirements/requirements.md)
-4. [Canonical domain model 및 ERD](docs/03-domain/canonical-domain-model.md)
-5. [Revision 및 provenance](docs/04-provenance/revision-and-provenance.md)
-6. [시스템 아키텍처 및 기술 스택](docs/05-architecture/system-architecture.md)
-7. [Plugin SDK](docs/06-plugins/plugin-sdk.md)
-8. [Material Model IR](docs/07-ir/material-model-ir.md)
-9. [API·이벤트·비동기 작업 계약](docs/08-contracts/api-events-jobs.md)
-10. [산포 분석 및 통계](docs/09-analytics/scatter-statistics.md)
-11. [Fitting 및 검증 실행 구조](docs/10-execution/fitting-validation.md)
-12. [권한·감사·보안·격리](docs/11-security/security-tenancy-audit.md)
-13. [MVP 및 후속 로드맵](docs/12-roadmap/roadmap.md)
-14. [Epic·Story·Task 작업명세](docs/13-delivery/backlog.md)
-15. [테스트 전략](docs/14-testing/test-strategy.md)
-16. [위험·미결정·의사결정 로그](docs/15-governance/risks-open-questions-decisions.md)
-17. [Codex 구현용 저장소 구조](docs/16-repository/repository-blueprint.md)
+1. [공식 제품 조사](00-research/official-product-research.md)
+2. [제품 비전·역할·흐름·범위](01-product/product-vision.md)
+3. [기능·비기능 요구사항](02-requirements/requirements.md)
+4. [Canonical domain model 및 ERD](03-domain/canonical-domain-model.md)
+5. [Revision 및 provenance](04-provenance/revision-and-provenance.md)
+6. [시스템 아키텍처 및 기술 스택](05-architecture/system-architecture.md)
+7. [Plugin SDK](06-plugins/plugin-sdk.md)
+8. [Material Model IR](07-ir/material-model-ir.md)
+9. [API·이벤트·비동기 작업 계약](08-contracts/api-events-jobs.md)
+10. [산포 분석 및 통계](09-analytics/scatter-statistics.md)
+11. [Fitting 및 검증 실행 구조](10-execution/fitting-validation.md)
+12. [권한·감사·보안·격리](11-security/security-tenancy-audit.md)
+13. [MVP 및 후속 로드맵](12-roadmap/roadmap.md)
+14. [Epic·Story·Task 작업명세](13-delivery/backlog.md)
+15. [테스트 전략](14-testing/test-strategy.md)
+16. [위험·미결정·의사결정 로그](15-governance/risks-open-questions-decisions.md)
+17. [Codex 구현용 저장소 구조](16-repository/repository-blueprint.md)
 
-## 6. 구현 착수 게이트
+## 6. Production 승인 게이트
 
-다음 조건 전에는 production 재료모델·솔버 exporter를 구현하지 않는다.
+reference 구현은 존재하지만 다음 조건 전에는 결과를 production 승인으로 표시하지 않는다.
 
 1. 대표 재료군과 인장시험 표준을 결정한다.
 2. 입력 파일 샘플과 필수 메타데이터를 확보한다.

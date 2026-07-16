@@ -102,6 +102,9 @@
 | `POST /material-models/{id}/revisions` | approved result로 IR revision 생성 |
 | `POST /exports:preflight` | mapping report job 제출 |
 | `POST /solver-cards` | approved report 기반 export job 제출 |
+| `POST /export-selections` | exact Dataset/IR/Card/Artifact revision과 representation 고정 |
+| `POST /export-jobs` | immutable Bulk Export Bundle assembly job 제출 |
+| `GET /export-bundles/{id}` | manifest, archive Artifact와 integrity 상태 조회 |
 | `POST /validation-plans` | template/card/runner/metric 고정 |
 | `POST /validation-runs` | managed 또는 external validation 실행 |
 | `POST /validation-runs/{id}:attach-external-result` | 수동 실행 Result Manifest 반입 |

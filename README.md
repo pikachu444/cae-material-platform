@@ -100,11 +100,11 @@ Polymer / Elastomer Material
 현재 Dataset은 raw/normalized/processed로 구분되고 처리 Recipe와 Run이 정확한 revision을
 고정합니다. 처리된 curve는 bounded two-term generalized-Maxwell reference model에 fitting할
 수 있고, deterministic multistart candidate, 관측/예측 curve, residual, 수렴·bound·식별성
-상태를 화면에서 비교할 수 있습니다. 사람의 candidate 선택과 새 IR revision 승격은 다음
-구현 단위이며 현재 가장 낮은 objective를 자동 승인하지 않습니다. Ogden-Prony와
-OpenRadioss LAW62는 그 이후의 별도 초점탄성 수직 기능이며,
-선형 Prony를 LAW62로 조용히 변환하지 않습니다. 공식 mapping과 domain review가 완료되기
-전 결과물은 `reference/non-production`으로 표시됩니다.
+상태를 화면에서 비교할 수 있습니다. 사용자는 Candidate와 이유를 직접 선택하며, 선택된
+evidence는 같은 Material Model identity의 새 immutable IR revision으로 승격됩니다. 가장 낮은
+objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus와 OpenRadioss LAW62 card를
+생성하며 선형 Prony를 LAW62로 조용히 변환하지 않습니다. 공식 mapping과 domain review가
+완료되기 전 결과물은 `reference/non-production`으로 표시됩니다.
 
 ### 웹 화면에서 시작하는 순서
 
@@ -114,8 +114,8 @@ OpenRadioss LAW62는 그 이후의 별도 초점탄성 수직 기능이며,
 4. 시험 방법과 Test Run을 만든 뒤 CSV와 실제 column/unit 의미를 입력합니다.
 5. normalized curve를 확인하고 필요한 시간 구간을 processed Dataset으로 커밋합니다.
 6. baseline linear-Prony IR을 만든 뒤 processed Dataset으로 bounded calibration을 실행합니다.
-7. candidate의 objective, fitted curve, residual과 warning을 비교합니다. 현재 단계에서는
-   candidate 선택과 IR 승격을 자동 수행하지 않습니다.
+7. candidate의 objective, fitted curve, residual과 warning을 비교하고 선택 이유를 기록한 뒤
+   새 IR revision으로 승격합니다.
 8. solver/version을 고른 뒤 mapping 상태를 확인하고 card를 미리 보거나 다운로드합니다.
 
 화면에 표시된 `reference` 결과는 실행 가능한 독립 구현 예제이지, 특정 회사의 재료나
@@ -167,6 +167,10 @@ Compose 내부 서비스로 실행됩니다. 실제 회사 데이터는 포함�
 [product vision](docs/01-product/product-vision.md), 데이터 불변성과 provenance는
 [revision and provenance](docs/04-provenance/revision-and-provenance.md), 현재 구현 상태는
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)에 정리되어 있습니다.
+
+처음 사용하는 사용자는 [사용자 가이드](docs/user-guide/index.md)에서 demo 실행부터 Steel,
+Polymer, Elastomer 시험 데이터와 material card 생성 절차를 따라갈 수 있습니다. 화면이나
+사용자 workflow를 변경하는 PR은 관련 가이드와 화면 이미지를 함께 갱신해야 합니다.
 
 ## 데이터 보호 원칙
 

@@ -1,6 +1,6 @@
 # 공식 제품 자료 조사와 설계 시사점
 
-기준일: `2026-07-11`
+기준일: `2026-07-16`
 
 ## 1. 조사 원칙
 
@@ -101,32 +101,62 @@ Siemens는 2025년 3월 26일 Altair Engineering 인수 완료를 공식 발표�
 - 하나의 보정 결과에서 여러 solver card를 만들 수 있으므로 neutral model과 exporter를 분리해야 한다.
 - exporter가 의미가 다른 solver model로 변환할 때 silent approximation을 금지해야 한다.
 
-## 6. 외부 표준·기술 근거
+## 6. Ansys MCalibration
 
-### 6.1 Provenance
+### 6.1 공개 자료에서 확인된 기능
+
+| 확인 내용 | 근거 | 판정 |
+| --- | --- | --- |
+| 실험 데이터에서 재료 parameter를 반자동으로 추출하고 보정한다. | [Ansys MCalibration 제품 페이지](https://www.ansys.com/products/structures/mcalibration) | `FACT-PUBLIC` |
+| viscoelastic, viscoplastic, anisotropic model calibration을 지원한다고 설명한다. | 같은 제품 페이지 | `FACT-PUBLIC` |
+| test dataset 정리, virtual experiment, model stability check를 공개 기능으로 제시한다. | 같은 제품 페이지 | `FACT-PUBLIC` |
+| Veryst의 공개 사례는 복수 시험 curve에 구성모델을 맞추고 parameter를 FE 전처리기용 형식으로 저장하는 흐름을 설명한다. | [Veryst Material Model Calibration](https://www.veryst.com/services/testing/material-model-calibration) | `FACT-PUBLIC` |
+
+### 6.2 이 설계에 반영하는 범위
+
+- 시험 데이터 정리 작업은 immutable Processing Recipe/Run으로 흡수한다.
+- parameter initial value, bounds, objective, multistart와 diagnostics는 Modeling의 Calibration
+  Plan/Run/Candidate로 흡수한다.
+- candidate 비교와 사람 선택을 수치 수렴과 분리한다.
+- material-point 또는 virtual experiment는 Validation evidence로 분리한다.
+- 선택된 결과는 solver-neutral IR revision으로 승격한 뒤 exporter를 거친다.
+
+### 6.3 복제하지 않는 범위
+
+- MCalibration 전용 bounded module 또는 독립 제품
+- proprietary UI, 내부 schema, 비공개 file format과 optimizer 구현
+- PolyUMod 고유 모델, 초기값 database 또는 상용 제품 고유 명칭
+- 화면이나 실행 결과를 역공학해 만든 parameter/mapping fixture
+
+MCalibration은 calibration capability의 누락을 확인하기 위한 참고 제품이다. 이 플랫폼의
+중심은 Material catalog, test data, processing/statistics, neutral IR, solver card와 governance다.
+
+## 7. 외부 표준·기술 근거
+
+### 7.1 Provenance
 
 W3C PROV-DM은 provenance를 domain-agnostic한 Entity, Activity, Agent와 그 관계로 정의하고 도메인 확장점을 제공한다. 이 설계는 RDF/OWL graph DB를 의무화하지 않고, 이 개념을 PostgreSQL typed relation으로 매핑한다. [W3C PROV-DM](https://www.w3.org/TR/prov-dm/), [W3C PROV Primer](https://www.w3.org/TR/prov-primer/)
 
-### 6.2 단위
+### 7.2 단위
 
 UCUM은 과학·공학·비즈니스의 측정 단위를 위한 code system이다. 이 설계는 원문 unit string을 별도로 보존하면서 canonical unit code에 UCUM-compatible 표현을 사용한다. [UCUM](https://unitsofmeasure.org/)
 
-### 6.3 통계와 이상치
+### 7.3 통계와 이상치
 
 NIST는 outlier를 다른 관측치에서 현저히 벗어난 관측치로 설명하며, 정상 데이터의 특성을 먼저 파악하고 잠재 outlier를 식별해야 한다고 설명한다. 이 설계는 outlier 자동 삭제를 금지하고 candidate detection과 adjudication을 분리한다. [NIST Outlier Detection](https://www.itl.nist.gov/div898/handbook/eda/section3/eda35h.htm), [NIST Outlier 설명](https://www.itl.nist.gov/div898/handbook/prc/section1/prc16.htm)
 
 NIST는 측정 결과가 curve처럼 고차원 함수 데이터일 때 functional statistical methods의 필요성도 설명한다. 따라서 scalar summary와 curve ensemble analysis를 별도 기능으로 정의한다. [NIST Functional Analysis of Variance](https://www.nist.gov/programs-projects/functional-analysis-variance)
 
-## 7. 기존 초기안 검토
+## 8. 기존 초기안 검토
 
-### 7.1 유지할 내용
+### 8.1 유지할 내용
 
 - Python/FastAPI, PostgreSQL, 객체 저장소, React, 비동기 worker의 기본 조합
 - 모듈형 모놀리스 우선
 - Material → State → Lot → Test → Dataset → Processing → Statistics → Model → Card → Validation이라는 큰 흐름
 - Importer, Processor, Statistical Analyzer, Material Model, Calibrator, Validator, Solver Exporter 확장점
 
-### 7.2 보완 또는 수정한 내용
+### 8.2 보완 또는 수정한 내용
 
 1. **선형 lineage 오류**: 실제 데이터는 여러 raw curve가 한 통계 결과·calibration에 들어가고 하나의 IR에서 여러 card·validation이 파생되는 DAG다.
 2. **identity와 revision 혼재**: Material, Dataset, Model의 안정 ID와 immutable content revision을 분리해야 한다.
@@ -139,7 +169,7 @@ NIST는 측정 결과가 curve처럼 고차원 함수 데이터일 때 functiona
 9. **통계의 독립 표본 단위 누락**: curve point를 표본으로 취급하면 안 된다. bootstrap과 산포 계산의 기본 표본 단위는 specimen/test run이다.
 10. **발행 개념 부족**: 계산 완료와 승인된 release는 다르다. reviewer decision과 immutable release package가 필요하다.
 
-## 8. 조사 결론
+## 9. 조사 결론
 
 기능적 대체 제품의 핵심은 경쟁 제품의 화면을 합치는 것이 아니다. 다음 네 가지를 하나의 제품 규칙으로 묶는 데 있다.
 

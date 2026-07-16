@@ -362,9 +362,9 @@ IR은 calibration raw log를 복사하지 않고 immutable run/evidence를 참�
 - `OQ-IR-003` uncertainty/covariance의 MVP 필수 수준
 - `OQ-IR-004` material orientation과 field dependency의 공통 envelope 범위
 - `OQ-IR-005` solver-specific parameterization 변환의 허용 정책
-- `OQ-IR-006` 이미 calibration promotion evidence가 있는 IR revision을 다시 보정할 때 새
-  Material Model stable identity를 만들지, 같은 identity의 다음 revision에 append-only
-  evidence chain을 저장할지. 현 schema 1.1은 evidence replacement를 거부한다.
+- `DECISION-IR-006` ADR-0026에 따라 같은 Material Model stable identity의 다음 revision에
+  revision-owned promotion evidence를 append한다. T-44가 구현되기 전 현 schema 1.1은 안전하게
+  evidence replacement를 계속 거부한다.
 
 첫 vertical model이 결정되면 domain expert와 exporter expert가 실제 IR instance 세 개 이상을 작성하여 envelope/payload 경계를 검증한 뒤 schema를 동결한다.
 
