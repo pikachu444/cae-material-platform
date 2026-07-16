@@ -1,0 +1,23 @@
+version: 1
+items:
+  - label: Dashboard
+    route: /
+    guide: 01-getting-started.md
+  - label: Materials
+    route: /materials
+    guide: 10-navigation-and-troubleshooting.md
+  - label: Tests
+    route: /tests
+    guide: 07-test-execution-context.md
+  - label: Datasets
+    route: /datasets
+    guide: 08-governed-tabular-import.md
+  - label: Models
+    route: /models
+    guide: 02-steel-elastoplastic.md
+  - label: Exports
+    route: /exports
+    guide: 09-bulk-export.md
+  - label: Governance
+    route: /governance
+    guide: 05-revisions-downloads.md
