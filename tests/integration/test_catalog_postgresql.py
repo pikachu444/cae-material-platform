@@ -50,6 +50,22 @@ from cmp.modules.catalog.domain.model import (
     StateGenealogyContent,
 )
 from cmp.modules.catalog.domain.process_run import BalanceBasis, LotFlow, ProcessRunContent
+from cmp.modules.datasets.adapters.persistence.governed_import_repository import (
+    SqlAlchemyGovernedImportRepository,
+)
+from cmp.modules.datasets.application.governed_import import (
+    IMPORT_PROFILE_AGGREGATE_TYPE,
+)
+from cmp.modules.datasets.domain.governed_tabular import (
+    GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
+    AxisRole,
+    GovernedChannelMapping,
+    GovernedImportNotFound,
+    GovernedImportProfileContent,
+    QuantityKind,
+    TabularDataSchema,
+    TabularFileFormat,
+)
 from cmp.modules.exporting.adapters.persistence.repository import (
     SqlAlchemyExportingRepository,
     solver_card_revision_table,
@@ -143,7 +159,8 @@ from cmp.modules.testing.domain.test_context import (
 from cmp.modules.testing.domain.test_context import (
     TestRunContextContent as _TestRunContextContent,
 )
-from cmp.shared.domain.revisions import RevisionConflict
+from cmp.shared.application.revisions import CreateRevisionedAggregate, RevisionService
+from cmp.shared.domain.revisions import RevisionConflict, TenantScope
 from sqlalchemy.engine import URL, Engine, make_url
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session, sessionmaker
@@ -178,6 +195,7 @@ class PostgresHarness:
     exporting: SolverCardService
     testing: _TestingApplicationService
     test_context: _TestContextApplicationService
+    governed_import_repository: SqlAlchemyGovernedImportRepository
 
 
 def _psycopg_url(value: str) -> URL:
@@ -228,7 +246,7 @@ def postgres() -> Iterator[PostgresHarness]:
             )
             connection.exec_driver_sql(
                 "GRANT USAGE ON SCHEMA identity, revisioning, access_control, governance, "
-                "provenance, audit, catalog, testing, modeling, exporting, artifact, "
+                "provenance, audit, catalog, testing, datasets, modeling, exporting, artifact, "
                 f'plugin TO "{app_role}"'
             )
             for schema in (
@@ -238,6 +256,7 @@ def postgres() -> Iterator[PostgresHarness]:
                 "audit",
                 "catalog",
                 "testing",
+                "datasets",
                 "modeling",
                 "exporting",
                 "artifact",
@@ -323,6 +342,15 @@ def postgres() -> Iterator[PostgresHarness]:
                 ),
             )
         )
+        governed_import_repository = SqlAlchemyGovernedImportRepository(
+            session_factory=sessions,
+            rls_context=rls,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        )
         yield PostgresHarness(
             admin_engine=admin_engine,
             sessions=sessions,
@@ -333,6 +361,7 @@ def postgres() -> Iterator[PostgresHarness]:
             exporting=exporting,
             testing=testing,
             test_context=test_context,
+            governed_import_repository=governed_import_repository,
         )
     finally:
         if app_engine is not None:
@@ -395,6 +424,90 @@ def _decision(context: SecurityContext, permission: Permission) -> Authorization
 
 def _source() -> PropertySource:
     return PropertySource(PropertySourceKind.MANUAL)
+
+
+def test_governed_import_profile_is_typed_immutable_and_project_isolated(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.DATASET_WRITE)
+    read = _decision(context, Permission.DATASET_READ)
+    profile_id = uuid4()
+    content = GovernedImportProfileContent(
+        profile_label=f"T41 governed tension {profile_id}",
+        data_schema=TabularDataSchema.MONOTONIC_TENSION,
+        file_format=TabularFileFormat.CSV,
+        sheet_name=None,
+        header_row=1,
+        encoding="utf-8",
+        delimiter=";",
+        decimal_separator=",",
+        channels=(
+            GovernedChannelMapping(
+                0,
+                "engineering_strain_pct",
+                QuantityKind.ENGINEERING_STRAIN,
+                "%",
+                AxisRole.INDEPENDENT,
+            ),
+            GovernedChannelMapping(
+                1,
+                "engineering_stress_mpa",
+                QuantityKind.ENGINEERING_STRESS,
+                "MPa",
+                AxisRole.DEPENDENT,
+            ),
+        ),
+    )
+    record = RevisionService(
+        aggregate_type=IMPORT_PROFILE_AGGREGATE_TYPE,
+        store=postgres.governed_import_repository.profile_store(context, write),
+    ).create(
+        CreateRevisionedAggregate(
+            aggregate_id=profile_id,
+            scope=TenantScope(ORG, PROJECT_A, DataClassification.INTERNAL.value),
+            schema_id=GOVERNED_IMPORT_PROFILE_SCHEMA_ID,
+            schema_version="1.0.0",
+            content=content,
+            created_by=ACTOR,
+            change_reason="approve reusable T41 profile",
+            request_id=context.request_id,
+            trace_id=context.trace_id,
+        )
+    )
+    loaded = postgres.governed_import_repository.get_profile(
+        context=context,
+        decision=read,
+        profile_id=profile_id,
+    )
+    assert loaded.current.record.revision_id == record.revision_id
+    assert tuple(item.source_quantity for item in loaded.current.content.channels) == (
+        QuantityKind.ENGINEERING_STRAIN,
+        QuantityKind.ENGINEERING_STRESS,
+    )
+
+    other_context = _context(PROJECT_B)
+    other_read = _decision(other_context, Permission.DATASET_READ)
+    with pytest.raises(GovernedImportNotFound, match="not visible"):
+        postgres.governed_import_repository.get_profile(
+            context=other_context,
+            decision=other_read,
+            profile_id=profile_id,
+        )
+
+    with pytest.raises(DBAPIError, match="immutable"):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE datasets.import_profile_revision SET header_row=2 "
+                    "WHERE organization_id=:organization_id AND project_id=:project_id AND id=:id"
+                ),
+                {
+                    "organization_id": ORG,
+                    "project_id": PROJECT_A,
+                    "id": record.revision_id,
+                },
+            )
 
 
 def test_material_state_property_revisions_are_immutable_tenant_scoped_and_provenanced(

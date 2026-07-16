@@ -2210,6 +2210,174 @@ paths:
         "409": {description: Immutable source, Artifact, or Dataset state conflicts.}
         "422": {description: Mapping, unit, or reference CSV values are invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/tabular-import-previews:
+    post:
+      operationId: previewGovernedTabularImport
+      tags: [datasets]
+      summary: Inspect a bounded CSV, TSV, or XLSX Raw Asset without approving semantics.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/PreviewRequest"}
+      responses:
+        "201":
+          description: Immutable needs_input header evidence and an ephemeral five-row preview.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "409": {description: Raw Asset media type or tenant scope conflicts.}
+        "422": {description: Parser settings, formula, package, or header is unsafe or invalid.}
+        "503": {description: Governed importer unavailable.}
+  /api/v1/import-profiles:
+    get:
+      operationId: listGovernedImportProfiles
+      tags: [datasets]
+      summary: List reusable approved tabular mappings in the selected project.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current immutable Profile revisions.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ProfileListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "503": {description: Governed importer unavailable.}
+    post:
+      operationId: createGovernedImportProfile
+      tags: [datasets]
+      summary: Approve an explicit file, locale, schema, channel, unit, and geometry mapping.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/CreateProfileRequest"}
+      responses:
+        "201":
+          description: Stable Import Profile with immutable revision 1.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "409": {description: Stable Profile identity conflicts.}
+        "422": {description: Schema, channel, unit, locale, or geometry is invalid.}
+        "503": {description: Governed importer unavailable.}
+  /api/v1/import-profiles/{profile_id}:
+    get:
+      operationId: getGovernedImportProfile
+      tags: [datasets]
+      summary: Read the current approved Import Profile revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: profile_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Profile revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: Profile is not visible.}
+        "503": {description: Governed importer unavailable.}
+  /api/v1/import-profiles/{profile_id}/revisions:
+    post:
+      operationId: reviseGovernedImportProfile
+      tags: [datasets]
+      summary: Append an Import Profile revision with an explicit expected current head.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: profile_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ReviseProfileRequest"}
+      responses:
+        "200":
+          description: Appended immutable Profile revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: Profile is not visible.}
+        "409": {description: Expected current revision or stable label conflicts.}
+        "422": {description: Profile content is invalid.}
+        "503": {description: Governed importer unavailable.}
+  /api/v1/tabular-import-runs:
+    post:
+      operationId: executeGovernedTabularImport
+      tags: [datasets]
+      summary: Execute an exact Profile revision and preserve success or failure evidence.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ImportRunRequest"}
+      responses:
+        "201":
+          description: Terminal Run with raw and normalized Datasets or failure evidence.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ImportRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: Exact Test Run, Profile, Raw Asset, or Artifact is not visible.}
+        "409": {description: Pinned scope or media type conflicts.}
+        "422": {description: Source rows violate the approved schema.}
+        "503": {description: Governed importer unavailable.}
+  /api/v1/tabular-import-runs/{run_id}:
+    get:
+      operationId: getGovernedTabularImportRun
+      tags: [datasets]
+      summary: Read one exact terminal governed Import Run.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: run_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Import Run evidence.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/ImportRunResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: Import Run is not visible.}
+        "503": {description: Governed importer unavailable.}
+  /api/v1/governed-datasets/{dataset_id}:
+    get:
+      operationId: getGovernedTabularDataset
+      tags: [datasets]
+      summary: Read one raw or normalized governed Dataset and its exact current revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: dataset_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Governed Dataset metadata and typed channels.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../datasets/governed-import-resources.schema.json#/$defs/DatasetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: Dataset is not visible.}
+        "503": {description: Governed importer unavailable.}
   /api/v1/shear-relaxation-datasets:
     post:
       operationId: importReferenceShearRelaxationDataset

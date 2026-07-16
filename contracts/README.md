@@ -1,8 +1,9 @@
 # Public contract baseline
 
 Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`, `T-08`,
-`T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`, and the `T-32` workbench. HTTP contract version
-`0.24.0`.
+`T-11`, `T-12`, `T-19`, `T-20`, `T-21`, `T-22`, `T-25`, `T-26`, `T-27`, `T-28`, `T-29`,
+the `T-32` workbench, and product-depth slices `T-39` through `T-41`. HTTP contract version
+`0.27.0`.
 
 ## Files
 
@@ -24,6 +25,8 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
 - `ir/material-model-ir-envelope.schema.json`: common IR envelope baseline
 - `datasets/reference-tensile-resources.schema.json`: typed reference tensile Dataset, curve, and
   immutable one-member Selection resources
+- `datasets/governed-import-resources.schema.json`: approved reusable CSV/TSV/XLSX Import
+  Profiles, needs-input previews, terminal Import Runs, and raw/normalized typed Dataset metadata
 - `testing/reference-import-resources.schema.json`: immutable header-only Detection Report and
   human-confirmed typed Import Mapping identity/revision resources
 - `testing/test-context-resources.schema.json`: governed Campaign, Instrument, dated Calibration,

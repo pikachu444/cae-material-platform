@@ -123,6 +123,11 @@ import type {
   InstrumentContent,
   TestConditionContent,
   TestRunContextContent,
+  GovernedImportPreview,
+  GovernedImportProfileContent,
+  GovernedImportProfileResponse,
+  GovernedImportRunResponse,
+  GovernedTabularFileFormat,
   ReferenceTensileMapping,
   UploadSession,
 } from "./types";
@@ -2440,4 +2445,124 @@ export async function uploadReferenceTensileCsv(
       headers: { "Upload-Capability": capability },
     },
   );
+}
+
+export async function uploadGovernedTabularFile(
+  config: ApiConfig,
+  input: {
+    file: File;
+    file_format: GovernedTabularFileFormat;
+    classification: DataClassification;
+    test_run_revision_id: string;
+  },
+): Promise<ApiResult<CompletedUpload>> {
+  const filename = input.file.name.trim();
+  if (!filename || filename.includes("/") || filename.includes("\\")) {
+    throw new ApiError(422, "Choose a file with a safe, non-empty filename.");
+  }
+  if (input.file.size < 1 || input.file.size > 16 * 1024 * 1024) {
+    throw new ApiError(422, "The governed source must be between 1 byte and 16 MiB.");
+  }
+  const mediaType = {
+    csv: "text/csv",
+    tsv: "text/tab-separated-values",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  }[input.file_format];
+  const digest = await sha256Hex(input.file);
+  const created = await request<{ upload: UploadSession; upload_capability: string }>(
+    config,
+    "/uploads",
+    {
+      method: "POST",
+      headers: { "Idempotency-Key": browserIdempotencyKey() },
+      body: JSON.stringify({
+        classification: input.classification,
+        original_filename: filename,
+        media_type: mediaType,
+        expected_size_bytes: input.file.size,
+        expected_sha256: digest,
+        test_run_revision_id: input.test_run_revision_id,
+      }),
+    },
+  );
+  const { upload, upload_capability: capability } = created.data;
+  for (let partNumber = 1; partNumber <= upload.expected_part_count; partNumber += 1) {
+    const start = (partNumber - 1) * upload.part_size_bytes;
+    const part = input.file.slice(start, Math.min(input.file.size, start + upload.part_size_bytes));
+    await request<UploadSession>(
+      config,
+      `/uploads/${encodeURIComponent(upload.upload_id)}/parts/${partNumber}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": mediaType, "Upload-Capability": capability },
+        body: part,
+      },
+    );
+  }
+  return request<CompletedUpload>(
+    config,
+    `/uploads/${encodeURIComponent(upload.upload_id)}:complete`,
+    { method: "POST", headers: { "Upload-Capability": capability } },
+  );
+}
+
+export function previewGovernedTabularImport(
+  config: ApiConfig,
+  input: {
+    raw_asset_id: string;
+    raw_artifact_id: string;
+    file_format: GovernedTabularFileFormat;
+    sheet_name: string | null;
+    header_row: number;
+    encoding: string;
+    delimiter: string | null;
+    decimal_separator: "." | ",";
+  },
+): Promise<ApiResult<GovernedImportPreview>> {
+  return request(config, "/tabular-import-previews", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function listGovernedImportProfiles(
+  config: ApiConfig,
+): Promise<ApiResult<GovernedImportProfileResponse[]>> {
+  const result = await request<{ items: GovernedImportProfileResponse[] }>(
+    config,
+    "/import-profiles",
+  );
+  return { data: result.data.items, etag: result.etag };
+}
+
+export function createGovernedImportProfile(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: GovernedImportProfileContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<GovernedImportProfileResponse>> {
+  return request(config, "/import-profiles", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeGovernedTabularImport(
+  config: ApiConfig,
+  input: {
+    test_run_id: string;
+    test_run_revision_id: string;
+    raw_asset_id: string;
+    raw_artifact_id: string;
+    import_profile_id: string;
+    import_profile_revision_id: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<GovernedImportRunResponse>> {
+  return request(config, "/tabular-import-runs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }

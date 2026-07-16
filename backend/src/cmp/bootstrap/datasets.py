@@ -12,6 +12,9 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
+from cmp.modules.datasets.adapters.persistence.governed_import_repository import (
+    SqlAlchemyGovernedImportRepository,
+)
 from cmp.modules.datasets.adapters.persistence.repository import (
     SqlAlchemyDatasetRepository,
     dataset_revision_table,
@@ -19,6 +22,7 @@ from cmp.modules.datasets.adapters.persistence.repository import (
     dataset_selection_revision_table,
     shear_relaxation_dataset_revision_table,
 )
+from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import (
     DATASET_AGGREGATE_TYPE,
     DATASET_SELECTION_AGGREGATE_TYPE,
@@ -65,6 +69,7 @@ from cmp.modules.provenance.domain.model import (
     ProvenanceScope,
 )
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
+from cmp.modules.testing.application.service import TestingService
 from cmp.shared.domain.revisions import RevisionCreated, content_sha256
 
 _metadata = sa.MetaData()
@@ -527,8 +532,7 @@ class SqlShearRelaxationProcessedDatasetProvenanceHook:
                     == revision.scope.organization_id,
                     shear_relaxation_dataset_revision_table.c.project_id
                     == revision.scope.project_id,
-                    shear_relaxation_dataset_revision_table.c.aggregate_id
-                    == revision.aggregate_id,
+                    shear_relaxation_dataset_revision_table.c.aggregate_id == revision.aggregate_id,
                     shear_relaxation_dataset_revision_table.c.id == revision.revision_id,
                 )
             )
@@ -549,20 +553,19 @@ class SqlShearRelaxationProcessedDatasetProvenanceHook:
                     _shear_processing_run_table.c.recipe_revision_id,
                     _shear_processing_run_table.c.input_dataset_revision_id,
                 ).where(
-                    _shear_processing_run_table.c.organization_id
-                    == revision.scope.organization_id,
+                    _shear_processing_run_table.c.organization_id == revision.scope.organization_id,
                     _shear_processing_run_table.c.project_id == revision.scope.project_id,
-                    _shear_processing_run_table.c.classification
-                    == revision.scope.classification,
+                    _shear_processing_run_table.c.classification == revision.scope.classification,
                     _shear_processing_run_table.c.id == processing_run_id,
                 )
             )
             .mappings()
             .one_or_none()
         )
-        if processing is None or cast(
-            UUID, processing["input_dataset_revision_id"]
-        ) != source_revision_id:
+        if (
+            processing is None
+            or cast(UUID, processing["input_dataset_revision_id"]) != source_revision_id
+        ):
             raise ProvenanceConflict("processed shear Dataset does not match its Run input")
         recipe_revision_id = cast(UUID, processing["recipe_revision_id"])
         generated_entity_id = _revision_provenance_entity_id(
@@ -588,8 +591,7 @@ class SqlShearRelaxationProcessedDatasetProvenanceHook:
         session.execute(
             sa.update(provenance_activity_table)
             .where(
-                provenance_activity_table.c.organization_id
-                == revision.scope.organization_id,
+                provenance_activity_table.c.organization_id == revision.scope.organization_id,
                 provenance_activity_table.c.project_id == revision.scope.project_id,
                 provenance_activity_table.c.classification == revision.scope.classification,
                 provenance_activity_table.c.id == activity_id,
@@ -641,8 +643,7 @@ class SqlShearRelaxationProcessedDatasetProvenanceHook:
         session.execute(
             sa.update(provenance_association_table)
             .where(
-                provenance_association_table.c.organization_id
-                == revision.scope.organization_id,
+                provenance_association_table.c.organization_id == revision.scope.organization_id,
                 provenance_association_table.c.project_id == revision.scope.project_id,
                 provenance_association_table.c.classification == revision.scope.classification,
                 provenance_association_table.c.activity_id == activity_id,
@@ -674,6 +675,36 @@ def build_dataset_service(
                 SqlAlchemyRevisionAuditHook(),
             ),
         ),
+        artifacts=artifacts,
+    )
+
+
+def build_governed_import_service(
+    identity: IdentityServices,
+    testing: TestingService | None,
+    artifacts: ArtifactService | None,
+) -> GovernedImportService | None:
+    """Compose the T-41 importer without bypassing Testing or Artifact boundaries."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or testing is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return GovernedImportService(
+        repository=SqlAlchemyGovernedImportRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        testing=testing,
         artifacts=artifacts,
     )
 

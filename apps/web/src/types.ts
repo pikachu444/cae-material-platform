@@ -2278,6 +2278,97 @@ export interface RawAsset {
   storage_state: "staged_verified";
 }
 
+export type GovernedTabularFileFormat = "csv" | "tsv" | "xlsx";
+export type GovernedTabularDataSchema =
+  | "monotonic_tension"
+  | "monotonic_compression"
+  | "planar_tension"
+  | "biaxial_tension"
+  | "simple_shear"
+  | "shear_relaxation";
+export type GovernedQuantityKind =
+  | "engineering_strain"
+  | "engineering_stress"
+  | "shear_strain"
+  | "shear_stress"
+  | "time"
+  | "shear_modulus"
+  | "displacement"
+  | "force";
+
+export interface GovernedChannelMapping {
+  ordinal: number;
+  source_column: string;
+  source_quantity: GovernedQuantityKind;
+  original_unit: string;
+  normalized_quantity?: GovernedQuantityKind;
+  normalized_unit?: string;
+  axis_role: "independent" | "dependent";
+}
+
+export interface GovernedImportProfileContent {
+  profile_label: string;
+  data_schema: GovernedTabularDataSchema;
+  file_format: GovernedTabularFileFormat;
+  sheet_name: string | null;
+  header_row: number;
+  encoding: string;
+  delimiter: string | null;
+  decimal_separator: "." | ",";
+  channels: GovernedChannelMapping[];
+  initial_gauge_length_m: number | null;
+  initial_cross_section_area_m2: number | null;
+  approval_kind: "human_confirmed";
+  profile_sha256?: string;
+}
+
+export interface GovernedImportProfileResponse {
+  import_profile_id: string;
+  current_revision: RevisionMetadata;
+  content: GovernedImportProfileContent & { profile_sha256: string };
+}
+
+export interface GovernedImportPreview {
+  preview_report_id: string;
+  classification: DataClassification;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  raw_sha256: string;
+  file_format: GovernedTabularFileFormat;
+  sheet_names: string[];
+  selected_sheet_name: string | null;
+  header_row: number;
+  encoding: string;
+  delimiter: string | null;
+  decimal_separator: "." | ",";
+  header_columns: string[];
+  sample_rows: string[][];
+  status: "needs_input";
+  report_sha256: string;
+}
+
+export interface GovernedImportRunResponse {
+  import_run_id: string;
+  classification: DataClassification;
+  test_run_id: string;
+  test_run_revision_id: string;
+  raw_asset_id: string;
+  raw_artifact_id: string;
+  import_profile_id: string;
+  import_profile_revision_id: string;
+  profile_sha256: string;
+  status: "executing" | "succeeded" | "failed";
+  started_at: string;
+  finished_at: string | null;
+  raw_dataset_id: string | null;
+  raw_dataset_revision_id: string | null;
+  normalized_dataset_id: string | null;
+  normalized_dataset_revision_id: string | null;
+  row_count: number | null;
+  failure_code: string | null;
+  failure_detail: string | null;
+}
+
 export interface CompletedUpload {
   upload: UploadSession;
   raw_asset: RawAsset;

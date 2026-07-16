@@ -13,6 +13,7 @@ from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import build_catalog_service
 from cmp.bootstrap.datasets import (
     build_dataset_service,
+    build_governed_import_service,
     build_shear_relaxation_dataset_service,
 )
 from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
@@ -66,9 +67,11 @@ from cmp.modules.audit.application.service import AuditService
 from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
+from cmp.modules.datasets.adapters.api.governed_import import install_governed_import_api
 from cmp.modules.datasets.adapters.api.shear_relaxation import (
     install_shear_relaxation_dataset_api,
 )
+from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
@@ -205,6 +208,7 @@ def create_app(
     testing_service: TestingService | None = None,
     test_context_service: TestContextService | None = None,
     dataset_service: DatasetService | None = None,
+    governed_import_service: GovernedImportService | None = None,
     shear_relaxation_dataset_service: ShearRelaxationDatasetService | None = None,
     processing_service: ProcessingService | None = None,
     shear_relaxation_processing_service: ShearRelaxationProcessingService | None = None,
@@ -384,6 +388,20 @@ def create_app(
             services.authorization, Permission.DATASET_WRITE
         ),
     )
+    resolved_governed_import = governed_import_service or build_governed_import_service(
+        services, resolved_testing, resolved_artifacts
+    )
+    install_governed_import_api(
+        application,
+        service=resolved_governed_import,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_WRITE
+        ),
+    )
     resolved_shear_relaxation_datasets = (
         shear_relaxation_dataset_service
         or build_shear_relaxation_dataset_service(services, resolved_artifacts)
@@ -513,9 +531,8 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
-    resolved_ogden_prony = (
-        ogden_prony_model_service
-        or build_ogden_prony_model_service(services, resolved_material_models)
+    resolved_ogden_prony = ogden_prony_model_service or build_ogden_prony_model_service(
+        services, resolved_material_models
     )
     install_ogden_prony_api(
         application,
@@ -797,11 +814,10 @@ def create_app(
     application.state.testing_service = resolved_testing
     application.state.test_context_service = resolved_test_context
     application.state.dataset_service = resolved_datasets
+    application.state.governed_import_service = resolved_governed_import
     application.state.shear_relaxation_dataset_service = resolved_shear_relaxation_datasets
     application.state.processing_service = resolved_processing
-    application.state.shear_relaxation_processing_service = (
-        resolved_shear_relaxation_processing
-    )
+    application.state.shear_relaxation_processing_service = resolved_shear_relaxation_processing
     application.state.statistics_service = resolved_statistics
     application.state.replicate_statistics_service = resolved_replicate_statistics
     application.state.material_model_service = resolved_material_models
@@ -811,9 +827,7 @@ def create_app(
     application.state.calibration_service = resolved_calibration
     application.state.voce_calibration_service = resolved_voce_calibration
     application.state.prony_calibration_service = resolved_prony_calibration
-    application.state.prony_candidate_promotion_service = (
-        resolved_prony_candidate_promotion
-    )
+    application.state.prony_candidate_promotion_service = resolved_prony_candidate_promotion
     application.state.voce_candidate_projection_service = resolved_voce_projection
     application.state.candidate_selection_service = resolved_candidate_selections
     application.state.solver_card_service = resolved_solver_cards

@@ -29,16 +29,16 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 050
+- latest schema: migration 051
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-41~T-45 and T-47
+- missing product depth: T-42~T-45 and T-47
 - user experience gap: global navigation and task-oriented user manual from T-46
 
-Migrations 001~049, raw objects, prior revisions, cards, releases and golden fixtures are never
-rewritten. The next schema unit begins at migration 050.
+Migrations 001~051, raw objects, prior revisions, cards, releases and golden fixtures are never
+rewritten. The next schema unit begins at migration 052.
 
 ## 3. PR 순서와 exit gate
 
@@ -47,7 +47,7 @@ rewritten. The next schema unit begins at migration 050.
 | 1 | docs/research/user-guide baseline | docs links, contracts and guide checks; no stale README claim | complete |
 | 2 | T-39 Process Run/Lot/Specimen genealogy | unit + migration + live PostgreSQL + API + React + `make ci` | complete |
 | 3 | T-40 Campaign/Instrument/conditions | same vertical gate plus exact calibration snapshot | complete |
-| 4 | T-41 tabular importer/schema | parser/security/contract/PostgreSQL/browser fixtures | pending |
+| 4 | T-41 tabular importer/schema | parser/security/contract/PostgreSQL/browser fixtures | complete |
 | 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | pending |
 | 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | pending |
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | pending |
@@ -82,6 +82,22 @@ image are maintained with the vertical slice. The Windows CI-equivalent gate pas
 tests and 31 Vitest tests without skips/failures/warnings, plus ruff, mypy over 480 source files,
 architecture/contracts, OpenAPI compatibility and the production Vite build. Live Docker browser
 evidence is `docs/15-demo/images/test-run-context.png` with no console warning/error.
+
+PR 4 implements T-41 with migration 051: explicit reusable Import Profile revisions, header-only
+`needs_input` Preview Reports, exact terminal Import Runs and separate raw/normalized governed
+Dataset revisions. CSV/TSV locale and XLSX sheet/security limits are explicit; formulas, macros,
+external links, unsafe ZIP members and missing force/displacement geometry are rejected. The
+protected API and connected React workbench preserve exact Test Run/Raw Asset/Artifact/Profile
+revision pins and surface failed-run evidence without changing source bytes. User instructions and
+the synthetic tensile sample are in `docs/user-guide/08-governed-tabular-import.md` and
+`examples/data/reference-tensile.csv`.
+Migration 051 was upgraded, downgraded to 050 and re-upgraded on disposable PostgreSQL 16. The
+CI-equivalent gate passed 576 Python tests with zero skips/failures, 32 Vitest tests, ruff, mypy
+over 486 source files, architecture/contract/OpenAPI compatibility and the production Vite build;
+the clean npm install reported zero vulnerabilities. Live protected API execution imported nine
+synthetic tensile rows and created distinct raw and normalized revisions. The connected 1440x900
+browser capture is `docs/15-demo/images/governed-tabular-import.png`, with no console warnings or
+errors.
 
 ## 4. Acceptance scenarios
 

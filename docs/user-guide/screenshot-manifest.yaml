@@ -42,6 +42,11 @@ captures:
     route: /materials/{demo-material-id}
     fixture: deterministic T-40 demo execution context
     image: ../15-demo/images/test-run-context.png
+  - id: governed-tabular-import
+    workflow: immutable tabular upload, reusable Profile approval and exact Dataset import
+    route: /materials/{demo-material-id}
+    fixture: deterministic T-41 synthetic tensile CSV and approved Profile revision
+    image: ../15-demo/images/governed-tabular-import.png
   - id: law62-card
     route: /materials/{material_id}
     workflow: openradioss-law62-card
