@@ -1215,3 +1215,5 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   idempotency key를 요구하고 object storage는 immutable tenant/event/digest key를 사용한다.
   Worker와 HTTP bearer는 atomically replaced token file을 매 cycle/delivery마다 다시 읽으며
   production inline token은 거부한다. 실제 receiver/IdP rotation acceptance는 남아 있다.
+  전체 gate는 PostgreSQL 포함 Python 690개, Vitest 41개, ruff/mypy 555 files, architecture,
+  user-guide, production web budget과 npm audit 0 vulnerabilities를 통과했다.

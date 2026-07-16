@@ -1295,3 +1295,7 @@ Ten new connector/rotation tests pass together with the existing event/worker te
 receiver, signer, IdP/workload-identity sidecar and during-delivery token-rotation/outage drill were
 not available and remain live production acceptance conditions.
 
+The complete connector branch gate passed 690 Python/PostgreSQL tests and 41 Vitest tests with zero
+skips/failures, ruff, mypy over 555 source files, architecture and user-guide checks, the production
+web bundle budget and npm audit with zero vulnerabilities.
+
