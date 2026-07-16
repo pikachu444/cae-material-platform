@@ -60,6 +60,7 @@ def build_bulk_export_service(
             external_member_maximum_bytes=(
                 settings.bulk_export_external_member_maximum_bytes
             ),
+            external_job_lease_seconds=settings.bulk_export_job_lease_seconds,
         )
         if settings is not None
         else None

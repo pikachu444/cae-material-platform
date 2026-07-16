@@ -120,3 +120,10 @@ captures:
     image: ../15-demo/images/t47-external-bundle-worker.png
     width: 885
     height: 1196
+  - id: external-bundle-worker-lease
+    route: /exports
+    workflow: external-worker-heartbeat-expiry-and-hard-kill-recovery
+    fixture: T-47 DP780 Bundle Job with an explicit 15-second synthetic demo lease
+    image: ../15-demo/images/t47-worker-lease-recovery.png
+    width: 917
+    height: 1196

@@ -3209,6 +3209,8 @@ export interface BulkExportJobResponse {
   submitted_by: string;
   started_at: string | null;
   completed_at: string | null;
+  lease_expires_at: string | null;
+  heartbeat_at: string | null;
   committed_output: {
     output_commit_id: string;
     archive_artifact_id: string;

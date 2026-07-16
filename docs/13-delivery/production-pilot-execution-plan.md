@@ -29,18 +29,19 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 056
+- latest schema: migration 058
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-47 production-scale acceptance, hard-kill lease recovery,
-  object-lock/KMS/signing and signed connectors
+- missing product depth: T-47 production-scale soak/fault acceptance, object-lock/KMS/signing,
+  signed connectors and production worker identity/token rotation
 - user experience: T-46 global navigation, contextual Material tabs and task-oriented guide gate complete
 
-Migrations 001~055, raw objects, prior revisions, cards, releases and golden fixtures are never
-rewritten. The next schema unit begins at migration 056.
+Migrations 001~057, raw objects, prior revisions, cards, releases and golden fixtures are never
+rewritten. Migration 058 only appends explicit worker lease fields and transition/index guards to
+the durable Bulk Export Job.
 
 ## 3. PR 순서와 exit gate
 
@@ -55,7 +56,7 @@ rewritten. The next schema unit begins at migration 056.
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
-| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded local performance/security and external assembly/reconciliation complete; production-scale/lease/KMS/connector work remains |
+| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded local performance/security, external assembly/reconciliation and hard-kill lease recovery complete; production-scale/KMS/connector work remains |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
 Each PR is branched from the freshly merged `main`, uses meaningful commits, passes its relevant

@@ -24,6 +24,7 @@ class Settings:
     artifact_transfer_ttl_seconds: int = 5 * 60
     bulk_export_inline_maximum_bytes: int = 64 * 1024 * 1024
     bulk_export_external_member_maximum_bytes: int = 64 * 1024 * 1024
+    bulk_export_job_lease_seconds: int = 120
     worker_access_token: str | None = None
     otel_exporter_otlp_endpoint: str | None = None
     otel_metric_export_interval_ms: int = 10_000
@@ -108,6 +109,9 @@ class Settings:
                     "CMP_BULK_EXPORT_EXTERNAL_MEMBER_MAXIMUM_BYTES",
                     str(64 * 1024 * 1024),
                 )
+            ),
+            bulk_export_job_lease_seconds=int(
+                os.getenv("CMP_BULK_EXPORT_JOB_LEASE_SECONDS", "120")
             ),
             worker_access_token=optional("CMP_WORKER_ACCESS_TOKEN"),
             otel_exporter_otlp_endpoint=optional("OTEL_EXPORTER_OTLP_ENDPOINT"),

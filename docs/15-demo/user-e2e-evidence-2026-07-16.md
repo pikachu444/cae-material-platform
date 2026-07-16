@@ -127,6 +127,21 @@ source를 다시 읽거나 archive를 재조립하지 않고 기존 output을 Bu
 
 ![External worker Job and immutable Bundle](images/t47-external-bundle-worker.png)
 
+### External worker hard-kill lease recovery
+
+T-47 migration 058 적용 후 두 번째 22-component DP780 Selection으로 worker 소유권 만료를
+재현했다. Job `d753d923-e759-40c8-b282-9fa5f9afa7bc`를 attempt 1 `running` 상태와 15초 lease로
+claim한 직후 다른 worker를 한 번 실행했을 때 결과는 `idle`이었고, 원래 worker가 종료된 것으로
+간주해 deadline을 넘긴 뒤 다시 실행하자 새 fencing token으로 attempt 2를 claim했다. 최종 상태는
+`succeeded`, Bundle은 `f23a24ad-6a97-416b-8155-c0061f64871d`이며 heartbeat와 expiry 필드는
+terminal transition에서 모두 비워졌다.
+
+별도 PostgreSQL integration은 heartbeat가 lease를 연장하는 동안 재선점을 막고, 만료된 token의
+heartbeat 부활과 fail/output finalization을 거부하는지 확인한다. API에는 opaque lease token을
+노출하지 않고 heartbeat와 복구 가능 시각만 제공한다.
+
+![External worker heartbeat and recovery deadline](images/t47-worker-lease-recovery.png)
+
 ### Global module navigation and Material context tabs
 
 T-46은 Dashboard/Materials/Tests/Datasets/Models/Exports/Governance 전역 메뉴를 제공한다.
@@ -184,7 +199,7 @@ SHA-256(downloaded bytes) == solver_card_revision.card_sha256
 
 ## 다음 우선순위
 
-1. T-47 production-scale 10,000-Material/2-GiB load·soak·fault acceptance와 worker hard-kill lease 회수.
+1. T-47 production-scale 10,000-Material/2-GiB load·soak 및 더 넓은 fault acceptance.
 2. object lock/KMS/retention 및 production signing identity adapter.
 3. signed-manifest REST/webhook/object-storage connector와 운영 token rotation.
 

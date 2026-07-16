@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import contextmanager
+from datetime import datetime, timedelta
 from typing import Any, Protocol, cast
 from uuid import UUID
 
@@ -148,6 +149,9 @@ job_table = sa.Table(
     sa.Column("submitted_by", sa.Uuid(), nullable=False),
     sa.Column("started_at", sa.DateTime(timezone=True), nullable=True),
     sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
+    sa.Column("lease_token", sa.Uuid(), nullable=True),
+    sa.Column("lease_expires_at", sa.DateTime(timezone=True), nullable=True),
+    sa.Column("heartbeat_at", sa.DateTime(timezone=True), nullable=True),
     schema="exporting",
 )
 bundle_table = sa.Table(
@@ -256,7 +260,21 @@ def _job(row: Any) -> BulkExportJob:
         cast(UUID, row["submitted_by"]),
         row["started_at"],
         row["completed_at"],
+        cast(UUID | None, row["lease_token"]),
+        cast(datetime | None, row["lease_expires_at"]),
+        cast(datetime | None, row["heartbeat_at"]),
     )
+
+
+def _assert_lease(row: Any, lease_token: UUID | None, now: datetime) -> None:
+    current_token = cast(UUID | None, row["lease_token"])
+    if current_token is None:
+        if lease_token is not None:
+            raise BulkExportConflict("Bulk Export Job lease fencing token is stale")
+        return
+    expires_at = cast(datetime | None, row["lease_expires_at"])
+    if lease_token != current_token or expires_at is None or expires_at <= now:
+        raise BulkExportConflict("Bulk Export Job lease was lost or expired")
 
 
 def _bundle(row: Any) -> BulkExportBundle:
@@ -554,6 +572,9 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
                         submitted_by=context.principal.id,
                         started_at=None,
                         completed_at=None,
+                        lease_token=None,
+                        lease_expires_at=None,
+                        heartbeat_at=None,
                     )
                     .returning(*job_table.c)
                 )
@@ -590,6 +611,8 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
         *,
         context: SecurityContext,
         decision: AuthorizationDecision,
+        lease_token: UUID,
+        lease_duration: timedelta,
         now: Any,
     ) -> BulkExportJob | None:
         with self._session(context, decision) as session:
@@ -597,14 +620,20 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
                 session.execute(
                     sa.select(job_table)
                     .where(
-                        job_table.c.state.in_(
-                            ("reconciliation_required", "queued")
+                        sa.or_(
+                            job_table.c.state.in_(("reconciliation_required", "queued")),
+                            sa.and_(
+                                job_table.c.state.in_(("running", "reconciling")),
+                                job_table.c.lease_token.is_not(None),
+                                job_table.c.lease_expires_at <= now,
+                            ),
                         )
                     )
                     .order_by(
                         sa.case(
                             (job_table.c.state == "reconciliation_required", 0),
-                            else_=1,
+                            (job_table.c.state.in_(("running", "reconciling")), 1),
+                            else_=2,
                         ),
                         job_table.c.submitted_at,
                         job_table.c.id,
@@ -617,18 +646,32 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             )
             if current is None:
                 return None
+            lease_expires_at = now + lease_duration
             if current["state"] == "queued":
                 values: dict[str, object] = {
                     "state": "running",
                     "started_at": now,
+                    "lease_token": lease_token,
+                    "lease_expires_at": lease_expires_at,
+                    "heartbeat_at": now,
                 }
-            else:
+            elif current["state"] == "reconciliation_required":
                 values = {
                     "state": "reconciling",
                     "attempt_count": int(current["attempt_count"]) + 1,
                     "failure_code": None,
                     "failure_detail": None,
                     "completed_at": None,
+                    "lease_token": lease_token,
+                    "lease_expires_at": lease_expires_at,
+                    "heartbeat_at": now,
+                }
+            else:
+                values = {
+                    "attempt_count": int(current["attempt_count"]) + 1,
+                    "lease_token": lease_token,
+                    "lease_expires_at": lease_expires_at,
+                    "heartbeat_at": now,
                 }
             row = (
                 session.execute(
@@ -645,6 +688,42 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             )
         return _job(row)
 
+    def renew_job_lease(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job_id: UUID,
+        lease_token: UUID,
+        lease_duration: timedelta,
+        now: datetime,
+    ) -> BulkExportJob:
+        with self._session(context, decision) as session:
+            current = (
+                session.execute(
+                    sa.select(job_table).where(job_table.c.id == job_id).with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if current is None or current["state"] not in ("running", "reconciling"):
+                raise BulkExportNotFound("leased Bulk Export Job is not visible")
+            _assert_lease(current, lease_token, now)
+            lease_expires_at = now + lease_duration
+            if lease_expires_at <= cast(datetime, current["lease_expires_at"]):
+                return _job(current)
+            row = (
+                session.execute(
+                    sa.update(job_table)
+                    .where(job_table.c.id == job_id)
+                    .values(heartbeat_at=now, lease_expires_at=lease_expires_at)
+                    .returning(*job_table.c)
+                )
+                .mappings()
+                .one()
+            )
+        return _job(row)
+
     def record_output_commit(
         self,
         *,
@@ -654,6 +733,7 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
         job_id: UUID,
         archive_artifact_id: UUID,
         evidence: BulkExportArchiveEvidence,
+        lease_token: UUID | None,
         now: Any,
     ) -> CommittedBulkExportOutput:
         with self._session(context, decision) as session:
@@ -666,6 +746,7 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             )
             if current is None or current["state"] not in ("running", "reconciling"):
                 raise BulkExportNotFound("running Bulk Export Job is not visible")
+            _assert_lease(current, lease_token, now)
             existing = (
                 session.execute(
                     sa.select(output_commit_table).where(
@@ -736,6 +817,7 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
         archive_artifact_id: UUID,
         evidence: BulkExportArchiveEvidence,
         content: ExportSelectionContent,
+        lease_token: UUID | None,
         now: Any,
     ) -> tuple[BulkExportJob, BulkExportBundle]:
         with self._session(context, decision) as session:
@@ -748,6 +830,7 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
             )
             if current is None or current["state"] not in ("running", "reconciling"):
                 raise BulkExportNotFound("running Bulk Export Job is not visible")
+            _assert_lease(current, lease_token, now)
             output = (
                 session.execute(
                     sa.select(output_commit_table).where(
@@ -812,6 +895,9 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
                         failure_code=None,
                         failure_detail=None,
                         completed_at=now,
+                        lease_token=None,
+                        lease_expires_at=None,
+                        heartbeat_at=None,
                     )
                     .returning(*job_table.c)
                 )
@@ -828,9 +914,20 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
         job_id: UUID,
         failure_code: str,
         failure_detail: str,
+        lease_token: UUID | None,
         now: Any,
     ) -> BulkExportJob:
         with self._session(context, decision) as session:
+            current = (
+                session.execute(
+                    sa.select(job_table).where(job_table.c.id == job_id).with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if current is None or current["state"] not in ("running", "reconciling"):
+                raise BulkExportNotFound("running Bulk Export Job is not visible")
+            _assert_lease(current, lease_token, now)
             row = (
                 session.execute(
                     sa.update(job_table)
@@ -843,6 +940,9 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
                         failure_code=failure_code,
                         failure_detail=failure_detail,
                         completed_at=now,
+                        lease_token=None,
+                        lease_expires_at=None,
+                        heartbeat_at=None,
                     )
                     .returning(*job_table.c)
                 )
@@ -860,9 +960,20 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
         decision: AuthorizationDecision,
         job_id: UUID,
         failure_detail: str,
+        lease_token: UUID | None,
         now: Any,
     ) -> BulkExportJob:
         with self._session(context, decision) as session:
+            current = (
+                session.execute(
+                    sa.select(job_table).where(job_table.c.id == job_id).with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if current is None or current["state"] not in ("running", "reconciling"):
+                raise BulkExportNotFound("running Bulk Export Job is not visible")
+            _assert_lease(current, lease_token, now)
             row = (
                 session.execute(
                     sa.update(job_table)
@@ -880,6 +991,9 @@ class SqlAlchemyBulkExportRepository(BulkExportRepository):
                         failure_code="committed_output_pending",
                         failure_detail=failure_detail,
                         completed_at=now,
+                        lease_token=None,
+                        lease_expires_at=None,
+                        heartbeat_at=None,
                     )
                     .returning(*job_table.c)
                 )

@@ -285,6 +285,8 @@ class BulkExportJobResponse(BaseModel):
     submitted_by: UUID
     started_at: datetime | None
     completed_at: datetime | None
+    lease_expires_at: datetime | None
+    heartbeat_at: datetime | None
     committed_output: BulkExportCommittedOutputResponse | None
     links: ResourceLinks
 
@@ -308,6 +310,8 @@ class BulkExportJobResponse(BaseModel):
             submitted_by=value.submitted_by,
             started_at=value.started_at,
             completed_at=value.completed_at,
+            lease_expires_at=value.lease_expires_at,
+            heartbeat_at=value.heartbeat_at,
             committed_output=(
                 BulkExportCommittedOutputResponse.from_domain(output)
                 if output is not None

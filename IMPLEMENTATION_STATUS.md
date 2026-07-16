@@ -1125,9 +1125,9 @@ SHA-256 `04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
 
 This subset does not claim the 1,000-component/5-GiB domain limit as production-qualified. The
 external path currently bounds each source member at 64 MiB. Hard-kill recovery for a claimed
-`running` Job, worker token refresh/rotation, 10,000-Material/2-GiB load and soak/fault acceptance,
-object-lock/KMS/retention, production signing identity and signed connectors remain ordered T-47
-work.
+`running` Job is implemented in the next subset; worker identity/token rotation,
+10,000-Material/2-GiB load and soak/fault acceptance, object-lock/KMS/retention, production signing
+identity and signed connectors remain ordered T-47 work.
 
 Verification passed migration 057 on PostgreSQL 16, including the 057→056→057 round trip. The
 CI-equivalent gate passed all 654 Python tests and all 40 Vitest tests with zero skips or failures,
@@ -1135,4 +1135,35 @@ ruff, mypy over 542 source files, architecture and contract lint, OpenAPI compat
 13-document/22-capture/7-route user-guide checks, the production Vite build and npm audit with zero
 vulnerabilities. The entry JavaScript remained within budget at 269,827 bytes and the largest lazy
 chunk remained 88,163 bytes.
+
+## T-47 external Bundle worker lease recovery subset (2026-07-16)
+
+Migration 058 adds explicit `lease_token`, `heartbeat_at` and `lease_expires_at` columns to the
+typed Bulk Export Job. Queued external work is claimed atomically with `FOR UPDATE SKIP LOCKED`.
+An active worker renews its lease between bounded assembly, hashing and streaming phases; an
+expired `running` or `reconciling` Job is reclaimed with a new opaque fencing token and incremented
+attempt. PostgreSQL transition guards reject an expired heartbeat renewal, and every output,
+reconciliation, success or failure mutation verifies the current unexpired token. Inline assembly
+remains lease-free, terminal Jobs clear all lease fields, and the token is never returned by the API.
+An active Job left by a 057 process receives a deterministic expired bootstrap lease during upgrade,
+so it is reclaimed rather than orphaned; downgrade is blocked while any active leased Job remains.
+
+The API and Export Center expose only heartbeat and recovery-deadline timestamps so operators can
+see when an active Job becomes reclaimable. The default lease is 120 seconds; the synthetic Docker
+demo uses 15 seconds to make failure recovery observable. Organization/project/classification RLS
+and the immutable Export Selection, source revision, Artifact output commit and Bundle boundaries
+are unchanged.
+
+The live Docker/PostgreSQL fault drill created a 22-component, 22,117-byte DP780 Selection. A
+manually claimed Job remained `idle` to another worker before its deadline, then was recovered after
+expiry and completed as attempt 2 with Bundle `f23a24ad-6a97-416b-8155-c0061f64871d`. Lease fields
+were cleared at success. Unit and PostgreSQL tests additionally prove heartbeat extension, direct
+expired-heartbeat rejection and stale-worker fencing.
+
+The CI-equivalent gate passed all 658 Python/PostgreSQL tests and all 41 Vitest tests with zero
+skips or failures, ruff, mypy over 544 source files, architecture and contract lint, OpenAPI
+compatibility, 13-document/23-capture/7-route user-guide checks, the production Vite bundle budget
+and npm audit with zero vulnerabilities. Migration 058 also passed 058→057→058 against the live
+Docker PostgreSQL database before the hard-kill drill. A separate live 057-active→058 upgrade gave
+the legacy Job an expired bootstrap lease, rejected an unsafe downgrade and completed it as attempt 2.
 

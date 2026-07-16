@@ -76,6 +76,7 @@ services:
       # synthetic Material selections exercise the external worker path.
       CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES: "16384"
       CMP_BULK_EXPORT_EXTERNAL_MEMBER_MAXIMUM_BYTES: "67108864"
+      CMP_BULK_EXPORT_JOB_LEASE_SECONDS: "15"
       CMP_UPLOAD_MAX_OBJECT_BYTES: "16777216"
       CMP_UPLOAD_PART_BYTES: "8388608"
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318

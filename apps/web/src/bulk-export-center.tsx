@@ -334,6 +334,12 @@ export function BulkExportCenter({
                     <code>{job.committed_output.archive_sha256}</code>
                   </>
                 ) : null}
+                {job.lease_expires_at ? (
+                  <small>
+                    Worker heartbeat {job.heartbeat_at ? new Date(job.heartbeat_at).toLocaleTimeString() : "pending"}
+                    {" · "}recoverable after {new Date(job.lease_expires_at).toLocaleTimeString()}
+                  </small>
+                ) : null}
                 {job.failure_detail ? <small className="error-text">{job.failure_detail}</small> : null}
               </div>
               <div className="card-actions">

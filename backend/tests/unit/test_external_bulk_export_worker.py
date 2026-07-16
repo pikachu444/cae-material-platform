@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 from collections.abc import AsyncIterable
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import cast
 from uuid import UUID, uuid4
@@ -19,6 +19,7 @@ from cmp.modules.exporting.application.bulk_export import (
 )
 from cmp.modules.exporting.domain.bulk_bundle import (
     BulkExportArchiveEvidence,
+    BulkExportConflict,
     BulkExportJobState,
     ExportMemberKind,
     ExportSelectionContent,
@@ -191,11 +192,37 @@ class _Repository:
         self.job = replace(self.job, state=BulkExportJobState.RUNNING, started_at=now)
         return self.job
 
-    def claim_next_job(self, *, now: datetime, **_kwargs: object) -> BulkExportJob | None:
+    @staticmethod
+    def _assert_lease(job: BulkExportJob, lease_token: UUID | None, now: datetime) -> None:
+        if job.lease_token is None:
+            if lease_token is not None:
+                raise BulkExportConflict("Bulk Export Job lease fencing token is stale")
+            return
+        if job.lease_token != lease_token or job.lease_expires_at is None:
+            raise BulkExportConflict("Bulk Export Job lease was lost or expired")
+        if job.lease_expires_at <= now:
+            raise BulkExportConflict("Bulk Export Job lease was lost or expired")
+
+    def claim_next_job(
+        self,
+        *,
+        now: datetime,
+        lease_token: UUID,
+        lease_duration: timedelta,
+        **_kwargs: object,
+    ) -> BulkExportJob | None:
         if self.job is None:
             return None
         if self.job.state is BulkExportJobState.QUEUED:
-            return self.mark_job_running(now=now)
+            self.job = replace(
+                self.job,
+                state=BulkExportJobState.RUNNING,
+                started_at=now,
+                lease_token=lease_token,
+                lease_expires_at=now + lease_duration,
+                heartbeat_at=now,
+            )
+            return self.job
         if self.job.state is BulkExportJobState.RECONCILIATION_REQUIRED:
             self.job = replace(
                 self.job,
@@ -204,9 +231,43 @@ class _Repository:
                 failure_code=None,
                 failure_detail=None,
                 completed_at=None,
+                lease_token=lease_token,
+                lease_expires_at=now + lease_duration,
+                heartbeat_at=now,
+            )
+            return self.job
+        if (
+            self.job.state in (BulkExportJobState.RUNNING, BulkExportJobState.RECONCILING)
+            and self.job.lease_expires_at is not None
+            and self.job.lease_expires_at <= now
+        ):
+            self.job = replace(
+                self.job,
+                attempt_count=self.job.attempt_count + 1,
+                lease_token=lease_token,
+                lease_expires_at=now + lease_duration,
+                heartbeat_at=now,
             )
             return self.job
         return None
+
+    def renew_job_lease(
+        self,
+        *,
+        job_id: UUID,
+        lease_token: UUID,
+        lease_duration: timedelta,
+        now: datetime,
+        **_kwargs: object,
+    ) -> BulkExportJob:
+        assert self.job is not None and self.job.id == job_id
+        self._assert_lease(self.job, lease_token, now)
+        self.job = replace(
+            self.job,
+            lease_expires_at=now + lease_duration,
+            heartbeat_at=now,
+        )
+        return self.job
 
     def record_output_commit(
         self,
@@ -216,9 +277,12 @@ class _Repository:
         job_id: UUID,
         archive_artifact_id: UUID,
         evidence: BulkExportArchiveEvidence,
+        lease_token: UUID | None,
         now: datetime,
         **_kwargs: object,
     ) -> CommittedBulkExportOutput:
+        assert self.job is not None
+        self._assert_lease(self.job, lease_token, now)
         if self.output is None:
             self.output = CommittedBulkExportOutput(
                 output_id,
@@ -246,6 +310,7 @@ class _Repository:
         bundle_id: UUID,
         evidence: BulkExportArchiveEvidence,
         content: ExportSelectionContent,
+        lease_token: UUID | None,
         now: datetime,
         **_kwargs: object,
     ) -> tuple[BulkExportJob, BulkExportBundle]:
@@ -253,6 +318,7 @@ class _Repository:
             self.fail_complete_once = False
             raise RuntimeError("simulated later Bundle projection failure")
         assert self.job is not None and self.output is not None
+        self._assert_lease(self.job, lease_token, now)
         self.bundle = BulkExportBundle(
             bundle_id,
             ORG,
@@ -276,19 +342,31 @@ class _Repository:
             failure_code=None,
             failure_detail=None,
             completed_at=now,
+            lease_token=None,
+            lease_expires_at=None,
+            heartbeat_at=None,
         )
         return self.job, self.bundle
 
     def require_output_reconciliation(
-        self, *, failure_detail: str, now: datetime, **_kwargs: object
+        self,
+        *,
+        failure_detail: str,
+        lease_token: UUID | None,
+        now: datetime,
+        **_kwargs: object,
     ) -> BulkExportJob:
         assert self.job is not None and self.output is not None
+        self._assert_lease(self.job, lease_token, now)
         self.job = replace(
             self.job,
             state=BulkExportJobState.RECONCILIATION_REQUIRED,
             failure_code="committed_output_pending",
             failure_detail=failure_detail,
             completed_at=now,
+            lease_token=None,
+            lease_expires_at=None,
+            heartbeat_at=None,
         )
         return self.job
 
@@ -363,3 +441,65 @@ def test_committed_output_survives_later_failure_and_reconciles_without_reassemb
     assert completed[0].state is BulkExportJobState.SUCCEEDED
     assert completed[0].attempt_count == 2
     assert len(artifacts.streams) == 1
+
+
+def test_expired_external_job_is_reclaimed_and_stale_worker_is_fenced() -> None:
+    repository = _Repository()
+    context = _context()
+    first_token = UUID("97000000-0000-4000-8000-000000000011")
+    second_token = UUID("97000000-0000-4000-8000-000000000012")
+    job = repository.create_job(context=context, job_id=uuid4(), now=NOW)
+
+    first_claim = repository.claim_next_job(
+        now=NOW,
+        lease_token=first_token,
+        lease_duration=timedelta(seconds=10),
+    )
+    assert first_claim is not None
+    assert first_claim.lease_token == first_token
+    assert first_claim.attempt_count == 1
+    assert (
+        repository.claim_next_job(
+            now=NOW + timedelta(seconds=9),
+            lease_token=second_token,
+            lease_duration=timedelta(seconds=10),
+        )
+        is None
+    )
+
+    second_claim = repository.claim_next_job(
+        now=NOW + timedelta(seconds=11),
+        lease_token=second_token,
+        lease_duration=timedelta(seconds=10),
+    )
+    assert second_claim is not None
+    assert second_claim.id == job.id
+    assert second_claim.lease_token == second_token
+    assert second_claim.attempt_count == 2
+
+    evidence = BulkExportArchiveEvidence("a" * 64, 128, "b" * 64)
+    try:
+        repository.record_output_commit(
+            context=context,
+            output_id=uuid4(),
+            job_id=job.id,
+            archive_artifact_id=ARTIFACT,
+            evidence=evidence,
+            lease_token=first_token,
+            now=NOW + timedelta(seconds=12),
+        )
+    except BulkExportConflict:
+        pass
+    else:
+        raise AssertionError("the expired worker fencing token was accepted")
+
+    output = repository.record_output_commit(
+        context=context,
+        output_id=uuid4(),
+        job_id=job.id,
+        archive_artifact_id=ARTIFACT,
+        evidence=evidence,
+        lease_token=second_token,
+        now=NOW + timedelta(seconds=12),
+    )
+    assert output.job_id == job.id
