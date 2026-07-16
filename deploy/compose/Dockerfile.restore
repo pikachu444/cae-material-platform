@@ -1,0 +1,29 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    PATH=/app/.venv/bin:$PATH
+
+# Restore tooling is intentionally absent from the API/worker image. Keep the
+# pg_dump/pg_restore major aligned with the demo PostgreSQL server.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends ca-certificates postgresql-common \
+    && /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
+    && apt-get update \
+    && apt-get install --yes --no-install-recommends postgresql-client-16 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir "uv>=0.9,<1"
+
+COPY pyproject.toml uv.lock README.md alembic.ini ./
+COPY backend ./backend
+COPY sdk ./sdk
+COPY generated ./generated
+COPY plugins ./plugins
+
+RUN uv sync --frozen --no-dev
+
+ENTRYPOINT ["cmp-restore-drill"]

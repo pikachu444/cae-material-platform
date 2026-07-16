@@ -221,6 +221,10 @@ Compose 내부 서비스로 실행됩니다. 실제 회사 데이터는 포함�
 Polymer, Elastomer 시험 데이터와 material card 생성 절차를 따라갈 수 있습니다. 화면이나
 사용자 workflow를 변경하는 PR은 관련 가이드와 화면 이미지를 함께 갱신해야 합니다.
 
+운영자는 [운영 상태 확인과 격리 복구 드릴](docs/user-guide/11-operations-and-recovery.md)에서
+민감정보가 제거된 Governance 관측성 화면, Collector metric과 실행 중인 DB를 교체하지 않는
+PostgreSQL/object 복구 검증 절차를 확인할 수 있습니다.
+
 ## 데이터 보호 원칙
 
 - 원본 파일과 발행된 artifact/revision은 수정하거나 덮어쓰지 않습니다.

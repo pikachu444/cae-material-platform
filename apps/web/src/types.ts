@@ -3221,3 +3221,24 @@ export interface BulkExportBundleResponse {
   created_by: string;
   links: Record<string, string | null>;
 }
+
+export interface OperationSeriesResponse {
+  method: string;
+  route: string;
+  status_family: string;
+  request_count: number;
+  error_count: number;
+  duration_sum_ms: number;
+  p95_upper_bound_ms: number;
+}
+
+export interface OperationalSnapshotResponse {
+  service: "cmp-api";
+  version: string;
+  started_at: string;
+  observed_at: string;
+  active_requests: number;
+  request_count: number;
+  error_count: number;
+  series: OperationSeriesResponse[];
+}

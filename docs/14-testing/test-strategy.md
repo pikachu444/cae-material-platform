@@ -739,3 +739,28 @@ The browser evidence additionally renders the processed curve, sorted Candidates
 promoted IR/card preview, OpenRadioss LAW62 approximation notice, and exact Process/Lot genealogy.
 The complete IDs, digests, commands, expected negative check, and screenshots are in
 `docs/15-demo/user-e2e-evidence-2026-07-16.md`.
+
+## T-47 observability and isolated recovery gate
+
+The first operational-hardening slice is accepted only when all of the following pass:
+
+- unit tests redact bearer/JWT/DSN/password/secret fixtures, discard arbitrary log extras and
+  exception messages, bound route cardinality and verify API-to-worker trace continuation;
+- contract tests require `audit.read`, `Cache-Control: no-store`, route-template series and no
+  tenant identifier, request payload, URL, query, header or credential field in the response;
+- the Compose Collector receives API/worker traces and metrics, and its Prometheus endpoint is live;
+- `cmp-restore-drill` uses a server-major-matched PostgreSQL client, restores only to a random
+  isolated database, copies objects to a distinct report directory, verifies count/digest/lineage
+  evidence and removes the temporary database on success or failure;
+- a source without a Release records `not_present_in_source` rather than claiming Release recovery.
+
+Run the live drill with:
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml --profile operations run --rm restore-drill
+```
+
+The 2026-07-16 reference run passed in 32.018 seconds with raw assets 18/18, total object samples
+100/100, matching metadata counts and zero dangling provenance edges. A production acceptance run
+must additionally contain at least one approved Release, use the scheduled/versioned backup source,
+exercise KMS/object-lock access and record operator-approved RPO/RTO evidence.

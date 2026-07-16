@@ -1382,3 +1382,30 @@ def test_scientific_profile_contract_matches_runtime_and_is_typed() -> None:
         assert required in serialized
     assert '"attribute"' not in serialized
     assert '"value"' not in serialized
+
+
+def test_operations_observability_contract_is_redacted_and_low_cardinality() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    path = "/api/v1/operations/observability"
+
+    assert source["paths"][path]["get"]["operationId"] == "getOperationalObservability"
+    assert runtime["paths"][path]["get"]["operationId"] == "getOperationalObservability"
+    assert runtime["paths"][path]["get"]["security"] == [{"BearerAuth": []}]
+
+    source_schema = source["components"]["schemas"]["OperationSeriesResponse"]
+    runtime_schema = runtime["components"]["schemas"]["OperationSeriesResponse"]
+    expected = {
+        "method",
+        "route",
+        "status_family",
+        "request_count",
+        "error_count",
+        "duration_sum_ms",
+        "p95_upper_bound_ms",
+    }
+    assert set(source_schema["properties"]) == expected
+    assert set(runtime_schema["properties"]) == expected
+    serialized = json.dumps(runtime["components"]["schemas"]["OperationalSnapshotResponse"])
+    for forbidden in ("url", "query", "header", "body", "token", "organization_id"):
+        assert forbidden not in serialized

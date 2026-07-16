@@ -685,6 +685,12 @@ source IR, Dataset, or already published card may be rewritten.
 - **완료 조건:** end-to-end trace와 failure taxonomy dashboard가 있고 secret/raw data가 log에 없다.
 - **테스트:** 단위—redaction/context propagation; 통합—API→worker→runner trace; 회귀—missing trace, high-cardinality labels, secret fixture.
 - **담당:** Software/Platform 주 담당; Operations가 alerts/runbook 승인.
+- **2026-07-16 구현 subset:** API/worker가 vendor-neutral OTLP/HTTP trace와 metric을 Collector로
+  전송하고 Job에 저장된 W3C trace context를 worker consumer span으로 이어간다. 애플리케이션
+  request log는 허용된 route template/method/status/latency만 JSON으로 출력하며 raw access log를
+  끈다. `GET /api/v1/operations/observability`와 Governance panel은 `audit.read` 권한으로 bounded
+  process snapshot을 표시한다. Production alert backend, multi-replica aggregation과 solver span은
+  아직 남아 있다.
 
 #### T-36. Backup/restore, object integrity, disaster-recovery drill — `P1`
 
@@ -696,6 +702,12 @@ source IR, Dataset, or already published card may be rewritten.
 - **완료 조건:** 격리 환경 restore 후 sample release/raw digest와 lineage가 일치하고 drill 시간이 기록된다.
 - **테스트:** 단위—manifest verifier; 통합—DB+object restore; 회귀—missing object version, RLS backup omission, key access failure.
 - **담당:** Platform/Software 주 담당; Security/Data Owner가 retention/restore acceptance 승인.
+- **2026-07-16 구현 subset:** PostgreSQL 16 custom dump를 무작위 격리 DB에 복원하고 별도 object
+  snapshot에서 raw/artifact SHA-256·크기, relation count와 provenance dangling edge를 검사하는
+  `cmp-restore-drill`을 제공한다. 실제 demo drill은 32.018초, raw 18/18, 전체 object 표본
+  100/100, dangling lineage 0으로 통과했다. Source에 Release가 없어 release sample은
+  `not_present_in_source`로 명시됐다. Production scheduled backup, versioned object lock,
+  KMS/retention 승인과 Release가 포함된 재드릴은 남아 있다.
 
 ### S-12.2. Scientific·security·performance regression을 release gate로 만든다
 
@@ -1152,3 +1164,9 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   explicit risk acceptance, benchmark report and traceable connector delivery.
 - **테스트:** secret/log redaction, trace propagation, restore checksum/lineage, dependency/image
   scan, signature substitution, load/soak and connector retry/idempotency.
+- **진행 상태 (2026-07-16):** T-35 redacted OpenTelemetry/API-worker propagation/dashboard와 T-36
+  격리 PostgreSQL/object restore subset은 구현·실데이터 검증 완료. 남은 순서는 (1) SBOM,
+  vulnerability/image scan과 signature substitution gate, (2) representative catalog/upload/
+  bundle benchmark와 security acceptance, (3) 64 MiB 초과 Bundle external-worker assembly와
+  failed-later-step output reconciliation visibility, (4) object lock/KMS/retention adapter,
+  (5) signed-manifest REST/webhook/object-storage connector이다.

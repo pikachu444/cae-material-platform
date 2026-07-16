@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-16`
-Foundation version: `0.31.0`
+Foundation version: `0.32.0`
 
 ## Completed
 
@@ -1017,4 +1017,35 @@ tests, ruff, mypy over 528 source files, architecture/contract/OpenAPI compatibi
 12-document/20-capture/7-route guide gate and the production Vite build. The connected Docker
 browser also opened the global Governance hub with the real Review, Release and Lineage/Audit
 workbenches and showed no visible application error.
+
+## T-47 observability and isolated recovery subset (2026-07-16)
+
+Foundation version `0.32.0` adds no domain migration and preserves every existing Material, raw
+asset, Dataset, IR, Solver Card, Bundle and Release revision. API and worker now own separate
+OpenTelemetry SDK providers and export vendor-neutral OTLP/HTTP traces and metrics. The worker
+continues the exact W3C trace context persisted on its durable Job into a consumer span. Structured
+application logs are fail-closed and allow-listed; raw Uvicorn access logs are disabled so URLs,
+queries, headers, bodies, test payloads, tenant identifiers and credentials are not serialized.
+
+The protected operations API and Governance panel expose only one API process's bounded method,
+route-template, status-family and latency-bucket snapshot. It requires `audit.read`; the explicit
+local demo group receives the read-only auditor role, while production role policy is unchanged.
+The Compose demo includes an OpenTelemetry Collector with OTLP/HTTP ingestion and a localhost-only
+Prometheus endpoint.
+
+The separate restore image contains the PostgreSQL 16 client while API/worker images do not. The
+drill creates a custom-format dump, restores it to a random temporary database, copies immutable
+objects to a distinct report directory and verifies typed relation counts, raw/artifact bytes and
+provenance references. The successful live run completed in 32.018 seconds, matched raw 18/18 and
+total object samples 100/100, found zero dangling lineage edges and cleaned the temporary database.
+The demo source contained no Release, which is reported as `not_present_in_source`; Release digest
+recovery, scheduled/versioned backups, object lock/KMS/retention, SBOM/scanning/signature,
+benchmark/security acceptance, large external-worker Bundle assembly and signed connectors remain
+the ordered T-47 work.
+
+The T-47 subset gate passed 627 Python tests with the disposable PostgreSQL 16 DSN and zero
+skip/failure, 39 Vitest tests, ruff, mypy over 536 source files, architecture/contract/OpenAPI and
+13-document/21-capture user-guide checks, production Vite build and npm audit with zero
+vulnerabilities. The build still reports one 541.66-kB frontend chunk warning; code splitting and a
+hard bundle budget remain part of the next T-47 performance gate.
 

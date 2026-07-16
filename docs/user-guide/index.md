@@ -17,6 +17,7 @@
 8. [CSV/TSV/XLSX 시험 데이터 승인과 Dataset 생성](08-governed-tabular-import.md)
 9. [시험 데이터·중립 IR·Solver Card를 ZIP으로 받기](09-bulk-export.md)
 10. [메뉴와 Material 작업공간 사용법](10-navigation-and-troubleshooting.md)
+11. [운영 상태 확인과 격리 복구 드릴](11-operations-and-recovery.md)
 
 ## 현재 할 수 있는 일
 
@@ -33,6 +34,7 @@
 - Abaqus/OpenRadioss mapping report, card preview와 개별 download
 - one-term Ogden--Prony IR의 Abaqus/OpenRadioss LAW62 card 생성
 - 선택한 raw/Parquet/CSV/IR/schema/mapping report/card revision을 하나의 검증 가능한 ZIP으로 다운로드
+- Governance에서 민감정보가 제거된 API 관측성 snapshot 확인
 
 ## 아직 제한된 일
 
@@ -62,6 +64,8 @@
 ![전역 Models 허브와 전체 제품 메뉴](../15-demo/images/t46-global-navigation-model-hub.png)
 
 ![Material 문맥별 작업 탭](../15-demo/images/t46-material-context-tabs.png)
+
+![민감정보를 제외한 Governance API 관측성](../15-demo/images/t47-api-observability.png)
 
 문제가 생기면 먼저 브라우저의 Connection 상태, Material class, exact State/Property revision,
 CSV column/unit, mapping report의 `unsupported` 또는 `approximated` 항목을 확인하십시오.

@@ -6,7 +6,7 @@ immutable content Artifact, typed provenance and bounded lineage, append-only au
 and transactional event, plugin registry, and isolated runner foundation
 (`T-01`–`T-21` + reference `T-22`–`T-32` subsets + bounded `T-D03`)
 
-Version: `0.31.0`
+Version: `0.32.0`
 
 This repository is the implementation workspace for the CAE material-data platform defined in
 `docs/`. The first product slice implements Material, Material State, and explicitly typed basic
@@ -207,7 +207,8 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 ```
 
 It starts PostgreSQL, an owner-only migration/bootstrap job, the non-owner API,
-the generic worker, the React workbench, reference-plugin asset check, and an
+the generic worker, the React workbench, a vendor-neutral OpenTelemetry Collector,
+reference-plugin asset check, and an
 API-only synthetic data seed. The seed follows the protected product path:
 
 ```text
@@ -243,6 +244,19 @@ the marker suite has skip 0/failure 0, the CI-equivalent suite passes with the s
 demo works. Never use a production or shared database for this command. See
 [the test strategy](docs/14-testing/test-strategy.md#p0-1-windowscompose-verification-runbook) for the
 full health, log, and teardown procedure.
+
+Inspect the local Collector and run a non-destructive isolated restore drill with:
+
+```powershell
+Invoke-WebRequest http://127.0.0.1:8889/metrics
+docker compose -f deploy/compose/docker-compose.demo.yml --profile operations run --rm restore-drill
+```
+
+`OTEL_EXPORTER_OTLP_ENDPOINT` enables OTLP/HTTP export for API/worker and
+`CMP_OTEL_METRIC_EXPORT_INTERVAL_MS` controls the metric interval (minimum 1000 ms). The restore
+image alone contains the server-major-matched PostgreSQL 16 client; reports are written below
+`.cache/restore-drill/`. See the
+[operations and recovery guide](docs/user-guide/11-operations-and-recovery.md).
 
 The live P0-1 gate completed with 62 PostgreSQL-marked tests passed (zero skips/failures), 452
 CI-equivalent Python tests passed, and 21 Vitest tests passed. The observed counts are not fixed;

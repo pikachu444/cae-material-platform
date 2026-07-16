@@ -31,6 +31,15 @@ Material State의 exact revision 문맥을 공유합니다.
 
 ![Material의 Models & Cards 문맥 탭](../15-demo/images/t46-material-context-tabs.png)
 
+## Governance 운영 상태
+
+전역 **Governance**의 **API observability**는 현재 API process의 요청 수, 5xx 수, active request와
+route-template별 p95 상한을 보여줍니다. URL, query, request body, 시험 데이터, credential이나 tenant
+식별자는 표시하지 않습니다. 이 화면은 빠른 진단용이며 여러 replica를 합치는 telemetry backend를
+대신하지 않습니다. Docker demo에서는 local identity가 읽기 전용 auditor 역할을 포함합니다.
+
+![Governance API observability](../15-demo/images/t47-api-observability.png)
+
 ## 자주 생기는 문제
 
 ### `Connection required` 또는 token 만료

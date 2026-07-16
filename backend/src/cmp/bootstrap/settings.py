@@ -22,6 +22,8 @@ class Settings:
     upload_session_ttl_seconds: int = 24 * 60 * 60
     artifact_transfer_secret: str | None = None
     artifact_transfer_ttl_seconds: int = 5 * 60
+    otel_exporter_otlp_endpoint: str | None = None
+    otel_metric_export_interval_ms: int = 10_000
     oidc_issuer: str | None = None
     oidc_audience: str | None = None
     oidc_jwks_url: str | None = None
@@ -91,6 +93,10 @@ class Settings:
             artifact_transfer_secret=optional("CMP_ARTIFACT_TRANSFER_SECRET"),
             artifact_transfer_ttl_seconds=int(
                 os.getenv("CMP_ARTIFACT_TRANSFER_TTL_SECONDS", str(5 * 60))
+            ),
+            otel_exporter_otlp_endpoint=optional("OTEL_EXPORTER_OTLP_ENDPOINT"),
+            otel_metric_export_interval_ms=int(
+                os.getenv("CMP_OTEL_METRIC_EXPORT_INTERVAL_MS", "10000")
             ),
             oidc_issuer=os.getenv("CMP_OIDC_ISSUER"),
             oidc_audience=os.getenv("CMP_OIDC_AUDIENCE"),

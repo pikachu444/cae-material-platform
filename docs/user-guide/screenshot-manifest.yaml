@@ -1,4 +1,4 @@
-version: 6
+version: 7
 verified_at: 2026-07-16
 source_evidence: ../15-demo/user-e2e-evidence-2026-07-16.md
 captures:
@@ -104,5 +104,12 @@ captures:
     workflow: contextual-material-state-model-and-card-workspace
     fixture: deterministic T-46 DP780 Material and exact State revision
     image: ../15-demo/images/t46-material-context-tabs.png
+    width: 885
+    height: 1196
+  - id: api-observability
+    route: /governance
+    workflow: auditor-redacted-route-template-observability
+    fixture: deterministic T-47 Docker demo with OpenTelemetry Collector
+    image: ../15-demo/images/t47-api-observability.png
     width: 885
     height: 1196
