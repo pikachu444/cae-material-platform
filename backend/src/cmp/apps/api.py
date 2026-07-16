@@ -19,6 +19,7 @@ from cmp.bootstrap.datasets import (
 )
 from cmp.bootstrap.demo_identity import DemoIdentity, install_demo_identity_api
 from cmp.bootstrap.exporting import (
+    build_bulk_export_service,
     build_elastoplastic_solver_card_service,
     build_linear_viscoelastic_solver_card_service,
     build_ogden_prony_solver_card_service,
@@ -83,6 +84,7 @@ from cmp.modules.datasets.application.governed_import import GovernedImportServi
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.datasets.application.viscoelastic_master import ViscoelasticDatasetService
+from cmp.modules.exporting.adapters.api.bulk_export import install_bulk_export_api
 from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
     install_elastoplastic_solver_card_api,
 )
@@ -93,6 +95,7 @@ from cmp.modules.exporting.adapters.api.ogden_prony_solver_cards import (
     install_ogden_prony_solver_card_api,
 )
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
+from cmp.modules.exporting.application.bulk_export import BulkExportService
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
 )
@@ -263,6 +266,7 @@ def create_app(
     elastoplastic_solver_card_service: ElastoplasticSolverCardService | None = None,
     linear_viscoelastic_solver_card_service: LinearViscoelasticSolverCardService | None = None,
     ogden_prony_solver_card_service: OgdenPronySolverCardService | None = None,
+    bulk_export_service: BulkExportService | None = None,
     validation_service: ReferenceValidationService | None = None,
     voce_holdout_service: ReferenceVoceHoldoutService | None = None,
     review_service: ReviewService | None = None,
@@ -865,6 +869,22 @@ def create_app(
     install_ogden_prony_solver_card_api(
         application,
         service=resolved_ogden_prony_solver_cards,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_EXECUTE
+        ),
+    )
+    resolved_bulk_exports = bulk_export_service or build_bulk_export_service(
+        services,
+        resolved_artifacts,
+    )
+    install_bulk_export_api(
+        application,
+        service=resolved_bulk_exports,
+        artifacts=resolved_artifacts,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.EXPORT_READ

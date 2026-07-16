@@ -1,0 +1,120 @@
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import zipfile
+from dataclasses import replace
+from uuid import UUID
+
+import pytest
+from cmp.modules.exporting.domain.bulk_bundle import (
+    BulkExportConflict,
+    ExportMemberKind,
+    ExportSelectionContent,
+    ExportSelectionMember,
+    ExportSourceRef,
+    InvalidBulkExport,
+    ResolvedBundleFile,
+    build_deterministic_bundle,
+)
+from cmp.modules.identity_access.domain.authorization import DataClassification
+
+
+def _id(value: int) -> UUID:
+    return UUID(int=value)
+
+
+def _member(
+    ordinal: int,
+    *,
+    path: str,
+    value: bytes,
+    classification: DataClassification = DataClassification.INTERNAL,
+) -> ExportSelectionMember:
+    return ExportSelectionMember(
+        ordinal=ordinal,
+        source=ExportSourceRef(
+            ExportMemberKind.MODEL_IR_JSON,
+            material_model_id=_id(10 + ordinal),
+            material_model_revision_id=_id(20 + ordinal),
+        ),
+        archive_path=path,
+        source_sha256=hashlib.sha256(value).hexdigest(),
+        source_size_bytes=len(value),
+        media_type="application/json",
+        classification=classification,
+        label=f"Model IR {ordinal}",
+    )
+
+
+def test_bundle_is_byte_deterministic_and_self_verifying() -> None:
+    first_value = b'{"model":"elastic"}\n'
+    second_value = b'{"model":"plastic"}\n'
+    first = _member(1, path="models/a/ir.json", value=first_value)
+    second = _member(
+        2,
+        path="models/b/ir.json",
+        value=second_value,
+        classification=DataClassification.CONFIDENTIAL,
+    )
+    content = ExportSelectionContent("Two exact model revisions", (first, second), ())
+    files = (
+        ResolvedBundleFile(first, first_value),
+        ResolvedBundleFile(second, second_value),
+    )
+
+    one = build_deterministic_bundle(
+        selection_id=_id(1),
+        selection_revision_id=_id(2),
+        content=content,
+        files=files,
+    )
+    two = build_deterministic_bundle(
+        selection_id=_id(1),
+        selection_revision_id=_id(2),
+        content=content,
+        files=files,
+    )
+
+    assert one.archive == two.archive
+    assert one.archive_sha256 == hashlib.sha256(one.archive).hexdigest()
+    with zipfile.ZipFile(io.BytesIO(one.archive)) as archive:
+        assert archive.namelist() == sorted(archive.namelist())
+        assert all(item.date_time == (1980, 1, 1, 0, 0, 0) for item in archive.infolist())
+        manifest = json.loads(archive.read("manifest.json"))
+        assert manifest["classification"] == "confidential"
+        assert [item["archive_path"] for item in manifest["components"]] == [
+            "models/a/ir.json",
+            "models/b/ir.json",
+        ]
+        for line in archive.read("checksums.sha256").decode().splitlines():
+            digest, path = line.split("  ", 1)
+            assert hashlib.sha256(archive.read(path)).hexdigest() == digest
+
+
+def test_selection_rejects_path_traversal_duplicates_and_reserved_names() -> None:
+    value = b"{}\n"
+    member = _member(1, path="models/a/ir.json", value=value)
+    with pytest.raises(InvalidBulkExport, match="bundle root"):
+        replace(member, archive_path="../outside.json")
+    with pytest.raises(InvalidBulkExport, match="reserved"):
+        replace(member, archive_path="manifest.json")
+    duplicate = _member(2, path=member.archive_path, value=value)
+    with pytest.raises(InvalidBulkExport, match="archive_path"):
+        ExportSelectionContent("Duplicate", (member, duplicate), ())
+
+
+def test_resolved_bytes_must_still_match_the_pinned_source_digest() -> None:
+    member = _member(1, path="models/a/ir.json", value=b"original")
+    with pytest.raises(BulkExportConflict, match="changed"):
+        ResolvedBundleFile(member, b"modified")
+
+
+def test_source_reference_is_a_typed_union_not_a_generic_payload() -> None:
+    with pytest.raises(InvalidBulkExport, match="typed source"):
+        ExportSourceRef(
+            ExportMemberKind.SOLVER_CARD_NATIVE,
+            material_model_id=_id(1),
+            material_model_revision_id=_id(2),
+        )

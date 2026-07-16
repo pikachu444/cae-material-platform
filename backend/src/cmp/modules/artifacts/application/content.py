@@ -735,7 +735,37 @@ class ArtifactService:
         *,
         ttl: timedelta | None = None,
     ) -> ArtifactDownloadGrant:
-        record = self.get_artifact(context, decision, artifact_id)
+        _require_decision(context, decision, Permission.ARTIFACT_READ)
+        return await self._issue_download(context, decision, artifact_id, ttl=ttl)
+
+    async def issue_download_with_capability(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+        *,
+        ttl: timedelta | None = None,
+    ) -> ArtifactDownloadGrant:
+        """Issue a transfer from an owning command's Artifact read dependency."""
+
+        _require_database_capability(context, decision, Permission.ARTIFACT_READ)
+        return await self._issue_download(context, decision, artifact_id, ttl=ttl)
+
+    async def _issue_download(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        artifact_id: UUID,
+        *,
+        ttl: timedelta | None,
+    ) -> ArtifactDownloadGrant:
+        if artifact_id.int == 0:
+            raise InvalidArtifact("artifact_id must be non-zero")
+        record = self._repository.get_artifact(
+            context=context,
+            decision=decision,
+            artifact_id=artifact_id,
+        )
         if record.integrity_status is not IntegrityStatus.VERIFIED:
             raise ArtifactIntegrityError("Artifact is not currently verified")
         stored = await self._store.inspect(record.artifact.storage_key)
