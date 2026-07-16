@@ -145,3 +145,23 @@ The 2026-07-16 five-minute production-pilot run used source commit
 The demo uses a shared local filesystem volume, not an independently managed object-storage
 service. Therefore this report does not claim production object-storage outage, object lock, KMS,
 retention, cross-node failover or an overnight endurance run. Those remain separate gates.
+
+## Final product-pilot acceptance
+
+After the normal demo seed and worker have completed, verify the actual PostgreSQL-backed product
+workflow rather than only infrastructure throughput:
+
+```powershell
+$env:CMP_PRODUCT_PILOT_POSTGRES_DSN = `
+  "postgresql://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp"
+uv run cmp-product-pilot-acceptance
+```
+
+The read-only gate requires a clean Git tree. It authenticates through the explicit local-demo
+issuer and verifies the exact Steel, Polymer and Elastomer Material/State/Property/Test/Model
+identities. It downloads the promoted cards and checks persisted SHA-256 values and solver keyword
+markers. It then downloads a complete 22-component Bundle, independently verifies `manifest.json`,
+`checksums.sha256`, every component byte digest and all required raw/Dataset/IR/schema/mapping/card
+representations. Finally it uses a read-only PostgreSQL transaction to confirm the same Material,
+Material Model and Bundle identities are durable rows. Canonical evidence is written under
+`.cache/product-pilot-acceptance/<UTC timestamp>/`.

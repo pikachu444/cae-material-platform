@@ -96,3 +96,19 @@ docker compose -f deploy/compose/docker-compose.demo.yml --profile operations ru
 
 명령은 생성한 임시 DB만 삭제합니다. 운영 acceptance에는 versioned object storage, object lock,
 KMS/retention 권한, scheduled backup과 실제 승인 Release를 포함한 별도 드릴이 필요합니다.
+## Product-pilot acceptance
+
+The operator can run one read-only acceptance after the demo bootstrap and worker are healthy. It
+does not create or revise user records.
+
+```powershell
+$env:CMP_PRODUCT_PILOT_POSTGRES_DSN = `
+  "postgresql://cmp_owner:cmp_owner_development_only@127.0.0.1:54329/cmp"
+uv run cmp-product-pilot-acceptance
+```
+
+Success means the composed PostgreSQL service contains all three reference user paths (Steel,
+Polymer and Elastomer), their promoted solver-neutral IR evidence, the required downloadable
+Abaqus/OpenRadioss cards, and a checksum-valid 22-component Bulk Export ZIP. It does not mean that
+the reference material parameters are approved engineering data, that a solver job was executed,
+or that external KMS/HSM/WORM services have passed acceptance.

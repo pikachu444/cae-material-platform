@@ -245,8 +245,32 @@ SHA-256(downloaded bytes) == solver_card_revision.card_sha256
 
 ## 다음 우선순위
 
-1. T-47 object lock/KMS/retention 및 production signing identity adapter.
-2. signed-manifest REST/webhook/object-storage connector와 운영 token rotation.
-3. production infrastructure의 independent object-storage fault와 overnight endurance acceptance.
+The implementation gaps previously listed here are now closed in code: governed S3 Object
+Lock/SSE-KMS, external signing, signed REST/webhook/object-storage delivery, and rotating
+worker/receiver token-file boundaries are implemented. The composed pilot's final automated gate
+is `make product-pilot-acceptance`. It verifies the three exact live Material workflows, downloads
+and hashes the required Abaqus/OpenRadioss cards, validates every component in the 22-component ZIP,
+and cross-checks the same stable identities in PostgreSQL.
+
+The clean-tree run on source commit `a401b34ccc2ff4df0fd577f70c29b9e8a839bf41` passed on
+2026-07-17 KST and produced canonical report SHA-256
+`d0ca507324e9b94b558d52b0c3fbf5d7e9c5fb947a67cc98adbf388155466f4e`.
+PostgreSQL 16.14 matched all three Material identities, six Material Model identities and the exact
+Bundle row in a read-only transaction. The gate verified 5 Steel Test Runs and 11 typed Datasets,
+39 accumulated Polymer Test Runs and 40 immutable relaxation Dataset identities, and 21 accumulated
+Elastomer Test Runs. Required cards were Abaqus/OpenRadioss for Steel, Abaqus for Polymer, and
+Abaqus/OpenRadioss for Elastomer. Bundle `f23a24ad-6a97-416b-8155-c0061f64871d` contained 22
+components, zero omissions and 21,819 bytes; archive SHA-256 was
+`2957276e628bf4d97d4724baabe72da67671bc924c15077ea7e2ae441f774fac`.
+The final CI-equivalent rerun passed 695 Python/PostgreSQL tests and 41 frontend tests with zero
+skips or failures, plus ruff, mypy over 557 source files, architecture/contracts/OpenAPI,
+13-document/24-capture user-guide validation, production bundle budget and npm audit with zero
+vulnerabilities.
+
+Remaining release-environment acceptance requires supplied external infrastructure and credentials:
+
+1. run the governed storage gate against the approved live WORM/KMS bucket;
+2. run signing and connector acceptance against the approved HSM/keyless signer and receiver;
+3. run independent object-storage outage and overnight endurance acceptance.
 
 실제 solver 실행과 solver qualification은 제품 소유자 지시에 따라 이 우선순위에서 제외한다.

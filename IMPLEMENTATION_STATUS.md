@@ -1299,3 +1299,33 @@ The complete connector branch gate passed 690 Python/PostgreSQL tests and 41 Vit
 skips/failures, ruff, mypy over 555 source files, architecture and user-guide checks, the production
 web bundle budget and npm audit with zero vulnerabilities.
 
+## Final composed product-pilot acceptance gate (2026-07-17)
+
+`cmp-product-pilot-acceptance` is the read-only final gate for the local PostgreSQL composition. It
+authenticates through the explicit demo issuer and resolves the exact DP780 Steel, linear-Prony
+Polymer and Ogden--Prony Elastomer Material identities. For each path it verifies typed
+Material/State/Property revisions, required test context, normalized/processed evidence, a
+human-promoted fitted solver-neutral IR, and the required downloadable Solver Cards. Card preview
+and download bytes must match the persisted card SHA-256 and required Abaqus/OpenRadioss keyword
+markers; mapping values are restricted to the six published statuses.
+
+The same gate downloads a complete 22-component Bulk Export ZIP and independently verifies the
+archive digest, manifest digest, every `checksums.sha256` entry, safe unique paths, zero omissions,
+and raw/Dataset/IR/schema/mapping/native-card representation coverage. A read-only PostgreSQL
+transaction then confirms the API's Material, Material Model and Bundle stable identities are
+durable rows. Unit regression covers valid bundles, component tampering, missing representations
+and archive digest mismatch. Actual solver execution remains excluded, and live external
+KMS/WORM/HSM/receiver/endurance acceptance still requires approved infrastructure and credentials.
+
+The clean-tree gate passed on commit `a401b34ccc2ff4df0fd577f70c29b9e8a839bf41` against the live
+Docker API and PostgreSQL 16.14 demo. It verified three workflows, five required downloadable
+cards, and Bundle `f23a24ad-6a97-416b-8155-c0061f64871d` with 22 components and zero omissions.
+Canonical report SHA-256 is
+`d0ca507324e9b94b558d52b0c3fbf5d7e9c5fb947a67cc98adbf388155466f4e`; the Bundle SHA-256 is
+`2957276e628bf4d97d4724baabe72da67671bc924c15077ea7e2ae441f774fac`.
+
+The final CI-equivalent gate passed 695 Python/PostgreSQL tests and 41 Vitest tests with zero skips
+or failures, ruff, mypy over 557 source files, architecture and contract lint, OpenAPI
+compatibility, 13-document/24-capture/7-route user-guide validation, the production Vite bundle
+budget and npm audit with zero vulnerabilities.
+
