@@ -111,6 +111,21 @@ Release 또는 기존 source/card revision은 변경되지 않았다.
 
 ![Immutable Bulk Export Bundles](images/t45-immutable-bundles.png)
 
+### Global module navigation and Material context tabs
+
+T-46은 Dashboard/Materials/Tests/Datasets/Models/Exports/Governance 전역 메뉴를 제공한다.
+Tests, Datasets, Models와 Governance 허브는 현재 tenant/project에서 보이는 Material을 실제
+Catalog API로 읽고, 선택한 stable identity의 문맥 경로로 이동한다.
+
+![Global Models hub](images/t46-global-navigation-model-hub.png)
+
+기존 `/materials/{material_id}` deep link는 Overview로 유지하면서 `/testing`, `/datasets`,
+`/models`, `/governance` 경로를 추가했다. DP780 `/models` 경로에서 exact State와 Property Set,
+IR/Card workbench만 로드되고 Dataset/Test/Governance workbench는 다른 탭으로 분리됨을 확인했다.
+Governance 전역 허브에는 실제 Review, Release와 Lineage/Audit 작업대가 연결됐다.
+
+![Contextual Material tabs](images/t46-material-context-tabs.png)
+
 ## 불변성 negative check
 
 bounded linear-Prony의 최초 `r1 -> r2` 승격은 성공했다. 이후 이미 promotion evidence가 있는 `r2`를 새

@@ -1,4 +1,4 @@
-version: 5
+version: 6
 verified_at: 2026-07-16
 source_evidence: ../15-demo/user-e2e-evidence-2026-07-16.md
 captures:
@@ -92,3 +92,17 @@ captures:
     workflow: deterministic-bundle-download
     fixture: T-45 22-component protected Docker/PostgreSQL bundle
     image: ../15-demo/images/t45-immutable-bundles.png
+  - id: global-navigation-model-hub
+    route: /models
+    workflow: global-model-navigation-to-material-context
+    fixture: deterministic T-46 four-Material Docker demo catalog
+    image: ../15-demo/images/t46-global-navigation-model-hub.png
+    width: 900
+    height: 1216
+  - id: material-context-tabs
+    route: /materials/{demo-material-id}/models
+    workflow: contextual-material-state-model-and-card-workspace
+    fixture: deterministic T-46 DP780 Material and exact State revision
+    image: ../15-demo/images/t46-material-context-tabs.png
+    width: 885
+    height: 1196

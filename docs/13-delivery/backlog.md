@@ -1134,6 +1134,11 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   deep links remain compatible and screenshots contain no token/confidential/local personal data.
 - **테스트:** route/deep-link/accessibility, deterministic demo seed browser E2E, referenced-image
   integrity and stale-guide PR gate.
+- **2026-07-16 reference subset:** seven global module routes, Material Overview/Test data/Datasets
+  & Processing/Models & Cards/Governance context routes, connected Material selection hubs, real
+  Governance workbenches, Korean navigation/troubleshooting instructions and two current browser
+  captures are complete. `cmp-check-user-guide`/`make docs-screenshots` now fail CI on navigation,
+  link, manifest, image-size or declared-viewport drift.
 
 #### T-47. Observability, restore, supply-chain, performance and connector hardening — `P1`
 
