@@ -8,12 +8,14 @@ import {
   downloadBulkExportBundle,
   listBulkExportBundles,
   listBulkExportCandidates,
+  listBulkExportJobs,
   listMaterials,
 } from "./api";
 import type {
   BulkExportBundleResponse,
   BulkExportCandidate,
   BulkExportMemberKind,
+  BulkExportJobResponse,
   DataClassification,
   MaterialResponse,
 } from "./types";
@@ -80,6 +82,7 @@ export function BulkExportCenter({
   const [candidates, setCandidates] = useState<BulkExportCandidate[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bundles, setBundles] = useState<BulkExportBundleResponse[]>([]);
+  const [jobs, setJobs] = useState<BulkExportJobResponse[]>([]);
   const [busy, setBusy] = useState(false);
   const [discovering, setDiscovering] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -89,16 +92,39 @@ export function BulkExportCenter({
   useEffect(() => {
     if (!config.accessToken.trim()) return;
     let live = true;
-    void Promise.all([listMaterials(config, ""), listBulkExportBundles(config)])
-      .then(([materialResult, bundleResult]) => {
+    void Promise.all([
+      listMaterials(config, ""),
+      listBulkExportBundles(config),
+      listBulkExportJobs(config),
+    ])
+      .then(([materialResult, bundleResult, jobResult]) => {
         if (!live) return;
         setMaterials(materialResult.data.items);
         setBundles(bundleResult.data.items);
+        setJobs(jobResult.data.items);
         setMaterialId((current) => current || materialResult.data.items[0]?.material_id || "");
       })
       .catch((cause) => live && setError(errorMessage(cause)));
     return () => { live = false; };
   }, [config]);
+
+  useEffect(() => {
+    if (
+      !config.accessToken.trim()
+      || !jobs.some((job) => [
+        "queued", "running", "reconciliation_required", "reconciling",
+      ].includes(job.state))
+    ) return;
+    const timer = window.setInterval(() => {
+      void Promise.all([listBulkExportJobs(config), listBulkExportBundles(config)])
+        .then(([jobResult, bundleResult]) => {
+          setJobs(jobResult.data.items);
+          setBundles(bundleResult.data.items);
+        })
+        .catch((cause) => setError(errorMessage(cause)));
+    }, 1500);
+    return () => window.clearInterval(timer);
+  }, [config, jobs]);
 
   useEffect(() => {
     if (!materialId || !config.accessToken.trim()) {
@@ -161,11 +187,15 @@ export function BulkExportCenter({
         change_reason: "Assemble an explicit user-selected Material transfer bundle",
       });
       const job = await createBulkExportJob(config, selection.data.export_selection_id);
-      const refreshed = await listBulkExportBundles(config);
-      setBundles(refreshed.data.items);
-      setSuccess(
-        `Bundle ${job.data.bundle_id?.slice(0, 8) ?? "pending"} assembled from ${chosen.length} exact revisions.`,
-      );
+      const [refreshedJobs, refreshedBundles] = await Promise.all([
+        listBulkExportJobs(config),
+        listBulkExportBundles(config),
+      ]);
+      setJobs(refreshedJobs.data.items);
+      setBundles(refreshedBundles.data.items);
+      setSuccess(job.data.state === "succeeded"
+        ? `Bundle ${job.data.bundle_id?.slice(0, 8)} assembled from ${chosen.length} exact revisions.`
+        : `Assembly job ${job.data.export_job_id.slice(0, 8)} queued for the external worker.`);
     } catch (cause) {
       setError(errorMessage(cause));
     } finally {
@@ -283,7 +313,43 @@ export function BulkExportCenter({
 
       <section className="content-card">
         <div className="section-heading">
-          <div><p className="eyebrow">2. Governed output</p><h2>Immutable bundles</h2></div>
+          <div>
+            <p className="eyebrow">2. Durable assembly</p>
+            <h2>Jobs and committed output</h2>
+          </div>
+          <span className="revision-chip">{jobs.length} recorded</span>
+        </div>
+        {!jobs.length ? <p className="muted">No Bundle assembly job has been submitted.</p> : null}
+        <div className="bundle-list">
+          {jobs.map((job) => (
+            <article className="bundle-row" key={job.export_job_id}>
+              <div>
+                <strong>Job {job.export_job_id.slice(0, 8)}</strong>
+                <small>
+                  {job.state.replaceAll("_", " ")} · attempt {job.attempt_count} · {new Date(job.submitted_at).toLocaleString()}
+                </small>
+                {job.committed_output ? (
+                  <>
+                    <small>Immutable output committed · {bytes(job.committed_output.archive_size_bytes)}</small>
+                    <code>{job.committed_output.archive_sha256}</code>
+                  </>
+                ) : null}
+                {job.failure_detail ? <small className="error-text">{job.failure_detail}</small> : null}
+              </div>
+              <div className="card-actions">
+                <span className="revision-chip">{job.state}</span>
+                {job.state === "reconciliation_required" ? (
+                  <span className="classification-badge restricted">output preserved</span>
+                ) : null}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="content-card">
+        <div className="section-heading">
+          <div><p className="eyebrow">3. Governed output</p><h2>Immutable bundles</h2></div>
           <span className="revision-chip">{bundles.length} available</span>
         </div>
         {!bundles.length ? <p className="muted">No bundle has been assembled in this project.</p> : null}
