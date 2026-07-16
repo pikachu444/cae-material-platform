@@ -1259,3 +1259,17 @@ remains pending credentials and approved infrastructure. The current atomic prom
 5,000,000,000 bytes, which covers the qualified 2-GiB ingestion path but not the domain 5-GiB Bundle
 ceiling. Production signing identity and signed connectors remain the next implementation units.
 
+## T-47 external production signing adapter subset (2026-07-17)
+
+Release-quality generation now accepts a no-shell external signer command with a two-step
+describe/sign protocol. The process sends canonical manifest bytes and SHA-256, pins an
+independently supplied Ed25519 public key and expected key ID, verifies the returned signature
+locally, and records provider/key identity in the signed manifest. Verification can pin the same
+trust pair. Signer stderr, private keys and credentials are not copied into evidence.
+
+`CMP_ENVIRONMENT=production` rejects ephemeral and supplied PEM private keys; those remain local
+integrity modes only. Eleven release-quality unit tests pass, including a real child-process signer,
+untrusted identity, corrupted signature and production-local-key rejection. No production
+HSM/Vault/keyless endpoint or key ceremony was available, so live production identity acceptance
+remains pending. Signed delivery connectors and runtime identity/token rotation are next.
+
