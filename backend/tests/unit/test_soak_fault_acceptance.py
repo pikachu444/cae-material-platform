@@ -11,6 +11,7 @@ from cmp.tools.soak_fault_acceptance import (
     _invariants_match,
     _require_loopback_url,
     _resource_growth,
+    _wait_for_stability,
     parse_memory_bytes,
 )
 
@@ -27,7 +28,11 @@ def test_workload_summary_distinguishes_expected_fault_errors() -> None:
     assert summary["passed"] is True
     assert summary["ordinary_failures"] == 0
     assert summary["operations"]["catalog"]["fault_window_failures"] == 1
+    assert summary["operations"]["catalog"]["fault_window_error_types"] == {
+        "TimeoutError": 1
+    }
     assert summary["operations"]["catalog"]["ordinary_latency"]["p95_ms"] == 12.0
+    assert "samples_ms" not in summary["operations"]["catalog"]["ordinary_latency"]
 
 
 def test_workload_summary_rejects_ordinary_failure_and_latency_regression() -> None:
@@ -118,3 +123,21 @@ def test_resource_growth_gate_allows_reclaimed_memory_and_rejects_growth() -> No
 
     assert reclaimed["passed"] is True
     assert grown["passed"] is False
+
+
+def test_stability_gate_requires_all_predicates_for_a_continuous_interval() -> None:
+    attempts = 0
+
+    def transient() -> bool:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise RuntimeError("transient")
+        return True
+
+    elapsed = _wait_for_stability(
+        (transient, lambda: True), limit_seconds=1, stability_seconds=0.01
+    )
+
+    assert attempts >= 3
+    assert elapsed >= 0.01

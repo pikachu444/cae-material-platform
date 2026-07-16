@@ -9,6 +9,7 @@ import math
 import subprocess
 import threading
 import time
+from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -71,17 +72,32 @@ class WorkloadRecorder:
                 for sample in selected
                 if sample.succeeded and not sample.inside_fault_window
             ]
+            ordinary_errors = Counter(
+                sample.error_type or "UnknownError"
+                for sample in selected
+                if not sample.succeeded and not sample.inside_fault_window
+            )
+            fault_errors = Counter(
+                sample.error_type or "UnknownError"
+                for sample in selected
+                if not sample.succeeded and sample.inside_fault_window
+            )
+            ordinary_latency = (
+                latency_summary(ordinary_successes) if ordinary_successes else None
+            )
+            if ordinary_latency is not None:
+                ordinary_latency.pop("samples_ms")
             operations[name] = {
+                "fault_window_error_types": dict(sorted(fault_errors.items())),
                 "fault_window_failures": sum(
                     not sample.succeeded and sample.inside_fault_window for sample in selected
                 ),
+                "ordinary_error_types": dict(sorted(ordinary_errors.items())),
                 "ordinary_failures": sum(
                     not sample.succeeded and not sample.inside_fault_window
                     for sample in selected
                 ),
-                "ordinary_latency": (
-                    latency_summary(ordinary_successes) if ordinary_successes else None
-                ),
+                "ordinary_latency": ordinary_latency,
                 "ordinary_successes": len(ordinary_successes),
                 "sample_count": len(selected),
             }
@@ -376,6 +392,35 @@ def _wait_for_recovery(action: Callable[[], object], *, limit_seconds: float) ->
     raise SoakFaultAcceptanceError("service did not recover before its deadline")
 
 
+def _wait_for_stability(
+    actions: Sequence[Callable[[], object]],
+    *,
+    limit_seconds: float,
+    stability_seconds: float = 2,
+) -> float:
+    if not actions or not 0 < stability_seconds < limit_seconds:
+        raise ValueError("stability check requires actions and a bounded stable interval")
+    started = time.perf_counter()
+    deadline = started + limit_seconds
+    stable_since: float | None = None
+    while time.perf_counter() < deadline:
+        try:
+            for action in actions:
+                result = action()
+                if result is False:
+                    raise RuntimeError("stability predicate returned false")
+        except Exception:
+            stable_since = None
+            time.sleep(0.25)
+            continue
+        now = time.perf_counter()
+        stable_since = stable_since or now
+        if now - stable_since >= stability_seconds:
+            return now - started
+        time.sleep(0.25)
+    raise SoakFaultAcceptanceError("service did not remain stable before its deadline")
+
+
 def _run_workload(
     *,
     client: FullStackClient,
@@ -562,8 +607,13 @@ def main(argv: list[str] | None = None) -> None:
             time.sleep(args.fault_hold_seconds)
         finally:
             controller.recover("postgres")
-        recovered = _wait_for_recovery(
-            lambda: _catalog_snapshot(client), limit_seconds=args.recovery_limit_seconds
+        recovered = _wait_for_stability(
+            (
+                lambda: _catalog_snapshot(client),
+                lambda: client.json_request("/export-bundles"),
+                lambda: client.request("/health", authenticated=False),
+            ),
+            limit_seconds=args.recovery_limit_seconds,
         )
         faults.append(
             _fault_result(
@@ -586,12 +636,21 @@ def main(argv: list[str] | None = None) -> None:
             time.sleep(args.fault_hold_seconds)
         finally:
             controller.recover("api")
-        recovered = _wait_for_recovery(
+        recovery_started = time.perf_counter()
+        _wait_for_recovery(
             lambda: client.request("/health", authenticated=False),
             limit_seconds=args.recovery_limit_seconds,
         )
         client.authenticate_demo()
-        _catalog_snapshot(client)
+        _wait_for_stability(
+            (
+                lambda: _catalog_snapshot(client),
+                lambda: client.json_request("/export-bundles"),
+                lambda: client.request("/health", authenticated=False),
+            ),
+            limit_seconds=args.recovery_limit_seconds,
+        )
+        recovered = time.perf_counter() - recovery_started
         faults.append(
             _fault_result(
                 service="api",
@@ -613,8 +672,13 @@ def main(argv: list[str] | None = None) -> None:
         finally:
             controller.recover("worker")
         recovery_started = time.perf_counter()
-        _wait_for_recovery(
-            lambda: controller.is_running("worker") or (_ for _ in ()).throw(RuntimeError()),
+        _wait_for_stability(
+            (
+                lambda: controller.is_running("worker"),
+                lambda: _catalog_snapshot(client),
+                lambda: client.json_request("/export-bundles"),
+                lambda: client.request("/health", authenticated=False),
+            ),
             limit_seconds=args.recovery_limit_seconds,
         )
         recovered = time.perf_counter() - recovery_started
@@ -639,8 +703,8 @@ def main(argv: list[str] | None = None) -> None:
             time.sleep(args.fault_hold_seconds)
         finally:
             controller.recover("web")
-        recovered = _wait_for_recovery(
-            lambda: _web_probe(web_url, timeout_seconds=args.http_timeout_seconds),
+        recovered = _wait_for_stability(
+            (lambda: _web_probe(web_url, timeout_seconds=args.http_timeout_seconds),),
             limit_seconds=args.recovery_limit_seconds,
         )
         faults.append(
