@@ -1175,14 +1175,17 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   회귀, frontend workbench code splitting 및 hard bundle budget까지 구현·실데이터 검증 완료.
   local ephemeral key는 builder identity가 아니며 production KMS/keyless trust는 완료로 간주하지
   않는다. 실제 Catalog/API, 2 MiB/32-part upload, capability/auth/path threat, governed Bundle
-  download와 64 MiB inline assembly의 bounded local benchmark/report gate도 완료했으나 4개
-  Material/2 MiB fixture를 10,000개/2 GiB production scale 달성으로 표시하지 않는다. migration
+  download와 64 MiB inline assembly의 bounded local benchmark/report gate를 완료했다. 이어서
+  isolated PostgreSQL에 exact 10,000개 Material identity/revision을 append하고 API에서 RLS 범위의
+  전체 cardinality와 제한된 page를 한 query로 반환하도록 했다. 실제 2 GiB deterministic source를
+  32개 64 MiB part로 streaming해 digest/size와 192 MiB 이하 Python allocation을 확인했으며
+  `--require-production-scale` report가 `production_scale_accepted=true`로 통과했다. migration
   057, streaming Artifact finalization, composed worker와 Export Center Job 목록으로 64 MiB 초과
   예상 작업의 외부 조립 및 failed-later-step output reconciliation visibility를 구현했고, 실제
   Docker/PostgreSQL 22-component Bundle의 저장/다운로드 digest를 검증했다. Migration 058의
   lease/heartbeat/fencing으로 만료 전 이중 claim 차단, hard-kill 뒤 attempt 2 회수와 stale
   worker finalization 거부를 PostgreSQL 및 실제 Compose worker에서 검증했다. 057 active Job은
   upgrade 시 expired bootstrap lease를 받아 고아가 되지 않으며 active downgrade는 차단된다. 남은 순서는
-  (1) 10,000-Material/2-GiB production-scale 및 장시간 soak/fault acceptance,
+  (1) 장시간 soak 및 더 넓은 API/worker/object-storage fault acceptance,
   (2) object lock/KMS/retention 및 production signing adapter, (3) signed-manifest
   REST/webhook/object-storage connector와 운영 token rotation이다.

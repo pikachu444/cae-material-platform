@@ -24,6 +24,26 @@ docker compose -f deploy/compose/docker-compose.demo.yml logs otel-collector
 Invoke-WebRequest http://127.0.0.1:8889/metrics
 ```
 
+## 운영 규모 성능 게이트
+
+일반 demo의 2 MiB 검사는 빠른 회귀용입니다. 10,000 Material과 2 GiB object 검사는 별도 isolated
+PostgreSQL/object volume에서만 실행하십시오. 기존 원본이나 revision을 삭제하지 않고 deterministic
+synthetic Material revision과 실제 multipart Ingestion Event를 추가하므로 실행 전 명시적
+acknowledgement가 필요합니다. 전체 명령과 안전장치는
+[`deploy/performance/README.md`](../../deploy/performance/README.md)에 있습니다.
+
+성공 시 Dashboard의 **Visible materials**가 현재 권한 범위의 전체 개수를 표시하고, canonical
+report의 `production_scale_accepted`가 `true`여야 합니다. 2026-07-16 기준 검증값은 10,000개
+Material, Catalog p95 182.128 ms, 2 GiB/32-part upload 22.999 MiB/s, peak Python allocation
+67,164,359 bytes입니다. report SHA-256은
+`96d75ca787695ad5848b0b65562554a93f8aa63dd204b82d92e159f723cef481`입니다.
+
+![10,000개 Material이 보이는 운영 규모 Dashboard](../15-demo/images/t47-production-scale-catalog.png)
+
+이 결과는 장시간 soak, API/worker/PostgreSQL/object-storage 중단·복구, object lock/KMS/retention을
+대체하지 않습니다. 장애 주입 중에도 이미 발행되거나 커밋된 revision과 object digest가 바뀌지
+않는지를 별도 gate에서 확인해야 합니다.
+
 ## 격리 복구 드릴
 
 다음 명령은 PostgreSQL custom dump를 만들고 무작위 이름의 임시 DB에 복원합니다. immutable object는

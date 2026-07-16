@@ -35,13 +35,14 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-47 production-scale soak/fault acceptance, object-lock/KMS/signing,
-  signed connectors and production worker identity/token rotation
+- missing product depth: T-47 long-running soak/broad fault acceptance, object-lock/KMS/signing,
+  signed connectors and production worker identity/token rotation. The exact 10,000-Material search
+  and 2-GiB streaming gates passed on the isolated production-scale composition.
 - user experience: T-46 global navigation, contextual Material tabs and task-oriented guide gate complete
 
-Migrations 001~057, raw objects, prior revisions, cards, releases and golden fixtures are never
+Migrations 001~058, raw objects, prior revisions, cards, releases and golden fixtures are never
 rewritten. Migration 058 only appends explicit worker lease fields and transition/index guards to
-the durable Bulk Export Job.
+the durable Bulk Export Job; the production-scale unit adds no migration.
 
 ## 3. PR 순서와 exit gate
 
@@ -56,7 +57,7 @@ the durable Bulk Export Job.
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
-| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded local performance/security, external assembly/reconciliation and hard-kill lease recovery complete; production-scale/KMS/connector work remains |
+| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded and 10k/2-GiB production-scale performance/security, external assembly/reconciliation and hard-kill lease recovery complete; soak/fault, KMS and connector work remains |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
 Each PR is branched from the freshly merged `main`, uses meaningful commits, passes its relevant
@@ -188,6 +189,16 @@ projection. A later projection failure becomes `reconciliation_required`, remain
 the API/UI and is linked on retry without reassembly. The live Docker path forced a 22-component
 DP780 Selection above the 16-KiB demo limit and verified the stored and downloaded 21,822-byte ZIP
 against SHA-256 `04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
+
+The production-scale unit keeps migration 058 and every existing revision unchanged. A safe,
+acknowledged fixture appends deterministic synthetic Materials until exactly 10,000 are visible in
+one isolated organization/project. Catalog list responses now expose the RLS-filtered total
+cardinality independently of their page limit. The API then accepted a deterministic 2-GiB object
+as 32 64-MiB parts without buffering the full source. The 2026-07-16 report for source commit
+`b506f6415f49774fb32692cf680ed56c866e9902` passed Catalog p95 182.128 ms, exact 2-GiB digest/size,
+22.999 MiB/s upload throughput and a 67,164,359-byte Python allocation peak under the 192-MiB gate.
+Its canonical report SHA-256 is
+`96d75ca787695ad5848b0b65562554a93f8aa63dd204b82d92e159f723cef481`.
 
 The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
 the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,

@@ -75,7 +75,7 @@ describe("BulkExportCenter", () => {
   it("discovers exact revisions and sends an explicit immutable selection", async () => {
     const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
       const url = String(input);
-      if (url.includes("/materials?")) return response({ items: [material] });
+      if (url.includes("/materials?")) return response({ items: [material], total_count: 1 });
       if (url.endsWith(`/bulk-export-candidates?material_id=${materialId}`)) {
         return response({
           items: [{
@@ -129,7 +129,7 @@ describe("BulkExportCenter", () => {
     const digest = `sha256:${"c".repeat(64)}`;
     const fetchMock = vi.fn<typeof fetch>(async (input) => {
       const url = String(input);
-      if (url.includes("/materials?")) return response({ items: [material] });
+      if (url.includes("/materials?")) return response({ items: [material], total_count: 1 });
       if (url.endsWith(`/bulk-export-candidates?material_id=${materialId}`)) {
         return response({ items: [] });
       }
@@ -184,7 +184,7 @@ describe("BulkExportCenter", () => {
   it("shows the active worker heartbeat and deterministic recovery deadline", async () => {
     const fetchMock = vi.fn<typeof fetch>(async (input) => {
       const url = String(input);
-      if (url.includes("/materials?")) return response({ items: [material] });
+      if (url.includes("/materials?")) return response({ items: [material], total_count: 1 });
       if (url.endsWith(`/bulk-export-candidates?material_id=${materialId}`)) {
         return response({ items: [] });
       }

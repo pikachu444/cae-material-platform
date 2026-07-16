@@ -157,6 +157,26 @@ Governance 전역 허브에는 실제 Review, Release와 Lineage/Audit 작업대
 
 ![Contextual Material tabs](images/t46-material-context-tabs.png)
 
+### 10,000-Material search and 2-GiB streaming acceptance
+
+격리 PostgreSQL demo에 기존 4개 Material은 그대로 두고 deterministic synthetic Material identity와
+immutable r1 revision 9,996개를 append했다. Catalog API는 동일한 RLS-filtered current-head query에서
+bounded page 100개와 `total_count=10000`을 함께 반환했다. Dashboard도 page 길이가 아니라 이 권한
+범위 전체 개수를 표시한다.
+
+![10,000 visible Materials production-scale Dashboard](images/t47-production-scale-catalog.png)
+
+같은 구성의 실제 multipart API에 deterministic 2,147,483,648 bytes를 32개 64-MiB part로 전송했다.
+89.048012초, 22.999 MiB/s였고 terminal Raw Asset의 SHA-256과 size가 preflight 값과 일치했다. source
+generator의 최대 chunk는 67,108,864 bytes, peak incremental Python allocation은 67,164,359 bytes로
+192-MiB gate 이하였다. Catalog 30회 측정 p95/p99는 182.128/187.088 ms였다. canonical report는
+`production_scale_accepted=true`, source commit
+`b506f6415f49774fb32692cf680ed56c866e9902`, SHA-256
+`96d75ca787695ad5848b0b65562554a93f8aa63dd204b82d92e159f723cef481`를 기록했다.
+
+이 검증은 10,000-Material search와 2-GiB object streaming만 닫는다. 장시간 mixed-workload soak와
+API/worker/PostgreSQL/object-storage fault injection은 다음 T-47 gate다.
+
 ## 불변성 negative check
 
 bounded linear-Prony의 최초 `r1 -> r2` 승격은 성공했다. 이후 이미 promotion evidence가 있는 `r2`를 새
@@ -188,6 +208,11 @@ T-45 branch의 최신 CI-equivalent 회귀는 PostgreSQL 16 DSN을 사용해 Pyt
 mypy(526 source files), architecture, contract lint, OpenAPI compatibility, production build와
 npm audit가 통과했다. Migration 056은 별도 임시 DB에서 `001→056→055→056` 왕복을 완료했다.
 
+T-47 production-scale branch의 CI-equivalent 회귀는 PostgreSQL 16 DSN을 사용해 Python
+`661 passed, 0 skipped, 0 failed`, frontend `22 files / 41 tests`를 기록했다. Ruff,
+mypy(545 source files), architecture, contract lint, OpenAPI compatibility, 13-document/24-capture
+user-guide gate, production build/bundle budget와 npm audit가 모두 통과했다.
+
 다운로드 무결성은 아래 계약으로 확인했다.
 
 ```text
@@ -199,7 +224,7 @@ SHA-256(downloaded bytes) == solver_card_revision.card_sha256
 
 ## 다음 우선순위
 
-1. T-47 production-scale 10,000-Material/2-GiB load·soak 및 더 넓은 fault acceptance.
+1. T-47 장시간 mixed-workload soak 및 더 넓은 fault acceptance.
 2. object lock/KMS/retention 및 production signing identity adapter.
 3. signed-manifest REST/webhook/object-storage connector와 운영 token rotation.
 

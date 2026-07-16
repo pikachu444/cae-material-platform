@@ -192,6 +192,7 @@ def test_catalog_contract_and_runtime_expose_typed_material_state_property_workf
     assert '"density_kg_per_m3"' in catalog_contract
     assert '"youngs_modulus_pa"' in catalog_contract
     assert '"poisson_ratio"' in catalog_contract
+    assert '"total_count"' in catalog_contract
     assert '"key"' not in catalog_contract
     assert '"value"' not in catalog_contract
 

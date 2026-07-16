@@ -305,7 +305,7 @@ export function listMaterials(
   config: ApiConfig,
   query: string,
   materialClass?: string,
-): Promise<ApiResult<{ items: MaterialResponse[] }>> {
+): Promise<ApiResult<{ items: MaterialResponse[]; total_count: number }>> {
   const search = new URLSearchParams({ limit: "50" });
   if (query.trim()) {
     search.set("q", query.trim());

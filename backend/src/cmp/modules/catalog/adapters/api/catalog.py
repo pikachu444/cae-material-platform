@@ -891,6 +891,7 @@ class MaterialListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     items: tuple[MaterialResponse, ...]
+    total_count: int = Field(ge=0)
 
 
 class MaterialDetailResponse(BaseModel):
@@ -1531,7 +1532,7 @@ def install_catalog_api(
         if service is None:
             raise _unavailable(context)
         try:
-            values = service.list_materials(
+            result = service.list_materials(
                 context,
                 decision,
                 query=q,
@@ -1541,7 +1542,8 @@ def install_catalog_api(
         except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
             raise _translate(context, error) from error
         return MaterialListResponse(
-            items=tuple(MaterialResponse.from_snapshot(value) for value in values)
+            items=tuple(MaterialResponse.from_snapshot(value) for value in result.items),
+            total_count=result.total_count,
         )
 
     @application.get(

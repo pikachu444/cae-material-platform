@@ -21,6 +21,7 @@ from cmp.modules.catalog.application.service import (
     CatalogRepository,
     MaterialDetail,
     MaterialLotSnapshot,
+    MaterialSearchResult,
     MaterialSnapshot,
     MaterialStateSnapshot,
     ProcessDefinitionSnapshot,
@@ -1100,8 +1101,10 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
         query: str | None,
         material_class: MaterialClass | None,
         limit: int,
-    ) -> tuple[MaterialSnapshot, ...]:
-        statement = self._current_material_statement()
+    ) -> MaterialSearchResult:
+        statement = self._current_material_statement().add_columns(
+            sa.func.count().over().label("search_total_count")
+        )
         if query is not None:
             escaped = query.replace("!", "!!").replace("%", "!%").replace("_", "!_")
             pattern = f"%{escaped}%"
@@ -1130,7 +1133,11 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
         ).limit(limit)
         with self._transaction(context, decision) as session:
             rows = session.execute(statement).mappings().all()
-        return tuple(self._material_snapshot(row) for row in rows)
+        total_count = int(rows[0]["search_total_count"]) if rows else 0
+        return MaterialSearchResult(
+            tuple(self._material_snapshot(row) for row in rows),
+            total_count,
+        )
 
     def get_material(
         self,
