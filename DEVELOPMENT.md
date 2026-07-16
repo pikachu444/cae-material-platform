@@ -271,6 +271,17 @@ but is not a production identity; controlled signing and trust-root commands are
 [the supply-chain runbook](deploy/supply-chain/README.md). The frontend production build also
 enforces its initial/lazy JavaScript budgets.
 
+With the demo running and at least one completed Bulk Export Bundle visible, execute the bounded
+full-stack performance/security evidence with:
+
+```powershell
+uv run cmp-performance-acceptance --acknowledge-immutable-demo-write
+```
+
+This appends an immutable demo Ingestion Event and therefore must not target production or a shared
+environment. Results and the production-scale exclusions are described in
+[the performance acceptance runbook](deploy/performance/README.md).
+
 The live P0-1 gate completed with 62 PostgreSQL-marked tests passed (zero skips/failures), 452
 CI-equivalent Python tests passed, and 21 Vitest tests passed. The observed counts are not fixed;
 skip zero and failure zero are the acceptance rule.

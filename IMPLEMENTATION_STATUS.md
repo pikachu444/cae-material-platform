@@ -1048,6 +1048,27 @@ skip/failure, 39 Vitest tests, ruff, mypy over 536 source files, architecture/co
 13-document/21-capture user-guide checks, production Vite build and npm audit with zero
 vulnerabilities.
 
+## T-47 bounded performance and security acceptance subset (2026-07-16)
+
+`cmp-performance-acceptance` now drives the real Docker API for Catalog latency, authentication
+negative cases, a 2 MiB/32-part immutable upload with capability-tamper denial, governed Bundle
+authorization/download with SHA-256/size verification, and the real deterministic 64-MiB inline
+Bundle builder. It writes canonical JSON plus a detached SHA-256, refuses a dirty source tree and
+requires explicit acknowledgement that an Ingestion Event will be appended. Twelve harness unit
+tests cover percentile math, finite inputs, Bundle checksum coverage, unsafe URL/path handling and
+report substitution.
+
+The accepted local run at commit `9d5c147` recorded Catalog p95/p99 44.292/45.978 ms, upload
+throughput 1.266 MiB/s, Bundle download p95 21.894 ms and 64-MiB assembly in 1.950184 seconds with
+70,112,942 bytes incremental Python peak. Authentication/path/capability threat checks and all
+digests passed. Its canonical report digest is
+`3a2464dbf27f5359f19dfc865e0254b68dc55a3040f665a85eb84491b7bbdaa7`.
+
+This closes only the bounded local baseline. The report explicitly says
+`production_scale_accepted=false` because the demo exposed 4 Materials rather than 10,000 and used
+the documented 2-MiB CI upload rather than 2 GiB. Production-scale load/soak/fault injection,
+10,000-Material PostgreSQL search and 2-GiB object infrastructure acceptance remain T-47 work.
+
 ## T-47 supply-chain quality and frontend budget subset (2026-07-16)
 
 `cmp-release-quality` now exports production Python and Node CycloneDX SBOMs, runs `uv audit` and
