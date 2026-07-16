@@ -15,7 +15,16 @@ class Settings:
     api_port: int = 8000
     worker_poll_interval_seconds: float = 1.0
     database_url: str | None = None
+    object_store_backend: str = "filesystem"
     upload_storage_root: str | None = None
+    s3_endpoint_url: str | None = None
+    s3_region: str | None = None
+    s3_bucket: str | None = None
+    s3_prefix: str = "cmp"
+    s3_expected_bucket_owner: str | None = None
+    s3_kms_key_id: str | None = None
+    s3_retention_days: int = 3650
+    s3_retention_mode: str = "COMPLIANCE"
     upload_capability_secret: str | None = None
     upload_max_object_bytes: int = 2 * 1024 * 1024 * 1024
     upload_part_bytes: int = 8 * 1024 * 1024
@@ -65,9 +74,7 @@ class Settings:
 
         def comma_separated(name: str, default: str) -> tuple[str, ...]:
             return tuple(
-                item.strip()
-                for item in os.getenv(name, default).split(",")
-                if item.strip()
+                item.strip() for item in os.getenv(name, default).split(",") if item.strip()
             )
 
         def optional(name: str) -> str | None:
@@ -83,14 +90,21 @@ class Settings:
                 os.getenv("CMP_WORKER_POLL_INTERVAL_SECONDS", "1.0")
             ),
             database_url=os.getenv("CMP_DATABASE_URL"),
+            object_store_backend=os.getenv("CMP_OBJECT_STORE_BACKEND", "filesystem"),
             upload_storage_root=optional("CMP_UPLOAD_STORAGE_ROOT"),
+            s3_endpoint_url=optional("CMP_S3_ENDPOINT_URL"),
+            s3_region=optional("CMP_S3_REGION"),
+            s3_bucket=optional("CMP_S3_BUCKET"),
+            s3_prefix=os.getenv("CMP_S3_PREFIX", "cmp"),
+            s3_expected_bucket_owner=optional("CMP_S3_EXPECTED_BUCKET_OWNER"),
+            s3_kms_key_id=optional("CMP_S3_KMS_KEY_ID"),
+            s3_retention_days=int(os.getenv("CMP_S3_RETENTION_DAYS", "3650")),
+            s3_retention_mode=os.getenv("CMP_S3_RETENTION_MODE", "COMPLIANCE").upper(),
             upload_capability_secret=optional("CMP_UPLOAD_CAPABILITY_SECRET"),
             upload_max_object_bytes=int(
                 os.getenv("CMP_UPLOAD_MAX_OBJECT_BYTES", str(2 * 1024 * 1024 * 1024))
             ),
-            upload_part_bytes=int(
-                os.getenv("CMP_UPLOAD_PART_BYTES", str(8 * 1024 * 1024))
-            ),
+            upload_part_bytes=int(os.getenv("CMP_UPLOAD_PART_BYTES", str(8 * 1024 * 1024))),
             upload_session_ttl_seconds=int(
                 os.getenv("CMP_UPLOAD_SESSION_TTL_SECONDS", str(24 * 60 * 60))
             ),
@@ -126,26 +140,15 @@ class Settings:
             oidc_auto_provision=boolean("CMP_OIDC_AUTO_PROVISION"),
             oidc_allow_loopback_http=boolean("CMP_OIDC_ALLOW_LOOPBACK_HTTP"),
             oidc_client_id_claim=os.getenv("CMP_OIDC_CLIENT_ID_CLAIM", "client_id"),
-            oidc_organization_claim=os.getenv(
-                "CMP_OIDC_ORGANIZATION_CLAIM", "organization_id"
-            ),
+            oidc_organization_claim=os.getenv("CMP_OIDC_ORGANIZATION_CLAIM", "organization_id"),
             oidc_project_claim=os.getenv("CMP_OIDC_PROJECT_CLAIM", "project_id"),
             oidc_groups_claim=os.getenv("CMP_OIDC_GROUPS_CLAIM", "groups"),
-            oidc_display_name_claim=os.getenv(
-                "CMP_OIDC_DISPLAY_NAME_CLAIM", "preferred_username"
-            ),
-            oidc_service_grant_claim=os.getenv(
-                "CMP_OIDC_SERVICE_GRANT_CLAIM", "gty"
-            ),
+            oidc_display_name_claim=os.getenv("CMP_OIDC_DISPLAY_NAME_CLAIM", "preferred_username"),
+            oidc_service_grant_claim=os.getenv("CMP_OIDC_SERVICE_GRANT_CLAIM", "gty"),
             oidc_service_grant_values=comma_separated(
                 "CMP_OIDC_SERVICE_GRANT_VALUES", "client-credentials"
             ),
             demo_identity=boolean("CMP_DEMO_IDENTITY"),
-            demo_identity_issuer=os.getenv(
-                "CMP_DEMO_IDENTITY_ISSUER", "urn:cmp:demo-identity"
-            ),
-            demo_identity_audience=os.getenv(
-                "CMP_DEMO_IDENTITY_AUDIENCE", "urn:cmp:demo-api"
-            ),
+            demo_identity_issuer=os.getenv("CMP_DEMO_IDENTITY_ISSUER", "urn:cmp:demo-identity"),
+            demo_identity_audience=os.getenv("CMP_DEMO_IDENTITY_AUDIENCE", "urn:cmp:demo-api"),
         )
-

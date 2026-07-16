@@ -1,14 +1,91 @@
 import json
+import sys
+import textwrap
 from pathlib import Path
 
 import pytest
 from cmp.tools.release_quality import (
     ReleaseQualityError,
+    main,
     verify_bundle,
     vulnerability_counts,
     write_signed_manifest,
 )
+from cmp.tools.release_signing import ExternalCommandSigner, ExternalSigningError
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+KEY_ID = "vault:transit/cmp-release/keys/production-v1"
+
+
+def _external_signer(
+    tmp_path: Path, *, corrupt_signature: bool = False
+) -> tuple[ExternalCommandSigner, Path]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    private_key = Ed25519PrivateKey.generate()
+    key_path = tmp_path / "external-private.pem"
+    public_path = tmp_path / "trusted-public.pem"
+    key_path.write_bytes(
+        private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    )
+    public_path.write_bytes(
+        private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+    )
+    script = tmp_path / "fake_external_signer.py"
+    script.write_text(
+        textwrap.dedent(
+            """
+            import base64
+            import hashlib
+            import json
+            import sys
+            from pathlib import Path
+            from cryptography.hazmat.primitives import serialization
+
+            request = json.load(sys.stdin)
+            key = serialization.load_pem_private_key(Path(sys.argv[1]).read_bytes(), None)
+            public = key.public_key().public_bytes(
+                serialization.Encoding.PEM,
+                serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+            response = {
+                "algorithm": "Ed25519",
+                "key_id": "vault:transit/cmp-release/keys/production-v1",
+                "operation": request["operation"],
+                "schema": "cmp.external-signing-response.v1",
+            }
+            if request["operation"] == "describe":
+                response["provider"] = "test-hsm"
+                response["public_key_pem_base64"] = base64.b64encode(public).decode("ascii")
+            else:
+                payload = base64.b64decode(request["payload_base64"], validate=True)
+                signature = key.sign(payload)
+                if len(sys.argv) > 2:
+                    signature = bytes([signature[0] ^ 1]) + signature[1:]
+                response["payload_sha256"] = hashlib.sha256(payload).hexdigest()
+                response["signature_base64"] = base64.b64encode(signature).decode("ascii")
+            print(json.dumps(response, sort_keys=True, separators=(",", ":")))
+            """
+        ),
+        encoding="utf-8",
+    )
+    command: tuple[str, ...] = (sys.executable, str(script), str(key_path))
+    if corrupt_signature:
+        command += ("corrupt",)
+    signer = ExternalCommandSigner(
+        command,
+        trusted_public_key=public_path.read_bytes(),
+        expected_key_id=KEY_ID,
+        cwd=tmp_path,
+    )
+    return signer, public_path
 
 
 def _bundle(tmp_path: Path) -> Path:
@@ -78,6 +155,79 @@ def test_quality_bundle_requires_configured_trust_key(tmp_path: Path) -> None:
 
     with pytest.raises(ReleaseQualityError, match="trusted public key"):
         verify_bundle(bundle, trusted_public_key=other_bundle / "quality-public-key.pem")
+
+
+def test_external_signer_identity_and_signature_are_pinned_and_verified(tmp_path: Path) -> None:
+    signer, trusted_public_key = _external_signer(tmp_path / "signer")
+    bundle = tmp_path / "bundle"
+    evidence = bundle / "evidence.json"
+    bundle.mkdir()
+    evidence.write_text("{}", encoding="utf-8")
+    import hashlib
+
+    document = write_signed_manifest(
+        bundle,
+        {
+            "evidence": [
+                {
+                    "path": evidence.name,
+                    "sha256": hashlib.sha256(evidence.read_bytes()).hexdigest(),
+                    "size_bytes": evidence.stat().st_size,
+                }
+            ],
+            "policy": {"passed": True},
+            "schema": "cmp.release-quality-manifest.v1",
+            "signing_mode": "external_command",
+            "source_commit": "b" * 40,
+        },
+        signer,
+    )
+
+    assert document["signature"]["key_id"] == KEY_ID
+    assert document["signature"]["provider"] == "test-hsm"
+    assert (
+        verify_bundle(
+            bundle,
+            trusted_public_key=trusted_public_key,
+            expected_key_id=KEY_ID,
+        )
+        == document
+    )
+    with pytest.raises(ReleaseQualityError, match="key identity"):
+        verify_bundle(
+            bundle,
+            trusted_public_key=trusted_public_key,
+            expected_key_id="vault:transit/cmp-release/keys/other",
+        )
+
+
+def test_external_signer_rejects_untrusted_or_invalid_signatures(tmp_path: Path) -> None:
+    _, approved_public_key = _external_signer(tmp_path / "approved")
+    other_root = tmp_path / "other"
+    _external_signer(other_root)
+    with pytest.raises(ExternalSigningError, match="public key is not approved"):
+        ExternalCommandSigner(
+            (
+                sys.executable,
+                str(other_root / "fake_external_signer.py"),
+                str(other_root / "external-private.pem"),
+            ),
+            trusted_public_key=approved_public_key.read_bytes(),
+            expected_key_id=KEY_ID,
+        )
+
+    corrupt_signer, _ = _external_signer(tmp_path / "corrupt", corrupt_signature=True)
+    with pytest.raises(ExternalSigningError, match="trusted-key verification"):
+        corrupt_signer.sign(b"canonical manifest")
+
+
+def test_production_release_quality_rejects_process_local_private_keys(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("CMP_ENVIRONMENT", "production")
+
+    with pytest.raises(ReleaseQualityError, match="external signing identity"):
+        main(["generate", "--root", str(tmp_path), "--ephemeral-local-key"])
 
 
 def test_quality_bundle_rejects_duplicate_evidence_path(tmp_path: Path) -> None:

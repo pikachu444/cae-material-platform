@@ -23,6 +23,13 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 )
 
 from cmp.shared.domain.revisions import canonical_json_bytes
+from cmp.tools.release_signing import (
+    ExternalCommandSigner,
+    ExternalSigningError,
+    LocalEd25519Signer,
+    ManifestSigner,
+    canonical_public_key,
+)
 
 TRIVY_IMAGE: Final = (
     "aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f"
@@ -110,13 +117,6 @@ def _safe_bundle_path(root: Path, relative: str) -> Path:
     return candidate
 
 
-def _public_pem(key: Ed25519PublicKey) -> bytes:
-    return key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-    )
-
-
 def _load_private_key(path: Path) -> Ed25519PrivateKey:
     key = serialization.load_pem_private_key(path.read_bytes(), password=None)
     if not isinstance(key, Ed25519PrivateKey):
@@ -127,19 +127,30 @@ def _load_private_key(path: Path) -> Ed25519PrivateKey:
 def write_signed_manifest(
     bundle: Path,
     manifest: Mapping[str, Any],
-    private_key: Ed25519PrivateKey,
+    signer: ManifestSigner | Ed25519PrivateKey,
 ) -> dict[str, Any]:
     """Write a canonical manifest, detached signature, and public verification key."""
 
     bundle.mkdir(parents=True, exist_ok=True)
-    public_pem = _public_pem(private_key.public_key())
     document = dict(manifest)
+    if isinstance(signer, Ed25519PrivateKey):
+        requested_mode = document.get("signing_mode")
+        mode = (
+            requested_mode
+            if requested_mode in {"ephemeral_local", "supplied_ed25519_key"}
+            else "supplied_ed25519_key"
+        )
+        signer = LocalEd25519Signer(signer, mode=mode)
+    identity = signer.identity()
+    public_pem = identity.public_key_pem
     document["signature"] = {
-        "algorithm": "Ed25519",
+        "algorithm": identity.algorithm,
+        "key_id": identity.key_id,
+        "provider": identity.provider,
         "public_key_sha256": _sha256_bytes(public_pem),
     }
     payload = canonical_json_bytes(document)
-    signature = private_key.sign(payload)
+    signature = signer.sign(payload)
     (bundle / "quality-manifest.json").write_bytes(payload)
     (bundle / "quality-manifest.sig").write_text(
         base64.b64encode(signature).decode("ascii") + "\n", encoding="ascii"
@@ -148,7 +159,12 @@ def write_signed_manifest(
     return document
 
 
-def verify_bundle(bundle: Path, *, trusted_public_key: Path | None = None) -> dict[str, Any]:
+def verify_bundle(
+    bundle: Path,
+    *,
+    trusted_public_key: Path | None = None,
+    expected_key_id: str | None = None,
+) -> dict[str, Any]:
     """Verify canonical encoding, detached signature, trust key, and every evidence digest."""
 
     root = bundle.resolve(strict=True)
@@ -160,14 +176,22 @@ def verify_bundle(bundle: Path, *, trusted_public_key: Path | None = None) -> di
     if canonical_json_bytes(document) != payload:
         raise ReleaseQualityError("quality manifest is not canonical JSON")
 
-    public_pem = public_key_path.read_bytes()
-    if trusted_public_key is not None and trusted_public_key.read_bytes() != public_pem:
-        raise ReleaseQualityError("bundle public key does not match the trusted public key")
+    try:
+        public_pem = canonical_public_key(public_key_path.read_bytes())
+        if (
+            trusted_public_key is not None
+            and canonical_public_key(trusted_public_key.read_bytes()) != public_pem
+        ):
+            raise ReleaseQualityError("bundle public key does not match the trusted public key")
+    except ExternalSigningError as error:
+        raise ReleaseQualityError(str(error)) from error
     signature_metadata = document.get("signature")
     if not isinstance(signature_metadata, dict):
         raise ReleaseQualityError("quality manifest signature metadata is missing")
     if signature_metadata.get("algorithm") != "Ed25519":
         raise ReleaseQualityError("quality manifest uses an unsupported signature algorithm")
+    if expected_key_id is not None and signature_metadata.get("key_id") != expected_key_id:
+        raise ReleaseQualityError("quality manifest signer key identity is not trusted")
     if signature_metadata.get("public_key_sha256") != _sha256_bytes(public_pem):
         raise ReleaseQualityError("public key digest does not match the manifest")
     key = serialization.load_pem_public_key(public_pem)
@@ -274,7 +298,7 @@ def generate_bundle(
     workspace: Path,
     bundle: Path,
     images: tuple[tuple[str, str], ...],
-    private_key: Ed25519PrivateKey,
+    signer: ManifestSigner | Ed25519PrivateKey,
     signing_mode: str,
 ) -> dict[str, Any]:
     """Generate all quality evidence and fail closed on any critical finding."""
@@ -410,13 +434,9 @@ def generate_bundle(
         int(result["counts"]["CRITICAL"]) for result in policy_results["images"].values()
     )
     critical = int(node_counts["critical"]) + image_critical
-    blocking_findings = (
-        len(python_vulnerabilities) + int(node_counts["total"]) + image_critical
-    )
+    blocking_findings = len(python_vulnerabilities) + int(node_counts["total"]) + image_critical
     passed = (
-        blocking_findings == 0
-        and python_result.returncode == 0
-        and node_result.returncode == 0
+        blocking_findings == 0 and python_result.returncode == 0 and node_result.returncode == 0
     )
     manifest: dict[str, Any] = {
         "created_at": datetime.now(UTC).isoformat(),
@@ -441,7 +461,7 @@ def generate_bundle(
             "uv": _tool_version(["uv", "--version"], cwd=root),
         },
     }
-    document = write_signed_manifest(output, manifest, private_key)
+    document = write_signed_manifest(output, manifest, signer)
     verify_bundle(output)
     if not passed:
         raise ReleaseQualityError(
@@ -460,33 +480,71 @@ def _parser() -> argparse.ArgumentParser:
     signing = generate.add_mutually_exclusive_group(required=True)
     signing.add_argument("--private-key", type=Path)
     signing.add_argument("--ephemeral-local-key", action="store_true")
+    signing.add_argument("--external-signer-command-json")
+    generate.add_argument("--trusted-public-key", type=Path)
+    generate.add_argument("--expected-key-id")
+    generate.add_argument("--signer-timeout-seconds", type=float, default=30.0)
     verify = commands.add_parser("verify", help="verify a signed quality evidence bundle")
     verify.add_argument("--bundle", type=Path, required=True)
     verify.add_argument("--trusted-public-key", type=Path)
+    verify.add_argument("--expected-key-id")
     return parser
 
 
 def main(argv: list[str] | None = None) -> None:
     args = _parser().parse_args(argv)
     if args.command == "verify":
-        document = verify_bundle(args.bundle, trusted_public_key=args.trusted_public_key)
+        document = verify_bundle(
+            args.bundle,
+            trusted_public_key=args.trusted_public_key,
+            expected_key_id=args.expected_key_id,
+        )
         print(json.dumps({"passed": True, "source_commit": document["source_commit"]}))
         return
     root: Path = args.root
     output: Path = args.output or (
         root / ".cache" / "release-quality" / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     )
-    private_key = (
-        _load_private_key(args.private_key)
-        if args.private_key is not None
-        else Ed25519PrivateKey.generate()
-    )
-    signing_mode = "supplied_ed25519_key" if args.private_key is not None else "ephemeral_local"
+    if args.external_signer_command_json is not None:
+        if args.trusted_public_key is None or args.expected_key_id is None:
+            raise ReleaseQualityError(
+                "external signing requires --trusted-public-key and --expected-key-id"
+            )
+        try:
+            command_value = json.loads(args.external_signer_command_json)
+        except json.JSONDecodeError as error:
+            raise ReleaseQualityError("external signer command must be a JSON array") from error
+        if not isinstance(command_value, list) or not all(
+            isinstance(item, str) and item for item in command_value
+        ):
+            raise ReleaseQualityError("external signer command must be a non-empty string array")
+        signer: ManifestSigner | Ed25519PrivateKey = ExternalCommandSigner(
+            tuple(command_value),
+            trusted_public_key=args.trusted_public_key.read_bytes(),
+            expected_key_id=args.expected_key_id,
+            timeout_seconds=args.signer_timeout_seconds,
+            cwd=root,
+        )
+        signing_mode = "external_command"
+    elif args.private_key is not None:
+        if os.getenv("CMP_ENVIRONMENT", "development").lower() == "production":
+            raise ReleaseQualityError(
+                "production release evidence requires an external signing identity"
+            )
+        signer = _load_private_key(args.private_key)
+        signing_mode = "supplied_ed25519_key"
+    else:
+        if os.getenv("CMP_ENVIRONMENT", "development").lower() == "production":
+            raise ReleaseQualityError(
+                "production release evidence requires an external signing identity"
+            )
+        signer = Ed25519PrivateKey.generate()
+        signing_mode = "ephemeral_local"
     document = generate_bundle(
         workspace=root,
         bundle=output,
         images=_parse_images(args.image or DEFAULT_IMAGES),
-        private_key=private_key,
+        signer=signer,
         signing_mode=signing_mode,
     )
     print(

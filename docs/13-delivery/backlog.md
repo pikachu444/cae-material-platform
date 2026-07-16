@@ -1192,3 +1192,20 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   대표하지 않는다. 남은 순서는 (1) object lock/KMS/retention 및 production signing adapter,
   (2) signed-manifest
   REST/webhook/object-storage connector와 운영 token rotation이다.
+
+- **2026-07-17 governed storage subset:** production composition은 명시적인 S3-compatible
+  adapter를 선택하고 bucket versioning, Object Lock, 정확한 SSE-KMS key가 아니면 fail closed
+  한다. Staging은 암호화하되 정리 가능하고, final promotion은 조건부 write, checksum 검증과
+  retention lock을 적용한다. Contract test는 완료했다. 실제 bucket/KMS/failover acceptance,
+  production signing identity와 signed connector는 순서대로 남아 있다. 상세 계약은
+  `docs/13-delivery/t47-governed-object-storage.md`에 기록한다.
+
+- **2026-07-17 production signing subset:** canonical quality manifest는 production에서
+  process-local private key를 거부하고, 별도 command adapter의 Ed25519 identity/signature를
+  독립 trusted public key와 expected key ID로 검증한다. 실제 HSM/Vault/keyless signer 배포와
+  key ceremony evidence는 남아 있다. 계약은 `docs/13-delivery/t47-production-signing.md`다.
+
+- **2026-07-17 branch gate:** 실제 PostgreSQL 16을 포함한 Python 680개와 Vitest 41개가
+  skip/failure 없이 통과했고 ruff, mypy 551 files, architecture/contracts/OpenAPI, user-guide,
+  production web budget과 npm audit 0 vulnerabilities를 확인했다. 이 workstation에는 GNU Make와
+  Git Bash가 없어 `make ci` wrapper 대신 `scripts/ci.sh`와 동일한 명령을 PowerShell에서 실행했다.

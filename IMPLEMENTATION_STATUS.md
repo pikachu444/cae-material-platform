@@ -1243,3 +1243,40 @@ failures, ruff, mypy over 547 source files, architecture and contract lint, Open
 13-document/24-capture/7-route user-guide checks, the production Vite bundle budget and npm audit
 with zero vulnerabilities.
 
+## T-47 governed S3-compatible storage adapter subset (2026-07-17)
+
+Production composition no longer permits the local filesystem object store. The new adapter keeps
+SDK types outside domain/application code and validates bucket versioning, Object Lock and exact
+default SSE-KMS key identity before serving traffic. Multipart staging sends SHA-256 checksums;
+final promotion reads a pinned staging version and uses an atomic `If-None-Match: *` write with an
+explicit checksum, KMS key and retain-until date. Only non-authoritative staging versions can be
+discarded through the application port.
+
+Five SDK-contract/acceptance tests cover unsafe production fallback, governance mismatch,
+KMS/COMPLIANCE promotion, multipart checksum verification and the redacted live-gate workflow;
+the complete Artifact-focused subset passes 14
+tests. These tests do not qualify a real cloud KMS or WORM bucket. Live bucket/KMS/failover evidence
+remains pending credentials and approved infrastructure. The current atomic promotion ceiling is
+5,000,000,000 bytes, which covers the qualified 2-GiB ingestion path but not the domain 5-GiB Bundle
+ceiling. Production signing identity and signed connectors remain the next implementation units.
+
+## T-47 external production signing adapter subset (2026-07-17)
+
+Release-quality generation now accepts a no-shell external signer command with a two-step
+describe/sign protocol. The process sends canonical manifest bytes and SHA-256, pins an
+independently supplied Ed25519 public key and expected key ID, verifies the returned signature
+locally, and records provider/key identity in the signed manifest. Verification can pin the same
+trust pair. Signer stderr, private keys and credentials are not copied into evidence.
+
+`CMP_ENVIRONMENT=production` rejects ephemeral and supplied PEM private keys; those remain local
+integrity modes only. Twelve release-quality unit tests pass, including a real child-process signer,
+untrusted identity, corrupted signature and production-local-key rejection. No production
+HSM/Vault/keyless endpoint or key ceremony was available, so live production identity acceptance
+remains pending. Signed delivery connectors and runtime identity/token rotation are next.
+
+The complete branch gate passed 680 Python/PostgreSQL tests and 41 Vitest tests with zero skips or
+failures, ruff, mypy over 551 source files, architecture and contract lint, OpenAPI compatibility,
+13-document/24-capture/7-route user-guide checks, the production Vite bundle budget and npm audit
+with zero vulnerabilities. The workstation has neither GNU Make nor Git Bash, so the exact commands
+from `scripts/ci.sh` were run in PowerShell rather than through the `make ci` wrapper.
+
