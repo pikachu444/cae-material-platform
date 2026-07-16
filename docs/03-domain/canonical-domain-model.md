@@ -104,6 +104,8 @@ Method의 default가 바뀌어도 과거 Run은 당시 method revision과 condit
 | Validation Template | `validation_template` | revisioned geometry/BC/extraction | 변경 시 새 revision |
 | Validation Plan/Run | stable plan/run | solver inputs/results/metrics | numerical/experimental verdict 분리 |
 | Release | stable release ID | immutable release manifest | 구성 revision 고정; 삭제 대신 withdraw |
+| Export Selection | `export_selection` | `export_selection_revision` + ordered members | exact revision/artifact와 requested representation 고정 |
+| Export Bundle | immutable result identity | manifest Artifact + archive Artifact | retry/re-export는 새 result 또는 digest reuse; 기존 bytes 수정 금지 |
 
 ### 3.4 플랫폼·거버넌스
 
@@ -190,6 +192,10 @@ erDiagram
     SOLVER_CARD_REVISION ||--o{ RELEASE_MANIFEST : packages
     VALIDATION_RESULT ||--o{ RELEASE_MANIFEST : evidences
     RELEASE ||--|| RELEASE_MANIFEST : fixes
+    EXPORT_SELECTION ||--o{ EXPORT_SELECTION_REVISION : has
+    EXPORT_SELECTION_REVISION ||--o{ EXPORT_JOB : configures
+    EXPORT_JOB ||--o| EXPORT_BUNDLE : generates
+    EXPORT_BUNDLE ||--|| ARTIFACT : archives
 ```
 
 ## 7. Revision 공통 필드
@@ -287,6 +293,7 @@ erDiagram
 - `OQ-BATCH-001` 실제 고객 조직의 Lot/Batch 용어와 ERP key mapping
 - `OQ-INST-001` 교정 성적서·불확도까지 MVP에 포함할지
 - `OQ-DATA-001` raw 시험기 파일 외에 영상/DIC 같은 multi-modal asset을 MVP에서 다룰지
+- `OQ-EXPORT-001` production-pilot 이후 proprietary PLM/CAE connector와 장기 Bundle retention
 
 이 항목은 extension payload로 임시 수용할 수 있지만, 여러 plugin에서 반복되면 ADR을 거쳐 core concept로 승격한다.
 

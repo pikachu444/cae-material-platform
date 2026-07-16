@@ -818,3 +818,25 @@ new foundation rewrite; it is production depth and additional vertical coverage:
    T-37 release-quality evidence, T-38 performance/security acceptance, and external PLM/CAE
    connectors.
 
+## Production-pilot execution baseline (2026-07-16)
+
+ADR-0025 through ADR-0027 and backlog T-39 through T-47 now turn the remaining product depth into a
+resumable implementation program. The program preserves migrations 001--048 and prioritizes the
+user-visible Material/Test -> Dataset/Processing -> Calibration -> neutral IR -> Abaqus/OpenRadioss
+Card -> Bulk Export workflow. Actual solver execution remains excluded. Domain-unapproved numeric
+profiles and mappings remain visibly `reference/unapproved`.
+
+The first documentation increment is complete. Official research now records MCalibration only as
+a Processing/Modeling/Validation reference, not a product boundary. The stale pre-implementation
+design index and README Candidate-selection claims are corrected. Requirements, domain, IR, API,
+fitting and test documents now define iterative promotion evidence, governed CSV/TSV/XLSX intake,
+immutable Bulk Export Bundles and the user-guide/screenshot gate. A Korean task-oriented guide
+covers current Steel, Polymer and Elastomer workflows and reuses seven dated E2E screenshots through
+an explicit manifest; future GUI changes must update the affected guide and capture evidence.
+
+Verification: the guide link/manifest check validated nine documents and seven images. With the
+disposable PostgreSQL 16 DSN enabled, the CI-equivalent suite passed 553 Python tests with zero
+skips or failures, 28 Vitest tests, ruff, mypy over 469 source files, architecture and contract
+checks, OpenAPI compatibility and the production Vite build. The next implementation unit is T-39
+and migration 049.
+

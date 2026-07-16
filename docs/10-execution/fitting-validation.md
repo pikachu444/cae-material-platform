@@ -194,6 +194,14 @@ worker/runner 재시도 또는 multi-start candidate 실행 단위다. infrastru
 
 `converged`는 domain acceptance가 아니다. 사용자가 candidate를 IR로 승격할 때 이유와 비교 evidence를 기록한다.
 
+### 7.1 반복 calibration promotion
+
+ADR-0026은 같은 logical Material Model의 재보정을 새 stable identity로 분리하지 않는다.
+새 Candidate Selection은 current IR revision에 compare-and-swap하고 다음 immutable revision을
+append한다. 각 IR revision은 자신의 exact Selection/Run/Candidate/diagnostics evidence만
+소유하며 과거 evidence를 덮어쓰거나 하나의 mutable list로 합치지 않는다. Card와 Release는
+계속 한 concrete IR revision을 pin한다. 이 계약은 T-44에서 schema/API/UI로 구현한다.
+
 ## 8. Reproducibility 수준
 
 | 수준 | 의미 |

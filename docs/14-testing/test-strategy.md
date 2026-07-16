@@ -470,6 +470,18 @@ synthetic/approved raw tensile files
 - solver version/environment 차이를 결과 metadata에서 숨기지 않는다.
 - failing scientific test가 있으면 관련 plugin/release activation을 차단한다.
 
+## 17. 사용자 가이드와 GUI evidence gate
+
+User-visible route, navigation, form, plot, status, warning 또는 download가 변경되면 관련
+`docs/user-guide/` page와 screenshot manifest가 같은 PR에서 갱신되어야 한다. Deterministic
+demo seed의 browser E2E는 guide의 주요 경로가 실제 API/PostgreSQL resource와 연결되는지
+검증한다. Screenshot은 1440x900 기준이며 token, confidential data와 개인 경로를 포함하지
+않는다. 역사적 E2E evidence 이미지는 덮어쓰지 않고 새 검증 record를 만든다.
+
+T-45 Bulk Export tests additionally verify deterministic ZIP ordering/timestamps/digest, exact
+source revisions, manifest/checksum completeness, no silent omission, cross-tenant/classification
+denial, retry idempotency, size/component limits and downloaded archive integrity.
+
 ### T-30 Release completeness invariants
 
 Release tests must verify a stable candidate-manifest digest, exact Material Model/Solver Card/

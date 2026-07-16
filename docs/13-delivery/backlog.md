@@ -962,3 +962,135 @@ The live user E2E record at `docs/15-demo/user-e2e-evidence-2026-07-16.md` prove
 polymer path from test registration through normalized/processed data, bounded Prony fitting,
 human Candidate selection, immutable IR promotion and Abaqus card download. It also records UI
 evidence for item 4 LAW62 output and item 5 exact-revision genealogy.
+
+## E-13. Production-pilot product completion
+
+ADR-0025 replaces the open-ended P2 list with the following resumable sequence. These Tasks extend
+the existing implementation; they do not reopen completed foundation or bounded reference work.
+Each Task must deliver typed persistence, protected API, connected UI, tests and user-guide updates
+in the same vertical increment. Actual solver execution remains excluded.
+
+### S-13.1. Complete Catalog and Test context
+
+#### T-39. Process Run input/output, split/merge and Specimen source genealogy — `P0`
+
+- **목적:** actual Process execution을 Definition과 분리하고 consumed/produced Lot revision을
+  재현 가능한 graph로 저장한다.
+- **입력과 출력:** exact Process/Material State/Lot revisions, operator/time/equipment and typed
+  quantities → immutable Process Run revision, ordered inputs/outputs, balance result and Specimen
+  source links.
+- **영향 데이터/API:** explicit Process Run identity/revision/input/output and Specimen-source
+  tables; create/revise/list/read and genealogy queries.
+- **정책:** quantity는 decimal + original UCUM + normalized SI다. balance basis는
+  `mass|volume|count|not_assessed`; 미평가 사유가 필수다. multi-lot과 split/merge를 허용하고
+  assessed basis의 dimension/tolerance mismatch는 거부한다.
+- **완료 조건:** exact revision graph, tenant/classification FK, forced RLS, cycle rejection,
+  immutable history와 connected genealogy UI가 동작한다.
+- **테스트:** unit balance/split/merge; PostgreSQL deferred constraints/RLS; API/browser exact-pin;
+  source revision mutation and cross-project regression.
+
+#### T-40. Test Campaign, Instrument calibration and condition snapshots — `P0`
+
+- **목적:** 시험 목적, 장비와 실행 시점의 표준·교정·환경 조건을 Test Run에 고정한다.
+- **입력과 출력:** Campaign/Instrument/Calibration revisions, standard designation/edition/
+  deviation, typed temperature/humidity/rate/orientation/medium → exact Test Run links.
+- **영향 데이터/API:** Campaign, Instrument, Calibration Record, Condition Snapshot identities
+  and revisions; Test Run linking commands and searches.
+- **정책:** 공통 조건은 explicit columns다. method-specific extension만 schema ID/version/digest
+  검증 JSON을 허용하며 generic EAV를 사용하지 않는다.
+- **완료 조건:** 과거 Run이 최신 장비 교정이나 Method head를 따라가지 않고 UI에서 실행
+  당시 snapshot을 확인할 수 있다.
+- **테스트:** expiration/overlap/deviation rules, PostgreSQL exact FK/RLS, API/browser workflow,
+  stale calibration and hidden-default regression.
+
+### S-13.2. Make test-data ingestion and processing usable
+
+#### T-41. Governed CSV/TSV/XLSX importer and channel schemas — `P0`
+
+- **목적:** 선정된 공개 tabular 형식으로 실제 시험 파일을 안전하게 등록하고 mapping을
+  재사용한다.
+- **입력과 출력:** immutable CSV/TSV/XLSX Raw Asset, explicit sheet/header/encoding/locale,
+  column/unit/quantity mapping → approved Import Profile revision plus raw/normalized Dataset.
+- **초기 schema:** monotonic tension/compression, planar/biaxial/simple shear and shear relaxation.
+  force/displacement input requires pinned specimen geometry before stress/strain derivation.
+- **정책:** detect/preview는 suggestion일 뿐이며 unresolved mapping은 `needs_input`이다. 원본
+  bytes, original units, normalized SI, per-row errors and failed Import Run evidence를 보존한다.
+- **범위 제외:** proprietary laboratory formats and arbitrary vendor reverse engineering.
+- **테스트:** parser/locale/formula/decompression limits, unit/schema fixtures, PostgreSQL
+  persistence/RLS, mapping approval UI and raw/normalized immutability regression.
+
+#### T-42. Viscoelastic replicate statistics, temperature shift and master curve — `P0`
+
+- **목적:** 여러 relaxation curve와 온도를 보존하면서 비교·정렬·통계·master curve를
+  명시적 Processing으로 만든다.
+- **입력과 출력:** exact replicate Selection and temperature conditions → aligned Dataset,
+  scalar/pointwise statistics, shift-factor evidence and master-curve Dataset revisions.
+- **정책:** log-time common intersection, piecewise-linear interpolation and no extrapolation are
+  defaults. User shift factors are allowed; WLF fitting requires at least three temperatures and a
+  selected reference temperature. Every shift/fit remains an ordered Recipe step.
+- **완료 조건:** raw/normalized/aligned/statistical/master representations remain distinct and the
+  browser shows individual curves, n, band, outlier status and shifted curves.
+- **테스트:** hand fixtures, no-overlap/unequal-temperature/missing-condition cases, deterministic
+  WLF recovery, PostgreSQL provenance and browser curve regression.
+
+### S-13.3. Qualify and iterate neutral models
+
+#### T-43. Scientific profiles, uncertainty and hyper-viscoelastic fitting — `P0/P1`
+
+- **목적:** reference Steel Voce/tabulated, Polymer linear-Prony and Elastomer Ogden--Prony paths에
+  versioned parameter/objective/diagnostic profiles를 제공한다.
+- **입력과 출력:** multi-test processed Selections, initial/bounds/scaling/objective/weights →
+  multistart Candidates, residual/prediction, holdout, uncertainty/identifiability status and IR.
+- **정책:** Steel Voce/tabulated, one-to-ten-term Prony and one-term Ogden plus one-to-five Prony가
+  초기 범위다. Elastomer는 multiple TestModeAdapter를 동시 사용하고 single-mode evidence에는
+  insufficiency warning을 기록한다.
+- **승인:** 공개 analytic/synthetic fixture는 구현 가능하지만 Domain sign-off 전 status는
+  `reference/unapproved`다. 빈 uncertainty를 성공처럼 표시하지 않는다.
+- **테스트:** analytic limits, bounded recovery, objective weighting, rank/covariance, holdout,
+  deterministic artifact and UI candidate comparison.
+
+#### T-44. Iterative Calibration and append-only promotion evidence — `P0`
+
+- **목적:** 같은 Material Model stable identity에서 이전 evidence를 잃지 않고 `r3+`를 만든다.
+- **결정:** ADR-0026의 revision-owned evidence chain을 구현한다.
+- **영향 데이터/API:** promotion evidence per IR revision, prior-revision comparison and promotion
+  command with current ETag.
+- **완료 조건:** new Selection/Candidate가 current head에 새 revision을 append하고 모든 prior
+  IR/Card/Release가 byte/digest stable하다.
+- **테스트:** repeated promotion, stale head, reused Candidate, cross-scope, prior-card stability
+  and browser calibration-round comparison.
+
+### S-13.4. Deliver data and keep the service operable
+
+#### T-45. Immutable Bulk Export Bundle — `P0`
+
+- **목적:** test data, neutral data, mapping evidence and cards를 한 번에 전달한다.
+- **입력과 출력:** revisioned Export Selection → durable Job → immutable deterministic ZIP Bundle.
+- **구성:** raw originals, Parquet, CSV, IR JSON/schema, mapping reports, native cards,
+  `manifest.json`, `checksums.sha256`, README.
+- **정책:** ADR-0027, one tenant/project, maximum classification propagation, no silent omission,
+  1,000 components/5 GiB initial limit and existing short-lived Artifact download authorization.
+- **테스트:** deterministic ZIP/digest, missing/unsupported preflight, RLS/classification, retry,
+  large-job failure and browser Export Center download.
+
+#### T-46. User navigation, manuals and screenshot maintenance — `P0`
+
+- **목적:** 신규 사용자가 개발 문서를 읽지 않고 Material→Test→Model→Card를 수행한다.
+- **출력:** global Materials/Tests/Datasets/Models/Exports/Governance navigation, contextual Material
+  tabs, Korean task-oriented guides, sample files, troubleshooting and deterministic screenshots.
+- **정책:** user-visible workflow PR은 guide and screenshot manifest를 함께 갱신한다. Existing
+  deep links remain compatible and screenshots contain no token/confidential/local personal data.
+- **테스트:** route/deep-link/accessibility, deterministic demo seed browser E2E, referenced-image
+  integrity and stale-guide PR gate.
+
+#### T-47. Observability, restore, supply-chain, performance and connector hardening — `P1`
+
+- **목적:** production-pilot의 failure/복구/배포/외부 전달 evidence를 완성한다.
+- **범위:** T-35 OpenTelemetry and redaction dashboard, T-36 DB/object restore drill, T-37 full
+  matrix, T-38 benchmark/security, object lock/KMS/retention adapters, SBOM/vulnerability/signature,
+  signed manifest REST/webhook/object-storage connector.
+- **제외:** credential 없는 proprietary Teamcenter/PLM connector and licensed solver execution.
+- **완료 조건:** RPO/RTO drill, bundle/release digest restore, critical security finding zero or
+  explicit risk acceptance, benchmark report and traceable connector delivery.
+- **테스트:** secret/log redaction, trace propagation, restore checksum/lineage, dependency/image
+  scan, signature substitution, load/soak and connector retry/idempotency.
