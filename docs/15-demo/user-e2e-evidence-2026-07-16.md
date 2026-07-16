@@ -252,6 +252,21 @@ is `make product-pilot-acceptance`. It verifies the three exact live Material wo
 and hashes the required Abaqus/OpenRadioss cards, validates every component in the 22-component ZIP,
 and cross-checks the same stable identities in PostgreSQL.
 
+The clean-tree run on source commit `a401b34ccc2ff4df0fd577f70c29b9e8a839bf41` passed on
+2026-07-17 KST and produced canonical report SHA-256
+`d0ca507324e9b94b558d52b0c3fbf5d7e9c5fb947a67cc98adbf388155466f4e`.
+PostgreSQL 16.14 matched all three Material identities, six Material Model identities and the exact
+Bundle row in a read-only transaction. The gate verified 5 Steel Test Runs and 11 typed Datasets,
+39 accumulated Polymer Test Runs and 40 immutable relaxation Dataset identities, and 21 accumulated
+Elastomer Test Runs. Required cards were Abaqus/OpenRadioss for Steel, Abaqus for Polymer, and
+Abaqus/OpenRadioss for Elastomer. Bundle `f23a24ad-6a97-416b-8155-c0061f64871d` contained 22
+components, zero omissions and 21,819 bytes; archive SHA-256 was
+`2957276e628bf4d97d4724baabe72da67671bc924c15077ea7e2ae441f774fac`.
+The final CI-equivalent rerun passed 695 Python/PostgreSQL tests and 41 frontend tests with zero
+skips or failures, plus ruff, mypy over 557 source files, architecture/contracts/OpenAPI,
+13-document/24-capture user-guide validation, production bundle budget and npm audit with zero
+vulnerabilities.
+
 Remaining release-environment acceptance requires supplied external infrastructure and credentials:
 
 1. run the governed storage gate against the approved live WORM/KMS bucket;

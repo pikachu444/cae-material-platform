@@ -1317,3 +1317,15 @@ durable rows. Unit regression covers valid bundles, component tampering, missing
 and archive digest mismatch. Actual solver execution remains excluded, and live external
 KMS/WORM/HSM/receiver/endurance acceptance still requires approved infrastructure and credentials.
 
+The clean-tree gate passed on commit `a401b34ccc2ff4df0fd577f70c29b9e8a839bf41` against the live
+Docker API and PostgreSQL 16.14 demo. It verified three workflows, five required downloadable
+cards, and Bundle `f23a24ad-6a97-416b-8155-c0061f64871d` with 22 components and zero omissions.
+Canonical report SHA-256 is
+`d0ca507324e9b94b558d52b0c3fbf5d7e9c5fb947a67cc98adbf388155466f4e`; the Bundle SHA-256 is
+`2957276e628bf4d97d4724baabe72da67671bc924c15077ea7e2ae441f774fac`.
+
+The final CI-equivalent gate passed 695 Python/PostgreSQL tests and 41 Vitest tests with zero skips
+or failures, ruff, mypy over 557 source files, architecture and contract lint, OpenAPI
+compatibility, 13-document/24-capture/7-route user-guide validation, the production Vite bundle
+budget and npm audit with zero vulnerabilities.
+
