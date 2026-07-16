@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import hashlib
+import tempfile
+import zipfile
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Protocol
@@ -10,7 +13,7 @@ from uuid import UUID, uuid4
 
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.exporting.domain.bulk_bundle import (
-    BuiltBulkExportBundle,
+    BulkExportArchiveEvidence,
     BulkExportConflict,
     BulkExportJobState,
     BulkExportLimitExceeded,
@@ -20,7 +23,9 @@ from cmp.modules.exporting.domain.bulk_bundle import (
     ExportSourceRef,
     InvalidBulkExport,
     ResolvedBundleFile,
+    build_bundle_control_files,
     build_deterministic_bundle,
+    deterministic_zip_info,
 )
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -36,6 +41,7 @@ class BulkExportPolicy:
     maximum_components: int = 1000
     maximum_bytes: int = 5 * 1024 * 1024 * 1024
     inline_assembly_maximum_bytes: int = 64 * 1024 * 1024
+    external_member_maximum_bytes: int = 64 * 1024 * 1024
 
     def __post_init__(self) -> None:
         if not 1 <= self.maximum_components <= 1000:
@@ -44,6 +50,8 @@ class BulkExportPolicy:
             raise ValueError("maximum_bytes must be positive")
         if not 1 <= self.inline_assembly_maximum_bytes <= self.maximum_bytes:
             raise ValueError("inline assembly limit must fit the bundle limit")
+        if not 1 <= self.external_member_maximum_bytes <= self.maximum_bytes:
+            raise ValueError("external member limit must fit the bundle limit")
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,6 +137,30 @@ class BulkExportBundle:
     created_by: UUID
 
 
+@dataclass(frozen=True, slots=True)
+class CommittedBulkExportOutput:
+    id: UUID
+    organization_id: UUID
+    project_id: UUID
+    classification: DataClassification
+    job_id: UUID
+    selection_revision_id: UUID
+    archive_artifact_id: UUID
+    archive_sha256: str
+    archive_size_bytes: int
+    manifest_sha256: str
+    committed_at: datetime
+    committed_by: UUID
+
+    @property
+    def evidence(self) -> BulkExportArchiveEvidence:
+        return BulkExportArchiveEvidence(
+            self.archive_sha256,
+            self.archive_size_bytes,
+            self.manifest_sha256,
+        )
+
+
 class BulkExportSourceResolver(Protocol):
     async def discover(
         self,
@@ -196,6 +228,34 @@ class BulkExportRepository(Protocol):
         now: datetime,
     ) -> BulkExportJob: ...
 
+    def claim_next_job(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        now: datetime,
+    ) -> BulkExportJob | None: ...
+
+    def record_output_commit(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        job_id: UUID,
+        archive_artifact_id: UUID,
+        evidence: BulkExportArchiveEvidence,
+        now: datetime,
+    ) -> CommittedBulkExportOutput: ...
+
+    def get_output_commit(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job_id: UUID,
+    ) -> CommittedBulkExportOutput | None: ...
+
     def complete_job(
         self,
         *,
@@ -204,7 +264,7 @@ class BulkExportRepository(Protocol):
         job_id: UUID,
         bundle_id: UUID,
         archive_artifact_id: UUID,
-        built: BuiltBulkExportBundle,
+        evidence: BulkExportArchiveEvidence,
         content: ExportSelectionContent,
         now: datetime,
     ) -> tuple[BulkExportJob, BulkExportBundle]: ...
@@ -220,6 +280,16 @@ class BulkExportRepository(Protocol):
         now: datetime,
     ) -> BulkExportJob: ...
 
+    def require_output_reconciliation(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job_id: UUID,
+        failure_detail: str,
+        now: datetime,
+    ) -> BulkExportJob: ...
+
     def get_job(
         self,
         *,
@@ -227,6 +297,13 @@ class BulkExportRepository(Protocol):
         decision: AuthorizationDecision,
         job_id: UUID,
     ) -> BulkExportJob: ...
+
+    def list_jobs(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> tuple[BulkExportJob, ...]: ...
 
     def get_bundle(
         self,
@@ -358,26 +435,97 @@ class BulkExportService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         selection_id: UUID,
-    ) -> tuple[BulkExportJob, BulkExportBundle]:
+    ) -> tuple[BulkExportJob, BulkExportBundle | None]:
         _require(context, decision, Permission.EXPORT_EXECUTE)
         selection = self._repository.get_selection(
             context=context, decision=decision, selection_id=selection_id
         )
-        if selection.content.expected_size_bytes > self._policy.inline_assembly_maximum_bytes:
-            raise BulkExportLimitExceeded(
-                "selection exceeds the bounded inline assembly limit; use an external worker"
-            )
-        now = self._clock()
         job = self._repository.create_job(
             context=context,
             decision=decision,
             job_id=self._id_factory(),
             selection=selection,
-            now=now,
+            now=self._clock(),
         )
-        self._repository.mark_job_running(
+        if selection.content.expected_size_bytes > self._policy.inline_assembly_maximum_bytes:
+            return job, None
+        running = self._repository.mark_job_running(
             context=context, decision=decision, job_id=job.id, now=self._clock()
         )
+        return await self._assemble_inline(context, decision, selection, running)
+
+    def _record_output(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job: BulkExportJob,
+        artifact_id: UUID,
+        evidence: BulkExportArchiveEvidence,
+    ) -> CommittedBulkExportOutput:
+        return self._repository.record_output_commit(
+            context=context,
+            decision=decision,
+            output_id=self._id_factory(),
+            job_id=job.id,
+            archive_artifact_id=artifact_id,
+            evidence=evidence,
+            now=self._clock(),
+        )
+
+    def _complete_output(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job: BulkExportJob,
+        selection: ExportSelectionSnapshot,
+        output: CommittedBulkExportOutput,
+    ) -> tuple[BulkExportJob, BulkExportBundle]:
+        return self._repository.complete_job(
+            context=context,
+            decision=decision,
+            job_id=job.id,
+            bundle_id=self._id_factory(),
+            archive_artifact_id=output.archive_artifact_id,
+            evidence=output.evidence,
+            content=selection.content,
+            now=self._clock(),
+        )
+
+    def _record_failure(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job: BulkExportJob,
+        error: Exception,
+        output: CommittedBulkExportOutput | None,
+    ) -> None:
+        detail = str(error)[:1000] or type(error).__name__
+        if output is not None:
+            self._repository.require_output_reconciliation(
+                context=context,
+                decision=decision,
+                job_id=job.id,
+                failure_detail=detail,
+                now=self._clock(),
+            )
+            return
+        self._repository.fail_job(
+            context=context,
+            decision=decision,
+            job_id=job.id,
+            failure_code="assembly_failed",
+            failure_detail=detail,
+            now=self._clock(),
+        )
+
+    async def _assemble_inline(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection: ExportSelectionSnapshot,
+        job: BulkExportJob,
+    ) -> tuple[BulkExportJob, BulkExportBundle]:
+        output: CommittedBulkExportOutput | None = None
         try:
             files = tuple(
                 [
@@ -408,26 +556,113 @@ class BulkExportService:
                     f"bulk-export:{selection.current.revision_id}:{built.archive_sha256}"
                 ),
             )
-            return self._repository.complete_job(
-                context=context,
-                decision=decision,
-                job_id=job.id,
-                bundle_id=self._id_factory(),
-                archive_artifact_id=record.artifact.id,
-                built=built,
-                content=selection.content,
-                now=self._clock(),
+            output = self._record_output(
+                context, decision, job, record.artifact.id, built.evidence
             )
+            return self._complete_output(context, decision, job, selection, output)
         except Exception as error:
-            self._repository.fail_job(
-                context=context,
-                decision=decision,
-                job_id=job.id,
-                failure_code="assembly_failed",
-                failure_detail=str(error)[:1000] or type(error).__name__,
-                now=self._clock(),
-            )
+            self._record_failure(context, decision, job, error, output)
             raise
+
+    async def _assemble_external(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        selection: ExportSelectionSnapshot,
+        job: BulkExportJob,
+    ) -> tuple[BulkExportJob, BulkExportBundle]:
+        output_commit: CommittedBulkExportOutput | None = None
+        try:
+            control = build_bundle_control_files(
+                selection_id=selection.id,
+                selection_revision_id=selection.current.revision_id,
+                content=selection.content,
+            )
+            members = {member.archive_path: member for member in selection.content.members}
+            control_entries = control.archive_entries()
+            archive_paths = sorted((*members, *control_entries))
+            with tempfile.TemporaryFile(mode="w+b") as archive:
+                with zipfile.ZipFile(
+                    archive,
+                    mode="w",
+                    compression=zipfile.ZIP_DEFLATED,
+                    compresslevel=9,
+                ) as bundle:
+                    for path in archive_paths:
+                        value = control_entries.get(path)
+                        if value is None:
+                            resolved = await self._sources.resolve(
+                                context,
+                                decision,
+                                members[path],
+                                maximum_bytes=self._policy.external_member_maximum_bytes,
+                            )
+                            value = resolved.value
+                        bundle.writestr(deterministic_zip_info(path), value)
+                archive.flush()
+                archive.seek(0, 2)
+                size_bytes = archive.tell()
+                archive.seek(0)
+                digest = hashlib.sha256()
+                while chunk := archive.read(1024 * 1024):
+                    digest.update(chunk)
+                evidence = BulkExportArchiveEvidence(
+                    digest.hexdigest(), size_bytes, control.manifest_sha256
+                )
+
+                async def chunks() -> AsyncIterator[bytes]:
+                    archive.seek(0)
+                    while chunk := archive.read(1024 * 1024):
+                        yield chunk
+
+                record = await self._artifacts.finalize_derived_stream(
+                    context,
+                    decision,
+                    classification=selection.content.classification,
+                    artifact_role="export.bulk_bundle",
+                    schema_ref="urn:cmp:exporting:bulk-bundle-zip:1.0.0",
+                    media_type="application/zip",
+                    chunks=chunks(),
+                    expected_sha256=evidence.archive_sha256,
+                    expected_size_bytes=evidence.archive_size_bytes,
+                    idempotency_key=(
+                        f"bulk-export:{selection.current.revision_id}:{evidence.archive_sha256}"
+                    ),
+                )
+            output_commit = self._record_output(
+                context, decision, job, record.artifact.id, evidence
+            )
+            return self._complete_output(context, decision, job, selection, output_commit)
+        except Exception as error:
+            self._record_failure(context, decision, job, error, output_commit)
+            raise
+
+    async def execute_next_external(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> tuple[BulkExportJob, BulkExportBundle] | None:
+        """Claim one queued/reconcilable Bundle job for an out-of-process worker."""
+
+        _require(context, decision, Permission.EXPORT_EXECUTE)
+        job = self._repository.claim_next_job(
+            context=context, decision=decision, now=self._clock()
+        )
+        if job is None:
+            return None
+        selection = self._repository.get_selection(
+            context=context, decision=decision, selection_id=job.selection_id
+        )
+        output = self._repository.get_output_commit(
+            context=context, decision=decision, job_id=job.id
+        )
+        if output is not None:
+            try:
+                return self._complete_output(context, decision, job, selection, output)
+            except Exception as error:
+                self._record_failure(context, decision, job, error, output)
+                raise
+        return await self._assemble_external(context, decision, selection, job)
 
     def get_job(
         self,
@@ -437,6 +672,25 @@ class BulkExportService:
     ) -> BulkExportJob:
         _require(context, decision, Permission.EXPORT_READ)
         return self._repository.get_job(context=context, decision=decision, job_id=job_id)
+
+    def list_jobs(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> tuple[BulkExportJob, ...]:
+        _require(context, decision, Permission.EXPORT_READ)
+        return self._repository.list_jobs(context=context, decision=decision)
+
+    def get_output_commit(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        job_id: UUID,
+    ) -> CommittedBulkExportOutput | None:
+        _require(context, decision, Permission.EXPORT_READ)
+        return self._repository.get_output_commit(
+            context=context, decision=decision, job_id=job_id
+        )
 
     def get_bundle(
         self,

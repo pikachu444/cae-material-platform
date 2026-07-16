@@ -43,11 +43,17 @@
     },
     "SelectionResponse": {"type": "object", "required": ["export_selection_id", "current_revision", "links"], "properties": {"export_selection_id": {"$ref": "#/$defs/Uuid"}, "current_revision": {"type": "object"}, "links": {"type": "object"}}},
     "CreateJobRequest": {"type": "object", "additionalProperties": false, "required": ["export_selection_id"], "properties": {"export_selection_id": {"$ref": "#/$defs/Uuid"}}},
+    "CommittedOutput": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_commit_id", "archive_artifact_id", "archive_sha256", "archive_size_bytes", "manifest_sha256", "committed_at", "committed_by"],
+      "properties": {"output_commit_id": {"$ref": "#/$defs/Uuid"}, "archive_artifact_id": {"$ref": "#/$defs/Uuid"}, "archive_sha256": {"$ref": "#/$defs/Sha256"}, "archive_size_bytes": {"type": "integer", "minimum": 1, "maximum": 5368709120}, "manifest_sha256": {"$ref": "#/$defs/Sha256"}, "committed_at": {"type": "string", "format": "date-time"}, "committed_by": {"$ref": "#/$defs/Uuid"}}
+    },
     "JobResponse": {
       "type": "object", "additionalProperties": false,
-      "required": ["export_job_id", "classification", "export_selection_id", "export_selection_revision_id", "state", "attempt_count", "bundle_id", "failure_code", "failure_detail", "submitted_at", "submitted_by", "started_at", "completed_at", "links"],
-      "properties": {"export_job_id": {"$ref": "#/$defs/Uuid"}, "classification": {"$ref": "#/$defs/Classification"}, "export_selection_id": {"$ref": "#/$defs/Uuid"}, "export_selection_revision_id": {"$ref": "#/$defs/Uuid"}, "state": {"enum": ["queued", "running", "succeeded", "failed"]}, "attempt_count": {"type": "integer", "minimum": 1}, "bundle_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]}, "failure_code": {"type": ["string", "null"]}, "failure_detail": {"type": ["string", "null"]}, "submitted_at": {"type": "string", "format": "date-time"}, "submitted_by": {"$ref": "#/$defs/Uuid"}, "started_at": {"type": ["string", "null"], "format": "date-time"}, "completed_at": {"type": ["string", "null"], "format": "date-time"}, "links": {"type": "object"}}
+      "required": ["export_job_id", "classification", "export_selection_id", "export_selection_revision_id", "state", "attempt_count", "bundle_id", "failure_code", "failure_detail", "submitted_at", "submitted_by", "started_at", "completed_at", "committed_output", "links"],
+      "properties": {"export_job_id": {"$ref": "#/$defs/Uuid"}, "classification": {"$ref": "#/$defs/Classification"}, "export_selection_id": {"$ref": "#/$defs/Uuid"}, "export_selection_revision_id": {"$ref": "#/$defs/Uuid"}, "state": {"enum": ["queued", "running", "reconciliation_required", "reconciling", "succeeded", "failed"]}, "attempt_count": {"type": "integer", "minimum": 1}, "bundle_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]}, "failure_code": {"type": ["string", "null"]}, "failure_detail": {"type": ["string", "null"]}, "submitted_at": {"type": "string", "format": "date-time"}, "submitted_by": {"$ref": "#/$defs/Uuid"}, "started_at": {"type": ["string", "null"], "format": "date-time"}, "completed_at": {"type": ["string", "null"], "format": "date-time"}, "committed_output": {"oneOf": [{"$ref": "#/$defs/CommittedOutput"}, {"type": "null"}]}, "links": {"type": "object"}}
     },
+    "JobList": {"type": "object", "additionalProperties": false, "required": ["items"], "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/JobResponse"}}}},
     "BundleResponse": {
       "type": "object", "additionalProperties": false,
       "required": ["export_bundle_id", "classification", "export_selection_id", "export_selection_revision_id", "archive_artifact_id", "archive_sha256", "archive_size_bytes", "manifest_sha256", "component_count", "omission_count", "created_at", "created_by", "links"],

@@ -5,6 +5,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session, sessionmaker
 
 from cmp.bootstrap.security import IdentityServices
+from cmp.bootstrap.settings import Settings
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.exporting.adapters.persistence.bulk_export_repository import (
@@ -23,7 +24,7 @@ from cmp.modules.exporting.adapters.persistence.ogden_prony_repository import (
     SqlAlchemyOgdenPronyExportingRepository,
 )
 from cmp.modules.exporting.adapters.persistence.repository import SqlAlchemyExportingRepository
-from cmp.modules.exporting.application.bulk_export import BulkExportService
+from cmp.modules.exporting.application.bulk_export import BulkExportPolicy, BulkExportService
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
 )
@@ -46,12 +47,23 @@ from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitial
 def build_bulk_export_service(
     identity: IdentityServices,
     artifacts: ArtifactService | None,
+    settings: Settings | None = None,
 ) -> BulkExportService | None:
     """Compose immutable typed selections and deterministic bundle assembly."""
 
     if identity.engine is None or identity.rls_context is None or artifacts is None:
         return None
     sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    policy = (
+        BulkExportPolicy(
+            inline_assembly_maximum_bytes=settings.bulk_export_inline_maximum_bytes,
+            external_member_maximum_bytes=(
+                settings.bulk_export_external_member_maximum_bytes
+            ),
+        )
+        if settings is not None
+        else None
+    )
     return BulkExportService(
         repository=SqlAlchemyBulkExportRepository(
             session_factory=sessions,
@@ -68,6 +80,7 @@ def build_bulk_export_service(
             artifacts=artifacts,
         ),
         artifacts=artifacts,
+        policy=policy,
     )
 
 

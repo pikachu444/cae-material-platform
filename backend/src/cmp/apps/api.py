@@ -903,6 +903,7 @@ def create_app(
     resolved_bulk_exports = bulk_export_service or build_bulk_export_service(
         services,
         resolved_artifacts,
+        resolved,
     )
     install_bulk_export_api(
         application,
