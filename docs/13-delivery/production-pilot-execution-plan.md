@@ -35,10 +35,11 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-47 object-lock/KMS/signing, signed connectors and production worker
-  identity/token rotation. Exact 10,000-Material search, 2-GiB streaming and the bounded five-minute
-  mixed-workload Compose fault drill passed; independent object-storage outage and overnight
-  endurance remain production-environment acceptance rather than local-volume claims.
+- implemented T-47 product depth: governed S3/Object Lock/SSE-KMS adapter, external signing
+  contract, signed REST/webhook/object-storage connectors and rotating worker/receiver token-file
+  boundaries. Exact 10,000-Material search, 2-GiB streaming and the bounded five-minute
+  mixed-workload Compose fault drill passed. Live KMS/WORM, HSM/keyless identity, external receiver,
+  token-rotation/outage and overnight endurance remain production-environment acceptance.
 - user experience: T-46 global navigation, contextual Material tabs and task-oriented guide gate complete
 
 Migrations 001~058, raw objects, prior revisions, cards, releases and golden fixtures are never
@@ -58,7 +59,7 @@ the durable Bulk Export Job; the production-scale unit adds no migration.
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
-| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded and 10k/2-GiB scale, five-minute mixed-workload Compose fault drill, external assembly/reconciliation, hard-kill recovery, governed S3 and external signing contracts complete; live infrastructure acceptance and signed connectors remain |
+| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | implementation complete: observability, isolated restore, supply-chain, bounded and 10k/2-GiB scale, five-minute mixed-workload Compose fault drill, external assembly/reconciliation, hard-kill recovery, governed S3, external signing, signed connectors and rotating credential boundaries; live production infrastructure acceptance pending |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
 Each PR is branched from the freshly merged `main`, uses meaningful commits, passes its relevant
