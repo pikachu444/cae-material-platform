@@ -258,5 +258,7 @@ def test_bulk_export_api_exposes_typed_selection_job_and_bundle_resources() -> N
     assert selection.headers["etag"].startswith('"revision:1:sha256:')
     assert service.command is not None and service.command.members[0].source == SOURCE
     assert job.status_code == 201 and job.json()["state"] == "succeeded"
+    assert job.json()["lease_expires_at"] is None
+    assert job.json()["heartbeat_at"] is None
     assert jobs.status_code == 200 and jobs.json()["items"][0]["committed_output"] is None
     assert bundles.json()["items"][0]["archive_sha256"] == f"sha256:{'a' * 64}"

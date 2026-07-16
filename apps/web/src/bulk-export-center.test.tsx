@@ -150,6 +150,8 @@ describe("BulkExportCenter", () => {
             submitted_by: materialId,
             started_at: "2026-07-16T00:00:01Z",
             completed_at: "2026-07-16T00:00:02Z",
+            lease_expires_at: null,
+            heartbeat_at: null,
             committed_output: {
               output_commit_id: revisionId,
               archive_artifact_id: modelRevisionId,
@@ -177,5 +179,52 @@ describe("BulkExportCenter", () => {
     expect(await screen.findByText("output preserved")).toBeTruthy();
     expect(screen.getByText(digest)).toBeTruthy();
     expect(screen.getByText(/Bundle projection will be retried/)).toBeTruthy();
+  });
+
+  it("shows the active worker heartbeat and deterministic recovery deadline", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async (input) => {
+      const url = String(input);
+      if (url.includes("/materials?")) return response({ items: [material] });
+      if (url.endsWith(`/bulk-export-candidates?material_id=${materialId}`)) {
+        return response({ items: [] });
+      }
+      if (url.endsWith("/export-bundles")) return response({ items: [] });
+      if (url.endsWith("/export-jobs")) {
+        return response({
+          items: [{
+            export_job_id: modelId,
+            classification: "internal",
+            export_selection_id: materialId,
+            export_selection_revision_id: revisionId,
+            state: "running",
+            attempt_count: 2,
+            bundle_id: null,
+            failure_code: null,
+            failure_detail: null,
+            submitted_at: "2026-07-16T00:00:00Z",
+            submitted_by: materialId,
+            started_at: "2026-07-16T00:00:01Z",
+            completed_at: null,
+            lease_expires_at: "2026-07-16T00:02:15Z",
+            heartbeat_at: "2026-07-16T00:02:00Z",
+            committed_output: null,
+            links: {},
+          }],
+        });
+      }
+      throw new Error(`unexpected request ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <BulkExportCenter
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    expect(await screen.findByText(/Worker heartbeat/)).toBeTruthy();
+    expect(screen.getByText(/recoverable after/)).toBeTruthy();
+    expect(screen.getByText(/attempt 2/)).toBeTruthy();
   });
 });
