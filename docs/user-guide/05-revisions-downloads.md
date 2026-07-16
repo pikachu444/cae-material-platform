@@ -38,9 +38,12 @@ Process Run split/merge와 Specimen 원재료 연결 절차는
 - 개별 Raw/derived Artifact: short-lived download token 또는 protected content endpoint
 - 개별 Solver Card: card의 Download 버튼
 - Release: 구성요소 digest를 고정한 release manifest
+- Bulk Export Bundle: 사용자가 고정한 exact revision을 묶은 deterministic ZIP
 
-여러 시험 Dataset, IR과 Card를 실제 파일 ZIP으로 받는 기능은 T-45 Bulk Export Bundle에서
-추가합니다. Release manifest를 임의의 bulk archive로 재해석하지 않습니다.
+Bulk Export Bundle은 Release와 다릅니다. Release는 review/approval을 통과한 발행 단위이고,
+Bundle은 선택한 데이터를 전달하기 위한 authorization-scoped archive입니다. Bundle을 만들었다고
+승인이나 release가 발생하지 않습니다. 상세 절차는
+[시험 데이터·중립 IR·Solver Card를 ZIP으로 받기](09-bulk-export.md)를 따르십시오.
 
 다운로드한 card나 Artifact는 화면 또는 API가 제공하는 SHA-256과 비교할 수 있습니다. Digest가
 다르면 사용하지 말고 integrity issue로 보고하십시오.

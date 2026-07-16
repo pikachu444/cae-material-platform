@@ -95,6 +95,22 @@ r3이어도 이전 concrete IR revision에 고정된 카드 3개가 그대로 �
 
 ![Prior solver cards remain immutable](images/t44-prior-solver-cards-stable.png)
 
+### Exact-revision Bulk Export Bundle
+
+T-45 migration 056 적용 후 DP780 Material에서 원본 CSV, canonical Parquet/readable CSV,
+solver-neutral IR/schema, Abaqus/OpenRadioss mapping report와 native card를 exact revision으로
+검색했다. 화면에서 22개 representation을 선택하고 immutable Export Selection과 durable Job을
+거쳐 deterministic ZIP Bundle을 생성했다.
+
+![Bulk Export exact selection](images/t45-bulk-export-selection.png)
+
+최신 Bundle은 22개 component, 21.3 KiB이며 별도 `manifest.json`, `checksums.sha256`와 README를
+포함한다. 브라우저 Download 동작은 Bundle authorization `201 Created` 뒤 Artifact content
+`200 OK`를 받았다. 선택 revision에는 lifecycle/provenance/audit fact가 각각 1건 기록됐다.
+Release 또는 기존 source/card revision은 변경되지 않았다.
+
+![Immutable Bulk Export Bundles](images/t45-immutable-bundles.png)
+
 ## 불변성 negative check
 
 bounded linear-Prony의 최초 `r1 -> r2` 승격은 성공했다. 이후 이미 promotion evidence가 있는 `r2`를 새
@@ -121,6 +137,11 @@ mypy(512 source files), architecture, contract lint, OpenAPI compatibility와 pr
 `001→054→053→054` 왕복을 완료했다. Windows PowerShell에서는 Git Bash로 `scripts/ci.sh`를
 실행해 `make ci`와 동일한 순서를 검증했다.
 
+T-45 branch의 최신 CI-equivalent 회귀는 PostgreSQL 16 DSN을 사용해 Python
+`613 passed, 0 skipped, 0 failed`, frontend `21 files / 36 tests`를 기록했다. Ruff,
+mypy(526 source files), architecture, contract lint, OpenAPI compatibility, production build와
+npm audit가 통과했다. Migration 056은 별도 임시 DB에서 `001→056→055→056` 왕복을 완료했다.
+
 다운로드 무결성은 아래 계약으로 확인했다.
 
 ```text
@@ -132,14 +153,9 @@ SHA-256(downloaded bytes) == solver_card_revision.card_sha256
 
 ## 다음 우선순위
 
-1. Process Run input/output, lot split/merge, multi-lot acceptance와 Specimen source-lot 연결.
-2. Test Campaign, Instrument/calibration, standard와 condition snapshot.
-3. 실제 선정 시험 포맷용 production importer, governed property/curve schema, viscoelastic
-   replicate/alignment/master-curve/temperature-shift processing.
-4. domain-approved constitutive parameter, bounds, objective, uncertainty, scientific fixtures와
-   exporter version/golden 승인.
-5. iterative calibration promotion policy 결정과 UI 안내.
-6. observability, backup/restore, package signing/SBOM/scanning, performance/security 및 외부
-   PLM/CAE connector hardening.
+1. T-46 global Materials/Tests/Datasets/Models/Exports/Governance navigation과 contextual Material
+   tabs, deterministic screenshot/guide gate.
+2. T-47 observability, backup/restore, package signing/SBOM/scanning, performance/security,
+   large external-worker Bundle assembly와 외부 PLM/CAE connector hardening.
 
 실제 solver 실행과 solver qualification은 제품 소유자 지시에 따라 이 우선순위에서 제외한다.
