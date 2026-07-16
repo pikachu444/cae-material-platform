@@ -5,7 +5,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
-    PATH=/app/.venv/bin:$PATH
+    PATH=/app/.venv/bin:/usr/lib/postgresql/16/bin:$PATH
 
 # Restore tooling is intentionally absent from the API/worker image. Keep the
 # pg_dump/pg_restore major aligned with the demo PostgreSQL server.
@@ -25,5 +25,16 @@ COPY generated ./generated
 COPY plugins ./plugins
 
 RUN uv sync --frozen --no-dev
+
+# pg_dump/pg_restore are native PostgreSQL binaries. The Debian pg_wrapper and
+# Perl runtime are package-install helpers, not restore runtime dependencies.
+# Call the versioned binaries directly and remove that dormant attack surface
+# from this immutable operations image after the final package installation.
+RUN rm -rf /root/.cache/uv \
+    && dpkg --force-depends --force-remove-essential --remove \
+        postgresql-client-common postgresql-common postgresql-common-dev \
+        libio-pty-perl libipc-run-perl libjson-perl libperl5.40 \
+        libtext-charwidth-perl libtext-wrapi18n-perl perl \
+        perl-modules-5.40 perl-base
 
 ENTRYPOINT ["cmp-restore-drill"]

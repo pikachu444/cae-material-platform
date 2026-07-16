@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12,<3.14"
 dependencies = [
   "alembic>=1.16,<2",
+  "cryptography>=48.0.1,<50",
   "fastapi>=0.139,<0.140",
   "jsonschema>=4.26,<5",
   "psycopg[binary]>=3.2,<4",
@@ -46,6 +47,7 @@ cmp-check-architecture = "cmp.tools.architecture:main"
 cmp-check-contracts = "cmp.tools.contracts:main"
 cmp-check-user-guide = "cmp.tools.user_guide:main"
 cmp-restore-drill = "cmp.tools.restore_drill:main"
+cmp-release-quality = "cmp.tools.release_quality:main"
 cmp-generate-client = "cmp.tools.generate_client:main"
 
 [tool.hatch.build.targets.wheel]

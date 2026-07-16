@@ -764,3 +764,27 @@ The 2026-07-16 reference run passed in 32.018 seconds with raw assets 18/18, tot
 100/100, matching metadata counts and zero dangling provenance edges. A production acceptance run
 must additionally contain at least one approved Release, use the scheduled/versioned backup source,
 exercise KMS/object-lock access and record operator-approved RPO/RTO evidence.
+
+## T-47 supply-chain and frontend budget gate
+
+The release-quality command is a separate, reproducible delivery gate because it requires already
+built container images and a current vulnerability database:
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml --profile operations build api worker web restore-drill
+uv run cmp-release-quality generate --root . --ephemeral-local-key
+uv run cmp-release-quality verify --bundle .cache/release-quality/<run-id>
+```
+
+Acceptance requires production-only Python and Node CycloneDX documents, explicit audit JSON,
+container SBOM and HIGH/CRITICAL reports for all four images, zero known Python/Node findings, zero
+critical image findings, exact source commit and image IDs, and a verified canonical manifest.
+Unit regressions substitute manifest bytes, signature bytes, the public key and evidence bytes and
+also exercise path traversal, duplicate path and malformed scanner boundaries. A production signer
+must additionally pass `--trusted-public-key`; an ephemeral local key proves bundle integrity only.
+
+The frontend production build must keep the entry JavaScript at or below 300,000 bytes and each
+lazy workbench chunk at or below 120,000 bytes. The checker runs after every Vite build and fails CI
+on regression. On 2026-07-16 code splitting reduced the entry from 541,662 to 269,778 bytes; the
+largest lazy chunk was 88,163 bytes. These are observed sizes, while the two budgets are enforced
+limits.

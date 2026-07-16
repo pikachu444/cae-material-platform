@@ -3,7 +3,7 @@ export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
 export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
-.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client \
+.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client release-quality \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
 	web-build web-test run-api run-worker run-worker-once ci
 
@@ -34,6 +34,9 @@ docs-screenshots:
 
 generate-client:
 	$(UV) run cmp-generate-client --contract contracts/http/openapi.yaml --output generated/python/cmp_api_client/client.py
+
+release-quality:
+	$(UV) run cmp-release-quality generate --root . --ephemeral-local-key
 
 migrate:
 	@test -n "$(CMP_DATABASE_URL)" || (echo "CMP_DATABASE_URL is required" && exit 2)

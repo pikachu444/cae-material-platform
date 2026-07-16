@@ -1039,13 +1039,37 @@ objects to a distinct report directory and verifies typed relation counts, raw/a
 provenance references. The successful live run completed in 32.018 seconds, matched raw 18/18 and
 total object samples 100/100, found zero dangling lineage edges and cleaned the temporary database.
 The demo source contained no Release, which is reported as `not_present_in_source`; Release digest
-recovery, scheduled/versioned backups, object lock/KMS/retention, SBOM/scanning/signature,
+recovery, scheduled/versioned backups, object lock/KMS/retention, production signing trust,
 benchmark/security acceptance, large external-worker Bundle assembly and signed connectors remain
 the ordered T-47 work.
 
 The T-47 subset gate passed 627 Python tests with the disposable PostgreSQL 16 DSN and zero
 skip/failure, 39 Vitest tests, ruff, mypy over 536 source files, architecture/contract/OpenAPI and
 13-document/21-capture user-guide checks, production Vite build and npm audit with zero
-vulnerabilities. The build still reports one 541.66-kB frontend chunk warning; code splitting and a
-hard bundle budget remain part of the next T-47 performance gate.
+vulnerabilities.
+
+## T-47 supply-chain quality and frontend budget subset (2026-07-16)
+
+`cmp-release-quality` now exports production Python and Node CycloneDX SBOMs, runs `uv audit` and
+`npm audit`, records CycloneDX SBOMs and HIGH/CRITICAL Trivy reports for the exact API, worker, web
+and restore image IDs, and fails closed on a scanner command/schema error, any known Python
+Python or Node vulnerability or any critical image finding. The evidence index is canonical JSON signed with
+Ed25519; verification binds every relative path, byte size and SHA-256 and rejects manifest,
+signature, public-key, evidence and path substitution. The local ephemeral signing option is
+explicitly an integrity proof rather than builder identity. Production KMS/keyless identity and
+trusted-key distribution remain unfinished.
+
+API/worker images discard the unused Debian Perl runtime after the final immutable build step. The
+separate restore image calls PostgreSQL 16 binaries directly and also removes its package-management
+wrapper/Perl runtime. A live restore drill after minimization still passed all metadata, object and
+lineage checks. The signed live scan reported zero known Python vulnerabilities, zero known npm
+findings and zero critical findings across all four images.
+
+React domain workbenches are now route/context lazy-loaded. The initial production JavaScript fell
+from 541,662 to 269,778 bytes and the largest lazy chunk is 88,163 bytes. Every production build
+enforces a 300,000-byte entry and 120,000-byte lazy-chunk ceiling. The complete branch gate passed
+637 Python tests (including nine supply-chain regressions and the PostgreSQL suite) with zero
+skip/failure, all 39 frontend tests, ruff, mypy over 538 source files, architecture/contract/OpenAPI,
+13-document/21-capture user-guide checks, the production bundle budget and npm audit with zero
+vulnerabilities.
 

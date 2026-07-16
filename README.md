@@ -50,6 +50,9 @@ mass/volume/count balance, split/merge와 Specimen source Lot를 보존합니다
 identity → Save connection**을 선택합니다. 개발·migration·테스트 상세는
 [DEVELOPMENT.md](DEVELOPMENT.md)에 분리되어 있습니다.
 
+운영 후보 빌드의 SBOM, 취약점 검사, 서명된 품질 증거와 프론트엔드 용량 기준은 서비스
+사용 절차와 분리해 [release-quality 운영 가이드](deploy/supply-chain/README.md)에 설명합니다.
+
 재료의 출처와 변경 이력을 보존하면서 시험 데이터, 재료 모델, CAE solver용 material
 card를 하나의 흐름으로 관리하는 웹 서비스입니다. 제품의 중심은 calibration 도구 하나가
 아니라 다음 전체 연결입니다.
