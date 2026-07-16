@@ -29,12 +29,12 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 049
+- latest schema: migration 050
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-40~T-45 and T-47
+- missing product depth: T-41~T-45 and T-47
 - user experience gap: global navigation and task-oriented user manual from T-46
 
 Migrations 001~049, raw objects, prior revisions, cards, releases and golden fixtures are never
@@ -46,7 +46,7 @@ rewritten. The next schema unit begins at migration 050.
 | --- | --- | --- | --- |
 | 1 | docs/research/user-guide baseline | docs links, contracts and guide checks; no stale README claim | complete |
 | 2 | T-39 Process Run/Lot/Specimen genealogy | unit + migration + live PostgreSQL + API + React + `make ci` | complete |
-| 3 | T-40 Campaign/Instrument/conditions | same vertical gate plus exact calibration snapshot | pending |
+| 3 | T-40 Campaign/Instrument/conditions | same vertical gate plus exact calibration snapshot | complete |
 | 4 | T-41 tabular importer/schema | parser/security/contract/PostgreSQL/browser fixtures | pending |
 | 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | pending |
 | 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | pending |
@@ -72,6 +72,16 @@ API and connected React controls. The CI-equivalent run on 2026-07-16 passed 561
 OpenAPI compatibility and the production Vite build. Live Docker/PostgreSQL browser verification
 created one balanced Process Run and one current-revision Specimen source link; the resulting image
 is `docs/15-demo/images/process-run-specimen-source.png`.
+
+PR 3 implements T-40 with migration 050: governed Campaign/standard conformance, Instrument and
+non-overlapping dated Calibration records, typed execution Condition snapshots and a one-to-one
+Test Run Context that pins every exact source revision. The API and React workbench reject stale
+calibrations and expose no generic condition EAV or moving-head reference. Live PostgreSQL tests
+cover validity, overlap, immutable revisions and project RLS; the affected user guide and browser
+image are maintained with the vertical slice. The Windows CI-equivalent gate passed 568 Python
+tests and 31 Vitest tests without skips/failures/warnings, plus ruff, mypy over 480 source files,
+architecture/contracts, OpenAPI compatibility and the production Vite build. Live Docker browser
+evidence is `docs/15-demo/images/test-run-context.png` with no console warning/error.
 
 ## 4. Acceptance scenarios
 

@@ -936,6 +936,89 @@ export interface TestRunResponse {
   links: Record<string, string>;
 }
 
+export type StandardConformance = "conformant" | "deviation_approved" | "not_claimed";
+export type CalibrationResult = "passed" | "limited" | "failed";
+export type LoadingRateUnit = "mm/min" | "1/s" | "N/s" | "Pa/s";
+
+export interface TestContextResource<TContent = Record<string, unknown>> {
+  resource_id: string;
+  current_revision: RevisionMetadata & { content: TContent };
+  links: Record<string, string>;
+}
+
+export interface TestCampaignContent {
+  test_method_id: string;
+  test_method_revision_id: string;
+  campaign_code: string;
+  name: string;
+  objective: string;
+  population_description: string;
+  planned_specimen_count: number;
+  standard_conformance: StandardConformance;
+  standard_designation: string | null;
+  standard_edition: string | null;
+  standard_deviation_reason: string | null;
+  reference_only: true;
+}
+
+export interface InstrumentContent {
+  instrument_code: string;
+  name: string;
+  serial_number: string;
+  manufacturer: string | null;
+  model: string | null;
+  location: string | null;
+  description: string | null;
+}
+
+export interface InstrumentCalibrationContent {
+  instrument_id: string;
+  instrument_revision_id: string;
+  calibration_code: string;
+  certificate_reference: string;
+  provider: string;
+  calibrated_at: string;
+  valid_from: string;
+  valid_until: string;
+  result: CalibrationResult;
+  limitation_note: string | null;
+}
+
+export interface TestConditionContent {
+  test_method_id: string;
+  test_method_revision_id: string;
+  captured_at: string;
+  temperature_setpoint_k: string | null;
+  temperature_observed_k: string | null;
+  humidity_setpoint_pct: string | null;
+  humidity_observed_pct: string | null;
+  loading_rate_value: string | null;
+  loading_rate_unit: LoadingRateUnit | null;
+  orientation: string | null;
+  medium: string | null;
+  note: string | null;
+}
+
+export interface TestRunContextContent {
+  test_run_id: string;
+  test_run_revision_id: string;
+  test_campaign_id: string;
+  test_campaign_revision_id: string;
+  test_condition_id: string;
+  test_condition_revision_id: string;
+  instrument_id: string;
+  instrument_revision_id: string;
+  calibration_id: string;
+  calibration_revision_id: string;
+  note: string | null;
+}
+
+export type TestCampaignResponse = TestContextResource<TestCampaignContent>;
+export type InstrumentResponse = TestContextResource<InstrumentContent>;
+export type InstrumentCalibrationResponse = TestContextResource<InstrumentCalibrationContent>;
+export type TestConditionResponse = TestContextResource<TestConditionContent>;
+export type TestRunContextResponse = TestContextResource<TestRunContextContent>;
+
 export interface ReferenceTensileMapping {
   strain_column: string;
   stress_column: string;

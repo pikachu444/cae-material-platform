@@ -26,6 +26,8 @@ Status: foundation `T-02` through `T-18`, plus reference vertical subsets `T-07`
   immutable one-member Selection resources
 - `testing/reference-import-resources.schema.json`: immutable header-only Detection Report and
   human-confirmed typed Import Mapping identity/revision resources
+- `testing/test-context-resources.schema.json`: governed Campaign, Instrument, dated Calibration,
+  typed Condition Snapshot, and exact Test Run Context revision resources
 - `processing/reference-tensile-crop-resources.schema.json`: typed crop/common-grid Recipes,
   committed member Runs, and grouped replicate alignment output
   resources for the reference Processing slice

@@ -141,6 +141,30 @@ def test_shear_relaxation_vertical_contract_matches_runtime_operations() -> None
         ]
 
 
+def test_test_context_contract_matches_runtime_operations() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/test-campaigns": {"get": "listCampaigns", "post": "createCampaign"},
+        "/api/v1/instruments": {"get": "listInstruments", "post": "createInstrument"},
+        "/api/v1/instruments/{instrument_id}/calibrations": {
+            "get": "listCalibrations",
+            "post": "createCalibration",
+        },
+        "/api/v1/test-conditions": {"get": "listConditions", "post": "createCondition"},
+        "/api/v1/test-runs/{test_run_id}/context": {
+            "get": "getRunContext",
+            "post": "createRunContext",
+        },
+    }
+
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+
 def test_catalog_contract_and_runtime_expose_typed_material_state_property_workflow() -> None:
     source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
     runtime = app.openapi()

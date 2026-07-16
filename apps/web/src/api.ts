@@ -114,6 +114,15 @@ import type {
   ShearRelaxationProcessingRunResponse,
   TestMethodResponse,
   TestRunResponse,
+  TestCampaignResponse,
+  InstrumentResponse,
+  InstrumentCalibrationResponse,
+  TestConditionResponse,
+  TestRunContextResponse,
+  TestCampaignContent,
+  InstrumentContent,
+  TestConditionContent,
+  TestRunContextContent,
   ReferenceTensileMapping,
   UploadSession,
 } from "./types";
@@ -1644,6 +1653,91 @@ export function listTestRunsForMaterialState(
   materialStateId: string,
 ): Promise<ApiResult<{ items: TestRunResponse[] }>> {
   return request(config, `/material-states/${encodeURIComponent(materialStateId)}/test-runs`);
+}
+
+export function listTestCampaigns(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: TestCampaignResponse[] }>> {
+  return request(config, "/test-campaigns");
+}
+
+export function createTestCampaign(
+  config: ApiConfig,
+  content: TestCampaignContent,
+): Promise<ApiResult<TestCampaignResponse>> {
+  return request(config, "/test-campaigns", {
+    method: "POST",
+    body: JSON.stringify({ content, change_reason: "Register governed Test Campaign" }),
+  });
+}
+
+export function listInstruments(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: InstrumentResponse[] }>> {
+  return request(config, "/instruments");
+}
+
+export function createInstrument(
+  config: ApiConfig,
+  classification: DataClassification,
+  content: InstrumentContent,
+): Promise<ApiResult<InstrumentResponse>> {
+  return request(config, "/instruments", {
+    method: "POST",
+    body: JSON.stringify({ classification, content, change_reason: "Register governed Instrument" }),
+  });
+}
+
+export function listInstrumentCalibrations(
+  config: ApiConfig,
+  instrumentId: string,
+): Promise<ApiResult<{ items: InstrumentCalibrationResponse[] }>> {
+  return request(config, `/instruments/${encodeURIComponent(instrumentId)}/calibrations`);
+}
+
+export function createInstrumentCalibration(
+  config: ApiConfig,
+  instrumentId: string,
+  content: Omit<InstrumentCalibrationResponse["current_revision"]["content"], "instrument_id">,
+): Promise<ApiResult<InstrumentCalibrationResponse>> {
+  return request(config, `/instruments/${encodeURIComponent(instrumentId)}/calibrations`, {
+    method: "POST",
+    body: JSON.stringify({ content, change_reason: "Record exact Instrument calibration" }),
+  });
+}
+
+export function listTestConditions(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: TestConditionResponse[] }>> {
+  return request(config, "/test-conditions");
+}
+
+export function createTestCondition(
+  config: ApiConfig,
+  content: TestConditionContent,
+): Promise<ApiResult<TestConditionResponse>> {
+  return request(config, "/test-conditions", {
+    method: "POST",
+    body: JSON.stringify({ content, change_reason: "Capture typed Test conditions" }),
+  });
+}
+
+export function getTestRunContext(
+  config: ApiConfig,
+  testRunId: string,
+): Promise<ApiResult<TestRunContextResponse | null>> {
+  return request(config, `/test-runs/${encodeURIComponent(testRunId)}/context`);
+}
+
+export function createTestRunContext(
+  config: ApiConfig,
+  testRunId: string,
+  content: Omit<TestRunContextContent, "test_run_id">,
+): Promise<ApiResult<TestRunContextResponse>> {
+  return request(config, `/test-runs/${encodeURIComponent(testRunId)}/context`, {
+    method: "POST",
+    body: JSON.stringify({ content, change_reason: "Bind exact Test Run execution context" }),
+  });
 }
 
 export function listDatasetsForMaterialState(

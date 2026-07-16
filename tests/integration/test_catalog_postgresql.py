@@ -101,14 +101,47 @@ from cmp.modules.testing.adapters.persistence.repository import (
     SqlAlchemyTestingRepository,
     specimen_source_lot_table,
 )
+from cmp.modules.testing.adapters.persistence.test_context_repository import (
+    SqlAlchemyTestContextRepository,
+    calibration_revision_table,
+)
 from cmp.modules.testing.application.service import (
+    CreateReferenceTensileMethod,
+    CreateReferenceTensileRun,
     CreateSpecimen,
     CreateSpecimenSource,
 )
 from cmp.modules.testing.application.service import TestingService as _TestingApplicationService
+from cmp.modules.testing.application.test_context import (
+    CreateCalibration,
+    CreateCampaign,
+    CreateCondition,
+    CreateInstrument,
+    CreateRunContext,
+)
+from cmp.modules.testing.application.test_context import (
+    TestContextService as _TestContextApplicationService,
+)
+from cmp.modules.testing.domain.reference_tensile import TestingConflict as _TestingConflict
 from cmp.modules.testing.domain.specimen_source import (
     SpecimenSourceContent,
     SpecimenSourceLot,
+)
+from cmp.modules.testing.domain.test_context import (
+    CalibrationResult,
+    InstrumentCalibrationContent,
+    InstrumentContent,
+    LoadingRateUnit,
+    StandardConformance,
+)
+from cmp.modules.testing.domain.test_context import (
+    TestCampaignContent as _TestCampaignContent,
+)
+from cmp.modules.testing.domain.test_context import (
+    TestConditionContent as _TestConditionContent,
+)
+from cmp.modules.testing.domain.test_context import (
+    TestRunContextContent as _TestRunContextContent,
 )
 from cmp.shared.domain.revisions import RevisionConflict
 from sqlalchemy.engine import URL, Engine, make_url
@@ -144,6 +177,7 @@ class PostgresHarness:
     linear_viscoelasticity: LinearViscoelasticModelService
     exporting: SolverCardService
     testing: _TestingApplicationService
+    test_context: _TestContextApplicationService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -278,6 +312,17 @@ def postgres() -> Iterator[PostgresHarness]:
                 ),
             )
         )
+        test_context = _TestContextApplicationService(
+            repository=SqlAlchemyTestContextRepository(
+                session_factory=sessions,
+                rls_context=rls,
+                revision_hooks=(
+                    SqlInitialLifecycleHook(),
+                    SqlAlchemyRevisionProvenanceHook(),
+                    SqlAlchemyRevisionAuditHook(),
+                ),
+            )
+        )
         yield PostgresHarness(
             admin_engine=admin_engine,
             sessions=sessions,
@@ -287,6 +332,7 @@ def postgres() -> Iterator[PostgresHarness]:
             linear_viscoelasticity=linear_viscoelasticity,
             exporting=exporting,
             testing=testing,
+            test_context=test_context,
         )
     finally:
         if app_engine is not None:
@@ -876,6 +922,233 @@ def test_process_run_lot_and_state_genealogy_are_revision_pinned_and_tenant_scop
             sa.select(sa.func.count()).select_from(process_run_revision_table)
         )
     assert revision_count == 2
+
+
+def test_test_run_context_pins_valid_calibration_and_rejects_stale_or_overlap(
+    postgres: PostgresHarness,
+) -> None:
+    context = _context()
+    catalog_write = _decision(context, Permission.CATALOG_WRITE)
+    testing_write = _decision(context, Permission.TESTING_WRITE)
+    testing_read = _decision(context, Permission.TESTING_READ)
+    material = postgres.service.create_material(
+        context,
+        catalog_write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent("T40 context steel", f"T40-{uuid4().hex[:8]}", "steel"),
+            "create T40 material",
+        ),
+    )
+    state = postgres.service.create_material_state(
+        context,
+        catalog_write,
+        CreateMaterialState(
+            MaterialStateContent(
+                material.id,
+                material.current.record.revision_id,
+                "T40 governed state",
+            ),
+            "create T40 state",
+        ),
+    )
+    specimen = postgres.testing.create_specimen(
+        context,
+        testing_write,
+        CreateSpecimen(
+            state.id,
+            state.current.record.revision_id,
+            f"T40-{uuid4().hex[:8]}",
+            "rolling",
+            None,
+            "create T40 specimen",
+        ),
+    )
+    method = postgres.testing.create_reference_tensile_method(
+        context,
+        testing_write,
+        CreateReferenceTensileMethod(DataClassification.INTERNAL, "create T40 method"),
+    )
+    run = postgres.testing.create_reference_tensile_run(
+        context,
+        testing_write,
+        CreateReferenceTensileRun(
+            specimen.id,
+            specimen.current.record.revision_id,
+            method.id,
+            method.current.record.revision_id,
+            f"T40-RUN-{uuid4().hex[:8]}",
+            NOW,
+            296.15,
+            2.0,
+            "create T40 run",
+        ),
+    )
+    campaign = postgres.test_context.create_campaign(
+        context,
+        testing_write,
+        CreateCampaign(
+            _TestCampaignContent(
+                method.id,
+                method.current.record.revision_id,
+                f"T40-CMP-{uuid4().hex[:8]}",
+                "Governed tensile campaign",
+                "Characterize the selected State",
+                "Three rolling-direction coupons",
+                3,
+                StandardConformance.CONFORMANT,
+                "ISO 6892-1",
+                "2019",
+                None,
+            ),
+            "create T40 campaign",
+        ),
+    )
+    instrument = postgres.test_context.create_instrument(
+        context,
+        testing_write,
+        CreateInstrument(
+            DataClassification.INTERNAL,
+            InstrumentContent(
+                f"UTM-{uuid4().hex[:8]}",
+                "Reference universal tester",
+                f"SN-{uuid4().hex[:8]}",
+                "Reference laboratory",
+                None,
+                None,
+                None,
+            ),
+            "create T40 instrument",
+        ),
+    )
+    calibration = postgres.test_context.create_calibration(
+        context,
+        testing_write,
+        CreateCalibration(
+            InstrumentCalibrationContent(
+                instrument.id,
+                instrument.current.record.revision_id,
+                f"CAL-{uuid4().hex[:8]}",
+                "CERT-T40",
+                "Reference calibration laboratory",
+                NOW - timedelta(days=10),
+                NOW - timedelta(days=10),
+                NOW + timedelta(days=355),
+                CalibrationResult.PASSED,
+                None,
+            ),
+            "record valid T40 calibration",
+        ),
+    )
+    stale_calibration = postgres.test_context.create_calibration(
+        context,
+        testing_write,
+        CreateCalibration(
+            InstrumentCalibrationContent(
+                instrument.id,
+                instrument.current.record.revision_id,
+                f"CAL-STALE-{uuid4().hex[:8]}",
+                "CERT-T40-STALE",
+                "Reference calibration laboratory",
+                NOW - timedelta(days=400),
+                NOW - timedelta(days=400),
+                NOW - timedelta(days=20),
+                CalibrationResult.PASSED,
+                None,
+            ),
+            "record historical expired calibration",
+        ),
+    )
+    condition = postgres.test_context.create_condition(
+        context,
+        testing_write,
+        CreateCondition(
+            _TestConditionContent(
+                method.id,
+                method.current.record.revision_id,
+                NOW,
+                None,
+                Decimal("296.15"),
+                None,
+                Decimal("48.5"),
+                Decimal("2"),
+                LoadingRateUnit.MILLIMETER_PER_MINUTE,
+                "rolling",
+                "air",
+                None,
+            ),
+            "capture typed T40 conditions",
+        ),
+    )
+    with pytest.raises(_TestingConflict, match="not usable"):
+        postgres.test_context.create_run_context(
+            context,
+            testing_write,
+            CreateRunContext(
+                _TestRunContextContent(
+                    run.id,
+                    run.current.record.revision_id,
+                    campaign.id,
+                    campaign.current.record.revision_id,
+                    condition.id,
+                    condition.current.record.revision_id,
+                    instrument.id,
+                    instrument.current.record.revision_id,
+                    stale_calibration.id,
+                    stale_calibration.current.record.revision_id,
+                    None,
+                ),
+                "reject stale T40 calibration",
+            ),
+        )
+    linked = postgres.test_context.create_run_context(
+        context,
+        testing_write,
+        CreateRunContext(
+            _TestRunContextContent(
+                run.id,
+                run.current.record.revision_id,
+                campaign.id,
+                campaign.current.record.revision_id,
+                condition.id,
+                condition.current.record.revision_id,
+                instrument.id,
+                instrument.current.record.revision_id,
+                calibration.id,
+                calibration.current.record.revision_id,
+                None,
+            ),
+            "bind exact T40 execution context",
+        ),
+    )
+
+    assert postgres.test_context.get_run_context_for_run(context, testing_read, run.id) == linked
+    with pytest.raises(_TestingConflict, match="cannot overlap"):
+        postgres.test_context.create_calibration(
+            context,
+            testing_write,
+            CreateCalibration(
+                replace(
+                    calibration.current.content,
+                    calibration_code=f"CAL-OVERLAP-{uuid4().hex[:8]}",
+                    certificate_reference="CERT-OVERLAP",
+                ),
+                "reject overlapping calibration",
+            ),
+        )
+    with pytest.raises(DBAPIError):
+        with postgres.sessions() as session, session.begin():
+            postgres.rls.bind_authorization(session, context, testing_write)
+            session.execute(
+                sa.update(calibration_revision_table)
+                .where(calibration_revision_table.c.id == calibration.current.record.revision_id)
+                .values(certificate_reference="MUTATED")
+            )
+    other = _context(PROJECT_B)
+    assert (
+        postgres.test_context.list_instruments(other, _decision(other, Permission.TESTING_READ))
+        == ()
+    )
 
 
 def test_reference_material_model_is_immutable_source_pinned_and_tenant_scoped(
