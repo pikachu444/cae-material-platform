@@ -5,7 +5,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
-from uuid import UUID, uuid5
+from uuid import UUID, uuid4, uuid5
 
 import httpx
 from cmp.apps.api import create_app
@@ -118,6 +118,8 @@ def _details(state: JobState = JobState.QUEUED) -> JobDetails:
         0,
         NOW,
         ACTOR,
+        uuid4(),
+        f"00-{uuid4().hex}-{uuid4().hex[:16]}-01",
         spec.deadline,
         ResourcePolicy(1000, 1024, 0, 3),
         1,

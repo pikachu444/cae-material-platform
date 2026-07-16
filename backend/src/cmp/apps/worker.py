@@ -7,10 +7,15 @@ import asyncio
 import json
 import logging
 from collections.abc import Awaitable, Callable, Mapping, Sequence
+from contextlib import nullcontext
 from dataclasses import asdict, dataclass
 from datetime import timedelta
 from typing import Protocol
 from uuid import UUID
+
+from opentelemetry.context import Context
+from opentelemetry.trace import SpanKind, Tracer
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 from cmp import __version__
 from cmp.bootstrap.settings import Settings
@@ -23,6 +28,7 @@ from cmp.modules.jobs.application.jobs import (
 )
 from cmp.modules.jobs.domain.jobs import AttemptState, Failure, FailureCategory
 from cmp.modules.plugins.adapters.worker import PluginAttemptHandler
+from cmp.shared.observability import build_telemetry_runtime, configure_structured_logging
 
 LOGGER = logging.getLogger("cmp.worker")
 
@@ -97,6 +103,7 @@ class DurableJobWorker:
         poll_interval_seconds: float = 1.0,
         heartbeat_interval_seconds: float = 10.0,
         lease_duration: timedelta = timedelta(seconds=30),
+        tracer: Tracer | None = None,
     ) -> None:
         if poll_interval_seconds <= 0:
             raise ValueError("poll_interval_seconds must be positive")
@@ -111,6 +118,7 @@ class DurableJobWorker:
         self._poll_interval_seconds = poll_interval_seconds
         self._heartbeat_interval_seconds = heartbeat_interval_seconds
         self._lease_duration = lease_duration
+        self._tracer = tracer
         self._stop = asyncio.Event()
 
     async def _heartbeat(
@@ -149,29 +157,48 @@ class DurableJobWorker:
         cancellation = asyncio.Event()
         if claimed.job.state.value == "cancel_requested":
             cancellation.set()
-        heartbeat = asyncio.create_task(self._heartbeat(claimed, cancellation))
-        try:
-            handler = self._handlers[claimed.job.job_type]
-            result = await handler(WorkerExecution(claimed, cancellation))
-        except Exception:
-            LOGGER.exception(
-                "job_handler_failed",
-                extra={"job_id": str(claimed.job.id), "attempt_id": str(claimed.attempt.id)},
+        parent: Context = TraceContextTextMapPropagator().extract(
+            {"traceparent": claimed.job.trace_id}
+        )
+        span = (
+            self._tracer.start_as_current_span(
+                "cmp.job.execute",
+                context=parent,
+                kind=SpanKind.CONSUMER,
+                attributes={"job.type": claimed.job.job_type},
             )
-            result = HandlerResult(
-                AttemptState.FAILED,
-                failure=Failure(
-                    FailureCategory.INTERNAL_ERROR,
-                    "handler_exception",
-                    "The generic worker handler raised an unhandled exception.",
-                ),
-            )
-        finally:
-            heartbeat.cancel()
+            if self._tracer is not None
+            else nullcontext()
+        )
+        with span:
+            heartbeat = asyncio.create_task(self._heartbeat(claimed, cancellation))
             try:
-                await heartbeat
-            except asyncio.CancelledError:
-                pass
+                handler = self._handlers[claimed.job.job_type]
+                result = await handler(WorkerExecution(claimed, cancellation))
+            except Exception:
+                LOGGER.exception(
+                    "job_handler_failed",
+                    extra={
+                        "job_id": str(claimed.job.id),
+                        "attempt_id": str(claimed.attempt.id),
+                        "job_type": claimed.job.job_type,
+                        "request_id": str(claimed.job.request_id),
+                    },
+                )
+                result = HandlerResult(
+                    AttemptState.FAILED,
+                    failure=Failure(
+                        FailureCategory.INTERNAL_ERROR,
+                        "handler_exception",
+                        "The generic worker handler raised an unhandled exception.",
+                    ),
+                )
+            finally:
+                heartbeat.cancel()
+                try:
+                    await heartbeat
+                except asyncio.CancelledError:
+                    pass
         finalized = await self._queue.finalize(
             FinalizeAttempt(
                 attempt_id=claimed.attempt.id,
@@ -223,30 +250,41 @@ def _parser() -> argparse.ArgumentParser:
 async def _run(args: argparse.Namespace) -> int:
     settings = Settings.from_environment()
     interval = args.poll_interval or settings.worker_poll_interval_seconds
+    telemetry = build_telemetry_runtime(
+        service_name="cmp-worker",
+        environment=settings.environment,
+        endpoint=settings.otel_exporter_otlp_endpoint,
+        export_interval_ms=settings.otel_metric_export_interval_ms,
+    )
     # Production composition requires a trusted service principal plus T-10 package/input
     # materializer and result committer. When they are absent, the deployable stays safely
     # idle instead of fabricating credentials or mutable artifact references.
-    worker = DurableJobWorker(poll_interval_seconds=interval)
+    worker = DurableJobWorker(poll_interval_seconds=interval, tracer=telemetry.tracer)
     if args.once:
-        result = await worker.run_once()
-        if args.json:
-            print(json.dumps(asdict(result), sort_keys=True))
-        else:
-            print(f"{result.service}: {result.status} ({result.handlers_registered} handlers)")
-        return 0
+        try:
+            result = await worker.run_once()
+            if args.json:
+                print(json.dumps(asdict(result), sort_keys=True))
+            else:
+                print(f"{result.service}: {result.status} ({result.handlers_registered} handlers)")
+            return 0
+        finally:
+            telemetry.shutdown()
 
     try:
         await worker.serve()
     except asyncio.CancelledError:
         worker.stop()
         raise
+    finally:
+        telemetry.shutdown()
     return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """CLI entry point that is testable without starting a permanent process."""
 
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
+    configure_structured_logging("cmp-worker")
     args = _parser().parse_args(argv)
     try:
         return asyncio.run(_run(args))

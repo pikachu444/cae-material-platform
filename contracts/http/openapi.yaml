@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CAE Material Platform API
   summary: Material data management, immutable traceability, and CAE workflow platform.
-  version: 0.31.0
+  version: 0.32.0
 servers:
   - url: http://127.0.0.1:8000
 paths:
@@ -100,6 +100,26 @@ paths:
           content:
             application/problem+json:
               schema: {$ref: "#/components/schemas/AuthenticationProblem"}
+  /api/v1/operations/observability:
+    get:
+      operationId: getOperationalObservability
+      tags: [operations]
+      summary: Read a redacted, low-cardinality process observability snapshot.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: One API process snapshot using bounded route-template labels.
+          headers:
+            Cache-Control:
+              required: true
+              schema: {type: string, enum: [no-store]}
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OperationalSnapshotResponse"}
+        "401": {description: Authentication required}
+        "403": {description: Auditor permission required}
+        "503": {description: Identity or authorization service unavailable}
   /api/v1/jobs:
     post:
       operationId: submitJob
@@ -6953,6 +6973,35 @@ components:
         version:
           type: string
           pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    OperationSeriesResponse:
+      type: object
+      additionalProperties: false
+      required:
+        [method, route, status_family, request_count, error_count, duration_sum_ms, p95_upper_bound_ms]
+      properties:
+        method: {type: string, pattern: '^(_OTHER|[A-Z]+)$'}
+        route: {type: string, minLength: 1, maxLength: 255}
+        status_family: {type: string, pattern: '^([1-5]xx|error)$'}
+        request_count: {type: integer, minimum: 1}
+        error_count: {type: integer, minimum: 0}
+        duration_sum_ms: {type: number, minimum: 0}
+        p95_upper_bound_ms: {type: integer, minimum: 1}
+    OperationalSnapshotResponse:
+      type: object
+      additionalProperties: false
+      required:
+        [service, version, started_at, observed_at, active_requests, request_count, error_count, series]
+      properties:
+        service: {type: string, const: cmp-api}
+        version: {type: string, minLength: 1, maxLength: 255}
+        started_at: {type: string, format: date-time}
+        observed_at: {type: string, format: date-time}
+        active_requests: {type: integer, minimum: 0}
+        request_count: {type: integer, minimum: 0}
+        error_count: {type: integer, minimum: 0}
+        series:
+          type: array
+          items: {$ref: "#/components/schemas/OperationSeriesResponse"}
     DemoAccessTokenResponse:
       type: object
       additionalProperties: false

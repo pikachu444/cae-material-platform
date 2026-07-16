@@ -195,6 +195,8 @@ def _job_record(row: RowMapping) -> JobRecord:
         priority=int(row["priority"]),
         submitted_at=cast(datetime, row["submitted_at"]),
         submitted_by=cast(UUID, row["submitted_by"]),
+        request_id=cast(UUID, row["request_id"]),
+        trace_id=str(row["trace_id"]),
         deadline=cast(datetime, row["deadline_at"]),
         resource_policy=ResourcePolicy(
             cpu_millis=int(row["requested_cpu_millis"]),

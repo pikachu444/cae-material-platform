@@ -358,6 +358,8 @@ class JobRecord:
     priority: int
     submitted_at: datetime
     submitted_by: UUID
+    request_id: UUID
+    trace_id: str
     deadline: datetime
     resource_policy: ResourcePolicy
     attempt_count: int
@@ -373,6 +375,8 @@ class JobRecord:
             raise ValueError("job_type must be a stable generic identifier")
         if self.attempt_count < 1:
             raise ValueError("attempt_count must be positive")
+        _nonzero("request_id", self.request_id)
+        _trimmed("trace_id", self.trace_id, 255)
 
 
 @dataclass(frozen=True, slots=True)

@@ -38,6 +38,7 @@ import { CatalogGenealogyWorkbench } from "./catalog-genealogy-workbench";
 import { TestContextWorkbench } from "./test-context-workbench";
 import { GovernedImportWorkbench } from "./governed-import-workbench";
 import { BulkExportCenter } from "./bulk-export-center";
+import { OperationsDashboard } from "./operations-dashboard";
 import type {
   DataClassification,
   ExportTarget,
@@ -696,6 +697,7 @@ function ModuleHubPage({
       </section>
       {area === "governance" ? (
         <>
+          <OperationsDashboard config={config} />
           <ReviewWorkbench config={config} />
           <ReleaseWorkbench config={config} />
           <GovernanceEvidenceWorkbench config={config} />

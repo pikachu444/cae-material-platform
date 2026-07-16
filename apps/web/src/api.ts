@@ -149,6 +149,7 @@ import type {
   BulkExportJobResponse,
   BulkExportSourceRef,
   ExportSelectionResponse,
+  OperationalSnapshotResponse,
 } from "./types";
 
 export interface ApiConfig {
@@ -1180,6 +1181,12 @@ export function getAuditIntegrity(
   config: ApiConfig,
 ): Promise<ApiResult<AuditIntegrityReport>> {
   return request(config, "/audit/integrity");
+}
+
+export function getOperationalObservability(
+  config: ApiConfig,
+): Promise<ApiResult<OperationalSnapshotResponse>> {
+  return request(config, "/operations/observability");
 }
 
 export async function downloadRelease(

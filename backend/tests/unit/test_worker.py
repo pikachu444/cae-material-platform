@@ -3,7 +3,7 @@ import json
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 from cmp.apps.worker import (
@@ -29,6 +29,8 @@ from cmp.modules.jobs.domain.jobs import (
     ResourcePolicy,
     RetryKind,
 )
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
 
 PROJECT_ROOT = Path(__file__).parents[3]
 NOW = datetime(2026, 7, 11, 8, 0, tzinfo=UTC)
@@ -63,6 +65,8 @@ def _claimed() -> ClaimedAttempt:
         0,
         NOW,
         ACTOR,
+        uuid4(),
+        f"00-{uuid4().hex}-{uuid4().hex[:16]}-01",
         spec.deadline,
         ResourcePolicy(1000, 1024, 0, 3),
         1,
@@ -179,6 +183,28 @@ def test_durable_worker_claims_starts_and_finalizes_generic_handler() -> None:
     assert queue.accepted == ("reference.operation",)
     assert queue.finalized is not None
     assert queue.finalized.result_manifest_id == MANIFEST
+
+
+def test_durable_worker_continues_the_submission_trace() -> None:
+    queue = _Queue()
+    observed_trace_ids: list[int] = []
+
+    async def handler(_execution: WorkerExecution) -> HandlerResult:
+        observed_trace_ids.append(trace.get_current_span().get_span_context().trace_id)
+        return HandlerResult(AttemptState.SUCCEEDED, MANIFEST, DIGEST)
+
+    provider = TracerProvider()
+    worker = DurableJobWorker(
+        queue=queue,
+        handlers={"reference.operation": handler},
+        tracer=provider.get_tracer("cmp-test"),
+    )
+
+    asyncio.run(worker.run_once())
+    provider.shutdown()
+
+    submitted_trace_id = int(queue.claimed.job.trace_id.split("-")[1], 16)
+    assert observed_trace_ids == [submitted_trace_id]
 
 
 def test_durable_worker_heartbeats_and_exposes_cooperative_cancel() -> None:

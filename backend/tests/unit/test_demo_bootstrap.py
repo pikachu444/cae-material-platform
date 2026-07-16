@@ -54,3 +54,7 @@ def test_demo_bootstrap_grants_processing_and_statistics_schemas_to_non_owner_ap
 
 def test_demo_group_has_the_explicit_cae_analyst_role_for_validation_commands() -> None:
     assert "cae_analyst" in _DEMO_ROLES
+
+
+def test_demo_group_has_auditor_role_for_the_local_operations_view() -> None:
+    assert "auditor" in _DEMO_ROLES

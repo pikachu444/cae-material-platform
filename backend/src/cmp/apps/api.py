@@ -213,6 +213,13 @@ from cmp.modules.validation.adapters.api.voce_holdout import install_voce_holdou
 from cmp.modules.validation.application.service import ReferenceValidationService
 from cmp.modules.validation.application.voce_holdout import ReferenceVoceHoldoutService
 from cmp.shared.contracts.revisions import revision_openapi_components
+from cmp.shared.observability import (
+    HttpObservabilityMiddleware,
+    OperationalMetrics,
+    build_telemetry_runtime,
+    configure_structured_logging,
+)
+from cmp.shared.observability.api import install_operations_api
 
 
 class HealthResponse(BaseModel):
@@ -285,6 +292,14 @@ def create_app(
         docs_url="/docs" if resolved.environment != "production" else None,
         redoc_url=None,
     )
+    operational_metrics = OperationalMetrics()
+    telemetry = build_telemetry_runtime(
+        service_name="cmp-api",
+        environment=resolved.environment,
+        endpoint=resolved.otel_exporter_otlp_endpoint,
+        export_interval_ms=resolved.otel_metric_export_interval_ms,
+    )
+    application.add_middleware(HttpObservabilityMiddleware, metrics=operational_metrics)
 
     @application.get(
         "/api/v1/health",
@@ -307,6 +322,14 @@ def create_app(
     install_demo_identity_api(application, demo_identity)
     resolved_security = services.security
     security_dependency = install_identity_api(application, resolved_security)
+    install_operations_api(
+        application,
+        metrics=operational_metrics,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.AUDIT_READ
+        ),
+    )
     resolved_jobs = job_service or build_job_service(services)
     install_jobs_api(
         application,
@@ -957,6 +980,8 @@ def create_app(
         ),
     )
     application.state.authorization_service = services.authorization
+    application.state.operational_metrics = operational_metrics
+    application.state.telemetry = telemetry
     application.state.rls_context = services.rls_context
     application.state.identity_engine = services.engine
     application.state.catalog_service = resolved_catalog
@@ -995,6 +1020,7 @@ def create_app(
     application.state.release_service = resolved_release
     if services.engine is not None:
         application.router.add_event_handler("shutdown", services.engine.dispose)
+    application.router.add_event_handler("shutdown", telemetry.shutdown)
 
     generated_openapi = application.openapi
 
@@ -1012,6 +1038,7 @@ def create_app(
 
     application.openapi = openapi_with_revision_components  # type: ignore[method-assign]
 
+    telemetry.instrument_fastapi(application)
     return application
 
 
@@ -1024,7 +1051,11 @@ def main() -> None:
     import uvicorn
 
     settings = Settings.from_environment()
-    uvicorn.run(app, host=settings.api_host, port=settings.api_port)
+    configure_structured_logging("cmp-api")
+    # CMP emits one allow-listed structured request event after the route template is
+    # resolved. Uvicorn's raw access line would duplicate that event and can expose
+    # high-cardinality paths or query strings.
+    uvicorn.run(app, host=settings.api_host, port=settings.api_port, access_log=False)
 
 
 if __name__ == "__main__":

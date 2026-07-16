@@ -32,6 +32,7 @@ _DEMO_ROLES = (
     "statistical_analyst",
     "material_modeler",
     "cae_analyst",
+    "auditor",
 )
 _SCHEMAS = (
     "identity",

@@ -20,7 +20,7 @@ def test_health_endpoint_returns_stable_contract() -> None:
         "service": "cmp-api",
         "version": __version__,
     }
-    assert response.json()["version"] == "0.31.0"
+    assert response.json()["version"] == "0.32.0"
 
 
 def test_health_response_rejects_undocumented_fields() -> None:
