@@ -1185,7 +1185,10 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   Docker/PostgreSQL 22-component Bundle의 저장/다운로드 digest를 검증했다. Migration 058의
   lease/heartbeat/fencing으로 만료 전 이중 claim 차단, hard-kill 뒤 attempt 2 회수와 stale
   worker finalization 거부를 PostgreSQL 및 실제 Compose worker에서 검증했다. 057 active Job은
-  upgrade 시 expired bootstrap lease를 받아 고아가 되지 않으며 active downgrade는 차단된다. 남은 순서는
-  (1) 장시간 soak 및 더 넓은 API/worker/object-storage fault acceptance,
-  (2) object lock/KMS/retention 및 production signing adapter, (3) signed-manifest
+  upgrade 시 expired bootstrap lease를 받아 고아가 되지 않으며 active downgrade는 차단된다.
+  10,000-Material 구성에서 5분 mixed Catalog/Bundle/health soak와 PostgreSQL pause, API/worker/web
+  stop/start를 실행했고 장애 밖 오류 0건, 모든 복구 60초 이내, Material cardinality와 Bundle digest
+  불변, 서비스 memory growth gate를 통과했다. local volume composition은 독립 object-storage fault를
+  대표하지 않는다. 남은 순서는 (1) object lock/KMS/retention 및 production signing adapter,
+  (2) signed-manifest
   REST/webhook/object-storage connector와 운영 token rotation이다.

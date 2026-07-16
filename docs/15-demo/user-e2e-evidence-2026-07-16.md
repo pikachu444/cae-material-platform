@@ -177,6 +177,27 @@ generator의 최대 chunk는 67,108,864 bytes, peak incremental Python allocatio
 이 검증은 10,000-Material search와 2-GiB object streaming만 닫는다. 장시간 mixed-workload soak와
 API/worker/PostgreSQL/object-storage fault injection은 다음 T-47 gate다.
 
+### Five-minute mixed-workload Compose fault drill
+
+같은 10,000-Material 구성에서 Catalog, Bundle-list, health를 3개 thread로 실행하고 PostgreSQL
+pause/unpause와 API/worker/web stop/start를 순서대로 주입했다. 첫 run은 모든 서비스와 불변성은
+복구했지만 단일 성공 응답 직후 장애 창을 닫아 in-flight 요청 3개를 ordinary failure로 잘못
+분류했으므로 실패 report로 보존했다. 복구 조건을 모든 관련 probe의 연속 2초 안정으로 강화하고
+60초 diagnostic을 통과한 뒤 300초 final run을 실행했다.
+
+Final run은 373.361256초, 3,243 samples, fault-window failure 102건, ordinary failure 0건이었다.
+Catalog/Bundle-list/health p95는 223.419/45.849/23.423 ms였다. PostgreSQL/API/worker/web 복구는
+2.809797/8.362320/3.200068/2.665459초였다. 네 서비스 memory growth gate가 통과했고 Catalog는
+10,000, Bundle `8ba6290e-cb2d-4722-9dc3-7d786d6e8251`는 21,822 bytes와 SHA-256
+`04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`를 유지했다. Report SHA-256은
+`d68253e7ce75528a0f807b945f98019e37f55052b2f8457d54076ff6e85f535c`이다.
+
+GUI 변경은 없으므로 새 화면 캡처는 만들지 않았다. 이 드릴은 local shared-volume composition
+범위이며 독립 production object-storage failover나 overnight endurance를 주장하지 않는다.
+전체 CI-equivalent gate는 Python/PostgreSQL 672개와 Vitest 41개, ruff, mypy 547 source files,
+architecture/contract/OpenAPI, 13-document/24-capture user-guide, production bundle budget와 npm
+audit 0건을 모두 통과했다.
+
 ## 불변성 negative check
 
 bounded linear-Prony의 최초 `r1 -> r2` 승격은 성공했다. 이후 이미 promotion evidence가 있는 `r2`를 새
@@ -224,8 +245,8 @@ SHA-256(downloaded bytes) == solver_card_revision.card_sha256
 
 ## 다음 우선순위
 
-1. T-47 장시간 mixed-workload soak 및 더 넓은 fault acceptance.
-2. object lock/KMS/retention 및 production signing identity adapter.
-3. signed-manifest REST/webhook/object-storage connector와 운영 token rotation.
+1. T-47 object lock/KMS/retention 및 production signing identity adapter.
+2. signed-manifest REST/webhook/object-storage connector와 운영 token rotation.
+3. production infrastructure의 independent object-storage fault와 overnight endurance acceptance.
 
 실제 solver 실행과 solver qualification은 제품 소유자 지시에 따라 이 우선순위에서 제외한다.
