@@ -120,6 +120,8 @@ DB commit을 시도하며, retry 시 이미 완성된 staging object를 재검�
 - Production S3-compatible adapter, TLS/KMS/object-lock/versioning/retention과 deployment credential rotation
 - T-08 Test Run Revision table 생성 후 tenant-qualified FK
 - T-05 audit trail과 T-13 typed provenance relation, T-16 outbox/reconciliation
-- 실제 production infrastructure에서 2 GiB 이상 load/soak/fault-injection acceptance
+- isolated production-scale composition의 exact 2 GiB streaming과 5분 mixed-workload local
+  Compose fault gate는 T-47에서 통과했다. Independent S3-compatible service fault, object
+  lock/KMS/retention과 overnight endurance는 production infrastructure acceptance로 남는다.
 
 이 항목은 T-09 성공으로 가장하지 않으며 현재 API에 mutable placeholder나 vendor-specific 계약을 넣지 않았다.

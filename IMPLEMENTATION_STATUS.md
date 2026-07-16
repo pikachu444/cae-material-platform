@@ -1198,8 +1198,48 @@ failures, ruff, mypy over 545 source files, architecture and contract lint, Open
 with zero vulnerabilities. Focused deterministic-source, fixture-safety and request-timeout tests
 also passed after the final timeout bound.
 
-This subset does not qualify the 5-GiB Bundle domain ceiling and does not replace long-running
-mixed-workload soak or broad API/worker/PostgreSQL/object-storage fault injection. Those are the
-next T-47 unit, followed by object lock/KMS/retention plus production signing identity, then signed
-connectors and worker identity/token rotation. Licensed solver execution remains out of scope.
+This subset does not qualify the 5-GiB Bundle domain ceiling. The next T-47 unit below adds the
+bounded production-pilot mixed-workload Compose fault gate. Independent object-storage failure and
+overnight endurance remain production-infrastructure conditions, followed by object
+lock/KMS/retention plus production signing identity, then signed connectors and worker
+identity/token rotation. Licensed solver execution remains out of scope.
+
+## T-47 mixed-workload soak and Compose fault subset (2026-07-16)
+
+No migration, domain revision or object mutation is introduced. `cmp-soak-fault-acceptance` accepts
+only loopback endpoints and repository-owned Compose files, requires explicit disruption approval
+and allow-lists `postgres`, `api`, `worker` and `web`. Every pause/stop records a pending inverse
+operation and the finalizer restores them in reverse order. Workload evidence stores no response
+body, token, raw value or exception text.
+
+Three concurrent threads execute Catalog, Bundle-list and health reads before, during and after
+PostgreSQL pause/unpause plus API/worker/web stop/start. Expected fault-window errors are separate
+from ordinary errors. Recovery requires all relevant probes to remain continuously stable for two
+seconds, not one lucky response. Final acceptance also requires ordinary p95 below two seconds,
+per-service memory growth below 512 MiB, unchanged authorized Material cardinality and a fresh
+download of the exact same immutable Bundle bytes.
+
+The first live run correctly failed because three in-flight recovery-tail requests were labeled
+ordinary after a single successful probe. All services recovered, Material count, Bundle digest and
+resource gates were intact. The harness was strengthened to use continuous multi-probe stability
+and to report compact error-type counts. A 60-second diagnostic then passed before the final run.
+
+The final source commit `4563bd68c4e36fe743099e9e62733979b85e54bd` run lasted 373.361256
+seconds with 3,243 samples, 102 expected fault-window failures and zero ordinary failures.
+Catalog/Bundle-list/health p95 were 223.419/45.849/23.423 ms. PostgreSQL, API, worker and web
+recovered in 2.809797/8.362320/3.200068/2.665459 seconds. API/PostgreSQL/worker memory growth was
+11,219,763/4,508,876/125,829 bytes and web reclaimed 6,081,741 bytes. The Catalog stayed at exactly
+10,000 and Bundle `8ba6290e-cb2d-4722-9dc3-7d786d6e8251` retained 21,822 bytes and SHA-256
+`04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`. Canonical report SHA-256 is
+`d68253e7ce75528a0f807b945f98019e37f55052b2f8457d54076ff6e85f535c`.
+
+This is a five-minute production-pilot composition gate, not an overnight endurance or independent
+production object-storage failover claim. The local filesystem adapter is shared by API and worker;
+object lock/KMS/retention and externally managed object-store fault evidence remain the next T-47
+unit, followed by production signing and signed connector identity/token rotation.
+
+The complete branch gate passed 672 Python/PostgreSQL tests and 41 Vitest tests with zero skips or
+failures, ruff, mypy over 547 source files, architecture and contract lint, OpenAPI compatibility,
+13-document/24-capture/7-route user-guide checks, the production Vite bundle budget and npm audit
+with zero vulnerabilities.
 

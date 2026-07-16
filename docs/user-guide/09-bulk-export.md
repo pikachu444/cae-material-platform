@@ -64,8 +64,9 @@ manifest 내용이 달라지면 새 digest가 생성됩니다.
   Job으로 접수되며 worker가 API 메모리 밖의 임시 파일에 deterministic ZIP을 조립한 뒤 Artifact로
   커밋합니다. Docker demo는 이 경로를 쉽게 확인하도록 상한을 16 KiB로 낮춥니다.
 - 외부 worker도 현재 component 하나당 64 MiB 상한을 적용합니다. 전체 도메인 상한은 1,000개 또는
-  5 GiB이며 이 전체 상한은 아직 운영 검증 전입니다. 별도 격리 구성에서 10,000 Material 검색과
-  2 GiB multipart streaming은 통과했지만 장시간 soak와 광범위한 fault injection은 남아 있습니다.
+  5 GiB이며 이 전체 상한은 아직 운영 검증 전입니다. 별도 격리 구성에서 10,000 Material 검색,
+  2 GiB multipart streaming과 5분 local Compose fault drill은 통과했습니다. Independent object
+  storage 장애, overnight soak와 전체 5-GiB Bundle ceiling 검증은 남아 있습니다.
 - Artifact 커밋 뒤 Bundle projection 단계가 실패하면 Job은 `reconciliation_required`로 남습니다.
   커밋된 SHA-256과 크기는 화면에서 숨기지 않으며 다음 worker 실행이 기존 출력을 재조립하지 않고
   Bundle에 연결합니다.

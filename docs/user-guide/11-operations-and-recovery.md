@@ -44,6 +44,37 @@ Material, Catalog p95 182.128 ms, 2 GiB/32-part upload 22.999 MiB/s, peak Python
 대체하지 않습니다. 장애 주입 중에도 이미 발행되거나 커밋된 revision과 object digest가 바뀌지
 않는지를 별도 gate에서 확인해야 합니다.
 
+## Mixed-workload 장애 드릴
+
+다음 명령은 10,000 Material 구성에서 Catalog, Bundle 목록, health 요청을 지속하면서 PostgreSQL을
+pause하고 API, worker, web을 순서대로 stop/start합니다. 서비스 중단을 수반하므로 공유 또는 운영
+환경에 실행하지 마십시오.
+
+```powershell
+uv run cmp-soak-fault-acceptance `
+  --base-url http://127.0.0.1:18000/api/v1 `
+  --web-url http://127.0.0.1:5173 `
+  --soak-seconds 300 `
+  --minimum-materials 10000 `
+  --acknowledge-service-disruption
+```
+
+실패하거나 Ctrl+C로 종료해도 tool은 자신이 pause/stop한 서비스를 역순으로 unpause/start합니다.
+종료 후 아래 항목을 확인하십시오.
+
+- `faults[*].passed: true`, 각 `recovery_seconds`가 60초 이하
+- `workload.ordinary_failures: 0`; 장애 창의 실패는 별도 집계
+- 연산별 `ordinary_latency.p95_ms`가 2,000 ms 미만
+- `resources.passed: true`
+- `invariants.after_catalog.total_count`가 시작값과 같음
+- Bundle ID, size와 SHA-256이 시작값과 같음
+
+2026-07-16 reference run은 총 373.361256초, 3,243 samples, 장애 밖 오류 0건으로 통과했습니다.
+report SHA-256은
+`d68253e7ce75528a0f807b945f98019e37f55052b2f8457d54076ff6e85f535c`입니다. 현재 object storage는
+API/worker가 공유하는 local volume이므로 이 결과를 독립 object-storage 장애, object lock/KMS 또는
+overnight endurance 검증으로 해석하지 마십시오.
+
 ## 격리 복구 드릴
 
 다음 명령은 PostgreSQL custom dump를 만들고 무작위 이름의 임시 DB에 복원합니다. immutable object는

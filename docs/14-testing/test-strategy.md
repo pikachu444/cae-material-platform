@@ -842,6 +842,29 @@ This is not the soak/fault gate. The next performance unit must add a time-bound
 mixed workload, controlled API/worker/object-storage/PostgreSQL interruption, recovery assertions,
 immutable digest checks and resource-growth thresholds.
 
+### Five-minute production-pilot soak and Compose fault extension
+
+The local fault harness accepts only loopback targets, repository Compose files and explicit
+service-disruption acknowledgement. It allow-lists PostgreSQL, API, worker and web faults and keeps
+a reverse-order recovery stack. Workload threads retain operation name, latency, expected-fault
+classification and exception class only; request/response bodies, tokens and URLs are not evidence.
+Fault-window errors are expected, while any ordinary-window error fails the run. Recovery is not
+declared on the first successful request: relevant Catalog, Bundle-list, health, container-state or
+web probes must remain continuously stable for two seconds.
+
+The 2026-07-16 final run lasted 373.361256 seconds with 3 concurrent workers and 3,243 samples.
+There were 102 expected fault-window failures and zero ordinary failures. Catalog, Bundle-list and
+health p95 were 223.419, 45.849 and 23.423 ms. PostgreSQL pause/unpause recovered in 2.809797 seconds;
+API, worker and web stop/start recovered in 8.362320, 3.200068 and 2.665459 seconds. Every service
+remained under the 512-MiB memory-growth gate. The final authorized Catalog count stayed at 10,000
+and the same 21,822-byte Bundle retained SHA-256
+`04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`. Report SHA-256 is
+`d68253e7ce75528a0f807b945f98019e37f55052b2f8457d54076ff6e85f535c`.
+
+This gate exercises the local shared-volume adapter only. Independent S3-compatible service outage,
+object lock/KMS/retention, multi-node failover and overnight endurance must be evaluated when those
+production adapters and infrastructure are available.
+
 ## T-47 external Bundle worker and reconciliation gate
 
 The Compose demo deliberately sets `CMP_BULK_EXPORT_INLINE_MAXIMUM_BYTES=16384` so its small public

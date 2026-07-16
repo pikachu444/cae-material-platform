@@ -3,7 +3,7 @@ export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
 export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
-.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client release-quality performance-acceptance performance-fixture performance-production-scale \
+.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client release-quality performance-acceptance performance-fixture performance-production-scale soak-fault-acceptance \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
 	web-build web-test run-api run-worker run-worker-once ci
 
@@ -47,6 +47,9 @@ performance-fixture:
 
 performance-production-scale:
 	$(UV) run cmp-performance-acceptance --base-url http://127.0.0.1:18000/api/v1 --http-timeout-seconds 900 --upload-bytes 2147483648 --upload-part-bytes 67108864 --upload-maximum-python-memory-mib 192 --acknowledge-immutable-demo-write --require-production-scale
+
+soak-fault-acceptance:
+	$(UV) run cmp-soak-fault-acceptance --acknowledge-service-disruption
 
 migrate:
 	@test -n "$(CMP_DATABASE_URL)" || (echo "CMP_DATABASE_URL is required" && exit 2)

@@ -43,7 +43,7 @@ database host.
 docker compose `
   -f deploy/compose/docker-compose.demo.yml `
   -f deploy/performance/docker-compose.production-scale.yml `
-  up -d --build postgres object-storage api worker web
+  up -d --build postgres api worker web
 
 $env:DATABASE_URL = "postgresql://cmp_owner:cmp_owner@127.0.0.1:54329/cmp"
 uv run cmp-performance-fixture --acknowledge-immutable-demo-write --target-materials 10000
@@ -108,3 +108,40 @@ incremental Python allocation was 67,164,359 bytes under the 192-MiB gate. Bundl
 This result closes the 10,000-Material search and 2-GiB streaming gates only. Long-running soak,
 broad fault injection, object-lock/KMS/retention and production identity/token rotation remain
 separate release conditions.
+
+## Mixed-workload soak and fault drill
+
+The local composition fault gate deliberately interrupts services. It accepts only loopback API/web
+URLs and repository-owned Compose files, operates on the allow-listed `postgres`, `api`, `worker`
+and `web` services, and always attempts pending recoveries in reverse order. Run it only on the
+isolated production-scale demo:
+
+```powershell
+uv run cmp-soak-fault-acceptance `
+  --base-url http://127.0.0.1:18000/api/v1 `
+  --web-url http://127.0.0.1:5173 `
+  --soak-seconds 300 `
+  --fault-hold-seconds 5 `
+  --minimum-materials 10000 `
+  --acknowledge-service-disruption
+```
+
+Three concurrent workers execute Catalog, Bundle-list and health requests before, during and after
+the fault sequence. Expected failures are counted only while a fault/recovery window is open. A
+window closes after every relevant operation remains continuously stable, not after the first
+successful response. Acceptance requires zero failures outside those windows, ordinary p95 below
+2 seconds, recovery below 60 seconds, per-service memory growth below 512 MiB, unchanged authorized
+Material cardinality and a byte-identical immutable Bundle download.
+
+The 2026-07-16 five-minute production-pilot run used source commit
+`4563bd68c4e36fe743099e9e62733979b85e54bd` and produced canonical report SHA-256
+`d68253e7ce75528a0f807b945f98019e37f55052b2f8457d54076ff6e85f535c`. Total elapsed time was
+373.361256 seconds with 3,243 samples and zero ordinary failures. Catalog/Bundle/health p95 were
+223.419/45.849/23.423 ms. PostgreSQL, API, worker and web recovered in
+2.809797/8.362320/3.200068/2.665459 seconds. All memory-growth gates passed, the Catalog remained
+10,000 and Bundle SHA-256 remained
+`04f6aeca5f0f0ff48448dcb0f3c2e4d3e361b890027869b7f3943562d27097ab`.
+
+The demo uses a shared local filesystem volume, not an independently managed object-storage
+service. Therefore this report does not claim production object-storage outage, object lock, KMS,
+retention, cross-node failover or an overnight endurance run. Those remain separate gates.

@@ -35,9 +35,10 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-47 long-running soak/broad fault acceptance, object-lock/KMS/signing,
-  signed connectors and production worker identity/token rotation. The exact 10,000-Material search
-  and 2-GiB streaming gates passed on the isolated production-scale composition.
+- missing product depth: T-47 object-lock/KMS/signing, signed connectors and production worker
+  identity/token rotation. Exact 10,000-Material search, 2-GiB streaming and the bounded five-minute
+  mixed-workload Compose fault drill passed; independent object-storage outage and overnight
+  endurance remain production-environment acceptance rather than local-volume claims.
 - user experience: T-46 global navigation, contextual Material tabs and task-oriented guide gate complete
 
 Migrations 001~058, raw objects, prior revisions, cards, releases and golden fixtures are never
@@ -57,7 +58,7 @@ the durable Bulk Export Job; the production-scale unit adds no migration.
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | complete |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | complete |
 | 9 | T-46 final navigation/manual images | complete task guides and deterministic browser captures | complete |
-| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded and 10k/2-GiB production-scale performance/security, external assembly/reconciliation and hard-kill lease recovery complete; soak/fault, KMS and connector work remains |
+| 10 | T-47 operational hardening | telemetry, restore, supply-chain, performance/security and external Bundle worker evidence | in progress: observability, isolated restore, supply-chain, bounded and 10k/2-GiB scale, five-minute mixed-workload Compose fault drill, external assembly/reconciliation and hard-kill recovery complete; KMS/object storage/signing and connector work remains |
 | 11 | final acceptance | three live user E2E workflows and one verified bulk bundle | pending |
 
 Each PR is branched from the freshly merged `main`, uses meaningful commits, passes its relevant
@@ -199,6 +200,16 @@ as 32 64-MiB parts without buffering the full source. The 2026-07-16 report for 
 22.999 MiB/s upload throughput and a 67,164,359-byte Python allocation peak under the 192-MiB gate.
 Its canonical report SHA-256 is
 `96d75ca787695ad5848b0b65562554a93f8aa63dd204b82d92e159f723cef481`.
+
+The next production-pilot fault unit adds no migration and changes no domain data. Three concurrent
+workers ran Catalog, Bundle-list and health requests for a five-minute soak around explicit
+PostgreSQL pause/unpause and API/worker/web stop/start faults. Recovery windows remained open until
+all relevant probes were continuously stable. The final 373.361256-second report contained 3,243
+samples, zero failures outside fault windows, Catalog p95 223.419 ms and four recoveries under 8.37
+seconds. The authorized Material count remained 10,000 and the same immutable Bundle retained exact
+SHA-256. Report SHA-256 is
+`d68253e7ce75528a0f807b945f98019e37f55052b2f8457d54076ff6e85f535c`. The local shared-volume
+adapter does not qualify independent production object-storage failure or overnight endurance.
 
 The PR 6 exit gate completed on disposable PostgreSQL 16: fresh 001→054 plus 054→053→054 passed,
 the CI-equivalent suite recorded 600 Python tests with zero skips/failures and 35 Vitest tests,
