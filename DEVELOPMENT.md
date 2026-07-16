@@ -258,6 +258,19 @@ image alone contains the server-major-matched PostgreSQL 16 client; reports are 
 `.cache/restore-drill/`. See the
 [operations and recovery guide](docs/user-guide/11-operations-and-recovery.md).
 
+Build the four delivery images and generate locally signed SBOM/vulnerability evidence with:
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml --profile operations build api worker web restore-drill
+uv run cmp-release-quality generate --root . --ephemeral-local-key
+uv run cmp-release-quality verify --bundle .cache/release-quality/<run-id>
+```
+
+Evidence stays below `.cache/release-quality/`. The ephemeral key checks post-generation integrity
+but is not a production identity; controlled signing and trust-root commands are documented in
+[the supply-chain runbook](deploy/supply-chain/README.md). The frontend production build also
+enforces its initial/lazy JavaScript budgets.
+
 The live P0-1 gate completed with 62 PostgreSQL-marked tests passed (zero skips/failures), 452
 CI-equivalent Python tests passed, and 21 Vitest tests passed. The observed counts are not fixed;
 skip zero and failure zero are the acceptance rule.

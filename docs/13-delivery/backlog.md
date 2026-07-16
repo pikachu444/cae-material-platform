@@ -1164,9 +1164,12 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   explicit risk acceptance, benchmark report and traceable connector delivery.
 - **테스트:** secret/log redaction, trace propagation, restore checksum/lineage, dependency/image
   scan, signature substitution, load/soak and connector retry/idempotency.
-- **진행 상태 (2026-07-16):** T-35 redacted OpenTelemetry/API-worker propagation/dashboard와 T-36
-  격리 PostgreSQL/object restore subset은 구현·실데이터 검증 완료. 남은 순서는 (1) SBOM,
-  vulnerability/image scan과 signature substitution gate, (2) representative catalog/upload/
-  bundle benchmark와 security acceptance, (3) 64 MiB 초과 Bundle external-worker assembly와
-  failed-later-step output reconciliation visibility, (4) object lock/KMS/retention adapter,
-  (5) signed-manifest REST/webhook/object-storage connector이다.
+- **진행 상태 (2026-07-16):** T-35 redacted OpenTelemetry/API-worker propagation/dashboard, T-36
+  격리 PostgreSQL/object restore subset, Python/Node/container CycloneDX SBOM, dependency/image
+  vulnerability gate, canonical Ed25519 quality manifest와 signature/evidence/key substitution
+  회귀, frontend workbench code splitting 및 hard bundle budget까지 구현·실데이터 검증 완료.
+  local ephemeral key는 builder identity가 아니며 production KMS/keyless trust는 완료로 간주하지
+  않는다. 남은 순서는 (1) representative catalog/upload/bundle benchmark와 security acceptance,
+  (2) 64 MiB 초과 Bundle external-worker assembly와 failed-later-step output reconciliation
+  visibility, (3) object lock/KMS/retention 및 production signing adapter, (4) signed-manifest
+  REST/webhook/object-storage connector이다.
