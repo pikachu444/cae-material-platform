@@ -129,12 +129,15 @@ OpenRadioss LAW62는 그 이후의 별도 초점탄성 수직 기능이며,
 | --- | --- | --- | --- |
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
-| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | processing·bounded multistart fitting·candidate/residual UI와 manual IR card 구현; human selection/IR 승격 후속 |
-| Elastomer 초점탄성 | Ogden + Prony | Abaqus, OpenRadioss LAW62 | 후속 수직 기능 |
+| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed 보존, bounded multistart fitting, candidate/residual 검토, 사람 선택, 새 IR revision 승격, card preview/download reference 구현 |
+| Elastomer 초점탄성 | one-term Ogden + 1~5 shear-Prony | Abaqus Ogden, OpenRadioss LAW62 | 명시적 preflight와 card preview/download reference 구현; LAW62 ν=0.495 근사는 mapping report에 표시 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 
 `reference`는 데이터 흐름과 mapping 계약을 실행할 수 있다는 뜻이며, 실제 제품 설계에
 바로 사용할 수 있도록 검증·승인된 재료 모델이라는 뜻이 아닙니다.
+
+실제 Docker/PostgreSQL 환경에서 수행한 사용자 흐름과 화면은
+[2026-07-16 E2E 검증 기록](docs/15-demo/user-e2e-evidence-2026-07-16.md)에서 확인할 수 있습니다.
 
 ### 현재 Polymer 사용자 흐름
 

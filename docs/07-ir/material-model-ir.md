@@ -356,11 +356,15 @@ IR은 calibration raw log를 복사하지 않고 immutable run/evidence를 참�
 
 ## 14. 미결정 항목
 
-- `OQ-IR-001` 첫 model family와 schema
+- `OQ-IR-001` production에서 처음 승인할 model family와 schema. Reference linear elastic,
+  tabulated/Voce, linear-Prony와 one-term Ogden--Prony family는 이미 별도 schema로 구현됐다.
 - `OQ-IR-002` 일반 symbolic expression/portable equation representation 필요 여부
 - `OQ-IR-003` uncertainty/covariance의 MVP 필수 수준
 - `OQ-IR-004` material orientation과 field dependency의 공통 envelope 범위
 - `OQ-IR-005` solver-specific parameterization 변환의 허용 정책
+- `OQ-IR-006` 이미 calibration promotion evidence가 있는 IR revision을 다시 보정할 때 새
+  Material Model stable identity를 만들지, 같은 identity의 다음 revision에 append-only
+  evidence chain을 저장할지. 현 schema 1.1은 evidence replacement를 거부한다.
 
 첫 vertical model이 결정되면 domain expert와 exporter expert가 실제 IR instance 세 개 이상을 작성하여 envelope/payload 경계를 검증한 뒤 schema를 동결한다.
 

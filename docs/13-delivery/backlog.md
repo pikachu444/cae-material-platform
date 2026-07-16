@@ -893,7 +893,7 @@ does not expose the Steel workbench for polymer, elastomer or unclassified State
 legacy States can explicitly append a revision that adopts the current classified Material. This
 does not add a production constitutive model or solver qualification.
 
-P2 item 3 is in progress as ordered vertical increments. Migration 040 and the typed Modeling
+P2 item 3 is complete through the following ordered vertical increments. Migration 040 and the typed Modeling
 application/API/UI implement the manual linear Prony IR. Migration 041 and the Exporting
 application/API/UI now add the Abaqus 2025 `*DENSITY`, instantaneous `*ELASTIC`, and
 `*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC` vertical: exact source revision pinning, explicit mapping
@@ -930,6 +930,35 @@ routed to LAW62. Golden byte fixtures and live PostgreSQL/API/UI checks cover bo
 
 This completes only the ADR-0023 reference slice. Production hyperelastic calibration, additional
 Ogden terms, compressible/temperature-dependent response, external solver execution, and solver
-qualification remain P2 work. The next product priority is the remaining T-07 Process/Lot/Batch
-genealogy linked to Material State and test/model/card evidence, followed by production-domain
-decisions and operational qualification gates.
+qualification remain P2 work. The next product priority was the bounded T-07 Process/Lot/Batch
+genealogy slice described below.
+
+### P2 item 5 implementation note (2026-08-14)
+
+ADR-0024 and migration 048 implement the bounded exact-revision Catalog genealogy slice. Process
+Definition and Material Lot/Batch are separate stable identities with immutable typed revisions.
+One State Genealogy identity appends revisions that pin the exact Material State revision and
+optional manufacturing Process, heat-treatment Process, and Lot/Batch revisions. Composite
+organization/project/classification foreign keys, forced RLS, immutable-row triggers, deferred
+role/material/scope guards, protected API commands, and the connected Material State UI prevent a
+historical State from silently following a newer Process or Lot head. This is typed relational
+persistence, not JSON/EAV.
+
+The bounded ADR-0020 product-vertical sequence is therefore complete through items 1--5. This does
+not complete the full T-07 task. The next recommended product depth is:
+
+1. Process Run identities and immutable revisions with typed input Lot/Batch consumption and
+   output Lot production;
+2. split/merge quantities, multi-lot acceptance and Specimen source-lot links;
+3. Test Campaign, Instrument/calibration and condition snapshots from T-08;
+4. governed production property/curve schemas and selected laboratory importer packages;
+5. an iterative-calibration promotion decision: either create a new Material Model identity for
+   every accepted calibration or define a new IR revision schema that preserves an evidence chain
+   across `r3+`; the current safe contract rejects replacing promotion evidence;
+6. domain-approved scientific fixtures and exporter qualification. Actual solver execution stays
+   excluded until the product owner explicitly restores that scope.
+
+The live user E2E record at `docs/15-demo/user-e2e-evidence-2026-07-16.md` proves the connected
+polymer path from test registration through normalized/processed data, bounded Prony fitting,
+human Candidate selection, immutable IR promotion and Abaqus card download. It also records UI
+evidence for item 4 LAW62 output and item 5 exact-revision genealogy.

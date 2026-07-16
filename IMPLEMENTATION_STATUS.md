@@ -67,7 +67,7 @@ Foundation version: `0.27.0`
   expose protected preview/download plus byte-exact `.rad`/`.inp` golden regressions. This is a
   non-production monotonic, ambient, rate-independent reference slice without damage/failure or
   solver qualification.
-- P2 linear-viscoelastic vertical (ADR-0020 item 3, manual-IR and exporter halves): a polymer/elastomer Material
+- P2 linear-viscoelastic vertical (ADR-0020 item 3): a polymer/elastomer Material
   revision and one exact Property Set revision can create a stable Material Model identity with an
   immutable typed generalized-Maxwell/Prony revision. Explicit PostgreSQL companion tables store
   one to five ordered shear/bulk ratios and SI relaxation times under composite tenant keys, forced
@@ -77,9 +77,11 @@ Foundation version: `0.27.0`
   solver-neutral relaxation preview. Migration 041 adds an immutable Abaqus 2025 time-domain card
   projection with capability manifest, exact preflight acknowledgement, typed card/term tables,
   source-IR equality constraints, `.inp` preview/download, byte SHA-256 and golden regression. The
-  Material State UI runs this full IR-to-card flow. Shear-relaxation Dataset/calibration and the
-  separate Ogden-Prony/LAW62 family remain the ordered next increments; no solver execution or
-  production qualification is claimed.
+  Material State UI runs this full IR-to-card flow. Migrations 042--045 additionally preserve
+  raw/normalized/processed shear-relaxation Datasets, execute explicit observed-point processing,
+  fit a bounded deterministic two-term Prony model with multistart diagnostics, require a human
+  Candidate Selection reason, and append the accepted Candidate as schema 1.1 of the same stable
+  IR identity before card generation. No solver execution or production qualification is claimed.
 - P2 hyper-viscoelastic vertical (ADR-0020 item 4 / ADR-0023 bounded reference scope): an
   explicitly elastomer-classified Material revision and exact Property Set revision create a
   stable Material Model identity with an immutable one-term Ogden plus one-to-five shear-Prony
@@ -439,9 +441,9 @@ that offline SQL rendering could not prove.
 
 - Public role-management API/UI and deployment-specific DB role/secret provisioning
 - Export-control nationality/compartment policy (`OQ-SEC-002`)
-- Process/Lot/Batch genealogy, richer typed property/curve families, Test Campaign/Instrument
-  records, production importer plugin approval, arbitrary channel schemas, and non-reference
-  Dataset channels
+- Full Process Run input/output graphs, lot split/merge and multi-lot acceptance; richer typed
+  property/curve families; Test Campaign/Instrument records; production importer plugin approval;
+  arbitrary channel schemas; and non-reference Dataset channels
 - General multi-member Selection/filter semantics, arbitrary recipe graphs, durable Processing Run
   reconciliation, inverse post-necking identification, calibration-specific outlier scope,
   larger-replicate/CI statistics, and production nonlinear calibration
@@ -669,7 +671,7 @@ unchanged and read as `unclassified`. The user-facing README now leads with Mate
 test/processing, IR and card workflows while the detailed engineering runbook lives in
 `DEVELOPMENT.md`.
 
-The ordered remaining delivery is: Steel elastoplastic regression protection; linear Prony IR and
+The ordered P2 delivery was: Steel elastoplastic regression protection; linear Prony IR and
 Abaqus viscoelastic card; shear-relaxation import/processing/calibration; Ogden-Prony Abaqus and
 OpenRadioss LAW62 cards; then Process/Lot/Batch genealogy. These are reference/non-production
 capabilities until domain-approved schemas, numeric fixtures and mappings are available. Actual
@@ -744,9 +746,9 @@ The CI-equivalent gate passed with 471 Python tests and 27 Vitest tests, plus ru
 source files, architecture rules, contract lint/compatibility and the production frontend build.
 The isolated Compose PostgreSQL 16 marker suite then passed 64/64 with zero skips or failures.
 
-Remaining ordered work is P2 item 4 Ogden-Prony/Abaqus/OpenRadioss LAW62, then P2 item 5
-Process/Lot/Batch genealogy. Actual solver execution qualification remains excluded by
-product-owner direction.
+At that increment boundary, the ordered next work was P2 item 4 Ogden-Prony/Abaqus/OpenRadioss
+LAW62 and P2 item 5 Process/Lot/Batch genealogy. Both bounded reference slices are now complete as
+recorded below. Actual solver execution qualification remains excluded by product-owner direction.
 
 ### Steel elastoplastic routing increment
 
@@ -758,4 +760,61 @@ shows the elastoplastic workbench only for the class pinned by the State and off
 append-only State rebase guidance when the Material head changed. The demo seed reclassifies and
 rebases legacy demo Material/State/Property revisions through protected APIs. Existing
 OpenRadioss LAW36 and Abaqus golden outputs are unchanged.
+
+### Ogden--Prony and Catalog genealogy completion
+
+Migrations 046/047 complete the bounded P2 item 4 reference vertical. An elastomer-classified
+Material State and exact Property Set revision create a typed one-term Ogden plus one-to-five
+shear-Prony IR. Abaqus 2025 and OpenRadioss 2025 are separate explicit targets with immutable
+mapping reports and card revisions. Abaqus uses incompressible `D1=0`; OpenRadioss LAW62 records
+its fixed `nu=0.495` conversion as `approximated`. Both cards have deterministic golden bytes,
+preview/download APIs, and connected UI. Linear-Prony is never silently routed to LAW62.
+
+Migration 048 completes the bounded P2 item 5/T-07 genealogy subset. Process Definition and
+Material Lot/Batch stable identities each append immutable typed revisions. A State Genealogy
+revision pins the exact Material State revision and optional manufacturing, heat-treatment, and
+Lot/Batch revisions under composite organization/project/classification foreign keys, forced RLS,
+immutable triggers, and deferred semantic guards. The Material State screen creates and revises
+these links without replacing historical facts. Full Process Run inputs/outputs, split/merge, and
+multi-lot acceptance remain future T-07 depth.
+
+### Live user E2E evidence (2026-07-16)
+
+The Compose demo was exercised against PostgreSQL 16 through the protected API and connected React
+workbench. A new polymer Material was created and carried through:
+
+`Material/State/Property Set -> Specimen/Test Run -> immutable CSV Raw Asset -> normalized Dataset
+-> explicit crop Processing Run -> bounded five-start Prony Calibration -> reviewed Candidate
+Selection -> IR revision 1 to 2 promotion -> Abaqus mapping preflight -> immutable .inp card`.
+
+The Processing Run succeeded with six normalized and five processed points. All five Calibration
+Candidates converged; the reviewed Candidate retained objective, RMSE, residual Artifact and bound
+diagnostics. The promoted IR kept the same stable Material Model identity and a new revision ID.
+The downloaded 418-byte Abaqus card returned HTTP 200 with a filename-bearing attachment header;
+its SHA-256 exactly matched the stored card digest. The card contains `*DENSITY`, `*ELASTIC`, and
+`*VISCOELASTIC`. Browser evidence also rechecked the Ogden--Prony LAW62 preview and exact-revision
+Process/Lot genealogy. See `docs/15-demo/user-e2e-evidence-2026-07-16.md`.
+
+## Current remaining work after the bounded P2 verticals
+
+The user-visible reference flows requested by ADR-0020 are implemented. Remaining work is not a
+new foundation rewrite; it is production depth and additional vertical coverage:
+
+1. **Catalog/Test depth:** Process Run inputs/outputs, lot split/merge and multi-lot acceptance;
+   Test Campaign, Instrument/calibration, standards, condition snapshots, and Specimen source-lot
+   genealogy.
+2. **Real data breadth:** governed property/curve families, production importer packages and
+   mapping approval for selected laboratory formats, arbitrary channel schemas, richer replicate
+   statistics, and viscoelastic alignment/master-curve/temperature-shift processing decisions.
+3. **Scientific qualification:** domain-approved steel, linear-viscoelastic and hyper-viscoelastic
+   schemas, parameter bounds, objective profiles, reference curves, tolerances, uncertainty and
+   identifiability policy. The current Voce, two-term Prony, and one-term Ogden paths remain
+   reference/non-production.
+4. **Exporter productionization:** official version matrices, semantic card parsers/data-checks,
+   approved golden fixtures and release policy. Actual solver execution/qualification remains
+   explicitly excluded by product-owner direction.
+5. **Operations and governance hardening:** production identity/role administration, object-store
+   object lock/KMS/retention, package signing/SBOM/scanning, T-35 observability, T-36 restore drill,
+   T-37 release-quality evidence, T-38 performance/security acceptance, and external PLM/CAE
+   connectors.
 

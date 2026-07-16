@@ -660,3 +660,28 @@ The bounded Process/Lot/State Genealogy vertical is verified at four layers:
 
 Future full T-07 fixtures must add multi-lot acceptance, split/merge, Process Run input/output,
 cycle rejection, and material-balance cases without weakening these revision-pinning regressions.
+
+## Live user E2E evidence gate (2026-07-16)
+
+The Compose demo must be capable of completing one clean, protected, PostgreSQL-backed path from
+experimental-data registration to a downloadable material card without replacing any source or
+published revision. The recorded run used a newly created polymer Material and proved:
+
+1. typed Material, State and basic Property Set revisions were committed;
+2. a Specimen and shear-relaxation Test Run pinned the exact State and Method revisions;
+3. the CSV upload completed as an immutable Raw Asset/Artifact, then produced separate normalized
+   and processed Dataset identities;
+4. the explicit crop Run reduced six normalized observations to five processed observations;
+5. a deterministic five-start bounded Prony Run persisted five converged Candidates and five-point
+   observed/predicted/residual diagnostics per Candidate;
+6. a human reason and exact Candidate digest produced an immutable Candidate Selection, and
+   promotion appended Material Model revision 2 based on revision 1 under the same stable identity;
+7. Abaqus mapping preflight was exportable and its SHA-256 was acknowledged before the card row was
+   committed;
+8. preview contained `*DENSITY`, `*ELASTIC`, and `*VISCOELASTIC`; HTTP download returned 418 bytes
+   whose SHA-256 exactly matched the stored card digest.
+
+The browser evidence additionally renders the processed curve, sorted Candidates, residual view,
+promoted IR/card preview, OpenRadioss LAW62 approximation notice, and exact Process/Lot genealogy.
+The complete IDs, digests, commands, expected negative check, and screenshots are in
+`docs/15-demo/user-e2e-evidence-2026-07-16.md`.
