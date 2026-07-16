@@ -1204,3 +1204,8 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   process-local private key를 거부하고, 별도 command adapter의 Ed25519 identity/signature를
   독립 trusted public key와 expected key ID로 검증한다. 실제 HSM/Vault/keyless signer 배포와
   key ceremony evidence는 남아 있다. 계약은 `docs/13-delivery/t47-production-signing.md`다.
+
+- **2026-07-17 branch gate:** 실제 PostgreSQL 16을 포함한 Python 680개와 Vitest 41개가
+  skip/failure 없이 통과했고 ruff, mypy 551 files, architecture/contracts/OpenAPI, user-guide,
+  production web budget과 npm audit 0 vulnerabilities를 확인했다. 이 workstation에는 GNU Make와
+  Git Bash가 없어 `make ci` wrapper 대신 `scripts/ci.sh`와 동일한 명령을 PowerShell에서 실행했다.

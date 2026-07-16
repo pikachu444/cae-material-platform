@@ -76,7 +76,7 @@ def _external_signer(
         ),
         encoding="utf-8",
     )
-    command = (sys.executable, str(script), str(key_path))
+    command: tuple[str, ...] = (sys.executable, str(script), str(key_path))
     if corrupt_signature:
         command += ("corrupt",)
     signer = ExternalCommandSigner(
