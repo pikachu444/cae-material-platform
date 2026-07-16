@@ -1209,3 +1209,11 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   skip/failure 없이 통과했고 ruff, mypy 551 files, architecture/contracts/OpenAPI, user-guide,
   production web budget과 npm audit 0 vulnerabilities를 확인했다. 이 workstation에는 GNU Make와
   Git Bash가 없어 `make ci` wrapper 대신 `scripts/ci.sh`와 동일한 명령을 PowerShell에서 실행했다.
+
+- **2026-07-17 signed connector/identity subset:** 기존 leased transactional outbox에 external
+  Ed25519 signed REST/webhook/object-storage delivery를 연결했다. HTTP는 exact digest receipt와
+  idempotency key를 요구하고 object storage는 immutable tenant/event/digest key를 사용한다.
+  Worker와 HTTP bearer는 atomically replaced token file을 매 cycle/delivery마다 다시 읽으며
+  production inline token은 거부한다. 실제 receiver/IdP rotation acceptance는 남아 있다.
+  전체 gate는 PostgreSQL 포함 Python 690개, Vitest 41개, ruff/mypy 555 files, architecture,
+  user-guide, production web budget과 npm audit 0 vulnerabilities를 통과했다.
