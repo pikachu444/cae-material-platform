@@ -47,6 +47,7 @@ const release = {
 
 describe("Release completeness workbench", () => {
   it("submits explicit candidate references and downloads the immutable package", async () => {
+    const linkClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     const fetchMock = vi.fn<typeof fetch>();
     fetchMock.mockResolvedValueOnce({
       ok: true,
@@ -93,5 +94,7 @@ describe("Release completeness workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Download release package" }));
     expect(await screen.findByRole("button", { name: "Download release package" })).toBeTruthy();
     expect(fetchMock.mock.calls[1]?.[0]).toBe("/api/v1/releases/00000000-0000-0000-0000-000000000030/download");
+    expect(linkClick).toHaveBeenCalledOnce();
+    linkClick.mockRestore();
   });
 });

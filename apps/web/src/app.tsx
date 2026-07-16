@@ -54,6 +54,15 @@ import type {
 } from "./types";
 
 type Navigate = (path: string) => void;
+type MaterialArea = "overview" | "testing" | "datasets" | "models" | "governance";
+
+const materialAreas: ReadonlyArray<{ area: MaterialArea; label: string }> = [
+  { area: "overview", label: "Overview" },
+  { area: "testing", label: "Test data" },
+  { area: "datasets", label: "Datasets & Processing" },
+  { area: "models", label: "Models & Cards" },
+  { area: "governance", label: "Governance" },
+];
 
 const classifications: DataClassification[] = [
   "internal",
@@ -144,8 +153,38 @@ function Header({
   connected: boolean;
   onOpenConnection: () => void;
 }) {
-  const isMaterials = path === "/materials" || path.startsWith("/materials/");
-  const isExports = path === "/exports";
+  const navigation = [
+    { label: "Dashboard", target: "/", active: path === "/" },
+    {
+      label: "Materials",
+      target: "/materials",
+      active:
+        path === "/materials" ||
+        path === "/materials/new" ||
+        /^\/materials\/[^/]+$/.test(path),
+    },
+    {
+      label: "Tests",
+      target: "/tests",
+      active: path === "/tests" || path.endsWith("/testing"),
+    },
+    {
+      label: "Datasets",
+      target: "/datasets",
+      active: path === "/datasets" || path.endsWith("/datasets"),
+    },
+    {
+      label: "Models",
+      target: "/models",
+      active: path === "/models" || path.endsWith("/models"),
+    },
+    { label: "Exports", target: "/exports", active: path === "/exports" },
+    {
+      label: "Governance",
+      target: "/governance",
+      active: path === "/governance" || path.endsWith("/governance"),
+    },
+  ];
   return (
     <header className="app-header">
       <button className="brand" type="button" onClick={() => navigate("/")}>
@@ -156,27 +195,17 @@ function Header({
         </span>
       </button>
       <nav aria-label="Primary navigation">
-        <button
-          className={path === "/" ? "nav-link active" : "nav-link"}
-          type="button"
-          onClick={() => navigate("/")}
-        >
-          Dashboard
-        </button>
-        <button
-          className={isMaterials ? "nav-link active" : "nav-link"}
-          type="button"
-          onClick={() => navigate("/materials")}
-        >
-          Materials
-        </button>
-        <button
-          className={isExports ? "nav-link active" : "nav-link"}
-          type="button"
-          onClick={() => navigate("/exports")}
-        >
-          Exports
-        </button>
+        {navigation.map((item) => (
+          <button
+            key={item.target}
+            className={item.active ? "nav-link active" : "nav-link"}
+            type="button"
+            aria-current={item.active ? "page" : undefined}
+            onClick={() => navigate(item.target)}
+          >
+            {item.label}
+          </button>
+        ))}
       </nav>
       <button className="connection-button" type="button" onClick={onOpenConnection}>
         <span className={connected ? "connection-dot online" : "connection-dot"} />
@@ -423,9 +452,6 @@ function DashboardPage({
           ))}
         </div>
       </section>
-      <ReviewWorkbench config={config} />
-      <ReleaseWorkbench config={config} />
-      <GovernanceEvidenceWorkbench config={config} />
     </div>
   );
 }
@@ -552,6 +578,129 @@ function MaterialListPage({
           ))}
         </div>
       </section>
+    </div>
+  );
+}
+
+const moduleHubContent: Record<Exclude<MaterialArea, "overview">, {
+  eyebrow: string;
+  title: string;
+  description: string;
+  action: string;
+}> = {
+  testing: {
+    eyebrow: "Testing",
+    title: "Test data",
+    description: "Open a Material to govern campaigns, instruments, source files, and explicit column/unit mappings.",
+    action: "Open test workspace",
+  },
+  datasets: {
+    eyebrow: "Datasets",
+    title: "Datasets & Processing",
+    description: "Review raw, normalized, processed, statistical, and master-curve representations without replacing source curves.",
+    action: "Open dataset workspace",
+  },
+  models: {
+    eyebrow: "Modeling",
+    title: "Material Models & Solver Cards",
+    description: "Create or calibrate solver-neutral IR revisions, inspect mapping status, and download reference cards.",
+    action: "Open model workspace",
+  },
+  governance: {
+    eyebrow: "Governance",
+    title: "Evidence, Review & Release",
+    description: "Inspect immutable provenance and audit evidence before review, approval, release, or impact analysis.",
+    action: "Open Material governance",
+  },
+};
+
+function ModuleHubPage({
+  area,
+  config,
+  navigate,
+  onOpenConnection,
+}: {
+  area: Exclude<MaterialArea, "overview">;
+  config: ApiConfig;
+  navigate: Navigate;
+  onOpenConnection: () => void;
+}) {
+  const [materials, setMaterials] = useState<MaterialResponse[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const copy = moduleHubContent[area];
+
+  useEffect(() => {
+    if (!config.accessToken.trim()) {
+      setMaterials([]);
+      return;
+    }
+    let current = true;
+    setLoading(true);
+    setError(null);
+    void listMaterials(config, "")
+      .then((result) => current && setMaterials(result.data.items))
+      .catch((cause: unknown) => current && setError(errorMessage(cause)))
+      .finally(() => current && setLoading(false));
+    return () => {
+      current = false;
+    };
+  }, [config, area]);
+
+  if (!config.accessToken.trim()) {
+    return <ConnectionRequired onOpenConnection={onOpenConnection} />;
+  }
+
+  return (
+    <div className="page-stack">
+      <section className="page-heading module-heading">
+        <div>
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.title}</h1>
+          <p>{copy.description}</p>
+        </div>
+      </section>
+      <section className="content-card">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Material context</p>
+            <h2>Select a Material</h2>
+          </div>
+          <span className="count-chip">{materials.length} visible</span>
+        </div>
+        {error ? <ErrorNotice message={error} /> : null}
+        {loading ? <p className="muted">Loading Material contexts…</p> : null}
+        {!loading && !error && materials.length === 0 ? (
+          <p className="muted">No Material is visible in this tenant and project.</p>
+        ) : null}
+        <div className="module-material-grid">
+          {materials.map((material) => (
+            <article className="module-material-card" key={material.material_id}>
+              <div>
+                <span className={`material-class-chip ${material.current_revision.content.material_class}`}>
+                  {material.current_revision.content.material_class}
+                </span>
+                <h3>{material.current_revision.content.name}</h3>
+                <p>{material.current_revision.content.material_code ?? material.current_revision.content.material_family ?? "No material code"}</p>
+              </div>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => navigate(`/materials/${material.material_id}/${area}`)}
+              >
+                {copy.action}
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+      {area === "governance" ? (
+        <>
+          <ReviewWorkbench config={config} />
+          <ReleaseWorkbench config={config} />
+          <GovernanceEvidenceWorkbench config={config} />
+        </>
+      ) : null}
     </div>
   );
 }
@@ -687,11 +836,13 @@ function MaterialCreatePage({
 function MaterialDetailPage({
   config,
   materialId,
+  activeArea,
   navigate,
   onOpenConnection,
 }: {
   config: ApiConfig;
   materialId: string;
+  activeArea: MaterialArea;
   navigate: Navigate;
   onOpenConnection: () => void;
 }) {
@@ -771,35 +922,57 @@ function MaterialDetailPage({
         </div>
       </section>
       {error ? <ErrorNotice message={error} /> : null}
-      <MaterialRevisionEditor
-        key={current.id}
-        config={config}
-        material={material}
-        etag={materialEtag}
-        onSaved={reload}
-      />
-      <section className="detail-grid">
-        <article className="content-card provenance-card">
-          <p className="eyebrow">Provenance summary</p>
-          <h2>Immutable revision fact</h2>
-          <dl className="definition-list">
-            <div><dt>Revision ID</dt><dd title={current.id}>{shortId(current.id)}</dd></div>
-            <div><dt>Based on</dt><dd>{current.based_on_revision_id ? shortId(current.based_on_revision_id) : "Initial revision"}</dd></div>
-            <div><dt>Recorded by</dt><dd title={current.created_by}>{shortId(current.created_by)}</dd></div>
-            <div><dt>Reason</dt><dd>{current.change_reason}</dd></div>
-            <div><dt>Schema</dt><dd>{current.schema_id}</dd></div>
-          </dl>
-        </article>
-        <RevisionHistory
-          config={config}
-          materialId={material.material_id}
-          revisions={revisions}
-        />
-      </section>
+      <nav className="material-context-tabs" aria-label="Material workspace">
+        {materialAreas.map((item) => {
+          const target = item.area === "overview"
+            ? `/materials/${material.material_id}`
+            : `/materials/${material.material_id}/${item.area}`;
+          return (
+            <button
+              key={item.area}
+              type="button"
+              className={item.area === activeArea ? "active" : ""}
+              aria-current={item.area === activeArea ? "page" : undefined}
+              onClick={() => navigate(target)}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </nav>
+      {activeArea === "overview" ? (
+        <>
+          <MaterialRevisionEditor
+            key={current.id}
+            config={config}
+            material={material}
+            etag={materialEtag}
+            onSaved={reload}
+          />
+          <section className="detail-grid">
+            <article className="content-card provenance-card">
+              <p className="eyebrow">Provenance summary</p>
+              <h2>Immutable revision fact</h2>
+              <dl className="definition-list">
+                <div><dt>Revision ID</dt><dd title={current.id}>{shortId(current.id)}</dd></div>
+                <div><dt>Based on</dt><dd>{current.based_on_revision_id ? shortId(current.based_on_revision_id) : "Initial revision"}</dd></div>
+                <div><dt>Recorded by</dt><dd title={current.created_by}>{shortId(current.created_by)}</dd></div>
+                <div><dt>Reason</dt><dd>{current.change_reason}</dd></div>
+                <div><dt>Schema</dt><dd>{current.schema_id}</dd></div>
+              </dl>
+            </article>
+            <RevisionHistory
+              config={config}
+              materialId={material.material_id}
+              revisions={revisions}
+            />
+          </section>
+        </>
+      ) : null}
       <section className="section-heading inline-heading">
         <div>
-          <p className="eyebrow">Material states</p>
-          <h2>Manufacturing, heat treatment, and basic properties</h2>
+          <p className="eyebrow">Material states · {materialAreas.find((item) => item.area === activeArea)?.label}</p>
+          <h2>{activeArea === "overview" ? "Manufacturing, heat treatment, and basic properties" : "Work in an exact Material State context"}</h2>
         </div>
       </section>
       {detail.states.length === 0 ? <p className="muted">No Material State is registered yet.</p> : null}
@@ -819,16 +992,19 @@ function MaterialDetailPage({
             }
             currentMaterialRevisionId={current.id}
             currentMaterialClass={current.content.material_class}
+            activeArea={activeArea}
             onChanged={reload}
           />
         ))}
       </div>
-      <MaterialStateCreateForm
-        config={config}
-        materialId={material.material_id}
-        materialRevisionId={current.id}
-        onCreated={reload}
-      />
+      {activeArea === "overview" ? (
+        <MaterialStateCreateForm
+          config={config}
+          materialId={material.material_id}
+          materialRevisionId={current.id}
+          onCreated={reload}
+        />
+      ) : null}
     </div>
   );
 }
@@ -1084,6 +1260,7 @@ function MaterialStateCard({
   materialClass,
   currentMaterialRevisionId,
   currentMaterialClass,
+  activeArea,
   onChanged,
 }: {
   config: ApiConfig;
@@ -1092,6 +1269,7 @@ function MaterialStateCard({
   materialClass: MaterialClass;
   currentMaterialRevisionId: string;
   currentMaterialClass: MaterialClass;
+  activeArea: MaterialArea;
   onChanged: () => void;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
@@ -1144,10 +1322,14 @@ function MaterialStateCard({
         <div><dt>Lot / batch</dt><dd>{content.lot_or_batch ?? "—"}</dd></div>
       </dl>
       {content.description ? <p className="state-description">{content.description}</p> : null}
-      <CatalogGenealogyWorkbench config={config} state={state} />
-      <TestContextWorkbench config={config} state={state} />
-      <GovernedImportWorkbench config={config} state={state} />
-      {!stateUsesCurrentMaterial ? (
+      {activeArea === "overview" ? <CatalogGenealogyWorkbench config={config} state={state} /> : null}
+      {activeArea === "testing" ? (
+        <>
+          <TestContextWorkbench config={config} state={state} />
+          <GovernedImportWorkbench config={config} state={state} />
+        </>
+      ) : null}
+      {activeArea === "overview" && !stateUsesCurrentMaterial ? (
         <section className="property-summary compatibility-notice">
           <p className="eyebrow">Pinned Material revision</p>
           <h4>This State uses an earlier {materialClass} Material revision</h4>
@@ -1161,14 +1343,16 @@ function MaterialStateCard({
           </button>
         </section>
       ) : null}
-      {property && propertySet ? (
+      {property && propertySet && (activeArea === "overview" || activeArea === "models") ? (
         <>
           <section className="property-summary">
             <div className="section-heading compact-heading">
               <div><p className="eyebrow">Typed property set</p><h4>Basic mechanical properties</h4></div>
-              <button className="text-button" type="button" onClick={() => setEditorOpen((value) => !value)}>
-                {editorOpen ? "Close editor" : "Revise"}
-              </button>
+              {activeArea === "overview" ? (
+                <button className="text-button" type="button" onClick={() => setEditorOpen((value) => !value)}>
+                  {editorOpen ? "Close editor" : "Revise"}
+                </button>
+              ) : null}
             </div>
             <div className="property-grid">
               <div><span>Density</span><strong>{new Intl.NumberFormat().format(property.density_kg_per_m3)} kg/m³</strong></div>
@@ -1180,23 +1364,27 @@ function MaterialStateCard({
               Sources: ρ {property.density_source.kind}, E {property.youngs_modulus_source.kind}, ν {property.poisson_ratio_source.kind}
             </small>
           </section>
-          <ModelToCardWorkflow
-            key={propertySet.current_revision.id}
-            config={config}
-            state={state}
-            propertySet={propertySet}
-          />
+          {activeArea === "models" ? (
+            <ModelToCardWorkflow
+              key={propertySet.current_revision.id}
+              config={config}
+              state={state}
+              propertySet={propertySet}
+            />
+          ) : null}
         </>
-      ) : (
+      ) : activeArea === "overview" ? (
         <section className="property-summary empty-properties">
           <p className="eyebrow">Typed property set</p>
           <h4>No basic properties yet</h4>
           <p>Add explicit SI values and their source before the reference IR/card workflow.</p>
           <button className="text-button" type="button" onClick={() => setEditorOpen(true)}>Add properties</button>
         </section>
-      )}
-      <ReferenceTensileWorkflow config={config} state={state} propertySet={propertySet} />
-      {propertySet ? (
+      ) : null}
+      {activeArea === "datasets" ? (
+        <ReferenceTensileWorkflow config={config} state={state} propertySet={propertySet} />
+      ) : null}
+      {activeArea === "models" && propertySet ? (
         materialClass === "metal" ? (
           <ReferenceElastoplasticWorkbench
             key={`elastoplastic-${propertySet.current_revision.id}`}
@@ -1216,9 +1404,11 @@ function MaterialStateCard({
           </section>
         )
       ) : null}
-      {propertySet && (materialClass === "polymer" || materialClass === "elastomer") ? (
+      {activeArea === "datasets" && propertySet && (materialClass === "polymer" || materialClass === "elastomer") ? (
+        <ReferenceShearRelaxationWorkflow config={config} state={state} />
+      ) : null}
+      {activeArea === "models" && propertySet && (materialClass === "polymer" || materialClass === "elastomer") ? (
         <>
-          <ReferenceShearRelaxationWorkflow config={config} state={state} />
           <ReferenceLinearViscoelasticWorkbench
             key={`linear-viscoelastic-${propertySet.current_revision.id}`}
             config={config}
@@ -1227,7 +1417,7 @@ function MaterialStateCard({
           />
         </>
       ) : null}
-      {propertySet && materialClass === "elastomer" ? (
+      {activeArea === "models" && propertySet && materialClass === "elastomer" ? (
         <ReferenceOgdenPronyWorkbench
           key={`ogden-prony-${propertySet.current_revision.id}`}
           config={config}
@@ -1235,9 +1425,9 @@ function MaterialStateCard({
           propertySet={propertySet}
         />
       ) : null}
-      <ReferenceCalibrationWorkbench config={config} state={state} />
-      <ReferenceValidationWorkbench config={config} state={state} />
-      {editorOpen ? (
+      {activeArea === "models" ? <ReferenceCalibrationWorkbench config={config} state={state} /> : null}
+      {activeArea === "governance" ? <ReferenceValidationWorkbench config={config} state={state} /> : null}
+      {activeArea === "overview" && editorOpen ? (
         <PropertySetEditor
           key={propertySet?.property_set_id ?? `new-${state.material_state_id}`}
           config={config}
@@ -1722,9 +1912,12 @@ export function App() {
   const [path, navigate] = useLocationPath();
   const [config, setConfig] = useState<ApiConfig>(() => loadApiConfig());
   const [connectionOpen, setConnectionOpen] = useState(false);
-  const materialId = useMemo(() => {
-    const match = path.match(/^\/materials\/([^/]+)$/);
-    return match?.[1] ?? null;
+  const materialRoute = useMemo(() => {
+    const match = path.match(/^\/materials\/([^/]+)(?:\/(testing|datasets|models|governance))?$/);
+    return match ? {
+      materialId: match[1],
+      area: (match[2] ?? "overview") as MaterialArea,
+    } : null;
   }, [path]);
 
   function persistConfig(nextConfig: ApiConfig): void {
@@ -1735,12 +1928,20 @@ export function App() {
   let page: React.ReactNode;
   if (path === "/materials/new") {
     page = <MaterialCreatePage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
-  } else if (materialId) {
-    page = <MaterialDetailPage config={config} materialId={materialId} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (materialRoute) {
+    page = <MaterialDetailPage config={config} materialId={materialRoute.materialId} activeArea={materialRoute.area} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/materials") {
     page = <MaterialListPage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/exports") {
     page = <BulkExportCenter config={config} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (path === "/tests") {
+    page = <ModuleHubPage area="testing" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (path === "/datasets") {
+    page = <ModuleHubPage area="datasets" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (path === "/models") {
+    page = <ModuleHubPage area="models" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (path === "/governance") {
+    page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else {
     page = <DashboardPage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   }
