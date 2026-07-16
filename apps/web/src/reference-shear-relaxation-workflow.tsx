@@ -34,6 +34,7 @@ import type {
   TestMethodResponse,
   TestRunResponse,
 } from "./types";
+import { ViscoelasticMasterWorkbench } from "./viscoelastic-master-workbench";
 
 function message(error: unknown): string {
   return error instanceof ApiError
@@ -563,6 +564,12 @@ export function ReferenceShearRelaxationWorkflow({
               </p>
             ) : null}
           </form>
+          <ViscoelasticMasterWorkbench
+            config={config}
+            state={state}
+            datasets={datasets}
+            runs={shearRuns}
+          />
           <form className="form-stack" onSubmit={calibrateProny}>
             <div className="section-heading compact-heading">
               <div>

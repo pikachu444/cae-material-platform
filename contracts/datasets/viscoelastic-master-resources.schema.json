@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/datasets/viscoelastic-master-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "Reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "SelectionMemberRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset_id", "dataset_revision_id"],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "CreateSelectionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "selection_label", "members", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "members": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 50,
+          "items": {"$ref": "#/$defs/SelectionMemberRequest"}
+        },
+        "change_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "SelectionMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal", "dataset_id", "dataset_revision_id", "test_run_id",
+        "test_run_revision_id", "temperature_k", "outlier_status"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 49},
+        "dataset_id": {"$ref": "#/$defs/Uuid"},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "outlier_status": {"const": "not_assessed"}
+      }
+    },
+    "SelectionContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selection_label", "material_state_id", "material_state_revision_id",
+        "member_count", "temperature_count", "members"
+      ],
+      "properties": {
+        "selection_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "material_state_revision_id": {"$ref": "#/$defs/Uuid"},
+        "member_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "temperature_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "members": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 50,
+          "items": {"$ref": "#/$defs/SelectionMember"}
+        }
+      }
+    },
+    "SelectionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_id", "current_revision", "content", "links"],
+      "properties": {
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {"$ref": "#/$defs/SelectionContent"},
+        "links": {
+          "type": "object",
+          "additionalProperties": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "SelectionListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/SelectionResponse"}}
+      }
+    },
+    "Problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"type": "string", "format": "uri"},
+        "title": {"type": "string"},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string"},
+        "code": {"type": "string", "pattern": "^CMP-DATASET-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

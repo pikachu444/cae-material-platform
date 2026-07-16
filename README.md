@@ -9,7 +9,9 @@
 - 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce
   → OpenRadioss LAW36 또는 Abaqus `*PLASTIC` card
 - 폴리머: shear-relaxation raw/normalized/processed Dataset → bounded Prony calibration과 사람
-  candidate 선택 → 새 immutable linear-Prony IR revision → Abaqus `*VISCOELASTIC` card
+  candidate 선택 → 새 immutable linear-Prony IR revision → Abaqus `*VISCOELASTIC` card. 여러
+  온도의 반복시험은 common log-time 구간 통계와 수동/WLF shift를 거쳐 master-curve Dataset으로
+  별도 보존
 - 엘라스토머: Material/State/기본 물성 → one-term Ogden + shear-Prony IR → mapping preflight
   → Abaqus Ogden `.inp` 또는 OpenRadioss LAW62 `.rad` preview/download
 
@@ -91,14 +93,18 @@ Polymer / Elastomer Material
 → Material State와 기본 물성
 → shear-relaxation CSV 원본 보존과 명시적 column/unit mapping
 → raw revision + normalized SI Dataset revision과 curve 확인
+→ 다온도 replicate Selection → alignment/statistics → shift evidence → master-curve Dataset
 → 관측점 시간 구간 Recipe/Run과 별도 processed Dataset
 → manual linear Prony IR
 → bounded two-term Prony calibration과 multistart candidate/residual 비교
 → Abaqus *VISCOELASTIC mapping report → preview → .inp download
 ```
 
-현재 Dataset은 raw/normalized/processed로 구분되고 처리 Recipe와 Run이 정확한 revision을
-고정합니다. 처리된 curve는 bounded two-term generalized-Maxwell reference model에 fitting할
+현재 Dataset은 raw/normalized/processed/aligned/statistical/master-curve representation으로
+구분되고 처리 Plan/Recipe와 Run이 정확한 revision을 고정합니다. 다온도 반복시험 처리는
+공통 log-time 교집합에서만 선형 보간하며 외삽하지 않고, 수동 `log10(aT)` 또는 세 온도
+이상의 deterministic WLF fit evidence를 저장합니다. 처리된 curve는 bounded two-term
+generalized-Maxwell reference model에 fitting할
 수 있고, deterministic multistart candidate, 관측/예측 curve, residual, 수렴·bound·식별성
 상태를 화면에서 비교할 수 있습니다. 사용자는 Candidate와 이유를 직접 선택하며, 선택된
 evidence는 같은 Material Model identity의 새 immutable IR revision으로 승격됩니다. 가장 낮은
@@ -132,7 +138,7 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 | --- | --- | --- | --- |
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
-| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed 보존, bounded multistart fitting, candidate/residual 검토, 사람 선택, 새 IR revision 승격, card preview/download reference 구현 |
+| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed 보존, 다온도 replicate 통계와 수동/WLF master curve, bounded multistart fitting, candidate/residual 검토, 사람 선택, 새 IR revision 승격, card preview/download reference 구현 |
 | Elastomer 초점탄성 | one-term Ogden + 1~5 shear-Prony | Abaqus Ogden, OpenRadioss LAW62 | 명시적 preflight와 card preview/download reference 구현; LAW62 ν=0.495 근사는 mapping report에 표시 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 
@@ -150,6 +156,17 @@ warning을 검토하고 직접 candidate와 선택 사유를 확정해야 합니
 Model identity를 유지하면서 새 immutable IR revision을 추가합니다. 승격된 revision에서
 Abaqus 2025 mapping report, `*VISCOELASTIC` card preview와 `.inp` 다운로드를 바로 생성할 수
 있으며, 자동 candidate 승인이나 원본 데이터 덮어쓰기는 없습니다.
+
+다온도 반복시험 예제 데이터는 서비스 실행 후 다음 명령으로 추가할 수 있습니다. 이 helper는
+공개 synthetic curve만 만들며 실제 회사 재료값을 포함하지 않습니다.
+
+```powershell
+uv run python scripts/seed_viscoelastic_master_demo.py
+```
+
+생성된 Material 상세의 **Viscoelastic master curve**에서 두 개 이상의 온도와 반복 curve를
+선택하고 reference temperature 및 수동/WLF shift 방식을 정하면 aligned/statistical/master
+Dataset이 각각 새 immutable revision으로 생성됩니다.
 
 ## 로컬에서 실행
 

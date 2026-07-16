@@ -1240,6 +1240,126 @@ export interface ShearRelaxationProcessingRunResponse {
   links: Record<string, string>;
 }
 
+export interface ViscoelasticSelectionMember {
+  ordinal: number;
+  dataset_id: string;
+  dataset_revision_id: string;
+  test_run_id: string;
+  test_run_revision_id: string;
+  temperature_k: number;
+  outlier_status: "not_assessed";
+}
+
+export interface ViscoelasticSelectionResponse {
+  selection_id: string;
+  current_revision: RevisionMetadata;
+  content: {
+    selection_label: string;
+    material_state_id: string;
+    material_state_revision_id: string;
+    member_count: number;
+    temperature_count: number;
+    members: ViscoelasticSelectionMember[];
+  };
+  links: Record<string, string>;
+}
+
+export type ViscoelasticShiftMethod = "manual" | "wlf_fit";
+
+export interface ViscoelasticMasterPlanResponse {
+  plan_id: string;
+  current_revision: RevisionMetadata;
+  content: {
+    plan_label: string;
+    selection_id: string;
+    selection_revision_id: string;
+    reference_temperature_k: number;
+    grid_point_count: number;
+    shift_method: ViscoelasticShiftMethod;
+    manual_shift_factors: Array<{ temperature_k: number; log10_a_t: number }>;
+    interpolation: "piecewise_linear_log_time";
+    domain_policy: "common_intersection_no_extrapolation";
+    reduced_time_convention: "time_divided_by_a_t";
+  };
+  links: Record<string, string>;
+}
+
+export interface ViscoelasticShiftFactor {
+  temperature_k: number;
+  log10_a_t: number;
+  source: "reference" | "manual" | "wlf_fit";
+  observed_log10_a_t: number | null;
+  residual_log10_a_t: number | null;
+  alignment_rmse_pa: number | null;
+}
+
+export interface ViscoelasticMasterRunResponse {
+  processing_run_id: string;
+  classification: DataClassification;
+  plan_id: string;
+  plan_revision_id: string;
+  selection_id: string;
+  selection_revision_id: string;
+  status: "executing" | "succeeded" | "failed";
+  source_curve_count: number;
+  temperature_count: number;
+  aligned_row_count: number | null;
+  statistics_row_count: number | null;
+  master_row_count: number | null;
+  aligned_dataset_id: string | null;
+  aligned_dataset_revision_id: string | null;
+  statistics_dataset_id: string | null;
+  statistics_dataset_revision_id: string | null;
+  master_dataset_id: string | null;
+  master_dataset_revision_id: string | null;
+  wlf_c1: number | null;
+  wlf_c2_k: number | null;
+  shift_factors: ViscoelasticShiftFactor[];
+  failure_code: string | null;
+  started_at: string;
+  ended_at: string | null;
+  links: Record<string, string>;
+}
+
+export interface ViscoelasticMasterPreviewResponse {
+  run: ViscoelasticMasterRunResponse;
+  reference_temperature_k: number;
+  aligned_curves: Array<{
+    member_ordinal: number;
+    dataset_revision_id: string;
+    test_run_revision_id: string;
+    temperature_k: number;
+    outlier_status: "not_assessed";
+    points: Array<{ time_s: number; shear_modulus_pa: number }>;
+  }>;
+  temperature_statistics: Array<{
+    temperature_k: number;
+    replicate_count: number;
+    points: Array<{
+      time_s: number;
+      replicate_count: number;
+      mean_shear_modulus_pa: number;
+      sample_standard_deviation_pa: number | null;
+      median_shear_modulus_pa: number;
+      minimum_shear_modulus_pa: number;
+      maximum_shear_modulus_pa: number;
+    }>;
+  }>;
+  master_curve: Array<{
+    reduced_time_s: number;
+    contributing_curve_count: number;
+    mean_shear_modulus_pa: number;
+    sample_standard_deviation_pa: number | null;
+    minimum_shear_modulus_pa: number;
+    maximum_shear_modulus_pa: number;
+  }>;
+  policy: {
+    interpolation: "piecewise_linear_log_time";
+    domain: "common_intersection_no_extrapolation";
+    reduced_time: "time_divided_by_a_t";
+  };
+}
+
 export interface PronyParameterPlan {
   name: string;
   unit: string;

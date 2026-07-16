@@ -616,8 +616,25 @@ Solver execution and solver-result equivalence are intentionally excluded by pro
 They require a separate version/license/element/formulation matrix and must not be inferred from
 keyword rendering or golden text equality.
 - End to end: Material class -> State -> property/test data -> exact IR revision -> mapping report
-  -> preview/download must pass in the browser against PostgreSQL. Golden/semantic tests do not
+ -> preview/download must pass in the browser against PostgreSQL. Golden/semantic tests do not
   claim real solver acceptance.
+
+#### T-42 replicate/TTS/master-curve gate
+
+- numeric fixtures prove log10 common-intersection alignment, piecewise-linear interpolation,
+  sample statistics by replicate count, no extrapolation, manual shift behavior and deterministic
+  WLF recovery with at least three distinct temperatures;
+- migration/PostgreSQL tests require exact Selection member and Test Run temperature pins, typed
+  Plan/Run/shift/output rows, child-count deferred validation, composite tenant/classification FKs,
+  forced RLS, immutable revisions and three separately typed provenance output subactivities;
+- API and contract tests create/read Selection, Plan and terminal Run resources, preview all three
+  output Artifacts after digest/schema verification and reject missing temperatures, no-overlap,
+  cross-project and unsupported input representation;
+- the browser regression selects multiple normalized curves, executes manual/WLF processing and
+  renders individual shifted replicates, reference temperature, `n`, sample band, outlier status and
+  master curve without treating displayed SVG data as a calculation input;
+- source raw/normalized Dataset revisions and Artifacts remain byte/digest stable. These tests do
+  not qualify WLF parameters, a Prony model or an Abaqus material card for production use.
 
 The first linear-viscoelastic gate is implemented by migration 040 and its offline migration test,
 domain limit/invariant tests, a PostgreSQL repository integration that restores ordered terms and

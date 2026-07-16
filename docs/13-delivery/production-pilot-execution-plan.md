@@ -29,12 +29,12 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
 
 ## 2. 현재 기준선
 
-- latest schema: migration 051
+- latest schema: migration 052
 - implemented: Material/State/typed Property, Process/Lot bounded genealogy, tensile and
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, Abaqus/OpenRadioss cards, review/release/provenance
 - live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
-- missing product depth: T-42~T-45 and T-47
+- missing product depth: T-43~T-45 and T-47
 - user experience gap: global navigation and task-oriented user manual from T-46
 
 Migrations 001~051, raw objects, prior revisions, cards, releases and golden fixtures are never
@@ -48,7 +48,7 @@ rewritten. The next schema unit begins at migration 052.
 | 2 | T-39 Process Run/Lot/Specimen genealogy | unit + migration + live PostgreSQL + API + React + `make ci` | complete |
 | 3 | T-40 Campaign/Instrument/conditions | same vertical gate plus exact calibration snapshot | complete |
 | 4 | T-41 tabular importer/schema | parser/security/contract/PostgreSQL/browser fixtures | complete |
-| 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | pending |
+| 5 | T-42 viscoelastic replicate/TTS/master | numeric fixtures + provenance + browser curves | complete |
 | 6 | T-43 scientific profiles/fitting | analytic/reference fixtures + diagnostics UI | pending |
 | 7 | T-44 iterative calibration | repeated promotion and prior evidence/card stability | pending |
 | 8 | T-45 Bulk Export Bundle | deterministic archive/digest + RLS + Export Center | pending |
@@ -98,6 +98,21 @@ the clean npm install reported zero vulnerabilities. Live protected API executio
 synthetic tensile rows and created distinct raw and normalized revisions. The connected 1440x900
 browser capture is `docs/15-demo/images/governed-tabular-import.png`, with no console warnings or
 errors.
+
+PR 5 implements T-42 with migration 052: an exact ordered Selection pins normalized relaxation
+Dataset and historical Test Run temperature revisions; the Plan fixes manual or WLF shift policy
+and a reference temperature. One terminal Run commits separate aligned, statistics and master-curve
+Dataset revisions, ordered shift evidence and provenance subactivities without changing any source.
+The numeric kernel uses the common log-time intersection, piecewise-linear interpolation and no
+extrapolation. Live Docker/PostgreSQL execution processed six public synthetic curves across three
+temperatures and the connected browser displayed replicate count, sample bands, outlier status,
+shift factors and master curve. The screenshots are
+`docs/15-demo/images/viscoelastic-master-statistics.png` and
+`docs/15-demo/images/viscoelastic-master-curve.png`. Migration 052 completed a fresh 001--052
+upgrade and a 052--051--052 round trip on PostgreSQL 16. The CI-equivalent gate passed 585 Python
+tests without skips/failures, 33 Vitest tests, ruff, mypy over 497 source files,
+architecture/contract/OpenAPI compatibility, production Vite build and npm audit with zero
+vulnerabilities.
 
 ## 4. Acceptance scenarios
 

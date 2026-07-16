@@ -1,7 +1,7 @@
 # Implementation Status
 
 Date: `2026-07-27`
-Foundation version: `0.27.0`
+Foundation version: `0.28.0`
 
 ## Completed
 
@@ -46,6 +46,20 @@ Foundation version: `0.27.0`
   31 web tests, ruff, mypy over 480 source files, architecture/contracts, the production frontend
   build, a fresh PostgreSQL 001--050 migration and a live Docker browser workflow without skips,
   test warnings or browser console errors.
+- `T-41`: governed CSV/TSV/XLSX import with immutable source Artifact, explicit `needs_input`
+  Preview Report, reusable human-approved typed Profile revisions, exact terminal Import Run and
+  separate raw/normalized Dataset revisions. Parser limits, locale/sheet choices, formula/macro/
+  external-link rejection and force/displacement geometry requirements are explicit. Migration 051,
+  protected API, connected workbench and live PostgreSQL/browser evidence are complete.
+- `T-42`: a multi-member Viscoelastic Selection revision pins exact normalized shear-relaxation
+  Dataset/Test Run revisions and test temperatures. An immutable Master Curve Plan selects manual
+  shift factors or deterministic WLF fitting with a reference temperature. The terminal Run creates
+  separate aligned, pointwise-statistics and master-curve Dataset revisions plus ordered shift
+  evidence; common log-time interpolation never extrapolates. Explicit migration 052 tables,
+  composite tenant keys, forced RLS, immutable/deferred guards, provenance subactivities, protected
+  APIs and the connected React workbench expose individual replicates, `n`, sample bands, outlier
+  status, shifted curves and the master curve. The reference slice preserves every input and does
+  not claim scientific or solver qualification.
 - `T-08` reference subset: explicit Specimen, reference uniaxial tensile Test Method, and Test Run
   stable identities with immutable typed revisions; a Test Run pins concrete Specimen/Test Method
   revisions, a State-specific specimen code, optional test temperature/crosshead speed, protected
@@ -836,7 +850,9 @@ new foundation rewrite; it is production depth and additional vertical coverage:
 5. **Operations and governance hardening:** production identity/role administration, object-store
    object lock/KMS/retention, package signing/SBOM/scanning, T-35 observability, T-36 restore drill,
    T-37 release-quality evidence, T-38 performance/security acceptance, and external PLM/CAE
-   connectors.
+   connectors. T-47 must also reconcile and expose an immutable derived output if a later step of a
+   multi-output Run fails; committed evidence is never deleted or hidden, but failed Runs must not
+   leave it operationally undiscoverable.
 
 ## Production-pilot execution baseline (2026-07-16)
 
@@ -864,7 +880,10 @@ an end-to-end governed CSV/TSV/XLSX intake: immutable source Artifact, explicit 
 preview, human-approved reusable Import Profile revision, terminal exact-pinned Import Run and
 separate raw/normalized SI Dataset revisions. CSV/TSV locale and XLSX sheet/formula/macro/external
 link/decompression constraints are explicit; force/displacement derivation requires pinned
-geometry. The next implementation unit is T-42 viscoelastic replicate/TTS/master-curve processing.
+   geometry. T-42 then adds exact multi-temperature replicate selection, explicit common-domain
+   alignment/statistics, manual or deterministic WLF shift evidence and separate immutable master-
+   curve output. The next implementation unit is T-43 scientific profiles, uncertainty and
+   hyper-viscoelastic fitting.
 
 T-41 verification on 2026-07-16: migration 051 completed an upgrade/downgrade/re-upgrade round trip
 on disposable PostgreSQL 16. The CI-equivalent gate passed 576 Python tests with zero skips or
@@ -872,4 +891,13 @@ failures, 32 Vitest tests, ruff, mypy over 486 source files, architecture and co
 OpenAPI compatibility and the production Vite build; clean npm install/audit reported zero
 vulnerabilities. Live protected API execution imported nine synthetic tensile rows into distinct
 raw and normalized revisions, and the connected browser workbench reported no warning/error.
+
+T-42 verification on 2026-07-16: the protected Docker/PostgreSQL workflow processed six synthetic
+public relaxation curves at three temperatures into 606 aligned rows, 303 statistical rows and 101
+master points. WLF evidence recorded the reference and fitted shifts, while the browser rendered
+the shifted replicates, `n=2`, sample standard-deviation band and master curve without console
+warnings/errors. Migration 052 completed a fresh 001--052 upgrade plus 052--051--052 round trip on
+PostgreSQL 16. The CI-equivalent gate passed 585 Python tests with zero skips/failures, 33 Vitest
+tests, ruff, mypy over 497 source files, architecture/contract/OpenAPI compatibility and the
+production frontend build; npm audit reported zero vulnerabilities.
 

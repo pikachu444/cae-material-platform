@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/processing/viscoelastic-master-curve-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+    "Reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "ManualShift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["temperature_k", "log10_a_t"],
+      "properties": {
+        "temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "log10_a_t": {"type": "number", "minimum": -20, "maximum": 20}
+      }
+    },
+    "CreatePlanRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "plan_label", "selection_id", "selection_revision_id",
+        "reference_temperature_k", "shift_method", "change_reason"
+      ],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "grid_point_count": {"type": "integer", "minimum": 3, "maximum": 501, "default": 101},
+        "shift_method": {"enum": ["manual", "wlf_fit"]},
+        "manual_shift_factors": {
+          "type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/ManualShift"}, "default": []
+        },
+        "change_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "ExecuteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "plan_revision_id", "change_reason"],
+      "properties": {
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"$ref": "#/$defs/Reason"}
+      }
+    },
+    "PlanContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_label", "selection_id", "selection_revision_id", "reference_temperature_k",
+        "grid_point_count", "shift_method", "manual_shift_factors", "interpolation",
+        "domain_policy", "reduced_time_convention"
+      ],
+      "properties": {
+        "plan_label": {"type": "string", "minLength": 1, "maxLength": 160},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "grid_point_count": {"type": "integer", "minimum": 3, "maximum": 501},
+        "shift_method": {"enum": ["manual", "wlf_fit"]},
+        "manual_shift_factors": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/ManualShift"}},
+        "interpolation": {"const": "piecewise_linear_log_time"},
+        "domain_policy": {"const": "common_intersection_no_extrapolation"},
+        "reduced_time_convention": {"const": "time_divided_by_a_t"}
+      }
+    },
+    "PlanResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "current_revision", "content", "links"],
+      "properties": {
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {"$ref": "#/$defs/PlanContent"},
+        "links": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}}
+      }
+    },
+    "ShiftFactor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_k", "log10_a_t", "source", "observed_log10_a_t",
+        "residual_log10_a_t", "alignment_rmse_pa"
+      ],
+      "properties": {
+        "temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "log10_a_t": {"type": "number", "minimum": -20, "maximum": 20},
+        "source": {"enum": ["reference", "manual", "wlf_fit"]},
+        "observed_log10_a_t": {"type": ["number", "null"]},
+        "residual_log10_a_t": {"type": ["number", "null"]},
+        "alignment_rmse_pa": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "RunResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processing_run_id", "classification", "plan_id", "plan_revision_id", "selection_id",
+        "selection_revision_id", "status", "source_curve_count", "temperature_count",
+        "aligned_row_count", "statistics_row_count", "master_row_count", "aligned_dataset_id",
+        "aligned_dataset_revision_id", "statistics_dataset_id", "statistics_dataset_revision_id",
+        "master_dataset_id", "master_dataset_revision_id", "wlf_c1", "wlf_c2_k",
+        "shift_factors", "failure_code", "started_at", "ended_at", "links"
+      ],
+      "properties": {
+        "processing_run_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "plan_id": {"$ref": "#/$defs/Uuid"},
+        "plan_revision_id": {"$ref": "#/$defs/Uuid"},
+        "selection_id": {"$ref": "#/$defs/Uuid"},
+        "selection_revision_id": {"$ref": "#/$defs/Uuid"},
+        "status": {"enum": ["executing", "succeeded", "failed"]},
+        "source_curve_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "temperature_count": {"type": "integer", "minimum": 2, "maximum": 50},
+        "aligned_row_count": {"type": ["integer", "null"], "minimum": 1},
+        "statistics_row_count": {"type": ["integer", "null"], "minimum": 1},
+        "master_row_count": {"type": ["integer", "null"], "minimum": 1},
+        "aligned_dataset_id": {"type": ["string", "null"], "format": "uuid"},
+        "aligned_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "statistics_dataset_id": {"type": ["string", "null"], "format": "uuid"},
+        "statistics_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "master_dataset_id": {"type": ["string", "null"], "format": "uuid"},
+        "master_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "wlf_c1": {"type": ["number", "null"]},
+        "wlf_c2_k": {"type": ["number", "null"]},
+        "shift_factors": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/ShiftFactor"}},
+        "failure_code": {"type": ["string", "null"], "maxLength": 100},
+        "started_at": {"type": "string", "format": "date-time"},
+        "ended_at": {"type": ["string", "null"], "format": "date-time"},
+        "links": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}}
+      }
+    },
+    "CurvePoint": {
+      "type": "object", "additionalProperties": false, "required": ["time_s", "shear_modulus_pa"],
+      "properties": {"time_s": {"type": "number", "exclusiveMinimum": 0}, "shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0}}
+    },
+    "AlignedCurve": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["member_ordinal", "dataset_revision_id", "test_run_revision_id", "temperature_k", "outlier_status", "points"],
+      "properties": {
+        "member_ordinal": {"type": "integer", "minimum": 0, "maximum": 49},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_run_revision_id": {"$ref": "#/$defs/Uuid"},
+        "temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "outlier_status": {"const": "not_assessed"},
+        "points": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/CurvePoint"}}
+      }
+    },
+    "StatisticsPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["time_s", "replicate_count", "mean_shear_modulus_pa", "sample_standard_deviation_pa", "median_shear_modulus_pa", "minimum_shear_modulus_pa", "maximum_shear_modulus_pa"],
+      "properties": {
+        "time_s": {"type": "number", "exclusiveMinimum": 0},
+        "replicate_count": {"type": "integer", "minimum": 1, "maximum": 50},
+        "mean_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "sample_standard_deviation_pa": {"type": ["number", "null"], "minimum": 0},
+        "median_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "minimum_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "maximum_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "TemperatureStatistics": {
+      "type": "object", "additionalProperties": false, "required": ["temperature_k", "replicate_count", "points"],
+      "properties": {
+        "temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "replicate_count": {"type": "integer", "minimum": 1, "maximum": 50},
+        "points": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/StatisticsPoint"}}
+      }
+    },
+    "MasterCurvePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reduced_time_s", "contributing_curve_count", "mean_shear_modulus_pa", "sample_standard_deviation_pa", "minimum_shear_modulus_pa", "maximum_shear_modulus_pa"],
+      "properties": {
+        "reduced_time_s": {"type": "number", "exclusiveMinimum": 0},
+        "contributing_curve_count": {"type": "integer", "minimum": 1, "maximum": 50},
+        "mean_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "sample_standard_deviation_pa": {"type": ["number", "null"], "minimum": 0},
+        "minimum_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "maximum_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "PreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run", "reference_temperature_k", "aligned_curves", "temperature_statistics", "master_curve", "policy"],
+      "properties": {
+        "run": {"$ref": "#/$defs/RunResponse"},
+        "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
+        "aligned_curves": {"type": "array", "minItems": 2, "maxItems": 50, "items": {"$ref": "#/$defs/AlignedCurve"}},
+        "temperature_statistics": {"type": "array", "minItems": 2, "maxItems": 50, "items": {"$ref": "#/$defs/TemperatureStatistics"}},
+        "master_curve": {"type": "array", "minItems": 3, "maxItems": 501, "items": {"$ref": "#/$defs/MasterCurvePoint"}},
+        "policy": {
+          "type": "object", "additionalProperties": false,
+          "required": ["interpolation", "domain", "reduced_time"],
+          "properties": {
+            "interpolation": {"const": "piecewise_linear_log_time"},
+            "domain": {"const": "common_intersection_no_extrapolation"},
+            "reduced_time": {"const": "time_divided_by_a_t"}
+          }
+        }
+      }
+    },
+    "Problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"type": "string", "format": "uri"},
+        "title": {"type": "string"},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string"},
+        "code": {"type": "string", "pattern": "^CMP-PROCESSING-[0-9]{4}$"},
+        "trace_id": {"type": "string", "minLength": 1, "maxLength": 255}
+      }
+    }
+  }
+}

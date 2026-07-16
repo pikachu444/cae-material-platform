@@ -1284,3 +1284,59 @@ def test_linear_viscoelastic_contract_matches_runtime_and_is_typed() -> None:
     assert "instantaneous" in serialized
     assert '"attribute"' not in serialized
     assert '"value"' not in serialized
+
+
+def test_viscoelastic_master_curve_contract_matches_runtime_and_is_typed() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    operations = {
+        "/api/v1/viscoelastic-selections": {
+            "post": "createViscoelasticSelection",
+            "get": "listViscoelasticSelections",
+        },
+        "/api/v1/viscoelastic-selections/{selection_id}": {
+            "get": "getViscoelasticSelection",
+        },
+        "/api/v1/processing-plans/viscoelastic-master-curve": {
+            "post": "createViscoelasticMasterPlan",
+        },
+        "/api/v1/processing-runs/viscoelastic-master-curve": {
+            "post": "executeViscoelasticMasterPlan",
+        },
+        "/api/v1/processing-runs/viscoelastic-master-curve/{run_id}": {
+            "get": "getViscoelasticMasterRun",
+        },
+        "/api/v1/processing-runs/viscoelastic-master-curve/{run_id}/preview": {
+            "get": "previewViscoelasticMasterRun",
+        },
+    }
+    for path, methods in operations.items():
+        for method, operation_id in methods.items():
+            assert source["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["operationId"] == operation_id
+            assert runtime["paths"][path][method]["security"] == [{"BearerAuth": []}]
+
+    schemas = [
+        json.loads(
+            (
+                PROJECT_ROOT / "contracts/datasets/viscoelastic-master-resources.schema.json"
+            ).read_text(encoding="utf-8")
+        ),
+        json.loads(
+            (
+                PROJECT_ROOT
+                / "contracts/processing/viscoelastic-master-curve-resources.schema.json"
+            ).read_text(encoding="utf-8")
+        ),
+    ]
+    serialized = json.dumps(schemas)
+    for required in (
+        "temperature_k",
+        "outlier_status",
+        "log10_a_t",
+        "common_intersection_no_extrapolation",
+        "time_divided_by_a_t",
+    ):
+        assert required in serialized
+    assert '"attribute"' not in serialized
+    assert '"value"' not in serialized
