@@ -45,6 +45,7 @@ cmp-plugin-runner = "cmp_plugin_sdk.runner:main"
 cmp-check-architecture = "cmp.tools.architecture:main"
 cmp-check-contracts = "cmp.tools.contracts:main"
 cmp-check-user-guide = "cmp.tools.user_guide:main"
+cmp-restore-drill = "cmp.tools.restore_drill:main"
 cmp-generate-client = "cmp.tools.generate_client:main"
 
 [tool.hatch.build.targets.wheel]

@@ -101,6 +101,27 @@ services:
       migrate:
         condition: service_completed_successfully
 
+  restore-drill:
+    profiles: ["operations"]
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.restore
+    command:
+      - --source-url
+      - postgresql+psycopg://cmp_owner:cmp_owner_development_only@postgres:5432/cmp
+      - --object-store-root
+      - /var/lib/cmp/object-store
+      - --work-root
+      - /var/lib/cmp/restore-reports
+    volumes:
+      - cmp_demo_objects:/var/lib/cmp/object-store:ro
+      - ../../.cache/restore-drill:/var/lib/cmp/restore-reports
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
   reference-plugins:
     build:
       context: ../..
