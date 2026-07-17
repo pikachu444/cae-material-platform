@@ -1,8 +1,8 @@
 # 관리자 가이드
 
 이 가이드는 configurable Material Information System의 관리 기능을 설명한다. T-49에서
-Table, typed Attribute, Layout과 Subset 관리가 실제 PostgreSQL/API/UI로 연결됐다. Folder,
-Link Type, Explorer와 단순 feature grant는 각각 T-50/T-51/T-59에서 추가한다. 구현되지 않은
+Table, typed Attribute, Layout, Subset, Folder와 typed Record 관리가 실제 PostgreSQL/API/UI로
+연결됐다. Link Type, Explorer와 단순 feature grant는 각각 T-51/T-59에서 추가한다. 구현되지 않은
 절차를 현재 사용 가능한 기능처럼 설명하지 않는다.
 
 ## 관리 대상
@@ -33,10 +33,23 @@ revision을 수정하지 않고 새 revision을 만든다. 기존 record revisio
 `record_reference`다. Attribute의 stable key와 data type은 기존 값을 바꾸지 않는다. 이름,
 설명, validation 또는 Layout/Subset 정의를 고치면 API는 current ETag를 요구하고 새 revision을
 추가한다. 수치 record value 저장소는 원본 값/단위 문자열과 정규화 값/단위/quantity semantics를
-분리 보존하며 잘못된 조합을 DB에서도 거부한다. Record 입력과 Layout datasheet 소비는 T-50
-범위이므로 현재 schema designer에서는 definition만 관리한다.
+분리 보존하며 잘못된 조합을 DB에서도 거부한다. 실제 Record 입력은
+[Catalog records](http://127.0.0.1:5173/catalog/records)에서 Layout 순서로 수행한다.
 
 ![T-49 Catalog schema designer](../15-demo/images/t49-configurable-catalog.png)
+
+## Folder, Record와 saved Subset 운영
+
+1. **Catalog records**에서 관리할 Table을 선택한다.
+2. Folder 이름과 선택적 parent를 지정한다. 모든 parent는 exact Folder revision을 고정하고
+   application과 PostgreSQL trigger가 cycle 및 다른 Table 연결을 차단한다.
+3. Layout을 선택해 Record 입력 순서를 결정한다. Layout은 값을 복제하지 않고 Attribute revision
+   표시 순서만 제공한다.
+4. 검색 조건을 Subset으로 저장한다. Subset 수정은 기존 filter를 덮어쓰지 않고 새 revision을
+   추가해야 한다.
+5. Record 수정은 current ETag를 사용하며 기존 Record revision과 typed value row는 immutable이다.
+
+Catalog Explorer tree, arbitrary Link Type과 양방향 링크 편집은 T-51 범위다.
 
 ## 기존 관리 기능
 

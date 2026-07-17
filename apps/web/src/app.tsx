@@ -113,6 +113,11 @@ const ConfigurableCatalogAdmin = lazy(() =>
     default: module.ConfigurableCatalogAdmin,
   })),
 );
+const ConfigurableCatalogRecords = lazy(() =>
+  import("./configurable-catalog-records").then((module) => ({
+    default: module.ConfigurableCatalogRecords,
+  })),
+);
 
 type Navigate = (path: string) => void;
 type MaterialArea = "overview" | "testing" | "datasets" | "models" | "governance";
@@ -218,7 +223,7 @@ function Header({
     { label: "Dashboard", target: "/", active: path === "/" },
     {
       label: "Catalog",
-      target: "/catalog/schema",
+      target: "/catalog/records",
       active: path.startsWith("/catalog"),
     },
     {
@@ -2020,7 +2025,21 @@ export function App() {
   } else if (path === "/materials") {
     page = <MaterialListPage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/catalog/schema") {
-    page = <ConfigurableCatalogAdmin config={config} onOpenConnection={() => setConnectionOpen(true)} />;
+    page = (
+      <ConfigurableCatalogAdmin
+        config={config}
+        onNavigate={navigate}
+        onOpenConnection={() => setConnectionOpen(true)}
+      />
+    );
+  } else if (path === "/catalog/records") {
+    page = (
+      <ConfigurableCatalogRecords
+        config={config}
+        onNavigate={navigate}
+        onOpenConnection={() => setConnectionOpen(true)}
+      />
+    );
   } else if (path === "/exports") {
     page = <BulkExportCenter config={config} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/tests") {

@@ -66,6 +66,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260823_057_T47_external_bundle_reconciliation.py",
         "20260824_058_T47_bulk_export_job_leases.py",
         "20260825_059_T49_configurable_catalog.py",
+        "20260826_060_T50_catalog_records.py",
     ]
 
 

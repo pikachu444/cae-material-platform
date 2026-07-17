@@ -1,0 +1,362 @@
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from decimal import Decimal
+from typing import Any, cast
+from uuid import UUID, uuid4
+
+import httpx
+import pytest
+from cmp.modules.catalog.adapters.api.configurable import install_configurable_catalog_api
+from cmp.modules.catalog.adapters.api.records import install_catalog_record_api
+from cmp.modules.catalog.application.configurable import ConfigRevision
+from cmp.modules.catalog.application.records import (
+    FOLDER_AGGREGATE_TYPE,
+    RECORD_AGGREGATE_TYPE,
+    FolderSnapshot,
+    RecordComparison,
+    RecordFacetBucket,
+    RecordSearchResult,
+    RecordSnapshot,
+    RecordValueDifference,
+)
+from cmp.modules.identity_access.application.authorization import database_permissions_for
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+    Permission,
+    Role,
+)
+from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
+from cmp.shared.domain.revisions import RevisionRecord, TenantScope
+from fastapi import FastAPI, Request
+
+NOW = datetime(2026, 7, 18, 12, 0, tzinfo=UTC)
+ORG = UUID("dc000000-0000-4000-8000-000000000001")
+PROJECT = UUID("dc000000-0000-4000-8000-000000000002")
+ACTOR = UUID("dc000000-0000-4000-8000-000000000003")
+TABLE = UUID("dc000000-0000-4000-8000-000000000004")
+TABLE_REV = UUID("dc000000-0000-4000-8000-000000000005")
+ATTRIBUTE = UUID("dc000000-0000-4000-8000-000000000006")
+ATTRIBUTE_REV = UUID("dc000000-0000-4000-8000-000000000007")
+FOLDER = UUID("dc000000-0000-4000-8000-000000000008")
+FOLDER_REV = UUID("dc000000-0000-4000-8000-000000000009")
+RECORD = UUID("dc000000-0000-4000-8000-000000000010")
+RECORD_REV_1 = UUID("dc000000-0000-4000-8000-000000000011")
+RECORD_REV_2 = UUID("dc000000-0000-4000-8000-000000000012")
+
+
+def _context() -> SecurityContext:
+    return SecurityContext(
+        principal=Principal(ACTOR, PrincipalType.USER, "Catalog User", True),
+        organization_id=ORG,
+        project_id=PROJECT,
+        issuer="urn:cmp:test",
+        subject=str(ACTOR),
+        token_id=str(uuid4()),
+        groups=(),
+        scopes=("openid",),
+        request_id=uuid4(),
+        trace_id="00-000000000000000000000000000000dc-00000000000000dc-01",
+        authenticated_at=NOW,
+    )
+
+
+CONTEXT = _context()
+
+
+def _decision(permission: Permission) -> AuthorizationDecision:
+    return AuthorizationDecision(
+        principal_id=ACTOR,
+        organization_id=ORG,
+        project_id=PROJECT,
+        permission=permission,
+        roles=(Role.DATA_STEWARD,),
+        database_permissions=database_permissions_for(permission),
+        max_classification=DataClassification.INTERNAL,
+        allow_export_controlled=False,
+        request_id=CONTEXT.request_id,
+        trace_id=CONTEXT.trace_id,
+        decided_at=NOW,
+    )
+
+
+def _revision(
+    aggregate_type: str,
+    aggregate_id: UUID,
+    revision_id: UUID,
+    revision_no: int,
+    based_on: UUID | None,
+) -> RevisionRecord:
+    return RevisionRecord(
+        revision_id,
+        aggregate_type,
+        aggregate_id,
+        TenantScope(ORG, PROJECT, "internal"),
+        revision_no,
+        based_on,
+        f"urn:cmp:{aggregate_type}:1.0.0",
+        "1.0.0",
+        ("a" if revision_no == 1 else "b") * 64,
+        NOW,
+        ACTOR,
+        "API fixture",
+        CONTEXT.request_id,
+        CONTEXT.trace_id,
+    )
+
+
+class _Service:
+    def __init__(self) -> None:
+        self.folder: FolderSnapshot | None = None
+        self.record: RecordSnapshot | None = None
+        self.revisions: list[ConfigRevision[Any]] = []
+
+    def create_folder(self, context: Any, decision: Any, command: Any) -> FolderSnapshot:
+        del context, decision
+        self.folder = FolderSnapshot(
+            FOLDER,
+            TABLE,
+            ConfigRevision(
+                _revision(FOLDER_AGGREGATE_TYPE, FOLDER, FOLDER_REV, 1, None), command.content
+            ),
+        )
+        return self.folder
+
+    def list_folders(self, context: Any, decision: Any, table_id: UUID) -> tuple[Any, ...]:
+        del context, decision
+        assert table_id == TABLE
+        return (self.folder,) if self.folder else ()
+
+    def get_folder_for_write(self, context: Any, decision: Any, folder_id: UUID) -> Any:
+        del context, decision
+        assert folder_id == FOLDER and self.folder is not None
+        return self.folder
+
+    def revise_folder(self, context: Any, decision: Any, folder_id: UUID, command: Any) -> Any:
+        del context, decision, folder_id, command
+        assert self.folder is not None
+        return self.folder
+
+    def create_record(self, context: Any, decision: Any, command: Any) -> RecordSnapshot:
+        del context, decision
+        current = ConfigRevision(
+            _revision(RECORD_AGGREGATE_TYPE, RECORD, RECORD_REV_1, 1, None), command.content
+        )
+        self.record = RecordSnapshot(RECORD, TABLE, current)
+        self.revisions = [current]
+        return self.record
+
+    def get_record(self, context: Any, decision: Any, record_id: UUID) -> RecordSnapshot:
+        del context, decision
+        assert record_id == RECORD and self.record is not None
+        return self.record
+
+    def get_record_for_write(self, context: Any, decision: Any, record_id: UUID) -> RecordSnapshot:
+        return self.get_record(context, decision, record_id)
+
+    def revise_record(
+        self, context: Any, decision: Any, record_id: UUID, command: Any
+    ) -> RecordSnapshot:
+        del context, decision
+        assert record_id == RECORD
+        current = ConfigRevision(
+            _revision(RECORD_AGGREGATE_TYPE, RECORD, RECORD_REV_2, 2, RECORD_REV_1),
+            command.content,
+        )
+        self.record = RecordSnapshot(RECORD, TABLE, current)
+        self.revisions.append(current)
+        return self.record
+
+    def list_record_revisions(
+        self, context: Any, decision: Any, record_id: UUID
+    ) -> tuple[Any, ...]:
+        del context, decision
+        assert record_id == RECORD
+        return tuple(self.revisions)
+
+    def search_records(self, context: Any, decision: Any, query: Any) -> RecordSearchResult:
+        del context, decision
+        assert query.table_id == TABLE and self.record is not None
+        return RecordSearchResult(
+            (self.record,), 1, (RecordFacetBucket(ATTRIBUTE, "Steel", 1),)
+        )
+
+    def compare_record_revisions(
+        self,
+        context: Any,
+        decision: Any,
+        record_id: UUID,
+        from_revision_id: UUID,
+        to_revision_id: UUID,
+    ) -> RecordComparison:
+        del context, decision
+        assert record_id == RECORD
+        assert from_revision_id == RECORD_REV_1 and to_revision_id == RECORD_REV_2
+        before = self.revisions[0]
+        after = self.revisions[1]
+        return RecordComparison(
+            RECORD,
+            before,
+            after,
+            False,
+            (
+                RecordValueDifference(
+                    ATTRIBUTE,
+                    "changed",
+                    before.content.values[0],
+                    after.content.values[0],
+                ),
+            ),
+        )
+
+
+def _app(service: _Service) -> FastAPI:
+    app = FastAPI()
+
+    async def security(request: Request) -> SecurityContext:
+        request.state.security_context = CONTEXT
+        return CONTEXT
+
+    async def read(request: Request) -> AuthorizationDecision:
+        decision = _decision(Permission.CATALOG_READ)
+        request.state.authorization_decision = decision
+        return decision
+
+    async def write(request: Request) -> AuthorizationDecision:
+        decision = _decision(Permission.CATALOG_WRITE)
+        request.state.authorization_decision = decision
+        return decision
+
+    install_configurable_catalog_api(
+        app,
+        service=None,
+        security_dependency=security,
+        read_dependency=read,
+        write_dependency=write,
+    )
+    install_catalog_record_api(
+        app,
+        service=cast(Any, service),
+        security_dependency=security,
+        read_dependency=read,
+        write_dependency=write,
+    )
+    return app
+
+
+async def _request(app: FastAPI, method: str, path: str, **kwargs: Any) -> httpx.Response:
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        return await client.request(method, path, **kwargs)
+
+
+def _record_body(modulus: str) -> dict[str, Any]:
+    return {
+        "classification": "internal",
+        "content": {
+            "table_revision_id": str(TABLE_REV),
+            "name": "DP600 Sheet",
+            "external_key": "dp600",
+            "description": "Demo steel",
+            "folder_id": str(FOLDER),
+            "folder_revision_id": str(FOLDER_REV),
+            "values": [
+                {
+                    "data_type": "number",
+                    "attribute_definition_id": str(ATTRIBUTE),
+                    "attribute_definition_revision_id": str(ATTRIBUTE_REV),
+                    "original_value": str(Decimal(modulus) / Decimal("1000000")),
+                    "original_unit_string": "MPa",
+                    "normalized_value": modulus,
+                    "normalized_unit": "Pa",
+                    "quantity_semantics": "modulus.elastic.young",
+                }
+            ],
+        },
+        "change_reason": "API record fixture",
+    }
+
+
+@pytest.mark.anyio
+async def test_record_api_preserves_units_searches_and_compares() -> None:
+    service = _Service()
+    app = _app(service)
+    folder = await _request(
+        app,
+        "POST",
+        f"/api/v1/catalog/tables/{TABLE}/folders",
+        json={
+            "classification": "internal",
+            "content": {
+                "table_revision_id": str(TABLE_REV),
+                "name": "Steels",
+                "description": None,
+                "parent_folder_id": None,
+                "parent_folder_revision_id": None,
+            },
+            "change_reason": "create folder",
+        },
+    )
+    assert folder.status_code == 201
+
+    created = await _request(
+        app, "POST", f"/api/v1/catalog/tables/{TABLE}/records", json=_record_body("210000000000")
+    )
+    assert created.status_code == 201
+    value = created.json()["current_revision"]["content"]["values"][0]
+    assert value["original_unit_string"] == "MPa"
+    assert value["normalized_unit"] == "Pa"
+    assert Decimal(value["normalized_value"]) == Decimal("210000000000")
+    assert created.headers["etag"].startswith('"revision:')
+
+    searched = await _request(
+        app,
+        "POST",
+        "/api/v1/catalog/records:search",
+        json={
+            "table_id": str(TABLE),
+            "text": "DP600",
+            "facet_attribute_ids": [str(ATTRIBUTE)],
+        },
+    )
+    assert searched.status_code == 200
+    assert searched.json()["total_count"] == 1
+    assert searched.json()["facets"][0] == {
+        "attribute_definition_id": str(ATTRIBUTE),
+        "value": "Steel",
+        "count": 1,
+    }
+
+    revised_body = _record_body("205000000000")
+    revised_body.pop("classification")
+    revised = await _request(
+        app,
+        "POST",
+        f"/api/v1/catalog/records/{RECORD}/revisions",
+        json=revised_body,
+        headers={"If-Match": created.headers["etag"]},
+    )
+    assert revised.status_code == 201
+    compared = await _request(
+        app,
+        "GET",
+        f"/api/v1/catalog/records/{RECORD}/revisions:compare"
+        f"?from_revision_id={RECORD_REV_1}&to_revision_id={RECORD_REV_2}",
+    )
+    assert compared.status_code == 200
+    assert compared.json()["value_differences"][0]["status"] == "changed"
+
+
+@pytest.mark.anyio
+async def test_record_api_rejects_ambiguous_typed_value_payload() -> None:
+    body = _record_body("210000000000")
+    body["content"]["values"][0]["value"] = "not allowed on a number"
+    response = await _request(
+        _app(_Service()),
+        "POST",
+        f"/api/v1/catalog/tables/{TABLE}/records",
+        json=body,
+    )
+    assert response.status_code == 422

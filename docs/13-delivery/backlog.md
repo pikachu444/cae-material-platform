@@ -1253,6 +1253,10 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **완료 조건:** 사용자가 tree 또는 search에서 record를 찾아 단위·출처·revision 차이를 비교한다.
 - **테스트:** folder cycle, normalized range, authorized count/facet, saved-query compatibility,
   10,000-record bounded query와 Playwright browse/search/compare.
+- **구현 증거 (2026-07-18):** migration 060, nine typed value relations를 소비하는 Folder/Record
+  service와 protected API, Layout-driven datasheet, text/discrete/normalized-range 검색, facet,
+  saved Subset, exact revision compare를 연결했다. fresh PostgreSQL non-bypass role, API/React 및
+  migration 회귀를 통과했다. 전체 Catalog/Workflow tree와 arbitrary Link Type은 T-51이다.
 
 #### T-51. Dual Explorer and typed revision-pinned record links — `P0`
 

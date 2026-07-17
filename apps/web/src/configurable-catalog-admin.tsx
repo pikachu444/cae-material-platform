@@ -43,9 +43,11 @@ function message(error: unknown): string {
 export function ConfigurableCatalogAdmin({
   config,
   onOpenConnection,
+  onNavigate,
 }: {
   config: ApiConfig;
   onOpenConnection: () => void;
+  onNavigate?: (path: string) => void;
 }) {
   const [tables, setTables] = useState<ConfigurableTableResponse[]>([]);
   const [selectedTableId, setSelectedTableId] = useState("");
@@ -273,6 +275,15 @@ export function ConfigurableCatalogAdmin({
           Add governed record types and typed attributes without a database migration. Published
           definitions remain immutable revisions.
         </p>
+        {onNavigate ? (
+          <button
+            className="button secondary"
+            type="button"
+            onClick={() => onNavigate("/catalog/records")}
+          >
+            Open Catalog records
+          </button>
+        ) : null}
       </section>
 
       {error ? <div className="error-banner">{error}</div> : null}

@@ -1,6 +1,6 @@
 # Implementation Status
 
-Date: `2026-07-17`
+Date: `2026-07-18`
 Foundation version: `0.32.0`
 
 ## Product direction correction (T-48)
@@ -11,8 +11,8 @@ Workbench defined by ADR-0028 through ADR-0030.
 
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
-| Administrator-defined Table/Attribute/Layout/Subset | T-49 implemented; record datasheet consumption follows | T-50 |
-| Catalog record datasheet/search/facet/compare | fixed Material subset only | T-50 |
+| Administrator-defined Table/Attribute/Layout/Subset | T-49 definitions and T-50 datasheet consumption implemented | T-51 Explorer |
+| Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | T-51 links/tree |
 | Catalog and Material Workflow Explorers | missing; flat routes and bounded State genealogy exist | T-51 |
 | Arbitrary typed exact-revision record links | missing; bounded genealogy/provenance links exist | T-51 |
 | Canonical Test Data JSON/JSON+ZIP | missing; CSV/TSV/XLSX→Parquet path exists | T-52 |
@@ -30,6 +30,15 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-50`: configurable Folder and Record stable identities now append immutable revisions in
+  migration 060. Record revisions pin the current Table, exact Folder and exact Attribute revisions;
+  nine type-specific value relations preserve original/normalized number evidence, artifacts and
+  exact record references without JSON/EAV authority. Protected APIs create/revise/read/history,
+  execute bounded text/discrete/normalized-range search with authorized facet counts, and compare
+  exact revisions. The connected **Catalog records** screen consumes Layout order, saves and applies
+  Subset filters, edits datasheets, shows revision differences and creates nested Folders. Fresh
+  PostgreSQL with a non-bypass role, folder-cycle guards, API/migration/React tests and live Docker
+  browser evidence cover the implemented scope. Dual Explorers and arbitrary Link Types remain T-51.
 - `T-49`: administrator-defined Catalog Table, typed Attribute Definition, Layout and saved Subset
   stable identities use immutable revisions in migration 059. Nine type-specific record-value
   relations replace an untyped EAV/JSON authority; number values preserve original and normalized
@@ -39,7 +48,7 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
   revise APIs require current ETags, and the connected **Catalog** schema designer creates real
   definitions without a DB migration. Focused API, fresh PostgreSQL, migration, React and user-guide
   regressions plus a live Docker/PostgreSQL/browser workflow provide the current evidence. Record
-  datasheet/search/facet/compare intentionally remains T-50.
+  datasheet/search/facet/compare is completed by T-50.
 - `T-01`: modular-monolith repository skeleton, bounded-module namespaces, deployable API and
   worker shells, developer commands, architecture rules and regression fixtures
 - `T-02`: OpenAPI/AsyncAPI baseline, JSON Schema registry, positive/negative contract examples,

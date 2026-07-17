@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/catalog/configurable-catalog-record-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"type": "string", "minLength": 1, "maxLength": 64},
+        "lifecycle_state": {"type": "string", "const": "draft"}
+      }
+    },
+    "FolderContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "table_revision_id", "name", "description", "parent_folder_id",
+        "parent_folder_revision_id"
+      ],
+      "properties": {
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "parent_folder_id": {"type": ["string", "null"], "format": "uuid"},
+        "parent_folder_revision_id": {"type": ["string", "null"], "format": "uuid"}
+      }
+    },
+    "FolderCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/FolderContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "FolderReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/FolderContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "FolderResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["folder_id", "table_id", "current_revision", "content"],
+      "properties": {
+        "folder_id": {"$ref": "#/$defs/Uuid"},
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/RevisionMetadata"},
+        "content": {"$ref": "#/$defs/FolderContent"}
+      }
+    },
+    "FolderListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/FolderResponse"}}}
+    },
+    "ValueBase": {
+      "type": "object",
+      "required": ["data_type", "attribute_definition_id", "attribute_definition_revision_id"],
+      "properties": {
+        "data_type": {"type": "string"},
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "attribute_definition_revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "NumberValue": {
+      "allOf": [
+        {"$ref": "#/$defs/ValueBase"},
+        {
+          "type": "object",
+          "required": [
+            "original_value", "original_unit_string", "normalized_value", "normalized_unit",
+            "quantity_semantics"
+          ],
+          "properties": {
+            "data_type": {"const": "number"},
+            "original_value": {"type": ["number", "string"]},
+            "original_unit_string": {"type": "string", "minLength": 1, "maxLength": 64},
+            "normalized_value": {"type": ["number", "string"]},
+            "normalized_unit": {"type": "string", "minLength": 1, "maxLength": 64},
+            "quantity_semantics": {"type": "string", "minLength": 1, "maxLength": 255}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ScalarValue": {
+      "allOf": [
+        {"$ref": "#/$defs/ValueBase"},
+        {
+          "type": "object",
+          "required": ["value"],
+          "properties": {
+            "data_type": {"enum": ["integer", "text", "boolean", "date", "discrete"]},
+            "value": {"type": ["string", "integer", "boolean"], "maxLength": 10000}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ArtifactValue": {
+      "allOf": [
+        {"$ref": "#/$defs/ValueBase"},
+        {
+          "type": "object",
+          "required": ["artifact_id", "artifact_sha256"],
+          "properties": {
+            "data_type": {"enum": ["file", "curve"]},
+            "artifact_id": {"$ref": "#/$defs/Uuid"},
+            "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ReferenceValue": {
+      "allOf": [
+        {"$ref": "#/$defs/ValueBase"},
+        {
+          "type": "object",
+          "required": ["target_record_id", "target_record_revision_id"],
+          "properties": {
+            "data_type": {"const": "record_reference"},
+            "target_record_id": {"$ref": "#/$defs/Uuid"},
+            "target_record_revision_id": {"$ref": "#/$defs/Uuid"}
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "RecordValue": {
+      "oneOf": [
+        {"$ref": "#/$defs/NumberValue"},
+        {"$ref": "#/$defs/ScalarValue"},
+        {"$ref": "#/$defs/ArtifactValue"},
+        {"$ref": "#/$defs/ReferenceValue"}
+      ]
+    },
+    "RecordContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "table_revision_id", "name", "external_key", "description", "folder_id",
+        "folder_revision_id", "values"
+      ],
+      "properties": {
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "external_key": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000},
+        "folder_id": {"type": ["string", "null"], "format": "uuid"},
+        "folder_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "values": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {"$ref": "#/$defs/RecordValue"}
+        }
+      }
+    },
+    "RecordCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/RecordContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "RecordReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/RecordContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "RecordRevision": {
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/RecordContent"}}}
+      ],
+      "unevaluatedProperties": false
+    },
+    "RecordResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "table_id", "current_revision"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/Uuid"},
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/RecordRevision"}
+      }
+    },
+    "DiscreteFilter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute_definition_id", "values"],
+      "properties": {
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "values": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "minLength": 1, "maxLength": 255}}
+      }
+    },
+    "NumberFilter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute_definition_id"],
+      "properties": {
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "minimum": {"type": ["number", "string", "null"]},
+        "maximum": {"type": ["number", "string", "null"]}
+      }
+    },
+    "RecordSearchRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table_id"],
+      "properties": {
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "text": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+        "folder_id": {"type": ["string", "null"], "format": "uuid"},
+        "discrete_filters": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/DiscreteFilter"}},
+        "number_filters": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/NumberFilter"}},
+        "facet_attribute_ids": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/Uuid"}},
+        "offset": {"type": "integer", "minimum": 0, "default": 0},
+        "limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}
+      }
+    },
+    "FacetBucket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute_definition_id", "value", "count"],
+      "properties": {
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "value": {"type": "string", "minLength": 1, "maxLength": 255},
+        "count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "RecordSearchResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items", "total_count", "offset", "limit", "facets"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/RecordResponse"}},
+        "total_count": {"type": "integer", "minimum": 0},
+        "offset": {"type": "integer", "minimum": 0},
+        "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+        "facets": {"type": "array", "items": {"$ref": "#/$defs/FacetBucket"}}
+      }
+    },
+    "RecordRevisionListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/RecordRevision"}}}
+    },
+    "ValueDifference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute_definition_id", "status", "before", "after"],
+      "properties": {
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "status": {"enum": ["added", "removed", "changed", "unchanged"]},
+        "before": {"oneOf": [{"$ref": "#/$defs/RecordValue"}, {"type": "null"}]},
+        "after": {"oneOf": [{"$ref": "#/$defs/RecordValue"}, {"type": "null"}]}
+      }
+    },
+    "RecordComparisonResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "from_revision", "to_revision", "metadata_changed", "value_differences"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/Uuid"},
+        "from_revision": {"$ref": "#/$defs/RecordRevision"},
+        "to_revision": {"$ref": "#/$defs/RecordRevision"},
+        "metadata_changed": {"type": "boolean"},
+        "value_differences": {"type": "array", "items": {"$ref": "#/$defs/ValueDifference"}}
+      }
+    }
+  }
+}
