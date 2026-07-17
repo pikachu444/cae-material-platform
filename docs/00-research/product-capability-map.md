@@ -1,6 +1,6 @@
 # Product capability map
 
-기준일: `2026-07-17`
+기준일: `2026-07-18`
 
 이 문서는 제품 방향과 실제 구현 사이의 단일 추적표다. 상용 제품의 공개 사용자 기능은
 제품 요구사항을 점검하는 기준일 뿐이며, 비공개 schema, UI, 알고리즘 또는 파일 형식을
@@ -18,12 +18,12 @@
 | Capability | 공개 근거와 제품 결정 | 현재 상태 | DB | API | UI | Test | Requirement / Task |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Configurable Table 및 Attribute Definition | Granta MI 공개 object model과 Attribute 관리 기능을 참고한다. 관리자가 migration 없이 scalar, curve, file, link attribute를 정의한다. | `implemented` | identity/revision + 9 typed value tables | protected create/list/revise | connected schema designer | unit/API/PostgreSQL/UI | `FR-CFG-001~005`, `T-49` |
-| Layout, Subset, datasheet | Granta의 Layout/Subset 개념을 참고하되 독자 UI로 구현한다. Layout/Subset definition은 구현됐고 record datasheet 소비는 T-50이다. | `partial` | revision + ordered items/filter | create/list/revise | definition UI | API/PostgreSQL/UI | `FR-CFG-006~007`, `T-49/T-50` |
+| Layout, Subset, datasheet | Granta의 Layout/Subset 개념을 참고하되 독자 UI로 구현한다. Layout 순서로 typed Record를 작성하고 검색 조건을 Subset revision으로 저장·재적용한다. | `implemented` | revision + ordered items/filter + typed values | create/list/revise/apply | connected datasheet | API/PostgreSQL/UI | `FR-CFG-006~007`, `T-49/T-50` |
 | Material/State 고정 property | stable identity, immutable revision, density/E/ν/yield property set이 있다. 완전 관리형 schema로 대체하지 않고 호환 projection으로 유지한다. | `partial` | 있음 | 있음 | 있음 | 있음 | `FR-CAT-001~002`, `T-07/T-49` |
 | Catalog Explorer | Workspace → Table → Folder → Record 탐색과 breadcrumb/deep link를 제공한다. 이는 Granta Contents Tree를 참고한 플랫폼 고유 구조다. | `missing` | 없음 | 없음 | 없음 | 없음 | `FR-NAV-001`, `T-51` |
 | Material Workflow Explorer | Material → State → Test/Specimen → Dataset → Processing → IR → Card → Release를 exact revision link로 투영한다. | `missing` | 일부 genealogy만 있음 | lineage API 일부 | 없음 | genealogy만 있음 | `FR-NAV-002`, `T-51` |
 | Typed arbitrary record link | 관리자가 Link Type, 방향명, 허용 Table, cardinality를 정의하고 양 끝 revision을 고정한다. 현재 State genealogy는 일반 record link가 아니다. | `missing` | bounded genealogy만 있음 | bounded API만 있음 | bounded UI만 있음 | bounded test만 있음 | `FR-LNK-001~005`, `T-51` |
-| Search, facet, compare, saved subset | Material 고정 필드 검색은 있으나 임의 typed attribute facet, record compare, saved subset은 없다. | `partial` | 고정 index | 고정 검색 | 고정 목록 | 있음 | `FR-NAV-003~006`, `T-50` |
+| Search, facet, compare, saved subset | configurable Record의 이름·설명·text Attribute 검색, Folder, discrete facet, normalized number range, exact revision compare와 saved Subset을 제공한다. | `implemented` | typed search indexes | bounded search/compare | connected search/datasheet | API/PostgreSQL/React | `FR-NAV-003~006`, `T-50` |
 | Canonical Test Data JSON | JSON을 공식 교환 형식으로 하고 CSV/TSV/XLSX는 같은 구조로 변환하는 adapter가 된다. 원본 JSON과 digest를 보존한다. | `missing` | artifact 기반 있음 | tabular import만 있음 | tabular UI만 있음 | tabular test만 있음 | `FR-JSON-001~006`, `T-52` |
 | Mapping Profile | 자유 Attribute/채널을 계산 quantity에 연결하는 revisioned profile이다. 현재 importer profile은 고정 tabular mapping subset이다. | `partial` | importer mapping만 있음 | importer mapping만 있음 | import mapping만 있음 | 있음 | `FR-MAP-001~004`, `T-53` |
 | Common Processing Workbench | crop, scale/shift, resample, smoothing, curve alignment/statistics를 ordered method pipeline으로 구성하고 단계별 overlay를 본다. | `partial` | bounded recipe/run | bounded endpoints | workflow별 고정 UI | bounded test | `FR-PRO-001~010`, `T-53` |

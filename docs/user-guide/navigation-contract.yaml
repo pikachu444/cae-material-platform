@@ -1,10 +1,10 @@
-version: 2
+version: 3
 items:
   - label: Dashboard
     route: /
     guide: 01-getting-started.md
   - label: Catalog
-    route: /catalog/schema
+    route: /catalog/records
     guide: 12-configurable-catalog-and-modeling.md
   - label: Materials
     route: /materials

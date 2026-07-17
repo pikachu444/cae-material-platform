@@ -1630,6 +1630,196 @@ paths:
         "404": {description: No visible Subset matches the identifier.}
         "409": {description: Table revision or immutable definition conflict.}
         "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/tables/{table_id}/folders:
+    get:
+      operationId: listCatalogFolders
+      tags: [catalog-records]
+      summary: List current Folder heads for a configurable Table.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Folder revisions with exact parent pins.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/FolderListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Table matches the identifier.}
+    post:
+      operationId: createCatalogFolder
+      tags: [catalog-records]
+      summary: Create a stable Folder identity and immutable revision 1.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/FolderCreateRequest"}
+      responses:
+        "201":
+          description: Folder identity and revision 1 created.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/FolderResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Parent Table, exact revision or cycle conflict.}
+        "422": {description: Folder request is invalid.}
+  /api/v1/catalog/folders/{folder_id}/revisions:
+    post:
+      operationId: reviseCatalogFolder
+      tags: [catalog-records]
+      summary: Append a Folder revision and pin its exact parent revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: folder_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/FolderReviseRequest"}
+      responses:
+        "201":
+          description: Immutable Folder revision appended.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/FolderResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Folder matches the identifier.}
+        "409": {description: Parent Table, exact revision or cycle conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/records:search:
+    post:
+      operationId: searchCatalogRecords
+      tags: [catalog-records]
+      summary: Run a bounded RLS-filtered text, facet and normalized-number query.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordSearchRequest"}
+      responses:
+        "200":
+          description: Bounded current Record page, authorized count and discrete facet buckets.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordSearchResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Table matches the identifier.}
+        "422": {description: Typed search filter is invalid.}
+  /api/v1/catalog/tables/{table_id}/records:
+    post:
+      operationId: createCatalogRecord
+      tags: [catalog-records]
+      summary: Create a stable configurable Record and typed immutable revision 1.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordCreateRequest"}
+      responses:
+        "201":
+          description: Record identity and typed revision 1 created.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Attribute, unit, Folder, artifact or reference conflict.}
+        "422": {description: Typed Record request is invalid.}
+  /api/v1/catalog/records/{record_id}:
+    get:
+      operationId: getCatalogRecord
+      tags: [catalog-records]
+      summary: Read the current typed Record datasheet revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Record revision with original and normalized values.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Record matches the identifier.}
+  /api/v1/catalog/records/{record_id}/revisions:
+    get:
+      operationId: listCatalogRecordRevisions
+      tags: [catalog-records]
+      summary: List all immutable revisions for one visible Record.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Exact Record revision history.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordRevisionListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Record matches the identifier.}
+    post:
+      operationId: reviseCatalogRecord
+      tags: [catalog-records]
+      summary: Append an immutable typed Record revision using the current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordReviseRequest"}
+      responses:
+        "201":
+          description: New immutable typed Record revision appended.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Record matches the identifier.}
+        "409": {description: Attribute, unit, Folder, artifact or reference conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/records/{record_id}/revisions:compare:
+    get:
+      operationId: compareCatalogRecordRevisions
+      tags: [catalog-records]
+      summary: Compare two exact revisions of one configurable Record.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: from_revision_id, in: query, required: true, schema: {type: string, format: uuid}}
+        - {name: to_revision_id, in: query, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Metadata and per-Attribute added, removed, changed or unchanged status.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-record-resources.schema.json#/$defs/RecordComparisonResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: A requested exact Record revision is not visible.}
   /api/v1/materials:
     get:
       operationId: listMaterials

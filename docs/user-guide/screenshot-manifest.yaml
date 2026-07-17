@@ -1,7 +1,21 @@
-version: 10
-verified_at: 2026-07-17
-source_evidence: ../15-demo/user-e2e-evidence-2026-07-16.md
+version: 11
+verified_at: 2026-07-18
+source_evidence: ../15-demo/evidence/t50-configurable-catalog-records.md
 captures:
+  - id: configurable-catalog-records
+    route: /catalog/records
+    workflow: typed-record-datasheet-search-facet-and-folder
+    fixture: T-50 live Docker/PostgreSQL DP600 r2 and AA6061-T6 r1
+    image: ../15-demo/images/t50-configurable-catalog-records.png
+    width: 1265
+    height: 712
+  - id: configurable-catalog-revision-compare
+    route: /catalog/records
+    workflow: exact-record-revision-comparison
+    fixture: T-50 DP600 Young's modulus 210 GPa to 205 GPa immutable revision
+    image: ../15-demo/images/t50-configurable-catalog-revision-compare.png
+    width: 1265
+    height: 712
   - id: configurable-catalog-schema
     route: /catalog/schema
     workflow: administrator-defined-Table-Attribute-Layout-Subset

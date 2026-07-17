@@ -152,6 +152,12 @@ import type {
   OperationalSnapshotResponse,
   ConfigurableAttributeContent,
   ConfigurableAttributeResponse,
+  ConfigurableCatalogFolderResponse,
+  ConfigurableCatalogRecordComparison,
+  ConfigurableCatalogRecordContent,
+  ConfigurableCatalogRecordResponse,
+  ConfigurableCatalogRecordRevisionList,
+  ConfigurableCatalogRecordSearchResponse,
   ConfigurableLayoutItem,
   ConfigurableLayoutResponse,
   ConfigurableSubsetResponse,
@@ -253,6 +259,109 @@ export function createConfigurableCatalogSubset(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listConfigurableCatalogFolders(
+  config: ApiConfig,
+  tableId: string,
+): Promise<ApiResult<{ items: ConfigurableCatalogFolderResponse[] }>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/folders`);
+}
+
+export function createConfigurableCatalogFolder(
+  config: ApiConfig,
+  tableId: string,
+  input: {
+    classification: DataClassification;
+    content: ConfigurableCatalogFolderResponse["content"];
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableCatalogFolderResponse>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/folders`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function searchConfigurableCatalogRecords(
+  config: ApiConfig,
+  input: {
+    table_id: string;
+    text: string | null;
+    folder_id: string | null;
+    discrete_filters: Array<{ attribute_definition_id: string; values: string[] }>;
+    number_filters: Array<{
+      attribute_definition_id: string;
+      minimum: string | null;
+      maximum: string | null;
+    }>;
+    facet_attribute_ids: string[];
+    offset?: number;
+    limit?: number;
+  },
+): Promise<ApiResult<ConfigurableCatalogRecordSearchResponse>> {
+  return request(config, "/catalog/records:search", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function createConfigurableCatalogRecord(
+  config: ApiConfig,
+  tableId: string,
+  input: {
+    classification: DataClassification;
+    content: ConfigurableCatalogRecordContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableCatalogRecordResponse>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/records`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getConfigurableCatalogRecord(
+  config: ApiConfig,
+  recordId: string,
+): Promise<ApiResult<ConfigurableCatalogRecordResponse>> {
+  return request(config, `/catalog/records/${encodeURIComponent(recordId)}`);
+}
+
+export function reviseConfigurableCatalogRecord(
+  config: ApiConfig,
+  recordId: string,
+  etag: string,
+  input: { content: ConfigurableCatalogRecordContent; change_reason: string },
+): Promise<ApiResult<ConfigurableCatalogRecordResponse>> {
+  return request(config, `/catalog/records/${encodeURIComponent(recordId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function listConfigurableCatalogRecordRevisions(
+  config: ApiConfig,
+  recordId: string,
+): Promise<ApiResult<ConfigurableCatalogRecordRevisionList>> {
+  return request(config, `/catalog/records/${encodeURIComponent(recordId)}/revisions`);
+}
+
+export function compareConfigurableCatalogRecordRevisions(
+  config: ApiConfig,
+  recordId: string,
+  fromRevisionId: string,
+  toRevisionId: string,
+): Promise<ApiResult<ConfigurableCatalogRecordComparison>> {
+  const query = new URLSearchParams({
+    from_revision_id: fromRevisionId,
+    to_revision_id: toRevisionId,
+  });
+  return request(
+    config,
+    `/catalog/records/${encodeURIComponent(recordId)}/revisions:compare?${query.toString()}`,
+  );
 }
 
 export interface LocalDemoAccessToken {

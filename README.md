@@ -14,8 +14,9 @@ Catalog tree/search/link → Test Data JSON → Mapping Profile
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog
-schema designer를 제공합니다. Record datasheet/search, 두 Explorer, 일반 Recipe builder는
-T-50~T-60에서 순서대로 제공합니다. 현재/목표 차이는
+schema designer와 Layout 기반 typed Record datasheet, Folder, text/facet/normalized-range 검색,
+saved Subset, exact revision 비교를 제공합니다. 두 Explorer와 일반 Recipe builder는
+T-51~T-60에서 순서대로 제공합니다. 현재/목표 차이는
 [제품 capability map](docs/00-research/product-capability-map.md)에서 확인할 수 있습니다.
 
 ## 서비스 사용자가 할 수 있는 일
@@ -25,7 +26,8 @@ T-50~T-60에서 순서대로 제공합니다. 현재/목표 차이는
 있습니다.
 
 - Catalog 관리: **Catalog**에서 record Table을 만들고 number/text/discrete/file/curve/
-  record-reference Attribute, datasheet Layout과 saved Subset을 revision으로 저장
+  record-reference Attribute, datasheet Layout과 saved Subset을 revision으로 저장. 이어서
+  **Catalog records**에서 Folder/Record를 만들고 원본·정규화 단위를 보존해 검색·비교
 - 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce
   → OpenRadioss LAW36 또는 Abaqus `*PLASTIC` card
 - 폴리머: shear-relaxation raw/normalized/processed Dataset → bounded Prony calibration과 사람

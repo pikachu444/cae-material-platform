@@ -3330,3 +3330,96 @@ export interface ConfigurableSubsetResponse {
   description: string | null;
   filter_definition: Record<string, unknown> | null;
 }
+
+export interface ConfigurableCatalogFolderResponse {
+  folder_id: string;
+  table_id: string;
+  current_revision: RevisionMetadata;
+  content: {
+    table_revision_id: string;
+    name: string;
+    description: string | null;
+    parent_folder_id: string | null;
+    parent_folder_revision_id: string | null;
+  };
+}
+
+interface ConfigurableRecordValueBase {
+  attribute_definition_id: string;
+  attribute_definition_revision_id: string;
+}
+
+export type ConfigurableRecordValue =
+  | (ConfigurableRecordValueBase & {
+      data_type: "number";
+      original_value: string;
+      original_unit_string: string;
+      normalized_value: string;
+      normalized_unit: string;
+      quantity_semantics: string;
+    })
+  | (ConfigurableRecordValueBase & { data_type: "integer"; value: number })
+  | (ConfigurableRecordValueBase & { data_type: "text"; value: string })
+  | (ConfigurableRecordValueBase & { data_type: "boolean"; value: boolean })
+  | (ConfigurableRecordValueBase & { data_type: "date"; value: string })
+  | (ConfigurableRecordValueBase & { data_type: "discrete"; value: string })
+  | (ConfigurableRecordValueBase & {
+      data_type: "file";
+      artifact_id: string;
+      artifact_sha256: string;
+    })
+  | (ConfigurableRecordValueBase & {
+      data_type: "curve";
+      artifact_id: string;
+      artifact_sha256: string;
+    })
+  | (ConfigurableRecordValueBase & {
+      data_type: "record_reference";
+      target_record_id: string;
+      target_record_revision_id: string;
+    });
+
+export interface ConfigurableCatalogRecordContent {
+  table_revision_id: string;
+  name: string;
+  external_key: string | null;
+  description: string | null;
+  folder_id: string | null;
+  folder_revision_id: string | null;
+  values: ConfigurableRecordValue[];
+}
+
+export interface ConfigurableCatalogRecordResponse {
+  record_id: string;
+  table_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableCatalogRecordContent };
+}
+
+export interface ConfigurableCatalogRecordSearchResponse {
+  items: ConfigurableCatalogRecordResponse[];
+  total_count: number;
+  offset: number;
+  limit: number;
+  facets: Array<{
+    attribute_definition_id: string;
+    value: string;
+    count: number;
+  }>;
+}
+
+export interface ConfigurableCatalogRecordRevisionList {
+  items: Array<RevisionMetadata & { content: ConfigurableCatalogRecordContent }>;
+}
+
+export interface ConfigurableCatalogRecordComparison {
+  record_id: string;
+  from_revision: RevisionMetadata & { content: ConfigurableCatalogRecordContent };
+  to_revision: RevisionMetadata & { content: ConfigurableCatalogRecordContent };
+  metadata_changed: boolean;
+  value_differences: Array<{
+    attribute_definition_id: string;
+    status: "added" | "removed" | "changed" | "unchanged";
+    before: ConfigurableRecordValue | null;
+    after: ConfigurableRecordValue | null;
+  }>;
+}
