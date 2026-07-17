@@ -11,7 +11,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
-| Administrator-defined Table/Attribute/Layout/Subset | missing | T-49 |
+| Administrator-defined Table/Attribute/Layout/Subset | T-49 implemented; record datasheet consumption follows | T-50 |
 | Catalog record datasheet/search/facet/compare | fixed Material subset only | T-50 |
 | Catalog and Material Workflow Explorers | missing; flat routes and bounded State genealogy exist | T-51 |
 | Arbitrary typed exact-revision record links | missing; bounded genealogy/provenance links exist | T-51 |
@@ -30,6 +30,16 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-49`: administrator-defined Catalog Table, typed Attribute Definition, Layout and saved Subset
+  stable identities use immutable revisions in migration 059. Nine type-specific record-value
+  relations replace an untyped EAV/JSON authority; number values preserve original and normalized
+  value/unit plus quantity semantics, while file/curve values pin artifact digest and reference
+  values pin an exact target record revision. Composite tenant/classification FKs, forced RLS,
+  immutable triggers and type/unit/discrete/reference guards are active. Protected create/list/
+  revise APIs require current ETags, and the connected **Catalog** schema designer creates real
+  definitions without a DB migration. Focused API, fresh PostgreSQL, migration, React and user-guide
+  regressions plus a live Docker/PostgreSQL/browser workflow provide the current evidence. Record
+  datasheet/search/facet/compare intentionally remains T-50.
 - `T-01`: modular-monolith repository skeleton, bounded-module namespaces, deployable API and
   worker shells, developer commands, architecture rules and regression fixtures
 - `T-02`: OpenAPI/AsyncAPI baseline, JSON Schema registry, positive/negative contract examples,

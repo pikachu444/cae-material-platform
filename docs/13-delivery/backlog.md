@@ -1240,7 +1240,9 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **범위:** stable Table/Attribute/Layout/Subset identities, immutable revisions, type-specific
   value storage(number/integer/text/boolean/date/discrete/file/curve/reference), unit semantics,
   validation, administrator API와 schema designer UI.
-- **완료 조건:** migration 없이 Attribute를 추가하고 실제 record form/search schema에 사용한다.
+- **완료 조건:** migration 없이 Table/Attribute/Layout/Subset definition revision을 추가하고
+  type/unit/reference validation을 PostgreSQL, API와 연결된 관리자 화면에서 확인한다. 실제
+  record form/search의 definition 소비는 T-50 완료 조건이다.
 - **테스트:** type/unit/validation negative, revision concurrency, tenant/classification FK/RLS,
   PostgreSQL round-trip, React administrator E2E.
 

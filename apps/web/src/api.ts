@@ -150,6 +150,13 @@ import type {
   BulkExportSourceRef,
   ExportSelectionResponse,
   OperationalSnapshotResponse,
+  ConfigurableAttributeContent,
+  ConfigurableAttributeResponse,
+  ConfigurableLayoutItem,
+  ConfigurableLayoutResponse,
+  ConfigurableSubsetResponse,
+  ConfigurableTableContent,
+  ConfigurableTableResponse,
 } from "./types";
 
 export interface ApiConfig {
@@ -160,6 +167,92 @@ export interface ApiConfig {
 export interface ApiResult<T> {
   data: T;
   etag: string | null;
+}
+
+export function listConfigurableCatalogTables(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: ConfigurableTableResponse[] }>> {
+  return request(config, "/catalog/tables");
+}
+
+export function createConfigurableCatalogTable(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: ConfigurableTableContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableTableResponse>> {
+  return request(config, "/catalog/tables", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listConfigurableCatalogAttributes(
+  config: ApiConfig,
+  tableId: string,
+): Promise<ApiResult<{ items: ConfigurableAttributeResponse[] }>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/attributes`);
+}
+
+export function createConfigurableCatalogAttribute(
+  config: ApiConfig,
+  tableId: string,
+  input: { content: ConfigurableAttributeContent; change_reason: string },
+): Promise<ApiResult<ConfigurableAttributeResponse>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/attributes`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listConfigurableCatalogLayouts(
+  config: ApiConfig,
+  tableId: string,
+): Promise<ApiResult<{ items: ConfigurableLayoutResponse[] }>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/layouts`);
+}
+
+export function createConfigurableCatalogLayout(
+  config: ApiConfig,
+  tableId: string,
+  input: {
+    table_revision_id: string;
+    name: string;
+    description: string | null;
+    items: ConfigurableLayoutItem[];
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableLayoutResponse>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/layouts`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listConfigurableCatalogSubsets(
+  config: ApiConfig,
+  tableId: string,
+): Promise<ApiResult<{ items: ConfigurableSubsetResponse[] }>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/subsets`);
+}
+
+export function createConfigurableCatalogSubset(
+  config: ApiConfig,
+  tableId: string,
+  input: {
+    table_revision_id: string;
+    name: string;
+    description: string | null;
+    filter_definition: Record<string, unknown> | null;
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableSubsetResponse>> {
+  return request(config, `/catalog/tables/${encodeURIComponent(tableId)}/subsets`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export interface LocalDemoAccessToken {
