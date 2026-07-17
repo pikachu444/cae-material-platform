@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/catalog/configurable-catalog-resources.schema.json",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "AttributeDataType": {
+      "type": "string",
+      "enum": [
+        "number", "integer", "text", "boolean", "date", "discrete", "file", "curve",
+        "record_reference"
+      ]
+    },
+    "RevisionMetadata": {
+      "type": "object",
+      "required": [
+        "id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id",
+        "schema_version", "content_hash", "created_at", "created_by", "change_reason",
+        "organization_id", "project_id", "classification", "lifecycle_state"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"$ref": "#/$defs/Classification"},
+        "lifecycle_state": {"type": "string", "const": "draft"}
+      }
+    },
+    "TableContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "description"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 4000}
+      }
+    },
+    "TableRevision": {
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {"content": {"$ref": "#/$defs/TableContent"}}
+        }
+      ]
+    },
+    "TableResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table_id", "current_revision"],
+      "properties": {
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/TableRevision"}
+      }
+    },
+    "TableListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/TableResponse"}}}
+    },
+    "TableCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "content": {"$ref": "#/$defs/TableContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "TableReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/TableContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "AttributeContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "table_id", "table_revision_id", "key", "name", "data_type", "required",
+        "quantity_semantics", "normalized_unit", "minimum_number", "maximum_number",
+        "minimum_length", "maximum_length", "pattern", "allowed_values",
+        "reference_table_id", "help_text"
+      ],
+      "properties": {
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "data_type": {"$ref": "#/$defs/AttributeDataType"},
+        "required": {"type": "boolean"},
+        "quantity_semantics": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "normalized_unit": {"type": ["string", "null"], "minLength": 1, "maxLength": 64},
+        "minimum_number": {"type": ["number", "null"]},
+        "maximum_number": {"type": ["number", "null"]},
+        "minimum_length": {"type": ["integer", "null"], "minimum": 0},
+        "maximum_length": {"type": ["integer", "null"], "minimum": 1},
+        "pattern": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+        "allowed_values": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 255},
+          "uniqueItems": true
+        },
+        "reference_table_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "AttributeContentInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table_revision_id", "key", "name", "data_type"],
+      "properties": {
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "data_type": {"$ref": "#/$defs/AttributeDataType"},
+        "required": {"type": "boolean", "default": false},
+        "quantity_semantics": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "normalized_unit": {"type": ["string", "null"], "minLength": 1, "maxLength": 64},
+        "minimum_number": {"type": ["number", "null"]},
+        "maximum_number": {"type": ["number", "null"]},
+        "minimum_length": {"type": ["integer", "null"], "minimum": 0},
+        "maximum_length": {"type": ["integer", "null"], "minimum": 1},
+        "pattern": {"type": ["string", "null"], "minLength": 1, "maxLength": 500},
+        "allowed_values": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 255},
+          "uniqueItems": true,
+          "default": []
+        },
+        "reference_table_id": {"anyOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "help_text": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "AttributeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/AttributeContentInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "AttributeRevision": {
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {
+          "type": "object",
+          "required": ["content"],
+          "properties": {"content": {"$ref": "#/$defs/AttributeContent"}}
+        }
+      ]
+    },
+    "AttributeResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute_definition_id", "table_id", "current_revision"],
+      "properties": {
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/AttributeRevision"}
+      }
+    },
+    "AttributeListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/AttributeResponse"}}
+      }
+    },
+    "LayoutItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attribute_definition_id", "attribute_definition_revision_id", "section", "ordinal"
+      ],
+      "properties": {
+        "attribute_definition_id": {"$ref": "#/$defs/Uuid"},
+        "attribute_definition_revision_id": {"$ref": "#/$defs/Uuid"},
+        "section": {"type": "string", "minLength": 1, "maxLength": 100},
+        "ordinal": {"type": "integer", "minimum": 0}
+      }
+    },
+    "LayoutRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table_revision_id", "name", "items", "change_reason"],
+      "properties": {
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/LayoutItem"}},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "LayoutResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layout_id", "table_id", "revision", "name", "description", "items"],
+      "properties": {
+        "layout_id": {"$ref": "#/$defs/Uuid"},
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "revision": {"$ref": "#/$defs/RevisionMetadata"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/LayoutItem"}}
+      }
+    },
+    "LayoutListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/LayoutResponse"}}}
+    },
+    "SubsetRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["table_revision_id", "name", "change_reason"],
+      "properties": {
+        "table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "filter_definition": {"type": ["object", "null"]},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "SubsetResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subset_id", "table_id", "revision", "name", "description", "filter_definition"
+      ],
+      "properties": {
+        "subset_id": {"$ref": "#/$defs/Uuid"},
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "revision": {"$ref": "#/$defs/RevisionMetadata"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "filter_definition": {"type": ["object", "null"]}
+      }
+    },
+    "SubsetListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/SubsetResponse"}}}
+    }
+  },
+  "$ref": "#/$defs/TableResponse"
+}

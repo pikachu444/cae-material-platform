@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
-from cmp.bootstrap.catalog import build_catalog_service
+from cmp.bootstrap.catalog import build_catalog_service, build_configurable_catalog_service
 from cmp.bootstrap.datasets import (
     build_dataset_service,
     build_governed_import_service,
@@ -71,6 +71,7 @@ from cmp.modules.artifacts.application.uploads import UploadService
 from cmp.modules.audit.adapters.api.audit import install_audit_api
 from cmp.modules.audit.application.service import AuditService
 from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
+from cmp.modules.catalog.adapters.api.configurable import install_configurable_catalog_api
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
 from cmp.modules.datasets.adapters.api.governed_import import install_governed_import_api
@@ -405,6 +406,17 @@ def create_app(
     install_catalog_api(
         application,
         service=resolved_catalog,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_WRITE
+        ),
+    )
+    install_configurable_catalog_api(
+        application,
+        service=build_configurable_catalog_service(services),
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.CATALOG_READ

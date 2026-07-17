@@ -1073,6 +1073,7 @@ def install_catalog_api(
             "/api/v1/material-lots",
             "/api/v1/state-genealogies",
             "/api/v1/process-runs",
+            "/api/v1/catalog",
         )
         if not request.url.path.startswith(prefixes):
             return await previous_validation_handler(request, error)

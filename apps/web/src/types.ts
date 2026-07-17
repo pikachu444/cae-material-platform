@@ -3259,3 +3259,74 @@ export interface OperationalSnapshotResponse {
   error_count: number;
   series: OperationSeriesResponse[];
 }
+
+export type ConfigurableAttributeDataType =
+  | "number"
+  | "integer"
+  | "text"
+  | "boolean"
+  | "date"
+  | "discrete"
+  | "file"
+  | "curve"
+  | "record_reference";
+
+export interface ConfigurableTableContent {
+  key: string;
+  name: string;
+  description: string | null;
+}
+
+export interface ConfigurableTableResponse {
+  table_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableTableContent };
+}
+
+export interface ConfigurableAttributeContent {
+  table_revision_id: string;
+  key: string;
+  name: string;
+  data_type: ConfigurableAttributeDataType;
+  required: boolean;
+  quantity_semantics: string | null;
+  normalized_unit: string | null;
+  minimum_number: number | null;
+  maximum_number: number | null;
+  minimum_length: number | null;
+  maximum_length: number | null;
+  pattern: string | null;
+  allowed_values: string[];
+  reference_table_id: string | null;
+  help_text: string | null;
+}
+
+export interface ConfigurableAttributeResponse {
+  attribute_definition_id: string;
+  table_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableAttributeContent };
+}
+
+export interface ConfigurableLayoutItem {
+  attribute_definition_id: string;
+  attribute_definition_revision_id: string;
+  section: string;
+  ordinal: number;
+}
+
+export interface ConfigurableLayoutResponse {
+  layout_id: string;
+  table_id: string;
+  revision: RevisionMetadata;
+  name: string;
+  description: string | null;
+  items: ConfigurableLayoutItem[];
+}
+
+export interface ConfigurableSubsetResponse {
+  subset_id: string;
+  table_id: string;
+  revision: RevisionMetadata;
+  name: string;
+  description: string | null;
+  filter_definition: Record<string, unknown> | null;
+}

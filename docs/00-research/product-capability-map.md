@@ -17,8 +17,8 @@
 
 | Capability | 공개 근거와 제품 결정 | 현재 상태 | DB | API | UI | Test | Requirement / Task |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Configurable Table 및 Attribute Definition | Granta MI 공개 object model과 Attribute 관리 기능을 참고한다. 관리자가 migration 없이 scalar, curve, file, link attribute를 정의한다. | `missing` | 없음 | 없음 | 없음 | 없음 | `FR-CFG-001~005`, `T-49` |
-| Layout, Subset, datasheet | Granta의 Layout/Subset 개념을 참고하되 독자 UI로 구현한다. | `missing` | 없음 | 없음 | 없음 | 없음 | `FR-CFG-006~007`, `T-49/T-50` |
+| Configurable Table 및 Attribute Definition | Granta MI 공개 object model과 Attribute 관리 기능을 참고한다. 관리자가 migration 없이 scalar, curve, file, link attribute를 정의한다. | `implemented` | identity/revision + 9 typed value tables | protected create/list/revise | connected schema designer | unit/API/PostgreSQL/UI | `FR-CFG-001~005`, `T-49` |
+| Layout, Subset, datasheet | Granta의 Layout/Subset 개념을 참고하되 독자 UI로 구현한다. Layout/Subset definition은 구현됐고 record datasheet 소비는 T-50이다. | `partial` | revision + ordered items/filter | create/list/revise | definition UI | API/PostgreSQL/UI | `FR-CFG-006~007`, `T-49/T-50` |
 | Material/State 고정 property | stable identity, immutable revision, density/E/ν/yield property set이 있다. 완전 관리형 schema로 대체하지 않고 호환 projection으로 유지한다. | `partial` | 있음 | 있음 | 있음 | 있음 | `FR-CAT-001~002`, `T-07/T-49` |
 | Catalog Explorer | Workspace → Table → Folder → Record 탐색과 breadcrumb/deep link를 제공한다. 이는 Granta Contents Tree를 참고한 플랫폼 고유 구조다. | `missing` | 없음 | 없음 | 없음 | 없음 | `FR-NAV-001`, `T-51` |
 | Material Workflow Explorer | Material → State → Test/Specimen → Dataset → Processing → IR → Card → Release를 exact revision link로 투영한다. | `missing` | 일부 genealogy만 있음 | lineage API 일부 | 없음 | genealogy만 있음 | `FR-NAV-002`, `T-51` |

@@ -1347,6 +1347,289 @@ paths:
         "404": {description: Process Run is not visible.}
         "409": {description: Lot graph, scope or balance conflict.}
         "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/tables:
+    get:
+      operationId: listConfigurableCatalogTables
+      tags: [catalog-schema]
+      summary: List current administrator-defined Catalog Table revisions.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Table heads visible to catalog.read.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/TableListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "503": {description: Configurable Catalog store unavailable.}
+    post:
+      operationId: createConfigurableCatalogTable
+      tags: [catalog-schema]
+      summary: Create a stable Catalog Table and immutable revision 1.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/TableCreateRequest"}
+      responses:
+        "201":
+          description: Table identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/TableResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Stable Table key conflicts with an existing identity.}
+        "422": {description: Typed Table definition is invalid.}
+  /api/v1/catalog/tables/{table_id}:
+    get:
+      operationId: getConfigurableCatalogTable
+      tags: [catalog-schema]
+      summary: Read one current configurable Table revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Table revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/TableResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Table matches the identifier.}
+  /api/v1/catalog/tables/{table_id}/revisions:
+    post:
+      operationId: reviseConfigurableCatalogTable
+      tags: [catalog-schema]
+      summary: Append a Table definition revision using the current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/TableReviseRequest"}
+      responses:
+        "201":
+          description: Immutable Table revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/TableResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Table matches the identifier.}
+        "409": {description: Stable Table key or immutable definition conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/tables/{table_id}/attributes:
+    get:
+      operationId: listConfigurableCatalogAttributes
+      tags: [catalog-schema]
+      summary: List current typed Attribute Definitions for a Table.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Attribute Definition heads.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/AttributeListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Table matches the identifier.}
+    post:
+      operationId: createConfigurableCatalogAttribute
+      tags: [catalog-schema]
+      summary: Add a typed Attribute Definition without a database migration.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/AttributeRequest"}
+      responses:
+        "201":
+          description: Attribute identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/AttributeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Attribute key, type, Table revision or reference conflict.}
+        "422": {description: Typed Attribute Definition is invalid.}
+  /api/v1/catalog/attributes/{attribute_id}/revisions:
+    post:
+      operationId: reviseConfigurableCatalogAttribute
+      tags: [catalog-schema]
+      summary: Append an Attribute Definition revision using the current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: attribute_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/AttributeRequest"}
+      responses:
+        "201":
+          description: Immutable Attribute Definition revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/AttributeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Attribute matches the identifier.}
+        "409": {description: Stable key/type or pinned Table revision conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/tables/{table_id}/layouts:
+    get:
+      operationId: listConfigurableCatalogLayouts
+      tags: [catalog-schema]
+      summary: List current datasheet Layout definitions for a Table.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current Layout heads with exact Attribute revisions.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/LayoutListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+    post:
+      operationId: createConfigurableCatalogLayout
+      tags: [catalog-schema]
+      summary: Create an ordered Layout definition revision 1.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/LayoutRequest"}
+      responses:
+        "201":
+          description: Layout identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/LayoutResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Table or pinned Attribute revision conflict.}
+  /api/v1/catalog/layouts/{layout_id}/revisions:
+    post:
+      operationId: reviseConfigurableCatalogLayout
+      tags: [catalog-schema]
+      summary: Append a Layout definition revision using the current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: layout_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/LayoutRequest"}
+      responses:
+        "201":
+          description: Immutable Layout revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/LayoutResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Layout matches the identifier.}
+        "409": {description: Table or pinned Attribute revision conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/tables/{table_id}/subsets:
+    get:
+      operationId: listConfigurableCatalogSubsets
+      tags: [catalog-schema]
+      summary: List current saved Subset definitions for a Table.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Current saved Subset heads.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/SubsetListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+    post:
+      operationId: createConfigurableCatalogSubset
+      tags: [catalog-schema]
+      summary: Create a saved Subset definition revision 1.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/SubsetRequest"}
+      responses:
+        "201":
+          description: Subset identity and revision 1 created.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/SubsetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Table revision or immutable definition conflict.}
+  /api/v1/catalog/subsets/{subset_id}/revisions:
+    post:
+      operationId: reviseConfigurableCatalogSubset
+      tags: [catalog-schema]
+      summary: Append a saved Subset revision using the current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: subset_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/SubsetRequest"}
+      responses:
+        "201":
+          description: Immutable Subset revision appended.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-resources.schema.json#/$defs/SubsetResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "404": {description: No visible Subset matches the identifier.}
+        "409": {description: Table revision or immutable definition conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
   /api/v1/materials:
     get:
       operationId: listMaterials
