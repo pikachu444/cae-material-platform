@@ -1,5 +1,22 @@
 # CAE Material Data Platform
 
+재료 정보를 자유롭게 구성하고 찾아 쓰는 **Material Information System**과 시험 curve를
+처리·fitting·extrapolation하여 CAE card로 만드는 **Material Modeling Workbench**를 하나로
+연결하는 서비스입니다.
+
+목표 사용자 흐름은 다음과 같습니다.
+
+```text
+Catalog tree/search/link → Test Data JSON → Mapping Profile
+→ saved Processing Recipe / Batch → Neutral Material JSON
+→ Abaqus/OpenRadioss mapping report → native material card
+```
+
+현재 `main`은 고정 Material/State schema와 세 가지 `reference/non-production` modeling 흐름을
+제공합니다. 관리자가 자유롭게 Table/Attribute/Layout/Link Type을 만드는 Catalog Explorer와
+일반 Recipe builder는 아직 구현 전이며 T-49~T-60에서 순서대로 제공됩니다. 현재/목표 차이는
+[제품 capability map](docs/00-research/product-capability-map.md)에서 확인할 수 있습니다.
+
 ## 서비스 사용자가 할 수 있는 일
 
 이 서비스는 재료를 등록하고 시험·처리·모델 이력을 연결한 뒤 CAE solver용 material card를

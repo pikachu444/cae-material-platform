@@ -8,6 +8,20 @@
 - 첫 제품의 운영 복잡도를 통제하면서 module/service 추출 경계를 보존한다.
 - 온프레미스·사설 클라우드의 enterprise identity, object storage, HPC 환경에 연결할 수 있다.
 
+제품 표면은 두 개의 동등한 vertical로 구성한다. **Material Information System**은
+configurable Table/Attribute/Layout/Link를 Catalog Explorer, search와 datasheet로 제공한다.
+**Material Modeling Workbench**는 Test JSON과 Mapping Profile에서 시작하여 versioned Recipe,
+batch run, Neutral Material JSON과 solver-native card로 이어진다. 기존 고정 Material route와
+reference modeling API는 이 구조의 호환 projection/방법 구현으로 재사용한다.
+
+```text
+Catalog Explorer ─┐
+                  ├─ Record/Revision/Link ─ Test JSON ─ Mapping Profile
+Workflow Explorer ┘                                  └ Processing Recipe/Batch
+                                                        └ Neutral IR/JSON
+                                                          └ Preflight/Card/Bundle
+```
+
 ## 2. 모듈형 모놀리스 대 마이크로서비스
 
 | 기준 | 모듈형 모놀리스 | 초기 마이크로서비스 |

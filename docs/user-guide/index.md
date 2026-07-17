@@ -18,6 +18,7 @@
 9. [시험 데이터·중립 IR·Solver Card를 ZIP으로 받기](09-bulk-export.md)
 10. [메뉴와 Material 작업공간 사용법](10-navigation-and-troubleshooting.md)
 11. [운영 상태 확인과 격리 복구 드릴](11-operations-and-recovery.md)
+12. [Configurable Catalog와 Material Modeling 목표 흐름](12-configurable-catalog-and-modeling.md)
 
 ## 현재 할 수 있는 일
 
@@ -38,6 +39,11 @@
 
 ## 아직 제한된 일
 
+- 관리자가 정의하는 Table/Attribute/Layout/Subset과 Catalog Explorer
+- 임의 record 사이의 typed revision-pinned link와 Workflow Explorer
+- canonical Test/Neutral JSON import/export
+- 일반 Processing Recipe builder/library와 선택 Dataset batch 실행
+- 복수 금속 hardening, 점탄성 shift/term, 초탄성 model family workbench
 - proprietary laboratory vendor format과 임의 channel schema
 - promoted IR을 다시 보정하는 iterative promotion
 - 실제 Abaqus/OpenRadioss solver 실행과 qualification

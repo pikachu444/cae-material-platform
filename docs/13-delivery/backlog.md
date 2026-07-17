@@ -1217,3 +1217,129 @@ uniaxial/planar/equibiaxial public equations로 제한되며 `reference/unapprov
   production inline token은 거부한다. 실제 receiver/IdP rotation acceptance는 남아 있다.
   전체 gate는 PostgreSQL 포함 Python 690개, Vitest 41개, ruff/mypy 555 files, architecture,
   user-guide, production web budget과 npm audit 0 vulnerabilities를 통과했다.
+
+## E-14. Configurable Material Information System and Modeling Workbench
+
+ADR-0028~0030과 [제품 capability map](../00-research/product-capability-map.md)이 이 Epic의
+단일 상태 기준이다. T-39~T-47에서 만든 foundation과 bounded reference vertical은 폐기하지
+않고 compatibility projection 또는 method implementation으로 재사용한다. 각 Task는 DB/domain,
+API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰야 완료된다.
+
+### S-14.1. Correct the product baseline and make the catalog configurable
+
+#### T-48. Product capability map and status correction — `P0`
+
+- **범위:** 공식 공개 자료 기반 capability map, ADR-0028~0030, vision/requirements/domain/
+  architecture/IR/fitting/backlog/README/status 정합화.
+- **완료 조건:** 실제 증거 없는 capability는 `partial/missing/mischaracterized`로 표시하고
+  T-49~T-60의 단일 의존 순서를 문서화한다.
+- **테스트:** Markdown links/headings, requirement/Task reference와 user-guide manifest lint.
+
+#### T-49. Configurable Table, Attribute, Layout and Subset — `P0`
+
+- **범위:** stable Table/Attribute/Layout/Subset identities, immutable revisions, type-specific
+  value storage(number/integer/text/boolean/date/discrete/file/curve/reference), unit semantics,
+  validation, administrator API와 schema designer UI.
+- **완료 조건:** migration 없이 Attribute를 추가하고 실제 record form/search schema에 사용한다.
+- **테스트:** type/unit/validation negative, revision concurrency, tenant/classification FK/RLS,
+  PostgreSQL round-trip, React administrator E2E.
+
+#### T-50. Catalog Record, datasheet, search, facet and compare — `P0`
+
+- **범위:** Folder/Record identities와 revisions, typed search indexes, Layout datasheet, saved
+  Subset, text/facet/range query, record comparison과 current/exact deep links.
+- **완료 조건:** 사용자가 tree 또는 search에서 record를 찾아 단위·출처·revision 차이를 비교한다.
+- **테스트:** folder cycle, normalized range, authorized count/facet, saved-query compatibility,
+  10,000-record bounded query와 Playwright browse/search/compare.
+
+#### T-51. Dual Explorer and typed revision-pinned record links — `P0`
+
+- **범위:** Catalog Explorer, Material Workflow Explorer, Link Type, forward/reverse Record Link,
+  breadcrumb/deep-link navigation. 기존 flat routes와 State genealogy를 유지한다.
+- **완료 조건:** Material에서 Test/Dataset/Processing/IR/Card/Release까지 exact revision link로
+  이동하고 관리자 정의 cardinality를 강제한다.
+- **테스트:** endpoint/cardinality/cross-scope/latest negative, reverse query, lazy-tree UI E2E.
+
+### S-14.2. Establish JSON exchange and reusable processing
+
+#### T-52. Canonical Test JSON and deterministic JSON+ZIP — `P0`
+
+- **범위:** `cmp.test-data` JSON Schema, validate/preview/import/export, raw JSON preservation,
+  internal Parquet conversion, CSV/TSV/XLSX adapter, 25 MiB package threshold와 chunk manifest.
+- **완료 조건:** metadata/unit/curve lossless round-trip과 tabular/JSON normalized equivalence.
+- **테스트:** schema/semantic negatives, digest/checksum/path safety, large streaming/chunk memory.
+
+#### T-53. Mapping Profile and common Processing Workbench — `P0`
+
+- **범위:** revisioned Attribute/channel Mapping Profile, method registry, crop, scale/shift,
+  resample, moving-average, Savitzky–Golay, spline, alignment/statistics, stage overlay UI.
+- **완료 조건:** 사용자가 mapping과 ordered steps를 편집하고 preview 후 immutable output을 만든다.
+- **테스트:** method schema/composition, numeric public fixture, preview/commit separation, UI E2E.
+
+#### T-54. Versioned Recipe library and batch execution — `P0`
+
+- **범위:** Recipe draft/published revisions, library, exact input Selection, compatibility
+  preflight, per-member Run/Attempt, Batch Monitor와 failed-member retry.
+- **완료 조건:** 저장한 방식을 다른 Dataset 또는 검색 선택에 재사용하고 성공 결과를 보존한다.
+- **테스트:** deterministic rerun, incompatible member, partial failure/retry, no overwrite, UI E2E.
+
+### S-14.3. Deepen the three public-equation reference modeling tracks
+
+#### T-55M. Metal elastoplastic workbench — `P0`
+
+- **범위:** 복수 elastic/proof methods, explicit true/plastic conversion, manual/automatic necking
+  candidate, Voce/Swift/Hockett–Sherby/Ghosh fitting, candidate combine와 bounded extrapolation.
+- **완료 조건:** Recipe/Neutral JSON에 선택 방법과 domain이 남고 기존 two-solver card로 이어진다.
+- **테스트:** analytical/golden numeric fixtures, bounds/residual/extrapolation regression, UI E2E.
+
+#### T-55P. Polymer linear-viscoelastic workbench — `P0`
+
+- **범위:** relaxation/log-time processing, configurable Prony terms/bounds, manual/automatic term
+  selection, manual/WLF/Arrhenius shift와 master curve, supported solver mappings.
+- **완료 조건:** candidate/residual/domain을 비교하고 unsupported mapping을 명시적으로 차단한다.
+- **테스트:** synthetic Maxwell/WLF/Arrhenius fixtures, term selection, mapping regression, UI E2E.
+
+#### T-55E. Elastomer hyperelastic/hyper-viscoelastic workbench — `P0`
+
+- **범위:** weighted uniaxial/planar/biaxial input, Neo-Hookean/Mooney–Rivlin/Yeoh/Ogden,
+  multistart, stability/physical diagnostics와 optional Prony overlay.
+- **완료 조건:** candidate를 사람이 선택·승격하고 지원되는 Abaqus/OpenRadioss card로 이어진다.
+- **테스트:** public equation/limit fixtures, multi-test residual, stability and mapping regression.
+
+### S-14.4. Exchange, deliver and document the selected model
+
+#### T-56. Neutral Material JSON and IR promotion — `P0`
+
+- **범위:** `cmp.neutral-material` validate/import/export, curve stages, candidate/selection,
+  applicability, exact source/mapping/recipe revision과 IR promotion.
+- **완료 조건:** export/import 뒤 같은 IR과 mapping report를 재현한다.
+- **테스트:** schema/version/cross-scope negative, deterministic round-trip와 digest regression.
+
+#### T-57. Abaqus/OpenRadioss capability and native export — `P0`
+
+- **범위:** 공식 solver 문서 기반 versioned capability manifest, six-state preflight/report,
+  ASCII preview/download와 기존 exporter 확장.
+- **완료 조건:** silent default/approximation 없이 각 지원 family의 card와 sidecar를 생성한다.
+- **테스트:** approved semantic/golden fixture, parser/syntax hook와 unsupported negative.
+
+#### T-58. Canonical Bulk JSON package — `P0`
+
+- **범위:** 기존 immutable Bundle에 Test JSON, Mapping Profile, Recipe, Neutral JSON, mapping
+  report와 native card package profile 추가.
+- **완료 조건:** manifest/checksum이 모든 exact source와 representation을 검증한다.
+- **테스트:** deterministic ZIP, omission/tamper/path negative와 large external worker assembly.
+
+#### T-59. Administrator/User feature grants — `P1`
+
+- **범위:** 제품 역할 두 개와 schema, catalog, processing/calibration, approval, export grants.
+  기존 permission/RLS는 호환 enforcement로 유지한다.
+- **완료 조건:** 작업 중심 권한 UI/API와 tenant 격리 regression이 통과한다.
+- **테스트:** grant matrix positive/negative, legacy-token compatibility와 cross-scope RLS.
+
+#### T-60. End-to-end demo, manuals and screenshot gate — `P0`
+
+- **범위:** demo Material/Test JSON/Recipe/Neutral JSON/cards, Dashboard 시작점, user/admin guide,
+  deterministic GUI capture와 `make demo`/Compose 절차.
+- **완료 조건:** tree/search/link → import → recipe/batch → fit → IR → preflight/card/bulk의 두
+  solver 및 세 material-family reference 시나리오가 실제 API/PostgreSQL에서 완료된다.
+- **테스트:** Playwright product journey, screenshot manifest, clean Compose seed와 `make ci`.

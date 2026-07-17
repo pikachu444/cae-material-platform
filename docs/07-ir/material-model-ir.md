@@ -419,3 +419,28 @@ SHA-256 must be acknowledged before card creation. A card revision pins its exac
 revision and duplicates its ordered terms in typed card tables so deferred database constraints
 can reject a mismatched projection.
 
+## 17. Neutral Material JSON exchange envelope
+
+`cmp.neutral-material` is the user exchange envelope around an IR; it is not a second constitutive
+model authority. The document contains:
+
+- document/schema version, organization/project/classification and content digest;
+- exact Material/State/Test/Dataset revision references and source artifact digests;
+- exact Mapping Profile and Processing Recipe revisions;
+- ordered processing methods/options and raw/normalized/processed/fitted/extrapolated curve stages;
+- calibration candidates, selected candidate/reason, bounds, objective, prediction and residual;
+- characterized, fitted and extrapolated domains;
+- one schema-valid Material Model IR revision payload;
+- applicability, validation state and solver mapping evidence.
+
+Import validates every referenced schema/method/model version before creating an immutable imported
+document and derived internal artifacts. Export of the same revision is deterministic. Large curves
+may be chunked inside the documented JSON+ZIP package, but manifest order and SHA-256 make the
+logical document identical. Abaqus `.inp` and OpenRadioss `.rad` remain separate native artifacts.
+
+The reference family roadmap deepens existing implementations rather than introducing a generic
+parameter map: metal elastoplastic candidates (Voce, Swift, Hockett–Sherby, Ghosh), polymer
+generalized-Maxwell/Prony with optional WLF/Arrhenius evidence, and elastomer Neo-Hookean,
+Mooney–Rivlin, Yeoh or Ogden with optional Prony overlay. A family is exported only where the
+versioned solver capability manifest and mapping tests support that concrete schema.
+
