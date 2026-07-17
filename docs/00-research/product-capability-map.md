@@ -1,0 +1,60 @@
+# Product capability map
+
+기준일: `2026-07-17`
+
+이 문서는 제품 방향과 실제 구현 사이의 단일 추적표다. 상용 제품의 공개 사용자 기능은
+제품 요구사항을 점검하는 기준일 뿐이며, 비공개 schema, UI, 알고리즘 또는 파일 형식을
+복제하지 않는다. 상세 조사 근거는 [공식 제품 자료 조사](official-product-research.md)에 있다.
+
+상태는 다음 네 값만 사용한다.
+
+- `implemented`: PostgreSQL/domain, API/calculation, connected UI, automated test가 모두 있다.
+- `partial`: 일부 계층 또는 제한된 reference workflow만 있다.
+- `missing`: 제품 사용자가 실행할 수 있는 기능이 없다.
+- `mischaracterized`: 기존 문서의 완료·범위 설명이 실제 코드보다 넓다.
+
+## Capability matrix
+
+| Capability | 공개 근거와 제품 결정 | 현재 상태 | DB | API | UI | Test | Requirement / Task |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Configurable Table 및 Attribute Definition | Granta MI 공개 object model과 Attribute 관리 기능을 참고한다. 관리자가 migration 없이 scalar, curve, file, link attribute를 정의한다. | `missing` | 없음 | 없음 | 없음 | 없음 | `FR-CFG-001~005`, `T-49` |
+| Layout, Subset, datasheet | Granta의 Layout/Subset 개념을 참고하되 독자 UI로 구현한다. | `missing` | 없음 | 없음 | 없음 | 없음 | `FR-CFG-006~007`, `T-49/T-50` |
+| Material/State 고정 property | stable identity, immutable revision, density/E/ν/yield property set이 있다. 완전 관리형 schema로 대체하지 않고 호환 projection으로 유지한다. | `partial` | 있음 | 있음 | 있음 | 있음 | `FR-CAT-001~002`, `T-07/T-49` |
+| Catalog Explorer | Workspace → Table → Folder → Record 탐색과 breadcrumb/deep link를 제공한다. 이는 Granta Contents Tree를 참고한 플랫폼 고유 구조다. | `missing` | 없음 | 없음 | 없음 | 없음 | `FR-NAV-001`, `T-51` |
+| Material Workflow Explorer | Material → State → Test/Specimen → Dataset → Processing → IR → Card → Release를 exact revision link로 투영한다. | `missing` | 일부 genealogy만 있음 | lineage API 일부 | 없음 | genealogy만 있음 | `FR-NAV-002`, `T-51` |
+| Typed arbitrary record link | 관리자가 Link Type, 방향명, 허용 Table, cardinality를 정의하고 양 끝 revision을 고정한다. 현재 State genealogy는 일반 record link가 아니다. | `missing` | bounded genealogy만 있음 | bounded API만 있음 | bounded UI만 있음 | bounded test만 있음 | `FR-LNK-001~005`, `T-51` |
+| Search, facet, compare, saved subset | Material 고정 필드 검색은 있으나 임의 typed attribute facet, record compare, saved subset은 없다. | `partial` | 고정 index | 고정 검색 | 고정 목록 | 있음 | `FR-NAV-003~006`, `T-50` |
+| Canonical Test Data JSON | JSON을 공식 교환 형식으로 하고 CSV/TSV/XLSX는 같은 구조로 변환하는 adapter가 된다. 원본 JSON과 digest를 보존한다. | `missing` | artifact 기반 있음 | tabular import만 있음 | tabular UI만 있음 | tabular test만 있음 | `FR-JSON-001~006`, `T-52` |
+| Mapping Profile | 자유 Attribute/채널을 계산 quantity에 연결하는 revisioned profile이다. 현재 importer profile은 고정 tabular mapping subset이다. | `partial` | importer mapping만 있음 | importer mapping만 있음 | import mapping만 있음 | 있음 | `FR-MAP-001~004`, `T-53` |
+| Common Processing Workbench | crop, scale/shift, resample, smoothing, curve alignment/statistics를 ordered method pipeline으로 구성하고 단계별 overlay를 본다. | `partial` | bounded recipe/run | bounded endpoints | workflow별 고정 UI | bounded test | `FR-PRO-001~010`, `T-53` |
+| Saved Recipe library 및 batch | versioned recipe를 저장·수정·재사용하고 선택한 Dataset에 preflight 후 batch 실행한다. 현재 alignment batch는 일반 Recipe batch가 아니다. | `partial` | recipe와 bounded batch | bounded batch | 일반 builder/library 없음 | bounded test | `FR-BAT-001~006`, `T-54` |
+| 금속 탄소성 modeling | tensile 처리, tabulated plasticity/reference Voce, Abaqus/OpenRadioss card가 있으나 복수 E 평가·necking·복수 fitting/조합은 없다. | `partial` | 있음 | 있음 | reference UI | 있음 | `FR-MOD-M-001~007`, `T-55M` |
+| 폴리머 점탄성 modeling | shear relaxation, bounded Prony, repeat/master-curve subset과 Abaqus card가 있다. 일반 term selection과 전체 WLF/Arrhenius workbench는 제한적이다. | `partial` | 있음 | 있음 | reference UI | 있음 | `FR-MOD-P-001~003`, `T-55P` |
+| 엘라스토머 초탄성/초점탄성 modeling | multi-test Ogden–Prony reference flow와 두 solver card가 있다. 복수 모델 family와 일반 pipeline은 없다. | `partial` | 있음 | 있음 | reference UI | 있음 | `FR-MOD-E-001~004`, `T-55E` |
+| Neutral Material JSON | 기존 solver-neutral IR은 있으나 source curve, processing, candidate, extrapolation을 함께 운반하는 import/export 문서는 없다. | `partial` | IR 있음 | IR API 있음 | IR 표시 있음 | 있음 | `FR-JSON-007~010`, `T-56` |
+| Solver mapping과 native card | Abaqus/OpenRadioss reference mappings, 여섯 mapping 상태, preview/download가 있다. 추가 모델 mapping은 공식 문서와 domain review가 필요하다. | `partial` | 있음 | 있음 | 있음 | golden/semantic 있음 | `FR-EXP-*`, `T-57` |
+| JSON+ZIP bulk package | immutable Bundle은 있으나 canonical Test JSON/Neutral JSON/Recipe 중심 package profile은 아직 없다. | `partial` | 있음 | 있음 | 있음 | 있음 | `FR-EXP-005~006`, `T-58` |
+| 단순 사용자 권한 | 내부 deny-by-default 역할은 구현됐으나 제품 표면의 Administrator/User + feature grant는 없다. | `mischaracterized` | 복합 정책 있음 | 복합 permission | connection 중심 | security test 있음 | `FR-ACC-001~004`, `T-59` |
+| 사용자 매뉴얼과 GUI evidence | 기존 reference workflow 안내와 screenshot gate가 있으나 새 Explorer/Recipe/JSON 흐름은 기능 구현과 함께 추가해야 한다. | `partial` | 해당 없음 | 해당 없음 | 기존 화면 | guide gate 있음 | `FR-UX-001~003`, `T-60` |
+
+## 공식 공개 근거
+
+- [Granta MI Contents Tree와 Profile](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/MI_Viewer_Help/MI_Viewer/GetStart_Profile.html)
+- [Granta MI Attribute 관리](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Granta_MI/mi_admin_and_config/managing_attributes.html)
+- [Granta MI Record Links](https://developer.ansys.com/docs/granta-mi-scripting-toolkit-4-2/samples/streamlined/16_Link_Records.md)
+- [Altair Material Modeler 개요](https://help.altair.com/material_modeler/topics/material_modeler/altair_material_modeler_about_r.htm)
+- [Altair Material Modeler 금속 처리 예제](https://help.altair.com/material_modeler/topics/material_modeler/tutorials/amm_material_plastic_behavior.htm)
+- [Simcenter Material Modeler](https://www.siemens.com/en-us/products/simcenter/materials-science-management/material-modeler/)
+
+## 완료 판정 규칙
+
+Backlog Task는 다음 증거가 모두 연결되기 전에는 `implemented`가 아니다.
+
+1. 명시적 PostgreSQL migration과 organization/project/classification 경계
+2. domain/application contract와 protected API
+3. 실제 API에 연결된 사용자 화면
+4. unit, PostgreSQL integration, UI/E2E regression
+5. 사용자 또는 관리자 가이드와 변경된 GUI capture
+
+기존 foundation이나 bounded reference 구현은 보존한다. 다만 위 다섯 조건 중 빠진 계층이
+있으면 이 표에서는 `partial`로 표시한다.

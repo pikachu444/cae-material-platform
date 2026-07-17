@@ -482,3 +482,36 @@ Actual solver data-check/execution, numerical-health parsing, experimental compa
 outputs, and approved acceptance thresholds remain P2. Existing T-27/T-28 evidence boundaries stay
 available and are not relabeled as successful solver qualification.
 
+## 20. Configurable Processing Workbench and batch contract
+
+The common Workbench is driven by a method registry rather than hard-coded workflow order. A method
+declares immutable ID/version, required input quantities, output quantities, JSON Schema for
+options, applicability, deterministic status and diagnostics. The initial common library contains
+explicit sort/duplicate/missing policies, crop, scale/shift, resampling, moving-average,
+Savitzky–Golay and spline smoothing, curve alignment and replicate statistics. Preview output is
+ephemeral and cannot be promoted.
+
+A committed `Processing Recipe Revision` pins one Mapping Profile revision and ordered method
+steps. Editing a published recipe creates a new draft revision. A committed `Processing Run` pins
+exact Dataset, Mapping Profile and Recipe revisions and stores each stage as a distinct derived
+artifact/revision. Raw, normalized, processed, fitted and extrapolated stages are never collapsed
+into one mutable curve.
+
+A batch pins an ordered Selection Revision. Preflight reports compatibility for every member before
+execution. Each member has an independent Run/Attempt and terminal status; successful outputs
+survive another member's failure. Retry targets failed members with the same pinned inputs and adds
+an attempt rather than overwriting a result. Deterministic methods must reproduce within their
+declared numeric tolerance.
+
+Family-specific methods use the same registry and run contract:
+
+- metal: multiple elastic-modulus/proof-stress methods, explicit engineering/true conversion,
+  manual/automatic necking candidate, multiple public hardening fits and explicit extrapolation;
+- polymer: log-time processing, generalized Maxwell/Prony term selection and optional
+  manual/WLF/Arrhenius temperature shift;
+- elastomer: weighted uniaxial/planar/biaxial fitting for public hyperelastic families, multistart,
+  stability diagnostics and optional Prony overlay.
+
+Actual licensed solver execution remains outside this Workbench. Mapping preflight and native card
+generation follow only after selection and promotion to an IR revision.
+

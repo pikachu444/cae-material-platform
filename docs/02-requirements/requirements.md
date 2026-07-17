@@ -10,6 +10,29 @@
 
 ## 2. 기능 요구사항
 
+### 2.0 Configurable catalog와 제품 탐색
+
+| ID | 요구사항 | 검수 기준 |
+| --- | --- | --- |
+| `FR-CFG-001` | 관리자는 migration 없이 Table과 typed Attribute Definition revision을 추가해야 한다. | 새 Attribute가 즉시 record form, validation과 search schema에 나타난다. |
+| `FR-CFG-002` | Attribute는 number, integer, text, boolean, date, discrete, file, curve/table, record-reference를 구분해야 한다. | 잘못된 type의 값이 DB/API 양쪽에서 거부된다. |
+| `FR-CFG-003` | 수치 Attribute는 original value/unit text, normalized value/unit과 quantity semantics를 함께 보존해야 한다. | datasheet와 JSON export에서 원본과 정규화 값을 모두 조회한다. |
+| `FR-CFG-004` | required/default/validation/parameter/conditional visibility를 Attribute revision에 고정해야 한다. | 과거 record revision은 새 definition으로 재해석되거나 덮어쓰이지 않는다. |
+| `FR-CFG-005` | 대형 curve/file은 immutable artifact를 참조하고 row-per-point 또는 opaque record JSON을 authority로 사용하지 않아야 한다. | digest와 schema를 통해 record revision에서 원본 artifact까지 추적한다. |
+| `FR-CFG-006` | 관리자는 Table별 Layout을 정의해야 한다. | 같은 record를 목적별 datasheet layout으로 표시할 수 있다. |
+| `FR-CFG-007` | 사용자는 filter를 저장하여 Subset으로 다시 열 수 있어야 한다. | Subset 실행 시 현재 권한 범위에서 동일 query 정의를 재현한다. |
+| `FR-NAV-001` | Catalog Explorer는 Workspace → Table → Folder → Record를 lazy load해야 한다. | breadcrumb와 deep link를 유지하며 대형 tree를 전부 선로딩하지 않는다. |
+| `FR-NAV-002` | Workflow Explorer는 Material에서 Release까지 exact revision link를 투영해야 한다. | 노드 클릭 시 해당 workbench와 revision으로 이동하고 `latest`를 관계로 저장하지 않는다. |
+| `FR-NAV-003` | 전체 text와 typed Attribute facet/range 검색을 지원해야 한다. | unit-normalized 수치 범위와 권한 필터가 count/facet에도 동일하게 적용된다. |
+| `FR-NAV-004` | 여러 record를 선택한 Layout으로 비교해야 한다. | 값, 단위, 출처와 revision 차이를 한 화면에 표시한다. |
+| `FR-NAV-005` | 기존 flat module route를 유지해야 한다. | `/materials`, `/tests`, `/datasets`, `/models`, `/exports`, `/governance`가 계속 동작한다. |
+| `FR-NAV-006` | record page는 forward/back link와 breadcrumb를 제공해야 한다. | 검색 또는 link로 이동한 사용자가 이전 문맥으로 돌아갈 수 있다. |
+| `FR-LNK-001` | 관리자는 방향명, 허용 source/target Table과 cardinality를 가진 Link Type revision을 정의해야 한다. | 정의에 맞지 않는 endpoint와 개수는 거부된다. |
+| `FR-LNK-002` | record link 양 끝은 exact record revision을 고정해야 한다. | head가 바뀌어도 과거 link가 가리키는 content가 변하지 않는다. |
+| `FR-LNK-003` | cross-organization/project 또는 classification 역전 link를 거부해야 한다. | service와 PostgreSQL negative test가 모두 통과한다. |
+| `FR-LNK-004` | link supersede/remove는 과거 link를 삭제하지 않고 새 상태 revision을 남겨야 한다. | audit과 reverse-link query에서 과거 관계를 재구성한다. |
+| `FR-LNK-005` | Workflow Explorer는 record를 복제하지 않고 typed link를 projection해야 한다. | 한 record의 수정이 복제 record divergence를 만들지 않는다. |
+
 ### 2.1 재료·시험 문맥
 
 | ID | 요구사항 | 검수 기준 |
@@ -37,6 +60,25 @@
 | `FR-ING-008` | 알 수 없는 단위·column은 자동 추측으로 확정하지 않아야 한다. | unresolved mapping이 있으면 normalization job이 `needs_input`으로 종료된다. |
 | `FR-ING-009` | importer 실패 시 원본 asset과 오류 report를 보존해야 한다. | partial normalized dataset을 성공으로 발행하지 않는다. |
 | `FR-ING-010` | 첫 governed tabular importer는 CSV, TSV, XLSX의 sheet/header/encoding/locale을 명시해야 한다. | detect/preview 이후 승인된 Mapping revision만 import하며 spreadsheet formula는 data로 실행하지 않는다. |
+
+### 2.2.1 JSON 교환과 계산 매핑
+
+| ID | 요구사항 | 검수 기준 |
+| --- | --- | --- |
+| `FR-JSON-001` | `cmp.test-data` versioned JSON Schema를 공식 시험 데이터 교환 계약으로 제공해야 한다. | validate/preview/import/export와 lossless round-trip test가 통과한다. |
+| `FR-JSON-002` | Test JSON은 maker, date, operator, instrument, specimen, condition과 channel quantity/unit을 포함해야 한다. | 필수 metadata와 channel 의미가 없으면 import가 확정되지 않는다. |
+| `FR-JSON-003` | CSV/TSV/XLSX importer는 canonical Test JSON 구조로 수렴해야 한다. | 같은 값의 tabular/JSON fixture가 동일 normalized Dataset을 만든다. |
+| `FR-JSON-004` | 원본 JSON bytes와 digest를 보존하고 내부 Parquet 변환을 별도 derived artifact로 기록해야 한다. | JSON export와 계산 artifact가 각각 provenance에 나타난다. |
+| `FR-JSON-005` | 25 MiB 초과 또는 복수 문서는 manifest/checksum을 가진 deterministic JSON+ZIP으로 전달해야 한다. | archive path, ordering, digest와 chunk 재조립 test가 통과한다. |
+| `FR-JSON-006` | missing observation은 `null`과 reason으로 표현하고 NaN/Infinity JSON을 거부해야 한다. | schema 및 semantic negative fixture가 통과한다. |
+| `FR-JSON-007` | `cmp.neutral-material`은 source, mapping, recipe, curve stages, candidates, selected IR, applicability와 mapping evidence를 포함해야 한다. | import 후 같은 IR과 mapping report를 재생성한다. |
+| `FR-JSON-008` | Neutral JSON과 solver-native ASCII card를 분리해야 한다. | ZIP manifest가 JSON evidence와 `.inp`/`.rad`를 별도 component로 기록한다. |
+| `FR-JSON-009` | Neutral JSON import는 지원되지 않는 model/method version을 명시적으로 거부해야 한다. | unknown version이 silent downgrade되지 않는다. |
+| `FR-JSON-010` | 모든 exchange document는 organization/project/classification과 exact revision reference를 포함해야 한다. | cross-scope import와 unresolved reference가 거부된다. |
+| `FR-MAP-001` | Mapping Profile은 record Attribute와 test channel을 calculation quantity에 연결하는 stable identity/immutable revision이어야 한다. | profile 변경이 과거 run의 mapping을 바꾸지 않는다. |
+| `FR-MAP-002` | Profile은 required channel, accepted quantity/unit, transform과 applicability를 선언해야 한다. | incompatible Dataset은 run 전 preflight에서 거부된다. |
+| `FR-MAP-003` | 사용자는 mapping을 확인·수정하고 새 Profile revision으로 저장해야 한다. | UI와 API가 같은 validation report를 표시한다. |
+| `FR-MAP-004` | 계산 Run은 exact Mapping Profile revision을 참조해야 한다. | profile head 변경 후에도 run 재현 결과가 같다. |
 
 ### 2.3 Dataset, revision, provenance
 
@@ -75,6 +117,18 @@
 | `FR-PRO-002` | preview와 committed run을 구분해야 한다. | preview artifact는 release provenance 입력으로 사용할 수 없다. |
 | `FR-PRO-003` | 각 step은 input/output schema와 diagnostics를 선언해야 한다. | incompatible step composition이 실행 전에 거부된다. |
 | `FR-PRO-004` | manual point edit도 재현 가능한 operation으로 표현해야 한다. | 수정 point, before/after, actor, reason이 recipe step으로 남는다. |
+| `FR-PRO-005` | method registry는 method ID/version, input/output quantity, option schema, applicability와 deterministic 여부를 제공해야 한다. | UI가 registry schema로 option editor와 preflight를 구성한다. |
+| `FR-PRO-006` | common workbench는 crop, scale/shift, resample, moving-average, Savitzky–Golay, spline, alignment와 통계를 ordered step으로 제공해야 한다. | 단계별 overlay와 committed output revision이 일치한다. |
+| `FR-PRO-007` | 사용자는 기존 Recipe를 불러와 수정하고 새 revision으로 저장해야 한다. | published revision이 수정되지 않고 draft revision이 추가된다. |
+| `FR-PRO-008` | processing은 단계별 diagnostics와 warning/failure를 보존해야 한다. | 부분 계산이 성공 결과로 발행되지 않는다. |
+| `FR-PRO-009` | 금속, 폴리머, 엘라스토머 method는 공통 registry 계약을 사용해야 한다. | core가 특정 재료 family 구현을 직접 import하지 않는다. |
+| `FR-PRO-010` | raw, normalized, processed, fitted, extrapolated curve를 UI와 exchange에서 구분해야 한다. | 사용자가 각 stage와 적용 operation을 역추적한다. |
+| `FR-BAT-001` | Batch는 ordered Dataset Selection, Mapping Profile과 Recipe revision을 고정해야 한다. | 실행 중 head가 바뀌어도 member 입력은 변하지 않는다. |
+| `FR-BAT-002` | 실행 전 member별 compatibility preflight를 제공해야 한다. | incompatible member와 이유가 계산 전에 표시된다. |
+| `FR-BAT-003` | member 결과는 독립 Processing Run/Output revision이어야 한다. | 한 member 실패가 성공 member를 롤백하거나 덮어쓰지 않는다. |
+| `FR-BAT-004` | 실패한 member만 동일 입력으로 재실행할 수 있어야 한다. | retry가 성공 결과를 중복 생성하지 않고 attempt를 기록한다. |
+| `FR-BAT-005` | batch 결과는 success/failure/warning과 output revision을 항목별로 제공해야 한다. | API와 Batch Monitor count가 일치한다. |
+| `FR-BAT-006` | deterministic Recipe는 동일 입력에서 tolerance 내 동일 결과를 내야 한다. | batch regression fixture가 재현된다. |
 | `FR-CAL-001` | Material Model과 Calibrator를 분리해야 한다. | 동일 model evaluator에 서로 다른 calibrator를 적용한다. |
 | `FR-CAL-002` | calibration plan은 inputs, parameters, bounds, objective, weighting, constraints, seed를 고정해야 한다. | run manifest만으로 설정을 재구성한다. |
 | `FR-CAL-003` | plugin/package/container digest와 source commit, dependency lock을 기록해야 한다. | 이름·semantic version이 같아도 digest가 다른 실행을 구분한다. |
@@ -83,6 +137,26 @@
 | `FR-CAL-006` | train/calibration selection과 holdout/validation selection을 구분해야 한다. | 동일 specimen 중복 사용을 policy에 따라 차단 또는 경고한다. |
 | `FR-CAL-007` | parameter uncertainty 또는 식별성 diagnostic의 schema를 제공해야 한다. | 미지원 calibrator는 `not_provided`를 명시하고 빈 값을 성공처럼 표시하지 않는다. |
 | `FR-CAL-008` | 같은 Material Model을 반복 보정할 때 prior promotion evidence를 보존해야 한다. | 같은 stable identity에 새 IR revision과 revision-owned evidence를 append하고 과거 IR/Card/Release digest가 변하지 않는다. |
+
+### 2.5.1 Material Modeling reference track
+
+| ID | 요구사항 | 검수 기준 |
+| --- | --- | --- |
+| `FR-MOD-M-001` | 금속 tensile workbench는 자동 선형구간, 지정구간 회귀, chord/secant와 수동 slope 방식의 탄성계수 평가를 구분해야 한다. | method별 option과 결과가 Recipe/Neutral JSON에 남는다. |
+| `FR-MOD-M-002` | proof stress는 0.2%와 사용자 offset 및 수동 판정을 지원해야 한다. | 선택 방법과 교차점 diagnostics가 보존된다. |
+| `FR-MOD-M-003` | engineering/true 및 true plastic strain 변환을 명시적 step으로 수행해야 한다. | hidden 변환 없이 수식 version과 입력 E가 기록된다. |
+| `FR-MOD-M-004` | necking point는 수동 선택과 자동 candidate를 분리해야 한다. | 자동 candidate가 원본을 자르거나 확정하지 않는다. |
+| `FR-MOD-M-005` | Voce, Swift, Hockett–Sherby와 Ghosh 계열 공개식 후보를 같은 objective 계약으로 비교해야 한다. | 공개 수식 fixture와 candidate별 residual test가 통과한다. |
+| `FR-MOD-M-006` | fitting 선택 또는 두 후보의 명시적 구간/비율 조합을 새 curve revision으로 저장해야 한다. | 조합 방식과 범위가 Neutral JSON에 재현된다. |
+| `FR-MOD-M-007` | 지정 strain까지 외삽하되 fitted domain과 extrapolated domain을 구분해야 한다. | validity 경계를 넘으면 UI/card preflight가 경고한다. |
+| `FR-MOD-P-001` | 점탄성 workbench는 relaxation/modulus-time 입력과 log-time resampling을 지원해야 한다. | time/modulus quantity와 domain이 검증된다. |
+| `FR-MOD-P-002` | generalized Maxwell/Prony term 수, initial value, bounds와 수동/자동 term 선택을 지원해야 한다. | candidate별 term, prediction, residual과 warning이 남는다. |
+| `FR-MOD-P-003` | 온도 series는 수동 shift와 WLF/Arrhenius candidate를 지원해야 한다. | shift factor, reference temperature와 master-curve domain이 저장된다. |
+| `FR-MOD-E-001` | 초탄성 workbench는 uniaxial, planar, biaxial Dataset과 시험별 weight/domain을 지원해야 한다. | Plan이 exact multi-test selection을 고정한다. |
+| `FR-MOD-E-002` | Neo-Hookean, Mooney–Rivlin, Yeoh와 Ogden 공개 모델을 동일 candidate contract로 실행해야 한다. | 모델별 analytical fixture와 multistart regression이 통과한다. |
+| `FR-MOD-E-003` | model stability, bounds, non-finite, extrapolation과 physical constraint를 별도 diagnostics로 제공해야 한다. | objective success만으로 `validated`가 되지 않는다. |
+| `FR-MOD-E-004` | hyperelastic IR에 선택적 Prony viscoelastic overlay를 연결해야 한다. | unsupported solver 조합은 preflight에서 실패한다. |
+| `FR-MOD-001` | 모든 model 결과는 `reference`, `validated`, `production-approved`를 구분해야 한다. | reference 결과가 production release로 오인되지 않는다. |
 
 ### 2.6 Material Model IR와 solver card
 
@@ -136,6 +210,13 @@
 | `FR-API-003` | domain event는 transactional outbox에 기록해야 한다. | DB commit과 event 누락/유령 event가 발생하지 않는다. |
 | `FR-API-004` | event consumer는 at-least-once delivery에서 idempotent해야 한다. | duplicate event fixture가 중복 side effect를 만들지 않는다. |
 | `FR-SRCH-001` | material, state, lot/batch, test condition, model, solver target, release 상태로 검색해야 한다. | 권한 밖 record가 search count와 facet에도 노출되지 않는다. |
+| `FR-ACC-001` | 제품 역할은 Administrator와 User를 기본으로 표시해야 한다. | 사용자 관리 UI가 내부 역할 vocabulary를 요구하지 않는다. |
+| `FR-ACC-002` | schema 관리, catalog 편집, processing/calibration, model 승인과 card export를 feature grant로 제어해야 한다. | grant별 positive/negative API·UI test가 통과한다. |
+| `FR-ACC-003` | 기존 세부 permission과 RLS는 feature grant의 내부 enforcement로 유지해야 한다. | 기존 token과 tenant isolation regression이 유지된다. |
+| `FR-ACC-004` | 권한 설명은 작업 중심이어야 하며 보안 foundation을 제품 핵심 흐름보다 앞세우지 않아야 한다. | README와 UI가 가능한 작업과 필요한 grant를 먼저 설명한다. |
+| `FR-UX-001` | GUI 변경 Task는 task-oriented user/admin guide와 deterministic screenshot을 함께 갱신해야 한다. | guide manifest가 stale/missing capture를 차단한다. |
+| `FR-UX-002` | Dashboard에서 Catalog 탐색, 시험 처리와 card 생성 시작점을 제공해야 한다. | E2E가 각 시작점에서 실제 workbench까지 이동한다. |
+| `FR-UX-003` | API error를 domain action과 해결 방법으로 표시해야 한다. | 사용자가 trace ID와 수정 가능한 입력을 확인한다. |
 
 ## 3. 비기능 요구사항
 

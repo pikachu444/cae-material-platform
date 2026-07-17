@@ -59,6 +59,24 @@ revision, Material Lot revision을 정확히 고정한다. 기존 State의 문�
 
 Method의 default가 바뀌어도 과거 Run은 당시 method revision과 condition snapshot을 유지한다.
 
+### 2.7 Configurable catalog와 계산 구성
+
+- **Catalog Table**: 관리자가 정의하는 record 종류의 stable identity
+- **Attribute Definition Revision**: 데이터형, quantity/unit, validation과 표시 규칙의 immutable 정의
+- **Catalog Record / Record Revision**: 자유 schema record의 stable identity와 immutable content
+- **Layout Revision**: record datasheet에 보일 Attribute와 순서·그룹
+- **Subset Revision**: Table 범위에 저장된 typed filter/search 정의
+- **Link Type Revision**: 허용 source/target Table, 방향명과 cardinality
+- **Record Link Revision**: 두 exact Record Revision 사이의 사용자 정의 관계
+- **Mapping Profile Revision**: Attribute/채널을 계산 quantity에 연결하는 immutable 계약
+- **Processing Recipe Revision**: ordered method/version/options와 compatibility 계약
+- **Processing Batch**: exact input Selection과 Recipe를 여러 member Run으로 실행한 집합
+
+고정 Material/State/Property aggregate는 기존 API와 solver workflow의 호환 projection으로
+유지한다. 새 configurable record가 기존 identity를 복제하지 않도록 record reference가 기존
+revision을 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 전용 tree projection으로
+표현한다.
+
 ## 3. Aggregate와 entity 목록
 
 ### 3.1 재료·공정·시편
@@ -119,6 +137,22 @@ Method의 default가 바뀌어도 과거 Run은 당시 method revision과 condit
 | Review Request / Review Decision | 검토 snapshot과 append-only 판정 |
 | Audit Event | security/business change의 append-only 기록 |
 | Provenance Entity/Activity/Agent/Relations | 데이터 생성·사용·책임 관계 |
+
+### 3.5 Configurable catalog와 reusable execution
+
+| Aggregate/Entity | 의미 | Stable ID | Revision ID |
+| --- | --- | --- | --- |
+| Catalog Table | 관리자가 정의한 record type | O | O |
+| Attribute Definition | typed attribute와 unit/validation | O | O |
+| Catalog Folder | Table 안의 탐색 계층 | O | O |
+| Catalog Record | 자유 schema record | O | O |
+| Typed Attribute Value | Record Revision이 소유한 type별 값 | X | owner revision으로 고정 |
+| Layout / Subset | datasheet와 saved query | O | O |
+| Link Type | 관계 endpoint/cardinality 계약 | O | O |
+| Record Link | exact revision 사이의 방향 관계 | O | O |
+| Mapping Profile | 계산 quantity binding | O | O |
+| Processing Recipe | ordered method pipeline | O | O |
+| Processing Batch | 여러 exact Dataset 실행 | O | attempt/member 기록 |
 
 ## 4. ERD — 재료·공정·시편·시험
 

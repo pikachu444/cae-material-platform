@@ -1,7 +1,32 @@
 # Implementation Status
 
-Date: `2026-07-16`
+Date: `2026-07-17`
 Foundation version: `0.32.0`
+
+## Product direction correction (T-48)
+
+The composed product-pilot gate proves the bounded fixed-schema reference workflows listed below;
+it does **not** complete the configurable Material Information System or general Material Modeling
+Workbench defined by ADR-0028 through ADR-0030.
+
+| Product capability | Actual current state | Next Task |
+| --- | --- | --- |
+| Administrator-defined Table/Attribute/Layout/Subset | missing | T-49 |
+| Catalog record datasheet/search/facet/compare | fixed Material subset only | T-50 |
+| Catalog and Material Workflow Explorers | missing; flat routes and bounded State genealogy exist | T-51 |
+| Arbitrary typed exact-revision record links | missing; bounded genealogy/provenance links exist | T-51 |
+| Canonical Test Data JSON/JSON+ZIP | missing; CSV/TSV/XLSX→Parquet path exists | T-52 |
+| General Mapping Profile and Processing Workbench | importer mappings and bounded processors only | T-53 |
+| Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
+| Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
+| Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
+| Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
+| Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
+| Administrator/User feature grants | missing; fine-grained internal permissions exist | T-59 |
+
+The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
+DB/API/UI/Test status matrix. Existing completed entries below remain valid evidence for their stated
+bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
