@@ -5,6 +5,7 @@ import {
   type ApiConfig,
   createReferencePronyCalibrationPlan,
   createReferencePronyCandidateSelection,
+  downloadNeutralMaterial,
   createReferenceShearRelaxationTestMethod,
   createReferenceShearRelaxationCropRecipe,
   createReferenceShearRelaxationTestRun,
@@ -20,10 +21,12 @@ import {
   listTestRunsForMaterialState,
   previewShearRelaxationDataset,
   promoteReferencePronyCandidate,
+  promoteModelToNeutralMaterial,
   uploadReferenceTensileCsv,
 } from "./api";
 import type {
   MaterialStateResponse,
+  NeutralMaterialResponse,
   LinearViscoelasticModelResponse,
   PronyCalibrationDiagnosticsResponse,
   PronyCalibrationRunResponse,
@@ -162,6 +165,7 @@ export function ReferenceShearRelaxationWorkflow({
     "Reviewed fitted response, residual evidence, convergence, and parameter-bound warnings.",
   );
   const [promotedModel, setPromotedModel] = useState<LinearViscoelasticModelResponse | null>(null);
+  const [neutralMaterial, setNeutralMaterial] = useState<NeutralMaterialResponse | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -453,6 +457,38 @@ export function ReferenceShearRelaxationWorkflow({
     }
   }
 
+  async function promoteNeutral(): Promise<void> {
+    if (!promotedModel) return;
+    setBusy("neutral");
+    setError(null);
+    try {
+      const result = await promoteModelToNeutralMaterial(config, "linear-viscoelastic", {
+        material_model_id: promotedModel.material_model_id,
+        material_model_revision_id: promotedModel.current_revision.id,
+        selection_reason: selectionReason.trim(),
+        change_reason: "Promote reviewed generalized-Maxwell IR to canonical Neutral Material JSON",
+      });
+      setNeutralMaterial(result.data);
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function downloadNeutral(): Promise<void> {
+    if (!neutralMaterial) return;
+    const result = await downloadNeutralMaterial(config, neutralMaterial.neutral_material_id);
+    const url = URL.createObjectURL(result.data.blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = result.data.filename;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
   return (
     <section className="workflow-card">
       <div className="section-heading compact-heading">
@@ -667,9 +703,26 @@ export function ReferenceShearRelaxationWorkflow({
               </div>
             ) : null}
             {promotedModel ? (
-              <p className="success-notice" role="status">
-                Promoted to the same Material Model identity as revision r{promotedModel.current_revision.revision_no}. The selected Candidate and diagnostics digests are pinned in the IR.
-              </p>
+              <div className="form-stack">
+                <p className="success-notice" role="status">
+                  Promoted to the same Material Model identity as revision r{promotedModel.current_revision.revision_no}. The selected Candidate and diagnostics digests are pinned in the IR.
+                </p>
+                <div className="card-actions">
+                  <button
+                    className="button secondary"
+                    type="button"
+                    disabled={busy !== null}
+                    onClick={() => void promoteNeutral()}
+                  >
+                    {busy === "neutral" ? "Creating Neutral JSON…" : "Create Neutral Material JSON"}
+                  </button>
+                  {neutralMaterial ? (
+                    <button className="text-button" type="button" onClick={() => void downloadNeutral()}>
+                      Download Neutral JSON r{neutralMaterial.revision_no}
+                    </button>
+                  ) : null}
+                </div>
+              </div>
             ) : null}
           </form>
           {error ? <div className="error-notice" role="alert">{error}</div> : null}

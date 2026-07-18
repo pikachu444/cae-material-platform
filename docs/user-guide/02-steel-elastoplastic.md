@@ -67,3 +67,17 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
 
 `approximated`가 있으면 reference card 생성은 가능할 수 있지만 production release는 별도
 domain approval이 필요합니다. `unsupported`가 하나라도 있으면 card를 생성하지 마십시오.
+
+## Canonical Neutral Material JSON 받기
+
+선택한 IR의 origin이 `selected fitted hardening Processing Output`인지 확인한 뒤 **Create
+Neutral Material JSON**을 누릅니다. 이 작업은 현재 IR을 다시 fitting하지 않습니다. exact
+Test Data revision, Mapping Profile revision, Processing Output revision, 후보 family 조합,
+hardening Artifact와 관측/외삽 영역을 하나의 immutable `cmp.neutral-material` revision으로
+고정합니다.
+
+완료되면 **Download Neutral JSON r1**으로 JSON을 받습니다. JSON에는 normalized engineering
+curve, processed true stress/plastic strain, fitted 영역과 extrapolated 영역이 서로 다른 stage로
+들어갑니다. 수동 constant-extension IR은 이 승격 대상이 아니며, 공통 Processing Workbench에서
+선택 hardening Output을 먼저 만들어야 합니다. Neutral JSON에서 Abaqus/OpenRadioss 카드를
+직접 재생성하는 통합 경로는 T-64에서 제공합니다.

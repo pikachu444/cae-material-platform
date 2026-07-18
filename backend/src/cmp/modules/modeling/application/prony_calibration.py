@@ -397,6 +397,21 @@ class ReferencePronyCalibrationService:
             context=context, decision=decision, run_id=run_id
         )
 
+    def get_plan_revision_for_promotion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+        plan_revision_id: UUID,
+    ) -> RevisionSnapshot[ReferencePronyCalibrationPlanContent]:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_plan_revision(
+            context=context,
+            decision=decision,
+            plan_id=plan_id,
+            plan_revision_id=plan_revision_id,
+        )
+
     def get_candidate_for_promotion(
         self,
         context: SecurityContext,
@@ -407,3 +422,26 @@ class ReferencePronyCalibrationService:
         return self._repository.get_candidate(
             context=context, decision=decision, candidate_id=candidate_id
         )
+
+    async def candidate_diagnostics_for_promotion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> tuple[dict[str, float | int], ...]:
+        _require_capability(context, decision, Permission.MODELING_READ)
+        candidate = self._repository.get_candidate(
+            context=context, decision=decision, candidate_id=candidate_id
+        )
+        _, value = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            candidate.diagnostics_artifact_id,
+            maximum_bytes=16 * 1024 * 1024,
+        )
+        rows = prony_diagnostics_from_parquet(value)
+        if len(rows) != candidate.diagnostics_point_count:
+            raise InvalidPronyCalibration(
+                "diagnostics Artifact point count differs from Candidate"
+            )
+        return rows

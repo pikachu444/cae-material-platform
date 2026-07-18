@@ -12,6 +12,7 @@ from uuid import UUID
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticFamily
 from cmp.modules.modeling.domain.neutral_material import (
     NEUTRAL_HYPERELASTIC_IR_SCHEMA_DIGEST,
+    NeutralHyperelasticIR,
     NeutralHyperelasticParameters,
     NeutralMaterialDocument,
 )
@@ -42,6 +43,17 @@ _STATUSES = frozenset(
     {"exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"}
 )
 _MATERIAL_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,79}$")
+
+
+def _hyperelastic_ir(source: NeutralMaterialDocument) -> NeutralHyperelasticIR:
+    value = source.material_model_ir
+    if not isinstance(value, NeutralHyperelasticIR):
+        raise InvalidNeutralHyperelasticExport(
+            "the hyperelastic exporter requires a hyperelastic Neutral Material IR"
+        )
+    if source.applicable_strain_min is None or source.applicable_strain_max is None:
+        raise InvalidNeutralHyperelasticExport("hyperelastic strain applicability is required")
+    return value
 
 
 class NeutralHyperelasticExportError(Exception):
@@ -350,7 +362,7 @@ def preflight_neutral_hyperelastic_export(
     source: NeutralMaterialDocument,
     target: NeutralHyperelasticExportTarget,
 ) -> NeutralHyperelasticMappingReport:
-    family = source.material_model_ir.parameters.family
+    family = _hyperelastic_ir(source).parameters.family
     exporter_id = (
         ABAQUS_EXPORTER_ID
         if target.is_abaqus
@@ -396,7 +408,8 @@ def render_abaqus_neutral_hyperelastic_card(
     *, material_name: str, source: NeutralMaterialDocument
 ) -> str:
     _validate_output(1, material_name)
-    parameters = source.material_model_ir.parameters
+    ir = _hyperelastic_ir(source)
+    parameters = ir.parameters
     family = parameters.family
     values: tuple[float, ...]
     if family is HyperelasticFamily.NEO_HOOKEAN:
@@ -431,7 +444,7 @@ def render_abaqus_neutral_hyperelastic_card(
         ),
         f"*MATERIAL, NAME={material_name}",
         "*DENSITY",
-        _number(source.material_model_ir.density_kg_per_m3),
+        _number(ir.density_kg_per_m3),
         _keyword(NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s"), family),
         ", ".join(_number(item) for item in values),
     ]
@@ -442,7 +455,8 @@ def render_openradioss_neutral_hyperelastic_card(
     *, solver_material_id: int, material_name: str, source: NeutralMaterialDocument
 ) -> str:
     _validate_output(solver_material_id, material_name)
-    parameters = source.material_model_ir.parameters
+    ir = _hyperelastic_ir(source)
+    parameters = ir.parameters
     family = parameters.family
     common = [
         "# CMP reference/non-production Neutral Material card",
@@ -461,7 +475,7 @@ def render_openradioss_neutral_hyperelastic_card(
             f"/MAT/LAW94/{solver_material_id}/1",
             material_name,
             "#              RHO_I",
-            _number(source.material_model_ir.density_kg_per_m3),
+            _number(ir.density_kg_per_m3),
             "# Blank",
             "",
             "#                C10                 C20                 C30",
@@ -487,7 +501,7 @@ def render_openradioss_neutral_hyperelastic_card(
             f"/MAT/LAW82/{solver_material_id}/1",
             material_name,
             "#              RHO_I",
-            _number(source.material_model_ir.density_kg_per_m3),
+            _number(ir.density_kg_per_m3),
             "#        N                            Nu",
             f"{len(mu)} {_number(0.495)}",
             "#               Mu_i",
@@ -577,6 +591,9 @@ def build_neutral_hyperelastic_solver_card(
     if expected_mapping_report_sha256 != report.digest:
         raise NeutralHyperelasticMappingReportMismatch("mapping report digest is stale or absent")
     _validate_output(solver_material_id, material_name)
+    ir = _hyperelastic_ir(source)
+    assert source.applicable_strain_min is not None
+    assert source.applicable_strain_max is not None
     card_text = (
         render_abaqus_neutral_hyperelastic_card(material_name=material_name, source=source)
         if target.is_abaqus
@@ -590,12 +607,12 @@ def build_neutral_hyperelastic_solver_card(
         neutral_material_id,
         neutral_material_revision_id,
         source.content_sha256,
-        source.material_model_ir.parameters.family,
+        ir.parameters.family,
         target,
         solver_material_id,
         material_name,
-        source.material_model_ir.density_kg_per_m3,
-        source.material_model_ir.parameters,
+        ir.density_kg_per_m3,
+        ir.parameters,
         source.applicable_strain_min,
         source.applicable_strain_max,
         tuple((item.name, item.status) for item in report.items),

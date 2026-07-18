@@ -20,24 +20,25 @@ from cmp.modules.modeling.application.neutral_material import (
     NeutralMaterialService,
     NeutralMaterialSnapshot,
     PromoteHyperelasticFamilyCandidate,
+    PromoteLinearViscoelasticModelToNeutral,
+    PromoteMetalModelToNeutral,
 )
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticFamily
 from cmp.modules.modeling.domain.neutral_material import (
+    HYPERELASTIC_CURVE_STAGES,
     CurveStage,
     EvidenceStatus,
     NeutralCandidateSelection,
     NeutralCurve,
+    NeutralDatasetRole,
     NeutralDatasetSource,
     NeutralHyperelasticIR,
     NeutralHyperelasticParameters,
     NeutralMaterialDocument,
+    NeutralTestMode,
     OptionalRevisionEvidence,
     RevisionReference,
     neutral_material_from_json_bytes,
-)
-from cmp.modules.modeling.domain.reference_ogden_calibration import (
-    OgdenCalibrationRole,
-    OgdenTestMode,
 )
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 from fastapi import FastAPI, Request
@@ -102,8 +103,8 @@ def _document() -> NeutralMaterialDocument:
         source_datasets=(
             NeutralDatasetSource(
                 dataset,
-                OgdenCalibrationRole.CALIBRATION,
-                OgdenTestMode.UNIAXIAL_TENSION,
+                NeutralDatasetRole.CALIBRATION,
+                NeutralTestMode.UNIAXIAL_TENSION,
                 IDS[21],
                 "a" * 64,
             ),
@@ -112,7 +113,7 @@ def _document() -> NeutralMaterialDocument:
             NeutralCurve(
                 stage,
                 dataset.revision_id,
-                OgdenTestMode.UNIAXIAL_TENSION,
+                NeutralTestMode.UNIAXIAL_TENSION,
                 "strain.engineering",
                 "1",
                 "stress.nominal.residual" if stage is CurveStage.RESIDUAL else "stress.nominal",
@@ -120,7 +121,7 @@ def _document() -> NeutralMaterialDocument:
                 (0.0, 0.1),
                 (0.0, 1000.0),
             )
-            for stage in CurveStage
+            for stage in HYPERELASTIC_CURVE_STAGES
         ),
         selection=NeutralCandidateSelection(
             IDS[22],
@@ -186,6 +187,28 @@ class _Service:
         assert command.candidate_id == CANDIDATE
         return SNAPSHOT
 
+    async def promote_metal_model(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PromoteMetalModelToNeutral,
+    ) -> NeutralMaterialSnapshot:
+        assert context is CONTEXT and decision.permission is Permission.MODELING_WRITE
+        assert command.material_model_id == IDS[28]
+        assert command.material_model_revision_id == IDS[29]
+        return SNAPSHOT
+
+    async def promote_linear_viscoelastic_model(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PromoteLinearViscoelasticModelToNeutral,
+    ) -> NeutralMaterialSnapshot:
+        assert context is CONTEXT and decision.permission is Permission.MODELING_WRITE
+        assert command.material_model_id == IDS[28]
+        assert command.material_model_revision_id == IDS[29]
+        return SNAPSHOT
+
     async def get_neutral_material(
         self,
         context: SecurityContext,
@@ -248,6 +271,22 @@ async def _exercise() -> None:
         assert promoted.status_code == 201
         assert promoted.headers["location"].endswith(str(NEUTRAL))
         assert promoted.json()["document"]["document_type"] == "cmp.neutral-material"
+
+        for path in (
+            "/api/v1/neutral-materials:promote-metal",
+            "/api/v1/neutral-materials:promote-linear-viscoelastic",
+        ):
+            family_promoted = await client.post(
+                path,
+                json={
+                    "material_model_id": str(IDS[28]),
+                    "material_model_revision_id": str(IDS[29]),
+                    "selection_reason": "Reviewed exact selected result evidence.",
+                    "change_reason": "Promote typed model to Neutral Material.",
+                },
+            )
+            assert family_promoted.status_code == 201
+            assert family_promoted.headers["location"].endswith(str(NEUTRAL))
 
         loaded = await client.get(f"/api/v1/neutral-materials/{NEUTRAL}")
         assert loaded.status_code == 200

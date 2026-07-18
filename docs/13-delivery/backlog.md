@@ -1495,6 +1495,10 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-63. Three-family canonical Neutral Material promotion — `P0`
 
+- **상태 (`2026-07-18`):** `implemented`. Migration 076, closed three-family schema/domain,
+  exact source-kind verification, promote/import/download API와 metal/polymer/hyper UI를 구현했다.
+  family별 Neutral 기반 card/bulk consumer 통합은 T-64가 담당한다.
+
 - **범위:** metal selected hardening, polymer selected generalized-Maxwell, hyperelastic optional
   Prony overlay를 closed typed union으로 추가하고 exact Processing/Recipe/Profile/Candidate evidence를 보존한다.
 - **완료 조건:** 세 family document가 import/export round-trip 후 같은 IR과 mapping preflight를 재현한다.

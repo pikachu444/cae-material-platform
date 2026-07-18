@@ -18,8 +18,8 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | Calculation workbenches exist, but only reviewed hyperelastic families flow through canonical Neutral JSON; metal uses a separate tabulated IR and polymer demo card uses a manual baseline | T-63 three-family Neutral promotion |
-| Neutral Material exchange JSON | T-56/T-57 is implemented only for reviewed hyperelastic family Candidates; metal, selected generalized-Maxwell and optional Prony overlay are missing | T-63 three-family Neutral promotion |
+| Metal/Polymer/Elastomer modeling | T-63 promotes selected metal Processing Output IRs, reviewed generalized-Maxwell IRs, and reviewed hyperelastic families with exact Prony overlay into one closed Neutral union | T-64 Neutral exporter parity |
+| Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls | T-64 exporter/bulk parity |
 | Abaqus/OpenRadioss native cards | T-57 complete for four declared hyperelastic families plus earlier bounded linear/elastoplastic/viscoelastic mappings | T-58 package |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | T-59 grants |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | T-60 demo |
@@ -31,12 +31,22 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-63~T-65`: close the remaining gaps recorded in
+- `T-64~T-65`: close the remaining gaps recorded in
   [the v3 completion audit](docs/13-delivery/v3-completion-audit.md). Actual solver execution remains
   excluded, but domain-backed workflow navigation, three-family Neutral exchange and full download
   E2E are not complete yet.
 
 ## Completed
+
+- `T-63`: `cmp.neutral-material` now has a closed typed union for selected metal isotropic
+  tabulated plasticity, reviewed generalized-Maxwell/Prony and hyperelastic families with an exact
+  optional Prony overlay. Migration 076 projects model family, selection kind, metal parameters,
+  applicability and ordered Prony terms into explicit PostgreSQL columns/tables; a closed source
+  discriminator verifies exact governed Dataset, canonical Test Data or shear-relaxation Dataset
+  revisions. The API promotes exact selected metal and polymer IR evidence, validates/imports all
+  three families, preserves canonical numeric round trips and downloads the immutable JSON. Metal
+  and shear-relaxation workbenches expose the promotion/download controls. Family-specific native
+  card regeneration and Bulk source parity remain T-64.
 
 - `T-62`: migration 075 adds an immutable, same-scope, closed-kind binding from one configurable
   Catalog Record revision to one exact governed domain revision. PostgreSQL validates each target

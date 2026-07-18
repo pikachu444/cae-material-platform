@@ -103,3 +103,16 @@ immutable revision으로 저장됩니다. 온도별 curve가 겹치지 않거나
 - T-44의 반복 승격 계약은 governed Ogden Candidate 흐름에 먼저 적용되었습니다. 이 문서의
   bounded linear-Prony 흐름은 아직 기존 단일 승격 guard를 유지하므로 promoted r2의 재승격은
   안전하게 거부됩니다.
+
+## Reviewed Prony 결과를 Neutral JSON으로 승격
+
+Candidate를 선택하고 같은 Material Model identity의 새 IR revision으로 승격한 뒤 **Create
+Neutral Material JSON**을 누릅니다. 수동 baseline만 있는 상태에서는 버튼을 사용하지
+마십시오. Neutral 승격에는 reviewed Candidate와 diagnostics digest가 필요합니다.
+
+생성된 `generalized_maxwell` 문서는 exact Prony Plan/Run/Candidate, processed shear-relaxation
+Dataset revision과 Artifact digest, observed/fitted/residual curve, ordered `(g_ratio, k_ratio,
+relaxation_time)` 항, reference temperature와 유효 time domain을 보존합니다. **Download Neutral
+JSON r1**으로 받으며, validate/import 시 어느 digest나 수치가 달라져도 거부됩니다. 현재
+linear-Prony OpenRadioss mapping은 계속 `unsupported`이고, Neutral 기반 Abaqus card 재생성은
+T-64 범위입니다.

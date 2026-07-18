@@ -3015,37 +3015,41 @@ export interface NeutralMaterialResponse {
     sources: {
       datasets: Array<{
         dataset: { id: string; revision_id: string };
-        role: OgdenCalibrationRole;
-        test_mode: OgdenTestMode;
+        role: OgdenCalibrationRole | "processing_input";
+        test_mode: OgdenTestMode | "stress_relaxation";
+        source_kind?: "governed_dataset" | "test_data_document" | "shear_relaxation_dataset";
       }>;
     };
     curve_stages: Array<{
-      stage: "normalized" | "fitted" | "residual";
+      stage: "normalized" | "processed" | "fitted" | "extrapolated" | "residual";
       dataset_revision_id: string;
-      test_mode: OgdenTestMode;
+      test_mode: OgdenTestMode | "stress_relaxation";
       x: number[];
       y: number[];
     }>;
     candidate_selection: {
-      candidate_id: string;
+      candidate_id?: string;
       reason: string;
-      stability_status: string;
+      stability_status?: string;
       warnings: string[];
+      kind?: "processing_output_selection";
+      processing_output?: { id: string; revision_id: string };
     };
     material_model_ir: {
       model: { id: string; revision_id: string };
       schema_id: string;
       schema_version: string;
+      model_family?: "hyperelastic" | "isotropic_tabulated_plasticity" | "generalized_maxwell";
       constitutive_model: {
-        family: HyperelasticFamily;
+        family: HyperelasticFamily | "isotropic_tabulated_plasticity" | "generalized_maxwell";
         parameters: Record<string, { value: number; unit: "Pa" | "1" }>;
       };
       maturity: "reference";
       non_production: true;
     };
-    applicability: {
-      engineering_strain: { minimum: number; maximum: number; unit: "1" };
-    };
+    applicability:
+      | { engineering_strain: { minimum: number; maximum: number; unit: "1" } }
+      | { time: { minimum: number; maximum: number; unit: "s" } };
     validation: { status: string };
   };
   links: { self: string; download: string };
