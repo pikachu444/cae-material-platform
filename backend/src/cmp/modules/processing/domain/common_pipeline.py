@@ -493,6 +493,8 @@ def preview_pipeline(
 ) -> ProcessingPreview:
     """Map canonical channels and evaluate immutable in-memory stage snapshots."""
 
+    if document.point_count > MAX_PREVIEW_POINTS:
+        raise CommonPipelineError("interactive preview supports at most 100000 points")
     if len(steps) > MAX_PIPELINE_STEPS:
         raise CommonPipelineError("a preview supports at most 32 ordered steps")
     _unused_units, columns = _mapped_series(document, profile)

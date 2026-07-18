@@ -181,6 +181,7 @@ from cmp.modules.modeling.application.voce_candidate_projection import (
 )
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
+from cmp.modules.processing.adapters.api.common_pipeline import install_common_processing_api
 from cmp.modules.processing.adapters.api.processing import install_processing_api
 from cmp.modules.processing.adapters.api.shear_relaxation import (
     install_shear_relaxation_processing_api,
@@ -560,6 +561,16 @@ def create_app(
     install_processing_api(
         application,
         service=resolved_processing,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_EXECUTE
+        ),
+    )
+    install_common_processing_api(
+        application,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ

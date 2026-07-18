@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/processing/common-processing-resources.schema.json",
+  "$defs": {
+    "ChannelBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel_key", "target_quantity", "accepted_normalized_units"],
+      "properties": {
+        "channel_key": {"type": "string", "minLength": 1, "maxLength": 160},
+        "target_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
+        "accepted_normalized_units": {
+          "type": "array", "minItems": 1, "maxItems": 32,
+          "items": {"type": "string", "minLength": 1, "maxLength": 160}
+        },
+        "required": {"type": "boolean", "default": true},
+        "scale": {"type": "number", "default": 1},
+        "offset": {"type": "number", "default": 0}
+      }
+    },
+    "MappingProfileInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_key", "label", "independent_quantity", "missing_data_policy", "bindings"],
+      "properties": {
+        "profile_key": {"type": "string", "minLength": 1, "maxLength": 160},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "independent_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
+        "missing_data_policy": {"enum": ["reject", "drop_any"]},
+        "bindings": {
+          "type": "array", "minItems": 2, "maxItems": 128,
+          "items": {"$ref": "#/$defs/ChannelBinding"}
+        }
+      }
+    },
+    "ProcessingStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method_id", "method_version", "options"],
+      "properties": {
+        "method_id": {"type": "string", "minLength": 1, "maxLength": 160},
+        "method_version": {"type": "string", "minLength": 1, "maxLength": 160},
+        "options": {"type": "object"}
+      }
+    },
+    "PreviewRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document", "mapping_profile", "steps"],
+      "properties": {
+        "document": {"$ref": "../datasets/canonical-test-data.schema.json"},
+        "mapping_profile": {"$ref": "#/$defs/MappingProfileInput"},
+        "steps": {
+          "type": "array", "maxItems": 32,
+          "items": {"$ref": "#/$defs/ProcessingStep"}
+        }
+      }
+    },
+    "MethodDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method_id", "version", "label", "description", "option_schema", "deterministic", "allows_extrapolation"],
+      "properties": {
+        "method_id": {"type": "string"},
+        "version": {"type": "string"},
+        "label": {"type": "string"},
+        "description": {"type": "string"},
+        "option_schema": {"type": "object"},
+        "deterministic": {"type": "boolean"},
+        "allows_extrapolation": {"type": "boolean"}
+      }
+    },
+    "MethodRegistryResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/MethodDefinition"}}
+      }
+    },
+    "QuantitySeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quantity", "unit", "values"],
+      "properties": {
+        "quantity": {"type": "string"},
+        "unit": {"type": "string"},
+        "values": {"type": "array", "items": {"type": "number"}}
+      }
+    },
+    "CurveStage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ordinal", "method_id", "method_version", "point_count", "series", "diagnostics"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0},
+        "method_id": {"type": "string"},
+        "method_version": {"type": "string"},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "series": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/QuantitySeries"}},
+        "diagnostics": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "PreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["execution_mode", "promotable", "source_document_sha256", "mapping_profile_sha256", "independent_quantity", "stages"],
+      "properties": {
+        "execution_mode": {"const": "preview"},
+        "promotable": {"const": false},
+        "source_document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping_profile_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "independent_quantity": {"type": "string"},
+        "stages": {"type": "array", "minItems": 1, "maxItems": 33, "items": {"$ref": "#/$defs/CurveStage"}}
+      }
+    }
+  }
+}

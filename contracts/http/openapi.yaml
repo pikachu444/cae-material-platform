@@ -3569,6 +3569,41 @@ paths:
         "409": {description: Immutable Artifact integrity or Dataset state conflicts.}
         "422": {description: Preview point limit or Dataset data is invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/processing-methods:
+    get:
+      operationId: listCommonProcessingMethods
+      tags: [processing-workbench]
+      summary: List solver- and test-neutral versioned curve processing methods.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Method IDs, versions, option JSON Schemas, and numerical capabilities.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MethodRegistryResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+  /api/v1/processing:preview:
+    post:
+      operationId: previewCommonProcessingPipeline
+      tags: [processing-workbench]
+      summary: Map canonical channels and preview ordered processing stages without promotion.
+      description: Every stage is returned separately; the preview is ephemeral and cannot be used as released evidence.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/PreviewRequest"}
+      responses:
+        "200":
+          description: Deterministic mapped and processed stage overlays with diagnostics.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "422": {description: Mapping, units, method composition, or numerical options are invalid.}
   /api/v1/processing-recipes/reference-shear-relaxation-crop:
     post:
       operationId: createReferenceShearRelaxationCropRecipe

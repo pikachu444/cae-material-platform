@@ -8,6 +8,7 @@ does not infer units, quantities, missing values, or normalization transforms.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -307,3 +308,126 @@ def canonical_test_data(value: CanonicalTestDataDocument) -> dict[str, Any]:
             "sha256": value.source.sha256,
         },
     }
+
+
+def parse_canonical_test_data(value: Mapping[str, Any]) -> CanonicalTestDataDocument:
+    """Parse an exchange mapping without coupling consumers to an HTTP adapter model."""
+
+    def object_at(parent: Mapping[str, Any], key: str) -> Mapping[str, Any]:
+        item = parent.get(key)
+        if not isinstance(item, Mapping):
+            raise CanonicalTestDataError(f"{key} must be an object")
+        return item
+
+    def sequence_at(parent: Mapping[str, Any], key: str) -> Sequence[Any]:
+        item = parent.get(key)
+        if not isinstance(item, Sequence) or isinstance(item, str | bytes):
+            raise CanonicalTestDataError(f"{key} must be an array")
+        return item
+
+    def text_at(parent: Mapping[str, Any], key: str) -> str:
+        item = parent.get(key)
+        if not isinstance(item, str):
+            raise CanonicalTestDataError(f"{key} must be a string")
+        return item
+
+    def optional_text_at(parent: Mapping[str, Any], key: str) -> str | None:
+        item = parent.get(key)
+        if item is not None and not isinstance(item, str):
+            raise CanonicalTestDataError(f"{key} must be a string or null")
+        return item
+
+    def decimal_at(parent: Mapping[str, Any], key: str) -> Decimal:
+        item = parent.get(key)
+        if isinstance(item, bool) or not isinstance(item, str | int | float | Decimal):
+            raise CanonicalTestDataError(f"{key} must be a decimal-compatible value")
+        try:
+            return Decimal(str(item))
+        except ArithmeticError as error:
+            raise CanonicalTestDataError(f"{key} must be a decimal-compatible value") from error
+
+    material = object_at(value, "material")
+    test = object_at(value, "test")
+    specimen = object_at(value, "specimen")
+    source = object_at(value, "source")
+    conditions: list[TestCondition] = []
+    for item in sequence_at(value, "conditions"):
+        if not isinstance(item, Mapping):
+            raise CanonicalTestDataError("each condition must be an object")
+        conditions.append(
+            TestCondition(
+                key=text_at(item, "key"),
+                quantity_semantics=text_at(item, "quantity_semantics"),
+                original_value=decimal_at(item, "original_value"),
+                original_unit_string=text_at(item, "original_unit_string"),
+                normalized_value=decimal_at(item, "normalized_value"),
+                normalized_unit=text_at(item, "normalized_unit"),
+            )
+        )
+    channels: list[TestDataChannel] = []
+    for item in sequence_at(value, "channels"):
+        if not isinstance(item, Mapping):
+            raise CanonicalTestDataError("each channel must be an object")
+        normalization = object_at(item, "normalization")
+        original = sequence_at(item, "original_values")
+        normalized = sequence_at(item, "normalized_values")
+        reasons = sequence_at(item, "missing_reasons")
+        channels.append(
+            TestDataChannel(
+                key=text_at(item, "key"),
+                name=text_at(item, "name"),
+                quantity_semantics=text_at(item, "quantity_semantics"),
+                axis_role=ChannelAxisRole(text_at(item, "axis_role")),
+                original_unit_string=text_at(item, "original_unit_string"),
+                normalized_unit=text_at(item, "normalized_unit"),
+                normalization_scale=decimal_at(normalization, "scale"),
+                normalization_offset=decimal_at(normalization, "offset"),
+                original_values=tuple(
+                    None if point is None else Decimal(str(point)) for point in original
+                ),
+                normalized_values=tuple(
+                    None if point is None else Decimal(str(point)) for point in normalized
+                ),
+                missing_reasons=tuple(
+                    None if reason is None else str(reason) for reason in reasons
+                ),
+            )
+        )
+    try:
+        test_date = date.fromisoformat(text_at(test, "date"))
+    except ValueError as error:
+        raise CanonicalTestDataError("test.date must be an ISO date") from error
+    try:
+        return CanonicalTestDataDocument(
+            document_type=text_at(value, "document_type"),
+            schema_version=text_at(value, "schema_version"),
+            document_id=text_at(value, "document_id"),
+            material=TestMaterialMetadata(
+                maker=text_at(material, "maker"),
+                grade=text_at(material, "grade"),
+                lot_batch=optional_text_at(material, "lot_batch"),
+            ),
+            test=TestExecutionMetadata(
+                test_date=test_date,
+                operator=text_at(test, "operator"),
+                laboratory=text_at(test, "laboratory"),
+                method=text_at(test, "method"),
+                equipment_maker=optional_text_at(test, "equipment_maker"),
+                equipment_model=optional_text_at(test, "equipment_model"),
+            ),
+            specimen=TestSpecimenMetadata(
+                specimen_id=text_at(specimen, "specimen_id"),
+                description=optional_text_at(specimen, "description"),
+            ),
+            conditions=tuple(conditions),
+            channels=tuple(channels),
+            source=TestDataSource(
+                file_name=text_at(source, "file_name"),
+                media_type=text_at(source, "media_type"),
+                sha256=text_at(source, "sha256"),
+            ),
+        )
+    except (ArithmeticError, TypeError, ValueError) as error:
+        if isinstance(error, CanonicalTestDataError):
+            raise
+        raise CanonicalTestDataError(str(error)) from error
