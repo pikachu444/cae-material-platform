@@ -1,7 +1,18 @@
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 
-import { ApiError, validateCanonicalTestData, type ApiConfig } from "./api";
-import type { CanonicalTestDataPreviewResponse } from "./types";
+import {
+  ApiError,
+  downloadCanonicalTestDataDocument,
+  importCanonicalTestData,
+  listCanonicalTestDataDocuments,
+  validateCanonicalTestData,
+  type ApiConfig,
+} from "./api";
+import type {
+  CanonicalTestDataDocumentResponse,
+  CanonicalTestDataPreviewResponse,
+  DataClassification,
+} from "./types";
 
 interface Props {
   config: ApiConfig;
@@ -25,15 +36,33 @@ const SAMPLE = `{
 }`;
 
 function errorMessage(error: unknown): string {
-  return error instanceof ApiError ? error.message : "The Test Data JSON could not be validated.";
+  return error instanceof ApiError ? error.message : "The Test Data JSON operation failed.";
 }
 
 export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnection }: Props) {
   const [source, setSource] = useState(SAMPLE);
   const [fileName, setFileName] = useState("built-in DP600 example");
   const [preview, setPreview] = useState<CanonicalTestDataPreviewResponse | null>(null);
+  const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
+  const [classification, setClassification] = useState<DataClassification>("internal");
+  const [changeReason, setChangeReason] = useState("Initial canonical Test Data import");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    void loadDocuments();
+  }, [config.baseUrl, config.accessToken]);
+
+  async function loadDocuments(): Promise<void> {
+    try {
+      const result = await listCanonicalTestDataDocuments(config);
+      setDocuments(result.data.items);
+      setError(null);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    }
+  }
 
   async function chooseFile(event: ChangeEvent<HTMLInputElement>): Promise<void> {
     const file = event.target.files?.[0];
@@ -46,20 +75,62 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
     setFileName(file.name);
     setPreview(null);
     setError(null);
+    setNotice(null);
   }
 
   async function validate(): Promise<void> {
     setBusy(true);
     setError(null);
+    setNotice(null);
     setPreview(null);
     try {
       const parsed = JSON.parse(source) as Record<string, unknown>;
       const result = await validateCanonicalTestData(config, parsed);
       setPreview(result.data);
+      setNotice("Validation passed. Review semantic and unit evidence before importing.");
     } catch (caught) {
       setError(caught instanceof SyntaxError ? `Invalid JSON syntax: ${caught.message}` : errorMessage(caught));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function importDocument(): Promise<void> {
+    if (!preview) return;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const result = await importCanonicalTestData(config, {
+        classification,
+        document: preview.canonical_document,
+        change_reason: changeReason,
+      });
+      setNotice(`Imported ${result.data.document_key} as immutable revision ${result.data.current_revision.revision_no}.`);
+      await loadDocuments();
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function downloadDocument(item: CanonicalTestDataDocumentResponse): Promise<void> {
+    setError(null);
+    try {
+      const result = await downloadCanonicalTestDataDocument(
+        config,
+        item.test_data_document_id,
+        item.current_revision.id,
+      );
+      const url = URL.createObjectURL(result.data.blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = result.data.filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (caught) {
+      setError(errorMessage(caught));
     }
   }
 
@@ -78,12 +149,13 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
       </section>
 
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
+      {notice ? <div className="success-banner" role="status">{notice}</div> : null}
       <section className="test-json-grid">
         <article className="workbench-card json-source-card">
           <div className="section-heading"><div><p className="eyebrow">User exchange file</p><h2>JSON source</h2></div><span className="status-chip">{fileName}</span></div>
           <label className="file-picker">Choose `.json` file<input type="file" accept="application/json,.json" onChange={(event) => void chooseFile(event)} /></label>
           <label>Document<textarea className="json-editor" aria-label="Canonical Test Data JSON" value={source} onChange={(event) => { setSource(event.target.value); setPreview(null); }} spellCheck={false} /></label>
-          <button className="button primary" type="button" disabled={busy} onClick={() => void validate()}>{busy ? "Validating…" : "Validate with server"}</button>
+          <button className="button primary" type="button" disabled={busy} onClick={() => void validate()}>{busy ? "Working…" : "Validate with server"}</button>
         </article>
 
         <article className="workbench-card json-preview-card">
@@ -111,10 +183,30 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
                   </div>
                 ))}
               </div>
-              <p className="mapping-note">Preview does not save data. Immutable import and exact Dataset links are the next action in this T-52 slice.</p>
+              <div className="import-controls">
+                <label>Classification<select aria-label="Classification" value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label>
+                <label>Change reason<input aria-label="Change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label>
+                <button className="button primary" type="button" disabled={busy || changeReason.trim().length === 0} onClick={() => void importDocument()}>{busy ? "Importing…" : "Import immutable revision"}</button>
+              </div>
+              <p className="mapping-note">Import writes a stable Test Data identity, an immutable revision, canonical JSON evidence, and a normalized Parquet artifact. Existing evidence is never overwritten.</p>
             </>
           ) : <p className="muted">Choose a JSON file or use the example, then validate it against the real API.</p>}
         </article>
+      </section>
+
+      <section className="workbench-card saved-test-documents">
+        <div className="section-heading"><div><p className="eyebrow">Revision-pinned evidence</p><h2>Imported Test Data</h2></div><span className="status-chip">{documents.length} documents</span></div>
+        {documents.length === 0 ? <p className="muted">No canonical Test Data has been imported in this project.</p> : (
+          <div className="document-list">
+            {documents.map((item) => (
+              <article className="document-row" key={item.test_data_document_id}>
+                <div><strong>{item.material_maker} · {item.material_grade}</strong><small>{item.document_key} · specimen {item.specimen_id} · {item.point_count} points</small></div>
+                <div><span>Revision {item.current_revision.revision_no}</span><code title={item.canonical_sha256}>{item.canonical_sha256.slice(0, 12)}…</code></div>
+                <button className="button secondary" type="button" onClick={() => void downloadDocument(item)}>Download exact JSON</button>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

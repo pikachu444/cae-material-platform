@@ -169,3 +169,10 @@ captures:
     image: ../15-demo/images/t47-production-scale-catalog.png
     width: 1265
     height: 712
+  - id: canonical-test-data-json
+    route: /datasets/test-json
+    workflow: validate-import-list-and-download-exact-test-data-revision
+    fixture: T-52 DP600 cmp.test-data 1.0.0 PostgreSQL round-trip
+    image: ../15-demo/images/t52-canonical-test-data.png
+    width: 1265
+    height: 1571

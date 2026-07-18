@@ -1281,6 +1281,11 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   internal Parquet conversion, CSV/TSV/XLSX adapter, 25 MiB package threshold와 chunk manifest.
 - **완료 조건:** metadata/unit/curve lossless round-trip과 tabular/JSON normalized equivalence.
 - **테스트:** schema/semantic negatives, digest/checksum/path safety, large streaming/chunk memory.
+- **구현 증거 (increment 1, 2026-07-18):** `cmp.test-data` validate/semantic preview, stable
+  Test Data identity + immutable revision, typed condition/channel persistence, canonical JSON과
+  normalized Parquet Artifact pin, list와 exact-revision JSON download를 PostgreSQL/API/UI까지
+  연결했다. Docker에서 다운로드 byte SHA-256 일치를 확인했다. JSON+ZIP, tabular adapter와
+  revision append는 남아 있으므로 T-52 전체 완료로 표시하지 않는다.
 
 #### T-53. Mapping Profile and common Processing Workbench — `P0`
 

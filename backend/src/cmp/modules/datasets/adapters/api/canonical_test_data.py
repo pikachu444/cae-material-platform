@@ -3,13 +3,22 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from datetime import date
 from decimal import Decimal
 from typing import Annotated, Any
+from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from sqlalchemy.exc import IntegrityError
 
+from cmp.modules.datasets.adapters.api.datasets import _etag, _scope
+from cmp.modules.datasets.application.canonical_test_data import (
+    CanonicalTestDataService,
+    ImportCanonicalTestData,
+    TestDataDocumentSnapshot,
+)
 from cmp.modules.datasets.domain.canonical_test_data import (
     MAX_CANONICAL_JSON_BYTES,
     CanonicalTestDataDocument,
@@ -23,6 +32,15 @@ from cmp.modules.datasets.domain.canonical_test_data import (
     TestSpecimenMetadata,
     canonical_test_data,
 )
+from cmp.modules.datasets.domain.governed_tabular import (
+    GovernedImportConflict,
+    GovernedImportNotFound,
+)
+from cmp.modules.identity_access.domain.authorization import DataClassification
+from cmp.shared.contracts.revisions import RevisionMetadataResponse
+from cmp.shared.domain.revisions import AggregateAlreadyExists
+
+type Dependency = Callable[..., object]
 
 Text200 = Annotated[str, StringConstraints(min_length=1, max_length=200, strip_whitespace=False)]
 Unit = Annotated[str, StringConstraints(min_length=1, max_length=64, strip_whitespace=False)]
@@ -213,11 +231,83 @@ class CanonicalTestDataPreviewResponse(BaseModel):
         )
 
 
+class CanonicalTestDataImportRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    classification: DataClassification
+    document: CanonicalTestDataInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class CanonicalTestDataDocumentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    test_data_document_id: UUID
+    current_revision: RevisionMetadataResponse
+    document_key: str
+    material_maker: str
+    material_grade: str
+    lot_batch: str | None
+    test_date: date
+    operator: str
+    laboratory: str
+    method: str
+    specimen_id: str
+    point_count: int
+    canonical_artifact_id: UUID
+    canonical_sha256: str
+    normalized_artifact_id: UUID
+    normalized_sha256: str
+    channels: tuple[ChannelPreview, ...]
+
+    @classmethod
+    def from_snapshot(
+        cls, value: TestDataDocumentSnapshot
+    ) -> CanonicalTestDataDocumentResponse:
+        content = value.content
+        return cls(
+            test_data_document_id=value.id,
+            current_revision=RevisionMetadataResponse.from_record(value.current, "draft"),
+            document_key=content.document_key,
+            material_maker=content.material.maker,
+            material_grade=content.material.grade,
+            lot_batch=content.material.lot_batch,
+            test_date=content.test.test_date,
+            operator=content.test.operator,
+            laboratory=content.test.laboratory,
+            method=content.test.method,
+            specimen_id=content.specimen.specimen_id,
+            point_count=content.point_count,
+            canonical_artifact_id=content.canonical_artifact_id,
+            canonical_sha256=content.canonical_sha256,
+            normalized_artifact_id=content.normalized_artifact_id,
+            normalized_sha256=content.normalized_sha256,
+            channels=tuple(
+                ChannelPreview(
+                    key=item.key,
+                    name=item.name,
+                    quantity_semantics=item.quantity_semantics,
+                    axis_role=ChannelAxisRole(item.axis_role),
+                    original_unit_string=item.original_unit_string,
+                    normalized_unit=item.normalized_unit,
+                    point_count=item.point_count,
+                    missing_count=item.missing_count,
+                )
+                for item in content.channels
+            ),
+        )
+
+
+class CanonicalTestDataDocumentList(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[CanonicalTestDataDocumentResponse, ...]
+
+
 def install_canonical_test_data_api(
     app: FastAPI,
     *,
-    security_dependency: Any,
-    write_dependency: Any,
+    service: CanonicalTestDataService | None = None,
+    security_dependency: Dependency,
+    read_dependency: Dependency | None = None,
+    write_dependency: Dependency,
 ) -> None:
     @app.post(
         "/api/v1/test-data:validate",
@@ -235,3 +325,90 @@ def install_canonical_test_data_api(
             return CanonicalTestDataPreviewResponse.from_domain(body.to_domain())
         except (CanonicalTestDataError, ValueError) as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
+
+    if read_dependency is None:
+        read_dependency = write_dependency
+
+    @app.post(
+        "/api/v1/test-data-documents",
+        response_model=CanonicalTestDataDocumentResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["test-data-json"],
+    )
+    async def import_test_data(
+        body: CanonicalTestDataImportRequest,
+        request: Request,
+        response: Response,
+    ) -> CanonicalTestDataDocumentResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
+        try:
+            snapshot = await service.import_document(
+                context,
+                decision,
+                ImportCanonicalTestData(
+                    classification=body.classification,
+                    document=body.document.to_domain(),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except (GovernedImportConflict, AggregateAlreadyExists, IntegrityError) as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        except (CanonicalTestDataError, ValueError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        _etag(response, snapshot.current)
+        return CanonicalTestDataDocumentResponse.from_snapshot(snapshot)
+
+    @app.get(
+        "/api/v1/test-data-documents",
+        response_model=CanonicalTestDataDocumentList,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["test-data-json"],
+    )
+    def list_test_data(request: Request) -> CanonicalTestDataDocumentList:
+        context, decision = _scope(request)
+        if service is None:
+            raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
+        try:
+            return CanonicalTestDataDocumentList(
+                items=tuple(
+                    CanonicalTestDataDocumentResponse.from_snapshot(item)
+                    for item in service.list_documents(context, decision)
+                )
+            )
+        except GovernedImportConflict as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+
+    @app.get(
+        "/api/v1/test-data-documents/{document_id}/revisions/{revision_id}/content",
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["test-data-json"],
+    )
+    async def export_test_data(
+        document_id: UUID,
+        revision_id: UUID,
+        request: Request,
+    ) -> Response:
+        context, decision = _scope(request)
+        if service is None:
+            raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
+        try:
+            snapshot, value = await service.export_document(
+                context, decision, document_id, revision_id
+            )
+        except GovernedImportNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except GovernedImportConflict as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        return Response(
+            content=value,
+            media_type="application/vnd.cmp.test-data+json",
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="{snapshot.content.document_key}.json"'
+                ),
+                "X-Content-SHA256": snapshot.content.canonical_sha256,
+            },
+        )

@@ -17,6 +17,7 @@ from cmp.bootstrap.catalog import (
     build_configurable_catalog_service,
 )
 from cmp.bootstrap.datasets import (
+    build_canonical_test_data_service,
     build_dataset_service,
     build_governed_import_service,
     build_shear_relaxation_dataset_service,
@@ -507,7 +508,11 @@ def create_app(
     )
     install_canonical_test_data_api(
         application,
+        service=build_canonical_test_data_service(services, resolved_artifacts),
         security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_READ
+        ),
         write_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.DATASET_WRITE
         ),

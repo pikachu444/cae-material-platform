@@ -3517,3 +3517,23 @@ export interface CanonicalTestDataPreviewResponse {
   channels: CanonicalTestDataChannelPreview[];
   canonical_document: Record<string, unknown>;
 }
+
+export interface CanonicalTestDataDocumentResponse {
+  test_data_document_id: string;
+  current_revision: RevisionMetadata;
+  document_key: string;
+  material_maker: string;
+  material_grade: string;
+  lot_batch: string | null;
+  test_date: string;
+  operator: string;
+  laboratory: string;
+  method: string;
+  specimen_id: string;
+  point_count: number;
+  canonical_artifact_id: string;
+  canonical_sha256: string;
+  normalized_artifact_id: string;
+  normalized_sha256: string;
+  channels: CanonicalTestDataChannelPreview[];
+}

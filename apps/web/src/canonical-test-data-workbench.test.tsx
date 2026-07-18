@@ -4,11 +4,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CanonicalTestDataWorkbench } from "./canonical-test-data-workbench";
 
-const mocks = vi.hoisted(() => ({ validate: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  validate: vi.fn(),
+  importDocument: vi.fn(),
+  listDocuments: vi.fn(),
+  downloadDocument: vi.fn(),
+}));
 
 vi.mock("./api", async (importOriginal) => {
   const original = await importOriginal<typeof import("./api")>();
-  return { ...original, validateCanonicalTestData: mocks.validate };
+  return {
+    ...original,
+    validateCanonicalTestData: mocks.validate,
+    importCanonicalTestData: mocks.importDocument,
+    listCanonicalTestDataDocuments: mocks.listDocuments,
+    downloadCanonicalTestDataDocument: mocks.downloadDocument,
+  };
 });
 
 describe("CanonicalTestDataWorkbench", () => {
@@ -44,6 +55,15 @@ describe("CanonicalTestDataWorkbench", () => {
       },
       etag: null,
     });
+    mocks.listDocuments.mockResolvedValue({ data: { items: [] }, etag: null });
+    mocks.importDocument.mockResolvedValue({
+      data: {
+        test_data_document_id: "document-1",
+        document_key: "DP600-TENSILE-01",
+        current_revision: { id: "revision-1", revision_no: 1 },
+      },
+      etag: '"revision-1"',
+    });
   });
 
   it("validates the editable JSON through the API and exposes unit/missing evidence", async () => {
@@ -62,5 +82,29 @@ describe("CanonicalTestDataWorkbench", () => {
     expect(screen.getByText("MPa → Pa")).toBeTruthy();
     expect(screen.getByText("1 missing")).toBeTruthy();
     expect(screen.getByText("Kim Tester")).toBeTruthy();
+  });
+
+  it("imports a validated document as an immutable revision and refreshes the list", async () => {
+    const user = userEvent.setup();
+    render(
+      <CanonicalTestDataWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "dataset-token" }}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Validate with server" }));
+    await user.click(await screen.findByRole("button", { name: "Import immutable revision" }));
+    await waitFor(() => expect(mocks.importDocument).toHaveBeenCalledOnce());
+    expect(mocks.importDocument).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        classification: "internal",
+        change_reason: "Initial canonical Test Data import",
+      }),
+    );
+    expect(await screen.findByText(/immutable revision 1/)).toBeTruthy();
+    expect(mocks.listDocuments).toHaveBeenCalledTimes(2);
   });
 });

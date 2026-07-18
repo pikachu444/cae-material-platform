@@ -12,6 +12,9 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
+from cmp.modules.datasets.adapters.persistence.canonical_test_data import (
+    SqlAlchemyCanonicalTestDataRepository,
+)
 from cmp.modules.datasets.adapters.persistence.governed_import_repository import (
     SqlAlchemyGovernedImportRepository,
 )
@@ -31,6 +34,7 @@ from cmp.modules.datasets.adapters.persistence.viscoelastic_master_repository im
 from cmp.modules.datasets.adapters.persistence.viscoelastic_master_repository import (
     selection_member_table as viscoelastic_selection_member_table,
 )
+from cmp.modules.datasets.application.canonical_test_data import CanonicalTestDataService
 from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import (
     DATASET_AGGREGATE_TYPE,
@@ -943,6 +947,29 @@ def build_governed_import_service(
             ),
         ),
         testing=testing,
+        artifacts=artifacts,
+    )
+
+
+def build_canonical_test_data_service(
+    identity: IdentityServices,
+    artifacts: ArtifactService | None,
+) -> CanonicalTestDataService | None:
+    """Compose canonical JSON import/export with immutable Artifacts and revision hooks."""
+
+    if identity.engine is None or identity.rls_context is None or artifacts is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return CanonicalTestDataService(
+        repository=SqlAlchemyCanonicalTestDataRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
         artifacts=artifacts,
     )
 

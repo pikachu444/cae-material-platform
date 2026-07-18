@@ -11,6 +11,19 @@ import pytest
 from cmp.modules.datasets.adapters.api.canonical_test_data import (
     install_canonical_test_data_api,
 )
+from cmp.modules.datasets.application.canonical_test_data import (
+    ImportCanonicalTestData,
+    canonical_json_bytes,
+)
+from cmp.modules.datasets.application.canonical_test_data import (
+    TestDataChannelSummary as ChannelSummary,
+)
+from cmp.modules.datasets.application.canonical_test_data import (
+    TestDataDocumentContent as DocumentContent,
+)
+from cmp.modules.datasets.application.canonical_test_data import (
+    TestDataDocumentSnapshot as DocumentSnapshot,
+)
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -19,12 +32,17 @@ from cmp.modules.identity_access.domain.authorization import (
     Role,
 )
 from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
+from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionRecord, TenantScope
 from fastapi import FastAPI, Request
 
 NOW = datetime(2026, 7, 18, 17, 0, tzinfo=UTC)
 ORG = UUID("de000000-0000-4000-8000-000000000001")
 PROJECT = UUID("de000000-0000-4000-8000-000000000002")
 ACTOR = UUID("de000000-0000-4000-8000-000000000003")
+DOCUMENT = UUID("de000000-0000-4000-8000-000000000004")
+REVISION = UUID("de000000-0000-4000-8000-000000000005")
+CANONICAL_ARTIFACT = UUID("de000000-0000-4000-8000-000000000006")
+PARQUET_ARTIFACT = UUID("de000000-0000-4000-8000-000000000007")
 
 
 def _context() -> SecurityContext:
@@ -62,7 +80,85 @@ def _decision() -> AuthorizationDecision:
     )
 
 
-def _app() -> FastAPI:
+class _Service:
+    def __init__(self) -> None:
+        self.snapshot: DocumentSnapshot | None = None
+        self.value = b""
+
+    async def import_document(
+        self, context: Any, decision: Any, command: ImportCanonicalTestData
+    ) -> DocumentSnapshot:
+        del context, decision
+        document = command.document
+        self.value = canonical_json_bytes(document)
+        content = DocumentContent(
+            document_key=document.document_id,
+            material=document.material,
+            test=document.test,
+            specimen=document.specimen,
+            conditions=document.conditions,
+            channels=tuple(
+                ChannelSummary(
+                    item.key,
+                    item.name,
+                    item.quantity_semantics,
+                    item.axis_role.value,
+                    item.original_unit_string,
+                    item.normalized_unit,
+                    str(item.normalization_scale),
+                    str(item.normalization_offset),
+                    len(item.original_values),
+                    sum(value is None for value in item.original_values),
+                )
+                for item in document.channels
+            ),
+            source=document.source,
+            canonical_artifact_id=CANONICAL_ARTIFACT,
+            canonical_sha256=document.digest,
+            normalized_artifact_id=PARQUET_ARTIFACT,
+            normalized_sha256="b" * 64,
+            point_count=document.point_count,
+        )
+        record = RevisionRecord(
+            REVISION,
+            "datasets.test_data_document",
+            DOCUMENT,
+            TenantScope(ORG, PROJECT, command.classification.value),
+            1,
+            None,
+            "urn:cmp:test-data:1.0.0",
+            "1.0.0",
+            "c" * 64,
+            NOW,
+            ACTOR,
+            command.change_reason,
+            CONTEXT.request_id,
+            CONTEXT.trace_id,
+        )
+        self.snapshot = DocumentSnapshot(DOCUMENT, record, content)
+        return self.snapshot
+
+    def list_documents(self, *args: Any, **kwargs: Any) -> tuple[DocumentSnapshot, ...]:
+        del args, kwargs
+        return (self.snapshot,) if self.snapshot else ()
+
+    async def export_document(
+        self, *args: Any, **kwargs: Any
+    ) -> tuple[DocumentSnapshot, bytes]:
+        del args, kwargs
+        assert self.snapshot is not None
+        return self.snapshot, self.value
+
+
+class _ConflictingService(_Service):
+    async def import_document(
+        self, context: Any, decision: Any, command: ImportCanonicalTestData
+    ) -> DocumentSnapshot:
+        del context, decision, command
+        raise AggregateAlreadyExists("document key already exists")
+
+
+def _app(service: _Service | None = None) -> FastAPI:
     app = FastAPI()
 
     async def security(request: Request) -> SecurityContext:
@@ -76,7 +172,9 @@ def _app() -> FastAPI:
 
     install_canonical_test_data_api(
         app,
+        service=cast(Any, service),
         security_dependency=security,
+        read_dependency=write,
         write_dependency=write,
     )
     return app
@@ -126,3 +224,51 @@ async def test_test_data_json_preview_rejects_incorrect_explicit_normalization()
 
     assert response.status_code == 422
     assert "explicit normalization" in response.json()["detail"]
+
+
+@pytest.mark.anyio
+async def test_import_list_and_exact_revision_export_round_trip() -> None:
+    service = _Service()
+    app = _app(service)
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        imported = await client.post(
+            "/api/v1/test-data-documents",
+            json={
+                "classification": "internal",
+                "document": _fixture(),
+                "change_reason": "Import canonical test evidence",
+            },
+        )
+        listed = await client.get("/api/v1/test-data-documents")
+        exported = await client.get(
+            f"/api/v1/test-data-documents/{DOCUMENT}/revisions/{REVISION}/content"
+        )
+
+    assert imported.status_code == 201
+    assert imported.json()["test_data_document_id"] == str(DOCUMENT)
+    assert imported.json()["canonical_artifact_id"] == str(CANONICAL_ARTIFACT)
+    assert imported.headers["etag"].startswith('"revision:1:')
+    assert listed.json()["items"][0]["document_key"] == "DP600-TENSILE-01"
+    assert exported.status_code == 200
+    assert exported.headers["content-disposition"].endswith('"DP600-TENSILE-01.json"')
+    assert json.loads(exported.content) == _fixture()
+
+
+@pytest.mark.anyio
+async def test_duplicate_document_identity_is_a_conflict_not_a_server_error() -> None:
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=_app(_ConflictingService())),
+        base_url="http://test",
+    ) as client:
+        response = await client.post(
+            "/api/v1/test-data-documents",
+            json={
+                "classification": "internal",
+                "document": _fixture(),
+                "change_reason": "Duplicate identity",
+            },
+        )
+
+    assert response.status_code == 409

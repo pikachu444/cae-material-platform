@@ -26,6 +26,61 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Dataset write is not authorized.}
         "422": {description: Schema, array, missingness, or explicit normalization is invalid.}
+  /api/v1/test-data-documents:
+    post:
+      operationId: importCanonicalTestData
+      tags: [test-data-json]
+      summary: Import canonical Test Data as a stable identity and immutable revision with JSON and normalized artifacts.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/ImportRequest"}
+      responses:
+        "201":
+          description: Immutable Test Data revision and exact Artifact pins.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/DocumentResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "409": {description: Exact evidence, scope, or document identity conflicts.}
+        "422": {description: Canonical Test Data semantics are invalid.}
+    get:
+      operationId: listCanonicalTestDataDocuments
+      tags: [test-data-json]
+      summary: List current immutable Test Data revisions visible in the selected project.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Test Data revision summaries.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/DocumentListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+  /api/v1/test-data-documents/{document_id}/revisions/{revision_id}/content:
+    get:
+      operationId: downloadCanonicalTestDataRevision
+      tags: [test-data-json]
+      summary: Download the canonical JSON artifact pinned by one exact Test Data revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: document_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Exact canonical Test Data JSON bytes.
+          headers:
+            X-Content-SHA256: {schema: {type: string, pattern: "^[0-9a-f]{64}$"}}
+          content:
+            application/vnd.cmp.test-data+json:
+              schema: {type: string, format: binary}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: The exact Test Data revision is not visible.}
+        "409": {description: Stored artifact digest evidence is inconsistent.}
   /api/v1/health:
     get:
       operationId: getHealth

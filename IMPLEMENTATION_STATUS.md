@@ -15,7 +15,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | T-51 links/tree |
 | Catalog and Material Workflow Explorers | T-51 implemented: lazy Table/Folder/Record tree and bounded exact-revision graph | T-52 Test JSON |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
-| Canonical Test Data JSON/JSON+ZIP | missing; CSV/TSV/XLSX→Parquet path exists | T-52 |
+| Canonical Test Data JSON/JSON+ZIP | partial: canonical JSON validate/import/list/exact export and typed PostgreSQL/JSON+Parquet Artifact pins implemented; package/adapters pending | T-52 |
 | General Mapping Profile and Processing Workbench | importer mappings and bounded processors only | T-53 |
 | Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
 | Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
@@ -30,6 +30,11 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-52 increment 1`: `cmp.test-data` 1.0.0 now has schema plus semantic validation, a connected
+  `/datasets/test-json` preview/import/list/download workflow, explicit PostgreSQL identity/revision,
+  typed condition/channel rows and immutable canonical JSON/normalized Parquet Artifact pins. Exact
+  revision download was verified byte-for-byte in the Docker/PostgreSQL demo. Deterministic JSON+ZIP,
+  CSV/XLSX canonical adapters and revision append remain in progress, so T-52 is not complete.
 - `T-51`: Catalog Explorer now lazily expands administrator-defined Table, nested Folder and current
   Record nodes while preserving the existing flat routes. Material Workflow Explorer projects
   arbitrary active Record Links as a bounded, cycle-safe graph; every endpoint and Link Type pins an
