@@ -6,6 +6,26 @@ info:
 servers:
   - url: http://127.0.0.1:8000
 paths:
+  /api/v1/test-data:validate:
+    post:
+      operationId: validateCanonicalTestData
+      tags: [test-data-json]
+      summary: Validate and preview one solver- and test-method-neutral cmp.test-data JSON document.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/canonical-test-data.schema.json"}
+      responses:
+        "200":
+          description: Semantic preview with deterministic canonical digest and explicit units.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "422": {description: Schema, array, missingness, or explicit normalization is invalid.}
   /api/v1/health:
     get:
       operationId: getHealth

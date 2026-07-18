@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/datasets/canonical-test-data-resources.schema.json",
+  "$defs": {
+    "ChannelPreview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "quantity_semantics", "axis_role", "original_unit_string", "normalized_unit", "point_count", "missing_count"],
+      "properties": {
+        "key": {"type": "string"},
+        "name": {"type": "string"},
+        "quantity_semantics": {"type": "string"},
+        "axis_role": {"enum": ["independent", "dependent", "auxiliary"]},
+        "original_unit_string": {"type": "string"},
+        "normalized_unit": {"type": "string"},
+        "point_count": {"type": "integer", "minimum": 2},
+        "missing_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "PreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "document_sha256", "canonical_size_bytes", "point_count", "condition_count", "material_maker", "material_grade", "test_date", "operator", "laboratory", "method", "specimen_id", "channels", "canonical_document"],
+      "properties": {
+        "status": {"const": "valid"},
+        "document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "canonical_size_bytes": {"type": "integer", "minimum": 1, "maximum": 26214400},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 1000000},
+        "condition_count": {"type": "integer", "minimum": 0, "maximum": 128},
+        "material_maker": {"type": "string"},
+        "material_grade": {"type": "string"},
+        "test_date": {"type": "string", "format": "date"},
+        "operator": {"type": "string"},
+        "laboratory": {"type": "string"},
+        "method": {"type": "string"},
+        "specimen_id": {"type": "string"},
+        "channels": {"type": "array", "items": {"$ref": "#/$defs/ChannelPreview"}},
+        "canonical_document": {"$ref": "canonical-test-data.schema.json"}
+      }
+    }
+  }
+}

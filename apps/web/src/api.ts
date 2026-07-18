@@ -170,6 +170,7 @@ import type {
   ConfigurableRecordLinkView,
   CatalogExplorerChildrenResponse,
   CatalogWorkflowGraphResponse,
+  CanonicalTestDataPreviewResponse,
 } from "./types";
 
 export interface ApiConfig {
@@ -281,6 +282,16 @@ export function getCatalogWorkflowGraph(
     config,
     `/catalog/workflow-explorer/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}?depth=${depth}`,
   );
+}
+
+export function validateCanonicalTestData(
+  config: ApiConfig,
+  document: Record<string, unknown>,
+): Promise<ApiResult<CanonicalTestDataPreviewResponse>> {
+  return request(config, "/test-data:validate", {
+    method: "POST",
+    body: JSON.stringify(document),
+  });
 }
 
 export function createConfigurableCatalogTable(

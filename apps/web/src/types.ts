@@ -3489,3 +3489,31 @@ export interface CatalogWorkflowGraphResponse {
   nodes: ConfigurableLinkEndpoint[];
   links: ConfigurableRecordLinkView[];
 }
+
+export interface CanonicalTestDataChannelPreview {
+  key: string;
+  name: string;
+  quantity_semantics: string;
+  axis_role: "independent" | "dependent" | "auxiliary";
+  original_unit_string: string;
+  normalized_unit: string;
+  point_count: number;
+  missing_count: number;
+}
+
+export interface CanonicalTestDataPreviewResponse {
+  status: "valid";
+  document_sha256: string;
+  canonical_size_bytes: number;
+  point_count: number;
+  condition_count: number;
+  material_maker: string;
+  material_grade: string;
+  test_date: string;
+  operator: string;
+  laboratory: string;
+  method: string;
+  specimen_id: string;
+  channels: CanonicalTestDataChannelPreview[];
+  canonical_document: Record<string, unknown>;
+}

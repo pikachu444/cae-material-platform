@@ -1,0 +1,60 @@
+{
+  "document_type": "cmp.test-data",
+  "schema_version": "1.0.0",
+  "document_id": "DP600-TENSILE-01",
+  "material": {
+    "maker": "CMP Demo Metals",
+    "grade": "DP600",
+    "lot_batch": "LOT-2026-07"
+  },
+  "test": {
+    "date": "2026-07-18",
+    "operator": "Kim Tester",
+    "laboratory": "CMP Laboratory",
+    "method": "uniaxial tensile reference method",
+    "equipment_maker": "Demo Instruments",
+    "equipment_model": "UTM-01"
+  },
+  "specimen": {"specimen_id": "S-01", "description": "sheet coupon"},
+  "conditions": [
+    {
+      "key": "temperature",
+      "quantity_semantics": "temperature.test",
+      "original_value": "23",
+      "original_unit_string": "Cel",
+      "normalized_value": "296.15",
+      "normalized_unit": "K"
+    }
+  ],
+  "channels": [
+    {
+      "key": "engineering_strain",
+      "name": "Engineering strain",
+      "quantity_semantics": "mechanics.strain.engineering",
+      "axis_role": "independent",
+      "original_unit_string": "%",
+      "normalized_unit": "1",
+      "normalization": {"scale": "0.01", "offset": "0"},
+      "original_values": ["0", "0.1", null],
+      "normalized_values": ["0", "0.001", null],
+      "missing_reasons": [null, null, "instrument dropout"]
+    },
+    {
+      "key": "engineering_stress",
+      "name": "Engineering stress",
+      "quantity_semantics": "mechanics.stress.engineering",
+      "axis_role": "dependent",
+      "original_unit_string": "MPa",
+      "normalized_unit": "Pa",
+      "normalization": {"scale": "1000000", "offset": "0"},
+      "original_values": ["0", "205", null],
+      "normalized_values": ["0", "205000000", null],
+      "missing_reasons": [null, null, "instrument dropout"]
+    }
+  ],
+  "source": {
+    "file_name": "dp600-tensile.csv",
+    "media_type": "text/csv",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}
