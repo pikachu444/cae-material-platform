@@ -79,5 +79,8 @@ hardening Artifact와 관측/외삽 영역을 하나의 immutable `cmp.neutral-m
 완료되면 **Download Neutral JSON r1**으로 JSON을 받습니다. JSON에는 normalized engineering
 curve, processed true stress/plastic strain, fitted 영역과 extrapolated 영역이 서로 다른 stage로
 들어갑니다. 수동 constant-extension IR은 이 승격 대상이 아니며, 공통 Processing Workbench에서
-선택 hardening Output을 먼저 만들어야 합니다. Neutral JSON에서 Abaqus/OpenRadioss 카드를
-직접 재생성하는 통합 경로는 T-64에서 제공합니다.
+선택 hardening Output을 먼저 만들어야 합니다. Neutral JSON 생성 뒤 같은 화면에 나타나는
+**T-64 · family-neutral solver mapping**에서 target을 고르고 **Run mapping preflight**를 누릅니다.
+`approximated`인 bounded extension을 검토·확인한 뒤 카드를 생성하면 Abaqus `*PLASTIC` 또는
+OpenRadioss `LAW36` ASCII를 preview하고 내려받을 수 있습니다. 이 경로는 exact Neutral revision의
+fitted/extrapolated stage를 다시 fitting하지 않습니다.

@@ -6,11 +6,18 @@ from uuid import UUID
 
 import pytest
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
+    InvalidNeutralHyperelasticExport,
     NeutralHyperelasticExportTarget,
     NeutralHyperelasticMappingReportMismatch,
     build_neutral_hyperelastic_solver_card,
     neutral_hyperelastic_capability_manifest,
     preflight_neutral_hyperelastic_export,
+)
+from cmp.modules.exporting.domain.neutral_solver import (
+    NeutralFamilySolverCardContent,
+    build_neutral_solver_card,
+    neutral_solver_capability_manifest,
+    preflight_neutral_solver_export,
 )
 from cmp.modules.modeling.application.neutral_material import _metal_curves
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticFamily
@@ -228,10 +235,12 @@ def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence
                 test_mode=NeutralTestMode.UNIAXIAL_TENSION,
                 x_quantity="strain.true_plastic",
                 x_unit="1",
-                y_quantity="stress.true",
+                y_quantity="stress.hardening.selected",
                 y_unit="Pa",
-                x=(0.0, 0.1, 0.25),
-                y=(450e6, 650e6, 790e6),
+                x=(0.25, 0.32, 0.4) if stage is CurveStage.EXTRAPOLATED else (0.0, 0.1, 0.18),
+                y=(760e6, 780e6, 790e6)
+                if stage is CurveStage.EXTRAPOLATED
+                else (450e6, 650e6, 730e6),
             )
             for stage in (
                 CurveStage.NORMALIZED,
@@ -261,7 +270,7 @@ def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence
             poisson_ratio=0.3,
             initial_yield_stress_pa=450e6,
             hardening_curve=NeutralArtifactReference(
-                IDS[22], DIGEST_C, "urn:cmp:modeling:hardening-curve:1.0.0", 101
+                IDS[22], DIGEST_C, "urn:cmp:modeling:hardening-curve:1.0.0", 6
             ),
             candidate_families=("voce", "swift", "hockett_sherby", "ghosh"),
             primary_family="voce",
@@ -281,6 +290,27 @@ def test_metal_neutral_material_round_trip_preserves_selected_hardening_evidence
     assert decoded == metal
     assert decoded.material_model_ir.family.value == "isotropic_tabulated_plasticity"
     Draft202012Validator(NEUTRAL_SCHEMA).validate(metal.canonical())
+    for solver, keyword in (("abaqus", "*PLASTIC"), ("openradioss", "/MAT/LAW36/")):
+        target = NeutralHyperelasticExportTarget(solver, "2025", "kg_m_s")
+        report = preflight_neutral_solver_export(
+            neutral_material_id=metal.document_id,
+            neutral_material_revision_id=metal.material_model_ir.model.revision_id,
+            source=metal,
+            target=target,
+        )
+        assert report.exportable
+        _, card = build_neutral_solver_card(
+            neutral_material_id=metal.document_id,
+            neutral_material_revision_id=metal.material_model_ir.model.revision_id,
+            source=metal,
+            target=target,
+            expected_mapping_report_sha256=report.digest,
+            solver_material_id=301,
+            material_name="STEEL_REFERENCE",
+        )
+        assert keyword in card.card_text
+        assert isinstance(card, NeutralFamilySolverCardContent)
+        assert card.model_family.value == "isotropic_tabulated_plasticity"
 
 
 def test_polymer_neutral_material_round_trip_preserves_generalized_maxwell_terms() -> None:
@@ -336,6 +366,31 @@ def test_polymer_neutral_material_round_trip_preserves_generalized_maxwell_terms
     assert decoded == polymer
     assert decoded.material_model_ir.family.value == "generalized_maxwell"
     Draft202012Validator(NEUTRAL_SCHEMA).validate(polymer.canonical())
+    abaqus = NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s")
+    report = preflight_neutral_solver_export(
+        neutral_material_id=polymer.document_id,
+        neutral_material_revision_id=polymer.material_model_ir.model.revision_id,
+        source=polymer,
+        target=abaqus,
+    )
+    _, card = build_neutral_solver_card(
+        neutral_material_id=polymer.document_id,
+        neutral_material_revision_id=polymer.material_model_ir.model.revision_id,
+        source=polymer,
+        target=abaqus,
+        expected_mapping_report_sha256=report.digest,
+        solver_material_id=302,
+        material_name="POLYMER_REFERENCE",
+    )
+    assert "*VISCOELASTIC, TIME=PRONY" in card.card_text
+    blocked = preflight_neutral_solver_export(
+        neutral_material_id=polymer.document_id,
+        neutral_material_revision_id=polymer.material_model_ir.model.revision_id,
+        source=polymer,
+        target=NeutralHyperelasticExportTarget("openradioss", "2025", "kg_m_s"),
+    )
+    assert not blocked.exportable
+    assert blocked.items[0].status == "unsupported"
 
 
 def test_hyperelastic_neutral_material_can_pin_an_exact_prony_overlay() -> None:
@@ -356,6 +411,68 @@ def test_hyperelastic_neutral_material_can_pin_an_exact_prony_overlay() -> None:
 
     assert neutral_material_from_json_bytes(overlaid.to_json_bytes()) == overlaid
     Draft202012Validator(NEUTRAL_SCHEMA).validate(overlaid.canonical())
+    abaqus = NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s")
+    abaqus_report = preflight_neutral_solver_export(
+        neutral_material_id=overlaid.document_id,
+        neutral_material_revision_id=overlaid.material_model_ir.model.revision_id,
+        source=overlaid,
+        target=abaqus,
+    )
+    _, abaqus_card = build_neutral_solver_card(
+        neutral_material_id=overlaid.document_id,
+        neutral_material_revision_id=overlaid.material_model_ir.model.revision_id,
+        source=overlaid,
+        target=abaqus,
+        expected_mapping_report_sha256=abaqus_report.digest,
+        solver_material_id=303,
+        material_name="ELASTOMER_REFERENCE",
+    )
+    assert "*VISCOELASTIC, TIME=PRONY" in abaqus_card.card_text
+
+    openradioss = NeutralHyperelasticExportTarget("openradioss", "2025", "kg_m_s")
+    blocked = preflight_neutral_solver_export(
+        neutral_material_id=overlaid.document_id,
+        neutral_material_revision_id=overlaid.material_model_ir.model.revision_id,
+        source=overlaid,
+        target=openradioss,
+    )
+    assert not blocked.exportable
+    with pytest.raises(InvalidNeutralHyperelasticExport, match="unsupported"):
+        build_neutral_solver_card(
+            neutral_material_id=overlaid.document_id,
+            neutral_material_revision_id=overlaid.material_model_ir.model.revision_id,
+            source=overlaid,
+            target=openradioss,
+            expected_mapping_report_sha256=blocked.digest,
+            solver_material_id=303,
+            material_name="ELASTOMER_REFERENCE",
+        )
+
+    ogden = replace(
+        overlaid,
+        material_model_ir=replace(
+            cast(NeutralHyperelasticIR, overlaid.material_model_ir),
+            parameters=NeutralHyperelasticParameters(
+                HyperelasticFamily.OGDEN_1, mu_pa=1.2e6, alpha=2.2
+            ),
+        ),
+    )
+    law62_report = preflight_neutral_solver_export(
+        neutral_material_id=ogden.document_id,
+        neutral_material_revision_id=ogden.material_model_ir.model.revision_id,
+        source=ogden,
+        target=openradioss,
+    )
+    _, law62 = build_neutral_solver_card(
+        neutral_material_id=ogden.document_id,
+        neutral_material_revision_id=ogden.material_model_ir.model.revision_id,
+        source=ogden,
+        target=openradioss,
+        expected_mapping_report_sha256=law62_report.digest,
+        solver_material_id=303,
+        material_name="ELASTOMER_REFERENCE",
+    )
+    assert "/MAT/LAW62/303/1" in law62.card_text
 
 
 def test_metal_processing_output_is_split_into_observed_and_extrapolated_evidence() -> None:
@@ -479,3 +596,4 @@ def test_neutral_hyperelastic_capability_manifest_is_digest_pinned() -> None:
 
     assert len(capabilities) == 8
     assert len(str(manifest["manifest_sha256"])) == 64
+    assert len(str(neutral_solver_capability_manifest()["manifest_sha256"])) == 64

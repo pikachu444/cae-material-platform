@@ -2351,7 +2351,7 @@ export async function previewNeutralHyperelasticSolverCard(
   const response = await fetch(
     endpoint(
       config,
-      `/neutral-hyperelastic-solver-cards/${encodeURIComponent(solverCardId)}/preview`,
+      `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/preview`,
     ),
     { headers },
   );
@@ -2367,7 +2367,7 @@ export async function downloadNeutralHyperelasticSolverCard(
   const response = await fetch(
     endpoint(
       config,
-      `/neutral-hyperelastic-solver-cards/${encodeURIComponent(solverCardId)}/download`,
+      `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/download`,
     ),
     { headers },
   );
@@ -2386,7 +2386,7 @@ export async function downloadNeutralHyperelasticMappingReport(
 ): Promise<ApiResult<{ blob: Blob; filename: string }>> {
   const result = await request<NeutralHyperelasticMappingReport>(
     config,
-    `/neutral-hyperelastic-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
+    `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
   );
   return {
     data: {

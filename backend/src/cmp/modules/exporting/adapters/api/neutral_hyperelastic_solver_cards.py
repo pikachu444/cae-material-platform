@@ -18,11 +18,14 @@ from cmp.modules.exporting.application.neutral_hyperelastic_service import (
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     InvalidNeutralHyperelasticExport,
     NeutralHyperelasticExportTarget,
-    NeutralHyperelasticMappingReport,
     NeutralHyperelasticMappingReportMismatch,
     NeutralHyperelasticSolverCardConflict,
     NeutralHyperelasticSolverCardNotFound,
     neutral_hyperelastic_capability_manifest,
+)
+from cmp.modules.exporting.domain.neutral_solver import (
+    NeutralMappingReport,
+    neutral_solver_capability_manifest,
 )
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
 from cmp.modules.identity_access.domain.security import SecurityContext
@@ -69,9 +72,7 @@ class NeutralHyperelasticMappingReportResponse(BaseModel):
     report: dict[str, object]
 
     @classmethod
-    def from_domain(
-        cls, value: NeutralHyperelasticMappingReport
-    ) -> NeutralHyperelasticMappingReportResponse:
+    def from_domain(cls, value: NeutralMappingReport) -> NeutralHyperelasticMappingReportResponse:
         return cls(
             mapping_report_sha256=value.digest,
             exportable=value.exportable,
@@ -95,7 +96,7 @@ class CardResponse(BaseModel):
     @classmethod
     def from_snapshot(cls, value: NeutralHyperelasticSolverCardSnapshot) -> CardResponse:
         metadata = RevisionMetadataResponse.from_record(value.current.record, "draft")
-        root = f"/api/v1/neutral-hyperelastic-solver-cards/{value.id}"
+        root = f"/api/v1/neutral-solver-cards/{value.id}"
         return cls(
             solver_card_id=value.id,
             neutral_material_id=value.neutral_material_id,
@@ -136,7 +137,7 @@ class ExportProblem(BaseModel):
 class ExportHttpError(Exception):
     def __init__(self, context: SecurityContext, status_code: int, detail: str) -> None:
         self.problem = ExportProblem(
-            type="urn:cmp:problem:exporting:neutral-hyperelastic",
+            type="urn:cmp:problem:exporting:neutral-solver-card",
             title="Neutral Material Solver Card request failed",
             status=status_code,
             detail=detail,
@@ -183,13 +184,23 @@ def install_neutral_hyperelastic_solver_card_api(
     }
 
     @application.get(
+        "/api/v1/neutral-solver-export-capabilities",
+        operation_id="getNeutralSolverExportCapabilities",
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["exporting"],
+    )
+    def capabilities() -> dict[str, object]:
+        return neutral_solver_capability_manifest()
+
+    @application.get(
         "/api/v1/neutral-hyperelastic-export-capabilities",
         operation_id="getNeutralHyperelasticExportCapabilities",
         responses=errors,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    def capabilities() -> dict[str, object]:
+    def legacy_capabilities() -> dict[str, object]:
         return neutral_hyperelastic_capability_manifest()
 
     @application.post(
@@ -253,7 +264,7 @@ def install_neutral_hyperelastic_solver_card_api(
         except Exception as error:
             raise _translate(context, error) from error
         response.headers["ETag"] = str(RevisionETag.from_ref(snapshot.current.record.ref))
-        response.headers["Location"] = f"/api/v1/neutral-hyperelastic-solver-cards/{snapshot.id}"
+        response.headers["Location"] = f"/api/v1/neutral-solver-cards/{snapshot.id}"
         return CardResponse.from_snapshot(snapshot)
 
     @application.get(
@@ -291,12 +302,28 @@ def install_neutral_hyperelastic_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
+    @application.get(
+        "/api/v1/neutral-solver-cards/{solver_card_id}",
+        operation_id="getNeutralSolverCard",
+        response_model=CardResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["exporting"],
+    )
     def get_card(request: Request, solver_card_id: UUID) -> CardResponse:
         return CardResponse.from_snapshot(_get(request, solver_card_id))
 
     @application.get(
         "/api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/mapping-report",
         operation_id="getNeutralHyperelasticMappingReport",
+        response_model=NeutralHyperelasticMappingReportResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["exporting"],
+    )
+    @application.get(
+        "/api/v1/neutral-solver-cards/{solver_card_id}/mapping-report",
+        operation_id="getNeutralSolverMappingReport",
         response_model=NeutralHyperelasticMappingReportResponse,
         responses=errors,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
@@ -322,12 +349,27 @@ def install_neutral_hyperelastic_solver_card_api(
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
+    @application.get(
+        "/api/v1/neutral-solver-cards/{solver_card_id}/preview",
+        operation_id="previewNeutralSolverCard",
+        response_class=PlainTextResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["exporting"],
+    )
     def preview(request: Request, solver_card_id: UUID) -> PlainTextResponse:
         return PlainTextResponse(_get(request, solver_card_id).current.content.card_text)
 
     @application.get(
         "/api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/download",
         operation_id="downloadNeutralHyperelasticSolverCard",
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["exporting"],
+    )
+    @application.get(
+        "/api/v1/neutral-solver-cards/{solver_card_id}/download",
+        operation_id="downloadNeutralSolverCard",
         responses=errors,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],

@@ -30,8 +30,8 @@ from cmp.modules.exporting.domain.bulk_bundle import (
 )
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     NeutralHyperelasticExportTarget,
-    preflight_neutral_hyperelastic_export,
 )
+from cmp.modules.exporting.domain.neutral_solver import preflight_neutral_solver_export
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
@@ -1100,7 +1100,7 @@ class SqlAlchemyBulkExportSourceResolver(BulkExportSourceResolver):
                 maximum_bytes,
             )
             neutral = neutral_material_from_json_bytes(neutral_bytes)
-            report = preflight_neutral_hyperelastic_export(
+            report = preflight_neutral_solver_export(
                 neutral_material_id=cast(UUID, row["neutral_material_id"]),
                 neutral_material_revision_id=cast(
                     UUID, row["neutral_material_revision_id"]

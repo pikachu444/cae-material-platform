@@ -3062,8 +3062,9 @@ export interface NeutralHyperelasticMappingReport {
     neutral_material_id: string;
     neutral_material_revision_id: string;
     neutral_material_sha256: string;
+    model_family?: "hyperelastic" | "isotropic_tabulated_plasticity" | "generalized_maxwell";
     model_schema_digest: string;
-    family: HyperelasticFamily;
+    family: HyperelasticFamily | "isotropic_tabulated_plasticity" | "generalized_maxwell";
     target: ExportTarget;
     items: MappingItem[];
     exporter: {
@@ -3085,16 +3086,17 @@ export interface NeutralHyperelasticSolverCardResponse {
       neutral_material_id: string;
       neutral_material_revision_id: string;
       neutral_material_sha256: string;
+      model_family?: "hyperelastic" | "isotropic_tabulated_plasticity" | "generalized_maxwell";
       model_schema_digest: string;
-      family: HyperelasticFamily;
+      family: HyperelasticFamily | "isotropic_tabulated_plasticity" | "generalized_maxwell";
       target: ExportTarget;
       solver_material_id: number;
       material_name: string;
       density_kg_per_m3: number;
       constitutive_model: Record<string, unknown>;
-      applicability: {
-        engineering_strain: { minimum: number; maximum: number; unit: "1" };
-      };
+      applicability:
+        | { engineering_strain: { minimum: number; maximum: number; unit: "1" } }
+        | { time: { minimum: number; maximum: number; unit: "s" } };
       mapping_statuses: Record<string, MappingStatus>;
       mapping_report_sha256: string;
       card_sha256: string;

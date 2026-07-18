@@ -82,6 +82,25 @@
         "capabilities": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "object"}},
         "non_production": {"const": true}
       }
+    },
+    "NeutralCapabilityManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id", "manifest_version", "manifest_sha256", "mapping_statuses",
+        "families", "non_production"
+      ],
+      "properties": {
+        "manifest_id": {"const": "cmp.reference.neutral-solver-capability"},
+        "manifest_version": {"const": "2.0.0"},
+        "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping_statuses": {
+          "type": "array",
+          "items": {"enum": ["exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"]}
+        },
+        "families": {"type": "object"},
+        "non_production": {"const": true}
+      }
     }
   }
 }

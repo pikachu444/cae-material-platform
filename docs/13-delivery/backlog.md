@@ -1506,6 +1506,15 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-64. Neutral exporter and Bulk parity — `P0`
 
+- **상태 (`2026-07-18`):** `implemented`. Migration 077 generalizes the immutable Neutral solver
+  card projection, the shared API/UI preflight flow consumes metal, polymer and elastomer Neutral
+  revisions, and existing T-58 source discovery consumes every persisted family card without a
+  second solver-specific copy. T-65 owns clean-seed download E2E and screenshots.
+- **구현 경계:** metal maps to Abaqus `*PLASTIC` and OpenRadioss `LAW36`; generalized-Maxwell maps
+  to Abaqus `*VISCOELASTIC` and reports OpenRadioss as `unsupported`; hyperelastic Prony overlays
+  map to Abaqus and only one-term Ogden maps to OpenRadioss `LAW62`. Other potentials are rejected
+  before generation rather than silently transformed.
+
 - **범위:** 세 family Neutral revision에서 지원 target card/report를 생성하고 T-58 source discovery와 연결한다.
 - **완료 조건:** 기존 bounded exporter 결과와 semantic equivalence를 유지하며 unsupported/approximation을
   명시하고 canonical bundle에 exact document/report/native card를 포함한다.

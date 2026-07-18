@@ -29,6 +29,7 @@ import type {
   PropertySetResponse,
   TabulatedPlasticityModelResponse,
 } from "./types";
+import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
@@ -646,6 +647,9 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
                 </small>
               )}
             </div>
+          ) : null}
+          {neutralMaterial ? (
+            <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} />
           ) : null}
           {selectedModel ? (
             <div className="workflow-step">

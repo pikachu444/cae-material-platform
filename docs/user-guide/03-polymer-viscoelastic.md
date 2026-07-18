@@ -114,5 +114,7 @@ Neutral Material JSON**을 누릅니다. 수동 baseline만 있는 상태에서�
 Dataset revision과 Artifact digest, observed/fitted/residual curve, ordered `(g_ratio, k_ratio,
 relaxation_time)` 항, reference temperature와 유효 time domain을 보존합니다. **Download Neutral
 JSON r1**으로 받으며, validate/import 시 어느 digest나 수치가 달라져도 거부됩니다. 현재
-linear-Prony OpenRadioss mapping은 계속 `unsupported`이고, Neutral 기반 Abaqus card 재생성은
-T-64 범위입니다.
+Neutral JSON 생성 뒤 같은 화면의 **T-64 · family-neutral solver mapping**에서 Abaqus 2025를
+선택하면 ordered Prony term을 `*VISCOELASTIC, TIME=PRONY` ASCII로 preview·download할 수 있습니다.
+linear-Prony OpenRadioss mapping은 계속 `unsupported`이며 preflight에서 차단됩니다. LAW62를 만들기
+위해 hyperelastic base나 bulk relaxation 값을 임의로 보충하지 않습니다.

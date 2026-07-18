@@ -37,6 +37,7 @@ import type {
   TestMethodResponse,
   TestRunResponse,
 } from "./types";
+import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 import { ViscoelasticMasterWorkbench } from "./viscoelastic-master-workbench";
 
 function message(error: unknown): string {
@@ -725,6 +726,9 @@ export function ReferenceShearRelaxationWorkflow({
               </div>
             ) : null}
           </form>
+          {neutralMaterial ? (
+            <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} />
+          ) : null}
           {error ? <div className="error-notice" role="alert">{error}</div> : null}
           {datasets.length > 0 ? (
             <p className="curve-summary">
