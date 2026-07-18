@@ -61,7 +61,7 @@ class CreateCardRequest(PreflightRequest):
     change_reason: Reason
 
 
-class MappingReportResponse(BaseModel):
+class NeutralHyperelasticMappingReportResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     mapping_report_sha256: str
@@ -69,7 +69,9 @@ class MappingReportResponse(BaseModel):
     report: dict[str, object]
 
     @classmethod
-    def from_domain(cls, value: NeutralHyperelasticMappingReport) -> MappingReportResponse:
+    def from_domain(
+        cls, value: NeutralHyperelasticMappingReport
+    ) -> NeutralHyperelasticMappingReportResponse:
         return cls(
             mapping_report_sha256=value.digest,
             exportable=value.exportable,
@@ -193,14 +195,14 @@ def install_neutral_hyperelastic_solver_card_api(
     @application.post(
         "/api/v1/neutral-materials/{neutral_material_id}/solver-card-preflight",
         operation_id="preflightNeutralHyperelasticSolverCard",
-        response_model=MappingReportResponse,
+        response_model=NeutralHyperelasticMappingReportResponse,
         responses=errors,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
     async def preflight(
         request: Request, neutral_material_id: UUID, body: PreflightRequest
-    ) -> MappingReportResponse:
+    ) -> NeutralHyperelasticMappingReportResponse:
         context, decision = _scope(request)
         if service is None:
             raise ExportHttpError(context, 503, "service is unavailable")
@@ -214,7 +216,7 @@ def install_neutral_hyperelastic_solver_card_api(
             )
         except Exception as error:
             raise _translate(context, error) from error
-        return MappingReportResponse.from_domain(report)
+        return NeutralHyperelasticMappingReportResponse.from_domain(report)
 
     @application.post(
         "/api/v1/neutral-materials/{neutral_material_id}/solver-cards",
@@ -295,12 +297,14 @@ def install_neutral_hyperelastic_solver_card_api(
     @application.get(
         "/api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/mapping-report",
         operation_id="getNeutralHyperelasticMappingReport",
-        response_model=MappingReportResponse,
+        response_model=NeutralHyperelasticMappingReportResponse,
         responses=errors,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],
         tags=["exporting"],
     )
-    async def mapping_report(request: Request, solver_card_id: UUID) -> MappingReportResponse:
+    async def mapping_report(
+        request: Request, solver_card_id: UUID
+    ) -> NeutralHyperelasticMappingReportResponse:
         context, decision = _scope(request)
         if service is None:
             raise ExportHttpError(context, 503, "service is unavailable")
@@ -308,7 +312,7 @@ def install_neutral_hyperelastic_solver_card_api(
             report = await service.mapping_report(context, decision, solver_card_id)
         except Exception as error:
             raise _translate(context, error) from error
-        return MappingReportResponse.from_domain(report)
+        return NeutralHyperelasticMappingReportResponse.from_domain(report)
 
     @application.get(
         "/api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/preview",
