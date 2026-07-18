@@ -423,7 +423,18 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260912_077_t64_export"
+        assert version == "20260913_078_t65_binding_rls"
+        validator = connection.execute(
+            sa.text(
+                "SELECT p.prosecdef, p.proconfig, "
+                "has_function_privilege('public', p.oid, 'execute') AS public_execute "
+                "FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace "
+                "WHERE n.nspname='catalog' AND p.proname='validate_domain_record_binding'"
+            )
+        ).one()
+        assert validator.prosecdef is True
+        assert validator.proconfig == ["search_path=pg_catalog"]
+        assert validator.public_execute is False
 
 
 def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(

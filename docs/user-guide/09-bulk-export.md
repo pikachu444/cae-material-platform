@@ -37,7 +37,7 @@ SHA-256을 고정합니다. 같은 이름의 새 revision이 생겨도 이미 �
 ## ZIP 구조
 
 ```text
-README.md
+README.txt
 manifest.json
 checksums.sha256
 test-data/<identity>/<revision>/test-data.json

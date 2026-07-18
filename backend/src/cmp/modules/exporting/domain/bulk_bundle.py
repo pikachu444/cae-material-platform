@@ -107,7 +107,7 @@ def _archive_path(value: str) -> None:
     path = PurePosixPath(value)
     if path.is_absolute() or ".." in path.parts or value.endswith("/"):
         raise InvalidBulkExport("archive_path must stay inside the bundle root")
-    if path.parts[0] in {"manifest.json", "checksums.sha256", "README.md"}:
+    if path.parts[0] in {"manifest.json", "checksums.sha256", "README.txt"}:
         raise InvalidBulkExport("archive_path collides with a reserved bundle entry")
 
 
@@ -530,7 +530,7 @@ class BundleControlFiles:
 
     def archive_entries(self) -> dict[str, bytes]:
         return {
-            "README.md": self.readme,
+            "README.txt": self.readme,
             "checksums.sha256": self.checksums,
             "manifest.json": self.manifest,
         }
@@ -583,7 +583,7 @@ def build_bundle_control_files(
     )
     checksummed = {
         **{member.archive_path: member.source_sha256 for member in content.members},
-        "README.md": sha256_bytes(readme),
+        "README.txt": sha256_bytes(readme),
         "manifest.json": sha256_bytes(manifest),
     }
     checksums = "".join(

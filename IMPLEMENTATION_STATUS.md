@@ -13,30 +13,32 @@ Workbench defined by ADR-0028 through ADR-0030.
 | --- | --- | --- |
 | Administrator-defined Table/Attribute/Layout/Subset | T-49 definitions and T-50 datasheet consumption implemented | T-51 Explorer |
 | Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | T-51 links/tree |
-| Catalog and Material Workflow Explorers | T-62 now binds configurable Record revisions to exact governed Material/State/Test/Data/Processing/Model/Neutral/Card/Release revisions; T-65 still must seed the complete product genealogy | T-65 clean full journey |
+| Catalog and Material Workflow Explorers | T-62 binds configurable Record revisions to exact governed domain revisions; T-65 clean seed proves an eight-node Material → State → Test JSON → Processing Output → Model IR → Neutral → two native-card graph | Production dataset qualification (outside v3) |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | T-63 promotes selected metal Processing Output IRs, reviewed generalized-Maxwell IRs, and reviewed hyperelastic families with exact Prony overlay into one closed Neutral union | T-65 clean journey |
-| Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls | T-65 clean journey |
-| Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; rate-independent T-57 bytes remain compatible | T-65 download E2E |
+| Metal/Polymer/Elastomer modeling | T-63 promotes selected metal Processing Output IRs, reviewed generalized-Maxwell IRs, and reviewed hyperelastic families with exact Prony overlay into one closed Neutral union; T-65 clean seed executes the selected metal path | Production material qualification (outside v3) |
+| Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
+| Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | T-59 grants |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | T-60 demo |
-| Clean guided product demo | T-60 seeds three bounded journeys and provides entry points, but verifier/E2E does not execute the planned tree→import→recipe/batch→fit→Neutral→card→bulk journey | T-65 full clean-demo journey |
+| Clean guided product demo | T-65 creates the full governed metal journey in clean PostgreSQL and verifies exact native-card and ZIP downloads, checksums, screenshot evidence and user walkthrough | Actual solver execution (excluded) |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
 DB/API/UI/Test status matrix. Existing completed entries below remain valid evidence for their stated
 bounded Tasks, but must not be read as completion of T-49 through T-60.
 
-## In progress
-
-- `T-65`: close the remaining clean-demo gap recorded in
-  [the v3 completion audit](docs/13-delivery/v3-completion-audit.md). Actual solver execution remains
-  excluded. Domain-backed navigation and three-family Neutral exchange/export are implemented;
-  clean seeded full-download E2E and current screenshots are not complete yet.
-
 ## Completed
+
+- `T-65`: clean PostgreSQL now seeds a canonical twelve-point tensile Test JSON, exact Mapping
+  Profile, published three-step Processing Recipe, successful Batch Output, selected tabulated-
+  plasticity IR, canonical Neutral JSON and exact Abaqus/OpenRadioss cards. An eight-node
+  revision-pinned Workflow Explorer graph connects those governed objects. Migration 078 lets the
+  scoped binding validator inspect cross-module targets without exposing their rows to callers.
+  The protected verifier and Playwright download both native cards and the nine-component Bulk ZIP,
+  recompute SHA-256 values and validate the archive controls. The current screenshot and walkthrough
+  are recorded under `docs/15-demo` and `docs/user-guide`. Actual solver execution remains excluded.
 
 - `T-64`: one exact Neutral Material revision now drives the shared solver mapping/report/card API
   and connected workbench UI. Metal regenerates Abaqus `*PLASTIC` and OpenRadioss LAW36; polymer

@@ -81,6 +81,7 @@ def test_bundle_is_byte_deterministic_and_self_verifying() -> None:
     assert one.archive_sha256 == hashlib.sha256(one.archive).hexdigest()
     with zipfile.ZipFile(io.BytesIO(one.archive)) as archive:
         assert archive.namelist() == sorted(archive.namelist())
+        assert "README.txt" in archive.namelist()
         assert all(item.date_time == (1980, 1, 1, 0, 0, 0) for item in archive.infolist())
         manifest = json.loads(archive.read("manifest.json"))
         assert manifest["classification"] == "confidential"
@@ -100,6 +101,8 @@ def test_selection_rejects_path_traversal_duplicates_and_reserved_names() -> Non
         replace(member, archive_path="../outside.json")
     with pytest.raises(InvalidBulkExport, match="reserved"):
         replace(member, archive_path="manifest.json")
+    with pytest.raises(InvalidBulkExport, match="reserved"):
+        replace(member, archive_path="README.txt")
     duplicate = _member(2, path=member.archive_path, value=value)
     with pytest.raises(InvalidBulkExport, match="archive_path"):
         ExportSelectionContent("Duplicate", (member, duplicate), ())
