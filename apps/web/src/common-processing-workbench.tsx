@@ -72,6 +72,65 @@ const DEFAULT_PROFILE: CommonMappingProfileContent = {
   attribute_bindings: [],
 };
 
+const POLYMER_RELAXATION_PROFILE: CommonMappingProfileContent = {
+  profile_key: "polymer-shear-relaxation",
+  label: "Polymer shear relaxation channels",
+  independent_quantity: "time",
+  missing_data_policy: "drop_any",
+  bindings: [
+    {
+      channel_key: "time_s",
+      target_quantity: "time",
+      accepted_normalized_units: ["s"],
+      required: true,
+      scale: 1,
+      offset: 0,
+    },
+    {
+      channel_key: "shear_modulus_mpa",
+      target_quantity: "modulus.shear.relaxation",
+      accepted_normalized_units: ["Pa"],
+      required: true,
+      scale: 1,
+      offset: 0,
+    },
+  ],
+  attribute_bindings: [],
+};
+
+const POLYMER_RELAXATION_STEPS: CommonProcessingStep[] = [
+  {
+    method_id: "rows.sort_unique",
+    method_version: "1.0.0",
+    options: { duplicate_policy: "reject" },
+  },
+  {
+    method_id: "curve.crop",
+    method_version: "1.0.0",
+    options: { minimum: 0.01, maximum: 100 },
+  },
+  {
+    method_id: "polymer.log_time_resample",
+    method_version: "1.0.0",
+    options: { start_time_s: 0.01, end_time_s: 100, count: 81, extrapolation: "reject" },
+  },
+  {
+    method_id: "polymer.prony_fit_compare",
+    method_version: "1.0.0",
+    options: {
+      time_quantity: "time",
+      modulus_quantity: "modulus.shear.relaxation",
+      candidate_term_counts: [1, 2, 3, 4],
+      selection_mode: "automatic_bic",
+      selected_term_count: 2,
+      normalization_modulus_pa: 1000000000,
+      minimum_relaxation_time_s: 0.0001,
+      maximum_relaxation_time_s: 1000000,
+      maximum_function_evaluations: 5000,
+    },
+  },
+];
+
 const DEFAULT_STEPS: CommonProcessingStep[] = [
   {
     method_id: "rows.sort_unique",
@@ -425,6 +484,17 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
     setSelectedProfileId(id);
     const item = profiles.find((candidate) => candidate.mapping_profile_id === id);
     if (item) setProfileText(JSON.stringify(item.content, null, 2));
+  }
+
+  function useProfileTemplate(
+    profile: CommonMappingProfileContent,
+    steps: CommonProcessingStep[],
+  ): void {
+    setSelectedProfileId("");
+    setProfileText(JSON.stringify(profile, null, 2));
+    setStepsText(JSON.stringify(steps, null, 2));
+    setPreview(null);
+    setNotice(`Loaded the ${profile.label} template. Confirm channel keys, units, and bounds before saving.`);
   }
 
   function selectRecipe(id: string): void {
@@ -821,6 +891,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
         <article className="workbench-card mapping-profile-card">
           <div className="section-heading"><div><p className="eyebrow">2 · reusable contract</p><h2>Mapping Profile</h2></div><span className="status-chip">{profiles.length} saved</span></div>
           <label>Saved profile<select aria-label="Saved Mapping Profile" value={selectedProfileId} onChange={(event) => selectProfile(event.target.value)}><option value="">New profile</option>{profiles.map((item) => <option key={item.mapping_profile_id} value={item.mapping_profile_id}>{item.content.label} · r{item.current_revision.revision_no}</option>)}</select></label>
+          <div className="hero-actions" aria-label="Mapping Profile templates">
+            <button className="button secondary" type="button" onClick={() => useProfileTemplate(DEFAULT_PROFILE, DEFAULT_STEPS)}>Metal tensile template</button>
+            <button className="button secondary" type="button" onClick={() => useProfileTemplate(POLYMER_RELAXATION_PROFILE, POLYMER_RELAXATION_STEPS)}>Polymer relaxation template</button>
+          </div>
           <label>Profile JSON<textarea className="mapping-profile-editor" aria-label="Mapping Profile JSON" value={profileText} onChange={(event) => setProfileText(event.target.value)} spellCheck={false} /></label>
           <div className="profile-save-row"><label>Classification<select value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label><label>Change reason<input value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !changeReason.trim()} onClick={() => void saveProfile()}>{selectedProfileId ? "Append profile revision" : "Save new profile"}</button></div>
         </article>

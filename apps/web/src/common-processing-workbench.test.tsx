@@ -269,6 +269,14 @@ describe("Common Processing Workbench", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "Processing Workbench" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Polymer relaxation template" }));
+    expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
+      '"profile_key": "polymer-shear-relaxation"',
+    );
+    expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
+      '"method_id": "polymer.prony_fit_compare"',
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Metal tensile template" }));
     expect(await screen.findByRole("heading", { name: "Processing Recipe library" })).toBeTruthy();
     expect(await screen.findByRole("heading", { name: "Batch Run Monitor" })).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(2);

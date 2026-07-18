@@ -18,7 +18,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | T-55M complete: five explicit E choices, proof stress, non-destructive necking candidate, true/plastic conversion, four-family fit/compare/combine/bounded extrapolation, exact Output-to-IR promotion and Abaqus/OpenRadioss card download; polymer/elastomer remain bounded reference flows | T-55P/E |
+| Metal/Polymer/Elastomer modeling | T-55M and T-55P complete: metal hardening plus polymer log-time Recipe processing, 1-10 term generalized-Maxwell comparison, BIC/manual selection, manual/WLF/Arrhenius master curves, reviewed reference IR and Abaqus card; elastomer remains the next bounded track | T-55E |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
 | Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
 | Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
@@ -30,10 +30,23 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-55P`: deepen the existing bounded polymer reference flow into the configurable linear-viscoelastic
-  workbench defined by the integrated product plan.
+- `T-55E`: deepen the existing Ogden--Prony reference flow into the configurable multi-mode
+  elastomer workbench defined by the integrated product plan.
 
 ## Completed
+
+- `T-55P`: the common Processing Workbench now exposes solver-neutral
+  `polymer.log_time_resample` and `polymer.prony_fit_compare` methods. The latter fits an explicit
+  user-selected set of one-to-ten-term generalized-Maxwell candidates with shared bounds and
+  objective, stores every candidate curve plus normalized RMSE/BIC, and selects either by BIC or an
+  explicit term count. A polymer relaxation Mapping Profile/Recipe template makes the path usable
+  without authoring JSON from scratch. The existing exact Dataset/Selection master-curve workflow
+  now supports manual, WLF, and Arrhenius shifts; migration 068 stores fitted Arrhenius activation
+  energy in a typed constrained column and retains observed/predicted shift residuals. The existing
+  reviewed linear-Prony IR promotion and Abaqus 2025 `*VISCOELASTIC` card remain the supported card
+  path. Linear viscoelasticity remains explicitly unsupported for OpenRadioss LAW62 rather than
+  being silently approximated. Promotion of a newly committed common one-to-ten-term Output into
+  the canonical Neutral Material envelope belongs to T-56.
 
 - `T-55M`: the metal methods run in the common Processing Workbench and published Recipe/Batch path.
   OLS, Huber robust, chord, secant and manual Young's modulus, proof stress, non-destructive necking

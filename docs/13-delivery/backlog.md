@@ -1374,6 +1374,18 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   selection, manual/WLF/Arrhenius shift와 master curve, supported solver mappings.
 - **완료 조건:** candidate/residual/domain을 비교하고 unsupported mapping을 명시적으로 차단한다.
 - **테스트:** synthetic Maxwell/WLF/Arrhenius fixtures, term selection, mapping regression, UI E2E.
+- **구현 증거 (완료, 2026-07-18):** 공통 method registry에
+  `polymer.log_time_resample`과 `polymer.prony_fit_compare`를 추가했다. 사용자는 1~10 사이의
+  후보 항수를 복수 지정하고 동일 normalized objective/bounds에서 비교한 뒤 BIC 자동 선택 또는
+  명시적 항수 선택을 저장할 수 있다. 후보 curve, selected curve, RMSE, BIC, equilibrium/
+  instantaneous modulus와 선택된 `g_i`, `tau_i`가 immutable Processing Output에 포함된다.
+  Polymer relaxation Mapping Profile/Recipe template를 UI에서 바로 불러올 수 있다. 기존 exact
+  Selection master-curve 경로는 manual/WLF에 Arrhenius fit을 추가했고, migration 068이 활성화에너지와
+  shift residual evidence를 typed PostgreSQL column/row로 보존한다. 기존 reviewed linear-Prony IR와
+  Abaqus 2025 `*VISCOELASTIC` preview/download는 유지한다. OpenRadioss LAW62는 별도 Ogden-Prony
+  hyper-viscoelastic family이므로 linear Prony를 silent 변환하지 않고 `unsupported`로 차단한다.
+  공통 1~10항 Output의 Neutral JSON/IR promotion은 중복 구현하지 않고 T-56에서 수행한다.
+- **상태:** `complete`.
 
 #### T-55E. Elastomer hyperelastic/hyper-viscoelastic workbench — `P0`
 

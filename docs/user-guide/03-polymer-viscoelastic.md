@@ -1,5 +1,32 @@
 # Polymer 완화시험에서 Abaqus 점탄성 카드까지
 
+## 재사용 가능한 Processing Recipe로 후보 비교
+
+1. 상단 메뉴에서 **Processing**을 열고 **Polymer relaxation template**을 선택합니다.
+2. Test Data JSON의 실제 channel key가 `time_s`, `shear_modulus_mpa`와 다르면 Profile JSON의
+   `channel_key`만 실제 이름으로 고칩니다. normalized unit은 각각 `s`, `Pa`여야 합니다.
+3. template은 0초 행을 crop한 뒤 관측 범위 안에서만 log-time resampling을 수행합니다.
+   시작/끝 시간이 원본 범위를 벗어나면 preview가 실패하며 외삽하지 않습니다.
+4. `candidate_term_counts`에 비교할 Prony 항수(각각 1~10)를 지정합니다.
+5. `selection_mode`는 `automatic_bic` 또는 `manual`입니다. manual이면
+   `selected_term_count`가 후보 목록에 포함돼야 합니다.
+6. **Preview all stages**에서 항수별 curve, selected curve, normalized RMSE, BIC, `g_i`, `tau_i`를
+   확인합니다. 적합 결과는 reference evidence이며 검토 없이 production-qualified가 되지 않습니다.
+7. Mapping Profile과 Recipe를 저장·publish하면 다른 compatible Dataset에 batch 실행할 수 있습니다.
+   각 성공/실패와 Output revision은 별도로 남고 원본이나 이전 결과를 덮어쓰지 않습니다.
+
+## 온도 이동 모델
+
+Viscoelastic master curve 화면은 세 가지 방식을 제공합니다.
+
+- **Manual:** 각 온도의 검증된 `log10(aT)`를 사용자가 입력합니다.
+- **WLF fit:** 세 온도 이상에서 관측 shift를 WLF 식에 적합합니다.
+- **Arrhenius fit:** 세 온도 이상에서 `log10(aT)=Ea/(2.303R)(1/T-1/Tref)`를 적합합니다.
+
+Arrhenius 결과 화면에는 활성화에너지(kJ/mol)가 표시됩니다. 각 온도의 observed shift, fitted
+shift, residual과 curve alignment RMSE를 함께 검토해야 하며, fitted 온도 범위 밖 사용을 자동으로
+정당화하지 않습니다.
+
 ## 입력 파일
 
 현재 자동 fitting 경로는 UTF-8 CSV와 다음 두 channel을 사용합니다.
