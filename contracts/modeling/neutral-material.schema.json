@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/neutral-material.schema.json",
+  "title": "CMP Neutral Material JSON",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_type", "schema_version", "document_id", "scope", "sources",
+    "curve_stages", "candidate_selection", "material_model_ir", "applicability",
+    "validation", "content_sha256"
+  ],
+  "properties": {
+    "document_type": {"const": "cmp.neutral-material"},
+    "schema_version": {"const": "1.0.0"},
+    "document_id": {"$ref": "#/$defs/Uuid"},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["organization_id", "project_id", "classification"],
+      "properties": {
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"type": "string", "minLength": 1, "maxLength": 64}
+      }
+    },
+    "sources": {"$ref": "#/$defs/Sources"},
+    "curve_stages": {
+      "type": "array", "minItems": 3, "maxItems": 72,
+      "items": {"$ref": "#/$defs/Curve"}
+    },
+    "candidate_selection": {"$ref": "#/$defs/Selection"},
+    "material_model_ir": {"$ref": "#/$defs/MaterialModelIr"},
+    "applicability": {
+      "type": "object", "additionalProperties": false,
+      "required": ["engineering_strain"],
+      "properties": {
+        "engineering_strain": {
+          "type": "object", "additionalProperties": false,
+          "required": ["minimum", "maximum", "unit"],
+          "properties": {
+            "minimum": {"type": "number", "minimum": 0},
+            "maximum": {"type": "number", "exclusiveMinimum": 0},
+            "unit": {"const": "1"}
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object", "additionalProperties": false, "required": ["status"],
+      "properties": {"status": {"type": "string", "minLength": 1, "maxLength": 160}}
+    },
+    "content_sha256": {"$ref": "#/$defs/Sha256"}
+  },
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "RevisionReference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "revision_id"],
+      "properties": {"id": {"$ref": "#/$defs/Uuid"}, "revision_id": {"$ref": "#/$defs/Uuid"}}
+    },
+    "OptionalRevisionEvidence": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "reason", "reference"],
+          "properties": {
+            "status": {"const": "exact_revision"},
+            "reason": {"type": "string", "minLength": 1, "maxLength": 500},
+            "reference": {"$ref": "#/$defs/RevisionReference"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "reason"],
+          "properties": {
+            "status": {"const": "not_applicable"},
+            "reason": {"type": "string", "minLength": 1, "maxLength": 500}
+          }
+        }
+      ]
+    },
+    "DatasetSource": {
+      "type": "object", "additionalProperties": false,
+      "required": ["dataset", "role", "test_mode", "normalized_artifact"],
+      "properties": {
+        "dataset": {"$ref": "#/$defs/RevisionReference"},
+        "role": {"enum": ["calibration", "holdout"]},
+        "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
+        "normalized_artifact": {
+          "type": "object", "additionalProperties": false,
+          "required": ["artifact_id", "sha256"],
+          "properties": {"artifact_id": {"$ref": "#/$defs/Uuid"}, "sha256": {"$ref": "#/$defs/Sha256"}}
+        }
+      }
+    },
+    "Sources": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "material", "material_state", "property_set", "calibration_plan",
+        "scientific_profile", "mapping_profile", "processing_recipe", "datasets"
+      ],
+      "properties": {
+        "material": {"$ref": "#/$defs/RevisionReference"},
+        "material_state": {"$ref": "#/$defs/RevisionReference"},
+        "property_set": {"$ref": "#/$defs/RevisionReference"},
+        "calibration_plan": {"$ref": "#/$defs/RevisionReference"},
+        "scientific_profile": {"$ref": "#/$defs/RevisionReference"},
+        "mapping_profile": {"$ref": "#/$defs/OptionalRevisionEvidence"},
+        "processing_recipe": {"$ref": "#/$defs/OptionalRevisionEvidence"},
+        "datasets": {"type": "array", "minItems": 1, "maxItems": 24, "items": {"$ref": "#/$defs/DatasetSource"}}
+      }
+    },
+    "Curve": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stage", "dataset_revision_id", "test_mode", "x_quantity", "x_unit", "y_quantity", "y_unit", "x", "y"],
+      "properties": {
+        "stage": {"enum": ["normalized", "fitted", "residual"]},
+        "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+        "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
+        "x_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
+        "x_unit": {"type": "string", "minLength": 1, "maxLength": 160},
+        "y_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
+        "y_unit": {"type": "string", "minLength": 1, "maxLength": 160},
+        "x": {"type": "array", "minItems": 1, "maxItems": 50000, "items": {"type": "number"}},
+        "y": {"type": "array", "minItems": 1, "maxItems": 50000, "items": {"type": "number"}}
+      }
+    },
+    "Selection": {
+      "type": "object", "additionalProperties": false,
+      "required": ["calibration_run_id", "candidate_id", "candidate_sha256", "diagnostics_artifact_id", "diagnostics_sha256", "reason", "objective_total", "calibration_normalized_rmse", "holdout_normalized_rmse", "stability_status", "warnings"],
+      "properties": {
+        "calibration_run_id": {"$ref": "#/$defs/Uuid"},
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "diagnostics_artifact_id": {"$ref": "#/$defs/Uuid"},
+        "diagnostics_sha256": {"$ref": "#/$defs/Sha256"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "objective_total": {"type": "number"},
+        "calibration_normalized_rmse": {"type": "number"},
+        "holdout_normalized_rmse": {"type": ["number", "null"]},
+        "stability_status": {"type": "string", "minLength": 1, "maxLength": 120},
+        "warnings": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
+      }
+    },
+    "Parameter": {
+      "type": "object", "additionalProperties": false, "required": ["value", "unit"],
+      "properties": {"value": {"type": "number"}, "unit": {"enum": ["Pa", "1"]}}
+    },
+    "ConstitutiveModel": {
+      "oneOf": [
+        {"$ref": "#/$defs/NeoHookean"},
+        {"$ref": "#/$defs/MooneyRivlin"},
+        {"$ref": "#/$defs/Yeoh"},
+        {"$ref": "#/$defs/Ogden1"}
+      ]
+    },
+    "NeoHookean": {
+      "type": "object", "additionalProperties": false, "required": ["family", "parameters"],
+      "properties": {"family": {"const": "neo_hookean"}, "parameters": {"type": "object", "additionalProperties": false, "required": ["c10_pa"], "properties": {"c10_pa": {"$ref": "#/$defs/Parameter"}}}}
+    },
+    "MooneyRivlin": {
+      "type": "object", "additionalProperties": false, "required": ["family", "parameters"],
+      "properties": {"family": {"const": "mooney_rivlin"}, "parameters": {"type": "object", "additionalProperties": false, "required": ["c10_pa", "c01_pa"], "properties": {"c10_pa": {"$ref": "#/$defs/Parameter"}, "c01_pa": {"$ref": "#/$defs/Parameter"}}}}
+    },
+    "Yeoh": {
+      "type": "object", "additionalProperties": false, "required": ["family", "parameters"],
+      "properties": {"family": {"const": "yeoh"}, "parameters": {"type": "object", "additionalProperties": false, "required": ["c10_pa", "c20_pa", "c30_pa"], "properties": {"c10_pa": {"$ref": "#/$defs/Parameter"}, "c20_pa": {"$ref": "#/$defs/Parameter"}, "c30_pa": {"$ref": "#/$defs/Parameter"}}}}
+    },
+    "Ogden1": {
+      "type": "object", "additionalProperties": false, "required": ["family", "parameters"],
+      "properties": {"family": {"const": "ogden_1"}, "parameters": {"type": "object", "additionalProperties": false, "required": ["mu_pa", "alpha"], "properties": {"mu_pa": {"$ref": "#/$defs/Parameter"}, "alpha": {"$ref": "#/$defs/Parameter"}}}}
+    },
+    "MaterialModelIr": {
+      "type": "object", "additionalProperties": false,
+      "required": ["model", "schema_id", "schema_version", "model_schema_digest", "constitutive_model", "density", "volumetric_response", "maturity", "non_production"],
+      "properties": {
+        "model": {"$ref": "#/$defs/RevisionReference"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "model_schema_digest": {"$ref": "#/$defs/Sha256"},
+        "constitutive_model": {"$ref": "#/$defs/ConstitutiveModel"},
+        "density": {
+          "type": "object", "additionalProperties": false, "required": ["value", "unit"],
+          "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "kg/m3"}}
+        },
+        "volumetric_response": {"const": "incompressible"},
+        "maturity": {"const": "reference"},
+        "non_production": {"const": true}
+      }
+    }
+  }
+}

@@ -13,9 +13,10 @@ one-term Ogden을 한 번에 비교할 수 있습니다. Run을 실행하면 **T
 families** 표에 family별 parameter, normalized RMSE, fitted-domain monotonicity와 warning이
 표시됩니다. family 행을 선택하면 서버가 보존한 immutable diagnostics Artifact에서
 observed/fitted curve와 residual을 불러옵니다. 가장 낮은 objective는 참고값일 뿐 자동 승인
-또는 자동 승격되지 않습니다. 현재 일반 family 선택을 Neutral Material JSON/IR로 승격하는
-버튼은 T-56, family별 Abaqus/OpenRadioss mapping/card는 T-57 범위입니다. 기존 Ogden 행의
-사람 선택, Ogden--Prony IR revision과 두 solver card 경로는 계속 사용할 수 있습니다.
+또는 자동 승격되지 않습니다. 검토한 family 행을 선택하면 T-56 영역에서 선택 사유를 남기고
+canonical Neutral Material JSON/IR revision으로 승격할 수 있습니다. family별
+Abaqus/OpenRadioss mapping/card 확장은 T-57 범위입니다. 기존 Ogden 행의 사람 선택,
+Ogden--Prony IR revision과 두 solver card 경로는 계속 사용할 수 있습니다.
 
 ![동일 Dataset revision에서 비교한 네 가지 공개 초탄성 모델 family](../15-demo/images/t55e-hyperelastic-family-comparison.png)
 
@@ -64,13 +65,22 @@ uv run python scripts/seed_ogden_calibration_demo.py
    `insufficient test modes`, holdout이 없으면 `no holdout data`가 명시됩니다.
 9. Candidate row를 눌러 diagnostics를 고른 뒤 fitted/residual, holdout, convergence, bounds,
    rank와 uncertainty를 검토합니다. 시스템은 가장 작은 objective를 자동 승인하지 않습니다.
-10. **Human decision gate**에서 Selection label과 검토 사유를 기록합니다. Selection revision은
+10. **Promote the reviewed family to Neutral Material JSON**에서 family 선택 사유와 change
+    reason을 기록하고 승격합니다. 새 stable Neutral model identity의 revision 1이 생성되며,
+    exact Plan/Run/Candidate/Dataset/diagnostics digest, curve stage, parameter와 적용 범위가
+    `cmp.neutral-material` 문서에 고정됩니다.
+11. 화면에 표시된 Dataset revision 수, curve stage 수, validation 상태와 content SHA-256을
+    확인한 뒤 **Download Neutral Material JSON**으로 canonical JSON을 받습니다. 기존 JSON은
+    상단 import 영역에서 검증 후 다시 가져올 수 있으며 참조 digest가 다르면 거부됩니다.
+12. 기존 Ogden 전용 경로가 필요하면 **Human decision gate**에서 Selection label과 검토 사유를 기록합니다. Selection revision은
     exact Run/Candidate/candidate digest/diagnostics Artifact digest/baseline IR revision을 pin합니다.
-11. IR promotion reason을 입력하고 승격합니다. 요청은 화면이 읽은 current IR의 strong ETag를
+13. IR promotion reason을 입력하고 승격합니다. 요청은 화면이 읽은 current IR의 strong ETag를
     사용하므로 다른 사용자가 먼저 새 revision을 만든 경우 412로 거부되고 새로고침이 필요합니다.
-12. **Append-only IR revision history**에서 r1, r2, r3를 비교합니다. 각 promoted revision은
+14. **Append-only IR revision history**에서 r1, r2, r3를 비교합니다. 각 promoted revision은
     자신의 Selection/Run/Candidate/diagnostics evidence만 소유하며 과거 evidence를 복사하거나
     덮어쓰지 않습니다. 과거 IR에서 만든 Card와 Release는 그 concrete revision을 계속 pin합니다.
+
+![검토한 family Candidate를 Neutral Material JSON으로 승격](../15-demo/images/t56-neutral-material-json.png)
 
 두 번 이상의 calibration round를 회귀 데이터로 확인하려면 아래 명령을 두 번 실행할 수 있습니다.
 각 실행은 실행 시점의 current IR을 새 baseline으로 pin하고 r2, r3처럼 새 revision을 추가합니다.

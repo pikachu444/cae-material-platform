@@ -7869,6 +7869,113 @@ paths:
         "404": {description: Candidate or diagnostics Artifact is not visible.}
         "409": {description: Stored diagnostics digest or point count conflicts.}
         "503": {description: Modeling service unavailable.}
+  /api/v1/neutral-materials:promote:
+    post:
+      operationId: promoteHyperelasticCandidateToNeutralMaterial
+      tags: [modeling]
+      summary: Record a human family selection and promote it to an immutable neutral IR JSON.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/neutral-material-resources.schema.json#/$defs/PromoteRequest"}
+      responses:
+        "201":
+          description: Canonical Neutral Material JSON and typed reference IR revision created.
+          headers:
+            Location: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/neutral-material-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Candidate was already promoted or exact evidence conflicts.}
+        "422": {description: Human reason or selected Candidate is invalid.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/neutral-materials:validate:
+    post:
+      operationId: validateNeutralMaterial
+      tags: [modeling]
+      summary: Validate schema, typed family parameters, exact evidence and canonical digest.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/neutral-material.schema.json"}
+      responses:
+        "200":
+          description: The canonical document is valid and its digest is reproducible.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/neutral-material-resources.schema.json#/$defs/ValidationResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "422": {description: Schema, units, family shape, or digest is invalid.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/neutral-materials:import:
+    post:
+      operationId: importNeutralMaterial
+      tags: [modeling]
+      summary: Import canonical JSON while preserving its stable identity and exact IR revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/neutral-material-resources.schema.json#/$defs/ImportRequest"}
+      responses:
+        "201":
+          description: Imported immutable document, or the identical existing document.
+          headers:
+            Location: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/neutral-material-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "409": {description: Identity, source revision, Candidate, or digest evidence conflicts.}
+        "422": {description: Canonical JSON is invalid or exceeds the bounded import contract.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/neutral-materials/{neutral_material_id}:
+    get:
+      operationId: getNeutralMaterial
+      tags: [modeling]
+      summary: Read one current immutable Neutral Material JSON revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: neutral_material_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Neutral Material metadata and canonical document.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/neutral-material-resources.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Neutral Material is not visible.}
+        "409": {description: Stored Artifact digest or revision pin conflicts.}
+        "503": {description: Modeling service unavailable.}
+  /api/v1/neutral-materials/{neutral_material_id}/download:
+    get:
+      operationId: downloadNeutralMaterial
+      tags: [modeling]
+      summary: Download the exact canonical cmp.neutral-material JSON bytes.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: neutral_material_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Canonical JSON attachment.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/neutral-material.schema.json"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Neutral Material is not visible.}
+        "409": {description: Stored Artifact digest or revision pin conflicts.}
+        "503": {description: Modeling service unavailable.}
   /api/v1/ogden-candidate-selections:
     post:
       operationId: createReferenceOgdenCandidateSelection

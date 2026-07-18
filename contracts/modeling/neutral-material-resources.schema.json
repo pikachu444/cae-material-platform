@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/modeling/neutral-material-resources.schema.json",
+  "title": "Neutral Material API resources",
+  "$defs": {
+    "PromoteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "selection_reason", "change_reason"],
+      "properties": {
+        "candidate_id": {"type": "string", "format": "uuid"},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ImportRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document", "change_reason"],
+      "properties": {
+        "document": {"$ref": "neutral-material.schema.json"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ArtifactPointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "sha256"],
+      "properties": {
+        "artifact_id": {"type": "string", "format": "uuid"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "Response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "neutral_material_id", "neutral_material_revision_id", "revision_no",
+        "content_hash", "document_artifact", "document", "links"
+      ],
+      "properties": {
+        "neutral_material_id": {"type": "string", "format": "uuid"},
+        "neutral_material_revision_id": {"type": "string", "format": "uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "document_artifact": {"$ref": "#/$defs/ArtifactPointer"},
+        "document": {"$ref": "neutral-material.schema.json"},
+        "links": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["self", "download"],
+          "properties": {
+            "self": {"type": "string", "minLength": 1},
+            "download": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "ValidationResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "valid", "document_id", "content_sha256", "family",
+        "source_dataset_count", "curve_stage_count"
+      ],
+      "properties": {
+        "valid": {"const": true},
+        "document_id": {"type": "string", "format": "uuid"},
+        "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "family": {"enum": ["neo_hookean", "mooney_rivlin", "yeoh", "ogden_1"]},
+        "source_dataset_count": {"type": "integer", "minimum": 1, "maximum": 24},
+        "curve_stage_count": {"type": "integer", "minimum": 3, "maximum": 72}
+      }
+    },
+    "Problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"type": "string", "format": "uri"},
+        "title": {"type": "string", "minLength": 1},
+        "status": {"type": "integer", "minimum": 400, "maximum": 599},
+        "detail": {"type": "string", "minLength": 1},
+        "code": {"type": "string", "minLength": 1},
+        "trace_id": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

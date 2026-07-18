@@ -2955,6 +2955,56 @@ export interface HyperelasticDiagnosticsResponse {
   points: Array<OgdenDiagnosticPoint & { family: HyperelasticFamily }>;
 }
 
+export interface NeutralMaterialResponse {
+  neutral_material_id: string;
+  neutral_material_revision_id: string;
+  revision_no: number;
+  content_hash: string;
+  document_artifact: { artifact_id: string; sha256: string };
+  document: {
+    document_type: "cmp.neutral-material";
+    schema_version: "1.0.0";
+    document_id: string;
+    content_sha256: string;
+    sources: {
+      datasets: Array<{
+        dataset: { id: string; revision_id: string };
+        role: OgdenCalibrationRole;
+        test_mode: OgdenTestMode;
+      }>;
+    };
+    curve_stages: Array<{
+      stage: "normalized" | "fitted" | "residual";
+      dataset_revision_id: string;
+      test_mode: OgdenTestMode;
+      x: number[];
+      y: number[];
+    }>;
+    candidate_selection: {
+      candidate_id: string;
+      reason: string;
+      stability_status: string;
+      warnings: string[];
+    };
+    material_model_ir: {
+      model: { id: string; revision_id: string };
+      schema_id: string;
+      schema_version: string;
+      constitutive_model: {
+        family: HyperelasticFamily;
+        parameters: Record<string, { value: number; unit: "Pa" | "1" }>;
+      };
+      maturity: "reference";
+      non_production: true;
+    };
+    applicability: {
+      engineering_strain: { minimum: number; maximum: number; unit: "1" };
+    };
+    validation: { status: string };
+  };
+  links: { self: string; download: string };
+}
+
 export interface OgdenPronyMappingResponse {
   mapping_report_sha256: string;
   exportable: boolean;

@@ -5,15 +5,18 @@ import {
   type ApiConfig,
   createReferenceOgdenCalibrationPlan,
   createReferenceOgdenCandidateSelection,
+  downloadNeutralMaterial,
   executeReferenceOgdenCalibration,
   getHyperelasticFamilyCandidateDiagnostics,
   getReferenceOgdenCalibrationRun,
   getReferenceOgdenCandidateDiagnostics,
+  importNeutralMaterial,
   listGovernedDatasetsForTestRun,
   listOgdenPronyModelRevisions,
   listScientificProfiles,
   listTestRunsForMaterialState,
   promoteReferenceOgdenCandidate,
+  promoteHyperelasticCandidateToNeutralMaterial,
 } from "./api";
 import type {
   GovernedDatasetResponse,
@@ -25,6 +28,7 @@ import type {
   OgdenDiagnosticPoint,
   OgdenDiagnosticsResponse,
   HyperelasticDiagnosticsResponse,
+  NeutralMaterialResponse,
   OgdenPronyModelResponse,
   OgdenTestMode,
   ScientificProfileResponse,
@@ -160,6 +164,17 @@ export function ReferenceOgdenCalibrationWorkbench({
   const [diagnostics, setDiagnostics] = useState<OgdenDiagnosticsResponse | null>(null);
   const [familyDiagnostics, setFamilyDiagnostics] = useState<HyperelasticDiagnosticsResponse | null>(null);
   const [selectedFamilyCandidateId, setSelectedFamilyCandidateId] = useState("");
+  const [neutralMaterial, setNeutralMaterial] = useState<NeutralMaterialResponse | null>(null);
+  const [neutralImportFile, setNeutralImportFile] = useState<File | null>(null);
+  const [neutralImportReason, setNeutralImportReason] = useState(
+    "Import canonical Neutral Material JSON after exact evidence verification",
+  );
+  const [neutralSelectionReason, setNeutralSelectionReason] = useState(
+    "Selected after comparing normalized error, fitted curves, residuals, stability, and applicable strain range",
+  );
+  const [neutralChangeReason, setNeutralChangeReason] = useState(
+    "Promote the reviewed hyperelastic family Candidate to canonical Neutral Material JSON",
+  );
   const [selectedCandidateId, setSelectedCandidateId] = useState("");
   const [selection, setSelection] = useState<OgdenCandidateSelectionResponse | null>(null);
   const [history, setHistory] = useState<OgdenPronyModelResponse["current_revision"][]>([]);
@@ -173,7 +188,19 @@ export function ReferenceOgdenCalibrationWorkbench({
   const [planLabel, setPlanLabel] = useState("Governed multi-test Ogden reference fit");
   const [reason, setReason] = useState("Pin exact governed curves and scientific profile revision");
   const [runReason, setRunReason] = useState("Execute deterministic multi-test Ogden reference fitting");
-  const [busy, setBusy] = useState<"load" | "load-run" | "plan" | "run" | "diagnostics" | "selection" | "promotion" | null>(null);
+  const [busy, setBusy] = useState<
+    | "load"
+    | "load-run"
+    | "plan"
+    | "run"
+    | "diagnostics"
+    | "selection"
+    | "promotion"
+    | "neutral"
+    | "neutral-download"
+    | "neutral-import"
+    | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadInputs(): Promise<void> {
@@ -215,6 +242,7 @@ export function ReferenceOgdenCalibrationWorkbench({
     setSelection(null);
     setDiagnostics(null);
     setFamilyDiagnostics(null);
+    setNeutralMaterial(null);
     setSelectedFamilyCandidateId("");
     setSelectedCandidateId("");
     void loadInputs();
@@ -255,6 +283,7 @@ export function ReferenceOgdenCalibrationWorkbench({
       setRun(null);
       setDiagnostics(null);
       setFamilyDiagnostics(null);
+      setNeutralMaterial(null);
       setSelectedFamilyCandidateId("");
       setSelectedCandidateId("");
       setSelection(null);
@@ -281,6 +310,7 @@ export function ReferenceOgdenCalibrationWorkbench({
   async function showFamilyDiagnostics(candidateId: string): Promise<void> {
     setBusy("diagnostics");
     setSelectedFamilyCandidateId(candidateId);
+    setNeutralMaterial(null);
     setError(null);
     try {
       const result = await getHyperelasticFamilyCandidateDiagnostics(config, candidateId);
@@ -328,6 +358,7 @@ export function ReferenceOgdenCalibrationWorkbench({
       setPlan(null);
       setSelection(null);
       setFamilyDiagnostics(null);
+      setNeutralMaterial(null);
       setSelectedFamilyCandidateId("");
       const candidate = result.data.candidates.slice().sort(
         (left, right) => left.objective_total - right.objective_total,
@@ -388,6 +419,67 @@ export function ReferenceOgdenCalibrationWorkbench({
     }
   }
 
+  async function promoteNeutralMaterial(): Promise<void> {
+    if (!selectedFamilyCandidateId) return;
+    setBusy("neutral");
+    setError(null);
+    try {
+      const result = await promoteHyperelasticCandidateToNeutralMaterial(config, {
+        candidate_id: selectedFamilyCandidateId,
+        selection_reason: neutralSelectionReason.trim(),
+        change_reason: neutralChangeReason.trim(),
+      });
+      setNeutralMaterial(result.data);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function downloadNeutralJson(): Promise<void> {
+    if (!neutralMaterial) return;
+    setBusy("neutral-download");
+    setError(null);
+    try {
+      const result = await downloadNeutralMaterial(
+        config,
+        neutralMaterial.neutral_material_id,
+      );
+      const url = URL.createObjectURL(result.data.blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = result.data.filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function importNeutralJson(): Promise<void> {
+    if (!neutralImportFile) return;
+    setBusy("neutral-import");
+    setError(null);
+    try {
+      const parsed = JSON.parse(await neutralImportFile.text()) as Record<string, unknown>;
+      const result = await importNeutralMaterial(config, {
+        document: parsed,
+        change_reason: neutralImportReason.trim(),
+      });
+      if (result.data.document.material_model_ir.model.id !== result.data.neutral_material_id) {
+        throw new Error("Imported Neutral Material did not preserve its model identity.");
+      }
+      setNeutralMaterial(result.data);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <section className="reference-calibration-workbench ogden-calibration-workbench" aria-label="Reference multi-test Ogden calibration workbench">
       <div className="section-heading compact-heading">
@@ -420,6 +512,55 @@ export function ReferenceOgdenCalibrationWorkbench({
           </button>
         </div>
       </div>
+
+      <div className="workflow-step" aria-label="Import canonical Neutral Material JSON">
+        <strong>Import an existing Neutral Material JSON</strong>
+        <p className="form-hint">
+          The canonical digest, tenant scope, family parameters, Candidate, Plan, profile,
+          Dataset revisions, and Artifact digests are verified before an identity is created.
+        </p>
+        <label>
+          Neutral Material JSON file
+          <input
+            type="file"
+            accept="application/json,.json"
+            onChange={(event) => setNeutralImportFile(event.target.files?.[0] ?? null)}
+          />
+        </label>
+        <label>
+          Import change reason
+          <input
+            value={neutralImportReason}
+            onChange={(event) => setNeutralImportReason(event.target.value)}
+          />
+        </label>
+        <button
+          className="button secondary"
+          type="button"
+          disabled={busy !== null || !neutralImportFile || !neutralImportReason.trim()}
+          onClick={() => void importNeutralJson()}
+        >
+          {busy === "neutral-import" ? "Verifying exact evidence…" : "Validate and import JSON"}
+        </button>
+      </div>
+      {neutralMaterial && !selectedFamilyCandidateId ? (
+        <div className="promotion-confirmation" aria-live="polite">
+          <strong>
+            Imported Neutral model r{neutralMaterial.revision_no} · {neutralMaterial.document.material_model_ir.constitutive_model.family.replaceAll("_", " ")}
+          </strong>
+          <small>
+            Exact IR revision {shortId(neutralMaterial.neutral_material_revision_id)} · content {neutralMaterial.document.content_sha256.slice(0, 16)}…
+          </small>
+          <button
+            className="button secondary"
+            type="button"
+            disabled={busy !== null}
+            onClick={() => void downloadNeutralJson()}
+          >
+            Download imported Neutral Material JSON
+          </button>
+        </div>
+      ) : null}
 
       {!profiles.length ? (
         <p className="warning-notice">Create the explicit reference scientific profile above before fitting.</p>
@@ -547,6 +688,75 @@ export function ReferenceOgdenCalibrationWorkbench({
           value={familyDiagnostics}
           modelLabel={familyDiagnostics.points[0]?.family.replaceAll("_", " ") ?? "hyperelastic family"}
         />
+      ) : null}
+      {run && selectedFamilyCandidateId ? (
+        <section
+          className="workflow-step neutral-material-promotion-panel"
+          aria-label="Neutral Material JSON selection and IR promotion"
+        >
+          <div className="curve-heading">
+            <div>
+              <p className="eyebrow">T-56 · human family selection</p>
+              <h5>Promote the reviewed family to Neutral Material JSON</h5>
+            </div>
+            <span className="reference-chip">cmp.neutral-material · 1.0.0</span>
+          </div>
+          <p className="form-hint">
+            Candidate {shortId(selectedFamilyCandidateId)} remains unchanged. Promotion creates a
+            new stable neutral model identity and pins this Run, Plan, Dataset revisions, diagnostic
+            Artifact, curves, units, and applicability range.
+          </p>
+          <label>
+            Family selection reason
+            <textarea
+              value={neutralSelectionReason}
+              onChange={(event) => setNeutralSelectionReason(event.target.value)}
+              required
+            />
+          </label>
+          <label>
+            Neutral IR change reason
+            <input
+              value={neutralChangeReason}
+              onChange={(event) => setNeutralChangeReason(event.target.value)}
+              required
+            />
+          </label>
+          <button
+            className="button primary"
+            type="button"
+            disabled={
+              busy !== null ||
+              !familyDiagnostics ||
+              !neutralSelectionReason.trim() ||
+              !neutralChangeReason.trim()
+            }
+            onClick={() => void promoteNeutralMaterial()}
+          >
+            {busy === "neutral" ? "Creating immutable Neutral JSON…" : "Create Neutral Material JSON"}
+          </button>
+          {neutralMaterial ? (
+            <div className="promotion-confirmation" aria-live="polite">
+              <strong>
+                Neutral model r{neutralMaterial.revision_no} · {neutralMaterial.document.material_model_ir.constitutive_model.family.replaceAll("_", " ")}
+              </strong>
+              <small>
+                {neutralMaterial.document.sources.datasets.length} exact Dataset revisions · {neutralMaterial.document.curve_stages.length} curve stages · {neutralMaterial.document.validation.status.replaceAll("_", " ")}
+              </small>
+              <small>
+                Content SHA-256 {neutralMaterial.document.content_sha256.slice(0, 16)}… · maturity {neutralMaterial.document.material_model_ir.maturity}
+              </small>
+              <button
+                className="button secondary"
+                type="button"
+                disabled={busy !== null}
+                onClick={() => void downloadNeutralJson()}
+              >
+                {busy === "neutral-download" ? "Preparing JSON…" : "Download Neutral Material JSON"}
+              </button>
+            </div>
+          ) : null}
+        </section>
       ) : null}
       {diagnostics ? <OgdenDiagnosticsPlot value={diagnostics} /> : null}
       {run && selectedCandidateId ? (

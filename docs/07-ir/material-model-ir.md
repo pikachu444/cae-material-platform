@@ -444,3 +444,19 @@ generalized-Maxwell/Prony with optional WLF/Arrhenius evidence, and elastomer Ne
 Mooney–Rivlin, Yeoh or Ogden with optional Prony overlay. A family is exported only where the
 versioned solver capability manifest and mapping tests support that concrete schema.
 
+### 17.1 Implemented T-56 reference envelope
+
+Schema version `1.0.0` implements the bounded hyperelastic promotion path. A user reviews one
+Neo-Hookean, Mooney--Rivlin, Yeoh or one-term Ogden Candidate and records a non-empty selection
+reason. Promotion creates a new Neutral Material stable identity and revision 1; it never mutates the
+Candidate, calibration Run, Dataset or existing solver-specific IR.
+
+The canonical JSON is also stored as an immutable Artifact. PostgreSQL migration 071 projects its
+governed fields into explicit typed tables and columns, including family-specific parameters and one
+row per exact source Dataset revision. Import recalculates the canonical digest and resolves every
+tenant-scoped Candidate, Plan, scientific profile, Dataset revision and Artifact digest before it
+creates an identity. A mismatch is rejected rather than repaired or defaulted.
+
+The exchange endpoint is solver-neutral. Abaqus/OpenRadioss capability decisions, six-state mapping
+reports and native ASCII generation from this envelope belong to T-57.
+
