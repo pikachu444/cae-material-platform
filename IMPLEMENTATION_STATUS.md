@@ -18,8 +18,8 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | T-55M/T-55P/T-55E calculation workbenches implemented: metal hardening, polymer generalized-Maxwell/master-curve processing, and elastomer multi-mode Neo-Hookean/Mooney-Rivlin/Yeoh/Ogden comparison with immutable residual evidence. Family-neutral promotion and added solver mappings remain delivery tasks. | T-56/T-57 |
-| Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
+| Metal/Polymer/Elastomer modeling | T-55M/T-55P/T-55E calculation workbenches implemented: metal hardening, polymer generalized-Maxwell/master-curve processing, and elastomer multi-mode Neo-Hookean/Mooney-Rivlin/Yeoh/Ogden comparison with immutable residual evidence. Hyperelastic family-neutral promotion is implemented; broader family promotion and solver mappings remain delivery tasks. | T-57 |
+| Neutral Material exchange JSON | T-56 implemented for reviewed hyperelastic family Candidates: deterministic validate/import/export, exact evidence pins, curve stages and typed solver-neutral IR | T-57 consumption |
 | Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
 | Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
 | Administrator/User feature grants | missing; fine-grained internal permissions exist | T-59 |
@@ -30,10 +30,22 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-56`: promote a human-selected family Candidate into the canonical Neutral Material JSON/IR
-  while preserving exact Dataset, Plan, Candidate, diagnostics and applicability evidence.
+- `T-57`: consume canonical Neutral Material IR through explicit versioned Abaqus/OpenRadioss
+  capability manifests, six-state preflight and native ASCII card artifacts.
 
 ## Completed
+
+- `T-56`: a reviewed Neo-Hookean, Mooney--Rivlin, Yeoh or one-term Ogden family Candidate can be
+  promoted into a new stable Neutral Material identity and immutable revision. Migration 071 stores
+  explicit typed family parameters and exact composite references to Material/State/Property,
+  Plan/Run/Candidate, Mapping Profile, Dataset and canonical Artifact; no generic parameter map or
+  EAV payload is authoritative. `cmp.neutral-material` `1.0.0` deterministically preserves exact
+  source Artifact digests, normalized/fitted/residual curves, human selection reason, objective,
+  parameter bounds, applicability and reference validation. Protected validate/import/get/download
+  APIs and the connected workbench reject scope, digest, family-parameter and evidence mismatches.
+  Live Docker/PostgreSQL verification restored one four-family Run, selected Ogden, created Neutral
+  model r1 with four exact Dataset revisions and twelve curve stages, and exposed the exact JSON
+  download. Solver-native family mapping remains T-57 and is not implied by this exchange contract.
 
 - `T-55E` modeling kernel and connected comparison Workbench: exact uniaxial, planar and biaxial
   Dataset revisions are evaluated against public incompressible Neo-Hookean, Mooney--Rivlin, Yeoh

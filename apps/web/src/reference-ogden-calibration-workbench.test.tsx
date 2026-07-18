@@ -112,6 +112,21 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
       if (url.includes("/hyperelastic-family-candidates/")) {
         return response({ candidate_id: ids[20], points: [0, 1].map((point) => ({ family: "mooney_rivlin", member_ordinal: 0, role: "calibration", test_mode: "planar_tension", dataset_id: ids[13], dataset_revision_id: ids[14], point_ordinal: point, engineering_strain: point * 0.1, stretch: 1 + point * 0.1, observed_nominal_stress_pa: point * 1e6, predicted_nominal_stress_pa: point * 1.002e6, residual_pa: point * 2000, normalized_residual: point * 0.002, effective_weight: 0.5 })) });
       }
+      if (url.endsWith("/neutral-materials:promote") && init?.method === "POST") {
+        return response({
+          neutral_material_id: ids[22], neutral_material_revision_id: ids[23], revision_no: 1,
+          content_hash: "1".repeat(64), document_artifact: { artifact_id: ids[21], sha256: "2".repeat(64) },
+          document: {
+            document_type: "cmp.neutral-material", schema_version: "1.0.0", document_id: ids[22], content_sha256: "3".repeat(64),
+            sources: { datasets: [{ dataset: { id: ids[13], revision_id: ids[14] }, role: "calibration", test_mode: "planar_tension" }] },
+            curve_stages: ["normalized", "fitted", "residual"].map((stage) => ({ stage, dataset_revision_id: ids[14], test_mode: "planar_tension", x: [0, 0.1], y: [0, 1e6] })),
+            candidate_selection: { candidate_id: ids[20], reason: "Reviewed family evidence", stability_status: "monotonic_on_fitted_domain", warnings: ["no_holdout_data"] },
+            material_model_ir: { model: { id: ids[22], revision_id: ids[23] }, schema_id: "urn:cmp:modeling:neutral-hyperelastic-ir:1.0.0", schema_version: "1.0.0", constitutive_model: { family: "mooney_rivlin", parameters: { c10_pa: { value: 8e5, unit: "Pa" }, c01_pa: { value: 3e5, unit: "Pa" } } }, maturity: "reference", non_production: true },
+            applicability: { engineering_strain: { minimum: 0, maximum: 0.1, unit: "1" } }, validation: { status: "reference_numerical_checks_passed" },
+          },
+          links: { self: `/api/v1/neutral-materials/${ids[22]}`, download: `/api/v1/neutral-materials/${ids[22]}/download` },
+        }, 201);
+      }
       if (url.includes("/ogden-calibration-candidates/")) {
         return response({ candidate_id: ids[15], points: [0, 1].map((point) => ({ member_ordinal: 0, role: "calibration", test_mode: "planar_tension", dataset_id: ids[13], dataset_revision_id: ids[14], point_ordinal: point, engineering_strain: point * 0.1, stretch: 1 + point * 0.1, observed_nominal_stress_pa: point * 1e6, predicted_nominal_stress_pa: point * 1.001e6, residual_pa: point * 1000, normalized_residual: point * 0.001, effective_weight: 0.5 })) });
       }
@@ -139,6 +154,9 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
     expect(screen.getByText("mooney rivlin")).toBeTruthy();
     fireEvent.click(screen.getByRole("row", { name: /mooney rivlin/ }));
     expect(await screen.findByRole("img", { name: "Multi-test mooney rivlin fit and residual plot" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Create Neutral Material JSON" }));
+    expect(await screen.findByText(/Neutral model r1 · mooney rivlin/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Download Neutral Material JSON" })).toBeTruthy();
     expect(screen.getByText(/estimated jacobian covariance/)).toBeTruthy();
     expect(screen.getAllByText(/no holdout data/).length).toBeGreaterThanOrEqual(2);
     expect(screen.getByRole("img", { name: "Multi-test Ogden fit and residual plot" })).toBeTruthy();
@@ -148,7 +166,7 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
     expect(await screen.findByText(/2 revisions/)).toBeTruthy();
     expect(screen.getAllByText(/Candidate f4300000/).length).toBeGreaterThanOrEqual(2);
     await waitFor(() => expect(onPromoted).toHaveBeenCalledWith(promotedModel));
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(11));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(12));
     const planCall = fetchMock.mock.calls.find(([url]) => String(url).endsWith("/ogden-calibration-plans"));
     expect(JSON.parse(String(planCall?.[1]?.body))).toMatchObject({ members: [{ role: "calibration", test_mode: "planar_tension", dataset_revision_id: ids[14] }] });
   });

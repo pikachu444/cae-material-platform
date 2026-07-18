@@ -53,6 +53,7 @@ import type {
   OgdenCalibrationRunResponse,
   OgdenDiagnosticsResponse,
   HyperelasticDiagnosticsResponse,
+  NeutralMaterialResponse,
   OgdenCalibrationRole,
   OgdenTestMode,
   MappingReport,
@@ -2181,6 +2182,55 @@ export function getHyperelasticFamilyCandidateDiagnostics(
     config,
     `/hyperelastic-family-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
   );
+}
+
+export function promoteHyperelasticCandidateToNeutralMaterial(
+  config: ApiConfig,
+  input: {
+    candidate_id: string;
+    selection_reason: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<NeutralMaterialResponse>> {
+  return request(config, "/neutral-materials:promote", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function importNeutralMaterial(
+  config: ApiConfig,
+  input: { document: Record<string, unknown>; change_reason: string },
+): Promise<ApiResult<NeutralMaterialResponse>> {
+  return request(config, "/neutral-materials:import", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function downloadNeutralMaterial(
+  config: ApiConfig,
+  neutralMaterialId: string,
+): Promise<ApiResult<{ blob: Blob; filename: string }>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "application/json");
+  const response = await fetch(
+    endpoint(
+      config,
+      `/neutral-materials/${encodeURIComponent(neutralMaterialId)}/download`,
+    ),
+    { ...init, headers },
+  );
+  if (!response.ok) {
+    return throwResponseError(response);
+  }
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: `neutral-material-${neutralMaterialId}.json`,
+    },
+    etag: response.headers.get("etag"),
+  };
 }
 
 export function createReferenceOgdenCandidateSelection(

@@ -43,9 +43,8 @@
 
 - 관리자가 정의하는 Table/Attribute/Layout/Subset과 Catalog Explorer
 - 임의 record 사이의 typed revision-pinned link와 Workflow Explorer
-- canonical Test/Neutral JSON import/export
-- 일반 Processing Recipe builder/library와 선택 Dataset batch 실행
-- 복수 금속 hardening, 점탄성 shift/term, 초탄성 model family workbench
+- canonical Neutral JSON에서 추가 금속·점탄성 family를 직접 승격하는 경로
+- Neutral JSON에서 모든 초탄성 family의 Abaqus/OpenRadioss 카드를 생성하는 확장 mapping
 - proprietary laboratory vendor format과 임의 channel schema
 - promoted IR을 다시 보정하는 iterative promotion
 - 실제 Abaqus/OpenRadioss solver 실행과 qualification
@@ -74,6 +73,8 @@
 ![Material 문맥별 작업 탭](../15-demo/images/t46-material-context-tabs.png)
 
 ![민감정보를 제외한 Governance API 관측성](../15-demo/images/t47-api-observability.png)
+
+![검토한 초탄성 family를 canonical Neutral Material JSON으로 승격](../15-demo/images/t56-neutral-material-json.png)
 
 문제가 생기면 먼저 브라우저의 Connection 상태, Material class, exact State/Property revision,
 CSV column/unit, mapping report의 `unsupported` 또는 `approximated` 항목을 확인하십시오.

@@ -1413,6 +1413,10 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   applicability, exact source/mapping/recipe revision과 IR promotion.
 - **완료 조건:** export/import 뒤 같은 IR과 mapping report를 재현한다.
 - **테스트:** schema/version/cross-scope negative, deterministic round-trip와 digest regression.
+- **상태:** `complete` for the bounded hyperelastic family path. Migration 071, protected
+  promote/validate/import/get/download API, connected human-selection UI, deterministic JSON
+  Artifact, fresh PostgreSQL migration and live browser evidence are implemented. Solver capability
+  consumption remains T-57.
 
 #### T-57. Abaqus/OpenRadioss capability and native export — `P0`
 

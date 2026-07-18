@@ -2534,6 +2534,21 @@ summary {
   background: color-mix(in srgb, var(--accent) 9%, var(--surface));
 }
 
+.promotion-confirmation {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.promotion-confirmation > small {
+  display: block;
+  color: var(--muted);
+}
+
+.promotion-confirmation > .button {
+  justify-self: start;
+}
+
 .residual-curve {
   fill: none;
   stroke-width: 1.8;
