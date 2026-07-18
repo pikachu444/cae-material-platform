@@ -30,10 +30,13 @@ class RoleBindingRepository(Protocol):
     ) -> tuple[RoleBinding, ...]: ...
 
 
-class ProductAccessAssignmentRepository(Protocol):
+class ProductAccessAssignmentReader(Protocol):
     def find_applicable(
         self, context: SecurityContext, observed_at: datetime
     ) -> tuple[ProductAccessAssignment, ...]: ...
+
+
+class ProductAccessAssignmentRepository(ProductAccessAssignmentReader, Protocol):
 
     def list_assignments(
         self,
@@ -546,7 +549,7 @@ class AuthorizationService:
         self,
         *,
         bindings: RoleBindingRepository,
-        product_assignments: ProductAccessAssignmentRepository | None = None,
+        product_assignments: ProductAccessAssignmentReader | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
         self._bindings = bindings
