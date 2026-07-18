@@ -20,6 +20,7 @@ from cmp.modules.modeling.adapters.persistence.repository import metadata
 from cmp.modules.modeling.application.ogden_calibration import (
     OGDEN_CALIBRATION_PLAN_AGGREGATE_TYPE,
     OgdenCalibrationNotFound,
+    OgdenCalibrationPlanSnapshot,
     OgdenCalibrationRepository,
     OgdenCalibrationRun,
     PersistedHyperelasticFamilyCandidate,
@@ -568,6 +569,52 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
             session_binder=lambda session: self._bind(session, context, decision),
         )
 
+    @staticmethod
+    def _current_plan_statement() -> sa.Select[Any]:
+        identity = ogden_calibration_plan_table
+        revision = ogden_calibration_plan_revision_table
+        return sa.select(revision).select_from(
+            identity.join(
+                revision,
+                sa.and_(
+                    revision.c.id == identity.c.current_revision_id,
+                    revision.c.aggregate_id == identity.c.id,
+                    revision.c.organization_id == identity.c.organization_id,
+                    revision.c.project_id == identity.c.project_id,
+                ),
+            )
+        )
+
+    @staticmethod
+    def _plan_snapshot(
+        session: Session, row: Any
+    ) -> OgdenCalibrationPlanSnapshot:
+        record = _record(row)
+        return OgdenCalibrationPlanSnapshot(
+            record.aggregate_id,
+            RevisionSnapshot(record, _plan_content(session, row)),
+        )
+
+    def get_plan(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+    ) -> OgdenCalibrationPlanSnapshot:
+        statement = self._current_plan_statement().where(
+            ogden_calibration_plan_table.c.id == plan_id,
+            ogden_calibration_plan_table.c.organization_id == context.organization_id,
+            ogden_calibration_plan_table.c.project_id == context.project_id,
+        )
+        with self._session(context, decision) as session:
+            row = session.execute(statement).mappings().one_or_none()
+            if row is None:
+                raise OgdenCalibrationNotFound(
+                    "Ogden calibration Plan is not visible in the selected tenant"
+                )
+            return self._plan_snapshot(session, row)
+
     def get_plan_revision(
         self,
         *,
@@ -590,6 +637,26 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
             if row is None:
                 raise OgdenCalibrationNotFound("Ogden calibration Plan revision is not visible")
             return RevisionSnapshot(_record(row), _plan_content(session, row))
+
+    def list_plans(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        limit: int,
+    ) -> tuple[OgdenCalibrationPlanSnapshot, ...]:
+        statement = (
+            self._current_plan_statement()
+            .where(
+                ogden_calibration_plan_table.c.organization_id == context.organization_id,
+                ogden_calibration_plan_table.c.project_id == context.project_id,
+            )
+            .order_by(ogden_calibration_plan_revision_table.c.created_at.desc())
+            .limit(limit)
+        )
+        with self._session(context, decision) as session:
+            rows = session.execute(statement).mappings().all()
+            return tuple(self._plan_snapshot(session, row) for row in rows)
 
     @staticmethod
     def _candidate_statement() -> sa.Select[Any]:

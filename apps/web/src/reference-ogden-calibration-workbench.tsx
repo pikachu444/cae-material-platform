@@ -11,12 +11,14 @@ import {
   getReferenceOgdenCalibrationRun,
   getReferenceOgdenCandidateDiagnostics,
   importNeutralMaterial,
+  listReferenceOgdenCalibrationPlans,
   listGovernedDatasetsForTestRun,
   listOgdenPronyModelRevisions,
   listScientificProfiles,
   listTestRunsForMaterialState,
   promoteReferenceOgdenCandidate,
   promoteHyperelasticCandidateToNeutralMaterial,
+  reviseReferenceOgdenCalibrationPlan,
 } from "./api";
 import type {
   GovernedDatasetResponse,
@@ -159,6 +161,7 @@ export function ReferenceOgdenCalibrationWorkbench({
 }) {
   const [profiles, setProfiles] = useState<ScientificProfileResponse[]>([]);
   const [choices, setChoices] = useState<DatasetChoice[]>([]);
+  const [plans, setPlans] = useState<OgdenCalibrationPlanResponse[]>([]);
   const [plan, setPlan] = useState<OgdenCalibrationPlanResponse | null>(null);
   const [run, setRun] = useState<OgdenCalibrationRunResponse | null>(null);
   const [runIdToLoad, setRunIdToLoad] = useState("");
@@ -208,12 +211,20 @@ export function ReferenceOgdenCalibrationWorkbench({
     setBusy("load");
     setError(null);
     try {
-      const [profileResult, runResult, revisionResult] = await Promise.all([
+      const [profileResult, runResult, revisionResult, planResult] = await Promise.all([
         listScientificProfiles(config, "elastomer_ogden_prony"),
         listTestRunsForMaterialState(config, state.material_state_id),
         listOgdenPronyModelRevisions(config, model.material_model_id),
+        listReferenceOgdenCalibrationPlans(config),
       ]);
       setHistory(revisionResult.data.items);
+      setPlans(
+        planResult.data.items.filter(
+          (item) =>
+            item.current_revision.content.material_state_id === state.material_state_id &&
+            item.current_revision.content.baseline_model_id === model.material_model_id,
+        ),
+      );
       const datasets = await Promise.all(
         runResult.data.items.map(async (testRun) => ({
           testRun,
@@ -255,32 +266,102 @@ export function ReferenceOgdenCalibrationWorkbench({
     [run],
   );
 
+  function usePlan(value: OgdenCalibrationPlanResponse): void {
+    const members = new Map(
+      value.current_revision.content.members.map((member) => [member.dataset_revision_id, member]),
+    );
+    setPlan(value);
+    setPlanLabel(value.current_revision.content.plan_label);
+    setChoices((current) =>
+      current.map((choice) => {
+        const member = members.get(choice.dataset.current_revision.id);
+        return member
+          ? {
+              ...choice,
+              included: true,
+              role: member.role,
+              mode: member.test_mode,
+              weight: String(member.weight),
+            }
+          : { ...choice, included: false };
+      }),
+    );
+    setRun(null);
+    setDiagnostics(null);
+    setFamilyDiagnostics(null);
+    setNeutralMaterial(null);
+    setSelectedFamilyCandidateId("");
+    setSelectedCandidateId("");
+    setSelection(null);
+  }
+
+  function startNewPlan(): void {
+    setPlan(null);
+    setPlanLabel("Governed multi-test Ogden reference fit");
+    setChoices((current) => current.map((choice) => ({ ...choice, included: true })));
+    setRun(null);
+    setDiagnostics(null);
+    setFamilyDiagnostics(null);
+    setNeutralMaterial(null);
+    setSelectedFamilyCandidateId("");
+    setSelectedCandidateId("");
+    setSelection(null);
+  }
+
   async function createPlan(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     const profile = profiles[0];
-    if (!profile || !selected.length) return;
+    if (!selected.length || (!plan && !profile)) return;
     setBusy("plan");
     setError(null);
     try {
-      const result = await createReferenceOgdenCalibrationPlan(config, {
-        classification: state.current_revision.classification,
-        plan_label: planLabel.trim(),
-        scientific_profile_id: profile.scientific_profile_id,
-        scientific_profile_revision_id: profile.current_revision.id,
-        material_state_id: state.material_state_id,
-        material_state_revision_id: state.current_revision.id,
-        baseline_model_id: model.material_model_id,
-        baseline_model_revision_id: model.current_revision.id,
-        members: selected.map((choice) => ({
-          role: choice.role,
-          test_mode: choice.mode,
-          dataset_id: choice.dataset.dataset_id,
-          dataset_revision_id: choice.dataset.current_revision.id,
-          weight: Number(choice.weight),
-        })),
-        change_reason: reason.trim(),
-      });
+      const members = selected.map((choice) => ({
+        role: choice.role,
+        test_mode: choice.mode,
+        dataset_id: choice.dataset.dataset_id,
+        dataset_revision_id: choice.dataset.current_revision.id,
+        weight: Number(choice.weight),
+      }));
+      const result = plan
+        ? await reviseReferenceOgdenCalibrationPlan(
+            config,
+            plan.ogden_calibration_plan_id,
+            {
+              expected_current_revision_id: plan.current_revision.id,
+              plan_label: plan.current_revision.content.plan_label,
+              scientific_profile_id: plan.current_revision.content.scientific_profile_id,
+              scientific_profile_revision_id:
+                plan.current_revision.content.scientific_profile_revision_id,
+              material_state_id: plan.current_revision.content.material_state_id,
+              material_state_revision_id:
+                plan.current_revision.content.material_state_revision_id,
+              baseline_model_id: plan.current_revision.content.baseline_model_id,
+              baseline_model_revision_id:
+                plan.current_revision.content.baseline_model_revision_id,
+              members,
+              change_reason: reason.trim(),
+            },
+          )
+        : await createReferenceOgdenCalibrationPlan(config, {
+            classification: state.current_revision.classification,
+            plan_label: planLabel.trim(),
+            scientific_profile_id: profile!.scientific_profile_id,
+            scientific_profile_revision_id: profile!.current_revision.id,
+            material_state_id: state.material_state_id,
+            material_state_revision_id: state.current_revision.id,
+            baseline_model_id: model.material_model_id,
+            baseline_model_revision_id: model.current_revision.id,
+            members,
+            change_reason: reason.trim(),
+          });
       setPlan(result.data);
+      setPlans((current) => [
+        result.data,
+        ...current.filter(
+          (item) =>
+            item.ogden_calibration_plan_id !== result.data.ogden_calibration_plan_id,
+        ),
+      ]);
       setRun(null);
       setDiagnostics(null);
       setFamilyDiagnostics(null);
@@ -571,8 +652,52 @@ export function ReferenceOgdenCalibrationWorkbench({
           Import normalized monotonic, planar, or biaxial tension data for this Material State first.
         </p>
       ) : (
+        <>
+        <section className="workflow-step" aria-label="Saved hyperelastic calibration Plans">
+          <div className="inline-action">
+            <div>
+              <strong>Saved Calibration Plan library</strong>
+              <p className="form-hint">
+                Reuse an exact immutable revision, or load its member settings and append a new revision.
+              </p>
+            </div>
+            <button className="text-button" type="button" disabled={busy !== null} onClick={startNewPlan}>
+              New Plan
+            </button>
+          </div>
+          {plans.length ? (
+            <div className="solver-card-list">
+              {plans.map((item) => (
+                <article className="solver-card-item" key={item.ogden_calibration_plan_id}>
+                  <div>
+                    <strong>{item.current_revision.content.plan_label}</strong>
+                    <small>
+                      r{item.current_revision.revision_no} · {item.current_revision.content.members.length} exact curves
+                    </small>
+                  </div>
+                  <button
+                    className="button secondary"
+                    type="button"
+                    disabled={busy !== null}
+                    onClick={() => usePlan(item)}
+                  >
+                    Use exact revision
+                  </button>
+                </article>
+              ))}
+            </div>
+          ) : <p className="muted">No saved Plan exists for this Material State and baseline model.</p>}
+        </section>
         <form className="form-stack" onSubmit={(event) => void createPlan(event)}>
-          <label>Plan label<input value={planLabel} onChange={(event) => setPlanLabel(event.target.value)} required /></label>
+          <label>
+            {plan ? "Plan label (stable identity)" : "Plan label"}
+            <input
+              value={planLabel}
+              disabled={plan !== null}
+              onChange={(event) => setPlanLabel(event.target.value)}
+              required
+            />
+          </label>
           <div className="ogden-input-table" role="table" aria-label="Ogden calibration Dataset members">
             {choices.map((choice, index) => (
               <div className="ogden-input-row" role="row" key={choice.dataset.current_revision.id}>
@@ -601,9 +726,14 @@ export function ReferenceOgdenCalibrationWorkbench({
           </div>
           <label>Plan change reason<input value={reason} onChange={(event) => setReason(event.target.value)} required /></label>
           <button className="button primary" type="submit" disabled={busy !== null || !selected.some((choice) => choice.role === "calibration")}>
-            {busy === "plan" ? "Pinning exact revisions…" : "Create immutable calibration Plan"}
+            {busy === "plan"
+              ? "Pinning exact revisions…"
+              : plan
+                ? "Save new Plan revision"
+                : "Create immutable calibration Plan"}
           </button>
         </form>
+        </>
       )}
 
       {plan ? (

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import cast
 from uuid import UUID, uuid4
@@ -24,6 +25,7 @@ from cmp.modules.modeling.application.ogden_calibration import (
     PersistedHyperelasticFamilyCandidate,
     PersistedOgdenCandidate,
     ReferenceOgdenCalibrationService,
+    ReviseReferenceOgdenCalibrationPlan,
 )
 from cmp.modules.modeling.application.service import RevisionSnapshot
 from cmp.modules.modeling.domain.hyperelastic_families import (
@@ -118,16 +120,21 @@ CONTENT = ReferenceOgdenCalibrationPlanContent(
     MODEL_REVISION,
     (MEMBER,),
 )
+REVISED_CONTENT = replace(CONTENT, members=(replace(MEMBER, weight=2.0),))
 
 
-def _record() -> RevisionRecord:
+def _record(
+    revision_id: UUID = PLAN_REVISION,
+    revision_no: int = 1,
+    based_on_revision_id: UUID | None = None,
+) -> RevisionRecord:
     return RevisionRecord(
-        PLAN_REVISION,
+        revision_id,
         OGDEN_CALIBRATION_PLAN_AGGREGATE_TYPE,
         PLAN,
         TenantScope(ORG, PROJECT, "internal"),
-        1,
-        None,
+        revision_no,
+        based_on_revision_id,
         REFERENCE_OGDEN_CALIBRATION_PLAN_SCHEMA_ID,
         "1.0.0",
         "a" * 64,
@@ -228,6 +235,41 @@ class _Service:
         assert command.content.members[0].test_mode is OgdenTestMode.UNIAXIAL_TENSION
         return self.plan
 
+    def get_plan(
+        self, context: SecurityContext, decision: AuthorizationDecision, plan_id: UUID
+    ) -> OgdenCalibrationPlanSnapshot:
+        assert context is CONTEXT and decision is READ and plan_id == PLAN
+        return self.plan
+
+    def list_plans(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        limit: int = 100,
+    ) -> tuple[OgdenCalibrationPlanSnapshot, ...]:
+        assert context is CONTEXT and decision is READ and limit == 100
+        return (self.plan,)
+
+    def revise_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+        command: ReviseReferenceOgdenCalibrationPlan,
+    ) -> OgdenCalibrationPlanSnapshot:
+        assert context is CONTEXT and decision is EXECUTE and plan_id == PLAN
+        assert command.expected_current_revision_id == PLAN_REVISION
+        assert command.content.members[0].weight == 2.0
+        self.plan = OgdenCalibrationPlanSnapshot(
+            PLAN,
+            RevisionSnapshot(
+                _record(IDS[18], 2, PLAN_REVISION),
+                command.content,
+            ),
+        )
+        return self.plan
+
     async def execute(
         self,
         context: SecurityContext,
@@ -235,8 +277,8 @@ class _Service:
         command: ExecuteReferenceOgdenCalibration,
     ) -> OgdenCalibrationRun:
         assert context is CONTEXT and decision is EXECUTE
-        assert command.plan_revision_id == PLAN_REVISION
-        return self.run
+        assert command.plan_revision_id == self.plan.current.record.revision_id
+        return replace(self.run, plan_revision_id=command.plan_revision_id)
 
     def get_run(
         self, context: SecurityContext, decision: AuthorizationDecision, run_id: UUID
@@ -323,11 +365,44 @@ async def _request() -> None:
         )
         assert created.status_code == 201
         assert created.json()["current_revision"]["content"]["non_production"] is True
+        listed = await client.get("/api/v1/ogden-calibration-plans")
+        assert listed.status_code == 200
+        assert listed.json()["items"][0]["ogden_calibration_plan_id"] == str(PLAN)
+        fetched = await client.get(f"/api/v1/ogden-calibration-plans/{PLAN}")
+        assert fetched.status_code == 200
+        assert fetched.headers["etag"].startswith('"revision:1:sha256:')
+        revised = await client.post(
+            f"/api/v1/ogden-calibration-plans/{PLAN}/revisions",
+            json={
+                "expected_current_revision_id": str(PLAN_REVISION),
+                "plan_label": REVISED_CONTENT.plan_label,
+                "scientific_profile_id": str(PROFILE),
+                "scientific_profile_revision_id": str(PROFILE_REVISION),
+                "material_state_id": str(STATE),
+                "material_state_revision_id": str(STATE_REVISION),
+                "baseline_model_id": str(MODEL),
+                "baseline_model_revision_id": str(MODEL_REVISION),
+                "members": [
+                    {
+                        "role": "calibration",
+                        "test_mode": "uniaxial_tension",
+                        "dataset_id": str(DATASET),
+                        "dataset_revision_id": str(DATASET_REVISION),
+                        "weight": 2.0,
+                    }
+                ],
+                "change_reason": "append revised exact member weight",
+            },
+        )
+        assert revised.status_code == 201
+        assert revised.json()["current_revision"]["revision_no"] == 2
+        assert revised.json()["current_revision"]["content"]["members"][0]["weight"] == 2.0
         executed = await client.post(
             f"/api/v1/ogden-calibration-plans/{PLAN}/runs",
-            json={"plan_revision_id": str(PLAN_REVISION), "change_reason": "execute"},
+            json={"plan_revision_id": str(IDS[18]), "change_reason": "execute"},
         )
         assert executed.status_code == 201
+        assert executed.json()["plan_revision_id"] == str(IDS[18])
         candidate = executed.json()["candidates"][0]
         assert candidate["mu_pa"] == 2.0e6
         assert candidate["uncertainty_status"] == "estimated_jacobian_covariance"

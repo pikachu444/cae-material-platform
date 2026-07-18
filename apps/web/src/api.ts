@@ -2244,6 +2244,49 @@ export function createReferenceOgdenCalibrationPlan(
   });
 }
 
+export function listReferenceOgdenCalibrationPlans(
+  config: ApiConfig,
+  limit = 100,
+): Promise<ApiResult<{ items: OgdenCalibrationPlanResponse[] }>> {
+  return request(config, `/ogden-calibration-plans?limit=${encodeURIComponent(String(limit))}`);
+}
+
+export function getReferenceOgdenCalibrationPlan(
+  config: ApiConfig,
+  planId: string,
+): Promise<ApiResult<OgdenCalibrationPlanResponse>> {
+  return request(config, `/ogden-calibration-plans/${encodeURIComponent(planId)}`);
+}
+
+export function reviseReferenceOgdenCalibrationPlan(
+  config: ApiConfig,
+  planId: string,
+  input: {
+    expected_current_revision_id: string;
+    plan_label: string;
+    scientific_profile_id: string;
+    scientific_profile_revision_id: string;
+    material_state_id: string;
+    material_state_revision_id: string;
+    baseline_model_id: string;
+    baseline_model_revision_id: string;
+    members: Array<{
+      role: OgdenCalibrationRole;
+      test_mode: OgdenTestMode;
+      dataset_id: string;
+      dataset_revision_id: string;
+      weight: number;
+    }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<OgdenCalibrationPlanResponse>> {
+  return request(
+    config,
+    `/ogden-calibration-plans/${encodeURIComponent(planId)}/revisions`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
 export function executeReferenceOgdenCalibration(
   config: ApiConfig,
   planId: string,

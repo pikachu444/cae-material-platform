@@ -1,4 +1,4 @@
-version: 27
+version: 28
 verified_at: 2026-07-19
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -289,6 +289,14 @@ captures:
     image: ../15-demo/images/t55e-hyperelastic-family-comparison.png
     width: 1250
     height: 704
+  - id: hyperelastic-calibration-plan-library
+    route: /materials/{demo-elastomer-material-id}/models
+    workflow: saved-exact-plan-reuse-and-append-only-plan-revision
+    fixture: T-72 clean Compose four-Dataset Ogden Plan r1 loaded into editable role/mode/weight settings
+    source_evidence: ../15-demo/evidence/t72-ogden-plan-library.md
+    image: ../15-demo/images/t72-ogden-plan-library.png
+    width: 1265
+    height: 712
   - id: neutral-material-json-promotion
     route: /materials/{demo-elastomer-material-id}/models
     workflow: reviewed-family-candidate-to-canonical-neutral-material-json

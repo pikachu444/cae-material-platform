@@ -69,6 +69,7 @@ afterEach(() => {
 describe("ReferenceOgdenCalibrationWorkbench", () => {
   it("fits governed curves, records a human decision, and appends an IR revision", async () => {
     let promoted = false;
+    const revisedPlanRevision = "f4300000-0000-4000-8000-000000000025";
     const promotedModel: OgdenPronyModelResponse = {
       ...model,
       current_revision: {
@@ -94,6 +95,9 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
     const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
       const url = String(input);
       if (url.includes("/scientific-profiles?")) return response({ items: [profile] });
+      if (url.includes("/ogden-calibration-plans?limit=") && !init?.method) {
+        return response({ items: [] });
+      }
       if (url.endsWith(`/ogden-prony-models/${ids[4]}/revisions`)) {
         return response({ material_model_id: ids[4], items: promoted ? [promotedModel.current_revision, model.current_revision] : [model.current_revision] });
       }
@@ -106,7 +110,17 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
       if (url.endsWith("/ogden-calibration-plans") && init?.method === "POST") {
         return response({ ogden_calibration_plan_id: ids[2], current_revision: { ...metadata, id: ids[3], aggregate_id: ids[2], content: { plan_label: "Governed multi-test Ogden reference fit", scientific_profile_id: ids[7], scientific_profile_revision_id: ids[8], material_state_id: ids[0], material_state_revision_id: ids[1], baseline_model_id: ids[4], baseline_model_revision_id: ids[5], members: [{ ordinal: 0, role: "calibration", test_mode: "planar_tension", dataset_id: ids[13], dataset_revision_id: ids[14], weight: 1 }], evaluator: "one_term_incompressible_ogden_nominal", objective: "normalized_weighted_least_squares", aggregation_order: "point_then_curve_then_mode", holdout_policy: "explicit_disjoint", maximum_function_evaluations: 5000, non_production: true } }, links: {} }, 201);
       }
+      if (url.endsWith(`/ogden-calibration-plans/${ids[2]}/revisions`) && init?.method === "POST") {
+        const body = JSON.parse(String(init.body));
+        expect(body).toMatchObject({
+          expected_current_revision_id: ids[3],
+          plan_label: "Governed multi-test Ogden reference fit",
+          members: [{ dataset_revision_id: ids[14], weight: 2 }],
+        });
+        return response({ ogden_calibration_plan_id: ids[2], current_revision: { ...metadata, id: revisedPlanRevision, aggregate_id: ids[2], revision_no: 2, based_on_revision_id: ids[3], content: { plan_label: "Governed multi-test Ogden reference fit", scientific_profile_id: ids[7], scientific_profile_revision_id: ids[8], material_state_id: ids[0], material_state_revision_id: ids[1], baseline_model_id: ids[4], baseline_model_revision_id: ids[5], members: [{ ordinal: 0, role: "calibration", test_mode: "planar_tension", dataset_id: ids[13], dataset_revision_id: ids[14], weight: 2 }], evaluator: "one_term_incompressible_ogden_nominal", objective: "normalized_weighted_least_squares", aggregation_order: "point_then_curve_then_mode", holdout_policy: "explicit_disjoint", maximum_function_evaluations: 5000, non_production: true } }, links: {} }, 201);
+      }
       if (url.includes("/ogden-calibration-plans/") && url.endsWith("/runs") && init?.method === "POST") {
+        expect(JSON.parse(String(init.body))).toMatchObject({ plan_revision_id: revisedPlanRevision });
         return response({ ogden_calibration_run_id: ids[6], status: "succeeded", plan_id: ids[2], plan_revision_id: ids[3], scientific_profile_id: ids[7], scientific_profile_revision_id: ids[8], material_state_id: ids[0], material_state_revision_id: ids[1], baseline_model_id: ids[4], baseline_model_revision_id: ids[5], environment_digest: `sha256:${"e".repeat(64)}`, calibration_curve_count: 1, holdout_curve_count: 0, test_mode_count: 1, attempt_count: 1, candidate_count: 1, candidates: [{ ogden_calibration_candidate_id: ids[15], attempt_ordinal: 0, status: "converged", candidate_sha256: `sha256:${"c".repeat(64)}`, initial_mu_pa: 1.2e6, initial_alpha: 2.4, mu_pa: 2e6, alpha: 2, objective_total: 1e-8, objective_by_mode: { uniaxial_tension: 0, planar_tension: 1e-8, biaxial_tension: 0 }, calibration_rmse_pa: 1200, calibration_normalized_rmse: 0.002, holdout_rmse_pa: null, holdout_normalized_rmse: null, convergence_status_code: 1, convergence_reason: "gtol satisfied", function_evaluations: 9, jacobian_evaluations: 9, optimality: 1e-10, parameter_at_bound: false, jacobian_rank: 2, jacobian_condition_number: 20, identifiability_status: "full_rank", uncertainty_status: "estimated_jacobian_covariance", mu_standard_error_pa: 200, alpha_standard_error: 0.01, mu_confidence_interval_pa: [1999608, 2000392], alpha_confidence_interval: [1.98, 2.02], warnings: ["insufficient_test_modes", "no_holdout_data"], diagnostics_artifact_id: ids[16], diagnostics_point_count: 2, links: {} }], family_candidate_count: 4, family_candidates: [{ hyperelastic_family_candidate_id: ids[20], family: "mooney_rivlin", parameters: [{ name: "c10_pa", value: 8e5, unit: "Pa" }, { name: "c01_pa", value: 3e5, unit: "Pa" }], objective_total: 2e-9, objective_by_mode: { uniaxial_tension: 0, planar_tension: 2e-9, biaxial_tension: 0 }, calibration_normalized_rmse: 0.001, holdout_normalized_rmse: null, function_evaluations: 12, convergence_reason: "gtol satisfied", stability_status: "monotonic_on_fitted_domain", warnings: ["no_holdout_data"], candidate_sha256: `sha256:${"f".repeat(64)}`, diagnostics_artifact_id: ids[21], diagnostics_point_count: 2, links: { diagnostics: `/api/v1/hyperelastic-family-candidates/${ids[20]}/diagnostics` } }], links: {} }, 201);
       }
       if (url.includes("/hyperelastic-family-candidates/")) {
@@ -148,6 +162,10 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
     expect(screen.getByText(/PLANAR-01/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create immutable calibration Plan" }));
     expect(await screen.findByText(/point → curve → mode aggregation/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Use exact revision" }));
+    fireEvent.change(screen.getByLabelText("Weight PLANAR-01"), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save new Plan revision" }));
+    expect(await screen.findByText(/Plan f4300000.*r2/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Execute Ogden Calibration Run" }));
     expect(await screen.findByText(/1 candidates · 1 modes/)).toBeTruthy();
     expect(screen.getByRole("table", { name: "Hyperelastic family candidate comparison" })).toBeTruthy();

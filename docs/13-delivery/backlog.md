@@ -1634,3 +1634,19 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **회귀:** React는 저장된 filter 변환과 exact revision navigation을 검증한다. protected verifier는
   clean reseed의 Subset identity/filter를 검사한다. processed IR이 추가된 DB의 reseed가 임의 model
   order에 의존하지 않도록 exact Dataset-derived model 선택 회귀도 포함한다.
+
+#### T-72. Reusable hyperelastic Calibration Plan library — `P0`
+
+- **상태 (`2026-07-19`):** `implemented and verified`; isolated PostgreSQL suite 76건,
+  full CI Python 774건과 frontend 62건이 모두 통과했다.
+- **범위:** 생성 후 화면에서 다시 찾을 수 없던 multi-test hyperelastic Calibration Plan을
+  Material State의 Modeling Workbench 안에서 목록·조회·재사용한다.
+- **완료 조건:** 사용자는 저장된 exact Plan revision을 그대로 재실행하거나, 고정된 Plan
+  identity를 불러와 Dataset 역할/mode/weight를 수정하고 compare-and-swap 방식으로 새 revision을
+  추가한다. label, Material State identity와 baseline model identity는 변경할 수 없다.
+- **DB/API/UI:** 기존 `modeling.ogden_calibration_plan*` typed identity/revision/member 테이블과
+  revision kernel을 재사용한다. list/get/revise API, strong ETag, `Saved Calibration Plan library`,
+  `Use exact revision`, `Save new Plan revision` 흐름을 연결한다. schema 변경이 없어 migration은
+  추가하지 않는다.
+- **회귀:** API contract, stale/stable identity revision 규칙, 실제 PostgreSQL r1→r2 append와
+  tenant visibility, React request translation, production build와 live Docker/browser 화면을 검증한다.

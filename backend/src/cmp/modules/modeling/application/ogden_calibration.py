@@ -54,6 +54,7 @@ from cmp.modules.processing.domain.reference_tensile_crop import ProcessingRunSt
 from cmp.modules.testing.application.service import TestingService
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
+    ReviseAggregate,
     RevisionService,
     RevisionStore,
 )
@@ -139,6 +140,13 @@ class CreateReferenceOgdenCalibrationPlan:
 
 
 @dataclass(frozen=True, slots=True)
+class ReviseReferenceOgdenCalibrationPlan:
+    expected_current_revision_id: UUID
+    content: ReferenceOgdenCalibrationPlanContent
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
 class ExecuteReferenceOgdenCalibration:
     plan_id: UUID
     plan_revision_id: UUID
@@ -150,6 +158,10 @@ class OgdenCalibrationRepository(Protocol):
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> RevisionStore[ReferenceOgdenCalibrationPlanContent]: ...
 
+    def get_plan(
+        self, *, context: SecurityContext, decision: AuthorizationDecision, plan_id: UUID
+    ) -> OgdenCalibrationPlanSnapshot: ...
+
     def get_plan_revision(
         self,
         *,
@@ -158,6 +170,10 @@ class OgdenCalibrationRepository(Protocol):
         plan_id: UUID,
         plan_revision_id: UUID,
     ) -> RevisionSnapshot[ReferenceOgdenCalibrationPlanContent]: ...
+
+    def list_plans(
+        self, *, context: SecurityContext, decision: AuthorizationDecision, limit: int
+    ) -> tuple[OgdenCalibrationPlanSnapshot, ...]: ...
 
     def save_run(
         self,
@@ -266,15 +282,12 @@ class ReferenceOgdenCalibrationService:
         self._id = id_factory
         self._clock = clock or (lambda: datetime.now(UTC))
 
-    def create_plan(
+    def _validated_plan_scope(
         self,
         context: SecurityContext,
         decision: AuthorizationDecision,
-        command: CreateReferenceOgdenCalibrationPlan,
-    ) -> OgdenCalibrationPlanSnapshot:
-        _require(context, decision, Permission.CALIBRATION_EXECUTE)
-        reason = _reason(command.change_reason)
-        content = command.content
+        content: ReferenceOgdenCalibrationPlanContent,
+    ) -> TenantScope:
         profile = self._profiles.get_revision_for_calibration(
             context,
             decision,
@@ -298,10 +311,25 @@ class ReferenceOgdenCalibrationService:
         if (
             profile.record.scope != state.record.scope
             or profile.record.scope != baseline.record.scope
-            or profile.record.scope.classification != command.classification.value
             or baseline.content.material_state_id != content.material_state_id
             or baseline.content.material_state_revision_id != content.material_state_revision_id
         ):
+            raise OgdenCalibrationConflict(
+                "profile, State, baseline IR, and Plan inputs must share exact scope"
+            )
+        return profile.record.scope
+
+    def create_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceOgdenCalibrationPlan,
+    ) -> OgdenCalibrationPlanSnapshot:
+        _require(context, decision, Permission.CALIBRATION_EXECUTE)
+        reason = _reason(command.change_reason)
+        content = command.content
+        scope = self._validated_plan_scope(context, decision, content)
+        if scope.classification != command.classification.value:
             raise OgdenCalibrationConflict(
                 "profile, State, baseline IR, and Plan classification must share exact scope"
             )
@@ -312,11 +340,7 @@ class ReferenceOgdenCalibrationService:
         ).create(
             CreateRevisionedAggregate(
                 aggregate_id=plan_id,
-                scope=TenantScope(
-                    context.organization_id,
-                    context.project_id,
-                    command.classification.value,
-                ),
+                scope=scope,
                 schema_id=REFERENCE_OGDEN_CALIBRATION_PLAN_SCHEMA_ID,
                 schema_version=REFERENCE_OGDEN_CALIBRATION_PLAN_SCHEMA_VERSION,
                 content=content,
@@ -327,6 +351,75 @@ class ReferenceOgdenCalibrationService:
             )
         )
         return OgdenCalibrationPlanSnapshot(plan_id, RevisionSnapshot(record, content))
+
+    def revise_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+        command: ReviseReferenceOgdenCalibrationPlan,
+    ) -> OgdenCalibrationPlanSnapshot:
+        _require(context, decision, Permission.CALIBRATION_EXECUTE)
+        current = self._repository.get_plan(
+            context=context, decision=decision, plan_id=plan_id
+        )
+        previous = current.current.content
+        content = command.content
+        if (
+            content.plan_label != previous.plan_label
+            or content.material_state_id != previous.material_state_id
+            or content.baseline_model_id != previous.baseline_model_id
+        ):
+            raise OgdenCalibrationConflict(
+                "Plan label, Material State, and baseline model are stable identity fields"
+            )
+        scope = self._validated_plan_scope(context, decision, content)
+        if scope != current.current.record.scope:
+            raise OgdenCalibrationConflict("revised Plan inputs cross the stable tenant scope")
+        record = RevisionService(
+            aggregate_type=OGDEN_CALIBRATION_PLAN_AGGREGATE_TYPE,
+            store=self._repository.plan_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=plan_id,
+                scope=current.current.record.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=REFERENCE_OGDEN_CALIBRATION_PLAN_SCHEMA_ID,
+                schema_version=REFERENCE_OGDEN_CALIBRATION_PLAN_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=_reason(command.change_reason),
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return OgdenCalibrationPlanSnapshot(plan_id, RevisionSnapshot(record, content))
+
+    def get_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+    ) -> OgdenCalibrationPlanSnapshot:
+        _require(context, decision, Permission.MODELING_READ)
+        return self._repository.get_plan(
+            context=context, decision=decision, plan_id=plan_id
+        )
+
+    def list_plans(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        limit: int = 100,
+    ) -> tuple[OgdenCalibrationPlanSnapshot, ...]:
+        _require(context, decision, Permission.MODELING_READ)
+        if not 1 <= limit <= 200:
+            raise ValueError("limit must be between 1 and 200")
+        return self._repository.list_plans(
+            context=context, decision=decision, limit=limit
+        )
 
     async def execute(
         self,
