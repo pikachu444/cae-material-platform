@@ -185,29 +185,37 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         polymer_cards = _items(
             _json(client.get(f"/neutral-materials/{polymer_neutral_id}/solver-cards"))
         )
-        polymer_card = next(
-            (
-                item
-                for item in polymer_cards
-                if item.get("target", {}).get("solver") == "abaqus"
-            ),
-            None,
-        )
-        if polymer_card is None:
-            raise RuntimeError("clean demo polymer Neutral JSON has no Abaqus card")
-        polymer_native = client.get(
-            f"/neutral-solver-cards/{polymer_card['solver_card_id']}/download"
-        )
-        polymer_native.raise_for_status()
-        if b"*VISCOELASTIC, TIME=PRONY" not in polymer_native.content:
-            raise RuntimeError("clean demo polymer native card omits Abaqus Prony data")
+        polymer_native_cards: dict[str, dict[str, str]] = {}
+        for solver, keyword in {
+            "abaqus": b"*VISCOELASTIC, TIME=PRONY",
+            "openradioss": b"/VISC/LPRONY/",
+        }.items():
+            polymer_card = next(
+                (
+                    item
+                    for item in polymer_cards
+                    if item.get("target", {}).get("solver") == solver
+                ),
+                None,
+            )
+            if polymer_card is None:
+                raise RuntimeError(f"clean demo polymer Neutral JSON has no {solver} card")
+            polymer_native = client.get(
+                f"/neutral-solver-cards/{polymer_card['solver_card_id']}/download"
+            )
+            polymer_native.raise_for_status()
+            if keyword not in polymer_native.content:
+                raise RuntimeError(f"clean demo polymer native card omits {solver} Prony data")
+            polymer_native_cards[solver] = {
+                "solver_card_id": str(polymer_card["solver_card_id"]),
+                "sha256": hashlib.sha256(polymer_native.content).hexdigest(),
+            }
         result["polymer_processing_journey"] = {
             "processing_output_id": polymer_output["processing_output_id"],
             "material_model_id": processed_model["material_model_id"],
             "selected_term_count": len(terms),
             "neutral_material_id": polymer_neutral_id,
-            "solver_card_id": polymer_card["solver_card_id"],
-            "solver_card_sha256": hashlib.sha256(polymer_native.content).hexdigest(),
+            "solver_cards": polymer_native_cards,
         }
 
         metal = next(

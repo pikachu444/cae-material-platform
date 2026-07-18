@@ -396,6 +396,61 @@ def test_polymer_neutral_material_round_trip_preserves_generalized_maxwell_terms
     assert not blocked.exportable
     assert blocked.items[0].status == "unsupported"
 
+    openradioss = NeutralHyperelasticExportTarget("openradioss", "2025", "kg_m_s")
+    linear_ir = cast(NeutralLinearViscoelasticIR, polymer.material_model_ir)
+    nearly_incompressible = replace(
+        polymer,
+        material_model_ir=replace(linear_ir, poisson_ratio=0.495),
+    )
+    lprony_report = preflight_neutral_solver_export(
+        neutral_material_id=nearly_incompressible.document_id,
+        neutral_material_revision_id=nearly_incompressible.material_model_ir.model.revision_id,
+        source=nearly_incompressible,
+        target=openradioss,
+    )
+
+    assert lprony_report.exportable
+    assert lprony_report.documentation_url.endswith("visc_lprony_starter_r.htm")
+    assert {item.name: item.status for item in lprony_report.items}[
+        "solid_property_total_strain"
+    ] == "approximated"
+    _, lprony_card = build_neutral_solver_card(
+        neutral_material_id=nearly_incompressible.document_id,
+        neutral_material_revision_id=nearly_incompressible.material_model_ir.model.revision_id,
+        source=nearly_incompressible,
+        target=openradioss,
+        expected_mapping_report_sha256=lprony_report.digest,
+        solver_material_id=302,
+        material_name="POLYMER_REFERENCE",
+    )
+    assert "/MAT/LAW1/302/1" in lprony_card.card_text
+    assert "/VISC/LPRONY/302/1" in lprony_card.card_text
+    assert "         2         2         2" in lprony_card.card_text
+    assert "2.000000000000e-01 5.000000000000e-01" in lprony_card.card_text
+    assert lprony_card.mapping_statuses == tuple(
+        (item.name, item.status) for item in lprony_report.items
+    )
+
+    characterized_bulk = replace(
+        nearly_incompressible,
+        material_model_ir=replace(
+            cast(NeutralLinearViscoelasticIR, nearly_incompressible.material_model_ir),
+            bulk_relaxation_status="characterized",
+            terms=(
+                NeutralPronyTerm(1, 0.2, 0.05, 0.5),
+                NeutralPronyTerm(2, 0.3, 0.0, 12.0),
+            ),
+        ),
+    )
+    bulk_blocked = preflight_neutral_solver_export(
+        neutral_material_id=characterized_bulk.document_id,
+        neutral_material_revision_id=characterized_bulk.material_model_ir.model.revision_id,
+        source=characterized_bulk,
+        target=openradioss,
+    )
+    assert not bulk_blocked.exportable
+    assert "shear-only" in bulk_blocked.items[0].detail
+
 
 def test_processed_polymer_neutral_round_trip_exports_ten_term_abaqus_card() -> None:
     source = _document()
@@ -706,4 +761,9 @@ def test_neutral_hyperelastic_capability_manifest_is_digest_pinned() -> None:
 
     assert len(capabilities) == 8
     assert len(str(manifest["manifest_sha256"])) == 64
-    assert len(str(neutral_solver_capability_manifest()["manifest_sha256"])) == 64
+    neutral_manifest = neutral_solver_capability_manifest()
+    assert len(str(neutral_manifest["manifest_sha256"])) == 64
+    assert cast(dict[str, object], neutral_manifest["families"])["generalized_maxwell"] == {
+        "abaqus": "exact",
+        "openradioss": "conditional_nearly_incompressible_shear_only",
+    }

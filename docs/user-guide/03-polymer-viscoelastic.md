@@ -31,9 +31,14 @@
 6. **Saved Material Model IR**에서 exact Output revision, selected 항수, RMSE와 G₀ mismatch를
    다시 확인합니다.
 7. **Create Neutral JSON and solver mapping**을 누른 뒤 Abaqus 2025 preflight를 실행하고
-   `*VISCOELASTIC, TIME=PRONY` preview와 `.inp`를 내려받습니다.
+   `*VISCOELASTIC, TIME=PRONY` preview와 `.inp`를 내려받습니다. `0.49 <= nu < 0.5`이며 bulk
+   relaxation이 미특성화되고 모든 `k_ratio=0`이면 OpenRadioss 2025도 선택할 수 있습니다.
+   이 경우 `/PROP I_smstr=10/12` 요구와 shear-only 근사를 확인한 뒤 `/VISC/LPRONY` `.rad`를
+   내려받습니다.
 
 ![검토할 exact Processing Output과 사례별 G0 한계](../15-demo/images/t67-polymer-processing-promotion.png)
+
+![조건부 OpenRadioss LPRONY mapping 확인과 native preview](../15-demo/images/t68-openradioss-lprony.png)
 
 ![승격된 3항 IR의 선택 근거와 완화 응답](../15-demo/images/t67-polymer-processing-evidence.png)
 
@@ -144,5 +149,7 @@ relaxation_time)` 항, reference temperature와 유효 time domain을 보존합�
 JSON r1**으로 받으며, validate/import 시 어느 digest나 수치가 달라져도 거부됩니다. 현재
 Neutral JSON 생성 뒤 같은 화면의 **T-64 · family-neutral solver mapping**에서 Abaqus 2025를
 선택하면 ordered Prony term을 `*VISCOELASTIC, TIME=PRONY` ASCII로 preview·download할 수 있습니다.
-linear-Prony OpenRadioss mapping은 계속 `unsupported`이며 preflight에서 차단됩니다. LAW62를 만들기
-위해 hyperelastic base나 bulk relaxation 값을 임의로 보충하지 않습니다.
+ADR-0032 조건을 만족하는 nearly-incompressible shear-only 자료는 OpenRadioss 2025
+`/MAT/LAW1` + `/VISC/LPRONY` fragment로도 내보낼 수 있습니다. `/PROP I_smstr=10/12`는 외부 모델
+요구사항이며 CMP가 만들거나 수정하지 않습니다. 조건을 벗어나면 `unsupported`이고, LAW62를
+만들기 위해 hyperelastic base나 bulk relaxation 값을 임의로 보충하지 않습니다.

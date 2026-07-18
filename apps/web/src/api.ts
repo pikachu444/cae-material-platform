@@ -2312,6 +2312,16 @@ export function promoteModelToNeutralMaterial(
   });
 }
 
+export function getNeutralMaterial(
+  config: ApiConfig,
+  neutralMaterialId: string,
+): Promise<ApiResult<NeutralMaterialResponse>> {
+  return request(
+    config,
+    `/neutral-materials/${encodeURIComponent(neutralMaterialId)}`,
+  );
+}
+
 export function importNeutralMaterial(
   config: ApiConfig,
   input: { document: Record<string, unknown>; change_reason: string },

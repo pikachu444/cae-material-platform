@@ -3028,6 +3028,9 @@ export interface NeutralMaterialResponse {
     document_id: string;
     content_sha256: string;
     sources: {
+      material?: { id: string; revision_id: string };
+      material_state?: { id: string; revision_id: string };
+      property_set?: { id: string; revision_id: string };
       datasets: Array<{
         dataset: { id: string; revision_id: string };
         role: OgdenCalibrationRole | "processing_input";

@@ -3,6 +3,8 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   type ApiConfig,
   createLinearViscoelasticModel,
+  getNeutralMaterial,
+  listBulkExportCandidates,
   listCommonProcessingOutputs,
   listLinearViscoelasticModels,
   previewLinearViscoelasticResponse,
@@ -107,6 +109,46 @@ export function ReferenceLinearViscoelasticWorkbench({
       .then((result) => setResponse(result.data))
       .catch((cause: unknown) => setError(message(cause)));
   }, [config.baseUrl, config.accessToken, selected?.material_model_id]);
+
+  useEffect(() => {
+    let active = true;
+    setNeutralMaterial(null);
+    const evidence = selected?.current_revision.content.processing_promotion_evidence;
+    if (!selected || !evidence) return () => { active = false; };
+    void listBulkExportCandidates(config, state.material_id)
+      .then(async (candidates) => {
+        const ids = candidates.data.items
+          .filter((candidate) => candidate.source.kind === "neutral_material_json")
+          .map((candidate) => candidate.source.neutral_material_id)
+          .filter((id): id is string => typeof id === "string");
+        const snapshots = await Promise.all(
+          [...new Set(ids)].map((id) => getNeutralMaterial(config, id)),
+        );
+        const exact = snapshots.find(({ data }) => {
+          const source = data.document.sources;
+          const selection = data.document.candidate_selection;
+          return source.material_state?.id === selected.material_state_id
+            && source.material_state.revision_id
+              === selected.current_revision.content.material_state_revision_id
+            && source.property_set?.revision_id
+              === selected.current_revision.content.property_set_revision_id
+            && selection.kind === "prony_processing_output_selection"
+            && selection.processing_output?.id === evidence.processing_output.id
+            && selection.processing_output.revision_id === evidence.processing_output.revision_id;
+        });
+        if (active) setNeutralMaterial(exact?.data ?? null);
+      })
+      // Discovery is a convenience for returning users. Promotion remains available when the
+      // caller cannot read export candidates under its feature grants.
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [
+    config.baseUrl,
+    config.accessToken,
+    selected?.material_model_id,
+    selected?.current_revision.id,
+    state.material_id,
+  ]);
 
   function updateTerm(index: number, key: keyof EditableTerm, value: string): void {
     setTerms((current) =>
@@ -376,9 +418,15 @@ export function ReferenceLinearViscoelasticWorkbench({
                   </strong>
                 </span>
               </div>
-              <button className="button primary" type="button" disabled={busy} onClick={() => void promoteNeutral()}>
-                Create Neutral JSON and solver mapping
-              </button>
+              {neutralMaterial ? (
+                <p className="success-notice">
+                  Loaded exact Neutral Material JSON r{neutralMaterial.revision_no} for this IR.
+                </p>
+              ) : (
+                <button className="button primary" type="button" disabled={busy} onClick={() => void promoteNeutral()}>
+                  Create Neutral JSON and solver mapping
+                </button>
+              )}
             </div>
           ) : (
             <ReferenceLinearViscoelasticExport config={config} model={selected} />
