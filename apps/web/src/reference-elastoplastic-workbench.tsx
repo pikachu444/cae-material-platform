@@ -29,7 +29,7 @@ import type {
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
-    return error.code ? `${error.message} (${error.code})` : error.message;
+    return error.message;
   }
   return "The elastoplastic workflow could not be completed. Check the protected API connection.";
 }

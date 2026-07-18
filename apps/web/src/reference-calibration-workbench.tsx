@@ -23,7 +23,7 @@ import type {
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
-    return error.code ? `${error.message} (${error.code})` : error.message;
+    return error.message;
   }
   return "The reference calibration workbench could not reach the protected API. Try again.";
 }

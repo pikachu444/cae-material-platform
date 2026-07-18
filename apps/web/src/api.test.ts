@@ -49,6 +49,32 @@ describe("Catalog API client", () => {
     }
   });
 
+  it("preserves the problem code and trace ID in every user-visible API error", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      jsonResponse(
+        {
+          detail: "The selected revision is no longer current; reload and retry.",
+          code: "CMP-REVISION-409",
+          trace_id: "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
+        },
+        409,
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      listMaterials({ baseUrl: "/api/v1", accessToken: "short-lived-token" }, "DP780"),
+    ).rejects.toMatchObject({
+      status: 409,
+      code: "CMP-REVISION-409",
+      traceId: "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
+      supportReference:
+        "CMP-REVISION-409 · 00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
+      message:
+        "The selected revision is no longer current; reload and retry. Support reference: CMP-REVISION-409 · 00-0123456789abcdef0123456789abcdef-0123456789abcdef-01.",
+    });
+  });
+
   it("requests a local demo token without attaching a bearer credential", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({
       access_token: "local-demo-token",

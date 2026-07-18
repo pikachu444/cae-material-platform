@@ -840,17 +840,23 @@ interface ProblemDocument {
   detail?: string;
   title?: string;
   code?: string;
+  trace_id?: string;
 }
 
 export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;
+  readonly traceId?: string;
+  readonly supportReference?: string;
 
-  constructor(status: number, message: string, code?: string) {
-    super(message);
+  constructor(status: number, message: string, code?: string, traceId?: string) {
+    const supportReference = [code, traceId].filter(Boolean).join(" · ") || undefined;
+    super(supportReference ? `${message} Support reference: ${supportReference}.` : message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
+    this.traceId = traceId;
+    this.supportReference = supportReference;
   }
 }
 
@@ -924,6 +930,7 @@ async function throwResponseError(response: Response): Promise<never> {
     response.status,
     problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`,
     problem.code,
+    problem.trace_id,
   );
 }
 
@@ -939,7 +946,12 @@ async function request<T>(
 
   if (!response.ok) {
     const problem = (body ?? {}) as ProblemDocument;
-    throw new ApiError(response.status, problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`, problem.code);
+    throw new ApiError(
+      response.status,
+      problem.detail ?? problem.title ?? `Catalog request failed (${response.status}).`,
+      problem.code,
+      problem.trace_id,
+    );
   }
 
   return { data: body as T, etag: response.headers.get("etag") };

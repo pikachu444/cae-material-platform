@@ -195,7 +195,7 @@ function useLocationPath(): [string, Navigate] {
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    return error.code ? `${error.message} (${error.code})` : error.message;
+    return error.message;
   }
   return "The catalog request could not be completed. Check the API connection and try again.";
 }

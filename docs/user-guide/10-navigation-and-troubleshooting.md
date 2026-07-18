@@ -42,6 +42,13 @@ route-template별 p95 상한을 보여줍니다. URL, query, request body, 시�
 
 ## 자주 생기는 문제
 
+### 오류에 `Support reference`가 표시됨
+
+입력 수정 방법을 설명하는 오류 본문과 함께 `CMP-...` problem code와 trace ID가 표시됩니다.
+본문에 따라 revision을 다시 선택하거나 입력을 수정한 뒤 재시도하십시오. 문제가 반복되면 token,
+시험 원본 또는 회사 데이터를 복사하지 말고 **Support reference 전체 문자열만** 운영 담당자에게
+전달하십시오. 이 값으로 API/worker trace를 찾을 수 있습니다.
+
 ### `Connection required` 또는 token 만료
 
 오른쪽 위 **Connection/Connected token**을 열고 Docker demo에서는 **Use local demo identity**,

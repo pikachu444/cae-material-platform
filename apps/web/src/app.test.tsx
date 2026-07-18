@@ -2,10 +2,10 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./app";
 
-function jsonResponse(body: unknown): Response {
+function jsonResponse(body: unknown, status = 200): Response {
   return {
-    ok: true,
-    status: 200,
+    ok: status >= 200 && status < 300,
+    status,
     headers: new Headers({ "content-type": "application/json" }),
     json: async () => body,
   } as Response;
@@ -89,6 +89,36 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByRole("button", { name: "Open metal journey" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open polymer journey" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open elastomer journey" })).toBeTruthy();
+  });
+
+  it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {
+    window.localStorage.setItem(
+      "cmp.material-platform.api-config",
+      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token-must-not-render" }),
+    );
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>().mockResolvedValue(
+        jsonResponse(
+          {
+            detail: "Reload the Material and select its current revision before retrying.",
+            code: "CMP-REVISION-409",
+            trace_id: "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
+          },
+          409,
+        ),
+      ),
+    );
+
+    render(<App />);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("Reload the Material");
+    expect(alert.textContent).toContain("CMP-REVISION-409");
+    expect(alert.textContent).toContain(
+      "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
+    );
+    expect(alert.textContent).not.toContain("catalog-token-must-not-render");
   });
 
   it("can request an explicitly enabled local demo token without treating it as a normal fallback", async () => {

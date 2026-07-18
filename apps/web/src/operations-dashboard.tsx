@@ -4,7 +4,7 @@ import type { OperationalSnapshotResponse } from "./types";
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    return error.code ? `${error.message} (${error.code})` : error.message;
+    return error.message;
   }
   return "The redacted operations snapshot could not be loaded.";
 }

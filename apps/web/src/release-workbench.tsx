@@ -77,7 +77,7 @@ const emptyInput: ReleaseCreateInput = {
 };
 
 function errorMessage(error: unknown): string {
-  if (error instanceof ApiError) return error.code ? `${error.message} (${error.code})` : error.message;
+  if (error instanceof ApiError) return error.message;
   return error instanceof Error ? error.message : "Release request failed.";
 }
 

@@ -13,17 +13,17 @@ Workbench defined by ADR-0028 through ADR-0030.
 | --- | --- | --- |
 | Administrator-defined Table/Attribute/Layout/Subset | T-49 definitions and T-50 datasheet consumption implemented | T-51 Explorer |
 | Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | T-51 links/tree |
-| Catalog and Material Workflow Explorers | T-51 implemented: lazy Table/Folder/Record tree and bounded exact-revision graph | T-52 Test JSON |
+| Catalog and Material Workflow Explorers | Catalog tree is implemented; T-51 workflow graph is limited to configurable Records and has no typed binding to actual Material/State/Test/IR/Card revisions | T-62 domain-backed workflow |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | T-55M/T-55P/T-55E calculation workbenches implemented: metal hardening, polymer generalized-Maxwell/master-curve processing, and elastomer multi-mode Neo-Hookean/Mooney-Rivlin/Yeoh/Ogden comparison with immutable residual evidence. Reviewed hyperelastic families flow through Neutral JSON to explicit native cards. | T-58 package |
-| Neutral Material exchange JSON | T-56/T-57 implemented for reviewed hyperelastic family Candidates: deterministic validate/import/export, exact evidence pins, curve stages, typed solver-neutral IR and exact-revision solver consumption | T-58 package |
+| Metal/Polymer/Elastomer modeling | Calculation workbenches exist, but only reviewed hyperelastic families flow through canonical Neutral JSON; metal uses a separate tabulated IR and polymer demo card uses a manual baseline | T-63 three-family Neutral promotion |
+| Neutral Material exchange JSON | T-56/T-57 is implemented only for reviewed hyperelastic family Candidates; metal, selected generalized-Maxwell and optional Prony overlay are missing | T-63 three-family Neutral promotion |
 | Abaqus/OpenRadioss native cards | T-57 complete for four declared hyperelastic families plus earlier bounded linear/elastoplastic/viscoelastic mappings | T-58 package |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | T-59 grants |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | T-60 demo |
-| Clean guided product demo | T-60 implemented: one Compose seed prepares metal/polymer/elastomer reference journeys, Dashboard entry points, protected API verification and unified walkthrough | product pilot |
+| Clean guided product demo | T-60 seeds three bounded journeys and provides entry points, but verifier/E2E does not execute the planned tree→import→recipe/batch→fit→Neutral→card→bulk journey | T-65 full clean-demo journey |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
 DB/API/UI/Test status matrix. Existing completed entries below remain valid evidence for their stated
@@ -31,8 +31,10 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- Product-pilot validation with organization-specific data policy, domain sign-off and real solver
-  execution remains a separate deployment decision.
+- `T-61~T-65`: close the gaps recorded in
+  [the v3 completion audit](docs/13-delivery/v3-completion-audit.md). Actual solver execution remains
+  excluded, but domain-backed workflow navigation, three-family Neutral exchange and full download
+  E2E are not complete yet.
 
 ## Completed
 

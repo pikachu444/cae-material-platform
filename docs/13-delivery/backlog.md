@@ -1469,3 +1469,45 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   엘라스토머의 Abaqus/OpenRadioss, 폴리머 Abaqus card를 `make demo-verify`로 재조회했다.
   Dashboard 세 family entry, deterministic fixture stamp, 통합 사용자 walkthrough와 desktop
   screenshot manifest를 연결했다. 실제 solver 실행·qualification은 범위에서 제외한다.
+- **완료 감사 (`2026-07-18`):** 위 증거는 세 시작점과 기존 model/card 존재를 증명하지만,
+  이 Task의 전체 완료 조건인 실제 domain Workflow link, UI import/recipe/batch/fitting,
+  세 family Neutral JSON, native/ZIP download를 증명하지 않는다. 따라서 제품 전체 기준 상태를
+  `partial`로 정정하고 T-61~T-65에서 남은 계약을 완료한다.
+
+#### T-61. V3 completion audit and actionable web errors — `P0`
+
+- **범위:** 요구사항별 증거 감사, capability/status 정정, web API 오류의 problem code와 trace ID 보존.
+- **완료 조건:** bounded 구현과 전체 제품 완료 주장을 구분하고 모든 API 오류 화면에서 support
+  reference를 복사할 수 있다.
+- **테스트:** capability audit 문서 gate, common API client problem regression, 대표 UI error.
+
+#### T-62. Domain-backed Material Workflow Explorer — `P0`
+
+- **범위:** configurable Record revision을 Material/State/Test/Specimen/Dataset/Processing Output/
+  Material Model/Neutral/Card/Release exact revision에 typed binding하고 기존 Record Link graph와 결합한다.
+- **완료 조건:** 실제 Material identity에서 시작해 각 workbench exact revision으로 이동하며
+  reverse navigation과 tenant/classification/immutability를 강제한다.
+- **테스트:** endpoint별 composite FK, cross-scope/stale/latest negative, PostgreSQL graph와 Playwright.
+
+#### T-63. Three-family canonical Neutral Material promotion — `P0`
+
+- **범위:** metal selected hardening, polymer selected generalized-Maxwell, hyperelastic optional
+  Prony overlay를 closed typed union으로 추가하고 exact Processing/Recipe/Profile/Candidate evidence를 보존한다.
+- **완료 조건:** 세 family document가 import/export round-trip 후 같은 IR과 mapping preflight를 재현한다.
+- **테스트:** family parameter/curve/domain schema, exact source FK, digest tamper, numeric round-trip, UI.
+
+#### T-64. Neutral exporter and Bulk parity — `P0`
+
+- **범위:** 세 family Neutral revision에서 지원 target card/report를 생성하고 T-58 source discovery와 연결한다.
+- **완료 조건:** 기존 bounded exporter 결과와 semantic equivalence를 유지하며 unsupported/approximation을
+  명시하고 canonical bundle에 exact document/report/native card를 포함한다.
+- **테스트:** Abaqus/OpenRadioss golden/semantic, stale preflight, bundle manifest/checksum.
+
+#### T-65. Full clean-demo product journey — `P0`
+
+- **범위:** actual Catalog binding, Test JSON, Mapping Profile, Recipe/Batch, selected Neutral,
+  preflight/card와 Bulk ZIP을 clean Compose seed와 task-oriented UI journey에 연결한다.
+- **완료 조건:** 세 family의 지원 범위에서 사용자가 실제 입력부터 결과 다운로드까지 수행하고
+  Playwright가 native ASCII와 ZIP checksum을 검증한다.
+- **테스트:** clean PostgreSQL seed/reseed, protected verifier, full Playwright downloads,
+  screenshot manifest와 `make ci`.
