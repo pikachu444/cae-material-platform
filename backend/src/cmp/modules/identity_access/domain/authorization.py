@@ -99,6 +99,23 @@ class Permission(StrEnum):
     AUDIT_READ = "audit.read"
 
 
+class ProductRole(StrEnum):
+    """Small product-facing role vocabulary exposed to normal administrators."""
+
+    ADMINISTRATOR = "administrator"
+    USER = "user"
+
+
+class FeatureGrant(StrEnum):
+    """Product capabilities that can be assigned without exposing internal RBAC roles."""
+
+    SCHEMA_CONFIGURATION = "schema_configuration"
+    CATALOG_EDIT = "catalog_edit"
+    PROCESSING_CALIBRATION = "processing_calibration"
+    MODEL_APPROVAL = "model_approval"
+    SOLVER_CARD_EXPORT = "solver_card_export"
+
+
 def _aware(name: str, value: datetime) -> None:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError(f"{name} must be timezone-aware")
@@ -186,6 +203,70 @@ class RoleBinding:
             and self.valid_from <= observed_at
             and (self.expires_at is None or observed_at < self.expires_at)
         )
+
+
+@dataclass(frozen=True, slots=True)
+class ProductAccessAssignment:
+    """Append-only Administrator/User assignment with explicit typed feature grants."""
+
+    id: UUID
+    organization_id: UUID
+    project_id: UUID | None
+    subject: BindingSubject
+    product_role: ProductRole
+    feature_grants: tuple[FeatureGrant, ...]
+    max_classification: DataClassification
+    allow_export_controlled: bool
+    valid_from: datetime
+    expires_at: datetime | None = None
+    revoked_at: datetime | None = None
+
+    def __post_init__(self) -> None:
+        if self.id.int == 0 or self.organization_id.int == 0:
+            raise ValueError("assignment and organization UUIDs must be non-zero")
+        if self.project_id is not None and self.project_id.int == 0:
+            raise ValueError("project UUID must be non-zero when present")
+        if tuple(sorted(set(self.feature_grants), key=str)) != self.feature_grants:
+            raise ValueError("feature grants must be sorted and unique")
+        if self.product_role is ProductRole.ADMINISTRATOR and set(self.feature_grants) != set(
+            FeatureGrant
+        ):
+            raise ValueError("Administrator assignments must contain every product feature grant")
+        if self.max_classification is DataClassification.EXPORT_CONTROLLED:
+            raise ValueError("use allow_export_controlled for the export compartment")
+        _aware("valid_from", self.valid_from)
+        if self.expires_at is not None:
+            _aware("expires_at", self.expires_at)
+            if self.expires_at <= self.valid_from:
+                raise ValueError("expires_at must follow valid_from")
+        if self.revoked_at is not None:
+            _aware("revoked_at", self.revoked_at)
+            if self.revoked_at < self.valid_from:
+                raise ValueError("revoked_at cannot precede valid_from")
+
+    def applies_to(self, context: SecurityContext, observed_at: datetime) -> bool:
+        _aware("observed_at", observed_at)
+        return (
+            self.organization_id == context.organization_id
+            and (self.project_id is None or self.project_id == context.project_id)
+            and self.subject.matches(context)
+            and self.revoked_at is None
+            and self.valid_from <= observed_at
+            and (self.expires_at is None or observed_at < self.expires_at)
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class ProductAccessSummary:
+    """Effective product vocabulary returned to the signed-in user."""
+
+    product_role: ProductRole
+    feature_grants: tuple[FeatureGrant, ...]
+    legacy_compatible: bool
+
+    def __post_init__(self) -> None:
+        if tuple(sorted(set(self.feature_grants), key=str)) != self.feature_grants:
+            raise ValueError("effective feature grants must be sorted and unique")
 
 
 def classification_allows(

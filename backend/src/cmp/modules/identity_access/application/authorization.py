@@ -13,7 +13,11 @@ from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDenied,
     BindingSubject,
     DataClassification,
+    FeatureGrant,
     Permission,
+    ProductAccessAssignment,
+    ProductAccessSummary,
+    ProductRole,
     Role,
     RoleBinding,
 )
@@ -24,6 +28,12 @@ class RoleBindingRepository(Protocol):
     def find_applicable(
         self, context: SecurityContext, observed_at: datetime
     ) -> tuple[RoleBinding, ...]: ...
+
+
+class ProductAccessAssignmentRepository(Protocol):
+    def find_applicable(
+        self, context: SecurityContext, observed_at: datetime
+    ) -> tuple[ProductAccessAssignment, ...]: ...
 
 
 class RoleBindingAdministrationRepository(Protocol):
@@ -187,6 +197,110 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
     ),
     Role.AUDITOR: frozenset({Permission.AUDIT_READ, Permission.PROVENANCE_READ}),
 }
+
+_PRODUCT_BASE_PERMISSIONS = frozenset(
+    {
+        Permission.CATALOG_READ,
+        Permission.TESTING_READ,
+        Permission.ARTIFACT_READ,
+        Permission.DATASET_READ,
+        Permission.PROCESSING_READ,
+        Permission.STATISTICS_READ,
+        Permission.MODELING_READ,
+        Permission.EXPORT_READ,
+        Permission.VALIDATION_READ,
+        Permission.REVIEW_READ,
+        Permission.RELEASE_READ,
+        Permission.PROVENANCE_READ,
+        Permission.JOB_READ,
+    }
+)
+
+PRODUCT_FEATURE_PERMISSIONS: Mapping[FeatureGrant, frozenset[Permission]] = {
+    FeatureGrant.SCHEMA_CONFIGURATION: frozenset(
+        {Permission.CATALOG_READ, Permission.CATALOG_WRITE}
+    ),
+    FeatureGrant.CATALOG_EDIT: frozenset(
+        {
+            Permission.CATALOG_READ,
+            Permission.CATALOG_WRITE,
+            Permission.TESTING_WRITE,
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_WRITE,
+        }
+    ),
+    FeatureGrant.PROCESSING_CALIBRATION: frozenset(
+        {
+            Permission.ARTIFACT_WRITE,
+            Permission.DATASET_WRITE,
+            Permission.PROCESSING_EXECUTE,
+            Permission.STATISTICS_EXECUTE,
+            Permission.MODELING_WRITE,
+            Permission.CALIBRATION_EXECUTE,
+            Permission.JOB_SUBMIT,
+            Permission.JOB_CONTROL,
+        }
+    ),
+    FeatureGrant.MODEL_APPROVAL: frozenset(
+        {
+            Permission.REVIEW_REQUEST,
+            Permission.REVIEW_DECIDE,
+            Permission.RELEASE_PUBLISH,
+        }
+    ),
+    FeatureGrant.SOLVER_CARD_EXPORT: frozenset(
+        {
+            Permission.EXPORT_EXECUTE,
+            Permission.JOB_SUBMIT,
+            Permission.JOB_CONTROL,
+        }
+    ),
+}
+
+_FEATURE_EVIDENCE_ROLES: Mapping[FeatureGrant, frozenset[Role]] = {
+    FeatureGrant.SCHEMA_CONFIGURATION: frozenset({Role.DATA_STEWARD}),
+    FeatureGrant.CATALOG_EDIT: frozenset({Role.DATA_STEWARD, Role.TEST_ENGINEER}),
+    FeatureGrant.PROCESSING_CALIBRATION: frozenset(
+        {Role.STATISTICAL_ANALYST, Role.MATERIAL_MODELER}
+    ),
+    FeatureGrant.MODEL_APPROVAL: frozenset(
+        {Role.DOMAIN_REVIEWER, Role.RELEASE_APPROVER}
+    ),
+    FeatureGrant.SOLVER_CARD_EXPORT: frozenset({Role.CAE_ANALYST}),
+}
+
+
+def permissions_for_product_assignment(
+    assignment: ProductAccessAssignment,
+) -> frozenset[Permission]:
+    permissions = set(_PRODUCT_BASE_PERMISSIONS)
+    if assignment.product_role is ProductRole.ADMINISTRATOR:
+        permissions.update({Permission.IDENTITY_MANAGE, Permission.PROJECT_MANAGE})
+    for grant in assignment.feature_grants:
+        permissions.update(PRODUCT_FEATURE_PERMISSIONS[grant])
+    return frozenset(permissions)
+
+
+def evidence_roles_for_product_assignment(
+    assignment: ProductAccessAssignment,
+) -> frozenset[Role]:
+    roles = {Role.CONSUMER}
+    if assignment.product_role is ProductRole.ADMINISTRATOR:
+        roles.add(Role.ORG_ADMIN)
+    for grant in assignment.feature_grants:
+        roles.update(_FEATURE_EVIDENCE_ROLES[grant])
+    return frozenset(roles)
+
+
+def _legacy_feature_grants(roles: set[Role]) -> set[FeatureGrant]:
+    permissions: set[Permission] = set()
+    for role in roles:
+        permissions.update(ROLE_PERMISSIONS[role])
+    return {
+        grant
+        for grant, required in PRODUCT_FEATURE_PERMISSIONS.items()
+        if required.issubset(permissions)
+    }
 
 _MODIFYING_OPERATIONS = frozenset(
     {
@@ -405,9 +519,11 @@ class AuthorizationService:
         self,
         *,
         bindings: RoleBindingRepository,
+        product_assignments: ProductAccessAssignmentRepository | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
         self._bindings = bindings
+        self._product_assignments = product_assignments
         self._clock = clock or (lambda: datetime.now(UTC))
 
     def authorize(self, context: SecurityContext, permission: Permission) -> AuthorizationDecision:
@@ -419,11 +535,25 @@ class AuthorizationService:
             if binding.applies_to(context, observed_at)
             and permission in ROLE_PERMISSIONS[binding.role]
         )
-        if not granting:
+        product_applicable = (
+            self._product_assignments.find_applicable(context, observed_at)
+            if self._product_assignments is not None
+            else ()
+        )
+        product_granting = tuple(
+            assignment
+            for assignment in product_applicable
+            if assignment.applies_to(context, observed_at)
+            and permission in permissions_for_product_assignment(assignment)
+        )
+        if not granting and not product_granting:
             raise AuthorizationDenied("permission_denied")
 
         maximum = max(
-            (binding.max_classification for binding in granting),
+            (
+                *(binding.max_classification for binding in granting),
+                *(assignment.max_classification for assignment in product_granting),
+            ),
             key=lambda value: (
                 DataClassification.INTERNAL,
                 DataClassification.CONFIDENTIAL,
@@ -435,13 +565,65 @@ class AuthorizationService:
             organization_id=context.organization_id,
             project_id=context.project_id,
             permission=permission,
-            roles=tuple(sorted({binding.role for binding in granting}, key=str)),
+            roles=tuple(
+                sorted(
+                    {
+                        *(binding.role for binding in granting),
+                        *(
+                            role
+                            for assignment in product_granting
+                            for role in evidence_roles_for_product_assignment(assignment)
+                        ),
+                    },
+                    key=str,
+                )
+            ),
             database_permissions=database_permissions_for(permission),
             max_classification=maximum,
-            allow_export_controlled=any(binding.allow_export_controlled for binding in granting),
+            allow_export_controlled=(
+                any(binding.allow_export_controlled for binding in granting)
+                or any(
+                    assignment.allow_export_controlled
+                    for assignment in product_granting
+                )
+            ),
             request_id=context.request_id,
             trace_id=context.trace_id,
             decided_at=observed_at,
+        )
+
+    def effective_product_access(self, context: SecurityContext) -> ProductAccessSummary:
+        """Project legacy bindings and first-class assignments into the simple UI vocabulary."""
+
+        observed_at = self._clock()
+        legacy = tuple(
+            item
+            for item in self._bindings.find_applicable(context, observed_at)
+            if item.applies_to(context, observed_at)
+        )
+        product = (
+            tuple(
+                item
+                for item in self._product_assignments.find_applicable(context, observed_at)
+                if item.applies_to(context, observed_at)
+            )
+            if self._product_assignments is not None
+            else ()
+        )
+        legacy_roles = {item.role for item in legacy}
+        grants = _legacy_feature_grants(legacy_roles)
+        grants.update(grant for item in product for grant in item.feature_grants)
+        administrator = any(
+            item.product_role is ProductRole.ADMINISTRATOR for item in product
+        ) or bool(legacy_roles & {Role.ORG_ADMIN, Role.PLATFORM_ADMIN})
+        if administrator:
+            grants.update(FeatureGrant)
+        return ProductAccessSummary(
+            product_role=(
+                ProductRole.ADMINISTRATOR if administrator else ProductRole.USER
+            ),
+            feature_grants=tuple(sorted(grants, key=str)),
+            legacy_compatible=bool(legacy),
         )
 
 
