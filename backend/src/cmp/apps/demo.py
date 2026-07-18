@@ -98,7 +98,7 @@ def _grant_runtime_privileges(connection: Connection) -> None:
     connection.exec_driver_sql(f"GRANT USAGE ON SCHEMA {schema_names} TO {_APPLICATION_ROLE}")
     connection.exec_driver_sql(
         "GRANT SELECT, INSERT, UPDATE ON identity.principal, identity.external_identity, "
-        "identity.role_binding TO cmp_app"
+        "identity.role_binding, identity.product_access_assignment TO cmp_app"
     )
     for schema in (
         "governance",
@@ -176,6 +176,35 @@ def _seed_demo_role_bindings(connection: Connection, issuer: str) -> None:
                 "created_by": _BOOTSTRAP_PRINCIPAL_ID,
             },
         )
+    connection.execute(
+        sa.text(
+            """
+            INSERT INTO identity.product_access_assignment (
+              id, organization_id, project_id, classification, subject_type,
+              principal_id, group_issuer, group_name, product_role,
+              schema_configuration, catalog_edit, processing_calibration,
+              model_approval, solver_card_export, max_classification,
+              allow_export_controlled, valid_from, created_at, created_by, grant_reason,
+              revoked_at, revoked_by, revocation_reason
+            ) VALUES (
+              :id, :organization_id, :project_id, 'restricted', 'group',
+              NULL, :issuer, :group_name, 'administrator',
+              true, true, true, true, true, 'restricted',
+              false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :created_by,
+              'Grant the local demo group the product-facing Administrator assignment.',
+              NULL, NULL, NULL
+            ) ON CONFLICT DO NOTHING
+            """
+        ),
+        {
+            "id": uuid5(_BINDING_NAMESPACE, "product-access-administrator"),
+            "organization_id": DEMO_ORGANIZATION_ID,
+            "project_id": DEMO_PROJECT_ID,
+            "issuer": issuer,
+            "group_name": DEMO_GROUP,
+            "created_by": _BOOTSTRAP_PRINCIPAL_ID,
+        },
+    )
 
 
 def bootstrap_demo_database(settings: Settings, *, application_password: str) -> None:

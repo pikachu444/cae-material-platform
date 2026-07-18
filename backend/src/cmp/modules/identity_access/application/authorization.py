@@ -35,6 +35,33 @@ class ProductAccessAssignmentRepository(Protocol):
         self, context: SecurityContext, observed_at: datetime
     ) -> tuple[ProductAccessAssignment, ...]: ...
 
+    def list_assignments(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+    ) -> tuple[ProductAccessAssignment, ...]: ...
+
+    def append_assignment(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        assignment: ProductAccessAssignment,
+        created_at: datetime,
+        grant_reason: str,
+    ) -> ProductAccessAssignment: ...
+
+    def revoke_assignment(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        assignment_id: UUID,
+        revoked_at: datetime,
+        reason: str,
+    ) -> None: ...
+
 
 class RoleBindingAdministrationRepository(Protocol):
     def append(
@@ -711,6 +738,109 @@ class RoleBindingAdministrationService:
             context=context,
             decision=decision,
             binding_id=command.binding_id,
+            revoked_at=self._clock(),
+            reason=command.reason,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class GrantProductAccess:
+    organization_id: UUID
+    project_id: UUID | None
+    subject: BindingSubject
+    product_role: ProductRole
+    feature_grants: tuple[FeatureGrant, ...]
+    max_classification: DataClassification
+    allow_export_controlled: bool
+    grant_reason: str
+    valid_from: datetime | None = None
+    expires_at: datetime | None = None
+
+    def __post_init__(self) -> None:
+        _reason("grant_reason", self.grant_reason)
+        if tuple(sorted(set(self.feature_grants), key=str)) != self.feature_grants:
+            raise ValueError("feature_grants must be sorted and unique")
+        if self.product_role is ProductRole.ADMINISTRATOR and set(
+            self.feature_grants
+        ) != set(FeatureGrant):
+            raise ValueError("Administrator must receive every feature grant")
+
+
+@dataclass(frozen=True, slots=True)
+class RevokeProductAccess:
+    assignment_id: UUID
+    reason: str
+
+    def __post_init__(self) -> None:
+        if self.assignment_id.int == 0:
+            raise ValueError("assignment_id must be non-zero")
+        _reason("reason", self.reason)
+
+
+class ProductAccessAdministrationService:
+    """Manage the simple product model while preserving T-04 authorization and RLS."""
+
+    def __init__(
+        self,
+        *,
+        authorization: AuthorizationService,
+        repository: ProductAccessAssignmentRepository,
+        id_factory: Callable[[], UUID] = uuid4,
+        clock: Callable[[], datetime] | None = None,
+    ) -> None:
+        self._authorization = authorization
+        self._repository = repository
+        self._id_factory = id_factory
+        self._clock = clock or (lambda: datetime.now(UTC))
+
+    def effective(self, context: SecurityContext) -> ProductAccessSummary:
+        return self._authorization.effective_product_access(context)
+
+    def list_assignments(
+        self, context: SecurityContext
+    ) -> tuple[ProductAccessAssignment, ...]:
+        decision = self._authorization.authorize(context, Permission.IDENTITY_MANAGE)
+        return self._repository.list_assignments(context=context, decision=decision)
+
+    def grant(
+        self, context: SecurityContext, command: GrantProductAccess
+    ) -> ProductAccessAssignment:
+        decision = self._authorization.authorize(context, Permission.IDENTITY_MANAGE)
+        if command.organization_id != context.organization_id or command.project_id not in {
+            None,
+            context.project_id,
+        }:
+            raise AuthorizationDenied("product_access_scope_mismatch")
+        created_at = self._clock()
+        valid_from = command.valid_from or created_at
+        if valid_from < created_at:
+            raise ValueError("valid_from cannot precede grant creation time")
+        assignment = ProductAccessAssignment(
+            id=self._id_factory(),
+            organization_id=command.organization_id,
+            project_id=command.project_id,
+            subject=command.subject,
+            product_role=command.product_role,
+            feature_grants=command.feature_grants,
+            max_classification=command.max_classification,
+            allow_export_controlled=command.allow_export_controlled,
+            valid_from=valid_from,
+            expires_at=command.expires_at,
+        )
+        return self._repository.append_assignment(
+            context=context,
+            decision=decision,
+            assignment=assignment,
+            created_at=created_at,
+            grant_reason=command.grant_reason,
+        )
+
+    def revoke(self, context: SecurityContext, command: RevokeProductAccess) -> None:
+        decision = self._authorization.authorize(context, Permission.IDENTITY_MANAGE)
+        self._repository.revoke_assignment(
+            context=context,
+            decision=decision,
+            assignment_id=command.assignment_id,
             revoked_at=self._clock(),
             reason=command.reason,
         )

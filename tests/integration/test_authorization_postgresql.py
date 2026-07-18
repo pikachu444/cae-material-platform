@@ -13,6 +13,9 @@ from alembic import command
 from alembic.config import Config
 from cmp.bootstrap.security import build_identity_services
 from cmp.bootstrap.settings import Settings
+from cmp.modules.identity_access.adapters.persistence.product_access import (
+    SqlAlchemyProductAccessRepository,
+)
 from cmp.modules.identity_access.adapters.persistence.rls import (
     RlsContextMismatch,
     SqlAlchemyRlsContext,
@@ -22,7 +25,9 @@ from cmp.modules.identity_access.adapters.persistence.role_bindings import (
 )
 from cmp.modules.identity_access.application.authorization import (
     AuthorizationService,
+    GrantProductAccess,
     GrantRoleBinding,
+    ProductAccessAdministrationService,
     RevokeRoleBinding,
     RoleBindingAdministrationService,
 )
@@ -30,7 +35,9 @@ from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDenied,
     BindingSubject,
     DataClassification,
+    FeatureGrant,
     Permission,
+    ProductRole,
     Role,
 )
 from cmp.modules.identity_access.domain.security import (
@@ -77,6 +84,7 @@ class PostgresHarness:
     database_url: URL
     app_role: str
     role_binding: sa.Table
+    product_access_assignment: sa.Table
     document: sa.Table
     document_ref: sa.Table
 
@@ -300,13 +308,20 @@ def postgres() -> Iterator[PostgresHarness]:
         with admin_engine.begin() as connection:
             connection.exec_driver_sql(fixture_sql)
             metadata = sa.MetaData()
-            metadata.reflect(connection, schema="identity", only=["role_binding"])
+            metadata.reflect(
+                connection,
+                schema="identity",
+                only=["role_binding", "product_access_assignment"],
+            )
             metadata.reflect(
                 connection,
                 schema="authorization_fixture",
                 only=["protected_document", "document_ref"],
             )
             role_binding = metadata.tables["identity.role_binding"]
+            product_access_assignment = metadata.tables[
+                "identity.product_access_assignment"
+            ]
             document = metadata.tables["authorization_fixture.protected_document"]
             document_ref = metadata.tables["authorization_fixture.document_ref"]
             _seed(connection, role_binding, document)
@@ -315,7 +330,8 @@ def postgres() -> Iterator[PostgresHarness]:
                 f'authorization_fixture TO "{app_role}"'
             )
             connection.exec_driver_sql(
-                f'GRANT SELECT, INSERT, UPDATE ON identity.role_binding TO "{app_role}"'
+                f'GRANT SELECT, INSERT, UPDATE ON identity.role_binding, '
+                f'identity.product_access_assignment TO "{app_role}"'
             )
             connection.exec_driver_sql(
                 f'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES '
@@ -334,6 +350,7 @@ def postgres() -> Iterator[PostgresHarness]:
             database_url=database_url,
             app_role=app_role,
             role_binding=role_binding,
+            product_access_assignment=product_access_assignment,
             document=document,
             document_ref=document_ref,
         )
@@ -726,3 +743,59 @@ def test_role_binding_grant_fields_are_immutable_and_revocation_is_one_way(
             .values(revocation_reason="rewritten")
         )
     assert getattr(second_error.value.orig, "sqlstate", None) == "55000"
+
+
+def test_product_feature_grant_is_enforced_and_project_scoped_under_rls(
+    postgres: PostgresHarness,
+) -> None:
+    sessions = sessionmaker(postgres.app_engine, class_=Session, expire_on_commit=False)
+    rls = SqlAlchemyRlsContext()
+    bindings = SqlAlchemyRoleBindingRepository(session_factory=sessions, rls_context=rls)
+    assignments = SqlAlchemyProductAccessRepository(
+        session_factory=sessions,
+        rls_context=rls,
+    )
+    authorization = AuthorizationService(
+        bindings=bindings,
+        product_assignments=assignments,
+        clock=lambda: NOW,
+    )
+    administration = ProductAccessAdministrationService(
+        authorization=authorization,
+        repository=assignments,
+        clock=lambda: NOW,
+    )
+    administrator = _context()
+
+    assignment = administration.grant(
+        administrator,
+        GrantProductAccess(
+            organization_id=ORG_A,
+            project_id=PROJECT_A,
+            subject=BindingSubject.for_group(ISSUER, "limited-modelers"),
+            product_role=ProductRole.USER,
+            feature_grants=(FeatureGrant.PROCESSING_CALIBRATION,),
+            max_classification=DataClassification.CONFIDENTIAL,
+            allow_export_controlled=False,
+            grant_reason="bounded modeling assignment",
+        ),
+    )
+    modeler = _context(groups=("limited-modelers",))
+
+    decision = authorization.authorize(modeler, Permission.CALIBRATION_EXECUTE)
+
+    assert assignment.feature_grants == (FeatureGrant.PROCESSING_CALIBRATION,)
+    assert decision.max_classification is DataClassification.CONFIDENTIAL
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        authorization.authorize(modeler, Permission.EXPORT_EXECUTE)
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        authorization.authorize(
+            _context(project_id=PROJECT_B, groups=("limited-modelers",)),
+            Permission.CALIBRATION_EXECUTE,
+        )
+
+    with postgres.app_engine.connect() as connection:
+        without_context = connection.execute(
+            sa.select(sa.func.count()).select_from(postgres.product_access_assignment)
+        ).scalar_one()
+    assert without_context == 0

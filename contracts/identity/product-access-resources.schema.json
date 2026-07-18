@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:schema:identity:product-access-resources:1.0.0",
+  "$defs": {
+    "ProductRole": {"enum": ["administrator", "user"]},
+    "FeatureGrant": {
+      "enum": [
+        "schema_configuration",
+        "catalog_edit",
+        "processing_calibration",
+        "model_approval",
+        "solver_card_export"
+      ]
+    },
+    "Summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["product_role", "feature_grants", "legacy_compatible"],
+      "properties": {
+        "product_role": {"$ref": "#/$defs/ProductRole"},
+        "feature_grants": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 5,
+          "items": {"$ref": "#/$defs/FeatureGrant"}
+        },
+        "legacy_compatible": {"type": "boolean"}
+      }
+    },
+    "Assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assignment_id", "organization_id", "project_id", "subject_type",
+        "principal_id", "group_issuer", "group_name", "product_role",
+        "feature_grants", "max_classification", "allow_export_controlled",
+        "valid_from", "expires_at", "revoked_at"
+      ],
+      "properties": {
+        "assignment_id": {"type": "string", "format": "uuid"},
+        "organization_id": {"type": "string", "format": "uuid"},
+        "project_id": {"type": ["string", "null"], "format": "uuid"},
+        "subject_type": {"enum": ["principal", "group"]},
+        "principal_id": {"type": ["string", "null"], "format": "uuid"},
+        "group_issuer": {"type": ["string", "null"], "minLength": 1, "maxLength": 2048},
+        "group_name": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "product_role": {"$ref": "#/$defs/ProductRole"},
+        "feature_grants": {
+          "type": "array", "uniqueItems": true, "maxItems": 5,
+          "items": {"$ref": "#/$defs/FeatureGrant"}
+        },
+        "max_classification": {"enum": ["internal", "confidential", "restricted"]},
+        "allow_export_controlled": {"type": "boolean"},
+        "valid_from": {"type": "string", "format": "date-time"},
+        "expires_at": {"type": ["string", "null"], "format": "date-time"},
+        "revoked_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "AssignmentList": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/Assignment"}}}
+    },
+    "GrantRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_type", "principal_id", "group_issuer", "group_name", "product_role",
+        "feature_grants", "max_classification", "allow_export_controlled",
+        "organization_wide", "expires_at", "grant_reason"
+      ],
+      "properties": {
+        "subject_type": {"enum": ["principal", "group"]},
+        "principal_id": {"type": ["string", "null"], "format": "uuid"},
+        "group_issuer": {"type": ["string", "null"], "minLength": 1, "maxLength": 2048},
+        "group_name": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "product_role": {"$ref": "#/$defs/ProductRole"},
+        "feature_grants": {
+          "type": "array", "uniqueItems": true, "maxItems": 5,
+          "items": {"$ref": "#/$defs/FeatureGrant"}
+        },
+        "max_classification": {"enum": ["internal", "confidential", "restricted"]},
+        "allow_export_controlled": {"type": "boolean"},
+        "organization_wide": {"type": "boolean"},
+        "expires_at": {"type": ["string", "null"], "format": "date-time"},
+        "grant_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "RevokeRequest": {
+      "type": "object", "additionalProperties": false, "required": ["reason"],
+      "properties": {"reason": {"type": "string", "minLength": 1, "maxLength": 2000}}
+    }
+  }
+}
