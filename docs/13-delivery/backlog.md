@@ -1650,3 +1650,18 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   추가하지 않는다.
 - **회귀:** API contract, stale/stable identity revision 규칙, 실제 PostgreSQL r1→r2 append와
   tenant visibility, React request translation, production build와 live Docker/browser 화면을 검증한다.
+
+#### T-73. Integrated product v3 completion audit — `P0`
+
+- **상태 (`2026-07-19`):** `implemented and verified`.
+- **범위:** capability map, 실제 코드, clean PostgreSQL seed/verifier, 브라우저 evidence와 사용자
+  가이드를 다시 대조해 통합 v3 목표의 완료 경계를 확정한다.
+- **판정:** configurable Table/typed Attribute/Layout/Subset, Catalog/Workflow Explorer,
+  search/compare/exact links, Test JSON, Mapping Profile, Processing Recipe/Batch, 금속·폴리머·
+  엘라스토머 modeling, Neutral JSON, Abaqus/OpenRadioss card와 checksum Bulk ZIP은 v3의 bounded
+  reference 범위에서 DB/API/UI/Test 증거가 모두 있다.
+- **예외:** 고정 Material/State property는 configurable Catalog와 병행되는 compatibility
+  projection이라 `partial`을 유지한다. actual solver execution, production material qualification,
+  production identity/object-store 운영은 계획에서 명시한 후속 범위다.
+- **검증:** 최종 full CI Python 774건, 별도 PostgreSQL 76건, frontend 62건, clean-demo verifier,
+  55개 GUI capture gate와 문서/아키텍처/계약/OpenAPI/bundle gate가 통과했다.
