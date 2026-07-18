@@ -22,7 +22,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Neutral Material exchange JSON | T-56/T-57 implemented for reviewed hyperelastic family Candidates: deterministic validate/import/export, exact evidence pins, curve stages, typed solver-neutral IR and exact-revision solver consumption | T-58 package |
 | Abaqus/OpenRadioss native cards | T-57 complete for four declared hyperelastic families plus earlier bounded linear/elastoplastic/viscoelastic mappings | T-58 package |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | T-59 grants |
-| Administrator/User feature grants | missing; fine-grained internal permissions exist | T-59 |
+| Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | T-60 demo |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
 DB/API/UI/Test status matrix. Existing completed entries below remain valid evidence for their stated
@@ -30,10 +30,19 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-59`: simplify the product-facing role model to Administrator/User plus explicit feature grants
-  while retaining the current tenant/classification enforcement internally.
+- `T-60`: complete the clean end-to-end demo, desktop screenshot gate, and unified user/admin
+  walkthrough across Catalog → Test JSON → Recipe/Batch → Modeling → Solver Card → Bulk Package.
 
 ## Completed
+
+- `T-59`: Migration 074 adds an explicit typed product access assignment with `Administrator` or
+  `User` and five boolean feature grants: schema configuration, catalog editing,
+  processing/calibration, model approval and solver-card export. Assignment grants are immutable;
+  changes revoke the prior row and append a new one. The authorization service maps the simple
+  vocabulary back to the existing permission/RLS boundary and projects legacy role bindings for
+  compatibility. `/api/v1/product-access/*` and the connected `/access` screen expose effective
+  access and Administrator-only grant/revoke operations. A live Docker/PostgreSQL demo returned the
+  seeded Administrator assignment and all five effective grants.
 
 - `T-58`: Migration 073 extends the existing immutable Export Selection/Job/Bundle engine with six
   explicit typed source pairs: canonical Test Data JSON, Mapping Profile JSON, Processing Recipe

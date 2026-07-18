@@ -11,13 +11,17 @@ from cmp.modules.identity_access.application.authorization import (
     RevokeRoleBinding,
     RoleBindingAdministrationService,
     database_permissions_for,
+    permissions_for_product_assignment,
 )
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     AuthorizationDenied,
     BindingSubject,
     DataClassification,
+    FeatureGrant,
     Permission,
+    ProductAccessAssignment,
+    ProductRole,
     Role,
     RoleBinding,
 )
@@ -93,8 +97,91 @@ class _Bindings:
         return self.bindings
 
 
+class _ProductAssignments:
+    def __init__(self, *assignments: ProductAccessAssignment) -> None:
+        self.assignments = assignments
+
+    def find_applicable(
+        self, context: SecurityContext, observed_at: datetime
+    ) -> tuple[ProductAccessAssignment, ...]:
+        del context, observed_at
+        return self.assignments
+
+
+def _product_assignment(
+    role: ProductRole,
+    *grants: FeatureGrant,
+    subject: BindingSubject | None = None,
+) -> ProductAccessAssignment:
+    effective_grants = tuple(sorted(set(grants), key=str))
+    if role is ProductRole.ADMINISTRATOR:
+        effective_grants = tuple(sorted(FeatureGrant, key=str))
+    return ProductAccessAssignment(
+        id=uuid4(),
+        organization_id=ORG,
+        project_id=PROJECT,
+        subject=subject or BindingSubject.for_principal(PRINCIPAL),
+        product_role=role,
+        feature_grants=effective_grants,
+        max_classification=DataClassification.RESTRICTED,
+        allow_export_controlled=False,
+        valid_from=NOW - timedelta(days=1),
+    )
+
+
 def _service(*bindings: RoleBinding) -> AuthorizationService:
     return AuthorizationService(bindings=_Bindings(*bindings), clock=lambda: NOW)
+
+
+def test_user_feature_grants_authorize_only_the_selected_product_capability() -> None:
+    assignment = _product_assignment(ProductRole.USER, FeatureGrant.SOLVER_CARD_EXPORT)
+    service = AuthorizationService(
+        bindings=_Bindings(),
+        product_assignments=_ProductAssignments(assignment),
+        clock=lambda: NOW,
+    )
+
+    decision = service.authorize(_context(), Permission.EXPORT_EXECUTE)
+
+    assert Role.CAE_ANALYST in decision.roles
+    assert Permission.EXPORT_EXECUTE in permissions_for_product_assignment(assignment)
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        service.authorize(_context(), Permission.CALIBRATION_EXECUTE)
+
+
+def test_administrator_has_all_features_and_identity_management() -> None:
+    assignment = _product_assignment(ProductRole.ADMINISTRATOR)
+    service = AuthorizationService(
+        bindings=_Bindings(),
+        product_assignments=_ProductAssignments(assignment),
+        clock=lambda: NOW,
+    )
+
+    summary = service.effective_product_access(_context())
+    decision = service.authorize(_context(), Permission.IDENTITY_MANAGE)
+
+    assert summary.product_role is ProductRole.ADMINISTRATOR
+    assert set(summary.feature_grants) == set(FeatureGrant)
+    assert not summary.legacy_compatible
+    assert Role.ORG_ADMIN in decision.roles
+
+
+def test_legacy_role_bindings_project_to_the_simple_product_vocabulary() -> None:
+    service = _service(
+        _binding(Role.TEST_ENGINEER),
+        _binding(Role.DATA_STEWARD),
+        _binding(Role.STATISTICAL_ANALYST),
+        _binding(Role.MATERIAL_MODELER),
+        _binding(Role.CAE_ANALYST),
+    )
+
+    summary = service.effective_product_access(_context())
+
+    assert summary.product_role is ProductRole.USER
+    assert FeatureGrant.CATALOG_EDIT in summary.feature_grants
+    assert FeatureGrant.PROCESSING_CALIBRATION in summary.feature_grants
+    assert FeatureGrant.SOLVER_CARD_EXPORT in summary.feature_grants
+    assert summary.legacy_compatible
 
 
 @pytest.mark.parametrize(

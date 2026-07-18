@@ -18,11 +18,17 @@ from cmp.modules.identity_access.adapters.oidc.pyjwt import (
 from cmp.modules.identity_access.adapters.persistence.principals import (
     SqlAlchemyPrincipalRepository,
 )
+from cmp.modules.identity_access.adapters.persistence.product_access import (
+    SqlAlchemyProductAccessRepository,
+)
 from cmp.modules.identity_access.adapters.persistence.rls import SqlAlchemyRlsContext
 from cmp.modules.identity_access.adapters.persistence.role_bindings import (
     SqlAlchemyRoleBindingRepository,
 )
-from cmp.modules.identity_access.application.authorization import AuthorizationService
+from cmp.modules.identity_access.application.authorization import (
+    AuthorizationService,
+    ProductAccessAdministrationService,
+)
 from cmp.modules.identity_access.application.security import SecurityContextService
 
 
@@ -32,6 +38,7 @@ class IdentityServices:
     authorization: AuthorizationService | None
     rls_context: SqlAlchemyRlsContext | None
     engine: Engine | None
+    product_access: ProductAccessAdministrationService | None = None
 
 
 def build_identity_services(settings: Settings) -> IdentityServices:
@@ -130,9 +137,21 @@ def _build_persisted_identity_services(
         session_factory=sessions,
         rls_context=rls_context,
     )
+    product_assignments = SqlAlchemyProductAccessRepository(
+        session_factory=sessions,
+        rls_context=rls_context,
+    )
+    authorization = AuthorizationService(
+        bindings=bindings,
+        product_assignments=product_assignments,
+    )
     return IdentityServices(
         security=SecurityContextService(verifier=verifier, principals=principals),
-        authorization=AuthorizationService(bindings=bindings),
+        authorization=authorization,
         rls_context=rls_context,
         engine=engine,
+        product_access=ProductAccessAdministrationService(
+            authorization=authorization,
+            repository=product_assignments,
+        ),
     )

@@ -13,7 +13,9 @@ def test_t55e_family_diagnostics_are_exact_artifact_references() -> None:
         Config(str(PROJECT_ROOT / "alembic.ini"), output_buffer=output), "head", sql=True
     )
     sql = output.getvalue()
-    migration = sql[sql.index("20260905_070_t55e_diagnostics") :]
+    start = sql.index("20260905_070_t55e_diagnostics")
+    end = sql.index("20260906_071_t56_neutral", start)
+    migration = sql[start:end]
     for value in (
         "diagnostics_artifact_id uuid",
         "diagnostics_sha256 char(64)",

@@ -6,6 +6,75 @@ info:
 servers:
   - url: http://127.0.0.1:8000
 paths:
+  /api/v1/product-access/me:
+    get:
+      operationId: getEffectiveProductAccess
+      tags: [identity]
+      summary: Return the effective Administrator/User role and product feature grants.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Product-facing access projection, including legacy-binding compatibility.
+          content:
+            application/json:
+              schema: {$ref: "../identity/product-access-resources.schema.json#/$defs/Summary"}
+        "401": {description: Authentication required.}
+        "503": {description: Product access is not configured.}
+  /api/v1/product-access/assignments:
+    get:
+      operationId: listProductAccessAssignments
+      tags: [identity]
+      summary: List product assignments visible to an Administrator in the selected scope.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current and revoked typed product assignments.
+          content:
+            application/json:
+              schema: {$ref: "../identity/product-access-resources.schema.json#/$defs/AssignmentList"}
+        "401": {description: Authentication required.}
+        "403": {description: Administrator access is required.}
+    post:
+      operationId: grantProductAccess
+      tags: [identity]
+      summary: Append an Administrator/User assignment with explicit product feature grants.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../identity/product-access-resources.schema.json#/$defs/GrantRequest"}
+      responses:
+        "201":
+          description: Immutable product assignment.
+          content:
+            application/json:
+              schema: {$ref: "../identity/product-access-resources.schema.json#/$defs/Assignment"}
+        "401": {description: Authentication required.}
+        "403": {description: Administrator access is required.}
+        "409": {description: The subject already has an active assignment in the selected scope.}
+        "422": {description: Subject, feature, scope, or validity data is invalid.}
+  /api/v1/product-access/assignments/{assignment_id}/revoke:
+    post:
+      operationId: revokeProductAccess
+      tags: [identity]
+      summary: Revoke an assignment without mutating its original grants.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../identity/product-access-resources.schema.json#/$defs/RevokeRequest"}
+      responses:
+        "204": {description: Assignment revoked.}
+        "401": {description: Authentication required.}
+        "403": {description: Administrator access is required.}
+        "404": {description: Assignment is missing or outside the selected scope.}
   /api/v1/test-data:validate:
     post:
       operationId: validateCanonicalTestData

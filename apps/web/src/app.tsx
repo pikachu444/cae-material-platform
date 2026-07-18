@@ -133,6 +133,11 @@ const CommonProcessingWorkbench = lazy(() =>
     default: module.CommonProcessingWorkbench,
   })),
 );
+const ProductAccessCenter = lazy(() =>
+  import("./product-access-center").then((module) => ({
+    default: module.ProductAccessCenter,
+  })),
+);
 
 type Navigate = (path: string) => void;
 type MaterialArea = "overview" | "testing" | "datasets" | "models" | "governance";
@@ -270,6 +275,7 @@ function Header({
       target: "/governance",
       active: path === "/governance" || path.endsWith("/governance"),
     },
+    { label: "Access", target: "/access", active: path === "/access" },
   ];
   return (
     <header className="app-header">
@@ -2102,6 +2108,8 @@ export function App() {
     page = <ModuleHubPage area="models" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/governance") {
     page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (path === "/access") {
+    page = <ProductAccessCenter config={config} onOpenConnection={() => setConnectionOpen(true)} />;
   } else {
     page = <DashboardPage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   }

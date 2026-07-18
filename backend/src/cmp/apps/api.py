@@ -129,8 +129,12 @@ from cmp.modules.exporting.application.service import SolverCardService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
 )
+from cmp.modules.identity_access.adapters.api.product_access import install_product_access_api
 from cmp.modules.identity_access.adapters.api.security import install_identity_api
-from cmp.modules.identity_access.application.authorization import AuthorizationService
+from cmp.modules.identity_access.application.authorization import (
+    AuthorizationService,
+    ProductAccessAdministrationService,
+)
 from cmp.modules.identity_access.application.security import SecurityContextService
 from cmp.modules.identity_access.domain.authorization import Permission
 from cmp.modules.jobs.adapters.api.jobs import install_jobs_api
@@ -307,6 +311,7 @@ def create_app(
     voce_holdout_service: ReferenceVoceHoldoutService | None = None,
     review_service: ReviewService | None = None,
     release_service: ReleaseService | None = None,
+    product_access_service: ProductAccessAdministrationService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
@@ -351,6 +356,14 @@ def create_app(
     install_demo_identity_api(application, demo_identity)
     resolved_security = services.security
     security_dependency = install_identity_api(application, resolved_security)
+    install_product_access_api(
+        application,
+        service=product_access_service or services.product_access,
+        security_dependency=security_dependency,
+        manage_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.IDENTITY_MANAGE
+        ),
+    )
     install_operations_api(
         application,
         metrics=operational_metrics,

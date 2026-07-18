@@ -12,4 +12,4 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
 
     assert report.document_count >= 10
     assert report.capture_count >= 18
-    assert report.navigation_count == 8
+    assert report.navigation_count == 9
