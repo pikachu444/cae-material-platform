@@ -13,7 +13,9 @@ def test_t55e_family_candidates_are_explicit_typed_immutable_and_scoped() -> Non
         Config(str(PROJECT_ROOT / "alembic.ini"), output_buffer=output), "head", sql=True
     )
     sql = output.getvalue()
-    migration = sql[sql.index("20260904_069_t55e_families") :]
+    start = sql.index("20260904_069_t55e_families")
+    end = sql.index("20260905_070_t55e_diagnostics", start)
+    migration = sql[start:end]
     for value in (
         "modeling.hyperelastic_family_candidate",
         "modeling.hyperelastic_family_candidate_warning",

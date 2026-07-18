@@ -2,7 +2,6 @@ from io import StringIO
 from pathlib import Path
 
 from alembic.config import Config
-from alembic.script import ScriptDirectory
 
 PROJECT_ROOT = Path(__file__).parents[2]
 
@@ -10,13 +9,13 @@ PROJECT_ROOT = Path(__file__).parents[2]
 def _migration_sql() -> str:
     output = StringIO()
     config = Config(str(PROJECT_ROOT / "alembic.ini"), output_buffer=output)
-    script = ScriptDirectory.from_config(config)
-    assert script.get_current_head() == "20260908_073_t58_bulk"
     from alembic import command
 
     command.upgrade(config, "head", sql=True)
     sql = output.getvalue()
-    return sql[sql.index("20260907_072_t57_cards") :]
+    start = sql.index("20260907_072_t57_cards")
+    end = sql.index("20260908_073_t58_bulk", start)
+    return sql[start:end]
 
 
 def test_t57_card_projection_is_typed_and_exact_revision_pinned() -> None:
