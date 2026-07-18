@@ -136,6 +136,23 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       normalization_stress_pa: 100000000,
       maximum_function_evaluations: 5000,
     },
+    "polymer.log_time_resample": {
+      start_time_s: 0.01,
+      end_time_s: 100,
+      count: 81,
+      extrapolation: "reject",
+    },
+    "polymer.prony_fit_compare": {
+      time_quantity: "time",
+      modulus_quantity: "modulus.shear.relaxation",
+      candidate_term_counts: [1, 2, 3, 4],
+      selection_mode: "automatic_bic",
+      selected_term_count: 2,
+      normalization_modulus_pa: 10000000,
+      minimum_relaxation_time_s: 0.0001,
+      maximum_relaxation_time_s: 1000000,
+      maximum_function_evaluations: 5000,
+    },
   };
   return options[methodId] ?? {};
 }
@@ -206,6 +223,7 @@ function StageCurveEvidence({
   height: number;
 }) {
   const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
+  const prony = activeStage.method_id === "polymer.prony_fit_compare";
   const xQuantity = activeStage.series.some((item) => item.quantity === preview.independent_quantity)
     ? preview.independent_quantity
     : activeStage.series.find((item) => item.quantity.includes("strain"))?.quantity;
@@ -217,21 +235,41 @@ function StageCurveEvidence({
   const selectedSeries = activeStage.series.find(
     (item) => item.quantity === "stress.hardening.selected",
   );
+  const pronyCandidates = activeStage.series.filter((item) =>
+    item.quantity.startsWith("modulus.prony.candidate_"),
+  );
+  const selectedProny = activeStage.series.find(
+    (item) => item.quantity === "modulus.prony.selected",
+  );
   const xValues = activeStage.series.find((item) => item.quantity === xQuantity)?.values ?? [];
   const hardeningValues = [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])]
+    .flatMap((item) => item.values);
+  const pronyValues = [...pronyCandidates, ...(selectedProny ? [selectedProny] : [])]
     .flatMap((item) => item.values);
   const bounds = hardening ? {
     xMin: Math.min(...xValues),
     xMax: Math.max(...xValues),
     yMin: Math.min(...hardeningValues),
     yMax: Math.max(...hardeningValues),
+  } : prony ? {
+    xMin: Math.min(...xValues),
+    xMax: Math.max(...xValues),
+    yMin: Math.min(...pronyValues),
+    yMax: Math.max(...pronyValues),
   } : curveBounds([baseStage, activeStage], xQuantity);
   return (
     <>
-      <svg className="processing-curve" role="img" aria-label={hardening ? "Hardening candidate and selected extrapolation curves" : "Mapped and selected processing stage curve overlay"} viewBox={`0 0 ${width} ${height}`}>
+      <svg className="processing-curve" role="img" aria-label={hardening ? "Hardening candidate and selected extrapolation curves" : prony ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"} viewBox={`0 0 ${width} ${height}`}>
         <line x1="28" y1={height - 24} x2={width - 20} y2={height - 24} className="chart-axis" />
         <line x1="28" y1="20" x2="28" y2={height - 24} className="chart-axis" />
         {hardening ? candidateSeries.map((series, index) => (
+          <polyline
+            key={series.quantity}
+            points={xyPoints(xValues, series.values, width, height, bounds)}
+            className="curve-line hardening-candidate"
+            style={{ stroke: HARDENING_COLORS[index % HARDENING_COLORS.length] }}
+          />
+        )) : prony ? pronyCandidates.map((series, index) => (
           <polyline
             key={series.quantity}
             points={xyPoints(xValues, series.values, width, height, bounds)}
@@ -250,6 +288,12 @@ function StageCurveEvidence({
             className="curve-line hardening-selected"
           />
         ) : null}
+        {prony && selectedProny ? (
+          <polyline
+            points={xyPoints(xValues, selectedProny.values, width, height, bounds)}
+            className="curve-line hardening-selected"
+          />
+        ) : null}
       </svg>
       <div className="curve-legend">
         {hardening ? (
@@ -261,6 +305,16 @@ function StageCurveEvidence({
               </span>
             ))}
             <span><i className="hardening-selected" />Selected combination</span>
+          </>
+        ) : prony ? (
+          <>
+            {pronyCandidates.map((series, index) => (
+              <span key={series.quantity}>
+                <i style={{ background: HARDENING_COLORS[index % HARDENING_COLORS.length] }} />
+                {series.quantity.replace("modulus.prony.candidate_", "").replace("_", " ")}
+              </span>
+            ))}
+            <span><i className="hardening-selected" />Selected Prony candidate</span>
           </>
         ) : (
           <><span><i className="source" />Mapped input</span><span><i className="processed" />Selected stage</span></>

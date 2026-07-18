@@ -29,9 +29,7 @@ def _document() -> dict[str, object]:
     return value
 
 
-async def _request(
-    method: str, url: str, *, json_body: object | None = None
-) -> httpx.Response:
+async def _request(method: str, url: str, *, json_body: object | None = None) -> httpx.Response:
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=_app()), base_url="http://test"
     ) as client:
@@ -43,7 +41,7 @@ def test_method_registry_and_preview_share_the_versioned_contract() -> None:
 
     methods = asyncio.run(_request("GET", "/api/v1/processing-methods"))
     assert methods.status_code == 200
-    assert len(methods.json()["items"]) == 12
+    assert len(methods.json()["items"]) == 14
     assert methods.json()["items"][0]["method_id"] == "rows.sort_unique"
 
     preview = asyncio.run(
@@ -132,9 +130,7 @@ def test_preview_rejects_unknown_method_and_hidden_extrapolation() -> None:
             "/api/v1/processing:preview",
             json_body={
                 **base,
-                "steps": [
-                    {"method_id": "solver.secret", "method_version": "1.0.0", "options": {}}
-                ],
+                "steps": [{"method_id": "solver.secret", "method_version": "1.0.0", "options": {}}],
             },
         )
     )

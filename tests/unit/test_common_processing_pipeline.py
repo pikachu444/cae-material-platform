@@ -1,3 +1,4 @@
+import math
 from datetime import date
 from decimal import Decimal
 
@@ -44,12 +45,30 @@ def _document(*, duplicate: bool = False) -> CanonicalTestDataDocument:
         conditions=(),
         channels=(
             CanonicalChannel(
-                "x", "X", "axis.x", ChannelAxisRole.INDEPENDENT, "s", "s",
-                Decimal("1"), Decimal("0"), x, x, (None,) * 5,
+                "x",
+                "X",
+                "axis.x",
+                ChannelAxisRole.INDEPENDENT,
+                "s",
+                "s",
+                Decimal("1"),
+                Decimal("0"),
+                x,
+                x,
+                (None,) * 5,
             ),
             CanonicalChannel(
-                "y", "Y", "response.y", ChannelAxisRole.DEPENDENT, "Pa", "Pa",
-                Decimal("1"), Decimal("0"), y, y, (None,) * 5,
+                "y",
+                "Y",
+                "response.y",
+                ChannelAxisRole.DEPENDENT,
+                "Pa",
+                "Pa",
+                Decimal("1"),
+                Decimal("0"),
+                y,
+                y,
+                (None,) * 5,
             ),
         ),
         source=CanonicalSource("curve.json", "application/json", "0" * 64),
@@ -65,6 +84,67 @@ def _profile() -> MappingProfileContent:
         bindings=(
             ChannelBinding("x", "calculation.x", ("s",)),
             ChannelBinding("y", "calculation.y", ("Pa",)),
+        ),
+    )
+
+
+def _relaxation_document() -> CanonicalTestDataDocument:
+    times = tuple(Decimal(str(10 ** (-2 + ordinal * 4 / 30))) for ordinal in range(31))
+    moduli = tuple(
+        Decimal(
+            str(
+                2.0e6 + 3.0e6 * math.exp(-float(time) / 0.1) + 5.0e6 * math.exp(-float(time) / 10.0)
+            )
+        )
+        for time in times
+    )
+    return CanonicalTestDataDocument(
+        document_id="relaxation-001",
+        material=MaterialMetadata("Demo", "Polymer"),
+        test=ExecutionMetadata(date(2026, 7, 18), "operator", "lab", "shear relaxation"),
+        specimen=SpecimenMetadata("P-1"),
+        conditions=(),
+        channels=(
+            CanonicalChannel(
+                "time",
+                "Time",
+                "time",
+                ChannelAxisRole.INDEPENDENT,
+                "s",
+                "s",
+                Decimal("1"),
+                Decimal("0"),
+                times,
+                times,
+                (None,) * len(times),
+            ),
+            CanonicalChannel(
+                "modulus",
+                "Shear modulus",
+                "modulus.shear.relaxation",
+                ChannelAxisRole.DEPENDENT,
+                "Pa",
+                "Pa",
+                Decimal("1"),
+                Decimal("0"),
+                moduli,
+                moduli,
+                (None,) * len(moduli),
+            ),
+        ),
+        source=CanonicalSource("relaxation.json", "application/json", "1" * 64),
+    )
+
+
+def _relaxation_profile() -> MappingProfileContent:
+    return MappingProfileContent(
+        profile_key="polymer-relaxation",
+        label="Polymer shear relaxation",
+        independent_quantity="time",
+        missing_data_policy=MissingDataPolicy.REJECT,
+        bindings=(
+            ChannelBinding("time", "time", ("s",)),
+            ChannelBinding("modulus", "modulus.shear.relaxation", ("Pa",)),
         ),
     )
 
@@ -87,11 +167,92 @@ def test_registry_exposes_versioned_solver_neutral_methods() -> None:
         "metal.necking_candidate",
         "metal.engineering_to_true_plastic",
         "metal.hardening_fit_extrapolate",
+        "polymer.log_time_resample",
+        "polymer.prony_fit_compare",
     }
     assert all(item.deterministic for item in METHOD_REGISTRY)
+    assert {item.method_id for item in METHOD_REGISTRY if item.allows_extrapolation} == {
+        "metal.hardening_fit_extrapolate"
+    }
+
+
+def test_polymer_log_time_and_prony_candidates_are_explicit_and_deterministic() -> None:
+    steps = (
+        _step("rows.sort_unique", duplicate_policy="reject"),
+        _step(
+            "polymer.log_time_resample",
+            start_time_s=0.01,
+            end_time_s=100.0,
+            count=31,
+            extrapolation="reject",
+        ),
+        _step(
+            "polymer.prony_fit_compare",
+            time_quantity="time",
+            modulus_quantity="modulus.shear.relaxation",
+            candidate_term_counts=[1, 2, 3],
+            selection_mode="automatic_bic",
+            selected_term_count=2,
+            normalization_modulus_pa=10.0e6,
+            minimum_relaxation_time_s=0.001,
+            maximum_relaxation_time_s=1000.0,
+            maximum_function_evaluations=5000,
+        ),
+    )
+    first = preview_pipeline(_relaxation_document(), _relaxation_profile(), steps)
+    second = preview_pipeline(_relaxation_document(), _relaxation_profile(), steps)
+    assert first == second
+    assert first.stages[2].point_count == 31
+    assert "extrapolation rejected" in first.stages[2].diagnostics[-1]
+    fitted = first.stages[-1]
+    quantities = {item.quantity for item in fitted.series}
     assert {
-        item.method_id for item in METHOD_REGISTRY if item.allows_extrapolation
-    } == {"metal.hardening_fit_extrapolate"}
+        "modulus.prony.candidate_1_term",
+        "modulus.prony.candidate_2_term",
+        "modulus.prony.candidate_3_term",
+        "modulus.prony.selected",
+    } <= quantities
+    scalars = {item.key: item.value for item in fitted.scalar_results}
+    assert scalars["prony_selected_term_count"] == 2
+    assert scalars["prony_g_ratio_1"] + scalars["prony_g_ratio_2"] < 1
+    assert scalars["prony_2_normalized_rmse"] < 1e-7
+
+
+def test_polymer_methods_reject_nonpositive_time_and_unfitted_manual_choice() -> None:
+    with pytest.raises(CommonPipelineError, match="positive"):
+        preview_pipeline(
+            _document(),
+            _profile(),
+            (
+                _step(
+                    "polymer.log_time_resample",
+                    start_time_s=0.1,
+                    end_time_s=4.0,
+                    count=10,
+                    extrapolation="reject",
+                ),
+            ),
+        )
+    with pytest.raises(CommonPipelineError, match="manual selected_term_count"):
+        preview_pipeline(
+            _relaxation_document(),
+            _relaxation_profile(),
+            (
+                _step("rows.sort_unique", duplicate_policy="reject"),
+                _step(
+                    "polymer.prony_fit_compare",
+                    time_quantity="time",
+                    modulus_quantity="modulus.shear.relaxation",
+                    candidate_term_counts=[1, 2],
+                    selection_mode="manual",
+                    selected_term_count=3,
+                    normalization_modulus_pa=10.0e6,
+                    minimum_relaxation_time_s=0.001,
+                    maximum_relaxation_time_s=1000.0,
+                    maximum_function_evaluations=5000,
+                ),
+            ),
+        )
 
 
 def test_pipeline_preserves_every_stage_and_applies_explicit_operations() -> None:
@@ -102,9 +263,7 @@ def test_pipeline_preserves_every_stage_and_applies_explicit_operations() -> Non
             _step("rows.sort_unique", duplicate_policy="reject"),
             _step("curve.crop", minimum=1.0, maximum=4.0),
             _step("curve.scale_shift", quantity="calculation.y", scale=2.0, offset=-1.0),
-            _step(
-                "curve.resample_linear", start=1.0, end=4.0, count=7, extrapolation="reject"
-            ),
+            _step("curve.resample_linear", start=1.0, end=4.0, count=7, extrapolation="reject"),
             _step("curve.savitzky_golay", quantity="calculation.y", window=5, polynomial_order=2),
         ),
     )
