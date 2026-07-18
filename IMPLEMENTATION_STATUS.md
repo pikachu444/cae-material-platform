@@ -31,6 +31,16 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-71`: Catalog Explorer now searches record name, key, description and text Attributes without
+  leaving the tree/workflow surface. A saved Subset applies its immutable filter definition and
+  opens each exact current Record revision directly in the Workflow graph. The clean demo seeds a
+  reusable `DP780 workflow records` Subset and the protected verifier checks it. Reseeding also now
+  selects the direct Dataset-derived tabulated-plasticity model by exact Dataset revision instead
+  of relying on arbitrary model list order when a processed IR is present. Protected
+  Docker/PostgreSQL verification passed, followed by full CI with 774 Python tests and 62 frontend
+  tests; the default Python runner reported 76 environment-gated PostgreSQL tests as skipped after
+  they had been exercised through the protected Docker path.
+
 - `T-70`: the existing published metal Recipe/Batch path now retains its exact execution origin
   through processed tabulated-plasticity IR `1.3.0`, canonical Neutral JSON, Abaqus/OpenRadioss
   cards and the 13-component Bulk package. Migration 081 adds typed Recipe/Batch/Member/Attempt

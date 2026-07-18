@@ -524,14 +524,21 @@ def _ensure_elastoplastic_models_and_cards(
     dataset: Mapping[str, Any],
 ) -> None:
     state_id = _current_id(state, "material_state_id")
+    dataset_revision_id = _revision_id(dataset)
     models = api.get(f"/material-states/{state_id}/tabulated-plasticity-models")
-    model = _find(models.get("items"), lambda _: True)
+    model = _find(
+        models.get("items"),
+        lambda item: isinstance(item.get("current_revision"), dict)
+        and item["current_revision"].get("content", {}).get("source_dataset_revision_id")
+        == dataset_revision_id
+        and item["current_revision"].get("content", {}).get("processing_projection") is None,
+    )
     if model is None:
         model = api.post(
             f"/material-states/{state_id}/tabulated-plasticity-models",
             {
                 "property_set_revision_id": _revision_id(properties),
-                "dataset_revision_id": _revision_id(dataset),
+                "dataset_revision_id": dataset_revision_id,
                 "extension_max_true_plastic_strain": 0.25,
                 "acknowledge_post_necking_approximation": True,
                 "change_reason": (

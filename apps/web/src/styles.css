@@ -3004,6 +3004,46 @@ summary {
   margin-top: 1rem;
 }
 
+.explorer-search {
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.explorer-search label {
+  display: grid;
+  font-size: 0.76rem;
+  font-weight: 700;
+  gap: 0.3rem;
+}
+
+.explorer-search-actions,
+.explorer-subsets > div,
+.explorer-search-summary {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.explorer-subsets,
+.explorer-search-results {
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.85rem 0;
+}
+
+.explorer-search-summary {
+  justify-content: space-between;
+}
+
+.explorer-search-summary small {
+  color: var(--muted);
+}
+
 .tree-node {
   align-items: center;
   background: transparent;

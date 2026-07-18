@@ -50,8 +50,8 @@ Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두
   record-reference Attribute, datasheet Layout과 saved Subset을 revision으로 저장. 이어서
   **Catalog records**에서 Folder/Record를 만들고 원본·정규화 단위를 보존해 검색·비교
 - Catalog 탐색: **Catalog Explorer**에서 Table → Folder → Record 트리를 펼치고, Workflow
-  Explorer에서 Material/Test/Dataset/Model/Card 등 관리자가 정의한 링크를 exact revision으로
-  정방향·역방향 이동
+  Explorer 안에서 이름·key·설명·text Attribute를 검색하거나 저장된 Subset을 다시 적용한 뒤,
+  Material/Test/Dataset/Model/Card 등 관리자가 정의한 링크를 exact revision으로 정방향·역방향 이동
 - 시험 JSON: **Datasets → Test Data JSON**에서 maker/시험/시편/채널/원본·정규화 단위를
   저장 전 검증하고 stable identity와 immutable revision으로 등록한 뒤 exact JSON을 다시 다운로드
 - 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce

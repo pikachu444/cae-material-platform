@@ -15,6 +15,7 @@ const materialRecordId = "51000000-0000-4000-8000-000000000030";
 const materialRecordRevisionId = "51000000-0000-4000-8000-000000000031";
 const testRecordId = "51000000-0000-4000-8000-000000000040";
 const testRecordRevisionId = "51000000-0000-4000-8000-000000000041";
+const materialSubsetId = "51000000-0000-4000-8000-000000000060";
 
 function metadata(id: string, aggregateId: string) {
   return {
@@ -68,6 +69,22 @@ const materialRecord = {
   },
 };
 
+const materialSubset = {
+  subset_id: materialSubsetId,
+  table_id: materialTableId,
+  revision: metadata("51000000-0000-4000-8000-000000000061", materialSubsetId),
+  name: "High strength sheet",
+  description: "Reusable Explorer search",
+  filter_definition: {
+    text: "DP780",
+    folder_id: null,
+    discrete_filters: { "51000000-0000-4000-8000-000000000070": "steel" },
+    number_attribute_id: "51000000-0000-4000-8000-000000000071",
+    number_minimum: "700",
+    number_maximum: null,
+  },
+};
+
 const graph = {
   root: {
     record_id: materialRecordId,
@@ -115,6 +132,7 @@ const mocks = vi.hoisted(() => ({
   linkTypes: vi.fn(),
   graph: vi.fn(),
   search: vi.fn(),
+  subsets: vi.fn(),
   createLink: vi.fn(),
   reviseLink: vi.fn(),
   createLinkType: vi.fn(),
@@ -130,6 +148,7 @@ vi.mock("./api", async (importOriginal) => {
     listConfigurableCatalogLinkTypes: mocks.linkTypes,
     getCatalogWorkflowGraph: mocks.graph,
     searchConfigurableCatalogRecords: mocks.search,
+    listConfigurableCatalogSubsets: mocks.subsets,
     createConfigurableRecordLink: mocks.createLink,
     reviseConfigurableRecordLink: mocks.reviseLink,
     createConfigurableCatalogLinkType: mocks.createLinkType,
@@ -142,6 +161,14 @@ describe("CatalogExplorer", () => {
     vi.clearAllMocks();
     mocks.tables.mockResolvedValue({ data: { items: [materialTable, testTable] }, etag: null });
     mocks.linkTypes.mockResolvedValue({ data: { items: [] }, etag: null });
+    mocks.subsets.mockImplementation((_config, tableId: string) => Promise.resolve({
+      data: { items: tableId === materialTableId ? [materialSubset] : [] },
+      etag: null,
+    }));
+    mocks.search.mockResolvedValue({
+      data: { items: [materialRecord], total_count: 1, offset: 0, limit: 100, facets: [] },
+      etag: null,
+    });
     mocks.children.mockResolvedValue({
       data: { table: materialTable, folders: [], records: [materialRecord] },
       etag: null,
@@ -194,6 +221,46 @@ describe("CatalogExplorer", () => {
     await user.click(node);
     expect(navigate).toHaveBeenCalledWith(
       "/tests?object_id=51000000-0000-4000-8000-000000000051&revision_id=51000000-0000-4000-8000-000000000052",
+    );
+  });
+
+  it("opens an exact Record from an integrated saved Subset search", async () => {
+    const user = userEvent.setup();
+    const navigate = vi.fn();
+    render(
+      <CatalogExplorer
+        config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        onNavigate={navigate}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    const subset = await screen.findByRole("button", { name: "High strength sheet" });
+    await user.click(subset);
+
+    await waitFor(() => expect(mocks.search).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        table_id: materialTableId,
+        text: "DP780",
+        folder_id: null,
+        discrete_filters: [{
+          attribute_definition_id: "51000000-0000-4000-8000-000000000070",
+          values: ["steel"],
+        }],
+        number_filters: [{
+          attribute_definition_id: "51000000-0000-4000-8000-000000000071",
+          minimum: "700",
+          maximum: null,
+        }],
+        facet_attribute_ids: [],
+        limit: 100,
+      },
+    ));
+    expect(screen.getByText("1 matching record")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: /DP780 Sheet/ }));
+    expect(navigate).toHaveBeenCalledWith(
+      `/catalog/explorer/records/${materialRecordId}/revisions/${materialRecordRevisionId}`,
     );
   });
 });

@@ -9,6 +9,7 @@ import {
   listCatalogExplorerChildren,
   listCatalogExplorerTables,
   listConfigurableCatalogLinkTypes,
+  listConfigurableCatalogSubsets,
   reviseConfigurableRecordLink,
   searchConfigurableCatalogRecords,
   type ApiConfig,
@@ -20,6 +21,7 @@ import type {
   ConfigurableLinkEndpoint,
   ConfigurableLinkTypeResponse,
   ConfigurableRecordLinkView,
+  ConfigurableSubsetResponse,
   ConfigurableTableResponse,
   DomainBindingKind,
 } from "./types";
@@ -59,11 +61,17 @@ export function CatalogExplorer({
   onOpenConnection,
 }: CatalogExplorerProps) {
   const [tables, setTables] = useState<ConfigurableTableResponse[]>([]);
+  const [subsets, setSubsets] = useState<Record<string, ConfigurableSubsetResponse[]>>({});
   const [children, setChildren] = useState<Record<string, CatalogExplorerChildrenResponse>>({});
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [linkTypes, setLinkTypes] = useState<ConfigurableLinkTypeResponse[]>([]);
   const [graph, setGraph] = useState<CatalogWorkflowGraphResponse | null>(null);
   const [targetRecords, setTargetRecords] = useState<ConfigurableCatalogRecordResponse[]>([]);
+  const [searchTableId, setSearchTableId] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [selectedSubsetId, setSelectedSubsetId] = useState("");
+  const [searchResults, setSearchResults] = useState<ConfigurableCatalogRecordResponse[] | null>(null);
+  const [searchTotal, setSearchTotal] = useState(0);
   const [selectedLinkTypeId, setSelectedLinkTypeId] = useState("");
   const [selectedTargetId, setSelectedTargetId] = useState("");
   const [linkNote, setLinkNote] = useState("");
@@ -103,12 +111,96 @@ export function CatalogExplorer({
         listConfigurableCatalogLinkTypes(config),
       ]);
       setTables(tableResult.data.items);
+      setSearchTableId((current) => current || tableResult.data.items[0]?.table_id || "");
+      const subsetResults = await Promise.all(
+        tableResult.data.items.map(async (table) => [
+          table.table_id,
+          (await listConfigurableCatalogSubsets(config, table.table_id)).data.items,
+        ] as const),
+      );
+      setSubsets(Object.fromEntries(subsetResults));
       setLinkTypes(typeResult.data.items);
       setError(null);
     } catch (caught) {
       setError(message(caught));
     }
   }, [config]);
+
+  const runSearch = useCallback(
+    async (tableId: string, text: string, subset?: ConfigurableSubsetResponse) => {
+      if (!tableId) return;
+      const definition = subset?.filter_definition ?? {};
+      const discreteDefinition =
+        definition.discrete_filters && typeof definition.discrete_filters === "object"
+          ? definition.discrete_filters as Record<string, unknown>
+          : {};
+      const numberAttributeId =
+        typeof definition.number_attribute_id === "string"
+          ? definition.number_attribute_id
+          : null;
+      setBusy("search");
+      try {
+        const result = await searchConfigurableCatalogRecords(config, {
+          table_id: tableId,
+          text: text.trim() || null,
+          folder_id: typeof definition.folder_id === "string" ? definition.folder_id : null,
+          discrete_filters: Object.entries(discreteDefinition).flatMap(
+            ([attribute_definition_id, value]) =>
+              typeof value === "string"
+                ? [{ attribute_definition_id, values: [value] }]
+                : [],
+          ),
+          number_filters: numberAttributeId
+            ? [{
+                attribute_definition_id: numberAttributeId,
+                minimum:
+                  typeof definition.number_minimum === "string"
+                    ? definition.number_minimum
+                    : null,
+                maximum:
+                  typeof definition.number_maximum === "string"
+                    ? definition.number_maximum
+                    : null,
+              }]
+            : [],
+          facet_attribute_ids: [],
+          limit: 100,
+        });
+        setSearchResults(result.data.items);
+        setSearchTotal(result.data.total_count);
+        setError(null);
+      } catch (caught) {
+        setError(message(caught));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [config],
+  );
+
+  function submitSearch(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    const selectedSubset = (subsets[searchTableId] ?? []).find(
+      (item) => item.subset_id === selectedSubsetId,
+    );
+    void runSearch(searchTableId, searchText, selectedSubset);
+  }
+
+  function applySubset(subset: ConfigurableSubsetResponse): void {
+    const definition = subset.filter_definition ?? {};
+    const text = typeof definition.text === "string" ? definition.text : "";
+    setSearchTableId(subset.table_id);
+    setSelectedSubsetId(subset.subset_id);
+    setSearchText(text);
+    void runSearch(subset.table_id, text, subset);
+  }
+
+  function clearSearch(): void {
+    setSelectedSubsetId("");
+    setSearchText("");
+    setSearchResults(null);
+    setSearchTotal(0);
+  }
 
   const loadGraph = useCallback(
     async (recordId: string, revisionId: string) => {
@@ -380,6 +472,80 @@ export function CatalogExplorer({
           <p className="eyebrow">Catalog Explorer</p>
           <h2>Workspace</h2>
           <p className="muted">Table → Folder → Record</p>
+          <form className="explorer-search" onSubmit={submitSearch}>
+            <label>
+              Search Table
+              <select
+                value={searchTableId}
+                onChange={(event) => {
+                  setSearchTableId(event.target.value);
+                  setSelectedSubsetId("");
+                  setSearchResults(null);
+                }}
+              >
+                {tables.map((table) => (
+                  <option key={table.table_id} value={table.table_id}>
+                    {table.current_revision.content.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Record name, key, description or text Attribute
+              <input
+                type="search"
+                value={searchText}
+                onChange={(event) => setSearchText(event.target.value)}
+                placeholder="Search exact current records…"
+              />
+            </label>
+            <div className="explorer-search-actions">
+              <button className="button primary" type="submit" disabled={!searchTableId || busy === "search"}>
+                {busy === "search" ? "Searching…" : "Search"}
+              </button>
+              {searchResults !== null ? (
+                <button className="button secondary" type="button" onClick={clearSearch}>Clear</button>
+              ) : null}
+            </div>
+          </form>
+          {(subsets[searchTableId] ?? []).length ? (
+            <div className="explorer-subsets" aria-label="Saved Catalog subsets">
+              <strong>Saved subsets</strong>
+              <div>
+                {(subsets[searchTableId] ?? []).map((subset) => (
+                  <button
+                    className={selectedSubsetId === subset.subset_id ? "filter-chip active" : "filter-chip"}
+                    type="button"
+                    key={subset.subset_id}
+                    onClick={() => applySubset(subset)}
+                  >
+                    {subset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {searchResults !== null ? (
+            <section className="explorer-search-results" aria-label="Catalog Explorer search results">
+              <div className="explorer-search-summary">
+                <strong>Search results</strong>
+                <small>{searchTotal} matching record{searchTotal === 1 ? "" : "s"}</small>
+              </div>
+              {searchResults.map((record) => (
+                <button
+                  className={`tree-node record-node ${selected?.record_id === record.record_id ? "selected" : ""}`}
+                  type="button"
+                  key={record.record_id}
+                  onClick={() => openRecord(record)}
+                >
+                  <span>◆</span>
+                  <span>{record.current_revision.content.name}</span>
+                  <small>r{record.current_revision.revision_no}</small>
+                </button>
+              ))}
+              {!searchResults.length ? <p className="tree-empty">No matching records.</p> : null}
+            </section>
+          ) : null}
           <div className="catalog-tree" aria-label="Catalog Explorer tree">
             {tables.map((table) => {
               const key = cacheKey(table.table_id, null);

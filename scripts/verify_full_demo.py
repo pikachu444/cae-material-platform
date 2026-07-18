@@ -296,6 +296,18 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         table = next(
             item for item in tables if _content(item).get("key") == "demo_material_records"
         )
+        subsets = _items(
+            _json(client.get(f"/catalog/tables/{table['table_id']}/subsets"))
+        )
+        workflow_subset = next(
+            (item for item in subsets if item.get("name") == "DP780 workflow records"),
+            None,
+        )
+        if not isinstance(workflow_subset, Mapping):
+            raise RuntimeError("clean demo Explorer has no reusable DP780 Subset")
+        subset_filter = workflow_subset.get("filter_definition")
+        if not isinstance(subset_filter, Mapping) or subset_filter.get("text") != "DP780":
+            raise RuntimeError("clean demo Explorer Subset does not preserve its search")
         searched = _json(
             client.post(
                 "/catalog/records:search",
@@ -531,6 +543,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
 
         result["clean_product_journey"] = {
             "catalog_record_id": catalog_record["record_id"],
+            "catalog_subset_id": workflow_subset["subset_id"],
             "catalog_workflow_node_count": len(workflow_nodes) + 2,
             "test_data_document_id": document["test_data_document_id"],
             "mapping_profile_id": profile["mapping_profile_id"],
