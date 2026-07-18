@@ -194,6 +194,16 @@ async def _exercise() -> None:
         capabilities = await client.get("/api/v1/neutral-hyperelastic-export-capabilities")
         assert capabilities.status_code == 200
         assert len(capabilities.json()["capabilities"]) == 8
+        neutral_capabilities = await client.get(
+            "/api/v1/neutral-solver-export-capabilities"
+        )
+        assert neutral_capabilities.status_code == 200
+        assert set(neutral_capabilities.json()["families"]) == {
+            "isotropic_tabulated_plasticity",
+            "generalized_maxwell",
+            "hyperelastic",
+            "hyperelastic_prony_overlay",
+        }
 
         preflight = await client.post(
             f"/api/v1/neutral-materials/{NEUTRAL}/solver-card-preflight",
@@ -233,6 +243,15 @@ async def _exercise() -> None:
         assert downloaded.status_code == 200
         assert downloaded.headers["x-cmp-mapping-report-sha256"] == REPORT.digest
         assert downloaded.headers["content-disposition"].endswith('.inp"')
+
+        generic_report = await client.get(
+            f"/api/v1/neutral-solver-cards/{CARD}/mapping-report"
+        )
+        generic_preview = await client.get(f"/api/v1/neutral-solver-cards/{CARD}/preview")
+        generic_download = await client.get(f"/api/v1/neutral-solver-cards/{CARD}/download")
+        assert generic_report.json() == report.json()
+        assert generic_preview.content == preview.content
+        assert generic_download.content == downloaded.content
 
 
 def test_neutral_hyperelastic_solver_card_api_exposes_preflight_sidecar_and_native_card() -> None:

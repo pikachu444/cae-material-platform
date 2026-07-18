@@ -32,7 +32,7 @@ function save(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-export function NeutralHyperelasticExport({
+export function NeutralSolverExport({
   config,
   neutralMaterial,
 }: {
@@ -56,10 +56,18 @@ export function NeutralHyperelasticExport({
     [solver],
   );
   const reviewRequired = report?.report.items.some(
-    (item) => item.status === "approximated" || item.status === "ignored" || item.status === "unsupported",
+    (item) => item.status === "approximated" || item.status === "ignored",
   ) ?? false;
 
   useEffect(() => {
+    const modelFamily = neutralMaterial.document?.material_model_ir?.model_family;
+    setMaterialName(
+      modelFamily === "isotropic_tabulated_plasticity"
+        ? "METAL_REFERENCE"
+        : modelFamily === "generalized_maxwell"
+          ? "POLYMER_REFERENCE"
+          : "ELASTOMER_REFERENCE",
+    );
     setReport(null);
     setAcknowledged(false);
     setCard(null);
@@ -151,7 +159,7 @@ export function NeutralHyperelasticExport({
     <section className="workflow-step neutral-solver-export" aria-label="Neutral Material solver card generation">
       <div className="curve-heading">
         <div>
-          <p className="eyebrow">T-57 · reviewed solver mapping</p>
+          <p className="eyebrow">T-64 · family-neutral solver mapping</p>
           <h5>Generate a native solver card from this exact Neutral revision</h5>
         </div>
         <span className="reference-chip">reference / non-production</span>
@@ -191,7 +199,7 @@ export function NeutralHyperelasticExport({
         {busy === "preflight" ? "Checking mapping…" : "Run mapping preflight"}
       </button>
       {report ? (
-        <section className="mapping-report" aria-label="Neutral hyperelastic solver mapping report">
+        <section className="mapping-report" aria-label="Neutral Material solver mapping report">
           <div className="mapping-report-heading">
             <div>
               <strong>{report.report.family.replaceAll("_", " ")} → {solver}</strong>
@@ -212,9 +220,11 @@ export function NeutralHyperelasticExport({
               </li>
             ))}
           </ul>
-          <a href={report.report.exporter.documentation_url} target="_blank" rel="noreferrer">
-            Official keyword reference used by this exporter
-          </a>
+          {report.report.exporter.documentation_url ? (
+            <a href={report.report.exporter.documentation_url} target="_blank" rel="noreferrer">
+              Official keyword reference used by this exporter
+            </a>
+          ) : null}
           {reviewRequired ? (
             <label className="acknowledgement-control">
               <input
@@ -222,7 +232,7 @@ export function NeutralHyperelasticExport({
                 checked={acknowledged}
                 onChange={(event) => setAcknowledged(event.target.checked)}
               />
-              I reviewed every approximated, ignored, or unsupported mapping state.
+              I reviewed every approximated or ignored mapping state.
             </label>
           ) : null}
           <button
@@ -262,3 +272,6 @@ export function NeutralHyperelasticExport({
     </section>
   );
 }
+
+// T-57 compatibility export for the existing hyperelastic workbench and external imports.
+export const NeutralHyperelasticExport = NeutralSolverExport;

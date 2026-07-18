@@ -8100,11 +8100,25 @@ paths:
               schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/CapabilityManifest"}
         "401": {description: Authentication required.}
         "403": {description: Export read is not authorized.}
+  /api/v1/neutral-solver-export-capabilities:
+    get:
+      operationId: getNeutralSolverExportCapabilities
+      tags: [exporting]
+      summary: Read the three-family Abaqus/OpenRadioss capability manifest.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Digest-pinned family-neutral capability matrix.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/NeutralCapabilityManifest"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
   /api/v1/neutral-materials/{neutral_material_id}/solver-card-preflight:
     post:
       operationId: preflightNeutralHyperelasticSolverCard
       tags: [exporting]
-      summary: Classify every mapping before generating a native hyperelastic card.
+      summary: Classify every mapping before generating a native Neutral-family card.
       security: [{BearerAuth: []}]
       parameters:
         - {name: neutral_material_id, in: path, required: true, schema: {type: string, format: uuid}}
@@ -8131,7 +8145,7 @@ paths:
     get:
       operationId: listNeutralHyperelasticSolverCards
       tags: [exporting]
-      summary: List immutable cards generated from one Neutral Material identity.
+      summary: List immutable family-neutral cards generated from one Neutral Material identity.
       security: [{BearerAuth: []}]
       responses:
         "200":
@@ -8224,6 +8238,74 @@ paths:
       operationId: downloadNeutralHyperelasticSolverCard
       tags: [exporting]
       summary: Download exact native card bytes with card and mapping-report digests.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Exact `.inp` or `.rad` attachment.
+          headers:
+            Content-Disposition: {schema: {type: string}}
+            X-CMP-Card-Sha256: {schema: {type: string, pattern: '^[0-9a-f]{64}$'}}
+            X-CMP-Mapping-Report-Sha256: {schema: {type: string, pattern: '^[0-9a-f]{64}$'}}
+          content:
+            text/plain: {schema: {type: string}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
+  /api/v1/neutral-solver-cards/{solver_card_id}:
+    get:
+      operationId: getNeutralSolverCard
+      tags: [exporting]
+      summary: Read an immutable card generated from any supported Neutral family.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Card metadata and exact Neutral revision pins.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/CardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
+  /api/v1/neutral-solver-cards/{solver_card_id}/mapping-report:
+    get:
+      operationId: getNeutralSolverMappingReport
+      tags: [exporting]
+      summary: Reproduce the exact family-neutral mapping report pinned by a card.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Reproduced six-state mapping report.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/MappingReportResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card or source is not visible.}
+        "409": {description: Reproduced report does not match the immutable card.}
+  /api/v1/neutral-solver-cards/{solver_card_id}/preview:
+    get:
+      operationId: previewNeutralSolverCard
+      tags: [exporting]
+      summary: Preview exact stored Abaqus or OpenRadioss native ASCII.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Exact native card text, content: {text/plain: {schema: {type: string}}}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
+  /api/v1/neutral-solver-cards/{solver_card_id}/download:
+    get:
+      operationId: downloadNeutralSolverCard
+      tags: [exporting]
+      summary: Download exact native ASCII with card and mapping-report digests.
       security: [{BearerAuth: []}]
       parameters:
         - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}

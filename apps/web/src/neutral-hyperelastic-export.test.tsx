@@ -147,7 +147,7 @@ describe("NeutralHyperelasticExport", () => {
         expect(JSON.parse(String(init.body)).expected_mapping_report_sha256).toBe(sha);
         return json(card, 201);
       }
-      if (url.endsWith(`/neutral-hyperelastic-solver-cards/${cardId}/preview`)) {
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) {
         return {
           ok: true,
           status: 200,

@@ -898,3 +898,18 @@ This gate does not claim the 5-GiB domain ceiling is operationally qualified. Pe
 reads remain capped at 64 MiB. Long-running soak, broad fault injection and worker identity/token
 rotation remain explicit release conditions; the separate production-scale extension above closes
 only the 10,000-Material and 2-GiB streaming conditions.
+
+## T-64 family-neutral solver export gate
+
+The export gate starts from canonical `cmp.neutral-material` bytes, never from a latest model alias.
+It validates metal Abaqus/OpenRadioss semantic keywords, generalized-Maxwell Abaqus Prony rows,
+hyperelastic Abaqus Prony overlays and one-term Ogden OpenRadioss LAW62. A non-Ogden LAW62 request
+and a linear-Prony OpenRadioss request must remain `unsupported`; stale mapping-report digests must
+remain conflicts. Existing T-57 rate-independent hyperelastic card bytes are regression fixtures.
+
+Migration tests require typed family columns, ordered Prony and mapping-item tables, composite exact
+revision foreign keys, RLS and immutable triggers without JSON/EAV value storage. API/UI tests cover
+both the primary `/neutral-solver-cards` resources and compatibility aliases. T-58 bundle resolution
+must reproduce the report with the family-neutral dispatcher and match the stored digest before it
+adds canonical JSON, report and native ASCII to the checksum package. T-65 supplies the final clean
+Compose browser download evidence; actual Abaqus/OpenRadioss execution remains outside this gate.

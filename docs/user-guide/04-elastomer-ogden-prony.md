@@ -135,6 +135,8 @@ exact Ogden-Prony model revision과 ordered shear-Prony 항도 `prony_overlay`�
 overlay가 없는 것처럼 생략하거나 다른 revision의 항을 조합하지 않습니다. 기존 1.0
 hyperelastic Neutral JSON은 canonical bytes를 바꾸지 않고 계속 읽을 수 있습니다.
 
-현재 T-57 hyperelastic native exporter는 rate-independent family mapping을 유지합니다. Prony
-overlay를 Abaqus/OpenRadioss native card에 포함하는 통합 mapping/report는 T-64에서 완료되기
-전까지 기존 Ogden-Prony 전용 card 경로를 사용하십시오.
+T-64 통합 mapping/report는 exact Prony overlay를 Abaqus native card에 포함합니다. OpenRadioss
+LAW62는 한 항 Ogden base일 때만 허용합니다. Neo-Hookean, Mooney–Rivlin 또는 Yeoh overlay를
+LAW62로 변환하려 하면 preflight가 `unsupported`로 차단하며 다른 potential로 조용히 바꾸지
+않습니다. Neutral JSON 생성 뒤 **T-64 · family-neutral solver mapping**에서 report를 확인하고
+native ASCII를 preview·download하십시오.

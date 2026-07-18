@@ -83,6 +83,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260909_074_T59_product_access_assignments.py",
         "20260910_075_T62_domain_record_bindings.py",
         "20260911_076_T63_three_family_neutral.py",
+        "20260912_077_T64_neutral_export_parity.py",
     ]
 
 

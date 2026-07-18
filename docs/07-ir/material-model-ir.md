@@ -486,3 +486,25 @@ applicable and round-trip through validate/import/export without numeric changes
 family-specific solver-card regeneration and Bulk consumer parity from these exact Neutral
 revisions.
 
+### 17.3 T-64 family-neutral solver projection
+
+Migration 077 extends the existing immutable Neutral solver-card identity rather than creating a
+parallel card store. New revisions carry the closed `model_family`, the exact Neutral model-schema
+digest, typed metal or linear-viscoelastic parameters, optional hardening Artifact evidence,
+ordered Prony terms and every six-state mapping item. Existing T-57 rate-independent hyperelastic
+revisions remain readable and preserve their original canonical bytes and digest.
+
+The declared reference mappings are deliberately bounded:
+
+- isotropic tabulated plasticity emits Abaqus `*DENSITY`, `*ELASTIC`, `*PLASTIC` or OpenRadioss
+  `/MAT/LAW36` plus `/FUNCT` from the exact fitted/extrapolated Neutral curve stages;
+- generalized Maxwell emits Abaqus `*VISCOELASTIC, TIME=PRONY`; OpenRadioss is explicitly
+  `unsupported` because LAW62 requires a hyperelastic Ogden base;
+- hyperelastic with an exact Prony overlay emits the selected public potential plus Abaqus Prony
+  rows, while OpenRadioss LAW62 is allowed only for one-term Ogden. No other potential is converted
+  silently.
+
+The primary resource path is `/api/v1/neutral-solver-cards/{id}`. The former
+`neutral-hyperelastic-solver-cards` paths remain compatibility aliases. A stored card can reproduce
+its mapping report only by reading the exact Neutral revision and matching the pinned report digest.
+

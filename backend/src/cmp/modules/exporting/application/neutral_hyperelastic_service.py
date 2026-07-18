@@ -10,11 +10,14 @@ from uuid import UUID, uuid4
 from cmp.modules.exporting.application.service import RevisionSnapshot
 from cmp.modules.exporting.domain.neutral_hyperelastic import (
     NeutralHyperelasticExportTarget,
-    NeutralHyperelasticMappingReport,
     NeutralHyperelasticSolverCardConflict,
     NeutralHyperelasticSolverCardContent,
-    build_neutral_hyperelastic_solver_card,
-    preflight_neutral_hyperelastic_export,
+)
+from cmp.modules.exporting.domain.neutral_solver import (
+    NeutralCardContent,
+    NeutralMappingReport,
+    build_neutral_solver_card,
+    preflight_neutral_solver_export,
 )
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
 from cmp.modules.identity_access.domain.security import SecurityContext
@@ -29,6 +32,8 @@ from cmp.shared.domain.revisions import TenantScope
 NEUTRAL_SOLVER_CARD_AGGREGATE_TYPE = "exporting.neutral_solver_card"
 NEUTRAL_SOLVER_CARD_SCHEMA_ID = "urn:cmp:exporting:neutral-hyperelastic-card:1.0.0"
 NEUTRAL_SOLVER_CARD_SCHEMA_VERSION = "1.0.0"
+NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_ID = "urn:cmp:exporting:neutral-family-card:2.0.0"
+NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_VERSION = "2.0.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,13 +54,13 @@ class NeutralHyperelasticSolverCardSnapshot:
     target: NeutralHyperelasticExportTarget
     solver_material_id: int
     material_name: str
-    current: RevisionSnapshot[NeutralHyperelasticSolverCardContent]
+    current: RevisionSnapshot[NeutralCardContent]
 
 
 class NeutralHyperelasticExportingRepository(Protocol):
     def solver_card_store(
         self, *, context: SecurityContext, decision: AuthorizationDecision
-    ) -> RevisionStore[NeutralHyperelasticSolverCardContent]: ...
+    ) -> RevisionStore[NeutralCardContent]: ...
 
     def get_solver_card(
         self,
@@ -86,7 +91,7 @@ def _require(
         or decision.trace_id != context.trace_id
     ):
         raise NeutralHyperelasticSolverCardConflict(
-            "authorization decision does not match Neutral hyperelastic export request"
+            "authorization decision does not match Neutral solver export request"
         )
 
 
@@ -116,7 +121,7 @@ class NeutralHyperelasticSolverCardService:
         neutral_material_id: UUID,
         neutral_material_revision_id: UUID,
         target: NeutralHyperelasticExportTarget,
-    ) -> NeutralHyperelasticMappingReport:
+    ) -> NeutralMappingReport:
         _require(context, decision, Permission.EXPORT_READ)
         source = await self._neutral_materials.get_neutral_material_revision_for_export(
             context,
@@ -124,7 +129,7 @@ class NeutralHyperelasticSolverCardService:
             neutral_material_id,
             neutral_material_revision_id,
         )
-        return preflight_neutral_hyperelastic_export(
+        return preflight_neutral_solver_export(
             neutral_material_id=source.id,
             neutral_material_revision_id=source.current.revision_id,
             source=source.document,
@@ -136,7 +141,7 @@ class NeutralHyperelasticSolverCardService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         command: CreateNeutralHyperelasticSolverCard,
-    ) -> tuple[NeutralHyperelasticSolverCardSnapshot, NeutralHyperelasticMappingReport]:
+    ) -> tuple[NeutralHyperelasticSolverCardSnapshot, NeutralMappingReport]:
         _require(context, decision, Permission.EXPORT_EXECUTE)
         source = await self._neutral_materials.get_neutral_material_revision_for_export(
             context,
@@ -144,7 +149,7 @@ class NeutralHyperelasticSolverCardService:
             command.neutral_material_id,
             command.neutral_material_revision_id,
         )
-        report, content = build_neutral_hyperelastic_solver_card(
+        report, content = build_neutral_solver_card(
             neutral_material_id=source.id,
             neutral_material_revision_id=source.current.revision_id,
             source=source.document,
@@ -167,8 +172,16 @@ class NeutralHyperelasticSolverCardService:
                     context.project_id,
                     source.current.scope.classification,
                 ),
-                schema_id=NEUTRAL_SOLVER_CARD_SCHEMA_ID,
-                schema_version=NEUTRAL_SOLVER_CARD_SCHEMA_VERSION,
+                schema_id=(
+                    NEUTRAL_SOLVER_CARD_SCHEMA_ID
+                    if isinstance(content, NeutralHyperelasticSolverCardContent)
+                    else NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_ID
+                ),
+                schema_version=(
+                    NEUTRAL_SOLVER_CARD_SCHEMA_VERSION
+                    if isinstance(content, NeutralHyperelasticSolverCardContent)
+                    else NEUTRAL_FAMILY_SOLVER_CARD_SCHEMA_VERSION
+                ),
                 content=content,
                 created_by=context.principal.id,
                 change_reason=_reason(command.change_reason),
@@ -215,7 +228,7 @@ class NeutralHyperelasticSolverCardService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         solver_card_id: UUID,
-    ) -> NeutralHyperelasticMappingReport:
+    ) -> NeutralMappingReport:
         _require(context, decision, Permission.EXPORT_READ)
         card = self._repository.get_solver_card(
             context=context, decision=decision, solver_card_id=solver_card_id
@@ -226,7 +239,7 @@ class NeutralHyperelasticSolverCardService:
             card.current.content.neutral_material_id,
             card.current.content.neutral_material_revision_id,
         )
-        report = preflight_neutral_hyperelastic_export(
+        report = preflight_neutral_solver_export(
             neutral_material_id=source.id,
             neutral_material_revision_id=source.current.revision_id,
             source=source.document,
