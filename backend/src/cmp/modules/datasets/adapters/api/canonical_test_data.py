@@ -16,6 +16,7 @@ from sqlalchemy.exc import IntegrityError
 from cmp.modules.datasets.adapters.api.datasets import _etag, _scope
 from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
+    ExactTestDataRevisionRef,
     ImportCanonicalTestData,
     ReviseCanonicalTestData,
     TestDataDocumentSnapshot,
@@ -317,6 +318,19 @@ class CanonicalTestDataDocumentList(BaseModel):
     items: tuple[CanonicalTestDataDocumentResponse, ...]
 
 
+class ExactTestDataRevisionInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    document_id: UUID
+    revision_id: UUID
+
+
+class CanonicalTestDataPackageRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    revisions: Annotated[
+        tuple[ExactTestDataRevisionInput, ...], Field(min_length=1, max_length=100)
+    ]
+
+
 def install_canonical_test_data_api(
     app: FastAPI,
     *,
@@ -469,5 +483,39 @@ def install_canonical_test_data_api(
                     f'attachment; filename="{snapshot.content.document_key}.json"'
                 ),
                 "X-Content-SHA256": snapshot.content.canonical_sha256,
+            },
+        )
+
+    @app.post(
+        "/api/v1/test-data-packages:download",
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["test-data-json"],
+    )
+    async def download_test_data_package(
+        body: CanonicalTestDataPackageRequest,
+        request: Request,
+    ) -> Response:
+        context, decision = _scope(request)
+        if service is None:
+            raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
+        try:
+            value, digest = await service.export_package(
+                context,
+                decision,
+                tuple(
+                    ExactTestDataRevisionRef(item.document_id, item.revision_id)
+                    for item in body.revisions
+                ),
+            )
+        except GovernedImportNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except GovernedImportConflict as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        return Response(
+            content=value,
+            media_type="application/vnd.cmp.test-data-package+zip",
+            headers={
+                "Content-Disposition": 'attachment; filename="cmp-test-data-package.zip"',
+                "X-Content-SHA256": digest,
             },
         )

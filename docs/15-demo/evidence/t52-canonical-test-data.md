@@ -15,10 +15,14 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
    matched the pinned `X-Content-SHA256` value (`5f3d3e3f...a25d`).
 7. Re-importing `DP600-TENSILE-01` with the exact current ETag appended revision 2 and new Artifact
    digests; downloading revision 1 still returned the original `Kim Tester` evidence.
+8. The current-revision package endpoint produced deterministic ZIP bytes with UUID-safe paths,
+   `manifest.json`, `checksums.sha256`, `README.txt` and canonical Test Data JSON entries.
 
 ## Evidence
 
 ![Canonical Test Data validation, immutable import and revision list](../images/t52-canonical-test-data.png)
+
+![Current exact revisions packaged as deterministic JSON+ZIP](../images/t52-canonical-test-data-package.png)
 
 - API/domain tests cover semantic preview, immutable import, list and exact-revision round-trip.
 - Fresh PostgreSQL migration and the live Docker workflow verify typed condition/channel rows, RLS,

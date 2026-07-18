@@ -176,3 +176,10 @@ captures:
     image: ../15-demo/images/t52-canonical-test-data.png
     width: 1265
     height: 1571
+  - id: canonical-test-data-package
+    route: /datasets/test-json
+    workflow: deterministic-current-exact-revision-json-zip-download
+    fixture: T-52 DP600 revision 2 package with manifest and checksums
+    image: ../15-demo/images/t52-canonical-test-data-package.png
+    width: 1265
+    height: 712

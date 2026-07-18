@@ -3,6 +3,7 @@ import { useEffect, useState, type ChangeEvent } from "react";
 import {
   ApiError,
   downloadCanonicalTestDataDocument,
+  downloadCanonicalTestDataPackage,
   importCanonicalTestData,
   listCanonicalTestDataDocuments,
   reviseCanonicalTestData,
@@ -147,6 +148,27 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
     }
   }
 
+  async function downloadPackage(): Promise<void> {
+    setError(null);
+    try {
+      const result = await downloadCanonicalTestDataPackage(
+        config,
+        documents.map((item) => ({
+          document_id: item.test_data_document_id,
+          revision_id: item.current_revision.id,
+        })),
+      );
+      const url = URL.createObjectURL(result.data.blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = result.data.filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    }
+  }
+
   return (
     <main className="test-json-page">
       <section className="page-hero compact-hero">
@@ -208,7 +230,7 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
       </section>
 
       <section className="workbench-card saved-test-documents">
-        <div className="section-heading"><div><p className="eyebrow">Revision-pinned evidence</p><h2>Imported Test Data</h2></div><span className="status-chip">{documents.length} documents</span></div>
+        <div className="section-heading"><div><p className="eyebrow">Revision-pinned evidence</p><h2>Imported Test Data</h2></div><div className="hero-actions"><span className="status-chip">{documents.length} documents</span><button className="button secondary" type="button" disabled={documents.length === 0} onClick={() => void downloadPackage()}>Download current JSON+ZIP</button></div></div>
         {documents.length === 0 ? <p className="muted">No canonical Test Data has been imported in this project.</p> : (
           <div className="document-list">
             {documents.map((item) => (

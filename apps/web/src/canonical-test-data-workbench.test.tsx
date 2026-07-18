@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   listDocuments: vi.fn(),
   downloadDocument: vi.fn(),
   reviseDocument: vi.fn(),
+  downloadPackage: vi.fn(),
 }));
 
 vi.mock("./api", async (importOriginal) => {
@@ -21,6 +22,7 @@ vi.mock("./api", async (importOriginal) => {
     listCanonicalTestDataDocuments: mocks.listDocuments,
     downloadCanonicalTestDataDocument: mocks.downloadDocument,
     reviseCanonicalTestData: mocks.reviseDocument,
+    downloadCanonicalTestDataPackage: mocks.downloadPackage,
   };
 });
 
@@ -73,6 +75,10 @@ describe("CanonicalTestDataWorkbench", () => {
         current_revision: { id: "revision-2", revision_no: 2 },
       },
       etag: '"revision:2:sha256:updated"',
+    });
+    mocks.downloadPackage.mockResolvedValue({
+      data: { blob: new Blob(["package"]), filename: "cmp-test-data-package.zip" },
+      etag: null,
     });
   });
 
@@ -157,5 +163,13 @@ describe("CanonicalTestDataWorkbench", () => {
       `"revision:1:sha256:${"c".repeat(64)}"`,
     );
     expect(mocks.importDocument).not.toHaveBeenCalled();
+
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    await user.click(screen.getByRole("button", { name: "Download current JSON+ZIP" }));
+    await waitFor(() => expect(mocks.downloadPackage).toHaveBeenCalledOnce());
+    expect(mocks.downloadPackage.mock.calls[0][1]).toEqual([
+      { document_id: "document-1", revision_id: "revision-1" },
+    ]);
+    click.mockRestore();
   });
 });

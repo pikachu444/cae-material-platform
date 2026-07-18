@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import io
 import json
+import zipfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Protocol, cast
@@ -95,6 +97,12 @@ class ReviseCanonicalTestData:
     expected_current_revision_id: UUID
     document: CanonicalTestDataDocument
     change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ExactTestDataRevisionRef:
+    document_id: UUID
+    revision_id: UUID
 
 
 class CanonicalTestDataRepository(Protocol):
@@ -419,3 +427,70 @@ class CanonicalTestDataService:
             decision=decision,
             document_id=document_id,
         )
+
+    async def export_package(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        references: tuple[ExactTestDataRevisionRef, ...],
+    ) -> tuple[bytes, str]:
+        _require(context, decision, Permission.DATASET_READ)
+        if not 1 <= len(references) <= 100:
+            raise GovernedImportConflict("Test Data package requires 1..100 exact revisions")
+        if len(set(references)) != len(references):
+            raise GovernedImportConflict("Test Data package contains duplicate revision references")
+        files: dict[str, bytes] = {}
+        entries: list[dict[str, object]] = []
+        for reference in sorted(
+            references, key=lambda item: (str(item.document_id), str(item.revision_id))
+        ):
+            snapshot, value = await self.export_document(
+                context,
+                decision,
+                reference.document_id,
+                reference.revision_id,
+            )
+            path = f"test-data/{reference.document_id}/{reference.revision_id}.json"
+            files[path] = value
+            entries.append(
+                {
+                    "document_id": str(reference.document_id),
+                    "document_key": snapshot.content.document_key,
+                    "revision_id": str(reference.revision_id),
+                    "revision_no": snapshot.current.revision_no,
+                    "path": path,
+                    "sha256": snapshot.content.canonical_sha256,
+                    "size_bytes": len(value),
+                }
+            )
+        manifest = {
+            "document_type": "cmp.test-data-package",
+            "schema_version": "1.0.0",
+            "entry_count": len(entries),
+            "entries": entries,
+        }
+        files["manifest.json"] = (
+            json.dumps(manifest, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
+                "utf-8"
+            )
+            + b"\n"
+        )
+        files["README.txt"] = (
+            b"CMP canonical Test Data package 1.0.0\n"
+            b"Verify checksums.sha256 before importing exact revision evidence.\n"
+        )
+        files["checksums.sha256"] = "".join(
+            f"{hashlib.sha256(value).hexdigest()}  {path}\n"
+            for path, value in sorted(files.items())
+        ).encode("ascii")
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(
+            buffer, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9, strict_timestamps=True
+        ) as archive:
+            for path, value in sorted(files.items()):
+                info = zipfile.ZipInfo(path, date_time=(1980, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                info.external_attr = 0o100644 << 16
+                archive.writestr(info, value, compresslevel=9)
+        package = buffer.getvalue()
+        return package, hashlib.sha256(package).hexdigest()

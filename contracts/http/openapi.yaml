@@ -108,6 +108,29 @@ paths:
         "412": {description: If-Match names a stale revision.}
         "422": {description: Canonical Test Data semantics are invalid.}
         "428": {description: A strong exact-revision If-Match header is required.}
+  /api/v1/test-data-packages:download:
+    post:
+      operationId: downloadCanonicalTestDataPackage
+      tags: [test-data-json]
+      summary: Download 1..100 exact Test Data revisions in a deterministic checksum-verifiable ZIP.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/PackageRequest"}
+      responses:
+        "200":
+          description: Deterministic package with manifest, checksums and canonical JSON files.
+          headers:
+            X-Content-SHA256: {schema: {type: string, pattern: "^[0-9a-f]{64}$"}}
+          content:
+            application/vnd.cmp.test-data-package+zip:
+              schema: {type: string, format: binary}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset read is not authorized.}
+        "404": {description: One exact Test Data revision is not visible.}
+        "409": {description: Selection or immutable Artifact evidence conflicts.}
   /api/v1/health:
     get:
       operationId: getHealth

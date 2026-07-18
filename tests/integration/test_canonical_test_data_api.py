@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import io
 import json
+import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
@@ -12,6 +15,8 @@ from cmp.modules.datasets.adapters.api.canonical_test_data import (
     install_canonical_test_data_api,
 )
 from cmp.modules.datasets.application.canonical_test_data import (
+    CanonicalTestDataService,
+    ExactTestDataRevisionRef,
     ImportCanonicalTestData,
     ReviseCanonicalTestData,
     canonical_json_bytes,
@@ -190,6 +195,16 @@ class _Service:
         self.snapshot = DocumentSnapshot(DOCUMENT, record, self.snapshot.content)
         return self.snapshot
 
+    async def export_package(
+        self,
+        context: Any,
+        decision: Any,
+        references: tuple[ExactTestDataRevisionRef, ...],
+    ) -> tuple[bytes, str]:
+        return await CanonicalTestDataService.export_package(
+            cast(Any, self), context, decision, references
+        )
+
 
 class _ConflictingService(_Service):
     async def import_document(
@@ -344,3 +359,37 @@ async def test_append_revision_requires_exact_current_etag() -> None:
     assert revised.json()["current_revision"]["revision_no"] == 2
     assert revised.json()["current_revision"]["based_on_revision_id"] == str(REVISION)
     assert missing_precondition.status_code == 428
+
+
+@pytest.mark.anyio
+async def test_exact_revision_package_is_deterministic_and_checksum_verifiable() -> None:
+    service = _Service()
+    app = _app(service)
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        await client.post(
+            "/api/v1/test-data-documents",
+            json={
+                "classification": "internal",
+                "document": _fixture(),
+                "change_reason": "Package source",
+            },
+        )
+        payload = {"revisions": [{"document_id": str(DOCUMENT), "revision_id": str(REVISION)}]}
+        first = await client.post("/api/v1/test-data-packages:download", json=payload)
+        second = await client.post("/api/v1/test-data-packages:download", json=payload)
+
+    assert first.status_code == 200
+    assert first.content == second.content
+    assert first.headers["x-content-sha256"] == hashlib.sha256(first.content).hexdigest()
+    with zipfile.ZipFile(io.BytesIO(first.content)) as archive:
+        names = archive.namelist()
+        manifest = json.loads(archive.read("manifest.json"))
+        checksums = archive.read("checksums.sha256").decode("ascii")
+        data_path = manifest["entries"][0]["path"]
+        data = archive.read(data_path)
+    assert names == sorted(names)
+    assert manifest["document_type"] == "cmp.test-data-package"
+    assert manifest["entries"][0]["revision_id"] == str(REVISION)
+    assert f"{hashlib.sha256(data).hexdigest()}  {data_path}" in checksums

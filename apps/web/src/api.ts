@@ -354,6 +354,26 @@ export async function downloadCanonicalTestDataDocument(
   };
 }
 
+export async function downloadCanonicalTestDataPackage(
+  config: ApiConfig,
+  revisions: Array<{ document_id: string; revision_id: string }>,
+): Promise<ApiResult<SolverCardDownload>> {
+  const init: RequestInit = {
+    method: "POST",
+    body: JSON.stringify({ revisions }),
+  };
+  const headers = authenticatedHeaders(config, init, "application/vnd.cmp.test-data-package+zip");
+  const response = await fetch(endpoint(config, "/test-data-packages:download"), {
+    ...init,
+    headers,
+  });
+  if (!response.ok) return throwResponseError(response);
+  return {
+    data: { blob: await response.blob(), filename: "cmp-test-data-package.zip" },
+    etag: response.headers.get("etag"),
+  };
+}
+
 export function createConfigurableCatalogTable(
   config: ApiConfig,
   input: {

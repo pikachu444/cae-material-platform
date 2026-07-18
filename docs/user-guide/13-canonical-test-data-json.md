@@ -12,8 +12,12 @@
 5. **Import immutable revision**을 누릅니다.
 6. 아래 `Imported Test Data` 목록에서 stable identity와 revision 번호, canonical digest를 확인합니다.
 7. **Download exact JSON**을 누르면 선택된 정확한 revision의 JSON을 다시 받습니다.
+8. **Download current JSON+ZIP**은 화면에 보이는 각 stable identity의 현재 exact revision을
+   `manifest.json`, `checksums.sha256`, `README.txt`, `test-data/`와 함께 묶습니다.
 
 ![Canonical Test Data 검증과 immutable import](../15-demo/images/t52-canonical-test-data.png)
+
+![현재 exact revision JSON+ZIP 다운로드](../15-demo/images/t52-canonical-test-data-package.png)
 
 ## 저장되는 증거
 
@@ -26,5 +30,6 @@
 
 같은 `document_id`를 다시 검증하면 화면은 현재 ETag를 사용해 새 immutable revision을
 추가합니다. 기존 revision과 Artifact는 덮어쓰지 않습니다. 다른 stable identity의 최초 등록과
-revision 추가는 서버에서 구분됩니다. 후속 T-52 increment는 CSV/XLSX adapter와 JSON+ZIP
-package를 제공합니다.
+revision 추가는 서버에서 구분됩니다. JSON+ZIP은 UUID 기반 안전 경로와 고정 ZIP metadata를
+사용하므로 같은 exact revision 선택은 같은 byte digest를 만듭니다. 후속 T-52 increment는
+CSV/XLSX adapter와 package import/대용량 chunk 확장을 제공합니다.
