@@ -22,7 +22,7 @@
 | `FR-CFG-006` | 관리자는 Table별 Layout을 정의해야 한다. | 같은 record를 목적별 datasheet layout으로 표시할 수 있다. |
 | `FR-CFG-007` | 사용자는 filter를 저장하여 Subset으로 다시 열 수 있어야 한다. | Subset 실행 시 현재 권한 범위에서 동일 query 정의를 재현한다. |
 | `FR-NAV-001` | Catalog Explorer는 Workspace → Table → Folder → Record를 lazy load해야 한다. | breadcrumb와 deep link를 유지하며 대형 tree를 전부 선로딩하지 않는다. |
-| `FR-NAV-002` | Workflow Explorer는 Material에서 Release까지 exact revision link를 투영해야 한다. | 노드 클릭 시 해당 workbench와 revision으로 이동하고 `latest`를 관계로 저장하지 않는다. |
+| `FR-NAV-002` | Workflow Explorer는 Material에서 Release까지 exact revision link를 투영하고 각 domain workbench에서 해당 Catalog node를 역조회해야 한다. | Explorer 노드에서 exact workbench로 이동하고 Material/Test JSON/Processing/Neutral 화면에서 같은 graph로 돌아가 관련 revision을 열 수 있으며 `latest`를 관계로 저장하지 않는다. |
 | `FR-NAV-003` | 전체 text와 typed Attribute facet/range 검색을 지원해야 한다. | unit-normalized 수치 범위와 권한 필터가 count/facet에도 동일하게 적용된다. |
 | `FR-NAV-004` | 여러 record를 선택한 Layout으로 비교해야 한다. | 값, 단위, 출처와 revision 차이를 한 화면에 표시한다. |
 | `FR-NAV-005` | 기존 flat module route를 유지해야 한다. | `/materials`, `/tests`, `/datasets`, `/models`, `/exports`, `/governance`가 계속 동작한다. |

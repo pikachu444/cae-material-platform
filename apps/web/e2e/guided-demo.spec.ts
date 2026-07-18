@@ -123,3 +123,29 @@ test("clean demo downloads exact Neutral cards and the governed ZIP", async ({ p
     bundles.items[0].archive_sha256.replace("sha256:", ""),
   );
 });
+
+test("an exact Test JSON revision navigates back through the governed workflow graph", async ({ page, request }) => {
+  const tokenResponse = await request.get(`${webUrl}/api/v1/demo-identity/token`);
+  expect(tokenResponse.ok()).toBeTruthy();
+  const tokenPayload = (await tokenResponse.json()) as { access_token: string };
+  await page.addInitScript(
+    ({ accessToken }) => {
+      window.localStorage.setItem(
+        "cmp.material-platform.api-config",
+        JSON.stringify({ baseUrl: "/api/v1", accessToken }),
+      );
+    },
+    { accessToken: tokenPayload.access_token },
+  );
+
+  await page.goto("/datasets/test-json");
+  const related = page.getByLabel("CMP-DEMO-DP780-TEST-JSON r1 related governed data");
+  await expect(related.getByRole("link", { name: "Open Workflow Explorer" })).toBeVisible();
+  await related.getByRole("link", { name: "Open Workflow Explorer" }).click();
+  await expect(page).toHaveURL(/\/catalog\/explorer\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
+  await expect(page.getByRole("heading", { name: "DP780 canonical tensile Test JSON" })).toBeVisible();
+  const workflowNodes = page.locator(".workflow-node-list");
+  await expect(workflowNodes.getByText("DP780 canonical Neutral Material JSON", { exact: true })).toBeVisible();
+  await expect(workflowNodes.getByText("DP780 Abaqus native material card", { exact: true })).toBeVisible();
+  await expect(workflowNodes.getByText("DP780 OpenRadioss native material card", { exact: true })).toBeVisible();
+});

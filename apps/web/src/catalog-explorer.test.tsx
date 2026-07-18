@@ -168,6 +168,7 @@ describe("CatalogExplorer", () => {
       expect.anything(),
       materialRecordId,
       materialRecordRevisionId,
+      5,
     ));
     expect(screen.getByText(/exact revision 51000000/)).toBeTruthy();
     expect(screen.getByRole("button", { name: /Tensile Test 01/ })).toBeTruthy();

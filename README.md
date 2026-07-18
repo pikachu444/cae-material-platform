@@ -27,7 +27,9 @@ immutable ZIP으로 받을 수 있습니다.
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog
 schema designer와 Layout 기반 typed Record datasheet, Folder, text/facet/normalized-range 검색,
 saved Subset, exact revision 비교를 제공합니다. Catalog/Workflow Explorer와 관리자가 정의하는
-exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니다. Canonical Test JSON은
+exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니다. Explorer에서 각
+workbench로 이동할 수 있고 Material, Test JSON, Processing Output, Neutral Material 및 Solver Card
+화면에서도 같은 exact revision을 역조회하여 연결된 Workflow Explorer와 관련 데이터로 돌아갈 수 있습니다. Canonical Test JSON은
 검증·CSV/TSV/XLSX 변환·immutable revision·exact 다운로드·checksum JSON+ZIP까지 연결됐습니다.
 일반 Mapping Profile과 Processing Recipe/Batch도 실제 API/UI에 연결되어 있으며, clean demo는
 Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두 native card, checksum ZIP까지

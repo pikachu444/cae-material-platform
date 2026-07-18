@@ -634,6 +634,29 @@ def install_catalog_link_api(
             raise _error(context, error) from error
 
     @application.get(
+        "/api/v1/catalog/domain-bindings:resolve",
+        response_model=DomainRevisionBindingResponse | None,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-explorer"],
+    )
+    def resolve_domain_revision_binding(
+        request: Request,
+        kind: DomainBindingKind,
+        object_id: UUID,
+        revision_id: UUID,
+    ) -> DomainRevisionBindingResponse | None:
+        context, decision = _scope(request)
+        try:
+            value = required(context).resolve_domain_binding(
+                context, decision, kind, object_id, revision_id
+            )
+            return None if value is None else DomainRevisionBindingResponse.from_domain(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
         "/api/v1/catalog/workflow-explorer/{record_id}/revisions/{revision_id}",
         response_model=WorkflowGraphResponse,
         dependencies=[Depends(security_dependency), Depends(read_dependency)],

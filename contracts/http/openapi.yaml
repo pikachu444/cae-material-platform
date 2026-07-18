@@ -2203,6 +2203,26 @@ paths:
               schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/WorkflowGraphResponse"}
         "404": {description: Root Record revision is not visible.}
         "422": {description: Depth or exact revision identifier is invalid.}
+  /api/v1/catalog/domain-bindings:resolve:
+    get:
+      operationId: resolveCatalogDomainRevisionBinding
+      tags: [catalog-explorer]
+      summary: Resolve an exact governed domain revision back to its configurable Catalog node.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: kind, in: query, required: true, schema: {type: string, enum: [material, material_state, specimen, test_run, test_data, processing_output, material_model, neutral_material, solver_card, neutral_solver_card, release]}}
+        - {name: object_id, in: query, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: query, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: The exact reverse binding, or null when no Catalog node represents this revision.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/DomainRevisionBindingResponse"}
+                  - {type: "null"}
+        "422": {description: Domain kind or exact UUID request is invalid.}
   /api/v1/catalog/records/{record_id}/revisions/{revision_id}/domain-binding:
     get:
       operationId: getCatalogRecordDomainRevisionBinding
