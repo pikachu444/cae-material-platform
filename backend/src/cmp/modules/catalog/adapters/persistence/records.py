@@ -499,9 +499,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                 )
             )
         return {
-            revision_id: tuple(
-                sorted(values, key=lambda value: str(value.attribute_definition_id))
-            )
+            revision_id: tuple(sorted(values, key=lambda value: str(value.attribute_definition_id)))
             for revision_id, values in grouped.items()
         }
 
@@ -592,6 +590,32 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             values = self._values_by_revision(session, (row["id"],))
             return self._record_snapshot(row, values)
 
+    def list_direct_records(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        folder_id: UUID | None,
+    ) -> tuple[RecordSnapshot, ...]:
+        folder_predicate = (
+            catalog_record_revision.c.folder_id.is_(None)
+            if folder_id is None
+            else catalog_record_revision.c.folder_id == folder_id
+        )
+        with self._transaction(context, decision) as session:
+            rows = (
+                session.execute(
+                    self._record_statement(current=True)
+                    .where(catalog_record.c.table_id == table_id, folder_predicate)
+                    .order_by(catalog_record_revision.c.name.asc(), catalog_record.c.id.asc())
+                )
+                .mappings()
+                .all()
+            )
+            values = self._values_by_revision(session, tuple(row["id"] for row in rows))
+            return tuple(self._record_snapshot(row, values) for row in rows)
+
     def get_record_revision(
         self,
         *,
@@ -663,10 +687,8 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                         sa.select(1).where(
                             record_text_value.c.organization_id
                             == catalog_record_revision.c.organization_id,
-                            record_text_value.c.project_id
-                            == catalog_record_revision.c.project_id,
-                            record_text_value.c.record_revision_id
-                            == catalog_record_revision.c.id,
+                            record_text_value.c.project_id == catalog_record_revision.c.project_id,
+                            record_text_value.c.record_revision_id == catalog_record_revision.c.id,
                             sa.func.lower(record_text_value.c.value).like(pattern),
                         )
                     ),
@@ -680,10 +702,8 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
                     sa.select(1).where(
                         record_discrete_value.c.organization_id
                         == catalog_record_revision.c.organization_id,
-                        record_discrete_value.c.project_id
-                        == catalog_record_revision.c.project_id,
-                        record_discrete_value.c.record_revision_id
-                        == catalog_record_revision.c.id,
+                        record_discrete_value.c.project_id == catalog_record_revision.c.project_id,
+                        record_discrete_value.c.record_revision_id == catalog_record_revision.c.id,
                         record_discrete_value.c.attribute_definition_id
                         == discrete_filter.attribute_definition_id,
                         record_discrete_value.c.value.in_(discrete_filter.values),
@@ -692,21 +712,16 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             )
         for number_filter in query.number_filters:
             predicates: list[Any] = [
-                record_number_value.c.organization_id
-                == catalog_record_revision.c.organization_id,
+                record_number_value.c.organization_id == catalog_record_revision.c.organization_id,
                 record_number_value.c.project_id == catalog_record_revision.c.project_id,
                 record_number_value.c.record_revision_id == catalog_record_revision.c.id,
                 record_number_value.c.attribute_definition_id
                 == number_filter.attribute_definition_id,
             ]
             if number_filter.minimum is not None:
-                predicates.append(
-                    record_number_value.c.normalized_value >= number_filter.minimum
-                )
+                predicates.append(record_number_value.c.normalized_value >= number_filter.minimum)
             if number_filter.maximum is not None:
-                predicates.append(
-                    record_number_value.c.normalized_value <= number_filter.maximum
-                )
+                predicates.append(record_number_value.c.normalized_value <= number_filter.maximum)
             statement = statement.where(sa.exists(sa.select(1).where(*predicates)))
         return statement
 
@@ -731,9 +746,7 @@ class SqlAlchemyCatalogRecordRepository(CatalogRecordRepository):
             total_count = int(session.scalar(sa.select(sa.func.count()).select_from(matched)) or 0)
             rows = (
                 session.execute(
-                    base.order_by(
-                        catalog_record_revision.c.name.asc(), catalog_record.c.id.asc()
-                    )
+                    base.order_by(catalog_record_revision.c.name.asc(), catalog_record.c.id.asc())
                     .offset(query.offset)
                     .limit(query.limit)
                 )

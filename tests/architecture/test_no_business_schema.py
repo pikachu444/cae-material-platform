@@ -67,13 +67,13 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260824_058_T47_bulk_export_job_leases.py",
         "20260825_059_T49_configurable_catalog.py",
         "20260826_060_T50_catalog_records.py",
+        "20260827_061_T51_catalog_links.py",
     ]
 
 
 def test_t06_migration_does_not_introduce_domain_or_generic_content_tables() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260711_001_T06_revision_kernel.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260711_001_T06_revision_kernel.py"
     ).read_text(encoding="utf-8")
     forbidden_table_names = (
         '"material"',
@@ -90,8 +90,7 @@ def test_t06_migration_does_not_introduce_domain_or_generic_content_tables() -> 
 
 def test_t03_migration_stops_before_roles_and_business_resources() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260711_002_T03_identity_principal.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260711_002_T03_identity_principal.py"
     ).read_text(encoding="utf-8")
 
     assert '"role_binding"' not in migration
@@ -104,8 +103,7 @@ def test_t03_migration_stops_before_roles_and_business_resources() -> None:
 
 def test_t04_migration_adds_access_control_without_business_tables() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260711_003_T04_authorization_rls.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260711_003_T04_authorization_rls.py"
     ).read_text(encoding="utf-8")
 
     assert '"role_binding"' in migration
@@ -119,8 +117,7 @@ def test_t04_migration_adds_access_control_without_business_tables() -> None:
 
 def test_t15_job_spec_jsonb_is_not_a_generic_eav_or_business_payload() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260711_004_T15_job_engine.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260711_004_T15_job_engine.py"
     ).read_text(encoding="utf-8")
 
     assert migration.count("postgresql.JSONB") == 1
@@ -134,8 +131,7 @@ def test_t15_job_spec_jsonb_is_not_a_generic_eav_or_business_payload() -> None:
 
 def test_t17_jsonb_is_limited_to_versioned_manifest_and_schema_contracts() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260711_005_T17_plugin_registry.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260711_005_T17_plugin_registry.py"
     ).read_text(encoding="utf-8")
 
     assert migration.count("postgresql.JSONB") == 2
@@ -150,8 +146,7 @@ def test_t17_jsonb_is_limited_to_versioned_manifest_and_schema_contracts() -> No
 
 def test_t09_uses_explicit_upload_raw_and_ingestion_relations_without_jsonb() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260712_006_T09_streaming_upload.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260712_006_T09_streaming_upload.py"
     ).read_text(encoding="utf-8")
 
     assert '"upload_session"' in migration
@@ -166,8 +161,7 @@ def test_t09_uses_explicit_upload_raw_and_ingestion_relations_without_jsonb() ->
 
 def test_t10_uses_explicit_manifest_integrity_relations_without_eav_json() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260712_007_T10_content_artifacts.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260712_007_T10_content_artifacts.py"
     ).read_text(encoding="utf-8")
 
     assert '"artifact_pending"' in migration
@@ -186,8 +180,7 @@ def test_t10_uses_explicit_manifest_integrity_relations_without_eav_json() -> No
 
 def test_t13_uses_typed_provenance_relations_without_generic_edges_or_jsonb() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260713_008_T13_typed_provenance.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260713_008_T13_typed_provenance.py"
     ).read_text(encoding="utf-8")
 
     for table in (
@@ -215,8 +208,7 @@ def test_t13_uses_typed_provenance_relations_without_generic_edges_or_jsonb() ->
 
 def test_t14_adds_security_invoker_read_models_without_new_domain_tables() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260713_009_T14_lineage_read_model.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260713_009_T14_lineage_read_model.py"
     ).read_text(encoding="utf-8")
 
     assert "security_invoker = true" in migration
@@ -232,8 +224,7 @@ def test_t14_adds_security_invoker_read_models_without_new_domain_tables() -> No
 
 def test_t07_uses_explicit_catalog_revisions_and_typed_property_columns_without_eav() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260713_013_T07_material_catalog.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260713_013_T07_material_catalog.py"
     ).read_text(encoding="utf-8")
 
     for table in (
@@ -265,8 +256,7 @@ def test_t07_uses_explicit_catalog_revisions_and_typed_property_columns_without_
 
 def test_t22_uses_typed_reference_model_revisions_without_generic_model_payload() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260714_014_T22_reference_material_model.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260714_014_T22_reference_material_model.py"
     ).read_text(encoding="utf-8")
 
     for table in ("material_model", "material_model_revision"):
@@ -350,8 +340,7 @@ def test_t08_t12_use_explicit_test_dataset_revisions_and_artifact_references_wit
 
 def test_t20_uses_explicit_statistics_qc_and_result_columns_without_eav() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260716_018_T20_reference_statistics.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260716_018_T20_reference_statistics.py"
     ).read_text(encoding="utf-8")
 
     for table in (
@@ -449,8 +438,7 @@ def test_t24_uses_typed_candidate_selection_and_ir_promotion_evidence_without_ea
 
 def test_t27_uses_explicit_template_plan_run_and_result_manifest_relations_without_eav() -> None:
     migration = (
-        PROJECT_ROOT
-        / "backend/migrations/versions/20260721_023_T27_validation_template_runner.py"
+        PROJECT_ROOT / "backend/migrations/versions/20260721_023_T27_validation_template_runner.py"
     ).read_text(encoding="utf-8")
 
     for table in (
@@ -520,4 +508,3 @@ def test_t28_uses_explicit_validation_result_interpretation_relations_without_ea
     assert "guard_validation_numerical_health_report_insert" in migration
     assert "guard_validation_result_insert" in migration
     assert "guard_validation_result_comparison_points" in migration
-

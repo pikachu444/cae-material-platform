@@ -276,13 +276,22 @@ export function ConfigurableCatalogAdmin({
           definitions remain immutable revisions.
         </p>
         {onNavigate ? (
-          <button
-            className="button secondary"
-            type="button"
-            onClick={() => onNavigate("/catalog/records")}
-          >
-            Open Catalog records
-          </button>
+          <div className="hero-actions">
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => onNavigate("/catalog/explorer")}
+            >
+              Open Explorer
+            </button>
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => onNavigate("/catalog/records")}
+            >
+              Open Catalog records
+            </button>
+          </div>
         ) : null}
       </section>
 

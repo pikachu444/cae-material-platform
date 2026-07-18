@@ -163,6 +163,13 @@ import type {
   ConfigurableSubsetResponse,
   ConfigurableTableContent,
   ConfigurableTableResponse,
+  ConfigurableLinkTypeContent,
+  ConfigurableLinkTypeResponse,
+  ConfigurableRecordLinkContent,
+  ConfigurableRecordLinkResponse,
+  ConfigurableRecordLinkView,
+  CatalogExplorerChildrenResponse,
+  CatalogWorkflowGraphResponse,
 } from "./types";
 
 export interface ApiConfig {
@@ -179,6 +186,101 @@ export function listConfigurableCatalogTables(
   config: ApiConfig,
 ): Promise<ApiResult<{ items: ConfigurableTableResponse[] }>> {
   return request(config, "/catalog/tables");
+}
+
+export function listCatalogExplorerTables(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: ConfigurableTableResponse[] }>> {
+  return request(config, "/catalog/explorer/tables");
+}
+
+export function listCatalogExplorerChildren(
+  config: ApiConfig,
+  tableId: string,
+  parentFolderId: string | null,
+): Promise<ApiResult<CatalogExplorerChildrenResponse>> {
+  const suffix = parentFolderId
+    ? `?parent_folder_id=${encodeURIComponent(parentFolderId)}`
+    : "";
+  return request(
+    config,
+    `/catalog/explorer/tables/${encodeURIComponent(tableId)}/children${suffix}`,
+  );
+}
+
+export function listConfigurableCatalogLinkTypes(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: ConfigurableLinkTypeResponse[] }>> {
+  return request(config, "/catalog/link-types");
+}
+
+export function createConfigurableCatalogLinkType(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: ConfigurableLinkTypeContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableLinkTypeResponse>> {
+  return request(config, "/catalog/link-types", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listConfigurableRecordLinks(
+  config: ApiConfig,
+  recordId: string,
+  revisionId: string | null,
+  includeInactive = false,
+): Promise<ApiResult<{ items: ConfigurableRecordLinkView[] }>> {
+  const parameters = new URLSearchParams();
+  if (revisionId) parameters.set("revision_id", revisionId);
+  if (includeInactive) parameters.set("include_inactive", "true");
+  const query = parameters.toString();
+  return request(
+    config,
+    `/catalog/records/${encodeURIComponent(recordId)}/links${query ? `?${query}` : ""}`,
+  );
+}
+
+export function createConfigurableRecordLink(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: ConfigurableRecordLinkContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<ConfigurableRecordLinkResponse>> {
+  return request(config, "/catalog/record-links", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseConfigurableRecordLink(
+  config: ApiConfig,
+  recordLinkId: string,
+  etag: string,
+  input: { content: ConfigurableRecordLinkContent; change_reason: string },
+): Promise<ApiResult<ConfigurableRecordLinkResponse>> {
+  return request(config, `/catalog/record-links/${encodeURIComponent(recordLinkId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function getCatalogWorkflowGraph(
+  config: ApiConfig,
+  recordId: string,
+  revisionId: string,
+  depth = 3,
+): Promise<ApiResult<CatalogWorkflowGraphResponse>> {
+  return request(
+    config,
+    `/catalog/workflow-explorer/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}?depth=${depth}`,
+  );
 }
 
 export function createConfigurableCatalogTable(

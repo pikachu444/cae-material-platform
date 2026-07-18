@@ -15,11 +15,18 @@ from alembic.config import Config
 from cmp.modules.catalog.adapters.persistence.configurable import (
     SqlAlchemyConfigurableCatalogRepository,
 )
+from cmp.modules.catalog.adapters.persistence.links import SqlAlchemyCatalogLinkRepository
 from cmp.modules.catalog.adapters.persistence.records import SqlAlchemyCatalogRecordRepository
 from cmp.modules.catalog.application.configurable import (
     ConfigurableCatalogService,
     CreateAttribute,
     CreateTable,
+)
+from cmp.modules.catalog.application.links import (
+    CatalogLinkService,
+    CreateLinkType,
+    CreateRecordLink,
+    ReviseRecordLink,
 )
 from cmp.modules.catalog.application.records import (
     CatalogRecordService,
@@ -34,6 +41,7 @@ from cmp.modules.catalog.domain.configurable import (
     CatalogTableContent,
     ConfigurableCatalogConflict,
 )
+from cmp.modules.catalog.domain.links import LinkCardinality, LinkTypeContent, RecordLinkContent
 from cmp.modules.catalog.domain.records import (
     CatalogFolderContent,
     CatalogRecordContent,
@@ -77,6 +85,7 @@ class Harness:
     admin_engine: Engine
     schemas: ConfigurableCatalogService
     records: CatalogRecordService
+    links: CatalogLinkService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -145,12 +154,17 @@ def postgres() -> Iterator[Harness]:
         schema_repository = SqlAlchemyConfigurableCatalogRepository(
             session_factory=sessions, rls_context=rls
         )
+        record_repository = SqlAlchemyCatalogRecordRepository(
+            session_factory=sessions, rls_context=rls
+        )
         yield Harness(
-            admin_engine,
-            ConfigurableCatalogService(schema_repository),
-            CatalogRecordService(
-                SqlAlchemyCatalogRecordRepository(session_factory=sessions, rls_context=rls),
+            admin_engine=admin_engine,
+            schemas=ConfigurableCatalogService(schema_repository),
+            records=CatalogRecordService(record_repository, schema_repository),
+            links=CatalogLinkService(
+                SqlAlchemyCatalogLinkRepository(session_factory=sessions, rls_context=rls),
                 schema_repository,
+                record_repository,
             ),
         )
     finally:
@@ -265,9 +279,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
         write,
         CreateFolder(
             DataClassification.INTERNAL,
-            CatalogFolderContent(
-                table.id, table.current.record.revision_id, "Metals"
-            ),
+            CatalogFolderContent(table.id, table.current.record.revision_id, "Metals"),
             "create root folder",
         ),
     )
@@ -364,9 +376,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
             table.id,
             text="demo mill",
             discrete_filters=(DiscreteFilter(family.id, ("Steel",)),),
-            number_filters=(
-                NumberRangeFilter(modulus.id, minimum=Decimal("200000000000")),
-            ),
+            number_filters=(NumberRangeFilter(modulus.id, minimum=Decimal("200000000000")),),
             facet_attribute_ids=(family.id,),
         ),
     )
@@ -404,7 +414,217 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260826_060_t50"
+        assert version == "20260827_061_t51"
+
+
+def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
+    postgres: Harness,
+) -> None:
+    context = _context()
+    write = _decision(context, Permission.CATALOG_WRITE)
+    read = _decision(context, Permission.CATALOG_READ)
+    material_table = postgres.schemas.create_table(
+        context,
+        write,
+        CreateTable(
+            DataClassification.INTERNAL,
+            CatalogTableContent("workflow_materials", "Workflow Materials"),
+            "create workflow material table",
+        ),
+    )
+    test_table = postgres.schemas.create_table(
+        context,
+        write,
+        CreateTable(
+            DataClassification.INTERNAL,
+            CatalogTableContent("workflow_tests", "Workflow Tests"),
+            "create workflow test table",
+        ),
+    )
+    folder = postgres.records.create_folder(
+        context,
+        write,
+        CreateFolder(
+            DataClassification.INTERNAL,
+            CatalogFolderContent(
+                material_table.id,
+                material_table.current.record.revision_id,
+                "Metals",
+            ),
+            "create workflow folder",
+        ),
+    )
+    material = postgres.records.create_record(
+        context,
+        write,
+        CreateRecord(
+            DataClassification.INTERNAL,
+            CatalogRecordContent(
+                material_table.id,
+                material_table.current.record.revision_id,
+                "DP780",
+                folder_id=folder.id,
+                folder_revision_id=folder.current.record.revision_id,
+            ),
+            "create workflow material",
+        ),
+    )
+    tensile = postgres.records.create_record(
+        context,
+        write,
+        CreateRecord(
+            DataClassification.INTERNAL,
+            CatalogRecordContent(
+                test_table.id,
+                test_table.current.record.revision_id,
+                "DP780 tensile run 1",
+            ),
+            "create tensile record",
+        ),
+    )
+    second_test = postgres.records.create_record(
+        context,
+        write,
+        CreateRecord(
+            DataClassification.INTERNAL,
+            CatalogRecordContent(
+                test_table.id,
+                test_table.current.record.revision_id,
+                "DP780 tensile run 2",
+            ),
+            "create second tensile record",
+        ),
+    )
+    link_type = postgres.links.create_link_type(
+        context,
+        write,
+        CreateLinkType(
+            DataClassification.INTERNAL,
+            LinkTypeContent(
+                "material_test_evidence",
+                "Material test evidence",
+                material_table.id,
+                material_table.current.record.revision_id,
+                test_table.id,
+                test_table.current.record.revision_id,
+                "has test evidence",
+                "is test evidence for",
+                LinkCardinality.ONE,
+                LinkCardinality.MANY,
+            ),
+            "define material to test link",
+        ),
+    )
+    content = RecordLinkContent(
+        link_type.id,
+        link_type.current.record.revision_id,
+        material.id,
+        material.current.record.revision_id,
+        tensile.id,
+        tensile.current.record.revision_id,
+        note="exact test evidence",
+    )
+    link = postgres.links.create_record_link(
+        context,
+        write,
+        CreateRecordLink(DataClassification.INTERNAL, content, "link exact test evidence"),
+    )
+    forward = postgres.links.list_record_links(
+        context,
+        read,
+        material.id,
+        record_revision_id=material.current.record.revision_id,
+    )
+    reverse = postgres.links.list_record_links(
+        context,
+        read,
+        tensile.id,
+        record_revision_id=tensile.current.record.revision_id,
+    )
+    assert forward[0].link.id == link.id
+    assert reverse[0].link.id == link.id
+    assert reverse[0].link_type.content.reverse_label == "is test evidence for"
+    graph = postgres.links.workflow_graph(
+        context,
+        read,
+        material.id,
+        material.current.record.revision_id,
+        depth=2,
+    )
+    assert {node.name for node in graph.nodes} == {"DP780", "DP780 tensile run 1"}
+    children = postgres.links.explorer_children(context, read, material_table.id, folder.id)
+    assert children.records[0].id == material.id
+
+    with pytest.raises(ConfigurableCatalogConflict, match="cardinality"):
+        postgres.links.create_record_link(
+            context,
+            write,
+            CreateRecordLink(
+                DataClassification.INTERNAL,
+                RecordLinkContent(
+                    link_type.id,
+                    link_type.current.record.revision_id,
+                    material.id,
+                    material.current.record.revision_id,
+                    second_test.id,
+                    second_test.current.record.revision_id,
+                ),
+                "exceed one outgoing target",
+            ),
+        )
+
+    revised_material = postgres.records.revise_record(
+        context,
+        write,
+        material.id,
+        ReviseRecord(
+            material.current.record.revision_id,
+            CatalogRecordContent(
+                material_table.id,
+                material_table.current.record.revision_id,
+                "DP780 reviewed",
+                folder_id=folder.id,
+                folder_revision_id=folder.current.record.revision_id,
+            ),
+            "revise material without moving link",
+        ),
+    )
+    assert not postgres.links.list_record_links(
+        context,
+        read,
+        material.id,
+        record_revision_id=revised_material.current.record.revision_id,
+    )
+    assert postgres.links.list_record_links(
+        context,
+        read,
+        material.id,
+        record_revision_id=material.current.record.revision_id,
+    )
+
+    deactivated = postgres.links.revise_record_link(
+        context,
+        write,
+        link.id,
+        ReviseRecordLink(
+            link.current.record.revision_id,
+            RecordLinkContent(
+                content.link_type_id,
+                content.link_type_revision_id,
+                content.source_record_id,
+                content.source_record_revision_id,
+                content.target_record_id,
+                content.target_record_revision_id,
+                active=False,
+                note="superseded evidence relation",
+            ),
+            "deactivate without deleting history",
+        ),
+    )
+    assert deactivated.current.record.revision_no == 2
+    assert not postgres.links.list_record_links(context, read, tensile.id)
+    historical = postgres.links.list_record_links(context, read, tensile.id, include_inactive=True)
+    assert historical[0].link.current.content.active is False
 
 
 def test_ten_thousand_record_search_is_counted_and_page_bounded(postgres: Harness) -> None:

@@ -161,6 +161,15 @@ class CatalogRecordRepository(Protocol):
         record_id: UUID,
     ) -> RecordSnapshot: ...
 
+    def list_direct_records(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        table_id: UUID,
+        folder_id: UUID | None,
+    ) -> tuple[RecordSnapshot, ...]: ...
+
     def get_record_revision(
         self,
         *,
@@ -346,17 +355,13 @@ class CatalogRecordService:
     ) -> tuple[FolderSnapshot, ...]:
         _require(context, decision, Permission.CATALOG_READ)
         self._schemas.get_table(context=context, decision=decision, table_id=table_id)
-        return self._repository.list_folders(
-            context=context, decision=decision, table_id=table_id
-        )
+        return self._repository.list_folders(context=context, decision=decision, table_id=table_id)
 
     def get_folder_for_write(
         self, context: SecurityContext, decision: AuthorizationDecision, folder_id: UUID
     ) -> FolderSnapshot:
         _require(context, decision, Permission.CATALOG_WRITE)
-        return self._repository.get_folder(
-            context=context, decision=decision, folder_id=folder_id
-        )
+        return self._repository.get_folder(context=context, decision=decision, folder_id=folder_id)
 
     def _validate_record(
         self,
@@ -364,9 +369,7 @@ class CatalogRecordService:
         decision: AuthorizationDecision,
         content: CatalogRecordContent,
     ) -> None:
-        self._require_current_table(
-            context, decision, content.table_id, content.table_revision_id
-        )
+        self._require_current_table(context, decision, content.table_id, content.table_revision_id)
         if content.folder_id is not None and content.folder_revision_id is not None:
             folder = self._repository.get_folder_revision(
                 context=context,
@@ -521,17 +524,13 @@ class CatalogRecordService:
         self, context: SecurityContext, decision: AuthorizationDecision, record_id: UUID
     ) -> RecordSnapshot:
         _require(context, decision, Permission.CATALOG_READ)
-        return self._repository.get_record(
-            context=context, decision=decision, record_id=record_id
-        )
+        return self._repository.get_record(context=context, decision=decision, record_id=record_id)
 
     def get_record_for_write(
         self, context: SecurityContext, decision: AuthorizationDecision, record_id: UUID
     ) -> RecordSnapshot:
         _require(context, decision, Permission.CATALOG_WRITE)
-        return self._repository.get_record(
-            context=context, decision=decision, record_id=record_id
-        )
+        return self._repository.get_record(context=context, decision=decision, record_id=record_id)
 
     def list_record_revisions(
         self, context: SecurityContext, decision: AuthorizationDecision, record_id: UUID

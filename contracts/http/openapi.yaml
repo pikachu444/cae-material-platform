@@ -1820,6 +1820,175 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Catalog read is not authorized.}
         "404": {description: A requested exact Record revision is not visible.}
+  /api/v1/catalog/explorer/tables:
+    get:
+      operationId: listCatalogExplorerTables
+      tags: [catalog-explorer]
+      summary: List visible configurable Tables as lazy Catalog Explorer roots.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Table roots.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/ExplorerTableListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+  /api/v1/catalog/explorer/tables/{table_id}/children:
+    get:
+      operationId: listCatalogExplorerChildren
+      tags: [catalog-explorer]
+      summary: Lazily list direct child Folders and Records under one Table or Folder.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: table_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: parent_folder_id, in: query, required: false, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Direct immutable Folder and current Record nodes.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/ExplorerChildrenResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+        "404": {description: No visible Table matches the identifier.}
+  /api/v1/catalog/link-types:
+    get:
+      operationId: listCatalogLinkTypes
+      tags: [catalog-links]
+      summary: List current administrator-defined Link Type revisions.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Current Link Type heads and endpoint/cardinality contracts.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/LinkTypeListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog read is not authorized.}
+    post:
+      operationId: createCatalogLinkType
+      tags: [catalog-links]
+      summary: Create a Link Type that pins exact source and target Table revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/LinkTypeCreateRequest"}
+      responses:
+        "201":
+          description: Link Type identity and immutable revision 1 created.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/LinkTypeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Catalog write is not authorized.}
+        "409": {description: Link Type key or endpoint Table revision conflict.}
+        "422": {description: Link Type request is invalid.}
+  /api/v1/catalog/link-types/{link_type_id}/revisions:
+    post:
+      operationId: reviseCatalogLinkType
+      tags: [catalog-links]
+      summary: Append a Link Type revision while preserving its key and endpoint identities.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: link_type_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/LinkTypeReviseRequest"}
+      responses:
+        "201":
+          description: Immutable Link Type revision appended.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/LinkTypeResponse"}
+        "404": {description: No visible Link Type matches the identifier.}
+        "409": {description: Endpoint Table or stable Link Type identity conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/records/{record_id}/links:
+    get:
+      operationId: listCatalogRecordLinks
+      tags: [catalog-links]
+      summary: Read forward and reverse links for a stable or exact Record revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: query, required: false, schema: {type: string, format: uuid}}
+        - {name: include_inactive, in: query, required: false, schema: {type: boolean, default: false}}
+      responses:
+        "200":
+          description: Current forward and reverse Record Link heads with exact endpoints.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/RecordLinkListResponse"}
+        "404": {description: No visible Record matches the identifier.}
+  /api/v1/catalog/record-links:
+    post:
+      operationId: createCatalogRecordLink
+      tags: [catalog-links]
+      summary: Create a typed relation between two explicit Record revisions.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/RecordLinkCreateRequest"}
+      responses:
+        "201":
+          description: Stable Record Link and immutable revision 1 created.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/RecordLinkResponse"}
+        "409": {description: Endpoint, cardinality, scope or duplicate link conflict.}
+        "422": {description: Exact endpoint request is invalid; latest aliases are not accepted.}
+  /api/v1/catalog/record-links/{record_link_id}/revisions:
+    post:
+      operationId: reviseCatalogRecordLink
+      tags: [catalog-links]
+      summary: Append note/active state without changing pinned endpoints or Link Type.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_link_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - $ref: "#/components/parameters/IfMatchRevision"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/RecordLinkReviseRequest"}
+      responses:
+        "201":
+          description: Immutable Record Link revision appended, including deactivation tombstones.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/RecordLinkResponse"}
+        "409": {description: Endpoint mutation or current cardinality conflict.}
+        "412": {description: Current head differs from the supplied ETag.}
+  /api/v1/catalog/workflow-explorer/{record_id}/revisions/{revision_id}:
+    get:
+      operationId: getCatalogWorkflowGraph
+      tags: [catalog-explorer]
+      summary: Traverse a bounded graph of exact revision-pinned Record Links.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: depth, in: query, required: false, schema: {type: integer, minimum: 1, maximum: 5, default: 3}}
+      responses:
+        "200":
+          description: Cycle-safe workflow graph with exact Record revisions and typed edges.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/WorkflowGraphResponse"}
+        "404": {description: Root Record revision is not visible.}
+        "422": {description: Depth or exact revision identifier is invalid.}
   /api/v1/materials:
     get:
       operationId: listMaterials

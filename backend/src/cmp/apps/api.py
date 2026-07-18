@@ -11,6 +11,7 @@ from cmp import __version__
 from cmp.bootstrap.artifacts import build_artifact_services
 from cmp.bootstrap.audit import build_audit_service
 from cmp.bootstrap.catalog import (
+    build_catalog_link_service,
     build_catalog_record_service,
     build_catalog_service,
     build_configurable_catalog_service,
@@ -76,6 +77,7 @@ from cmp.modules.audit.adapters.api.audit import install_audit_api
 from cmp.modules.audit.application.service import AuditService
 from cmp.modules.catalog.adapters.api.catalog import install_catalog_api
 from cmp.modules.catalog.adapters.api.configurable import install_configurable_catalog_api
+from cmp.modules.catalog.adapters.api.links import install_catalog_link_api
 from cmp.modules.catalog.adapters.api.records import install_catalog_record_api
 from cmp.modules.catalog.application.service import CatalogService
 from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
@@ -441,6 +443,17 @@ def create_app(
             services.authorization, Permission.CATALOG_WRITE
         ),
     )
+    install_catalog_link_api(
+        application,
+        service=build_catalog_link_service(services),
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.CATALOG_WRITE
+        ),
+    )
     resolved_testing = testing_service or build_testing_service(services, resolved_artifacts)
     install_testing_api(
         application,
@@ -561,14 +574,11 @@ def create_app(
             services.authorization, Permission.PROCESSING_EXECUTE
         ),
     )
-    resolved_viscoelastic_master = (
-        viscoelastic_master_service
-        or build_viscoelastic_master_service(
-            services,
-            resolved_viscoelastic_datasets,
-            resolved_shear_relaxation_datasets,
-            resolved_artifacts,
-        )
+    resolved_viscoelastic_master = viscoelastic_master_service or build_viscoelastic_master_service(
+        services,
+        resolved_viscoelastic_datasets,
+        resolved_shear_relaxation_datasets,
+        resolved_artifacts,
     )
     install_viscoelastic_master_api(
         application,
@@ -673,8 +683,8 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
-    resolved_scientific_profiles = (
-        scientific_profile_service or build_scientific_profile_service(services)
+    resolved_scientific_profiles = scientific_profile_service or build_scientific_profile_service(
+        services
     )
     install_scientific_profile_api(
         application,

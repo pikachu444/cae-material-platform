@@ -46,6 +46,24 @@ file/curve 값은 이미 업로드된 Artifact UUID와 SHA-256을, record-refere
 정확한 revision UUID를 함께 입력한다. 사용자 친화적 Artifact picker와 link editor는 T-51에서
 Explorer와 함께 확장한다.
 
+## Catalog Explorer와 exact Record Link 사용
+
+1. 상단 **Catalog** 또는 `/catalog/explorer`를 연다.
+2. 왼쪽 Catalog Explorer에서 Table → Folder → Record를 펼친다. 하위 노드는 펼칠 때 실제
+   PostgreSQL API에서 불러온다.
+3. Record를 선택하면 가운데 Workflow Explorer가 현재 선택한 **정확한 revision UUID**를
+   표시한다. 주소에도 `/records/{record_id}/revisions/{revision_id}`가 남는다.
+4. 관련 노드나 링크의 **Open**을 누르면 대상 exact revision으로 이동한다. 정방향에서는 Link
+   Type의 forward label, 역방향에서는 reverse label이 표시된다.
+5. 새 링크는 오른쪽에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
+   이후 대상 Record가 새 revision을 만들어도 기존 링크는 자동으로 이동하지 않는다.
+6. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
+   추가한다.
+
+![Catalog tree와 Material workflow exact link](../15-demo/images/t51-catalog-workflow-explorer.png)
+
+![시험 Record에서 Material revision으로 이동하는 역방향 링크](../15-demo/images/t51-reverse-record-link.png)
+
 ## 목표 따라하기
 
 1. Catalog Explorer 또는 검색에서 Material record를 찾는다.

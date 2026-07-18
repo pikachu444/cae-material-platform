@@ -1,7 +1,21 @@
-version: 11
+version: 12
 verified_at: 2026-07-18
-source_evidence: ../15-demo/evidence/t50-configurable-catalog-records.md
+source_evidence: ../15-demo/evidence/t51-dual-explorer-record-links.md
 captures:
+  - id: catalog-workflow-explorer
+    route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
+    workflow: lazy-catalog-tree-and-forward-exact-revision-link
+    fixture: T-51 live Docker/PostgreSQL DP600 r2 to tensile-test r1
+    image: ../15-demo/images/t51-catalog-workflow-explorer.png
+    width: 1265
+    height: 712
+  - id: reverse-record-link
+    route: /catalog/explorer/records/{test_record_id}/revisions/{test_revision_id}
+    workflow: reverse-link-navigation-with-exact-revision-pins
+    fixture: T-51 live Docker/PostgreSQL tensile-test r1 to DP600 r2
+    image: ../15-demo/images/t51-reverse-record-link.png
+    width: 1265
+    height: 712
   - id: configurable-catalog-records
     route: /catalog/records
     workflow: typed-record-datasheet-search-facet-and-folder
