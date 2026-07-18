@@ -214,6 +214,15 @@ T-43 migration 054와 protected API는 one-term incompressible Ogden reference f
   holdout 부재는 warning이며 source Dataset이나 baseline IR을 변경하지 않는다.
 - 이 Run은 solver를 실행하지 않고 Candidate를 자동 승인 또는 승격하지 않는다.
 
+T-55E extends this exact-revision Run without discarding the earlier Ogden evidence. The same
+calibration/holdout members are also fitted to public incompressible Neo-Hookean, Mooney--Rivlin,
+Yeoh and one-term Ogden families. Each family has an explicit parameter shape, one deterministic
+best multistart Candidate, per-mode objective, normalized calibration/holdout RMSE, fitted-domain
+monotonicity status and warnings. Migration 069 stores these values in typed columns rather than a
+generic payload. Migration 070 pins each family's observed/predicted/residual points to a verified
+Parquet Artifact. A low objective never auto-selects or promotes a family; that human decision and
+the solver-neutral exchange envelope are T-56 responsibilities.
+
 ### 7.2 반복 calibration promotion
 
 ADR-0026은 같은 logical Material Model의 재보정을 새 stable identity로 분리하지 않는다.

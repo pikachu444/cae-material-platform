@@ -21,10 +21,16 @@ from cmp.modules.modeling.application.ogden_calibration import (
     ExecuteReferenceOgdenCalibration,
     OgdenCalibrationPlanSnapshot,
     OgdenCalibrationRun,
+    PersistedHyperelasticFamilyCandidate,
     PersistedOgdenCandidate,
     ReferenceOgdenCalibrationService,
 )
 from cmp.modules.modeling.application.service import RevisionSnapshot
+from cmp.modules.modeling.domain.hyperelastic_families import (
+    HyperelasticDiagnosticPoint,
+    HyperelasticFamily,
+    fit_hyperelastic_families,
+)
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
     REFERENCE_OGDEN_CALIBRATION_PLAN_SCHEMA_ID,
     OgdenCalibrationCurve,
@@ -37,7 +43,7 @@ from cmp.modules.modeling.domain.reference_ogden_calibration import (
 )
 from cmp.modules.modeling.domain.scientific_profile import OgdenScientificParameters
 from cmp.modules.processing.domain.reference_tensile_crop import ProcessingRunStatus
-from cmp.shared.domain.revisions import RevisionRecord, TenantScope
+from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionRecord, TenantScope
 from fastapi import FastAPI, Request
 
 NOW = datetime(2026, 7, 16, tzinfo=UTC)
@@ -166,6 +172,18 @@ def _candidate() -> PersistedOgdenCandidate:
     )
 
 
+def _family_candidate() -> PersistedHyperelasticFamilyCandidate:
+    strain = (0.0, 0.05, 0.1, 0.2, 0.3)
+    stress = tuple(2.0e6 * ((1 + item) - (1 + item) ** -2) for item in strain)
+    value = fit_hyperelastic_families(
+        (OgdenCalibrationCurve(MEMBER, strain, stress),),
+        (HyperelasticFamily.NEO_HOOKEAN,),
+        multistart_count=1,
+        random_seed=7,
+    )[0]
+    return PersistedHyperelasticFamilyCandidate(IDS[17], RUN, value, NOW, ACTOR)
+
+
 class _Service:
     def __init__(self) -> None:
         self.plan = OgdenCalibrationPlanSnapshot(
@@ -197,6 +215,7 @@ class _Service:
             CONTEXT.request_id,
             TRACE,
             (_candidate(),),
+            (_family_candidate(),),
         )
 
     def create_plan(
@@ -234,10 +253,29 @@ class _Service:
         assert context is CONTEXT and decision is READ and candidate_id == CANDIDATE
         return self.run.candidates[0].value.diagnostics
 
+    async def family_candidate_diagnostics(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> tuple[HyperelasticDiagnosticPoint, ...]:
+        assert context is CONTEXT and decision is READ and candidate_id == IDS[17]
+        return self.run.family_candidates[0].value.diagnostics
 
-def _app() -> FastAPI:
+
+class _ConflictingService(_Service):
+    def create_plan(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateReferenceOgdenCalibrationPlan,
+    ) -> OgdenCalibrationPlanSnapshot:
+        raise AggregateAlreadyExists(str(PLAN))
+
+
+def _app(service_value: object | None = None) -> FastAPI:
     app = FastAPI()
-    service = cast(ReferenceOgdenCalibrationService, _Service())
+    service = cast(ReferenceOgdenCalibrationService, service_value or _Service())
 
     async def security(request: Request) -> None:
         request.state.security_context = CONTEXT
@@ -294,6 +332,15 @@ async def _request() -> None:
         assert candidate["mu_pa"] == 2.0e6
         assert candidate["uncertainty_status"] == "estimated_jacobian_covariance"
         assert "no_holdout_data" in candidate["warnings"]
+        assert executed.json()["family_candidate_count"] == 1
+        family = executed.json()["family_candidates"][0]
+        assert family["family"] == "neo_hookean"
+        assert family["parameters"][0]["name"] == "c10_pa"
+        family_diagnostics = await client.get(
+            f"/api/v1/hyperelastic-family-candidates/{IDS[17]}/diagnostics"
+        )
+        assert family_diagnostics.status_code == 200
+        assert family_diagnostics.json()["points"][1]["family"] == "neo_hookean"
         diagnostics = await client.get(
             f"/api/v1/ogden-calibration-candidates/{CANDIDATE}/diagnostics"
         )
@@ -303,3 +350,35 @@ async def _request() -> None:
 
 def test_ogden_calibration_api_contract() -> None:
     asyncio.run(_request())
+
+
+def test_duplicate_plan_label_is_an_actionable_conflict() -> None:
+    async def request() -> None:
+        transport = httpx.ASGITransport(app=_app(_ConflictingService()))
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/api/v1/ogden-calibration-plans",
+                json={
+                    "classification": "internal",
+                    "plan_label": CONTENT.plan_label,
+                    "scientific_profile_id": str(PROFILE),
+                    "scientific_profile_revision_id": str(PROFILE_REVISION),
+                    "material_state_id": str(STATE),
+                    "material_state_revision_id": str(STATE_REVISION),
+                    "baseline_model_id": str(MODEL),
+                    "baseline_model_revision_id": str(MODEL_REVISION),
+                    "members": [
+                        {
+                            "role": "calibration",
+                            "test_mode": "uniaxial_tension",
+                            "dataset_id": str(DATASET),
+                            "dataset_revision_id": str(DATASET_REVISION),
+                        }
+                    ],
+                    "change_reason": "create exact multi-test Plan",
+                },
+            )
+        assert response.status_code == 409
+        assert "label already exists" in response.json()["detail"]
+
+    asyncio.run(request())

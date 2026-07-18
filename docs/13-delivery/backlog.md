@@ -1393,6 +1393,17 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   multistart, stability/physical diagnostics와 optional Prony overlay.
 - **완료 조건:** candidate를 사람이 선택·승격하고 지원되는 Abaqus/OpenRadioss card로 이어진다.
 - **테스트:** public equation/limit fixtures, multi-test residual, stability and mapping regression.
+- **구현 증거 (modeling 단계 완료, 2026-07-18):** 공개 incompressible
+  Neo-Hookean/Mooney–Rivlin/Yeoh/one-term Ogden nominal-stress 식을 동일한 exact Dataset
+  revisions와 normalized weighting에 적용한다. deterministic multistart 결과는 migration
+  069의 family별 명시적 parameter column과 제약으로 저장한다. migration 070은 각 후보의
+  observed/predicted/residual points를 immutable Parquet Artifact로 고정한다. API와 Workbench는
+  family별 objective, calibration/holdout NRMSE, convergence, fitted-domain monotonicity warning,
+  parameter와 curve/residual을 비교한다. 기존 Ogden--Prony 선택/승격/card 경로는 유지한다.
+  네 family에 공통인 사람 선택과 Neutral IR 승격은 T-56, Abaqus/OpenRadioss capability와
+  native ASCII는 T-57에서 완료한다. 따라서 제품 전체 완료로 해석하지 않는다.
+- **상태:** `complete` for the T-55E calculation/comparison boundary; downstream delivery remains
+  `T-56/T-57`.
 
 ### S-14.4. Exchange, deliver and document the selected model
 

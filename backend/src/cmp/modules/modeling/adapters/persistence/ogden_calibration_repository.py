@@ -22,9 +22,15 @@ from cmp.modules.modeling.application.ogden_calibration import (
     OgdenCalibrationNotFound,
     OgdenCalibrationRepository,
     OgdenCalibrationRun,
+    PersistedHyperelasticFamilyCandidate,
     PersistedOgdenCandidate,
 )
 from cmp.modules.modeling.application.service import RevisionSnapshot
+from cmp.modules.modeling.domain.hyperelastic_families import (
+    HyperelasticFamily,
+    HyperelasticFamilyCandidate,
+    HyperelasticParameter,
+)
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
     OgdenCalibrationCandidate,
     OgdenCalibrationMember,
@@ -209,6 +215,49 @@ ogden_calibration_candidate_table = sa.Table(
 )
 ogden_calibration_warning_table = sa.Table(
     "ogden_calibration_candidate_warning",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("candidate_id", sa.Uuid(), nullable=False),
+    sa.Column("ordinal", sa.SmallInteger(), nullable=False),
+    sa.Column("warning_code", sa.String(64), nullable=False),
+    schema="modeling",
+)
+hyperelastic_family_candidate_table = sa.Table(
+    "hyperelastic_family_candidate",
+    metadata,
+    sa.Column("id", sa.Uuid(), nullable=False),
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("calibration_run_id", sa.Uuid(), nullable=False),
+    sa.Column("family", sa.String(32), nullable=False),
+    sa.Column("candidate_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("c10_pa", sa.Double(), nullable=True),
+    sa.Column("c01_pa", sa.Double(), nullable=True),
+    sa.Column("c20_pa", sa.Double(), nullable=True),
+    sa.Column("c30_pa", sa.Double(), nullable=True),
+    sa.Column("ogden_mu_pa", sa.Double(), nullable=True),
+    sa.Column("ogden_alpha", sa.Double(), nullable=True),
+    sa.Column("objective_total", sa.Double(), nullable=False),
+    sa.Column("uniaxial_objective", sa.Double(), nullable=False),
+    sa.Column("planar_objective", sa.Double(), nullable=False),
+    sa.Column("biaxial_objective", sa.Double(), nullable=False),
+    sa.Column("calibration_normalized_rmse", sa.Double(), nullable=False),
+    sa.Column("holdout_normalized_rmse", sa.Double(), nullable=True),
+    sa.Column("function_evaluations", sa.Integer(), nullable=False),
+    sa.Column("convergence_reason", sa.String(255), nullable=False),
+    sa.Column("stability_status", sa.String(48), nullable=False),
+    sa.Column("diagnostics_artifact_id", sa.Uuid(), nullable=True),
+    sa.Column("diagnostics_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("diagnostics_point_count", sa.Integer(), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", sa.Uuid(), nullable=False),
+    schema="modeling",
+)
+hyperelastic_family_candidate_warning_table = sa.Table(
+    "hyperelastic_family_candidate_warning",
     metadata,
     sa.Column("organization_id", sa.Uuid(), nullable=False),
     sa.Column("project_id", sa.Uuid(), nullable=False),
@@ -428,6 +477,64 @@ def _candidate_value(row: Any, warnings: tuple[str, ...]) -> OgdenCalibrationCan
     )
 
 
+def _family_parameter_columns(
+    candidate: HyperelasticFamilyCandidate,
+) -> dict[str, float | None]:
+    values = {item.name: item.value for item in candidate.parameters}
+    return {
+        "c10_pa": values.get("c10_pa"),
+        "c01_pa": values.get("c01_pa"),
+        "c20_pa": values.get("c20_pa"),
+        "c30_pa": values.get("c30_pa"),
+        "ogden_mu_pa": values.get("mu_pa"),
+        "ogden_alpha": values.get("alpha"),
+    }
+
+
+def _family_parameters(row: Any) -> tuple[HyperelasticParameter, ...]:
+    family = HyperelasticFamily(str(row["family"]))
+    names = {
+        HyperelasticFamily.NEO_HOOKEAN: ("c10_pa",),
+        HyperelasticFamily.MOONEY_RIVLIN: ("c10_pa", "c01_pa"),
+        HyperelasticFamily.YEOH: ("c10_pa", "c20_pa", "c30_pa"),
+        HyperelasticFamily.OGDEN_1: ("ogden_mu_pa", "ogden_alpha"),
+    }[family]
+    return tuple(
+        HyperelasticParameter(
+            "mu_pa" if name == "ogden_mu_pa" else "alpha" if name == "ogden_alpha" else name,
+            float(row[name]),
+            "1" if name == "ogden_alpha" else "Pa",
+        )
+        for name in names
+    )
+
+
+def _family_candidate_value(
+    row: Any, warnings: tuple[str, ...]
+) -> HyperelasticFamilyCandidate:
+    return HyperelasticFamilyCandidate(
+        family=HyperelasticFamily(str(row["family"])),
+        parameters=_family_parameters(row),
+        objective_total=float(row["objective_total"]),
+        calibration_normalized_rmse=float(row["calibration_normalized_rmse"]),
+        holdout_normalized_rmse=(
+            float(row["holdout_normalized_rmse"])
+            if row["holdout_normalized_rmse"] is not None
+            else None
+        ),
+        objective_by_mode=(
+            (OgdenTestMode.UNIAXIAL_TENSION, float(row["uniaxial_objective"])),
+            (OgdenTestMode.PLANAR_TENSION, float(row["planar_objective"])),
+            (OgdenTestMode.BIAXIAL_TENSION, float(row["biaxial_objective"])),
+        ),
+        function_evaluations=int(row["function_evaluations"]),
+        convergence_reason=str(row["convergence_reason"]),
+        stability_status=str(row["stability_status"]),
+        warnings=warnings,
+        candidate_sha256=str(row["candidate_sha256"]),
+    )
+
+
 class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
     def __init__(
         self,
@@ -511,6 +618,38 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
                 .where(ogden_calibration_warning_table.c.candidate_id == candidate_id)
                 .order_by(ogden_calibration_warning_table.c.ordinal)
             ).scalars()
+        )
+
+    @staticmethod
+    def _family_warnings(session: Session, candidate_id: UUID) -> tuple[str, ...]:
+        return tuple(
+            str(value)
+            for value in session.execute(
+                sa.select(hyperelastic_family_candidate_warning_table.c.warning_code)
+                .where(
+                    hyperelastic_family_candidate_warning_table.c.candidate_id
+                    == candidate_id
+                )
+                .order_by(hyperelastic_family_candidate_warning_table.c.ordinal)
+            ).scalars()
+        )
+
+    @classmethod
+    def _family_candidate(
+        cls, session: Session, row: Any
+    ) -> PersistedHyperelasticFamilyCandidate:
+        candidate_id = cast(UUID, row["id"])
+        return PersistedHyperelasticFamilyCandidate(
+            id=candidate_id,
+            calibration_run_id=cast(UUID, row["calibration_run_id"]),
+            value=_family_candidate_value(
+                row, cls._family_warnings(session, candidate_id)
+            ),
+            created_at=row["created_at"],
+            created_by=cast(UUID, row["created_by"]),
+            diagnostics_artifact_id=cast(UUID | None, row["diagnostics_artifact_id"]),
+            diagnostics_sha256=cast(str | None, row["diagnostics_sha256"]),
+            diagnostics_point_count=int(row["diagnostics_point_count"]),
         )
 
     @classmethod
@@ -638,6 +777,52 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
                                 for ordinal, warning in enumerate(value.warnings)
                             ],
                         )
+                for family_persisted in run.family_candidates:
+                    family_value = family_persisted.value
+                    objectives = dict(family_value.objective_by_mode)
+                    session.execute(
+                        sa.insert(hyperelastic_family_candidate_table).values(
+                            **scope,
+                            id=family_persisted.id,
+                            calibration_run_id=run.id,
+                            family=family_value.family.value,
+                            candidate_sha256=family_value.candidate_sha256,
+                            **_family_parameter_columns(family_value),
+                            objective_total=family_value.objective_total,
+                            uniaxial_objective=objectives[OgdenTestMode.UNIAXIAL_TENSION],
+                            planar_objective=objectives[OgdenTestMode.PLANAR_TENSION],
+                            biaxial_objective=objectives[OgdenTestMode.BIAXIAL_TENSION],
+                            calibration_normalized_rmse=(
+                                family_value.calibration_normalized_rmse
+                            ),
+                            holdout_normalized_rmse=family_value.holdout_normalized_rmse,
+                            function_evaluations=family_value.function_evaluations,
+                            convergence_reason=family_value.convergence_reason,
+                            stability_status=family_value.stability_status,
+                            diagnostics_artifact_id=(
+                                family_persisted.diagnostics_artifact_id
+                            ),
+                            diagnostics_sha256=family_persisted.diagnostics_sha256,
+                            diagnostics_point_count=(
+                                family_persisted.diagnostics_point_count
+                            ),
+                            created_at=family_persisted.created_at,
+                            created_by=family_persisted.created_by,
+                        )
+                    )
+                    if family_value.warnings:
+                        session.execute(
+                            sa.insert(hyperelastic_family_candidate_warning_table),
+                            [
+                                {
+                                    **scope,
+                                    "candidate_id": family_persisted.id,
+                                    "ordinal": ordinal,
+                                    "warning_code": warning,
+                                }
+                                for ordinal, warning in enumerate(family_value.warnings)
+                            ],
+                        )
             except DBAPIError as error:
                 raise OgdenCalibrationNotFound(
                     "Ogden calibration Run could not be persisted"
@@ -673,6 +858,18 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
                 .mappings()
                 .all()
             )
+            family_candidates = tuple(
+                self._family_candidate(session, candidate)
+                for candidate in session.execute(
+                    sa.select(hyperelastic_family_candidate_table)
+                    .where(
+                        hyperelastic_family_candidate_table.c.calibration_run_id == run_id
+                    )
+                    .order_by(hyperelastic_family_candidate_table.c.family)
+                )
+                .mappings()
+                .all()
+            )
             return OgdenCalibrationRun(
                 id=cast(UUID, row["id"]),
                 classification=DataClassification(str(row["classification"])),
@@ -701,6 +898,7 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
                 request_id=cast(UUID, row["request_id"]),
                 trace_id=str(row["trace_id"]),
                 candidates=candidates,
+                family_candidates=family_candidates,
             )
 
     def get_candidate(
@@ -723,3 +921,26 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
             if row is None:
                 raise OgdenCalibrationNotFound("Ogden calibration Candidate is not visible")
             return self._candidate(session, row)
+
+    def get_family_candidate(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> PersistedHyperelasticFamilyCandidate:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(hyperelastic_family_candidate_table).where(
+                        hyperelastic_family_candidate_table.c.id == candidate_id
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise OgdenCalibrationNotFound(
+                    "hyperelastic family Candidate is not visible"
+                )
+            return self._family_candidate(session, row)

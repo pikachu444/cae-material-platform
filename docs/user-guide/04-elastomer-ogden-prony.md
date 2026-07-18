@@ -6,6 +6,22 @@ governed normalized tension curve들에서 `mu`와 `alpha`를 fitting하는
 fitted Candidate는 사람의 명시적 선택과 사유를 거친 뒤 같은 Material Model identity의 새
 immutable IR revision으로 승격할 수 있습니다.
 
+## 초탄성 모델 family 비교
+
+동일한 calibration/holdout Dataset revisions를 대상으로 Neo-Hookean, Mooney--Rivlin, Yeoh,
+one-term Ogden을 한 번에 비교할 수 있습니다. Run을 실행하면 **T-55E public hyperelastic
+families** 표에 family별 parameter, normalized RMSE, fitted-domain monotonicity와 warning이
+표시됩니다. family 행을 선택하면 서버가 보존한 immutable diagnostics Artifact에서
+observed/fitted curve와 residual을 불러옵니다. 가장 낮은 objective는 참고값일 뿐 자동 승인
+또는 자동 승격되지 않습니다. 현재 일반 family 선택을 Neutral Material JSON/IR로 승격하는
+버튼은 T-56, family별 Abaqus/OpenRadioss mapping/card는 T-57 범위입니다. 기존 Ogden 행의
+사람 선택, Ogden--Prony IR revision과 두 solver card 경로는 계속 사용할 수 있습니다.
+
+![동일 Dataset revision에서 비교한 네 가지 공개 초탄성 모델 family](../15-demo/images/t55e-hyperelastic-family-comparison.png)
+
+이미 완료된 Run은 **Open a saved calibration Run**에 정확한 Run ID를 입력해 다시 열 수 있습니다.
+재실행 없이 family 후보, fitted/residual 진단과 기존 Ogden 선택 증거를 복원합니다.
+
 ## 절차
 
 1. Material class를 `elastomer`로 만들고 State/Property Set을 준비합니다.

@@ -20,7 +20,7 @@ lint:
 	$(UV) run ruff check .
 
 typecheck:
-	$(UV) run mypy
+	$(UV) run mypy --no-incremental
 
 check-architecture:
 	$(UV) run cmp-check-architecture --root backend/src

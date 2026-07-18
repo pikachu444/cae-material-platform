@@ -84,9 +84,44 @@
         "links": {"type": "object", "additionalProperties": {"type": "string"}}
       }
     },
+    "HyperelasticParameter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "value", "unit"],
+      "properties": {
+        "name": {"enum": ["c10_pa", "c01_pa", "c20_pa", "c30_pa", "mu_pa", "alpha"]},
+        "value": {"type": "number"},
+        "unit": {"enum": ["Pa", "1"]}
+      },
+      "allOf": [{
+        "if": {"properties": {"name": {"const": "alpha"}}, "required": ["name"]},
+        "then": {"properties": {"unit": {"const": "1"}}},
+        "else": {"properties": {"unit": {"const": "Pa"}}}
+      }]
+    },
+    "HyperelasticFamilyCandidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["hyperelastic_family_candidate_id", "family", "parameters", "objective_total", "objective_by_mode", "calibration_normalized_rmse", "holdout_normalized_rmse", "function_evaluations", "convergence_reason", "stability_status", "warnings", "candidate_sha256", "diagnostics_artifact_id", "diagnostics_point_count", "links"],
+      "properties": {
+        "hyperelastic_family_candidate_id": {"$ref": "#/$defs/Uuid"},
+        "family": {"enum": ["neo_hookean", "mooney_rivlin", "yeoh", "ogden_1"]},
+        "parameters": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/HyperelasticParameter"}},
+        "objective_total": {"type": "number", "minimum": 0},
+        "objective_by_mode": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+        "calibration_normalized_rmse": {"type": "number", "minimum": 0},
+        "holdout_normalized_rmse": {"type": ["number", "null"], "minimum": 0},
+        "function_evaluations": {"type": "integer", "minimum": 1},
+        "convergence_reason": {"type": "string", "minLength": 1},
+        "stability_status": {"enum": ["monotonic_on_fitted_domain", "nonmonotonic_on_fitted_domain"]},
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "candidate_sha256": {"$ref": "#/$defs/Sha256"},
+        "diagnostics_artifact_id": {"type": ["string", "null"], "format": "uuid"},
+        "diagnostics_point_count": {"type": "integer", "minimum": 0, "maximum": 50000},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
     "RunResponse": {
       "type": "object", "additionalProperties": false,
-      "required": ["ogden_calibration_run_id", "status", "plan_id", "plan_revision_id", "scientific_profile_id", "scientific_profile_revision_id", "material_state_id", "material_state_revision_id", "baseline_model_id", "baseline_model_revision_id", "environment_digest", "calibration_curve_count", "holdout_curve_count", "test_mode_count", "attempt_count", "candidate_count", "candidates", "links"],
+      "required": ["ogden_calibration_run_id", "status", "plan_id", "plan_revision_id", "scientific_profile_id", "scientific_profile_revision_id", "material_state_id", "material_state_revision_id", "baseline_model_id", "baseline_model_revision_id", "environment_digest", "calibration_curve_count", "holdout_curve_count", "test_mode_count", "attempt_count", "candidate_count", "candidates", "family_candidate_count", "family_candidates", "links"],
       "properties": {
         "ogden_calibration_run_id": {"$ref": "#/$defs/Uuid"},
         "status": {"const": "succeeded"},
@@ -101,6 +136,8 @@
         "attempt_count": {"type": "integer", "minimum": 1, "maximum": 32},
         "candidate_count": {"type": "integer", "minimum": 1, "maximum": 32},
         "candidates": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/Candidate"}},
+        "family_candidate_count": {"type": "integer", "minimum": 0, "maximum": 4},
+        "family_candidates": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/HyperelasticFamilyCandidate"}},
         "links": {"type": "object", "additionalProperties": {"type": "string"}}
       }
     },
@@ -113,6 +150,27 @@
           "type": "object", "additionalProperties": false,
           "required": ["member_ordinal", "role", "test_mode", "dataset_id", "dataset_revision_id", "point_ordinal", "engineering_strain", "stretch", "observed_nominal_stress_pa", "predicted_nominal_stress_pa", "residual_pa", "normalized_residual", "effective_weight"],
           "properties": {
+            "member_ordinal": {"type": "integer", "minimum": 0}, "role": {"enum": ["calibration", "holdout"]},
+            "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
+            "dataset_id": {"$ref": "#/$defs/Uuid"}, "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
+            "point_ordinal": {"type": "integer", "minimum": 0}, "engineering_strain": {"type": "number", "minimum": 0},
+            "stretch": {"type": "number", "minimum": 1}, "observed_nominal_stress_pa": {"type": "number", "minimum": 0},
+            "predicted_nominal_stress_pa": {"type": "number"}, "residual_pa": {"type": "number"},
+            "normalized_residual": {"type": "number"}, "effective_weight": {"type": "number", "exclusiveMinimum": 0}
+          }
+        }}
+      }
+    },
+    "HyperelasticDiagnosticsResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidate_id", "points"],
+      "properties": {
+        "candidate_id": {"$ref": "#/$defs/Uuid"},
+        "points": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["family", "member_ordinal", "role", "test_mode", "dataset_id", "dataset_revision_id", "point_ordinal", "engineering_strain", "stretch", "observed_nominal_stress_pa", "predicted_nominal_stress_pa", "residual_pa", "normalized_residual", "effective_weight"],
+          "properties": {
+            "family": {"enum": ["neo_hookean", "mooney_rivlin", "yeoh", "ogden_1"]},
             "member_ordinal": {"type": "integer", "minimum": 0}, "role": {"enum": ["calibration", "holdout"]},
             "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
             "dataset_id": {"$ref": "#/$defs/Uuid"}, "dataset_revision_id": {"$ref": "#/$defs/Uuid"},

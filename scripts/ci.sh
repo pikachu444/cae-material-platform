@@ -8,7 +8,9 @@ export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
 
 uv sync --all-groups --locked
 uv run ruff check .
-uv run mypy
+# Windows and WSL may share the checkout but use different Python/typeshed builds.
+# Never consume another platform's incremental cache in the authoritative CI gate.
+uv run mypy --no-incremental
 uv run cmp-check-architecture --root backend/src
 uv run cmp-check-contracts lint --root .
 uv run cmp-check-contracts compat \

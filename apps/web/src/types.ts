@@ -2886,6 +2886,26 @@ export interface OgdenCalibrationCandidateResponse {
   links: Record<string, string>;
 }
 
+export type HyperelasticFamily = "neo_hookean" | "mooney_rivlin" | "yeoh" | "ogden_1";
+
+export interface HyperelasticFamilyCandidateResponse {
+  hyperelastic_family_candidate_id: string;
+  family: HyperelasticFamily;
+  parameters: Array<{ name: string; value: number; unit: "Pa" | "1" }>;
+  objective_total: number;
+  objective_by_mode: Record<OgdenTestMode, number>;
+  calibration_normalized_rmse: number;
+  holdout_normalized_rmse: number | null;
+  function_evaluations: number;
+  convergence_reason: string;
+  stability_status: "monotonic_on_fitted_domain" | "nonmonotonic";
+  warnings: string[];
+  candidate_sha256: string;
+  diagnostics_artifact_id: string | null;
+  diagnostics_point_count: number;
+  links: Record<string, string>;
+}
+
 export interface OgdenCalibrationRunResponse {
   ogden_calibration_run_id: string;
   status: "succeeded";
@@ -2904,6 +2924,8 @@ export interface OgdenCalibrationRunResponse {
   attempt_count: number;
   candidate_count: number;
   candidates: OgdenCalibrationCandidateResponse[];
+  family_candidate_count: number;
+  family_candidates: HyperelasticFamilyCandidateResponse[];
   links: Record<string, string>;
 }
 
@@ -2926,6 +2948,11 @@ export interface OgdenDiagnosticPoint {
 export interface OgdenDiagnosticsResponse {
   candidate_id: string;
   points: OgdenDiagnosticPoint[];
+}
+
+export interface HyperelasticDiagnosticsResponse {
+  candidate_id: string;
+  points: Array<OgdenDiagnosticPoint & { family: HyperelasticFamily }>;
 }
 
 export interface OgdenPronyMappingResponse {

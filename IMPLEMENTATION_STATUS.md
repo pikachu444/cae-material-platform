@@ -18,7 +18,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | T-55M and T-55P complete: metal hardening plus polymer log-time Recipe processing, 1-10 term generalized-Maxwell comparison, BIC/manual selection, manual/WLF/Arrhenius master curves, reviewed reference IR and Abaqus card; elastomer remains the next bounded track | T-55E |
+| Metal/Polymer/Elastomer modeling | T-55M/T-55P/T-55E calculation workbenches implemented: metal hardening, polymer generalized-Maxwell/master-curve processing, and elastomer multi-mode Neo-Hookean/Mooney-Rivlin/Yeoh/Ogden comparison with immutable residual evidence. Family-neutral promotion and added solver mappings remain delivery tasks. | T-56/T-57 |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
 | Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
 | Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
@@ -30,10 +30,22 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-55E`: deepen the existing Ogden--Prony reference flow into the configurable multi-mode
-  elastomer workbench defined by the integrated product plan.
+- `T-56`: promote a human-selected family Candidate into the canonical Neutral Material JSON/IR
+  while preserving exact Dataset, Plan, Candidate, diagnostics and applicability evidence.
 
 ## Completed
+
+- `T-55E` modeling kernel and connected comparison Workbench: exact uniaxial, planar and biaxial
+  Dataset revisions are evaluated against public incompressible Neo-Hookean, Mooney--Rivlin, Yeoh
+  and one-term Ogden equations under one normalized weighting contract. Deterministic multistart
+  fitting stores one explicitly typed Candidate per family in migrations 069/070; family-specific
+  parameter shapes are enforced without JSON/EAV. Per-mode objectives, calibration/holdout NRMSE,
+  convergence, fitted-domain monotonicity and warnings are returned by the protected API. Every
+  observed/predicted/residual point is pinned as an immutable Parquet Artifact and can be opened
+  from the connected Workbench. The established Ogden--Prony selection/IR/card path remains usable.
+  Selecting any of the four families into the general Neutral Material envelope is T-56; exact
+  Abaqus/OpenRadioss family capability mapping is T-57, so those downstream paths are not claimed
+  complete here.
 
 - `T-55P`: the common Processing Workbench now exposes solver-neutral
   `polymer.log_time_resample` and `polymer.prony_fit_compare` methods. The latter fits an explicit

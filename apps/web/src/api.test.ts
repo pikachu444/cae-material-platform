@@ -4,6 +4,7 @@ import {
   createReferenceImportMapping,
   detectReferenceImport,
   executeReferenceImport,
+  getReferenceOgdenCalibrationRun,
   importReferenceTensileDataset,
   previewDatasetCurve,
   preflightSolverCardMapping,
@@ -212,6 +213,25 @@ describe("Catalog API client", () => {
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("/api/v1/dataset-revisions/00000000-0000-0000-0000-000000000015/curve?maximum_points=500");
+    expect(new Headers(init?.headers).get("authorization")).toBe("Bearer short-lived-token");
+  });
+
+  it("reloads one immutable hyperelastic calibration Run by exact identity", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({
+      ogden_calibration_run_id: "00000000-0000-4000-8000-000000000060",
+      status: "succeeded",
+      family_candidate_count: 4,
+      family_candidates: [],
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await getReferenceOgdenCalibrationRun(
+      { baseUrl: "/api/v1", accessToken: "short-lived-token" },
+      "00000000-0000-4000-8000-000000000060",
+    );
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/ogden-calibration-runs/00000000-0000-4000-8000-000000000060");
     expect(new Headers(init?.headers).get("authorization")).toBe("Bearer short-lived-token");
   });
 });

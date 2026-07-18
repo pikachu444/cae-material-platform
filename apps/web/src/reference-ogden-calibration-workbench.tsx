@@ -6,6 +6,8 @@ import {
   createReferenceOgdenCalibrationPlan,
   createReferenceOgdenCandidateSelection,
   executeReferenceOgdenCalibration,
+  getHyperelasticFamilyCandidateDiagnostics,
+  getReferenceOgdenCalibrationRun,
   getReferenceOgdenCandidateDiagnostics,
   listGovernedDatasetsForTestRun,
   listOgdenPronyModelRevisions,
@@ -22,6 +24,7 @@ import type {
   OgdenCandidateSelectionResponse,
   OgdenDiagnosticPoint,
   OgdenDiagnosticsResponse,
+  HyperelasticDiagnosticsResponse,
   OgdenPronyModelResponse,
   OgdenTestMode,
   ScientificProfileResponse,
@@ -59,7 +62,13 @@ function mpa(value: number | null): string {
   return value === null ? "not available" : `${(value / 1e6).toPrecision(5)} MPa`;
 }
 
-function OgdenDiagnosticsPlot({ value }: { value: OgdenDiagnosticsResponse }) {
+function OgdenDiagnosticsPlot({
+  value,
+  modelLabel = "Ogden",
+}: {
+  value: OgdenDiagnosticsResponse | HyperelasticDiagnosticsResponse;
+  modelLabel?: string;
+}) {
   const points = value.points;
   if (!points.length) return null;
   const maxStrain = Math.max(...points.map((point) => point.engineering_strain)) || 1;
@@ -74,7 +83,7 @@ function OgdenDiagnosticsPlot({ value }: { value: OgdenDiagnosticsResponse }) {
   const residualY = (value: number) => 316 - (value / residualScale) * 38;
   const members = [...new Set(points.map((point) => point.member_ordinal))];
   return (
-    <section className="curve-panel ogden-diagnostics" aria-label="Observed fitted and residual Ogden curves">
+    <section className="curve-panel ogden-diagnostics" aria-label={`Observed fitted and residual ${modelLabel} curves`}>
       <div className="curve-heading">
         <div>
           <p className="eyebrow">Candidate diagnostics Artifact</p>
@@ -82,7 +91,7 @@ function OgdenDiagnosticsPlot({ value }: { value: OgdenDiagnosticsResponse }) {
         </div>
         <span className="reference-chip">{points.length} exact points</span>
       </div>
-      <svg className="curve-plot" viewBox="0 0 720 360" role="img" aria-label="Multi-test Ogden fit and residual plot">
+      <svg className="curve-plot" viewBox="0 0 720 360" role="img" aria-label={`Multi-test ${modelLabel} fit and residual plot`}>
         <line x1="54" x2="692" y1="218" y2="218" />
         <line x1="54" x2="54" y1="34" y2="218" />
         <line x1="54" x2="692" y1="316" y2="316" />
@@ -147,7 +156,10 @@ export function ReferenceOgdenCalibrationWorkbench({
   const [choices, setChoices] = useState<DatasetChoice[]>([]);
   const [plan, setPlan] = useState<OgdenCalibrationPlanResponse | null>(null);
   const [run, setRun] = useState<OgdenCalibrationRunResponse | null>(null);
+  const [runIdToLoad, setRunIdToLoad] = useState("");
   const [diagnostics, setDiagnostics] = useState<OgdenDiagnosticsResponse | null>(null);
+  const [familyDiagnostics, setFamilyDiagnostics] = useState<HyperelasticDiagnosticsResponse | null>(null);
+  const [selectedFamilyCandidateId, setSelectedFamilyCandidateId] = useState("");
   const [selectedCandidateId, setSelectedCandidateId] = useState("");
   const [selection, setSelection] = useState<OgdenCandidateSelectionResponse | null>(null);
   const [history, setHistory] = useState<OgdenPronyModelResponse["current_revision"][]>([]);
@@ -161,7 +173,7 @@ export function ReferenceOgdenCalibrationWorkbench({
   const [planLabel, setPlanLabel] = useState("Governed multi-test Ogden reference fit");
   const [reason, setReason] = useState("Pin exact governed curves and scientific profile revision");
   const [runReason, setRunReason] = useState("Execute deterministic multi-test Ogden reference fitting");
-  const [busy, setBusy] = useState<"load" | "plan" | "run" | "diagnostics" | "selection" | "promotion" | null>(null);
+  const [busy, setBusy] = useState<"load" | "load-run" | "plan" | "run" | "diagnostics" | "selection" | "promotion" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadInputs(): Promise<void> {
@@ -202,6 +214,8 @@ export function ReferenceOgdenCalibrationWorkbench({
     setRun(null);
     setSelection(null);
     setDiagnostics(null);
+    setFamilyDiagnostics(null);
+    setSelectedFamilyCandidateId("");
     setSelectedCandidateId("");
     void loadInputs();
   }, [config.baseUrl, config.accessToken, state.material_state_id, model.current_revision.id]);
@@ -240,6 +254,8 @@ export function ReferenceOgdenCalibrationWorkbench({
       setPlan(result.data);
       setRun(null);
       setDiagnostics(null);
+      setFamilyDiagnostics(null);
+      setSelectedFamilyCandidateId("");
       setSelectedCandidateId("");
       setSelection(null);
     } catch (cause) {
@@ -262,6 +278,20 @@ export function ReferenceOgdenCalibrationWorkbench({
     }
   }
 
+  async function showFamilyDiagnostics(candidateId: string): Promise<void> {
+    setBusy("diagnostics");
+    setSelectedFamilyCandidateId(candidateId);
+    setError(null);
+    try {
+      const result = await getHyperelasticFamilyCandidateDiagnostics(config, candidateId);
+      setFamilyDiagnostics(result.data);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function execute(): Promise<void> {
     if (!plan) return;
     setBusy("run");
@@ -273,6 +303,32 @@ export function ReferenceOgdenCalibrationWorkbench({
         { plan_revision_id: plan.current_revision.id, change_reason: runReason.trim() },
       );
       setRun(result.data);
+      setRunIdToLoad(result.data.ogden_calibration_run_id);
+      const candidate = result.data.candidates.slice().sort(
+        (left, right) => left.objective_total - right.objective_total,
+      )[0];
+      if (candidate) await showDiagnostics(candidate.ogden_calibration_candidate_id);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function loadExistingRun(): Promise<void> {
+    if (!runIdToLoad.trim()) return;
+    setBusy("load-run");
+    setError(null);
+    try {
+      const result = await getReferenceOgdenCalibrationRun(config, runIdToLoad.trim());
+      if (result.data.material_state_id !== state.material_state_id) {
+        throw new Error("The requested Run belongs to a different Material State.");
+      }
+      setRun(result.data);
+      setPlan(null);
+      setSelection(null);
+      setFamilyDiagnostics(null);
+      setSelectedFamilyCandidateId("");
       const candidate = result.data.candidates.slice().sort(
         (left, right) => left.objective_total - right.objective_total,
       )[0];
@@ -354,6 +410,17 @@ export function ReferenceOgdenCalibrationWorkbench({
         </button>
       </div>
 
+      <div className="workflow-step" aria-label="Open immutable hyperelastic calibration Run">
+        <strong>Open a saved calibration Run</strong>
+        <p className="form-hint">Paste an exact Run ID to restore its family comparison and diagnostics without re-running the fit.</p>
+        <div className="inline-action">
+          <label>Calibration Run ID<input value={runIdToLoad} onChange={(event) => setRunIdToLoad(event.target.value)} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></label>
+          <button className="button secondary" type="button" disabled={busy !== null || !runIdToLoad.trim()} onClick={() => void loadExistingRun()}>
+            {busy === "load-run" ? "Loading immutable Run…" : "Load saved Run"}
+          </button>
+        </div>
+      </div>
+
       {!profiles.length ? (
         <p className="warning-notice">Create the explicit reference scientific profile above before fitting.</p>
       ) : null}
@@ -413,6 +480,31 @@ export function ReferenceOgdenCalibrationWorkbench({
       {run ? (
         <section className="statistics-result" aria-live="polite">
           <div className="curve-heading">
+            <div>
+              <p className="eyebrow">T-55E · public hyperelastic families</p>
+              <h5>{run.family_candidate_count} model families compared on the same revisions</h5>
+            </div>
+            <span className="reference-chip">normalized weighted fit</span>
+          </div>
+          <div className="candidate-table" role="table" aria-label="Hyperelastic family candidate comparison">
+            {run.family_candidates.slice().sort((left, right) => left.objective_total - right.objective_total).map((candidate) => (
+              <button
+                className={`candidate-row ${selectedFamilyCandidateId === candidate.hyperelastic_family_candidate_id ? "selected" : ""}`}
+                type="button"
+                role="row"
+                key={candidate.hyperelastic_family_candidate_id}
+                disabled={!candidate.links.diagnostics || busy !== null}
+                onClick={() => void showFamilyDiagnostics(candidate.hyperelastic_family_candidate_id)}
+              >
+                <strong>{candidate.family.replaceAll("_", " ")}</strong>
+                <span>{candidate.parameters.map((parameter) => `${parameter.name}=${parameter.unit === "Pa" ? mpa(parameter.value) : parameter.value.toPrecision(5)}`).join(" · ")}</span>
+                <span>NRMSE {candidate.calibration_normalized_rmse.toExponential(3)}</span>
+                <span>{candidate.stability_status.replaceAll("_", " ")}</span>
+                <span>{candidate.warnings.length ? candidate.warnings.join(", ").replaceAll("_", " ") : "no warning"}</span>
+              </button>
+            ))}
+          </div>
+          <div className="curve-heading">
             <div><p className="eyebrow">Immutable candidate comparison</p><h5>{run.candidate_count} candidates · {run.test_mode_count} modes</h5></div>
             <span className="reference-chip">{run.calibration_curve_count} fit · {run.holdout_curve_count} holdout</span>
           </div>
@@ -449,6 +541,12 @@ export function ReferenceOgdenCalibrationWorkbench({
             </>
           ) : null}
         </section>
+      ) : null}
+      {familyDiagnostics ? (
+        <OgdenDiagnosticsPlot
+          value={familyDiagnostics}
+          modelLabel={familyDiagnostics.points[0]?.family.replaceAll("_", " ") ?? "hyperelastic family"}
+        />
       ) : null}
       {diagnostics ? <OgdenDiagnosticsPlot value={diagnostics} /> : null}
       {run && selectedCandidateId ? (
