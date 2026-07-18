@@ -141,9 +141,15 @@ services:
     build:
       context: ../..
       dockerfile: deploy/compose/Dockerfile.api
-    command: ["cmp-demo-seed", "--api-base-url", "http://api:8000/api/v1"]
+    command:
+      - sh
+      - -ec
+      - >-
+        cmp-demo-seed --api-base-url http://api:8000/api/v1 &&
+        python scripts/seed_full_demo.py --api-base-url http://api:8000/api/v1
     environment:
       CMP_DEMO_API_BASE_URL: http://api:8000/api/v1
+      CMP_DEMO_FIXTURE_STAMP: t60-reference
     depends_on:
       api:
         condition: service_healthy

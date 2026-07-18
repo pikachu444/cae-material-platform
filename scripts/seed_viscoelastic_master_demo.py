@@ -9,13 +9,14 @@ import csv
 import hashlib
 import io
 import json
+import os
 import time
 from typing import Any, cast
 from uuid import uuid4
 
 import httpx
 
-BASE_URL = "http://127.0.0.1:5173/api/v1"
+BASE_URL = os.getenv("CMP_DEMO_API_BASE_URL", "http://127.0.0.1:5173/api/v1")
 TEMPERATURE_SHIFTS = ((273.15, 1.6), (293.15, 0.0), (313.15, -1.15))
 
 
@@ -115,7 +116,7 @@ def main() -> None:
             if item["current_revision"]["content"]["method_code"]
             == "reference_shear_relaxation"
         )
-        stamp = str(int(time.time()))
+        stamp = os.getenv("CMP_DEMO_FIXTURE_STAMP") or str(int(time.time()))
         normalized: list[dict[str, Any]] = []
         for temperature_index, (temperature, shift) in enumerate(TEMPERATURE_SHIFTS):
             for replicate_index, scale in enumerate((0.995, 1.005)):
