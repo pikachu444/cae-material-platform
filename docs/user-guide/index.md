@@ -23,6 +23,7 @@
 14. [Mapping Profile 저장과 공통 Processing Workbench](14-common-processing-workbench.md)
 15. [Administrator/User와 기능 권한](15-product-access.md)
 16. [세 재료 계열 통합 데모 따라하기](16-guided-demo.md)
+17. [깨끗한 Test JSON→Recipe→Neutral→두 솔버 카드→ZIP 검증](17-clean-demo-download-validation.md)
 
 ## 현재 할 수 있는 일
 

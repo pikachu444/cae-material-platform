@@ -29,7 +29,9 @@ schema designer와 Layout 기반 typed Record datasheet, Folder, text/facet/norm
 saved Subset, exact revision 비교를 제공합니다. Catalog/Workflow Explorer와 관리자가 정의하는
 exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니다. Canonical Test JSON은
 검증·CSV/TSV/XLSX 변환·immutable revision·exact 다운로드·checksum JSON+ZIP까지 연결됐습니다.
-일반 Mapping Profile과 Processing Recipe/Batch는 T-53부터 순서대로 제공합니다. 현재/목표 차이는
+일반 Mapping Profile과 Processing Recipe/Batch도 실제 API/UI에 연결되어 있으며, clean demo는
+Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두 native card, checksum ZIP까지
+재현합니다. 참조 범위와 production qualification의 차이는
 [제품 capability map](docs/00-research/product-capability-map.md)에서 확인할 수 있습니다.
 
 ## 서비스 사용자가 할 수 있는 일
@@ -89,7 +91,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml run --rm --no-deps seed
 ```
 
 [세 재료 계열 통합 데모](docs/user-guide/16-guided-demo.md)는 Dashboard에서 시험 데이터, 처리,
-중립 모델, mapping report, native card와 bulk ZIP까지 이동하는 순서를 설명합니다.
+중립 모델, mapping report, native card와 bulk ZIP까지 이동하는 순서를 설명합니다. 실제 파일과
+SHA-256을 확인하는 절차는 [clean demo 다운로드 검증](docs/user-guide/17-clean-demo-download-validation.md)을
+따르십시오.
 
 ### Material genealogy (Process / Lot / Batch)
 

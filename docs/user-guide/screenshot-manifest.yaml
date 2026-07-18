@@ -1,4 +1,4 @@
-version: 23
+version: 24
 verified_at: 2026-07-18
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -288,3 +288,11 @@ captures:
     image: ../15-demo/images/t56-neutral-material-json.png
     width: 1265
     height: 712
+  - id: clean-demo-governed-downloads
+    route: /exports
+    workflow: clean-test-json-recipe-neutral-two-solver-card-and-bulk-download
+    fixture: T-65 clean Compose DP780 exact revisions and committed governed ZIP
+    source_evidence: ../15-demo/evidence/t65-clean-demo-product-journey.md
+    image: ../15-demo/images/t65-clean-demo-downloads.png
+    width: 1440
+    height: 3106

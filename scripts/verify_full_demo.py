@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import io
 import json
 import os
+import zipfile
 from collections.abc import Mapping, Sequence
 from typing import Any, cast
 
@@ -68,14 +71,23 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             models = _items(_json(client.get(f"/material-states/{state_id}/{model_path}")))
             if not models:
                 raise RuntimeError(f"{material_code} has no {model_path}")
-            model = models[0]
+            solvers: set[str] = set()
+            selected_model = models[0]
+            for candidate_model in models:
+                candidate_model_id = str(candidate_model["material_model_id"])
+                cards = _items(
+                    _json(client.get(f"/{model_path}/{candidate_model_id}/solver-cards"))
+                )
+                candidate_solvers = {
+                    str(target.get("solver"))
+                    for item in cards
+                    if isinstance((target := item.get("target")), Mapping)
+                }
+                solvers.update(candidate_solvers)
+                if required_solvers <= candidate_solvers:
+                    selected_model = candidate_model
+            model = selected_model
             model_id = str(model["material_model_id"])
-            cards = _items(_json(client.get(f"/{model_path}/{model_id}/solver-cards")))
-            solvers = {
-                str(target.get("solver"))
-                for item in cards
-                if isinstance((target := item.get("target")), Mapping)
-            }
             missing = required_solvers - solvers
             if missing:
                 raise RuntimeError(f"{material_code} is missing cards for {sorted(missing)}")
@@ -89,6 +101,212 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 ),
                 "solver_cards": sorted(solvers),
             }
+
+        metal = next(
+            item
+            for item in materials
+            if _content(item).get("material_code") == "CMP-DEMO-DP780"
+        )
+        metal_id = str(metal["material_id"])
+        tables = _items(_json(client.get("/catalog/tables")))
+        table = next(
+            item
+            for item in tables
+            if _content(item).get("key") == "demo_material_records"
+        )
+        searched = _json(
+            client.post(
+                "/catalog/records:search",
+                json={
+                    "table_id": table["table_id"],
+                    "text": "CMP-DEMO-DP780",
+                    "limit": 20,
+                },
+            )
+        )
+        records = [
+            item
+            for item in _items(searched)
+            if _content(item).get("external_key") == "CMP-DEMO-DP780"
+        ]
+        if len(records) != 1:
+            raise RuntimeError("clean demo Catalog record is missing or ambiguous")
+        catalog_record = records[0]
+        catalog_revision = catalog_record.get("current_revision")
+        if not isinstance(catalog_revision, Mapping):
+            raise RuntimeError("clean demo Catalog record has no exact revision")
+        binding = _json(
+            client.get(
+                f"/catalog/records/{catalog_record['record_id']}/revisions/"
+                f"{catalog_revision['id']}/domain-binding"
+            )
+        )
+        if binding.get("object_id") != metal_id or binding.get("kind") != "material":
+            raise RuntimeError("clean demo Catalog binding does not pin the metal Material")
+        workflow = _json(
+            client.get(
+                f"/catalog/workflow-explorer/{catalog_record['record_id']}/revisions/"
+                f"{catalog_revision['id']}?depth=5"
+            )
+        )
+        workflow_nodes = workflow.get("nodes")
+        if not isinstance(workflow_nodes, list) or len(workflow_nodes) < 6:
+            raise RuntimeError("clean demo Workflow Explorer does not reach the Neutral revision")
+        neutral_record = next(
+            (
+                item
+                for item in workflow_nodes
+                if item.get("domain_binding", {}).get("kind") == "neutral_material"
+            ),
+            None,
+        )
+        if not isinstance(neutral_record, Mapping):
+            raise RuntimeError("clean demo Workflow Explorer has no Neutral node")
+        card_graph = _json(
+            client.get(
+                f"/catalog/workflow-explorer/{neutral_record['record_id']}/revisions/"
+                f"{neutral_record['record_revision_id']}?depth=1"
+            )
+        )
+        card_nodes = card_graph.get("nodes")
+        if not isinstance(card_nodes, list):
+            raise RuntimeError("clean demo card Workflow graph has no nodes")
+        card_bindings = [
+            item.get("domain_binding", {}).get("kind")
+            for item in card_nodes
+            if isinstance(item, Mapping)
+        ]
+        if card_bindings.count("neutral_solver_card") != 2:
+            raise RuntimeError("clean demo Workflow Explorer does not branch to both cards")
+
+        documents = _items(_json(client.get("/test-data-documents")))
+        document = next(
+            item
+            for item in documents
+            if item.get("document_key") == "CMP-DEMO-DP780-TEST-JSON"
+        )
+        document_revision = document.get("current_revision")
+        if not isinstance(document_revision, Mapping):
+            raise RuntimeError("clean demo Test JSON has no exact revision")
+        downloaded_test = client.get(
+            f"/test-data-documents/{document['test_data_document_id']}/revisions/"
+            f"{document_revision['id']}/content"
+        )
+        downloaded_test.raise_for_status()
+        canonical_test = downloaded_test.json()
+        if canonical_test["material"]["grade"] != "DP780":
+            raise RuntimeError("clean demo Test JSON did not preserve Material metadata")
+
+        profile = next(
+            item
+            for item in _items(_json(client.get("/mapping-profiles")))
+            if item.get("content", {}).get("profile_key") == "cmp_demo_tensile_json"
+        )
+        recipe = next(
+            item
+            for item in _items(_json(client.get("/common-processing-recipes")))
+            if item.get("content", {}).get("recipe_key") == "cmp_demo_tensile_cleanup"
+        )
+        if recipe.get("content", {}).get("lifecycle_state") != "published":
+            raise RuntimeError("clean demo Processing Recipe is not published")
+        batch = next(
+            item
+            for item in _items(_json(client.get("/common-processing-batches")))
+            if item.get("label") == "CMP clean demo canonical JSON batch"
+        )
+        if batch.get("status") != "succeeded":
+            raise RuntimeError("clean demo Processing Batch did not succeed")
+
+        candidates = _items(
+            _json(client.get(f"/bulk-export-candidates?material_id={metal_id}"))
+        )
+        neutral_source = next(
+            candidate["source"]
+            for candidate in candidates
+            if candidate.get("source", {}).get("kind") == "neutral_material_json"
+        )
+        neutral_id = str(neutral_source["neutral_material_id"])
+        neutral = _json(client.get(f"/neutral-materials/{neutral_id}"))
+        if neutral["document"]["material_model_ir"]["model_family"] != (
+            "isotropic_tabulated_plasticity"
+        ):
+            raise RuntimeError("clean demo selected Neutral JSON is not the metal family")
+        neutral_download = client.get(f"/neutral-materials/{neutral_id}/download")
+        neutral_download.raise_for_status()
+        if hashlib.sha256(neutral_download.content).hexdigest() != neutral["document_artifact"][
+            "sha256"
+        ]:
+            raise RuntimeError("downloaded Neutral JSON digest does not match its Artifact")
+
+        neutral_cards = _items(_json(client.get(f"/neutral-materials/{neutral_id}/solver-cards")))
+        neutral_solvers = {
+            str(card.get("target", {}).get("solver")): card for card in neutral_cards
+        }
+        if set(neutral_solvers) != {"abaqus", "openradioss"}:
+            raise RuntimeError("clean demo Neutral JSON does not have both native cards")
+        native_downloads: dict[str, str] = {}
+        for solver, card in neutral_solvers.items():
+            card_id = str(card["solver_card_id"])
+            native = client.get(f"/neutral-solver-cards/{card_id}/download")
+            native.raise_for_status()
+            expected = card["current_revision"]["content"]["card_sha256"]
+            actual = hashlib.sha256(native.content).hexdigest()
+            if actual != expected:
+                raise RuntimeError(f"downloaded {solver} card digest does not match")
+            native_downloads[solver] = actual
+
+        job = next(
+            item
+            for item in _items(_json(client.get("/export-jobs")))
+            if item.get("state") == "succeeded" and item.get("bundle_id")
+        )
+        bundle_id = str(job["bundle_id"])
+        bundle = _json(client.get(f"/export-bundles/{bundle_id}"))
+        authorization = _json(
+            client.post(f"/export-bundles/{bundle_id}/download-authorizations")
+        )
+        parsed_base = httpx.URL(base_url)
+        authority = parsed_base.host
+        if parsed_base.port is not None:
+            authority = f"{authority}:{parsed_base.port}"
+        transfer_url = (
+            f"{parsed_base.scheme}://{authority}/"
+            f"{str(authorization['transfer_url']).lstrip('/')}"
+        )
+        archive = httpx.get(
+            transfer_url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Artifact-Transfer-Token": authorization["transfer_token"],
+            },
+            timeout=60.0,
+        )
+        archive.raise_for_status()
+        archive_digest = hashlib.sha256(archive.content).hexdigest()
+        if f"sha256:{archive_digest}" != bundle["archive_sha256"]:
+            raise RuntimeError("downloaded Bulk ZIP digest does not match its committed Bundle")
+        with zipfile.ZipFile(io.BytesIO(archive.content)) as package:
+            names = set(package.namelist())
+            if {"manifest.json", "checksums.sha256", "README.txt"} - names:
+                raise RuntimeError(
+                    "clean demo Bulk ZIP is missing its governed sidecars: "
+                    + ", ".join(sorted(names))
+                )
+            manifest = json.loads(package.read("manifest.json"))
+
+        result["clean_product_journey"] = {
+            "catalog_record_id": catalog_record["record_id"],
+            "catalog_workflow_node_count": len(workflow_nodes) + 2,
+            "test_data_document_id": document["test_data_document_id"],
+            "mapping_profile_id": profile["mapping_profile_id"],
+            "processing_recipe_id": recipe["processing_recipe_id"],
+            "processing_batch_id": batch["batch_id"],
+            "neutral_material_id": neutral_id,
+            "neutral_solver_card_sha256": native_downloads,
+            "bulk_bundle_id": bundle_id,
+            "bulk_bundle_sha256": archive_digest,
+            "bulk_component_count": len(manifest["components"]),
+        }
     return result
 
 

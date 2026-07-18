@@ -1522,6 +1522,12 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-65. Full clean-demo product journey — `P0`
 
+- **상태 (`2026-07-18`):** `implemented`. Clean PostgreSQL seed가 canonical tensile Test JSON,
+  exact Mapping Profile, published Processing Recipe, successful Batch Output, selected metal IR,
+  Neutral JSON, Abaqus/OpenRadioss native card와 9-component checksum bundle을 생성한다.
+  여덟 revision-pinned Catalog/Workflow 노드가 실제 domain revision에 연결되고, protected verifier와
+  Playwright가 두 native ASCII와 ZIP을 다운로드해 SHA-256을 재검증한다. Migration 078은 caller RLS를
+  우회해 데이터를 노출하지 않으면서 fully-scoped cross-module binding target만 검증한다.
 - **범위:** actual Catalog binding, Test JSON, Mapping Profile, Recipe/Batch, selected Neutral,
   preflight/card와 Bulk ZIP을 clean Compose seed와 task-oriented UI journey에 연결한다.
 - **완료 조건:** 세 family의 지원 범위에서 사용자가 실제 입력부터 결과 다운로드까지 수행하고

@@ -97,3 +97,7 @@ ZIP 안의 solver card는 JSON 문자열이 아니라 solver-native ASCII 파일
 - `make demo-verify`가 card 누락을 보고하면 mapping report와 Material Model revision을 확인합니다.
 - 포트 충돌, migration 또는 worker 문제는 [탐색·문제 해결 가이드](10-navigation-and-troubleshooting.md)를
   참고합니다.
+
+깨끗한 DB에서 Catalog binding, canonical Test JSON, published Recipe/Batch, fitted Neutral JSON,
+두 native card와 ZIP의 digest까지 검증하려면
+[전체 제품 흐름 검증 가이드](17-clean-demo-download-validation.md)를 이어서 실행합니다.
