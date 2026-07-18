@@ -49,6 +49,7 @@ from cmp.bootstrap.modeling import (
 )
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import (
+    build_common_batch_service,
     build_common_processing_output_service,
     build_common_recipe_service,
     build_mapping_profile_service,
@@ -184,6 +185,7 @@ from cmp.modules.modeling.application.voce_candidate_projection import (
 )
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
+from cmp.modules.processing.adapters.api.common_batches import install_common_batch_api
 from cmp.modules.processing.adapters.api.common_pipeline import install_common_processing_api
 from cmp.modules.processing.adapters.api.common_recipes import install_common_recipe_api
 from cmp.modules.processing.adapters.api.processing import install_processing_api
@@ -577,15 +579,16 @@ def create_app(
         ),
     )
     resolved_mapping_profiles = build_mapping_profile_service(services)
+    resolved_common_outputs = build_common_processing_output_service(
+        services,
+        resolved_canonical_test_data,
+        resolved_mapping_profiles,
+        resolved_artifacts,
+    )
     install_common_processing_api(
         application,
         service=resolved_mapping_profiles,
-        output_service=build_common_processing_output_service(
-            services,
-            resolved_canonical_test_data,
-            resolved_mapping_profiles,
-            resolved_artifacts,
-        ),
+        output_service=resolved_common_outputs,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ
@@ -594,9 +597,25 @@ def create_app(
             services.authorization, Permission.PROCESSING_EXECUTE
         ),
     )
+    resolved_common_recipes = build_common_recipe_service(
+        services, resolved_mapping_profiles
+    )
     install_common_recipe_api(
         application,
-        service=build_common_recipe_service(services, resolved_mapping_profiles),
+        service=resolved_common_recipes,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_EXECUTE
+        ),
+    )
+    install_common_batch_api(
+        application,
+        service=build_common_batch_service(
+            services, resolved_common_recipes, resolved_common_outputs
+        ),
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ

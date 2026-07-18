@@ -1324,8 +1324,13 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   step을 migration 065로 추가하고 exact Mapping Profile revision+digest를 고정했다. API와 연결 UI가
   draft 생성, strong ETag revision append, reviewed publish와 Library 재선택을 지원한다. Docker
   PostgreSQL에서 r1 draft→r2 published와 exact pin을 검증했다.
-- **남은 완료 범위:** exact input Selection, compatibility preflight, per-member Run/Attempt,
-  partial success 보존, failed-member retry와 Batch Monitor UI.
+- **Increment 2 완료 증거 (2026-07-18):** migration 066의 immutable Batch/Member/Attempt가 exact
+  published Recipe와 exact Test Data revision을 고정한다. API는 member별 compatibility preflight,
+  isolated execution, derived batch status, complete attempt history와 failed-only retry를 제공한다.
+  성공 Output은 다른 member 실패 시에도 보존되고 retry는 이전 Attempt를 덮어쓰지 않는다.
+  실제 Docker/PostgreSQL에서 DP600 두 revision을 Recipe r2로 preflight/실행해 2/2 Output 성공을
+  확인했으며 React Batch Run Monitor와 browser screenshot으로 연결 상태를 검증했다.
+- **상태:** `complete`. 대규모 비동기 queue 분산은 현재 계약을 바꾸지 않는 후속 최적화다.
 
 ### S-14.3. Deepen the three public-equation reference modeling tracks
 

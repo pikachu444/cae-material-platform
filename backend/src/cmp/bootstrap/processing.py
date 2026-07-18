@@ -11,6 +11,9 @@ from cmp.modules.datasets.application.canonical_test_data import CanonicalTestDa
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.datasets.application.viscoelastic_master import ViscoelasticDatasetService
+from cmp.modules.processing.adapters.persistence.common_batches import (
+    SqlAlchemyCommonBatchRepository,
+)
 from cmp.modules.processing.adapters.persistence.common_outputs import (
     SqlAlchemyCommonProcessingOutputRepository,
 )
@@ -27,6 +30,7 @@ from cmp.modules.processing.adapters.persistence.shear_relaxation_repository imp
 from cmp.modules.processing.adapters.persistence.viscoelastic_master_curve_repository import (
     SqlAlchemyViscoelasticMasterRepository,
 )
+from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.modules.processing.application.common_recipes import CommonRecipeService
 from cmp.modules.processing.application.mapping_profiles import MappingProfileService
@@ -108,6 +112,29 @@ def build_common_recipe_service(
             ),
         ),
         profiles=profiles,
+    )
+
+
+def build_common_batch_service(
+    identity: IdentityServices,
+    recipes: CommonRecipeService | None,
+    outputs: CommonProcessingOutputService | None,
+) -> CommonBatchService | None:
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or recipes is None
+        or outputs is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return CommonBatchService(
+        repository=SqlAlchemyCommonBatchRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+        ),
+        recipes=recipes,
+        outputs=outputs,
     )
 
 

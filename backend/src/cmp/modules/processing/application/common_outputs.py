@@ -84,6 +84,14 @@ class ProcessingOutputSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class ProcessingOutputPreflight:
+    source_document_sha256: str
+    source_canonical_artifact_sha256: str
+    mapping_profile_sha256: str
+    preview: ProcessingPreview
+
+
+@dataclass(frozen=True, slots=True)
 class CommitProcessingOutput:
     classification: DataClassification
     label: str
@@ -205,12 +213,14 @@ class CommonProcessingOutputService:
         self._artifacts = artifacts
         self._id = id_factory
 
-    async def commit(
+    async def preflight(
         self,
         context: SecurityContext,
         decision: AuthorizationDecision,
         command: CommitProcessingOutput,
-    ) -> ProcessingOutputSnapshot:
+    ) -> ProcessingOutputPreflight:
+        """Validate exact inputs and execute without persisting an output."""
+
         _require(context, decision, Permission.PROCESSING_EXECUTE)
         source_snapshot, source_bytes = await self._test_data.export_document(
             context,
@@ -235,12 +245,27 @@ class CommonProcessingOutputService:
         preview = preview_pipeline(document, profile_snapshot.content, command.steps)
         if preview.mapping_profile_sha256 != profile_snapshot.content.digest:
             raise CommonPipelineError("Mapping Profile digest pin differs from executed profile")
+        return ProcessingOutputPreflight(
+            source_document_sha256=preview.source_document_sha256,
+            source_canonical_artifact_sha256=source_snapshot.content.canonical_sha256,
+            mapping_profile_sha256=preview.mapping_profile_sha256,
+            preview=preview,
+        )
+
+    async def commit(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CommitProcessingOutput,
+    ) -> ProcessingOutputSnapshot:
+        resolved = await self.preflight(context, decision, command)
+        preview = resolved.preview
         output_id = self._id()
         output_bytes = canonical_json_bytes(
             processing_output_document(
                 output_id=output_id,
                 source=command.source_document,
-                source_canonical_sha256=source_snapshot.content.canonical_sha256,
+                source_canonical_sha256=resolved.source_canonical_artifact_sha256,
                 profile=command.mapping_profile,
                 steps=command.steps,
                 preview=preview,
@@ -260,7 +285,7 @@ class CommonProcessingOutputService:
             label=command.label,
             source_document=command.source_document,
             source_document_sha256=preview.source_document_sha256,
-            source_canonical_artifact_sha256=source_snapshot.content.canonical_sha256,
+            source_canonical_artifact_sha256=resolved.source_canonical_artifact_sha256,
             mapping_profile=command.mapping_profile,
             mapping_profile_sha256=preview.mapping_profile_sha256,
             steps=command.steps,

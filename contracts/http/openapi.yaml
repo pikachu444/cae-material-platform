@@ -3771,6 +3771,108 @@ paths:
         "428": {description: Strong If-Match is required.}
         "422": {description: Recipe content or lifecycle transition is invalid.}
         "503": {description: Common Recipe store unavailable.}
+  /api/v1/common-processing-batches:preflight:
+    post:
+      operationId: preflightCommonProcessingBatch
+      tags: [processing-batches]
+      summary: Check every exact Test Data revision against one exact published Recipe revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/BatchPreflightRequest"}
+      responses:
+        "200":
+          description: Per-member compatibility and deterministic output shape without persisted results.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/BatchPreflightResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "422": {description: Recipe lifecycle, exact pins, classification, or input compatibility is invalid.}
+        "503": {description: Processing Batch store unavailable.}
+  /api/v1/common-processing-batches:
+    post:
+      operationId: executeCommonProcessingBatch
+      tags: [processing-batches]
+      summary: Execute a published Recipe for an immutable exact-input selection.
+      description: Each member commits independently; successful outputs and all attempts remain immutable when another member fails.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ExecuteBatchRequest"}
+      responses:
+        "201":
+          description: Batch selection, per-member outputs, and append-only attempts.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonBatchResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Immutable exact-reference or attempt sequence conflict.}
+        "422": {description: Compatibility preflight blocked execution.}
+        "503": {description: Processing Batch store unavailable.}
+    get:
+      operationId: listCommonProcessingBatches
+      tags: [processing-batches]
+      summary: List visible batch selections with derived status and append-only attempt history.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Processing Batch monitor rows.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonBatchListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Processing Batch store unavailable.}
+  /api/v1/common-processing-batches/{batch_id}:
+    get:
+      operationId: getCommonProcessingBatch
+      tags: [processing-batches]
+      summary: Read one exact batch selection and its complete attempt history.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Batch monitor detail.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonBatchResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Batch is not visible.}
+        "503": {description: Processing Batch store unavailable.}
+  /api/v1/common-processing-batches/{batch_id}:retry-failed:
+    post:
+      operationId: retryFailedCommonProcessingBatchMembers
+      tags: [processing-batches]
+      summary: Append new attempts only for members whose latest attempt failed.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Batch with earlier evidence retained and new retry attempts appended.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonBatchResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Batch is not visible.}
+        "409": {description: Attempt sequence conflict.}
+        "422": {description: Batch has no failed member to retry.}
+        "503": {description: Processing Batch store unavailable.}
   /api/v1/processing-ensemble-methods:
     get:
       operationId: listCommonProcessingEnsembleMethods
