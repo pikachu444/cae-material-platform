@@ -3569,6 +3569,230 @@ paths:
         "409": {description: Immutable Artifact integrity or Dataset state conflicts.}
         "422": {description: Preview point limit or Dataset data is invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/mapping-profiles:
+    post:
+      operationId: createMappingProfile
+      tags: [processing-workbench]
+      summary: Create a stable Mapping Profile and its first immutable revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CreateMappingProfileRequest"}
+      responses:
+        "201":
+          description: Stable profile identity and exact current revision.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Profile key or immutable scope conflicts.}
+        "422": {description: Typed channel or Attribute binding is invalid.}
+        "503": {description: Mapping Profile store unavailable.}
+    get:
+      operationId: listMappingProfiles
+      tags: [processing-workbench]
+      summary: List visible Mapping Profile heads.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Stable identities with exact current immutable revisions.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Mapping Profile store unavailable.}
+  /api/v1/mapping-profiles/{profile_id}:
+    get:
+      operationId: getMappingProfile
+      tags: [processing-workbench]
+      summary: Read one Mapping Profile head and exact binding revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Mapping Profile head.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Profile is not visible.}
+        "503": {description: Mapping Profile store unavailable.}
+  /api/v1/mapping-profiles/{profile_id}/revisions:
+    post:
+      operationId: reviseMappingProfile
+      tags: [processing-workbench]
+      summary: Append a Mapping Profile revision without changing earlier runs.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: If-Match
+          in: header
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ReviseMappingProfileRequest"}
+      responses:
+        "201":
+          description: Appended immutable revision and unchanged stable profile identity.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Profile is not visible.}
+        "409": {description: Revision or typed exact reference conflicts.}
+        "412": {description: If-Match does not match the current revision.}
+        "428": {description: Strong If-Match is required.}
+        "422": {description: Typed binding content is invalid.}
+        "503": {description: Mapping Profile store unavailable.}
+  /api/v1/processing-methods:
+    get:
+      operationId: listCommonProcessingMethods
+      tags: [processing-workbench]
+      summary: List solver- and test-neutral versioned curve processing methods.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Method IDs, versions, option JSON Schemas, and numerical capabilities.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MethodRegistryResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+  /api/v1/processing-ensemble-methods:
+    get:
+      operationId: listCommonProcessingEnsembleMethods
+      tags: [processing-workbench]
+      summary: List versioned cross-curve alignment and statistics methods.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Explicit intersection/no-extrapolation alignment and pointwise statistics contracts.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MethodRegistryResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+  /api/v1/processing:preview:
+    post:
+      operationId: previewCommonProcessingPipeline
+      tags: [processing-workbench]
+      summary: Map canonical channels and preview ordered processing stages without promotion.
+      description: Every stage is returned separately; the preview is ephemeral and cannot be used as released evidence.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/PreviewRequest"}
+      responses:
+        "200":
+          description: Deterministic mapped and processed stage overlays with diagnostics.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "422": {description: Mapping, units, method composition, or numerical options are invalid.}
+  /api/v1/processing:preview-ensemble:
+    post:
+      operationId: previewCommonProcessingEnsemble
+      tags: [processing-workbench]
+      summary: Retain, align and statistically summarize multiple canonical Test Data curves.
+      description: Uses only the observed domain intersection, rejects extrapolation, and returns every aligned member alongside pointwise statistics.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/EnsemblePreviewRequest"}
+      responses:
+        "200":
+          description: Aligned members, mean, median, sample SD, MAD, IQR and 95% mean confidence interval.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/EnsemblePreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "422": {description: Member mapping/unit/domain, preprocessing, alignment, or statistics contract is invalid.}
+  /api/v1/processing-outputs:
+    post:
+      operationId: commitCommonProcessingOutput
+      tags: [processing-workbench]
+      summary: Recompute exact inputs and commit an immutable common Processing Output.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommitProcessingOutputRequest"}
+      responses:
+        "201":
+          description: Revision-1 Processing Output with exact source/profile pins and Artifact digest.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ProcessingOutputResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Immutable identity, Artifact, or revision state conflicts.}
+        "422": {description: Exact inputs, classification, mapping, units, or method options are invalid.}
+        "503": {description: Processing Output store unavailable.}
+    get:
+      operationId: listCommonProcessingOutputs
+      tags: [processing-workbench]
+      summary: List visible immutable common Processing Outputs.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Output heads; each currently has exactly one immutable revision.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ProcessingOutputListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Processing Output store unavailable.}
+  /api/v1/processing-outputs/{output_id}/content:
+    get:
+      operationId: downloadCommonProcessingOutput
+      tags: [processing-workbench]
+      summary: Download the canonical JSON Artifact pinned by one immutable Processing Output.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: output_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact cmp.processing-output JSON bytes with detached digest header.
+          headers:
+            X-Content-SHA256: {schema: {type: string, pattern: "^[0-9a-f]{64}$"}}
+          content:
+            application/vnd.cmp.processing-output+json:
+              schema: {type: object}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Processing Output is not visible.}
+        "409": {description: Immutable Artifact integrity is inconsistent.}
+        "503": {description: Processing Output store unavailable.}
   /api/v1/processing-recipes/reference-shear-relaxation-crop:
     post:
       operationId: createReferenceShearRelaxationCropRecipe

@@ -16,7 +16,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Catalog and Material Workflow Explorers | T-51 implemented: lazy Table/Folder/Record tree and bounded exact-revision graph | T-52 Test JSON |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
-| General Mapping Profile and Processing Workbench | importer mappings and bounded processors only | T-53 |
+| General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
 | Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
@@ -30,6 +30,18 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-53`: a solver/test/material-neutral method registry provides sort/duplicate policy,
+  crop, scale/shift, linear resampling, moving average, Savitzky–Golay and smoothing spline. Mapping
+  Profile identity/revisions and typed channel/Attribute bindings persist in explicit PostgreSQL tables;
+  exact Attribute Definition revisions are pinned when used. The connected `/datasets/processing`
+  workbench loads exact Test Data JSON, creates or revises reusable profiles and compares every
+  server-produced stage on shared axes. Preview is deliberately not promotable. A separate commit
+  reloads exact Test Data/Profile revisions, recomputes the pipeline and persists a one-revision-only
+  Output plus canonical JSON Artifact; browser preview arrays are never authoritative. Multi-curve
+  preview applies the same mapping/preprocessing to exact Test Data identities, retains every member,
+  aligns only on the observed domain intersection without extrapolation, and exposes pointwise mean,
+  median, sample SD, MAD, IQR and 95% mean CI with explicit assumptions in API and UI. Versioned
+  Recipe ownership, exact batch Selection, retry and promotion remain T-54.
 - `T-52 increment 1`: `cmp.test-data` 1.0.0 now has schema plus semantic validation, a connected
   `/datasets/test-json` preview/import/list/download workflow, explicit PostgreSQL identity/revision,
   typed condition/channel rows and immutable canonical JSON/normalized Parquet Artifact pins. Exact

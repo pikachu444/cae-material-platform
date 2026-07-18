@@ -69,6 +69,8 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260826_060_T50_catalog_records.py",
         "20260827_061_T51_catalog_links.py",
         "20260828_062_T52_canonical_test_data.py",
+        "20260829_063_T53_mapping_profiles.py",
+        "20260830_064_T53_common_processing_outputs.py",
     ]
 
 

@@ -172,6 +172,13 @@ import type {
   CatalogWorkflowGraphResponse,
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
+  CommonMappingProfileContent,
+  CommonMappingProfileResponse,
+  CommonProcessingMethod,
+  CommonEnsemblePreview,
+  CommonProcessingOutputResponse,
+  CommonProcessingPreview,
+  CommonProcessingStep,
 } from "./types";
 
 export interface ApiConfig {
@@ -380,6 +387,135 @@ export async function downloadCanonicalTestDataPackage(
   if (!response.ok) return throwResponseError(response);
   return {
     data: { blob: await response.blob(), filename: "cmp-test-data-package.zip" },
+    etag: response.headers.get("etag"),
+  };
+}
+
+export function listCommonProcessingMethods(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonProcessingMethod[] }>> {
+  return request(config, "/processing-methods");
+}
+
+export function listCommonProcessingEnsembleMethods(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonProcessingMethod[] }>> {
+  return request(config, "/processing-ensemble-methods");
+}
+
+export function listCommonMappingProfiles(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonMappingProfileResponse[] }>> {
+  return request(config, "/mapping-profiles");
+}
+
+export function createCommonMappingProfile(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: CommonMappingProfileContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<CommonMappingProfileResponse>> {
+  return request(config, "/mapping-profiles", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseCommonMappingProfile(
+  config: ApiConfig,
+  profileId: string,
+  etag: string,
+  input: { content: CommonMappingProfileContent; change_reason: string },
+): Promise<ApiResult<CommonMappingProfileResponse>> {
+  return request(config, `/mapping-profiles/${encodeURIComponent(profileId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewCommonProcessing(
+  config: ApiConfig,
+  input: {
+    document: Record<string, unknown>;
+    mapping_profile: CommonMappingProfileContent;
+    steps: CommonProcessingStep[];
+  },
+): Promise<ApiResult<CommonProcessingPreview>> {
+  return request(config, "/processing:preview", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewCommonProcessingEnsemble(
+  config: ApiConfig,
+  input: {
+    documents: Record<string, unknown>[];
+    mapping_profile: CommonMappingProfileContent;
+    preprocessing_steps: CommonProcessingStep[];
+    alignment: {
+      point_count: number;
+      domain_policy: "intersection";
+      extrapolation: "reject";
+    };
+  },
+): Promise<ApiResult<CommonEnsemblePreview>> {
+  return request(config, "/processing:preview-ensemble", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listCommonProcessingOutputs(
+  config: ApiConfig,
+): Promise<ApiResult<{
+  items: CommonProcessingOutputResponse[];
+}>> {
+  return request(config, "/processing-outputs");
+}
+
+export function commitCommonProcessingOutput(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    label: string;
+    source_document: { aggregate_id: string; revision_id: string };
+    mapping_profile: { aggregate_id: string; revision_id: string };
+    steps: CommonProcessingStep[];
+    change_reason: string;
+  },
+): Promise<ApiResult<CommonProcessingOutputResponse>> {
+  return request(config, "/processing-outputs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function downloadCommonProcessingOutput(
+  config: ApiConfig,
+  outputId: string,
+): Promise<ApiResult<SolverCardDownload>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(
+    config,
+    init,
+    "application/vnd.cmp.processing-output+json",
+  );
+  const response = await fetch(
+    endpoint(config, `/processing-outputs/${encodeURIComponent(outputId)}/content`),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: match?.[1] ?? `processing-output-${outputId}.json`,
+    },
     etag: response.headers.get("etag"),
   };
 }

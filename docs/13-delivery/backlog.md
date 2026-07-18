@@ -1298,6 +1298,21 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   resample, moving-average, Savitzky–Golay, spline, alignment/statistics, stage overlay UI.
 - **완료 조건:** 사용자가 mapping과 ordered steps를 편집하고 preview 후 immutable output을 만든다.
 - **테스트:** method schema/composition, numeric public fixture, preview/commit separation, UI E2E.
+- **Increment 1 증거 (2026-07-18):** explicit PostgreSQL identity/revision/binding tables에 Mapping
+  Profile을 저장·개정하고 exact Attribute Definition revision을 고정한다. 일곱 개의 versioned
+  deterministic method와 composed preview API, exact Test Data/profile/step editor, 공통 축 stage
+  overlay를 연결했다. Docker/PostgreSQL에서 profile r1→r2와 실제 server preview를 검증했다.
+- **완료 범위:** preview를 새 immutable Processing output revision으로 commit하고, 복수 curve
+  alignment와 통계 method/API/UI를 연결한 뒤 전체 UI E2E와 `make ci`를 통과시킨다.
+- **Increment 2 증거 (2026-07-18):** commit API는 exact Test Data/Profile revision을 서버에서 다시
+  읽어 재계산하며 browser preview 배열을 받지 않는다. migration 064의 one-revision-only Output,
+  ordered Step, composite exact FK와 Artifact FK에 저장하고 JSON을 digest와 함께 다운로드한다.
+  Docker API와 연결 UI에서 commit/list/download 및 byte SHA-256 일치를 검증했다.
+- **Increment 3 완료 증거 (2026-07-18):** 두 개 이상의 exact Test Data identity를 같은 Mapping
+  Profile/ordered preprocessing으로 계산하고 관측 domain 교집합에서만 linear alignment한다.
+  모든 member를 보존하며 mean/median/sample SD/MAD/IQR/95% mean CI와 수학적 가정을 API/UI에
+  표시한다. 두 실제 Docker/PostgreSQL DP600 revision의 21-point 결과와 React/API/numeric 회귀를
+  검증했다. Recipe revision, exact batch Selection과 retry/promotion은 T-54로 넘긴다.
 
 #### T-54. Versioned Recipe library and batch execution — `P0`
 
