@@ -170,6 +170,8 @@ import type {
   ConfigurableRecordLinkView,
   CatalogExplorerChildrenResponse,
   CatalogWorkflowGraphResponse,
+  CanonicalTestDataDocumentResponse,
+  CanonicalTestDataPreviewResponse,
 } from "./types";
 
 export interface ApiConfig {
@@ -281,6 +283,105 @@ export function getCatalogWorkflowGraph(
     config,
     `/catalog/workflow-explorer/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}?depth=${depth}`,
   );
+}
+
+export function validateCanonicalTestData(
+  config: ApiConfig,
+  document: Record<string, unknown>,
+): Promise<ApiResult<CanonicalTestDataPreviewResponse>> {
+  return request(config, "/test-data:validate", {
+    method: "POST",
+    body: JSON.stringify(document),
+  });
+}
+
+export function convertTabularToCanonicalTestData(
+  config: ApiConfig,
+  input: Record<string, unknown>,
+): Promise<ApiResult<CanonicalTestDataPreviewResponse>> {
+  return request(config, "/test-data:convert-tabular", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function importCanonicalTestData(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    document: Record<string, unknown>;
+    change_reason: string;
+  },
+): Promise<ApiResult<CanonicalTestDataDocumentResponse>> {
+  return request(config, "/test-data-documents", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listCanonicalTestDataDocuments(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CanonicalTestDataDocumentResponse[] }>> {
+  return request(config, "/test-data-documents");
+}
+
+export function reviseCanonicalTestData(
+  config: ApiConfig,
+  documentId: string,
+  etag: string,
+  input: { document: Record<string, unknown>; change_reason: string },
+): Promise<ApiResult<CanonicalTestDataDocumentResponse>> {
+  return request(config, `/test-data-documents/${encodeURIComponent(documentId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function downloadCanonicalTestDataDocument(
+  config: ApiConfig,
+  documentId: string,
+  revisionId: string,
+): Promise<ApiResult<SolverCardDownload>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(config, init, "application/vnd.cmp.test-data+json");
+  const response = await fetch(
+    endpoint(
+      config,
+      `/test-data-documents/${encodeURIComponent(documentId)}/revisions/${encodeURIComponent(revisionId)}/content`,
+    ),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: match?.[1] ?? `test-data-${documentId}.json`,
+    },
+    etag: response.headers.get("etag"),
+  };
+}
+
+export async function downloadCanonicalTestDataPackage(
+  config: ApiConfig,
+  revisions: Array<{ document_id: string; revision_id: string }>,
+): Promise<ApiResult<SolverCardDownload>> {
+  const init: RequestInit = {
+    method: "POST",
+    body: JSON.stringify({ revisions }),
+  };
+  const headers = authenticatedHeaders(config, init, "application/vnd.cmp.test-data-package+zip");
+  const response = await fetch(endpoint(config, "/test-data-packages:download"), {
+    ...init,
+    headers,
+  });
+  if (!response.ok) return throwResponseError(response);
+  return {
+    data: { blob: await response.blob(), filename: "cmp-test-data-package.zip" },
+    etag: response.headers.get("etag"),
+  };
 }
 
 export function createConfigurableCatalogTable(

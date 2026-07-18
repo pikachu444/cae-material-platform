@@ -16,8 +16,9 @@ Catalog tree/search/link → Test Data JSON → Mapping Profile
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog
 schema designer와 Layout 기반 typed Record datasheet, Folder, text/facet/normalized-range 검색,
 saved Subset, exact revision 비교를 제공합니다. Catalog/Workflow Explorer와 관리자가 정의하는
-exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니다. Canonical Test JSON과
-일반 Processing Recipe/Batch는 T-52~T-60에서 순서대로 제공합니다. 현재/목표 차이는
+exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니다. Canonical Test JSON은
+검증·CSV/TSV/XLSX 변환·immutable revision·exact 다운로드·checksum JSON+ZIP까지 연결됐습니다.
+일반 Mapping Profile과 Processing Recipe/Batch는 T-53부터 순서대로 제공합니다. 현재/목표 차이는
 [제품 capability map](docs/00-research/product-capability-map.md)에서 확인할 수 있습니다.
 
 ## 서비스 사용자가 할 수 있는 일
@@ -32,6 +33,8 @@ exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니
 - Catalog 탐색: **Catalog Explorer**에서 Table → Folder → Record 트리를 펼치고, Workflow
   Explorer에서 Material/Test/Dataset/Model/Card 등 관리자가 정의한 링크를 exact revision으로
   정방향·역방향 이동
+- 시험 JSON: **Datasets → Test Data JSON**에서 maker/시험/시편/채널/원본·정규화 단위를
+  저장 전 검증하고 stable identity와 immutable revision으로 등록한 뒤 exact JSON을 다시 다운로드
 - 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce
   → OpenRadioss LAW36 또는 Abaqus `*PLASTIC` card
 - 폴리머: shear-relaxation raw/normalized/processed Dataset → bounded Prony calibration과 사람

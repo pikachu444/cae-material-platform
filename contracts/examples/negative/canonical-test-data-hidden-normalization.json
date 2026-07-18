@@ -1,0 +1,34 @@
+{
+  "document_type": "cmp.test-data",
+  "schema_version": "1.0.0",
+  "document_id": "INVALID",
+  "material": {"maker": "Demo", "grade": "DP600", "lot_batch": null},
+  "test": {
+    "date": "2026-07-18",
+    "operator": "Tester",
+    "laboratory": "Lab",
+    "method": "tension",
+    "equipment_maker": null,
+    "equipment_model": null
+  },
+  "specimen": {"specimen_id": "S-01", "description": null},
+  "conditions": [],
+  "channels": [
+    {
+      "key": "strain",
+      "name": "Strain",
+      "quantity_semantics": "mechanics.strain",
+      "axis_role": "independent",
+      "original_unit_string": "%",
+      "normalized_unit": "1",
+      "original_values": ["0", "1"],
+      "normalized_values": ["0", "0.01"],
+      "missing_reasons": [null, null]
+    }
+  ],
+  "source": {
+    "file_name": "invalid.csv",
+    "media_type": "text/csv",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

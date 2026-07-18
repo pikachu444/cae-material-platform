@@ -123,6 +123,11 @@ const CatalogExplorer = lazy(() =>
     default: module.CatalogExplorer,
   })),
 );
+const CanonicalTestDataWorkbench = lazy(() =>
+  import("./canonical-test-data-workbench").then((module) => ({
+    default: module.CanonicalTestDataWorkbench,
+  })),
+);
 
 type Navigate = (path: string) => void;
 type MaterialArea = "overview" | "testing" | "datasets" | "models" | "governance";
@@ -755,6 +760,11 @@ function ModuleHubPage({
           <h1>{copy.title}</h1>
           <p>{copy.description}</p>
         </div>
+        {area === "datasets" ? (
+          <button className="button primary" type="button" onClick={() => navigate("/datasets/test-json")}>
+            Import Test Data JSON
+          </button>
+        ) : null}
       </section>
       <section className="content-card">
         <div className="section-heading">
@@ -2067,6 +2077,14 @@ export function App() {
     page = <BulkExportCenter config={config} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/tests") {
     page = <ModuleHubPage area="testing" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
+  } else if (path === "/datasets/test-json") {
+    page = (
+      <CanonicalTestDataWorkbench
+        config={config}
+        onNavigate={navigate}
+        onOpenConnection={() => setConnectionOpen(true)}
+      />
+    );
   } else if (path === "/datasets") {
     page = <ModuleHubPage area="datasets" config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (path === "/models") {

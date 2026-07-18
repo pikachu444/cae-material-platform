@@ -3489,3 +3489,51 @@ export interface CatalogWorkflowGraphResponse {
   nodes: ConfigurableLinkEndpoint[];
   links: ConfigurableRecordLinkView[];
 }
+
+export interface CanonicalTestDataChannelPreview {
+  key: string;
+  name: string;
+  quantity_semantics: string;
+  axis_role: "independent" | "dependent" | "auxiliary";
+  original_unit_string: string;
+  normalized_unit: string;
+  point_count: number;
+  missing_count: number;
+}
+
+export interface CanonicalTestDataPreviewResponse {
+  status: "valid";
+  document_sha256: string;
+  canonical_size_bytes: number;
+  point_count: number;
+  condition_count: number;
+  material_maker: string;
+  material_grade: string;
+  test_date: string;
+  operator: string;
+  laboratory: string;
+  method: string;
+  specimen_id: string;
+  channels: CanonicalTestDataChannelPreview[];
+  canonical_document: Record<string, unknown>;
+}
+
+export interface CanonicalTestDataDocumentResponse {
+  test_data_document_id: string;
+  current_revision: RevisionMetadata;
+  document_key: string;
+  material_maker: string;
+  material_grade: string;
+  lot_batch: string | null;
+  test_date: string;
+  operator: string;
+  laboratory: string;
+  method: string;
+  specimen_id: string;
+  point_count: number;
+  canonical_artifact_id: string;
+  canonical_sha256: string;
+  normalized_artifact_id: string;
+  normalized_sha256: string;
+  channels: CanonicalTestDataChannelPreview[];
+}

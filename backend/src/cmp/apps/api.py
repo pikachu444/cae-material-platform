@@ -17,6 +17,7 @@ from cmp.bootstrap.catalog import (
     build_configurable_catalog_service,
 )
 from cmp.bootstrap.datasets import (
+    build_canonical_test_data_service,
     build_dataset_service,
     build_governed_import_service,
     build_shear_relaxation_dataset_service,
@@ -80,6 +81,7 @@ from cmp.modules.catalog.adapters.api.configurable import install_configurable_c
 from cmp.modules.catalog.adapters.api.links import install_catalog_link_api
 from cmp.modules.catalog.adapters.api.records import install_catalog_record_api
 from cmp.modules.catalog.application.service import CatalogService
+from cmp.modules.datasets.adapters.api.canonical_test_data import install_canonical_test_data_api
 from cmp.modules.datasets.adapters.api.datasets import install_dataset_api
 from cmp.modules.datasets.adapters.api.governed_import import install_governed_import_api
 from cmp.modules.datasets.adapters.api.shear_relaxation import (
@@ -496,6 +498,17 @@ def create_app(
     install_governed_import_api(
         application,
         service=resolved_governed_import,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.DATASET_WRITE
+        ),
+    )
+    install_canonical_test_data_api(
+        application,
+        service=build_canonical_test_data_service(services, resolved_artifacts),
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.DATASET_READ

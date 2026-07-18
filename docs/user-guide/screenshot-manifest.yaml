@@ -169,3 +169,24 @@ captures:
     image: ../15-demo/images/t47-production-scale-catalog.png
     width: 1265
     height: 712
+  - id: canonical-test-data-json
+    route: /datasets/test-json
+    workflow: validate-import-list-and-download-exact-test-data-revision
+    fixture: T-52 DP600 cmp.test-data 1.0.0 PostgreSQL round-trip
+    image: ../15-demo/images/t52-canonical-test-data.png
+    width: 1265
+    height: 1571
+  - id: canonical-test-data-package
+    route: /datasets/test-json
+    workflow: deterministic-current-exact-revision-json-zip-download
+    fixture: T-52 DP600 revision 2 package with manifest and checksums
+    image: ../15-demo/images/t52-canonical-test-data-package.png
+    width: 1265
+    height: 712
+  - id: canonical-tabular-adapter
+    route: /datasets/test-json
+    workflow: governed-csv-tsv-xlsx-to-canonical-json-preview
+    fixture: T-52 DP600 strain-stress CSV mapping contract
+    image: ../15-demo/images/t52-tabular-adapter.png
+    width: 1265
+    height: 712

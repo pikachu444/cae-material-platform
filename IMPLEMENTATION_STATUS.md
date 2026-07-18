@@ -15,7 +15,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | T-51 links/tree |
 | Catalog and Material Workflow Explorers | T-51 implemented: lazy Table/Folder/Record tree and bounded exact-revision graph | T-52 Test JSON |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
-| Canonical Test Data JSON/JSON+ZIP | missing; CSV/TSV/XLSX→Parquet path exists | T-52 |
+| Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | importer mappings and bounded processors only | T-53 |
 | Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
 | Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
@@ -30,6 +30,15 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-52 increment 1`: `cmp.test-data` 1.0.0 now has schema plus semantic validation, a connected
+  `/datasets/test-json` preview/import/list/download workflow, explicit PostgreSQL identity/revision,
+  typed condition/channel rows and immutable canonical JSON/normalized Parquet Artifact pins. Exact
+  revision download was verified byte-for-byte in the Docker/PostgreSQL demo. Deterministic JSON+ZIP,
+  same-identity append uses a strong current-revision ETag and never overwrites prior evidence.
+  Current exact revisions can be downloaded as a deterministic JSON+ZIP with manifest and detached
+  checksums. The governed CSV/TSV/XLSX parser now exposes original and normalized evidence to a
+  connected canonical adapter UI/API; direct JSON and CSV adapter paths produce the same canonical
+  digest. Larger cross-capability package profiles remain T-58 scope.
 - `T-51`: Catalog Explorer now lazily expands administrator-defined Table, nested Folder and current
   Record nodes while preserving the existing flat routes. Material Workflow Explorer projects
   arbitrary active Record Links as a bounded, cycle-safe graph; every endpoint and Link Type pins an

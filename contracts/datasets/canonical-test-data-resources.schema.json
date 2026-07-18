@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/datasets/canonical-test-data-resources.schema.json",
+  "$defs": {
+    "Classification": {
+      "type": "string",
+      "enum": ["internal", "confidential", "restricted", "export_controlled"]
+    },
+    "ChannelPreview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "quantity_semantics", "axis_role", "original_unit_string", "normalized_unit", "point_count", "missing_count"],
+      "properties": {
+        "key": {"type": "string"},
+        "name": {"type": "string"},
+        "quantity_semantics": {"type": "string"},
+        "axis_role": {"enum": ["independent", "dependent", "auxiliary"]},
+        "original_unit_string": {"type": "string"},
+        "normalized_unit": {"type": "string"},
+        "point_count": {"type": "integer", "minimum": 2},
+        "missing_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "PreviewResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "document_sha256", "canonical_size_bytes", "point_count", "condition_count", "material_maker", "material_grade", "test_date", "operator", "laboratory", "method", "specimen_id", "channels", "canonical_document"],
+      "properties": {
+        "status": {"const": "valid"},
+        "document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "canonical_size_bytes": {"type": "integer", "minimum": 1, "maximum": 26214400},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 1000000},
+        "condition_count": {"type": "integer", "minimum": 0, "maximum": 128},
+        "material_maker": {"type": "string"},
+        "material_grade": {"type": "string"},
+        "test_date": {"type": "string", "format": "date"},
+        "operator": {"type": "string"},
+        "laboratory": {"type": "string"},
+        "method": {"type": "string"},
+        "specimen_id": {"type": "string"},
+        "channels": {"type": "array", "items": {"$ref": "#/$defs/ChannelPreview"}},
+        "canonical_document": {"$ref": "canonical-test-data.schema.json"}
+      }
+    },
+    "ImportRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "document", "change_reason"],
+      "properties": {
+        "classification": {"$ref": "#/$defs/Classification"},
+        "document": {"$ref": "canonical-test-data.schema.json"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "TabularConvertRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "material", "test", "specimen", "conditions", "source_file_name", "source_base64", "profile"],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1, "maxLength": 200},
+        "material": {"$ref": "canonical-test-data.schema.json#/$defs/Material"},
+        "test": {"$ref": "canonical-test-data.schema.json#/$defs/Test"},
+        "specimen": {"$ref": "canonical-test-data.schema.json#/$defs/Specimen"},
+        "conditions": {"type": "array", "maxItems": 128, "items": {"$ref": "canonical-test-data.schema.json#/$defs/Condition"}},
+        "source_file_name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source_base64": {"type": "string", "minLength": 1, "contentEncoding": "base64"},
+        "profile": {"$ref": "governed-import-resources.schema.json#/$defs/ProfileContentInput"}
+      }
+    },
+    "ReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document", "change_reason"],
+      "properties": {
+        "document": {"$ref": "canonical-test-data.schema.json"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "DocumentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["test_data_document_id", "current_revision", "document_key", "material_maker", "material_grade", "lot_batch", "test_date", "operator", "laboratory", "method", "specimen_id", "point_count", "canonical_artifact_id", "canonical_sha256", "normalized_artifact_id", "normalized_sha256", "channels"],
+      "properties": {
+        "test_data_document_id": {"type": "string", "format": "uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "document_key": {"type": "string", "minLength": 1, "maxLength": 200},
+        "material_maker": {"type": "string"},
+        "material_grade": {"type": "string"},
+        "lot_batch": {"type": ["string", "null"]},
+        "test_date": {"type": "string", "format": "date"},
+        "operator": {"type": "string"},
+        "laboratory": {"type": "string"},
+        "method": {"type": "string"},
+        "specimen_id": {"type": "string"},
+        "point_count": {"type": "integer", "minimum": 2, "maximum": 1000000},
+        "canonical_artifact_id": {"type": "string", "format": "uuid"},
+        "canonical_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "normalized_artifact_id": {"type": "string", "format": "uuid"},
+        "normalized_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "channels": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ChannelPreview"}}
+      }
+    },
+    "DocumentListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/DocumentResponse"}}
+      }
+    },
+    "PackageRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisions"],
+      "properties": {
+        "revisions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["document_id", "revision_id"],
+            "properties": {
+              "document_id": {"type": "string", "format": "uuid"},
+              "revision_id": {"type": "string", "format": "uuid"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
