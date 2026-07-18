@@ -4,6 +4,52 @@ export type DataClassification =
   | "restricted"
   | "export_controlled";
 
+export type ProductRole = "administrator" | "user";
+
+export type FeatureGrant =
+  | "schema_configuration"
+  | "catalog_edit"
+  | "processing_calibration"
+  | "model_approval"
+  | "solver_card_export";
+
+export interface ProductAccessSummary {
+  product_role: ProductRole;
+  feature_grants: FeatureGrant[];
+  legacy_compatible: boolean;
+}
+
+export interface ProductAccessAssignment {
+  assignment_id: string;
+  organization_id: string;
+  project_id: string | null;
+  subject_type: "principal" | "group";
+  principal_id: string | null;
+  group_issuer: string | null;
+  group_name: string | null;
+  product_role: ProductRole;
+  feature_grants: FeatureGrant[];
+  max_classification: Exclude<DataClassification, "export_controlled">;
+  allow_export_controlled: boolean;
+  valid_from: string;
+  expires_at: string | null;
+  revoked_at: string | null;
+}
+
+export interface GrantProductAccessInput {
+  subject_type: "principal" | "group";
+  principal_id: string | null;
+  group_issuer: string | null;
+  group_name: string | null;
+  product_role: ProductRole;
+  feature_grants: FeatureGrant[];
+  max_classification: Exclude<DataClassification, "export_controlled">;
+  allow_export_controlled: boolean;
+  organization_wide: boolean;
+  expires_at: string | null;
+  grant_reason: string;
+}
+
 export type LifecycleState = "draft" | "review" | "changes_requested" | "approved";
 
 export type ReviewDecisionKind = "approved" | "changes_requested";
