@@ -134,6 +134,7 @@ run_table = sa.Table(
     sa.Column("master_dataset_revision_id", sa.Uuid(), nullable=True),
     sa.Column("wlf_c1", sa.Double(), nullable=True),
     sa.Column("wlf_c2_k", sa.Double(), nullable=True),
+    sa.Column("arrhenius_activation_energy_j_per_mol", sa.Double(), nullable=True),
     sa.Column("failure_code", sa.String(100), nullable=True),
     sa.Column("change_reason", sa.Text(), nullable=False),
     sa.Column("started_at", sa.DateTime(timezone=True), nullable=False),
@@ -322,6 +323,9 @@ def _run(session: Session, row: Any) -> ViscoelasticMasterRun:
         master_dataset_revision_id=cast(UUID | None, row["master_dataset_revision_id"]),
         wlf_c1=cast(float | None, row["wlf_c1"]),
         wlf_c2_k=cast(float | None, row["wlf_c2_k"]),
+        arrhenius_activation_energy_j_per_mol=cast(
+            float | None, row["arrhenius_activation_energy_j_per_mol"]
+        ),
         shift_factors=_shift_factors(session, cast(UUID, row["id"])),
         failure_code=cast(str | None, row["failure_code"]),
         change_reason=str(row["change_reason"]),
@@ -485,6 +489,9 @@ class SqlAlchemyViscoelasticMasterRepository(ViscoelasticMasterRepository):
                         master_dataset_revision_id=master.current.record.revision_id,
                         wlf_c1=result.wlf_c1,
                         wlf_c2_k=result.wlf_c2_k,
+                        arrhenius_activation_energy_j_per_mol=(
+                            result.arrhenius_activation_energy_j_per_mol
+                        ),
                         ended_at=datetime.now(UTC),
                     )
                     .returning(run_table)

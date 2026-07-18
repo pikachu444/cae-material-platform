@@ -23,6 +23,11 @@ from cmp.modules.processing.domain.metal_hardening import (
     MetalHardeningError,
     fit_hardening_candidates,
 )
+from cmp.modules.processing.domain.polymer_viscoelastic import (
+    PolymerViscoelasticError,
+    fit_prony_candidates,
+    log_time_resample,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 COMMON_METHOD_VERSION = "1.0.0"
@@ -223,9 +228,7 @@ def mapping_profile_canonical(value: MappingProfileContent) -> dict[str, object]
         "attribute_bindings": [
             {
                 "attribute_definition_id": str(item.attribute_definition_id),
-                "attribute_definition_revision_id": str(
-                    item.attribute_definition_revision_id
-                ),
+                "attribute_definition_revision_id": str(item.attribute_definition_revision_id),
                 "target_quantity": item.target_quantity,
                 "accepted_normalized_units": list(item.accepted_normalized_units),
                 "required": item.required,
@@ -477,12 +480,8 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
                 "fit_maximum_strain": _number_schema(minimum=0, maximum=5),
                 "extrapolation_maximum_strain": _number_schema(minimum=0, maximum=5),
                 "output_point_count": {"type": "integer", "minimum": 21, "maximum": 501},
-                "primary_family": {
-                    "enum": ["voce", "swift", "hockett_sherby", "ghosh"]
-                },
-                "secondary_family": {
-                    "enum": ["voce", "swift", "hockett_sherby", "ghosh"]
-                },
+                "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+                "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
                 "primary_weight": _number_schema(minimum=0, maximum=1),
                 "normalization_stress_pa": _number_schema(minimum=1),
                 "maximum_function_evaluations": {
@@ -507,6 +506,66 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
             ],
         },
         allows_extrapolation=True,
+    ),
+    MethodDefinition(
+        "polymer.log_time_resample",
+        COMMON_METHOD_VERSION,
+        "Polymer log-time resampling",
+        "Resamples positive relaxation time on a log10 grid and rejects extrapolation.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "start_time_s": _number_schema(minimum=0),
+                "end_time_s": _number_schema(minimum=0),
+                "count": {"type": "integer", "minimum": 3, "maximum": MAX_PREVIEW_POINTS},
+                "extrapolation": {"const": "reject"},
+            },
+            "required": ["start_time_s", "end_time_s", "count", "extrapolation"],
+        },
+    ),
+    MethodDefinition(
+        "polymer.prony_fit_compare",
+        COMMON_METHOD_VERSION,
+        "Polymer Prony candidate comparison",
+        "Fits one-to-ten-term generalized-Maxwell candidates and selects by BIC or an "
+        "explicit user choice.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "time_quantity": {"type": "string", "minLength": 1},
+                "modulus_quantity": {"type": "string", "minLength": 1},
+                "candidate_term_counts": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "uniqueItems": True,
+                    "items": {"type": "integer", "minimum": 1, "maximum": 10},
+                },
+                "selection_mode": {"enum": ["automatic_bic", "manual"]},
+                "selected_term_count": {"type": "integer", "minimum": 1, "maximum": 10},
+                "normalization_modulus_pa": _number_schema(minimum=1),
+                "minimum_relaxation_time_s": _number_schema(minimum=0),
+                "maximum_relaxation_time_s": _number_schema(minimum=0),
+                "maximum_function_evaluations": {
+                    "type": "integer",
+                    "minimum": 50,
+                    "maximum": 100000,
+                },
+            },
+            "required": [
+                "time_quantity",
+                "modulus_quantity",
+                "candidate_term_counts",
+                "selection_mode",
+                "selected_term_count",
+                "normalization_modulus_pa",
+                "minimum_relaxation_time_s",
+                "maximum_relaxation_time_s",
+                "maximum_function_evaluations",
+            ],
+        },
     ),
 )
 
@@ -625,9 +684,7 @@ def _named_quantity(
     return quantity
 
 
-def _require_metal_tensile_units(
-    units: dict[str, str], strain_key: str, stress_key: str
-) -> None:
+def _require_metal_tensile_units(units: dict[str, str], strain_key: str, stress_key: str) -> None:
     if units[strain_key] != "1" or units[stress_key] != "Pa":
         raise CommonPipelineError(
             "metal tensile methods require normalized strain unit 1 and stress unit Pa"
@@ -999,6 +1056,27 @@ def _apply_step(
             tuple(
                 ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
                 for item in fitted.scalars
+            ),
+        )
+    if step.method_id == "polymer.log_time_resample":
+        try:
+            resampled = log_time_resample(columns, units, x_key, options)
+        except PolymerViscoelasticError as error:
+            raise CommonPipelineError(str(error)) from error
+        units.update(resampled.units)
+        return resampled.columns, resampled.diagnostics, ()
+    if step.method_id == "polymer.prony_fit_compare":
+        try:
+            fitted_prony = fit_prony_candidates(columns, units, options)
+        except PolymerViscoelasticError as error:
+            raise CommonPipelineError(str(error)) from error
+        units.update(fitted_prony.units)
+        return (
+            fitted_prony.columns,
+            fitted_prony.diagnostics,
+            tuple(
+                ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
+                for item in fitted_prony.scalars
             ),
         )
     raise CommonPipelineError(f"method {step.method_id} is not executable")

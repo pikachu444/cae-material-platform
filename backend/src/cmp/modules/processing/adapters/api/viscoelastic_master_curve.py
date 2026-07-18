@@ -163,6 +163,7 @@ class ViscoelasticMasterRunResponse(BaseModel):
     master_dataset_revision_id: UUID | None
     wlf_c1: float | None
     wlf_c2_k: float | None
+    arrhenius_activation_energy_j_per_mol: float | None
     shift_factors: list[ShiftFactorResponse]
     failure_code: str | None
     started_at: str
@@ -193,6 +194,9 @@ class ViscoelasticMasterRunResponse(BaseModel):
             master_dataset_revision_id=value.master_dataset_revision_id,
             wlf_c1=value.wlf_c1,
             wlf_c2_k=value.wlf_c2_k,
+            arrhenius_activation_energy_j_per_mol=(
+                value.arrhenius_activation_energy_j_per_mol
+            ),
             shift_factors=[
                 ShiftFactorResponse(
                     temperature_k=item.temperature_k,

@@ -1268,7 +1268,7 @@ export interface ViscoelasticSelectionResponse {
   links: Record<string, string>;
 }
 
-export type ViscoelasticShiftMethod = "manual" | "wlf_fit";
+export type ViscoelasticShiftMethod = "manual" | "wlf_fit" | "arrhenius_fit";
 
 export interface ViscoelasticMasterPlanResponse {
   plan_id: string;
@@ -1291,7 +1291,7 @@ export interface ViscoelasticMasterPlanResponse {
 export interface ViscoelasticShiftFactor {
   temperature_k: number;
   log10_a_t: number;
-  source: "reference" | "manual" | "wlf_fit";
+  source: "reference" | "manual" | "wlf_fit" | "arrhenius_fit";
   observed_log10_a_t: number | null;
   residual_log10_a_t: number | null;
   alignment_rmse_pa: number | null;
@@ -1318,6 +1318,7 @@ export interface ViscoelasticMasterRunResponse {
   master_dataset_revision_id: string | null;
   wlf_c1: number | null;
   wlf_c2_k: number | null;
+  arrhenius_activation_energy_j_per_mol: number | null;
   shift_factors: ViscoelasticShiftFactor[];
   failure_code: string | null;
   started_at: string;

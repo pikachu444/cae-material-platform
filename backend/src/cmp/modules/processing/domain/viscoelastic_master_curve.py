@@ -44,6 +44,7 @@ class InvalidViscoelasticMasterPlan(ViscoelasticMasterError, ValueError):
 class ShiftMethod(StrEnum):
     MANUAL = "manual"
     WLF_FIT = "wlf_fit"
+    ARRHENIUS_FIT = "arrhenius_fit"
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,8 +102,12 @@ class ViscoelasticMasterPlanContent:
             raise InvalidViscoelasticMasterPlan("manual shift temperatures must be unique")
         if self.shift_method is ShiftMethod.MANUAL and not self.manual_shift_factors:
             raise InvalidViscoelasticMasterPlan("manual shift method requires explicit factors")
-        if self.shift_method is ShiftMethod.WLF_FIT and self.manual_shift_factors:
-            raise InvalidViscoelasticMasterPlan("WLF fitting cannot carry manual shift factors")
+        if self.shift_method in {ShiftMethod.WLF_FIT, ShiftMethod.ARRHENIUS_FIT} and (
+            self.manual_shift_factors
+        ):
+            raise InvalidViscoelasticMasterPlan(
+                "fitted temperature shifts cannot carry manual shift factors"
+            )
 
     def canonical(self) -> dict[str, object]:
         return {
@@ -209,6 +214,7 @@ class ViscoelasticMasterResult:
     master_curve: tuple[MasterCurvePoint, ...]
     wlf_c1: float | None
     wlf_c2_k: float | None
+    arrhenius_activation_energy_j_per_mol: float | None
     reference_temperature_k: float
 
 
@@ -364,6 +370,52 @@ def _fit_wlf(
     return evidence, c1, c2
 
 
+def _fit_arrhenius(
+    statistics: tuple[TemperatureStatistics, ...], reference_temperature_k: float
+) -> tuple[tuple[ShiftFactorEvidence, ...], float]:
+    """Fit log10(aT)=Ea/(2.303 R)*(1/T-1/Tref) through the physical origin."""
+
+    if len(statistics) < 3:
+        raise InvalidViscoelasticMasterPlan(
+            "Arrhenius fitting requires at least three temperatures"
+        )
+    reference = next(
+        (item for item in statistics if item.temperature_k == reference_temperature_k), None
+    )
+    if reference is None:
+        raise InvalidViscoelasticMasterPlan("reference temperature is absent from the Selection")
+    observed: dict[float, tuple[float, float]] = {reference_temperature_k: (0.0, 0.0)}
+    for item in statistics:
+        if item.temperature_k != reference_temperature_k:
+            observed[item.temperature_k] = _observed_shift(reference, item)
+    temperatures = np.asarray(sorted(observed), dtype=float)
+    inverse_temperature_delta = 1.0 / temperatures - 1.0 / reference_temperature_k
+    targets = np.asarray([observed[float(value)][0] for value in temperatures], dtype=float)
+    denominator = float(np.dot(inverse_temperature_delta, inverse_temperature_delta))
+    if denominator <= np.finfo(float).tiny:
+        raise InvalidViscoelasticMasterPlan("Arrhenius temperatures do not span a usable range")
+    slope = float(np.dot(inverse_temperature_delta, targets) / denominator)
+    gas_constant_j_per_mol_k = 8.31446261815324
+    activation_energy = slope * math.log(10.0) * gas_constant_j_per_mol_k
+    if not math.isfinite(activation_energy) or activation_energy <= 0:
+        raise InvalidViscoelasticMasterPlan(
+            "Arrhenius fit produced a non-positive activation energy"
+        )
+    predicted = slope * inverse_temperature_delta
+    evidence = tuple(
+        ShiftFactorEvidence(
+            temperature_k=float(temperature),
+            log10_a_t=float(shift),
+            source="arrhenius_fit" if temperature != reference_temperature_k else "reference",
+            observed_log10_a_t=observed[float(temperature)][0],
+            residual_log10_a_t=float(shift - observed[float(temperature)][0]),
+            alignment_rmse_pa=observed[float(temperature)][1],
+        )
+        for temperature, shift in zip(temperatures, predicted, strict=True)
+    )
+    return evidence, activation_energy
+
+
 def _manual_evidence(
     plan: ViscoelasticMasterPlanContent, temperatures: tuple[float, ...]
 ) -> tuple[ShiftFactorEvidence, ...]:
@@ -454,11 +506,17 @@ def compute_viscoelastic_master_curve(
         )
         for temperature in temperatures
     )
+    activation_energy = None
     if plan.shift_method is ShiftMethod.MANUAL:
         factors = _manual_evidence(plan, temperatures)
         c1 = c2 = None
-    else:
+    elif plan.shift_method is ShiftMethod.WLF_FIT:
         factors, c1, c2 = _fit_wlf(statistics, plan.reference_temperature_k)
+    else:
+        factors, activation_energy = _fit_arrhenius(
+            statistics, plan.reference_temperature_k
+        )
+        c1 = c2 = None
     return ViscoelasticMasterResult(
         aligned_curves=aligned,
         temperature_statistics=statistics,
@@ -466,6 +524,7 @@ def compute_viscoelastic_master_curve(
         master_curve=_master_curve(aligned, factors, plan.grid_point_count),
         wlf_c1=c1,
         wlf_c2_k=c2,
+        arrhenius_activation_energy_j_per_mol=activation_energy,
         reference_temperature_k=plan.reference_temperature_k,
     )
 

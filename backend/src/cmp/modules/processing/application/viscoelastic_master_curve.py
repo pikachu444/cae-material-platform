@@ -101,6 +101,7 @@ class ViscoelasticMasterRun:
     master_dataset_revision_id: UUID | None
     wlf_c1: float | None
     wlf_c2_k: float | None
+    arrhenius_activation_energy_j_per_mol: float | None
     shift_factors: tuple[ShiftFactorEvidence, ...]
     failure_code: str | None
     change_reason: str
@@ -337,6 +338,7 @@ class ViscoelasticMasterService:
             master_dataset_revision_id=None,
             wlf_c1=None,
             wlf_c2_k=None,
+            arrhenius_activation_energy_j_per_mol=None,
             shift_factors=(),
             failure_code=None,
             change_reason=reason,

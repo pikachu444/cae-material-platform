@@ -74,6 +74,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260831_065_T54_common_processing_recipes.py",
         "20260901_066_T54_common_processing_batches.py",
         "20260902_067_T55M_processed_plasticity_projection.py",
+        "20260903_068_T55P_arrhenius_shift.py",
     ]
 
 

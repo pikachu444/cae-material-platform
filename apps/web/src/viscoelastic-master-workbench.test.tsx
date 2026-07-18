@@ -170,6 +170,7 @@ describe("Viscoelastic master-curve workbench", () => {
         master_dataset_revision_id: ids[11],
         wlf_c1: null,
         wlf_c2_k: null,
+        arrhenius_activation_energy_j_per_mol: null,
         shift_factors: [
           { temperature_k: 293.15, log10_a_t: 0, source: "reference", observed_log10_a_t: null, residual_log10_a_t: null, alignment_rmse_pa: null },
           { temperature_k: 313.15, log10_a_t: -1, source: "manual", observed_log10_a_t: null, residual_log10_a_t: null, alignment_rmse_pa: null },
