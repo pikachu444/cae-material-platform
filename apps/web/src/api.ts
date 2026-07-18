@@ -175,6 +175,10 @@ import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingMethod,
+  CommonProcessingBatchPreflight,
+  CommonProcessingBatchResponse,
+  CommonProcessingRecipeContent,
+  CommonProcessingRecipeResponse,
   CommonEnsemblePreview,
   CommonProcessingOutputResponse,
   CommonProcessingPreview,
@@ -433,6 +437,86 @@ export function reviseCommonMappingProfile(
     method: "POST",
     headers: { "If-Match": etag },
     body: JSON.stringify(input),
+  });
+}
+
+export function listCommonProcessingRecipes(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonProcessingRecipeResponse[] }>> {
+  return request(config, "/common-processing-recipes");
+}
+
+export function createCommonProcessingRecipe(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: CommonProcessingRecipeContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<CommonProcessingRecipeResponse>> {
+  return request(config, "/common-processing-recipes", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseCommonProcessingRecipe(
+  config: ApiConfig,
+  recipeId: string,
+  etag: string,
+  input: { content: CommonProcessingRecipeContent; change_reason: string },
+): Promise<ApiResult<CommonProcessingRecipeResponse>> {
+  return request(config, `/common-processing-recipes/${encodeURIComponent(recipeId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function preflightCommonProcessingBatch(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    recipe_id: string;
+    recipe_revision_id: string;
+    sources: Array<{ document_id: string; revision_id: string }>;
+  },
+): Promise<ApiResult<CommonProcessingBatchPreflight>> {
+  return request(config, "/common-processing-batches:preflight", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function executeCommonProcessingBatch(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    label: string;
+    recipe_id: string;
+    recipe_revision_id: string;
+    sources: Array<{ document_id: string; revision_id: string }>;
+    change_reason: string;
+  },
+): Promise<ApiResult<CommonProcessingBatchResponse>> {
+  return request(config, "/common-processing-batches", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listCommonProcessingBatches(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonProcessingBatchResponse[] }>> {
+  return request(config, "/common-processing-batches");
+}
+
+export function retryFailedCommonProcessingBatch(
+  config: ApiConfig,
+  batchId: string,
+): Promise<ApiResult<CommonProcessingBatchResponse>> {
+  return request(config, `/common-processing-batches/${encodeURIComponent(batchId)}:retry-failed`, {
+    method: "POST",
   });
 }
 

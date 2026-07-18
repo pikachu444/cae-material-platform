@@ -4,16 +4,23 @@ import {
   ApiError,
   commitCommonProcessingOutput,
   createCommonMappingProfile,
+  createCommonProcessingRecipe,
   downloadCanonicalTestDataDocument,
   downloadCommonProcessingOutput,
   listCanonicalTestDataDocuments,
   listCommonMappingProfiles,
   listCommonProcessingOutputs,
+  listCommonProcessingRecipes,
+  listCommonProcessingBatches,
   listCommonProcessingMethods,
   listCommonProcessingEnsembleMethods,
   previewCommonProcessing,
   previewCommonProcessingEnsemble,
+  preflightCommonProcessingBatch,
+  executeCommonProcessingBatch,
+  retryFailedCommonProcessingBatch,
   reviseCommonMappingProfile,
+  reviseCommonProcessingRecipe,
   type ApiConfig,
 } from "./api";
 import type {
@@ -23,7 +30,11 @@ import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingMethod,
+  CommonProcessingBatchPreflight,
+  CommonProcessingBatchResponse,
   CommonProcessingOutputResponse,
+  CommonProcessingRecipeContent,
+  CommonProcessingRecipeResponse,
   CommonProcessingPreview,
   CommonProcessingStep,
   DataClassification,
@@ -142,8 +153,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
   const [ensembleMethods, setEnsembleMethods] = useState<CommonProcessingMethod[]>([]);
   const [outputs, setOutputs] = useState<CommonProcessingOutputResponse[]>([]);
+  const [recipes, setRecipes] = useState<CommonProcessingRecipeResponse[]>([]);
+  const [batches, setBatches] = useState<CommonProcessingBatchResponse[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState("");
   const [selectedProfileId, setSelectedProfileId] = useState("");
+  const [selectedRecipeId, setSelectedRecipeId] = useState("");
   const [document, setDocument] = useState<Record<string, unknown> | null>(null);
   const [profileText, setProfileText] = useState(JSON.stringify(DEFAULT_PROFILE, null, 2));
   const [stepsText, setStepsText] = useState(JSON.stringify(DEFAULT_STEPS, null, 2));
@@ -151,9 +165,16 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [changeReason, setChangeReason] = useState("Save reusable channel mapping");
   const [outputLabel, setOutputLabel] = useState("Processed tensile curve");
   const [outputReason, setOutputReason] = useState("Commit reviewed processing stages");
+  const [recipeKey, setRecipeKey] = useState("normalized-tensile-cleanup");
+  const [recipeLabel, setRecipeLabel] = useState("Normalized tensile cleanup");
+  const [recipeDescription, setRecipeDescription] = useState("Reusable explicit processing steps");
+  const [recipeReason, setRecipeReason] = useState("Save reusable Processing Recipe");
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   const [selectedStage, setSelectedStage] = useState(0);
   const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
+  const [batchDocumentIds, setBatchDocumentIds] = useState<string[]>([]);
+  const [batchLabel, setBatchLabel] = useState("Published Recipe batch");
+  const [batchPreflight, setBatchPreflight] = useState<CommonProcessingBatchPreflight | null>(null);
   const [ensemblePointCount, setEnsemblePointCount] = useState(21);
   const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
   const [busy, setBusy] = useState(false);
@@ -167,15 +188,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
       listCommonProcessingMethods(config),
       listCommonProcessingOutputs(config),
       listCommonProcessingEnsembleMethods(config),
+      listCommonProcessingRecipes(config),
+      listCommonProcessingBatches(config),
     ])
-      .then(([documentResult, profileResult, methodResult, outputResult, ensembleMethodResult]) => {
+      .then(([documentResult, profileResult, methodResult, outputResult, ensembleMethodResult, recipeResult, batchResult]) => {
         setDocuments(documentResult.data.items);
         setProfiles(profileResult.data.items);
         setMethods(methodResult.data.items);
         setOutputs(outputResult.data.items);
         setEnsembleMethods(ensembleMethodResult.data.items);
+        setRecipes(recipeResult.data.items);
+        setBatches(batchResult.data.items);
         setSelectedDocumentId((current) => current || documentResult.data.items[0]?.test_data_document_id || "");
         setEnsembleDocumentIds((current) => current.length ? current : documentResult.data.items.slice(0, 2).map((item) => item.test_data_document_id));
+        setBatchDocumentIds((current) => current.length ? current : documentResult.data.items.slice(0, 2).map((item) => item.test_data_document_id));
       })
       .catch((caught: unknown) => setError(errorMessage(caught)));
   }, [config]);
@@ -209,6 +235,199 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
     setSelectedProfileId(id);
     const item = profiles.find((candidate) => candidate.mapping_profile_id === id);
     if (item) setProfileText(JSON.stringify(item.content, null, 2));
+  }
+
+  function selectRecipe(id: string): void {
+    setSelectedRecipeId(id);
+    setBatchPreflight(null);
+    const item = recipes.find((candidate) => candidate.processing_recipe_id === id);
+    if (!item) return;
+    setRecipeKey(item.content.recipe_key);
+    setRecipeLabel(item.content.label);
+    setRecipeDescription(item.content.description ?? "");
+    setStepsText(JSON.stringify(item.content.steps, null, 2));
+    const exactProfile = profiles.find(
+      (profile) => profile.mapping_profile_id === item.content.mapping_profile_id
+        && profile.current_revision.id === item.content.mapping_profile_revision_id,
+    );
+    if (exactProfile) selectProfile(exactProfile.mapping_profile_id);
+    else {
+      setSelectedProfileId("");
+      setNotice("This Recipe pins an older exact Mapping Profile revision. Select a current profile before saving a new Recipe revision.");
+    }
+  }
+
+  function toggleBatchDocument(id: string): void {
+    setBatchDocumentIds((current) => current.includes(id)
+      ? current.filter((item) => item !== id)
+      : current.length < 500 ? [...current, id] : current);
+    setBatchPreflight(null);
+  }
+
+  function selectedBatchInputs(): {
+    recipe: CommonProcessingRecipeResponse;
+    sources: Array<{ document_id: string; revision_id: string }>;
+  } | null {
+    const recipe = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
+    if (!recipe || recipe.content.lifecycle_state !== "published") {
+      setError("Select an exact published Recipe revision before batch preflight.");
+      return null;
+    }
+    const selected = documents.filter((item) => batchDocumentIds.includes(item.test_data_document_id));
+    if (!selected.length) {
+      setError("Select at least one exact Test Data revision for the batch.");
+      return null;
+    }
+    return {
+      recipe,
+      sources: selected.map((item) => ({
+        document_id: item.test_data_document_id,
+        revision_id: item.current_revision.id,
+      })),
+    };
+  }
+
+  async function preflightBatch(): Promise<void> {
+    const input = selectedBatchInputs();
+    if (!input) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await preflightCommonProcessingBatch(config, {
+        classification: input.recipe.current_revision.classification as DataClassification,
+        recipe_id: input.recipe.processing_recipe_id,
+        recipe_revision_id: input.recipe.current_revision.id,
+        sources: input.sources,
+      });
+      setBatchPreflight(result.data);
+      setNotice(result.data.compatible
+        ? `Preflight accepted ${result.data.members.length} exact inputs.`
+        : "Preflight found incompatible inputs; execution remains blocked.");
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function executeBatch(): Promise<void> {
+    const input = selectedBatchInputs();
+    if (!input || !batchPreflight?.compatible) {
+      setError("Run a successful compatibility preflight before batch execution.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await executeCommonProcessingBatch(config, {
+        classification: input.recipe.current_revision.classification as DataClassification,
+        label: batchLabel,
+        recipe_id: input.recipe.processing_recipe_id,
+        recipe_revision_id: input.recipe.current_revision.id,
+        sources: input.sources,
+        change_reason: "Execute exact published Processing Recipe batch",
+      });
+      const refreshed = await listCommonProcessingBatches(config);
+      setBatches(refreshed.data.items);
+      setNotice(`Batch ${result.data.status}: ${result.data.attempts.length} append-only attempts recorded.`);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retryFailedBatch(batchId: string): Promise<void> {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await retryFailedCommonProcessingBatch(config, batchId);
+      const refreshed = await listCommonProcessingBatches(config);
+      setBatches(refreshed.data.items);
+      setNotice(`Retry completed with batch status ${result.data.status}; earlier attempts remain immutable.`);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function recipeContent(
+    profile: CommonMappingProfileResponse,
+    lifecycleState: "draft" | "published",
+  ): CommonProcessingRecipeContent {
+    return {
+      recipe_key: recipeKey,
+      label: recipeLabel,
+      description: recipeDescription.trim() || null,
+      mapping_profile_id: profile.mapping_profile_id,
+      mapping_profile_revision_id: profile.current_revision.id,
+      mapping_profile_sha256: profile.current_revision.content_hash,
+      steps: JSON.parse(stepsText) as CommonProcessingStep[],
+      lifecycle_state: lifecycleState,
+    };
+  }
+
+  async function saveRecipe(): Promise<void> {
+    const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
+    if (!profile) {
+      setError("Select and save one exact Mapping Profile before saving a Recipe.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const selected = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
+      const content = recipeContent(profile, "draft");
+      const result = selected
+        ? await reviseCommonProcessingRecipe(
+            config,
+            selected.processing_recipe_id,
+            `"revision:${selected.current_revision.revision_no}:sha256:${selected.current_revision.content_hash}"`,
+            { content, change_reason: recipeReason },
+          )
+        : await createCommonProcessingRecipe(config, {
+            classification: profile.current_revision.classification as DataClassification,
+            content,
+            change_reason: recipeReason,
+          });
+      const refreshed = await listCommonProcessingRecipes(config);
+      setRecipes(refreshed.data.items);
+      setSelectedRecipeId(result.data.processing_recipe_id);
+      setNotice(`Saved reusable Recipe revision ${result.data.current_revision.revision_no} as draft.`);
+    } catch (caught) {
+      setError(caught instanceof SyntaxError ? `Invalid Recipe step JSON: ${caught.message}` : errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function publishRecipe(): Promise<void> {
+    const selected = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
+    if (!selected || selected.content.lifecycle_state !== "draft") {
+      setError("Select a saved draft Recipe before publishing it.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await reviseCommonProcessingRecipe(
+        config,
+        selected.processing_recipe_id,
+        `"revision:${selected.current_revision.revision_no}:sha256:${selected.current_revision.content_hash}"`,
+        {
+          content: { ...selected.content, lifecycle_state: "published" },
+          change_reason: "Publish reviewed Processing Recipe",
+        },
+      );
+      const refreshed = await listCommonProcessingRecipes(config);
+      setRecipes(refreshed.data.items);
+      setNotice(`Published Recipe revision ${result.data.current_revision.revision_no}; earlier revisions remain unchanged.`);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
   }
 
   function addMethod(method: CommonProcessingMethod): void {
@@ -428,6 +647,31 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
         <div className="method-registry-strip">{methods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>{method.label}</strong><small>{method.method_id} · {method.version}</small></button>)}</div>
         <label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
+      </section>
+
+      <section className="workbench-card recipe-library-card">
+        <div className="section-heading"><div><p className="eyebrow">T-54 · reusable execution contract</p><h2>Processing Recipe library</h2></div><span className="status-chip">{recipes.length} saved</span></div>
+        <p className="mapping-note">A Recipe pins one exact Mapping Profile revision and every ordered method version/options. Publishing appends a revision; it never edits a reviewed Recipe in place.</p>
+        <div className="recipe-library-grid">
+          <label>Saved Recipe<select aria-label="Saved Processing Recipe" value={selectedRecipeId} onChange={(event) => selectRecipe(event.target.value)}><option value="">New Recipe</option>{recipes.map((item) => <option key={item.processing_recipe_id} value={item.processing_recipe_id}>{item.content.label} · r{item.current_revision.revision_no} · {item.content.lifecycle_state}</option>)}</select></label>
+          <label>Recipe key<input value={recipeKey} onChange={(event) => setRecipeKey(event.target.value)} /></label>
+          <label>Label<input value={recipeLabel} onChange={(event) => setRecipeLabel(event.target.value)} /></label>
+          <label>Description<input value={recipeDescription} onChange={(event) => setRecipeDescription(event.target.value)} /></label>
+          <label>Change reason<input value={recipeReason} onChange={(event) => setRecipeReason(event.target.value)} /></label>
+        </div>
+        <div className="recipe-actions"><button className="button primary" type="button" disabled={busy || !selectedProfileId || !recipeKey.trim() || !recipeLabel.trim() || !recipeReason.trim()} onClick={() => void saveRecipe()}>{selectedRecipeId ? "Append draft revision" : "Save new Recipe"}</button><button className="button secondary" type="button" disabled={busy || !recipes.some((item) => item.processing_recipe_id === selectedRecipeId && item.content.lifecycle_state === "draft")} onClick={() => void publishRecipe()}>Publish reviewed revision</button></div>
+        {selectedRecipeId ? <p className="digest-line"><span>Exact profile and Recipe content</span><code>{recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.content.mapping_profile_revision_id} · {recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.current_revision.content_hash}</code></p> : null}
+      </section>
+
+      <section className="workbench-card batch-monitor-card">
+        <div className="section-heading"><div><p className="eyebrow">T-54 · reusable batch execution</p><h2>Batch Run Monitor</h2></div><span className="status-chip">{batches.length} batches</span></div>
+        <p className="mapping-note">The selected published Recipe, Mapping Profile, and every Test Data revision are pinned exactly. Compatibility is checked before execution; successful outputs survive other member failures.</p>
+        <div className="batch-builder-grid">
+          <fieldset><legend>Exact Test Data selection</legend>{documents.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={batchDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleBatchDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset>
+          <div className="batch-actions"><label>Batch label<input aria-label="Processing Batch label" value={batchLabel} onChange={(event) => setBatchLabel(event.target.value)} /></label><button className="button secondary" type="button" disabled={busy || !selectedRecipeId || !batchDocumentIds.length} onClick={() => void preflightBatch()}>Run compatibility preflight</button><button className="button primary" type="button" disabled={busy || !batchPreflight?.compatible || !batchLabel.trim()} onClick={() => void executeBatch()}>Execute published Recipe</button></div>
+        </div>
+        {batchPreflight ? <div className="batch-preflight" aria-label="Batch compatibility report"><div className="batch-summary"><strong>{batchPreflight.compatible ? "Compatible" : "Blocked"}</strong><span>{batchPreflight.members.length} exact revisions</span><code>{batchPreflight.recipe_sha256}</code></div>{batchPreflight.members.map((member) => <article key={`${member.source.document_id}-${member.source.revision_id}`}><span className={`status-chip ${member.compatible ? "" : "warning"}`}>{member.compatible ? "ready" : "incompatible"}</span><div><strong>Member {member.ordinal + 1}</strong><small>{member.final_point_count ?? 0} output points</small><code>{member.source.revision_id}</code>{member.diagnostic ? <p>{member.diagnostic}</p> : null}</div></article>)}</div> : <p className="muted">Choose a published Recipe and exact Test Data revisions, then run preflight.</p>}
+        {batches.length ? <div className="batch-run-list">{batches.map((batch) => <article key={batch.batch_id}><div className="batch-run-heading"><div><strong>{batch.label}</strong><small>{batch.members.length} members · {batch.attempts.length} attempts</small></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span></div><code>{batch.recipe_revision_id}</code><div className="batch-member-list">{batch.members.map((member) => { const attempts = batch.attempts.filter((attempt) => attempt.member_id === member.member_id); const latest = attempts.at(-1); return <div key={member.member_id}><span>#{member.ordinal + 1}</span><strong>{latest?.status ?? "planned"}</strong><small>attempt {latest?.attempt_no ?? 0}</small><code>{latest?.output_revision_id ?? latest?.error_code ?? member.source.revision_id}</code></div>; })}</div>{batch.status === "partial" || batch.status === "failed" ? <button className="button secondary" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed members only</button> : null}</article>)}</div> : null}
       </section>
 
       <section className="processing-result-grid">

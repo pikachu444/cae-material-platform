@@ -84,6 +84,8 @@ describe("Common Processing Workbench", () => {
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
       if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [] });
       if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
+      if (url.endsWith("/common-processing-recipes")) return jsonResponse({ items: [] });
+      if (url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
       if (url.endsWith("/processing-ensemble-methods")) {
         return jsonResponse({
           items: [
@@ -237,6 +239,8 @@ describe("Common Processing Workbench", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "Processing Workbench" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Processing Recipe library" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Batch Run Monitor" })).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(2);
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
     expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();

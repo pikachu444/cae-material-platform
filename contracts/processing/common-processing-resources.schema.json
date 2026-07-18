@@ -294,6 +294,158 @@
       "properties": {
         "items": {"type": "array", "items": {"$ref": "#/$defs/ProcessingOutputResponse"}}
       }
+    },
+    "CommonRecipeContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_key", "label", "mapping_profile_id", "mapping_profile_revision_id", "mapping_profile_sha256", "steps", "lifecycle_state"],
+      "properties": {
+        "recipe_key": {"type": "string", "minLength": 1, "maxLength": 160},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "mapping_profile_id": {"type": "string", "format": "uuid"},
+        "mapping_profile_revision_id": {"type": "string", "format": "uuid"},
+        "mapping_profile_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "steps": {
+          "type": "array", "minItems": 1, "maxItems": 32,
+          "items": {"$ref": "#/$defs/ProcessingStep"}
+        },
+        "lifecycle_state": {"enum": ["draft", "published"]}
+      }
+    },
+    "CreateCommonRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "content": {"$ref": "#/$defs/CommonRecipeContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseCommonRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/CommonRecipeContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CommonRecipeResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["processing_recipe_id", "current_revision", "content"],
+      "properties": {
+        "processing_recipe_id": {"type": "string", "format": "uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {"$ref": "#/$defs/CommonRecipeContent"}
+      }
+    },
+    "CommonRecipeListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/CommonRecipeResponse"}}
+      }
+    },
+    "BatchSource": {
+      "type": "object", "additionalProperties": false,
+      "required": ["document_id", "revision_id"],
+      "properties": {
+        "document_id": {"type": "string", "format": "uuid"},
+        "revision_id": {"type": "string", "format": "uuid"}
+      }
+    },
+    "BatchPreflightRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["classification", "recipe_id", "recipe_revision_id", "sources"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "recipe_id": {"type": "string", "format": "uuid"},
+        "recipe_revision_id": {"type": "string", "format": "uuid"},
+        "sources": {"type": "array", "minItems": 1, "maxItems": 500, "uniqueItems": true, "items": {"$ref": "#/$defs/BatchSource"}}
+      }
+    },
+    "ExecuteBatchRequest": {
+      "allOf": [
+        {"$ref": "#/$defs/BatchPreflightRequest"},
+        {"type": "object", "required": ["label", "change_reason"], "properties": {
+          "label": {"type": "string", "minLength": 1, "maxLength": 200},
+          "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+        }}
+      ]
+    },
+    "BatchPreflightMember": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ordinal", "source", "compatible", "source_document_sha256", "final_point_count", "diagnostic"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 499},
+        "source": {"$ref": "#/$defs/BatchSource"},
+        "compatible": {"type": "boolean"},
+        "source_document_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "final_point_count": {"type": ["integer", "null"], "minimum": 2, "maximum": 100000},
+        "diagnostic": {"type": ["string", "null"], "maxLength": 2000}
+      }
+    },
+    "BatchPreflightResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["recipe_id", "recipe_revision_id", "recipe_sha256", "compatible", "members"],
+      "properties": {
+        "recipe_id": {"type": "string", "format": "uuid"},
+        "recipe_revision_id": {"type": "string", "format": "uuid"},
+        "recipe_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "compatible": {"type": "boolean"},
+        "members": {"type": "array", "items": {"$ref": "#/$defs/BatchPreflightMember"}}
+      }
+    },
+    "BatchMember": {
+      "type": "object", "additionalProperties": false,
+      "required": ["member_id", "ordinal", "source", "source_document_sha256"],
+      "properties": {
+        "member_id": {"type": "string", "format": "uuid"},
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 499},
+        "source": {"$ref": "#/$defs/BatchSource"},
+        "source_document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "BatchAttempt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["attempt_id", "member_id", "attempt_no", "status", "output_id", "output_revision_id", "error_code", "error_detail", "started_at", "completed_at"],
+      "properties": {
+        "attempt_id": {"type": "string", "format": "uuid"},
+        "member_id": {"type": "string", "format": "uuid"},
+        "attempt_no": {"type": "integer", "minimum": 1},
+        "status": {"enum": ["succeeded", "failed"]},
+        "output_id": {"type": ["string", "null"], "format": "uuid"},
+        "output_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "error_code": {"type": ["string", "null"], "maxLength": 160},
+        "error_detail": {"type": ["string", "null"], "maxLength": 2000},
+        "started_at": {"type": "string", "format": "date-time"},
+        "completed_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "CommonBatchResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["batch_id", "classification", "label", "recipe_id", "recipe_revision_id", "recipe_sha256", "status", "members", "attempts", "created_at", "created_by"],
+      "properties": {
+        "batch_id": {"type": "string", "format": "uuid"},
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "recipe_id": {"type": "string", "format": "uuid"},
+        "recipe_revision_id": {"type": "string", "format": "uuid"},
+        "recipe_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "status": {"enum": ["planned", "running", "succeeded", "partial", "failed"]},
+        "members": {"type": "array", "minItems": 1, "maxItems": 500, "items": {"$ref": "#/$defs/BatchMember"}},
+        "attempts": {"type": "array", "items": {"$ref": "#/$defs/BatchAttempt"}},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"type": "string", "format": "uuid"}
+      }
+    },
+    "CommonBatchListResponse": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/CommonBatchResponse"}}}
     }
   }
 }

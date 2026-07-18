@@ -17,7 +17,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
-| Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
+| Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
 | Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
 | Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
@@ -30,6 +30,14 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-54`: published common Recipe revisions now execute against an immutable exact Test Data
+  selection. Migration 066 stores explicit Batch, Member and append-only Attempt rows with composite
+  tenant/classification foreign keys to exact Recipe, Test Data and successful Processing Output
+  revisions. Preflight blocks incompatible inputs before persistence. Execution isolates members so
+  successful immutable Outputs survive another member failure; retry appends attempts only for members
+  whose latest attempt failed. The connected Batch Run Monitor shows exact pins, compatibility,
+  derived status, attempt number, output revision or error. Live PostgreSQL verification processed two
+  DP600 revisions into two outputs from Recipe r2, and browser evidence records the successful monitor.
 - `T-53`: a solver/test/material-neutral method registry provides sort/duplicate policy,
   crop, scale/shift, linear resampling, moving average, Savitzky–Golay and smoothing spline. Mapping
   Profile identity/revisions and typed channel/Attribute bindings persist in explicit PostgreSQL tables;
@@ -41,7 +49,7 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
   preview applies the same mapping/preprocessing to exact Test Data identities, retains every member,
   aligns only on the observed domain intersection without extrapolation, and exposes pointwise mean,
   median, sample SD, MAD, IQR and 95% mean CI with explicit assumptions in API and UI. Versioned
-  Recipe ownership, exact batch Selection, retry and promotion remain T-54.
+  Recipe ownership and exact batch execution are completed by T-54; Neutral Material promotion remains T-56.
 - `T-52 increment 1`: `cmp.test-data` 1.0.0 now has schema plus semantic validation, a connected
   `/datasets/test-json` preview/import/list/download workflow, explicit PostgreSQL identity/revision,
   typed condition/channel rows and immutable canonical JSON/normalized Parquet Artifact pins. Exact

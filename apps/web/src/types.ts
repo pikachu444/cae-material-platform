@@ -3586,6 +3586,77 @@ export interface CommonProcessingStep {
   options: Record<string, unknown>;
 }
 
+export interface CommonProcessingRecipeContent {
+  recipe_key: string;
+  label: string;
+  description: string | null;
+  mapping_profile_id: string;
+  mapping_profile_revision_id: string;
+  mapping_profile_sha256: string;
+  steps: CommonProcessingStep[];
+  lifecycle_state: "draft" | "published";
+}
+
+export interface CommonProcessingRecipeResponse {
+  processing_recipe_id: string;
+  current_revision: RevisionMetadata;
+  content: CommonProcessingRecipeContent;
+}
+
+export interface CommonProcessingBatchSource {
+  document_id: string;
+  revision_id: string;
+}
+
+export interface CommonProcessingBatchPreflightMember {
+  ordinal: number;
+  source: CommonProcessingBatchSource;
+  compatible: boolean;
+  source_document_sha256: string | null;
+  final_point_count: number | null;
+  diagnostic: string | null;
+}
+
+export interface CommonProcessingBatchPreflight {
+  recipe_id: string;
+  recipe_revision_id: string;
+  recipe_sha256: string;
+  compatible: boolean;
+  members: CommonProcessingBatchPreflightMember[];
+}
+
+export interface CommonProcessingBatchAttempt {
+  attempt_id: string;
+  member_id: string;
+  attempt_no: number;
+  status: "succeeded" | "failed";
+  output_id: string | null;
+  output_revision_id: string | null;
+  error_code: string | null;
+  error_detail: string | null;
+  started_at: string;
+  completed_at: string;
+}
+
+export interface CommonProcessingBatchResponse {
+  batch_id: string;
+  classification: DataClassification;
+  label: string;
+  recipe_id: string;
+  recipe_revision_id: string;
+  recipe_sha256: string;
+  status: "planned" | "running" | "succeeded" | "partial" | "failed";
+  members: Array<{
+    member_id: string;
+    ordinal: number;
+    source: CommonProcessingBatchSource;
+    source_document_sha256: string;
+  }>;
+  attempts: CommonProcessingBatchAttempt[];
+  created_at: string;
+  created_by: string;
+}
+
 export interface CommonCurveStage {
   ordinal: number;
   method_id: string;

@@ -69,8 +69,38 @@ Recipe/Batch 실행 결과로 저장됩니다.
 
 ![두 exact 반복시험의 정렬과 pointwise 통계](../15-demo/images/t53-processing-ensemble-statistics.png)
 
+## Processing Recipe 저장과 게시
+
+1. 저장된 exact Mapping Profile을 선택하고 ordered step JSON을 검토합니다.
+2. **Processing Recipe library**에서 Recipe key, label, 설명과 변경 사유를 입력합니다.
+3. **Save new Recipe**를 눌러 stable identity와 draft revision 1을 만듭니다.
+4. 옵션이나 순서를 변경할 때는 저장된 Recipe를 선택하고 **Append draft revision**을 누릅니다.
+5. 검토가 끝난 draft는 **Publish reviewed revision**으로 게시합니다. published revision을 직접
+   수정하지 않으며, 후속 변경은 새 draft revision으로 추가합니다.
+
+Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와 SHA-256을 고정하고,
+각 step의 method ID, version, options와 options digest를 순서대로 보존합니다. Batch preflight와
+실행은 이 exact published Recipe revision을 입력으로 사용합니다.
+
+![exact Mapping Profile과 ordered steps를 고정한 Processing Recipe Library](../15-demo/images/t54-processing-recipe-library.png)
+
+## Batch preflight와 실행
+
+1. **Saved Processing Recipe**에서 `published` revision을 선택합니다. draft Recipe는 실행할 수 없습니다.
+2. **Batch Run Monitor**의 **Exact Test Data selection**에서 처리할 revision을 선택합니다. 화면의 각
+   항목은 current head를 표시하지만 실행 요청과 저장된 Member는 그 시점의 exact revision UUID를 고정합니다.
+3. **Run compatibility preflight**를 누릅니다. 모든 member의 채널 quantity, 단위, Mapping Profile과
+   ordered step을 서버에서 실제 실행하여 `ready` 또는 `incompatible`로 표시합니다.
+4. 모든 member가 `Compatible`일 때만 **Execute published Recipe**가 활성화됩니다.
+5. 실행 후 Monitor에서 member별 Attempt 번호, 성공 Output revision 또는 오류 코드를 확인합니다.
+6. 일부 member가 실패해도 성공한 Output은 유지됩니다. **Retry failed members only**는 실패 member에만
+   다음 Attempt를 추가하며 이전 Attempt와 Output을 수정하지 않습니다.
+
+![두 exact Test Data revision의 preflight와 append-only 실행 결과](../15-demo/images/t54-processing-batch-monitor.png)
+
 ## 현재 경계
 
 화면의 stage overlay와 반복시험 통계는 명확히 preview로 표시됩니다. 별도의 single-curve commit은
 서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화하지만, 아직 일반
-Recipe/Batch 또는 Modeling 입력으로 승격되지는 않습니다. 이 승격과 batch 재사용은 T-54 범위입니다.
+Modeling 입력으로 자동 승격되지는 않습니다. Recipe 저장/게시와 exact-input batch 실행은 지원하며,
+처리 후보를 Neutral Material JSON/IR로 승격하는 계약은 T-56에서 구현합니다.
