@@ -17,8 +17,8 @@ Catalog tree/search/link → Test Data JSON → Mapping Profile
 schema designer와 Layout 기반 typed Record datasheet, Folder, text/facet/normalized-range 검색,
 saved Subset, exact revision 비교를 제공합니다. Catalog/Workflow Explorer와 관리자가 정의하는
 exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니다. Canonical Test JSON은
-검증·immutable import·목록·exact revision 다운로드까지 연결됐고 JSON+ZIP과 adapter를 확장 중입니다.
-일반 Processing Recipe/Batch는 T-53부터 순서대로 제공합니다. 현재/목표 차이는
+검증·CSV/TSV/XLSX 변환·immutable revision·exact 다운로드·checksum JSON+ZIP까지 연결됐습니다.
+일반 Mapping Profile과 Processing Recipe/Batch는 T-53부터 순서대로 제공합니다. 현재/목표 차이는
 [제품 capability map](docs/00-research/product-capability-map.md)에서 확인할 수 있습니다.
 
 ## 서비스 사용자가 할 수 있는 일

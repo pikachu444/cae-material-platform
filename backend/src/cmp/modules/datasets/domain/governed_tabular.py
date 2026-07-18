@@ -338,6 +338,21 @@ class NormalizedTabularData:
 
 
 @dataclass(frozen=True, slots=True)
+class GovernedTabularEvidence:
+    """Original mapped values plus their explicit normalized calculation values."""
+
+    original_rows: tuple[tuple[float, float], ...]
+    normalized: NormalizedTabularData
+    normalization_scales: tuple[float, float]
+
+    def __post_init__(self) -> None:
+        if len(self.original_rows) != len(self.normalized.rows):
+            raise InvalidGovernedImport("original and normalized row counts must match")
+        if any(not math.isfinite(value) or value <= 0 for value in self.normalization_scales):
+            raise InvalidGovernedImport("normalization scales must be finite and positive")
+
+
+@dataclass(frozen=True, slots=True)
 class GovernedDatasetContent:
     test_run_id: UUID
     test_run_revision_id: UUID
@@ -650,6 +665,12 @@ def _number(value: str, *, row: int, column: str, decimal_separator: str) -> flo
 def parse_governed_source(
     value: bytes, profile: GovernedImportProfileContent
 ) -> NormalizedTabularData:
+    return parse_governed_source_evidence(value, profile).normalized
+
+
+def parse_governed_source_evidence(
+    value: bytes, profile: GovernedImportProfileContent
+) -> GovernedTabularEvidence:
     _, rows = _rows(value, profile)
     if len(rows) < profile.header_row:
         raise InvalidGovernedImport("source does not contain the approved header row")
@@ -662,7 +683,15 @@ def parse_governed_source(
             raise InvalidGovernedImport(
                 f"approved column {channel.source_column!r} is absent"
             ) from error
+    original: list[tuple[float, float]] = []
     normalized: list[tuple[float, float]] = []
+    scales = [
+        _UNIT_FACTORS[channel.source_quantity][channel.original_unit]
+        for channel in profile.channels
+    ]
+    if profile.channels[0].source_quantity is QuantityKind.DISPLACEMENT:
+        scales[0] /= profile.initial_gauge_length_m or 0.0
+        scales[1] /= profile.initial_cross_section_area_m2 or 0.0
     for row_number, row in enumerate(rows[profile.header_row :], start=profile.header_row + 1):
         if not any(item.strip() for item in row):
             continue
@@ -675,13 +704,7 @@ def parse_governed_source(
             )
             for index, channel in zip(indexes, profile.channels, strict=True)
         )
-        values = [
-            raw * _UNIT_FACTORS[channel.source_quantity][channel.original_unit]
-            for raw, channel in zip(raw_values, profile.channels, strict=True)
-        ]
-        if profile.channels[0].source_quantity is QuantityKind.DISPLACEMENT:
-            values[0] /= profile.initial_gauge_length_m or 0.0
-            values[1] /= profile.initial_cross_section_area_m2 or 0.0
+        values = [raw * scale for raw, scale in zip(raw_values, scales, strict=True)]
         point = (values[0], values[1])
         if profile.data_schema is not TabularDataSchema.SIMPLE_SHEAR and (
             point[0] < 0 or point[1] < 0
@@ -697,15 +720,20 @@ def parse_governed_source(
             and point[1] > normalized[-1][1]
         ):
             raise InvalidGovernedImport(f"row {row_number}: shear modulus must be non-increasing")
+        original.append((raw_values[0], raw_values[1]))
         normalized.append(point)
         if len(normalized) > MAX_ROWS:
             raise InvalidGovernedImport("source exceeds the 100000-row limit")
-    return NormalizedTabularData(
-        columns=(
-            profile.channels[0].normalized_quantity,
-            profile.channels[1].normalized_quantity,
+    return GovernedTabularEvidence(
+        original_rows=tuple(original),
+        normalized=NormalizedTabularData(
+            columns=(
+                profile.channels[0].normalized_quantity,
+                profile.channels[1].normalized_quantity,
+            ),
+            rows=tuple(normalized),
         ),
-        rows=tuple(normalized),
+        normalization_scales=(scales[0], scales[1]),
     )
 
 

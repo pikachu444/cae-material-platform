@@ -15,6 +15,22 @@
 8. **Download current JSON+ZIP**은 화면에 보이는 각 stable identity의 현재 exact revision을
    `manifest.json`, `checksums.sha256`, `README.txt`, `test-data/`와 함께 묶습니다.
 
+## CSV, TSV 또는 XLSX를 변환할 때
+
+1. `CSV / TSV / XLSX adapter`를 펼치고 원본 파일을 선택합니다.
+2. Metadata and mapping profile JSON에서 시험 metadata, sheet/header, delimiter, decimal separator,
+   두 source column, quantity와 original unit을 확인합니다.
+3. displacement/force 입력은 gauge length와 cross-section area를 명시합니다.
+4. **Convert to canonical preview**를 누릅니다. 기존 governed parser가 같은 안전 규칙으로 파일을
+   읽으며 original value/unit과 normalized value/unit을 모두 포함한 `cmp.test-data`를 만듭니다.
+5. 변환 결과를 JSON editor와 semantic preview에서 검토한 뒤 immutable revision으로 저장합니다.
+
+복잡한 파일은 **Open governed mapping workbench**에서 sheet와 header를 preview하고 reusable
+Import Profile을 먼저 확정할 수 있습니다. T-53에서는 이 profile을 일반 Mapping Profile과
+Processing Workbench에 직접 연결합니다.
+
+![CSV/TSV/XLSX metadata와 mapping profile adapter](../15-demo/images/t52-tabular-adapter.png)
+
 ![Canonical Test Data 검증과 immutable import](../15-demo/images/t52-canonical-test-data.png)
 
 ![현재 exact revision JSON+ZIP 다운로드](../15-demo/images/t52-canonical-test-data-package.png)

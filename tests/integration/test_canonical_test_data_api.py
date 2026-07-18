@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import io
 import json
@@ -12,6 +13,7 @@ from uuid import UUID, uuid4
 import httpx
 import pytest
 from cmp.modules.datasets.adapters.api.canonical_test_data import (
+    CanonicalTestDataInput,
     install_canonical_test_data_api,
 )
 from cmp.modules.datasets.application.canonical_test_data import (
@@ -200,7 +202,7 @@ class _Service:
         context: Any,
         decision: Any,
         references: tuple[ExactTestDataRevisionRef, ...],
-    ) -> tuple[bytes, str]:
+    ) -> tuple[Any, str, int]:
         return await CanonicalTestDataService.export_package(
             cast(Any, self), context, decision, references
         )
@@ -280,6 +282,72 @@ async def test_test_data_json_preview_rejects_incorrect_explicit_normalization()
 
     assert response.status_code == 422
     assert "explicit normalization" in response.json()["detail"]
+
+
+@pytest.mark.anyio
+async def test_csv_adapter_and_direct_json_have_identical_canonical_result() -> None:
+    source = b"strain,stress\n0,0\n0.001,205\n0.002,310\n"
+    request = {
+        "document_id": "DP600-CSV-01",
+        "material": {"maker": "CMP Demo Metals", "grade": "DP600", "lot_batch": None},
+        "test": {
+            "date": "2026-07-18",
+            "operator": "Kim Tester",
+            "laboratory": "CMP Laboratory",
+            "method": "uniaxial tensile reference method",
+            "equipment_maker": None,
+            "equipment_model": None,
+        },
+        "specimen": {"specimen_id": "CSV-S-01", "description": None},
+        "conditions": [],
+        "source_file_name": "dp600.csv",
+        "source_base64": base64.b64encode(source).decode("ascii"),
+        "profile": {
+            "profile_label": "DP600 strain-stress CSV",
+            "data_schema": "monotonic_tension",
+            "file_format": "csv",
+            "sheet_name": None,
+            "header_row": 1,
+            "encoding": "utf-8",
+            "delimiter": ",",
+            "decimal_separator": ".",
+            "channels": [
+                {
+                    "ordinal": 0,
+                    "source_column": "strain",
+                    "source_quantity": "engineering_strain",
+                    "original_unit": "1",
+                    "axis_role": "independent",
+                },
+                {
+                    "ordinal": 1,
+                    "source_column": "stress",
+                    "source_quantity": "engineering_stress",
+                    "original_unit": "MPa",
+                    "axis_role": "dependent",
+                },
+            ],
+            "initial_gauge_length_m": None,
+            "initial_cross_section_area_m2": None,
+            "approval_kind": "human_confirmed",
+        },
+    }
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=_app()), base_url="http://test"
+    ) as client:
+        converted = await client.post("/api/v1/test-data:convert-tabular", json=request)
+        direct = await client.post(
+            "/api/v1/test-data:validate", json=converted.json()["canonical_document"]
+        )
+
+    assert converted.status_code == 200
+    assert direct.status_code == 200
+    assert converted.json()["document_sha256"] == direct.json()["document_sha256"]
+    channel = converted.json()["canonical_document"]["channels"][1]
+    assert channel["original_unit_string"] == "MPa"
+    assert channel["normalized_unit"] == "Pa"
+    assert channel["original_values"] == ["0", "205", "310"]
+    assert channel["normalized_values"] == ["0", "205000000", "310000000"]
 
 
 @pytest.mark.anyio
@@ -393,3 +461,38 @@ async def test_exact_revision_package_is_deterministic_and_checksum_verifiable()
     assert manifest["document_type"] == "cmp.test-data-package"
     assert manifest["entries"][0]["revision_id"] == str(REVISION)
     assert f"{hashlib.sha256(data).hexdigest()}  {data_path}" in checksums
+
+
+@pytest.mark.anyio
+async def test_large_package_spools_and_streams_in_bounded_chunks() -> None:
+    service = _Service()
+    await service.import_document(
+        CONTEXT,
+        _decision(),
+        ImportCanonicalTestData(
+            DataClassification.INTERNAL,
+            CanonicalTestDataInput.model_validate(_fixture()).to_domain(),
+            "Prepare large package snapshot",
+        ),
+    )
+    large_value = hashlib.shake_256(b"cmp-large-package-fixture").digest(10 * 1024 * 1024)
+
+    async def large_export(*args: Any, **kwargs: Any) -> tuple[DocumentSnapshot, bytes]:
+        del args, kwargs
+        assert service.snapshot is not None
+        return service.snapshot, large_value
+
+    service.export_document = large_export  # type: ignore[method-assign]
+    stream, digest, size = await service.export_package(
+        CONTEXT,
+        _decision(),
+        (ExactTestDataRevisionRef(DOCUMENT, REVISION),),
+    )
+    try:
+        assert size > 8 * 1024 * 1024
+        chunks = iter(lambda: stream.read(1024 * 1024), b"")
+        package = b"".join(chunks)
+    finally:
+        stream.close()
+    assert len(package) == size
+    assert hashlib.sha256(package).hexdigest() == digest

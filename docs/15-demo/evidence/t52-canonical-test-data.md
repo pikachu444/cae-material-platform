@@ -24,10 +24,14 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 
 ![Current exact revisions packaged as deterministic JSON+ZIP](../images/t52-canonical-test-data-package.png)
 
+![Governed CSV/TSV/XLSX mapping contract adapter](../images/t52-tabular-adapter.png)
+
 - API/domain tests cover semantic preview, immutable import, list and exact-revision round-trip.
 - Fresh PostgreSQL migration and the live Docker workflow verify typed condition/channel rows, RLS,
   Artifact pins and append-only revision storage.
 - React tests cover server validation, unit/missing evidence and immutable import actions.
+- Live adapter verification converted `310 MPa` to `310000000 Pa` while preserving both values and
+  produced the same digest when the returned canonical document was validated through the JSON path.
 
 This increment implements single-document JSON persistence and exact export. Deterministic JSON+ZIP,
 CSV/XLSX canonical adapters and large-package streaming remain the next T-52 increments.

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import base64
+import binascii
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from datetime import date
 from decimal import Decimal
 from typing import Annotated, Any
@@ -12,8 +14,14 @@ from uuid import UUID
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
+from starlette.responses import StreamingResponse
 
 from cmp.modules.datasets.adapters.api.datasets import _etag, _scope
+from cmp.modules.datasets.adapters.api.governed_import import ImportProfileContentInput
+from cmp.modules.datasets.application.canonical_tabular_adapter import (
+    CanonicalTabularAdapterInput,
+    canonical_from_governed_tabular,
+)
 from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
     ExactTestDataRevisionRef,
@@ -35,6 +43,7 @@ from cmp.modules.datasets.domain.canonical_test_data import (
     canonical_test_data,
 )
 from cmp.modules.datasets.domain.governed_tabular import (
+    MAX_SOURCE_BYTES,
     GovernedImportConflict,
     GovernedImportNotFound,
 )
@@ -249,6 +258,27 @@ class CanonicalTestDataImportRequest(BaseModel):
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
+class CanonicalTabularConvertRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    document_id: Text200
+    material: MaterialInput
+    test: TestInput
+    specimen: SpecimenInput
+    conditions: tuple[ConditionInput, ...] = Field(max_length=128)
+    source_file_name: Text200
+    source_base64: Annotated[str, StringConstraints(min_length=1)]
+    profile: ImportProfileContentInput
+
+    def source_bytes(self) -> bytes:
+        try:
+            value = base64.b64decode(self.source_base64, validate=True)
+        except (ValueError, binascii.Error) as error:
+            raise ValueError("source_base64 must be canonical Base64") from error
+        if not value or len(value) > MAX_SOURCE_BYTES:
+            raise ValueError("tabular source must contain 1 byte..16 MiB")
+        return value
+
+
 class CanonicalTestDataReviseRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     document: CanonicalTestDataInput
@@ -353,6 +383,38 @@ def install_canonical_test_data_api(
         del request
         try:
             return CanonicalTestDataPreviewResponse.from_domain(body.to_domain())
+        except (CanonicalTestDataError, ValueError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+
+    @app.post(
+        "/api/v1/test-data:convert-tabular",
+        response_model=CanonicalTestDataPreviewResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["test-data-json"],
+    )
+    async def convert_tabular_test_data(
+        body: CanonicalTabularConvertRequest,
+        request: Request,
+    ) -> CanonicalTestDataPreviewResponse:
+        del request
+        try:
+            document = canonical_from_governed_tabular(
+                CanonicalTabularAdapterInput(
+                    document_id=body.document_id,
+                    material=TestMaterialMetadata(**body.material.model_dump()),
+                    test=TestExecutionMetadata(
+                        test_date=body.test.date,
+                        **body.test.model_dump(exclude={"date"}),
+                    ),
+                    specimen=TestSpecimenMetadata(**body.specimen.model_dump()),
+                    conditions=tuple(item.to_domain() for item in body.conditions),
+                    source_file_name=body.source_file_name,
+                    source_bytes=body.source_bytes(),
+                    profile=body.profile.to_domain(),
+                )
+            )
+            return CanonicalTestDataPreviewResponse.from_domain(document)
         except (CanonicalTestDataError, ValueError) as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
 
@@ -499,7 +561,7 @@ def install_canonical_test_data_api(
         if service is None:
             raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
         try:
-            value, digest = await service.export_package(
+            value, digest, size = await service.export_package(
                 context,
                 decision,
                 tuple(
@@ -511,11 +573,19 @@ def install_canonical_test_data_api(
             raise HTTPException(status_code=404, detail=str(error)) from error
         except GovernedImportConflict as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
-        return Response(
-            content=value,
+        def chunks() -> Iterator[bytes]:
+            try:
+                while chunk := value.read(1024 * 1024):
+                    yield chunk
+            finally:
+                value.close()
+
+        return StreamingResponse(
+            chunks(),
             media_type="application/vnd.cmp.test-data-package+zip",
             headers={
                 "Content-Disposition": 'attachment; filename="cmp-test-data-package.zip"',
                 "X-Content-SHA256": digest,
+                "Content-Length": str(size),
             },
         )

@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   downloadDocument: vi.fn(),
   reviseDocument: vi.fn(),
   downloadPackage: vi.fn(),
+  convertTabular: vi.fn(),
 }));
 
 vi.mock("./api", async (importOriginal) => {
@@ -23,6 +24,7 @@ vi.mock("./api", async (importOriginal) => {
     downloadCanonicalTestDataDocument: mocks.downloadDocument,
     reviseCanonicalTestData: mocks.reviseDocument,
     downloadCanonicalTestDataPackage: mocks.downloadPackage,
+    convertTabularToCanonicalTestData: mocks.convertTabular,
   };
 });
 
@@ -80,6 +82,7 @@ describe("CanonicalTestDataWorkbench", () => {
       data: { blob: new Blob(["package"]), filename: "cmp-test-data-package.zip" },
       etag: null,
     });
+    mocks.convertTabular.mockImplementation(() => mocks.validate());
   });
 
   it("validates the editable JSON through the API and exposes unit/missing evidence", async () => {
@@ -171,5 +174,33 @@ describe("CanonicalTestDataWorkbench", () => {
       { document_id: "document-1", revision_id: "revision-1" },
     ]);
     click.mockRestore();
+  });
+
+  it("converts a mapped CSV file into the canonical JSON preview", async () => {
+    const user = userEvent.setup();
+    render(
+      <CanonicalTestDataWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "dataset-token" }}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    await user.click(screen.getByText("CSV / TSV / XLSX adapter"));
+    await user.upload(
+      screen.getByLabelText("Tabular source file"),
+      new File(["strain,stress\n0,0\n0.001,205\n"], "dp600.csv", { type: "text/csv" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Convert to canonical preview" }));
+
+    await waitFor(() => expect(mocks.convertTabular).toHaveBeenCalledOnce());
+    expect(mocks.convertTabular.mock.calls[0][1]).toEqual(
+      expect.objectContaining({
+        document_id: "DP600-CSV-01",
+        source_file_name: "dp600.csv",
+        source_base64: expect.any(String),
+      }),
+    );
+    expect(await screen.findByText(/Tabular mapping converted successfully/)).toBeTruthy();
   });
 });

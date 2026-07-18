@@ -3083,6 +3083,34 @@ summary {
   gap: 20px;
 }
 
+.tabular-adapter-card summary {
+  cursor: pointer;
+  list-style-position: outside;
+}
+
+.tabular-adapter-card summary span,
+.tabular-adapter-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.tabular-adapter-card summary small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.tabular-adapter-grid {
+  margin-top: 18px;
+}
+
+.adapter-settings-editor {
+  min-height: 280px;
+  resize: vertical;
+  font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .json-source-card,
 .json-preview-card {
   min-width: 0;

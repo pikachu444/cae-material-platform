@@ -295,6 +295,16 @@ export function validateCanonicalTestData(
   });
 }
 
+export function convertTabularToCanonicalTestData(
+  config: ApiConfig,
+  input: Record<string, unknown>,
+): Promise<ApiResult<CanonicalTestDataPreviewResponse>> {
+  return request(config, "/test-data:convert-tabular", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function importCanonicalTestData(
   config: ApiConfig,
   input: {

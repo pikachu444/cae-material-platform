@@ -52,6 +52,21 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "TabularConvertRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "material", "test", "specimen", "conditions", "source_file_name", "source_base64", "profile"],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1, "maxLength": 200},
+        "material": {"$ref": "canonical-test-data.schema.json#/$defs/Material"},
+        "test": {"$ref": "canonical-test-data.schema.json#/$defs/Test"},
+        "specimen": {"$ref": "canonical-test-data.schema.json#/$defs/Specimen"},
+        "conditions": {"type": "array", "maxItems": 128, "items": {"$ref": "canonical-test-data.schema.json#/$defs/Condition"}},
+        "source_file_name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source_base64": {"type": "string", "minLength": 1, "contentEncoding": "base64"},
+        "profile": {"$ref": "governed-import-resources.schema.json#/$defs/ProfileContentInput"}
+      }
+    },
     "ReviseRequest": {
       "type": "object",
       "additionalProperties": false,

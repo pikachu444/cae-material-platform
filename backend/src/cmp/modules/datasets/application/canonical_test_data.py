@@ -8,6 +8,7 @@ import json
 import zipfile
 from collections.abc import Callable
 from dataclasses import dataclass
+from tempfile import SpooledTemporaryFile
 from typing import Protocol, cast
 from uuid import UUID, uuid4
 
@@ -46,6 +47,13 @@ from cmp.shared.domain.revisions import RevisionRecord, TenantScope
 TEST_DATA_DOCUMENT_AGGREGATE_TYPE = "datasets.test_data_document"
 NORMALIZED_PARQUET_SCHEMA = "urn:cmp:test-data:normalized-parquet:1.0.0"
 _write_parquet = cast(Callable[..., None], pq.write_table)
+
+
+class PackageStream(Protocol):
+    def read(self, size: int = -1) -> bytes: ...
+    def seek(self, offset: int, whence: int = 0) -> int: ...
+    def tell(self) -> int: ...
+    def close(self) -> None: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -433,7 +441,7 @@ class CanonicalTestDataService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         references: tuple[ExactTestDataRevisionRef, ...],
-    ) -> tuple[bytes, str]:
+    ) -> tuple[PackageStream, str, int]:
         _require(context, decision, Permission.DATASET_READ)
         if not 1 <= len(references) <= 100:
             raise GovernedImportConflict("Test Data package requires 1..100 exact revisions")
@@ -483,7 +491,7 @@ class CanonicalTestDataService:
             f"{hashlib.sha256(value).hexdigest()}  {path}\n"
             for path, value in sorted(files.items())
         ).encode("ascii")
-        buffer = io.BytesIO()
+        buffer = SpooledTemporaryFile(max_size=8 * 1024 * 1024, mode="w+b")
         with zipfile.ZipFile(
             buffer, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9, strict_timestamps=True
         ) as archive:
@@ -492,5 +500,10 @@ class CanonicalTestDataService:
                 info.compress_type = zipfile.ZIP_DEFLATED
                 info.external_attr = 0o100644 << 16
                 archive.writestr(info, value, compresslevel=9)
-        package = buffer.getvalue()
-        return package, hashlib.sha256(package).hexdigest()
+        size = buffer.tell()
+        buffer.seek(0)
+        package_hash = hashlib.sha256()
+        while chunk := buffer.read(1024 * 1024):
+            package_hash.update(chunk)
+        buffer.seek(0)
+        return buffer, package_hash.hexdigest(), size

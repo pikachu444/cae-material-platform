@@ -26,6 +26,26 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Dataset write is not authorized.}
         "422": {description: Schema, array, missingness, or explicit normalization is invalid.}
+  /api/v1/test-data:convert-tabular:
+    post:
+      operationId: convertTabularToCanonicalTestData
+      tags: [test-data-json]
+      summary: Convert approved CSV, TSV, or XLSX mapping evidence into cmp.test-data JSON.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/TabularConvertRequest"}
+      responses:
+        "200":
+          description: Canonical preview preserving original and normalized values and units.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/PreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "422": {description: File, profile, mapping, unit, geometry, or canonical semantics are invalid.}
   /api/v1/test-data-documents:
     post:
       operationId: importCanonicalTestData

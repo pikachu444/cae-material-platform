@@ -1285,7 +1285,12 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   Test Data identity + immutable revision, typed condition/channel persistence, canonical JSON과
   normalized Parquet Artifact pin, list와 exact-revision JSON download를 PostgreSQL/API/UI까지
   연결했다. exact current ETag 기반 revision append와 과거 revision 재다운로드도 Docker에서
-  검증했다. JSON+ZIP과 tabular adapter는 남아 있으므로 T-52 전체 완료로 표시하지 않는다.
+  검증했다. 뒤의 완료 증거에서 JSON+ZIP과 tabular adapter까지 같은 Task로 마무리했다.
+- **완료 증거 (2026-07-18):** 기존 governed CSV/TSV/XLSX parser가 original row와 explicit
+  normalized row/scale을 동시에 반환하도록 확장하고 canonical adapter API/UI에 연결했다.
+  direct JSON과 CSV adapter의 canonical digest 동등성, XLSX 안전 parser, deterministic ZIP,
+  checksum/path, immutable revision round-trip을 검증하여 T-52를 완료했다. 여러 capability를
+  포함하는 대형 package profile은 계획대로 T-58에서 확장한다.
 
 #### T-53. Mapping Profile and common Processing Workbench — `P0`
 

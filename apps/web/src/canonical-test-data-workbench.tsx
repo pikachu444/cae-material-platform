@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent } from "react";
 
 import {
   ApiError,
+  convertTabularToCanonicalTestData,
   downloadCanonicalTestDataDocument,
   downloadCanonicalTestDataPackage,
   importCanonicalTestData,
@@ -37,6 +38,41 @@ const SAMPLE = `{
   "source": {"file_name": "dp600-tensile.csv", "media_type": "text/csv", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 }`;
 
+const TABULAR_ADAPTER_SAMPLE = `{
+  "document_id": "DP600-CSV-01",
+  "material": {"maker": "CMP Demo Metals", "grade": "DP600", "lot_batch": null},
+  "test": {"date": "2026-07-18", "operator": "Kim Tester", "laboratory": "CMP Laboratory", "method": "uniaxial tensile reference method", "equipment_maker": null, "equipment_model": null},
+  "specimen": {"specimen_id": "CSV-S-01", "description": null},
+  "conditions": [],
+  "profile": {
+    "profile_label": "DP600 strain-stress CSV",
+    "data_schema": "monotonic_tension",
+    "file_format": "csv",
+    "sheet_name": null,
+    "header_row": 1,
+    "encoding": "utf-8",
+    "delimiter": ",",
+    "decimal_separator": ".",
+    "channels": [
+      {"ordinal": 0, "source_column": "strain", "source_quantity": "engineering_strain", "original_unit": "1", "axis_role": "independent"},
+      {"ordinal": 1, "source_column": "stress", "source_quantity": "engineering_stress", "original_unit": "MPa", "axis_role": "dependent"}
+    ],
+    "initial_gauge_length_m": null,
+    "initial_cross_section_area_m2": null,
+    "approval_kind": "human_confirmed"
+  }
+}`;
+
+async function fileBase64(file: File): Promise<string> {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error ?? new Error("Unable to read the tabular file."));
+    reader.readAsDataURL(file);
+  });
+  return dataUrl.slice(dataUrl.indexOf(",") + 1);
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "The Test Data JSON operation failed.";
 }
@@ -44,6 +80,8 @@ function errorMessage(error: unknown): string {
 export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnection }: Props) {
   const [source, setSource] = useState(SAMPLE);
   const [fileName, setFileName] = useState("built-in DP600 example");
+  const [tabularFile, setTabularFile] = useState<File | null>(null);
+  const [tabularSettings, setTabularSettings] = useState(TABULAR_ADAPTER_SAMPLE);
   const [preview, setPreview] = useState<CanonicalTestDataPreviewResponse | null>(null);
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [classification, setClassification] = useState<DataClassification>("internal");
@@ -92,6 +130,32 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
       setNotice("Validation passed. Review semantic and unit evidence before importing.");
     } catch (caught) {
       setError(caught instanceof SyntaxError ? `Invalid JSON syntax: ${caught.message}` : errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function convertTabular(): Promise<void> {
+    if (!tabularFile) {
+      setError("Choose a CSV, TSV, or XLSX source file first.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const settings = JSON.parse(tabularSettings) as Record<string, unknown>;
+      const result = await convertTabularToCanonicalTestData(config, {
+        ...settings,
+        source_file_name: tabularFile.name,
+        source_base64: await fileBase64(tabularFile),
+      });
+      setSource(JSON.stringify(result.data.canonical_document, null, 2));
+      setFileName(`${tabularFile.name} → cmp.test-data`);
+      setPreview(result.data);
+      setNotice("Tabular mapping converted successfully. Review both original and normalized evidence.");
+    } catch (caught) {
+      setError(caught instanceof SyntaxError ? `Invalid adapter settings JSON: ${caught.message}` : errorMessage(caught));
     } finally {
       setBusy(false);
     }
@@ -185,6 +249,14 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
 
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}
+      <details className="workbench-card tabular-adapter-card">
+        <summary><span><strong>CSV / TSV / XLSX adapter</strong><small>Reuse the governed mapping contract and produce the same canonical JSON.</small></span></summary>
+        <div className="tabular-adapter-grid">
+          <label className="file-picker">Choose tabular source<input aria-label="Tabular source file" type="file" accept=".csv,.tsv,.xlsx,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={(event) => setTabularFile(event.target.files?.[0] ?? null)} /></label>
+          <label>Metadata and mapping profile JSON<textarea className="adapter-settings-editor" aria-label="Tabular adapter settings" value={tabularSettings} onChange={(event) => setTabularSettings(event.target.value)} spellCheck={false} /></label>
+          <div className="hero-actions"><button className="button primary" type="button" disabled={busy} onClick={() => void convertTabular()}>{busy ? "Converting…" : "Convert to canonical preview"}</button><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/import")}>Open governed mapping workbench</button></div>
+        </div>
+      </details>
       <section className="test-json-grid">
         <article className="workbench-card json-source-card">
           <div className="section-heading"><div><p className="eyebrow">User exchange file</p><h2>JSON source</h2></div><span className="status-chip">{fileName}</span></div>
