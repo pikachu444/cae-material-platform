@@ -87,6 +87,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260913_078_T65_domain_binding_rls_validator.py",
         "20260914_079_T67_polymer_processing_promotion.py",
         "20260915_080_T69_polymer_recipe_batch_origin.py",
+        "20260916_081_T70_metal_recipe_batch_origin.py",
     ]
 
 

@@ -396,6 +396,43 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         )
         if batch.get("status") != "succeeded":
             raise RuntimeError("clean demo Processing Batch did not succeed")
+        batch_attempt = next(
+            item
+            for item in batch.get("attempts", [])
+            if isinstance(item, Mapping) and item.get("status") == "succeeded"
+        )
+        metal_detail = _json(client.get(f"/materials/{metal_id}"))
+        metal_states = metal_detail.get("states")
+        if not isinstance(metal_states, list) or not metal_states:
+            raise RuntimeError("clean demo metal Material has no State for Recipe evidence")
+        metal_state_id = str(metal_states[0]["material_state_id"])
+        metal_models = _items(
+            _json(client.get(f"/material-states/{metal_state_id}/tabulated-plasticity-models"))
+        )
+        metal_model = next(
+            item
+            for item in metal_models
+            if isinstance(_content(item).get("processing_projection"), Mapping)
+        )
+        metal_projection = _content(metal_model)["processing_projection"]
+        assert isinstance(metal_projection, Mapping)
+        metal_recipe_batch = metal_projection.get("recipe_batch")
+        exact_metal_recipe = (
+            metal_recipe_batch.get("processing_recipe")
+            if isinstance(metal_recipe_batch, Mapping)
+            else None
+        )
+        if (
+            not isinstance(exact_metal_recipe, Mapping)
+            or exact_metal_recipe.get("id") != recipe.get("processing_recipe_id")
+            or exact_metal_recipe.get("revision_id")
+            != recipe.get("current_revision", {}).get("id")
+            or metal_recipe_batch.get("processing_batch_id") != batch.get("batch_id")
+            or metal_recipe_batch.get("batch_attempt_id") != batch_attempt.get("attempt_id")
+            or metal_projection.get("output_revision_id")
+            != batch_attempt.get("output_revision_id")
+        ):
+            raise RuntimeError("metal IR does not pin the exact Recipe/Batch/Output execution")
 
         candidates = _items(_json(client.get(f"/bulk-export-candidates?material_id={metal_id}")))
         neutral_source = next(
@@ -409,6 +446,15 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "isotropic_tabulated_plasticity"
         ):
             raise RuntimeError("clean demo selected Neutral JSON is not the metal family")
+        neutral_recipe = neutral["document"]["sources"]["processing_recipe"]
+        if (
+            neutral_recipe.get("status") != "exact_revision"
+            or neutral_recipe.get("reference", {}).get("id")
+            != recipe.get("processing_recipe_id")
+            or neutral_recipe.get("reference", {}).get("revision_id")
+            != recipe.get("current_revision", {}).get("id")
+        ):
+            raise RuntimeError("metal Neutral JSON does not pin the exact Processing Recipe")
         neutral_download = client.get(f"/neutral-materials/{neutral_id}/download")
         neutral_download.raise_for_status()
         if (
@@ -490,6 +536,8 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "mapping_profile_id": profile["mapping_profile_id"],
             "processing_recipe_id": recipe["processing_recipe_id"],
             "processing_batch_id": batch["batch_id"],
+            "processing_batch_attempt_id": batch_attempt["attempt_id"],
+            "metal_model_schema_version": _content(metal_model)["model_schema_version"],
             "neutral_material_id": neutral_id,
             "neutral_solver_card_sha256": native_downloads,
             "bulk_bundle_id": bundle_id,

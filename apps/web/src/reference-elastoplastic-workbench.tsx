@@ -617,6 +617,17 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
                     Characterized plastic strain: {selectedModel.current_revision.content.characterized_max_true_plastic_strain.toFixed(6)}
                   </span>
                   <span>Extension: {selectedModel.current_revision.content.extension_max_true_plastic_strain.toFixed(6)}</span>
+                  {selectedModel.current_revision.content.processing_projection?.recipe_batch ? (
+                    <>
+                      <span>
+                        Published Recipe revision: {shortId(selectedModel.current_revision.content.processing_projection.recipe_batch.processing_recipe.revision_id)}
+                      </span>
+                      <span>
+                        Successful Batch attempt #{selectedModel.current_revision.content.processing_projection.recipe_batch.batch_attempt_no} · {shortId(selectedModel.current_revision.content.processing_projection.recipe_batch.batch_attempt_id)}
+                      </span>
+                      <a href="/datasets/processing">Open Recipe library and Batch monitor</a>
+                    </>
+                  ) : null}
                 </div>
               ) : null}
               {curve && selectedModel ? (

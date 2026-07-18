@@ -3,7 +3,7 @@
 - Status: Accepted
 - Date: 2026-07-19
 - Deciders: CMP maintainers
-- Related: ADR-0029, ADR-0031, T-54, T-55P, T-67, T-69
+- Related: ADR-0029, ADR-0031, T-54, T-55M, T-55P, T-67, T-69, T-70
 
 ## Context
 
@@ -22,16 +22,18 @@ break reproducibility.
 The successful `common_processing_batch_attempt` remains the authoritative relation between an
 exact Processing Output revision and the exact published Recipe revision owned by its Batch.
 Processing exposes a read port that resolves this relation under the caller's tenant and
-classification scope. Modeling consumes that port during reviewed polymer promotion and stores:
+classification scope. Modeling consumes that port during reviewed polymer or metal promotion and
+stores:
 
 - exact Recipe identity, revision and canonical digest;
 - exact Batch, Member and successful Attempt identities and attempt number;
 - the existing exact Output, Test Data and Mapping Profile evidence.
 
-Migration 080 adds nullable typed columns, composite exact-revision foreign keys, an all-or-none
-constraint and a deferred trigger that proves the Attempt succeeded and produced the same Output
-revision. The IR canonical schema is `1.3.0` when this origin exists. Historical direct Outputs keep
-their `1.2.0` evidence and remain readable.
+Migration 080 adds the polymer evidence table columns and migration 081 adds the corresponding
+metal IR revision columns. Both use composite exact-revision foreign keys, all-or-none constraints
+and deferred triggers that prove the Attempt succeeded and produced the same Output revision. The
+family IR canonical schema is `1.3.0` when this origin exists. Historical direct Outputs keep their
+`1.2.0` evidence and remain readable.
 
 Neutral promotion maps the exact Recipe revision into `processing_recipe.status=exact_revision`.
 The Batch execution identifiers remain in typed IR evidence; the Neutral exchange does not invent a
@@ -40,8 +42,8 @@ Mapping Profile, Neutral JSON, reports and both eligible native cards.
 
 ## Consequences
 
-- A saved polymer Recipe can be published, batch-executed, reviewed and followed without a `latest`
-  alias through IR, Neutral JSON, solver cards and checksum package.
+- A saved polymer or metal Recipe can be published, batch-executed, reviewed and followed without a
+  `latest` alias through IR, Neutral JSON, solver cards and checksum package.
 - Direct historical Outputs are not rewritten and clearly report that no Recipe/Batch pin exists.
 - An Output produced outside Batch remains promotable for compatibility, but cannot claim Recipe
   reuse evidence.

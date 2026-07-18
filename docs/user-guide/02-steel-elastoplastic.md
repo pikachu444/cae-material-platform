@@ -47,7 +47,15 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
 13. IR의 origin이 `selected fitted hardening Processing Output`인지, hardening curve point 수와
     characterized/extension strain이 선택한 Output과 일치하는지 확인합니다.
 
+    저장한 Recipe를 Batch로 실행한 Output이라면 같은 evidence 패널에 **Published Recipe
+    revision**과 **Successful Batch attempt**가 표시됩니다. **Open Recipe library and Batch
+    monitor**를 눌러 정확히 같은 Recipe revision, 옵션, Attempt와 Output으로 돌아갈 수 있습니다.
+    이 정보가 없는 과거 direct Output은 schema `1.2.0`으로 유지되며 Recipe 재사용을 주장하지
+    않습니다.
+
     ![승격된 101-point hardening IR과 lineage](../15-demo/images/t55m-processed-ir.png)
+
+    ![금속 IR에 고정된 published Recipe와 성공 Batch Attempt](../15-demo/images/t70-metal-recipe-batch-evidence.png)
 
 14. OpenRadioss LAW36 또는 Abaqus isotropic plasticity target을 선택합니다.
 15. mapping report에서 `exact`, `transformed`, `approximated`, `not_applicable` 상태와 bounded
@@ -61,6 +69,7 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
 - Source Raw Asset과 normalized/processed Dataset revision이 서로 다릅니다.
 - IR은 exact Property Set과 Processing Output revision을 가리키고, Processing Output은 다시 exact
   Test Data와 Mapping Profile revision을 가리킵니다.
+- saved Recipe 경로라면 IR `1.3.0`과 Neutral JSON이 동일한 exact Recipe revision을 가리킵니다.
 - Abaqus preview에는 `*DENSITY`, `*ELASTIC`, `*PLASTIC`이 있습니다.
 - OpenRadioss preview에는 `/MAT/LAW36`과 hardening function이 있습니다.
 - download SHA-256은 card revision의 digest와 같습니다.

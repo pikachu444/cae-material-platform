@@ -254,6 +254,14 @@ separation between immutable calculation evidence and a human domain decision.
 
 IR은 calibration raw log를 복사하지 않고 immutable run/evidence를 참조한다. release package는 필요한 evidence digest를 함께 고정한다.
 
+### 8.1 Saved metal Recipe/Batch promotion
+
+금속 `metal.hardening_fit_extrapolate` Output이 성공한 common Batch Attempt에서 생성되었다면
+신규 IR은 schema `1.3.0`을 사용한다. `source_revisions`에는 exact Processing Output, published
+Processing Recipe, Batch/Member/Attempt와 attempt number를 함께 기록한다. PostgreSQL deferred
+constraint trigger는 Attempt가 `succeeded`이고 동일 Output revision을 생성했는지 검사한다.
+Batch를 거치지 않은 과거 Output은 수정하지 않고 schema `1.2.0`으로 계속 읽는다.
+
 ## 9. Validation evidence
 
 각 evidence는 다음을 구분한다.

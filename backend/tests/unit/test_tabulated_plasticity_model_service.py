@@ -70,6 +70,10 @@ from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import
     ReferenceProcessedTabulatedPlasticityContent,
     reference_processed_tabulated_plasticity_canonical,
 )
+from cmp.modules.processing.application.common_batches import (
+    CommonBatchService,
+    ProcessingExecutionOrigin,
+)
 from cmp.modules.processing.application.common_outputs import (
     CommonProcessingOutputService,
     ExactRevisionPin,
@@ -480,6 +484,7 @@ def _service(
     *,
     material_class: str = "metal",
     processing_outputs: _ProcessingOutputs | None = None,
+    processing_batches: object | None = None,
 ) -> TabulatedPlasticityModelService:
     return TabulatedPlasticityModelService(
         repository=cast(TabulatedPlasticityRepository, repository),
@@ -487,6 +492,7 @@ def _service(
         datasets=cast(DatasetService, _Datasets()),
         artifacts=cast(ArtifactService, artifacts),
         processing_outputs=cast(CommonProcessingOutputService, processing_outputs),
+        processing_batches=cast(CommonBatchService, processing_batches),
         id_factory=lambda: MODEL,
     )
 
@@ -598,3 +604,44 @@ def test_service_promotes_exact_selected_hardening_output_without_refitting() ->
     assert len(points) == 21
     assert all(point.origin is HardeningPointOrigin.PROCESSING_SELECTED_SAMPLE for point in points)
     assert points[-1].true_plastic_strain == 0.5
+
+
+def test_service_preserves_saved_recipe_and_successful_batch_origin() -> None:
+    class _Batches:
+        def find_execution_origin(self, *args: object) -> ProcessingExecutionOrigin:
+            del args
+            return ProcessingExecutionOrigin(
+                recipe_id=UUID(int=301),
+                recipe_revision_id=UUID(int=302),
+                recipe_sha256="3" * 64,
+                batch_id=UUID(int=303),
+                member_id=UUID(int=304),
+                attempt_id=UUID(int=305),
+                attempt_no=1,
+            )
+
+    repository = _Repository()
+    command = PromoteProcessingOutputToTabulatedPlasticity(
+        material_state_id=STATE,
+        property_set_revision_id=PROPERTY_REVISION,
+        processing_output_id=PROCESSING_OUTPUT,
+        processing_output_revision_id=PROCESSING_OUTPUT_REVISION,
+        acknowledge_bounded_extrapolation=True,
+        change_reason="promote exact Recipe Batch hardening output",
+    )
+
+    snapshot = asyncio.run(
+        _service(
+            repository,
+            _Artifacts(),
+            processing_outputs=_ProcessingOutputs(),
+            processing_batches=_Batches(),
+        ).promote_processing_output(CONTEXT, WRITE, command)
+    )
+
+    content = snapshot.current.content
+    assert isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+    assert content.model_schema_version == "1.3.0"
+    assert content.recipe_batch is not None
+    assert content.recipe_batch.recipe_revision_id == UUID(int=302)
+    assert content.recipe_batch.batch_attempt_id == UUID(int=305)

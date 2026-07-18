@@ -42,13 +42,19 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
 from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
     REFERENCE_PROCESSED_SELECTION_PROFILE_DIGEST,
     REFERENCE_PROCESSED_SELECTION_PROFILE_ID,
+    REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST,
     REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID,
     REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+    REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+    REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID,
+    REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+    ReferenceProcessedRecipeBatchEvidence,
     ReferenceProcessedTabulatedPlasticityContent,
 )
 from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
     ReferenceVoceTabulatedPlasticityContent,
 )
+from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
@@ -178,6 +184,7 @@ class TabulatedPlasticityModelService:
         datasets: DatasetService,
         artifacts: ArtifactService,
         processing_outputs: CommonProcessingOutputService | None = None,
+        processing_batches: CommonBatchService | None = None,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
@@ -185,6 +192,7 @@ class TabulatedPlasticityModelService:
         self._datasets = datasets
         self._artifacts = artifacts
         self._processing_outputs = processing_outputs
+        self._processing_batches = processing_batches
         self._id_factory = id_factory
 
     def _id(self) -> UUID:
@@ -434,6 +442,17 @@ class TabulatedPlasticityModelService:
             idempotency_key=f"processed-tabulated-projection:{derivation_key}",
         )
         source = properties.content
+        execution_origin = (
+            self._processing_batches.find_execution_origin(
+                context,
+                decision,
+                output.id,
+                output.current.revision_id,
+            )
+            if self._processing_batches is not None
+            else None
+        )
+        has_recipe_origin = execution_origin is not None
         content = ReferenceProcessedTabulatedPlasticityContent(
             material_id=source.material_id,
             material_revision_id=source.material_revision_id,
@@ -468,7 +487,30 @@ class TabulatedPlasticityModelService:
             applicable_strain_rate_min_per_s=source.applicable_strain_rate_min_per_s,
             applicable_strain_rate_max_per_s=source.applicable_strain_rate_max_per_s,
             applicability_note=source.applicability_note,
+            recipe_batch=(
+                ReferenceProcessedRecipeBatchEvidence(
+                    recipe_id=execution_origin.recipe_id,
+                    recipe_revision_id=execution_origin.recipe_revision_id,
+                    recipe_sha256=execution_origin.recipe_sha256,
+                    batch_id=execution_origin.batch_id,
+                    batch_member_id=execution_origin.member_id,
+                    batch_attempt_id=execution_origin.attempt_id,
+                    batch_attempt_no=execution_origin.attempt_no,
+                )
+                if execution_origin is not None
+                else None
+            ),
             reference_temperature_k=source.reference_temperature_k,
+            model_schema_version=(
+                REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION
+                if has_recipe_origin
+                else REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION
+            ),
+            model_schema_digest=(
+                REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+                if has_recipe_origin
+                else REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+            ),
         )
         aggregate_id = self._id()
         record = RevisionService(
@@ -480,8 +522,12 @@ class TabulatedPlasticityModelService:
                 scope=TenantScope(
                     context.organization_id, context.project_id, properties.classification.value
                 ),
-                schema_id=REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID,
-                schema_version=REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+                schema_id=(
+                    REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID
+                    if has_recipe_origin
+                    else REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID
+                ),
+                schema_version=content.model_schema_version,
                 content=content,
                 created_by=context.principal.id,
                 change_reason=reason,

@@ -19,7 +19,10 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
 from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
     REFERENCE_PROCESSED_SELECTION_PROFILE_DIGEST,
     REFERENCE_PROCESSED_SELECTION_PROFILE_ID,
+    REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+    REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
     InvalidProcessedProjection,
+    ReferenceProcessedRecipeBatchEvidence,
     ReferenceProcessedTabulatedPlasticityContent,
     reference_processed_tabulated_plasticity_canonical,
     reference_processed_tabulated_plasticity_ir,
@@ -108,6 +111,51 @@ def test_processed_projection_round_trips_typed_curve_and_lineage() -> None:
 def test_processed_projection_rejects_unbounded_or_undeclared_selection() -> None:
     with pytest.raises(InvalidProcessedProjection, match="selected families"):
         replace(_content(), primary_family="ghosh")
+
+
+def test_recipe_batch_projection_pins_exact_execution_without_changing_historical_ir() -> None:
+    evidence = ReferenceProcessedRecipeBatchEvidence(
+        recipe_id=_id(30),
+        recipe_revision_id=_id(31),
+        recipe_sha256="3" * 64,
+        batch_id=_id(32),
+        batch_member_id=_id(33),
+        batch_attempt_id=_id(34),
+        batch_attempt_no=2,
+    )
+    content = replace(
+        _content(),
+        recipe_batch=evidence,
+        model_schema_version=REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+        model_schema_digest=REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+    )
+    canonical = reference_processed_tabulated_plasticity_canonical(content)
+    ir = reference_processed_tabulated_plasticity_ir(
+        material_model_id=_id(35),
+        material_model_revision_id=_id(36),
+        content=content,
+    )
+
+    assert cast(dict[str, Any], canonical["processing_recipe"])["revision_id"] == str(_id(31))
+    source_revisions = cast(dict[str, Any], ir["source_revisions"])
+    assert cast(dict[str, Any], source_revisions["processing_batch_execution"])[
+        "attempt_id"
+    ] == str(_id(34))
+    assert _content().model_schema_version == "1.2.0"
+
+
+def test_recipe_batch_projection_rejects_legacy_schema_digest() -> None:
+    evidence = ReferenceProcessedRecipeBatchEvidence(
+        recipe_id=_id(30),
+        recipe_revision_id=_id(31),
+        recipe_sha256="3" * 64,
+        batch_id=_id(32),
+        batch_member_id=_id(33),
+        batch_attempt_id=_id(34),
+        batch_attempt_no=1,
+    )
+    with pytest.raises(InvalidProcessedProjection, match="typed contract"):
+        replace(_content(), recipe_batch=evidence)
 
 
 @pytest.mark.parametrize("solver", ["abaqus", "openradioss"])
