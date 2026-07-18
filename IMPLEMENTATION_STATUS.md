@@ -18,7 +18,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
+| Metal/Polymer/Elastomer modeling | T-55M complete: five explicit E choices, proof stress, non-destructive necking candidate, true/plastic conversion, four-family fit/compare/combine/bounded extrapolation, exact Output-to-IR promotion and Abaqus/OpenRadioss card download; polymer/elastomer remain bounded reference flows | T-55P/E |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
 | Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
 | Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
@@ -28,8 +28,25 @@ The [product capability map](docs/00-research/product-capability-map.md) is the 
 DB/API/UI/Test status matrix. Existing completed entries below remain valid evidence for their stated
 bounded Tasks, but must not be read as completion of T-49 through T-60.
 
+## In progress
+
+- `T-55P`: deepen the existing bounded polymer reference flow into the configurable linear-viscoelastic
+  workbench defined by the integrated product plan.
+
 ## Completed
 
+- `T-55M`: the metal methods run in the common Processing Workbench and published Recipe/Batch path.
+  OLS, Huber robust, chord, secant and manual Young's modulus, proof stress, non-destructive necking
+  candidate, explicit true/plastic conversion and Voce/Swift/Hockett--Sherby/Ghosh candidate fitting are
+  versioned methods. The selected fitted curve is an immutable Output. IR family `1.2.0` pins that exact
+  Output plus source Test Data and Mapping Profile revisions, candidate selection and bounded domain in
+  explicit PostgreSQL columns and constraints. The Material workbench promotes it without refitting,
+  then runs visible Abaqus/OpenRadioss preflight and native `.inp`/`.rad` preview/download. Live Docker/
+  PostgreSQL verification used Output revision `b3644458-1799-4fbc-bdd9-48a8230fefc3`, IR revision
+  `4080a694-876d-483f-8b70-89db47fa6610`, and verified both card SHA-256 values.
+  Final verification: 689 general backend/contract/architecture tests passed (75 PostgreSQL-only
+  tests skipped in that run), all 75 isolated PostgreSQL integration tests passed separately, and
+  all 50 React tests plus the production bundle budget passed.
 - `T-54`: published common Recipe revisions now execute against an immutable exact Test Data
   selection. Migration 066 stores explicit Batch, Member and append-only Attempt rows with composite
   tenant/classification foreign keys to exact Recipe, Test Data and successful Processing Output

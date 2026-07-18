@@ -77,6 +77,7 @@ from cmp.modules.modeling.application.voce_calibration import (
 from cmp.modules.modeling.application.voce_candidate_projection import (
     VoceCandidateProjectionService,
 )
+from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.modules.statistics.application.replicate_outlier_service import (
@@ -380,6 +381,7 @@ def build_tabulated_plasticity_model_service(
     datasets: DatasetService | None,
     material_models: MaterialModelService | None,
     artifacts: ArtifactService | None,
+    processing_outputs: CommonProcessingOutputService | None = None,
 ) -> TabulatedPlasticityModelService | None:
     """Compose the explicit Dataset-to-elastoplastic-IR projection."""
 
@@ -405,6 +407,7 @@ def build_tabulated_plasticity_model_service(
         datasets=datasets,
         material_models=material_models,
         artifacts=artifacts,
+        processing_outputs=processing_outputs,
     )
 
 

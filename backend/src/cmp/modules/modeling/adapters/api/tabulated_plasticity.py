@@ -18,6 +18,7 @@ from cmp.modules.identity_access.domain.authorization import AuthorizationDecisi
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.modeling.application.tabulated_plasticity import (
     CreateReferenceTabulatedPlasticityModel,
+    PromoteProcessingOutputToTabulatedPlasticity,
     TabulatedPlasticityModelService,
     TabulatedPlasticityModelSnapshot,
 )
@@ -29,10 +30,15 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     TabulatedPlasticityNotFound,
     reference_isotropic_tabulated_plasticity_ir,
 )
+from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
+    ReferenceProcessedTabulatedPlasticityContent,
+    reference_processed_tabulated_plasticity_ir,
+)
 from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
     ReferenceVoceTabulatedPlasticityContent,
     reference_voce_tabulated_plasticity_ir,
 )
+from cmp.modules.processing.domain.common_pipeline import CommonPipelineError
 from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataResponse
 from cmp.shared.domain.revisions import AggregateNotFound, RevisionKernelError, RevisionRecord
 
@@ -46,6 +52,16 @@ class TabulatedPlasticityCreateRequest(BaseModel):
     dataset_revision_id: UUID
     extension_max_true_plastic_strain: Annotated[float, Field(gt=0.0)]
     acknowledge_post_necking_approximation: bool
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ProcessingOutputPromotionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_state_id: UUID
+    property_set_revision_id: UUID
+    processing_output_revision_id: UUID
+    acknowledge_bounded_extrapolation: bool
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
@@ -106,13 +122,15 @@ class TabulatedPlasticityContentResponse(BaseModel):
     applicability: TabulatedPlasticityApplicabilityResponse
     reference_temperature_k: float
     calibration_projection: dict[str, Any] | None
+    processing_projection: dict[str, Any] | None
     non_production: bool
 
     @classmethod
     def from_domain(
         cls,
         value: ReferenceIsotropicTabulatedPlasticityContent
-        | ReferenceVoceTabulatedPlasticityContent,
+        | ReferenceVoceTabulatedPlasticityContent
+        | ReferenceProcessedTabulatedPlasticityContent,
     ) -> TabulatedPlasticityContentResponse:
         return cls(
             model_family_id=value.model_family_id,
@@ -137,9 +155,7 @@ class TabulatedPlasticityContentResponse(BaseModel):
                 point_count=value.hardening_curve_point_count,
             ),
             source_point_count=getattr(value, "source_point_count", None),
-            pre_yield_excluded_point_count=getattr(
-                value, "pre_yield_excluded_point_count", None
-            ),
+            pre_yield_excluded_point_count=getattr(value, "pre_yield_excluded_point_count", None),
             post_necking_excluded_point_count=getattr(
                 value, "post_necking_excluded_point_count", None
             ),
@@ -148,14 +164,10 @@ class TabulatedPlasticityContentResponse(BaseModel):
             transformation_profile_version=value.transformation_profile_version,
             transformation_profile_digest=value.transformation_profile_digest,
             necking_engineering_strain=getattr(value, "necking_engineering_strain", None),
-            characterized_max_true_plastic_strain=(
-                value.characterized_max_true_plastic_strain
-            ),
+            characterized_max_true_plastic_strain=(value.characterized_max_true_plastic_strain),
             extension_max_true_plastic_strain=value.extension_max_true_plastic_strain,
             post_necking_extension_policy=value.post_necking_extension_policy,
-            post_necking_approximation_acknowledged=(
-                value.post_necking_approximation_acknowledged
-            ),
+            post_necking_approximation_acknowledged=(value.post_necking_approximation_acknowledged),
             applicability=TabulatedPlasticityApplicabilityResponse(
                 temperature_min_k=value.applicable_temperature_min_k,
                 temperature_max_k=value.applicable_temperature_max_k,
@@ -183,6 +195,24 @@ class TabulatedPlasticityContentResponse(BaseModel):
                 if isinstance(value, ReferenceVoceTabulatedPlasticityContent)
                 else None
             ),
+            processing_projection=(
+                {
+                    "output_id": value.processing_output_id,
+                    "output_revision_id": value.processing_output_revision_id,
+                    "output_sha256": f"sha256:{value.processing_output_sha256}",
+                    "source_test_data_id": value.source_test_data_id,
+                    "source_test_data_revision_id": value.source_test_data_revision_id,
+                    "mapping_profile_id": value.mapping_profile_id,
+                    "mapping_profile_revision_id": value.mapping_profile_revision_id,
+                    "candidate_families": value.candidate_families,
+                    "primary_family": value.primary_family,
+                    "secondary_family": value.secondary_family,
+                    "primary_weight": value.primary_weight,
+                    "fit_minimum_true_plastic_strain": (value.fit_minimum_true_plastic_strain),
+                }
+                if isinstance(value, ReferenceProcessedTabulatedPlasticityContent)
+                else None
+            ),
             non_production=value.non_production,
         )
 
@@ -198,6 +228,7 @@ class TabulatedPlasticityProvenanceSummary(BaseModel):
     source_property_set_revision_id: UUID
     source_dataset_revision_id: UUID | None
     source_voce_selection_revision_id: UUID | None
+    source_processing_output_revision_id: UUID | None
     hardening_curve_artifact_id: UUID
     hardening_curve_sha256: str
     transformation_profile_digest: str
@@ -209,7 +240,8 @@ class TabulatedPlasticityProvenanceSummary(BaseModel):
         cls,
         record: RevisionRecord,
         content: ReferenceIsotropicTabulatedPlasticityContent
-        | ReferenceVoceTabulatedPlasticityContent,
+        | ReferenceVoceTabulatedPlasticityContent
+        | ReferenceProcessedTabulatedPlasticityContent,
     ) -> TabulatedPlasticityProvenanceSummary:
         reference_type = "modeling.material_model.revision"
         return cls(
@@ -222,6 +254,9 @@ class TabulatedPlasticityProvenanceSummary(BaseModel):
             source_dataset_revision_id=getattr(content, "source_dataset_revision_id", None),
             source_voce_selection_revision_id=getattr(
                 content, "voce_candidate_selection_revision_id", None
+            ),
+            source_processing_output_revision_id=getattr(
+                content, "processing_output_revision_id", None
             ),
             hardening_curve_artifact_id=content.hardening_curve_artifact_id,
             hardening_curve_sha256=content.hardening_curve_sha256,
@@ -247,7 +282,13 @@ class TabulatedPlasticityRevisionResponse(RevisionMetadataResponse):
             **metadata.model_dump(),
             content=TabulatedPlasticityContentResponse.from_domain(snapshot.content),
             ir=(
-                reference_voce_tabulated_plasticity_ir(
+                reference_processed_tabulated_plasticity_ir(
+                    material_model_id=material_model_id,
+                    material_model_revision_id=snapshot.record.revision_id,
+                    content=snapshot.content,
+                )
+                if isinstance(snapshot.content, ReferenceProcessedTabulatedPlasticityContent)
+                else reference_voce_tabulated_plasticity_ir(
                     material_model_id=material_model_id,
                     material_model_revision_id=snapshot.record.revision_id,
                     content=snapshot.content,
@@ -392,6 +433,7 @@ def _translate(context: SecurityContext, error: Exception) -> TabulatedPlasticit
         error,
         (
             TabulatedPlasticityConflict,
+            CommonPipelineError,
             DatasetError,
             ArtifactError,
             RevisionKernelError,
@@ -478,9 +520,7 @@ def install_tabulated_plasticity_api(
                     material_state_id=material_state_id,
                     property_set_revision_id=body.property_set_revision_id,
                     dataset_revision_id=body.dataset_revision_id,
-                    extension_max_true_plastic_strain=(
-                        body.extension_max_true_plastic_strain
-                    ),
+                    extension_max_true_plastic_strain=(body.extension_max_true_plastic_strain),
                     acknowledge_post_necking_approximation=(
                         body.acknowledge_post_necking_approximation
                     ),
@@ -491,6 +531,51 @@ def install_tabulated_plasticity_api(
             TabulatedPlasticityError,
             DatasetError,
             ArtifactError,
+            RevisionKernelError,
+            IntegrityError,
+            ValueError,
+        ) as error:
+            raise _translate(context, error) from error
+        _etag(response, value.current.record)
+        return TabulatedPlasticityModelResponse.from_snapshot(value)
+
+    @application.post(
+        "/api/v1/processing-outputs/{processing_output_id}/tabulated-plasticity-models",
+        operation_id="promoteProcessingOutputToTabulatedPlasticityModel",
+        response_model=TabulatedPlasticityModelResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["modeling"],
+        summary="Promote one exact fitted metal Processing Output into IR 1.2.",
+    )
+    async def promote_processing_output(
+        request: Request,
+        response: Response,
+        processing_output_id: UUID,
+        body: ProcessingOutputPromotionRequest,
+    ) -> TabulatedPlasticityModelResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise _unavailable(context)
+        try:
+            value = await service.promote_processing_output(
+                context,
+                decision,
+                PromoteProcessingOutputToTabulatedPlasticity(
+                    material_state_id=body.material_state_id,
+                    property_set_revision_id=body.property_set_revision_id,
+                    processing_output_id=processing_output_id,
+                    processing_output_revision_id=body.processing_output_revision_id,
+                    acknowledge_bounded_extrapolation=(body.acknowledge_bounded_extrapolation),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except (
+            TabulatedPlasticityError,
+            DatasetError,
+            ArtifactError,
+            CommonPipelineError,
             RevisionKernelError,
             IntegrityError,
             ValueError,

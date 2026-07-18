@@ -229,6 +229,14 @@ class QuantitySeriesResponse(BaseModel):
     values: tuple[float, ...]
 
 
+class ScalarResultResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    key: str
+    quantity_semantics: str
+    value: float
+    unit: str
+
+
 class CurveStageResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ordinal: int
@@ -237,6 +245,7 @@ class CurveStageResponse(BaseModel):
     point_count: int
     series: tuple[QuantitySeriesResponse, ...]
     diagnostics: tuple[str, ...]
+    scalar_results: tuple[ScalarResultResponse, ...]
 
 
 class ProcessingPreviewResponse(BaseModel):
@@ -271,6 +280,15 @@ class ProcessingPreviewResponse(BaseModel):
                         for series in stage.series
                     ),
                     diagnostics=stage.diagnostics,
+                    scalar_results=tuple(
+                        ScalarResultResponse(
+                            key=item.key,
+                            quantity_semantics=item.quantity_semantics,
+                            value=item.value,
+                            unit=item.unit,
+                        )
+                        for item in stage.scalar_results
+                    ),
                 )
                 for stage in value.stages
             ),
@@ -434,6 +452,15 @@ class EnsemblePreviewResponse(BaseModel):
                             for series in member.stage.series
                         ),
                         diagnostics=member.stage.diagnostics,
+                        scalar_results=tuple(
+                            ScalarResultResponse(
+                                key=item.key,
+                                quantity_semantics=item.quantity_semantics,
+                                value=item.value,
+                                unit=item.unit,
+                            )
+                            for item in member.stage.scalar_results
+                        ),
                     ),
                 )
                 for member in value.members

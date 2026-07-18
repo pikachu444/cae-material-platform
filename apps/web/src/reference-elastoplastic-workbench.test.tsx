@@ -280,7 +280,9 @@ describe("Reference elastoplastic workbench", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Build an elastoplastic Solver Card" }));
     await screen.findByText("1. Select concrete Dataset and Property Set revisions");
-    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: /constant true-stress extension/i }),
+    );
     fireEvent.click(screen.getByRole("button", { name: "Create elastoplastic IR" }));
 
     await screen.findByText(/Source points: 6/);
@@ -315,6 +317,133 @@ describe("Reference elastoplastic workbench", () => {
         material_model_revision_id: modelRevisionId,
         target,
         expected_mapping_report_sha256: mapping.mapping_report_sha256,
+      });
+    });
+  });
+
+  it("promotes one exact selected hardening output without hiding its lineage", async () => {
+    const outputId = "a1000000-0000-4000-8000-000000000030";
+    const outputRevisionId = "a1000000-0000-4000-8000-000000000031";
+    const output = {
+      processing_output_id: outputId,
+      current_revision: { ...revision, id: outputRevisionId, aggregate_id: outputId },
+      label: "DP600 selected Swift + Voce hardening",
+      source_document: {
+        aggregate_id: "a1000000-0000-4000-8000-000000000032",
+        revision_id: "a1000000-0000-4000-8000-000000000033",
+      },
+      source_document_sha256: "1".repeat(64),
+      source_canonical_artifact_sha256: "2".repeat(64),
+      mapping_profile: {
+        aggregate_id: "a1000000-0000-4000-8000-000000000034",
+        revision_id: "a1000000-0000-4000-8000-000000000035",
+      },
+      mapping_profile_sha256: "3".repeat(64),
+      steps: [
+        {
+          method_id: "metal.hardening_fit_extrapolate",
+          method_version: "1.0.0",
+          options: {},
+        },
+      ],
+      independent_quantity: "strain.true_plastic",
+      stage_count: 2,
+      final_point_count: 21,
+      output_artifact_id: "a1000000-0000-4000-8000-000000000036",
+      output_sha256: "4".repeat(64),
+    };
+    const processedModel = modelFixture();
+    Object.assign(processedModel.current_revision.content, {
+      source_dataset_id: null,
+      source_dataset_revision_id: null,
+      necking_engineering_strain: null,
+      post_necking_extension_policy: "selected_fitted_bounded_extrapolation",
+      source_point_count: null,
+      pre_yield_excluded_point_count: null,
+      post_necking_excluded_point_count: null,
+      necking_source_point_index: null,
+      processing_projection: {
+        output_id: outputId,
+        output_revision_id: outputRevisionId,
+        output_sha256: "sha256:" + "4".repeat(64),
+        source_test_data_id: output.source_document.aggregate_id,
+        source_test_data_revision_id: output.source_document.revision_id,
+        mapping_profile_id: output.mapping_profile.aggregate_id,
+        mapping_profile_revision_id: output.mapping_profile.revision_id,
+        candidate_families: ["voce", "swift"],
+        primary_family: "swift",
+        secondary_family: "voce",
+        primary_weight: 0.5,
+        fit_minimum_true_plastic_strain: 0.0001,
+      },
+    });
+    const curve = {
+      material_model_id: modelId,
+      material_model_revision_id: modelRevisionId,
+      artifact_id: processedModel.current_revision.content.hardening_curve.artifact_id,
+      artifact_sha256: "c".repeat(64),
+      points: Array.from({ length: 21 }, (_, ordinal) => ({
+        true_plastic_strain: ordinal / 40,
+        true_yield_stress_pa: 250_000_000 + ordinal * 5_000_000,
+        origin: "processing_selected_sample",
+      })),
+    };
+    const fetchMock = vi.fn<typeof fetch>((input, init) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+      if (url.endsWith(`/material-states/${stateId}/datasets`)) {
+        return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      if (url.endsWith("/processing-outputs")) {
+        return Promise.resolve(jsonResponse({ items: [output] }));
+      }
+      if (url.endsWith(`/material-states/${stateId}/tabulated-plasticity-models`)) {
+        return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      if (url.endsWith(`/processing-outputs/${outputId}/tabulated-plasticity-models`)) {
+        return Promise.resolve(jsonResponse(processedModel, method === "POST" ? 201 : 200));
+      }
+      if (url.endsWith(`/tabulated-plasticity-models/${modelId}/hardening-curve`)) {
+        return Promise.resolve(jsonResponse(curve));
+      }
+      if (url.endsWith(`/tabulated-plasticity-models/${modelId}/solver-cards`)) {
+        return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      return Promise.resolve(jsonResponse({ items: [] }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ReferenceElastoplasticWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "tenant-token" }}
+        state={state}
+        propertySet={propertySet}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Build an elastoplastic Solver Card" }));
+    await screen.findByText("1B. Promote a fitted metal Processing Output (recommended)");
+    expect(
+      (screen.getByLabelText("Exact Processing Output revision") as HTMLSelectElement).value,
+    ).toBe(outputId);
+    fireEvent.click(screen.getByRole("checkbox", { name: /reviewed the candidate blend/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Promote fitted output to IR" }));
+
+    expect(
+      await screen.findByText("Origin: selected fitted hardening Processing Output"),
+    ).toBeTruthy();
+    expect(
+      await screen.findByText(/Selected fitted hardening samples from an exact Processing Output/),
+    ).toBeTruthy();
+    await waitFor(() => {
+      const promotionCall = fetchMock.mock.calls.find(([url, init]) =>
+        String(url).endsWith(`/processing-outputs/${outputId}/tabulated-plasticity-models`) &&
+        init?.method === "POST",
+      );
+      expect(JSON.parse(String(promotionCall?.[1]?.body))).toMatchObject({
+        material_state_id: stateId,
+        property_set_revision_id: propertySetRevisionId,
+        processing_output_revision_id: outputRevisionId,
+        acknowledge_bounded_extrapolation: true,
       });
     });
   });

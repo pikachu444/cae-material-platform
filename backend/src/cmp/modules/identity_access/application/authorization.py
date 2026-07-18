@@ -210,9 +210,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     # lineage is resolved through the pinned Test Run and Specimen. Reading a curve
     # therefore needs row-visible Artifact and Testing access. These remain
     # transaction capabilities; their public endpoints still authorize independently.
-    Permission.DATASET_READ: frozenset(
-        {Permission.ARTIFACT_READ, Permission.TESTING_READ}
-    ),
+    Permission.DATASET_READ: frozenset({Permission.ARTIFACT_READ, Permission.TESTING_READ}),
     Permission.DATASET_WRITE: frozenset(
         {Permission.ARTIFACT_READ, Permission.ARTIFACT_WRITE, Permission.TESTING_READ}
     ),
@@ -260,6 +258,9 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.CATALOG_READ,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
+            # A model promotion reads one exact immutable Processing Output revision. This is
+            # transaction-local capability closure and does not grant the processing HTTP API.
+            Permission.PROCESSING_READ,
             Permission.TESTING_READ,
         }
     ),

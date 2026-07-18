@@ -342,3 +342,15 @@ class CommonProcessingOutputService:
         if artifact.artifact.sha256 != snapshot.content.output_sha256:
             raise CommonPipelineError("Processing Output Artifact digest pin is inconsistent")
         return snapshot, value
+
+    async def export_exact(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+    ) -> tuple[ProcessingOutputSnapshot, bytes]:
+        snapshot, value = await self.export(context, decision, output_id)
+        if snapshot.current.revision_id != output_revision_id:
+            raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
+        return snapshot, value

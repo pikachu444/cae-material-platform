@@ -92,6 +92,16 @@ Siemens는 2025년 3월 26일 Altair Engineering 인수 완료를 공식 발표�
 - 공개 도움말은 CSV/TXT/DAT/Excel import, 곡선별 설정, curve fitting을 설명한다. [Import Data](https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/data_import_t.htm)
 - tutorial은 Young's modulus 평가·조정, smoothing, 반복 곡선 mean, necking point 선택, true-stress/true-plastic-strain 변환, 복수 fitting 함수 비교를 보여 준다. 이는 공개된 사용자 기능이지 내부 알고리즘 사양이 아니다. [Plastic behavior tutorial](https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/tutorials/amm_material_plastic_behavior.htm)
 - 2025 elastoplastic 도움말의 Simulation Panel은 해당 validation run이 Radioss만 지원된다고 명시한다. 현재 Siemens 제품 페이지는 더 넓게 integrated virtual specimens를 설명하므로, 지원 범위는 제품 버전·workflow에 따라 달라질 수 있다. [Simulation Panel](https://2025.help.altair.com/2025/material_modeler/topics/material_modeler/simulation_panel_t.htm)
+- 공개 Material Modeler 도움말은 Voce, Swift, Hockett--Sherby, Ghosh 후보를 같은 시험
+  곡선에 맞춰 비교하고, 두 후보를 사용자가 정한 비율로 조합한 뒤 명시적 strain 범위까지
+  외삽하는 사용자 흐름을 설명한다. 이는 후보 family와 사용자 선택 흐름의 근거이며 상용
+  optimizer의 내부 목적함수·초기값·경계값을 뜻하지 않는다.
+  [Plastic behavior tutorial](https://help.altair.com/material_modeler/topics/material_modeler/tutorials/amm_material_plastic_behavior.htm),
+  [Extrapolation](https://help.altair.com/material_modeler/topics/material_modeler/extrapolation_t.htm)
+- 네 공개 hardening 식은 공개 문헌의 비교표와 대조했다. 플랫폼 구현은 predicted-minus-observed
+  normalized least squares, 데이터에서 유도한 명시적 초기값/경계와 SciPy TRF를 독립적으로
+  사용하며 결과에 lower/initial/fitted/upper, RMSE와 외삽 domain을 모두 남긴다.
+  [공개 hardening 식 비교 논문](https://pmc.ncbi.nlm.nih.gov/articles/PMC9143126/)
 
 ### 5.3 이 설계에 반영하는 기능적 교훈
 
@@ -177,4 +187,3 @@ NIST는 측정 결과가 curve처럼 고차원 함수 데이터일 때 functiona
 2. 시험·통계·보정의 공학적 재현성
 3. solver-neutral model semantics와 명시적 exporter mapping
 4. 검토·승인된 release만 downstream CAE에 공급하는 governance
-

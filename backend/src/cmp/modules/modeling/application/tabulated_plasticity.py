@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Protocol
@@ -31,15 +32,24 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     REFERENCE_TABULATED_PLASTICITY_IR_SCHEMA_ID,
     REFERENCE_TABULATED_PLASTICITY_SCHEMA_VERSION,
     HardeningCurvePoint,
+    HardeningPointOrigin,
     ReferenceIsotropicTabulatedPlasticityContent,
     TabulatedPlasticityConflict,
     derive_reference_isotropic_hardening_curve,
     hardening_curve_from_parquet,
     hardening_curve_parquet_bytes,
 )
+from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
+    REFERENCE_PROCESSED_SELECTION_PROFILE_DIGEST,
+    REFERENCE_PROCESSED_SELECTION_PROFILE_ID,
+    REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID,
+    REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+    ReferenceProcessedTabulatedPlasticityContent,
+)
 from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
     ReferenceVoceTabulatedPlasticityContent,
 )
+from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
     RevisionService,
@@ -51,7 +61,9 @@ MAX_REFERENCE_TENSILE_ARTIFACT_BYTES = 16 * 1024 * 1024
 MAX_REFERENCE_HARDENING_ARTIFACT_BYTES = 4 * 1024 * 1024
 
 type TabulatedPlasticityContent = (
-    ReferenceIsotropicTabulatedPlasticityContent | ReferenceVoceTabulatedPlasticityContent
+    ReferenceIsotropicTabulatedPlasticityContent
+    | ReferenceVoceTabulatedPlasticityContent
+    | ReferenceProcessedTabulatedPlasticityContent
 )
 
 
@@ -62,6 +74,16 @@ class CreateReferenceTabulatedPlasticityModel:
     dataset_revision_id: UUID
     extension_max_true_plastic_strain: float
     acknowledge_post_necking_approximation: bool
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class PromoteProcessingOutputToTabulatedPlasticity:
+    material_state_id: UUID
+    property_set_revision_id: UUID
+    processing_output_id: UUID
+    processing_output_revision_id: UUID
+    acknowledge_bounded_extrapolation: bool
     change_reason: str
 
 
@@ -155,12 +177,14 @@ class TabulatedPlasticityModelService:
         material_models: MaterialModelService,
         datasets: DatasetService,
         artifacts: ArtifactService,
+        processing_outputs: CommonProcessingOutputService | None = None,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
         self._material_models = material_models
         self._datasets = datasets
         self._artifacts = artifacts
+        self._processing_outputs = processing_outputs
         self._id_factory = id_factory
 
     def _id(self) -> UUID:
@@ -244,9 +268,7 @@ class TabulatedPlasticityModelService:
             youngs_modulus_pa=properties.content.youngs_modulus_pa,
             initial_yield_stress_pa=initial_yield_stress_pa,
             extension_max_true_plastic_strain=command.extension_max_true_plastic_strain,
-            acknowledge_post_necking_approximation=(
-                command.acknowledge_post_necking_approximation
-            ),
+            acknowledge_post_necking_approximation=(command.acknowledge_post_necking_approximation),
         )
         hardening_bytes = hardening_curve_parquet_bytes(outcome.points)
         derivation_key = hashlib.sha256(
@@ -289,9 +311,7 @@ class TabulatedPlasticityModelService:
             poisson_ratio=source.poisson_ratio,
             initial_yield_stress_pa=initial_yield_stress_pa,
             necking_engineering_strain=outcome.necking_engineering_strain,
-            characterized_max_true_plastic_strain=(
-                outcome.characterized_max_true_plastic_strain
-            ),
+            characterized_max_true_plastic_strain=(outcome.characterized_max_true_plastic_strain),
             extension_max_true_plastic_strain=outcome.extension_max_true_plastic_strain,
             post_necking_approximation_acknowledged=(
                 command.acknowledge_post_necking_approximation
@@ -328,6 +348,149 @@ class TabulatedPlasticityModelService:
             id=aggregate_id,
             material_state_id=content.material_state_id,
             current=RevisionSnapshot(record, content),
+        )
+
+    async def promote_processing_output(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PromoteProcessingOutputToTabulatedPlasticity,
+    ) -> TabulatedPlasticityModelSnapshot:
+        _require_decision(context, decision, Permission.MODELING_WRITE)
+        if self._processing_outputs is None:
+            raise TabulatedPlasticityConflict("Processing Output promotion is unavailable")
+        if not command.acknowledge_bounded_extrapolation:
+            raise TabulatedPlasticityConflict(
+                "bounded fitted extrapolation requires acknowledgement"
+            )
+        reason = _reason(command.change_reason)
+        properties = self._material_models.get_reference_property_source_for_tabulated_plasticity(
+            context,
+            decision,
+            material_state_id=command.material_state_id,
+            property_set_revision_id=command.property_set_revision_id,
+        )
+        if properties.material_class != "metal":
+            raise TabulatedPlasticityConflict("processed plasticity requires a metal Material")
+        output, output_bytes = await self._processing_outputs.export_exact(
+            context, decision, command.processing_output_id, command.processing_output_revision_id
+        )
+        if output.current.scope.classification != properties.classification.value:
+            raise TabulatedPlasticityConflict("Processing Output and Property Set scopes differ")
+        try:
+            document = json.loads(output_bytes)
+            result = document["result"]
+            stage = result["stages"][-1]
+            step = output.content.steps[-1]
+            if (
+                stage["method_id"] != "metal.hardening_fit_extrapolate"
+                or step.method_id != stage["method_id"]
+                or step.method_version != "1.0.0"
+            ):
+                raise KeyError("final method")
+            series = {item["quantity"]: item for item in stage["series"]}
+            strains = series["strain.true_plastic"]
+            stresses = series["stress.hardening.selected"]
+            if strains["unit"] != "1" or stresses["unit"] != "Pa":
+                raise KeyError("units")
+            points = tuple(
+                HardeningCurvePoint(
+                    float(strain), float(stress), HardeningPointOrigin.PROCESSING_SELECTED_SAMPLE
+                )
+                for strain, stress in zip(strains["values"], stresses["values"], strict=True)
+            )
+            if len(points) != output.content.final_point_count:
+                raise KeyError("point count")
+            options = step.options
+            families = tuple(str(item) for item in options["families"])
+            fit_minimum = float(options["fit_minimum_strain"])
+            fit_maximum = float(options["fit_maximum_strain"])
+            extension_maximum = float(options["extrapolation_maximum_strain"])
+            primary = str(options["primary_family"])
+            secondary = str(options["secondary_family"])
+            weight = float(options["primary_weight"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise TabulatedPlasticityConflict(
+                "Processing Output does not retain the required selected hardening contract"
+            ) from error
+        curve_bytes = hardening_curve_parquet_bytes(
+            points,
+            transformation_profile_id=REFERENCE_PROCESSED_SELECTION_PROFILE_ID,
+            transformation_profile_digest=REFERENCE_PROCESSED_SELECTION_PROFILE_DIGEST,
+        )
+        derivation_key = hashlib.sha256(
+            f"{output.current.revision_id}:{output.content.output_sha256}:{hashlib.sha256(curve_bytes).hexdigest()}".encode(
+                "ascii"
+            )
+        ).hexdigest()
+        artifact = await self._artifacts.finalize_derived_bytes(
+            context,
+            decision,
+            classification=properties.classification,
+            artifact_role="modeling.hardening_curve",
+            schema_ref=REFERENCE_HARDENING_CURVE_SCHEMA,
+            media_type="application/vnd.apache.parquet",
+            value=curve_bytes,
+            idempotency_key=f"processed-tabulated-projection:{derivation_key}",
+        )
+        source = properties.content
+        content = ReferenceProcessedTabulatedPlasticityContent(
+            material_id=source.material_id,
+            material_revision_id=source.material_revision_id,
+            material_state_id=source.material_state_id,
+            material_state_revision_id=source.material_state_revision_id,
+            property_set_id=source.property_set_id,
+            property_set_revision_id=source.property_set_revision_id,
+            processing_output_id=output.id,
+            processing_output_revision_id=output.current.revision_id,
+            processing_output_sha256=output.content.output_sha256,
+            source_test_data_id=output.content.source_document.aggregate_id,
+            source_test_data_revision_id=output.content.source_document.revision_id,
+            mapping_profile_id=output.content.mapping_profile.aggregate_id,
+            mapping_profile_revision_id=output.content.mapping_profile.revision_id,
+            candidate_families=families,
+            primary_family=primary,
+            secondary_family=secondary,
+            primary_weight=weight,
+            fit_minimum_true_plastic_strain=fit_minimum,
+            characterized_max_true_plastic_strain=fit_maximum,
+            extension_max_true_plastic_strain=extension_maximum,
+            hardening_curve_artifact_id=artifact.artifact.id,
+            hardening_curve_sha256=artifact.artifact.sha256,
+            hardening_curve_point_count=len(points),
+            density_kg_per_m3=source.density_kg_per_m3,
+            youngs_modulus_pa=source.youngs_modulus_pa,
+            poisson_ratio=source.poisson_ratio,
+            initial_yield_stress_pa=points[0].true_yield_stress_pa,
+            post_necking_approximation_acknowledged=True,
+            applicable_temperature_min_k=source.applicable_temperature_min_k,
+            applicable_temperature_max_k=source.applicable_temperature_max_k,
+            applicable_strain_rate_min_per_s=source.applicable_strain_rate_min_per_s,
+            applicable_strain_rate_max_per_s=source.applicable_strain_rate_max_per_s,
+            applicability_note=source.applicability_note,
+            reference_temperature_k=source.reference_temperature_k,
+        )
+        aggregate_id = self._id()
+        record = RevisionService(
+            aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
+            store=self._repository.material_model_store(context, decision),
+        ).create(
+            CreateRevisionedAggregate(
+                aggregate_id=aggregate_id,
+                scope=TenantScope(
+                    context.organization_id, context.project_id, properties.classification.value
+                ),
+                schema_id=REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID,
+                schema_version=REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return TabulatedPlasticityModelSnapshot(
+            aggregate_id, content.material_state_id, RevisionSnapshot(record, content)
         )
 
     def get_model(
@@ -395,7 +558,11 @@ class TabulatedPlasticityModelService:
             raise TabulatedPlasticityConflict(
                 "hardening-curve Artifact differs from the immutable IR reference"
             )
-        points = hardening_curve_from_parquet(value)
+        points = hardening_curve_from_parquet(
+            value,
+            transformation_profile_id=content.transformation_profile_id,
+            transformation_profile_digest=content.transformation_profile_digest,
+        )
         if len(points) != content.hardening_curve_point_count:
             raise TabulatedPlasticityConflict(
                 "hardening-curve Artifact point count differs from the immutable IR"

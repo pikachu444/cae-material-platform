@@ -81,6 +81,33 @@
       "required": ["input_scope_id", "input_scope_revision_id", "plan_id", "plan_revision_id", "run_id", "candidate_id", "candidate_sha256", "selection_id", "selection_revision_id", "sigma_0_pa", "q_pa", "b", "sampling_point_count"],
       "additionalProperties": false
     },
+    "ProcessingProjection": {
+      "type": ["object", "null"],
+      "properties": {
+        "output_id": {"$ref": "#/$defs/Uuid"},
+        "output_revision_id": {"$ref": "#/$defs/Uuid"},
+        "output_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "source_test_data_id": {"$ref": "#/$defs/Uuid"},
+        "source_test_data_revision_id": {"$ref": "#/$defs/Uuid"},
+        "mapping_profile_id": {"$ref": "#/$defs/Uuid"},
+        "mapping_profile_revision_id": {"$ref": "#/$defs/Uuid"},
+        "candidate_families": {
+          "type": "array", "minItems": 2, "maxItems": 4, "uniqueItems": true,
+          "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]}
+        },
+        "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+        "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+        "primary_weight": {"type": "number", "minimum": 0, "maximum": 1},
+        "fit_minimum_true_plastic_strain": {"type": "number", "minimum": 0}
+      },
+      "required": [
+        "output_id", "output_revision_id", "output_sha256", "source_test_data_id",
+        "source_test_data_revision_id", "mapping_profile_id", "mapping_profile_revision_id",
+        "candidate_families", "primary_family", "secondary_family", "primary_weight",
+        "fit_minimum_true_plastic_strain"
+      ],
+      "additionalProperties": false
+    },
     "TabulatedPlasticityContent": {
       "type": "object",
       "additionalProperties": false,
@@ -96,11 +123,12 @@
         "transformation_profile_digest", "necking_engineering_strain",
         "characterized_max_true_plastic_strain", "extension_max_true_plastic_strain",
         "post_necking_extension_policy", "post_necking_approximation_acknowledged",
-        "applicability", "reference_temperature_k", "calibration_projection", "non_production"
+        "applicability", "reference_temperature_k", "calibration_projection",
+        "processing_projection", "non_production"
       ],
       "properties": {
-        "model_family_id": {"enum": ["urn:cmp:reference:isotropic-tabulated-plasticity:1.0.0", "urn:cmp:reference:isotropic-tabulated-plasticity:1.1.0"]},
-        "model_schema_version": {"enum": ["1.0.0", "1.1.0"]},
+        "model_family_id": {"enum": ["urn:cmp:reference:isotropic-tabulated-plasticity:1.0.0", "urn:cmp:reference:isotropic-tabulated-plasticity:1.1.0", "urn:cmp:reference:isotropic-tabulated-plasticity:1.2.0"]},
+        "model_schema_version": {"enum": ["1.0.0", "1.1.0", "1.2.0"]},
         "model_schema_digest": {"$ref": "#/$defs/Sha256"},
         "material_id": {"$ref": "#/$defs/Uuid"},
         "material_revision_id": {"$ref": "#/$defs/Uuid"},
@@ -119,17 +147,18 @@
         "pre_yield_excluded_point_count": {"type": ["integer", "null"], "minimum": 0, "maximum": 5000},
         "post_necking_excluded_point_count": {"type": ["integer", "null"], "minimum": 0, "maximum": 4999},
         "necking_source_point_index": {"type": ["integer", "null"], "minimum": 0, "maximum": 4999},
-        "transformation_profile_id": {"enum": ["urn:cmp:processing:reference-pre-necking-true-plastic-reduction:1.0.0", "urn:cmp:modeling:reference-voce-fixed-grid-projection:1.0.0"]},
+        "transformation_profile_id": {"enum": ["urn:cmp:processing:reference-pre-necking-true-plastic-reduction:1.0.0", "urn:cmp:modeling:reference-voce-fixed-grid-projection:1.0.0", "urn:cmp:modeling:processing-selected-hardening-projection:1.0.0"]},
         "transformation_profile_version": {"const": "1.0.0"},
         "transformation_profile_digest": {"$ref": "#/$defs/Sha256"},
         "necking_engineering_strain": {"type": ["number", "null"], "minimum": 0},
         "characterized_max_true_plastic_strain": {"type": "number", "minimum": 0},
         "extension_max_true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
-        "post_necking_extension_policy": {"const": "approved_constant_true_stress"},
+        "post_necking_extension_policy": {"enum": ["approved_constant_true_stress", "selected_fitted_bounded_extrapolation"]},
         "post_necking_approximation_acknowledged": {"const": true},
         "applicability": {"$ref": "#/$defs/Applicability"},
         "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
         "calibration_projection": {"$ref": "#/$defs/CalibrationProjection"},
+        "processing_projection": {"$ref": "#/$defs/ProcessingProjection"},
         "non_production": {"const": true}
       }
     },
@@ -140,6 +169,7 @@
         "entity_type", "reference_type", "revision_id", "content_sha256",
         "based_on_revision_id", "source_property_set_revision_id",
         "source_dataset_revision_id", "source_voce_selection_revision_id",
+        "source_processing_output_revision_id",
         "hardening_curve_artifact_id",
         "hardening_curve_sha256", "transformation_profile_digest", "recorded_at", "recorded_by"
       ],
@@ -152,6 +182,7 @@
         "source_property_set_revision_id": {"$ref": "#/$defs/Uuid"},
         "source_dataset_revision_id": {"type": ["string", "null"], "format": "uuid"},
         "source_voce_selection_revision_id": {"type": ["string", "null"], "format": "uuid"},
+        "source_processing_output_revision_id": {"type": ["string", "null"], "format": "uuid"},
         "hardening_curve_artifact_id": {"$ref": "#/$defs/Uuid"},
         "hardening_curve_sha256": {"$ref": "#/$defs/Sha256"},
         "transformation_profile_digest": {"$ref": "#/$defs/Sha256"},
@@ -226,6 +257,21 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "ProcessingOutputPromotionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_state_id", "property_set_revision_id", "processing_output_revision_id",
+        "acknowledge_bounded_extrapolation", "change_reason"
+      ],
+      "properties": {
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "processing_output_revision_id": {"$ref": "#/$defs/Uuid"},
+        "acknowledge_bounded_extrapolation": {"const": true},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "HardeningCurvePoint": {
       "type": "object",
       "additionalProperties": false,
@@ -233,7 +279,7 @@
       "properties": {
         "true_plastic_strain": {"type": "number", "minimum": 0},
         "true_yield_stress_pa": {"type": "number", "exclusiveMinimum": 0},
-        "origin": {"enum": ["catalog_yield_anchor", "pre_necking_observation", "calibrated_voce_sample", "approved_constant_extension"]}
+        "origin": {"enum": ["catalog_yield_anchor", "pre_necking_observation", "calibrated_voce_sample", "processing_selected_sample", "approved_constant_extension"]}
       }
     },
     "HardeningCurveResponse": {

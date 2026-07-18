@@ -15,9 +15,14 @@ from uuid import UUID
 
 import numpy as np
 from scipy.interpolate import UnivariateSpline  # type: ignore[import-untyped]
+from scipy.optimize import least_squares  # type: ignore[import-untyped]
 from scipy.signal import savgol_filter  # type: ignore[import-untyped]
 
 from cmp.modules.datasets.domain.canonical_test_data import CanonicalTestDataDocument
+from cmp.modules.processing.domain.metal_hardening import (
+    MetalHardeningError,
+    fit_hardening_candidates,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 COMMON_METHOD_VERSION = "1.0.0"
@@ -124,6 +129,14 @@ class QuantitySeries:
 
 
 @dataclass(frozen=True, slots=True)
+class ScalarResult:
+    key: str
+    quantity_semantics: str
+    value: float
+    unit: str
+
+
+@dataclass(frozen=True, slots=True)
 class CurveStage:
     ordinal: int
     method_id: str
@@ -131,6 +144,7 @@ class CurveStage:
     point_count: int
     series: tuple[QuantitySeries, ...]
     diagnostics: tuple[str, ...]
+    scalar_results: tuple[ScalarResult, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -163,6 +177,15 @@ def processing_preview_canonical(value: ProcessingPreview) -> dict[str, object]:
                     for series in stage.series
                 ],
                 "diagnostics": list(stage.diagnostics),
+                "scalar_results": [
+                    {
+                        "key": item.key,
+                        "quantity_semantics": item.quantity_semantics,
+                        "value": item.value,
+                        "unit": item.unit,
+                    }
+                    for item in stage.scalar_results
+                ],
             }
             for stage in value.stages
         ],
@@ -212,10 +235,14 @@ def mapping_profile_canonical(value: MappingProfileContent) -> dict[str, object]
     }
 
 
-def _number_schema(*, minimum: float | None = None) -> dict[str, object]:
+def _number_schema(
+    *, minimum: float | None = None, maximum: float | None = None
+) -> dict[str, object]:
     result: dict[str, object] = {"type": "number"}
     if minimum is not None:
         result["minimum"] = minimum
+    if maximum is not None:
+        result["maximum"] = maximum
     return result
 
 
@@ -323,6 +350,164 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
             "required": ["quantity", "smoothing_factor"],
         },
     ),
+    MethodDefinition(
+        "metal.elastic_modulus",
+        COMMON_METHOD_VERSION,
+        "Metal elastic modulus",
+        "Calculates modulus by user-range OLS, Huber robust regression, chord, "
+        "secant, or manual input.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "strain_quantity": {"type": "string", "minLength": 1},
+                "stress_quantity": {"type": "string", "minLength": 1},
+                "method": {
+                    "enum": [
+                        "linear_regression",
+                        "robust_huber",
+                        "chord",
+                        "secant",
+                        "manual",
+                    ]
+                },
+                "minimum_strain": _number_schema(),
+                "maximum_strain": _number_schema(),
+                "manual_modulus_pa": _number_schema(minimum=0),
+            },
+            "required": [
+                "strain_quantity",
+                "stress_quantity",
+                "method",
+                "minimum_strain",
+                "maximum_strain",
+                "manual_modulus_pa",
+            ],
+        },
+    ),
+    MethodDefinition(
+        "metal.proof_stress",
+        COMMON_METHOD_VERSION,
+        "Offset proof stress",
+        "Finds the observed-curve intersection with an explicit offset elastic line.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "strain_quantity": {"type": "string", "minLength": 1},
+                "stress_quantity": {"type": "string", "minLength": 1},
+                "youngs_modulus_pa": _number_schema(minimum=0),
+                "offset_strain": _number_schema(minimum=0),
+                "search_start": _number_schema(),
+                "search_end": _number_schema(),
+            },
+            "required": [
+                "strain_quantity",
+                "stress_quantity",
+                "youngs_modulus_pa",
+                "offset_strain",
+                "search_start",
+                "search_end",
+            ],
+        },
+    ),
+    MethodDefinition(
+        "metal.necking_candidate",
+        COMMON_METHOD_VERSION,
+        "Metal necking candidate",
+        "Reports an automatic peak-stress candidate without cropping or confirming the curve.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "strain_quantity": {"type": "string", "minLength": 1},
+                "stress_quantity": {"type": "string", "minLength": 1},
+                "method": {"const": "peak_engineering_stress"},
+            },
+            "required": ["strain_quantity", "stress_quantity", "method"],
+        },
+    ),
+    MethodDefinition(
+        "metal.engineering_to_true_plastic",
+        COMMON_METHOD_VERSION,
+        "Engineering to true/plastic",
+        "Derives true stress, true total strain, and true plastic strain up to an "
+        "explicit necking boundary.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "strain_quantity": {"type": "string", "minLength": 1},
+                "stress_quantity": {"type": "string", "minLength": 1},
+                "youngs_modulus_pa": _number_schema(minimum=0),
+                "necking_policy": {"enum": ["observed_full_domain", "manual_index"]},
+                "manual_necking_index": {"type": "integer", "minimum": 0},
+                "negative_plastic_policy": {"enum": ["retain", "clip_zero", "drop"]},
+            },
+            "required": [
+                "strain_quantity",
+                "stress_quantity",
+                "youngs_modulus_pa",
+                "necking_policy",
+                "manual_necking_index",
+                "negative_plastic_policy",
+            ],
+        },
+    ),
+    MethodDefinition(
+        "metal.hardening_fit_extrapolate",
+        COMMON_METHOD_VERSION,
+        "Metal hardening candidates",
+        "Fits public Voce, Swift, Hockett-Sherby, and Ghosh equations with one objective, "
+        "then explicitly combines two candidates on a bounded extrapolation grid.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "plastic_strain_quantity": {"type": "string", "minLength": 1},
+                "stress_quantity": {"type": "string", "minLength": 1},
+                "families": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 4,
+                    "uniqueItems": True,
+                    "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+                },
+                "fit_minimum_strain": _number_schema(minimum=0, maximum=5),
+                "fit_maximum_strain": _number_schema(minimum=0, maximum=5),
+                "extrapolation_maximum_strain": _number_schema(minimum=0, maximum=5),
+                "output_point_count": {"type": "integer", "minimum": 21, "maximum": 501},
+                "primary_family": {
+                    "enum": ["voce", "swift", "hockett_sherby", "ghosh"]
+                },
+                "secondary_family": {
+                    "enum": ["voce", "swift", "hockett_sherby", "ghosh"]
+                },
+                "primary_weight": _number_schema(minimum=0, maximum=1),
+                "normalization_stress_pa": _number_schema(minimum=1),
+                "maximum_function_evaluations": {
+                    "type": "integer",
+                    "minimum": 50,
+                    "maximum": 100000,
+                },
+            },
+            "required": [
+                "plastic_strain_quantity",
+                "stress_quantity",
+                "families",
+                "fit_minimum_strain",
+                "fit_maximum_strain",
+                "extrapolation_maximum_strain",
+                "output_point_count",
+                "primary_family",
+                "secondary_family",
+                "primary_weight",
+                "normalization_stress_pa",
+                "maximum_function_evaluations",
+            ],
+        },
+        allows_extrapolation=True,
+    ),
 )
 
 _METHODS = {item.method_id: item for item in METHOD_REGISTRY}
@@ -408,6 +593,7 @@ def _stage(
     columns: dict[str, np.ndarray],
     units: dict[str, str],
     diagnostics: tuple[str, ...],
+    scalar_results: tuple[ScalarResult, ...] = (),
 ) -> CurveStage:
     return CurveStage(
         ordinal=ordinal,
@@ -419,6 +605,7 @@ def _stage(
             for quantity, values in columns.items()
         ),
         diagnostics=diagnostics,
+        scalar_results=scalar_results,
     )
 
 
@@ -427,6 +614,245 @@ def _require_quantity(columns: dict[str, np.ndarray], options: dict[str, Any]) -
     if quantity not in columns:
         raise CommonPipelineError(f"quantity {quantity} is not mapped")
     return quantity
+
+
+def _named_quantity(
+    columns: dict[str, np.ndarray], options: dict[str, Any], option_key: str
+) -> str:
+    quantity = _text_option(options, option_key)
+    if quantity not in columns:
+        raise CommonPipelineError(f"quantity {quantity} is not mapped")
+    return quantity
+
+
+def _require_metal_tensile_units(
+    units: dict[str, str], strain_key: str, stress_key: str
+) -> None:
+    if units[strain_key] != "1" or units[stress_key] != "Pa":
+        raise CommonPipelineError(
+            "metal tensile methods require normalized strain unit 1 and stress unit Pa"
+        )
+
+
+def _elastic_modulus(
+    columns: dict[str, np.ndarray], units: dict[str, str], options: dict[str, Any]
+) -> tuple[tuple[str, ...], tuple[ScalarResult, ...]]:
+    strain_key = _named_quantity(columns, options, "strain_quantity")
+    stress_key = _named_quantity(columns, options, "stress_quantity")
+    _require_metal_tensile_units(units, strain_key, stress_key)
+    method = _text_option(options, "method")
+    minimum = _float_option(options, "minimum_strain")
+    maximum = _float_option(options, "maximum_strain")
+    manual = _float_option(options, "manual_modulus_pa")
+    x = columns[strain_key]
+    y = columns[stress_key]
+    if np.any(np.diff(x) <= 0):
+        raise CommonPipelineError("elastic modulus requires sorted unique strain")
+    mask = (x >= minimum) & (x <= maximum)
+    count = int(np.sum(mask))
+    if minimum >= maximum or count < 2:
+        raise CommonPipelineError("elastic modulus domain must contain at least two points")
+    selected_x = x[mask]
+    selected_y = y[mask]
+    intercept = 0.0
+    if method == "linear_regression":
+        modulus, intercept = np.polyfit(selected_x, selected_y, 1)
+    elif method == "robust_huber":
+        initial = np.polyfit(selected_x, selected_y, 1)
+        scale = max(float(np.median(np.abs(selected_y - np.median(selected_y)))), 1.0)
+        optimized = least_squares(
+            lambda values: (values[0] * selected_x + values[1] - selected_y) / scale,
+            initial,
+            loss="huber",
+            f_scale=1.0,
+        )
+        modulus, intercept = optimized.x
+    elif method == "chord":
+        start_stress = float(np.interp(minimum, x, y))
+        end_stress = float(np.interp(maximum, x, y))
+        modulus = (end_stress - start_stress) / (maximum - minimum)
+        intercept = start_stress - modulus * minimum
+    elif method == "secant":
+        if maximum <= 0:
+            raise CommonPipelineError("secant modulus requires positive maximum_strain")
+        modulus = float(np.interp(maximum, x, y)) / maximum
+    elif method == "manual":
+        modulus = manual
+    else:
+        raise CommonPipelineError("unsupported elastic modulus method")
+    modulus = float(modulus)
+    intercept = float(intercept)
+    if not math.isfinite(modulus) or modulus <= 0:
+        raise CommonPipelineError("elastic modulus result must be finite and positive")
+    predicted = modulus * selected_x + intercept
+    total = float(np.sum((selected_y - np.mean(selected_y)) ** 2))
+    residual = float(np.sum((selected_y - predicted) ** 2))
+    r_squared = 1.0 if total == 0 and residual == 0 else 1.0 - residual / total if total else 0.0
+    return (
+        (f"{method} elastic modulus on [{minimum}, {maximum}] using {count} points",),
+        (
+            ScalarResult("youngs_modulus", "modulus.young", modulus, "Pa"),
+            ScalarResult("elastic_intercept", "stress.intercept", intercept, "Pa"),
+            ScalarResult("elastic_r_squared", "statistics.r_squared", r_squared, "1"),
+        ),
+    )
+
+
+def _proof_stress(
+    columns: dict[str, np.ndarray], units: dict[str, str], options: dict[str, Any]
+) -> tuple[tuple[str, ...], tuple[ScalarResult, ...]]:
+    strain_key = _named_quantity(columns, options, "strain_quantity")
+    stress_key = _named_quantity(columns, options, "stress_quantity")
+    _require_metal_tensile_units(units, strain_key, stress_key)
+    modulus = _float_option(options, "youngs_modulus_pa")
+    offset = _float_option(options, "offset_strain")
+    start = _float_option(options, "search_start")
+    end = _float_option(options, "search_end")
+    if modulus <= 0 or offset < 0 or start >= end:
+        raise CommonPipelineError("proof stress requires positive modulus and valid offset/domain")
+    x = columns[strain_key]
+    y = columns[stress_key]
+    if np.any(np.diff(x) <= 0):
+        raise CommonPipelineError("proof stress requires sorted unique strain")
+    mask = (x >= start) & (x <= end)
+    domain_x = x[mask]
+    domain_y = y[mask]
+    if len(domain_x) < 2:
+        raise CommonPipelineError("proof stress search domain contains fewer than two points")
+    difference = domain_y - modulus * (domain_x - offset)
+    crossings = np.where((difference[:-1] >= 0) & (difference[1:] <= 0))[0]
+    if not len(crossings):
+        raise CommonPipelineError("offset proof line does not intersect the observed search domain")
+    index = int(crossings[0])
+    denominator = difference[index] - difference[index + 1]
+    fraction = 0.0 if denominator == 0 else float(difference[index] / denominator)
+    proof_strain = float(domain_x[index] + fraction * (domain_x[index + 1] - domain_x[index]))
+    proof_stress = float(domain_y[index] + fraction * (domain_y[index + 1] - domain_y[index]))
+    return (
+        (f"offset proof intersection at strain={proof_strain} with offset={offset}",),
+        (
+            ScalarResult("proof_stress", "stress.proof", proof_stress, "Pa"),
+            ScalarResult("proof_strain", "strain.proof", proof_strain, "1"),
+            ScalarResult("proof_offset", "strain.offset", offset, "1"),
+        ),
+    )
+
+
+def _engineering_to_true_plastic(
+    columns: dict[str, np.ndarray],
+    units: dict[str, str],
+    options: dict[str, Any],
+) -> tuple[dict[str, np.ndarray], tuple[str, ...], tuple[ScalarResult, ...]]:
+    strain_key = _named_quantity(columns, options, "strain_quantity")
+    stress_key = _named_quantity(columns, options, "stress_quantity")
+    _require_metal_tensile_units(units, strain_key, stress_key)
+    modulus = _float_option(options, "youngs_modulus_pa")
+    necking_policy = _text_option(options, "necking_policy")
+    manual_index = _int_option(options, "manual_necking_index")
+    negative_policy = _text_option(options, "negative_plastic_policy")
+    if modulus <= 0:
+        raise CommonPipelineError("true/plastic conversion requires positive Young's modulus")
+    strain = columns[strain_key]
+    stress = columns[stress_key]
+    if np.any(strain <= -1) or np.any(stress < 0) or np.any(np.diff(strain) <= 0):
+        raise CommonPipelineError("engineering strain/stress must be ordered and physically valid")
+    if necking_policy == "observed_full_domain":
+        necking_index = len(strain) - 1
+    elif necking_policy == "manual_index":
+        necking_index = manual_index
+    else:
+        raise CommonPipelineError("unsupported necking policy")
+    if not 1 <= necking_index < len(strain):
+        raise CommonPipelineError("necking index must retain at least two observed points")
+    result = {key: value[: necking_index + 1] for key, value in columns.items()}
+    engineering_strain = result[strain_key]
+    engineering_stress = result[stress_key]
+    true_strain = np.log1p(engineering_strain)
+    true_stress = engineering_stress * (1.0 + engineering_strain)
+    true_plastic = true_strain - true_stress / modulus
+    if negative_policy == "clip_zero":
+        true_plastic = np.maximum(true_plastic, 0.0)
+    elif negative_policy == "drop":
+        keep = true_plastic > 0.0
+        if int(np.sum(keep)) < 2:
+            raise CommonPipelineError(
+                "dropping non-positive plastic strain leaves fewer than two points"
+            )
+        result = {key: value[keep] for key, value in result.items()}
+        true_strain = true_strain[keep]
+        true_stress = true_stress[keep]
+        true_plastic = true_plastic[keep]
+    elif negative_policy != "retain":
+        raise CommonPipelineError("unsupported negative plastic strain policy")
+    result["strain.true"] = true_strain
+    result["stress.true"] = true_stress
+    result["strain.true_plastic"] = true_plastic
+    units["strain.true"] = "1"
+    units["stress.true"] = units[stress_key]
+    units["strain.true_plastic"] = "1"
+    return (
+        result,
+        (
+            f"{necking_policy} necking boundary at source index {necking_index}",
+            f"negative true plastic strain policy={negative_policy}",
+            *(
+                (
+                    "observed_full_domain may include post-necking data; confirm a manual "
+                    "candidate before constitutive identification",
+                )
+                if necking_policy == "observed_full_domain"
+                else ()
+            ),
+        ),
+        (
+            ScalarResult("necking_index", "index.necking", float(necking_index), "1"),
+            ScalarResult(
+                "necking_engineering_strain",
+                "strain.engineering.necking",
+                float(strain[necking_index]),
+                "1",
+            ),
+            ScalarResult(
+                "necking_engineering_stress",
+                "stress.engineering.necking",
+                float(stress[necking_index]),
+                units[stress_key],
+            ),
+        ),
+    )
+
+
+def _necking_candidate(
+    columns: dict[str, np.ndarray], units: dict[str, str], options: dict[str, Any]
+) -> tuple[tuple[str, ...], tuple[ScalarResult, ...]]:
+    strain_key = _named_quantity(columns, options, "strain_quantity")
+    stress_key = _named_quantity(columns, options, "stress_quantity")
+    _require_metal_tensile_units(units, strain_key, stress_key)
+    if options.get("method") != "peak_engineering_stress":
+        raise CommonPipelineError("the reference necking candidate uses peak engineering stress")
+    strain = columns[strain_key]
+    stress = columns[stress_key]
+    index = int(np.argmax(stress))
+    if not 1 <= index < len(stress):
+        raise CommonPipelineError("peak-stress necking candidate is outside a usable domain")
+    return (
+        ("automatic candidate only; no point was cropped or confirmed",),
+        (
+            ScalarResult("necking_candidate_index", "index.necking.candidate", float(index), "1"),
+            ScalarResult(
+                "necking_candidate_engineering_strain",
+                "strain.engineering.necking.candidate",
+                float(strain[index]),
+                units[strain_key],
+            ),
+            ScalarResult(
+                "necking_candidate_engineering_stress",
+                "stress.engineering.necking.candidate",
+                float(stress[index]),
+                units[stress_key],
+            ),
+        ),
+    )
 
 
 def _sort_unique(
@@ -464,15 +890,19 @@ def _sort_unique(
 
 
 def _apply_step(
-    columns: dict[str, np.ndarray], x_key: str, step: ProcessingStep
-) -> tuple[dict[str, np.ndarray], tuple[str, ...]]:
+    columns: dict[str, np.ndarray],
+    units: dict[str, str],
+    x_key: str,
+    step: ProcessingStep,
+) -> tuple[dict[str, np.ndarray], tuple[str, ...], tuple[ScalarResult, ...]]:
     definition = _METHODS.get(step.method_id)
     if definition is None:
         raise CommonPipelineError(f"unknown processing method {step.method_id}")
     _validate_options(step, definition)
     options = step.options
     if step.method_id == "rows.sort_unique":
-        return _sort_unique(columns, x_key, options)
+        result, diagnostics = _sort_unique(columns, x_key, options)
+        return result, diagnostics, ()
     if step.method_id == "curve.crop":
         minimum = _float_option(options, "minimum")
         maximum = _float_option(options, "maximum")
@@ -484,6 +914,7 @@ def _apply_step(
         return (
             {key: value[mask] for key, value in columns.items()},
             (f"kept {int(np.sum(mask))} observed points in inclusive domain",),
+            (),
         )
     if step.method_id == "curve.scale_shift":
         quantity = _require_quantity(columns, options)
@@ -493,7 +924,7 @@ def _apply_step(
             raise CommonPipelineError("scale cannot be zero")
         result = dict(columns)
         result[quantity] = columns[quantity] * scale + offset
-        return result, (f"applied y={scale}*y+{offset} to {quantity}",)
+        return result, (f"applied y={scale}*y+{offset} to {quantity}",), ()
     if step.method_id == "curve.resample_linear":
         start = _float_option(options, "start")
         end = _float_option(options, "end")
@@ -510,7 +941,7 @@ def _apply_step(
         grid = np.linspace(start, end, count)
         result = {key: np.interp(grid, x, value) for key, value in columns.items()}
         result[x_key] = grid
-        return result, ("piecewise-linear interpolation; extrapolation rejected",)
+        return result, ("piecewise-linear interpolation; extrapolation rejected",), ()
     if step.method_id == "curve.moving_average":
         quantity = _require_quantity(columns, options)
         window = _int_option(options, "window")
@@ -522,7 +953,7 @@ def _apply_step(
         result[quantity] = np.convolve(
             np.pad(columns[quantity], pad, mode="reflect"), kernel, "valid"
         )
-        return result, (f"centered reflected-edge moving average window={window}",)
+        return result, (f"centered reflected-edge moving average window={window}",), ()
     if step.method_id == "curve.savitzky_golay":
         quantity = _require_quantity(columns, options)
         window = _int_option(options, "window")
@@ -533,7 +964,7 @@ def _apply_step(
             )
         result = dict(columns)
         result[quantity] = savgol_filter(columns[quantity], window, order, mode="interp")
-        return result, (f"Savitzky-Golay window={window}, polynomial_order={order}",)
+        return result, (f"Savitzky-Golay window={window}, polynomial_order={order}",), ()
     if step.method_id == "curve.smoothing_spline":
         quantity = _require_quantity(columns, options)
         smoothing = _float_option(options, "smoothing_factor")
@@ -544,7 +975,32 @@ def _apply_step(
             raise CommonPipelineError("cubic smoothing spline requires at least four points")
         result = dict(columns)
         result[quantity] = UnivariateSpline(x, columns[quantity], s=smoothing, k=3)(x)
-        return result, (f"cubic smoothing spline factor={smoothing}",)
+        return result, (f"cubic smoothing spline factor={smoothing}",), ()
+    if step.method_id == "metal.elastic_modulus":
+        diagnostics, scalars = _elastic_modulus(columns, units, options)
+        return dict(columns), diagnostics, scalars
+    if step.method_id == "metal.proof_stress":
+        diagnostics, scalars = _proof_stress(columns, units, options)
+        return dict(columns), diagnostics, scalars
+    if step.method_id == "metal.necking_candidate":
+        diagnostics, scalars = _necking_candidate(columns, units, options)
+        return dict(columns), diagnostics, scalars
+    if step.method_id == "metal.engineering_to_true_plastic":
+        return _engineering_to_true_plastic(columns, units, options)
+    if step.method_id == "metal.hardening_fit_extrapolate":
+        try:
+            fitted = fit_hardening_candidates(columns, units, options)
+        except MetalHardeningError as error:
+            raise CommonPipelineError(str(error)) from error
+        units.update(fitted.units)
+        return (
+            fitted.columns,
+            fitted.diagnostics,
+            tuple(
+                ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
+                for item in fitted.scalars
+            ),
+        )
     raise CommonPipelineError(f"method {step.method_id} is not executable")
 
 
@@ -569,10 +1025,21 @@ def preview_pipeline(
     stages = [_stage(0, "mapping", columns, units, ("canonical normalized values mapped",))]
     current = columns
     for ordinal, step in enumerate(steps, start=1):
-        current, diagnostics = _apply_step(current, profile.independent_quantity, step)
+        current, diagnostics, scalar_results = _apply_step(
+            current, units, profile.independent_quantity, step
+        )
         if any(not np.all(np.isfinite(values)) for values in current.values()):
             raise CommonPipelineError(f"method {step.method_id} produced non-finite output")
-        stages.append(_stage(ordinal, step.method_id, current, units, diagnostics))
+        stages.append(
+            _stage(
+                ordinal,
+                step.method_id,
+                current,
+                units,
+                diagnostics,
+                scalar_results,
+            )
+        )
     return ProcessingPreview(
         source_document_sha256=document.digest,
         mapping_profile_sha256=profile.digest,

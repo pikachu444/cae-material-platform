@@ -5405,6 +5405,36 @@ paths:
         "409": {description: Tenant, classification, immutable source, or Artifact evidence conflicts.}
         "422": {description: Tensile data or the explicit transformation declaration is invalid.}
         "503": {description: Tabulated-plasticity service unavailable.}
+  /api/v1/processing-outputs/{processing_output_id}/tabulated-plasticity-models:
+    post:
+      operationId: promoteProcessingOutputToTabulatedPlasticityModel
+      tags: [modeling]
+      summary: Promote one exact selected fitted metal Processing Output into non-production IR 1.2.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: processing_output_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/ProcessingOutputPromotionRequest"}
+      responses:
+        "201":
+          description: Stable model identity and immutable IR 1.2 revision pinned to exact processing lineage.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-tabulated-plasticity-resources.schema.json#/$defs/MaterialModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: A pinned Property Set or Processing Output revision is not visible.}
+        "409": {description: Exact source scope, classification, Artifact, or method lineage conflicts.}
+        "422": {description: Selected hardening output or acknowledgement is invalid.}
+        "503": {description: Tabulated-plasticity service unavailable.}
   /api/v1/tabulated-plasticity-models/{material_model_id}:
     get:
       operationId: getReferenceTabulatedPlasticityModel

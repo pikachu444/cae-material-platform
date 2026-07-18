@@ -151,6 +151,21 @@ material_model_revision_table = sa.Table(
     sa.Column("voce_sampling_point_count", sa.Integer(), nullable=True),
     sa.Column("voce_q_pa", sa.Double(), nullable=True),
     sa.Column("voce_b", sa.Double(), nullable=True),
+    # Typed evidence for a selected hardening curve promoted from one exact common
+    # Processing Output revision.  The JSON array contains only the bounded method
+    # registry family identifiers; the source/output pins remain explicit columns.
+    sa.Column("processing_output_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_output_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_output_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("processing_source_document_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_source_document_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_mapping_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_mapping_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("hardening_candidate_families", sa.JSON(), nullable=True),
+    sa.Column("hardening_primary_family", sa.String(32), nullable=True),
+    sa.Column("hardening_secondary_family", sa.String(32), nullable=True),
+    sa.Column("hardening_primary_weight", sa.Double(), nullable=True),
+    sa.Column("hardening_fit_minimum_strain", sa.Double(), nullable=True),
     sa.Column("non_production", sa.Boolean(), nullable=False),
     schema="modeling",
 )
@@ -430,9 +445,7 @@ class SqlAlchemyModelingRepository(ModelingRepository):
         )
 
     @contextmanager
-    def _session(
-        self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> Any:
+    def _session(self, context: SecurityContext, decision: AuthorizationDecision) -> Any:
         with self._sessions() as session, session.begin():
             self._bind(session, context, decision)
             yield session
@@ -448,65 +461,57 @@ class SqlAlchemyModelingRepository(ModelingRepository):
         property_set = catalog_property_set_table
         property_revision = catalog_property_set_revision_table
         state_revision = catalog_material_state_revision_table
-        statement = (
-            sa.select(
-                property_set.c.id.label("property_set_id"),
-                property_revision.c.id.label("property_set_revision_id"),
-                property_revision.c.classification.label("classification"),
-                property_revision.c.material_state_id.label("material_state_id"),
-                property_revision.c.material_state_revision_id.label("material_state_revision_id"),
-                property_revision.c.density_kg_per_m3.label("density_kg_per_m3"),
-                property_revision.c.youngs_modulus_pa.label("youngs_modulus_pa"),
-                property_revision.c.poisson_ratio.label("poisson_ratio"),
-                property_revision.c.yield_stress_pa.label("source_yield_stress_pa"),
-                property_revision.c.applicable_temperature_min_k.label(
-                    "applicable_temperature_min_k"
+        statement = sa.select(
+            property_set.c.id.label("property_set_id"),
+            property_revision.c.id.label("property_set_revision_id"),
+            property_revision.c.classification.label("classification"),
+            property_revision.c.material_state_id.label("material_state_id"),
+            property_revision.c.material_state_revision_id.label("material_state_revision_id"),
+            property_revision.c.density_kg_per_m3.label("density_kg_per_m3"),
+            property_revision.c.youngs_modulus_pa.label("youngs_modulus_pa"),
+            property_revision.c.poisson_ratio.label("poisson_ratio"),
+            property_revision.c.yield_stress_pa.label("source_yield_stress_pa"),
+            property_revision.c.applicable_temperature_min_k.label("applicable_temperature_min_k"),
+            property_revision.c.applicable_temperature_max_k.label("applicable_temperature_max_k"),
+            property_revision.c.applicable_strain_rate_min_per_s.label(
+                "applicable_strain_rate_min_per_s"
+            ),
+            property_revision.c.applicable_strain_rate_max_per_s.label(
+                "applicable_strain_rate_max_per_s"
+            ),
+            property_revision.c.applicability_note.label("applicability_note"),
+            state_revision.c.material_id.label("material_id"),
+            state_revision.c.material_revision_id.label("material_revision_id"),
+            catalog_material_revision_table.c.material_class.label("material_class"),
+        ).select_from(
+            property_set.join(
+                property_revision,
+                sa.and_(
+                    property_revision.c.aggregate_id == property_set.c.id,
+                    property_revision.c.organization_id == property_set.c.organization_id,
+                    property_revision.c.project_id == property_set.c.project_id,
                 ),
-                property_revision.c.applicable_temperature_max_k.label(
-                    "applicable_temperature_max_k"
-                ),
-                property_revision.c.applicable_strain_rate_min_per_s.label(
-                    "applicable_strain_rate_min_per_s"
-                ),
-                property_revision.c.applicable_strain_rate_max_per_s.label(
-                    "applicable_strain_rate_max_per_s"
-                ),
-                property_revision.c.applicability_note.label("applicability_note"),
-                state_revision.c.material_id.label("material_id"),
-                state_revision.c.material_revision_id.label("material_revision_id"),
-                catalog_material_revision_table.c.material_class.label("material_class"),
             )
-            .select_from(
-                property_set.join(
-                    property_revision,
-                    sa.and_(
-                        property_revision.c.aggregate_id == property_set.c.id,
-                        property_revision.c.organization_id == property_set.c.organization_id,
-                        property_revision.c.project_id == property_set.c.project_id,
-                    ),
-                ).join(
-                    state_revision,
-                    sa.and_(
-                        state_revision.c.id == property_revision.c.material_state_revision_id,
-                        state_revision.c.aggregate_id == property_revision.c.material_state_id,
-                        state_revision.c.organization_id == property_revision.c.organization_id,
-                        state_revision.c.project_id == property_revision.c.project_id,
-                    ),
-                ).join(
-                    catalog_material_revision_table,
-                    sa.and_(
-                        catalog_material_revision_table.c.id
-                        == state_revision.c.material_revision_id,
-                        catalog_material_revision_table.c.aggregate_id
-                        == state_revision.c.material_id,
-                        catalog_material_revision_table.c.organization_id
-                        == state_revision.c.organization_id,
-                        catalog_material_revision_table.c.project_id
-                        == state_revision.c.project_id,
-                        catalog_material_revision_table.c.classification
-                        == state_revision.c.classification,
-                    ),
-                )
+            .join(
+                state_revision,
+                sa.and_(
+                    state_revision.c.id == property_revision.c.material_state_revision_id,
+                    state_revision.c.aggregate_id == property_revision.c.material_state_id,
+                    state_revision.c.organization_id == property_revision.c.organization_id,
+                    state_revision.c.project_id == property_revision.c.project_id,
+                ),
+            )
+            .join(
+                catalog_material_revision_table,
+                sa.and_(
+                    catalog_material_revision_table.c.id == state_revision.c.material_revision_id,
+                    catalog_material_revision_table.c.aggregate_id == state_revision.c.material_id,
+                    catalog_material_revision_table.c.organization_id
+                    == state_revision.c.organization_id,
+                    catalog_material_revision_table.c.project_id == state_revision.c.project_id,
+                    catalog_material_revision_table.c.classification
+                    == state_revision.c.classification,
+                ),
             )
         )
         statement = statement.where(

@@ -145,17 +145,29 @@
         "values": {"type": "array", "items": {"type": "number"}}
       }
     },
+    "ScalarResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "quantity_semantics", "value", "unit"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1},
+        "quantity_semantics": {"type": "string", "minLength": 1},
+        "value": {"type": "number"},
+        "unit": {"type": "string", "minLength": 1}
+      }
+    },
     "CurveStage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ordinal", "method_id", "method_version", "point_count", "series", "diagnostics"],
+      "required": ["ordinal", "method_id", "method_version", "point_count", "series", "diagnostics", "scalar_results"],
       "properties": {
         "ordinal": {"type": "integer", "minimum": 0},
         "method_id": {"type": "string"},
         "method_version": {"type": "string"},
         "point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
         "series": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/QuantitySeries"}},
-        "diagnostics": {"type": "array", "items": {"type": "string"}}
+        "diagnostics": {"type": "array", "items": {"type": "string"}},
+        "scalar_results": {"type": "array", "items": {"$ref": "#/$defs/ScalarResult"}}
       }
     },
     "PreviewResponse": {
