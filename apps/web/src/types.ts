@@ -3586,6 +3586,23 @@ export interface CommonProcessingStep {
   options: Record<string, unknown>;
 }
 
+export interface CommonProcessingRecipeContent {
+  recipe_key: string;
+  label: string;
+  description: string | null;
+  mapping_profile_id: string;
+  mapping_profile_revision_id: string;
+  mapping_profile_sha256: string;
+  steps: CommonProcessingStep[];
+  lifecycle_state: "draft" | "published";
+}
+
+export interface CommonProcessingRecipeResponse {
+  processing_recipe_id: string;
+  current_revision: RevisionMetadata;
+  content: CommonProcessingRecipeContent;
+}
+
 export interface CommonCurveStage {
   ordinal: number;
   method_id: string;

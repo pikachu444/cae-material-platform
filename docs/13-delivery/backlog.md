@@ -1320,6 +1320,12 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   preflight, per-member Run/Attempt, Batch Monitor와 failed-member retry.
 - **완료 조건:** 저장한 방식을 다른 Dataset 또는 검색 선택에 재사용하고 성공 결과를 보존한다.
 - **테스트:** deterministic rerun, incompatible member, partial failure/retry, no overwrite, UI E2E.
+- **Increment 1 증거 (2026-07-18):** common Recipe stable identity/immutable revision/ordered typed
+  step을 migration 065로 추가하고 exact Mapping Profile revision+digest를 고정했다. API와 연결 UI가
+  draft 생성, strong ETag revision append, reviewed publish와 Library 재선택을 지원한다. Docker
+  PostgreSQL에서 r1 draft→r2 published와 exact pin을 검증했다.
+- **남은 완료 범위:** exact input Selection, compatibility preflight, per-member Run/Attempt,
+  partial success 보존, failed-member retry와 Batch Monitor UI.
 
 ### S-14.3. Deepen the three public-equation reference modeling tracks
 

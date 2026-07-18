@@ -175,6 +175,8 @@ import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingMethod,
+  CommonProcessingRecipeContent,
+  CommonProcessingRecipeResponse,
   CommonEnsemblePreview,
   CommonProcessingOutputResponse,
   CommonProcessingPreview,
@@ -430,6 +432,39 @@ export function reviseCommonMappingProfile(
   input: { content: CommonMappingProfileContent; change_reason: string },
 ): Promise<ApiResult<CommonMappingProfileResponse>> {
   return request(config, `/mapping-profiles/${encodeURIComponent(profileId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function listCommonProcessingRecipes(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonProcessingRecipeResponse[] }>> {
+  return request(config, "/common-processing-recipes");
+}
+
+export function createCommonProcessingRecipe(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: CommonProcessingRecipeContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<CommonProcessingRecipeResponse>> {
+  return request(config, "/common-processing-recipes", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseCommonProcessingRecipe(
+  config: ApiConfig,
+  recipeId: string,
+  etag: string,
+  input: { content: CommonProcessingRecipeContent; change_reason: string },
+): Promise<ApiResult<CommonProcessingRecipeResponse>> {
+  return request(config, `/common-processing-recipes/${encodeURIComponent(recipeId)}/revisions`, {
     method: "POST",
     headers: { "If-Match": etag },
     body: JSON.stringify(input),

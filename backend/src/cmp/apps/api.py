@@ -50,6 +50,7 @@ from cmp.bootstrap.modeling import (
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import (
     build_common_processing_output_service,
+    build_common_recipe_service,
     build_mapping_profile_service,
     build_processing_service,
     build_shear_relaxation_processing_service,
@@ -184,6 +185,7 @@ from cmp.modules.modeling.application.voce_candidate_projection import (
 from cmp.modules.plugins.adapters.api.registry import install_plugin_registry_api
 from cmp.modules.plugins.application.registry import PluginRegistryService
 from cmp.modules.processing.adapters.api.common_pipeline import install_common_processing_api
+from cmp.modules.processing.adapters.api.common_recipes import install_common_recipe_api
 from cmp.modules.processing.adapters.api.processing import install_processing_api
 from cmp.modules.processing.adapters.api.shear_relaxation import (
     install_shear_relaxation_processing_api,
@@ -584,6 +586,17 @@ def create_app(
             resolved_mapping_profiles,
             resolved_artifacts,
         ),
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.PROCESSING_EXECUTE
+        ),
+    )
+    install_common_recipe_api(
+        application,
+        service=build_common_recipe_service(services, resolved_mapping_profiles),
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ

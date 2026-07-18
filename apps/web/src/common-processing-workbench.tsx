@@ -4,16 +4,19 @@ import {
   ApiError,
   commitCommonProcessingOutput,
   createCommonMappingProfile,
+  createCommonProcessingRecipe,
   downloadCanonicalTestDataDocument,
   downloadCommonProcessingOutput,
   listCanonicalTestDataDocuments,
   listCommonMappingProfiles,
   listCommonProcessingOutputs,
+  listCommonProcessingRecipes,
   listCommonProcessingMethods,
   listCommonProcessingEnsembleMethods,
   previewCommonProcessing,
   previewCommonProcessingEnsemble,
   reviseCommonMappingProfile,
+  reviseCommonProcessingRecipe,
   type ApiConfig,
 } from "./api";
 import type {
@@ -24,6 +27,8 @@ import type {
   CommonMappingProfileResponse,
   CommonProcessingMethod,
   CommonProcessingOutputResponse,
+  CommonProcessingRecipeContent,
+  CommonProcessingRecipeResponse,
   CommonProcessingPreview,
   CommonProcessingStep,
   DataClassification,
@@ -142,8 +147,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
   const [ensembleMethods, setEnsembleMethods] = useState<CommonProcessingMethod[]>([]);
   const [outputs, setOutputs] = useState<CommonProcessingOutputResponse[]>([]);
+  const [recipes, setRecipes] = useState<CommonProcessingRecipeResponse[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState("");
   const [selectedProfileId, setSelectedProfileId] = useState("");
+  const [selectedRecipeId, setSelectedRecipeId] = useState("");
   const [document, setDocument] = useState<Record<string, unknown> | null>(null);
   const [profileText, setProfileText] = useState(JSON.stringify(DEFAULT_PROFILE, null, 2));
   const [stepsText, setStepsText] = useState(JSON.stringify(DEFAULT_STEPS, null, 2));
@@ -151,6 +158,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [changeReason, setChangeReason] = useState("Save reusable channel mapping");
   const [outputLabel, setOutputLabel] = useState("Processed tensile curve");
   const [outputReason, setOutputReason] = useState("Commit reviewed processing stages");
+  const [recipeKey, setRecipeKey] = useState("normalized-tensile-cleanup");
+  const [recipeLabel, setRecipeLabel] = useState("Normalized tensile cleanup");
+  const [recipeDescription, setRecipeDescription] = useState("Reusable explicit processing steps");
+  const [recipeReason, setRecipeReason] = useState("Save reusable Processing Recipe");
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   const [selectedStage, setSelectedStage] = useState(0);
   const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
@@ -167,13 +178,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
       listCommonProcessingMethods(config),
       listCommonProcessingOutputs(config),
       listCommonProcessingEnsembleMethods(config),
+      listCommonProcessingRecipes(config),
     ])
-      .then(([documentResult, profileResult, methodResult, outputResult, ensembleMethodResult]) => {
+      .then(([documentResult, profileResult, methodResult, outputResult, ensembleMethodResult, recipeResult]) => {
         setDocuments(documentResult.data.items);
         setProfiles(profileResult.data.items);
         setMethods(methodResult.data.items);
         setOutputs(outputResult.data.items);
         setEnsembleMethods(ensembleMethodResult.data.items);
+        setRecipes(recipeResult.data.items);
         setSelectedDocumentId((current) => current || documentResult.data.items[0]?.test_data_document_id || "");
         setEnsembleDocumentIds((current) => current.length ? current : documentResult.data.items.slice(0, 2).map((item) => item.test_data_document_id));
       })
@@ -209,6 +222,103 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
     setSelectedProfileId(id);
     const item = profiles.find((candidate) => candidate.mapping_profile_id === id);
     if (item) setProfileText(JSON.stringify(item.content, null, 2));
+  }
+
+  function selectRecipe(id: string): void {
+    setSelectedRecipeId(id);
+    const item = recipes.find((candidate) => candidate.processing_recipe_id === id);
+    if (!item) return;
+    setRecipeKey(item.content.recipe_key);
+    setRecipeLabel(item.content.label);
+    setRecipeDescription(item.content.description ?? "");
+    setStepsText(JSON.stringify(item.content.steps, null, 2));
+    const exactProfile = profiles.find(
+      (profile) => profile.mapping_profile_id === item.content.mapping_profile_id
+        && profile.current_revision.id === item.content.mapping_profile_revision_id,
+    );
+    if (exactProfile) selectProfile(exactProfile.mapping_profile_id);
+    else {
+      setSelectedProfileId("");
+      setNotice("This Recipe pins an older exact Mapping Profile revision. Select a current profile before saving a new Recipe revision.");
+    }
+  }
+
+  function recipeContent(
+    profile: CommonMappingProfileResponse,
+    lifecycleState: "draft" | "published",
+  ): CommonProcessingRecipeContent {
+    return {
+      recipe_key: recipeKey,
+      label: recipeLabel,
+      description: recipeDescription.trim() || null,
+      mapping_profile_id: profile.mapping_profile_id,
+      mapping_profile_revision_id: profile.current_revision.id,
+      mapping_profile_sha256: profile.current_revision.content_hash,
+      steps: JSON.parse(stepsText) as CommonProcessingStep[],
+      lifecycle_state: lifecycleState,
+    };
+  }
+
+  async function saveRecipe(): Promise<void> {
+    const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
+    if (!profile) {
+      setError("Select and save one exact Mapping Profile before saving a Recipe.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const selected = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
+      const content = recipeContent(profile, "draft");
+      const result = selected
+        ? await reviseCommonProcessingRecipe(
+            config,
+            selected.processing_recipe_id,
+            `"revision:${selected.current_revision.revision_no}:sha256:${selected.current_revision.content_hash}"`,
+            { content, change_reason: recipeReason },
+          )
+        : await createCommonProcessingRecipe(config, {
+            classification: profile.current_revision.classification as DataClassification,
+            content,
+            change_reason: recipeReason,
+          });
+      const refreshed = await listCommonProcessingRecipes(config);
+      setRecipes(refreshed.data.items);
+      setSelectedRecipeId(result.data.processing_recipe_id);
+      setNotice(`Saved reusable Recipe revision ${result.data.current_revision.revision_no} as draft.`);
+    } catch (caught) {
+      setError(caught instanceof SyntaxError ? `Invalid Recipe step JSON: ${caught.message}` : errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function publishRecipe(): Promise<void> {
+    const selected = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
+    if (!selected || selected.content.lifecycle_state !== "draft") {
+      setError("Select a saved draft Recipe before publishing it.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await reviseCommonProcessingRecipe(
+        config,
+        selected.processing_recipe_id,
+        `"revision:${selected.current_revision.revision_no}:sha256:${selected.current_revision.content_hash}"`,
+        {
+          content: { ...selected.content, lifecycle_state: "published" },
+          change_reason: "Publish reviewed Processing Recipe",
+        },
+      );
+      const refreshed = await listCommonProcessingRecipes(config);
+      setRecipes(refreshed.data.items);
+      setNotice(`Published Recipe revision ${result.data.current_revision.revision_no}; earlier revisions remain unchanged.`);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
   }
 
   function addMethod(method: CommonProcessingMethod): void {
@@ -428,6 +538,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
         <div className="method-registry-strip">{methods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>{method.label}</strong><small>{method.method_id} · {method.version}</small></button>)}</div>
         <label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
+      </section>
+
+      <section className="workbench-card recipe-library-card">
+        <div className="section-heading"><div><p className="eyebrow">T-54 · reusable execution contract</p><h2>Processing Recipe library</h2></div><span className="status-chip">{recipes.length} saved</span></div>
+        <p className="mapping-note">A Recipe pins one exact Mapping Profile revision and every ordered method version/options. Publishing appends a revision; it never edits a reviewed Recipe in place.</p>
+        <div className="recipe-library-grid">
+          <label>Saved Recipe<select aria-label="Saved Processing Recipe" value={selectedRecipeId} onChange={(event) => selectRecipe(event.target.value)}><option value="">New Recipe</option>{recipes.map((item) => <option key={item.processing_recipe_id} value={item.processing_recipe_id}>{item.content.label} · r{item.current_revision.revision_no} · {item.content.lifecycle_state}</option>)}</select></label>
+          <label>Recipe key<input value={recipeKey} onChange={(event) => setRecipeKey(event.target.value)} /></label>
+          <label>Label<input value={recipeLabel} onChange={(event) => setRecipeLabel(event.target.value)} /></label>
+          <label>Description<input value={recipeDescription} onChange={(event) => setRecipeDescription(event.target.value)} /></label>
+          <label>Change reason<input value={recipeReason} onChange={(event) => setRecipeReason(event.target.value)} /></label>
+        </div>
+        <div className="recipe-actions"><button className="button primary" type="button" disabled={busy || !selectedProfileId || !recipeKey.trim() || !recipeLabel.trim() || !recipeReason.trim()} onClick={() => void saveRecipe()}>{selectedRecipeId ? "Append draft revision" : "Save new Recipe"}</button><button className="button secondary" type="button" disabled={busy || !recipes.some((item) => item.processing_recipe_id === selectedRecipeId && item.content.lifecycle_state === "draft")} onClick={() => void publishRecipe()}>Publish reviewed revision</button></div>
+        {selectedRecipeId ? <p className="digest-line"><span>Exact profile and Recipe content</span><code>{recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.content.mapping_profile_revision_id} · {recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.current_revision.content_hash}</code></p> : null}
       </section>
 
       <section className="processing-result-grid">

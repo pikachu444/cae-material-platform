@@ -14,6 +14,9 @@ from cmp.modules.datasets.application.viscoelastic_master import ViscoelasticDat
 from cmp.modules.processing.adapters.persistence.common_outputs import (
     SqlAlchemyCommonProcessingOutputRepository,
 )
+from cmp.modules.processing.adapters.persistence.common_recipes import (
+    SqlAlchemyCommonRecipeRepository,
+)
 from cmp.modules.processing.adapters.persistence.mapping_profiles import (
     SqlAlchemyMappingProfileRepository,
 )
@@ -25,6 +28,7 @@ from cmp.modules.processing.adapters.persistence.viscoelastic_master_curve_repos
     SqlAlchemyViscoelasticMasterRepository,
 )
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
+from cmp.modules.processing.application.common_recipes import CommonRecipeService
 from cmp.modules.processing.application.mapping_profiles import MappingProfileService
 from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.processing.application.shear_relaxation import (
@@ -83,6 +87,27 @@ def build_common_processing_output_service(
         test_data=test_data,
         profiles=profiles,
         artifacts=artifacts,
+    )
+
+
+def build_common_recipe_service(
+    identity: IdentityServices,
+    profiles: MappingProfileService | None,
+) -> CommonRecipeService | None:
+    if identity.engine is None or identity.rls_context is None or profiles is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return CommonRecipeService(
+        repository=SqlAlchemyCommonRecipeRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        profiles=profiles,
     )
 
 

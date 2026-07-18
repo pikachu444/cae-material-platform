@@ -294,6 +294,61 @@
       "properties": {
         "items": {"type": "array", "items": {"$ref": "#/$defs/ProcessingOutputResponse"}}
       }
+    },
+    "CommonRecipeContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_key", "label", "mapping_profile_id", "mapping_profile_revision_id", "mapping_profile_sha256", "steps", "lifecycle_state"],
+      "properties": {
+        "recipe_key": {"type": "string", "minLength": 1, "maxLength": 160},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000},
+        "mapping_profile_id": {"type": "string", "format": "uuid"},
+        "mapping_profile_revision_id": {"type": "string", "format": "uuid"},
+        "mapping_profile_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "steps": {
+          "type": "array", "minItems": 1, "maxItems": 32,
+          "items": {"$ref": "#/$defs/ProcessingStep"}
+        },
+        "lifecycle_state": {"enum": ["draft", "published"]}
+      }
+    },
+    "CreateCommonRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "content": {"$ref": "#/$defs/CommonRecipeContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseCommonRecipeRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/CommonRecipeContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "CommonRecipeResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["processing_recipe_id", "current_revision", "content"],
+      "properties": {
+        "processing_recipe_id": {"type": "string", "format": "uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {"$ref": "#/$defs/CommonRecipeContent"}
+      }
+    },
+    "CommonRecipeListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/CommonRecipeResponse"}}
+      }
     }
   }
 }

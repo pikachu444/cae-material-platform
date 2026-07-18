@@ -17,7 +17,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
-| Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
+| Saved Recipe library/general batch execution | T-54 increment 1: exact-profile common Recipe identity/revisions, ordered steps and draft/published Library UI; general batch remains | T-54 batch increment |
 | Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
 | Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |

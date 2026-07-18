@@ -3677,6 +3677,100 @@ paths:
               schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MethodRegistryResponse"}
         "401": {description: Authentication required.}
         "403": {description: Processing read is not authorized.}
+  /api/v1/common-processing-recipes:
+    post:
+      operationId: createCommonProcessingRecipe
+      tags: [processing-recipes]
+      summary: Create a stable reusable Recipe with an exact Mapping Profile revision and ordered versioned steps.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CreateCommonRecipeRequest"}
+      responses:
+        "201":
+          description: Stable Recipe identity and first immutable draft revision.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonRecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Recipe key or immutable scope conflicts.}
+        "422": {description: Exact Mapping Profile pin or ordered steps are invalid.}
+        "503": {description: Common Recipe store unavailable.}
+    get:
+      operationId: listCommonProcessingRecipes
+      tags: [processing-recipes]
+      summary: List visible reusable Recipe heads.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Stable Recipe identities with exact current revisions.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonRecipeListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Common Recipe store unavailable.}
+  /api/v1/common-processing-recipes/{recipe_id}:
+    get:
+      operationId: getCommonProcessingRecipe
+      tags: [processing-recipes]
+      summary: Read one current Recipe revision and its exact pins.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: recipe_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Current immutable Recipe revision.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonRecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Recipe is not visible.}
+        "503": {description: Common Recipe store unavailable.}
+  /api/v1/common-processing-recipes/{recipe_id}/revisions:
+    post:
+      operationId: reviseCommonProcessingRecipe
+      tags: [processing-recipes]
+      summary: Append a draft or published Recipe revision without overwriting an earlier revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: recipe_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: If-Match
+          in: header
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ReviseCommonRecipeRequest"}
+      responses:
+        "201":
+          description: Appended immutable Recipe revision.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommonRecipeResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Recipe is not visible.}
+        "409": {description: Immutable revision state conflicts.}
+        "412": {description: If-Match does not match the current revision.}
+        "428": {description: Strong If-Match is required.}
+        "422": {description: Recipe content or lifecycle transition is invalid.}
+        "503": {description: Common Recipe store unavailable.}
   /api/v1/processing-ensemble-methods:
     get:
       operationId: listCommonProcessingEnsembleMethods

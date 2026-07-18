@@ -69,8 +69,24 @@ Recipe/Batch 실행 결과로 저장됩니다.
 
 ![두 exact 반복시험의 정렬과 pointwise 통계](../15-demo/images/t53-processing-ensemble-statistics.png)
 
+## Processing Recipe 저장과 게시
+
+1. 저장된 exact Mapping Profile을 선택하고 ordered step JSON을 검토합니다.
+2. **Processing Recipe library**에서 Recipe key, label, 설명과 변경 사유를 입력합니다.
+3. **Save new Recipe**를 눌러 stable identity와 draft revision 1을 만듭니다.
+4. 옵션이나 순서를 변경할 때는 저장된 Recipe를 선택하고 **Append draft revision**을 누릅니다.
+5. 검토가 끝난 draft는 **Publish reviewed revision**으로 게시합니다. published revision을 직접
+   수정하지 않으며, 후속 변경은 새 draft revision으로 추가합니다.
+
+Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와 SHA-256을 고정하고,
+각 step의 method ID, version, options와 options digest를 순서대로 보존합니다. T-54 다음 increment의
+batch preflight와 실행은 이 exact Recipe revision을 입력으로 사용합니다.
+
+![exact Mapping Profile과 ordered steps를 고정한 Processing Recipe Library](../15-demo/images/t54-processing-recipe-library.png)
+
 ## 현재 경계
 
 화면의 stage overlay와 반복시험 통계는 명확히 preview로 표시됩니다. 별도의 single-curve commit은
 서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화하지만, 아직 일반
-Recipe/Batch 또는 Modeling 입력으로 승격되지는 않습니다. 이 승격과 batch 재사용은 T-54 범위입니다.
+Modeling 입력으로 승격되지는 않습니다. Recipe revision 저장/게시는 지원하며, exact input batch
+preflight·부분 실패 보존·실패 member 재실행은 T-54 후속 increment입니다.
