@@ -488,6 +488,38 @@ function DashboardPage({
     return <ConnectionRequired onOpenConnection={onOpenConnection} />;
   }
 
+  const demoMaterial = (materialClass: MaterialClass) =>
+    materials.find((material) => material.current_revision.content.material_class === materialClass);
+  const demoJourneys: Array<{
+    materialClass: MaterialClass;
+    eyebrow: string;
+    title: string;
+    description: string;
+    action: string;
+  }> = [
+    {
+      materialClass: "metal",
+      eyebrow: "Metal · elastoplastic",
+      title: "Tensile data to Abaqus and OpenRadioss",
+      description: "Inspect repeated tensile curves, processing choices, tabulated hardening IR, and two native cards.",
+      action: "Open metal journey",
+    },
+    {
+      materialClass: "polymer",
+      eyebrow: "Polymer · viscoelastic",
+      title: "Relaxation data to Prony material",
+      description: "Review temperature replicates, the master curve, two-term Prony response, and the Abaqus card.",
+      action: "Open polymer journey",
+    },
+    {
+      materialClass: "elastomer",
+      eyebrow: "Elastomer · hyper-viscoelastic",
+      title: "Multi-mode fitting to reviewed solver cards",
+      description: "Compare uniaxial, planar, biaxial and holdout curves before opening the promoted Ogden-Prony IR.",
+      action: "Open elastomer journey",
+    },
+  ];
+
   return (
     <div className="page-stack">
       <section className="hero-card">
@@ -507,6 +539,46 @@ function DashboardPage({
           <button className="button secondary" type="button" onClick={() => navigate("/materials")}>
             Browse catalog
           </button>
+        </div>
+      </section>
+      <section className="content-card guided-demo-card" aria-labelledby="guided-demo-title">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Guided product demo</p>
+            <h2 id="guided-demo-title">Choose a material family and follow the evidence.</h2>
+            <p className="muted">
+              Each synthetic journey keeps exact revisions from test data through processing, neutral model,
+              mapping report, native card, and bulk download.
+            </p>
+          </div>
+          <button className="button secondary" type="button" onClick={() => navigate("/exports")}>
+            Open bulk downloads
+          </button>
+        </div>
+        <div className="demo-journey-grid">
+          {demoJourneys.map((journey) => {
+            const material = demoMaterial(journey.materialClass);
+            return (
+              <article className={`demo-journey ${journey.materialClass}`} key={journey.materialClass}>
+                <p className="eyebrow">{journey.eyebrow}</p>
+                <h3>{journey.title}</h3>
+                <p>{journey.description}</p>
+                <button
+                  className="text-button"
+                  type="button"
+                  onClick={() =>
+                    navigate(material ? `/materials/${material.material_id}/models` : "/materials")
+                  }
+                >
+                  {journey.action}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+        <div className="demo-evidence-path" aria-label="Guided demo evidence path">
+          <span>Material</span><span>Test JSON</span><span>Recipe / fitting</span>
+          <span>Neutral IR</span><span>Solver card</span><span>Bulk ZIP</span>
         </div>
       </section>
       <section className="metrics-grid" aria-label="Catalog summary">

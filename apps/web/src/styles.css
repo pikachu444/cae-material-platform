@@ -814,6 +814,64 @@ h4 {
   line-height: 1.45;
 }
 
+.guided-demo-card {
+  overflow: hidden;
+}
+
+.demo-journey-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.demo-journey {
+  min-height: 13rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, var(--surface), var(--surface-soft));
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.demo-journey h3,
+.demo-journey p {
+  margin: 0;
+}
+
+.demo-journey .text-button {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.demo-journey.metal { border-top: 4px solid #4f6f8f; }
+.demo-journey.polymer { border-top: 4px solid #8e6a9d; }
+.demo-journey.elastomer { border-top: 4px solid #3d8a75; }
+
+.demo-evidence-path {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.demo-evidence-path span {
+  padding: 0.65rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .demo-journey-grid { grid-template-columns: 1fr; }
+  .demo-evidence-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 .revision-chip {
   display: inline-flex;
   align-items: center;
