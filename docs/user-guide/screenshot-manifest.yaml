@@ -320,3 +320,19 @@ captures:
     image: ../15-demo/images/t67-polymer-processing-evidence.png
     width: 1380
     height: 858
+  - id: polymer-recipe-batch-promotion-evidence
+    route: /materials/{demo-polymer-material-id}/models
+    workflow: published-recipe-successful-batch-output-to-ir
+    fixture: T-69 clean Compose Recipe r2, Batch attempt 1, IR 1.3.0 and exact Neutral Recipe pin
+    source_evidence: ../15-demo/evidence/t69-polymer-recipe-batch-package.md
+    image: ../15-demo/images/t69-polymer-recipe-batch-evidence.png
+    width: 1380
+    height: 1601
+  - id: polymer-recipe-batch-monitor
+    route: /datasets/processing
+    workflow: published-polymer-recipe-successful-batch-attempt-monitor
+    fixture: T-69 clean Compose polymer Prony Recipe and one succeeded exact member
+    source_evidence: ../15-demo/evidence/t69-polymer-recipe-batch-package.md
+    image: ../15-demo/images/t69-polymer-recipe-batch-monitor.png
+    width: 1415
+    height: 816

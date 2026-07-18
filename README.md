@@ -206,7 +206,9 @@ Ogden--Prony IR은 Abaqus와 OpenRadioss LAW62 card를
 3. Steel은 **Test data workflow**, Polymer/Elastomer는 **Shear-relaxation Dataset**을 엽니다.
 4. 시험 방법과 Test Run을 만든 뒤 CSV와 실제 column/unit 의미를 입력합니다.
 5. normalized curve를 확인하고 필요한 시간 구간을 processed Dataset으로 커밋합니다.
-6. 공통 Processing에서 `polymer.prony_fit_compare`를 포함한 Recipe를 실행하고 Output을 저장합니다.
+6. 공통 Processing에서 `polymer.prony_fit_compare`를 포함한 Recipe를 publish하고 Batch preflight 후
+   실행합니다. 성공한 exact Attempt의 Output이 IR `1.3.0`과 Neutral JSON의 Recipe provenance로
+   이어집니다.
 7. **Models**에서 exact Output의 selected 항수, BIC/RMSE, residual과 catalog G₀ 불일치율을 검토하고
    사례별 허용 한계와 선택 이유를 기록한 뒤 새 IR revision으로 승격합니다.
 8. **Create Neutral JSON and solver mapping**을 실행한 뒤 Abaqus mapping 상태를 확인하고 card를

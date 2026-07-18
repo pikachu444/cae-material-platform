@@ -124,11 +124,7 @@ def _ensure_catalog_binding(
         {"table_id": table_id, "text": material_code, "limit": 20},
     )
     record = next(
-        (
-            item
-            for item in _items(searched)
-            if _content(item).get("external_key") == material_code
-        ),
+        (item for item in _items(searched) if _content(item).get("external_key") == material_code),
         None,
     )
     if record is None:
@@ -155,9 +151,7 @@ def _ensure_catalog_binding(
         )
     record_id = _id(record, "record_id")
     record_revision_id = _revision_id(record)
-    binding_path = (
-        f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
-    )
+    binding_path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
     try:
         binding = api.get(binding_path)
     except DemoSeedError:
@@ -209,8 +203,7 @@ def _ensure_catalog_binding(
         node_record_id = _id(node_record, "record_id")
         node_record_revision_id = _revision_id(node_record)
         node_binding_path = (
-            f"/catalog/records/{node_record_id}/revisions/"
-            f"{node_record_revision_id}/domain-binding"
+            f"/catalog/records/{node_record_id}/revisions/{node_record_revision_id}/domain-binding"
         )
         try:
             api.get(node_binding_path)
@@ -263,9 +256,7 @@ def _ensure_catalog_binding(
         source_revision_id = _revision_id(source)
         target_id = _id(target, "record_id")
         linked = _items(
-            api.get(
-                f"/catalog/records/{source_id}/links?revision_id={source_revision_id}"
-            )
+            api.get(f"/catalog/records/{source_id}/links?revision_id={source_revision_id}")
         )
         if any(
             item.get("target", {}).get("record_id") == target_id
@@ -348,12 +339,32 @@ def _ensure_test_json(api: DemoApi) -> dict[str, str]:
                     "normalized_unit": "1",
                     "normalization": {"scale": "1", "offset": "0"},
                     "original_values": [
-                        "0", "0.0005", "0.001", "0.0015", "0.002", "0.003",
-                        "0.005", "0.01", "0.02", "0.05", "0.1", "0.15",
+                        "0",
+                        "0.0005",
+                        "0.001",
+                        "0.0015",
+                        "0.002",
+                        "0.003",
+                        "0.005",
+                        "0.01",
+                        "0.02",
+                        "0.05",
+                        "0.1",
+                        "0.15",
                     ],
                     "normalized_values": [
-                        "0", "0.0005", "0.001", "0.0015", "0.002", "0.003",
-                        "0.005", "0.01", "0.02", "0.05", "0.1", "0.15",
+                        "0",
+                        "0.0005",
+                        "0.001",
+                        "0.0015",
+                        "0.002",
+                        "0.003",
+                        "0.005",
+                        "0.01",
+                        "0.02",
+                        "0.05",
+                        "0.1",
+                        "0.15",
                     ],
                     "missing_reasons": [None] * 12,
                 },
@@ -366,14 +377,32 @@ def _ensure_test_json(api: DemoApi) -> dict[str, str]:
                     "normalized_unit": "Pa",
                     "normalization": {"scale": "1", "offset": "0"},
                     "original_values": [
-                        "0", "105000000", "210000000", "315000000", "420000000",
-                        "450000000", "480000000", "520000000", "560000000",
-                        "600000000", "620000000", "610000000",
+                        "0",
+                        "105000000",
+                        "210000000",
+                        "315000000",
+                        "420000000",
+                        "450000000",
+                        "480000000",
+                        "520000000",
+                        "560000000",
+                        "600000000",
+                        "620000000",
+                        "610000000",
                     ],
                     "normalized_values": [
-                        "0", "105000000", "210000000", "315000000", "420000000",
-                        "450000000", "480000000", "520000000", "560000000",
-                        "600000000", "620000000", "610000000",
+                        "0",
+                        "105000000",
+                        "210000000",
+                        "315000000",
+                        "420000000",
+                        "450000000",
+                        "480000000",
+                        "520000000",
+                        "560000000",
+                        "600000000",
+                        "620000000",
+                        "610000000",
                     ],
                     "missing_reasons": [None] * 12,
                 },
@@ -398,9 +427,7 @@ def _ensure_test_json(api: DemoApi) -> dict[str, str]:
     }
 
 
-def _ensure_processing_journey(
-    api: DemoApi, *, test_data: Mapping[str, str]
-) -> dict[str, str]:
+def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) -> dict[str, str]:
     profile = next(
         (
             item
@@ -740,17 +767,21 @@ def _ensure_polymer_baseline(api: DemoApi) -> str:
     )
     state_id = _id(state, "material_state_id")
     models = _items(api.get(f"/material-states/{state_id}/linear-viscoelastic-models"))
-    model = models[0] if models else api.post(
-        f"/material-states/{state_id}/linear-viscoelastic-models",
-        {
-            "property_set_revision_id": _revision_id(properties),
-            "bulk_relaxation_status": "not_characterized",
-            "terms": [
-                {"g_ratio": 0.2, "k_ratio": 0.0, "relaxation_time_s": 0.1},
-                {"g_ratio": 0.3, "k_ratio": 0.0, "relaxation_time_s": 10.0},
-            ],
-            "change_reason": "Create the public synthetic two-term Prony baseline.",
-        },
+    model = (
+        models[0]
+        if models
+        else api.post(
+            f"/material-states/{state_id}/linear-viscoelastic-models",
+            {
+                "property_set_revision_id": _revision_id(properties),
+                "bulk_relaxation_status": "not_characterized",
+                "terms": [
+                    {"g_ratio": 0.2, "k_ratio": 0.0, "relaxation_time_s": 0.1},
+                    {"g_ratio": 0.3, "k_ratio": 0.0, "relaxation_time_s": 10.0},
+                ],
+                "change_reason": "Create the public synthetic two-term Prony baseline.",
+            },
+        )
     )
     model_id = _id(model, "material_model_id")
     cards = _items(api.get(f"/linear-viscoelastic-models/{model_id}/solver-cards"))
@@ -807,8 +838,15 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
     if test_data is None:
         times = ["0.01", "0.03", "0.1", "0.3", "1", "3", "10", "30", "100"]
         moduli = [
-            "1089000000", "1050000000", "954000000", "869000000", "814000000",
-            "766000000", "678000000", "572000000", "555000000",
+            "1089000000",
+            "1050000000",
+            "954000000",
+            "869000000",
+            "814000000",
+            "766000000",
+            "678000000",
+            "572000000",
+            "555000000",
         ]
         test_data = api.post(
             "/test-data-documents",
@@ -885,8 +923,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
         (
             item
             for item in _items(api.get("/mapping-profiles"))
-            if item.get("content", {}).get("profile_key")
-            == "cmp_demo_polymer_relaxation"
+            if item.get("content", {}).get("profile_key") == "cmp_demo_polymer_relaxation"
         ),
         None,
     )
@@ -917,15 +954,6 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
             },
         )
 
-    output_label = "CMP demo reviewed Prony Processing Output"
-    output = next(
-        (
-            item
-            for item in _items(api.get("/processing-outputs"))
-            if item.get("label") == output_label
-        ),
-        None,
-    )
     steps = [
         {
             "method_id": "rows.sort_unique",
@@ -958,36 +986,115 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
             },
         },
     ]
-    if output is None:
-        output = api.post(
-            "/processing-outputs",
+    recipe = next(
+        (
+            item
+            for item in _items(api.get("/common-processing-recipes"))
+            if item.get("content", {}).get("recipe_key") == "cmp_demo_polymer_prony"
+        ),
+        None,
+    )
+    if recipe is None:
+        recipe_content = {
+            "recipe_key": "cmp_demo_polymer_prony",
+            "label": "CMP demo polymer Prony processing",
+            "description": (
+                "Reusable deterministic log-time resampling and generalized-Maxwell fitting."
+            ),
+            "mapping_profile_id": _id(profile, "mapping_profile_id"),
+            "mapping_profile_revision_id": _revision_id(profile),
+            "mapping_profile_sha256": _revision_hash(profile),
+            "steps": steps,
+            "lifecycle_state": "draft",
+        }
+        recipe = api.post(
+            "/common-processing-recipes",
             {
                 "classification": "internal",
-                "label": output_label,
-                "source_document": {
-                    "aggregate_id": _id(test_data, "test_data_document_id"),
-                    "revision_id": _revision_id(test_data),
-                },
-                "mapping_profile": {
-                    "aggregate_id": _id(profile, "mapping_profile_id"),
-                    "revision_id": _revision_id(profile),
-                },
-                "steps": steps,
-                "change_reason": "Commit reviewed synthetic Prony candidate comparison.",
+                "content": recipe_content,
+                "change_reason": "Draft the reusable synthetic polymer Prony Recipe.",
             },
         )
+        recipe_content["lifecycle_state"] = "published"
+        recipe = api.post(
+            f"/common-processing-recipes/{_id(recipe, 'processing_recipe_id')}/revisions",
+            {
+                "content": recipe_content,
+                "change_reason": "Publish the reviewed synthetic polymer Prony Recipe.",
+            },
+            headers={"If-Match": _revision_etag(recipe)},
+        )
+    batch_label = "CMP demo polymer Prony batch"
+    batch = next(
+        (
+            item
+            for item in _items(api.get("/common-processing-batches"))
+            if item.get("label") == batch_label
+            and item.get("recipe_revision_id") == _revision_id(recipe)
+        ),
+        None,
+    )
+    batch_source = {
+        "document_id": _id(test_data, "test_data_document_id"),
+        "revision_id": _revision_id(test_data),
+    }
+    if batch is None:
+        preflight = api.post(
+            "/common-processing-batches:preflight",
+            {
+                "classification": "internal",
+                "recipe_id": _id(recipe, "processing_recipe_id"),
+                "recipe_revision_id": _revision_id(recipe),
+                "sources": [batch_source],
+            },
+        )
+        if preflight.get("compatible") is not True:
+            raise DemoSeedError("polymer Processing Recipe preflight was not compatible")
+        batch = api.post(
+            "/common-processing-batches",
+            {
+                "classification": "internal",
+                "recipe_id": _id(recipe, "processing_recipe_id"),
+                "recipe_revision_id": _revision_id(recipe),
+                "sources": [batch_source],
+                "label": batch_label,
+                "change_reason": "Execute the exact published polymer Prony Recipe.",
+            },
+        )
+    if batch.get("status") != "succeeded":
+        raise DemoSeedError("polymer Processing Recipe batch did not succeed")
+    output_attempt = next(
+        (
+            item
+            for item in batch.get("attempts", [])
+            if isinstance(item, Mapping)
+            and item.get("status") == "succeeded"
+            and item.get("output_id")
+        ),
+        None,
+    )
+    if output_attempt is None:
+        raise DemoSeedError("polymer Processing Batch has no successful Output")
+    output = next(
+        (
+            item
+            for item in _items(api.get("/processing-outputs"))
+            if item.get("processing_output_id") == _id(output_attempt, "output_id")
+        ),
+        None,
+    )
+    if output is None:
+        raise DemoSeedError("polymer Batch Output is not visible")
 
     models = _items(
-        api.get(
-            f"/material-states/{_id(state, 'material_state_id')}/linear-viscoelastic-models"
-        )
+        api.get(f"/material-states/{_id(state, 'material_state_id')}/linear-viscoelastic-models")
     )
 
     def promoted_output_id(item: Mapping[str, Any]) -> object:
         evidence = _content(item).get("processing_promotion_evidence")
-        processing_output = evidence.get("processing_output") if isinstance(
-            evidence, Mapping
-        ) else None
+        processing_output = (
+            evidence.get("processing_output") if isinstance(evidence, Mapping) else None
+        )
         return processing_output.get("id") if isinstance(processing_output, Mapping) else None
 
     model = next(
@@ -1000,8 +1107,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
     )
     if model is None:
         model = api.post(
-            f"/processing-outputs/{_id(output, 'processing_output_id')}"
-            "/linear-viscoelastic-models",
+            f"/processing-outputs/{_id(output, 'processing_output_id')}/linear-viscoelastic-models",
             {
                 "material_state_id": _id(state, "material_state_id"),
                 "property_set_revision_id": _revision_id(property_set),
@@ -1047,8 +1153,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
         (
             item
             for item in cards
-            if isinstance(item.get("target"), Mapping)
-            and item["target"].get("solver") == "abaqus"
+            if isinstance(item.get("target"), Mapping) and item["target"].get("solver") == "abaqus"
         ),
         None,
     )
@@ -1105,13 +1210,13 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
         )
     return {
         "polymer_test_data_document_id": _id(test_data, "test_data_document_id"),
+        "polymer_processing_recipe_id": _id(recipe, "processing_recipe_id"),
+        "polymer_processing_batch_id": _id(batch, "batch_id"),
         "polymer_processing_output_id": _id(output, "processing_output_id"),
         "polymer_processing_model_id": _id(model, "material_model_id"),
         "polymer_processing_neutral_id": neutral_id,
         "polymer_processing_card_id": _id(abaqus_card, "solver_card_id"),
-        "polymer_processing_openradioss_card_id": _id(
-            openradioss_card, "solver_card_id"
-        ),
+        "polymer_processing_openradioss_card_id": _id(openradioss_card, "solver_card_id"),
     }
 
 
@@ -1134,18 +1239,22 @@ def _ensure_elastomer_baseline(api: DemoApi) -> str:
     )
     state_id = _id(state, "material_state_id")
     models = _items(api.get(f"/material-states/{state_id}/ogden-prony-models"))
-    model = models[0] if models else api.post(
-        f"/material-states/{state_id}/ogden-prony-models",
-        {
-            "property_set_revision_id": _revision_id(properties),
-            "ogden_mu_pa": 2_000_000.0,
-            "ogden_alpha": 2.0,
-            "prony_terms": [
-                {"g_ratio": 0.15, "relaxation_time_s": 0.2},
-                {"g_ratio": 0.25, "relaxation_time_s": 8.0},
-            ],
-            "change_reason": "Create the public synthetic Ogden-Prony baseline.",
-        },
+    model = (
+        models[0]
+        if models
+        else api.post(
+            f"/material-states/{state_id}/ogden-prony-models",
+            {
+                "property_set_revision_id": _revision_id(properties),
+                "ogden_mu_pa": 2_000_000.0,
+                "ogden_alpha": 2.0,
+                "prony_terms": [
+                    {"g_ratio": 0.15, "relaxation_time_s": 0.2},
+                    {"g_ratio": 0.25, "relaxation_time_s": 8.0},
+                ],
+                "change_reason": "Create the public synthetic Ogden-Prony baseline.",
+            },
+        )
     )
     model_id = _id(model, "material_model_id")
     existing = _items(api.get(f"/ogden-prony-models/{model_id}/solver-cards"))
@@ -1188,9 +1297,7 @@ def _ensure_metal_neutral_and_cards(
         raise DemoSeedError("clean demo metal Material has no State")
     state = states[0]
     models = _items(
-        api.get(
-            f"/material-states/{_id(state, 'material_state_id')}/tabulated-plasticity-models"
-        )
+        api.get(f"/material-states/{_id(state, 'material_state_id')}/tabulated-plasticity-models")
     )
     model = next(
         (item for item in models if _content(item).get("processing_projection") is not None),
@@ -1290,9 +1397,7 @@ def _ensure_metal_neutral_and_cards(
                 {
                     "neutral_material_revision_id": neutral_revision_id,
                     "target": target,
-                    "expected_mapping_report_sha256": _id(
-                        report, "mapping_report_sha256"
-                    ),
+                    "expected_mapping_report_sha256": _id(report, "mapping_report_sha256"),
                     "solver_material_id": solver_material_id,
                     "material_name": "CMP_DEMO_DP780_NEUTRAL",
                     "change_reason": (
@@ -1305,8 +1410,12 @@ def _ensure_metal_neutral_and_cards(
     return result
 
 
-def _ensure_bulk_bundle(api: DemoApi, *, material_id: str) -> dict[str, str]:
-    selection_label = "CMP clean demo complete governed transfer"
+def _ensure_bulk_bundle(
+    api: DemoApi,
+    *,
+    material_id: str,
+    selection_label: str = "CMP clean demo complete governed transfer",
+) -> dict[str, str]:
     jobs = _items(api.get("/export-jobs"))
     for job in jobs:
         selection_id = job.get("export_selection_id")
@@ -1366,9 +1475,7 @@ def _ensure_bulk_bundle(api: DemoApi, *, material_id: str) -> dict[str, str]:
             "change_reason": "Pin every exact clean-demo exchange representation.",
         },
     )
-    job = api.post(
-        "/export-jobs", {"export_selection_id": _id(selection, "export_selection_id")}
-    )
+    job = api.post("/export-jobs", {"export_selection_id": _id(selection, "export_selection_id")})
     for _ in range(60):
         if job.get("state") in {"succeeded", "failed"}:
             break
@@ -1499,6 +1606,12 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         ),
     )
     bulk = _ensure_bulk_bundle(api, material_id=metal_id)
+    polymer_bulk_source = _ensure_bulk_bundle(
+        api,
+        material_id=polymer_id,
+        selection_label="CMP polymer Recipe to dual-solver governed transfer",
+    )
+    polymer_bulk = {f"polymer_{key}": value for key, value in polymer_bulk_source.items()}
     return {
         "metal_material_id": metal_id,
         "polymer_material_id": polymer_id,
@@ -1508,6 +1621,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         **processing,
         **neutral,
         **bulk,
+        **polymer_bulk,
         **polymer_processing,
     }
 

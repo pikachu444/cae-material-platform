@@ -17,8 +17,9 @@
 
 ## 공통 Processing Output을 모델과 카드로 승격
 
-1. **Processing**에서 마지막 step이 `polymer.prony_fit_compare`인 preview를 확인하고 Output으로
-   저장합니다. preview 상태만으로는 모델을 만들 수 없습니다.
+1. **Processing**에서 마지막 step이 `polymer.prony_fit_compare`인 pipeline을 Recipe draft로
+   저장하고 publish합니다. exact Test JSON을 선택해 Batch preflight 후 실행합니다. preview나
+   Recipe draft 상태만으로는 모델을 만들 수 없습니다.
 2. Material의 **Models** 탭에서 **Reviewed Processing Promotion**의 **Exact Processing Output**을
    선택합니다. Output revision과 Artifact digest가 고정되며 서버가 selected 항과 수치를 다시
    읽습니다.
@@ -28,19 +29,26 @@
    적용되는 silent default가 아니라 사용자가 기록하는 engineering review 결정입니다.
 5. review 확인란을 선택하고 **Promote exact Processing Output**을 누릅니다. client가 임의의
    Prony coefficient를 전송해 저장된 Output을 바꿀 수 없습니다.
-6. **Saved Material Model IR**에서 exact Output revision, selected 항수, RMSE와 G₀ mismatch를
-   다시 확인합니다.
+6. **Saved Material Model IR**에서 exact published Recipe revision, 성공한 Batch Attempt, Output
+   revision, selected 항수, RMSE와 G₀ mismatch를 확인합니다. 링크로 Recipe Library/Batch Monitor로
+   돌아갈 수 있습니다. 과거 direct Output은 Recipe evidence가 없다고 명시됩니다.
 7. **Create Neutral JSON and solver mapping**을 누른 뒤 Abaqus 2025 preflight를 실행하고
    `*VISCOELASTIC, TIME=PRONY` preview와 `.inp`를 내려받습니다. `0.49 <= nu < 0.5`이며 bulk
    relaxation이 미특성화되고 모든 `k_ratio=0`이면 OpenRadioss 2025도 선택할 수 있습니다.
    이 경우 `/PROP I_smstr=10/12` 요구와 shear-only 근사를 확인한 뒤 `/VISC/LPRONY` `.rad`를
    내려받습니다.
+8. **Exports**에서 같은 Material의 Test JSON, Mapping Profile, Processing Recipe, Neutral JSON,
+   두 solver mapping report와 native card를 선택해 checksum ZIP으로 내려받습니다.
 
 ![검토할 exact Processing Output과 사례별 G0 한계](../15-demo/images/t67-polymer-processing-promotion.png)
 
 ![조건부 OpenRadioss LPRONY mapping 확인과 native preview](../15-demo/images/t68-openradioss-lprony.png)
 
 ![승격된 3항 IR의 선택 근거와 완화 응답](../15-demo/images/t67-polymer-processing-evidence.png)
+
+![저장된 Recipe revision과 성공한 Batch Attempt evidence](../15-demo/images/t69-polymer-recipe-batch-evidence.png)
+
+![Processing Workbench의 성공한 polymer Batch](../15-demo/images/t69-polymer-recipe-batch-monitor.png)
 
 이 경로는 1~10항 공통 Recipe Output을 새 stable Material Model identity의 revision 1로 만듭니다.
 아래 기존 bounded two-term Candidate 경로는 과거 자료와 별도의 multistart 진단을 위해 유지되며,

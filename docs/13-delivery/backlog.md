@@ -1587,3 +1587,17 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   Neutral revision을 다시 열어 중복 promotion 없이 preflight를 계속한다. Clean Compose seed와
   protected verifier가 같은 Neutral revision의 Abaqus/OpenRadioss 다운로드 SHA-256을 확인했고,
   browser capture는 approximation 확인과 native preview를 검증했다.
+
+#### T-69. Saved polymer Recipe/Batch to dual-solver package — `P0`
+
+- **상태 (`2026-07-19`):** `implemented` and verified.
+- **범위:** published polymer Processing Recipe를 exact Test JSON에 Batch 실행하고, 성공한 Attempt의
+  Output을 reviewed generalized-Maxwell IR, Neutral JSON, Abaqus/OpenRadioss 카드와 Bulk ZIP으로
+  연결한다.
+- **완료 조건:** IR `1.3.0`이 exact Recipe digest와 Batch/Member/Attempt/Output revision을 고정하고,
+  Neutral JSON이 `processing_recipe=exact_revision`을 제공한다. clean seed/verifier는 같은 Recipe의
+  JSON, Neutral, 두 mapping report/card가 들어간 checksum package를 검증한다.
+- **DB/API/UI:** migration 080의 typed nullable origin columns/all-or-none FK/validation trigger,
+  Processing-owned origin resolver, connected polymer evidence panel과 Recipe/Batch monitor link.
+- **테스트:** domain invariants, migration, PostgreSQL exact origin, React, clean Compose seed/verifier,
+  browser screenshot, full `make ci`.

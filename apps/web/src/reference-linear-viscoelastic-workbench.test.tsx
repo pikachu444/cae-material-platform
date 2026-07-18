@@ -201,10 +201,10 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
       ...model,
       current_revision: {
         ...model.current_revision,
-        schema_version: "1.2.0",
+        schema_version: "1.3.0",
         content: {
           ...model.current_revision.content,
-          model_schema_version: "1.2.0",
+          model_schema_version: "1.3.0",
           processing_promotion_evidence: {
             processing_output: {
               id: outputId,
@@ -221,6 +221,17 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
             catalog_instantaneous_shear_modulus_pa: 1_111_111_111,
             instantaneous_modulus_relative_mismatch: 0.01,
             acknowledged_maximum_relative_mismatch: 0.05,
+            recipe_batch: {
+              processing_recipe: {
+                id: "b1000000-0000-4000-8000-000000000012",
+                revision_id: "b1000000-0000-4000-8000-000000000013",
+                sha256: "e".repeat(64),
+              },
+              processing_batch_id: "b1000000-0000-4000-8000-000000000014",
+              batch_member_id: "b1000000-0000-4000-8000-000000000015",
+              batch_attempt_id: "b1000000-0000-4000-8000-000000000016",
+              batch_attempt_no: 1,
+            },
           },
         },
       },
@@ -327,6 +338,14 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: "Promote exact Processing Output" }));
     expect(await screen.findByText("automatic_bic")).toBeTruthy();
+    expect(await screen.findByText("Published Recipe revision")).toBeTruthy();
+    expect(
+      (
+        await screen.findByRole("link", {
+          name: "Open Recipe library and Batch monitor",
+        })
+      ).getAttribute("href"),
+    ).toBe("/datasets/processing");
     fireEvent.click(screen.getByRole("button", { name: "Create Neutral JSON and solver mapping" }));
     expect(await screen.findByText("Solver target")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(

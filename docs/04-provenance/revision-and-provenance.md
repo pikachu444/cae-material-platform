@@ -12,6 +12,14 @@
 
 예를 들어 metadata 오타 수정은 content revision이고, raw curve를 smoothing한 것은 derivation이며, 사용자가 수정 API를 호출한 사실은 audit event다. 세 이력은 연결되지만 대체 관계가 아니다.
 
+### 1.1 Recipe/Batch 실행 결과의 모델 승격
+
+성공한 common Processing Batch Attempt가 exact Output revision과 published Recipe revision 사이의
+authoritative relation이다. Modeling은 Output head나 Recipe head를 추측하지 않고 이 Attempt를
+역조회하여 Recipe digest, Batch, Member, Attempt와 Output revision을 한 evidence로 고정한다.
+Recipe 없이 직접 commit된 과거 Output은 덮어쓰지 않으며 `processing_recipe=not_applicable`로
+남는다. Recipe 기반 Output만 Neutral JSON에서 `processing_recipe=exact_revision`을 주장할 수 있다.
+
 ## 2. W3C PROV의 선택적 적용
 
 W3C PROV-DM은 provenance를 domain-agnostic한 Entity, Activity, Agent와 관계로 정의한다. 이 설계는 그 의미론을 따르되 RDF/OWL 저장이나 graph DB를 요구하지 않는다. [W3C PROV-DM](https://www.w3.org/TR/prov-dm/)

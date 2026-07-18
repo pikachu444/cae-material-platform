@@ -512,6 +512,12 @@ survive another member's failure. Retry targets failed members with the same pin
 an attempt rather than overwriting a result. Deterministic methods must reproduce within their
 declared numeric tolerance.
 
+For polymer Recipe batches, the successful Attempt is the authoritative execution edge. Promotion
+resolves the exact Output revision back to its published Recipe, persists the Batch/Member/Attempt
+identity in IR evidence, and exports the Recipe as an exact Neutral source. A direct Output may not
+claim that evidence. Batch retry appends a new Attempt; promotion pins the particular successful
+attempt that produced the selected Output.
+
 Family-specific methods use the same registry and run contract:
 
 - metal: multiple elastic-modulus/proof-stress methods, explicit engineering/true conversion,

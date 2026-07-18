@@ -60,6 +60,7 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
 )
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
+    REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
     BulkRelaxationStatus,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
@@ -617,7 +618,7 @@ def _linear_source(source: NeutralMaterialDocument) -> ReferenceLinearViscoelast
         reference_temperature_k=ir.reference_temperature_k,
         processing_promotion_evidence=processing_evidence,
         model_schema_digest=(
-            ir.model_schema_digest
+            REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
             if processing_evidence is not None
             else REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
         ),

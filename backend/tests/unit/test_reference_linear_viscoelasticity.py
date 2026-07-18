@@ -5,12 +5,14 @@ import pytest
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
     REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
+    REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
     BulkRelaxationStatus,
     InvalidLinearViscoelasticModel,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
     ReferencePronyProcessingEvidence,
     ReferencePronyPromotionEvidence,
+    ReferenceRecipeBatchEvidence,
     evaluate_relaxation,
     reference_linear_viscoelastic_canonical,
 )
@@ -43,7 +45,9 @@ def _content(
         terms=terms,
         processing_promotion_evidence=processing_evidence,
         model_schema_digest=(
-            REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+            REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+            if processing_evidence is not None and processing_evidence.recipe_batch is not None
+            else REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
             if processing_evidence is not None
             else REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
         ),
@@ -138,6 +142,15 @@ def test_processing_promoted_ir_supports_ten_terms_and_pins_exact_evidence() -> 
         catalog_instantaneous_shear_modulus_pa=1_111_111_111.0,
         instantaneous_modulus_relative_mismatch=0.01,
         acknowledged_maximum_relative_mismatch=0.05,
+        recipe_batch=ReferenceRecipeBatchEvidence(
+            recipe_id=_id(26),
+            recipe_revision_id=_id(27),
+            recipe_sha256="d" * 64,
+            batch_id=_id(28),
+            batch_member_id=_id(29),
+            batch_attempt_id=_id(30),
+            batch_attempt_no=1,
+        ),
     )
     content = _content(terms=terms, processing_evidence=evidence)
 
@@ -151,6 +164,17 @@ def test_processing_promoted_ir_supports_ten_terms_and_pins_exact_evidence() -> 
     assert processing["processing_output"]["revision_id"] == str(_id(21))
     assert processing["selected_term_count"] == 10
     assert processing["bic"] == -41.5
+    recipe_batch = processing["recipe_batch"]
+    assert isinstance(recipe_batch, dict)
+    assert recipe_batch["processing_recipe"]["revision_id"] == str(_id(27))
+    assert recipe_batch["batch_attempt_no"] == 1
+
+
+def test_recipe_batch_evidence_rejects_invalid_digest_and_attempt_number() -> None:
+    with pytest.raises(InvalidLinearViscoelasticModel, match="recipe_sha256"):
+        ReferenceRecipeBatchEvidence(_id(1), _id(2), "invalid", _id(3), _id(4), _id(5), 1)
+    with pytest.raises(InvalidLinearViscoelasticModel, match="attempt_no"):
+        ReferenceRecipeBatchEvidence(_id(1), _id(2), "a" * 64, _id(3), _id(4), _id(5), 0)
 
 
 def test_manual_ir_cannot_claim_processing_term_limit_or_mixed_evidence() -> None:

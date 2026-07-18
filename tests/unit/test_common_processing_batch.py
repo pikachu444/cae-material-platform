@@ -20,6 +20,7 @@ from cmp.modules.processing.application.common_batches import (
     CommonBatchRepository,
     CommonBatchService,
     ExecuteBatch,
+    ProcessingExecutionOrigin,
 )
 from cmp.modules.processing.application.common_outputs import ProcessingOutputPreflight
 from cmp.modules.processing.application.common_recipes import (
@@ -146,9 +147,7 @@ class _Outputs:
         if command.source_document.aggregate_id == SOURCE_TWO.document_id and not self.failed_once:
             self.failed_once = True
             raise RuntimeError("reference member failure")
-        return SimpleNamespace(
-            id=uuid4(), current=SimpleNamespace(revision_id=uuid4())
-        )
+        return SimpleNamespace(id=uuid4(), current=SimpleNamespace(revision_id=uuid4()))
 
 
 class _IncompatibleOutputs(_Outputs):
@@ -186,6 +185,27 @@ class _Repository(CommonBatchRepository):
     def list_batches(self, **_: Any) -> tuple[CommonProcessingBatch, ...]:
         return (self.batch,) if self.batch else ()
 
+    def find_execution_origin(self, **values: Any) -> ProcessingExecutionOrigin | None:
+        if self.batch is None:
+            return None
+        for attempt in self.batch.attempts:
+            if (
+                attempt.status is BatchAttemptStatus.SUCCEEDED
+                and attempt.output is not None
+                and attempt.output.aggregate_id == values["output_id"]
+                and attempt.output.revision_id == values["output_revision_id"]
+            ):
+                return ProcessingExecutionOrigin(
+                    recipe_id=self.batch.recipe.aggregate_id,
+                    recipe_revision_id=self.batch.recipe.revision_id,
+                    recipe_sha256=self.batch.recipe_sha256,
+                    batch_id=self.batch.batch_id,
+                    member_id=attempt.member_id,
+                    attempt_id=attempt.attempt_id,
+                    attempt_no=attempt.attempt_no,
+                )
+        return None
+
 
 def test_batch_preserves_success_and_retries_only_failed_member() -> None:
     async def scenario() -> None:
@@ -215,6 +235,14 @@ def test_batch_preserves_success_and_retries_only_failed_member() -> None:
             BatchAttemptStatus.FAILED,
         ]
         first_output = batch.attempts[0].output
+        assert first_output is not None
+        origin = repository.find_execution_origin(
+            output_id=first_output.aggregate_id,
+            output_revision_id=first_output.revision_id,
+        )
+        assert origin is not None
+        assert origin.recipe_revision_id == RECIPE_REVISION
+        assert origin.attempt_id == batch.attempts[0].attempt_id
 
         retried = await service.retry_failed(CONTEXT, DECISION, batch.batch_id)
         assert retried.status is BatchStatus.SUCCEEDED

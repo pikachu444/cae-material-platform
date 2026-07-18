@@ -30,6 +30,7 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     ReferenceLinearViscoelasticContent,
     ReferencePronyProcessingEvidence,
     ReferencePronyPromotionEvidence,
+    ReferenceRecipeBatchEvidence,
     reference_linear_viscoelastic_canonical,
 )
 from cmp.shared.adapters.persistence.revisions import (
@@ -92,6 +93,13 @@ linear_viscoelastic_processing_evidence_table = sa.Table(
     sa.Column("catalog_instantaneous_shear_modulus_pa", sa.Double(), nullable=False),
     sa.Column("instantaneous_modulus_relative_mismatch", sa.Double(), nullable=False),
     sa.Column("acknowledged_maximum_relative_mismatch", sa.Double(), nullable=False),
+    sa.Column("processing_recipe_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_recipe_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_recipe_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("processing_batch_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_batch_member_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_batch_attempt_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_batch_attempt_no", sa.Integer(), nullable=True),
     schema="modeling",
 )
 
@@ -158,9 +166,7 @@ def _content_values(content: ReferenceLinearViscoelasticContent) -> dict[str, An
         "prony_selection_revision_id": (
             evidence.selection_revision_id if evidence is not None else None
         ),
-        "prony_calibration_run_id": (
-            evidence.calibration_run_id if evidence is not None else None
-        ),
+        "prony_calibration_run_id": (evidence.calibration_run_id if evidence is not None else None),
         "prony_calibration_candidate_id": (
             evidence.calibration_candidate_id if evidence is not None else None
         ),
@@ -170,9 +176,7 @@ def _content_values(content: ReferenceLinearViscoelasticContent) -> dict[str, An
         "prony_diagnostics_artifact_id": (
             evidence.diagnostics_artifact_id if evidence is not None else None
         ),
-        "prony_diagnostics_sha256": (
-            evidence.diagnostics_sha256 if evidence is not None else None
-        ),
+        "prony_diagnostics_sha256": (evidence.diagnostics_sha256 if evidence is not None else None),
         "non_production": True,
     }
 
@@ -248,6 +252,27 @@ def _write_terms(
                 ),
                 acknowledged_maximum_relative_mismatch=(
                     evidence.acknowledged_maximum_relative_mismatch
+                ),
+                processing_recipe_id=(
+                    evidence.recipe_batch.recipe_id if evidence.recipe_batch else None
+                ),
+                processing_recipe_revision_id=(
+                    evidence.recipe_batch.recipe_revision_id if evidence.recipe_batch else None
+                ),
+                processing_recipe_sha256=(
+                    evidence.recipe_batch.recipe_sha256 if evidence.recipe_batch else None
+                ),
+                processing_batch_id=(
+                    evidence.recipe_batch.batch_id if evidence.recipe_batch else None
+                ),
+                processing_batch_member_id=(
+                    evidence.recipe_batch.batch_member_id if evidence.recipe_batch else None
+                ),
+                processing_batch_attempt_id=(
+                    evidence.recipe_batch.batch_attempt_id if evidence.recipe_batch else None
+                ),
+                processing_batch_attempt_no=(
+                    evidence.recipe_batch.batch_attempt_no if evidence.recipe_batch else None
                 ),
             )
         )
@@ -373,9 +398,7 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
         self._rls.bind_authorization(session, context, decision)
 
     @contextmanager
-    def _session(
-        self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> Any:
+    def _session(self, context: SecurityContext, decision: AuthorizationDecision) -> Any:
         with self._sessions() as session, session.begin():
             self._bind(session, context, decision)
             yield session
@@ -454,11 +477,9 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
                 linear_viscoelastic_prony_term_table.c.relaxation_time_s,
             )
             .where(
-                linear_viscoelastic_prony_term_table.c.organization_id
-                == row["organization_id"],
+                linear_viscoelastic_prony_term_table.c.organization_id == row["organization_id"],
                 linear_viscoelastic_prony_term_table.c.project_id == row["project_id"],
-                linear_viscoelastic_prony_term_table.c.material_model_id
-                == row["aggregate_id"],
+                linear_viscoelastic_prony_term_table.c.material_model_id == row["aggregate_id"],
                 linear_viscoelastic_prony_term_table.c.material_model_revision_id == row["id"],
             )
             .order_by(linear_viscoelastic_prony_term_table.c.ordinal)
@@ -473,20 +494,22 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
         )
 
     @staticmethod
-    def _processing_evidence(
-        session: Session, row: Any
-    ) -> ReferencePronyProcessingEvidence | None:
-        value = session.execute(
-            sa.select(linear_viscoelastic_processing_evidence_table).where(
-                linear_viscoelastic_processing_evidence_table.c.organization_id
-                == row["organization_id"],
-                linear_viscoelastic_processing_evidence_table.c.project_id == row["project_id"],
-                linear_viscoelastic_processing_evidence_table.c.material_model_id
-                == row["aggregate_id"],
-                linear_viscoelastic_processing_evidence_table.c.material_model_revision_id
-                == row["id"],
+    def _processing_evidence(session: Session, row: Any) -> ReferencePronyProcessingEvidence | None:
+        value = (
+            session.execute(
+                sa.select(linear_viscoelastic_processing_evidence_table).where(
+                    linear_viscoelastic_processing_evidence_table.c.organization_id
+                    == row["organization_id"],
+                    linear_viscoelastic_processing_evidence_table.c.project_id == row["project_id"],
+                    linear_viscoelastic_processing_evidence_table.c.material_model_id
+                    == row["aggregate_id"],
+                    linear_viscoelastic_processing_evidence_table.c.material_model_revision_id
+                    == row["id"],
+                )
             )
-        ).mappings().one_or_none()
+            .mappings()
+            .one_or_none()
+        )
         if value is None:
             return None
         return ReferencePronyProcessingEvidence(
@@ -512,6 +535,19 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
             ),
             acknowledged_maximum_relative_mismatch=float(
                 value["acknowledged_maximum_relative_mismatch"]
+            ),
+            recipe_batch=(
+                ReferenceRecipeBatchEvidence(
+                    recipe_id=cast(UUID, value["processing_recipe_id"]),
+                    recipe_revision_id=cast(UUID, value["processing_recipe_revision_id"]),
+                    recipe_sha256=str(value["processing_recipe_sha256"]),
+                    batch_id=cast(UUID, value["processing_batch_id"]),
+                    batch_member_id=cast(UUID, value["processing_batch_member_id"]),
+                    batch_attempt_id=cast(UUID, value["processing_batch_attempt_id"]),
+                    batch_attempt_no=int(value["processing_batch_attempt_no"]),
+                )
+                if value["processing_recipe_id"] is not None
+                else None
             ),
         )
 

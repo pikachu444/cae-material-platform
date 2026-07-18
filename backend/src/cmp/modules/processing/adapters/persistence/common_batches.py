@@ -14,6 +14,7 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.common_batches import (
     CommonBatchNotFound,
     CommonBatchRepository,
+    ProcessingExecutionOrigin,
 )
 from cmp.modules.processing.domain.common_batches import (
     BatchAttempt,
@@ -287,3 +288,55 @@ class SqlAlchemyCommonBatchRepository(CommonBatchRepository):
                 .all()
             )
             return tuple(self._hydrate(session, row) for row in rows)
+
+    def find_execution_origin(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+    ) -> ProcessingExecutionOrigin | None:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(
+                        batch_table.c.recipe_id,
+                        batch_table.c.recipe_revision_id,
+                        batch_table.c.recipe_sha256,
+                        batch_table.c.id.label("batch_id"),
+                        attempt_table.c.member_id,
+                        attempt_table.c.id.label("attempt_id"),
+                        attempt_table.c.attempt_no,
+                    )
+                    .select_from(
+                        attempt_table.join(
+                            batch_table,
+                            sa.and_(
+                                batch_table.c.organization_id == attempt_table.c.organization_id,
+                                batch_table.c.project_id == attempt_table.c.project_id,
+                                batch_table.c.classification == attempt_table.c.classification,
+                                batch_table.c.id == attempt_table.c.batch_id,
+                            ),
+                        )
+                    )
+                    .where(
+                        attempt_table.c.output_id == output_id,
+                        attempt_table.c.output_revision_id == output_revision_id,
+                        attempt_table.c.status == BatchAttemptStatus.SUCCEEDED.value,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                return None
+            return ProcessingExecutionOrigin(
+                recipe_id=cast(UUID, row["recipe_id"]),
+                recipe_revision_id=cast(UUID, row["recipe_revision_id"]),
+                recipe_sha256=str(row["recipe_sha256"]),
+                batch_id=cast(UUID, row["batch_id"]),
+                member_id=cast(UUID, row["member_id"]),
+                attempt_id=cast(UUID, row["attempt_id"]),
+                attempt_no=int(row["attempt_no"]),
+            )

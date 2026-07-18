@@ -25,6 +25,10 @@ REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID = (
     "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.2.0"
 )
 REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION = "1.2.0"
+REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID = (
+    "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.3.0"
+)
+REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION = "1.3.0"
 
 _SCHEMA_DOCUMENT = {
     "family": REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID,
@@ -45,7 +49,15 @@ _PROCESSING_SCHEMA_DOCUMENT = {
     "promotion_evidence": "exact_polymer_processing_output",
 }
 REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST = hashlib.sha256(
-    json.dumps(_PROCESSING_SCHEMA_DOCUMENT, sort_keys=True, separators=(",", ":")).encode(
+    json.dumps(_PROCESSING_SCHEMA_DOCUMENT, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()
+_RECIPE_PROCESSING_SCHEMA_DOCUMENT = {
+    **_PROCESSING_SCHEMA_DOCUMENT,
+    "version": REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+    "promotion_evidence": "exact_recipe_batch_processing_output",
+}
+REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST = hashlib.sha256(
+    json.dumps(_RECIPE_PROCESSING_SCHEMA_DOCUMENT, sort_keys=True, separators=(",", ":")).encode(
         "utf-8"
     )
 ).hexdigest()
@@ -98,6 +110,33 @@ class ReferencePronyPromotionEvidence:
 
 
 @dataclass(frozen=True, slots=True)
+class ReferenceRecipeBatchEvidence:
+    recipe_id: UUID
+    recipe_revision_id: UUID
+    recipe_sha256: str
+    batch_id: UUID
+    batch_member_id: UUID
+    batch_attempt_id: UUID
+    batch_attempt_no: int
+
+    def __post_init__(self) -> None:
+        for name in (
+            "recipe_id",
+            "recipe_revision_id",
+            "batch_id",
+            "batch_member_id",
+            "batch_attempt_id",
+        ):
+            _nonzero(name, getattr(self, name))
+        if len(self.recipe_sha256) != 64 or any(
+            char not in "0123456789abcdef" for char in self.recipe_sha256
+        ):
+            raise InvalidLinearViscoelasticModel("recipe_sha256 must be lowercase SHA-256")
+        if self.batch_attempt_no < 1:
+            raise InvalidLinearViscoelasticModel("batch_attempt_no must be positive")
+
+
+@dataclass(frozen=True, slots=True)
 class ReferencePronyProcessingEvidence:
     processing_output_id: UUID
     processing_output_revision_id: UUID
@@ -114,6 +153,7 @@ class ReferencePronyProcessingEvidence:
     catalog_instantaneous_shear_modulus_pa: float
     instantaneous_modulus_relative_mismatch: float
     acknowledged_maximum_relative_mismatch: float
+    recipe_batch: ReferenceRecipeBatchEvidence | None = None
 
     def __post_init__(self) -> None:
         for name in (
@@ -260,27 +300,23 @@ class ReferenceLinearViscoelasticContent:
             raise InvalidLinearViscoelasticModel(
                 "at least one Prony ratio must be greater than zero"
             )
-        if (
-            self.bulk_relaxation_status is BulkRelaxationStatus.NOT_CHARACTERIZED
-            and bulk_sum != 0
-        ):
+        if self.bulk_relaxation_status is BulkRelaxationStatus.NOT_CHARACTERIZED and bulk_sum != 0:
             raise InvalidLinearViscoelasticModel(
                 "not_characterized bulk relaxation requires explicit zero k ratios"
             )
-        if (
-            self.bulk_relaxation_status is BulkRelaxationStatus.CHARACTERIZED
-            and bulk_sum == 0
-        ):
+        if self.bulk_relaxation_status is BulkRelaxationStatus.CHARACTERIZED and bulk_sum == 0:
             raise InvalidLinearViscoelasticModel(
                 "characterized bulk relaxation requires at least one positive k ratio"
             )
         if self.model_family_id != REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID:
             raise InvalidLinearViscoelasticModel("unexpected linear-viscoelastic model family")
-        expected_digest = (
-            REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
-            if self.processing_promotion_evidence is not None
-            else REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
-        )
+        expected_digest = REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+        if self.processing_promotion_evidence is not None:
+            expected_digest = (
+                REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+                if self.processing_promotion_evidence.recipe_batch is not None
+                else REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+            )
         if self.model_schema_digest != expected_digest:
             raise InvalidLinearViscoelasticModel("unexpected linear-viscoelastic schema digest")
         if self.elastic_moduli_convention != "instantaneous":
@@ -322,16 +358,12 @@ def evaluate_relaxation(
             )
         previous = time_s
         shear_factor = shear_long + sum(
-            term.g_ratio * math.exp(-time_s / term.relaxation_time_s)
-            for term in content.terms
+            term.g_ratio * math.exp(-time_s / term.relaxation_time_s) for term in content.terms
         )
         bulk_factor = bulk_long + sum(
-            term.k_ratio * math.exp(-time_s / term.relaxation_time_s)
-            for term in content.terms
+            term.k_ratio * math.exp(-time_s / term.relaxation_time_s) for term in content.terms
         )
-        result.append(
-            LinearViscoelasticResponsePoint(time_s, g0 * shear_factor, k0 * bulk_factor)
-        )
+        result.append(LinearViscoelasticResponsePoint(time_s, g0 * shear_factor, k0 * bulk_factor))
     return tuple(result)
 
 
@@ -384,7 +416,7 @@ def reference_linear_viscoelastic_canonical(
         }
     if content.processing_promotion_evidence is not None:
         processing_evidence = content.processing_promotion_evidence
-        result["processing_promotion_evidence"] = {
+        processing_result: dict[str, object] = {
             "processing_output": {
                 "id": str(processing_evidence.processing_output_id),
                 "revision_id": str(processing_evidence.processing_output_revision_id),
@@ -415,4 +447,18 @@ def reference_linear_viscoelastic_canonical(
                 processing_evidence.acknowledged_maximum_relative_mismatch
             ),
         }
+        if processing_evidence.recipe_batch is not None:
+            origin = processing_evidence.recipe_batch
+            processing_result["recipe_batch"] = {
+                "processing_recipe": {
+                    "id": str(origin.recipe_id),
+                    "revision_id": str(origin.recipe_revision_id),
+                    "sha256": origin.recipe_sha256,
+                },
+                "processing_batch_id": str(origin.batch_id),
+                "batch_member_id": str(origin.batch_member_id),
+                "batch_attempt_id": str(origin.batch_attempt_id),
+                "batch_attempt_no": origin.batch_attempt_no,
+            }
+        result["processing_promotion_evidence"] = processing_result
     return result

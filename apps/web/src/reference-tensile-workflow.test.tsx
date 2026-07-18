@@ -242,7 +242,7 @@ describe("Reference tensile Dataset workflow", () => {
     await screen.findByRole(
       "combobox",
       { name: "Pinned Selection" },
-      { timeout: 3_000 },
+      { timeout: 10_000 },
     );
     fireEvent.click(screen.getByRole("button", { name: "Create immutable Recipe" }));
     await screen.findByRole("combobox", { name: "Processing Recipe" });

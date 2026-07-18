@@ -82,6 +82,7 @@ from cmp.modules.modeling.application.voce_calibration import (
 from cmp.modules.modeling.application.voce_candidate_projection import (
     VoceCandidateProjectionService,
 )
+from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
@@ -114,6 +115,7 @@ def build_linear_viscoelastic_model_service(
     identity: IdentityServices,
     material_models: MaterialModelService | None,
     processing_outputs: CommonProcessingOutputService | None = None,
+    processing_batches: CommonBatchService | None = None,
 ) -> LinearViscoelasticModelService | None:
     """Compose manual polymer/elastomer Prony IR creation over shared revision hooks."""
 
@@ -132,6 +134,7 @@ def build_linear_viscoelastic_model_service(
         ),
         material_models=material_models,
         processing_outputs=processing_outputs,
+        processing_batches=processing_batches,
     )
 
 

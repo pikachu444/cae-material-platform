@@ -417,7 +417,26 @@ export function ReferenceLinearViscoelasticWorkbench({
                     {(content.processing_promotion_evidence.instantaneous_modulus_relative_mismatch * 100).toFixed(2)}%
                   </strong>
                 </span>
+                {content.processing_promotion_evidence.recipe_batch ? (
+                  <>
+                    <span>
+                      <small>Published Recipe revision</small>
+                      <strong>{compact(content.processing_promotion_evidence.recipe_batch.processing_recipe.revision_id)}</strong>
+                    </span>
+                    <span>
+                      <small>Successful Batch attempt</small>
+                      <strong>#{content.processing_promotion_evidence.recipe_batch.batch_attempt_no} · {compact(content.processing_promotion_evidence.recipe_batch.batch_attempt_id)}</strong>
+                    </span>
+                  </>
+                ) : null}
               </div>
+              {content.processing_promotion_evidence.recipe_batch ? (
+                <p className="success-notice">
+                  This IR pins the exact published Processing Recipe and successful Batch execution. <a href="/datasets/processing">Open Recipe library and Batch monitor</a>
+                </p>
+              ) : (
+                <p className="mapping-note">Historical direct Output: no Processing Recipe or Batch execution was pinned.</p>
+              )}
               {neutralMaterial ? (
                 <p className="success-notice">
                   Loaded exact Neutral Material JSON r{neutralMaterial.revision_no} for this IR.

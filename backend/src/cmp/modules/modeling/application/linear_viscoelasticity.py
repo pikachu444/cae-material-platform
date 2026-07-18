@@ -24,13 +24,18 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
     REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID,
     REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+    REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
+    REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID,
+    REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
     BulkRelaxationStatus,
     LinearViscoelasticConflict,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
     ReferencePronyProcessingEvidence,
     ReferencePronyPromotionEvidence,
+    ReferenceRecipeBatchEvidence,
 )
+from cmp.modules.processing.application.common_batches import CommonBatchService
 from cmp.modules.processing.application.common_outputs import CommonProcessingOutputService
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
@@ -159,11 +164,13 @@ class LinearViscoelasticModelService:
         repository: LinearViscoelasticRepository,
         material_models: MaterialModelService,
         processing_outputs: CommonProcessingOutputService | None = None,
+        processing_batches: CommonBatchService | None = None,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
         self._material_models = material_models
         self._processing_outputs = processing_outputs
+        self._processing_batches = processing_batches
         self._id_factory = id_factory
 
     def create_model(
@@ -268,13 +275,11 @@ class LinearViscoelasticModelService:
             raise LinearViscoelasticConflict(
                 "acknowledged maximum relative mismatch must be within [0,1]"
             )
-        properties = (
-            self._material_models.get_reference_property_source_for_linear_viscoelasticity(
-                context,
-                decision,
-                material_state_id=command.material_state_id,
-                property_set_revision_id=command.property_set_revision_id,
-            )
+        properties = self._material_models.get_reference_property_source_for_linear_viscoelasticity(
+            context,
+            decision,
+            material_state_id=command.material_state_id,
+            property_set_revision_id=command.property_set_revision_id,
         )
         if properties.material_class not in {"polymer", "elastomer"}:
             raise LinearViscoelasticConflict(
@@ -314,15 +319,11 @@ class LinearViscoelasticModelService:
                 PronyTerm(
                     g_ratio=float(scalars[f"prony_g_ratio_{ordinal}"]["value"]),
                     k_ratio=0.0,
-                    relaxation_time_s=float(
-                        scalars[f"prony_relaxation_time_{ordinal}"]["value"]
-                    ),
+                    relaxation_time_s=float(scalars[f"prony_relaxation_time_{ordinal}"]["value"]),
                 )
                 for ordinal in range(1, selected_count + 1)
             )
-            normalized_rmse = float(
-                scalars[f"prony_{selected_count}_normalized_rmse"]["value"]
-            )
+            normalized_rmse = float(scalars[f"prony_{selected_count}_normalized_rmse"]["value"])
             bic = float(scalars[f"prony_{selected_count}_bic"]["value"])
             fitted_instantaneous = float(scalars["prony_instantaneous_modulus"]["value"])
             selection_mode = str(step.options["selection_mode"])
@@ -335,6 +336,17 @@ class LinearViscoelasticModelService:
         relative_mismatch = abs(fitted_instantaneous - catalog_instantaneous) / (
             catalog_instantaneous
         )
+        execution_origin = (
+            self._processing_batches.find_execution_origin(
+                context,
+                decision,
+                output.id,
+                output.current.revision_id,
+            )
+            if self._processing_batches is not None
+            else None
+        )
+        has_recipe_origin = execution_origin is not None
         evidence = ReferencePronyProcessingEvidence(
             processing_output_id=output.id,
             processing_output_revision_id=output.current.revision_id,
@@ -350,8 +362,19 @@ class LinearViscoelasticModelService:
             fitted_instantaneous_shear_modulus_pa=fitted_instantaneous,
             catalog_instantaneous_shear_modulus_pa=catalog_instantaneous,
             instantaneous_modulus_relative_mismatch=relative_mismatch,
-            acknowledged_maximum_relative_mismatch=(
-                command.acknowledged_maximum_relative_mismatch
+            acknowledged_maximum_relative_mismatch=(command.acknowledged_maximum_relative_mismatch),
+            recipe_batch=(
+                ReferenceRecipeBatchEvidence(
+                    recipe_id=execution_origin.recipe_id,
+                    recipe_revision_id=execution_origin.recipe_revision_id,
+                    recipe_sha256=execution_origin.recipe_sha256,
+                    batch_id=execution_origin.batch_id,
+                    batch_member_id=execution_origin.member_id,
+                    batch_attempt_id=execution_origin.attempt_id,
+                    batch_attempt_no=execution_origin.attempt_no,
+                )
+                if execution_origin is not None
+                else None
             ),
         )
         content = ReferenceLinearViscoelasticContent(
@@ -373,7 +396,11 @@ class LinearViscoelasticModelService:
             applicability_note=source.applicability_note,
             reference_temperature_k=source.reference_temperature_k,
             processing_promotion_evidence=evidence,
-            model_schema_digest=REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
+            model_schema_digest=(
+                REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+                if has_recipe_origin
+                else REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+            ),
         )
         aggregate_id = self._id_factory()
         record = RevisionService(
@@ -387,8 +414,16 @@ class LinearViscoelasticModelService:
                     context.project_id,
                     properties.classification.value,
                 ),
-                schema_id=REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID,
-                schema_version=REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+                schema_id=(
+                    REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID
+                    if has_recipe_origin
+                    else REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID
+                ),
+                schema_version=(
+                    REFERENCE_RECIPE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION
+                    if has_recipe_origin
+                    else REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION
+                ),
                 content=content,
                 created_by=context.principal.id,
                 change_reason=_reason(command.change_reason),

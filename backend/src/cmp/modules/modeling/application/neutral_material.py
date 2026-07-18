@@ -945,9 +945,20 @@ class NeutralMaterialService:
                         processing_evidence.mapping_profile_revision_id,
                     ),
                 ),
-                processing_recipe=OptionalRevisionEvidence(
-                    EvidenceStatus.NOT_APPLICABLE,
-                    "This output was committed from reviewed ordered steps without a Recipe pin.",
+                processing_recipe=(
+                    OptionalRevisionEvidence(
+                        EvidenceStatus.EXACT_REVISION,
+                        "Exact published Recipe executed by the successful Batch attempt.",
+                        RevisionReference(
+                            processing_evidence.recipe_batch.recipe_id,
+                            processing_evidence.recipe_batch.recipe_revision_id,
+                        ),
+                    )
+                    if processing_evidence.recipe_batch is not None
+                    else OptionalRevisionEvidence(
+                        EvidenceStatus.NOT_APPLICABLE,
+                        "This historical Output was committed without a Recipe/Batch pin.",
+                    )
                 ),
                 source_datasets=(
                     NeutralDatasetSource(
