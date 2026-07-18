@@ -114,7 +114,7 @@ export function CatalogExplorer({
     async (recordId: string, revisionId: string) => {
       setBusy("graph");
       try {
-        const result = await getCatalogWorkflowGraph(config, recordId, revisionId);
+        const result = await getCatalogWorkflowGraph(config, recordId, revisionId, 5);
         setGraph(result.data);
         setSelectedLinkTypeId("");
         setSelectedTargetId("");
@@ -424,7 +424,10 @@ export function CatalogExplorer({
               </div>
               <h3>Forward and reverse links</h3>
               <div className="record-link-list">
-                {graph.links.map((link) => {
+                {graph.links.filter((link) => (
+                  (link.source.record_id === selected.record_id && link.source.record_revision_id === selected.record_revision_id)
+                  || (link.target.record_id === selected.record_id && link.target.record_revision_id === selected.record_revision_id)
+                )).map((link) => {
                   const forward = link.source.record_id === selected.record_id && link.source.record_revision_id === selected.record_revision_id;
                   const other = forward ? link.target : link.source;
                   const label = forward ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label;
@@ -438,7 +441,10 @@ export function CatalogExplorer({
                     </article>
                   );
                 })}
-                {!graph.links.length ? <p className="muted">No active exact-revision links.</p> : null}
+                {!graph.links.some((link) => (
+                  (link.source.record_id === selected.record_id && link.source.record_revision_id === selected.record_revision_id)
+                  || (link.target.record_id === selected.record_id && link.target.record_revision_id === selected.record_revision_id)
+                )) ? <p className="muted">No active exact-revision links.</p> : null}
               </div>
             </>
           ) : (

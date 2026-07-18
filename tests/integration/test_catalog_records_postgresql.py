@@ -572,6 +572,24 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
     assert binding.workbench_path == (
         f"/materials/{governed_material.id}?revision_id={governed_material.current.record.revision_id}"
     )
+    resolved_binding = postgres.links.resolve_domain_binding(
+        context,
+        read,
+        DomainBindingKind.MATERIAL,
+        governed_material.id,
+        governed_material.current.record.revision_id,
+    )
+    assert resolved_binding == binding
+    assert (
+        postgres.links.resolve_domain_binding(
+            context,
+            read,
+            DomainBindingKind.MATERIAL,
+            governed_material.id,
+            uuid4(),
+        )
+        is None
+    )
     forward = postgres.links.list_record_links(
         context,
         read,

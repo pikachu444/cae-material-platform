@@ -16,6 +16,7 @@ import type {
   CanonicalTestDataPreviewResponse,
   DataClassification,
 } from "./types";
+import { DomainWorkflowLinks } from "./domain-workflow-links";
 
 interface Props {
   config: ApiConfig;
@@ -310,6 +311,16 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
                 <div><strong>{item.material_maker} · {item.material_grade}</strong><small>{item.document_key} · specimen {item.specimen_id} · {item.point_count} points</small></div>
                 <div><span>Revision {item.current_revision.revision_no}</span><code title={item.canonical_sha256}>{item.canonical_sha256.slice(0, 12)}…</code></div>
                 <button className="button secondary" type="button" onClick={() => void downloadDocument(item)}>Download exact JSON</button>
+                <DomainWorkflowLinks
+                  compact
+                  config={config}
+                  target={{
+                    kind: "test_data",
+                    objectId: item.test_data_document_id,
+                    revisionId: item.current_revision.id,
+                    label: `${item.document_key} r${item.current_revision.revision_no}`,
+                  }}
+                />
               </article>
             ))}
           </div>

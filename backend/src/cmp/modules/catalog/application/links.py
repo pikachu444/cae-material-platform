@@ -231,6 +231,16 @@ class CatalogLinkRepository(Protocol):
         record_revision_id: UUID,
     ) -> DomainRevisionBinding | None: ...
 
+    def find_domain_binding(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        kind: DomainBindingKind,
+        object_id: UUID,
+        revision_id: UUID,
+    ) -> DomainRevisionBinding | None: ...
+
 
 def _require(
     context: SecurityContext,
@@ -439,6 +449,25 @@ class CatalogLinkService:
             decision=decision,
             record_id=record_id,
             record_revision_id=record_revision_id,
+        )
+
+    def resolve_domain_binding(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        kind: DomainBindingKind,
+        object_id: UUID,
+        revision_id: UUID,
+    ) -> DomainRevisionBinding | None:
+        """Resolve an exact governed revision back to its configurable Catalog node."""
+
+        _require(context, decision, Permission.CATALOG_READ)
+        return self._repository.find_domain_binding(
+            context=context,
+            decision=decision,
+            kind=kind,
+            object_id=object_id,
+            revision_id=revision_id,
         )
 
     def _validate_record_link(

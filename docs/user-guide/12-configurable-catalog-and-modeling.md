@@ -78,6 +78,20 @@ exact object and revision in the URL. Unbound nodes continue to open their confi
 
 ![A configurable Material Record pinned to one exact governed Material revision](../15-demo/images/t62-domain-workflow-binding.png)
 
+### Return to the Workflow Explorer from governed data
+
+Material, imported Test Data JSON, committed Processing Output and Neutral/Card screens show an
+**Exact linked data** panel when that exact revision has a configurable Catalog binding. Select
+**Open Workflow Explorer** to return to the bound Record revision. The center graph loads five hops,
+so the clean metal journey shows Material, State, Test JSON, Processing Output, Material Model IR,
+Neutral JSON and both native cards together. Selecting another node opens its pinned domain workbench.
+
+The **Forward and reverse links** list is intentionally narrower than the graph: it shows only edges
+directly incident to the currently selected Record revision. This prevents a downstream edge from
+being presented as though it directly connected to the selected Test or Material.
+
+![Test JSON exact revision에서 전체 Material-to-card graph로 역이동](../15-demo/images/t66-reverse-workflow-navigation.png)
+
 ## 목표 따라하기
 
 1. Catalog Explorer 또는 검색에서 Material record를 찾는다.

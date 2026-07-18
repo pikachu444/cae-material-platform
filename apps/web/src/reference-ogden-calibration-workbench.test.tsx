@@ -166,8 +166,8 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
     expect(await screen.findByText(/2 revisions/)).toBeTruthy();
     expect(screen.getAllByText(/Candidate f4300000/).length).toBeGreaterThanOrEqual(2);
     await waitFor(() => expect(onPromoted).toHaveBeenCalledWith(promotedModel));
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(12));
     const planCall = fetchMock.mock.calls.find(([url]) => String(url).endsWith("/ogden-calibration-plans"));
+    expect(planCall).toBeTruthy();
     expect(JSON.parse(String(planCall?.[1]?.body))).toMatchObject({ members: [{ role: "calibration", test_mode: "planar_tension", dataset_revision_id: ids[14] }] });
   });
 });

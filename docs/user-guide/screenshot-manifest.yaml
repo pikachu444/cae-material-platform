@@ -1,4 +1,4 @@
-version: 24
+version: 25
 verified_at: 2026-07-18
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -296,3 +296,11 @@ captures:
     image: ../15-demo/images/t65-clean-demo-downloads.png
     width: 1440
     height: 3106
+  - id: exact-domain-reverse-workflow-navigation
+    route: /catalog/explorer/records/{demo-test-record-id}/revisions/{demo-test-record-revision-id}
+    workflow: exact-test-json-to-full-material-neutral-card-graph
+    fixture: T-66 clean Compose DP780 reverse domain binding lookup
+    source_evidence: ../15-demo/evidence/t66-reverse-workflow-navigation.md
+    image: ../15-demo/images/t66-reverse-workflow-navigation.png
+    width: 1440
+    height: 1681

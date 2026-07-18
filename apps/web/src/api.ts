@@ -174,6 +174,8 @@ import type {
   ConfigurableRecordLinkView,
   CatalogExplorerChildrenResponse,
   CatalogWorkflowGraphResponse,
+  DomainBindingKind,
+  DomainRevisionBinding,
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
   CommonMappingProfileContent,
@@ -347,6 +349,20 @@ export function bindCatalogRecordDomainRevision(
     `/catalog/records/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}/domain-binding`,
     { method: "POST", body: JSON.stringify(input) },
   );
+}
+
+export function resolveCatalogDomainRevision(
+  config: ApiConfig,
+  kind: DomainBindingKind,
+  objectId: string,
+  revisionId: string,
+): Promise<ApiResult<DomainRevisionBinding | null>> {
+  const parameters = new URLSearchParams({
+    kind,
+    object_id: objectId,
+    revision_id: revisionId,
+  });
+  return request(config, `/catalog/domain-bindings:resolve?${parameters.toString()}`);
 }
 
 export function validateCanonicalTestData(

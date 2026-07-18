@@ -31,6 +31,14 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-66`: exact governed domain revisions can now resolve back to their configurable Catalog Record
+  revision through the protected `catalog.read` boundary. Material, canonical Test JSON, common
+  Processing Output and Neutral/Card screens show an **Exact linked data** panel with the depth-5
+  Workflow graph and Explorer deep link. Explorer nodes still open their pinned workbench paths;
+  starting at the clean Test JSON now exposes Material, Processing Output, selected IR, Neutral JSON
+  and both native cards in one graph. The direct-link list no longer mislabels non-incident graph
+  edges. API, PostgreSQL, React and Playwright regressions cover the reverse journey.
+
 - `T-65`: clean PostgreSQL now seeds a canonical twelve-point tensile Test JSON, exact Mapping
   Profile, published three-step Processing Recipe, successful Batch Output, selected tabulated-
   plasticity IR, canonical Neutral JSON and exact Abaqus/OpenRadioss cards. An eight-node

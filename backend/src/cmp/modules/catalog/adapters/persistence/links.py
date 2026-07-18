@@ -615,3 +615,26 @@ class SqlAlchemyCatalogLinkRepository(CatalogLinkRepository):
                 .one_or_none()
             )
             return None if row is None else _domain_binding(row)
+
+    def find_domain_binding(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        kind: DomainBindingKind,
+        object_id: UUID,
+        revision_id: UUID,
+    ) -> DomainRevisionBinding | None:
+        with self._transaction(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(domain_record_binding).where(
+                        domain_record_binding.c.domain_kind == kind.value,
+                        domain_record_binding.c.domain_object_id == object_id,
+                        domain_record_binding.c.domain_revision_id == revision_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            return None if row is None else _domain_binding(row)

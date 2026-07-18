@@ -1534,3 +1534,15 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   Playwright가 native ASCII와 ZIP checksum을 검증한다.
 - **테스트:** clean PostgreSQL seed/reseed, protected verifier, full Playwright downloads,
   screenshot manifest와 `make ci`.
+
+#### T-66. Bidirectional exact-revision workflow navigation — `P0`
+
+- **상태 (`2026-07-19`):** `implemented`.
+- **범위:** exact domain kind/object/revision을 현재 Catalog RLS 범위에서 Record revision으로
+  역조회한다. Material, canonical Test JSON, common Processing Output와 Neutral/Card workbench는
+  **Exact linked data** 패널에서 같은 depth-5 graph와 Explorer deep link를 제공한다.
+- **완료 조건:** Test JSON에서 Explorer로 역이동한 뒤 Material, Processing Output, Model IR,
+  Neutral JSON과 Abaqus/OpenRadioss Card 노드를 한 화면에서 확인하고 각 exact workbench link를
+  열 수 있다. 선택 노드의 direct edge만 forward/reverse 목록에 표시한다.
+- **테스트:** protected API, PostgreSQL RLS reverse lookup, React navigation component, clean-demo
+  Playwright reverse navigation, current screenshot와 user guide.

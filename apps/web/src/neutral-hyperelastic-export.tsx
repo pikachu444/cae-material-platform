@@ -15,6 +15,7 @@ import type {
   NeutralHyperelasticSolverCardResponse,
   NeutralMaterialResponse,
 } from "./types";
+import { DomainWorkflowLinks } from "./domain-workflow-links";
 
 function messageFor(cause: unknown): string {
   if (cause instanceof ApiError) {
@@ -157,6 +158,15 @@ export function NeutralSolverExport({
 
   return (
     <section className="workflow-step neutral-solver-export" aria-label="Neutral Material solver card generation">
+      <DomainWorkflowLinks
+        config={config}
+        target={{
+          kind: "neutral_material",
+          objectId: neutralMaterial.neutral_material_id,
+          revisionId: neutralMaterial.neutral_material_revision_id,
+          label: `Neutral Material JSON r${neutralMaterial.revision_no}`,
+        }}
+      />
       <div className="curve-heading">
         <div>
           <p className="eyebrow">T-64 · family-neutral solver mapping</p>

@@ -277,6 +277,25 @@ class _Service:
         assert record_id == MATERIAL and revision_id == MATERIAL_REV
         return self.binding
 
+    def resolve_domain_binding(
+        self,
+        context: Any,
+        decision: Any,
+        kind: DomainBindingKind,
+        object_id: UUID,
+        revision_id: UUID,
+    ) -> DomainRevisionBinding | None:
+        del context, decision
+        if self.binding is None:
+            return None
+        if (
+            self.binding.kind is kind
+            and self.binding.object_id == object_id
+            and self.binding.revision_id == revision_id
+        ):
+            return self.binding
+        return None
+
 
 def _app(service: _Service) -> FastAPI:
     app = FastAPI()
@@ -441,6 +460,31 @@ async def test_record_revision_can_pin_and_open_an_exact_domain_revision() -> No
     fetched = await _request(app, "GET", path)
     assert fetched.status_code == 200
     assert fetched.json()["revision_id"] == str(DOMAIN_MATERIAL_REV)
+
+    resolved = await _request(
+        app,
+        "GET",
+        "/api/v1/catalog/domain-bindings:resolve",
+        params={
+            "kind": "material",
+            "object_id": str(DOMAIN_MATERIAL),
+            "revision_id": str(DOMAIN_MATERIAL_REV),
+        },
+    )
+    assert resolved.status_code == 200
+    assert resolved.json()["record_id"] == str(MATERIAL)
+    missing = await _request(
+        app,
+        "GET",
+        "/api/v1/catalog/domain-bindings:resolve",
+        params={
+            "kind": "material",
+            "object_id": str(DOMAIN_MATERIAL),
+            "revision_id": str(uuid4()),
+        },
+    )
+    assert missing.status_code == 200
+    assert missing.json() is None
 
     graph = await _request(
         app,

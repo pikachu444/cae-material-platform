@@ -38,6 +38,7 @@ import type {
   PropertySourceKind,
   SolverCardResponse,
 } from "./types";
+import { DomainWorkflowLinks } from "./domain-workflow-links";
 
 const ReferenceTensileWorkflow = lazy(() =>
   import("./reference-tensile-workflow").then((module) => ({
@@ -1109,6 +1110,15 @@ function MaterialDetailPage({
           <small>Hash {shortId(current.content_hash)}</small>
         </div>
       </section>
+      <DomainWorkflowLinks
+        config={config}
+        target={{
+          kind: "material",
+          objectId: material.material_id,
+          revisionId: current.id,
+          label: `${current.content.name} r${current.revision_no}`,
+        }}
+      />
       {error ? <ErrorNotice message={error} /> : null}
       <nav className="material-context-tabs" aria-label="Material workspace">
         {materialAreas.map((item) => {

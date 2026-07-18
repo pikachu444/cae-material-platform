@@ -22,6 +22,11 @@ Workflow Explorer ┘                                  └ Processing Recipe/Bat
                                                           └ Preflight/Card/Bundle
 ```
 
+T-66부터 탐색은 단방향 route가 아니다. `domain kind + stable object id + exact revision id`로
+`catalog.domain_record_binding`을 역조회하고, domain workbench의 **Exact linked data** 패널이 같은
+bounded Workflow graph를 표시한다. 역조회는 현재 권한의 `catalog.read` RLS 범위 안에서만 동작하며
+domain payload를 Catalog module로 복제하지 않는다.
+
 ## 2. 모듈형 모놀리스 대 마이크로서비스
 
 | 기준 | 모듈형 모놀리스 | 초기 마이크로서비스 |
