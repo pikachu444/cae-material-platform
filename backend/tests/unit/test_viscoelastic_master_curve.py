@@ -130,11 +130,55 @@ def test_wlf_fit_recovers_synthetic_three_temperature_shifts() -> None:
     assert all(math.isfinite(point.mean_shear_modulus_pa) for point in result.master_curve)
 
 
+def test_arrhenius_fit_recovers_synthetic_activation_energy() -> None:
+    reference = 293.15
+    activation_energy = 72_000.0
+    gas_constant = 8.31446261815324
+    temperatures = (273.15, reference, 313.15, 333.15)
+    shifts = tuple(
+        activation_energy
+        / (math.log(10.0) * gas_constant)
+        * (1.0 / temperature - 1.0 / reference)
+        for temperature in temperatures
+    )
+    result = compute_viscoelastic_master_curve(
+        tuple(
+            _curve(index, temperature, shift)
+            for index, (temperature, shift) in enumerate(
+                zip(temperatures, shifts, strict=True)
+            )
+        ),
+        _plan(
+            reference_temperature_k=reference,
+            method=ShiftMethod.ARRHENIUS_FIT,
+            grid=51,
+        ),
+    )
+
+    assert result.arrhenius_activation_energy_j_per_mol == pytest.approx(
+        activation_energy, rel=0.04
+    )
+    assert result.wlf_c1 is None and result.wlf_c2_k is None
+    assert tuple(item.log10_a_t for item in result.shift_factors) == pytest.approx(
+        shifts, abs=0.04
+    )
+    assert {item.source for item in result.shift_factors} == {
+        "reference",
+        "arrhenius_fit",
+    }
+
+
 def test_wlf_requires_three_temperatures_and_no_extrapolation() -> None:
     with pytest.raises(InvalidViscoelasticMasterPlan, match="at least three temperatures"):
         compute_viscoelastic_master_curve(
             (_curve(0, 293.15, 0.0), _curve(1, 313.15, -1.0)),
             _plan(reference_temperature_k=293.15, method=ShiftMethod.WLF_FIT),
+        )
+
+    with pytest.raises(InvalidViscoelasticMasterPlan, match="at least three temperatures"):
+        compute_viscoelastic_master_curve(
+            (_curve(0, 293.15, 0.0), _curve(1, 313.15, -1.0)),
+            _plan(reference_temperature_k=293.15, method=ShiftMethod.ARRHENIUS_FIT),
         )
 
     first = _curve(0, 293.15, 0.0)

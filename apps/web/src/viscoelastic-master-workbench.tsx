@@ -166,8 +166,8 @@ export function ViscoelasticMasterWorkbench({
       setError("Choose at least two curves across two temperatures and a listed reference temperature.");
       return;
     }
-    if (method === "wlf_fit" && temperatures.length < 3) {
-      setError("WLF fitting requires at least three distinct temperatures.");
+    if (method !== "manual" && temperatures.length < 3) {
+      setError("WLF and Arrhenius fitting require at least three distinct temperatures.");
       return;
     }
     const factors = method === "manual"
@@ -231,7 +231,7 @@ export function ViscoelasticMasterWorkbench({
       </div>
       <p className="form-hint">
         Keep every curve, align replicates only on their common log-time intersection, review n and
-        bands, then shift by explicit factors or a fitted WLF relation. No source is overwritten.
+        bands, then shift by explicit factors or a fitted WLF/Arrhenius relation. No source is overwritten.
       </p>
       <div className="selection-grid" aria-label="Eligible relaxation Dataset revisions">
         {eligible.length === 0 ? (
@@ -262,6 +262,7 @@ export function ViscoelasticMasterWorkbench({
           <select value={method} onChange={(event) => setMethod(event.target.value as ViscoelasticShiftMethod)}>
             <option value="manual">Manual shift factors</option>
             <option value="wlf_fit">WLF fit (3+ temperatures)</option>
+            <option value="arrhenius_fit">Arrhenius fit (3+ temperatures)</option>
           </select>
         </label>
         <label>
@@ -305,6 +306,11 @@ export function ViscoelasticMasterWorkbench({
           <p className="success-notice" role="status">
             Three immutable outputs committed: {preview.run.aligned_row_count} aligned rows, {preview.run.statistics_row_count} statistical rows, and {preview.run.master_row_count} master points.
           </p>
+          {preview.run.arrhenius_activation_energy_j_per_mol != null ? (
+            <p className="form-hint">
+              Arrhenius activation energy: {(preview.run.arrhenius_activation_energy_j_per_mol / 1000).toPrecision(7)} kJ/mol. Review the observed shift residuals before reuse outside the fitted temperature range.
+            </p>
+          ) : null}
           <div className="table-wrap">
             <table>
               <thead><tr><th>Temperature</th><th>Replicates n</th><th>log10(aT)</th><th>Source</th><th>Band</th><th>Outlier</th></tr></thead>

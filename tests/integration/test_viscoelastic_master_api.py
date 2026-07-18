@@ -200,6 +200,7 @@ RUN_VALUE = ViscoelasticMasterRun(
     master_dataset_revision_id=IDS[23],
     wlf_c1=None,
     wlf_c2_k=None,
+    arrhenius_activation_energy_j_per_mol=None,
     shift_factors=FACTORS,
     failure_code=None,
     change_reason="Commit master curve",
