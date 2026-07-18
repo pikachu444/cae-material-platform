@@ -843,6 +843,7 @@ def create_app(
             resolved_material_models,
             resolved_artifacts,
             resolved_common_outputs,
+            resolved_common_batches,
         )
     )
     install_tabulated_plasticity_api(

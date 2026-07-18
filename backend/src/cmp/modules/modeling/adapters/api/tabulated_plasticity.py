@@ -209,6 +209,21 @@ class TabulatedPlasticityContentResponse(BaseModel):
                     "secondary_family": value.secondary_family,
                     "primary_weight": value.primary_weight,
                     "fit_minimum_true_plastic_strain": (value.fit_minimum_true_plastic_strain),
+                    "recipe_batch": (
+                        {
+                            "processing_recipe": {
+                                "id": value.recipe_batch.recipe_id,
+                                "revision_id": value.recipe_batch.recipe_revision_id,
+                                "sha256": f"sha256:{value.recipe_batch.recipe_sha256}",
+                            },
+                            "processing_batch_id": value.recipe_batch.batch_id,
+                            "batch_member_id": value.recipe_batch.batch_member_id,
+                            "batch_attempt_id": value.recipe_batch.batch_attempt_id,
+                            "batch_attempt_no": value.recipe_batch.batch_attempt_no,
+                        }
+                        if value.recipe_batch is not None
+                        else None
+                    ),
                 }
                 if isinstance(value, ReferenceProcessedTabulatedPlasticityContent)
                 else None

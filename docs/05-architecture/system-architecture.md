@@ -30,6 +30,9 @@ domain payload를 Catalog module로 복제하지 않는다.
 T-69 polymer 경로에서는 Processing이 성공한 Batch Attempt의 exact Output을 Recipe revision으로
 해석하는 read port를 소유한다. Modeling은 이 port만 소비하고 Processing 테이블을 직접 조회하지
 않는다. IR은 Recipe/Batch 실행 evidence를 저장하고 Neutral JSON은 exact Recipe pin을 교환한다.
+T-70은 같은 소유권 규칙을 금속 탄소성 경로에 적용한다. 저장된 금속 Recipe가 만든 Output은
+IR 1.3.0의 exact Recipe/Batch/Member/Attempt evidence로 승격되고, Neutral JSON과 두 solver card,
+Bulk package는 그 exact Recipe revision을 공통 출처로 사용한다.
 
 ## 2. 모듈형 모놀리스 대 마이크로서비스
 

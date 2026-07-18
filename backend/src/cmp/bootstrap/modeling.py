@@ -440,6 +440,7 @@ def build_tabulated_plasticity_model_service(
     material_models: MaterialModelService | None,
     artifacts: ArtifactService | None,
     processing_outputs: CommonProcessingOutputService | None = None,
+    processing_batches: CommonBatchService | None = None,
 ) -> TabulatedPlasticityModelService | None:
     """Compose the explicit Dataset-to-elastoplastic-IR projection."""
 
@@ -466,6 +467,7 @@ def build_tabulated_plasticity_model_service(
         material_models=material_models,
         artifacts=artifacts,
         processing_outputs=processing_outputs,
+        processing_batches=processing_batches,
     )
 
 

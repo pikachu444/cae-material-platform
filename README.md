@@ -37,6 +37,8 @@ workbench로 이동할 수 있고 Material, Test JSON, Processing Output, Neutra
 Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두 native card, checksum ZIP까지
 재현합니다. 참조 범위와 production qualification의 차이는
 [제품 capability map](docs/00-research/product-capability-map.md)에서 확인할 수 있습니다.
+금속과 폴리머의 saved Recipe 실행은 성공한 exact Batch Attempt를 IR `1.3.0`과 Neutral JSON에
+보존하므로, 사용자는 모델 화면에서 처리 Recipe로 되돌아가 옵션과 실행 결과를 확인할 수 있습니다.
 
 ## 서비스 사용자가 할 수 있는 일
 

@@ -375,6 +375,17 @@ describe("Reference elastoplastic workbench", () => {
         secondary_family: "voce",
         primary_weight: 0.5,
         fit_minimum_true_plastic_strain: 0.0001,
+        recipe_batch: {
+          processing_recipe: {
+            id: "a1000000-0000-4000-8000-000000000050",
+            revision_id: "a1000000-0000-4000-8000-000000000051",
+            sha256: "sha256:" + "7".repeat(64),
+          },
+          processing_batch_id: "a1000000-0000-4000-8000-000000000052",
+          batch_member_id: "a1000000-0000-4000-8000-000000000053",
+          batch_attempt_id: "a1000000-0000-4000-8000-000000000054",
+          batch_attempt_no: 1,
+        },
       },
     });
     const curve = {
@@ -442,6 +453,11 @@ describe("Reference elastoplastic workbench", () => {
     expect(
       await screen.findByText("Origin: selected fitted hardening Processing Output"),
     ).toBeTruthy();
+    expect(await screen.findByText(/Published Recipe revision:/)).toBeTruthy();
+    expect(await screen.findByText(/Successful Batch attempt #1/)).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: "Open Recipe library and Batch monitor" }).getAttribute("href"),
+    ).toBe("/datasets/processing");
     expect(
       await screen.findByText(/Selected fitted hardening samples from an exact Processing Output/),
     ).toBeTruthy();

@@ -1601,3 +1601,19 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   Processing-owned origin resolver, connected polymer evidence panel과 Recipe/Batch monitor link.
 - **테스트:** domain invariants, migration, PostgreSQL exact origin, React, clean Compose seed/verifier,
   browser screenshot, full `make ci`.
+
+#### T-70. Saved metal Recipe/Batch to dual-solver package — `P0`
+
+- **상태 (`2026-07-19`):** `implemented` and verified.
+- **범위:** 기존 published metal Processing Recipe/Batch 계산을 다시 구현하지 않고, 성공한 exact
+  Attempt의 Output을 processed tabulated-plasticity IR, Neutral JSON, Abaqus/OpenRadioss 카드와
+  Bulk ZIP까지 추적한다.
+- **완료 조건:** 신규 IR `1.3.0`이 exact Recipe digest와 Batch/Member/Attempt/Output revision을
+  고정하고 Neutral JSON은 `processing_recipe=exact_revision`을 제공한다. 기존 direct Output IR
+  `1.2.0`은 수정하지 않고 계속 읽는다.
+- **DB/API/UI:** migration 081의 typed nullable origin columns, exact composite FKs, all-or-none
+  constraint와 deferred successful-Attempt validator; 금속 IR evidence와 Recipe/Batch monitor link.
+- **테스트:** domain/service/migration/PostgreSQL/API/React, clean Compose protected verifier,
+  browser screenshot와 full CI. 격리 PostgreSQL suite는 76개 모두 통과했고, 전체 CI는
+  Python 773개 통과/환경-gated 76개 skip(앞선 suite에서 실행), frontend 61개 통과 및
+  architecture/contract/user-guide/production bundle gate를 통과했다.

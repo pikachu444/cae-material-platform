@@ -30,6 +30,7 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
 )
 from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
     REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
+    ReferenceProcessedRecipeBatchEvidence,
     ReferenceProcessedTabulatedPlasticityContent,
     reference_processed_tabulated_plasticity_canonical,
 )
@@ -102,6 +103,19 @@ def _content(row: Any) -> TabulatedPlasticityContent:
             source_test_data_revision_id=cast(UUID, row["processing_source_document_revision_id"]),
             mapping_profile_id=cast(UUID, row["processing_mapping_profile_id"]),
             mapping_profile_revision_id=cast(UUID, row["processing_mapping_profile_revision_id"]),
+            recipe_batch=(
+                ReferenceProcessedRecipeBatchEvidence(
+                    recipe_id=cast(UUID, row["processing_recipe_id"]),
+                    recipe_revision_id=cast(UUID, row["processing_recipe_revision_id"]),
+                    recipe_sha256=str(row["processing_recipe_sha256"]),
+                    batch_id=cast(UUID, row["processing_batch_id"]),
+                    batch_member_id=cast(UUID, row["processing_batch_member_id"]),
+                    batch_attempt_id=cast(UUID, row["processing_batch_attempt_id"]),
+                    batch_attempt_no=int(row["processing_batch_attempt_no"]),
+                )
+                if row["processing_recipe_id"] is not None
+                else None
+            ),
             candidate_families=tuple(row["hardening_candidate_families"]),
             primary_family=str(row["hardening_primary_family"]),
             secondary_family=str(row["hardening_secondary_family"]),
@@ -128,6 +142,7 @@ def _content(row: Any) -> TabulatedPlasticityContent:
             applicability_note=row["applicability_note"],
             reference_temperature_k=float(row["reference_temperature_k"]),
             model_family_id=str(row["model_family_id"]),
+            model_schema_version=str(row["schema_version"]),
             model_schema_digest=str(row["model_schema_digest"]),
             hardening_curve_schema_ref=str(row["hardening_curve_schema_ref"]),
             transformation_profile_id=str(row["transformation_profile_id"]),
@@ -317,6 +332,48 @@ def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
         "processing_mapping_profile_revision_id": getattr(
             content, "mapping_profile_revision_id", None
         ),
+        "processing_recipe_id": (
+            content.recipe_batch.recipe_id
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.recipe_batch is not None
+            else None
+        ),
+        "processing_recipe_revision_id": (
+            content.recipe_batch.recipe_revision_id
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.recipe_batch is not None
+            else None
+        ),
+        "processing_recipe_sha256": (
+            content.recipe_batch.recipe_sha256
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.recipe_batch is not None
+            else None
+        ),
+        "processing_batch_id": (
+            content.recipe_batch.batch_id
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.recipe_batch is not None
+            else None
+        ),
+        "processing_batch_member_id": (
+            content.recipe_batch.batch_member_id
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.recipe_batch is not None
+            else None
+        ),
+        "processing_batch_attempt_id": (
+            content.recipe_batch.batch_attempt_id
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.recipe_batch is not None
+            else None
+        ),
+        "processing_batch_attempt_no": (
+            content.recipe_batch.batch_attempt_no
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.recipe_batch is not None
+            else None
+        ),
         "hardening_candidate_families": list(content.candidate_families)
         if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
         else None,
@@ -424,6 +481,13 @@ def _content_columns(table: sa.Table) -> tuple[Any, ...]:
         table.c.processing_source_document_revision_id,
         table.c.processing_mapping_profile_id,
         table.c.processing_mapping_profile_revision_id,
+        table.c.processing_recipe_id,
+        table.c.processing_recipe_revision_id,
+        table.c.processing_recipe_sha256,
+        table.c.processing_batch_id,
+        table.c.processing_batch_member_id,
+        table.c.processing_batch_attempt_id,
+        table.c.processing_batch_attempt_no,
         table.c.hardening_candidate_families,
         table.c.hardening_primary_family,
         table.c.hardening_secondary_family,

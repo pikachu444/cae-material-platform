@@ -18,6 +18,10 @@ REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID = (
     "urn:cmp:modeling:reference-processed-tabulated-plasticity:1.2.0"
 )
 REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION = "1.2.0"
+REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_ID = (
+    "urn:cmp:modeling:reference-processed-tabulated-plasticity:1.3.0"
+)
+REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION = "1.3.0"
 REFERENCE_PROCESSED_SELECTION_PROFILE_ID = (
     "urn:cmp:modeling:processing-selected-hardening-projection:1.0.0"
 )
@@ -58,6 +62,28 @@ REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST = content_sha256(
         "non_production": True,
     }
 )
+REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST = content_sha256(
+    {
+        "family": REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
+        "schema_version": REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+        "parameters": ["density_kg_per_m3", "youngs_modulus_pa", "poisson_ratio"],
+        "hardening_curve_schema": REFERENCE_HARDENING_CURVE_SCHEMA,
+        "source_revisions": [
+            "material_revision_id",
+            "material_state_revision_id",
+            "property_set_revision_id",
+            "processing_output_revision_id",
+            "processing_recipe_revision_id",
+            "processing_batch_attempt_id",
+            "test_data_revision_id",
+            "mapping_profile_revision_id",
+        ],
+        "selection": ["candidate_families", "primary_family", "secondary_family", "weight"],
+        "domain": ["fit_minimum", "fit_maximum", "extrapolation_maximum"],
+        "transformation_profile_digest": REFERENCE_PROCESSED_SELECTION_PROFILE_DIGEST,
+        "non_production": True,
+    }
+)
 
 
 class InvalidProcessedProjection(ValueError):
@@ -72,6 +98,30 @@ def _uuid(name: str, value: UUID) -> None:
 def _digest(name: str, value: str) -> None:
     if len(value) != 64 or any(character not in "0123456789abcdef" for character in value):
         raise InvalidProcessedProjection(f"{name} must be a lowercase SHA-256 digest")
+
+
+@dataclass(frozen=True, slots=True)
+class ReferenceProcessedRecipeBatchEvidence:
+    recipe_id: UUID
+    recipe_revision_id: UUID
+    recipe_sha256: str
+    batch_id: UUID
+    batch_member_id: UUID
+    batch_attempt_id: UUID
+    batch_attempt_no: int
+
+    def __post_init__(self) -> None:
+        for name in (
+            "recipe_id",
+            "recipe_revision_id",
+            "batch_id",
+            "batch_member_id",
+            "batch_attempt_id",
+        ):
+            _uuid(name, getattr(self, name))
+        _digest("recipe_sha256", self.recipe_sha256)
+        if self.batch_attempt_no < 1:
+            raise InvalidProcessedProjection("batch_attempt_no must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,6 +159,7 @@ class ReferenceProcessedTabulatedPlasticityContent:
     applicable_strain_rate_min_per_s: float | None = None
     applicable_strain_rate_max_per_s: float | None = None
     applicability_note: str | None = None
+    recipe_batch: ReferenceProcessedRecipeBatchEvidence | None = None
     reference_temperature_k: float = 293.15
     model_family_id: str = REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID
     model_schema_version: str = REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION
@@ -174,10 +225,20 @@ class ReferenceProcessedTabulatedPlasticityContent:
             raise InvalidProcessedProjection(
                 "bounded fitted extrapolation requires acknowledgement"
             )
+        expected_schema_version = (
+            REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION
+            if self.recipe_batch is not None
+            else REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION
+        )
+        expected_schema_digest = (
+            REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+            if self.recipe_batch is not None
+            else REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+        )
         if (
             self.model_family_id != REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID
-            or self.model_schema_version != REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION
-            or self.model_schema_digest != REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+            or self.model_schema_version != expected_schema_version
+            or self.model_schema_digest != expected_schema_digest
             or self.transformation_profile_id != REFERENCE_PROCESSED_SELECTION_PROFILE_ID
             or self.transformation_profile_digest != REFERENCE_PROCESSED_SELECTION_PROFILE_DIGEST
             or self.post_necking_extension_policy != REFERENCE_PROCESSED_EXTRAPOLATION_POLICY
@@ -217,7 +278,7 @@ class ReferenceProcessedTabulatedPlasticityContent:
 def reference_processed_tabulated_plasticity_canonical(
     value: ReferenceProcessedTabulatedPlasticityContent,
 ) -> dict[str, object]:
-    return {
+    canonical: dict[str, object] = {
         "model_family_id": value.model_family_id,
         "model_schema_version": value.model_schema_version,
         "model_schema_digest": value.model_schema_digest,
@@ -277,6 +338,19 @@ def reference_processed_tabulated_plasticity_canonical(
         },
         "non_production": True,
     }
+    if value.recipe_batch is not None:
+        canonical["processing_recipe"] = {
+            "id": str(value.recipe_batch.recipe_id),
+            "revision_id": str(value.recipe_batch.recipe_revision_id),
+            "sha256": value.recipe_batch.recipe_sha256,
+        }
+        canonical["processing_batch_execution"] = {
+            "batch_id": str(value.recipe_batch.batch_id),
+            "member_id": str(value.recipe_batch.batch_member_id),
+            "attempt_id": str(value.recipe_batch.batch_attempt_id),
+            "attempt_no": value.recipe_batch.batch_attempt_no,
+        }
+    return canonical
 
 
 def reference_processed_tabulated_plasticity_ir(
@@ -302,7 +376,15 @@ def reference_processed_tabulated_plasticity_ir(
             "parameters": canonical["parameters"],
             "hardening_curve": canonical["hardening_curve"],
         },
-        "source_revisions": canonical["processing_output"],
+        "source_revisions": (
+            {
+                "processing_output": canonical["processing_output"],
+                "processing_recipe": canonical["processing_recipe"],
+                "processing_batch_execution": canonical["processing_batch_execution"],
+            }
+            if content.recipe_batch is not None
+            else canonical["processing_output"]
+        ),
         "selection": canonical["selection"],
         "transformation_evidence": canonical["transformation"],
         "applicability": canonical["applicability"],

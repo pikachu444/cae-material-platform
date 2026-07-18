@@ -2636,6 +2636,13 @@ export interface TabulatedPlasticityContent {
     secondary_family: string;
     primary_weight: number;
     fit_minimum_true_plastic_strain: number;
+    recipe_batch?: {
+      processing_recipe: { id: string; revision_id: string; sha256: string };
+      processing_batch_id: string;
+      batch_member_id: string;
+      batch_attempt_id: string;
+      batch_attempt_no: number;
+    } | null;
   } | null;
   non_production: true;
 }

@@ -726,9 +726,20 @@ class NeutralMaterialService:
                 "Exact Mapping Profile consumed by the selected Processing Output.",
                 RevisionReference(content.mapping_profile_id, content.mapping_profile_revision_id),
             ),
-            processing_recipe=OptionalRevisionEvidence(
-                EvidenceStatus.NOT_APPLICABLE,
-                "This selected Output was committed from explicit ordered steps, not a Recipe.",
+            processing_recipe=(
+                OptionalRevisionEvidence(
+                    EvidenceStatus.EXACT_REVISION,
+                    "Exact published Recipe executed by the successful metal Batch attempt.",
+                    RevisionReference(
+                        content.recipe_batch.recipe_id,
+                        content.recipe_batch.recipe_revision_id,
+                    ),
+                )
+                if content.recipe_batch is not None
+                else OptionalRevisionEvidence(
+                    EvidenceStatus.NOT_APPLICABLE,
+                    "This historical Output was committed without a Recipe/Batch pin.",
+                )
             ),
             source_datasets=(
                 NeutralDatasetSource(

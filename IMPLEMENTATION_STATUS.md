@@ -17,7 +17,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
-| Saved Recipe library/general batch execution | T-54 implements exact-profile Recipe revisions, compatibility preflight, isolated member outputs and append-only attempts. T-69 carries a successful polymer Recipe/Batch/Attempt pin through IR, Neutral and Bulk. | Production scale-out (outside v3) |
+| Saved Recipe library/general batch execution | T-54 implements exact-profile Recipe revisions, compatibility preflight, isolated member outputs and append-only attempts. T-69/T-70 carry successful polymer and metal Recipe/Batch/Attempt pins through IR, Neutral and Bulk. | Production scale-out (outside v3) |
 | Metal/Polymer/Elastomer modeling | T-67 closes common one-to-ten-term polymer promotion; T-68 adds conditional nearly-incompressible shear-only OpenRadioss LPRONY without LAW62 conversion | Production material qualification (outside v3) |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
@@ -30,6 +30,16 @@ DB/API/UI/Test status matrix. Existing completed entries below remain valid evid
 bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
+
+- `T-70`: the existing published metal Recipe/Batch path now retains its exact execution origin
+  through processed tabulated-plasticity IR `1.3.0`, canonical Neutral JSON, Abaqus/OpenRadioss
+  cards and the 13-component Bulk package. Migration 081 adds typed Recipe/Batch/Member/Attempt
+  columns and deferred validation against the successful Attempt and exact Output revision. The
+  metal workbench displays the Recipe revision and Batch attempt with a deep link to the monitor;
+  historical direct Output IR `1.2.0` remains readable. Clean PostgreSQL verification passed all
+  76 environment-gated tests; the full CI script passed 773 Python tests (76 PostgreSQL tests
+  separately exercised), 61 frontend tests, contracts, architecture, documentation and production
+  bundle gates.
 
 - `T-69`: saved published polymer
   Recipes now execute through the common Batch engine and their successful exact Output revision is
