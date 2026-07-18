@@ -54,6 +54,8 @@ import type {
   OgdenDiagnosticsResponse,
   HyperelasticDiagnosticsResponse,
   NeutralMaterialResponse,
+  NeutralHyperelasticMappingReport,
+  NeutralHyperelasticSolverCardResponse,
   OgdenCalibrationRole,
   OgdenTestMode,
   MappingReport,
@@ -2230,6 +2232,91 @@ export async function downloadNeutralMaterial(
       filename: `neutral-material-${neutralMaterialId}.json`,
     },
     etag: response.headers.get("etag"),
+  };
+}
+
+export function preflightNeutralHyperelasticSolverCard(
+  config: ApiConfig,
+  neutralMaterialId: string,
+  input: { neutral_material_revision_id: string; target: ExportTarget },
+): Promise<ApiResult<NeutralHyperelasticMappingReport>> {
+  return request(
+    config,
+    `/neutral-materials/${encodeURIComponent(neutralMaterialId)}/solver-card-preflight`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function createNeutralHyperelasticSolverCard(
+  config: ApiConfig,
+  neutralMaterialId: string,
+  input: {
+    neutral_material_revision_id: string;
+    target: ExportTarget;
+    expected_mapping_report_sha256: string;
+    solver_material_id: number;
+    material_name: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<NeutralHyperelasticSolverCardResponse>> {
+  return request(
+    config,
+    `/neutral-materials/${encodeURIComponent(neutralMaterialId)}/solver-cards`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export async function previewNeutralHyperelasticSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<string>> {
+  const headers = authenticatedHeaders(config, {}, "text/plain");
+  const response = await fetch(
+    endpoint(
+      config,
+      `/neutral-hyperelastic-solver-cards/${encodeURIComponent(solverCardId)}/preview`,
+    ),
+    { headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  return { data: await response.text(), etag: response.headers.get("etag") };
+}
+
+export async function downloadNeutralHyperelasticSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<SolverCardDownload>> {
+  const headers = authenticatedHeaders(config, {}, "text/plain");
+  const response = await fetch(
+    endpoint(
+      config,
+      `/neutral-hyperelastic-solver-cards/${encodeURIComponent(solverCardId)}/download`,
+    ),
+    { headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const filename = disposition.match(/filename="([^"]+)"/)?.[1] ?? `solver-card-${solverCardId}.txt`;
+  return {
+    data: { blob: await response.blob(), filename },
+    etag: response.headers.get("etag"),
+  };
+}
+
+export async function downloadNeutralHyperelasticMappingReport(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<{ blob: Blob; filename: string }>> {
+  const result = await request<NeutralHyperelasticMappingReport>(
+    config,
+    `/neutral-hyperelastic-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
+  );
+  return {
+    data: {
+      blob: new Blob([JSON.stringify(result.data, null, 2)], { type: "application/json" }),
+      filename: `mapping-report-${solverCardId}.json`,
+    },
+    etag: result.etag,
   };
 }
 
