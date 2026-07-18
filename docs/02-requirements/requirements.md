@@ -152,7 +152,8 @@
 | `FR-MOD-P-001` | 점탄성 workbench는 relaxation/modulus-time 입력과 log-time resampling을 지원해야 한다. | time/modulus quantity와 domain이 검증된다. |
 | `FR-MOD-P-002` | generalized Maxwell/Prony term 수, initial value, bounds와 수동/자동 term 선택을 지원해야 한다. | candidate별 term, prediction, residual과 warning이 남는다. |
 | `FR-MOD-P-003` | 온도 series는 수동 shift와 WLF/Arrhenius candidate를 지원해야 한다. | shift factor, reference temperature와 master-curve domain이 저장된다. |
-| `FR-MOD-P-004` | 검토된 1~10항 generalized-Maxwell Processing Output은 exact source/profile/output digest와 modulus-consistency evidence를 보존하며 IR과 Neutral JSON으로 승격되어야 한다. | 사용자가 fitted candidate를 확인·승인한 뒤 Abaqus card까지 이동할 수 있고, client가 fitted parameter를 바꾸거나 OpenRadioss LAW62로 silent 변환할 수 없다. |
+| `FR-MOD-P-004` | 검토된 1~10항 generalized-Maxwell Processing Output은 exact source/profile/output digest와 modulus-consistency evidence를 보존하며 IR과 Neutral JSON으로 승격되어야 한다. | 사용자가 fitted candidate를 확인·승인한 뒤 solver card까지 이동할 수 있고 client가 fitted parameter를 바꿀 수 없다. OpenRadioss는 ADR-0032의 nearly-incompressible, shear-only `/VISC/LPRONY` 조건만 허용하며 LAW62로 silent 변환할 수 없다. |
+| `FR-MOD-P-005` | OpenRadioss linear-Prony preflight는 bulk 미특성화·zero `k_ratio`, `0.49 <= nu < 0.5`, Form 2/`flag_visc=2`와 외부 solid `/PROP`의 `I_smstr=10/12` 요구를 명시해야 한다. | 조건 위반은 `unsupported`; 허용 조합의 근사와 외부 property 요구는 `approximated`로 표시되어 사용자 확인 전 card 생성이 차단된다. |
 | `FR-MOD-E-001` | 초탄성 workbench는 uniaxial, planar, biaxial Dataset과 시험별 weight/domain을 지원해야 한다. | Plan이 exact multi-test selection을 고정한다. |
 | `FR-MOD-E-002` | Neo-Hookean, Mooney–Rivlin, Yeoh와 Ogden 공개 모델을 동일 candidate contract로 실행해야 한다. | 모델별 analytical fixture와 multistart regression이 통과한다. |
 | `FR-MOD-E-003` | model stability, bounds, non-finite, extrapolation과 physical constraint를 별도 diagnostics로 제공해야 한다. | objective success만으로 `validated`가 되지 않는다. |

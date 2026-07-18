@@ -66,7 +66,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
    mismatch를 확인합니다. 이 자료는 public synthetic reference fixture입니다.
 5. **Create Neutral JSON and solver mapping**으로 같은 evidence의 Neutral 문서를 열고 mapping
    report에서 bulk relaxation이 `not_applicable` 또는 명시된 상태인지 확인한 뒤 Abaqus
-   `*VISCOELASTIC` `.inp` 파일을 내려받습니다.
+   `*VISCOELASTIC` `.inp` 파일을 내려받습니다. 이어 OpenRadioss 2025를 선택하고
+   `solid_property_total_strain`과 `deviatoric_only_formulation` 근사를 확인한 뒤
+   `/VISC/LPRONY` `.rad` reference fragment를 내려받습니다.
 
 상세 조작은 [Polymer 점탄성 가이드](03-polymer-viscoelastic.md)를 따릅니다.
 

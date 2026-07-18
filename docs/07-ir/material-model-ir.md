@@ -380,7 +380,12 @@ The first routed families are:
 - `elastomer`: implemented bounded Ogden-Prony hyper-viscoelastic reference IR.
 
 The linear Prony family is not exportable to OpenRadioss LAW62. The hyper-viscoelastic family owns
-that mapping. Exporters must inspect the concrete IR family/schema digest and emit an explicit
+that mapping. ADR-0032 permits a separate conditional `/MAT/LAW1` + `/VISC/LPRONY` reference fragment
+only for nearly-incompressible (`0.49 <= nu < 0.5`), shear-only records with uncharacterized bulk
+relaxation and zero `k_ratio`. Form 2 and `flag_visc=2` preserve the instantaneous elastic base and
+normalized shear ratios; the required external solid-property total-strain formulation
+`I_smstr=10/12` remains an acknowledged mapping prerequisite. Exporters must inspect the concrete IR
+family/schema digest and emit an explicit
 mapping status; Material class alone never authorizes card generation.
 
 The implemented linear family is

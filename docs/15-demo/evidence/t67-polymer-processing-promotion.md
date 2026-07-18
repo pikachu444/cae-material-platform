@@ -24,6 +24,9 @@ read-only evidence, not form-supplied coefficients. The downloaded Abaqus card S
 `*VISCOELASTIC, TIME=PRONY`. OpenRadioss linear viscoelasticity remains an explicit unsupported
 mapping and no LAW62 approximation was introduced.
 
+This statement records the T-67 boundary at capture time. T-68 subsequently added the distinct,
+conditional LAW1 + LPRONY path documented in `t68-openradioss-lprony.md`; LAW62 remains forbidden.
+
 The two screenshots were captured from the live in-app browser at
 `http://127.0.0.1:5173/materials/4e2adbd3-1f4d-4bc1-b03f-d4fe3947c462/models` after authenticating
 with the local demo identity. They contain synthetic data only and are not production-material

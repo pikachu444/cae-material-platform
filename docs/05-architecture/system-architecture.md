@@ -255,6 +255,13 @@ sequenceDiagram
     P->>O: normalized response+metrics
 ```
 
+`T-68` keeps conditional linear-Prony OpenRadioss export inside `exporting`; it does not add a
+solver-specific model to `modeling`. The exporter consumes one exact generalized-Maxwell Neutral
+revision and either emits Abaqus `*VISCOELASTIC` or, only inside ADR-0032's eligibility boundary,
+an OpenRadioss `/MAT/LAW1` + `/VISC/LPRONY` fragment. The latter report exposes the external solid
+`/PROP I_smstr=10/12` prerequisite and deviatoric-only nearly-incompressible interpretation as
+acknowledged approximations. It never mutates the IR, invents bulk terms, or converts it to LAW62.
+
 ## 8. Plugin 및 solver 실행 plane
 
 ### 8.1 개발 환경

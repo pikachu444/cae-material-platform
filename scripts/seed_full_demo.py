@@ -733,8 +733,10 @@ def _ensure_polymer_baseline(api: DemoApi) -> str:
         detail,
         state,
         density=1200.0,
-        youngs_modulus=3_000_000_000.0,
-        poisson_ratio=0.35,
+        # Keep the synthetic instantaneous shear modulus at 1.111... GPa while making the
+        # reference eligible for ADR-0032's nearly-incompressible LPRONY path.
+        youngs_modulus=3_322_222_222.0,
+        poisson_ratio=0.495,
     )
     state_id = _id(state, "material_state_id")
     models = _items(api.get(f"/material-states/{state_id}/linear-viscoelastic-models"))
@@ -1041,7 +1043,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
 
     neutral_id = _id(neutral, "neutral_material_id")
     cards = _items(api.get(f"/neutral-materials/{neutral_id}/solver-cards"))
-    card = next(
+    abaqus_card = next(
         (
             item
             for item in cards
@@ -1050,7 +1052,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
         ),
         None,
     )
-    if card is None:
+    if abaqus_card is None:
         target = {"solver": "abaqus", "version": "2025", "unit_system": "kg_m_s"}
         report = api.post(
             f"/neutral-materials/{neutral_id}/solver-card-preflight",
@@ -1059,7 +1061,7 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
                 "target": target,
             },
         )
-        card = api.post(
+        abaqus_card = api.post(
             f"/neutral-materials/{neutral_id}/solver-cards",
             {
                 "neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
@@ -1070,12 +1072,46 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
                 "change_reason": "Generate Abaqus Prony card from exact Neutral JSON.",
             },
         )
+    openradioss_card = next(
+        (
+            item
+            for item in cards
+            if isinstance(item.get("target"), Mapping)
+            and item["target"].get("solver") == "openradioss"
+        ),
+        None,
+    )
+    if openradioss_card is None:
+        target = {"solver": "openradioss", "version": "2025", "unit_system": "kg_m_s"}
+        report = api.post(
+            f"/neutral-materials/{neutral_id}/solver-card-preflight",
+            {
+                "neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
+                "target": target,
+            },
+        )
+        if not report.get("exportable"):
+            raise DemoSeedError("synthetic polymer did not pass OpenRadioss LPRONY preflight")
+        openradioss_card = api.post(
+            f"/neutral-materials/{neutral_id}/solver-cards",
+            {
+                "neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
+                "target": target,
+                "expected_mapping_report_sha256": _id(report, "mapping_report_sha256"),
+                "solver_material_id": 1202,
+                "material_name": "CMP_DEMO_POLYMER_LPRONY",
+                "change_reason": "Generate acknowledged OpenRadioss LPRONY reference fragment.",
+            },
+        )
     return {
         "polymer_test_data_document_id": _id(test_data, "test_data_document_id"),
         "polymer_processing_output_id": _id(output, "processing_output_id"),
         "polymer_processing_model_id": _id(model, "material_model_id"),
         "polymer_processing_neutral_id": neutral_id,
-        "polymer_processing_card_id": _id(card, "solver_card_id"),
+        "polymer_processing_card_id": _id(abaqus_card, "solver_card_id"),
+        "polymer_processing_openradioss_card_id": _id(
+            openradioss_card, "solver_card_id"
+        ),
     }
 
 

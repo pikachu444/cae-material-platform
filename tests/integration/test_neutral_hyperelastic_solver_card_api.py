@@ -204,6 +204,9 @@ async def _exercise() -> None:
             "hyperelastic",
             "hyperelastic_prony_overlay",
         }
+        assert neutral_capabilities.json()["families"]["generalized_maxwell"][
+            "openradioss"
+        ] == "conditional_nearly_incompressible_shear_only"
 
         preflight = await client.post(
             f"/api/v1/neutral-materials/{NEUTRAL}/solver-card-preflight",

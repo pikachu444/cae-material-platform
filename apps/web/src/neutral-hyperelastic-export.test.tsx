@@ -31,9 +31,13 @@ const neutral: NeutralMaterialResponse = {
       model: { id: neutralId, revision_id: neutralRevisionId },
       schema_id: "urn:cmp:modeling:neutral-hyperelastic-ir:1.0.0",
       schema_version: "1.0.0",
+      model_family: "generalized_maxwell",
       constitutive_model: {
-        family: "mooney_rivlin",
-        parameters: { c10_pa: { value: 1e6, unit: "Pa" } },
+        family: "generalized_maxwell",
+        parameters: {
+          youngs_modulus_pa: { value: 3.3e9, unit: "Pa" },
+          poisson_ratio: { value: 0.495, unit: "1" },
+        },
       },
       maturity: "reference",
       non_production: true,
@@ -59,7 +63,7 @@ afterEach(() => {
 });
 
 describe("NeutralHyperelasticExport", () => {
-  it("requires explicit acknowledgement, creates a card, and previews native ASCII", async () => {
+  it("acknowledges OpenRadioss LPRONY prerequisites and previews native ASCII", async () => {
     const report = {
       mapping_report_sha256: sha,
       exportable: true,
@@ -68,29 +72,31 @@ describe("NeutralHyperelasticExport", () => {
         neutral_material_revision_id: neutralRevisionId,
         neutral_material_sha256: sha,
         model_schema_digest: sha,
-        family: "mooney_rivlin",
+        model_family: "generalized_maxwell",
+        family: "generalized_maxwell",
         target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" },
         items: [
           {
-            name: "constitutive_parameters",
-            ir_path: "/material_model_ir/constitutive_model",
-            target_representation: "/MAT/LAW82",
-            status: "transformed",
-            detail: "Exact strain-energy transformation.",
+            name: "shear_prony_terms",
+            ir_path: "/material_model_ir/constitutive_model/terms",
+            target_representation: "/VISC/LPRONY/GAMMA_i,TAU_i",
+            status: "exact",
+            detail: "Ordered shear ratios and relaxation times map directly.",
           },
           {
-            name: "volumetric_response",
-            ir_path: "/material_model_ir/volumetric_response",
-            target_representation: "explicit LAW82 nu",
+            name: "solid_property_total_strain",
+            ir_path: "/applicability/solver_property",
+            target_representation: "/PROP I_smstr=10 or 12",
             status: "approximated",
-            detail: "Explicit nu=0.495 approximation.",
+            detail: "A compatible external total-strain property is required.",
           },
         ],
         exporter: {
-          id: "cmp.reference.openradioss-neutral-hyperelastic",
+          id: "cmp.reference.openradioss-linear-lprony",
           version: "1.0.0",
           digest: sha,
-          documentation_url: "https://example.invalid/law82",
+          documentation_url:
+            "https://help.altair.com/hwsolvers/rad/topics/solvers/rad/visc_lprony_starter_r.htm",
         },
         non_production: true,
       },
@@ -119,14 +125,15 @@ describe("NeutralHyperelasticExport", () => {
           neutral_material_revision_id: neutralRevisionId,
           neutral_material_sha256: sha,
           model_schema_digest: sha,
-          family: "mooney_rivlin",
+          model_family: "generalized_maxwell",
+          family: "generalized_maxwell",
           target: report.report.target,
           solver_material_id: 301,
-          material_name: "ELASTOMER_REFERENCE",
+          material_name: "POLYMER_REFERENCE",
           density_kg_per_m3: 1100,
           constitutive_model: {},
           applicability: { engineering_strain: { minimum: 0, maximum: 0.5, unit: "1" } },
-          mapping_statuses: { volumetric_response: "approximated" },
+          mapping_statuses: { solid_property_total_strain: "approximated" },
           mapping_report_sha256: sha,
           card_sha256: sha,
           exporter: { id: "cmp.reference", version: "1.0.0", digest: sha },
@@ -152,7 +159,8 @@ describe("NeutralHyperelasticExport", () => {
           ok: true,
           status: 200,
           headers: new Headers({ "content-type": "text/plain" }),
-          text: async () => "/MAT/LAW82/301/1\nELASTOMER_REFERENCE\n",
+          text: async () =>
+            "/MAT/LAW1/301/1\nPOLYMER_REFERENCE\n/VISC/LPRONY/301/1\n",
         } as Response;
       }
       throw new Error(`unexpected request ${url}`);
@@ -176,7 +184,7 @@ describe("NeutralHyperelasticExport", () => {
     expect((create as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(create);
     expect(await screen.findByText(/openradioss card r1 created/)).toBeTruthy();
-    expect(await screen.findByText(/\/MAT\/LAW82\/301\/1/)).toBeTruthy();
+    expect(await screen.findByText(/\/VISC\/LPRONY\/301\/1/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download native ASCII card" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download mapping report JSON" })).toBeTruthy();
   });

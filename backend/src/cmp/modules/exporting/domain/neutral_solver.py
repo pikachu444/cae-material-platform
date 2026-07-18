@@ -70,7 +70,9 @@ from cmp.shared.domain.revisions import content_sha256
 type NeutralMappingReport = NeutralHyperelasticMappingReport | NeutralFamilyMappingReport
 type NeutralCardContent = NeutralHyperelasticSolverCardContent | NeutralFamilySolverCardContent
 
-GENERIC_EXPORTER_VERSION = "2.0.0"
+GENERIC_EXPORTER_VERSION = "2.1.0"
+OPENRADIOSS_LPRONY_EXPORTER_ID = "cmp.reference.openradioss-linear-lprony"
+OPENRADIOSS_LPRONY_EXPORTER_VERSION = "1.0.0"
 ABAQUS_PLASTIC_DOCUMENTATION = (
     "https://docs.software.vt.edu/abaqusv2024/English/SIMACAEKEYRefMap/simakey-r-plastic.htm"
 )
@@ -82,6 +84,9 @@ OPENRADIOSS_LAW36_DOCUMENTATION = (
 )
 OPENRADIOSS_LAW62_DOCUMENTATION = (
     "https://2025.help.altair.com/2025/hwsolvers/rad/topics/solvers/rad/mat_law62_starter_r.htm"
+)
+OPENRADIOSS_LPRONY_DOCUMENTATION = (
+    "https://help.altair.com/hwsolvers/rad/topics/solvers/rad/visc_lprony_starter_r.htm"
 )
 
 
@@ -101,7 +106,11 @@ def _documentation(source: NeutralMaterialDocument, target: NeutralHyperelasticE
     if isinstance(ir, NeutralElastoplasticIR):
         return ABAQUS_PLASTIC_DOCUMENTATION if target.is_abaqus else OPENRADIOSS_LAW36_DOCUMENTATION
     if isinstance(ir, NeutralLinearViscoelasticIR):
-        return ABAQUS_VISCOELASTIC_DOCUMENTATION
+        return (
+            ABAQUS_VISCOELASTIC_DOCUMENTATION
+            if target.is_abaqus
+            else OPENRADIOSS_LPRONY_DOCUMENTATION
+        )
     if isinstance(ir, NeutralHyperelasticIR) and ir.prony_overlay is not None:
         return (
             ABAQUS_VISCOELASTIC_DOCUMENTATION
@@ -125,7 +134,11 @@ def _exporter_identity(
             else OPENRADIOSS_LAW36_EXPORTER_VERSION
         )
     elif isinstance(ir, NeutralLinearViscoelasticIR):
-        exporter_id, version = ABAQUS_PRONY_EXPORTER_ID, ABAQUS_PRONY_EXPORTER_VERSION
+        exporter_id, version = (
+            (ABAQUS_PRONY_EXPORTER_ID, ABAQUS_PRONY_EXPORTER_VERSION)
+            if target.is_abaqus
+            else (OPENRADIOSS_LPRONY_EXPORTER_ID, OPENRADIOSS_LPRONY_EXPORTER_VERSION)
+        )
     else:
         exporter_id = (
             "cmp.reference.abaqus-neutral-hyper-viscoelastic"
@@ -276,10 +289,81 @@ def _metal_items(
 def _linear_viscoelastic_items(
     target: NeutralHyperelasticExportTarget, ir: NeutralLinearViscoelasticIR
 ) -> tuple[NeutralHyperelasticMappingItem, ...]:
-    if not target.is_abaqus:
+    if not target.supported:
+        return _unsupported("Only Abaqus 2025 and OpenRadioss 2025 kg-m-s are declared.")
+    if target.is_openradioss and (
+        ir.bulk_relaxation_status != "not_characterized"
+        or any(term.k_ratio != 0.0 for term in ir.terms)
+    ):
         return _unsupported(
-            "Generalized-Maxwell Neutral IR is declared only for Abaqus 2025; "
-            "OpenRadioss LAW62 requires a hyperelastic Ogden base."
+            "OpenRadioss LPRONY reference export is shear-only: bulk relaxation must be "
+            "not_characterized and every k_ratio must be zero."
+        )
+    if target.is_openradioss and not 0.49 <= ir.poisson_ratio < 0.5:
+        return _unsupported(
+            "OpenRadioss LPRONY flag_visc=2 is declared only for nearly-incompressible "
+            "0.49 <= poisson_ratio < 0.5 material records."
+        )
+    if target.is_openradioss:
+        return (
+            _item(
+                "density",
+                "/material_model_ir/density",
+                "/MAT/LAW1/RHO_I",
+                "exact",
+                "SI density is emitted unchanged.",
+            ),
+            _item(
+                "instantaneous_isotropic_elasticity",
+                "/material_model_ir/constitutive_model/parameters",
+                "/MAT/LAW1/E,nu",
+                "exact",
+                "Instantaneous Young's modulus and Poisson ratio map directly to LAW1.",
+            ),
+            _item(
+                "shear_prony_terms",
+                "/material_model_ir/constitutive_model/terms",
+                "/VISC/LPRONY/GAMMA_i,TAU_i",
+                "exact",
+                "Ordered shear ratios and SI relaxation times map directly without refitting.",
+            ),
+            _item(
+                "bulk_relaxation",
+                "/material_model_ir/constitutive_model/terms/*/k_ratio",
+                None,
+                "not_applicable",
+                "LPRONY flag_visc=2 is deviatoric-only; bulk relaxation is "
+                "uncharacterized and zero.",
+            ),
+            _item(
+                "deviatoric_only_formulation",
+                "/material_model_ir/constitutive_model/parameters/poisson_ratio",
+                "/VISC/LPRONY Form=2,flag_visc=2",
+                "approximated",
+                "The reference mapping assumes nearly-incompressible deviatoric-only relaxation.",
+            ),
+            _item(
+                "solid_property_total_strain",
+                "/applicability/solver_property",
+                "/PROP I_smstr=10 or 12",
+                "approximated",
+                "A compatible external solid property with total-strain formulation is required; "
+                "this material fragment does not create or modify /PROP.",
+            ),
+            _item(
+                "temperature_dependence",
+                "/material_model_ir/reference_temperature",
+                None,
+                "not_applicable",
+                "Reference temperature is applicability evidence, not a shift table.",
+            ),
+            _item(
+                "unit_system",
+                "/material_model_ir/*/unit",
+                "/UNIT/1 kg-m-s",
+                "exact",
+                "The card declares the kg-m-s unit system and emits Pa and seconds unchanged.",
+            ),
         )
     bulk_status: MappingStatus = (
         "exact" if ir.bulk_relaxation_status == "characterized" else "not_applicable"
@@ -546,6 +630,37 @@ def _number(value: float) -> str:
     return f"{value:.12e}"
 
 
+def _render_openradioss_linear_viscoelastic(
+    source: NeutralMaterialDocument,
+    solver_material_id: int,
+    material_name: str,
+) -> str:
+    ir = cast(NeutralLinearViscoelasticIR, source.material_model_ir)
+    lines = [
+        "# CMP reference/non-production linear-viscoelastic material fragment",
+        "# Consistent units: kg, m, s, Pa",
+        "# Requires a compatible solid /PROP with I_smstr=10 or 12",
+        "# LPRONY Form=2 uses instantaneous rigidity; flag_visc=2 is deviatoric-only",
+        "/UNIT/1",
+        "CMP_KG_M_S",
+        "                  kg                   m                   s",
+        f"/MAT/LAW1/{solver_material_id}/1",
+        material_name,
+        "#              RHO_I",
+        f"{_number(ir.density_kg_per_m3)}                   0",
+        "#                  E                  nu",
+        f"{_number(ir.youngs_modulus_pa)} {_number(ir.poisson_ratio)}",
+        f"/VISC/LPRONY/{solver_material_id}/1",
+        "#         M      Form flag_visc",
+        f"{len(ir.terms):10d}{2:10d}{2:10d}",
+        "#            GAMMA_i               TAU_i",
+    ]
+    lines.extend(
+        f"{_number(term.g_ratio)} {_number(term.relaxation_time_s)}" for term in ir.terms
+    )
+    return "\n".join(lines) + "\n"
+
+
 def _render_hyper_viscoelastic(
     source: NeutralMaterialDocument,
     target: NeutralHyperelasticExportTarget,
@@ -760,8 +875,14 @@ def build_neutral_solver_card(
         bulk_status = None
         reference_temperature_k = None
     elif isinstance(ir, NeutralLinearViscoelasticIR):
-        card_text = render_abaqus_linear_viscoelastic_card(
-            material_name=material_name, source=_linear_source(source)
+        card_text = (
+            render_abaqus_linear_viscoelastic_card(
+                material_name=material_name, source=_linear_source(source)
+            )
+            if target.is_abaqus
+            else _render_openradioss_linear_viscoelastic(
+                source, solver_material_id, material_name
+            )
         )
         hyperelastic_parameters = None
         youngs_modulus_pa, poisson_ratio = ir.youngs_modulus_pa, ir.poisson_ratio
@@ -828,7 +949,10 @@ def neutral_solver_capability_manifest() -> dict[str, object]:
         ],
         "families": {
             "isotropic_tabulated_plasticity": {"abaqus": "exact", "openradioss": "exact"},
-            "generalized_maxwell": {"abaqus": "exact", "openradioss": "unsupported"},
+            "generalized_maxwell": {
+                "abaqus": "exact",
+                "openradioss": "conditional_nearly_incompressible_shear_only",
+            },
             "hyperelastic": {"abaqus": "exact", "openradioss": "family_dependent"},
             "hyperelastic_prony_overlay": {"abaqus": "exact", "openradioss": "ogden_1_only"},
         },

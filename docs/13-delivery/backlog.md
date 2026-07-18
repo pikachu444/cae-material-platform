@@ -1566,3 +1566,24 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   G₀ mismatch와 명시적 review를 요구하고 IR evidence, Neutral JSON, Abaqus `*VISCOELASTIC`
   mapping/card를 같은 화면에 연결한다. Clean Compose seed/verifier와 PostgreSQL head migration,
   React regression, 현재 GUI capture가 이 경로를 확인한다. OpenRadioss는 `unsupported`다.
+
+#### T-68. Conditional OpenRadioss linear-Prony card — `P0`
+
+- **상태 (`2026-07-19`):** `implemented`.
+- **범위:** ADR-0032에 따라 reviewed generalized-Maxwell Neutral revision을 OpenRadioss 2025
+  `/MAT/LAW1` + `/VISC/LPRONY` native reference fragment로 조건부 생성한다. LAW62 변환은 금지한다.
+- **허용 경계:** bulk relaxation 미특성화, 모든 `k_ratio=0`, `0.49 <= nu < 0.5`, Form 2,
+  `flag_visc=2`. 외부 solid `/PROP`의 `I_smstr=10/12` 요구와 nearly-incompressible shear-only
+  가정은 `approximated` mapping으로 사용자 확인을 요구한다. 그 밖의 조합은 `unsupported`다.
+- **완료 조건:** exact Neutral revision에서 ratio/time을 재계산 없이 렌더링하고 official keyword
+  URL, capability manifest, mapping report, preview/download, immutable card persistence를 같은 기존
+  API/UI 흐름으로 제공한다. 실제 solver 실행 검증은 포함하지 않는다.
+- **테스트:** eligibility 경계, bulk negative, deterministic ASCII golden, stale report digest,
+  capability manifest, React acknowledgement, PostgreSQL/API와 clean-demo browser evidence.
+- **구현 증거 (`2026-07-19`):** family-neutral exporter `2.1.0`이 조건을 서버에서 재검증하고
+  LAW1/LPRONY ASCII와 official documentation URL을 생성한다. 기존 migration 077의 typed target,
+  mapping row, ordered Prony row와 immutable card projection을 재사용하므로 새 DB migration은
+  필요하지 않다. returning workbench는 exact Processing Output/State/Property evidence로 기존
+  Neutral revision을 다시 열어 중복 promotion 없이 preflight를 계속한다. Clean Compose seed와
+  protected verifier가 같은 Neutral revision의 Abaqus/OpenRadioss 다운로드 SHA-256을 확인했고,
+  browser capture는 approximation 확인과 native preview를 검증했다.
