@@ -1,5 +1,6 @@
 import json
 from dataclasses import replace
+from typing import cast
 from uuid import UUID
 
 import pytest
@@ -225,7 +226,7 @@ def test_neutral_hyperelastic_preflight_and_card_cover_declared_families(
 
     assert report.exportable
     assert card.card_text.endswith("\n")
-    assert family.value in card.canonical()["family"]
+    assert card.canonical()["family"] == family.value
     assert ("*HYPERELASTIC" in card.card_text) is (solver == "abaqus")
     assert ("/MAT/LAW" in card.card_text) is (solver == "openradioss")
 
@@ -260,6 +261,7 @@ def test_neutral_hyperelastic_card_requires_acknowledged_current_report() -> Non
 
 def test_neutral_hyperelastic_capability_manifest_is_digest_pinned() -> None:
     manifest = neutral_hyperelastic_capability_manifest()
+    capabilities = cast(list[object], manifest["capabilities"])
 
-    assert len(manifest["capabilities"]) == 8
+    assert len(capabilities) == 8
     assert len(str(manifest["manifest_sha256"])) == 64
