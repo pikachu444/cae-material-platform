@@ -1,7 +1,14 @@
-version: 21
+version: 22
 verified_at: 2026-07-18
-source_evidence: ../15-demo/evidence/t56-neutral-material-json.md
+source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
+  - id: t60-guided-dashboard
+    route: /
+    workflow: clean-compose-three-family-guided-demo
+    fixture: deterministic T-60 metal, polymer and elastomer reference seed
+    image: ../15-demo/images/t60-guided-dashboard.png
+    width: 2385
+    height: 894
   - id: catalog-workflow-explorer
     route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
     workflow: lazy-catalog-tree-and-forward-exact-revision-link

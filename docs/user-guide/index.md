@@ -22,6 +22,7 @@
 13. [Canonical Test Data JSON 검증·등록·정확한 revision 다운로드](13-canonical-test-data-json.md)
 14. [Mapping Profile 저장과 공통 Processing Workbench](14-common-processing-workbench.md)
 15. [Administrator/User와 기능 권한](15-product-access.md)
+16. [세 재료 계열 통합 데모 따라하기](16-guided-demo.md)
 
 ## 현재 할 수 있는 일
 
@@ -54,6 +55,8 @@
 기록합니다. 기능이 추가될 때 이 가이드와 화면 이미지를 함께 갱신합니다.
 
 ## 화면 예시
+
+![금속·폴리머·엘라스토머 안내 Dashboard](../15-demo/images/t60-guided-dashboard.png)
 
 ![Material 상세와 immutable revision](../15-demo/images/e2e-material-detail.png)
 

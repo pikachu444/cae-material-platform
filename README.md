@@ -72,6 +72,23 @@ enforcement로 유지됩니다. 자세한 절차는 [사용자 권한 가이드]
 docker compose -f deploy/compose/docker-compose.demo.yml up --build
 ```
 
+첫 실행은 금속 탄소성, 폴리머 점탄성, 엘라스토머 초탄성/초점탄성의 공개 합성 데이터를 자동으로
+준비합니다. 다른 터미널에서 아래 명령으로 세 Material과 Abaqus/OpenRadioss card를 확인할 수
+있습니다.
+
+```powershell
+make demo-verify
+```
+
+Windows PowerShell에 `make`가 없으면 같은 검증을 직접 실행할 수 있습니다.
+
+```powershell
+docker compose -f deploy/compose/docker-compose.demo.yml run --rm --no-deps seed python scripts/verify_full_demo.py --api-base-url http://api:8000/api/v1
+```
+
+[세 재료 계열 통합 데모](docs/user-guide/16-guided-demo.md)는 Dashboard에서 시험 데이터, 처리,
+중립 모델, mapping report, native card와 bulk ZIP까지 이동하는 순서를 설명합니다.
+
 ### Material genealogy (Process / Lot / Batch)
 
 Material State 화면의 **Catalog genealogy** 영역에서는 제조 공정, 열처리 공정, Lot/Batch를

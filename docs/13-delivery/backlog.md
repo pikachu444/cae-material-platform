@@ -1464,3 +1464,8 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **완료 조건:** tree/search/link → import → recipe/batch → fit → IR → preflight/card/bulk의 두
   solver 및 세 material-family reference 시나리오가 실제 API/PostgreSQL에서 완료된다.
 - **테스트:** Playwright product journey, screenshot manifest, clean Compose seed와 `make ci`.
+- **구현 증거 (`2026-07-18`):** migration 074의 빈 PostgreSQL/object-store 볼륨에서 Compose
+  seed가 protected API만 사용하여 금속·폴리머·엘라스토머 reference 자료를 생성했다. 금속과
+  엘라스토머의 Abaqus/OpenRadioss, 폴리머 Abaqus card를 `make demo-verify`로 재조회했다.
+  Dashboard 세 family entry, deterministic fixture stamp, 통합 사용자 walkthrough와 desktop
+  screenshot manifest를 연결했다. 실제 solver 실행·qualification은 범위에서 제외한다.
