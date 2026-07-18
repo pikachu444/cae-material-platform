@@ -56,19 +56,19 @@ class ExportSourceRefModel(BaseModel):
     material_model_revision_id: UUID | None = None
     solver_card_id: UUID | None = None
     solver_card_revision_id: UUID | None = None
+    test_data_document_id: UUID | None = None
+    test_data_document_revision_id: UUID | None = None
+    mapping_profile_id: UUID | None = None
+    mapping_profile_revision_id: UUID | None = None
+    processing_recipe_id: UUID | None = None
+    processing_recipe_revision_id: UUID | None = None
+    neutral_material_id: UUID | None = None
+    neutral_material_revision_id: UUID | None = None
+    neutral_solver_card_id: UUID | None = None
+    neutral_solver_card_revision_id: UUID | None = None
 
     def domain(self) -> ExportSourceRef:
-        return ExportSourceRef(
-            self.kind,
-            self.raw_asset_id,
-            self.artifact_id,
-            self.dataset_id,
-            self.dataset_revision_id,
-            self.material_model_id,
-            self.material_model_revision_id,
-            self.solver_card_id,
-            self.solver_card_revision_id,
-        )
+        return ExportSourceRef(**self.model_dump())
 
     @classmethod
     def from_domain(cls, value: ExportSourceRef) -> ExportSourceRefModel:
@@ -82,6 +82,16 @@ class ExportSourceRefModel(BaseModel):
             material_model_revision_id=value.material_model_revision_id,
             solver_card_id=value.solver_card_id,
             solver_card_revision_id=value.solver_card_revision_id,
+            test_data_document_id=value.test_data_document_id,
+            test_data_document_revision_id=value.test_data_document_revision_id,
+            mapping_profile_id=value.mapping_profile_id,
+            mapping_profile_revision_id=value.mapping_profile_revision_id,
+            processing_recipe_id=value.processing_recipe_id,
+            processing_recipe_revision_id=value.processing_recipe_revision_id,
+            neutral_material_id=value.neutral_material_id,
+            neutral_material_revision_id=value.neutral_material_revision_id,
+            neutral_solver_card_id=value.neutral_solver_card_id,
+            neutral_solver_card_revision_id=value.neutral_solver_card_revision_id,
         )
 
 

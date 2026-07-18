@@ -1434,6 +1434,12 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-58. Canonical Bulk JSON package — `P0`
 
+- **상태:** `complete` for the declared canonical package scope. Migration 073 adds explicit exact
+  revision source pairs and composite foreign keys for Test Data JSON, Mapping Profile, Processing
+  Recipe, Neutral Material JSON and Neutral solver report/card. The existing deterministic
+  Selection/Job/Bundle engine and connected UI now assemble all six representations without a
+  generic payload. Manifest and checksum verification passed on a live 16-component Docker bundle.
+
 - **범위:** 기존 immutable Bundle에 Test JSON, Mapping Profile, Recipe, Neutral JSON, mapping
   report와 native card package profile 추가.
 - **완료 조건:** manifest/checksum이 모든 exact source와 representation을 검증한다.

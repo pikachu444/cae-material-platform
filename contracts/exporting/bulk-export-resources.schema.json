@@ -5,7 +5,7 @@
     "Uuid": {"type": "string", "format": "uuid"},
     "Sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
     "Classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
-    "MemberKind": {"enum": ["raw_original", "dataset_parquet", "dataset_csv", "model_ir_json", "model_ir_schema", "solver_mapping_report", "solver_card_native"]},
+    "MemberKind": {"enum": ["raw_original", "dataset_parquet", "dataset_csv", "model_ir_json", "model_ir_schema", "solver_mapping_report", "solver_card_native", "test_data_json", "mapping_profile_json", "processing_recipe_json", "neutral_material_json", "neutral_solver_mapping_report", "neutral_solver_card_native"]},
     "SourceRef": {
       "type": "object",
       "additionalProperties": false,
@@ -19,7 +19,17 @@
         "material_model_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
         "material_model_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
         "solver_card_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
-        "solver_card_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]}
+        "solver_card_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "test_data_document_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "test_data_document_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "mapping_profile_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "mapping_profile_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "processing_recipe_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "processing_recipe_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "neutral_material_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "neutral_material_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "neutral_solver_card_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "neutral_solver_card_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]}
       }
     },
     "Candidate": {

@@ -118,3 +118,67 @@ def test_source_reference_is_a_typed_union_not_a_generic_payload() -> None:
             material_model_id=_id(1),
             material_model_revision_id=_id(2),
         )
+
+
+@pytest.mark.parametrize(
+    ("kind", "fields"),
+    [
+        (
+            ExportMemberKind.TEST_DATA_JSON,
+            {
+                "artifact_id": _id(1),
+                "test_data_document_id": _id(2),
+                "test_data_document_revision_id": _id(3),
+            },
+        ),
+        (
+            ExportMemberKind.MAPPING_PROFILE_JSON,
+            {"mapping_profile_id": _id(4), "mapping_profile_revision_id": _id(5)},
+        ),
+        (
+            ExportMemberKind.PROCESSING_RECIPE_JSON,
+            {"processing_recipe_id": _id(6), "processing_recipe_revision_id": _id(7)},
+        ),
+        (
+            ExportMemberKind.NEUTRAL_MATERIAL_JSON,
+            {
+                "artifact_id": _id(8),
+                "neutral_material_id": _id(9),
+                "neutral_material_revision_id": _id(10),
+            },
+        ),
+        (
+            ExportMemberKind.NEUTRAL_SOLVER_MAPPING_REPORT,
+            {
+                "neutral_solver_card_id": _id(11),
+                "neutral_solver_card_revision_id": _id(12),
+            },
+        ),
+        (
+            ExportMemberKind.NEUTRAL_SOLVER_CARD_NATIVE,
+            {
+                "neutral_solver_card_id": _id(13),
+                "neutral_solver_card_revision_id": _id(14),
+            },
+        ),
+    ],
+)
+def test_canonical_package_source_references_are_explicit_typed_pairs(
+    kind: ExportMemberKind, fields: dict[str, UUID]
+) -> None:
+    source = ExportSourceRef(kind, **fields)
+
+    assert source.kind is kind
+    assert source.canonical()["kind"] == kind.value
+
+
+def test_canonical_package_source_rejects_cross_kind_identifiers() -> None:
+    with pytest.raises(InvalidBulkExport, match="typed source"):
+        ExportSourceRef(
+            ExportMemberKind.NEUTRAL_MATERIAL_JSON,
+            artifact_id=_id(1),
+            neutral_material_id=_id(2),
+            neutral_material_revision_id=_id(3),
+            mapping_profile_id=_id(4),
+            mapping_profile_revision_id=_id(5),
+        )

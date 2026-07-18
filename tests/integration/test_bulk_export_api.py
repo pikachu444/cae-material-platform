@@ -6,7 +6,11 @@ from typing import cast
 from uuid import UUID
 
 import httpx
-from cmp.modules.exporting.adapters.api.bulk_export import install_bulk_export_api
+import pytest
+from cmp.modules.exporting.adapters.api.bulk_export import (
+    ExportSourceRefModel,
+    install_bulk_export_api,
+)
 from cmp.modules.exporting.application.bulk_export import (
     BulkExportBundle,
     BulkExportJob,
@@ -142,6 +146,49 @@ BUNDLE_RECORD = BulkExportBundle(
     NOW,
     ACTOR,
 )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        ExportSourceRef(
+            ExportMemberKind.TEST_DATA_JSON,
+            artifact_id=UUID(int=30),
+            test_data_document_id=UUID(int=31),
+            test_data_document_revision_id=UUID(int=32),
+        ),
+        ExportSourceRef(
+            ExportMemberKind.MAPPING_PROFILE_JSON,
+            mapping_profile_id=UUID(int=33),
+            mapping_profile_revision_id=UUID(int=34),
+        ),
+        ExportSourceRef(
+            ExportMemberKind.PROCESSING_RECIPE_JSON,
+            processing_recipe_id=UUID(int=35),
+            processing_recipe_revision_id=UUID(int=36),
+        ),
+        ExportSourceRef(
+            ExportMemberKind.NEUTRAL_MATERIAL_JSON,
+            artifact_id=UUID(int=37),
+            neutral_material_id=UUID(int=38),
+            neutral_material_revision_id=UUID(int=39),
+        ),
+        ExportSourceRef(
+            ExportMemberKind.NEUTRAL_SOLVER_MAPPING_REPORT,
+            neutral_solver_card_id=UUID(int=40),
+            neutral_solver_card_revision_id=UUID(int=41),
+        ),
+        ExportSourceRef(
+            ExportMemberKind.NEUTRAL_SOLVER_CARD_NATIVE,
+            neutral_solver_card_id=UUID(int=42),
+            neutral_solver_card_revision_id=UUID(int=43),
+        ),
+    ],
+)
+def test_canonical_bulk_source_api_round_trips_typed_exact_references(
+    source: ExportSourceRef,
+) -> None:
+    assert ExportSourceRefModel.from_domain(source).domain() == source
 
 
 class _Service:

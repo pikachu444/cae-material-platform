@@ -102,6 +102,16 @@ member_table = sa.Table(
     sa.Column("material_model_revision_id", sa.Uuid(), nullable=True),
     sa.Column("solver_card_id", sa.Uuid(), nullable=True),
     sa.Column("solver_card_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("test_data_document_id", sa.Uuid(), nullable=True),
+    sa.Column("test_data_document_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("mapping_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("mapping_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_recipe_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_recipe_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_material_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_material_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_solver_card_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_solver_card_revision_id", sa.Uuid(), nullable=True),
     sa.Column("archive_path", sa.String(512), nullable=False),
     sa.Column("source_sha256", sa.CHAR(64), nullable=False),
     sa.Column("source_size_bytes", sa.BigInteger(), nullable=False),
@@ -127,6 +137,16 @@ omission_table = sa.Table(
     sa.Column("material_model_revision_id", sa.Uuid(), nullable=True),
     sa.Column("solver_card_id", sa.Uuid(), nullable=True),
     sa.Column("solver_card_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("test_data_document_id", sa.Uuid(), nullable=True),
+    sa.Column("test_data_document_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("mapping_profile_id", sa.Uuid(), nullable=True),
+    sa.Column("mapping_profile_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_recipe_id", sa.Uuid(), nullable=True),
+    sa.Column("processing_recipe_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_material_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_material_revision_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_solver_card_id", sa.Uuid(), nullable=True),
+    sa.Column("neutral_solver_card_revision_id", sa.Uuid(), nullable=True),
     sa.Column("reason_code", sa.String(80), nullable=False),
     sa.Column("reason", sa.Text(), nullable=False),
     schema="exporting",
@@ -194,15 +214,31 @@ output_commit_table = sa.Table(
 
 def _source(row: Any) -> ExportSourceRef:
     return ExportSourceRef(
-        ExportMemberKind(str(row["member_kind"])),
-        cast(UUID | None, row["raw_asset_id"]),
-        cast(UUID | None, row["artifact_id"]),
-        cast(UUID | None, row["dataset_id"]),
-        cast(UUID | None, row["dataset_revision_id"]),
-        cast(UUID | None, row["material_model_id"]),
-        cast(UUID | None, row["material_model_revision_id"]),
-        cast(UUID | None, row["solver_card_id"]),
-        cast(UUID | None, row["solver_card_revision_id"]),
+        kind=ExportMemberKind(str(row["member_kind"])),
+        raw_asset_id=cast(UUID | None, row["raw_asset_id"]),
+        artifact_id=cast(UUID | None, row["artifact_id"]),
+        dataset_id=cast(UUID | None, row["dataset_id"]),
+        dataset_revision_id=cast(UUID | None, row["dataset_revision_id"]),
+        material_model_id=cast(UUID | None, row["material_model_id"]),
+        material_model_revision_id=cast(UUID | None, row["material_model_revision_id"]),
+        solver_card_id=cast(UUID | None, row["solver_card_id"]),
+        solver_card_revision_id=cast(UUID | None, row["solver_card_revision_id"]),
+        test_data_document_id=cast(UUID | None, row["test_data_document_id"]),
+        test_data_document_revision_id=cast(
+            UUID | None, row["test_data_document_revision_id"]
+        ),
+        mapping_profile_id=cast(UUID | None, row["mapping_profile_id"]),
+        mapping_profile_revision_id=cast(UUID | None, row["mapping_profile_revision_id"]),
+        processing_recipe_id=cast(UUID | None, row["processing_recipe_id"]),
+        processing_recipe_revision_id=cast(
+            UUID | None, row["processing_recipe_revision_id"]
+        ),
+        neutral_material_id=cast(UUID | None, row["neutral_material_id"]),
+        neutral_material_revision_id=cast(UUID | None, row["neutral_material_revision_id"]),
+        neutral_solver_card_id=cast(UUID | None, row["neutral_solver_card_id"]),
+        neutral_solver_card_revision_id=cast(
+            UUID | None, row["neutral_solver_card_revision_id"]
+        ),
     )
 
 
@@ -217,6 +253,16 @@ def _source_values(source: ExportSourceRef) -> dict[str, object]:
         "material_model_revision_id": source.material_model_revision_id,
         "solver_card_id": source.solver_card_id,
         "solver_card_revision_id": source.solver_card_revision_id,
+        "test_data_document_id": source.test_data_document_id,
+        "test_data_document_revision_id": source.test_data_document_revision_id,
+        "mapping_profile_id": source.mapping_profile_id,
+        "mapping_profile_revision_id": source.mapping_profile_revision_id,
+        "processing_recipe_id": source.processing_recipe_id,
+        "processing_recipe_revision_id": source.processing_recipe_revision_id,
+        "neutral_material_id": source.neutral_material_id,
+        "neutral_material_revision_id": source.neutral_material_revision_id,
+        "neutral_solver_card_id": source.neutral_solver_card_id,
+        "neutral_solver_card_revision_id": source.neutral_solver_card_revision_id,
     }
 
 

@@ -3295,7 +3295,13 @@ export type BulkExportMemberKind =
   | "model_ir_json"
   | "model_ir_schema"
   | "solver_mapping_report"
-  | "solver_card_native";
+  | "solver_card_native"
+  | "test_data_json"
+  | "mapping_profile_json"
+  | "processing_recipe_json"
+  | "neutral_material_json"
+  | "neutral_solver_mapping_report"
+  | "neutral_solver_card_native";
 
 export interface BulkExportSourceRef {
   kind: BulkExportMemberKind;
@@ -3307,6 +3313,16 @@ export interface BulkExportSourceRef {
   material_model_revision_id: string | null;
   solver_card_id: string | null;
   solver_card_revision_id: string | null;
+  test_data_document_id?: string | null;
+  test_data_document_revision_id?: string | null;
+  mapping_profile_id?: string | null;
+  mapping_profile_revision_id?: string | null;
+  processing_recipe_id?: string | null;
+  processing_recipe_revision_id?: string | null;
+  neutral_material_id?: string | null;
+  neutral_material_revision_id?: string | null;
+  neutral_solver_card_id?: string | null;
+  neutral_solver_card_revision_id?: string | null;
 }
 
 export interface BulkExportCandidate {
