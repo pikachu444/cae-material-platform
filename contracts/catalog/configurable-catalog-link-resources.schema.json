@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/catalog/configurable-catalog-link-resources.schema.json",
+  "title": "Configurable Catalog explorer and exact Record Link resources",
+  "$defs": {
+    "Uuid": {"type": "string", "format": "uuid"},
+    "RevisionMetadata": {
+      "type": "object",
+      "required": ["id", "aggregate_id", "revision_no", "based_on_revision_id", "schema_id", "schema_version", "content_hash", "created_at", "created_by", "change_reason", "organization_id", "project_id", "classification", "lifecycle_state"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "aggregate_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "based_on_revision_id": {"oneOf": [{"$ref": "#/$defs/Uuid"}, {"type": "null"}]},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"$ref": "#/$defs/Uuid"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "organization_id": {"$ref": "#/$defs/Uuid"},
+        "project_id": {"$ref": "#/$defs/Uuid"},
+        "classification": {"type": "string", "minLength": 1, "maxLength": 64},
+        "lifecycle_state": {"type": "string", "enum": ["draft", "in_review", "approved", "released", "superseded", "withdrawn"]}
+      },
+      "additionalProperties": false
+    },
+    "LinkCardinality": {"type": "string", "enum": ["one", "many"]},
+    "LinkTypeContent": {
+      "type": "object",
+      "required": ["key", "name", "source_table_id", "source_table_revision_id", "target_table_id", "target_table_revision_id", "forward_label", "reverse_label", "source_cardinality", "target_cardinality", "description"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source_table_id": {"$ref": "#/$defs/Uuid"},
+        "source_table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "target_table_id": {"$ref": "#/$defs/Uuid"},
+        "target_table_revision_id": {"$ref": "#/$defs/Uuid"},
+        "forward_label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "reverse_label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source_cardinality": {"$ref": "#/$defs/LinkCardinality"},
+        "target_cardinality": {"$ref": "#/$defs/LinkCardinality"},
+        "description": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      },
+      "additionalProperties": false
+    },
+    "LinkTypeCreateRequest": {
+      "type": "object",
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"type": "string", "enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "content": {"$ref": "#/$defs/LinkTypeContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      },
+      "additionalProperties": false
+    },
+    "LinkTypeReviseRequest": {
+      "type": "object",
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/LinkTypeContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      },
+      "additionalProperties": false
+    },
+    "LinkTypeRevision": {
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/LinkTypeContent"}}}
+      ]
+    },
+    "LinkTypeResponse": {
+      "type": "object",
+      "required": ["link_type_id", "current_revision"],
+      "properties": {"link_type_id": {"$ref": "#/$defs/Uuid"}, "current_revision": {"$ref": "#/$defs/LinkTypeRevision"}},
+      "additionalProperties": false
+    },
+    "LinkTypeListResponse": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/LinkTypeResponse"}}},
+      "additionalProperties": false
+    },
+    "RecordLinkContent": {
+      "type": "object",
+      "required": ["link_type_id", "link_type_revision_id", "source_record_id", "source_record_revision_id", "target_record_id", "target_record_revision_id", "active", "note"],
+      "properties": {
+        "link_type_id": {"$ref": "#/$defs/Uuid"},
+        "link_type_revision_id": {"$ref": "#/$defs/Uuid"},
+        "source_record_id": {"$ref": "#/$defs/Uuid"},
+        "source_record_revision_id": {"$ref": "#/$defs/Uuid"},
+        "target_record_id": {"$ref": "#/$defs/Uuid"},
+        "target_record_revision_id": {"$ref": "#/$defs/Uuid"},
+        "active": {"type": "boolean"},
+        "note": {"type": ["string", "null"], "minLength": 1, "maxLength": 2000}
+      },
+      "additionalProperties": false
+    },
+    "RecordLinkCreateRequest": {
+      "type": "object",
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"type": "string", "enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "content": {"$ref": "#/$defs/RecordLinkContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      },
+      "additionalProperties": false
+    },
+    "RecordLinkReviseRequest": {
+      "type": "object",
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/RecordLinkContent"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      },
+      "additionalProperties": false
+    },
+    "RecordLinkRevision": {
+      "allOf": [
+        {"$ref": "#/$defs/RevisionMetadata"},
+        {"type": "object", "required": ["content"], "properties": {"content": {"$ref": "#/$defs/RecordLinkContent"}}}
+      ]
+    },
+    "RecordLinkResponse": {
+      "type": "object",
+      "required": ["record_link_id", "current_revision"],
+      "properties": {
+        "record_link_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/RecordLinkRevision"}
+      },
+      "additionalProperties": false
+    },
+    "LinkEndpoint": {
+      "type": "object",
+      "required": ["record_id", "record_revision_id", "revision_no", "table_id", "name", "external_key"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/Uuid"},
+        "record_revision_id": {"$ref": "#/$defs/Uuid"},
+        "revision_no": {"type": "integer", "minimum": 1},
+        "table_id": {"$ref": "#/$defs/Uuid"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "external_key": {"type": ["string", "null"], "minLength": 1, "maxLength": 255}
+      },
+      "additionalProperties": false
+    },
+    "RecordLinkView": {
+      "type": "object",
+      "required": ["record_link_id", "current_revision", "link_type_revision", "source", "target"],
+      "properties": {
+        "record_link_id": {"$ref": "#/$defs/Uuid"},
+        "current_revision": {"$ref": "#/$defs/RecordLinkRevision"},
+        "link_type_revision": {"$ref": "#/$defs/LinkTypeRevision"},
+        "source": {"$ref": "#/$defs/LinkEndpoint"},
+        "target": {"$ref": "#/$defs/LinkEndpoint"}
+      },
+      "additionalProperties": false
+    },
+    "RecordLinkListResponse": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/RecordLinkView"}}},
+      "additionalProperties": false
+    },
+    "ExplorerTableListResponse": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "items": {"$ref": "./configurable-catalog-resources.schema.json#/$defs/TableResponse"}}},
+      "additionalProperties": false
+    },
+    "ExplorerChildrenResponse": {
+      "type": "object",
+      "required": ["table", "folders", "records"],
+      "properties": {
+        "table": {"$ref": "./configurable-catalog-resources.schema.json#/$defs/TableResponse"},
+        "folders": {"type": "array", "items": {"$ref": "./configurable-catalog-record-resources.schema.json#/$defs/FolderResponse"}},
+        "records": {"type": "array", "items": {"$ref": "./configurable-catalog-record-resources.schema.json#/$defs/RecordResponse"}}
+      },
+      "additionalProperties": false
+    },
+    "WorkflowGraphResponse": {
+      "type": "object",
+      "required": ["root", "nodes", "links"],
+      "properties": {
+        "root": {"$ref": "#/$defs/LinkEndpoint"},
+        "nodes": {"type": "array", "items": {"$ref": "#/$defs/LinkEndpoint"}},
+        "links": {"type": "array", "items": {"$ref": "#/$defs/RecordLinkView"}}
+      },
+      "additionalProperties": false
+    }
+  }
+}

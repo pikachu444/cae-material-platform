@@ -1,9 +1,9 @@
 # 관리자 가이드
 
-이 가이드는 configurable Material Information System의 관리 기능을 설명한다. T-49에서
+이 가이드는 configurable Material Information System의 관리 기능을 설명한다. T-49/T-50에서
 Table, typed Attribute, Layout, Subset, Folder와 typed Record 관리가 실제 PostgreSQL/API/UI로
-연결됐다. Link Type, Explorer와 단순 feature grant는 각각 T-51/T-59에서 추가한다. 구현되지 않은
-절차를 현재 사용 가능한 기능처럼 설명하지 않는다.
+연결됐고, T-51에서 Catalog/Workflow Explorer와 arbitrary Link Type이 추가됐다. 단순 feature
+grant는 T-59에서 추가한다. 구현되지 않은 절차를 현재 사용 가능한 기능처럼 설명하지 않는다.
 
 ## 관리 대상
 
@@ -49,7 +49,20 @@ revision을 수정하지 않고 새 revision을 만든다. 기존 record revisio
    추가해야 한다.
 5. Record 수정은 current ETag를 사용하며 기존 Record revision과 typed value row는 immutable이다.
 
-Catalog Explorer tree, arbitrary Link Type과 양방향 링크 편집은 T-51 범위다.
+## Link Type과 Record Link 운영
+
+1. [Catalog Explorer](http://127.0.0.1:5173/catalog/explorer) 하단의 **Administrator · define
+   Link Type**을 연다.
+2. stable key/name, source/target Table, 방향별 표시명, outgoing/incoming cardinality를 정한다.
+   Link Type revision은 두 Table의 정확한 current revision을 고정한다.
+3. Record를 선택한 뒤 오른쪽 **Typed link editor**에서 적용 가능한 Link Type과 target Record를
+   선택한다. 서버는 target의 exact current revision을 저장하며 `latest` 별칭은 받지 않는다.
+4. endpoint Table 불일치, tenant/project/classification 불일치, 중복 active link와 cardinality
+   위반은 application과 PostgreSQL trigger가 모두 거부한다.
+5. 링크 관계를 종료할 때 **Deactivate**를 사용한다. 기존 revision은 감사와 재현을 위해 남는다.
+
+Workflow Explorer는 forward/reverse label을 구분해 표시하며 링크 양 끝으로 이동할 수 있다.
+Table이나 Record가 새 revision을 만들어도 기존 Link가 가리키는 revision은 바뀌지 않는다.
 
 ## 기존 관리 기능
 

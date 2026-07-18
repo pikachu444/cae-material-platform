@@ -13,8 +13,8 @@ Workbench defined by ADR-0028 through ADR-0030.
 | --- | --- | --- |
 | Administrator-defined Table/Attribute/Layout/Subset | T-49 definitions and T-50 datasheet consumption implemented | T-51 Explorer |
 | Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | T-51 links/tree |
-| Catalog and Material Workflow Explorers | missing; flat routes and bounded State genealogy exist | T-51 |
-| Arbitrary typed exact-revision record links | missing; bounded genealogy/provenance links exist | T-51 |
+| Catalog and Material Workflow Explorers | T-51 implemented: lazy Table/Folder/Record tree and bounded exact-revision graph | T-52 Test JSON |
+| Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | missing; CSV/TSV/XLSX→Parquet path exists | T-52 |
 | General Mapping Profile and Processing Workbench | importer mappings and bounded processors only | T-53 |
 | Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
@@ -30,6 +30,15 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-51`: Catalog Explorer now lazily expands administrator-defined Table, nested Folder and current
+  Record nodes while preserving the existing flat routes. Material Workflow Explorer projects
+  arbitrary active Record Links as a bounded, cycle-safe graph; every endpoint and Link Type pins an
+  exact immutable revision rather than a `latest` alias. Migration 061 adds explicit Link Type and
+  Record Link identity/revision tables, composite tenant/classification/exact-revision foreign keys,
+  forced RLS, immutable triggers, endpoint compatibility, duplicate and cardinality guards. Protected
+  APIs and the connected Explorer UI support forward/reverse traversal, deep links, Link Type creation,
+  exact target selection and append-only deactivation. Fresh PostgreSQL, API/migration/React tests and
+  a live Docker browser workflow verified DP600 material r2 ↔ tensile-test r1 in both directions.
 - `T-50`: configurable Folder and Record stable identities now append immutable revisions in
   migration 060. Record revisions pin the current Table, exact Folder and exact Attribute revisions;
   nine type-specific value relations preserve original/normalized number evidence, artifacts and
@@ -38,7 +47,8 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
   exact revisions. The connected **Catalog records** screen consumes Layout order, saves and applies
   Subset filters, edits datasheets, shows revision differences and creates nested Folders. Fresh
   PostgreSQL with a non-bypass role, folder-cycle guards, API/migration/React tests and live Docker
-  browser evidence cover the implemented scope. Dual Explorers and arbitrary Link Types remain T-51.
+  browser evidence cover the implemented scope. Dual Explorers and arbitrary Link Types are completed
+  by T-51.
 - `T-49`: administrator-defined Catalog Table, typed Attribute Definition, Layout and saved Subset
   stable identities use immutable revisions in migration 059. Nine type-specific record-value
   relations replace an untyped EAV/JSON authority; number values preserve original and normalized

@@ -1265,6 +1265,13 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **완료 조건:** Material에서 Test/Dataset/Processing/IR/Card/Release까지 exact revision link로
   이동하고 관리자 정의 cardinality를 강제한다.
 - **테스트:** endpoint/cardinality/cross-scope/latest negative, reverse query, lazy-tree UI E2E.
+- **구현 증거 (2026-07-18):** migration 061의 명시적 Link Type/Record Link identity와 immutable
+  revision, composite scope/exact-revision FK, RLS/immutability/cardinality/endpoint trigger를
+  구현했다. protected API는 lazy Catalog children, Link Type, forward/reverse links와 bounded
+  workflow graph를 제공한다. `/catalog/explorer`는 Table → Folder → Record 트리와 exact-revision
+  deep link, Link Type/target 선택, append-only 비활성화를 실제 API에 연결한다. fresh PostgreSQL
+  non-bypass role, migration/API/React 테스트와 Docker 브라우저에서 DP600 r2 ↔ tensile-test r1
+  양방향 이동을 검증했다. 다음 product slice는 T-52 canonical Test JSON이다.
 
 ### S-14.2. Establish JSON exchange and reusable processing
 

@@ -543,9 +543,14 @@ export function ConfigurableCatalogRecords({
           <h1>Catalog records</h1>
           <p>Search typed records, edit Layout-driven datasheets and compare exact revisions.</p>
         </div>
-        <button className="button secondary" type="button" onClick={() => onNavigate("/catalog/schema")}>
-          Schema designer
-        </button>
+        <div className="hero-actions">
+          <button className="button secondary" type="button" onClick={() => onNavigate("/catalog/explorer")}>
+            Explorer
+          </button>
+          <button className="button secondary" type="button" onClick={() => onNavigate("/catalog/schema")}>
+            Schema designer
+          </button>
+        </div>
       </section>
       {error ? <div className="error-banner">{error}</div> : null}
       {notice ? <div className="success-banner">{notice}</div> : null}

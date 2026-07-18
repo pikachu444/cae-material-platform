@@ -118,6 +118,11 @@ const ConfigurableCatalogRecords = lazy(() =>
     default: module.ConfigurableCatalogRecords,
   })),
 );
+const CatalogExplorer = lazy(() =>
+  import("./catalog-explorer").then((module) => ({
+    default: module.CatalogExplorer,
+  })),
+);
 
 type Navigate = (path: string) => void;
 type MaterialArea = "overview" | "testing" | "datasets" | "models" | "governance";
@@ -223,7 +228,7 @@ function Header({
     { label: "Dashboard", target: "/", active: path === "/" },
     {
       label: "Catalog",
-      target: "/catalog/records",
+      target: "/catalog/explorer",
       active: path.startsWith("/catalog"),
     },
     {
@@ -2011,6 +2016,14 @@ export function App() {
       area: (match[2] ?? "overview") as MaterialArea,
     } : null;
   }, [path]);
+  const catalogExplorerRoute = useMemo(() => {
+    const match = path.match(
+      /^\/catalog\/explorer(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/,
+    );
+    return match
+      ? { recordId: match[1] as string | undefined, revisionId: match[2] as string | undefined }
+      : null;
+  }, [path]);
 
   function persistConfig(nextConfig: ApiConfig): void {
     saveApiConfig(nextConfig);
@@ -2018,7 +2031,17 @@ export function App() {
   }
 
   let page: React.ReactNode;
-  if (path === "/materials/new") {
+  if (catalogExplorerRoute) {
+    page = (
+      <CatalogExplorer
+        config={config}
+        initialRecordId={catalogExplorerRoute.recordId}
+        initialRevisionId={catalogExplorerRoute.revisionId}
+        onNavigate={navigate}
+        onOpenConnection={() => setConnectionOpen(true)}
+      />
+    );
+  } else if (path === "/materials/new") {
     page = <MaterialCreatePage config={config} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;
   } else if (materialRoute) {
     page = <MaterialDetailPage config={config} materialId={materialRoute.materialId} activeArea={materialRoute.area} navigate={navigate} onOpenConnection={() => setConnectionOpen(true)} />;

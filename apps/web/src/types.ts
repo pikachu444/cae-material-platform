@@ -3423,3 +3423,69 @@ export interface ConfigurableCatalogRecordComparison {
     after: ConfigurableRecordValue | null;
   }>;
 }
+
+export type ConfigurableLinkCardinality = "one" | "many";
+
+export interface ConfigurableLinkTypeContent {
+  key: string;
+  name: string;
+  source_table_id: string;
+  source_table_revision_id: string;
+  target_table_id: string;
+  target_table_revision_id: string;
+  forward_label: string;
+  reverse_label: string;
+  source_cardinality: ConfigurableLinkCardinality;
+  target_cardinality: ConfigurableLinkCardinality;
+  description: string | null;
+}
+
+export interface ConfigurableLinkTypeResponse {
+  link_type_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableLinkTypeContent };
+}
+
+export interface ConfigurableRecordLinkContent {
+  link_type_id: string;
+  link_type_revision_id: string;
+  source_record_id: string;
+  source_record_revision_id: string;
+  target_record_id: string;
+  target_record_revision_id: string;
+  active: boolean;
+  note: string | null;
+}
+
+export interface ConfigurableRecordLinkResponse {
+  record_link_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableRecordLinkContent };
+}
+
+export interface ConfigurableLinkEndpoint {
+  record_id: string;
+  record_revision_id: string;
+  revision_no: number;
+  table_id: string;
+  name: string;
+  external_key: string | null;
+}
+
+export interface ConfigurableRecordLinkView {
+  record_link_id: string;
+  current_revision: RevisionMetadata & { content: ConfigurableRecordLinkContent };
+  link_type_revision: RevisionMetadata & { content: ConfigurableLinkTypeContent };
+  source: ConfigurableLinkEndpoint;
+  target: ConfigurableLinkEndpoint;
+}
+
+export interface CatalogExplorerChildrenResponse {
+  table: ConfigurableTableResponse;
+  folders: ConfigurableCatalogFolderResponse[];
+  records: ConfigurableCatalogRecordResponse[];
+}
+
+export interface CatalogWorkflowGraphResponse {
+  root: ConfigurableLinkEndpoint;
+  nodes: ConfigurableLinkEndpoint[];
+  links: ConfigurableRecordLinkView[];
+}
