@@ -32,7 +32,7 @@ import { ReferenceVoceCalibrationWorkbench } from "./reference-voce-calibration-
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
-    return error.code ? `${error.message} (${error.code})` : error.message;
+    return error.message;
   }
   return error instanceof Error ? error.message : "The replicate statistics workflow failed.";
 }

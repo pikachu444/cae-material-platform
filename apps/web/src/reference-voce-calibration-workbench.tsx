@@ -34,7 +34,7 @@ import type {
 const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b"];
 
 function messageFor(error: unknown): string {
-  if (error instanceof ApiError) return error.code ? `${error.message} (${error.code})` : error.message;
+  if (error instanceof ApiError) return error.message;
   return error instanceof Error ? error.message : "The Voce reference calibration failed.";
 }
 

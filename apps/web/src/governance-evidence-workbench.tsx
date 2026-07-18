@@ -21,7 +21,7 @@ import type {
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    return error.code ? `${error.message} (${error.code})` : error.message;
+    return error.message;
   }
   return error instanceof Error ? error.message : "Governance evidence could not be loaded.";
 }

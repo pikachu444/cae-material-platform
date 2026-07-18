@@ -18,7 +18,7 @@ import type {
 
 function messageFor(cause: unknown): string {
   if (cause instanceof ApiError) {
-    return cause.code ? `${cause.message} (${cause.code})` : cause.message;
+    return cause.message;
   }
   return cause instanceof Error ? cause.message : "Solver card generation failed.";
 }

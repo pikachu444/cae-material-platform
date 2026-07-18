@@ -23,7 +23,7 @@ const COLORS = ["#55d6be", "#ffb347", "#7aa7ff", "#e77cff", "#ff6b6b", "#9cdb5d"
 
 function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
-    return error.code ? `${error.message} (${error.code})` : error.message;
+    return error.message;
   }
   return "The replicate Selection could not be completed.";
 }
