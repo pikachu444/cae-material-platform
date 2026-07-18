@@ -47,6 +47,12 @@ class ExportMemberKind(StrEnum):
     MODEL_IR_SCHEMA = "model_ir_schema"
     SOLVER_MAPPING_REPORT = "solver_mapping_report"
     SOLVER_CARD_NATIVE = "solver_card_native"
+    TEST_DATA_JSON = "test_data_json"
+    MAPPING_PROFILE_JSON = "mapping_profile_json"
+    PROCESSING_RECIPE_JSON = "processing_recipe_json"
+    NEUTRAL_MATERIAL_JSON = "neutral_material_json"
+    NEUTRAL_SOLVER_MAPPING_REPORT = "neutral_solver_mapping_report"
+    NEUTRAL_SOLVER_CARD_NATIVE = "neutral_solver_card_native"
 
 
 class BulkExportJobState(StrEnum):
@@ -116,6 +122,16 @@ class ExportSourceRef:
     material_model_revision_id: UUID | None = None
     solver_card_id: UUID | None = None
     solver_card_revision_id: UUID | None = None
+    test_data_document_id: UUID | None = None
+    test_data_document_revision_id: UUID | None = None
+    mapping_profile_id: UUID | None = None
+    mapping_profile_revision_id: UUID | None = None
+    processing_recipe_id: UUID | None = None
+    processing_recipe_revision_id: UUID | None = None
+    neutral_material_id: UUID | None = None
+    neutral_material_revision_id: UUID | None = None
+    neutral_solver_card_id: UUID | None = None
+    neutral_solver_card_revision_id: UUID | None = None
 
     def __post_init__(self) -> None:
         for name, value in (
@@ -127,28 +143,173 @@ class ExportSourceRef:
             ("material_model_revision_id", self.material_model_revision_id),
             ("solver_card_id", self.solver_card_id),
             ("solver_card_revision_id", self.solver_card_revision_id),
+            ("test_data_document_id", self.test_data_document_id),
+            ("test_data_document_revision_id", self.test_data_document_revision_id),
+            ("mapping_profile_id", self.mapping_profile_id),
+            ("mapping_profile_revision_id", self.mapping_profile_revision_id),
+            ("processing_recipe_id", self.processing_recipe_id),
+            ("processing_recipe_revision_id", self.processing_recipe_revision_id),
+            ("neutral_material_id", self.neutral_material_id),
+            ("neutral_material_revision_id", self.neutral_material_revision_id),
+            ("neutral_solver_card_id", self.neutral_solver_card_id),
+            ("neutral_solver_card_revision_id", self.neutral_solver_card_revision_id),
         ):
             _nonzero(name, value)
         raw = self.raw_asset_id is not None and self.artifact_id is not None
         dataset = self.dataset_id is not None and self.dataset_revision_id is not None
         model = self.material_model_id is not None and self.material_model_revision_id is not None
         card = self.solver_card_id is not None and self.solver_card_revision_id is not None
+        test_document = (
+            self.test_data_document_id is not None
+            and self.test_data_document_revision_id is not None
+            and self.artifact_id is not None
+        )
+        profile = (
+            self.mapping_profile_id is not None
+            and self.mapping_profile_revision_id is not None
+        )
+        recipe = (
+            self.processing_recipe_id is not None
+            and self.processing_recipe_revision_id is not None
+        )
+        neutral = (
+            self.neutral_material_id is not None
+            and self.neutral_material_revision_id is not None
+            and self.artifact_id is not None
+        )
+        neutral_card = (
+            self.neutral_solver_card_id is not None
+            and self.neutral_solver_card_revision_id is not None
+        )
+        new_clear = all(
+            value is None
+            for value in (
+                self.test_data_document_id,
+                self.test_data_document_revision_id,
+                self.mapping_profile_id,
+                self.mapping_profile_revision_id,
+                self.processing_recipe_id,
+                self.processing_recipe_revision_id,
+                self.neutral_material_id,
+                self.neutral_material_revision_id,
+                self.neutral_solver_card_id,
+                self.neutral_solver_card_revision_id,
+            )
+        )
+        old_clear = all(
+            value is None
+            for value in (
+                self.raw_asset_id,
+                self.dataset_id,
+                self.dataset_revision_id,
+                self.material_model_id,
+                self.material_model_revision_id,
+                self.solver_card_id,
+                self.solver_card_revision_id,
+            )
+        )
         valid = {
-            ExportMemberKind.RAW_ORIGINAL: raw and not dataset and not model and not card,
+            ExportMemberKind.RAW_ORIGINAL: raw
+            and not dataset
+            and not model
+            and not card
+            and new_clear,
             ExportMemberKind.DATASET_PARQUET: dataset
             and self.artifact_id is not None
             and not raw
             and not model
-            and not card,
+            and not card
+            and new_clear,
             ExportMemberKind.DATASET_CSV: dataset
             and self.artifact_id is not None
             and not raw
             and not model
-            and not card,
-            ExportMemberKind.MODEL_IR_JSON: model and not raw and not dataset and not card,
-            ExportMemberKind.MODEL_IR_SCHEMA: model and not raw and not dataset and not card,
-            ExportMemberKind.SOLVER_MAPPING_REPORT: card and not raw and not dataset and not model,
-            ExportMemberKind.SOLVER_CARD_NATIVE: card and not raw and not dataset and not model,
+            and not card
+            and new_clear,
+            ExportMemberKind.MODEL_IR_JSON: model
+            and not raw
+            and not dataset
+            and not card
+            and new_clear,
+            ExportMemberKind.MODEL_IR_SCHEMA: model
+            and not raw
+            and not dataset
+            and not card
+            and new_clear,
+            ExportMemberKind.SOLVER_MAPPING_REPORT: card
+            and not raw
+            and not dataset
+            and not model
+            and new_clear,
+            ExportMemberKind.SOLVER_CARD_NATIVE: card
+            and not raw
+            and not dataset
+            and not model
+            and new_clear,
+            ExportMemberKind.TEST_DATA_JSON: test_document
+            and old_clear
+            and self.mapping_profile_id is None
+            and self.mapping_profile_revision_id is None
+            and self.processing_recipe_id is None
+            and self.processing_recipe_revision_id is None
+            and self.neutral_material_id is None
+            and self.neutral_material_revision_id is None
+            and self.neutral_solver_card_id is None
+            and self.neutral_solver_card_revision_id is None,
+            ExportMemberKind.MAPPING_PROFILE_JSON: profile
+            and old_clear
+            and self.artifact_id is None
+            and self.test_data_document_id is None
+            and self.test_data_document_revision_id is None
+            and self.processing_recipe_id is None
+            and self.processing_recipe_revision_id is None
+            and self.neutral_material_id is None
+            and self.neutral_material_revision_id is None
+            and self.neutral_solver_card_id is None
+            and self.neutral_solver_card_revision_id is None,
+            ExportMemberKind.PROCESSING_RECIPE_JSON: recipe
+            and old_clear
+            and self.artifact_id is None
+            and self.test_data_document_id is None
+            and self.test_data_document_revision_id is None
+            and self.mapping_profile_id is None
+            and self.mapping_profile_revision_id is None
+            and self.neutral_material_id is None
+            and self.neutral_material_revision_id is None
+            and self.neutral_solver_card_id is None
+            and self.neutral_solver_card_revision_id is None,
+            ExportMemberKind.NEUTRAL_MATERIAL_JSON: neutral
+            and old_clear
+            and self.test_data_document_id is None
+            and self.test_data_document_revision_id is None
+            and self.mapping_profile_id is None
+            and self.mapping_profile_revision_id is None
+            and self.processing_recipe_id is None
+            and self.processing_recipe_revision_id is None
+            and self.neutral_solver_card_id is None
+            and self.neutral_solver_card_revision_id is None,
+            ExportMemberKind.NEUTRAL_SOLVER_MAPPING_REPORT: neutral_card
+            and old_clear
+            and self.artifact_id is None
+            and self.test_data_document_id is None
+            and self.test_data_document_revision_id is None
+            and self.mapping_profile_id is None
+            and self.mapping_profile_revision_id is None
+            and self.processing_recipe_id is None
+            and self.processing_recipe_revision_id is None
+            and self.neutral_material_id is None
+            and self.neutral_material_revision_id is None,
+            ExportMemberKind.NEUTRAL_SOLVER_CARD_NATIVE: neutral_card
+            and old_clear
+            and self.artifact_id is None
+            and self.test_data_document_id is None
+            and self.test_data_document_revision_id is None
+            and self.mapping_profile_id is None
+            and self.mapping_profile_revision_id is None
+            and self.processing_recipe_id is None
+            and self.processing_recipe_revision_id is None
+            and self.neutral_material_id is None
+            and self.neutral_material_revision_id is None,
         }[self.kind]
         if not valid:
             raise InvalidBulkExport(f"{self.kind.value} has an invalid typed source reference")
@@ -169,6 +330,42 @@ class ExportSourceRef:
             "solver_card_id": str(self.solver_card_id) if self.solver_card_id else None,
             "solver_card_revision_id": (
                 str(self.solver_card_revision_id) if self.solver_card_revision_id else None
+            ),
+            "test_data_document_id": (
+                str(self.test_data_document_id) if self.test_data_document_id else None
+            ),
+            "test_data_document_revision_id": (
+                str(self.test_data_document_revision_id)
+                if self.test_data_document_revision_id
+                else None
+            ),
+            "mapping_profile_id": str(self.mapping_profile_id) if self.mapping_profile_id else None,
+            "mapping_profile_revision_id": (
+                str(self.mapping_profile_revision_id) if self.mapping_profile_revision_id else None
+            ),
+            "processing_recipe_id": (
+                str(self.processing_recipe_id) if self.processing_recipe_id else None
+            ),
+            "processing_recipe_revision_id": (
+                str(self.processing_recipe_revision_id)
+                if self.processing_recipe_revision_id
+                else None
+            ),
+            "neutral_material_id": (
+                str(self.neutral_material_id) if self.neutral_material_id else None
+            ),
+            "neutral_material_revision_id": (
+                str(self.neutral_material_revision_id)
+                if self.neutral_material_revision_id
+                else None
+            ),
+            "neutral_solver_card_id": (
+                str(self.neutral_solver_card_id) if self.neutral_solver_card_id else None
+            ),
+            "neutral_solver_card_revision_id": (
+                str(self.neutral_solver_card_revision_id)
+                if self.neutral_solver_card_revision_id
+                else None
             ),
         }
 

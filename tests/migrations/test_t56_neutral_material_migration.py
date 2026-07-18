@@ -11,7 +11,7 @@ def _migration_sql() -> str:
     output = StringIO()
     config = Config(str(PROJECT_ROOT / "alembic.ini"), output_buffer=output)
     script = ScriptDirectory.from_config(config)
-    assert script.get_current_head() == "20260907_072_t57_cards"
+    assert script.get_current_head() == "20260908_073_t58_bulk"
     from alembic import command
 
     command.upgrade(config, "head", sql=True)
