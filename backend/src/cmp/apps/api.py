@@ -267,7 +267,6 @@ def create_app(
     settings: Settings | None = None,
     security_service: SecurityContextService | None = None,
     authorization_service: AuthorizationService | None = None,
-    product_access_service: ProductAccessAdministrationService | None = None,
     job_service: JobService | None = None,
     plugin_registry_service: PluginRegistryService | None = None,
     upload_service: UploadService | None = None,
@@ -312,6 +311,7 @@ def create_app(
     voce_holdout_service: ReferenceVoceHoldoutService | None = None,
     review_service: ReviewService | None = None,
     release_service: ReleaseService | None = None,
+    product_access_service: ProductAccessAdministrationService | None = None,
 ) -> FastAPI:
     """Create the API without importing any business or plugin implementation."""
 
