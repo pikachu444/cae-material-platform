@@ -76,6 +76,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260902_067_T55M_processed_plasticity_projection.py",
         "20260903_068_T55P_arrhenius_shift.py",
         "20260904_069_T55E_hyperelastic_families.py",
+        "20260905_070_T55E_hyperelastic_diagnostics.py",
     ]
 
 

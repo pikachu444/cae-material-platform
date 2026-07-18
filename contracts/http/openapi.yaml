@@ -7850,6 +7850,25 @@ paths:
         "404": {description: Candidate or diagnostics Artifact is not visible.}
         "409": {description: Stored diagnostics digest or point count conflicts.}
         "503": {description: Modeling service unavailable.}
+  /api/v1/hyperelastic-family-candidates/{candidate_id}/diagnostics:
+    get:
+      operationId: getHyperelasticFamilyCandidateDiagnostics
+      tags: [modeling]
+      summary: Read one public hyperelastic family Candidate's immutable fitted and residual points.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: candidate_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Per-mode calibration and holdout diagnostics for one exact family Candidate.
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-ogden-calibration-resources.schema.json#/$defs/HyperelasticDiagnosticsResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling read is not authorized.}
+        "404": {description: Candidate or diagnostics Artifact is not visible.}
+        "409": {description: Stored diagnostics digest or point count conflicts.}
+        "503": {description: Modeling service unavailable.}
   /api/v1/ogden-candidate-selections:
     post:
       operationId: createReferenceOgdenCandidateSelection

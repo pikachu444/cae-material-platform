@@ -2901,6 +2901,9 @@ export interface HyperelasticFamilyCandidateResponse {
   stability_status: "monotonic_on_fitted_domain" | "nonmonotonic";
   warnings: string[];
   candidate_sha256: string;
+  diagnostics_artifact_id: string | null;
+  diagnostics_point_count: number;
+  links: Record<string, string>;
 }
 
 export interface OgdenCalibrationRunResponse {
@@ -2945,6 +2948,11 @@ export interface OgdenDiagnosticPoint {
 export interface OgdenDiagnosticsResponse {
   candidate_id: string;
   points: OgdenDiagnosticPoint[];
+}
+
+export interface HyperelasticDiagnosticsResponse {
+  candidate_id: string;
+  points: Array<OgdenDiagnosticPoint & { family: HyperelasticFamily }>;
 }
 
 export interface OgdenPronyMappingResponse {

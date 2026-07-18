@@ -9,8 +9,13 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum
+from io import BytesIO
+from typing import Any, cast
+from uuid import UUID
 
 import numpy as np
+import pyarrow as pa
+import pyarrow.parquet as pq
 from numpy.typing import NDArray
 from scipy.optimize import least_squares  # type: ignore[import-untyped]
 
@@ -41,6 +46,23 @@ class HyperelasticParameter:
 
 
 @dataclass(frozen=True, slots=True)
+class HyperelasticDiagnosticPoint:
+    family: HyperelasticFamily
+    member_ordinal: int
+    role: OgdenCalibrationRole
+    test_mode: OgdenTestMode
+    dataset_id: UUID
+    dataset_revision_id: UUID
+    point_ordinal: int
+    engineering_strain: float
+    observed_nominal_stress_pa: float
+    predicted_nominal_stress_pa: float
+    residual_pa: float
+    normalized_residual: float
+    effective_weight: float
+
+
+@dataclass(frozen=True, slots=True)
 class HyperelasticFamilyCandidate:
     family: HyperelasticFamily
     parameters: tuple[HyperelasticParameter, ...]
@@ -53,6 +75,7 @@ class HyperelasticFamilyCandidate:
     stability_status: str
     warnings: tuple[str, ...]
     candidate_sha256: str
+    diagnostics: tuple[HyperelasticDiagnosticPoint, ...] = ()
 
 
 def _invariants(
@@ -285,6 +308,43 @@ def fit_hyperelastic_families(
             "objective_by_mode": [(mode.value, value) for mode, value in by_mode],
             "warnings": warnings,
         }
+        diagnostics = tuple(
+            HyperelasticDiagnosticPoint(
+                family=family,
+                member_ordinal=curve.member.ordinal,
+                role=curve.member.role,
+                test_mode=curve.member.test_mode,
+                dataset_id=curve.member.dataset_id,
+                dataset_revision_id=curve.member.dataset_revision_id,
+                point_ordinal=point_ordinal,
+                engineering_strain=strain_value,
+                observed_nominal_stress_pa=observed_value,
+                predicted_nominal_stress_pa=predicted_value,
+                residual_pa=predicted_value - observed_value,
+                normalized_residual=(predicted_value - observed_value)
+                / curve.normalization_stress_pa,
+                effective_weight=(
+                    weights.get(
+                        curve.member.ordinal,
+                        curve.member.weight / len(curve.engineering_strain),
+                    )
+                ),
+            )
+            for curve in curves
+            for point_ordinal, (strain_value, observed_value, predicted_value) in enumerate(
+                zip(
+                    curve.engineering_strain,
+                    curve.nominal_stress_pa,
+                    nominal_stress_pa(
+                        family,
+                        curve.member.test_mode,
+                        np.asarray(curve.engineering_strain, dtype=np.float64),
+                        parameters,
+                    ),
+                    strict=True,
+                )
+            )
+        )
         candidates.append(
             HyperelasticFamilyCandidate(
                 family=family,
@@ -304,6 +364,66 @@ def fit_hyperelastic_families(
                 stability_status="monotonic_on_fitted_domain" if stable else "nonmonotonic",
                 warnings=warnings,
                 candidate_sha256=content_sha256(canonical),
+                diagnostics=diagnostics,
             )
         )
     return tuple(candidates)
+
+
+HYPERELASTIC_FAMILY_DIAGNOSTICS_SCHEMA = (
+    "urn:cmp:modeling:hyperelastic-family-candidate-diagnostics-parquet:1.0.0"
+)
+
+
+def hyperelastic_diagnostics_parquet_bytes(
+    candidate: HyperelasticFamilyCandidate,
+) -> bytes:
+    points = candidate.diagnostics
+    table = pa.table(
+        {
+            "family": [point.family.value for point in points],
+            "member_ordinal": [point.member_ordinal for point in points],
+            "role": [point.role.value for point in points],
+            "test_mode": [point.test_mode.value for point in points],
+            "dataset_id": [str(point.dataset_id) for point in points],
+            "dataset_revision_id": [str(point.dataset_revision_id) for point in points],
+            "point_ordinal": [point.point_ordinal for point in points],
+            "engineering_strain": [point.engineering_strain for point in points],
+            "observed_nominal_stress_pa": [
+                point.observed_nominal_stress_pa for point in points
+            ],
+            "predicted_nominal_stress_pa": [
+                point.predicted_nominal_stress_pa for point in points
+            ],
+            "residual_pa": [point.residual_pa for point in points],
+            "normalized_residual": [point.normalized_residual for point in points],
+            "effective_weight": [point.effective_weight for point in points],
+        }
+    )
+    output = BytesIO()
+    cast(Any, pq.write_table)(table, output, compression="zstd")
+    return output.getvalue()
+
+
+def hyperelastic_diagnostics_from_parquet(
+    value: bytes,
+) -> tuple[HyperelasticDiagnosticPoint, ...]:
+    rows = cast(Any, pq.read_table)(BytesIO(value)).to_pylist()
+    return tuple(
+        HyperelasticDiagnosticPoint(
+            family=HyperelasticFamily(str(row["family"])),
+            member_ordinal=int(row["member_ordinal"]),
+            role=OgdenCalibrationRole(str(row["role"])),
+            test_mode=OgdenTestMode(str(row["test_mode"])),
+            dataset_id=UUID(str(row["dataset_id"])),
+            dataset_revision_id=UUID(str(row["dataset_revision_id"])),
+            point_ordinal=int(row["point_ordinal"]),
+            engineering_strain=float(row["engineering_strain"]),
+            observed_nominal_stress_pa=float(row["observed_nominal_stress_pa"]),
+            predicted_nominal_stress_pa=float(row["predicted_nominal_stress_pa"]),
+            residual_pa=float(row["residual_pa"]),
+            normalized_residual=float(row["normalized_residual"]),
+            effective_weight=float(row["effective_weight"]),
+        )
+        for row in rows
+    )

@@ -42,7 +42,8 @@ exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니
   온도의 반복시험은 common log-time 구간 통계와 수동/WLF shift를 거쳐 master-curve Dataset으로
   별도 보존
 - 엘라스토머: governed uniaxial/planar/biaxial normalized curve → versioned scientific profile
-  → deterministic multi-test Ogden fitting/holdout/uncertainty → one-term Ogden + shear-Prony IR
+  → deterministic Neo-Hookean/Mooney–Rivlin/Yeoh/Ogden family 비교와 residual/stability 검토
+  → 현재 지원되는 one-term Ogden + shear-Prony IR
   → Abaqus Ogden `.inp` 또는 OpenRadioss LAW62 `.rad` preview/download. Candidate의 governed
   human Selection → current-ETag 확인 → 같은 Material Model identity에 append-only IR revision
 

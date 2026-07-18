@@ -249,6 +249,9 @@ hyperelastic_family_candidate_table = sa.Table(
     sa.Column("function_evaluations", sa.Integer(), nullable=False),
     sa.Column("convergence_reason", sa.String(255), nullable=False),
     sa.Column("stability_status", sa.String(48), nullable=False),
+    sa.Column("diagnostics_artifact_id", sa.Uuid(), nullable=True),
+    sa.Column("diagnostics_sha256", sa.CHAR(64), nullable=True),
+    sa.Column("diagnostics_point_count", sa.Integer(), nullable=False),
     sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
     sa.Column("created_by", sa.Uuid(), nullable=False),
     schema="modeling",
@@ -644,6 +647,9 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
             ),
             created_at=row["created_at"],
             created_by=cast(UUID, row["created_by"]),
+            diagnostics_artifact_id=cast(UUID | None, row["diagnostics_artifact_id"]),
+            diagnostics_sha256=cast(str | None, row["diagnostics_sha256"]),
+            diagnostics_point_count=int(row["diagnostics_point_count"]),
         )
 
     @classmethod
@@ -793,6 +799,13 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
                             function_evaluations=family_value.function_evaluations,
                             convergence_reason=family_value.convergence_reason,
                             stability_status=family_value.stability_status,
+                            diagnostics_artifact_id=(
+                                family_persisted.diagnostics_artifact_id
+                            ),
+                            diagnostics_sha256=family_persisted.diagnostics_sha256,
+                            diagnostics_point_count=(
+                                family_persisted.diagnostics_point_count
+                            ),
                             created_at=family_persisted.created_at,
                             created_by=family_persisted.created_by,
                         )
@@ -908,3 +921,26 @@ class SqlAlchemyOgdenCalibrationRepository(OgdenCalibrationRepository):
             if row is None:
                 raise OgdenCalibrationNotFound("Ogden calibration Candidate is not visible")
             return self._candidate(session, row)
+
+    def get_family_candidate(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> PersistedHyperelasticFamilyCandidate:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(hyperelastic_family_candidate_table).where(
+                        hyperelastic_family_candidate_table.c.id == candidate_id
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise OgdenCalibrationNotFound(
+                    "hyperelastic family Candidate is not visible"
+                )
+            return self._family_candidate(session, row)

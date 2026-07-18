@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from typing import Annotated, Any
 from uuid import UUID
@@ -26,6 +27,7 @@ from cmp.modules.modeling.application.ogden_calibration import (
     PersistedOgdenCandidate,
     ReferenceOgdenCalibrationService,
 )
+from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticDiagnosticPoint
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
     InvalidOgdenCalibration,
     OgdenCalibrationMember,
@@ -35,6 +37,9 @@ from cmp.modules.modeling.domain.reference_ogden_calibration import (
     ReferenceOgdenCalibrationPlanContent,
 )
 from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataResponse
+from cmp.shared.domain.revisions import AggregateAlreadyExists
+
+logger = logging.getLogger(__name__)
 
 type Dependency = Callable[..., object]
 type Reason = Annotated[str, StringConstraints(min_length=1, max_length=2000)]
@@ -274,6 +279,9 @@ class HyperelasticFamilyCandidateResponse(BaseModel):
     stability_status: str
     warnings: tuple[str, ...]
     candidate_sha256: str
+    diagnostics_artifact_id: UUID | None
+    diagnostics_point_count: int
+    links: dict[str, str]
 
     @classmethod
     def from_domain(
@@ -302,6 +310,15 @@ class HyperelasticFamilyCandidateResponse(BaseModel):
             stability_status=candidate.stability_status,
             warnings=candidate.warnings,
             candidate_sha256=f"sha256:{candidate.candidate_sha256}",
+            diagnostics_artifact_id=value.diagnostics_artifact_id,
+            diagnostics_point_count=value.diagnostics_point_count,
+            links={
+                "diagnostics": (
+                    f"/api/v1/hyperelastic-family-candidates/{value.id}/diagnostics"
+                )
+            }
+            if value.diagnostics_artifact_id is not None
+            else {},
         )
 
 
@@ -404,6 +421,53 @@ class OgdenDiagnosticsResponse(BaseModel):
     points: tuple[OgdenDiagnosticPointResponse, ...]
 
 
+class HyperelasticDiagnosticPointResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    family: str
+    member_ordinal: int
+    role: str
+    test_mode: str
+    dataset_id: UUID
+    dataset_revision_id: UUID
+    point_ordinal: int
+    engineering_strain: float
+    stretch: float
+    observed_nominal_stress_pa: float
+    predicted_nominal_stress_pa: float
+    residual_pa: float
+    normalized_residual: float
+    effective_weight: float
+
+    @classmethod
+    def from_domain(
+        cls, value: HyperelasticDiagnosticPoint
+    ) -> HyperelasticDiagnosticPointResponse:
+        return cls(
+            family=value.family.value,
+            member_ordinal=value.member_ordinal,
+            role=value.role.value,
+            test_mode=value.test_mode.value,
+            dataset_id=value.dataset_id,
+            dataset_revision_id=value.dataset_revision_id,
+            point_ordinal=value.point_ordinal,
+            engineering_strain=value.engineering_strain,
+            stretch=1.0 + value.engineering_strain,
+            observed_nominal_stress_pa=value.observed_nominal_stress_pa,
+            predicted_nominal_stress_pa=value.predicted_nominal_stress_pa,
+            residual_pa=value.residual_pa,
+            normalized_residual=value.normalized_residual,
+            effective_weight=value.effective_weight,
+        )
+
+
+class HyperelasticDiagnosticsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: UUID
+    points: tuple[HyperelasticDiagnosticPointResponse, ...]
+
+
 class OgdenProblem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -443,8 +507,16 @@ def _translate(context: SecurityContext, error: Exception) -> OgdenHttpError:
         return OgdenHttpError(context, 404, str(error))
     if isinstance(error, OgdenCalibrationConflict):
         return OgdenHttpError(context, 409, str(error))
+    if isinstance(error, AggregateAlreadyExists):
+        return OgdenHttpError(
+            context,
+            409,
+            "a Calibration Plan with this label already exists for the same State "
+            "and baseline model",
+        )
     if isinstance(error, (InvalidOgdenCalibration, ValueError)):
         return OgdenHttpError(context, 422, str(error))
+    logger.exception("unexpected Ogden calibration API failure", exc_info=error)
     return OgdenHttpError(context, 503, "service is unavailable")
 
 
@@ -587,4 +659,31 @@ def install_ogden_calibration_api(
         return OgdenDiagnosticsResponse(
             candidate_id=candidate_id,
             points=tuple(OgdenDiagnosticPointResponse.from_domain(item) for item in points),
+        )
+
+    @application.get(
+        "/api/v1/hyperelastic-family-candidates/{candidate_id}/diagnostics",
+        operation_id="getHyperelasticFamilyCandidateDiagnostics",
+        response_model=HyperelasticDiagnosticsResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+    )
+    async def family_diagnostics(
+        request: Request, candidate_id: UUID
+    ) -> HyperelasticDiagnosticsResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise OgdenHttpError(context, 503, "service is unavailable")
+        try:
+            points = await service.family_candidate_diagnostics(
+                context, decision, candidate_id
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        return HyperelasticDiagnosticsResponse(
+            candidate_id=candidate_id,
+            points=tuple(
+                HyperelasticDiagnosticPointResponse.from_domain(item) for item in points
+            ),
         )

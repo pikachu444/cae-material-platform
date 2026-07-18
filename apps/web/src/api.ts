@@ -52,6 +52,7 @@ import type {
   OgdenCalibrationPlanResponse,
   OgdenCalibrationRunResponse,
   OgdenDiagnosticsResponse,
+  HyperelasticDiagnosticsResponse,
   OgdenCalibrationRole,
   OgdenTestMode,
   MappingReport,
@@ -2162,6 +2163,23 @@ export function getReferenceOgdenCandidateDiagnostics(
   return request(
     config,
     `/ogden-calibration-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
+  );
+}
+
+export function getReferenceOgdenCalibrationRun(
+  config: ApiConfig,
+  runId: string,
+): Promise<ApiResult<OgdenCalibrationRunResponse>> {
+  return request(config, `/ogden-calibration-runs/${encodeURIComponent(runId)}`);
+}
+
+export function getHyperelasticFamilyCandidateDiagnostics(
+  config: ApiConfig,
+  candidateId: string,
+): Promise<ApiResult<HyperelasticDiagnosticsResponse>> {
+  return request(
+    config,
+    `/hyperelastic-family-candidates/${encodeURIComponent(candidateId)}/diagnostics`,
   );
 }
 

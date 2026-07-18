@@ -1,6 +1,6 @@
-version: 19
+version: 20
 verified_at: 2026-07-18
-source_evidence: ../15-demo/evidence/t55m-hardening-candidates.md
+source_evidence: ../15-demo/evidence/t55e-hyperelastic-family-comparison.md
 captures:
   - id: catalog-workflow-explorer
     route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
@@ -260,3 +260,10 @@ captures:
     image: ../15-demo/images/t55m-processed-solver-cards.png
     width: 1425
     height: 891
+  - id: hyperelastic-family-comparison
+    route: /materials/{demo-elastomer-material-id}/models
+    workflow: immutable-run-reload-and-public-hyperelastic-family-diagnostics
+    fixture: T-55E Neo-Hookean, Mooney-Rivlin, Yeoh, and Ogden comparison on three fit modes plus holdout
+    image: ../15-demo/images/t55e-hyperelastic-family-comparison.png
+    width: 1250
+    height: 704

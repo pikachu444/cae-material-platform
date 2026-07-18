@@ -27,9 +27,13 @@ from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.scientific_profile import ScientificProfileService
 from cmp.modules.modeling.application.service import RevisionSnapshot
 from cmp.modules.modeling.domain.hyperelastic_families import (
+    HYPERELASTIC_FAMILY_DIAGNOSTICS_SCHEMA,
+    HyperelasticDiagnosticPoint,
     HyperelasticFamily,
     HyperelasticFamilyCandidate,
     fit_hyperelastic_families,
+    hyperelastic_diagnostics_from_parquet,
+    hyperelastic_diagnostics_parquet_bytes,
 )
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
     REFERENCE_OGDEN_CALIBRATION_DIAGNOSTICS_SCHEMA,
@@ -92,6 +96,9 @@ class PersistedHyperelasticFamilyCandidate:
     value: HyperelasticFamilyCandidate
     created_at: datetime
     created_by: UUID
+    diagnostics_artifact_id: UUID | None = None
+    diagnostics_sha256: str | None = None
+    diagnostics_point_count: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -175,6 +182,14 @@ class OgdenCalibrationRepository(Protocol):
         decision: AuthorizationDecision,
         candidate_id: UUID,
     ) -> PersistedOgdenCandidate: ...
+
+    def get_family_candidate(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> PersistedHyperelasticFamilyCandidate: ...
 
 
 def _require(
@@ -449,6 +464,32 @@ class ReferenceOgdenCalibrationService:
                     created_by=context.principal.id,
                 )
             )
+        persisted_families: list[PersistedHyperelasticFamilyCandidate] = []
+        for family_candidate in family_candidates:
+            artifact = await self._artifacts.finalize_derived_bytes(
+                context,
+                decision,
+                classification=DataClassification(plan.record.scope.classification),
+                artifact_role="modeling.hyperelastic_family_candidate_diagnostics",
+                schema_ref=HYPERELASTIC_FAMILY_DIAGNOSTICS_SCHEMA,
+                media_type="application/vnd.apache.parquet",
+                value=hyperelastic_diagnostics_parquet_bytes(family_candidate),
+                idempotency_key=(
+                    f"hyperelastic-family:{run_id}:{family_candidate.family.value}:diagnostics"
+                ),
+            )
+            persisted_families.append(
+                PersistedHyperelasticFamilyCandidate(
+                    id=self._id(),
+                    calibration_run_id=run_id,
+                    value=family_candidate,
+                    created_at=self._clock(),
+                    created_by=context.principal.id,
+                    diagnostics_artifact_id=artifact.artifact.id,
+                    diagnostics_sha256=artifact.artifact.sha256,
+                    diagnostics_point_count=len(family_candidate.diagnostics),
+                )
+            )
         run = OgdenCalibrationRun(
             id=run_id,
             classification=DataClassification(plan.record.scope.classification),
@@ -477,16 +518,7 @@ class ReferenceOgdenCalibrationService:
             request_id=context.request_id,
             trace_id=context.trace_id,
             candidates=tuple(persisted),
-            family_candidates=tuple(
-                PersistedHyperelasticFamilyCandidate(
-                    id=self._id(),
-                    calibration_run_id=run_id,
-                    value=candidate,
-                    created_at=self._clock(),
-                    created_by=context.principal.id,
-                )
-                for candidate in family_candidates
-            ),
+            family_candidates=tuple(persisted_families),
         )
         return self._repository.save_run(context=context, decision=decision, run=run)
 
@@ -541,5 +573,32 @@ class ReferenceOgdenCalibrationService:
         if len(points) != candidate.diagnostics_point_count:
             raise OgdenCalibrationConflict(
                 "candidate diagnostics point count differs from immutable Artifact"
+            )
+        return points
+
+    async def family_candidate_diagnostics(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> tuple[HyperelasticDiagnosticPoint, ...]:
+        _require(context, decision, Permission.MODELING_READ)
+        candidate = self._repository.get_family_candidate(
+            context=context,
+            decision=decision,
+            candidate_id=candidate_id,
+        )
+        if candidate.diagnostics_artifact_id is None:
+            raise OgdenCalibrationConflict("family Candidate has no diagnostics Artifact")
+        _, value = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            candidate.diagnostics_artifact_id,
+            maximum_bytes=16 * 1024 * 1024,
+        )
+        points = hyperelastic_diagnostics_from_parquet(value)
+        if len(points) != candidate.diagnostics_point_count:
+            raise OgdenCalibrationConflict(
+                "family Candidate diagnostics point count differs from immutable Artifact"
             )
         return points

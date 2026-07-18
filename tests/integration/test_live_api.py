@@ -4,6 +4,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from urllib.error import URLError
 
 from cmp_api_client import Client
 
@@ -42,16 +43,22 @@ def test_generated_client_calls_live_health_endpoint() -> None:
         cwd=PROJECT_ROOT,
         env=environment,
         stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        text=True,
     )
     client = Client(f"http://127.0.0.1:{port}", timeout_seconds=0.25)
     try:
-        deadline = time.monotonic() + 10
+        deadline = time.monotonic() + 30
         while True:
             try:
                 result = client.get_health()
                 break
-            except OSError:
+            except (OSError, URLError) as cause:
+                if process.poll() is not None:
+                    error = process.stderr.read() if process.stderr is not None else ""
+                    raise AssertionError(
+                        f"live API exited before readiness: {error}"
+                    ) from cause
                 if time.monotonic() >= deadline:
                     raise
                 time.sleep(0.05)

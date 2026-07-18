@@ -7,6 +7,8 @@ import pytest
 from cmp.modules.modeling.domain.hyperelastic_families import (
     HyperelasticFamily,
     fit_hyperelastic_families,
+    hyperelastic_diagnostics_from_parquet,
+    hyperelastic_diagnostics_parquet_bytes,
     nominal_stress_pa,
 )
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
@@ -98,3 +100,26 @@ def test_neo_hookean_is_the_alpha_two_ogden_limit() -> None:
         )
         ogden = nominal_stress_pa(HyperelasticFamily.OGDEN_1, mode, strain, np.asarray([mu, 2.0]))
         assert np.allclose(neo, ogden)
+
+
+def test_family_candidate_diagnostics_round_trip_without_curve_loss() -> None:
+    candidate = fit_hyperelastic_families(
+        (
+            _curve(
+                0,
+                OgdenTestMode.UNIAXIAL_TENSION,
+                HyperelasticFamily.MOONEY_RIVLIN,
+                (0.8e6, 0.3e6),
+            ),
+        ),
+        (HyperelasticFamily.MOONEY_RIVLIN,),
+        multistart_count=2,
+        random_seed=3,
+    )[0]
+    restored = hyperelastic_diagnostics_from_parquet(
+        hyperelastic_diagnostics_parquet_bytes(candidate)
+    )
+    assert restored == candidate.diagnostics
+    assert restored[-1].predicted_nominal_stress_pa == pytest.approx(
+        restored[-1].observed_nominal_stress_pa, rel=1e-6
+    )

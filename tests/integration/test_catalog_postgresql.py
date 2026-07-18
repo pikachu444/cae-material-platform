@@ -2283,6 +2283,16 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
         item for item in restored.family_candidates if item.value.family.value == "ogden_1"
     )
     assert {item.name for item in ogden_family.value.parameters} == {"mu_pa", "alpha"}
+    assert all(item.diagnostics_artifact_id is not None for item in restored.family_candidates)
+    family_points = asyncio.run(
+        postgres.ogden_calibration.family_candidate_diagnostics(
+            context,
+            _decision(context, Permission.MODELING_READ),
+            ogden_family.id,
+        )
+    )
+    assert len(family_points) == ogden_family.diagnostics_point_count
+    assert {point.family.value for point in family_points} == {"ogden_1"}
 
     other = _context(PROJECT_B)
     with pytest.raises(OgdenCalibrationNotFound, match="not visible"):
@@ -2309,7 +2319,8 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
         family_rows = connection.execute(
             sa.text(
                 "SELECT family, c10_pa, c01_pa, c20_pa, c30_pa, ogden_mu_pa, "
-                "ogden_alpha FROM modeling.hyperelastic_family_candidate "
+                "ogden_alpha, diagnostics_artifact_id, diagnostics_point_count "
+                "FROM modeling.hyperelastic_family_candidate "
                 "WHERE calibration_run_id=:run_id ORDER BY family"
             ),
             {"run_id": run_id},
@@ -2324,6 +2335,8 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
     assert next(row for row in family_rows if row.family == "neo_hookean").c10_pa > 0
     assert next(row for row in family_rows if row.family == "yeoh").c20_pa is not None
     assert next(row for row in family_rows if row.family == "ogden_1").ogden_alpha > 0
+    assert all(row.diagnostics_artifact_id is not None for row in family_rows)
+    assert all(row.diagnostics_point_count > 0 for row in family_rows)
     with pytest.raises(DBAPIError, match="immutable"):
         with postgres.admin_engine.begin() as connection:
             connection.execute(
