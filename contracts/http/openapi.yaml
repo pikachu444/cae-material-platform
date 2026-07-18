@@ -2203,6 +2203,47 @@ paths:
               schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/WorkflowGraphResponse"}
         "404": {description: Root Record revision is not visible.}
         "422": {description: Depth or exact revision identifier is invalid.}
+  /api/v1/catalog/records/{record_id}/revisions/{revision_id}/domain-binding:
+    get:
+      operationId: getCatalogRecordDomainRevisionBinding
+      tags: [catalog-explorer]
+      summary: Read the governed domain revision pinned by one exact configurable Record revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: The exact typed binding, or null when the Record revision is not bound.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/DomainRevisionBindingResponse"}
+                  - {type: "null"}
+        "404": {description: Record revision is not visible.}
+    post:
+      operationId: bindCatalogRecordDomainRevision
+      tags: [catalog-explorer]
+      summary: Immutably pin a configurable Record revision to an exact governed domain revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: record_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: revision_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/DomainRevisionBindingRequest"}
+      responses:
+        "201":
+          description: Immutable same-scope exact-revision binding created.
+          content:
+            application/json:
+              schema: {$ref: "../catalog/configurable-catalog-link-resources.schema.json#/$defs/DomainRevisionBindingResponse"}
+        "404": {description: Record revision or governed target revision is not visible.}
+        "409": {description: Record revision is already bound or the target is already represented.}
+        "422": {description: Domain kind or exact UUID request is invalid.}
   /api/v1/materials:
     get:
       operationId: listMaterials

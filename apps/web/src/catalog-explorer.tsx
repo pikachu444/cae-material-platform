@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 
 import {
   ApiError,
+  bindCatalogRecordDomainRevision,
   createConfigurableCatalogLinkType,
   createConfigurableRecordLink,
   getCatalogWorkflowGraph,
@@ -20,6 +21,7 @@ import type {
   ConfigurableLinkTypeResponse,
   ConfigurableRecordLinkView,
   ConfigurableTableResponse,
+  DomainBindingKind,
 } from "./types";
 
 interface CatalogExplorerProps {
@@ -68,6 +70,11 @@ export function CatalogExplorer({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [bindingDraft, setBindingDraft] = useState({
+    kind: "material" as DomainBindingKind,
+    objectId: "",
+    revisionId: "",
+  });
   const [typeDraft, setTypeDraft] = useState({
     key: "",
     name: "",
@@ -163,10 +170,34 @@ export function CatalogExplorer({
   }
 
   function openEndpoint(endpoint: ConfigurableLinkEndpoint): void {
+    if (endpoint.domain_binding) {
+      onNavigate(endpoint.domain_binding.workbench_path);
+      return;
+    }
     onNavigate(
       `/catalog/explorer/records/${endpoint.record_id}/revisions/${endpoint.record_revision_id}`,
     );
     void loadGraph(endpoint.record_id, endpoint.record_revision_id);
+  }
+
+  async function bindDomainRevision(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!selected) return;
+    setBusy("binding");
+    try {
+      await bindCatalogRecordDomainRevision(config, selected.record_id, selected.record_revision_id, {
+        kind: bindingDraft.kind,
+        object_id: bindingDraft.objectId,
+        revision_id: bindingDraft.revisionId,
+      });
+      await loadGraph(selected.record_id, selected.record_revision_id);
+      setNotice("The Catalog Record revision now pins an exact governed domain revision.");
+      setError(null);
+    } catch (caught) {
+      setError(message(caught));
+    } finally {
+      setBusy(null);
+    }
   }
 
   function renderBranch(tableId: string, folderId: string | null, depth: number) {
@@ -383,6 +414,11 @@ export function CatalogExplorer({
                     <span>{tableNames.get(node.table_id) ?? "Record"}</span>
                     <strong>{node.name}</strong>
                     <small>r{node.revision_no} · {shortRevision(node.record_revision_id)}…</small>
+                    {node.domain_binding ? (
+                      <small className="mapping-note">
+                        {node.domain_binding.kind} · exact {shortRevision(node.domain_binding.revision_id)}…
+                      </small>
+                    ) : null}
                   </button>
                 ))}
               </div>
@@ -411,6 +447,47 @@ export function CatalogExplorer({
         </section>
 
         <aside className="explorer-panel link-editor-panel">
+          <p className="eyebrow">Domain revision binding</p>
+          <h2>Open the real workbench</h2>
+          {selected?.domain_binding ? (
+            <div className="mapping-note">
+              <strong>{selected.domain_binding.kind}</strong>
+              <p>Exact revision {selected.domain_binding.revision_id}</p>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => onNavigate(selected.domain_binding!.workbench_path)}
+              >
+                Open governed object
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={(event) => void bindDomainRevision(event)}>
+              <label>
+                Domain object type
+                <select
+                  value={bindingDraft.kind}
+                  onChange={(event) => setBindingDraft({ ...bindingDraft, kind: event.target.value as DomainBindingKind })}
+                >
+                  {(["material", "material_state", "specimen", "test_run", "test_data", "processing_output", "material_model", "neutral_material", "solver_card", "neutral_solver_card", "release"] as DomainBindingKind[]).map((kind) => (
+                    <option value={kind} key={kind}>{kind.replaceAll("_", " ")}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Stable object UUID
+                <input required value={bindingDraft.objectId} onChange={(event) => setBindingDraft({ ...bindingDraft, objectId: event.target.value })} />
+              </label>
+              <label>
+                Exact revision UUID
+                <input required value={bindingDraft.revisionId} onChange={(event) => setBindingDraft({ ...bindingDraft, revisionId: event.target.value })} />
+              </label>
+              <button className="button primary" disabled={!selected || busy === "binding"}>
+                {busy === "binding" ? "Binding…" : "Pin exact domain revision"}
+              </button>
+            </form>
+          )}
+          <hr />
           <p className="eyebrow">Typed link editor</p>
           <h2>Create exact link</h2>
           <form onSubmit={(event) => void createLink(event)}>

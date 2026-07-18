@@ -1,4 +1,4 @@
-version: 22
+version: 23
 verified_at: 2026-07-18
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -16,6 +16,13 @@ captures:
     image: ../15-demo/images/t51-catalog-workflow-explorer.png
     width: 1265
     height: 712
+  - id: domain-workflow-binding
+    route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
+    workflow: configurable-record-to-governed-domain-exact-revision
+    fixture: T-62 live Docker/PostgreSQL Catalog Record pinned to DP780 Material revision 1
+    image: ../15-demo/images/t62-domain-workflow-binding.png
+    width: 1265
+    height: 1235
   - id: reverse-record-link
     route: /catalog/explorer/records/{test_record_id}/revisions/{test_revision_id}
     workflow: reverse-link-navigation-with-exact-revision-pins

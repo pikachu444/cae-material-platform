@@ -336,6 +336,19 @@ export function getCatalogWorkflowGraph(
   );
 }
 
+export function bindCatalogRecordDomainRevision(
+  config: ApiConfig,
+  recordId: string,
+  revisionId: string,
+  input: { kind: import("./types").DomainBindingKind; object_id: string; revision_id: string },
+): Promise<ApiResult<import("./types").DomainRevisionBinding>> {
+  return request(
+    config,
+    `/catalog/records/${encodeURIComponent(recordId)}/revisions/${encodeURIComponent(revisionId)}/domain-binding`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
 export function validateCanonicalTestData(
   config: ApiConfig,
   document: Record<string, unknown>,

@@ -1483,6 +1483,10 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-62. Domain-backed Material Workflow Explorer — `P0`
 
+- **상태 (`2026-07-18`):** `implemented` (complete demo genealogy seeding remains T-65).
+- **구현 증거:** migration 075 `catalog.domain_record_binding`, binding create/read API, Workflow
+  graph projection, governed workbench deep links, migration/API/React/non-bypass PostgreSQL tests.
+
 - **범위:** configurable Record revision을 Material/State/Test/Specimen/Dataset/Processing Output/
   Material Model/Neutral/Card/Release exact revision에 typed binding하고 기존 Record Link graph와 결합한다.
 - **완료 조건:** 실제 Material identity에서 시작해 각 workbench exact revision으로 이동하며

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -16,6 +17,8 @@ from cmp.modules.catalog.application.links import (
     LINK_TYPE_AGGREGATE_TYPE,
     RECORD_LINK_AGGREGATE_TYPE,
     CatalogLinkRepository,
+    DomainBindingKind,
+    DomainRevisionBinding,
     LinkTypeSnapshot,
     RecordLinkSnapshot,
 )
@@ -119,6 +122,55 @@ record_link_revision = _revision_table(
     sa.Column("active", sa.Boolean(), nullable=False),
     sa.Column("note", sa.Text(), nullable=True),
 )
+domain_record_binding = sa.Table(
+    "domain_record_binding",
+    metadata,
+    sa.Column("id", _uuid, primary_key=True),
+    sa.Column("organization_id", _uuid, nullable=False),
+    sa.Column("project_id", _uuid, nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("record_id", _uuid, nullable=False),
+    sa.Column("record_revision_id", _uuid, nullable=False),
+    sa.Column("domain_kind", sa.String(32), nullable=False),
+    sa.Column("domain_object_id", _uuid, nullable=False),
+    sa.Column("domain_revision_id", _uuid, nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", _uuid, nullable=False),
+    sa.Column("request_id", _uuid, nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="catalog",
+)
+
+
+def _workbench_path(kind: DomainBindingKind, object_id: UUID, revision_id: UUID) -> str:
+    query = f"object_id={object_id}&revision_id={revision_id}"
+    roots = {
+        DomainBindingKind.MATERIAL: f"/materials/{object_id}?revision_id={revision_id}",
+        DomainBindingKind.MATERIAL_STATE: f"/materials?{query}",
+        DomainBindingKind.SPECIMEN: f"/tests?{query}",
+        DomainBindingKind.TEST_RUN: f"/tests?{query}",
+        DomainBindingKind.TEST_DATA: f"/datasets/test-json?{query}",
+        DomainBindingKind.PROCESSING_OUTPUT: f"/datasets/processing?{query}",
+        DomainBindingKind.MATERIAL_MODEL: f"/models?{query}",
+        DomainBindingKind.NEUTRAL_MATERIAL: f"/models?{query}",
+        DomainBindingKind.SOLVER_CARD: f"/exports?{query}",
+        DomainBindingKind.NEUTRAL_SOLVER_CARD: f"/exports?{query}",
+        DomainBindingKind.RELEASE: f"/governance?{query}",
+    }
+    return roots[kind]
+
+
+def _domain_binding(row: Any) -> DomainRevisionBinding:
+    kind = DomainBindingKind(row["domain_kind"])
+    return DomainRevisionBinding(
+        id=row["id"],
+        record_id=row["record_id"],
+        record_revision_id=row["record_revision_id"],
+        kind=kind,
+        object_id=row["domain_object_id"],
+        revision_id=row["domain_revision_id"],
+        workbench_path=_workbench_path(kind, row["domain_object_id"], row["domain_revision_id"]),
+    )
 
 
 def _record(row: Any, aggregate_type: str) -> RevisionRecord:
@@ -510,3 +562,56 @@ class SqlAlchemyCatalogLinkRepository(CatalogLinkRepository):
                 link_type.target_cardinality is LinkCardinality.ONE
                 and session.execute(target.limit(1)).first() is not None
             )
+
+    def create_domain_binding(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        binding_id: UUID,
+        record_id: UUID,
+        record_revision_id: UUID,
+        kind: DomainBindingKind,
+        object_id: UUID,
+        revision_id: UUID,
+        classification: str,
+    ) -> DomainRevisionBinding:
+        values = {
+            "id": binding_id,
+            "organization_id": context.organization_id,
+            "project_id": context.project_id,
+            "classification": classification,
+            "record_id": record_id,
+            "record_revision_id": record_revision_id,
+            "domain_kind": kind.value,
+            "domain_object_id": object_id,
+            "domain_revision_id": revision_id,
+            "created_at": datetime.now(UTC),
+            "created_by": context.principal.id,
+            "request_id": context.request_id,
+            "trace_id": context.trace_id,
+        }
+        with self._transaction(context, decision) as session:
+            session.execute(sa.insert(domain_record_binding).values(**values))
+        return _domain_binding(values)
+
+    def get_domain_binding(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+    ) -> DomainRevisionBinding | None:
+        with self._transaction(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(domain_record_binding).where(
+                        domain_record_binding.c.record_id == record_id,
+                        domain_record_binding.c.record_revision_id == record_revision_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            return None if row is None else _domain_binding(row)

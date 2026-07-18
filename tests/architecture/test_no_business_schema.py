@@ -81,6 +81,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260907_072_T57_neutral_solver_cards.py",
         "20260908_073_T58_canonical_bulk_sources.py",
         "20260909_074_T59_product_access_assignments.py",
+        "20260910_075_T62_domain_record_bindings.py",
     ]
 
 
