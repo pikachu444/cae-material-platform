@@ -24,4 +24,6 @@ RUN uv sync --frozen --no-dev
 RUN rm -rf /root/.cache/uv \
     && dpkg --force-depends --force-remove-essential --remove perl-base
 
+COPY scripts ./scripts
+
 CMD ["cmp-api"]

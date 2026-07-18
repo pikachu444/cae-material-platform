@@ -23,6 +23,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Abaqus/OpenRadioss native cards | T-57 complete for four declared hyperelastic families plus earlier bounded linear/elastoplastic/viscoelastic mappings | T-58 package |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | T-59 grants |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | T-60 demo |
+| Clean guided product demo | T-60 implemented: one Compose seed prepares metal/polymer/elastomer reference journeys, Dashboard entry points, protected API verification and unified walkthrough | product pilot |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
 DB/API/UI/Test status matrix. Existing completed entries below remain valid evidence for their stated
@@ -30,10 +31,15 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-60`: complete the clean end-to-end demo, desktop screenshot gate, and unified user/admin
-  walkthrough across Catalog → Test JSON → Recipe/Batch → Modeling → Solver Card → Bulk Package.
+- Product-pilot validation with organization-specific data policy, domain sign-off and real solver
+  execution remains a separate deployment decision.
 
 ## Completed
+
+- `T-60`: clean Compose now seeds three public synthetic material-family journeys through protected
+  APIs. `make demo-verify` confirms the exact Material/State/Model heads and required Abaqus/
+  OpenRadioss cards. Dashboard guided routes, a unified walkthrough, deterministic fixture stamp,
+  live PostgreSQL/API proof and screenshot gate are connected. Solver execution remains excluded.
 
 - `T-59`: Migration 074 adds an explicit typed product access assignment with `Administrator` or
   `User` and five boolean feature grants: schema configuration, catalog editing,

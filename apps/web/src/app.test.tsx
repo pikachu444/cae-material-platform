@@ -85,6 +85,10 @@ describe("Material Catalog workbench", () => {
     expect(await screen.findByText("Demo DP780 Steel")).toBeTruthy();
     expect(screen.getByText("DP780")).toBeTruthy();
     expect(screen.getByText("10,000")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Choose a material family and follow the evidence." })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Open metal journey" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Open polymer journey" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Open elastomer journey" })).toBeTruthy();
   });
 
   it("can request an explicitly enabled local demo token without treating it as a normal fallback", async () => {

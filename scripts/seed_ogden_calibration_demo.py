@@ -12,6 +12,7 @@ import csv
 import hashlib
 import io
 import json
+import os
 import time
 from dataclasses import dataclass
 from typing import Any, cast
@@ -19,7 +20,7 @@ from uuid import uuid4
 
 import httpx
 
-BASE_URL = "http://127.0.0.1:5173/api/v1"
+BASE_URL = os.getenv("CMP_DEMO_API_BASE_URL", "http://127.0.0.1:5173/api/v1")
 TARGET_MATERIAL_NAME = "Demo Elastomer Ogden-Prony"
 
 
@@ -70,7 +71,7 @@ def _nominal_stress(test_mode: str, stretch: float) -> float:
         response = stretch ** (alpha - 1.0) - stretch ** (-2.0 * alpha - 1.0)
     else:  # pragma: no cover - fixtures above are the complete supported set
         raise ValueError(f"unsupported demo mode: {test_mode}")
-    return (2.0 * mu_pa / alpha) * response
+    return float((2.0 * mu_pa / alpha) * response)
 
 
 def _curve_csv(fixture: CurveFixture) -> bytes:
@@ -328,7 +329,7 @@ def main(*, promote: bool = False) -> None:
         baseline = models[0]
         scientific_profile = _scientific_profile(client)
         methods = _tension_methods(client)
-        stamp = str(int(time.time()))
+        stamp = os.getenv("CMP_DEMO_FIXTURE_STAMP") or str(int(time.time()))
         members = [
             _import_curve(
                 client,
