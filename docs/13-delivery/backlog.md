@@ -1340,6 +1340,15 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   candidate, Voce/Swift/Hockett–Sherby/Ghosh fitting, candidate combine와 bounded extrapolation.
 - **완료 조건:** Recipe/Neutral JSON에 선택 방법과 domain이 남고 기존 two-solver card로 이어진다.
 - **테스트:** analytical/golden numeric fixtures, bounds/residual/extrapolation regression, UI E2E.
+- **구현 증거 (1차, 진행 중):** common method registry에 `metal.elastic_modulus`,
+  `metal.proof_stress`, `metal.necking_candidate`, `metal.engineering_to_true_plastic`을 추가했다.
+  E 산정은 OLS, Huber robust regression, chord, secant, manual을 명시적으로 구분한다. 자동 necking은
+  후보만 보고하고 원본을 자르지 않으며, true/plastic 변환은 사용자가 확정한 index 또는 전체 관측
+  domain을 선택한다. scalar 결과와 변환 curve는 Processing Output/Recipe/Batch의 기존 불변 계약으로
+  재실행된다. normalized strain `1`, stress `Pa`가 아니면 계산을 거부한다.
+- **남은 범위:** Voce/Swift/Hockett–Sherby/Ghosh의 동일 objective 후보 비교, 사용자 선택/구간 조합,
+  관측/외삽 domain을 분리한 bounded extrapolation, 기존 IR/card 흐름 연결과 전체 UI E2E. 이 항목이
+  끝나기 전에는 T-55M을 `complete`로 표시하지 않는다.
 
 #### T-55P. Polymer linear-viscoelastic workbench — `P0`
 

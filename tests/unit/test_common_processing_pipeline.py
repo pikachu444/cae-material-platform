@@ -82,6 +82,10 @@ def test_registry_exposes_versioned_solver_neutral_methods() -> None:
         "curve.moving_average",
         "curve.savitzky_golay",
         "curve.smoothing_spline",
+        "metal.elastic_modulus",
+        "metal.proof_stress",
+        "metal.necking_candidate",
+        "metal.engineering_to_true_plastic",
     }
     assert all(item.deterministic and not item.allows_extrapolation for item in METHOD_REGISTRY)
 

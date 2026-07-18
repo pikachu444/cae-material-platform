@@ -18,7 +18,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
+| Metal/Polymer/Elastomer modeling | T-55M increment 1 adds five explicit E choices, offset proof stress, non-destructive necking candidate and explicit true/plastic conversion to the Recipe-compatible pipeline; multi-family hardening fit/combine/extrapolation remains, while polymer/elastomer are still bounded reference flows | T-55M/P/E |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
 | Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
 | Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
@@ -27,6 +27,17 @@ Workbench defined by ADR-0028 through ADR-0030.
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
 DB/API/UI/Test status matrix. Existing completed entries below remain valid evidence for their stated
 bounded Tasks, but must not be read as completion of T-49 through T-60.
+
+## In progress
+
+- `T-55M increment 1` (Task remains in progress): four versioned metal tensile methods now run in the
+  same Processing Workbench, immutable Output and published Recipe/Batch execution path as the common
+  methods. OLS, Huber robust, chord, secant and manual Young's modulus results are explicit scalars;
+  offset proof stress is an observed-curve/offset-line intersection; peak engineering stress is only a
+  necking candidate and never crops the source; true stress, true total strain and true plastic strain
+  require an explicit boundary policy. Non-SI normalized tensile inputs are rejected rather than
+  silently interpreted. Multi-family hardening candidate fitting, combination and bounded
+  extrapolation remain before T-55M can be complete.
 
 ## Completed
 

@@ -93,6 +93,35 @@ function defaultOptions(methodId: string): Record<string, unknown> {
     "curve.moving_average": { quantity: "stress.engineering", window: 3 },
     "curve.savitzky_golay": { quantity: "stress.engineering", window: 5, polynomial_order: 2 },
     "curve.smoothing_spline": { quantity: "stress.engineering", smoothing_factor: 0 },
+    "metal.elastic_modulus": {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      method: "robust_huber",
+      minimum_strain: 0.0002,
+      maximum_strain: 0.002,
+      manual_modulus_pa: 210000000000,
+    },
+    "metal.proof_stress": {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      youngs_modulus_pa: 210000000000,
+      offset_strain: 0.002,
+      search_start: 0.002,
+      search_end: 0.1,
+    },
+    "metal.necking_candidate": {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      method: "peak_engineering_stress",
+    },
+    "metal.engineering_to_true_plastic": {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      youngs_modulus_pa: 210000000000,
+      necking_policy: "observed_full_domain",
+      manual_necking_index: 1,
+      negative_plastic_policy: "drop",
+    },
   };
   return options[methodId] ?? {};
 }
@@ -681,7 +710,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
         </article>
         <article className="workbench-card curve-overlay-card">
           <div className="section-heading"><div><p className="eyebrow">Curve overlay</p><h2>{activeStage?.method_id ?? "Awaiting preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not promotable</span> : null}</div>
-          {preview && activeStage && baseStage && overlayBounds ? <><svg className="processing-curve" role="img" aria-label="Mapped and selected processing stage curve overlay" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/><polyline points={curvePoints(baseStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line source"/><polyline points={curvePoints(activeStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line processed"/></svg><div className="curve-legend"><span><i className="source"/>Mapped input</span><span><i className="processed"/>Selected stage</span></div><div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div><p className="digest-line"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p></> : <p className="muted">The overlay uses the actual server result. No browser-only curve is treated as evidence.</p>}
+          {preview && activeStage && baseStage && overlayBounds ? <><svg className="processing-curve" role="img" aria-label="Mapped and selected processing stage curve overlay" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/><polyline points={curvePoints(baseStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line source"/><polyline points={curvePoints(activeStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line processed"/></svg><div className="curve-legend"><span><i className="source"/>Mapped input</span><span><i className="processed"/>Selected stage</span></div><div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div>{(activeStage.scalar_results ?? []).length ? <div className="metal-scalar-grid" aria-label="Metal processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div> : null}<p className="digest-line"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p></> : <p className="muted">The overlay uses the actual server result. No browser-only curve is treated as evidence.</p>}
         </article>
       </section>
 

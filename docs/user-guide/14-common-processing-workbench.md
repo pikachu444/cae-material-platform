@@ -31,6 +31,21 @@
 - Savitzky–Golay: `curve.savitzky_golay`
 - smoothing spline: `curve.smoothing_spline`
 
+금속 단축 인장 데이터에는 다음 family method도 같은 ordered pipeline에서 사용할 수 있습니다.
+
+- 탄성계수: `metal.elastic_modulus` — `linear_regression`, `robust_huber`, `chord`, `secant`, `manual`
+- offset proof stress: `metal.proof_stress`
+- 자동 necking 후보: `metal.necking_candidate`
+- engineering → true/true-plastic 변환: `metal.engineering_to_true_plastic`
+
+탄성계수, proof stress와 necking 위치는 선택한 stage의 **Scalar results**에 값과 단위로 나타납니다.
+자동 necking 단계는 후보 index만 보고하며 curve를 자르거나 확정하지 않습니다. 변환 단계에서
+`manual_index`를 명시해야 후보를 실제 경계로 사용합니다. `observed_full_domain`은 post-necking을
+포함할 수 있다는 경고를 남깁니다. 금속 method는 normalized strain `1`, stress `Pa`만 받으며,
+다른 단위를 Pa로 가장하거나 묵시적으로 변환하지 않습니다.
+
+![금속 인장 처리 단계와 210 GPa Huber 탄성계수 결과](../15-demo/images/t55m-metal-processing-methods.png)
+
 각 method의 option 계약은 서버의 versioned registry에서 읽습니다. 알 수 없는 option, 호환되지
 않는 quantity/unit, 범위 밖 extrapolation, 비유한 수치, 허용되지 않은 결측값은 묵시적으로
 보정하지 않고 실패시킵니다.

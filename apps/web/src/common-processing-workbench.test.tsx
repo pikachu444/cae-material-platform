@@ -154,6 +154,7 @@ describe("Common Processing Workbench", () => {
                 { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
               ],
               diagnostics: ["canonical normalized values mapped"],
+              scalar_results: [],
             },
             {
               ordinal: 1,
@@ -165,6 +166,14 @@ describe("Common Processing Workbench", () => {
                 { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
               ],
               diagnostics: ["input rows sorted by independent quantity"],
+              scalar_results: [
+                {
+                  key: "youngs_modulus",
+                  quantity_semantics: "modulus.young",
+                  value: 210e9,
+                  unit: "Pa",
+                },
+              ],
             },
           ],
         });
@@ -249,6 +258,7 @@ describe("Common Processing Workbench", () => {
     expect(await screen.findByText("Preview only · not promotable")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
+    expect(screen.getByText("210.000 GPa")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Align and calculate" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();

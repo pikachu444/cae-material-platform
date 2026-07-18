@@ -3664,6 +3664,12 @@ export interface CommonCurveStage {
   point_count: number;
   series: Array<{ quantity: string; unit: string; values: number[] }>;
   diagnostics: string[];
+  scalar_results: Array<{
+    key: string;
+    quantity_semantics: string;
+    value: number;
+    unit: string;
+  }>;
 }
 
 export interface CommonProcessingPreview {
