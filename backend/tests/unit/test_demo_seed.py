@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from cmp.apps.demo_seed import seed_demo
+from cmp.apps.demo_seed import _ensure_elastoplastic_models_and_cards, seed_demo
 
 
 def _resource(
@@ -138,3 +138,68 @@ def test_seed_uses_the_protected_material_to_card_and_dataset_http_flow() -> Non
     assert api.calls.count(
         ("post", "/tabulated-plasticity-models/plastic-model-1/solver-cards")
     ) == 2
+
+
+class _ExistingElastoplasticApi:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str]] = []
+
+    def get(self, path: str) -> dict[str, Any]:
+        self.calls.append(("get", path))
+        if path == "/material-states/state-1/tabulated-plasticity-models":
+            return {
+                "items": [
+                    _resource(
+                        "material_model_id",
+                        "processed-model",
+                        "processed-model-r1",
+                        {
+                            "source_dataset_revision_id": None,
+                            "processing_projection": {"output_revision_id": "output-r1"},
+                        },
+                    ),
+                    _resource(
+                        "material_model_id",
+                        "direct-model",
+                        "direct-model-r1",
+                        {
+                            "source_dataset_revision_id": "dataset-r2",
+                            "processing_projection": None,
+                        },
+                    ),
+                ]
+            }
+        if path == "/tabulated-plasticity-models/direct-model/solver-cards":
+            return {
+                "items": [
+                    {"target": {"solver": "openradioss"}},
+                    {"target": {"solver": "abaqus"}},
+                ]
+            }
+        raise AssertionError(f"unexpected GET {path}")
+
+    def post(
+        self,
+        path: str,
+        payload: Mapping[str, Any],
+        *,
+        headers: Mapping[str, str] | None = None,
+    ) -> dict[str, Any]:
+        del payload, headers
+        raise AssertionError(f"reseed unexpectedly wrote {path}")
+
+
+def test_reseed_selects_the_direct_dataset_model_instead_of_a_processed_projection() -> None:
+    api = _ExistingElastoplasticApi()
+
+    _ensure_elastoplastic_models_and_cards(
+        api,  # type: ignore[arg-type]
+        _resource("material_state_id", "state-1", "state-r1", {}),
+        _resource("property_set_id", "properties-1", "properties-r1", {}),
+        _resource("dataset_id", "dataset-1", "dataset-r2", {}),
+    )
+
+    assert api.calls == [
+        ("get", "/material-states/state-1/tabulated-plasticity-models"),
+        ("get", "/tabulated-plasticity-models/direct-model/solver-cards"),
+    ]

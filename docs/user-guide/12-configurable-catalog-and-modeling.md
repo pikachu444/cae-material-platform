@@ -49,16 +49,21 @@ Explorer와 함께 확장한다.
 ## Catalog Explorer와 exact Record Link 사용
 
 1. 상단 **Catalog** 또는 `/catalog/explorer`를 연다.
-2. 왼쪽 Catalog Explorer에서 Table → Folder → Record를 펼친다. 하위 노드는 펼칠 때 실제
+2. 왼쪽에서 검색할 Table을 선택한다. 이름·external key·설명·text Attribute를 입력해 검색하거나
+   **Saved subsets**의 revisioned 검색 조건을 적용한다. 검색 결과는 exact current Record revision이며,
+   선택하면 별도 화면을 거치지 않고 가운데 Workflow graph가 열린다.
+3. 전체 계층을 탐색할 때는 Table → Folder → Record를 펼친다. 하위 노드는 펼칠 때 실제
    PostgreSQL API에서 불러온다.
-3. Record를 선택하면 가운데 Workflow Explorer가 현재 선택한 **정확한 revision UUID**를
+4. Record를 선택하면 가운데 Workflow Explorer가 현재 선택한 **정확한 revision UUID**를
    표시한다. 주소에도 `/records/{record_id}/revisions/{revision_id}`가 남는다.
-4. 관련 노드나 링크의 **Open**을 누르면 대상 exact revision으로 이동한다. 정방향에서는 Link
+5. 관련 노드나 링크의 **Open**을 누르면 대상 exact revision으로 이동한다. 정방향에서는 Link
    Type의 forward label, 역방향에서는 reverse label이 표시된다.
-5. 새 링크는 오른쪽에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
+6. 새 링크는 오른쪽에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
    이후 대상 Record가 새 revision을 만들어도 기존 링크는 자동으로 이동하지 않는다.
-6. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
+7. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
    추가한다.
+
+![Explorer 검색 결과에서 exact Material revision과 전체 Workflow graph 열기](../15-demo/images/t71-explorer-search-workflow.png)
 
 ![Catalog tree와 Material workflow exact link](../15-demo/images/t51-catalog-workflow-explorer.png)
 

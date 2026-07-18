@@ -1617,3 +1617,20 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   browser screenshot와 full CI. 격리 PostgreSQL suite는 76개 모두 통과했고, 전체 CI는
   Python 773개 통과/환경-gated 76개 skip(앞선 suite에서 실행), frontend 61개 통과 및
   architecture/contract/user-guide/production bundle gate를 통과했다.
+
+#### T-71. Explorer-integrated search and saved Subsets — `P0`
+
+- **상태 (`2026-07-19`):** `implemented and verified`; full CI passed with 774 Python tests
+  (`76` environment-gated PostgreSQL tests skipped by the default runner after separate protected
+  Docker verification) and 62 frontend tests.
+- **범위:** Catalog tree와 별도 Records 검색 화면 사이의 탐색 단절을 제거한다. Explorer에서
+  Table을 선택하고 이름/key/설명/text Attribute를 검색하거나 저장된 Subset revision을 적용한다.
+- **완료 조건:** 검색 결과의 exact current Record revision을 선택하면 같은 화면의 Workflow graph,
+  forward/reverse links와 governed workbench deep link가 열린다. Subset의 folder/discrete/normalized
+  number filter도 숨김 없이 기존 typed search API에 전달한다.
+- **DB/API/UI:** 기존 explicit Record/typed value/Subset revision과 search API를 재사용하고,
+  Explorer가 Subset을 table별로 로드해 query를 실행한다. clean demo는 재사용 가능한 DP780
+  workflow Subset을 seed한다.
+- **회귀:** React는 저장된 filter 변환과 exact revision navigation을 검증한다. protected verifier는
+  clean reseed의 Subset identity/filter를 검사한다. processed IR이 추가된 DB의 reseed가 임의 model
+  order에 의존하지 않도록 exact Dataset-derived model 선택 회귀도 포함한다.

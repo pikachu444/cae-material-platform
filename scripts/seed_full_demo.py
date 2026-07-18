@@ -119,6 +119,31 @@ def _ensure_catalog_binding(
 
     material_content = _content(material)
     material_code = str(material_content.get("material_code") or "CMP-DEMO-DP780")
+    subsets = _items(api.get(f"/catalog/tables/{table_id}/subsets"))
+    workflow_subset = next(
+        (item for item in subsets if item.get("name") == "DP780 workflow records"),
+        None,
+    )
+    if workflow_subset is None:
+        workflow_subset = api.post(
+            f"/catalog/tables/{table_id}/subsets",
+            {
+                "table_revision_id": table_revision_id,
+                "name": "DP780 workflow records",
+                "description": (
+                    "Reusable Explorer search for the exact clean-demo Material workflow."
+                ),
+                "filter_definition": {
+                    "text": "DP780",
+                    "folder_id": None,
+                    "discrete_filters": {},
+                    "number_attribute_id": None,
+                    "number_minimum": None,
+                    "number_maximum": None,
+                },
+                "change_reason": "Seed the reusable clean-demo Explorer Subset.",
+            },
+        )
     searched = api.post(
         "/catalog/records:search",
         {"table_id": table_id, "text": material_code, "limit": 20},
@@ -283,6 +308,7 @@ def _ensure_catalog_binding(
         )
     return {
         "catalog_table_id": table_id,
+        "catalog_subset_id": _id(workflow_subset, "subset_id"),
         "catalog_record_id": record_id,
         "catalog_record_revision_id": record_revision_id,
         "catalog_binding_id": _id(binding, "binding_id"),

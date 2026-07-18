@@ -1,4 +1,4 @@
-version: 26
+version: 27
 verified_at: 2026-07-19
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -16,6 +16,14 @@ captures:
     image: ../15-demo/images/t51-catalog-workflow-explorer.png
     width: 1265
     height: 712
+  - id: explorer-integrated-search-workflow
+    route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
+    workflow: integrated-record-search-and-exact-workflow-graph
+    fixture: T-71 clean Docker DP780 search and eight-node exact workflow; saved Subset verified separately
+    source_evidence: ../15-demo/evidence/t71-explorer-search-workflow.md
+    image: ../15-demo/images/t71-explorer-search-workflow.png
+    width: 1265
+    height: 1666
   - id: domain-workflow-binding
     route: /catalog/explorer/records/{record_id}/revisions/{revision_id}
     workflow: configurable-record-to-governed-domain-exact-revision
