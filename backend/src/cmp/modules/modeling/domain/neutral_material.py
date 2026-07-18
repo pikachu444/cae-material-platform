@@ -13,14 +13,11 @@ import json
 import math
 from dataclasses import dataclass
 from enum import StrEnum
+from itertools import pairwise
 from typing import Any, cast
 from uuid import UUID
 
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticFamily
-from cmp.modules.modeling.domain.reference_ogden_calibration import (
-    OgdenCalibrationRole,
-    OgdenTestMode,
-)
 
 NEUTRAL_MATERIAL_DOCUMENT_TYPE = "cmp.neutral-material"
 NEUTRAL_MATERIAL_SCHEMA_VERSION = "1.0.0"
@@ -57,8 +54,42 @@ class EvidenceStatus(StrEnum):
 
 class CurveStage(StrEnum):
     NORMALIZED = "normalized"
+    PROCESSED = "processed"
     FITTED = "fitted"
+    EXTRAPOLATED = "extrapolated"
     RESIDUAL = "residual"
+
+
+HYPERELASTIC_CURVE_STAGES = (
+    CurveStage.NORMALIZED,
+    CurveStage.FITTED,
+    CurveStage.RESIDUAL,
+)
+
+
+class NeutralDatasetRole(StrEnum):
+    CALIBRATION = "calibration"
+    HOLDOUT = "holdout"
+    PROCESSING_INPUT = "processing_input"
+
+
+class NeutralDatasetKind(StrEnum):
+    GOVERNED_DATASET = "governed_dataset"
+    TEST_DATA_DOCUMENT = "test_data_document"
+    SHEAR_RELAXATION_DATASET = "shear_relaxation_dataset"
+
+
+class NeutralTestMode(StrEnum):
+    UNIAXIAL_TENSION = "uniaxial_tension"
+    PLANAR_TENSION = "planar_tension"
+    BIAXIAL_TENSION = "biaxial_tension"
+    STRESS_RELAXATION = "stress_relaxation"
+
+
+class NeutralModelFamily(StrEnum):
+    HYPERELASTIC = "hyperelastic"
+    ISOTROPIC_TABULATED_PLASTICITY = "isotropic_tabulated_plasticity"
+    GENERALIZED_MAXWELL = "generalized_maxwell"
 
 
 class ModelMaturity(StrEnum):
@@ -126,17 +157,18 @@ class OptionalRevisionEvidence:
 @dataclass(frozen=True, slots=True)
 class NeutralDatasetSource:
     dataset: RevisionReference
-    role: OgdenCalibrationRole
-    test_mode: OgdenTestMode
+    role: NeutralDatasetRole
+    test_mode: NeutralTestMode
     normalized_artifact_id: UUID
     normalized_artifact_sha256: str
+    source_kind: NeutralDatasetKind = NeutralDatasetKind.GOVERNED_DATASET
 
     def __post_init__(self) -> None:
         _uuid("normalized_artifact_id", self.normalized_artifact_id)
         _sha("normalized_artifact_sha256", self.normalized_artifact_sha256)
 
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "dataset": self.dataset.canonical(),
             "role": self.role.value,
             "test_mode": self.test_mode.value,
@@ -145,13 +177,18 @@ class NeutralDatasetSource:
                 "sha256": self.normalized_artifact_sha256,
             },
         }
+        # Omit the original governed Dataset discriminator so immutable 1.0.0
+        # hyperelastic documents retain their exact canonical bytes.
+        if self.source_kind is not NeutralDatasetKind.GOVERNED_DATASET:
+            result["source_kind"] = self.source_kind.value
+        return result
 
 
 @dataclass(frozen=True, slots=True)
 class NeutralCurve:
     stage: CurveStage
     dataset_revision_id: UUID
-    test_mode: OgdenTestMode
+    test_mode: NeutralTestMode
     x_quantity: str
     x_unit: str
     y_quantity: str
@@ -237,6 +274,92 @@ class NeutralHyperelasticParameters:
 
 
 @dataclass(frozen=True, slots=True)
+class NeutralArtifactReference:
+    artifact_id: UUID
+    sha256: str
+    schema_ref: str
+    point_count: int
+
+    def __post_init__(self) -> None:
+        _uuid("artifact_id", self.artifact_id)
+        _sha("artifact sha256", self.sha256)
+        _text("artifact schema_ref", self.schema_ref, 255)
+        if not 1 <= self.point_count <= 50_000:
+            raise InvalidNeutralMaterial("artifact point_count must be within 1..50000")
+
+    def canonical(self) -> dict[str, object]:
+        return {
+            "artifact_id": str(self.artifact_id),
+            "sha256": self.sha256,
+            "schema_ref": self.schema_ref,
+            "point_count": self.point_count,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class NeutralPronyTerm:
+    ordinal: int
+    g_ratio: float
+    k_ratio: float
+    relaxation_time_s: float
+
+    def __post_init__(self) -> None:
+        if self.ordinal < 1:
+            raise InvalidNeutralMaterial("Prony ordinal must be positive")
+        for name, value in (("g_ratio", self.g_ratio), ("k_ratio", self.k_ratio)):
+            if not math.isfinite(value) or not 0 <= value < 1:
+                raise InvalidNeutralMaterial(f"{name} must be finite within [0,1)")
+        _finite("relaxation_time_s", self.relaxation_time_s, positive=True)
+
+    def canonical(self) -> dict[str, object]:
+        return {
+            "ordinal": self.ordinal,
+            "g_ratio": self.g_ratio,
+            "k_ratio": self.k_ratio,
+            "relaxation_time": {"value": self.relaxation_time_s, "unit": "s"},
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class NeutralPronyOverlay:
+    status: EvidenceStatus
+    reason: str
+    terms: tuple[NeutralPronyTerm, ...] = ()
+    source_model: RevisionReference | None = None
+
+    def __post_init__(self) -> None:
+        _text("Prony overlay reason", self.reason, 500)
+        exact = self.status is EvidenceStatus.EXACT_REVISION
+        if exact != (self.source_model is not None):
+            raise InvalidNeutralMaterial(
+                "exact Prony overlay requires a source model; not_applicable forbids one"
+            )
+        if exact:
+            _validate_prony_terms(self.terms)
+        elif self.terms:
+            raise InvalidNeutralMaterial("not_applicable Prony overlay forbids terms")
+
+    def canonical(self) -> dict[str, object]:
+        result: dict[str, object] = {"status": self.status.value, "reason": self.reason}
+        if self.source_model is not None:
+            result["source_model"] = self.source_model.canonical()
+            result["terms"] = [term.canonical() for term in self.terms]
+        return result
+
+
+def _validate_prony_terms(terms: tuple[NeutralPronyTerm, ...]) -> None:
+    if not 1 <= len(terms) <= 10:
+        raise InvalidNeutralMaterial("Prony term count must be within 1..10")
+    if tuple(term.ordinal for term in terms) != tuple(range(1, len(terms) + 1)):
+        raise InvalidNeutralMaterial("Prony ordinals must be contiguous from one")
+    times = tuple(term.relaxation_time_s for term in terms)
+    if any(right <= left for left, right in pairwise(times)):
+        raise InvalidNeutralMaterial("Prony relaxation times must be strictly increasing")
+    if sum(term.g_ratio for term in terms) >= 1 or sum(term.k_ratio for term in terms) >= 1:
+        raise InvalidNeutralMaterial("Prony shear and bulk ratio sums must remain below one")
+
+
+@dataclass(frozen=True, slots=True)
 class NeutralCandidateSelection:
     calibration_run_id: UUID
     candidate_id: UUID
@@ -283,6 +406,53 @@ class NeutralCandidateSelection:
 
 
 @dataclass(frozen=True, slots=True)
+class NeutralProcessingSelection:
+    processing_output: RevisionReference
+    processing_output_sha256: str
+    reason: str
+    selected_series: str
+    candidate_families: tuple[str, ...]
+    primary_family: str
+    secondary_family: str
+    primary_weight: float
+    warnings: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        _sha("processing_output_sha256", self.processing_output_sha256)
+        _text("processing selection reason", self.reason)
+        _text("selected_series", self.selected_series, 160)
+        if not 2 <= len(self.candidate_families) <= 4 or len(
+            set(self.candidate_families)
+        ) != len(self.candidate_families):
+            raise InvalidNeutralMaterial("processing candidate families must be 2..4 unique IDs")
+        if (
+            self.primary_family not in self.candidate_families
+            or self.secondary_family not in self.candidate_families
+        ):
+            raise InvalidNeutralMaterial("processing selected families must be candidates")
+        if not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1:
+            raise InvalidNeutralMaterial("processing primary_weight must be within [0,1]")
+        if len(self.warnings) > 64 or any(
+            not value or value != value.strip() for value in self.warnings
+        ):
+            raise InvalidNeutralMaterial("processing warnings must be trimmed and bounded")
+
+    def canonical(self) -> dict[str, object]:
+        return {
+            "kind": "processing_output_selection",
+            "processing_output": self.processing_output.canonical(),
+            "processing_output_sha256": self.processing_output_sha256,
+            "reason": self.reason,
+            "selected_series": self.selected_series,
+            "candidate_families": list(self.candidate_families),
+            "primary_family": self.primary_family,
+            "secondary_family": self.secondary_family,
+            "primary_weight": self.primary_weight,
+            "warnings": list(self.warnings),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class NeutralHyperelasticIR:
     model: RevisionReference
     schema_id: str
@@ -291,6 +461,7 @@ class NeutralHyperelasticIR:
     parameters: NeutralHyperelasticParameters
     density_kg_per_m3: float
     volumetric_response: str
+    prony_overlay: NeutralPronyOverlay | None = None
     maturity: ModelMaturity = ModelMaturity.REFERENCE
     non_production: bool = True
 
@@ -304,8 +475,12 @@ class NeutralHyperelasticIR:
         if self.maturity is not ModelMaturity.REFERENCE or not self.non_production:
             raise InvalidNeutralMaterial("T-56 output must remain a non-production reference model")
 
+    @property
+    def family(self) -> NeutralModelFamily:
+        return NeutralModelFamily.HYPERELASTIC
+
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "model": self.model.canonical(),
             "schema_id": self.schema_id,
             "schema_version": self.schema_version,
@@ -313,6 +488,176 @@ class NeutralHyperelasticIR:
             "constitutive_model": self.parameters.canonical(),
             "density": {"value": self.density_kg_per_m3, "unit": "kg/m3"},
             "volumetric_response": self.volumetric_response,
+            "maturity": self.maturity.value,
+            "non_production": self.non_production,
+        }
+        if self.prony_overlay is not None:
+            result["model_family"] = self.family.value
+            result["prony_overlay"] = self.prony_overlay.canonical()
+        return result
+
+
+@dataclass(frozen=True, slots=True)
+class NeutralElastoplasticIR:
+    model: RevisionReference
+    schema_id: str
+    schema_version: str
+    model_schema_digest: str
+    density_kg_per_m3: float
+    youngs_modulus_pa: float
+    poisson_ratio: float
+    initial_yield_stress_pa: float
+    hardening_curve: NeutralArtifactReference
+    candidate_families: tuple[str, ...]
+    primary_family: str
+    secondary_family: str
+    primary_weight: float
+    characterized_max_true_plastic_strain: float
+    extension_max_true_plastic_strain: float
+    extrapolation_policy: str
+    approximation_acknowledged: bool
+    maturity: ModelMaturity = ModelMaturity.REFERENCE
+    non_production: bool = True
+
+    def __post_init__(self) -> None:
+        for name in ("schema_id", "schema_version", "extrapolation_policy"):
+            _text(name, cast(str, getattr(self, name)), 255)
+        _sha("model_schema_digest", self.model_schema_digest)
+        for name, value in (
+            ("density_kg_per_m3", self.density_kg_per_m3),
+            ("youngs_modulus_pa", self.youngs_modulus_pa),
+            ("initial_yield_stress_pa", self.initial_yield_stress_pa),
+        ):
+            _finite(name, value, positive=True)
+        if not math.isfinite(self.poisson_ratio) or not -1 < self.poisson_ratio < 0.5:
+            raise InvalidNeutralMaterial("poisson_ratio must remain within (-1,0.5)")
+        if not 2 <= len(self.candidate_families) <= 4 or len(
+            set(self.candidate_families)
+        ) != len(self.candidate_families):
+            raise InvalidNeutralMaterial("metal candidate families must contain 2..4 unique IDs")
+        if (
+            self.primary_family not in self.candidate_families
+            or self.secondary_family not in self.candidate_families
+        ):
+            raise InvalidNeutralMaterial("selected hardening families must be candidates")
+        if not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1:
+            raise InvalidNeutralMaterial("hardening primary_weight must be within [0,1]")
+        if not (
+            0 < self.characterized_max_true_plastic_strain
+            < self.extension_max_true_plastic_strain
+        ):
+            raise InvalidNeutralMaterial("metal characterized and extension domains are invalid")
+        if not self.approximation_acknowledged:
+            raise InvalidNeutralMaterial("metal extrapolation approximation must be acknowledged")
+        if self.maturity is not ModelMaturity.REFERENCE or not self.non_production:
+            raise InvalidNeutralMaterial("T-63 metal output must remain a non-production reference")
+
+    @property
+    def family(self) -> NeutralModelFamily:
+        return NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY
+
+    def canonical(self) -> dict[str, object]:
+        return {
+            "model": self.model.canonical(),
+            "model_family": self.family.value,
+            "schema_id": self.schema_id,
+            "schema_version": self.schema_version,
+            "model_schema_digest": self.model_schema_digest,
+            "constitutive_model": {
+                "family": self.family.value,
+                "parameters": {
+                    "youngs_modulus": {"value": self.youngs_modulus_pa, "unit": "Pa"},
+                    "poisson_ratio": {"value": self.poisson_ratio, "unit": "1"},
+                    "initial_yield_stress": {
+                        "value": self.initial_yield_stress_pa,
+                        "unit": "Pa",
+                    },
+                },
+                "hardening_curve": self.hardening_curve.canonical(),
+                "selection": {
+                    "candidate_families": list(self.candidate_families),
+                    "primary_family": self.primary_family,
+                    "secondary_family": self.secondary_family,
+                    "primary_weight": self.primary_weight,
+                },
+                "domain": {
+                    "characterized_maximum_true_plastic_strain": (
+                        self.characterized_max_true_plastic_strain
+                    ),
+                    "extension_maximum_true_plastic_strain": self.extension_max_true_plastic_strain,
+                    "unit": "1",
+                },
+                "extrapolation": {
+                    "policy": self.extrapolation_policy,
+                    "approximation_acknowledged": self.approximation_acknowledged,
+                },
+            },
+            "density": {"value": self.density_kg_per_m3, "unit": "kg/m3"},
+            "maturity": self.maturity.value,
+            "non_production": self.non_production,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class NeutralLinearViscoelasticIR:
+    model: RevisionReference
+    schema_id: str
+    schema_version: str
+    model_schema_digest: str
+    density_kg_per_m3: float
+    youngs_modulus_pa: float
+    poisson_ratio: float
+    bulk_relaxation_status: str
+    terms: tuple[NeutralPronyTerm, ...]
+    reference_temperature_k: float
+    maturity: ModelMaturity = ModelMaturity.REFERENCE
+    non_production: bool = True
+
+    def __post_init__(self) -> None:
+        for name in ("schema_id", "schema_version", "bulk_relaxation_status"):
+            _text(name, cast(str, getattr(self, name)), 255)
+        _sha("model_schema_digest", self.model_schema_digest)
+        _finite("density_kg_per_m3", self.density_kg_per_m3, positive=True)
+        _finite("youngs_modulus_pa", self.youngs_modulus_pa, positive=True)
+        _finite("reference_temperature_k", self.reference_temperature_k, positive=True)
+        if not math.isfinite(self.poisson_ratio) or not -1 < self.poisson_ratio < 0.5:
+            raise InvalidNeutralMaterial("poisson_ratio must remain within (-1,0.5)")
+        if self.bulk_relaxation_status not in {"characterized", "not_characterized"}:
+            raise InvalidNeutralMaterial("bulk_relaxation_status is unsupported")
+        _validate_prony_terms(self.terms)
+        bulk_sum = sum(term.k_ratio for term in self.terms)
+        if self.bulk_relaxation_status == "not_characterized" and bulk_sum != 0:
+            raise InvalidNeutralMaterial("uncharacterized bulk relaxation requires zero k ratios")
+        if self.bulk_relaxation_status == "characterized" and bulk_sum == 0:
+            raise InvalidNeutralMaterial("characterized bulk relaxation requires positive k ratios")
+        if self.maturity is not ModelMaturity.REFERENCE or not self.non_production:
+            raise InvalidNeutralMaterial(
+                "T-63 polymer output must remain a non-production reference"
+            )
+
+    @property
+    def family(self) -> NeutralModelFamily:
+        return NeutralModelFamily.GENERALIZED_MAXWELL
+
+    def canonical(self) -> dict[str, object]:
+        return {
+            "model": self.model.canonical(),
+            "model_family": self.family.value,
+            "schema_id": self.schema_id,
+            "schema_version": self.schema_version,
+            "model_schema_digest": self.model_schema_digest,
+            "constitutive_model": {
+                "family": self.family.value,
+                "elastic_moduli_convention": "instantaneous",
+                "parameters": {
+                    "youngs_modulus": {"value": self.youngs_modulus_pa, "unit": "Pa"},
+                    "poisson_ratio": {"value": self.poisson_ratio, "unit": "1"},
+                },
+                "bulk_relaxation_status": self.bulk_relaxation_status,
+                "prony_terms": [term.canonical() for term in self.terms],
+            },
+            "density": {"value": self.density_kg_per_m3, "unit": "kg/m3"},
+            "reference_temperature": {"value": self.reference_temperature_k, "unit": "K"},
             "maturity": self.maturity.value,
             "non_production": self.non_production,
         }
@@ -327,17 +672,21 @@ class NeutralMaterialDocument:
     material: RevisionReference
     material_state: RevisionReference
     property_set: RevisionReference
-    calibration_plan: RevisionReference
-    scientific_profile: RevisionReference
+    calibration_plan: RevisionReference | OptionalRevisionEvidence
+    scientific_profile: RevisionReference | OptionalRevisionEvidence
     mapping_profile: OptionalRevisionEvidence
     processing_recipe: OptionalRevisionEvidence
     source_datasets: tuple[NeutralDatasetSource, ...]
     curves: tuple[NeutralCurve, ...]
-    selection: NeutralCandidateSelection
-    material_model_ir: NeutralHyperelasticIR
-    applicable_strain_min: float
-    applicable_strain_max: float
+    selection: NeutralCandidateSelection | NeutralProcessingSelection
+    material_model_ir: (
+        NeutralHyperelasticIR | NeutralElastoplasticIR | NeutralLinearViscoelasticIR
+    )
+    applicable_strain_min: float | None
+    applicable_strain_max: float | None
     validation_status: str
+    applicable_time_min_s: float | None = None
+    applicable_time_max_s: float | None = None
     document_type: str = NEUTRAL_MATERIAL_DOCUMENT_TYPE
     schema_version: str = NEUTRAL_MATERIAL_SCHEMA_VERSION
 
@@ -361,20 +710,76 @@ class NeutralMaterialDocument:
             raise InvalidNeutralMaterial(
                 "every curve must belong to an exact source Dataset revision"
             )
+        family = self.material_model_ir.family
+        expected_source_kind = {
+            NeutralModelFamily.HYPERELASTIC: NeutralDatasetKind.GOVERNED_DATASET,
+            NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY: (
+                NeutralDatasetKind.TEST_DATA_DOCUMENT
+            ),
+            NeutralModelFamily.GENERALIZED_MAXWELL: (
+                NeutralDatasetKind.SHEAR_RELAXATION_DATASET
+            ),
+        }[family]
+        if any(item.source_kind is not expected_source_kind for item in self.source_datasets):
+            raise InvalidNeutralMaterial(
+                f"{family.value} requires {expected_source_kind.value} source revisions"
+            )
+        if family is NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY:
+            if not isinstance(self.selection, NeutralProcessingSelection):
+                raise InvalidNeutralMaterial("metal Neutral IR requires a Processing selection")
+        elif not isinstance(self.selection, NeutralCandidateSelection):
+            raise InvalidNeutralMaterial(
+                f"{family.value} Neutral IR requires a calibration Candidate selection"
+            )
         stages = {item.stage for item in self.curves}
-        if not {CurveStage.NORMALIZED, CurveStage.FITTED, CurveStage.RESIDUAL}.issubset(stages):
+        required_stages = (
+            {
+                CurveStage.NORMALIZED,
+                CurveStage.PROCESSED,
+                CurveStage.FITTED,
+                CurveStage.EXTRAPOLATED,
+            }
+            if family is NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY
+            else {CurveStage.NORMALIZED, CurveStage.FITTED, CurveStage.RESIDUAL}
+        )
+        if not required_stages.issubset(stages):
+            if family is not NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY:
+                raise InvalidNeutralMaterial(
+                    "normalized, fitted, and residual curve stages are required"
+                )
             raise InvalidNeutralMaterial(
-                "normalized, fitted, and residual curve stages are required"
+                f"{family.value} curve stages omit required values"
             )
-        _finite("applicable_strain_min", self.applicable_strain_min)
-        _finite("applicable_strain_max", self.applicable_strain_max)
-        if (
-            self.applicable_strain_min < 0
-            or self.applicable_strain_max <= self.applicable_strain_min
-        ):
-            raise InvalidNeutralMaterial(
-                "applicable strain interval must be increasing and non-negative"
-            )
+        if family is NeutralModelFamily.GENERALIZED_MAXWELL:
+            if self.applicable_strain_min is not None or self.applicable_strain_max is not None:
+                raise InvalidNeutralMaterial(
+                    "generalized Maxwell applicability uses time, not strain"
+                )
+            if self.applicable_time_min_s is None or self.applicable_time_max_s is None:
+                raise InvalidNeutralMaterial("generalized Maxwell time applicability is required")
+            _finite("applicable_time_min_s", self.applicable_time_min_s)
+            _finite("applicable_time_max_s", self.applicable_time_max_s)
+            if (
+                self.applicable_time_min_s < 0
+                or self.applicable_time_max_s <= self.applicable_time_min_s
+            ):
+                raise InvalidNeutralMaterial(
+                    "applicable time interval must be increasing and non-negative"
+                )
+        else:
+            if self.applicable_time_min_s is not None or self.applicable_time_max_s is not None:
+                raise InvalidNeutralMaterial("strain-based families forbid time applicability")
+            if self.applicable_strain_min is None or self.applicable_strain_max is None:
+                raise InvalidNeutralMaterial("strain-based family applicability is required")
+            _finite("applicable_strain_min", self.applicable_strain_min)
+            _finite("applicable_strain_max", self.applicable_strain_max)
+            if (
+                self.applicable_strain_min < 0
+                or self.applicable_strain_max <= self.applicable_strain_min
+            ):
+                raise InvalidNeutralMaterial(
+                    "applicable strain interval must be increasing and non-negative"
+                )
         _text("validation_status", self.validation_status, 160)
 
     def payload(self) -> dict[str, object]:
@@ -400,14 +805,25 @@ class NeutralMaterialDocument:
             "curve_stages": [item.canonical() for item in self.curves],
             "candidate_selection": self.selection.canonical(),
             "material_model_ir": self.material_model_ir.canonical(),
-            "applicability": {
-                "engineering_strain": {
-                    "minimum": self.applicable_strain_min,
-                    "maximum": self.applicable_strain_max,
-                    "unit": "1",
-                }
-            },
+            "applicability": self._applicability(),
             "validation": {"status": self.validation_status},
+        }
+
+    def _applicability(self) -> dict[str, object]:
+        if self.material_model_ir.family is NeutralModelFamily.GENERALIZED_MAXWELL:
+            return {
+                "time": {
+                    "minimum": self.applicable_time_min_s,
+                    "maximum": self.applicable_time_max_s,
+                    "unit": "s",
+                }
+            }
+        return {
+            "engineering_strain": {
+                "minimum": self.applicable_strain_min,
+                "maximum": self.applicable_strain_max,
+                "unit": "1",
+            }
         }
 
     @property
@@ -489,6 +905,149 @@ def _parameters(value: dict[str, Any]) -> NeutralHyperelasticParameters:
     return NeutralHyperelasticParameters(family=family, **parsed)
 
 
+def _revision_evidence(
+    value: dict[str, Any],
+) -> RevisionReference | OptionalRevisionEvidence:
+    return _optional(value) if "status" in value else _reference(value)
+
+
+def _artifact(value: dict[str, Any]) -> NeutralArtifactReference:
+    return NeutralArtifactReference(
+        UUID(value["artifact_id"]),
+        str(value["sha256"]),
+        str(value["schema_ref"]),
+        int(value["point_count"]),
+    )
+
+
+def _prony_terms(values: list[dict[str, Any]]) -> tuple[NeutralPronyTerm, ...]:
+    return tuple(
+        NeutralPronyTerm(
+            ordinal=int(item["ordinal"]),
+            g_ratio=float(item["g_ratio"]),
+            k_ratio=float(item["k_ratio"]),
+            relaxation_time_s=float(item["relaxation_time"]["value"]),
+        )
+        for item in values
+    )
+
+
+def _selection(
+    value: dict[str, Any],
+) -> NeutralCandidateSelection | NeutralProcessingSelection:
+    if value.get("kind") == "processing_output_selection":
+        return NeutralProcessingSelection(
+            processing_output=_reference(value["processing_output"]),
+            processing_output_sha256=str(value["processing_output_sha256"]),
+            reason=str(value["reason"]),
+            selected_series=str(value["selected_series"]),
+            candidate_families=tuple(str(item) for item in value["candidate_families"]),
+            primary_family=str(value["primary_family"]),
+            secondary_family=str(value["secondary_family"]),
+            primary_weight=float(value["primary_weight"]),
+            warnings=tuple(str(item) for item in value["warnings"]),
+        )
+    return NeutralCandidateSelection(
+        calibration_run_id=UUID(value["calibration_run_id"]),
+        candidate_id=UUID(value["candidate_id"]),
+        candidate_sha256=str(value["candidate_sha256"]),
+        diagnostics_artifact_id=UUID(value["diagnostics_artifact_id"]),
+        diagnostics_sha256=str(value["diagnostics_sha256"]),
+        reason=str(value["reason"]),
+        objective_total=float(value["objective_total"]),
+        calibration_normalized_rmse=float(value["calibration_normalized_rmse"]),
+        holdout_normalized_rmse=(
+            float(value["holdout_normalized_rmse"])
+            if value["holdout_normalized_rmse"] is not None
+            else None
+        ),
+        stability_status=str(value["stability_status"]),
+        warnings=tuple(str(item) for item in value["warnings"]),
+    )
+
+
+def _material_ir(
+    value: dict[str, Any],
+) -> NeutralHyperelasticIR | NeutralElastoplasticIR | NeutralLinearViscoelasticIR:
+    family = NeutralModelFamily(value.get("model_family", "hyperelastic"))
+    model = _reference(value["model"])
+    schema_id = str(value["schema_id"])
+    schema_version = str(value["schema_version"])
+    model_schema_digest = str(value["model_schema_digest"])
+    density_kg_per_m3 = float(value["density"]["value"])
+    maturity = ModelMaturity(value["maturity"])
+    non_production = bool(value["non_production"])
+    constitutive = value["constitutive_model"]
+    if family is NeutralModelFamily.HYPERELASTIC:
+        raw_overlay = value.get("prony_overlay")
+        overlay = None
+        if isinstance(raw_overlay, dict):
+            source = raw_overlay.get("source_model")
+            overlay = NeutralPronyOverlay(
+                status=EvidenceStatus(raw_overlay["status"]),
+                reason=str(raw_overlay["reason"]),
+                terms=_prony_terms(raw_overlay.get("terms", [])),
+                source_model=_reference(source) if isinstance(source, dict) else None,
+            )
+        return NeutralHyperelasticIR(
+            model=model,
+            schema_id=schema_id,
+            schema_version=schema_version,
+            model_schema_digest=model_schema_digest,
+            parameters=_parameters(constitutive),
+            density_kg_per_m3=density_kg_per_m3,
+            volumetric_response=str(value["volumetric_response"]),
+            prony_overlay=overlay,
+            maturity=maturity,
+            non_production=non_production,
+        )
+    if family is NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY:
+        parameters = constitutive["parameters"]
+        selection = constitutive["selection"]
+        domain = constitutive["domain"]
+        extrapolation = constitutive["extrapolation"]
+        return NeutralElastoplasticIR(
+            model=model,
+            schema_id=schema_id,
+            schema_version=schema_version,
+            model_schema_digest=model_schema_digest,
+            density_kg_per_m3=density_kg_per_m3,
+            youngs_modulus_pa=float(parameters["youngs_modulus"]["value"]),
+            poisson_ratio=float(parameters["poisson_ratio"]["value"]),
+            initial_yield_stress_pa=float(parameters["initial_yield_stress"]["value"]),
+            hardening_curve=_artifact(constitutive["hardening_curve"]),
+            candidate_families=tuple(str(item) for item in selection["candidate_families"]),
+            primary_family=str(selection["primary_family"]),
+            secondary_family=str(selection["secondary_family"]),
+            primary_weight=float(selection["primary_weight"]),
+            characterized_max_true_plastic_strain=float(
+                domain["characterized_maximum_true_plastic_strain"]
+            ),
+            extension_max_true_plastic_strain=float(
+                domain["extension_maximum_true_plastic_strain"]
+            ),
+            extrapolation_policy=str(extrapolation["policy"]),
+            approximation_acknowledged=bool(extrapolation["approximation_acknowledged"]),
+            maturity=maturity,
+            non_production=non_production,
+        )
+    parameters = constitutive["parameters"]
+    return NeutralLinearViscoelasticIR(
+        model=model,
+        schema_id=schema_id,
+        schema_version=schema_version,
+        model_schema_digest=model_schema_digest,
+        density_kg_per_m3=density_kg_per_m3,
+        youngs_modulus_pa=float(parameters["youngs_modulus"]["value"]),
+        poisson_ratio=float(parameters["poisson_ratio"]["value"]),
+        bulk_relaxation_status=str(constitutive["bulk_relaxation_status"]),
+        terms=_prony_terms(constitutive["prony_terms"]),
+        reference_temperature_k=float(value["reference_temperature"]["value"]),
+        maturity=maturity,
+        non_production=non_production,
+    )
+
+
 def _document_from_mapping(raw: dict[str, Any]) -> NeutralMaterialDocument:
     required = {
         "document_type",
@@ -508,14 +1067,19 @@ def _document_from_mapping(raw: dict[str, Any]) -> NeutralMaterialDocument:
     sources = raw["sources"]
     selection = raw["candidate_selection"]
     ir = raw["material_model_ir"]
-    strain = raw["applicability"]["engineering_strain"]
+    applicability = raw["applicability"]
+    strain = applicability.get("engineering_strain")
+    time = applicability.get("time")
     datasets = tuple(
         NeutralDatasetSource(
             dataset=_reference(item["dataset"]),
-            role=OgdenCalibrationRole(item["role"]),
-            test_mode=OgdenTestMode(item["test_mode"]),
+            role=NeutralDatasetRole(item["role"]),
+            test_mode=NeutralTestMode(item["test_mode"]),
             normalized_artifact_id=UUID(item["normalized_artifact"]["artifact_id"]),
             normalized_artifact_sha256=str(item["normalized_artifact"]["sha256"]),
+            source_kind=NeutralDatasetKind(
+                item.get("source_kind", NeutralDatasetKind.GOVERNED_DATASET.value)
+            ),
         )
         for item in sources["datasets"]
     )
@@ -523,7 +1087,7 @@ def _document_from_mapping(raw: dict[str, Any]) -> NeutralMaterialDocument:
         NeutralCurve(
             stage=CurveStage(item["stage"]),
             dataset_revision_id=UUID(item["dataset_revision_id"]),
-            test_mode=OgdenTestMode(item["test_mode"]),
+            test_mode=NeutralTestMode(item["test_mode"]),
             x_quantity=str(item["x_quantity"]),
             x_unit=str(item["x_unit"]),
             y_quantity=str(item["y_quantity"]),
@@ -533,7 +1097,6 @@ def _document_from_mapping(raw: dict[str, Any]) -> NeutralMaterialDocument:
         )
         for item in raw["curve_stages"]
     )
-    parameters = _parameters(ir["constitutive_model"])
     return NeutralMaterialDocument(
         document_id=UUID(raw["document_id"]),
         organization_id=UUID(scope["organization_id"]),
@@ -542,43 +1105,19 @@ def _document_from_mapping(raw: dict[str, Any]) -> NeutralMaterialDocument:
         material=_reference(sources["material"]),
         material_state=_reference(sources["material_state"]),
         property_set=_reference(sources["property_set"]),
-        calibration_plan=_reference(sources["calibration_plan"]),
-        scientific_profile=_reference(sources["scientific_profile"]),
+        calibration_plan=_revision_evidence(sources["calibration_plan"]),
+        scientific_profile=_revision_evidence(sources["scientific_profile"]),
         mapping_profile=_optional(sources["mapping_profile"]),
         processing_recipe=_optional(sources["processing_recipe"]),
         source_datasets=datasets,
         curves=curves,
-        selection=NeutralCandidateSelection(
-            calibration_run_id=UUID(selection["calibration_run_id"]),
-            candidate_id=UUID(selection["candidate_id"]),
-            candidate_sha256=str(selection["candidate_sha256"]),
-            diagnostics_artifact_id=UUID(selection["diagnostics_artifact_id"]),
-            diagnostics_sha256=str(selection["diagnostics_sha256"]),
-            reason=str(selection["reason"]),
-            objective_total=float(selection["objective_total"]),
-            calibration_normalized_rmse=float(selection["calibration_normalized_rmse"]),
-            holdout_normalized_rmse=(
-                float(selection["holdout_normalized_rmse"])
-                if selection["holdout_normalized_rmse"] is not None
-                else None
-            ),
-            stability_status=str(selection["stability_status"]),
-            warnings=tuple(str(item) for item in selection["warnings"]),
-        ),
-        material_model_ir=NeutralHyperelasticIR(
-            model=_reference(ir["model"]),
-            schema_id=str(ir["schema_id"]),
-            schema_version=str(ir["schema_version"]),
-            model_schema_digest=str(ir["model_schema_digest"]),
-            parameters=parameters,
-            density_kg_per_m3=float(ir["density"]["value"]),
-            volumetric_response=str(ir["volumetric_response"]),
-            maturity=ModelMaturity(ir["maturity"]),
-            non_production=bool(ir["non_production"]),
-        ),
-        applicable_strain_min=float(strain["minimum"]),
-        applicable_strain_max=float(strain["maximum"]),
+        selection=_selection(selection),
+        material_model_ir=_material_ir(ir),
+        applicable_strain_min=float(strain["minimum"]) if isinstance(strain, dict) else None,
+        applicable_strain_max=float(strain["maximum"]) if isinstance(strain, dict) else None,
         validation_status=str(raw["validation"]["status"]),
+        applicable_time_min_s=float(time["minimum"]) if isinstance(time, dict) else None,
+        applicable_time_max_s=float(time["maximum"]) if isinstance(time, dict) else None,
         document_type=str(raw["document_type"]),
         schema_version=str(raw["schema_version"]),
     )

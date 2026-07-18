@@ -403,6 +403,17 @@ describe("Reference elastoplastic workbench", () => {
       if (url.endsWith(`/processing-outputs/${outputId}/tabulated-plasticity-models`)) {
         return Promise.resolve(jsonResponse(processedModel, method === "POST" ? 201 : 200));
       }
+      if (url.endsWith("/neutral-materials:promote-metal")) {
+        return Promise.resolve(jsonResponse({
+          neutral_material_id: "a1000000-0000-4000-8000-000000000040",
+          neutral_material_revision_id: "a1000000-0000-4000-8000-000000000041",
+          revision_no: 1,
+          content_hash: "5".repeat(64),
+          document_artifact: { artifact_id: "a1000000-0000-4000-8000-000000000042", sha256: "6".repeat(64) },
+          document: {},
+          links: {},
+        }, 201));
+      }
       if (url.endsWith(`/tabulated-plasticity-models/${modelId}/hardening-curve`)) {
         return Promise.resolve(jsonResponse(curve));
       }
@@ -434,6 +445,8 @@ describe("Reference elastoplastic workbench", () => {
     expect(
       await screen.findByText(/Selected fitted hardening samples from an exact Processing Output/),
     ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Create Neutral Material JSON" }));
+    expect(await screen.findByRole("button", { name: "Download Neutral JSON r1" })).toBeTruthy();
     await waitFor(() => {
       const promotionCall = fetchMock.mock.calls.find(([url, init]) =>
         String(url).endsWith(`/processing-outputs/${outputId}/tabulated-plasticity-models`) &&
@@ -444,6 +457,13 @@ describe("Reference elastoplastic workbench", () => {
         property_set_revision_id: propertySetRevisionId,
         processing_output_revision_id: outputRevisionId,
         acknowledge_bounded_extrapolation: true,
+      });
+      const neutralCall = fetchMock.mock.calls.find(([url, init]) =>
+        String(url).endsWith("/neutral-materials:promote-metal") && init?.method === "POST",
+      );
+      expect(JSON.parse(String(neutralCall?.[1]?.body))).toMatchObject({
+        material_model_id: modelId,
+        material_model_revision_id: modelRevisionId,
       });
     });
   });

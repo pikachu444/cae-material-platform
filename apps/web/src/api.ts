@@ -2261,6 +2261,22 @@ export function promoteHyperelasticCandidateToNeutralMaterial(
   });
 }
 
+export function promoteModelToNeutralMaterial(
+  config: ApiConfig,
+  family: "metal" | "linear-viscoelastic",
+  input: {
+    material_model_id: string;
+    material_model_revision_id: string;
+    selection_reason: string;
+    change_reason: string;
+  },
+): Promise<ApiResult<NeutralMaterialResponse>> {
+  return request(config, `/neutral-materials:promote-${family}`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function importNeutralMaterial(
   config: ApiConfig,
   input: { document: Record<string, unknown>; change_reason: string },

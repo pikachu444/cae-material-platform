@@ -8,6 +8,7 @@ from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.application.service import CatalogService
+from cmp.modules.datasets.application.canonical_test_data import CanonicalTestDataService
 from cmp.modules.datasets.application.governed_import import GovernedImportService
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
@@ -254,6 +255,12 @@ def build_neutral_material_service(
     datasets: GovernedImportService | None,
     models: OgdenPronyModelService | None,
     artifacts: ArtifactService | None,
+    tabulated_models: TabulatedPlasticityModelService | None = None,
+    linear_models: LinearViscoelasticModelService | None = None,
+    processing_outputs: CommonProcessingOutputService | None = None,
+    test_data: CanonicalTestDataService | None = None,
+    prony_calibrations: ReferencePronyCalibrationService | None = None,
+    shear_datasets: ShearRelaxationDatasetService | None = None,
 ) -> NeutralMaterialService | None:
     """Compose T-56 selection, typed IR projection, and canonical JSON persistence."""
 
@@ -281,6 +288,12 @@ def build_neutral_material_service(
         datasets=datasets,
         models=models,
         artifacts=artifacts,
+        tabulated_models=tabulated_models,
+        linear_models=linear_models,
+        processing_outputs=processing_outputs,
+        test_data=test_data,
+        prony_calibrations=prony_calibrations,
+        shear_datasets=shear_datasets,
     )
 
 

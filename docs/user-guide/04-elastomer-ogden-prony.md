@@ -127,3 +127,14 @@ compressible/temperature-dependent fit과 실제 solver 검증은 이 범위가 
 - 이 근사는 반드시 화면과 mapping report에 남으며 production 승인을 의미하지 않습니다.
 
 선형 점탄성 IR을 LAW62로 우회시키거나 없는 bulk relaxation 값을 추측해서 입력하지 마십시오.
+
+## Hyperelastic Neutral JSON의 Prony overlay
+
+T-63 이후 reviewed hyperelastic family를 Neutral Material로 승격하면 calibration baseline의
+exact Ogden-Prony model revision과 ordered shear-Prony 항도 `prony_overlay`로 함께 보존됩니다.
+overlay가 없는 것처럼 생략하거나 다른 revision의 항을 조합하지 않습니다. 기존 1.0
+hyperelastic Neutral JSON은 canonical bytes를 바꾸지 않고 계속 읽을 수 있습니다.
+
+현재 T-57 hyperelastic native exporter는 rate-independent family mapping을 유지합니다. Prony
+overlay를 Abaqus/OpenRadioss native card에 포함하는 통합 mapping/report는 T-64에서 완료되기
+전까지 기존 Ogden-Prony 전용 card 경로를 사용하십시오.

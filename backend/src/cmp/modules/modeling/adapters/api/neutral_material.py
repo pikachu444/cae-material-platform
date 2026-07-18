@@ -21,8 +21,13 @@ from cmp.modules.modeling.application.neutral_material import (
     NeutralMaterialService,
     NeutralMaterialSnapshot,
     PromoteHyperelasticFamilyCandidate,
+    PromoteLinearViscoelasticModelToNeutral,
+    PromoteMetalModelToNeutral,
 )
-from cmp.modules.modeling.domain.neutral_material import InvalidNeutralMaterial
+from cmp.modules.modeling.domain.neutral_material import (
+    InvalidNeutralMaterial,
+    NeutralHyperelasticIR,
+)
 from cmp.shared.domain.revisions import AggregateAlreadyExists
 
 logger = logging.getLogger(__name__)
@@ -35,6 +40,15 @@ class PromoteNeutralMaterialRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: UUID
+    selection_reason: Annotated[str, Field(min_length=1, max_length=2000)]
+    change_reason: Annotated[str, Field(min_length=1, max_length=2000)]
+
+
+class PromoteModelNeutralMaterialRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_model_id: UUID
+    material_model_revision_id: UUID
     selection_reason: Annotated[str, Field(min_length=1, max_length=2000)]
     change_reason: Annotated[str, Field(min_length=1, max_length=2000)]
 
@@ -184,6 +198,72 @@ def install_neutral_material_api(
         return NeutralMaterialResponse.from_snapshot(value)
 
     @application.post(
+        "/api/v1/neutral-materials:promote-metal",
+        operation_id="promoteMetalModelToNeutralMaterial",
+        response_model=NeutralMaterialResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["modeling"],
+    )
+    async def promote_metal(
+        request: Request,
+        response: Response,
+        body: PromoteModelNeutralMaterialRequest,
+    ) -> NeutralMaterialResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise NeutralMaterialHttpError(context, 503, "service is unavailable")
+        try:
+            value = await service.promote_metal_model(
+                context,
+                decision,
+                PromoteMetalModelToNeutral(
+                    material_model_id=body.material_model_id,
+                    material_model_revision_id=body.material_model_revision_id,
+                    selection_reason=body.selection_reason,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/neutral-materials/{value.id}"
+        return NeutralMaterialResponse.from_snapshot(value)
+
+    @application.post(
+        "/api/v1/neutral-materials:promote-linear-viscoelastic",
+        operation_id="promoteLinearViscoelasticModelToNeutralMaterial",
+        response_model=NeutralMaterialResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["modeling"],
+    )
+    async def promote_linear_viscoelastic(
+        request: Request,
+        response: Response,
+        body: PromoteModelNeutralMaterialRequest,
+    ) -> NeutralMaterialResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise NeutralMaterialHttpError(context, 503, "service is unavailable")
+        try:
+            value = await service.promote_linear_viscoelastic_model(
+                context,
+                decision,
+                PromoteLinearViscoelasticModelToNeutral(
+                    material_model_id=body.material_model_id,
+                    material_model_revision_id=body.material_model_revision_id,
+                    selection_reason=body.selection_reason,
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["Location"] = f"/api/v1/neutral-materials/{value.id}"
+        return NeutralMaterialResponse.from_snapshot(value)
+
+    @application.post(
         "/api/v1/neutral-materials:import",
         operation_id="importNeutralMaterial",
         response_model=NeutralMaterialResponse,
@@ -286,11 +366,16 @@ def install_neutral_material_api(
             )
         except Exception as error:
             raise _translate(context, error) from error
+        family = (
+            document.material_model_ir.parameters.family.value
+            if isinstance(document.material_model_ir, NeutralHyperelasticIR)
+            else document.material_model_ir.family.value
+        )
         return NeutralMaterialValidationResponse(
             valid=True,
             document_id=document.document_id,
             content_sha256=document.content_sha256,
-            family=document.material_model_ir.parameters.family.value,
+            family=family,
             source_dataset_count=len(document.source_datasets),
             curve_stage_count=len(document.curves),
         )

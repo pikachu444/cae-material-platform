@@ -829,24 +829,6 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
-    resolved_neutral_material = neutral_material_service or build_neutral_material_service(
-        services,
-        resolved_ogden_calibration,
-        resolved_governed_import,
-        resolved_ogden_prony,
-        resolved_artifacts,
-    )
-    install_neutral_material_api(
-        application,
-        service=resolved_neutral_material,
-        security_dependency=security_dependency,
-        read_dependency=RequestAuthorizationDependency(
-            services.authorization, Permission.MODELING_READ
-        ),
-        write_dependency=RequestAuthorizationDependency(
-            services.authorization, Permission.MODELING_WRITE
-        ),
-    )
     resolved_tabulated_plasticity = (
         tabulated_plasticity_model_service
         or build_tabulated_plasticity_model_service(
@@ -937,6 +919,30 @@ def create_app(
     install_prony_candidate_promotion_api(
         application,
         service=resolved_prony_candidate_promotion,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+    )
+    resolved_neutral_material = neutral_material_service or build_neutral_material_service(
+        services,
+        resolved_ogden_calibration,
+        resolved_governed_import,
+        resolved_ogden_prony,
+        resolved_artifacts,
+        resolved_tabulated_plasticity,
+        resolved_linear_viscoelastic,
+        resolved_common_outputs,
+        resolved_canonical_test_data,
+        resolved_prony_calibration,
+        resolved_shear_relaxation_datasets,
+    )
+    install_neutral_material_api(
+        application,
+        service=resolved_neutral_material,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.MODELING_READ

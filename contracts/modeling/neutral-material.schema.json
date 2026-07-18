@@ -30,21 +30,7 @@
     },
     "candidate_selection": {"$ref": "#/$defs/Selection"},
     "material_model_ir": {"$ref": "#/$defs/MaterialModelIr"},
-    "applicability": {
-      "type": "object", "additionalProperties": false,
-      "required": ["engineering_strain"],
-      "properties": {
-        "engineering_strain": {
-          "type": "object", "additionalProperties": false,
-          "required": ["minimum", "maximum", "unit"],
-          "properties": {
-            "minimum": {"type": "number", "minimum": 0},
-            "maximum": {"type": "number", "exclusiveMinimum": 0},
-            "unit": {"const": "1"}
-          }
-        }
-      }
-    },
+    "applicability": {"$ref": "#/$defs/Applicability"},
     "validation": {
       "type": "object", "additionalProperties": false, "required": ["status"],
       "properties": {"status": {"type": "string", "minLength": 1, "maxLength": 160}}
@@ -85,8 +71,9 @@
       "required": ["dataset", "role", "test_mode", "normalized_artifact"],
       "properties": {
         "dataset": {"$ref": "#/$defs/RevisionReference"},
-        "role": {"enum": ["calibration", "holdout"]},
-        "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
+        "source_kind": {"enum": ["governed_dataset", "test_data_document", "shear_relaxation_dataset"]},
+        "role": {"enum": ["calibration", "holdout", "processing_input"]},
+        "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension", "stress_relaxation"]},
         "normalized_artifact": {
           "type": "object", "additionalProperties": false,
           "required": ["artifact_id", "sha256"],
@@ -104,8 +91,8 @@
         "material": {"$ref": "#/$defs/RevisionReference"},
         "material_state": {"$ref": "#/$defs/RevisionReference"},
         "property_set": {"$ref": "#/$defs/RevisionReference"},
-        "calibration_plan": {"$ref": "#/$defs/RevisionReference"},
-        "scientific_profile": {"$ref": "#/$defs/RevisionReference"},
+        "calibration_plan": {"oneOf": [{"$ref": "#/$defs/RevisionReference"}, {"$ref": "#/$defs/OptionalRevisionEvidence"}]},
+        "scientific_profile": {"oneOf": [{"$ref": "#/$defs/RevisionReference"}, {"$ref": "#/$defs/OptionalRevisionEvidence"}]},
         "mapping_profile": {"$ref": "#/$defs/OptionalRevisionEvidence"},
         "processing_recipe": {"$ref": "#/$defs/OptionalRevisionEvidence"},
         "datasets": {"type": "array", "minItems": 1, "maxItems": 24, "items": {"$ref": "#/$defs/DatasetSource"}}
@@ -115,9 +102,9 @@
       "type": "object", "additionalProperties": false,
       "required": ["stage", "dataset_revision_id", "test_mode", "x_quantity", "x_unit", "y_quantity", "y_unit", "x", "y"],
       "properties": {
-        "stage": {"enum": ["normalized", "fitted", "residual"]},
+        "stage": {"enum": ["normalized", "processed", "fitted", "extrapolated", "residual"]},
         "dataset_revision_id": {"$ref": "#/$defs/Uuid"},
-        "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension"]},
+        "test_mode": {"enum": ["uniaxial_tension", "planar_tension", "biaxial_tension", "stress_relaxation"]},
         "x_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
         "x_unit": {"type": "string", "minLength": 1, "maxLength": 160},
         "y_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
@@ -126,7 +113,47 @@
         "y": {"type": "array", "minItems": 1, "maxItems": 50000, "items": {"type": "number"}}
       }
     },
+    "Applicability": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["engineering_strain"],
+          "properties": {
+            "engineering_strain": {
+              "type": "object", "additionalProperties": false,
+              "required": ["minimum", "maximum", "unit"],
+              "properties": {
+                "minimum": {"type": "number", "minimum": 0},
+                "maximum": {"type": "number", "exclusiveMinimum": 0},
+                "unit": {"const": "1"}
+              }
+            }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["time"],
+          "properties": {
+            "time": {
+              "type": "object", "additionalProperties": false,
+              "required": ["minimum", "maximum", "unit"],
+              "properties": {
+                "minimum": {"type": "number", "minimum": 0},
+                "maximum": {"type": "number", "exclusiveMinimum": 0},
+                "unit": {"const": "s"}
+              }
+            }
+          }
+        }
+      ]
+    },
     "Selection": {
+      "oneOf": [
+        {"$ref": "#/$defs/CandidateSelection"},
+        {"$ref": "#/$defs/ProcessingSelection"}
+      ]
+    },
+    "CandidateSelection": {
       "type": "object", "additionalProperties": false,
       "required": ["calibration_run_id", "candidate_id", "candidate_sha256", "diagnostics_artifact_id", "diagnostics_sha256", "reason", "objective_total", "calibration_normalized_rmse", "holdout_normalized_rmse", "stability_status", "warnings"],
       "properties": {
@@ -140,6 +167,29 @@
         "calibration_normalized_rmse": {"type": "number"},
         "holdout_normalized_rmse": {"type": ["number", "null"]},
         "stability_status": {"type": "string", "minLength": 1, "maxLength": 120},
+        "warnings": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
+      }
+    },
+    "ProcessingSelection": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "kind", "processing_output", "processing_output_sha256", "reason",
+        "selected_series", "candidate_families", "primary_family",
+        "secondary_family", "primary_weight", "warnings"
+      ],
+      "properties": {
+        "kind": {"const": "processing_output_selection"},
+        "processing_output": {"$ref": "#/$defs/RevisionReference"},
+        "processing_output_sha256": {"$ref": "#/$defs/Sha256"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "selected_series": {"type": "string", "minLength": 1, "maxLength": 160},
+        "candidate_families": {
+          "type": "array", "minItems": 2, "maxItems": 4, "uniqueItems": true,
+          "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]}
+        },
+        "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+        "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+        "primary_weight": {"type": "number", "minimum": 0, "maximum": 1},
         "warnings": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
       }
     },
@@ -172,21 +222,181 @@
       "properties": {"family": {"const": "ogden_1"}, "parameters": {"type": "object", "additionalProperties": false, "required": ["mu_pa", "alpha"], "properties": {"mu_pa": {"$ref": "#/$defs/Parameter"}, "alpha": {"$ref": "#/$defs/Parameter"}}}}
     },
     "MaterialModelIr": {
+      "oneOf": [
+        {"$ref": "#/$defs/HyperelasticIr"},
+        {"$ref": "#/$defs/ElastoplasticIr"},
+        {"$ref": "#/$defs/LinearViscoelasticIr"}
+      ]
+    },
+    "Density": {
+      "type": "object", "additionalProperties": false, "required": ["value", "unit"],
+      "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "kg/m3"}}
+    },
+    "HyperelasticIr": {
       "type": "object", "additionalProperties": false,
       "required": ["model", "schema_id", "schema_version", "model_schema_digest", "constitutive_model", "density", "volumetric_response", "maturity", "non_production"],
       "properties": {
         "model": {"$ref": "#/$defs/RevisionReference"},
+        "model_family": {"const": "hyperelastic"},
         "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
         "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
         "model_schema_digest": {"$ref": "#/$defs/Sha256"},
         "constitutive_model": {"$ref": "#/$defs/ConstitutiveModel"},
-        "density": {
-          "type": "object", "additionalProperties": false, "required": ["value", "unit"],
-          "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "kg/m3"}}
-        },
+        "density": {"$ref": "#/$defs/Density"},
         "volumetric_response": {"const": "incompressible"},
+        "prony_overlay": {"$ref": "#/$defs/PronyOverlay"},
         "maturity": {"const": "reference"},
         "non_production": {"const": true}
+      }
+    },
+    "ArtifactReference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "schema_ref", "point_count"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/Uuid"},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "schema_ref": {"type": "string", "minLength": 1, "maxLength": 255},
+        "point_count": {"type": "integer", "minimum": 1, "maximum": 50000}
+      }
+    },
+    "PronyTerm": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ordinal", "g_ratio", "k_ratio", "relaxation_time"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1, "maximum": 10},
+        "g_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "k_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "relaxation_time": {
+          "type": "object", "additionalProperties": false, "required": ["value", "unit"],
+          "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "s"}}
+        }
+      }
+    },
+    "PronyOverlay": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "reason"],
+          "properties": {
+            "status": {"const": "not_applicable"},
+            "reason": {"type": "string", "minLength": 1, "maxLength": 500}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "reason", "source_model", "terms"],
+          "properties": {
+            "status": {"const": "exact_revision"},
+            "reason": {"type": "string", "minLength": 1, "maxLength": 500},
+            "source_model": {"$ref": "#/$defs/RevisionReference"},
+            "terms": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"$ref": "#/$defs/PronyTerm"}}
+          }
+        }
+      ]
+    },
+    "ElastoplasticIr": {
+      "type": "object", "additionalProperties": false,
+      "required": ["model", "model_family", "schema_id", "schema_version", "model_schema_digest", "constitutive_model", "density", "maturity", "non_production"],
+      "properties": {
+        "model": {"$ref": "#/$defs/RevisionReference"},
+        "model_family": {"const": "isotropic_tabulated_plasticity"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "model_schema_digest": {"$ref": "#/$defs/Sha256"},
+        "constitutive_model": {"$ref": "#/$defs/ElastoplasticModel"},
+        "density": {"$ref": "#/$defs/Density"},
+        "maturity": {"const": "reference"},
+        "non_production": {"const": true}
+      }
+    },
+    "ElastoplasticModel": {
+      "type": "object", "additionalProperties": false,
+      "required": ["family", "parameters", "hardening_curve", "selection", "domain", "extrapolation"],
+      "properties": {
+        "family": {"const": "isotropic_tabulated_plasticity"},
+        "parameters": {
+          "type": "object", "additionalProperties": false,
+          "required": ["youngs_modulus", "poisson_ratio", "initial_yield_stress"],
+          "properties": {
+            "youngs_modulus": {"$ref": "#/$defs/PaParameter"},
+            "poisson_ratio": {"$ref": "#/$defs/UnitlessParameter"},
+            "initial_yield_stress": {"$ref": "#/$defs/PaParameter"}
+          }
+        },
+        "hardening_curve": {"$ref": "#/$defs/ArtifactReference"},
+        "selection": {"$ref": "#/$defs/HardeningSelection"},
+        "domain": {
+          "type": "object", "additionalProperties": false,
+          "required": ["characterized_maximum_true_plastic_strain", "extension_maximum_true_plastic_strain", "unit"],
+          "properties": {
+            "characterized_maximum_true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
+            "extension_maximum_true_plastic_strain": {"type": "number", "exclusiveMinimum": 0},
+            "unit": {"const": "1"}
+          }
+        },
+        "extrapolation": {
+          "type": "object", "additionalProperties": false,
+          "required": ["policy", "approximation_acknowledged"],
+          "properties": {
+            "policy": {"type": "string", "minLength": 1, "maxLength": 255},
+            "approximation_acknowledged": {"const": true}
+          }
+        }
+      }
+    },
+    "HardeningSelection": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidate_families", "primary_family", "secondary_family", "primary_weight"],
+      "properties": {
+        "candidate_families": {"type": "array", "minItems": 2, "maxItems": 4, "uniqueItems": true, "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]}},
+        "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+        "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+        "primary_weight": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "PaParameter": {
+      "type": "object", "additionalProperties": false, "required": ["value", "unit"],
+      "properties": {"value": {"type": "number"}, "unit": {"const": "Pa"}}
+    },
+    "UnitlessParameter": {
+      "type": "object", "additionalProperties": false, "required": ["value", "unit"],
+      "properties": {"value": {"type": "number"}, "unit": {"const": "1"}}
+    },
+    "LinearViscoelasticIr": {
+      "type": "object", "additionalProperties": false,
+      "required": ["model", "model_family", "schema_id", "schema_version", "model_schema_digest", "constitutive_model", "density", "reference_temperature", "maturity", "non_production"],
+      "properties": {
+        "model": {"$ref": "#/$defs/RevisionReference"},
+        "model_family": {"const": "generalized_maxwell"},
+        "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
+        "schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "model_schema_digest": {"$ref": "#/$defs/Sha256"},
+        "constitutive_model": {"$ref": "#/$defs/LinearViscoelasticModel"},
+        "density": {"$ref": "#/$defs/Density"},
+        "reference_temperature": {
+          "type": "object", "additionalProperties": false, "required": ["value", "unit"],
+          "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "K"}}
+        },
+        "maturity": {"const": "reference"},
+        "non_production": {"const": true}
+      }
+    },
+    "LinearViscoelasticModel": {
+      "type": "object", "additionalProperties": false,
+      "required": ["family", "elastic_moduli_convention", "parameters", "bulk_relaxation_status", "prony_terms"],
+      "properties": {
+        "family": {"const": "generalized_maxwell"},
+        "elastic_moduli_convention": {"const": "instantaneous"},
+        "parameters": {
+          "type": "object", "additionalProperties": false,
+          "required": ["youngs_modulus", "poisson_ratio"],
+          "properties": {
+            "youngs_modulus": {"$ref": "#/$defs/PaParameter"},
+            "poisson_ratio": {"$ref": "#/$defs/UnitlessParameter"}
+          }
+        },
+        "bulk_relaxation_status": {"enum": ["characterized", "not_characterized"]},
+        "prony_terms": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"$ref": "#/$defs/PronyTerm"}}
       }
     }
   }

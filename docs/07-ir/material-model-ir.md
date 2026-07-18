@@ -460,3 +460,29 @@ creates an identity. A mismatch is rejected rather than repaired or defaulted.
 The exchange endpoint is solver-neutral. Abaqus/OpenRadioss capability decisions, six-state mapping
 reports and native ASCII generation from this envelope belong to T-57.
 
+### 17.2 T-63 closed three-family envelope
+
+Migration 076 and the `cmp.neutral-material` contract extend the envelope without introducing a
+generic parameter map. `material_model_ir.model_family` is a closed discriminator with these
+typed branches:
+
+- `isotropic_tabulated_plasticity`: density, E, Poisson ratio, initial yield stress, exact
+  hardening-curve Artifact, reviewed candidate family blend and explicit characterized/extension
+  domains;
+- `generalized_maxwell`: density, instantaneous E/Poisson ratio, bulk-relaxation status,
+  reference temperature and ordered typed Prony terms;
+- `hyperelastic`: the four existing public families plus an optional exact-revision Prony overlay.
+
+Source curve evidence also has a closed discriminator: governed Dataset, canonical Test Data
+document or shear-relaxation Dataset. PostgreSQL verifies the exact revision in the corresponding
+typed table. Metal selections pin an exact Processing Output and Mapping Profile; polymer and
+hyperelastic selections pin the exact Candidate, Run, Plan, diagnostics Artifact and source
+Dataset evidence used by the bounded fitting path. A missing Recipe or scientific profile is
+represented by an explicit `not_applicable` reason, never a silent null/default.
+
+The existing hyperelastic 1.0 canonical representation remains readable byte-for-byte. New
+documents preserve `normalized`, `processed`, `fitted`, `extrapolated` or `residual` stages as
+applicable and round-trip through validate/import/export without numeric changes. T-64 owns
+family-specific solver-card regeneration and Bulk consumer parity from these exact Neutral
+revisions.
+

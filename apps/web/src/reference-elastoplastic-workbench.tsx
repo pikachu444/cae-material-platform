@@ -5,6 +5,7 @@ import {
   type ApiConfig,
   createElastoplasticSolverCard,
   createTabulatedPlasticityModel,
+  downloadNeutralMaterial,
   downloadElastoplasticSolverCard,
   getTabulatedPlasticityHardeningCurve,
   listCommonProcessingOutputs,
@@ -13,6 +14,7 @@ import {
   listTabulatedPlasticityModels,
   preflightElastoplasticMapping,
   previewElastoplasticSolverCard,
+  promoteModelToNeutralMaterial,
   promoteProcessingOutputToTabulatedPlasticity,
 } from "./api";
 import type {
@@ -23,6 +25,7 @@ import type {
   HardeningCurveResponse,
   MappingReport,
   MaterialStateResponse,
+  NeutralMaterialResponse,
   PropertySetResponse,
   TabulatedPlasticityModelResponse,
 } from "./types";
@@ -180,8 +183,9 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
   const [cardReason, setCardReason] = useState("Generate reference elastoplastic solver card");
   const [preview, setPreview] = useState<string | null>(null);
   const [previewCardId, setPreviewCardId] = useState<string | null>(null);
+  const [neutralMaterial, setNeutralMaterial] = useState<NeutralMaterialResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [action, setAction] = useState<"model" | "preflight" | "card" | "download" | null>(null);
+  const [action, setAction] = useState<"model" | "neutral" | "preflight" | "card" | "download" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const eligibleDatasets = useMemo(
@@ -241,6 +245,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
   }, [open, refresh]);
 
   useEffect(() => {
+    setNeutralMaterial(null);
     if (!selectedModel) {
       setCurve(null);
       setCards([]);
@@ -341,6 +346,38 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
     } finally {
       setAction(null);
     }
+  }
+
+  async function promoteNeutral(): Promise<void> {
+    if (!selectedModel?.current_revision.content.processing_projection) return;
+    setAction("neutral");
+    setError(null);
+    try {
+      const result = await promoteModelToNeutralMaterial(config, "metal", {
+        material_model_id: selectedModel.material_model_id,
+        material_model_revision_id: selectedModel.current_revision.id,
+        selection_reason: "Reviewed selected hardening families and bounded extrapolation.",
+        change_reason: "Promote selected metal IR to canonical Neutral Material JSON",
+      });
+      setNeutralMaterial(result.data);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function downloadNeutral(): Promise<void> {
+    if (!neutralMaterial) return;
+    const result = await downloadNeutralMaterial(config, neutralMaterial.neutral_material_id);
+    const url = URL.createObjectURL(result.data.blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = result.data.filename;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   async function createCard(): Promise<void> {
@@ -587,6 +624,27 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
                   policy={selectedModel.current_revision.content.post_necking_extension_policy}
                 />
               ) : null}
+              {selectedModel?.current_revision.content.processing_projection ? (
+                <div className="card-actions">
+                  <button
+                    className="button secondary"
+                    type="button"
+                    onClick={() => void promoteNeutral()}
+                    disabled={action !== null}
+                  >
+                    {action === "neutral" ? "Creating Neutral JSON…" : "Create Neutral Material JSON"}
+                  </button>
+                  {neutralMaterial ? (
+                    <button className="text-button" type="button" onClick={() => void downloadNeutral()}>
+                      Download Neutral JSON r{neutralMaterial.revision_no}
+                    </button>
+                  ) : null}
+                </div>
+              ) : (
+                <small className="muted">
+                  Canonical metal Neutral promotion requires an IR created from a selected fitted Processing Output.
+                </small>
+              )}
             </div>
           ) : null}
           {selectedModel ? (
