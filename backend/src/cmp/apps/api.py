@@ -49,6 +49,7 @@ from cmp.bootstrap.modeling import (
 )
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import (
+    build_mapping_profile_service,
     build_processing_service,
     build_shear_relaxation_processing_service,
     build_viscoelastic_master_service,
@@ -571,6 +572,7 @@ def create_app(
     )
     install_common_processing_api(
         application,
+        service=build_mapping_profile_service(services),
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ

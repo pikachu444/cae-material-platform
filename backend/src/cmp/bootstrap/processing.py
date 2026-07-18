@@ -10,6 +10,9 @@ from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevision
 from cmp.modules.datasets.application.service import DatasetService
 from cmp.modules.datasets.application.shear_relaxation import ShearRelaxationDatasetService
 from cmp.modules.datasets.application.viscoelastic_master import ViscoelasticDatasetService
+from cmp.modules.processing.adapters.persistence.mapping_profiles import (
+    SqlAlchemyMappingProfileRepository,
+)
 from cmp.modules.processing.adapters.persistence.repository import SqlAlchemyProcessingRepository
 from cmp.modules.processing.adapters.persistence.shear_relaxation_repository import (
     SqlAlchemyShearRelaxationProcessingRepository,
@@ -17,6 +20,7 @@ from cmp.modules.processing.adapters.persistence.shear_relaxation_repository imp
 from cmp.modules.processing.adapters.persistence.viscoelastic_master_curve_repository import (
     SqlAlchemyViscoelasticMasterRepository,
 )
+from cmp.modules.processing.application.mapping_profiles import MappingProfileService
 from cmp.modules.processing.application.service import ProcessingService
 from cmp.modules.processing.application.shear_relaxation import (
     ShearRelaxationProcessingService,
@@ -27,6 +31,23 @@ from cmp.modules.processing.application.viscoelastic_master_curve import (
 from cmp.modules.provenance.adapters.persistence.repository import SqlAlchemyRevisionProvenanceHook
 from cmp.modules.review_release.adapters.persistence.lifecycle import SqlInitialLifecycleHook
 from cmp.modules.testing.application.service import TestingService
+
+
+def build_mapping_profile_service(identity: IdentityServices) -> MappingProfileService | None:
+    if identity.engine is None or identity.rls_context is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return MappingProfileService(
+        repository=SqlAlchemyMappingProfileRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        )
+    )
 
 
 def build_processing_service(

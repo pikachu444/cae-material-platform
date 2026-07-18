@@ -18,6 +18,21 @@
         "offset": {"type": "number", "default": 0}
       }
     },
+    "AttributeBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribute_definition_id", "attribute_definition_revision_id", "target_quantity", "accepted_normalized_units"],
+      "properties": {
+        "attribute_definition_id": {"type": "string", "format": "uuid"},
+        "attribute_definition_revision_id": {"type": "string", "format": "uuid"},
+        "target_quantity": {"type": "string", "minLength": 1, "maxLength": 160},
+        "accepted_normalized_units": {
+          "type": "array", "minItems": 1, "maxItems": 32,
+          "items": {"type": "string", "minLength": 1, "maxLength": 160}
+        },
+        "required": {"type": "boolean", "default": true}
+      }
+    },
     "MappingProfileInput": {
       "type": "object",
       "additionalProperties": false,
@@ -30,7 +45,49 @@
         "bindings": {
           "type": "array", "minItems": 2, "maxItems": 128,
           "items": {"$ref": "#/$defs/ChannelBinding"}
+        },
+        "attribute_bindings": {
+          "type": "array", "maxItems": 128,
+          "items": {"$ref": "#/$defs/AttributeBinding"},
+          "default": []
         }
+      }
+    },
+    "CreateMappingProfileRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "content", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "content": {"$ref": "#/$defs/MappingProfileInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ReviseMappingProfileRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "change_reason"],
+      "properties": {
+        "content": {"$ref": "#/$defs/MappingProfileInput"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "MappingProfileResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mapping_profile_id", "current_revision", "content"],
+      "properties": {
+        "mapping_profile_id": {"type": "string", "format": "uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "content": {"$ref": "#/$defs/MappingProfileInput"}
+      }
+    },
+    "MappingProfileListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/MappingProfileResponse"}}
       }
     },
     "ProcessingStep": {

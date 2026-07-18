@@ -3569,6 +3569,100 @@ paths:
         "409": {description: Immutable Artifact integrity or Dataset state conflicts.}
         "422": {description: Preview point limit or Dataset data is invalid.}
         "503": {description: Dataset service unavailable.}
+  /api/v1/mapping-profiles:
+    post:
+      operationId: createMappingProfile
+      tags: [processing-workbench]
+      summary: Create a stable Mapping Profile and its first immutable revision.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CreateMappingProfileRequest"}
+      responses:
+        "201":
+          description: Stable profile identity and exact current revision.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Profile key or immutable scope conflicts.}
+        "422": {description: Typed channel or Attribute binding is invalid.}
+        "503": {description: Mapping Profile store unavailable.}
+    get:
+      operationId: listMappingProfiles
+      tags: [processing-workbench]
+      summary: List visible Mapping Profile heads.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Stable identities with exact current immutable revisions.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Mapping Profile store unavailable.}
+  /api/v1/mapping-profiles/{profile_id}:
+    get:
+      operationId: getMappingProfile
+      tags: [processing-workbench]
+      summary: Read one Mapping Profile head and exact binding revision.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Mapping Profile head.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Profile is not visible.}
+        "503": {description: Mapping Profile store unavailable.}
+  /api/v1/mapping-profiles/{profile_id}/revisions:
+    post:
+      operationId: reviseMappingProfile
+      tags: [processing-workbench]
+      summary: Append a Mapping Profile revision without changing earlier runs.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: If-Match
+          in: header
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ReviseMappingProfileRequest"}
+      responses:
+        "201":
+          description: Appended immutable revision and unchanged stable profile identity.
+          headers: {ETag: {$ref: "#/components/headers/RevisionETag"}}
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MappingProfileResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "404": {description: Profile is not visible.}
+        "409": {description: Revision or typed exact reference conflicts.}
+        "412": {description: If-Match does not match the current revision.}
+        "428": {description: Strong If-Match is required.}
+        "422": {description: Typed binding content is invalid.}
+        "503": {description: Mapping Profile store unavailable.}
   /api/v1/processing-methods:
     get:
       operationId: listCommonProcessingMethods

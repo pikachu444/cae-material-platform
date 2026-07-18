@@ -11,6 +11,7 @@ import math
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
+from uuid import UUID
 
 import numpy as np
 from scipy.interpolate import UnivariateSpline  # type: ignore[import-untyped]
@@ -52,12 +53,28 @@ class ChannelBinding:
 
 
 @dataclass(frozen=True, slots=True)
+class AttributeBinding:
+    attribute_definition_id: UUID
+    attribute_definition_revision_id: UUID
+    target_quantity: str
+    accepted_normalized_units: tuple[str, ...]
+    required: bool = True
+
+    def __post_init__(self) -> None:
+        if not self.target_quantity or not self.accepted_normalized_units:
+            raise CommonPipelineError(
+                "attribute mapping requires target_quantity and accepted normalized units"
+            )
+
+
+@dataclass(frozen=True, slots=True)
 class MappingProfileContent:
     profile_key: str
     label: str
     independent_quantity: str
     missing_data_policy: MissingDataPolicy
     bindings: tuple[ChannelBinding, ...]
+    attribute_bindings: tuple[AttributeBinding, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.profile_key.strip() or len(self.profile_key) > 160:
@@ -74,6 +91,11 @@ class MappingProfileContent:
             )
         if self.independent_quantity not in targets:
             raise CommonPipelineError("independent_quantity must be a mapped target quantity")
+        attribute_targets = [item.target_quantity for item in self.attribute_bindings]
+        if len(set(attribute_targets)) != len(attribute_targets):
+            raise CommonPipelineError("attribute mapping target quantities must be unique")
+        if set(attribute_targets) & set(targets):
+            raise CommonPipelineError("channel and attribute mapping targets must be unique")
 
     @property
     def digest(self) -> str:
@@ -146,6 +168,18 @@ def mapping_profile_canonical(value: MappingProfileContent) -> dict[str, object]
                 "offset": item.offset,
             }
             for item in value.bindings
+        ],
+        "attribute_bindings": [
+            {
+                "attribute_definition_id": str(item.attribute_definition_id),
+                "attribute_definition_revision_id": str(
+                    item.attribute_definition_revision_id
+                ),
+                "target_quantity": item.target_quantity,
+                "accepted_normalized_units": list(item.accepted_normalized_units),
+                "required": item.required,
+            }
+            for item in value.attribute_bindings
         ],
     }
 
