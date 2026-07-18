@@ -20,6 +20,9 @@ from cmp.modules.modeling.adapters.persistence.candidate_selection_repository im
 from cmp.modules.modeling.adapters.persistence.linear_viscoelasticity_repository import (
     SqlAlchemyLinearViscoelasticRepository,
 )
+from cmp.modules.modeling.adapters.persistence.neutral_material_repository import (
+    SqlAlchemyNeutralMaterialRepository,
+)
 from cmp.modules.modeling.adapters.persistence.ogden_calibration_repository import (
     SqlAlchemyOgdenCalibrationRepository,
 )
@@ -53,6 +56,7 @@ from cmp.modules.modeling.application.candidate_selection import CandidateSelect
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
+from cmp.modules.modeling.application.neutral_material import NeutralMaterialService
 from cmp.modules.modeling.application.ogden_calibration import (
     ReferenceOgdenCalibrationService,
 )
@@ -241,6 +245,42 @@ def build_ogden_candidate_promotion_service(
         ),
         calibrations=calibrations,
         models=models,
+    )
+
+
+def build_neutral_material_service(
+    identity: IdentityServices,
+    calibrations: ReferenceOgdenCalibrationService | None,
+    datasets: GovernedImportService | None,
+    models: OgdenPronyModelService | None,
+    artifacts: ArtifactService | None,
+) -> NeutralMaterialService | None:
+    """Compose T-56 selection, typed IR projection, and canonical JSON persistence."""
+
+    if (
+        identity.engine is None
+        or identity.rls_context is None
+        or calibrations is None
+        or datasets is None
+        or models is None
+        or artifacts is None
+    ):
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return NeutralMaterialService(
+        repository=SqlAlchemyNeutralMaterialRepository(
+            session_factory=sessions,
+            rls_context=identity.rls_context,
+            revision_hooks=(
+                SqlInitialLifecycleHook(),
+                SqlAlchemyRevisionProvenanceHook(),
+                SqlAlchemyRevisionAuditHook(),
+            ),
+        ),
+        calibrations=calibrations,
+        datasets=datasets,
+        models=models,
+        artifacts=artifacts,
     )
 
 

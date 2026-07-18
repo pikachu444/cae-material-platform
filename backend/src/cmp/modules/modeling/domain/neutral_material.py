@@ -25,6 +25,25 @@ from cmp.modules.modeling.domain.reference_ogden_calibration import (
 NEUTRAL_MATERIAL_DOCUMENT_TYPE = "cmp.neutral-material"
 NEUTRAL_MATERIAL_SCHEMA_VERSION = "1.0.0"
 NEUTRAL_MATERIAL_SCHEMA_REF = "https://cmp.example/contracts/modeling/neutral-material.schema.json"
+NEUTRAL_HYPERELASTIC_IR_SCHEMA_ID = "urn:cmp:modeling:neutral-hyperelastic-ir:1.0.0"
+NEUTRAL_HYPERELASTIC_IR_SCHEMA_VERSION = "1.0.0"
+NEUTRAL_HYPERELASTIC_IR_SCHEMA_DIGEST = hashlib.sha256(
+    json.dumps(
+        {
+            "families": [item.value for item in HyperelasticFamily],
+            "parameter_contracts": {
+                "neo_hookean": ["c10_pa"],
+                "mooney_rivlin": ["c10_pa", "c01_pa"],
+                "yeoh": ["c10_pa", "c20_pa", "c30_pa"],
+                "ogden_1": ["mu_pa", "alpha"],
+            },
+            "volumetric_response": "incompressible",
+            "maturity": "reference",
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+).hexdigest()
 
 
 class InvalidNeutralMaterial(ValueError):

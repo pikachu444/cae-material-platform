@@ -374,23 +374,19 @@ class ReferenceOgdenCalibrationService:
                 dataset.content.test_run_id,
                 dataset.content.test_run_revision_id,
             )
-            specimen_classification, specimen = (
-                self._testing.get_specimen_revision_for_processing(
-                    context,
-                    decision,
-                    test_run.content.specimen_id,
-                    test_run.content.specimen_revision_id,
-                )
+            specimen_classification, specimen = self._testing.get_specimen_revision_for_processing(
+                context,
+                decision,
+                test_run.content.specimen_id,
+                test_run.content.specimen_revision_id,
             )
             if (
                 dataset.record.scope != plan.record.scope
                 or test_run.record.scope != plan.record.scope
                 or specimen_classification.value != plan.record.scope.classification
                 or specimen.material_state_id != plan.content.material_state_id
-                or specimen.material_state_revision_id
-                != plan.content.material_state_revision_id
-                or dataset.content.representation
-                is not GovernedDatasetRepresentation.NORMALIZED
+                or specimen.material_state_revision_id != plan.content.material_state_revision_id
+                or dataset.content.representation is not GovernedDatasetRepresentation.NORMALIZED
                 or dataset.content.data_schema is not _schema_for_mode(member.test_mode)
                 or dataset.content.test_run_id != test_run.record.aggregate_id
             ):
@@ -447,9 +443,7 @@ class ReferenceOgdenCalibrationService:
                 schema_ref=REFERENCE_OGDEN_CALIBRATION_DIAGNOSTICS_SCHEMA,
                 media_type="application/vnd.apache.parquet",
                 value=ogden_diagnostics_parquet_bytes(candidate),
-                idempotency_key=(
-                    f"ogden-calibration:{run_id}:attempt:{candidate.attempt_ordinal}"
-                ),
+                idempotency_key=(f"ogden-calibration:{run_id}:attempt:{candidate.attempt_ordinal}"),
             )
             persisted.append(
                 PersistedOgdenCandidate(
@@ -540,6 +534,24 @@ class ReferenceOgdenCalibrationService:
         _require_capability(context, decision, Permission.MODELING_READ)
         return self._repository.get_run(context=context, decision=decision, run_id=run_id)
 
+    def get_plan_revision_for_promotion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        plan_id: UUID,
+        plan_revision_id: UUID,
+    ) -> OgdenCalibrationPlanSnapshot:
+        """Resolve the exact Plan used by a promoted family Candidate."""
+
+        _require_capability(context, decision, Permission.MODELING_READ)
+        revision = self._repository.get_plan_revision(
+            context=context,
+            decision=decision,
+            plan_id=plan_id,
+            plan_revision_id=plan_revision_id,
+        )
+        return OgdenCalibrationPlanSnapshot(plan_id, revision)
+
     def get_candidate_for_promotion(
         self,
         context: SecurityContext,
@@ -550,6 +562,50 @@ class ReferenceOgdenCalibrationService:
         return self._repository.get_candidate(
             context=context, decision=decision, candidate_id=candidate_id
         )
+
+    def get_family_candidate_for_promotion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> PersistedHyperelasticFamilyCandidate:
+        """Expose one exact T-55E family Candidate to the bounded T-56 promotion flow."""
+
+        _require_capability(context, decision, Permission.MODELING_READ)
+        return self._repository.get_family_candidate(
+            context=context,
+            decision=decision,
+            candidate_id=candidate_id,
+        )
+
+    async def family_candidate_diagnostics_for_promotion(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        candidate_id: UUID,
+    ) -> tuple[HyperelasticDiagnosticPoint, ...]:
+        """Read verified diagnostics while the caller holds Modeling write capability."""
+
+        _require_capability(context, decision, Permission.MODELING_READ)
+        candidate = self._repository.get_family_candidate(
+            context=context,
+            decision=decision,
+            candidate_id=candidate_id,
+        )
+        if candidate.diagnostics_artifact_id is None:
+            raise OgdenCalibrationConflict("family Candidate has no diagnostics Artifact")
+        _, value = await self._artifacts.read_verified_bytes(
+            context,
+            decision,
+            candidate.diagnostics_artifact_id,
+            maximum_bytes=16 * 1024 * 1024,
+        )
+        points = hyperelastic_diagnostics_from_parquet(value)
+        if len(points) != candidate.diagnostics_point_count:
+            raise OgdenCalibrationConflict(
+                "family Candidate diagnostics point count differs from immutable Artifact"
+            )
+        return points
 
     async def candidate_diagnostics(
         self,

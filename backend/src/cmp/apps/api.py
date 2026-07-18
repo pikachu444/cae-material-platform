@@ -36,6 +36,7 @@ from cmp.bootstrap.modeling import (
     build_candidate_selection_service,
     build_linear_viscoelastic_model_service,
     build_material_model_service,
+    build_neutral_material_service,
     build_ogden_candidate_promotion_service,
     build_ogden_prony_model_service,
     build_prony_candidate_promotion_service,
@@ -133,6 +134,7 @@ from cmp.modules.modeling.adapters.api.linear_viscoelasticity import (
     install_linear_viscoelastic_api,
 )
 from cmp.modules.modeling.adapters.api.material_models import install_material_model_api
+from cmp.modules.modeling.adapters.api.neutral_material import install_neutral_material_api
 from cmp.modules.modeling.adapters.api.ogden_calibration import (
     install_ogden_calibration_api,
 )
@@ -159,6 +161,7 @@ from cmp.modules.modeling.application.candidate_selection import CandidateSelect
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
+from cmp.modules.modeling.application.neutral_material import NeutralMaterialService
 from cmp.modules.modeling.application.ogden_calibration import (
     ReferenceOgdenCalibrationService,
 )
@@ -279,6 +282,7 @@ def create_app(
     scientific_profile_service: ScientificProfileService | None = None,
     ogden_calibration_service: ReferenceOgdenCalibrationService | None = None,
     ogden_candidate_promotion_service: OgdenCandidatePromotionService | None = None,
+    neutral_material_service: NeutralMaterialService | None = None,
     tabulated_plasticity_model_service: TabulatedPlasticityModelService | None = None,
     calibration_service: ReferenceCalibrationService | None = None,
     voce_calibration_service: ReferenceVoceCalibrationService | None = None,
@@ -804,6 +808,24 @@ def create_app(
             services.authorization, Permission.MODELING_WRITE
         ),
     )
+    resolved_neutral_material = neutral_material_service or build_neutral_material_service(
+        services,
+        resolved_ogden_calibration,
+        resolved_governed_import,
+        resolved_ogden_prony,
+        resolved_artifacts,
+    )
+    install_neutral_material_api(
+        application,
+        service=resolved_neutral_material,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_READ
+        ),
+        write_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.MODELING_WRITE
+        ),
+    )
     resolved_tabulated_plasticity = (
         tabulated_plasticity_model_service
         or build_tabulated_plasticity_model_service(
@@ -1106,6 +1128,7 @@ def create_app(
     application.state.ogden_prony_model_service = resolved_ogden_prony
     application.state.scientific_profile_service = resolved_scientific_profiles
     application.state.ogden_calibration_service = resolved_ogden_calibration
+    application.state.neutral_material_service = resolved_neutral_material
     application.state.tabulated_plasticity_model_service = resolved_tabulated_plasticity
     application.state.calibration_service = resolved_calibration
     application.state.voce_calibration_service = resolved_voce_calibration
