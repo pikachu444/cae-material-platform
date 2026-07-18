@@ -266,3 +266,52 @@ def test_metal_methods_reject_non_si_normalized_units() -> None:
 
     with pytest.raises(CommonPipelineError, match="normalized strain unit 1 and stress unit Pa"):
         preview_pipeline(document, incompatible, (_elastic("linear_regression"),))
+
+
+def test_processed_true_plastic_curve_feeds_bounded_hardening_candidates() -> None:
+    conversion = ProcessingStep(
+        "metal.engineering_to_true_plastic",
+        COMMON_METHOD_VERSION,
+        {
+            "strain_quantity": "strain.engineering",
+            "stress_quantity": "stress.engineering",
+            "youngs_modulus_pa": 210e9,
+            "necking_policy": "manual_index",
+            "manual_necking_index": 10,
+            "negative_plastic_policy": "drop",
+        },
+    )
+    hardening = ProcessingStep(
+        "metal.hardening_fit_extrapolate",
+        COMMON_METHOD_VERSION,
+        {
+            "plastic_strain_quantity": "strain.true_plastic",
+            "stress_quantity": "stress.true",
+            "families": ["voce", "swift", "hockett_sherby", "ghosh"],
+            "fit_minimum_strain": 0.0001,
+            "fit_maximum_strain": 0.1,
+            "extrapolation_maximum_strain": 0.5,
+            "output_point_count": 101,
+            "primary_family": "swift",
+            "secondary_family": "voce",
+            "primary_weight": 0.5,
+            "normalization_stress_pa": 100e6,
+            "maximum_function_evaluations": 10_000,
+        },
+    )
+
+    stage = preview_pipeline(_document(), _profile(), (conversion, hardening)).stages[-1]
+    series = {item.quantity: item.values for item in stage.series}
+    assert stage.point_count == 101
+    assert series["strain.true_plastic"][-1] == 0.5
+    assert "stress.hardening.selected" in series
+    assert all(
+        right >= left
+        for left, right in zip(
+            series["stress.hardening.selected"],
+            series["stress.hardening.selected"][1:],
+            strict=False,
+        )
+    )
+    assert any(item.key == "voce.relative_rmse" for item in stage.scalar_results)
+    assert any("extrapolated domain" in item for item in stage.diagnostics)

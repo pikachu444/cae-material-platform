@@ -19,6 +19,10 @@ from scipy.optimize import least_squares  # type: ignore[import-untyped]
 from scipy.signal import savgol_filter  # type: ignore[import-untyped]
 
 from cmp.modules.datasets.domain.canonical_test_data import CanonicalTestDataDocument
+from cmp.modules.processing.domain.metal_hardening import (
+    MetalHardeningError,
+    fit_hardening_candidates,
+)
 from cmp.shared.domain.revisions import content_sha256
 
 COMMON_METHOD_VERSION = "1.0.0"
@@ -231,10 +235,14 @@ def mapping_profile_canonical(value: MappingProfileContent) -> dict[str, object]
     }
 
 
-def _number_schema(*, minimum: float | None = None) -> dict[str, object]:
+def _number_schema(
+    *, minimum: float | None = None, maximum: float | None = None
+) -> dict[str, object]:
     result: dict[str, object] = {"type": "number"}
     if minimum is not None:
         result["minimum"] = minimum
+    if maximum is not None:
+        result["maximum"] = maximum
     return result
 
 
@@ -445,6 +453,60 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
                 "negative_plastic_policy",
             ],
         },
+    ),
+    MethodDefinition(
+        "metal.hardening_fit_extrapolate",
+        COMMON_METHOD_VERSION,
+        "Metal hardening candidates",
+        "Fits public Voce, Swift, Hockett-Sherby, and Ghosh equations with one objective, "
+        "then explicitly combines two candidates on a bounded extrapolation grid.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "plastic_strain_quantity": {"type": "string", "minLength": 1},
+                "stress_quantity": {"type": "string", "minLength": 1},
+                "families": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 4,
+                    "uniqueItems": True,
+                    "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
+                },
+                "fit_minimum_strain": _number_schema(minimum=0, maximum=5),
+                "fit_maximum_strain": _number_schema(minimum=0, maximum=5),
+                "extrapolation_maximum_strain": _number_schema(minimum=0, maximum=5),
+                "output_point_count": {"type": "integer", "minimum": 21, "maximum": 501},
+                "primary_family": {
+                    "enum": ["voce", "swift", "hockett_sherby", "ghosh"]
+                },
+                "secondary_family": {
+                    "enum": ["voce", "swift", "hockett_sherby", "ghosh"]
+                },
+                "primary_weight": _number_schema(minimum=0, maximum=1),
+                "normalization_stress_pa": _number_schema(minimum=1),
+                "maximum_function_evaluations": {
+                    "type": "integer",
+                    "minimum": 50,
+                    "maximum": 100000,
+                },
+            },
+            "required": [
+                "plastic_strain_quantity",
+                "stress_quantity",
+                "families",
+                "fit_minimum_strain",
+                "fit_maximum_strain",
+                "extrapolation_maximum_strain",
+                "output_point_count",
+                "primary_family",
+                "secondary_family",
+                "primary_weight",
+                "normalization_stress_pa",
+                "maximum_function_evaluations",
+            ],
+        },
+        allows_extrapolation=True,
     ),
 )
 
@@ -925,6 +987,20 @@ def _apply_step(
         return dict(columns), diagnostics, scalars
     if step.method_id == "metal.engineering_to_true_plastic":
         return _engineering_to_true_plastic(columns, units, options)
+    if step.method_id == "metal.hardening_fit_extrapolate":
+        try:
+            fitted = fit_hardening_candidates(columns, units, options)
+        except MetalHardeningError as error:
+            raise CommonPipelineError(str(error)) from error
+        units.update(fitted.units)
+        return (
+            fitted.columns,
+            fitted.diagnostics,
+            tuple(
+                ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
+                for item in fitted.scalars
+            ),
+        )
     raise CommonPipelineError(f"method {step.method_id} is not executable")
 
 

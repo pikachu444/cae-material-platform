@@ -3272,10 +3272,13 @@ summary {
 .curve-line { fill: none; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
 .curve-line.source { stroke: #8e9ca0; stroke-dasharray: 6 5; }
 .curve-line.processed { stroke: #e56734; }
+.curve-line.hardening-candidate { stroke-width: 1.7; opacity: .8; }
+.curve-line.hardening-selected { stroke: #111827; stroke-width: 3.4; }
 .curve-legend { display: flex; gap: 1rem; margin-top: .6rem; color: var(--muted); font-size: .8rem; }
 .curve-legend span { display: flex; align-items: center; gap: .35rem; }
 .curve-legend i { width: 1.5rem; height: 3px; background: #8e9ca0; }
 .curve-legend i.processed { background: #e56734; }
+.curve-legend i.hardening-selected { background: #111827; }
 .stage-diagnostics { margin-top: .8rem; border-left: 3px solid #55a49c; padding-left: .75rem; color: #34565b; }
 .stage-diagnostics p { margin: .25rem 0; }
 .metal-scalar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .55rem; margin-top: .8rem; }

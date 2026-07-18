@@ -37,12 +37,21 @@
 - offset proof stress: `metal.proof_stress`
 - 자동 necking 후보: `metal.necking_candidate`
 - engineering → true/true-plastic 변환: `metal.engineering_to_true_plastic`
+- hardening 후보 비교·조합·제한 외삽: `metal.hardening_fit_extrapolate`
 
 탄성계수, proof stress와 necking 위치는 선택한 stage의 **Scalar results**에 값과 단위로 나타납니다.
 자동 necking 단계는 후보 index만 보고하며 curve를 자르거나 확정하지 않습니다. 변환 단계에서
 `manual_index`를 명시해야 후보를 실제 경계로 사용합니다. `observed_full_domain`은 post-necking을
 포함할 수 있다는 경고를 남깁니다. 금속 method는 normalized strain `1`, stress `Pa`만 받으며,
 다른 단위를 Pa로 가장하거나 묵시적으로 변환하지 않습니다.
+
+Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 목적함수로 fitting합니다.
+`fit_minimum_strain`, `fit_maximum_strain`은 관측값을 사용하는 구간이고
+`extrapolation_maximum_strain`은 관측되지 않은 출력 한계입니다. `primary_family`,
+`secondary_family`, `primary_weight`가 선택 조합을 완전히 정의합니다. 결과의 **Scalar results**에는
+후보별 RMSE와 parameter lower/initial/fitted/upper가 표시되므로 숨은 초기값이나 경계가 없습니다.
+
+![네 공개 hardening 후보, 선택 조합과 관측/외삽 domain](../15-demo/images/t55m-hardening-candidates.png)
 
 ![금속 인장 처리 단계와 210 GPa Huber 탄성계수 결과](../15-demo/images/t55m-metal-processing-methods.png)
 

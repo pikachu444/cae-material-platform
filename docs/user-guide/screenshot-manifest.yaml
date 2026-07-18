@@ -1,6 +1,6 @@
-version: 18
+version: 19
 verified_at: 2026-07-18
-source_evidence: ../15-demo/evidence/t55m-metal-processing-methods.md
+source_evidence: ../15-demo/evidence/t55m-hardening-candidates.md
 captures:
   - id: catalog-workflow-explorer
     route: /catalog/explorer/records/{record_id}/revisions/{revision_id}

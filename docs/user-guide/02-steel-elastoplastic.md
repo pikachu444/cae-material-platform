@@ -24,13 +24,21 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
    - `metal.necking_candidate`: 최대 engineering stress 위치를 자동 후보로 보고
    - `metal.engineering_to_true_plastic`: 사용자가 확정한 `manual_necking_index`와 음의 plastic
      strain 처리 정책을 적용
+   - `metal.hardening_fit_extrapolate`: Voce/Swift/Hockett–Sherby/Ghosh 후보, 관측 fitting 구간,
+     최대 외삽 strain, primary/secondary 후보와 조합 weight를 명시
 8. 각 stage의 curve와 **Scalar results**를 확인합니다. 자동 necking 후보는 원본을 자르지 않습니다.
+   hardening stage에서는 네 후보와 선택 조합, 후보별 RMSE, 각 parameter의 lower/initial/fitted/upper,
+   관측 구간과 외삽 구간을 확인합니다. 외삽 구간은 시험 관측값으로 표시되지 않습니다.
    처리 조건을 반복 사용할 경우 Recipe 새 revision으로 저장·게시하고 다른 시험에 preflight/batch 실행합니다.
 
    ![Recipe로 재사용할 수 있는 금속 인장 처리 단계](../15-demo/images/t55m-metal-processing-methods.png)
+
+   ![네 hardening 후보와 선택 조합의 제한 외삽](../15-demo/images/t55m-hardening-candidates.png)
 9. 여러 반복시험이면 Selection을 만들고 명시적 common-grid alignment를 실행합니다.
 10. 통계 band와 outlier Candidate를 확인합니다. Candidate는 원본 curve를 삭제하지 않습니다.
-11. 다음 중 하나를 선택합니다.
+11. 다음 중 하나를 선택합니다. 현재 Workbench의 새 선택 조합을 IR로 직접 승격하는 연결은 T-55M
+    마지막 increment에서 제공될 예정이므로, 그 전에는 기존 tabulated/reference Voce 흐름과 혼동하지
+    마십시오.
    - Dataset에서 tabulated plasticity IR을 생성합니다.
    - reference Voce calibration을 실행하고 Candidate의 fitted curve/residual/warning을 비교한
      뒤 선택 이유를 기록해 IR로 승격합니다.

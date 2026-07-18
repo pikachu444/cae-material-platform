@@ -1346,9 +1346,18 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   후보만 보고하고 원본을 자르지 않으며, true/plastic 변환은 사용자가 확정한 index 또는 전체 관측
   domain을 선택한다. scalar 결과와 변환 curve는 Processing Output/Recipe/Batch의 기존 불변 계약으로
   재실행된다. normalized strain `1`, stress `Pa`가 아니면 계산을 거부한다.
-- **남은 범위:** Voce/Swift/Hockett–Sherby/Ghosh의 동일 objective 후보 비교, 사용자 선택/구간 조합,
-  관측/외삽 domain을 분리한 bounded extrapolation, 기존 IR/card 흐름 연결과 전체 UI E2E. 이 항목이
-  끝나기 전에는 T-55M을 `complete`로 표시하지 않는다.
+- **구현 증거 (2차, 진행 중, 2026-07-18):** `metal.hardening_fit_extrapolate`가 공개 Voce,
+  Swift, Hockett–Sherby, Ghosh 식을 동일한 normalized predicted-minus-observed least-squares로
+  fitting한다. 2~4개 후보, fit domain, extrapolation maximum(`<=5`), 출력 point 수, primary/
+  secondary와 조합 weight를 모두 Recipe option으로 요구한다. 각 parameter의 lower/initial/fitted/
+  upper, RMSE/relative RMSE, observed/extrapolated domain과 candidate/selected curve가 immutable
+  Output에 저장된다. UI는 네 후보와 선택 조합을 함께 표시한다. 실제 Docker/PostgreSQL에서
+  `DP600-T55M-12PT r1`을 Recipe `r4 published`로 preflight/batch 실행해 Batch
+  `7d37d8c3-27c9-4d00-8eee-30fefa078699`, Output revision
+  `b3644458-1799-4fbc-bdd9-48a8230fefc3`, 101 points 성공을 확인했다.
+- **남은 범위:** 선택된 `stress.hardening.selected` Processing Output revision을 exact source로
+  기존 tabulated-plasticity IR에 승격하고 Abaqus/OpenRadioss card까지 한 화면 흐름으로 연결하는
+  E2E. 이 연결이 끝나기 전에는 T-55M을 `complete`로 표시하지 않는다.
 
 #### T-55P. Polymer linear-viscoelastic workbench — `P0`
 

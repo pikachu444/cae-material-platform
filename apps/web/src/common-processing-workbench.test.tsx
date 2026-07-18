@@ -175,6 +175,27 @@ describe("Common Processing Workbench", () => {
                 },
               ],
             },
+            {
+              ordinal: 2,
+              method_id: "metal.hardening_fit_extrapolate",
+              method_version: "1.0.0",
+              point_count: 3,
+              series: [
+                { quantity: "strain.true_plastic", unit: "1", values: [0, 0.25, 0.5] },
+                { quantity: "stress.hardening.voce", unit: "Pa", values: [3e8, 5e8, 5.5e8] },
+                { quantity: "stress.hardening.swift", unit: "Pa", values: [3.1e8, 5.2e8, 6e8] },
+                { quantity: "stress.hardening.selected", unit: "Pa", values: [3.05e8, 5.1e8, 5.75e8] },
+              ],
+              diagnostics: ["extrapolated domain (0.1, 0.5] is not observed"],
+              scalar_results: [
+                {
+                  key: "voce.relative_rmse",
+                  quantity_semantics: "statistics.relative_rmse",
+                  value: 0.012,
+                  unit: "1",
+                },
+              ],
+            },
           ],
         });
       }
@@ -256,6 +277,10 @@ describe("Common Processing Workbench", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Preview all stages" }));
     expect(await screen.findByText("Preview only · not promotable")).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
+    expect(screen.getByText("Selected combination")).toBeTruthy();
+    expect(screen.getByText("voce relative rmse")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /1 rows\.sort_unique/ }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
     expect(screen.getByText("210.000 GPa")).toBeTruthy();

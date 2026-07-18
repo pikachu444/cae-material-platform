@@ -122,6 +122,20 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       manual_necking_index: 1,
       negative_plastic_policy: "drop",
     },
+    "metal.hardening_fit_extrapolate": {
+      plastic_strain_quantity: "strain.true_plastic",
+      stress_quantity: "stress.true",
+      families: ["voce", "swift", "hockett_sherby", "ghosh"],
+      fit_minimum_strain: 0,
+      fit_maximum_strain: 0.1,
+      extrapolation_maximum_strain: 1,
+      output_point_count: 101,
+      primary_family: "swift",
+      secondary_family: "voce",
+      primary_weight: 0.5,
+      normalization_stress_pa: 100000000,
+      maximum_function_evaluations: 5000,
+    },
   };
   return options[methodId] ?? {};
 }
@@ -174,6 +188,99 @@ function curveBounds(
     yMin: Math.min(...y),
     yMax: Math.max(...y),
   };
+}
+
+const HARDENING_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
+
+function StageCurveEvidence({
+  preview,
+  activeStage,
+  baseStage,
+  width,
+  height,
+}: {
+  preview: CommonProcessingPreview;
+  activeStage: CommonCurveStage;
+  baseStage: CommonCurveStage;
+  width: number;
+  height: number;
+}) {
+  const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
+  const xQuantity = activeStage.series.some((item) => item.quantity === preview.independent_quantity)
+    ? preview.independent_quantity
+    : activeStage.series.find((item) => item.quantity.includes("strain"))?.quantity;
+  if (!xQuantity) return <p className="muted">The selected stage has no plottable independent quantity.</p>;
+  const candidateSeries = activeStage.series.filter(
+    (item) => item.quantity.startsWith("stress.hardening.")
+      && item.quantity !== "stress.hardening.selected",
+  );
+  const selectedSeries = activeStage.series.find(
+    (item) => item.quantity === "stress.hardening.selected",
+  );
+  const xValues = activeStage.series.find((item) => item.quantity === xQuantity)?.values ?? [];
+  const hardeningValues = [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])]
+    .flatMap((item) => item.values);
+  const bounds = hardening ? {
+    xMin: Math.min(...xValues),
+    xMax: Math.max(...xValues),
+    yMin: Math.min(...hardeningValues),
+    yMax: Math.max(...hardeningValues),
+  } : curveBounds([baseStage, activeStage], xQuantity);
+  return (
+    <>
+      <svg className="processing-curve" role="img" aria-label={hardening ? "Hardening candidate and selected extrapolation curves" : "Mapped and selected processing stage curve overlay"} viewBox={`0 0 ${width} ${height}`}>
+        <line x1="28" y1={height - 24} x2={width - 20} y2={height - 24} className="chart-axis" />
+        <line x1="28" y1="20" x2="28" y2={height - 24} className="chart-axis" />
+        {hardening ? candidateSeries.map((series, index) => (
+          <polyline
+            key={series.quantity}
+            points={xyPoints(xValues, series.values, width, height, bounds)}
+            className="curve-line hardening-candidate"
+            style={{ stroke: HARDENING_COLORS[index % HARDENING_COLORS.length] }}
+          />
+        )) : (
+          <>
+            <polyline points={curvePoints(baseStage, xQuantity, width, height, bounds)} className="curve-line source" />
+            <polyline points={curvePoints(activeStage, xQuantity, width, height, bounds)} className="curve-line processed" />
+          </>
+        )}
+        {hardening && selectedSeries ? (
+          <polyline
+            points={xyPoints(xValues, selectedSeries.values, width, height, bounds)}
+            className="curve-line hardening-selected"
+          />
+        ) : null}
+      </svg>
+      <div className="curve-legend">
+        {hardening ? (
+          <>
+            {candidateSeries.map((series, index) => (
+              <span key={series.quantity}>
+                <i style={{ background: HARDENING_COLORS[index % HARDENING_COLORS.length] }} />
+                {series.quantity.replace("stress.hardening.", "")}
+              </span>
+            ))}
+            <span><i className="hardening-selected" />Selected combination</span>
+          </>
+        ) : (
+          <><span><i className="source" />Mapped input</span><span><i className="processed" />Selected stage</span></>
+        )}
+      </div>
+      <div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div>
+      {(activeStage.scalar_results ?? []).length ? (
+        <div className="metal-scalar-grid" aria-label="Metal processing scalar results">
+          {(activeStage.scalar_results ?? []).map((item) => (
+            <article key={item.key}>
+              <span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span>
+              <strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong>
+              <small>{item.quantity_semantics} · {item.unit}</small>
+            </article>
+          ))}
+        </div>
+      ) : null}
+      <p className="digest-line"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p>
+    </>
+  );
 }
 
 export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection }: Props) {
@@ -622,12 +729,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
 
   const activeStage = preview?.stages[selectedStage] ?? null;
   const baseStage = preview?.stages[0] ?? null;
-  const overlayBounds = useMemo(
-    () => preview && activeStage && baseStage
-      ? curveBounds([baseStage, activeStage], preview.independent_quantity)
-      : null,
-    [activeStage, baseStage, preview],
-  );
   const chart = useMemo(() => ({ width: 620, height: 250 }), []);
   const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
   const ensembleBounds = useMemo(() => {
@@ -710,7 +811,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
         </article>
         <article className="workbench-card curve-overlay-card">
           <div className="section-heading"><div><p className="eyebrow">Curve overlay</p><h2>{activeStage?.method_id ?? "Awaiting preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not promotable</span> : null}</div>
-          {preview && activeStage && baseStage && overlayBounds ? <><svg className="processing-curve" role="img" aria-label="Mapped and selected processing stage curve overlay" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/><polyline points={curvePoints(baseStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line source"/><polyline points={curvePoints(activeStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line processed"/></svg><div className="curve-legend"><span><i className="source"/>Mapped input</span><span><i className="processed"/>Selected stage</span></div><div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div>{(activeStage.scalar_results ?? []).length ? <div className="metal-scalar-grid" aria-label="Metal processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div> : null}<p className="digest-line"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p></> : <p className="muted">The overlay uses the actual server result. No browser-only curve is treated as evidence.</p>}
+          {preview && activeStage && baseStage ? <StageCurveEvidence preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} /> : <p className="muted">The overlay uses the actual server result. No browser-only curve is treated as evidence.</p>}
         </article>
       </section>
 
