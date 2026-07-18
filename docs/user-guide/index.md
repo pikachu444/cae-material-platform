@@ -21,6 +21,7 @@
 12. [Configurable Catalog와 Material Modeling 목표 흐름](12-configurable-catalog-and-modeling.md)
 13. [Canonical Test Data JSON 검증·등록·정확한 revision 다운로드](13-canonical-test-data-json.md)
 14. [Mapping Profile 저장과 공통 Processing Workbench](14-common-processing-workbench.md)
+15. [Administrator/User와 기능 권한](15-product-access.md)
 
 ## 현재 할 수 있는 일
 

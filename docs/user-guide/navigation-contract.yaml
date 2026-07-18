@@ -1,4 +1,4 @@
-version: 4
+version: 5
 items:
   - label: Dashboard
     route: /
@@ -24,3 +24,6 @@ items:
   - label: Governance
     route: /governance
     guide: 05-revisions-downloads.md
+  - label: Access
+    route: /access
+    guide: 15-product-access.md

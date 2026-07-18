@@ -60,6 +60,12 @@ exact-revision Record Link도 실제 PostgreSQL/API/UI로 연결되어 있습니
 뜻이지만, 특정 회사 재료의 승인값이나 solver qualification을 의미하지 않습니다. 특히
 LAW62의 incompressibility는 ν=0.495로 근사되므로 mapping report에 `approximated`로 표시됩니다.
 
+사용자 권한은 [Access](http://127.0.0.1:5173/access) 화면에서 `Administrator` 또는 `User`와
+다섯 기능 권한으로 관리합니다. schema 구성, catalog 편집, processing/calibration, model 승인,
+solver card export를 각각 부여할 수 있으며 기존 세부 role과 tenant/RLS 정책은 내부 호환
+enforcement로 유지됩니다. 자세한 절차는 [사용자 권한 가이드](docs/user-guide/15-product-access.md)와
+[관리자 가이드](docs/admin-guide/index.md)를 참고하십시오.
+
 빠른 시작은 Docker Desktop 실행 후 아래 명령을 사용합니다.
 
 ```powershell

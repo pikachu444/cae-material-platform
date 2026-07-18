@@ -1,72 +1,97 @@
-# 관리자 가이드
+# CAE Material Platform 관리자 가이드
 
-이 가이드는 configurable Material Information System의 관리 기능을 설명한다. T-49/T-50에서
-Table, typed Attribute, Layout, Subset, Folder와 typed Record 관리가 실제 PostgreSQL/API/UI로
-연결됐고, T-51에서 Catalog/Workflow Explorer와 arbitrary Link Type이 추가됐다. 단순 feature
-grant는 T-59에서 추가한다. 구현되지 않은 절차를 현재 사용 가능한 기능처럼 설명하지 않는다.
+이 문서는 개발 설정이 아니라 서비스 관리자가 Material Information System의 구조와 사용자
+권한을 구성하는 방법을 설명합니다. 관리자는 Table과 항목을 추가하고, 레코드 사이의 링크
+규칙을 정하고, 사용자에게 필요한 제품 기능만 부여합니다.
 
-## 관리 대상
+## 1. 관리자 작업 영역
 
-1. Workspace와 Catalog Table
-2. typed Attribute Definition과 quantity/unit/validation
-3. record datasheet Layout
-4. saved query Subset
-5. Folder tree
-6. Link Type의 source/target/cardinality
-7. Administrator/User와 feature grant
+| 화면 | 주소 | 관리 대상 |
+| --- | --- | --- |
+| Catalog schema designer | `/catalog/schema` | Table, Attribute, Layout, Subset |
+| Catalog Explorer | `/catalog/explorer` | Folder, Record, Link Type, exact-revision link |
+| Product access | `/access` | Administrator/User와 기능 권한 |
 
-관리자는 새 Attribute를 추가해도 DB migration이나 배포를 수행하지 않는다. published schema
-revision을 수정하지 않고 새 revision을 만든다. 기존 record revision은 당시 schema revision과
-값을 유지한다.
+Docker demo에서는 **Connected token → Use local demo identity → Save connection**으로
+Administrator 계정을 사용할 수 있습니다. 운영 환경에서는 회사 OIDC의 issuer, subject,
+group claim을 사용합니다.
 
-## Table과 Attribute 정의
+## 2. Table과 Attribute 구성
 
-1. Docker demo를 실행하고 [Catalog schema designer](http://127.0.0.1:5173/catalog/schema)를 연다.
-2. **Connected token → Use local demo identity → Save connection**을 선택한다.
-3. stable key, 표시명, classification과 설명을 입력해 Table revision 1을 만든다.
-4. Table을 선택하고 stable Attribute key, 표시명과 data type을 입력한다.
-5. `number`는 quantity semantics와 normalized UCUM-compatible unit을 함께 입력한다.
-6. `discrete`는 중복 없는 허용값을, `record_reference`는 대상 Table을 선택한다.
-7. 현재 Attribute revision들로 datasheet Layout을 만들고 필요하면 All records Subset을 만든다.
+1. **Catalog schema designer**에서 stable key, 표시 이름, 설명과 classification을 입력해
+   Table revision 1을 만듭니다.
+2. Table을 선택하고 Attribute stable key, 표시 이름과 data type을 정의합니다.
+3. `number`에는 quantity semantics와 정규화 단위를 함께 지정합니다.
+4. `discrete`에는 허용값을, `record_reference`에는 대상 Table을 지정합니다.
+5. Attribute를 Layout에 원하는 순서로 배치하고, 자주 쓰는 검색 조건은 Subset으로
+   저장합니다.
 
 지원 data type은 `number`, `integer`, `text`, `boolean`, `date`, `discrete`, `file`, `curve`,
-`record_reference`다. Attribute의 stable key와 data type은 기존 값을 바꾸지 않는다. 이름,
-설명, validation 또는 Layout/Subset 정의를 고치면 API는 current ETag를 요구하고 새 revision을
-추가한다. 수치 record value 저장소는 원본 값/단위 문자열과 정규화 값/단위/quantity semantics를
-분리 보존하며 잘못된 조합을 DB에서도 거부한다. 실제 Record 입력은
-[Catalog records](http://127.0.0.1:5173/catalog/records)에서 Layout 순서로 수행한다.
+`record_reference`입니다. Attribute 추가에는 DB migration이 필요하지 않지만, 정의 자체는
+revision으로 보존됩니다. 수치값은 원본 값·원본 단위 문자열·정규화 값·정규화 단위·quantity
+semantics를 함께 저장합니다.
 
-![T-49 Catalog schema designer](../15-demo/images/t49-configurable-catalog.png)
+## 3. Folder와 Record 운영
 
-## Folder, Record와 saved Subset 운영
+**Catalog records** 또는 **Catalog Explorer**에서 Table을 선택한 뒤 Folder와 Record를
+생성합니다. Folder parent는 exact revision으로 고정되며 cycle이나 다른 Table 연결은 서버와
+PostgreSQL이 모두 거부합니다. Record를 수정할 때는 현재 ETag가 필요하고, 성공하면 기존 행을
+덮어쓰지 않고 새 Record revision이 생깁니다.
 
-1. **Catalog records**에서 관리할 Table을 선택한다.
-2. Folder 이름과 선택적 parent를 지정한다. 모든 parent는 exact Folder revision을 고정하고
-   application과 PostgreSQL trigger가 cycle 및 다른 Table 연결을 차단한다.
-3. Layout을 선택해 Record 입력 순서를 결정한다. Layout은 값을 복제하지 않고 Attribute revision
-   표시 순서만 제공한다.
-4. 검색 조건을 Subset으로 저장한다. Subset 수정은 기존 filter를 덮어쓰지 않고 새 revision을
-   추가해야 한다.
-5. Record 수정은 current ETag를 사용하며 기존 Record revision과 typed value row는 immutable이다.
+Layout은 입력 순서만 정의하며 값을 복제하지 않습니다. Subset을 수정할 때도 기존 검색 조건을
+바꾸지 않고 새 revision을 추가합니다.
 
-## Link Type과 Record Link 운영
+## 4. Link Type과 관련 데이터 이동
 
-1. [Catalog Explorer](http://127.0.0.1:5173/catalog/explorer) 하단의 **Administrator · define
-   Link Type**을 연다.
-2. stable key/name, source/target Table, 방향별 표시명, outgoing/incoming cardinality를 정한다.
-   Link Type revision은 두 Table의 정확한 current revision을 고정한다.
-3. Record를 선택한 뒤 오른쪽 **Typed link editor**에서 적용 가능한 Link Type과 target Record를
-   선택한다. 서버는 target의 exact current revision을 저장하며 `latest` 별칭은 받지 않는다.
-4. endpoint Table 불일치, tenant/project/classification 불일치, 중복 active link와 cardinality
-   위반은 application과 PostgreSQL trigger가 모두 거부한다.
-5. 링크 관계를 종료할 때 **Deactivate**를 사용한다. 기존 revision은 감사와 재현을 위해 남는다.
+Catalog Explorer의 **Define Link Type**에서 다음을 지정합니다.
 
-Workflow Explorer는 forward/reverse label을 구분해 표시하며 링크 양 끝으로 이동할 수 있다.
-Table이나 Record가 새 revision을 만들어도 기존 Link가 가리키는 revision은 바뀌지 않는다.
+- stable key와 이름
+- source/target Table
+- 정방향·역방향 표시 이름
+- outgoing/incoming cardinality
 
-## 기존 관리 기능
+Record link의 양 끝은 항상 exact Record revision입니다. `latest` 별칭, 다른 scope의 endpoint,
+허용하지 않은 Table 조합과 cardinality 위반은 거부됩니다. 링크를 종료할 때는 삭제하지 않고
+Deactivate를 사용합니다. 사용자는 Related records 패널과 Workflow Explorer에서 링크를 따라
+시험, Dataset, Processing Run, Neutral IR, Solver Card로 이동할 수 있습니다.
 
-- Material, Material State, Process, Lot/Batch와 fixed Property Set 생성
-- organization/project/classification 경계의 기존 역할·permission 관리
-- provenance, audit, review와 release evidence 조회
+## 5. Administrator/User 권한
 
+[Product access](http://127.0.0.1:5173/access)는 내부 역할 이름 대신 다음 두 역할만 표시합니다.
+
+- `Administrator`: 사용자 관리와 다섯 제품 기능을 모두 사용
+- `User`: 지정된 기능만 사용
+
+User에게 부여할 수 있는 기능은 다음과 같습니다.
+
+1. Schema configuration
+2. Catalog editing
+3. Processing & calibration
+4. Model approval
+5. Solver Card export
+
+대상은 identity-provider group 또는 principal UUID로 지정합니다. project 범위가 기본이며,
+필요한 경우 organization-wide로 지정할 수 있습니다. 최대 classification도 함께 설정합니다.
+운영 환경에서 export-controlled 접근은 별도 승인을 거쳐야 하며 단순 기능 체크로 자동 부여하지
+않습니다.
+
+권한 변경은 기존 assignment를 수정하는 방식이 아닙니다. 기존 assignment를 **Revoke**하고 새
+assignment를 추가합니다. 부여·회수 이력은 남으며 일반 User가 assignment 목록이나 생성 API를
+호출하면 403으로 거부됩니다.
+
+## 6. 기존 역할과 호환성
+
+T-59 이전의 상세 role binding은 제거하지 않습니다. 서버가 기존 role들의 permission 합계를
+Administrator/User와 기능 권한으로 투영하므로 기존 토큰과 RLS 정책이 계속 동작합니다. 화면의
+`legacy compatible` 표시는 이 호환 경로가 사용됐다는 의미입니다.
+
+![제품 역할 및 기능 권한](../15-demo/images/t59-product-access.png)
+
+## 7. 운영 점검
+
+- 사용자가 예상한 organization/project를 선택했는지 확인합니다.
+- OIDC issuer와 group name은 대소문자까지 정확히 일치시킵니다.
+- 필요한 최소 classification과 기능만 부여합니다.
+- 권한 변경 뒤 새 토큰을 발급받고 `/access`에서 실제 effective access를 확인합니다.
+- schema, catalog, processing, approval, export 각각 허용/거부 API를 점검합니다.
+- 기존 데이터를 지우거나 role table을 직접 수정하지 않습니다.

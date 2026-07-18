@@ -1451,6 +1451,11 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   기존 permission/RLS는 호환 enforcement로 유지한다.
 - **완료 조건:** 작업 중심 권한 UI/API와 tenant 격리 regression이 통과한다.
 - **테스트:** grant matrix positive/negative, legacy-token compatibility와 cross-scope RLS.
+- **구현 증거 (`2026-07-18`):** Migration 074의 typed assignment와 append/revoke guard,
+  product-to-internal permission projection, legacy role 호환 projection, effective/grant/list/revoke
+  API 및 `/access` 관리자 화면을 연결했다. Docker/PostgreSQL demo group은 Administrator와 다섯
+  grant를 실제 API에서 확인했다. 일반 User의 관리 API 403과 기능별 positive/negative 회귀를
+  자동화했다.
 
 #### T-60. End-to-end demo, manuals and screenshot gate — `P0`
 
