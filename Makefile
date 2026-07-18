@@ -3,7 +3,7 @@ export UV_CACHE_DIR ?= /tmp/cmp-uv-cache
 export UV_PROJECT_ENVIRONMENT ?= /tmp/cmp-cae-material-platform-venv
 export UV_LINK_MODE ?= copy
 
-.PHONY: bootstrap demo demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client release-quality performance-acceptance performance-fixture performance-production-scale soak-fault-acceptance governed-storage-acceptance product-pilot-acceptance \
+.PHONY: bootstrap demo demo-verify demo-e2e demo-down lint typecheck check-architecture check-contracts docs-screenshots generate-client release-quality performance-acceptance performance-fixture performance-production-scale soak-fault-acceptance governed-storage-acceptance product-pilot-acceptance \
 	migrate test-unit test-contract test-migration test-integration test-postgresql test \
 	web-build web-test run-api run-worker run-worker-once ci
 
@@ -12,6 +12,14 @@ bootstrap:
 
 demo:
 	docker compose -f deploy/compose/docker-compose.demo.yml up --build
+
+demo-verify:
+	docker compose -f deploy/compose/docker-compose.demo.yml run --rm --no-deps seed \
+		python scripts/verify_full_demo.py --api-base-url http://api:8000/api/v1
+
+demo-e2e:
+	npx playwright install chromium
+	npm run test:e2e --workspace @cmp/web
 
 demo-down:
 	docker compose -f deploy/compose/docker-compose.demo.yml down -v
