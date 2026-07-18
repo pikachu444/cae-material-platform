@@ -21,7 +21,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Metal/Polymer/Elastomer modeling | T-55M/T-55P/T-55E calculation workbenches implemented: metal hardening, polymer generalized-Maxwell/master-curve processing, and elastomer multi-mode Neo-Hookean/Mooney-Rivlin/Yeoh/Ogden comparison with immutable residual evidence. Reviewed hyperelastic families flow through Neutral JSON to explicit native cards. | T-58 package |
 | Neutral Material exchange JSON | T-56/T-57 implemented for reviewed hyperelastic family Candidates: deterministic validate/import/export, exact evidence pins, curve stages, typed solver-neutral IR and exact-revision solver consumption | T-58 package |
 | Abaqus/OpenRadioss native cards | T-57 complete for four declared hyperelastic families plus earlier bounded linear/elastoplastic/viscoelastic mappings | T-58 package |
-| Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
+| Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | T-59 grants |
 | Administrator/User feature grants | missing; fine-grained internal permissions exist | T-59 |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
@@ -30,10 +30,18 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-58`: assemble the exact Test JSON, Mapping Profile, Processing Recipe, Neutral Material JSON,
-  mapping report and native solver card into one deterministic checksum-verifiable package.
+- `T-59`: simplify the product-facing role model to Administrator/User plus explicit feature grants
+  while retaining the current tenant/classification enforcement internally.
 
 ## Completed
+
+- `T-58`: Migration 073 extends the existing immutable Export Selection/Job/Bundle engine with six
+  explicit typed source pairs: canonical Test Data JSON, Mapping Profile JSON, Processing Recipe
+  JSON, Neutral Material JSON, Neutral solver mapping report and Neutral native card. The source
+  resolver produces deterministic revision-addressed paths, validates stored Artifact/report
+  digests, and never uses a generic payload. The connected Bulk Export Center displays and selects
+  these representations. A live Docker/PostgreSQL run assembled a 16-component package containing
+  all six kinds; all `checksums.sha256` entries and the manifest were independently verified.
 
 - `T-57`: canonical Neutral Material revisions now drive an explicit versioned eight-entry
   Abaqus/OpenRadioss capability manifest. Migration 072 stores an immutable card identity/revision
