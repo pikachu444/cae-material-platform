@@ -64,6 +64,7 @@ Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두
   온도의 반복시험은 common log-time 구간 통계와 수동/WLF shift를 거쳐 master-curve Dataset으로
   별도 보존
 - 엘라스토머: governed uniaxial/planar/biaxial normalized curve → versioned scientific profile
+  → 저장된 Calibration Plan exact revision 재실행 또는 Dataset 역할/mode/weight 수정 후 새 revision
   → deterministic Neo-Hookean/Mooney–Rivlin/Yeoh/Ogden family 비교와 residual/stability 검토
   → 현재 지원되는 one-term Ogden + shear-Prony IR
   → Abaqus Ogden `.inp` 또는 OpenRadioss LAW62 `.rad` preview/download. Candidate의 governed

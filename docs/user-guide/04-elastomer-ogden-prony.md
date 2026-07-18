@@ -23,6 +23,20 @@ Ogden--Prony IR revision과 두 solver card 경로는 계속 사용할 수 있�
 이미 완료된 Run은 **Open a saved calibration Run**에 정확한 Run ID를 입력해 다시 열 수 있습니다.
 재실행 없이 family 후보, fitted/residual 진단과 기존 Ogden 선택 증거를 복원합니다.
 
+## Calibration Plan 저장·재사용
+
+**Saved Calibration Plan library**에는 현재 Material State와 baseline model identity에 속한 Plan의
+current immutable revision이 표시됩니다. **Use exact revision**을 누르면 당시 고정한 Dataset
+revision, calibration/holdout 역할, 시험 mode와 curve weight를 폼에 복원합니다. 설정을 바꾸지
+않고 아래 **Execute Ogden Calibration Run**을 누르면 그 exact Plan revision을 다시 실행합니다.
+
+역할, mode 또는 weight를 바꾼 뒤 **Save new Plan revision**을 누르면 같은 stable Plan identity에
+새 revision이 추가됩니다. 기존 revision과 그 revision을 사용한 Run은 수정되지 않습니다. 다른
+작업자가 먼저 Plan을 수정했다면 compare-and-swap 검사가 충돌을 반환하므로 **Refresh inputs**로
+current revision을 다시 읽어야 합니다. 별도 Plan을 만들려면 **New Plan**을 누릅니다.
+
+![저장된 초탄성 Calibration Plan을 exact revision으로 재사용하거나 새 revision으로 저장](../15-demo/images/t72-ogden-plan-library.png)
+
 ## 절차
 
 1. Material class를 `elastomer`로 만들고 State/Property Set을 준비합니다.
@@ -58,7 +72,9 @@ uv run python scripts/seed_ogden_calibration_demo.py
    bounds, scaling, mode weights, multistart seed와 uncertainty policy가 이 revision에 고정됩니다.
 5. **Multi-test Ogden calibration**에서 사용할 normalized curve를 선택하고 각 항목의 역할을
    `calibration` 또는 `holdout`으로 지정합니다. Dataset revision은 두 역할에 중복될 수 없습니다.
-6. 시험 mode와 curve weight를 확인하고 immutable Plan을 생성한 뒤 Run을 실행합니다.
+6. 새 설정이면 **New Plan**에서 immutable Plan을 생성합니다. 기존 설정이면 **Saved Calibration
+   Plan library**에서 **Use exact revision**을 누르고 그대로 실행하거나, 설정을 수정해
+   **Save new Plan revision**으로 append한 뒤 Run을 실행합니다.
 7. Candidate별 `mu`, `alpha`, objective, per-mode error, convergence, Jacobian rank,
    identifiability, uncertainty/95% CI와 warning을 비교합니다.
 8. observed/fitted nominal-stress curve와 residual plot을 확인합니다. single-mode이면

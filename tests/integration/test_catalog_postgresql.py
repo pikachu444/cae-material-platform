@@ -158,8 +158,10 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
 from cmp.modules.modeling.application.ogden_calibration import (
     CreateReferenceOgdenCalibrationPlan,
     ExecuteReferenceOgdenCalibration,
+    OgdenCalibrationConflict,
     OgdenCalibrationNotFound,
     ReferenceOgdenCalibrationService,
+    ReviseReferenceOgdenCalibrationPlan,
 )
 from cmp.modules.modeling.application.ogden_prony import (
     CreateReferenceOgdenPronyModel,
@@ -2172,7 +2174,7 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
         ),
     )
 
-    async def upload_import_and_fit() -> tuple[UUID, UUID, UUID]:
+    async def upload_import_and_fit() -> tuple[UUID, UUID, UUID, UUID]:
         strain = (0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30)
         rows = ["engineering_strain,engineering_stress_pa"]
         rows.extend(
@@ -2248,19 +2250,70 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
                 "pin exact T43 evidence",
             ),
         )
+        modeling_read = _decision(context, Permission.MODELING_READ)
+        assert any(
+            item.id == plan.id
+            for item in postgres.ogden_calibration.list_plans(
+                context, modeling_read, limit=100
+            )
+        )
+        restored_plan = postgres.ogden_calibration.get_plan(
+            context, modeling_read, plan.id
+        )
+        assert restored_plan.current.record.revision_id == plan.current.record.revision_id
+        revised_plan = postgres.ogden_calibration.revise_plan(
+            context,
+            calibration_execute,
+            plan.id,
+            ReviseReferenceOgdenCalibrationPlan(
+                expected_current_revision_id=plan.current.record.revision_id,
+                content=replace(
+                    plan.current.content,
+                    members=(replace(plan.current.content.members[0], weight=1.5),),
+                ),
+                change_reason="revise exact T43 member weight",
+            ),
+        )
+        assert revised_plan.current.record.revision_no == 2
+        assert revised_plan.current.content.members[0].weight == 1.5
+        with pytest.raises(OgdenCalibrationConflict, match="stable identity"):
+            postgres.ogden_calibration.revise_plan(
+                context,
+                calibration_execute,
+                plan.id,
+                ReviseReferenceOgdenCalibrationPlan(
+                    expected_current_revision_id=revised_plan.current.record.revision_id,
+                    content=replace(
+                        revised_plan.current.content,
+                        plan_label="Changed stable label",
+                    ),
+                    change_reason="attempt to change stable identity",
+                ),
+            )
+        with pytest.raises(RevisionConflict):
+            postgres.ogden_calibration.revise_plan(
+                context,
+                calibration_execute,
+                plan.id,
+                ReviseReferenceOgdenCalibrationPlan(
+                    expected_current_revision_id=plan.current.record.revision_id,
+                    content=revised_plan.current.content,
+                    change_reason="attempt stale Plan revision",
+                ),
+            )
         fitted = await postgres.ogden_calibration.execute(
             context,
             calibration_execute,
             ExecuteReferenceOgdenCalibration(
-                plan.id,
-                plan.current.record.revision_id,
+                revised_plan.id,
+                revised_plan.current.record.revision_id,
                 "execute deterministic T43 fit",
             ),
         )
         fitted_best = min(fitted.candidates, key=lambda item: item.value.objective_total)
-        return fitted.id, plan.id, fitted_best.id
+        return fitted.id, plan.id, revised_plan.current.record.revision_id, fitted_best.id
 
-    run_id, plan_id, candidate_id = asyncio.run(upload_import_and_fit())
+    run_id, plan_id, plan_revision_id, candidate_id = asyncio.run(upload_import_and_fit())
     restored = postgres.ogden_calibration.get_run(
         context,
         _decision(context, Permission.MODELING_READ),
@@ -2273,6 +2326,7 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
     assert best.value.uncertainty_status == "estimated_jacobian_covariance"
     assert "no_holdout_data" in best.value.warnings
     assert restored.plan_id == plan_id
+    assert restored.plan_revision_id == plan_revision_id
     assert {item.value.family.value for item in restored.family_candidates} == {
         "neo_hookean",
         "mooney_rivlin",
@@ -2295,6 +2349,12 @@ def test_multi_test_ogden_calibration_persists_exact_evidence_in_postgresql(
     assert {point.family.value for point in family_points} == {"ogden_1"}
 
     other = _context(PROJECT_B)
+    with pytest.raises(OgdenCalibrationNotFound, match="not visible"):
+        postgres.ogden_calibration.get_plan(
+            other,
+            _decision(other, Permission.MODELING_READ),
+            plan_id,
+        )
     with pytest.raises(OgdenCalibrationNotFound, match="not visible"):
         postgres.ogden_calibration.get_run(
             other,

@@ -7,7 +7,7 @@ from collections.abc import Callable
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
@@ -26,6 +26,7 @@ from cmp.modules.modeling.application.ogden_calibration import (
     PersistedHyperelasticFamilyCandidate,
     PersistedOgdenCandidate,
     ReferenceOgdenCalibrationService,
+    ReviseReferenceOgdenCalibrationPlan,
 )
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticDiagnosticPoint
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
@@ -37,7 +38,7 @@ from cmp.modules.modeling.domain.reference_ogden_calibration import (
     ReferenceOgdenCalibrationPlanContent,
 )
 from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataResponse
-from cmp.shared.domain.revisions import AggregateAlreadyExists
+from cmp.shared.domain.revisions import AggregateAlreadyExists, RevisionKernelError
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,21 @@ class OgdenPlanCreateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     classification: DataClassification = DataClassification.INTERNAL
+    plan_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
+    scientific_profile_id: UUID
+    scientific_profile_revision_id: UUID
+    material_state_id: UUID
+    material_state_revision_id: UUID
+    baseline_model_id: UUID
+    baseline_model_revision_id: UUID
+    members: Annotated[tuple[OgdenMemberRequest, ...], Field(min_length=1, max_length=24)]
+    change_reason: Reason
+
+
+class OgdenPlanReviseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_current_revision_id: UUID
     plan_label: Annotated[str, StringConstraints(min_length=1, max_length=160)]
     scientific_profile_id: UUID
     scientific_profile_revision_id: UUID
@@ -160,8 +176,18 @@ class OgdenPlanResponse(BaseModel):
                 **metadata.model_dump(),
                 content=OgdenPlanContentResponse.from_domain(value.current.content),
             ),
-            links={"self": root, "execute": f"{root}/runs"},
+            links={
+                "self": root,
+                "revisions": f"{root}/revisions",
+                "execute": f"{root}/runs",
+            },
         )
+
+
+class OgdenPlanListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: tuple[OgdenPlanResponse, ...]
 
 
 class OgdenCandidateResponse(BaseModel):
@@ -514,13 +540,17 @@ def _translate(context: SecurityContext, error: Exception) -> OgdenHttpError:
             "a Calibration Plan with this label already exists for the same State "
             "and baseline model",
         )
+    if isinstance(error, RevisionKernelError):
+        return OgdenHttpError(context, 409, str(error))
     if isinstance(error, (InvalidOgdenCalibration, ValueError)):
         return OgdenHttpError(context, 422, str(error))
     logger.exception("unexpected Ogden calibration API failure", exc_info=error)
     return OgdenHttpError(context, 503, "service is unavailable")
 
 
-def _content(body: OgdenPlanCreateRequest) -> ReferenceOgdenCalibrationPlanContent:
+def _content(
+    body: OgdenPlanCreateRequest | OgdenPlanReviseRequest,
+) -> ReferenceOgdenCalibrationPlanContent:
     return ReferenceOgdenCalibrationPlanContent(
         plan_label=body.plan_label,
         scientific_profile_id=body.scientific_profile_id,
@@ -582,6 +612,85 @@ def install_ogden_calibration_api(
                 decision,
                 CreateReferenceOgdenCalibrationPlan(
                     body.classification, _content(body), body.change_reason
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["ETag"] = str(RevisionETag.from_ref(value.current.record.ref))
+        response.headers["Location"] = f"/api/v1/ogden-calibration-plans/{value.id}"
+        return OgdenPlanResponse.from_snapshot(value)
+
+    @application.get(
+        "/api/v1/ogden-calibration-plans",
+        operation_id="listReferenceOgdenCalibrationPlans",
+        response_model=OgdenPlanListResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+    )
+    def list_plans(
+        request: Request,
+        limit: Annotated[int, Query(ge=1, le=200)] = 100,
+    ) -> OgdenPlanListResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise OgdenHttpError(context, 503, "service is unavailable")
+        try:
+            values = service.list_plans(context, decision, limit=limit)
+        except Exception as error:
+            raise _translate(context, error) from error
+        return OgdenPlanListResponse(
+            items=tuple(OgdenPlanResponse.from_snapshot(value) for value in values)
+        )
+
+    @application.get(
+        "/api/v1/ogden-calibration-plans/{plan_id}",
+        operation_id="getReferenceOgdenCalibrationPlan",
+        response_model=OgdenPlanResponse,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["modeling"],
+    )
+    def get_plan(
+        request: Request, response: Response, plan_id: UUID
+    ) -> OgdenPlanResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise OgdenHttpError(context, 503, "service is unavailable")
+        try:
+            value = service.get_plan(context, decision, plan_id)
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["ETag"] = str(RevisionETag.from_ref(value.current.record.ref))
+        return OgdenPlanResponse.from_snapshot(value)
+
+    @application.post(
+        "/api/v1/ogden-calibration-plans/{plan_id}/revisions",
+        operation_id="reviseReferenceOgdenCalibrationPlan",
+        response_model=OgdenPlanResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["modeling"],
+    )
+    def revise_plan(
+        request: Request,
+        response: Response,
+        plan_id: UUID,
+        body: OgdenPlanReviseRequest,
+    ) -> OgdenPlanResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise OgdenHttpError(context, 503, "service is unavailable")
+        try:
+            value = service.revise_plan(
+                context,
+                decision,
+                plan_id,
+                ReviseReferenceOgdenCalibrationPlan(
+                    expected_current_revision_id=body.expected_current_revision_id,
+                    content=_content(body),
+                    change_reason=body.change_reason,
                 ),
             )
         except Exception as error:

@@ -31,6 +31,14 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
 
+- `T-72`: the hyperelastic Modeling Workbench now lists saved Calibration Plans for the current
+  Material State and baseline model. Users can execute an exact immutable Plan revision or reload
+  its Dataset roles, test modes and weights and append a new revision through compare-and-swap.
+  The existing typed Plan identity/revision/member tables are reused without a migration. API,
+  React and live Docker/browser checks pass. The isolated PostgreSQL suite passed all 76 tests and
+  full CI passed 774 Python tests, 62 frontend tests, static typing, architecture, contracts,
+  OpenAPI compatibility, user-guide evidence and the production bundle gate.
+
 - `T-71`: Catalog Explorer now searches record name, key, description and text Attributes without
   leaving the tree/workflow surface. A saved Subset applies its immutable filter definition and
   opens each exact current Record revision directly in the Workflow graph. The clean demo seeds a
