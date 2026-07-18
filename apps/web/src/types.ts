@@ -2691,6 +2691,13 @@ export interface LinearViscoelasticProcessingEvidence {
   catalog_instantaneous_shear_modulus_pa: number;
   instantaneous_modulus_relative_mismatch: number;
   acknowledged_maximum_relative_mismatch: number;
+  recipe_batch?: {
+    processing_recipe: { id: string; revision_id: string; sha256: string };
+    processing_batch_id: string;
+    batch_member_id: string;
+    batch_attempt_id: string;
+    batch_attempt_no: number;
+  } | null;
 }
 
 export interface LinearViscoelasticModelResponse {
@@ -2699,7 +2706,7 @@ export interface LinearViscoelasticModelResponse {
   current_revision: RevisionMetadata & {
     content: {
       model_family_id: string;
-      model_schema_version: "1.0.0" | "1.1.0" | "1.2.0";
+      model_schema_version: "1.0.0" | "1.1.0" | "1.2.0" | "1.3.0";
       model_schema_digest: string;
       material_id: string;
       material_revision_id: string;

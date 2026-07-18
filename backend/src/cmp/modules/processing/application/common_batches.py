@@ -37,6 +37,19 @@ class CommonBatchNotFound(CommonPipelineError):
 
 
 @dataclass(frozen=True, slots=True)
+class ProcessingExecutionOrigin:
+    """Exact published Recipe and successful Batch attempt that produced an Output."""
+
+    recipe_id: UUID
+    recipe_revision_id: UUID
+    recipe_sha256: str
+    batch_id: UUID
+    member_id: UUID
+    attempt_id: UUID
+    attempt_no: int
+
+
+@dataclass(frozen=True, slots=True)
 class BatchSourceInput:
     document_id: UUID
     revision_id: UUID
@@ -112,6 +125,15 @@ class CommonBatchRepository(Protocol):
         self, *, context: SecurityContext, decision: AuthorizationDecision
     ) -> tuple[CommonProcessingBatch, ...]: ...
 
+    def find_execution_origin(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+    ) -> ProcessingExecutionOrigin | None: ...
+
 
 def _require(
     context: SecurityContext, decision: AuthorizationDecision, permission: Permission
@@ -185,9 +207,7 @@ class CommonBatchService:
                     )
                 )
             except (CommonPipelineError, TypeError, ValueError) as error:
-                members.append(
-                    BatchPreflightMember(ordinal, source, False, None, None, str(error))
-                )
+                members.append(BatchPreflightMember(ordinal, source, False, None, None, str(error)))
         return BatchPreflight(
             recipe_id=recipe.id,
             recipe_revision_id=recipe.current.revision_id,
@@ -248,9 +268,7 @@ class CommonBatchService:
             request_id=context.request_id,
             trace_id=context.trace_id,
         )
-        self._repository.create_batch(
-            context=context, decision=decision, batch=batch
-        )
+        self._repository.create_batch(context=context, decision=decision, batch=batch)
         for member in batch.members:
             await self._execute_member(
                 context,
@@ -273,9 +291,7 @@ class CommonBatchService:
         batch_id: UUID,
     ) -> CommonProcessingBatch:
         _require(context, decision, Permission.PROCESSING_EXECUTE)
-        batch = self._repository.get_batch(
-            context=context, decision=decision, batch_id=batch_id
-        )
+        batch = self._repository.get_batch(context=context, decision=decision, batch_id=batch_id)
         recipe = self._recipes.get_recipe_revision(
             context,
             decision,
@@ -390,12 +406,25 @@ class CommonBatchService:
         batch_id: UUID,
     ) -> CommonProcessingBatch:
         _require(context, decision, Permission.PROCESSING_READ)
-        return self._repository.get_batch(
-            context=context, decision=decision, batch_id=batch_id
-        )
+        return self._repository.get_batch(context=context, decision=decision, batch_id=batch_id)
 
     def list_batches(
         self, context: SecurityContext, decision: AuthorizationDecision
     ) -> tuple[CommonProcessingBatch, ...]:
         _require(context, decision, Permission.PROCESSING_READ)
         return self._repository.list_batches(context=context, decision=decision)
+
+    def find_execution_origin(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+    ) -> ProcessingExecutionOrigin | None:
+        _require(context, decision, Permission.PROCESSING_READ)
+        return self._repository.find_execution_origin(
+            context=context,
+            decision=decision,
+            output_id=output_id,
+            output_revision_id=output_revision_id,
+        )

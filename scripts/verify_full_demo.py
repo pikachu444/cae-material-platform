@@ -118,19 +118,13 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             raise RuntimeError("clean demo polymer has no Material State")
         polymer_state_id = str(polymer_states[0]["material_state_id"])
         polymer_models = _items(
-            _json(
-                client.get(
-                    f"/material-states/{polymer_state_id}/linear-viscoelastic-models"
-                )
-            )
+            _json(client.get(f"/material-states/{polymer_state_id}/linear-viscoelastic-models"))
         )
         processed_model = next(
             (
                 item
                 for item in polymer_models
-                if isinstance(
-                    _content(item).get("processing_promotion_evidence"), Mapping
-                )
+                if isinstance(_content(item).get("processing_promotion_evidence"), Mapping)
             ),
             None,
         )
@@ -146,20 +140,49 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             or processing_evidence.get("selected_term_count") != len(terms)
         ):
             raise RuntimeError("processed polymer IR does not preserve selected Prony terms")
+        polymer_recipe = next(
+            item
+            for item in _items(_json(client.get("/common-processing-recipes")))
+            if item.get("content", {}).get("recipe_key") == "cmp_demo_polymer_prony"
+        )
+        polymer_batch = next(
+            item
+            for item in _items(_json(client.get("/common-processing-batches")))
+            if item.get("label") == "CMP demo polymer Prony batch"
+        )
+        if polymer_batch.get("status") != "succeeded":
+            raise RuntimeError("polymer Processing Recipe batch did not succeed")
+        polymer_attempt = next(
+            item
+            for item in polymer_batch.get("attempts", [])
+            if isinstance(item, Mapping) and item.get("status") == "succeeded"
+        )
         polymer_output = next(
             item
             for item in _items(_json(client.get("/processing-outputs")))
-            if item.get("label") == "CMP demo reviewed Prony Processing Output"
+            if item.get("processing_output_id") == polymer_attempt.get("output_id")
         )
         exact_output = processing_evidence.get("processing_output")
+        recipe_batch = processing_evidence.get("recipe_batch")
+        exact_recipe = (
+            recipe_batch.get("processing_recipe") if isinstance(recipe_batch, Mapping) else None
+        )
         if (
             not isinstance(exact_output, Mapping)
             or exact_output.get("id") != polymer_output.get("processing_output_id")
             or exact_output.get("revision_id")
             != polymer_output.get("current_revision", {}).get("id")
             or exact_output.get("sha256") != polymer_output.get("output_sha256")
+            or not isinstance(exact_recipe, Mapping)
+            or exact_recipe.get("id") != polymer_recipe.get("processing_recipe_id")
+            or exact_recipe.get("revision_id")
+            != polymer_recipe.get("current_revision", {}).get("id")
+            or recipe_batch.get("processing_batch_id") != polymer_batch.get("batch_id")
+            or recipe_batch.get("batch_attempt_id") != polymer_attempt.get("attempt_id")
         ):
-            raise RuntimeError("processed polymer IR does not pin the exact Processing Output")
+            raise RuntimeError(
+                "processed polymer IR does not pin the exact Recipe/Batch/Output execution"
+            )
         polymer_candidates = _items(
             _json(client.get(f"/bulk-export-candidates?material_id={polymer_id}"))
         )
@@ -182,6 +205,17 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         if polymer_neutral is None:
             raise RuntimeError("clean demo polymer has no Processing-selected Neutral JSON")
         polymer_neutral_id = str(polymer_neutral["neutral_material_id"])
+        neutral_recipe = (
+            polymer_neutral.get("document", {}).get("sources", {}).get("processing_recipe", {})
+        )
+        if (
+            neutral_recipe.get("status") != "exact_revision"
+            or neutral_recipe.get("reference", {}).get("id")
+            != polymer_recipe.get("processing_recipe_id")
+            or neutral_recipe.get("reference", {}).get("revision_id")
+            != polymer_recipe.get("current_revision", {}).get("id")
+        ):
+            raise RuntimeError("polymer Neutral JSON does not pin the exact Processing Recipe")
         polymer_cards = _items(
             _json(client.get(f"/neutral-materials/{polymer_neutral_id}/solver-cards"))
         )
@@ -191,11 +225,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "openradioss": b"/VISC/LPRONY/",
         }.items():
             polymer_card = next(
-                (
-                    item
-                    for item in polymer_cards
-                    if item.get("target", {}).get("solver") == solver
-                ),
+                (item for item in polymer_cards if item.get("target", {}).get("solver") == solver),
                 None,
             )
             if polymer_card is None:
@@ -210,25 +240,61 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 "solver_card_id": str(polymer_card["solver_card_id"]),
                 "sha256": hashlib.sha256(polymer_native.content).hexdigest(),
             }
+        polymer_bundle_id = None
+        polymer_selection_content: Mapping[str, Any] | None = None
+        for export_job in _items(_json(client.get("/export-jobs"))):
+            selection_id = export_job.get("export_selection_id")
+            if not isinstance(selection_id, str):
+                continue
+            export_selection = _json(client.get(f"/export-selections/{selection_id}"))
+            selection_content = export_selection.get("current_revision", {}).get("content", {})
+            if (
+                isinstance(selection_content, Mapping)
+                and selection_content.get("selection_label")
+                == "CMP polymer Recipe to dual-solver governed transfer"
+                and export_job.get("state") == "succeeded"
+                and isinstance(export_job.get("bundle_id"), str)
+            ):
+                polymer_bundle_id = str(export_job["bundle_id"])
+                polymer_selection_content = selection_content
+                break
+        if polymer_bundle_id is None or polymer_selection_content is None:
+            raise RuntimeError("polymer Recipe-to-card Bulk ZIP was not generated")
+        polymer_bundle = _json(client.get(f"/export-bundles/{polymer_bundle_id}"))
+        required_kinds = {
+            "test_data_json",
+            "mapping_profile_json",
+            "processing_recipe_json",
+            "neutral_material_json",
+            "neutral_solver_mapping_report",
+            "neutral_solver_card_native",
+        }
+        component_kinds = {
+            component.get("source", {}).get("kind")
+            for component in polymer_selection_content.get("members", [])
+            if isinstance(component, Mapping)
+        }
+        if not required_kinds <= component_kinds:
+            raise RuntimeError("polymer Bulk ZIP omits a Recipe-to-card representation")
         result["polymer_processing_journey"] = {
+            "processing_recipe_id": polymer_recipe["processing_recipe_id"],
+            "processing_batch_id": polymer_batch["batch_id"],
             "processing_output_id": polymer_output["processing_output_id"],
             "material_model_id": processed_model["material_model_id"],
             "selected_term_count": len(terms),
             "neutral_material_id": polymer_neutral_id,
+            "bulk_bundle_id": polymer_bundle_id,
+            "bulk_component_count": polymer_bundle["component_count"],
             "solver_cards": polymer_native_cards,
         }
 
         metal = next(
-            item
-            for item in materials
-            if _content(item).get("material_code") == "CMP-DEMO-DP780"
+            item for item in materials if _content(item).get("material_code") == "CMP-DEMO-DP780"
         )
         metal_id = str(metal["material_id"])
         tables = _items(_json(client.get("/catalog/tables")))
         table = next(
-            item
-            for item in tables
-            if _content(item).get("key") == "demo_material_records"
+            item for item in tables if _content(item).get("key") == "demo_material_records"
         )
         searched = _json(
             client.post(
@@ -297,9 +363,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
 
         documents = _items(_json(client.get("/test-data-documents")))
         document = next(
-            item
-            for item in documents
-            if item.get("document_key") == "CMP-DEMO-DP780-TEST-JSON"
+            item for item in documents if item.get("document_key") == "CMP-DEMO-DP780-TEST-JSON"
         )
         document_revision = document.get("current_revision")
         if not isinstance(document_revision, Mapping):
@@ -333,9 +397,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         if batch.get("status") != "succeeded":
             raise RuntimeError("clean demo Processing Batch did not succeed")
 
-        candidates = _items(
-            _json(client.get(f"/bulk-export-candidates?material_id={metal_id}"))
-        )
+        candidates = _items(_json(client.get(f"/bulk-export-candidates?material_id={metal_id}")))
         neutral_source = next(
             candidate["source"]
             for candidate in candidates
@@ -349,9 +411,10 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             raise RuntimeError("clean demo selected Neutral JSON is not the metal family")
         neutral_download = client.get(f"/neutral-materials/{neutral_id}/download")
         neutral_download.raise_for_status()
-        if hashlib.sha256(neutral_download.content).hexdigest() != neutral["document_artifact"][
-            "sha256"
-        ]:
+        if (
+            hashlib.sha256(neutral_download.content).hexdigest()
+            != neutral["document_artifact"]["sha256"]
+        ):
             raise RuntimeError("downloaded Neutral JSON digest does not match its Artifact")
 
         neutral_cards = _items(_json(client.get(f"/neutral-materials/{neutral_id}/solver-cards")))
@@ -371,23 +434,33 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 raise RuntimeError(f"downloaded {solver} card digest does not match")
             native_downloads[solver] = actual
 
-        job = next(
-            item
-            for item in _items(_json(client.get("/export-jobs")))
-            if item.get("state") == "succeeded" and item.get("bundle_id")
-        )
+        job = None
+        for candidate_job in _items(_json(client.get("/export-jobs"))):
+            selection_id = candidate_job.get("export_selection_id")
+            if not isinstance(selection_id, str):
+                continue
+            candidate_selection = _json(client.get(f"/export-selections/{selection_id}"))
+            candidate_content = candidate_selection.get("current_revision", {}).get("content", {})
+            if (
+                isinstance(candidate_content, Mapping)
+                and candidate_content.get("selection_label")
+                == "CMP clean demo complete governed transfer"
+                and candidate_job.get("state") == "succeeded"
+                and candidate_job.get("bundle_id")
+            ):
+                job = candidate_job
+                break
+        if job is None:
+            raise RuntimeError("clean demo metal Bulk ZIP was not generated")
         bundle_id = str(job["bundle_id"])
         bundle = _json(client.get(f"/export-bundles/{bundle_id}"))
-        authorization = _json(
-            client.post(f"/export-bundles/{bundle_id}/download-authorizations")
-        )
+        authorization = _json(client.post(f"/export-bundles/{bundle_id}/download-authorizations"))
         parsed_base = httpx.URL(base_url)
         authority = parsed_base.host
         if parsed_base.port is not None:
             authority = f"{authority}:{parsed_base.port}"
         transfer_url = (
-            f"{parsed_base.scheme}://{authority}/"
-            f"{str(authorization['transfer_url']).lstrip('/')}"
+            f"{parsed_base.scheme}://{authority}/{str(authorization['transfer_url']).lstrip('/')}"
         )
         archive = httpx.get(
             transfer_url,

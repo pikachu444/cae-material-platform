@@ -129,6 +129,7 @@
 | `FR-BAT-004` | 실패한 member만 동일 입력으로 재실행할 수 있어야 한다. | retry가 성공 결과를 중복 생성하지 않고 attempt를 기록한다. |
 | `FR-BAT-005` | batch 결과는 success/failure/warning과 output revision을 항목별로 제공해야 한다. | API와 Batch Monitor count가 일치한다. |
 | `FR-BAT-006` | deterministic Recipe는 동일 입력에서 tolerance 내 동일 결과를 내야 한다. | batch regression fixture가 재현된다. |
+| `FR-BAT-007` | Recipe Batch가 만든 Output을 모델로 승격할 때 exact Recipe/Batch/Member/Attempt/Output revision을 끝까지 보존해야 한다. | IR evidence와 Neutral JSON의 Recipe pin이 성공한 Attempt의 Output과 일치하지 않으면 DB와 API가 거부한다. |
 | `FR-CAL-001` | Material Model과 Calibrator를 분리해야 한다. | 동일 model evaluator에 서로 다른 calibrator를 적용한다. |
 | `FR-CAL-002` | calibration plan은 inputs, parameters, bounds, objective, weighting, constraints, seed를 고정해야 한다. | run manifest만으로 설정을 재구성한다. |
 | `FR-CAL-003` | plugin/package/container digest와 source commit, dependency lock을 기록해야 한다. | 이름·semantic version이 같아도 digest가 다른 실행을 구분한다. |

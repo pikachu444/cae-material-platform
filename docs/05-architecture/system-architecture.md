@@ -27,6 +27,10 @@ T-66부터 탐색은 단방향 route가 아니다. `domain kind + stable object 
 bounded Workflow graph를 표시한다. 역조회는 현재 권한의 `catalog.read` RLS 범위 안에서만 동작하며
 domain payload를 Catalog module로 복제하지 않는다.
 
+T-69 polymer 경로에서는 Processing이 성공한 Batch Attempt의 exact Output을 Recipe revision으로
+해석하는 read port를 소유한다. Modeling은 이 port만 소비하고 Processing 테이블을 직접 조회하지
+않는다. IR은 Recipe/Batch 실행 evidence를 저장하고 Neutral JSON은 exact Recipe pin을 교환한다.
+
 ## 2. 모듈형 모놀리스 대 마이크로서비스
 
 | 기준 | 모듈형 모놀리스 | 초기 마이크로서비스 |

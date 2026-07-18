@@ -632,11 +632,12 @@ def create_app(
             services.authorization, Permission.PROCESSING_EXECUTE
         ),
     )
+    resolved_common_batches = build_common_batch_service(
+        services, resolved_common_recipes, resolved_common_outputs
+    )
     install_common_batch_api(
         application,
-        service=build_common_batch_service(
-            services, resolved_common_recipes, resolved_common_outputs
-        ),
+        service=resolved_common_batches,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ
@@ -747,7 +748,10 @@ def create_app(
     resolved_linear_viscoelastic = (
         linear_viscoelastic_model_service
         or build_linear_viscoelastic_model_service(
-            services, resolved_material_models, resolved_common_outputs
+            services,
+            resolved_material_models,
+            resolved_common_outputs,
+            resolved_common_batches,
         )
     )
     install_linear_viscoelastic_api(

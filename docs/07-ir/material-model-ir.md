@@ -439,6 +439,7 @@ model authority. The document contains:
 - document/schema version, organization/project/classification and content digest;
 - exact Material/State/Test/Dataset revision references and source artifact digests;
 - exact Mapping Profile and Processing Recipe revisions;
+- common Batch가 생성한 Output이면 exact Batch/Member/successful Attempt와 Recipe digest;
 - ordered processing methods/options and raw/normalized/processed/fitted/extrapolated curve stages;
 - calibration candidates, selected candidate/reason, bounds, objective, prediction and residual;
 - characterized, fitted and extrapolated domains;
