@@ -3005,6 +3005,61 @@ export interface NeutralMaterialResponse {
   links: { self: string; download: string };
 }
 
+export interface NeutralHyperelasticMappingReport {
+  mapping_report_sha256: string;
+  exportable: boolean;
+  report: {
+    neutral_material_id: string;
+    neutral_material_revision_id: string;
+    neutral_material_sha256: string;
+    model_schema_digest: string;
+    family: HyperelasticFamily;
+    target: ExportTarget;
+    items: MappingItem[];
+    exporter: {
+      id: string;
+      version: string;
+      digest: string;
+      documentation_url: string;
+    };
+    non_production: true;
+  };
+}
+
+export interface NeutralHyperelasticSolverCardResponse {
+  solver_card_id: string;
+  neutral_material_id: string;
+  target: ExportTarget;
+  current_revision: RevisionMetadata & {
+    content: {
+      neutral_material_id: string;
+      neutral_material_revision_id: string;
+      neutral_material_sha256: string;
+      model_schema_digest: string;
+      family: HyperelasticFamily;
+      target: ExportTarget;
+      solver_material_id: number;
+      material_name: string;
+      density_kg_per_m3: number;
+      constitutive_model: Record<string, unknown>;
+      applicability: {
+        engineering_strain: { minimum: number; maximum: number; unit: "1" };
+      };
+      mapping_statuses: Record<string, MappingStatus>;
+      mapping_report_sha256: string;
+      card_sha256: string;
+      exporter: { id: string; version: string; digest: string };
+      non_production: true;
+    };
+  };
+  links: {
+    self: string;
+    mapping_report: string;
+    preview: string;
+    download: string;
+  };
+}
+
 export interface OgdenPronyMappingResponse {
   mapping_report_sha256: string;
   exportable: boolean;

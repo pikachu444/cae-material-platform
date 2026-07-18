@@ -1807,6 +1807,37 @@ dd {
   font-size: 0.7rem;
 }
 
+.neutral-solver-export .compact-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.neutral-solver-export .mapping-report-heading > div,
+.neutral-solver-export .acknowledgement-control {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.neutral-solver-export .acknowledgement-control {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  padding: 0.65rem;
+  border: 1px solid #e6b3a8;
+  border-radius: 7px;
+  background: #fff8f5;
+}
+
+.neutral-solver-export .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+@media (max-width: 760px) {
+  .neutral-solver-export .compact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .mapping-list,
 .solver-card-list {
   display: grid;

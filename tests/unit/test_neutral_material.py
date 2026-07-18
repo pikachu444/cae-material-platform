@@ -1,8 +1,16 @@
 import json
 from dataclasses import replace
+from typing import cast
 from uuid import UUID
 
 import pytest
+from cmp.modules.exporting.domain.neutral_hyperelastic import (
+    NeutralHyperelasticExportTarget,
+    NeutralHyperelasticMappingReportMismatch,
+    build_neutral_hyperelastic_solver_card,
+    neutral_hyperelastic_capability_manifest,
+    preflight_neutral_hyperelastic_export,
+)
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticFamily
 from cmp.modules.modeling.domain.neutral_material import (
     CurveStage,
@@ -176,3 +184,84 @@ def test_neutral_material_requires_all_observed_predicted_and_residual_stages() 
                 curve for curve in document.curves if curve.stage is not CurveStage.RESIDUAL
             ),
         )
+
+
+@pytest.mark.parametrize("family", tuple(HyperelasticFamily))
+@pytest.mark.parametrize("solver", ("abaqus", "openradioss"))
+def test_neutral_hyperelastic_preflight_and_card_cover_declared_families(
+    family: HyperelasticFamily, solver: str
+) -> None:
+    parameters = {
+        HyperelasticFamily.NEO_HOOKEAN: lambda: NeutralHyperelasticParameters(
+            family, c10_pa=1_000_000.0
+        ),
+        HyperelasticFamily.MOONEY_RIVLIN: lambda: NeutralHyperelasticParameters(
+            family, c10_pa=800_000.0, c01_pa=200_000.0
+        ),
+        HyperelasticFamily.YEOH: lambda: NeutralHyperelasticParameters(
+            family, c10_pa=1_000_000.0, c20_pa=-20_000.0, c30_pa=3_000.0
+        ),
+        HyperelasticFamily.OGDEN_1: lambda: NeutralHyperelasticParameters(
+            family, mu_pa=2_000_000.0, alpha=2.5
+        ),
+    }[family]()
+    source = _document(parameters=parameters)
+    target = NeutralHyperelasticExportTarget(solver, "2025", "kg_m_s")
+
+    report = preflight_neutral_hyperelastic_export(
+        neutral_material_id=source.document_id,
+        neutral_material_revision_id=source.material_model_ir.model.revision_id,
+        source=source,
+        target=target,
+    )
+    _, card = build_neutral_hyperelastic_solver_card(
+        neutral_material_id=source.document_id,
+        neutral_material_revision_id=source.material_model_ir.model.revision_id,
+        source=source,
+        target=target,
+        expected_mapping_report_sha256=report.digest,
+        solver_material_id=301,
+        material_name="ELASTOMER_REFERENCE",
+    )
+
+    assert report.exportable
+    assert card.card_text.endswith("\n")
+    assert card.canonical()["family"] == family.value
+    assert ("*HYPERELASTIC" in card.card_text) is (solver == "abaqus")
+    assert ("/MAT/LAW" in card.card_text) is (solver == "openradioss")
+
+
+def test_neutral_hyperelastic_openradioss_mappings_expose_transform_and_approximation() -> None:
+    source = _document()
+    report = preflight_neutral_hyperelastic_export(
+        neutral_material_id=source.document_id,
+        neutral_material_revision_id=source.material_model_ir.model.revision_id,
+        source=source,
+        target=NeutralHyperelasticExportTarget("openradioss", "2025", "kg_m_s"),
+    )
+
+    statuses = {item.name: item.status for item in report.items}
+    assert statuses["constitutive_parameters"] == "transformed"
+    assert statuses["volumetric_response"] == "approximated"
+
+
+def test_neutral_hyperelastic_card_requires_acknowledged_current_report() -> None:
+    source = _document()
+    with pytest.raises(NeutralHyperelasticMappingReportMismatch):
+        build_neutral_hyperelastic_solver_card(
+            neutral_material_id=source.document_id,
+            neutral_material_revision_id=source.material_model_ir.model.revision_id,
+            source=source,
+            target=NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s"),
+            expected_mapping_report_sha256="0" * 64,
+            solver_material_id=301,
+            material_name="ELASTOMER_REFERENCE",
+        )
+
+
+def test_neutral_hyperelastic_capability_manifest_is_digest_pinned() -> None:
+    manifest = neutral_hyperelastic_capability_manifest()
+    capabilities = cast(list[object], manifest["capabilities"])
+
+    assert len(capabilities) == 8
+    assert len(str(manifest["manifest_sha256"])) == 64

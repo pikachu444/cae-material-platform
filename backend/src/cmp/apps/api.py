@@ -28,6 +28,7 @@ from cmp.bootstrap.exporting import (
     build_bulk_export_service,
     build_elastoplastic_solver_card_service,
     build_linear_viscoelastic_solver_card_service,
+    build_neutral_hyperelastic_solver_card_service,
     build_ogden_prony_solver_card_service,
     build_solver_card_service,
 )
@@ -106,6 +107,9 @@ from cmp.modules.exporting.adapters.api.elastoplastic_solver_cards import (
 from cmp.modules.exporting.adapters.api.linear_viscoelastic_solver_cards import (
     install_linear_viscoelastic_solver_card_api,
 )
+from cmp.modules.exporting.adapters.api.neutral_hyperelastic_solver_cards import (
+    install_neutral_hyperelastic_solver_card_api,
+)
 from cmp.modules.exporting.adapters.api.ogden_prony_solver_cards import (
     install_ogden_prony_solver_card_api,
 )
@@ -116,6 +120,9 @@ from cmp.modules.exporting.application.elastoplastic_service import (
 )
 from cmp.modules.exporting.application.linear_viscoelastic_service import (
     LinearViscoelasticSolverCardService,
+)
+from cmp.modules.exporting.application.neutral_hyperelastic_service import (
+    NeutralHyperelasticSolverCardService,
 )
 from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
 from cmp.modules.exporting.application.service import SolverCardService
@@ -294,6 +301,7 @@ def create_app(
     elastoplastic_solver_card_service: ElastoplasticSolverCardService | None = None,
     linear_viscoelastic_solver_card_service: LinearViscoelasticSolverCardService | None = None,
     ogden_prony_solver_card_service: OgdenPronySolverCardService | None = None,
+    neutral_hyperelastic_solver_card_service: NeutralHyperelasticSolverCardService | None = None,
     bulk_export_service: BulkExportService | None = None,
     validation_service: ReferenceValidationService | None = None,
     voce_holdout_service: ReferenceVoceHoldoutService | None = None,
@@ -1026,6 +1034,21 @@ def create_app(
             services.authorization, Permission.EXPORT_EXECUTE
         ),
     )
+    resolved_neutral_hyperelastic_solver_cards = (
+        neutral_hyperelastic_solver_card_service
+        or build_neutral_hyperelastic_solver_card_service(services, resolved_neutral_material)
+    )
+    install_neutral_hyperelastic_solver_card_api(
+        application,
+        service=resolved_neutral_hyperelastic_solver_cards,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_EXECUTE
+        ),
+    )
     resolved_bulk_exports = bulk_export_service or build_bulk_export_service(
         services,
         resolved_artifacts,
@@ -1142,6 +1165,9 @@ def create_app(
         resolved_linear_viscoelastic_solver_cards
     )
     application.state.ogden_prony_solver_card_service = resolved_ogden_prony_solver_cards
+    application.state.neutral_hyperelastic_solver_card_service = (
+        resolved_neutral_hyperelastic_solver_cards
+    )
     application.state.validation_service = resolved_validation
     application.state.voce_holdout_service = resolved_voce_holdout
     application.state.review_service = resolved_review

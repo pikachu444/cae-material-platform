@@ -18,9 +18,9 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | T-55M/T-55P/T-55E calculation workbenches implemented: metal hardening, polymer generalized-Maxwell/master-curve processing, and elastomer multi-mode Neo-Hookean/Mooney-Rivlin/Yeoh/Ogden comparison with immutable residual evidence. Hyperelastic family-neutral promotion is implemented; broader family promotion and solver mappings remain delivery tasks. | T-57 |
-| Neutral Material exchange JSON | T-56 implemented for reviewed hyperelastic family Candidates: deterministic validate/import/export, exact evidence pins, curve stages and typed solver-neutral IR | T-57 consumption |
-| Abaqus/OpenRadioss native cards | implemented for declared bounded reference mappings | T-57 extension |
+| Metal/Polymer/Elastomer modeling | T-55M/T-55P/T-55E calculation workbenches implemented: metal hardening, polymer generalized-Maxwell/master-curve processing, and elastomer multi-mode Neo-Hookean/Mooney-Rivlin/Yeoh/Ogden comparison with immutable residual evidence. Reviewed hyperelastic families flow through Neutral JSON to explicit native cards. | T-58 package |
+| Neutral Material exchange JSON | T-56/T-57 implemented for reviewed hyperelastic family Candidates: deterministic validate/import/export, exact evidence pins, curve stages, typed solver-neutral IR and exact-revision solver consumption | T-58 package |
+| Abaqus/OpenRadioss native cards | T-57 complete for four declared hyperelastic families plus earlier bounded linear/elastoplastic/viscoelastic mappings | T-58 package |
 | Canonical JSON Bulk Package | immutable Bundle exists; new JSON profile is missing | T-58 |
 | Administrator/User feature grants | missing; fine-grained internal permissions exist | T-59 |
 
@@ -30,10 +30,22 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-57`: consume canonical Neutral Material IR through explicit versioned Abaqus/OpenRadioss
-  capability manifests, six-state preflight and native ASCII card artifacts.
+- `T-58`: assemble the exact Test JSON, Mapping Profile, Processing Recipe, Neutral Material JSON,
+  mapping report and native solver card into one deterministic checksum-verifiable package.
 
 ## Completed
+
+- `T-57`: canonical Neutral Material revisions now drive an explicit versioned eight-entry
+  Abaqus/OpenRadioss capability manifest. Migration 072 stores an immutable card identity/revision
+  with a composite tenant/classification foreign key to the exact Neutral revision, typed family
+  coefficients, all six mapping states, report/card hashes and native ASCII; no generic parameter
+  payload is authoritative. Abaqus 2025 emits direct `*HYPERELASTIC` forms for Neo-Hookean,
+  Mooney--Rivlin, Yeoh and one-term Ogden. OpenRadioss 2025 uses LAW94 for Neo-Hookean/Yeoh and
+  LAW82 for Mooney--Rivlin/Ogden; exact coefficient transformations and LAW82's explicit `nu=0.495`
+  approximation are visible before creation. The connected UI requires a current mapping-report
+  SHA-256 and explicit acknowledgement when an approximation is present, then exposes preview,
+  native `.inp`/`.rad` download and the JSON sidecar. Actual solver execution validation remains
+  deliberately outside this Task.
 
 - `T-56`: a reviewed Neo-Hookean, Mooney--Rivlin, Yeoh or one-term Ogden family Candidate can be
   promoted into a new stable Neutral Material identity and immutable revision. Migration 071 stores

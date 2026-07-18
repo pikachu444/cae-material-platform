@@ -285,7 +285,8 @@ async def _exercise() -> None:
         assert imported.json()["neutral_material_revision_id"] == str(REVISION)
 
         tampered = DOCUMENT.canonical()
-        tampered["candidate_selection"]["reason"] = "Tampered reason"
+        candidate_selection = cast(dict[str, object], tampered["candidate_selection"])
+        candidate_selection["reason"] = "Tampered reason"
         rejected = await client.post("/api/v1/neutral-materials:validate", json=tampered)
         assert rejected.status_code == 422
 

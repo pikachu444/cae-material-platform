@@ -34,6 +34,7 @@ import type {
   ScientificProfileResponse,
   TestRunResponse,
 } from "./types";
+import { NeutralHyperelasticExport } from "./neutral-hyperelastic-export";
 
 const MODE_BY_SCHEMA: Partial<Record<GovernedDatasetResponse["data_schema"], OgdenTestMode>> = {
   monotonic_tension: "uniaxial_tension",
@@ -757,6 +758,9 @@ export function ReferenceOgdenCalibrationWorkbench({
             </div>
           ) : null}
         </section>
+      ) : null}
+      {neutralMaterial ? (
+        <NeutralHyperelasticExport config={config} neutralMaterial={neutralMaterial} />
       ) : null}
       {diagnostics ? <OgdenDiagnosticsPlot value={diagnostics} /> : null}
       {run && selectedCandidateId ? (

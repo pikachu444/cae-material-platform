@@ -78,6 +78,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260904_069_T55E_hyperelastic_families.py",
         "20260905_070_T55E_hyperelastic_diagnostics.py",
         "20260906_071_T56_neutral_material.py",
+        "20260907_072_T57_neutral_solver_cards.py",
     ]
 
 

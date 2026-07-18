@@ -10,6 +10,11 @@
 Catalog tree/search/link → Test Data JSON → Mapping Profile
 → saved Processing Recipe / Batch → Neutral Material JSON
 → Abaqus/OpenRadioss mapping report → native material card
+
+검토한 Neo-Hookean, Mooney--Rivlin, Yeoh 또는 one-term Ogden Candidate는 canonical Neutral
+Material JSON으로 승격한 뒤, 같은 화면에서 Abaqus/OpenRadioss 2025 mapping 상태를 검토하고
+native ASCII card와 JSON sidecar를 내려받을 수 있습니다. 근사 mapping은 명시적 확인 전에는
+카드를 만들 수 없으며 실제 solver 실행 검증은 별도 후속 범위입니다.
 ```
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling

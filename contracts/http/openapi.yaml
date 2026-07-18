@@ -7976,6 +7976,159 @@ paths:
         "404": {description: Neutral Material is not visible.}
         "409": {description: Stored Artifact digest or revision pin conflicts.}
         "503": {description: Modeling service unavailable.}
+  /api/v1/neutral-hyperelastic-export-capabilities:
+    get:
+      operationId: getNeutralHyperelasticExportCapabilities
+      tags: [exporting]
+      summary: Read the versioned Abaqus/OpenRadioss family capability manifest.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Digest-pinned reference capability matrix and official documentation links.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/CapabilityManifest"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+  /api/v1/neutral-materials/{neutral_material_id}/solver-card-preflight:
+    post:
+      operationId: preflightNeutralHyperelasticSolverCard
+      tags: [exporting]
+      summary: Classify every mapping before generating a native hyperelastic card.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: neutral_material_id, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/PreflightRequest"}
+      responses:
+        "200":
+          description: Six-state mapping report with acknowledgement digest.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/MappingReportResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Exact Neutral Material revision is not visible.}
+        "409": {description: Source evidence conflicts.}
+        "422": {description: Target is unsupported or malformed.}
+        "503": {description: Export service unavailable.}
+  /api/v1/neutral-materials/{neutral_material_id}/solver-cards:
+    parameters:
+      - {name: neutral_material_id, in: path, required: true, schema: {type: string, format: uuid}}
+    get:
+      operationId: listNeutralHyperelasticSolverCards
+      tags: [exporting]
+      summary: List immutable cards generated from one Neutral Material identity.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Visible native card revisions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/CardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+    post:
+      operationId: createNeutralHyperelasticSolverCard
+      tags: [exporting]
+      summary: Generate native ASCII only after acknowledging the current mapping report.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/CreateRequest"}
+      responses:
+        "201":
+          description: Immutable native solver card revision.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/CardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export execute is not authorized.}
+        "404": {description: Exact Neutral Material revision is not visible.}
+        "409": {description: Mapping report is stale or source evidence conflicts.}
+        "422": {description: Card request violates the declared capability.}
+        "503": {description: Export service unavailable.}
+  /api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}:
+    get:
+      operationId: getNeutralHyperelasticSolverCard
+      tags: [exporting]
+      summary: Read one immutable Neutral Material solver card.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Card metadata and exact source pins.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/CardResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
+  /api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/mapping-report:
+    get:
+      operationId: getNeutralHyperelasticMappingReport
+      tags: [exporting]
+      summary: Reproduce the exact mapping report sidecar pinned by a card.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Reproduced report whose digest equals the card pin.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/MappingReportResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card or source is not visible.}
+        "409": {description: Reproduced report does not match the immutable card.}
+  /api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/preview:
+    get:
+      operationId: previewNeutralHyperelasticSolverCard
+      tags: [exporting]
+      summary: Preview exact stored Abaqus `.inp` or OpenRadioss `.rad` text.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: Exact native card text, content: {text/plain: {schema: {type: string}}}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
+  /api/v1/neutral-hyperelastic-solver-cards/{solver_card_id}/download:
+    get:
+      operationId: downloadNeutralHyperelasticSolverCard
+      tags: [exporting]
+      summary: Download exact native card bytes with card and mapping-report digests.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: solver_card_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: Exact `.inp` or `.rad` attachment.
+          headers:
+            Content-Disposition: {schema: {type: string}}
+            X-CMP-Card-Sha256: {schema: {type: string, pattern: '^[0-9a-f]{64}$'}}
+            X-CMP-Mapping-Report-Sha256: {schema: {type: string, pattern: '^[0-9a-f]{64}$'}}
+          content:
+            text/plain: {schema: {type: string}}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404": {description: Card is not visible.}
   /api/v1/ogden-candidate-selections:
     post:
       operationId: createReferenceOgdenCandidateSelection

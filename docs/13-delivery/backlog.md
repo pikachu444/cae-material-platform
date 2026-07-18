@@ -1424,6 +1424,13 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   ASCII preview/download와 기존 exporter 확장.
 - **완료 조건:** silent default/approximation 없이 각 지원 family의 card와 sidecar를 생성한다.
 - **테스트:** approved semantic/golden fixture, parser/syntax hook와 unsupported negative.
+- **상태:** `complete` for the declared reference scope. Migration 072 and the protected API pin an
+  exact Neutral Material revision and persist typed family coefficients, six-state mapping evidence,
+  card/report digests and native ASCII. Abaqus 2025 supports direct Neo-Hookean, Mooney--Rivlin,
+  Yeoh and one-term Ogden keywords. OpenRadioss 2025 maps Neo-Hookean/Yeoh to LAW94 and
+  Mooney--Rivlin/Ogden to LAW82; coefficient transforms and the explicit LAW82 `nu=0.495`
+  approximation are never silent. The connected workbench requires preflight digest acknowledgement
+  and provides preview, native download and mapping-report JSON. Actual solver execution is excluded.
 
 #### T-58. Canonical Bulk JSON package — `P0`
 
