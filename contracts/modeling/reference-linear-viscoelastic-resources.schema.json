@@ -12,7 +12,7 @@
         "revision_no": {"type": "integer", "minimum": 1},
         "based_on_revision_id": {"type": ["string", "null"], "format": "uuid"},
         "schema_id": {"type": "string", "minLength": 1, "maxLength": 255},
-        "schema_version": {"enum": ["1.0.0", "1.1.0"]},
+        "schema_version": {"enum": ["1.0.0", "1.1.0", "1.2.0"]},
         "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "created_at": {"type": "string", "format": "date-time"},
         "created_by": {"$ref": "#/$defs/Uuid"},
@@ -28,7 +28,7 @@
       "additionalProperties": false,
       "required": ["ordinal", "g_ratio", "k_ratio", "relaxation_time_s"],
       "properties": {
-        "ordinal": {"type": "integer", "minimum": 1, "maximum": 5},
+        "ordinal": {"type": "integer", "minimum": 1, "maximum": 10},
         "g_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
         "k_ratio": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
         "relaxation_time_s": {"type": "number", "exclusiveMinimum": 0}
@@ -40,7 +40,7 @@
       "required": ["model_family_id", "model_schema_version", "model_schema_digest", "material_id", "material_revision_id", "material_state_id", "material_state_revision_id", "property_set_id", "property_set_revision_id", "density_kg_per_m3", "youngs_modulus_pa", "poisson_ratio", "elastic_moduli_convention", "bulk_relaxation_status", "terms", "reference_temperature_k", "non_production"],
       "properties": {
         "model_family_id": {"const": "urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0"},
-        "model_schema_version": {"enum": ["1.0.0", "1.1.0"]},
+        "model_schema_version": {"enum": ["1.0.0", "1.1.0", "1.2.0"]},
         "model_schema_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
         "material_id": {"$ref": "#/$defs/Uuid"},
         "material_revision_id": {"$ref": "#/$defs/Uuid"},
@@ -53,7 +53,7 @@
         "poisson_ratio": {"type": "number", "exclusiveMinimum": -1, "exclusiveMaximum": 0.5},
         "elastic_moduli_convention": {"const": "instantaneous"},
         "bulk_relaxation_status": {"enum": ["characterized", "not_characterized"]},
-        "terms": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"$ref": "#/$defs/PronyTerm"}},
+        "terms": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"$ref": "#/$defs/PronyTerm"}},
         "reference_temperature_k": {"type": "number", "exclusiveMinimum": 0},
         "non_production": {"const": true},
         "prony_promotion_evidence": {
@@ -68,7 +68,44 @@
             "diagnostics_artifact_id": {"$ref": "#/$defs/Uuid"},
             "diagnostics_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
           }
+        },
+        "processing_promotion_evidence": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["processing_output", "source_test_data", "mapping_profile", "selection_mode", "selected_term_count", "normalized_rmse", "bic", "fitted_instantaneous_shear_modulus_pa", "catalog_instantaneous_shear_modulus_pa", "instantaneous_modulus_relative_mismatch", "acknowledged_maximum_relative_mismatch"],
+          "properties": {
+            "processing_output": {"$ref": "#/$defs/ExactDigestRevision"},
+            "source_test_data": {"$ref": "#/$defs/ExactRevision"},
+            "mapping_profile": {"$ref": "#/$defs/ExactRevision"},
+            "selection_mode": {"enum": ["automatic_bic", "manual"]},
+            "selected_term_count": {"type": "integer", "minimum": 1, "maximum": 10},
+            "normalized_rmse": {"type": "number", "minimum": 0},
+            "bic": {"type": "number"},
+            "fitted_instantaneous_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+            "catalog_instantaneous_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+            "instantaneous_modulus_relative_mismatch": {"type": "number", "minimum": 0},
+            "acknowledged_maximum_relative_mismatch": {"type": "number", "minimum": 0, "maximum": 1}
+          }
         }
+      }
+    },
+    "ExactRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "revision_id"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"}
+      }
+    },
+    "ExactDigestRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "revision_id", "sha256"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
       }
     },
     "Revision": {
@@ -103,6 +140,19 @@
         "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
         "bulk_relaxation_status": {"enum": ["characterized", "not_characterized"]},
         "terms": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"$ref": "#/$defs/PronyTermInput"}},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProcessingOutputPromotionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_state_id", "property_set_revision_id", "processing_output_revision_id", "acknowledged_maximum_relative_mismatch", "review_acknowledged", "change_reason"],
+      "properties": {
+        "material_state_id": {"$ref": "#/$defs/Uuid"},
+        "property_set_revision_id": {"$ref": "#/$defs/Uuid"},
+        "processing_output_revision_id": {"$ref": "#/$defs/Uuid"},
+        "acknowledged_maximum_relative_mismatch": {"type": "number", "minimum": 0, "maximum": 1},
+        "review_acknowledged": {"const": true},
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },

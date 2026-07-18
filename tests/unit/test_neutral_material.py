@@ -39,11 +39,15 @@ from cmp.modules.modeling.domain.neutral_material import (
     NeutralMaterialDocument,
     NeutralProcessingSelection,
     NeutralPronyOverlay,
+    NeutralPronyProcessingSelection,
     NeutralPronyTerm,
     NeutralTestMode,
     OptionalRevisionEvidence,
     RevisionReference,
     neutral_material_from_json_bytes,
+)
+from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
+    REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
 )
 from jsonschema import Draft202012Validator
 
@@ -391,6 +395,112 @@ def test_polymer_neutral_material_round_trip_preserves_generalized_maxwell_terms
     )
     assert not blocked.exportable
     assert blocked.items[0].status == "unsupported"
+
+
+def test_processed_polymer_neutral_round_trip_exports_ten_term_abaqus_card() -> None:
+    source = _document()
+    dataset = source.source_datasets[0].dataset
+    terms = tuple(
+        NeutralPronyTerm(index, 0.05, 0.0, float(index)) for index in range(1, 11)
+    )
+    polymer = replace(
+        source,
+        calibration_plan=OptionalRevisionEvidence(
+            EvidenceStatus.NOT_APPLICABLE,
+            "The exact Processing Output is not a Calibration Plan.",
+        ),
+        scientific_profile=OptionalRevisionEvidence(
+            EvidenceStatus.NOT_APPLICABLE,
+            "Versioned Processing steps retain numerical options.",
+        ),
+        mapping_profile=OptionalRevisionEvidence(
+            EvidenceStatus.EXACT_REVISION,
+            "The Processing Output pins this Mapping Profile revision.",
+            _reference(13),
+        ),
+        source_datasets=(
+            replace(
+                source.source_datasets[0],
+                role=NeutralDatasetRole.PROCESSING_INPUT,
+                test_mode=NeutralTestMode.STRESS_RELAXATION,
+                source_kind=NeutralDatasetKind.TEST_DATA_DOCUMENT,
+            ),
+        ),
+        curves=tuple(
+            NeutralCurve(
+                stage=stage,
+                dataset_revision_id=dataset.revision_id,
+                test_mode=NeutralTestMode.STRESS_RELAXATION,
+                x_quantity="time",
+                x_unit="s",
+                y_quantity=(
+                    "modulus.shear.residual"
+                    if stage is CurveStage.RESIDUAL
+                    else "modulus.prony.selected"
+                    if stage is CurveStage.FITTED
+                    else "modulus.shear.relaxation"
+                ),
+                y_unit="Pa",
+                x=(0.1, 1.0, 10.0),
+                y=(1.2e9, 0.9e9, 0.7e9),
+            )
+            for stage in HYPERELASTIC_CURVE_STAGES
+        ),
+        selection=NeutralPronyProcessingSelection(
+            processing_output=_reference(17),
+            processing_output_sha256=DIGEST_B,
+            reason="Reviewed automatic BIC selection and modulus consistency.",
+            selected_series="modulus.prony.selected",
+            selection_mode="automatic_bic",
+            selected_term_count=10,
+            normalized_rmse=0.012,
+            bic=-41.5,
+            fitted_instantaneous_shear_modulus_pa=1.2e9,
+            catalog_instantaneous_shear_modulus_pa=1.19e9,
+            instantaneous_modulus_relative_mismatch=0.0084,
+            acknowledged_maximum_relative_mismatch=0.05,
+        ),
+        material_model_ir=NeutralLinearViscoelasticIR(
+            model=_reference(20),
+            schema_id="urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.2.0",
+            schema_version="1.2.0",
+            model_schema_digest=REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
+            density_kg_per_m3=1180.0,
+            youngs_modulus_pa=2.4e9,
+            poisson_ratio=0.38,
+            bulk_relaxation_status="not_characterized",
+            terms=terms,
+            reference_temperature_k=296.15,
+        ),
+        applicable_strain_min=None,
+        applicable_strain_max=None,
+        applicable_time_min_s=0.1,
+        applicable_time_max_s=10.0,
+    )
+
+    decoded = neutral_material_from_json_bytes(polymer.to_json_bytes())
+    Draft202012Validator(NEUTRAL_SCHEMA).validate(polymer.canonical())
+    target = NeutralHyperelasticExportTarget("abaqus", "2025", "kg_m_s")
+    report = preflight_neutral_solver_export(
+        neutral_material_id=polymer.document_id,
+        neutral_material_revision_id=polymer.material_model_ir.model.revision_id,
+        source=decoded,
+        target=target,
+    )
+    _, card = build_neutral_solver_card(
+        neutral_material_id=polymer.document_id,
+        neutral_material_revision_id=polymer.material_model_ir.model.revision_id,
+        source=decoded,
+        target=target,
+        expected_mapping_report_sha256=report.digest,
+        solver_material_id=304,
+        material_name="POLYMER_PROCESSED_REFERENCE",
+    )
+
+    assert decoded == polymer
+    assert "*VISCOELASTIC, TIME=PRONY" in card.card_text
+    prony_lines = card.card_text.split("*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC\n", 1)[1]
+    assert len(prony_lines.strip().splitlines()) == 10
 
 
 def test_hyperelastic_neutral_material_can_pin_an_exact_prony_overlay() -> None:

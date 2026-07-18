@@ -102,6 +102,114 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 "solver_cards": sorted(solvers),
             }
 
+        polymer = next(
+            item
+            for item in materials
+            if _content(item).get("material_code") == "CMP-DEMO-POLYMER-PRONY"
+        )
+        polymer_id = str(polymer["material_id"])
+        polymer_detail = _json(client.get(f"/materials/{polymer_id}"))
+        polymer_states = polymer_detail.get("states")
+        if (
+            not isinstance(polymer_states, list)
+            or not polymer_states
+            or not isinstance(polymer_states[0], Mapping)
+        ):
+            raise RuntimeError("clean demo polymer has no Material State")
+        polymer_state_id = str(polymer_states[0]["material_state_id"])
+        polymer_models = _items(
+            _json(
+                client.get(
+                    f"/material-states/{polymer_state_id}/linear-viscoelastic-models"
+                )
+            )
+        )
+        processed_model = next(
+            (
+                item
+                for item in polymer_models
+                if isinstance(
+                    _content(item).get("processing_promotion_evidence"), Mapping
+                )
+            ),
+            None,
+        )
+        if processed_model is None:
+            raise RuntimeError("clean demo polymer has no Processing-promoted IR")
+        processed_content = _content(processed_model)
+        processing_evidence = processed_content["processing_promotion_evidence"]
+        assert isinstance(processing_evidence, Mapping)
+        terms = processed_content.get("terms")
+        if (
+            not isinstance(terms, list)
+            or not 1 <= len(terms) <= 10
+            or processing_evidence.get("selected_term_count") != len(terms)
+        ):
+            raise RuntimeError("processed polymer IR does not preserve selected Prony terms")
+        polymer_output = next(
+            item
+            for item in _items(_json(client.get("/processing-outputs")))
+            if item.get("label") == "CMP demo reviewed Prony Processing Output"
+        )
+        exact_output = processing_evidence.get("processing_output")
+        if (
+            not isinstance(exact_output, Mapping)
+            or exact_output.get("id") != polymer_output.get("processing_output_id")
+            or exact_output.get("revision_id")
+            != polymer_output.get("current_revision", {}).get("id")
+            or exact_output.get("sha256") != polymer_output.get("output_sha256")
+        ):
+            raise RuntimeError("processed polymer IR does not pin the exact Processing Output")
+        polymer_candidates = _items(
+            _json(client.get(f"/bulk-export-candidates?material_id={polymer_id}"))
+        )
+        polymer_neutral = None
+        for candidate in polymer_candidates:
+            source = candidate.get("source")
+            if not isinstance(source, Mapping) or source.get("kind") != "neutral_material_json":
+                continue
+            candidate_id = source.get("neutral_material_id")
+            if not isinstance(candidate_id, str):
+                continue
+            candidate_neutral = _json(client.get(f"/neutral-materials/{candidate_id}"))
+            selection = candidate_neutral.get("document", {}).get("candidate_selection", {})
+            if (
+                isinstance(selection, Mapping)
+                and selection.get("kind") == "prony_processing_output_selection"
+            ):
+                polymer_neutral = candidate_neutral
+                break
+        if polymer_neutral is None:
+            raise RuntimeError("clean demo polymer has no Processing-selected Neutral JSON")
+        polymer_neutral_id = str(polymer_neutral["neutral_material_id"])
+        polymer_cards = _items(
+            _json(client.get(f"/neutral-materials/{polymer_neutral_id}/solver-cards"))
+        )
+        polymer_card = next(
+            (
+                item
+                for item in polymer_cards
+                if item.get("target", {}).get("solver") == "abaqus"
+            ),
+            None,
+        )
+        if polymer_card is None:
+            raise RuntimeError("clean demo polymer Neutral JSON has no Abaqus card")
+        polymer_native = client.get(
+            f"/neutral-solver-cards/{polymer_card['solver_card_id']}/download"
+        )
+        polymer_native.raise_for_status()
+        if b"*VISCOELASTIC, TIME=PRONY" not in polymer_native.content:
+            raise RuntimeError("clean demo polymer native card omits Abaqus Prony data")
+        result["polymer_processing_journey"] = {
+            "processing_output_id": polymer_output["processing_output_id"],
+            "material_model_id": processed_model["material_model_id"],
+            "selected_term_count": len(terms),
+            "neutral_material_id": polymer_neutral_id,
+            "solver_card_id": polymer_card["solver_card_id"],
+            "solver_card_sha256": hashlib.sha256(polymer_native.content).hexdigest(),
+        }
+
         metal = next(
             item
             for item in materials

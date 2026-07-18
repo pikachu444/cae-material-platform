@@ -3,15 +3,21 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import {
   type ApiConfig,
   createLinearViscoelasticModel,
+  listCommonProcessingOutputs,
   listLinearViscoelasticModels,
   previewLinearViscoelasticResponse,
+  promoteModelToNeutralMaterial,
+  promotePronyProcessingOutput,
 } from "./api";
+import { NeutralSolverExport } from "./neutral-hyperelastic-export";
 import { ReferenceLinearViscoelasticExport } from "./reference-linear-viscoelastic-export";
 import type {
   BulkRelaxationStatus,
+  CommonProcessingOutputResponse,
   LinearViscoelasticModelResponse,
   LinearViscoelasticResponse,
   MaterialStateResponse,
+  NeutralMaterialResponse,
   PropertySetResponse,
 } from "./types";
 
@@ -64,6 +70,11 @@ export function ReferenceLinearViscoelasticWorkbench({
   const [bulkStatus, setBulkStatus] = useState<BulkRelaxationStatus>("not_characterized");
   const [terms, setTerms] = useState<EditableTerm[]>(initialTerms);
   const [reason, setReason] = useState("Create manual reference Prony IR");
+  const [processingOutputs, setProcessingOutputs] = useState<CommonProcessingOutputResponse[]>([]);
+  const [processingOutputId, setProcessingOutputId] = useState("");
+  const [maximumMismatch, setMaximumMismatch] = useState("0.05");
+  const [processingReview, setProcessingReview] = useState(false);
+  const [neutralMaterial, setNeutralMaterial] = useState<NeutralMaterialResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,7 +91,13 @@ export function ReferenceLinearViscoelasticWorkbench({
 
   useEffect(() => {
     setError(null);
-    void reload().catch((cause: unknown) => setError(message(cause)));
+    void Promise.all([reload(), listCommonProcessingOutputs(config)]).then(([, outputs]) => {
+      const promotable = outputs.data.items.filter(
+        (output) => output.steps.at(-1)?.method_id === "polymer.prony_fit_compare",
+      );
+      setProcessingOutputs(promotable);
+      setProcessingOutputId(promotable[0]?.processing_output_id ?? "");
+    }).catch((cause: unknown) => setError(message(cause)));
   }, [config.baseUrl, config.accessToken, state.material_state_id]);
 
   useEffect(() => {
@@ -120,6 +137,51 @@ export function ReferenceLinearViscoelasticWorkbench({
     }
   }
 
+  async function promoteProcessing(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    const output = processingOutputs.find(
+      (candidate) => candidate.processing_output_id === processingOutputId,
+    );
+    if (!output) return;
+    setBusy(true);
+    setError(null);
+    setNeutralMaterial(null);
+    try {
+      const created = await promotePronyProcessingOutput(config, output.processing_output_id, {
+        material_state_id: state.material_state_id,
+        property_set_revision_id: propertySet.current_revision.id,
+        processing_output_revision_id: output.current_revision.id,
+        acknowledged_maximum_relative_mismatch: Number(maximumMismatch),
+        review_acknowledged: processingReview,
+        change_reason: "Promote reviewed Prony Processing Output",
+      });
+      await reload(created.data.material_model_id);
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function promoteNeutral(): Promise<void> {
+    if (!selected) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const promoted = await promoteModelToNeutralMaterial(config, "linear-viscoelastic", {
+        material_model_id: selected.material_model_id,
+        material_model_revision_id: selected.current_revision.id,
+        selection_reason: "Use the reviewed common Processing Output selection",
+        change_reason: "Create reproducible Neutral Material JSON for solver export",
+      });
+      setNeutralMaterial(promoted.data);
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const content = selected?.current_revision.content;
   const path = response ? responsePath(response) : "";
 
@@ -136,6 +198,69 @@ export function ReferenceLinearViscoelasticWorkbench({
         </div>
         <span className="revision-chip">reference · non-production</span>
       </div>
+
+      <form className="viscoelastic-form" onSubmit={promoteProcessing}>
+        <div className="section-heading compact-heading">
+          <div>
+            <p className="eyebrow">Reviewed processing promotion</p>
+            <h4>Processing Output → generalized-Maxwell IR</h4>
+            <p className="muted">
+              Promote the exact saved output from the Prony comparison step. Terms and fit
+              metrics are read again from the immutable server artifact; they cannot be replaced
+              by values from this form.
+            </p>
+          </div>
+        </div>
+        {processingOutputs.length ? (
+          <>
+            <div className="viscoelastic-toolbar">
+              <label>
+                Exact Processing Output
+                <select
+                  value={processingOutputId}
+                  onChange={(event) => setProcessingOutputId(event.target.value)}
+                >
+                  {processingOutputs.map((output) => (
+                    <option key={output.processing_output_id} value={output.processing_output_id}>
+                      {output.label} · {compact(output.current_revision.id)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Reviewed maximum G₀ mismatch
+                <input
+                  aria-label="Reviewed maximum G0 mismatch"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.001"
+                  value={maximumMismatch}
+                  onChange={(event) => setMaximumMismatch(event.target.value)}
+                  required
+                />
+              </label>
+            </div>
+            <label className="acknowledgement-row">
+              <input
+                type="checkbox"
+                checked={processingReview}
+                onChange={(event) => setProcessingReview(event.target.checked)}
+              />
+              I reviewed candidate selection, residuals, and fitted/catalog instantaneous shear
+              modulus consistency. The entered limit is a case-specific review decision.
+            </label>
+            <button className="button primary" type="submit" disabled={busy || !processingReview}>
+              Promote exact Processing Output
+            </button>
+          </>
+        ) : (
+          <p className="muted">
+            No committed Processing Output ends with polymer.prony_fit_compare. Create and commit
+            one in the Processing Workbench first.
+          </p>
+        )}
+      </form>
 
       <form className="viscoelastic-form" onSubmit={submit}>
         <div className="viscoelastic-toolbar">
@@ -233,7 +358,34 @@ export function ReferenceLinearViscoelasticWorkbench({
             <span><small>Prony terms</small><strong>{content.terms.length}</strong></span>
             <span><small>Bulk status</small><strong>{content.bulk_relaxation_status.replace("_", " ")}</strong></span>
           </div>
-          <ReferenceLinearViscoelasticExport config={config} model={selected} />
+          {content.processing_promotion_evidence ? (
+            <div className="viscoelastic-form">
+              <div className="viscoelastic-facts">
+                <span>
+                  <small>Selection</small>
+                  <strong>{content.processing_promotion_evidence.selection_mode}</strong>
+                </span>
+                <span>
+                  <small>Normalized RMSE</small>
+                  <strong>{content.processing_promotion_evidence.normalized_rmse.toPrecision(4)}</strong>
+                </span>
+                <span>
+                  <small>G₀ mismatch</small>
+                  <strong>
+                    {(content.processing_promotion_evidence.instantaneous_modulus_relative_mismatch * 100).toFixed(2)}%
+                  </strong>
+                </span>
+              </div>
+              <button className="button primary" type="button" disabled={busy} onClick={() => void promoteNeutral()}>
+                Create Neutral JSON and solver mapping
+              </button>
+            </div>
+          ) : (
+            <ReferenceLinearViscoelasticExport config={config} model={selected} />
+          )}
+          {neutralMaterial ? (
+            <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} />
+          ) : null}
           {response ? (
             <div className="relaxation-chart">
               <div><strong>Shear relaxation response</strong><small>G(t), Pa · log-spaced time preview</small></div>

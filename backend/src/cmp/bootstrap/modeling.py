@@ -113,6 +113,7 @@ def build_material_model_service(identity: IdentityServices) -> MaterialModelSer
 def build_linear_viscoelastic_model_service(
     identity: IdentityServices,
     material_models: MaterialModelService | None,
+    processing_outputs: CommonProcessingOutputService | None = None,
 ) -> LinearViscoelasticModelService | None:
     """Compose manual polymer/elastomer Prony IR creation over shared revision hooks."""
 
@@ -130,6 +131,7 @@ def build_linear_viscoelastic_model_service(
             ),
         ),
         material_models=material_models,
+        processing_outputs=processing_outputs,
     )
 
 

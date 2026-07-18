@@ -386,10 +386,17 @@ mapping status; Material class alone never authorizes card generation.
 The implemented linear family is
 `urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0`. It pins exact Material, Material
 State and Property Set revisions, interprets the Catalog elastic moduli as instantaneous, stores
-one to five ordered `(g_ratio, k_ratio, relaxation_time_s)` rows, and records bulk relaxation as
+one to ten ordered `(g_ratio, k_ratio, relaxation_time_s)` rows for the reviewed Processing Output
+schema (legacy manual/reviewed Candidate revisions retain their earlier one-to-five boundary), and records bulk relaxation as
 either `characterized` or `not_characterized`. The latter requires every `k_ratio` to be explicit
 zero; it is not a silent incompressibility default. Both ratio sums remain below one. This bounded
 family is reference/non-production until the domain and solver mapping fixtures are approved.
+
+ADR-0031 defines the Processing Output promotion evidence. The new IR revision pins the exact
+Processing Output, source Test Data JSON, Mapping Profile and Property Set revisions plus the
+selected term count/mode, RMSE, BIC, fitted instantaneous shear modulus and caller-acknowledged
+Catalog modulus mismatch limit. Terms are re-read from the immutable server Artifact; fitted
+parameters are never accepted from the browser.
 
 ## 16. Bounded reference Ogden–Prony family
 

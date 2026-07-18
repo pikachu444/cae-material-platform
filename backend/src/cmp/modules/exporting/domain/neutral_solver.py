@@ -50,6 +50,7 @@ from cmp.modules.modeling.domain.neutral_material import (
     NeutralLinearViscoelasticIR,
     NeutralMaterialDocument,
     NeutralModelFamily,
+    NeutralPronyProcessingSelection,
     NeutralPronyTerm,
 )
 from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import (
@@ -58,9 +59,11 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     validate_hardening_curve,
 )
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
+    REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
     BulkRelaxationStatus,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
+    ReferencePronyProcessingEvidence,
 )
 from cmp.shared.domain.revisions import content_sha256
 
@@ -479,6 +482,40 @@ def _hardening_points(source: NeutralMaterialDocument) -> tuple[HardeningCurvePo
 
 def _linear_source(source: NeutralMaterialDocument) -> ReferenceLinearViscoelasticContent:
     ir = cast(NeutralLinearViscoelasticIR, source.material_model_ir)
+    processing_evidence = None
+    if isinstance(source.selection, NeutralPronyProcessingSelection):
+        mapping = source.mapping_profile.reference
+        if mapping is None or len(source.source_datasets) != 1:
+            raise InvalidNeutralHyperelasticExport(
+                "processed generalized-Maxwell export requires exact source and Mapping Profile"
+            )
+        selection = source.selection
+        dataset = source.source_datasets[0].dataset
+        processing_evidence = ReferencePronyProcessingEvidence(
+            processing_output_id=selection.processing_output.object_id,
+            processing_output_revision_id=selection.processing_output.revision_id,
+            processing_output_sha256=selection.processing_output_sha256,
+            source_test_data_id=dataset.object_id,
+            source_test_data_revision_id=dataset.revision_id,
+            mapping_profile_id=mapping.object_id,
+            mapping_profile_revision_id=mapping.revision_id,
+            selection_mode=selection.selection_mode,
+            selected_term_count=selection.selected_term_count,
+            normalized_rmse=selection.normalized_rmse,
+            bic=selection.bic,
+            fitted_instantaneous_shear_modulus_pa=(
+                selection.fitted_instantaneous_shear_modulus_pa
+            ),
+            catalog_instantaneous_shear_modulus_pa=(
+                selection.catalog_instantaneous_shear_modulus_pa
+            ),
+            instantaneous_modulus_relative_mismatch=(
+                selection.instantaneous_modulus_relative_mismatch
+            ),
+            acknowledged_maximum_relative_mismatch=(
+                selection.acknowledged_maximum_relative_mismatch
+            ),
+        )
     return ReferenceLinearViscoelasticContent(
         material_id=source.material.object_id,
         material_revision_id=source.material.revision_id,
@@ -494,6 +531,12 @@ def _linear_source(source: NeutralMaterialDocument) -> ReferenceLinearViscoelast
             PronyTerm(term.g_ratio, term.k_ratio, term.relaxation_time_s) for term in ir.terms
         ),
         reference_temperature_k=ir.reference_temperature_k,
+        processing_promotion_evidence=processing_evidence,
+        model_schema_digest=(
+            ir.model_schema_digest
+            if processing_evidence is not None
+            else REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+        ),
     )
 
 

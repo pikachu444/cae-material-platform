@@ -52,8 +52,10 @@ Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두
   저장 전 검증하고 stable identity와 immutable revision으로 등록한 뒤 exact JSON을 다시 다운로드
 - 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce
   → OpenRadioss LAW36 또는 Abaqus `*PLASTIC` card
-- 폴리머: shear-relaxation raw/normalized/processed Dataset → bounded Prony calibration과 사람
-  candidate 선택 → 새 immutable linear-Prony IR revision → Abaqus `*VISCOELASTIC` card. 여러
+- 폴리머: shear-relaxation raw/normalized/processed Dataset → 공통 Recipe에서 1~10항 Prony
+  후보 비교 → exact Processing Output과 순간 전단계수 일치 여부를 사람이 검토 → 새 immutable
+  linear-Prony IR와 Neutral Material JSON → Abaqus `*VISCOELASTIC` card. 기존 bounded two-term
+  calibration 경로도 호환을 위해 유지합니다. 여러
   온도의 반복시험은 common log-time 구간 통계와 수동/WLF shift를 거쳐 master-curve Dataset으로
   별도 보존
 - 엘라스토머: governed uniaxial/planar/biaxial normalized curve → versioned scientific profile
@@ -174,20 +176,23 @@ Polymer / Elastomer Material
 → raw revision + normalized SI Dataset revision과 curve 확인
 → 다온도 replicate Selection → alignment/statistics → shift evidence → master-curve Dataset
 → 관측점 시간 구간 Recipe/Run과 별도 processed Dataset
-→ manual linear Prony IR
-→ bounded two-term Prony calibration과 multistart candidate/residual 비교
+→ manual linear Prony IR 또는 공통 Recipe의 1~10항 Prony 후보 비교
+→ exact Processing Output, BIC/RMSE/잔차와 catalog G₀ 일치 검토
+→ reviewed generalized-Maxwell IR와 Neutral Material JSON
 → Abaqus *VISCOELASTIC mapping report → preview → .inp download
 ```
 
 현재 Dataset은 raw/normalized/processed/aligned/statistical/master-curve representation으로
 구분되고 처리 Plan/Recipe와 Run이 정확한 revision을 고정합니다. 다온도 반복시험 처리는
 공통 log-time 교집합에서만 선형 보간하며 외삽하지 않고, 수동 `log10(aT)` 또는 세 온도
-이상의 deterministic WLF fit evidence를 저장합니다. 처리된 curve는 bounded two-term
-generalized-Maxwell reference model에 fitting할
-수 있고, deterministic multistart candidate, 관측/예측 curve, residual, 수렴·bound·식별성
-상태를 화면에서 비교할 수 있습니다. 사용자는 Candidate와 이유를 직접 선택하며, 선택된
-evidence는 같은 Material Model identity의 새 immutable IR revision으로 승격됩니다. 가장 낮은
-objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus와 OpenRadioss LAW62 card를
+이상의 deterministic WLF fit evidence를 저장합니다. 처리된 curve는 공통 Processing Recipe에서
+1~10항 generalized-Maxwell 후보에 fitting할 수 있습니다. 자동 BIC 또는 명시적 항수를 선택하며,
+서버는 저장된 Output Artifact에서 항과 수치 지표를 다시 읽어 client 입력으로 대체하지 않습니다.
+사용자는 BIC/RMSE, 잔차와 catalog 순간 전단계수 G₀의 불일치율 및 사례별 허용 한계를 검토해야
+합니다. 검토된 Output은 새 stable Material Model identity의 immutable IR revision과 canonical
+Neutral Material JSON으로 승격됩니다. 기존 bounded two-term multistart Candidate 흐름도 호환
+경로로 유지되며 어느 경로도 가장 낮은 objective를 자동 승인하지 않습니다. 별도
+Ogden--Prony IR은 Abaqus와 OpenRadioss LAW62 card를
 생성하며 선형 Prony를 LAW62로 조용히 변환하지 않습니다. 공식 mapping과 domain review가
 완료되기 전 결과물은 `reference/non-production`으로 표시됩니다.
 
@@ -198,10 +203,11 @@ objective를 자동 승인하지 않습니다. 별도 Ogden--Prony IR은 Abaqus�
 3. Steel은 **Test data workflow**, Polymer/Elastomer는 **Shear-relaxation Dataset**을 엽니다.
 4. 시험 방법과 Test Run을 만든 뒤 CSV와 실제 column/unit 의미를 입력합니다.
 5. normalized curve를 확인하고 필요한 시간 구간을 processed Dataset으로 커밋합니다.
-6. baseline linear-Prony IR을 만든 뒤 processed Dataset으로 bounded calibration을 실행합니다.
-7. candidate의 objective, fitted curve, residual과 warning을 비교하고 선택 이유를 기록한 뒤
-   새 IR revision으로 승격합니다.
-8. solver/version을 고른 뒤 mapping 상태를 확인하고 card를 미리 보거나 다운로드합니다.
+6. 공통 Processing에서 `polymer.prony_fit_compare`를 포함한 Recipe를 실행하고 Output을 저장합니다.
+7. **Models**에서 exact Output의 selected 항수, BIC/RMSE, residual과 catalog G₀ 불일치율을 검토하고
+   사례별 허용 한계와 선택 이유를 기록한 뒤 새 IR revision으로 승격합니다.
+8. **Create Neutral JSON and solver mapping**을 실행한 뒤 Abaqus mapping 상태를 확인하고 card를
+   미리 보거나 다운로드합니다. 기존 bounded calibration Candidate도 호환 경로로 사용할 수 있습니다.
 9. 여러 결과를 함께 전달하려면 상단 **Exports**에서 exact revision을 선택하고 Bundle을 만든 뒤
    ZIP을 다운로드합니다.
 
@@ -228,7 +234,7 @@ Artifact가 커밋된 뒤 Bundle 연결이 실패해도 digest와 크기를 숨�
 | --- | --- | --- | --- |
 | 기본 탄성 | isotropic linear elasticity | OpenRadioss `/MAT/ELAST` | reference 구현 |
 | Steel 탄소성 | tabulated isotropic plasticity, reference Voce | OpenRadioss LAW36, Abaqus isotropic plasticity | reference 구현 |
-| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed 보존, 다온도 replicate 통계와 수동/WLF master curve, bounded multistart fitting, candidate/residual 검토, 사람 선택, 새 IR revision 승격, card preview/download reference 구현 |
+| Polymer 선형 점탄성 | shear-relaxation Dataset + generalized Maxwell/Prony | Abaqus time-domain `*VISCOELASTIC` | raw/normalized/processed 보존, 다온도 replicate 통계와 수동/WLF/Arrhenius master curve, 공통 Recipe 1~10항 fitting과 기존 bounded calibration, BIC/RMSE/residual/G₀ 검토, exact Output→IR→Neutral 승격, card preview/download reference 구현 |
 | Elastomer 초점탄성 | governed multi-test fitting + one-term Ogden + 1~5 shear-Prony | Abaqus Ogden, OpenRadioss LAW62 | exact Dataset/Profile/State/baseline revision Plan, deterministic candidates, holdout, rank/uncertainty, fitted/residual UI, human Candidate Selection, 반복 append-only IR promotion, revision history와 card preview/download reference 구현; LAW62 ν=0.495 근사는 mapping report에 표시 |
 | 실제 solver 실행 검증 | virtual specimen/HPC | solver result evidence | 현재 우선순위에서 제외 |
 
@@ -240,10 +246,11 @@ Artifact가 커밋된 뒤 Bundle 연결이 실패해도 digest와 크기를 숨�
 
 ### 현재 Polymer 사용자 흐름
 
-사용자는 shear-relaxation CSV를 raw/normalized/processed Dataset으로 보존한 뒤 bounded Prony
-calibration을 실행할 수 있습니다. 각 candidate의 fitted curve, residual, convergence 및 bound
-warning을 검토하고 직접 candidate와 선택 사유를 확정해야 합니다. 이 작업은 기존 Material
-Model identity를 유지하면서 새 immutable IR revision을 추가합니다. 승격된 revision에서
+사용자는 shear-relaxation CSV/Test JSON을 보존한 뒤 재사용 가능한 Recipe에서 1~10항 Prony
+후보 비교를 실행할 수 있습니다. 각 Output의 fitted curve, residual, BIC/RMSE와 순간 전단계수
+일치 여부를 검토하고 사례별 한계와 선택 사유를 확정해야 합니다. 서버가 exact Output Artifact를
+다시 읽어 새 immutable IR revision과 Neutral JSON을 만듭니다. 기존 bounded two-term Candidate
+흐름은 호환을 위해 유지됩니다. 승격된 revision에서
 Abaqus 2025 mapping report, `*VISCOELASTIC` card preview와 `.inp` 다운로드를 바로 생성할 수
 있으며, 자동 candidate 승인이나 원본 데이터 덮어쓰기는 없습니다.
 

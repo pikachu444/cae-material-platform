@@ -21,6 +21,10 @@ REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_ID = (
     "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.1.0"
 )
 REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION = "1.1.0"
+REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID = (
+    "urn:cmp:modeling:reference-isotropic-linear-viscoelastic-prony:1.2.0"
+)
+REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION = "1.2.0"
 
 _SCHEMA_DOCUMENT = {
     "family": REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID,
@@ -33,6 +37,17 @@ _SCHEMA_DOCUMENT = {
 }
 REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST = hashlib.sha256(
     json.dumps(_SCHEMA_DOCUMENT, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()
+_PROCESSING_SCHEMA_DOCUMENT = {
+    **_SCHEMA_DOCUMENT,
+    "version": REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+    "term_count": [1, 10],
+    "promotion_evidence": "exact_polymer_processing_output",
+}
+REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST = hashlib.sha256(
+    json.dumps(_PROCESSING_SCHEMA_DOCUMENT, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
 ).hexdigest()
 
 
@@ -82,6 +97,73 @@ class ReferencePronyPromotionEvidence:
                 raise InvalidLinearViscoelasticModel(f"{name} must be lowercase SHA-256")
 
 
+@dataclass(frozen=True, slots=True)
+class ReferencePronyProcessingEvidence:
+    processing_output_id: UUID
+    processing_output_revision_id: UUID
+    processing_output_sha256: str
+    source_test_data_id: UUID
+    source_test_data_revision_id: UUID
+    mapping_profile_id: UUID
+    mapping_profile_revision_id: UUID
+    selection_mode: str
+    selected_term_count: int
+    normalized_rmse: float
+    bic: float
+    fitted_instantaneous_shear_modulus_pa: float
+    catalog_instantaneous_shear_modulus_pa: float
+    instantaneous_modulus_relative_mismatch: float
+    acknowledged_maximum_relative_mismatch: float
+
+    def __post_init__(self) -> None:
+        for name in (
+            "processing_output_id",
+            "processing_output_revision_id",
+            "source_test_data_id",
+            "source_test_data_revision_id",
+            "mapping_profile_id",
+            "mapping_profile_revision_id",
+        ):
+            _nonzero(name, getattr(self, name))
+        value = self.processing_output_sha256
+        if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
+            raise InvalidLinearViscoelasticModel(
+                "processing_output_sha256 must be lowercase SHA-256"
+            )
+        if self.selection_mode not in {"automatic_bic", "manual"}:
+            raise InvalidLinearViscoelasticModel(
+                "processing selection_mode must be automatic_bic or manual"
+            )
+        if not 1 <= self.selected_term_count <= 10:
+            raise InvalidLinearViscoelasticModel(
+                "processing selected_term_count must be within 1..10"
+            )
+        for name in (
+            "normalized_rmse",
+            "instantaneous_modulus_relative_mismatch",
+            "acknowledged_maximum_relative_mismatch",
+        ):
+            current = getattr(self, name)
+            if not math.isfinite(current) or current < 0:
+                raise InvalidLinearViscoelasticModel(f"{name} must be finite and non-negative")
+        if not math.isfinite(self.bic):
+            raise InvalidLinearViscoelasticModel("bic must be finite")
+        _finite_positive(
+            "fitted_instantaneous_shear_modulus_pa",
+            self.fitted_instantaneous_shear_modulus_pa,
+        )
+        _finite_positive(
+            "catalog_instantaneous_shear_modulus_pa",
+            self.catalog_instantaneous_shear_modulus_pa,
+        )
+        if self.instantaneous_modulus_relative_mismatch > (
+            self.acknowledged_maximum_relative_mismatch
+        ):
+            raise InvalidLinearViscoelasticModel(
+                "instantaneous modulus mismatch exceeds the acknowledged maximum"
+            )
+
+
 def _finite_positive(name: str, value: float) -> None:
     if not math.isfinite(value) or value <= 0:
         raise InvalidLinearViscoelasticModel(f"{name} must be finite and greater than zero")
@@ -125,6 +207,7 @@ class ReferenceLinearViscoelasticContent:
     applicability_note: str | None = None
     reference_temperature_k: float = 293.15
     prony_promotion_evidence: ReferencePronyPromotionEvidence | None = None
+    processing_promotion_evidence: ReferencePronyProcessingEvidence | None = None
     model_family_id: str = REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID
     model_schema_digest: str = REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
     elastic_moduli_convention: str = "instantaneous"
@@ -147,8 +230,23 @@ class ReferenceLinearViscoelasticContent:
             raise InvalidLinearViscoelasticModel(
                 "poisson_ratio must be within the stable isotropic interval (-1, 0.5)"
             )
-        if not 1 <= len(self.terms) <= 5:
-            raise InvalidLinearViscoelasticModel("Prony term count must be between 1 and 5")
+        if (
+            self.prony_promotion_evidence is not None
+            and self.processing_promotion_evidence is not None
+        ):
+            raise InvalidLinearViscoelasticModel("linear Prony revision cannot mix promotion kinds")
+        maximum_terms = 10 if self.processing_promotion_evidence is not None else 5
+        if not 1 <= len(self.terms) <= maximum_terms:
+            raise InvalidLinearViscoelasticModel(
+                f"Prony term count must be between 1 and {maximum_terms}"
+            )
+        if (
+            self.processing_promotion_evidence is not None
+            and self.processing_promotion_evidence.selected_term_count != len(self.terms)
+        ):
+            raise InvalidLinearViscoelasticModel(
+                "Processing evidence selected term count differs from IR terms"
+            )
         times = tuple(term.relaxation_time_s for term in self.terms)
         if any(right <= left for left, right in pairwise(times)):
             raise InvalidLinearViscoelasticModel(
@@ -178,7 +276,12 @@ class ReferenceLinearViscoelasticContent:
             )
         if self.model_family_id != REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID:
             raise InvalidLinearViscoelasticModel("unexpected linear-viscoelastic model family")
-        if self.model_schema_digest != REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST:
+        expected_digest = (
+            REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+            if self.processing_promotion_evidence is not None
+            else REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+        )
+        if self.model_schema_digest != expected_digest:
             raise InvalidLinearViscoelasticModel("unexpected linear-viscoelastic schema digest")
         if self.elastic_moduli_convention != "instantaneous":
             raise InvalidLinearViscoelasticModel("only instantaneous elastic moduli are supported")
@@ -278,5 +381,38 @@ def reference_linear_viscoelastic_canonical(
             "candidate_sha256": evidence.candidate_sha256,
             "diagnostics_artifact_id": str(evidence.diagnostics_artifact_id),
             "diagnostics_sha256": evidence.diagnostics_sha256,
+        }
+    if content.processing_promotion_evidence is not None:
+        processing_evidence = content.processing_promotion_evidence
+        result["processing_promotion_evidence"] = {
+            "processing_output": {
+                "id": str(processing_evidence.processing_output_id),
+                "revision_id": str(processing_evidence.processing_output_revision_id),
+                "sha256": processing_evidence.processing_output_sha256,
+            },
+            "source_test_data": {
+                "id": str(processing_evidence.source_test_data_id),
+                "revision_id": str(processing_evidence.source_test_data_revision_id),
+            },
+            "mapping_profile": {
+                "id": str(processing_evidence.mapping_profile_id),
+                "revision_id": str(processing_evidence.mapping_profile_revision_id),
+            },
+            "selection_mode": processing_evidence.selection_mode,
+            "selected_term_count": processing_evidence.selected_term_count,
+            "normalized_rmse": processing_evidence.normalized_rmse,
+            "bic": processing_evidence.bic,
+            "fitted_instantaneous_shear_modulus_pa": (
+                processing_evidence.fitted_instantaneous_shear_modulus_pa
+            ),
+            "catalog_instantaneous_shear_modulus_pa": (
+                processing_evidence.catalog_instantaneous_shear_modulus_pa
+            ),
+            "instantaneous_modulus_relative_mismatch": (
+                processing_evidence.instantaneous_modulus_relative_mismatch
+            ),
+            "acknowledged_maximum_relative_mismatch": (
+                processing_evidence.acknowledged_maximum_relative_mismatch
+            ),
         }
     return result

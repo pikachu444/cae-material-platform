@@ -453,6 +453,93 @@ class NeutralProcessingSelection:
 
 
 @dataclass(frozen=True, slots=True)
+class NeutralPronyProcessingSelection:
+    processing_output: RevisionReference
+    processing_output_sha256: str
+    reason: str
+    selected_series: str
+    selection_mode: str
+    selected_term_count: int
+    normalized_rmse: float
+    bic: float
+    fitted_instantaneous_shear_modulus_pa: float
+    catalog_instantaneous_shear_modulus_pa: float
+    instantaneous_modulus_relative_mismatch: float
+    acknowledged_maximum_relative_mismatch: float
+    warnings: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        _sha("processing_output_sha256", self.processing_output_sha256)
+        _text("Prony processing selection reason", self.reason)
+        _text("selected_series", self.selected_series, 160)
+        if self.selection_mode not in {"automatic_bic", "manual"}:
+            raise InvalidNeutralMaterial("Prony selection mode is unsupported")
+        if not 1 <= self.selected_term_count <= 10:
+            raise InvalidNeutralMaterial("selected Prony term count must be within 1..10")
+        for name, value in (
+            ("normalized_rmse", self.normalized_rmse),
+            (
+                "instantaneous_modulus_relative_mismatch",
+                self.instantaneous_modulus_relative_mismatch,
+            ),
+            (
+                "acknowledged_maximum_relative_mismatch",
+                self.acknowledged_maximum_relative_mismatch,
+            ),
+        ):
+            _finite(name, value)
+            if value < 0:
+                raise InvalidNeutralMaterial(f"{name} must be non-negative")
+        _finite("bic", self.bic)
+        _finite(
+            "fitted_instantaneous_shear_modulus_pa",
+            self.fitted_instantaneous_shear_modulus_pa,
+            positive=True,
+        )
+        _finite(
+            "catalog_instantaneous_shear_modulus_pa",
+            self.catalog_instantaneous_shear_modulus_pa,
+            positive=True,
+        )
+        if self.instantaneous_modulus_relative_mismatch > (
+            self.acknowledged_maximum_relative_mismatch
+        ):
+            raise InvalidNeutralMaterial(
+                "Prony modulus mismatch exceeds the acknowledged maximum"
+            )
+        if len(self.warnings) > 64 or any(
+            not value or value != value.strip() for value in self.warnings
+        ):
+            raise InvalidNeutralMaterial("Prony processing warnings must be trimmed and bounded")
+
+    def canonical(self) -> dict[str, object]:
+        return {
+            "kind": "prony_processing_output_selection",
+            "processing_output": self.processing_output.canonical(),
+            "processing_output_sha256": self.processing_output_sha256,
+            "reason": self.reason,
+            "selected_series": self.selected_series,
+            "selection_mode": self.selection_mode,
+            "selected_term_count": self.selected_term_count,
+            "normalized_rmse": self.normalized_rmse,
+            "bic": self.bic,
+            "fitted_instantaneous_shear_modulus_pa": (
+                self.fitted_instantaneous_shear_modulus_pa
+            ),
+            "catalog_instantaneous_shear_modulus_pa": (
+                self.catalog_instantaneous_shear_modulus_pa
+            ),
+            "instantaneous_modulus_relative_mismatch": (
+                self.instantaneous_modulus_relative_mismatch
+            ),
+            "acknowledged_maximum_relative_mismatch": (
+                self.acknowledged_maximum_relative_mismatch
+            ),
+            "warnings": list(self.warnings),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class NeutralHyperelasticIR:
     model: RevisionReference
     schema_id: str
@@ -678,7 +765,11 @@ class NeutralMaterialDocument:
     processing_recipe: OptionalRevisionEvidence
     source_datasets: tuple[NeutralDatasetSource, ...]
     curves: tuple[NeutralCurve, ...]
-    selection: NeutralCandidateSelection | NeutralProcessingSelection
+    selection: (
+        NeutralCandidateSelection
+        | NeutralProcessingSelection
+        | NeutralPronyProcessingSelection
+    )
     material_model_ir: (
         NeutralHyperelasticIR | NeutralElastoplasticIR | NeutralLinearViscoelasticIR
     )
@@ -717,7 +808,9 @@ class NeutralMaterialDocument:
                 NeutralDatasetKind.TEST_DATA_DOCUMENT
             ),
             NeutralModelFamily.GENERALIZED_MAXWELL: (
-                NeutralDatasetKind.SHEAR_RELAXATION_DATASET
+                NeutralDatasetKind.TEST_DATA_DOCUMENT
+                if isinstance(self.selection, NeutralPronyProcessingSelection)
+                else NeutralDatasetKind.SHEAR_RELAXATION_DATASET
             ),
         }[family]
         if any(item.source_kind is not expected_source_kind for item in self.source_datasets):
@@ -727,6 +820,14 @@ class NeutralMaterialDocument:
         if family is NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY:
             if not isinstance(self.selection, NeutralProcessingSelection):
                 raise InvalidNeutralMaterial("metal Neutral IR requires a Processing selection")
+        elif family is NeutralModelFamily.GENERALIZED_MAXWELL:
+            if not isinstance(
+                self.selection,
+                (NeutralCandidateSelection, NeutralPronyProcessingSelection),
+            ):
+                raise InvalidNeutralMaterial(
+                    "generalized Maxwell Neutral IR requires Candidate or Processing selection"
+                )
         elif not isinstance(self.selection, NeutralCandidateSelection):
             raise InvalidNeutralMaterial(
                 f"{family.value} Neutral IR requires a calibration Candidate selection"
@@ -934,7 +1035,7 @@ def _prony_terms(values: list[dict[str, Any]]) -> tuple[NeutralPronyTerm, ...]:
 
 def _selection(
     value: dict[str, Any],
-) -> NeutralCandidateSelection | NeutralProcessingSelection:
+) -> NeutralCandidateSelection | NeutralProcessingSelection | NeutralPronyProcessingSelection:
     if value.get("kind") == "processing_output_selection":
         return NeutralProcessingSelection(
             processing_output=_reference(value["processing_output"]),
@@ -945,6 +1046,30 @@ def _selection(
             primary_family=str(value["primary_family"]),
             secondary_family=str(value["secondary_family"]),
             primary_weight=float(value["primary_weight"]),
+            warnings=tuple(str(item) for item in value["warnings"]),
+        )
+    if value.get("kind") == "prony_processing_output_selection":
+        return NeutralPronyProcessingSelection(
+            processing_output=_reference(value["processing_output"]),
+            processing_output_sha256=str(value["processing_output_sha256"]),
+            reason=str(value["reason"]),
+            selected_series=str(value["selected_series"]),
+            selection_mode=str(value["selection_mode"]),
+            selected_term_count=int(value["selected_term_count"]),
+            normalized_rmse=float(value["normalized_rmse"]),
+            bic=float(value["bic"]),
+            fitted_instantaneous_shear_modulus_pa=float(
+                value["fitted_instantaneous_shear_modulus_pa"]
+            ),
+            catalog_instantaneous_shear_modulus_pa=float(
+                value["catalog_instantaneous_shear_modulus_pa"]
+            ),
+            instantaneous_modulus_relative_mismatch=float(
+                value["instantaneous_modulus_relative_mismatch"]
+            ),
+            acknowledged_maximum_relative_mismatch=float(
+                value["acknowledged_maximum_relative_mismatch"]
+            ),
             warnings=tuple(str(item) for item in value["warnings"]),
         )
     return NeutralCandidateSelection(

@@ -3,10 +3,13 @@ from uuid import UUID
 
 import pytest
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
+    REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
+    REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST,
     BulkRelaxationStatus,
     InvalidLinearViscoelasticModel,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
+    ReferencePronyProcessingEvidence,
     ReferencePronyPromotionEvidence,
     evaluate_relaxation,
     reference_linear_viscoelastic_canonical,
@@ -24,6 +27,7 @@ def _content(
         PronyTerm(0.2, 0.0, 0.1),
         PronyTerm(0.3, 0.0, 10.0),
     ),
+    processing_evidence: ReferencePronyProcessingEvidence | None = None,
 ) -> ReferenceLinearViscoelasticContent:
     return ReferenceLinearViscoelasticContent(
         material_id=_id(1),
@@ -37,6 +41,12 @@ def _content(
         poisson_ratio=0.35,
         bulk_relaxation_status=status,
         terms=terms,
+        processing_promotion_evidence=processing_evidence,
+        model_schema_digest=(
+            REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+            if processing_evidence is not None
+            else REFERENCE_LINEAR_VISCOELASTIC_SCHEMA_DIGEST
+        ),
     )
 
 
@@ -108,3 +118,75 @@ def test_promoted_ir_pins_human_selection_candidate_and_diagnostics() -> None:
     assert promotion["selection_revision_id"] == str(_id(8))
     assert promotion["candidate_sha256"] == "a" * 64
     assert promotion["diagnostics_sha256"] == "b" * 64
+
+
+def test_processing_promoted_ir_supports_ten_terms_and_pins_exact_evidence() -> None:
+    terms = tuple(PronyTerm(0.05, 0.0, float(index)) for index in range(1, 11))
+    evidence = ReferencePronyProcessingEvidence(
+        processing_output_id=_id(20),
+        processing_output_revision_id=_id(21),
+        processing_output_sha256="c" * 64,
+        source_test_data_id=_id(22),
+        source_test_data_revision_id=_id(23),
+        mapping_profile_id=_id(24),
+        mapping_profile_revision_id=_id(25),
+        selection_mode="automatic_bic",
+        selected_term_count=10,
+        normalized_rmse=0.012,
+        bic=-41.5,
+        fitted_instantaneous_shear_modulus_pa=1_100_000_000.0,
+        catalog_instantaneous_shear_modulus_pa=1_111_111_111.0,
+        instantaneous_modulus_relative_mismatch=0.01,
+        acknowledged_maximum_relative_mismatch=0.05,
+    )
+    content = _content(terms=terms, processing_evidence=evidence)
+
+    canonical = reference_linear_viscoelastic_canonical(content)
+
+    canonical_terms = canonical["terms"]
+    assert isinstance(canonical_terms, list)
+    assert len(canonical_terms) == 10
+    processing = canonical["processing_promotion_evidence"]
+    assert isinstance(processing, dict)
+    assert processing["processing_output"]["revision_id"] == str(_id(21))
+    assert processing["selected_term_count"] == 10
+    assert processing["bic"] == -41.5
+
+
+def test_manual_ir_cannot_claim_processing_term_limit_or_mixed_evidence() -> None:
+    terms = tuple(PronyTerm(0.05, 0.0, float(index)) for index in range(1, 7))
+    with pytest.raises(InvalidLinearViscoelasticModel, match="between 1 and 5"):
+        _content(terms=terms)
+
+    candidate = ReferencePronyPromotionEvidence(
+        selection_id=_id(7),
+        selection_revision_id=_id(8),
+        calibration_run_id=_id(9),
+        calibration_candidate_id=_id(10),
+        candidate_sha256="a" * 64,
+        diagnostics_artifact_id=_id(11),
+        diagnostics_sha256="b" * 64,
+    )
+    processing = ReferencePronyProcessingEvidence(
+        processing_output_id=_id(20),
+        processing_output_revision_id=_id(21),
+        processing_output_sha256="c" * 64,
+        source_test_data_id=_id(22),
+        source_test_data_revision_id=_id(23),
+        mapping_profile_id=_id(24),
+        mapping_profile_revision_id=_id(25),
+        selection_mode="manual",
+        selected_term_count=2,
+        normalized_rmse=0.02,
+        bic=1.0,
+        fitted_instantaneous_shear_modulus_pa=1_100_000_000.0,
+        catalog_instantaneous_shear_modulus_pa=1_111_111_111.0,
+        instantaneous_modulus_relative_mismatch=0.01,
+        acknowledged_maximum_relative_mismatch=0.05,
+    )
+    with pytest.raises(InvalidLinearViscoelasticModel, match="cannot mix"):
+        replace(
+            _content(),
+            prony_promotion_evidence=candidate,
+            processing_promotion_evidence=processing,
+        )

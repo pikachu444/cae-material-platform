@@ -1,6 +1,6 @@
 # Implementation Status
 
-Date: `2026-07-18`
+Date: `2026-07-19`
 Foundation version: `0.32.0`
 
 ## Product direction correction (T-48)
@@ -18,7 +18,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
 | Saved Recipe library/general batch execution | T-54 implemented: exact-profile Recipe revisions plus exact-input compatibility preflight, isolated member outputs, append-only attempts, failed-only retry and Batch Monitor | T-55M metal modeling |
-| Metal/Polymer/Elastomer modeling | T-63 promotes selected metal Processing Output IRs, reviewed generalized-Maxwell IRs, and reviewed hyperelastic families with exact Prony overlay into one closed Neutral union; T-65 clean seed executes the selected metal path | Production material qualification (outside v3) |
+| Metal/Polymer/Elastomer modeling | T-67 closes the common one-to-ten-term polymer Output → reviewed generalized-Maxwell IR → Neutral → Abaqus path; T-63/T-64 retain the metal and hyperelastic family paths | Production material qualification (outside v3) |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | T-59 grants |
@@ -30,6 +30,20 @@ DB/API/UI/Test status matrix. Existing completed entries below remain valid evid
 bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## Completed
+
+- `T-67`: the reusable common Processing Recipe can now promote an exact saved
+  `polymer.prony_fit_compare` Output into a typed one-to-ten-term generalized-Maxwell IR. The server
+  re-exports and verifies the immutable Output Artifact rather than trusting coefficients from the
+  browser, pins the canonical Test Data and Mapping Profile revisions, and stores selected-term,
+  BIC/RMSE and catalog-versus-fitted instantaneous shear-modulus review evidence. A user enters a
+  case-specific mismatch limit and explicitly reviews the evidence before promotion. The same
+  workbench creates a canonical Neutral Material JSON and uses the shared mapping flow to generate
+  Abaqus `*VISCOELASTIC`; OpenRadioss remains explicitly `unsupported`. Migration 079 adds the
+  closed typed evidence projection and ten-term constraints. Clean Compose seeding and the protected
+  verifier reproduced Output `2cfc3108-3618-444c-96bc-c35329291446`, IR
+  `38ee5225-f451-40ce-94f9-557cc99ce1b4`, Neutral
+  `bdbc87ce-8024-4d82-a871-efa3efa40028` and Abaqus card
+  `12047cb3-e1ae-4dea-b58d-6bc1ea124fb1` from public synthetic data.
 
 - `T-66`: exact governed domain revisions can now resolve back to their configurable Catalog Record
   revision through the protected `catalog.read` boundary. Material, canonical Test JSON, common
@@ -144,8 +158,8 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
   energy in a typed constrained column and retains observed/predicted shift residuals. The existing
   reviewed linear-Prony IR promotion and Abaqus 2025 `*VISCOELASTIC` card remain the supported card
   path. Linear viscoelasticity remains explicitly unsupported for OpenRadioss LAW62 rather than
-  being silently approximated. Promotion of a newly committed common one-to-ten-term Output into
-  the canonical Neutral Material envelope belongs to T-56.
+  being silently approximated. T-67 now connects a newly committed common one-to-ten-term Output
+  to a reviewed typed IR, canonical Neutral Material document and the Abaqus card workflow.
 
 - `T-55M`: the metal methods run in the common Processing Workbench and published Recipe/Batch path.
   OLS, Huber robust, chord, secant and manual Young's modulus, proof stress, non-destructive necking

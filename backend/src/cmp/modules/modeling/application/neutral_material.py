@@ -53,6 +53,7 @@ from cmp.modules.modeling.domain.neutral_material import (
     NeutralMaterialDocument,
     NeutralProcessingSelection,
     NeutralPronyOverlay,
+    NeutralPronyProcessingSelection,
     NeutralPronyTerm,
     NeutralTestMode,
     OptionalRevisionEvidence,
@@ -65,6 +66,8 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_ID,
     REFERENCE_CALIBRATED_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+    REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID,
+    REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
 )
 from cmp.modules.modeling.domain.reference_ogden_calibration import OgdenCalibrationMember
 from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
@@ -810,11 +813,7 @@ class NeutralMaterialService:
         """Promote one reviewed generalized-Maxwell model and exact diagnostics."""
 
         _require(context, decision, Permission.MODELING_WRITE)
-        if (
-            self._linear_models is None
-            or self._prony_calibrations is None
-            or self._shear_datasets is None
-        ):
+        if self._linear_models is None:
             raise NeutralMaterialConflict("linear-viscoelastic Neutral promotion is unavailable")
         selection_reason = _reason("selection_reason", command.selection_reason)
         change_reason = _reason("change_reason", command.change_reason)
@@ -825,6 +824,222 @@ class NeutralMaterialService:
             command.material_model_revision_id,
         )
         content = model.content
+        processing_evidence = content.processing_promotion_evidence
+        if processing_evidence is not None:
+            if self._processing_outputs is None or self._test_data is None:
+                raise NeutralMaterialConflict(
+                    "Processing Output Neutral promotion is unavailable"
+                )
+            output, output_bytes = await self._processing_outputs.export_exact(
+                context,
+                decision,
+                processing_evidence.processing_output_id,
+                processing_evidence.processing_output_revision_id,
+            )
+            source, _ = await self._test_data.export_document(
+                context,
+                decision,
+                processing_evidence.source_test_data_id,
+                processing_evidence.source_test_data_revision_id,
+            )
+            try:
+                output_document = json.loads(output_bytes)
+                stage = output_document["result"]["stages"][-1]
+                series = {item["quantity"]: item for item in stage["series"]}
+                scalars = {item["key"]: item for item in stage["scalar_results"]}
+                independent = series[output.content.independent_quantity]
+                observed = series["modulus.shear.relaxation"]
+                fitted = series["modulus.prony.selected"]
+                times = tuple(float(value) for value in independent["values"])
+                observed_values = tuple(float(value) for value in observed["values"])
+                fitted_values = tuple(float(value) for value in fitted["values"])
+                selected_count = int(scalars["prony_selected_term_count"]["value"])
+                terms = tuple(
+                    (
+                        float(scalars[f"prony_g_ratio_{ordinal}"]["value"]),
+                        float(scalars[f"prony_relaxation_time_{ordinal}"]["value"]),
+                    )
+                    for ordinal in range(1, selected_count + 1)
+                )
+            except (KeyError, TypeError, ValueError, IndexError) as error:
+                raise NeutralMaterialConflict(
+                    "Processing Output does not reproduce the selected Prony evidence"
+                ) from error
+            if (
+                output.id != processing_evidence.processing_output_id
+                or output.current.revision_id
+                != processing_evidence.processing_output_revision_id
+                or output.content.output_sha256
+                != processing_evidence.processing_output_sha256
+                or output.content.source_document.aggregate_id
+                != processing_evidence.source_test_data_id
+                or output.content.source_document.revision_id
+                != processing_evidence.source_test_data_revision_id
+                or output.content.mapping_profile.aggregate_id
+                != processing_evidence.mapping_profile_id
+                or output.content.mapping_profile.revision_id
+                != processing_evidence.mapping_profile_revision_id
+                or stage["method_id"] != "polymer.prony_fit_compare"
+                or independent["unit"] != "s"
+                or observed["unit"] != "Pa"
+                or fitted["unit"] != "Pa"
+                or selected_count != processing_evidence.selected_term_count
+                or len(times) != output.content.final_point_count
+                or len(observed_values) != len(times)
+                or len(fitted_values) != len(times)
+                or terms
+                != tuple((term.g_ratio, term.relaxation_time_s) for term in content.terms)
+            ):
+                raise NeutralMaterialConflict(
+                    "selected generalized-Maxwell IR no longer resolves to exact "
+                    "Processing evidence"
+                )
+
+            def processing_curve(
+                stage_name: CurveStage, quantity: str, values: tuple[float, ...]
+            ) -> NeutralCurve:
+                return NeutralCurve(
+                    stage=stage_name,
+                    dataset_revision_id=source.current.revision_id,
+                    test_mode=NeutralTestMode.STRESS_RELAXATION,
+                    x_quantity=output.content.independent_quantity,
+                    x_unit="s",
+                    y_quantity=quantity,
+                    y_unit="Pa",
+                    x=times,
+                    y=values,
+                )
+
+            neutral_id = self._id()
+            neutral_revision_id = self._id()
+            classification = DataClassification(model.record.scope.classification)
+            mismatch_warning = (
+                f"catalog/fitted instantaneous shear-modulus relative mismatch="
+                f"{processing_evidence.instantaneous_modulus_relative_mismatch:.6g}"
+            )
+            document = NeutralMaterialDocument(
+                document_id=neutral_id,
+                organization_id=context.organization_id,
+                project_id=context.project_id,
+                classification=classification.value,
+                material=RevisionReference(content.material_id, content.material_revision_id),
+                material_state=RevisionReference(
+                    content.material_state_id, content.material_state_revision_id
+                ),
+                property_set=RevisionReference(
+                    content.property_set_id, content.property_set_revision_id
+                ),
+                calibration_plan=OptionalRevisionEvidence(
+                    EvidenceStatus.NOT_APPLICABLE,
+                    "The reviewed common Processing Output is not a Calibration Plan.",
+                ),
+                scientific_profile=OptionalRevisionEvidence(
+                    EvidenceStatus.NOT_APPLICABLE,
+                    "The versioned Processing steps retain their numerical options.",
+                ),
+                mapping_profile=OptionalRevisionEvidence(
+                    EvidenceStatus.EXACT_REVISION,
+                    "The Processing Output pins the exact Mapping Profile revision.",
+                    RevisionReference(
+                        processing_evidence.mapping_profile_id,
+                        processing_evidence.mapping_profile_revision_id,
+                    ),
+                ),
+                processing_recipe=OptionalRevisionEvidence(
+                    EvidenceStatus.NOT_APPLICABLE,
+                    "This output was committed from reviewed ordered steps without a Recipe pin.",
+                ),
+                source_datasets=(
+                    NeutralDatasetSource(
+                        dataset=RevisionReference(source.id, source.current.revision_id),
+                        role=NeutralDatasetRole.PROCESSING_INPUT,
+                        test_mode=NeutralTestMode.STRESS_RELAXATION,
+                        normalized_artifact_id=source.content.normalized_artifact_id,
+                        normalized_artifact_sha256=source.content.normalized_sha256,
+                        source_kind=NeutralDatasetKind.TEST_DATA_DOCUMENT,
+                    ),
+                ),
+                curves=(
+                    processing_curve(
+                        CurveStage.NORMALIZED,
+                        "modulus.shear.relaxation",
+                        observed_values,
+                    ),
+                    processing_curve(
+                        CurveStage.FITTED, "modulus.prony.selected", fitted_values
+                    ),
+                    processing_curve(
+                        CurveStage.RESIDUAL,
+                        "modulus.shear.residual",
+                        tuple(
+                            fitted_value - observed_value
+                            for fitted_value, observed_value in zip(
+                                fitted_values, observed_values, strict=True
+                            )
+                        ),
+                    ),
+                ),
+                selection=NeutralPronyProcessingSelection(
+                    processing_output=RevisionReference(output.id, output.current.revision_id),
+                    processing_output_sha256=output.content.output_sha256,
+                    reason=selection_reason,
+                    selected_series="modulus.prony.selected",
+                    selection_mode=processing_evidence.selection_mode,
+                    selected_term_count=processing_evidence.selected_term_count,
+                    normalized_rmse=processing_evidence.normalized_rmse,
+                    bic=processing_evidence.bic,
+                    fitted_instantaneous_shear_modulus_pa=(
+                        processing_evidence.fitted_instantaneous_shear_modulus_pa
+                    ),
+                    catalog_instantaneous_shear_modulus_pa=(
+                        processing_evidence.catalog_instantaneous_shear_modulus_pa
+                    ),
+                    instantaneous_modulus_relative_mismatch=(
+                        processing_evidence.instantaneous_modulus_relative_mismatch
+                    ),
+                    acknowledged_maximum_relative_mismatch=(
+                        processing_evidence.acknowledged_maximum_relative_mismatch
+                    ),
+                    warnings=(mismatch_warning,),
+                ),
+                material_model_ir=NeutralLinearViscoelasticIR(
+                    model=RevisionReference(neutral_id, neutral_revision_id),
+                    schema_id=REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID,
+                    schema_version=REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_VERSION,
+                    model_schema_digest=content.model_schema_digest,
+                    density_kg_per_m3=content.density_kg_per_m3,
+                    youngs_modulus_pa=content.youngs_modulus_pa,
+                    poisson_ratio=content.poisson_ratio,
+                    bulk_relaxation_status=content.bulk_relaxation_status.value,
+                    terms=tuple(
+                        NeutralPronyTerm(
+                            ordinal=ordinal,
+                            g_ratio=term.g_ratio,
+                            k_ratio=term.k_ratio,
+                            relaxation_time_s=term.relaxation_time_s,
+                        )
+                        for ordinal, term in enumerate(content.terms, 1)
+                    ),
+                    reference_temperature_k=content.reference_temperature_k,
+                ),
+                applicable_strain_min=None,
+                applicable_strain_max=None,
+                applicable_time_min_s=min(times),
+                applicable_time_max_s=max(times),
+                validation_status="reviewed_processing_prony_fit_and_modulus_consistency",
+            )
+            return await self._persist_new_document(
+                context,
+                decision,
+                document=document,
+                neutral_revision_id=neutral_revision_id,
+                schema_id=REFERENCE_PROCESSING_LINEAR_VISCOELASTIC_SCHEMA_ID,
+                classification=classification,
+                change_reason=change_reason,
+            )
+
+        if self._prony_calibrations is None or self._shear_datasets is None:
+            raise NeutralMaterialConflict("calibrated Prony Neutral promotion is unavailable")
         evidence = content.prony_promotion_evidence
         if evidence is None:
             raise NeutralMaterialConflict(
@@ -1187,67 +1402,127 @@ class NeutralMaterialService:
                     "imported metal Processing, source, curve, or selection evidence differs"
                 )
         elif isinstance(material_ir, NeutralLinearViscoelasticIR):
-            if (
-                not isinstance(selection, NeutralCandidateSelection)
-                or not isinstance(calibration_plan, RevisionReference)
-                or self._prony_calibrations is None
-                or self._linear_models is None
-                or self._shear_datasets is None
-                or len(document.source_datasets) != 1
-            ):
-                raise NeutralMaterialConflict("linear-viscoelastic import evidence is incomplete")
-            prony_run = self._prony_calibrations.get_run_for_promotion(
-                context, decision, selection.calibration_run_id
-            )
-            prony_candidate = self._prony_calibrations.get_candidate_for_promotion(
-                context, decision, selection.candidate_id
-            )
-            prony_baseline = self._linear_models.get_model_revision_for_calibration(
-                context,
-                decision,
-                prony_run.baseline_model_id,
-                prony_run.baseline_model_revision_id,
-            )
-            source = document.source_datasets[0]
-            relaxation_dataset = self._shear_datasets.get_revision_for_calibration(
-                context, decision, source.dataset.object_id, source.dataset.revision_id
-            )
-            expected_terms = (
-                (
-                    prony_candidate.value.fast_g_ratio,
-                    prony_candidate.value.fast_relaxation_time_s,
-                ),
-                (
-                    prony_candidate.value.slow_g_ratio,
-                    prony_candidate.value.slow_relaxation_time_s,
-                ),
-            )
-            if (
-                prony_candidate.calibration_run_id != prony_run.id
-                or prony_candidate.value.candidate_sha256 != selection.candidate_sha256
-                or prony_candidate.diagnostics_artifact_id
-                != selection.diagnostics_artifact_id
-                or prony_candidate.diagnostics_sha256 != selection.diagnostics_sha256
-                or prony_run.plan_id != calibration_plan.object_id
-                or prony_run.plan_revision_id != calibration_plan.revision_id
-                or source.source_kind is not NeutralDatasetKind.SHEAR_RELAXATION_DATASET
-                or prony_run.input_dataset_id != source.dataset.object_id
-                or prony_run.input_dataset_revision_id != source.dataset.revision_id
-                or relaxation_dataset.content.data_artifact_id
-                != source.normalized_artifact_id
-                or relaxation_dataset.content.data_sha256
-                != source.normalized_artifact_sha256
-                or prony_baseline.content.density_kg_per_m3
-                != material_ir.density_kg_per_m3
-                or prony_baseline.content.youngs_modulus_pa
-                != material_ir.youngs_modulus_pa
-                or prony_baseline.content.poisson_ratio != material_ir.poisson_ratio
-                or tuple((term.g_ratio, term.relaxation_time_s) for term in material_ir.terms)
-                != expected_terms
-            ):
+            if len(document.source_datasets) != 1:
                 raise NeutralMaterialConflict(
-                    "imported generalized-Maxwell Candidate, source, or parameters differ"
+                    "linear-viscoelastic import requires exactly one source Dataset"
                 )
+            source = document.source_datasets[0]
+            if isinstance(selection, NeutralPronyProcessingSelection):
+                if (
+                    self._processing_outputs is None
+                    or self._test_data is None
+                    or source.source_kind is not NeutralDatasetKind.TEST_DATA_DOCUMENT
+                ):
+                    raise NeutralMaterialConflict(
+                        "processed linear-viscoelastic import evidence is incomplete"
+                    )
+                output, output_bytes = await self._processing_outputs.export_exact(
+                    context,
+                    decision,
+                    selection.processing_output.object_id,
+                    selection.processing_output.revision_id,
+                )
+                source_snapshot, _ = await self._test_data.export_document(
+                    context, decision, source.dataset.object_id, source.dataset.revision_id
+                )
+                try:
+                    output_document = json.loads(output_bytes)
+                    stage = output_document["result"]["stages"][-1]
+                    scalars = {item["key"]: item for item in stage["scalar_results"]}
+                    selected_count = int(scalars["prony_selected_term_count"]["value"])
+                    expected_terms = tuple(
+                        (
+                            float(scalars[f"prony_g_ratio_{ordinal}"]["value"]),
+                            float(scalars[f"prony_relaxation_time_{ordinal}"]["value"]),
+                        )
+                        for ordinal in range(1, selected_count + 1)
+                    )
+                except (KeyError, TypeError, ValueError, IndexError) as error:
+                    raise NeutralMaterialConflict(
+                        "imported Processing Output does not reproduce Prony parameters"
+                    ) from error
+                if (
+                    stage["method_id"] != "polymer.prony_fit_compare"
+                    or output.content.output_sha256 != selection.processing_output_sha256
+                    or output.content.source_document.aggregate_id != source.dataset.object_id
+                    or output.content.source_document.revision_id != source.dataset.revision_id
+                    or source_snapshot.content.normalized_artifact_id
+                    != source.normalized_artifact_id
+                    or source_snapshot.content.normalized_sha256
+                    != source.normalized_artifact_sha256
+                    or selection.selected_term_count != selected_count
+                    or tuple(
+                        (term.g_ratio, term.relaxation_time_s) for term in material_ir.terms
+                    )
+                    != expected_terms
+                ):
+                    raise NeutralMaterialConflict(
+                        "imported generalized-Maxwell Processing, source, or parameters differ"
+                    )
+            else:
+                if (
+                    not isinstance(selection, NeutralCandidateSelection)
+                    or not isinstance(calibration_plan, RevisionReference)
+                    or self._prony_calibrations is None
+                    or self._linear_models is None
+                    or self._shear_datasets is None
+                ):
+                    raise NeutralMaterialConflict(
+                        "linear-viscoelastic import evidence is incomplete"
+                    )
+                prony_run = self._prony_calibrations.get_run_for_promotion(
+                    context, decision, selection.calibration_run_id
+                )
+                prony_candidate = self._prony_calibrations.get_candidate_for_promotion(
+                    context, decision, selection.candidate_id
+                )
+                prony_baseline = self._linear_models.get_model_revision_for_calibration(
+                    context,
+                    decision,
+                    prony_run.baseline_model_id,
+                    prony_run.baseline_model_revision_id,
+                )
+                relaxation_dataset = self._shear_datasets.get_revision_for_calibration(
+                    context, decision, source.dataset.object_id, source.dataset.revision_id
+                )
+                expected_terms = (
+                    (
+                        prony_candidate.value.fast_g_ratio,
+                        prony_candidate.value.fast_relaxation_time_s,
+                    ),
+                    (
+                        prony_candidate.value.slow_g_ratio,
+                        prony_candidate.value.slow_relaxation_time_s,
+                    ),
+                )
+                if (
+                    prony_candidate.calibration_run_id != prony_run.id
+                    or prony_candidate.value.candidate_sha256 != selection.candidate_sha256
+                    or prony_candidate.diagnostics_artifact_id
+                    != selection.diagnostics_artifact_id
+                    or prony_candidate.diagnostics_sha256 != selection.diagnostics_sha256
+                    or prony_run.plan_id != calibration_plan.object_id
+                    or prony_run.plan_revision_id != calibration_plan.revision_id
+                    or source.source_kind is not NeutralDatasetKind.SHEAR_RELAXATION_DATASET
+                    or prony_run.input_dataset_id != source.dataset.object_id
+                    or prony_run.input_dataset_revision_id != source.dataset.revision_id
+                    or relaxation_dataset.content.data_artifact_id
+                    != source.normalized_artifact_id
+                    or relaxation_dataset.content.data_sha256
+                    != source.normalized_artifact_sha256
+                    or prony_baseline.content.density_kg_per_m3
+                    != material_ir.density_kg_per_m3
+                    or prony_baseline.content.youngs_modulus_pa
+                    != material_ir.youngs_modulus_pa
+                    or prony_baseline.content.poisson_ratio != material_ir.poisson_ratio
+                    or tuple(
+                        (term.g_ratio, term.relaxation_time_s) for term in material_ir.terms
+                    )
+                    != expected_terms
+                ):
+                    raise NeutralMaterialConflict(
+                        "imported generalized-Maxwell Candidate, source, or parameters differ"
+                    )
         else:  # pragma: no cover - closed domain union
             raise NeutralMaterialConflict("unsupported Neutral Material family")
 
