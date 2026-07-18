@@ -22,9 +22,7 @@ import pyarrow.parquet as pq
 from cmp.modules.datasets.domain.reference_tensile import CurvePoint
 from cmp.shared.domain.revisions import content_sha256
 
-REFERENCE_TABULATED_PLASTICITY_FAMILY_ID = (
-    "urn:cmp:reference:isotropic-tabulated-plasticity:1.0.0"
-)
+REFERENCE_TABULATED_PLASTICITY_FAMILY_ID = "urn:cmp:reference:isotropic-tabulated-plasticity:1.0.0"
 REFERENCE_TABULATED_PLASTICITY_SCHEMA_VERSION = "1.0.0"
 REFERENCE_TABULATED_PLASTICITY_IR_SCHEMA_ID = (
     "urn:cmp:modeling:reference-isotropic-tabulated-plasticity:1.0.0"
@@ -113,6 +111,7 @@ class HardeningPointOrigin(StrEnum):
     CATALOG_YIELD_ANCHOR = "catalog_yield_anchor"
     PRE_NECKING_OBSERVATION = "pre_necking_observation"
     CALIBRATED_VOCE_SAMPLE = "calibrated_voce_sample"
+    PROCESSING_SELECTED_SAMPLE = "processing_selected_sample"
     APPROVED_CONSTANT_EXTENSION = "approved_constant_extension"
 
 
@@ -144,9 +143,7 @@ class HardeningCurvePoint:
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.true_plastic_strain) or self.true_plastic_strain < 0.0:
-            raise InvalidTabulatedPlasticity(
-                "true_plastic_strain must be finite and non-negative"
-            )
+            raise InvalidTabulatedPlasticity("true_plastic_strain must be finite and non-negative")
         _positive("true_yield_stress_pa", self.true_yield_stress_pa)
 
 
@@ -252,9 +249,7 @@ class ReferenceIsotropicTabulatedPlasticityContent:
         if not 0 <= self.necking_source_point_index < self.source_point_count:
             raise InvalidTabulatedPlasticity("necking source-point index is invalid")
         if (
-            self.necking_source_point_index
-            + self.post_necking_excluded_point_count
-            + 1
+            self.necking_source_point_index + self.post_necking_excluded_point_count + 1
             != self.source_point_count
         ):
             raise InvalidTabulatedPlasticity(
@@ -322,12 +317,9 @@ class ReferenceIsotropicTabulatedPlasticityContent:
             or self.model_schema_digest != REFERENCE_TABULATED_PLASTICITY_SCHEMA_DIGEST
             or self.hardening_curve_schema_ref != REFERENCE_HARDENING_CURVE_SCHEMA
             or self.transformation_profile_id != REFERENCE_TENSILE_REDUCTION_PROFILE_ID
-            or self.transformation_profile_version
-            != REFERENCE_TENSILE_REDUCTION_PROFILE_VERSION
-            or self.transformation_profile_digest
-            != REFERENCE_TENSILE_REDUCTION_PROFILE_DIGEST
-            or self.post_necking_extension_policy
-            != REFERENCE_POST_NECKING_EXTENSION_POLICY
+            or self.transformation_profile_version != REFERENCE_TENSILE_REDUCTION_PROFILE_VERSION
+            or self.transformation_profile_digest != REFERENCE_TENSILE_REDUCTION_PROFILE_DIGEST
+            or self.post_necking_extension_policy != REFERENCE_POST_NECKING_EXTENSION_POLICY
             or not self.non_production
         ):
             raise InvalidTabulatedPlasticity(
@@ -342,9 +334,11 @@ def validate_hardening_curve(points: tuple[HardeningCurvePoint, ...]) -> None:
         )
     if points[0].true_plastic_strain != 0.0:
         raise InvalidTabulatedPlasticity("first hardening point must have zero plastic strain")
+    processing_selected = points[0].origin is HardeningPointOrigin.PROCESSING_SELECTED_SAMPLE
     if points[0].origin not in {
         HardeningPointOrigin.CATALOG_YIELD_ANCHOR,
         HardeningPointOrigin.CALIBRATED_VOCE_SAMPLE,
+        HardeningPointOrigin.PROCESSING_SELECTED_SAMPLE,
     }:
         raise InvalidTabulatedPlasticity(
             "first hardening point must be a Catalog yield anchor or calibrated Voce sample"
@@ -360,6 +354,14 @@ def validate_hardening_curve(points: tuple[HardeningCurvePoint, ...]) -> None:
             )
         previous_strain = point.true_plastic_strain
         previous_stress = point.true_yield_stress_pa
+    if processing_selected:
+        if any(
+            point.origin is not HardeningPointOrigin.PROCESSING_SELECTED_SAMPLE for point in points
+        ):
+            raise InvalidTabulatedPlasticity(
+                "Processing-selected hardening points must retain one explicit origin"
+            )
+        return
     if points[-1].origin is not HardeningPointOrigin.APPROVED_CONSTANT_EXTENSION:
         raise InvalidTabulatedPlasticity(
             "last hardening point must retain the approved constant extension evidence"
@@ -492,7 +494,12 @@ def derive_reference_isotropic_hardening_curve(
     )
 
 
-def hardening_curve_parquet_bytes(points: tuple[HardeningCurvePoint, ...]) -> bytes:
+def hardening_curve_parquet_bytes(
+    points: tuple[HardeningCurvePoint, ...],
+    *,
+    transformation_profile_id: str = REFERENCE_TENSILE_REDUCTION_PROFILE_ID,
+    transformation_profile_digest: str = REFERENCE_TENSILE_REDUCTION_PROFILE_DIGEST,
+) -> bytes:
     validate_hardening_curve(points)
     table = pa.table(
         {
@@ -507,12 +514,8 @@ def hardening_curve_parquet_bytes(points: tuple[HardeningCurvePoint, ...]) -> by
     ).replace_schema_metadata(
         {
             b"cmp_schema_ref": REFERENCE_HARDENING_CURVE_SCHEMA.encode("ascii"),
-            b"cmp_transformation_profile": REFERENCE_TENSILE_REDUCTION_PROFILE_ID.encode(
-                "ascii"
-            ),
-            b"cmp_transformation_digest": REFERENCE_TENSILE_REDUCTION_PROFILE_DIGEST.encode(
-                "ascii"
-            ),
+            b"cmp_transformation_profile": transformation_profile_id.encode("ascii"),
+            b"cmp_transformation_digest": transformation_profile_digest.encode("ascii"),
         }
     )
     buffer = io.BytesIO()
@@ -520,7 +523,12 @@ def hardening_curve_parquet_bytes(points: tuple[HardeningCurvePoint, ...]) -> by
     return buffer.getvalue()
 
 
-def hardening_curve_from_parquet(value: bytes) -> tuple[HardeningCurvePoint, ...]:
+def hardening_curve_from_parquet(
+    value: bytes,
+    *,
+    transformation_profile_id: str = REFERENCE_TENSILE_REDUCTION_PROFILE_ID,
+    transformation_profile_digest: str = REFERENCE_TENSILE_REDUCTION_PROFILE_DIGEST,
+) -> tuple[HardeningCurvePoint, ...]:
     if not value:
         raise InvalidTabulatedPlasticity("hardening-curve Artifact bytes are empty")
     try:
@@ -539,13 +547,9 @@ def hardening_curve_from_parquet(value: bytes) -> tuple[HardeningCurvePoint, ...
     metadata = table.schema.metadata or {}
     if metadata.get(b"cmp_schema_ref") != REFERENCE_HARDENING_CURVE_SCHEMA.encode("ascii"):
         raise InvalidTabulatedPlasticity("hardening-curve Parquet schema reference is invalid")
-    if metadata.get(
-        b"cmp_transformation_digest"
-    ) != REFERENCE_TENSILE_REDUCTION_PROFILE_DIGEST.encode("ascii"):
+    if metadata.get(b"cmp_transformation_digest") != transformation_profile_digest.encode("ascii"):
         raise InvalidTabulatedPlasticity("hardening-curve transformation digest is invalid")
-    if metadata.get(b"cmp_transformation_profile") != REFERENCE_TENSILE_REDUCTION_PROFILE_ID.encode(
-        "ascii"
-    ):
+    if metadata.get(b"cmp_transformation_profile") != transformation_profile_id.encode("ascii"):
         raise InvalidTabulatedPlasticity("hardening-curve transformation profile is invalid")
     try:
         points = tuple(
@@ -607,19 +611,13 @@ def reference_isotropic_tabulated_plasticity_canonical(
             "profile_digest": value.transformation_profile_digest,
             "source_point_count": value.source_point_count,
             "pre_yield_excluded_point_count": value.pre_yield_excluded_point_count,
-            "post_necking_excluded_point_count": (
-                value.post_necking_excluded_point_count
-            ),
+            "post_necking_excluded_point_count": (value.post_necking_excluded_point_count),
             "necking_source_point_index": value.necking_source_point_index,
             "necking_engineering_strain": value.necking_engineering_strain,
-            "characterized_max_true_plastic_strain": (
-                value.characterized_max_true_plastic_strain
-            ),
+            "characterized_max_true_plastic_strain": (value.characterized_max_true_plastic_strain),
             "post_necking_extension_policy": value.post_necking_extension_policy,
             "extension_max_true_plastic_strain": value.extension_max_true_plastic_strain,
-            "approximation_acknowledged": (
-                value.post_necking_approximation_acknowledged
-            ),
+            "approximation_acknowledged": (value.post_necking_approximation_acknowledged),
         },
         "applicability": {
             "reference_temperature_k": value.reference_temperature_k,
@@ -654,9 +652,7 @@ def reference_isotropic_tabulated_plasticity_ir(
                 "schema_digest": f"sha256:{content.model_schema_digest}",
             },
             "behavior": "rate_independent_isotropic_tabulated_plasticity",
-            "parameters": reference_isotropic_tabulated_plasticity_canonical(content)[
-                "parameters"
-            ],
+            "parameters": reference_isotropic_tabulated_plasticity_canonical(content)["parameters"],
             "hardening_curve": reference_isotropic_tabulated_plasticity_canonical(content)[
                 "hardening_curve"
             ],

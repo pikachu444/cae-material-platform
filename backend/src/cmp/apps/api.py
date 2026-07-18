@@ -513,9 +513,7 @@ def create_app(
             services.authorization, Permission.DATASET_WRITE
         ),
     )
-    resolved_canonical_test_data = build_canonical_test_data_service(
-        services, resolved_artifacts
-    )
+    resolved_canonical_test_data = build_canonical_test_data_service(services, resolved_artifacts)
     install_canonical_test_data_api(
         application,
         service=resolved_canonical_test_data,
@@ -597,9 +595,7 @@ def create_app(
             services.authorization, Permission.PROCESSING_EXECUTE
         ),
     )
-    resolved_common_recipes = build_common_recipe_service(
-        services, resolved_mapping_profiles
-    )
+    resolved_common_recipes = build_common_recipe_service(services, resolved_mapping_profiles)
     install_common_recipe_api(
         application,
         service=resolved_common_recipes,
@@ -815,6 +811,7 @@ def create_app(
             resolved_datasets,
             resolved_material_models,
             resolved_artifacts,
+            resolved_common_outputs,
         )
     )
     install_tabulated_plasticity_api(

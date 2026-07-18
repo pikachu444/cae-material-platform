@@ -36,20 +36,31 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
    ![네 hardening 후보와 선택 조합의 제한 외삽](../15-demo/images/t55m-hardening-candidates.png)
 9. 여러 반복시험이면 Selection을 만들고 명시적 common-grid alignment를 실행합니다.
 10. 통계 band와 outlier Candidate를 확인합니다. Candidate는 원본 curve를 삭제하지 않습니다.
-11. 다음 중 하나를 선택합니다. 현재 Workbench의 새 선택 조합을 IR로 직접 승격하는 연결은 T-55M
-    마지막 increment에서 제공될 예정이므로, 그 전에는 기존 tabulated/reference Voce 흐름과 혼동하지
-    마십시오.
-   - Dataset에서 tabulated plasticity IR을 생성합니다.
-   - reference Voce calibration을 실행하고 Candidate의 fitted curve/residual/warning을 비교한
-     뒤 선택 이유를 기록해 IR로 승격합니다.
-12. OpenRadioss LAW36 또는 Abaqus isotropic plasticity target을 선택합니다.
-13. mapping report의 status와 post-necking approximation을 확인하고 report digest를 승인합니다.
-14. card preview를 확인하고 `.rad` 또는 `.inp`를 다운로드합니다.
+11. Material 상세의 **Tensile Dataset → Elastoplastic IR → Solver Card**를 엽니다.
+12. **Promote a fitted metal Processing Output**에서 방금 만든 exact Output revision을 선택합니다.
+    표시된 point 수와 revision을 확인하고 bounded fitted extrapolation acknowledgement를 체크한 뒤
+    승격합니다. 이 단계는 curve를 다시 fitting하지 않습니다. Output, source Test Data, Mapping Profile,
+    후보 선택과 domain이 새 immutable IR revision에 그대로 고정됩니다.
+
+    ![Exact Processing Output을 중립 탄소성 IR로 승격](../15-demo/images/t55m-output-promotion.png)
+
+13. IR의 origin이 `selected fitted hardening Processing Output`인지, hardening curve point 수와
+    characterized/extension strain이 선택한 Output과 일치하는지 확인합니다.
+
+    ![승격된 101-point hardening IR과 lineage](../15-demo/images/t55m-processed-ir.png)
+
+14. OpenRadioss LAW36 또는 Abaqus isotropic plasticity target을 선택합니다.
+15. mapping report에서 `exact`, `transformed`, `approximated`, `not_applicable` 상태와 bounded
+    extrapolation 설명을 확인합니다. report digest를 승인한 뒤 카드를 생성합니다.
+16. card preview를 확인하고 OpenRadioss `.rad` 또는 Abaqus `.inp`를 다운로드합니다.
+
+    ![동일한 IR에서 생성된 OpenRadioss와 Abaqus 카드](../15-demo/images/t55m-processed-solver-cards.png)
 
 ## 성공 확인
 
 - Source Raw Asset과 normalized/processed Dataset revision이 서로 다릅니다.
-- IR은 exact Property/Dataset 또는 Candidate Selection revision을 가리킵니다.
+- IR은 exact Property Set과 Processing Output revision을 가리키고, Processing Output은 다시 exact
+  Test Data와 Mapping Profile revision을 가리킵니다.
 - Abaqus preview에는 `*DENSITY`, `*ELASTIC`, `*PLASTIC`이 있습니다.
 - OpenRadioss preview에는 `/MAT/LAW36`과 hardening function이 있습니다.
 - download SHA-256은 card revision의 digest와 같습니다.

@@ -239,3 +239,24 @@ captures:
     image: ../15-demo/images/t55m-metal-processing-methods.png
     width: 1265
     height: 712
+  - id: metal-processing-output-promotion
+    route: /materials/{demo-material-id}/models
+    workflow: exact-selected-hardening-output-to-tabulated-plasticity-ir
+    fixture: T-55M DP600 selected Output b3644458 promoted in DP780 synthetic demo State context
+    image: ../15-demo/images/t55m-output-promotion.png
+    width: 1425
+    height: 891
+  - id: metal-processed-hardening-ir
+    route: /materials/{demo-material-id}/models
+    workflow: exact-output-lineage-and-immutable-hardening-artifact
+    fixture: T-55M IR 4080a694 with 101 selected fitted hardening points and bounded domain
+    image: ../15-demo/images/t55m-processed-ir.png
+    width: 1425
+    height: 891
+  - id: metal-processed-solver-cards
+    route: /materials/{demo-material-id}/models
+    workflow: one-processed-ir-to-openradioss-and-abaqus-native-cards
+    fixture: T-55M OpenRadioss LAW36 rad and Abaqus isotropic-plasticity inp live downloads
+    image: ../15-demo/images/t55m-processed-solver-cards.png
+    width: 1425
+    height: 891

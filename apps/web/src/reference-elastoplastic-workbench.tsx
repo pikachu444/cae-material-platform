@@ -7,14 +7,17 @@ import {
   createTabulatedPlasticityModel,
   downloadElastoplasticSolverCard,
   getTabulatedPlasticityHardeningCurve,
+  listCommonProcessingOutputs,
   listDatasetsForMaterialState,
   listElastoplasticSolverCards,
   listTabulatedPlasticityModels,
   preflightElastoplasticMapping,
   previewElastoplasticSolverCard,
+  promoteProcessingOutputToTabulatedPlasticity,
 } from "./api";
 import type {
   DatasetResponse,
+  CommonProcessingOutputResponse,
   ElastoplasticCardResponse,
   ExportTarget,
   HardeningCurveResponse,
@@ -72,7 +75,13 @@ function hardeningPolyline(curve: HardeningCurveResponse): string {
     .join(" ");
 }
 
-function HardeningCurvePanel({ curve }: { curve: HardeningCurveResponse }) {
+function HardeningCurvePanel({
+  curve,
+  policy,
+}: {
+  curve: HardeningCurveResponse;
+  policy: string;
+}) {
   const first = curve.points[0];
   const last = curve.points.at(-1);
   return (
@@ -85,7 +94,7 @@ function HardeningCurvePanel({ curve }: { curve: HardeningCurveResponse }) {
         <span className="reference-chip">{curve.points.length} points</span>
       </div>
       <p className="curve-summary">
-        Yield anchor {(first.true_yield_stress_pa / 1e6).toFixed(2)} MPa · constant extension to{" "}
+        Yield anchor {(first.true_yield_stress_pa / 1e6).toFixed(2)} MPa · bounded curve to{" "}
         {last?.true_plastic_strain.toFixed(4)} plastic strain · artifact {shortId(curve.artifact_id)}
       </p>
       <svg className="curve-plot" viewBox="0 0 720 280" role="img" aria-label="Hardening curve">
@@ -98,9 +107,17 @@ function HardeningCurvePanel({ curve }: { curve: HardeningCurveResponse }) {
         </text>
       </svg>
       <ul className="curve-origin-legend">
-        <li>Catalog yield anchor</li>
-        <li>Pre-necking observations</li>
-        <li>Explicit constant-stress extension</li>
+        {policy === "selected_fitted_bounded_extrapolation" ? (
+          <>
+            <li>Selected fitted hardening samples from an exact Processing Output revision</li>
+            <li>Explicitly acknowledged bounded extrapolation domain</li>
+          </>
+        ) : (
+          <>
+            <li>Catalog yield anchor and pre-necking observations</li>
+            <li>Explicit constant-stress extension</li>
+          </>
+        )}
       </ul>
     </section>
   );
@@ -140,14 +157,20 @@ interface Props {
 export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: Props) {
   const [open, setOpen] = useState(false);
   const [datasets, setDatasets] = useState<DatasetResponse[]>([]);
+  const [processingOutputs, setProcessingOutputs] = useState<CommonProcessingOutputResponse[]>([]);
   const [models, setModels] = useState<TabulatedPlasticityModelResponse[]>([]);
   const [selectedDatasetRevisionId, setSelectedDatasetRevisionId] = useState("");
+  const [selectedProcessingOutputId, setSelectedProcessingOutputId] = useState("");
   const [selectedModelId, setSelectedModelId] = useState("");
   const [curve, setCurve] = useState<HardeningCurveResponse | null>(null);
   const [cards, setCards] = useState<ElastoplasticCardResponse[]>([]);
   const [report, setReport] = useState<MappingReport | null>(null);
   const [extension, setExtension] = useState("0.25");
   const [acknowledged, setAcknowledged] = useState(false);
+  const [processingAcknowledged, setProcessingAcknowledged] = useState(false);
+  const [processingReason, setProcessingReason] = useState(
+    "Promote selected fitted hardening Processing Output to tabulated plasticity IR",
+  );
   const [modelReason, setModelReason] = useState(
     "Derive reference pre-necking tabulated plasticity IR",
   );
@@ -168,6 +191,13 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
       ),
     [datasets],
   );
+  const eligibleProcessingOutputs = useMemo(
+    () =>
+      processingOutputs.filter(
+        (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate",
+      ),
+    [processingOutputs],
+  );
   const selectedModel =
     models.find((model) => model.material_model_id === selectedModelId) ?? null;
   const target = targetFor(targetSolver);
@@ -176,16 +206,24 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
     setLoading(true);
     setError(null);
     try {
-      const [datasetResult, modelResult] = await Promise.all([
+      const [datasetResult, outputResult, modelResult] = await Promise.all([
         listDatasetsForMaterialState(config, state.material_state_id),
+        listCommonProcessingOutputs(config),
         listTabulatedPlasticityModels(config, state.material_state_id),
       ]);
       setDatasets(datasetResult.data.items);
+      setProcessingOutputs(outputResult.data.items);
       setModels(modelResult.data.items);
       const eligible = datasetResult.data.items.filter((dataset) =>
         ["normalized", "processed"].includes(dataset.current_revision.content.representation),
       );
       setSelectedDatasetRevisionId((current) => current || eligible[0]?.current_revision.id || "");
+      const eligibleOutputs = outputResult.data.items.filter(
+        (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate",
+      );
+      setSelectedProcessingOutputId(
+        (current) => current || eligibleOutputs[0]?.processing_output_id || "",
+      );
       setSelectedModelId(
         (current) => current || modelResult.data.items[0]?.material_model_id || "",
       );
@@ -248,6 +286,35 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
       setModels((current) => [result.data, ...current]);
       setSelectedModelId(result.data.material_model_id);
       setAcknowledged(false);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function promoteProcessingOutput(): Promise<void> {
+    const output = eligibleProcessingOutputs.find(
+      (candidate) => candidate.processing_output_id === selectedProcessingOutputId,
+    );
+    if (!output) return;
+    setAction("model");
+    setError(null);
+    try {
+      const result = await promoteProcessingOutputToTabulatedPlasticity(
+        config,
+        output.processing_output_id,
+        {
+          material_state_id: state.material_state_id,
+          property_set_revision_id: propertySet.current_revision.id,
+          processing_output_revision_id: output.current_revision.id,
+          acknowledge_bounded_extrapolation: processingAcknowledged,
+          change_reason: processingReason.trim(),
+        },
+      );
+      setModels((current) => [result.data, ...current]);
+      setSelectedModelId(result.data.material_model_id);
+      setProcessingAcknowledged(false);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -419,6 +486,62 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
               {action === "model" ? "Deriving hardening curve…" : "Create elastoplastic IR"}
             </button>
           </div>
+          <div className="workflow-step">
+            <strong>1B. Promote a fitted metal Processing Output (recommended)</strong>
+            <p className="form-hint">
+              Select one exact immutable output whose final Recipe step compared and blended
+              metal hardening candidates. These points are not refitted during promotion.
+            </p>
+            <label>
+              Exact Processing Output revision
+              <select
+                value={selectedProcessingOutputId}
+                onChange={(event) => setSelectedProcessingOutputId(event.target.value)}
+                disabled={!eligibleProcessingOutputs.length}
+              >
+                {eligibleProcessingOutputs.map((output) => (
+                  <option key={output.processing_output_id} value={output.processing_output_id}>
+                    {output.label} · r{output.current_revision.revision_no} ·{" "}
+                    {shortId(output.current_revision.id)} · {output.final_point_count} points
+                  </option>
+                ))}
+              </select>
+            </label>
+            {!eligibleProcessingOutputs.length ? (
+              <small className="muted">
+                Save a Processing Output ending in metal.hardening_fit_extrapolate first.
+              </small>
+            ) : null}
+            <label>
+              Change reason
+              <input
+                value={processingReason}
+                onChange={(event) => setProcessingReason(event.target.value)}
+              />
+            </label>
+            <label className="acknowledgement-row">
+              <input
+                type="checkbox"
+                checked={processingAcknowledged}
+                onChange={(event) => setProcessingAcknowledged(event.target.checked)}
+              />
+              I reviewed the candidate blend and acknowledge its bounded fitted extrapolation as
+              reference/non-production evidence.
+            </label>
+            <button
+              className="button primary"
+              type="button"
+              onClick={() => void promoteProcessingOutput()}
+              disabled={
+                action !== null ||
+                !selectedProcessingOutputId ||
+                !processingAcknowledged ||
+                propertySet.current_revision.content.yield_stress_pa === null
+              }
+            >
+              {action === "model" ? "Promoting exact output…" : "Promote fitted output to IR"}
+            </button>
+          </div>
           {models.length ? (
             <div className="workflow-step">
               <strong>2. Inspect immutable IR and hardening Artifact</strong>
@@ -430,7 +553,9 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
                       r{model.current_revision.revision_no} · {shortId(model.current_revision.id)} · source Dataset{" "}
                       {model.current_revision.content.source_dataset_revision_id
                         ? shortId(model.current_revision.content.source_dataset_revision_id)
-                        : "accepted Voce Candidate"}
+                        : model.current_revision.content.processing_projection
+                          ? `Processing Output ${shortId(model.current_revision.content.processing_projection.output_revision_id)}`
+                          : "accepted Voce Candidate"}
                     </option>
                   ))}
                 </select>
@@ -438,8 +563,10 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
               {selectedModel ? (
                 <div className="transformation-facts">
                   <span>
-                    {selectedModel.current_revision.content.necking_engineering_strain === null
-                      ? "Origin: calibrated fixed-grid projection"
+                    {selectedModel.current_revision.content.processing_projection
+                      ? "Origin: selected fitted hardening Processing Output"
+                      : selectedModel.current_revision.content.necking_engineering_strain === null
+                        ? "Origin: calibrated fixed-grid projection"
                       : `Necking cutoff: ${selectedModel.current_revision.content.necking_engineering_strain.toFixed(6)}`}
                   </span>
                   <span>
@@ -454,7 +581,12 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
                   <span>Extension: {selectedModel.current_revision.content.extension_max_true_plastic_strain.toFixed(6)}</span>
                 </div>
               ) : null}
-              {curve ? <HardeningCurvePanel curve={curve} /> : null}
+              {curve && selectedModel ? (
+                <HardeningCurvePanel
+                  curve={curve}
+                  policy={selectedModel.current_revision.content.post_necking_extension_policy}
+                />
+              ) : null}
             </div>
           ) : null}
           {selectedModel ? (

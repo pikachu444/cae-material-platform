@@ -2555,7 +2555,9 @@ export interface TabulatedPlasticityContent {
   necking_engineering_strain: number | null;
   characterized_max_true_plastic_strain: number;
   extension_max_true_plastic_strain: number;
-  post_necking_extension_policy: "approved_constant_true_stress";
+  post_necking_extension_policy:
+    | "approved_constant_true_stress"
+    | "selected_fitted_bounded_extrapolation";
   post_necking_approximation_acknowledged: true;
   applicability: Applicability;
   reference_temperature_k: number;
@@ -2574,6 +2576,20 @@ export interface TabulatedPlasticityContent {
     b: number;
     sampling_point_count: number;
   } | null;
+  processing_projection: {
+    output_id: string;
+    output_revision_id: string;
+    output_sha256: string;
+    source_test_data_id: string;
+    source_test_data_revision_id: string;
+    mapping_profile_id: string;
+    mapping_profile_revision_id: string;
+    candidate_families: string[];
+    primary_family: string;
+    secondary_family: string;
+    primary_weight: number;
+    fit_minimum_true_plastic_strain: number;
+  } | null;
   non_production: true;
 }
 
@@ -2586,6 +2602,7 @@ export interface TabulatedPlasticityProvenanceSummary {
   source_property_set_revision_id: string;
   source_dataset_revision_id: string | null;
   source_voce_selection_revision_id: string | null;
+  source_processing_output_revision_id: string | null;
   hardening_curve_artifact_id: string;
   hardening_curve_sha256: string;
   transformation_profile_digest: string;

@@ -18,6 +18,13 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     ReferenceIsotropicTabulatedPlasticityContent,
     validate_hardening_curve,
 )
+from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
+    REFERENCE_PROCESSED_EXTRAPOLATION_POLICY,
+    REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
+    REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+    REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+    ReferenceProcessedTabulatedPlasticityContent,
+)
 from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
     REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
     REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
@@ -48,7 +55,9 @@ MappingStatus = Literal[
     "not_applicable",
 ]
 type ExportableTabulatedPlasticityContent = (
-    ReferenceIsotropicTabulatedPlasticityContent | ReferenceVoceTabulatedPlasticityContent
+    ReferenceIsotropicTabulatedPlasticityContent
+    | ReferenceVoceTabulatedPlasticityContent
+    | ReferenceProcessedTabulatedPlasticityContent
 )
 
 _VALID_MAPPING_STATUSES = frozenset(
@@ -249,6 +258,7 @@ class ElastoplasticMappingReport:
         if self.model_schema_digest not in {
             REFERENCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
             REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+            REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST,
         }:
             raise InvalidElastoplasticExport("mapping report model schema is not exportable")
         if not self.non_production:
@@ -301,7 +311,9 @@ def _exporter_identity(target: ElastoplasticExportTarget) -> tuple[str, str, str
     return None
 
 
-def _mapping_items(target: ElastoplasticExportTarget) -> tuple[ElastoplasticMappingItem, ...]:
+def _mapping_items(
+    target: ElastoplasticExportTarget, *, processed_selection: bool = False
+) -> tuple[ElastoplasticMappingItem, ...]:
     if not (target.is_openradioss or target.is_abaqus):
         return (
             ElastoplasticMappingItem(
@@ -367,8 +379,15 @@ def _mapping_items(target: ElastoplasticExportTarget) -> tuple[ElastoplasticMapp
             "/transformation/post_necking_extension_policy",
             extension_target,
             "approximated",
-            "The IR contains an explicitly acknowledged constant-stress extension beyond the "
-            "measured pre-necking range; the exporter preserves it without adding another default.",
+            (
+                "The selected fitted IR curve contains an explicitly acknowledged bounded "
+                "extension. The exporter emits those points and declares constant target "
+                "behavior only beyond the final emitted point."
+                if processed_selection
+                else "The IR contains an explicitly acknowledged constant-stress extension "
+                "beyond the measured pre-necking range; the exporter preserves it without "
+                "adding another default."
+            ),
         ),
         ElastoplasticMappingItem(
             "temperature_dependence",
@@ -409,7 +428,13 @@ def preflight_reference_elastoplastic_export(
         material_model_revision_id=material_model_revision_id,
         model_schema_digest=content.model_schema_digest,
         target=target,
-        items=_mapping_items(target),
+        items=_mapping_items(
+            target,
+            processed_selection=(
+                content.model_schema_digest
+                == REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+            ),
+        ),
         exporter_id=exporter[0],
         exporter_version=exporter[1],
         exporter_digest=exporter[2],
@@ -528,8 +553,7 @@ def render_reference_abaqus_plastic_card(
         "*PLASTIC, HARDENING=ISOTROPIC, EXTRAPOLATION=CONSTANT",
     ]
     lines.extend(
-        f"{point.true_yield_stress_pa:.12E}, {point.true_plastic_strain:.12E}"
-        for point in points
+        f"{point.true_yield_stress_pa:.12E}, {point.true_plastic_strain:.12E}" for point in points
     )
     lines.append("")
     return "\n".join(lines)
@@ -595,10 +619,11 @@ class ReferenceElastoplasticSolverCardContent:
         _sha256("exporter_digest", self.exporter_digest)
         if not 2 <= self.hardening_curve_point_count <= 5_000:
             raise InvalidElastoplasticExport("hardening curve point count is outside 2..5000")
-        _positive(
-            "extension_max_true_plastic_strain", self.extension_max_true_plastic_strain
-        )
-        if self.post_necking_extension_policy != REFERENCE_POST_NECKING_EXTENSION_POLICY:
+        _positive("extension_max_true_plastic_strain", self.extension_max_true_plastic_strain)
+        if self.post_necking_extension_policy not in {
+            REFERENCE_POST_NECKING_EXTENSION_POLICY,
+            REFERENCE_PROCESSED_EXTRAPOLATION_POLICY,
+        }:
             raise InvalidElastoplasticExport("post-necking extension policy is not recognized")
         for name, value in (
             ("applicable_temperature_min_k", self.applicable_temperature_min_k),
@@ -652,7 +677,13 @@ class ReferenceElastoplasticSolverCardContent:
             material_model_revision_id=self.material_model_revision_id,
             model_schema_digest=self.model_schema_digest,
             target=self.target,
-            items=_mapping_items(self.target),
+            items=_mapping_items(
+                self.target,
+                processed_selection=(
+                    self.model_schema_digest
+                    == REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+                ),
+            ),
             exporter_id=self.exporter_id,
             exporter_version=self.exporter_version,
             exporter_digest=self.exporter_digest,
@@ -681,6 +712,7 @@ class ReferenceElastoplasticSolverCardContent:
         if self.model_schema_digest not in {
             REFERENCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
             REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST,
+            REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST,
         }:
             raise InvalidElastoplasticExport("stored model schema is not exportable")
         if not self.non_production:
@@ -708,9 +740,7 @@ class ReferenceElastoplasticSolverCardContent:
                 "artifact_id": str(self.hardening_curve_artifact_id),
                 "sha256": self.hardening_curve_sha256,
                 "point_count": self.hardening_curve_point_count,
-                "extension_max_true_plastic_strain": (
-                    self.extension_max_true_plastic_strain
-                ),
+                "extension_max_true_plastic_strain": (self.extension_max_true_plastic_strain),
                 "post_necking_extension_policy": self.post_necking_extension_policy,
             },
             "applicability": {
@@ -847,7 +877,13 @@ def validate_reference_elastoplastic_card_with_curve(
         material_model_revision_id=content.material_model_revision_id,
         model_schema_digest=content.model_schema_digest,
         target=content.target,
-        items=_mapping_items(content.target),
+        items=_mapping_items(
+            content.target,
+            processed_selection=(
+                content.model_schema_digest
+                == REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST
+            ),
+        ),
         exporter_id=content.exporter_id,
         exporter_version=content.exporter_version,
         exporter_digest=content.exporter_digest,
@@ -896,6 +932,14 @@ def elastoplastic_exporter_capability_manifest() -> dict[str, object]:
                 "schema_version": REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_VERSION,
                 "schema_digest": f"sha256:{REFERENCE_VOCE_TABULATED_PLASTICITY_SCHEMA_DIGEST}",
                 "origin": "accepted_multi_curve_voce_candidate",
+            },
+            {
+                "id": REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
+                "schema_version": REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION,
+                "schema_digest": (
+                    f"sha256:{REFERENCE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_DIGEST}"
+                ),
+                "origin": "exact_processing_output_selected_hardening",
             },
         ],
         "exporters": [

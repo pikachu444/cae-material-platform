@@ -28,6 +28,11 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     TabulatedPlasticityNotFound,
     reference_isotropic_tabulated_plasticity_canonical,
 )
+from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
+    REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
+    ReferenceProcessedTabulatedPlasticityContent,
+    reference_processed_tabulated_plasticity_canonical,
+)
 from cmp.modules.modeling.domain.reference_voce_tabulated_plasticity import (
     REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
     ReferenceVoceTabulatedPlasticityContent,
@@ -75,11 +80,62 @@ def _record(row: Any) -> RevisionRecord:
 
 
 type TabulatedPlasticityContent = (
-    ReferenceIsotropicTabulatedPlasticityContent | ReferenceVoceTabulatedPlasticityContent
+    ReferenceIsotropicTabulatedPlasticityContent
+    | ReferenceVoceTabulatedPlasticityContent
+    | ReferenceProcessedTabulatedPlasticityContent
 )
 
 
 def _content(row: Any) -> TabulatedPlasticityContent:
+    if str(row["model_family_id"]) == REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID:
+        return ReferenceProcessedTabulatedPlasticityContent(
+            material_id=cast(UUID, row["material_id"]),
+            material_revision_id=cast(UUID, row["material_revision_id"]),
+            material_state_id=cast(UUID, row["material_state_id"]),
+            material_state_revision_id=cast(UUID, row["material_state_revision_id"]),
+            property_set_id=cast(UUID, row["property_set_id"]),
+            property_set_revision_id=cast(UUID, row["property_set_revision_id"]),
+            processing_output_id=cast(UUID, row["processing_output_id"]),
+            processing_output_revision_id=cast(UUID, row["processing_output_revision_id"]),
+            processing_output_sha256=str(row["processing_output_sha256"]),
+            source_test_data_id=cast(UUID, row["processing_source_document_id"]),
+            source_test_data_revision_id=cast(UUID, row["processing_source_document_revision_id"]),
+            mapping_profile_id=cast(UUID, row["processing_mapping_profile_id"]),
+            mapping_profile_revision_id=cast(UUID, row["processing_mapping_profile_revision_id"]),
+            candidate_families=tuple(row["hardening_candidate_families"]),
+            primary_family=str(row["hardening_primary_family"]),
+            secondary_family=str(row["hardening_secondary_family"]),
+            primary_weight=float(row["hardening_primary_weight"]),
+            fit_minimum_true_plastic_strain=float(row["hardening_fit_minimum_strain"]),
+            characterized_max_true_plastic_strain=float(
+                row["characterized_max_true_plastic_strain"]
+            ),
+            extension_max_true_plastic_strain=float(row["extension_max_true_plastic_strain"]),
+            hardening_curve_artifact_id=cast(UUID, row["hardening_curve_artifact_id"]),
+            hardening_curve_sha256=str(row["hardening_curve_sha256"]),
+            hardening_curve_point_count=int(row["hardening_curve_point_count"]),
+            density_kg_per_m3=float(row["density_kg_per_m3"]),
+            youngs_modulus_pa=float(row["youngs_modulus_pa"]),
+            poisson_ratio=float(row["poisson_ratio"]),
+            initial_yield_stress_pa=float(row["source_yield_stress_pa"]),
+            post_necking_approximation_acknowledged=bool(
+                row["post_necking_approximation_acknowledged"]
+            ),
+            applicable_temperature_min_k=row["applicable_temperature_min_k"],
+            applicable_temperature_max_k=row["applicable_temperature_max_k"],
+            applicable_strain_rate_min_per_s=row["applicable_strain_rate_min_per_s"],
+            applicable_strain_rate_max_per_s=row["applicable_strain_rate_max_per_s"],
+            applicability_note=row["applicability_note"],
+            reference_temperature_k=float(row["reference_temperature_k"]),
+            model_family_id=str(row["model_family_id"]),
+            model_schema_digest=str(row["model_schema_digest"]),
+            hardening_curve_schema_ref=str(row["hardening_curve_schema_ref"]),
+            transformation_profile_id=str(row["transformation_profile_id"]),
+            transformation_profile_version=str(row["transformation_profile_version"]),
+            transformation_profile_digest=str(row["transformation_profile_digest"]),
+            post_necking_extension_policy=str(row["post_necking_extension_policy"]),
+            non_production=bool(row["non_production"]),
+        )
     if str(row["model_family_id"]) == REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID:
         return ReferenceVoceTabulatedPlasticityContent(
             material_id=cast(UUID, row["material_id"]),
@@ -93,14 +149,10 @@ def _content(row: Any) -> TabulatedPlasticityContent:
                 UUID, row["calibration_input_scope_revision_id"]
             ),
             voce_calibration_plan_id=cast(UUID, row["voce_calibration_plan_id"]),
-            voce_calibration_plan_revision_id=cast(
-                UUID, row["voce_calibration_plan_revision_id"]
-            ),
+            voce_calibration_plan_revision_id=cast(UUID, row["voce_calibration_plan_revision_id"]),
             voce_calibration_run_id=cast(UUID, row["voce_calibration_run_id"]),
             voce_calibration_candidate_id=cast(UUID, row["voce_calibration_candidate_id"]),
-            voce_calibration_candidate_sha256=str(
-                row["voce_calibration_candidate_sha256"]
-            ),
+            voce_calibration_candidate_sha256=str(row["voce_calibration_candidate_sha256"]),
             voce_candidate_selection_id=cast(UUID, row["voce_candidate_selection_id"]),
             voce_candidate_selection_revision_id=cast(
                 UUID, row["voce_candidate_selection_revision_id"]
@@ -158,9 +210,7 @@ def _content(row: Any) -> TabulatedPlasticityContent:
         poisson_ratio=float(row["poisson_ratio"]),
         initial_yield_stress_pa=float(row["source_yield_stress_pa"]),
         necking_engineering_strain=float(row["necking_engineering_strain"]),
-        characterized_max_true_plastic_strain=float(
-            row["characterized_max_true_plastic_strain"]
-        ),
+        characterized_max_true_plastic_strain=float(row["characterized_max_true_plastic_strain"]),
         extension_max_true_plastic_strain=float(row["extension_max_true_plastic_strain"]),
         post_necking_approximation_acknowledged=bool(
             row["post_necking_approximation_acknowledged"]
@@ -199,9 +249,7 @@ def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
         "hardening_curve_schema_ref": content.hardening_curve_schema_ref,
         "hardening_curve_point_count": content.hardening_curve_point_count,
         "source_point_count": getattr(content, "source_point_count", None),
-        "pre_yield_excluded_point_count": getattr(
-            content, "pre_yield_excluded_point_count", None
-        ),
+        "pre_yield_excluded_point_count": getattr(content, "pre_yield_excluded_point_count", None),
         "post_necking_excluded_point_count": getattr(
             content, "post_necking_excluded_point_count", None
         ),
@@ -210,9 +258,7 @@ def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
         "transformation_profile_version": content.transformation_profile_version,
         "transformation_profile_digest": content.transformation_profile_digest,
         "necking_engineering_strain": getattr(content, "necking_engineering_strain", None),
-        "characterized_max_true_plastic_strain": (
-            content.characterized_max_true_plastic_strain
-        ),
+        "characterized_max_true_plastic_strain": (content.characterized_max_true_plastic_strain),
         "extension_max_true_plastic_strain": content.extension_max_true_plastic_strain,
         "post_necking_extension_policy": content.post_necking_extension_policy,
         "post_necking_approximation_acknowledged": (
@@ -228,7 +274,11 @@ def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
         "applicable_strain_rate_max_per_s": content.applicable_strain_rate_max_per_s,
         "applicability_note": content.applicability_note,
         "reference_temperature_k": content.reference_temperature_k,
-        "calibration_evidence_kind": "manual_catalog_projection",
+        "calibration_evidence_kind": (
+            "processing_recipe_selection"
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            else "manual_catalog_projection"
+        ),
         "calibration_selection_id": None,
         "calibration_selection_revision_id": None,
         "calibration_run_id": None,
@@ -245,9 +295,7 @@ def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
             content, "voce_calibration_plan_revision_id", None
         ),
         "voce_calibration_run_id": getattr(content, "voce_calibration_run_id", None),
-        "voce_calibration_candidate_id": getattr(
-            content, "voce_calibration_candidate_id", None
-        ),
+        "voce_calibration_candidate_id": getattr(content, "voce_calibration_candidate_id", None),
         "voce_calibration_candidate_sha256": getattr(
             content, "voce_calibration_candidate_sha256", None
         ),
@@ -258,26 +306,44 @@ def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
         "voce_sampling_point_count": getattr(content, "sampling_point_count", None),
         "voce_q_pa": getattr(content, "q_pa", None),
         "voce_b": getattr(content, "b", None),
+        "processing_output_id": getattr(content, "processing_output_id", None),
+        "processing_output_revision_id": getattr(content, "processing_output_revision_id", None),
+        "processing_output_sha256": getattr(content, "processing_output_sha256", None),
+        "processing_source_document_id": getattr(content, "source_test_data_id", None),
+        "processing_source_document_revision_id": getattr(
+            content, "source_test_data_revision_id", None
+        ),
+        "processing_mapping_profile_id": getattr(content, "mapping_profile_id", None),
+        "processing_mapping_profile_revision_id": getattr(
+            content, "mapping_profile_revision_id", None
+        ),
+        "hardening_candidate_families": list(content.candidate_families)
+        if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+        else None,
+        "hardening_primary_family": getattr(content, "primary_family", None),
+        "hardening_secondary_family": getattr(content, "secondary_family", None),
+        "hardening_primary_weight": getattr(content, "primary_weight", None),
+        "hardening_fit_minimum_strain": getattr(content, "fit_minimum_true_plastic_strain", None),
         "non_production": True,
     }
     return values
 
 
 def _canonical(content: TabulatedPlasticityContent) -> dict[str, object]:
+    if isinstance(content, ReferenceProcessedTabulatedPlasticityContent):
+        return reference_processed_tabulated_plasticity_canonical(content)
     if isinstance(content, ReferenceVoceTabulatedPlasticityContent):
         return reference_voce_tabulated_plasticity_canonical(content)
     return reference_isotropic_tabulated_plasticity_canonical(content)
 
 
-_TABLES: TypedRevisionTables[TabulatedPlasticityContent] = (
-    TypedRevisionTables(
-        aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
-        identity_table=material_model_table,
-        revision_table=material_model_revision_table,
-        canonical_content=_canonical,
-        content_values=_content_values,
-        identity_values=lambda content: {"material_state_id": content.material_state_id},
-    )
+_TABLES: TypedRevisionTables[TabulatedPlasticityContent] = TypedRevisionTables(
+    aggregate_type=MATERIAL_MODEL_AGGREGATE_TYPE,
+    identity_table=material_model_table,
+    revision_table=material_model_revision_table,
+    canonical_content=_canonical,
+    content_values=_content_values,
+    identity_values=lambda content: {"material_state_id": content.material_state_id},
 )
 
 
@@ -351,6 +417,18 @@ def _content_columns(table: sa.Table) -> tuple[Any, ...]:
         table.c.voce_sampling_point_count,
         table.c.voce_q_pa,
         table.c.voce_b,
+        table.c.processing_output_id,
+        table.c.processing_output_revision_id,
+        table.c.processing_output_sha256,
+        table.c.processing_source_document_id,
+        table.c.processing_source_document_revision_id,
+        table.c.processing_mapping_profile_id,
+        table.c.processing_mapping_profile_revision_id,
+        table.c.hardening_candidate_families,
+        table.c.hardening_primary_family,
+        table.c.hardening_secondary_family,
+        table.c.hardening_primary_weight,
+        table.c.hardening_fit_minimum_strain,
         table.c.non_production,
     )
 
@@ -376,9 +454,7 @@ class SqlAlchemyTabulatedPlasticityRepository(TabulatedPlasticityRepository):
         self._rls.bind_authorization(session, context, decision)
 
     @contextmanager
-    def _session(
-        self, context: SecurityContext, decision: AuthorizationDecision
-    ) -> Any:
+    def _session(self, context: SecurityContext, decision: AuthorizationDecision) -> Any:
         with self._sessions() as session, session.begin():
             self._bind(session, context, decision)
             yield session
@@ -414,6 +490,7 @@ class SqlAlchemyTabulatedPlasticityRepository(TabulatedPlasticityRepository):
                     (
                         REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
                         REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
+                        REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
                     )
                 )
             )
@@ -494,6 +571,7 @@ class SqlAlchemyTabulatedPlasticityRepository(TabulatedPlasticityRepository):
                 (
                     REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
                     REFERENCE_VOCE_TABULATED_PLASTICITY_FAMILY_ID,
+                    REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID,
                 )
             ),
             revision.c.organization_id == context.organization_id,

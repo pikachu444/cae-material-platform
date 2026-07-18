@@ -1340,13 +1340,13 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   candidate, Voce/Swift/Hockett–Sherby/Ghosh fitting, candidate combine와 bounded extrapolation.
 - **완료 조건:** Recipe/Neutral JSON에 선택 방법과 domain이 남고 기존 two-solver card로 이어진다.
 - **테스트:** analytical/golden numeric fixtures, bounds/residual/extrapolation regression, UI E2E.
-- **구현 증거 (1차, 진행 중):** common method registry에 `metal.elastic_modulus`,
+- **구현 증거 (1차):** common method registry에 `metal.elastic_modulus`,
   `metal.proof_stress`, `metal.necking_candidate`, `metal.engineering_to_true_plastic`을 추가했다.
   E 산정은 OLS, Huber robust regression, chord, secant, manual을 명시적으로 구분한다. 자동 necking은
   후보만 보고하고 원본을 자르지 않으며, true/plastic 변환은 사용자가 확정한 index 또는 전체 관측
   domain을 선택한다. scalar 결과와 변환 curve는 Processing Output/Recipe/Batch의 기존 불변 계약으로
   재실행된다. normalized strain `1`, stress `Pa`가 아니면 계산을 거부한다.
-- **구현 증거 (2차, 진행 중, 2026-07-18):** `metal.hardening_fit_extrapolate`가 공개 Voce,
+- **구현 증거 (2차, 2026-07-18):** `metal.hardening_fit_extrapolate`가 공개 Voce,
   Swift, Hockett–Sherby, Ghosh 식을 동일한 normalized predicted-minus-observed least-squares로
   fitting한다. 2~4개 후보, fit domain, extrapolation maximum(`<=5`), 출력 point 수, primary/
   secondary와 조합 weight를 모두 Recipe option으로 요구한다. 각 parameter의 lower/initial/fitted/
@@ -1355,9 +1355,18 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   `DP600-T55M-12PT r1`을 Recipe `r4 published`로 preflight/batch 실행해 Batch
   `7d37d8c3-27c9-4d00-8eee-30fefa078699`, Output revision
   `b3644458-1799-4fbc-bdd9-48a8230fefc3`, 101 points 성공을 확인했다.
-- **남은 범위:** 선택된 `stress.hardening.selected` Processing Output revision을 exact source로
-  기존 tabulated-plasticity IR에 승격하고 Abaqus/OpenRadioss card까지 한 화면 흐름으로 연결하는
-  E2E. 이 연결이 끝나기 전에는 T-55M을 `complete`로 표시하지 않는다.
+- **구현 증거 (3차, 완료, 2026-07-18):** 선택된 `stress.hardening.selected` Processing Output의
+  identity/revision/digest, source Test Data revision과 Mapping Profile revision을 정확히 고정하는
+  tabulated-plasticity IR family `1.2.0`을 추가했다. 후보 family, primary/secondary 선택, blend
+  weight, fit/extrapolation domain과 사용자 acknowledgement는 명시적 PostgreSQL column/constraint로
+  저장되며, Processing Output과 source/profile의 composite tenant/classification FK 및 trigger가
+  최종 method/version/digest를 검증한다. Material 상세의 elastoplastic workbench에서 exact Output을
+  선택해 IR로 승격하고 같은 화면에서 Abaqus/OpenRadioss mapping preflight, preview, `.inp`/`.rad`
+  download까지 실행한다. 실제 Docker/PostgreSQL에서 Output revision
+  `b3644458-1799-4fbc-bdd9-48a8230fefc3`을 IR revision
+  `4080a694-876d-483f-8b70-89db47fa6610`으로 승격하고 두 solver card의 ASCII download와 SHA-256을
+  확인했다. 단위/domain/API/migration/React 회귀 테스트가 이 경로를 고정한다.
+- **상태:** `complete`. Neutral Material 교환 envelope와 bulk package는 각각 T-56/T-58 범위다.
 
 #### T-55P. Polymer linear-viscoelastic workbench — `P0`
 

@@ -44,6 +44,7 @@ from cmp.modules.modeling.application.service import (
 )
 from cmp.modules.modeling.application.tabulated_plasticity import (
     CreateReferenceTabulatedPlasticityModel,
+    PromoteProcessingOutputToTabulatedPlasticity,
     TabulatedPlasticityModelService,
     TabulatedPlasticityModelSnapshot,
 )
@@ -51,6 +52,9 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     HardeningCurvePoint,
     HardeningPointOrigin,
     ReferenceIsotropicTabulatedPlasticityContent,
+)
+from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
+    ReferenceProcessedTabulatedPlasticityContent,
 )
 from cmp.shared.domain.revisions import RevisionRecord, TenantScope, content_sha256
 from fastapi import FastAPI, Request
@@ -66,6 +70,10 @@ MODEL = UUID("e3000000-0000-4000-8000-000000000007")
 MODEL_REVISION = UUID("e3000000-0000-4000-8000-000000000008")
 CARD = UUID("e3000000-0000-4000-8000-000000000009")
 CARD_REVISION = UUID("e3000000-0000-4000-8000-00000000000a")
+PROCESSING_OUTPUT = UUID("e3000000-0000-4000-8000-000000000020")
+PROCESSING_OUTPUT_REVISION = UUID("e3000000-0000-4000-8000-000000000021")
+PROCESSED_MODEL = UUID("e3000000-0000-4000-8000-000000000022")
+PROCESSED_MODEL_REVISION = UUID("e3000000-0000-4000-8000-000000000023")
 TRACE = "00-000000000000000000000000000000e3-00000000000000e3-01"
 
 
@@ -194,6 +202,51 @@ MODEL_SNAPSHOT = TabulatedPlasticityModelSnapshot(
 )
 
 
+PROCESSED_MODEL_SNAPSHOT = TabulatedPlasticityModelSnapshot(
+    id=PROCESSED_MODEL,
+    material_state_id=STATE,
+    current=ModelRevisionSnapshot(
+        _record(
+            PROCESSED_MODEL_REVISION,
+            MATERIAL_MODEL_AGGREGATE_TYPE,
+            PROCESSED_MODEL,
+            "urn:cmp:modeling:reference-processed-tabulated-plasticity:1.2.0",
+            content_sha256({"fixture": "processed-plastic-model"}),
+        ),
+        ReferenceProcessedTabulatedPlasticityContent(
+            material_id=UUID("e3000000-0000-4000-8000-000000000010"),
+            material_revision_id=UUID("e3000000-0000-4000-8000-000000000011"),
+            material_state_id=STATE,
+            material_state_revision_id=UUID("e3000000-0000-4000-8000-000000000012"),
+            property_set_id=UUID("e3000000-0000-4000-8000-000000000013"),
+            property_set_revision_id=PROPERTY_REVISION,
+            processing_output_id=PROCESSING_OUTPUT,
+            processing_output_revision_id=PROCESSING_OUTPUT_REVISION,
+            processing_output_sha256="1" * 64,
+            source_test_data_id=UUID("e3000000-0000-4000-8000-000000000024"),
+            source_test_data_revision_id=UUID("e3000000-0000-4000-8000-000000000025"),
+            mapping_profile_id=UUID("e3000000-0000-4000-8000-000000000026"),
+            mapping_profile_revision_id=UUID("e3000000-0000-4000-8000-000000000027"),
+            candidate_families=("voce", "swift"),
+            primary_family="swift",
+            secondary_family="voce",
+            primary_weight=0.5,
+            fit_minimum_true_plastic_strain=0.0001,
+            characterized_max_true_plastic_strain=0.1,
+            extension_max_true_plastic_strain=0.5,
+            hardening_curve_artifact_id=UUID("e3000000-0000-4000-8000-000000000028"),
+            hardening_curve_sha256="2" * 64,
+            hardening_curve_point_count=21,
+            density_kg_per_m3=7850,
+            youngs_modulus_pa=210e9,
+            poisson_ratio=0.3,
+            initial_yield_stress_pa=250e6,
+            post_necking_approximation_acknowledged=True,
+        ),
+    ),
+)
+
+
 class _ModelService:
     async def create_model(
         self,
@@ -207,6 +260,20 @@ class _ModelService:
         assert command.dataset_revision_id == DATASET_REVISION
         assert command.acknowledge_post_necking_approximation
         return MODEL_SNAPSHOT
+
+    async def promote_processing_output(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: PromoteProcessingOutputToTabulatedPlasticity,
+    ) -> TabulatedPlasticityModelSnapshot:
+        del context, decision
+        assert command.material_state_id == STATE
+        assert command.property_set_revision_id == PROPERTY_REVISION
+        assert command.processing_output_id == PROCESSING_OUTPUT
+        assert command.processing_output_revision_id == PROCESSING_OUTPUT_REVISION
+        assert command.acknowledge_bounded_extrapolation
+        return PROCESSED_MODEL_SNAPSHOT
 
     def get_model(
         self,
@@ -456,3 +523,29 @@ def test_tensile_ir_to_abaqus_card_preview_and_download() -> None:
     assert download.status_code == 200
     assert download.headers["content-disposition"].endswith('.inp"')
     assert download.headers["x-cmp-card-sha256"]
+
+
+def test_exact_processing_output_can_be_promoted_with_visible_lineage() -> None:
+    response = _request(
+        _application(),
+        "POST",
+        f"/api/v1/processing-outputs/{PROCESSING_OUTPUT}/tabulated-plasticity-models",
+        json={
+            "material_state_id": str(STATE),
+            "property_set_revision_id": str(PROPERTY_REVISION),
+            "processing_output_revision_id": str(PROCESSING_OUTPUT_REVISION),
+            "acknowledge_bounded_extrapolation": True,
+            "change_reason": "promote selected fitted hardening output",
+        },
+    )
+
+    assert response.status_code == 201
+    body = response.json()
+    content = body["current_revision"]["content"]
+    projection = content["processing_projection"]
+    assert content["model_family_id"].endswith(":1.2.0")
+    assert projection["output_revision_id"] == str(PROCESSING_OUTPUT_REVISION)
+    assert projection["candidate_families"] == ["voce", "swift"]
+    assert body["current_revision"]["provenance"]["source_processing_output_revision_id"] == str(
+        PROCESSING_OUTPUT_REVISION
+    )

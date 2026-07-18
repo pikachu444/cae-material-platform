@@ -2307,6 +2307,24 @@ export function createTabulatedPlasticityModel(
   );
 }
 
+export function promoteProcessingOutputToTabulatedPlasticity(
+  config: ApiConfig,
+  processingOutputId: string,
+  input: {
+    material_state_id: string;
+    property_set_revision_id: string;
+    processing_output_revision_id: string;
+    acknowledge_bounded_extrapolation: boolean;
+    change_reason: string;
+  },
+): Promise<ApiResult<TabulatedPlasticityModelResponse>> {
+  return request(
+    config,
+    `/processing-outputs/${encodeURIComponent(processingOutputId)}/tabulated-plasticity-models`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
 export function getTabulatedPlasticityHardeningCurve(
   config: ApiConfig,
   materialModelId: string,

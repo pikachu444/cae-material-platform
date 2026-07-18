@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 from collections.abc import Iterator
 from contextlib import AbstractContextManager, contextmanager
 from datetime import UTC, datetime
@@ -52,6 +53,7 @@ from cmp.modules.modeling.application.service import (
 )
 from cmp.modules.modeling.application.tabulated_plasticity import (
     CreateReferenceTabulatedPlasticityModel,
+    PromoteProcessingOutputToTabulatedPlasticity,
     TabulatedPlasticityModelService,
     TabulatedPlasticityRepository,
 )
@@ -64,6 +66,17 @@ from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import
     reference_isotropic_tabulated_plasticity_canonical,
 )
 from cmp.modules.modeling.domain.reference_linear_elasticity import ReferenceLinearElasticContent
+from cmp.modules.modeling.domain.reference_processed_tabulated_plasticity import (
+    ReferenceProcessedTabulatedPlasticityContent,
+    reference_processed_tabulated_plasticity_canonical,
+)
+from cmp.modules.processing.application.common_outputs import (
+    CommonProcessingOutputService,
+    ExactRevisionPin,
+    ProcessingOutputContent,
+    ProcessingOutputSnapshot,
+)
+from cmp.modules.processing.domain.common_pipeline import ProcessingStep
 from cmp.shared.application.revisions import RevisionStore, RevisionTransaction
 from cmp.shared.domain.revisions import (
     RevisionCreated,
@@ -84,6 +97,12 @@ DATASET_REVISION = UUID("e4000000-0000-4000-8000-000000000008")
 SOURCE_ARTIFACT = UUID("e4000000-0000-4000-8000-000000000009")
 HARDENING_ARTIFACT = UUID("e4000000-0000-4000-8000-00000000000a")
 MODEL = UUID("e4000000-0000-4000-8000-00000000000b")
+PROCESSING_OUTPUT = UUID("e4000000-0000-4000-8000-000000000030")
+PROCESSING_OUTPUT_REVISION = UUID("e4000000-0000-4000-8000-000000000031")
+TEST_DOCUMENT = UUID("e4000000-0000-4000-8000-000000000032")
+TEST_DOCUMENT_REVISION = UUID("e4000000-0000-4000-8000-000000000033")
+MAPPING_PROFILE = UUID("e4000000-0000-4000-8000-000000000034")
+MAPPING_PROFILE_REVISION = UUID("e4000000-0000-4000-8000-000000000035")
 TRACE = "00-000000000000000000000000000000e4-00000000000000e4-01"
 
 SOURCE_POINTS = (
@@ -232,9 +251,7 @@ class _MaterialModels:
                 material_id=UUID("e4000000-0000-4000-8000-000000000020"),
                 material_revision_id=UUID("e4000000-0000-4000-8000-000000000021"),
                 material_state_id=STATE,
-                material_state_revision_id=UUID(
-                    "e4000000-0000-4000-8000-000000000022"
-                ),
+                material_state_revision_id=UUID("e4000000-0000-4000-8000-000000000022"),
                 property_set_id=PROPERTY_SET,
                 property_set_revision_id=PROPERTY_REVISION,
                 density_kg_per_m3=7_850.0,
@@ -255,6 +272,93 @@ class _Datasets:
         assert context is CONTEXT and decision is WRITE
         assert dataset_revision_id == DATASET_REVISION
         return _dataset_source()
+
+
+class _ProcessingOutputs:
+    def __init__(self) -> None:
+        strains = [ordinal / 40 for ordinal in range(21)]
+        stresses = [250_000_000.0 + ordinal * 5_000_000.0 for ordinal in range(21)]
+        self.value = json.dumps(
+            {
+                "result": {
+                    "stages": [
+                        {
+                            "method_id": "metal.hardening_fit_extrapolate",
+                            "series": [
+                                {
+                                    "quantity": "strain.true_plastic",
+                                    "unit": "1",
+                                    "values": strains,
+                                },
+                                {
+                                    "quantity": "stress.hardening.selected",
+                                    "unit": "Pa",
+                                    "values": stresses,
+                                },
+                            ],
+                        }
+                    ]
+                }
+            },
+            separators=(",", ":"),
+        ).encode()
+        digest = hashlib.sha256(self.value).hexdigest()
+        step = ProcessingStep(
+            "metal.hardening_fit_extrapolate",
+            "1.0.0",
+            {
+                "families": ["voce", "swift"],
+                "fit_minimum_strain": 0.0001,
+                "fit_maximum_strain": 0.1,
+                "extrapolation_maximum_strain": 0.5,
+                "primary_family": "swift",
+                "secondary_family": "voce",
+                "primary_weight": 0.5,
+            },
+        )
+        content = ProcessingOutputContent(
+            label="DP600 selected hardening",
+            source_document=ExactRevisionPin(TEST_DOCUMENT, TEST_DOCUMENT_REVISION),
+            source_document_sha256="3" * 64,
+            source_canonical_artifact_sha256="4" * 64,
+            mapping_profile=ExactRevisionPin(MAPPING_PROFILE, MAPPING_PROFILE_REVISION),
+            mapping_profile_sha256="5" * 64,
+            steps=(step,),
+            independent_quantity="strain.true_plastic",
+            stage_count=2,
+            final_point_count=21,
+            output_artifact_id=UUID("e4000000-0000-4000-8000-000000000036"),
+            output_sha256=digest,
+        )
+        record = RevisionRecord(
+            revision_id=PROCESSING_OUTPUT_REVISION,
+            aggregate_type="processing.common_output",
+            aggregate_id=PROCESSING_OUTPUT,
+            scope=TenantScope(ORG, PROJECT, DataClassification.INTERNAL.value),
+            revision_no=1,
+            based_on_revision_id=None,
+            schema_id="urn:cmp:processing:common-output:1.0.0",
+            schema_version="1.0.0",
+            content_hash="6" * 64,
+            created_at=NOW,
+            created_by=ACTOR,
+            change_reason="save selected hardening",
+            request_id=CONTEXT.request_id,
+            trace_id=TRACE,
+        )
+        self.snapshot = ProcessingOutputSnapshot(PROCESSING_OUTPUT, record, content)
+
+    async def export_exact(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+    ) -> tuple[ProcessingOutputSnapshot, bytes]:
+        assert context is CONTEXT and decision is WRITE
+        assert output_id == PROCESSING_OUTPUT
+        assert output_revision_id == PROCESSING_OUTPUT_REVISION
+        return self.snapshot, self.value
 
 
 class _Artifacts:
@@ -289,7 +393,9 @@ class _Artifacts:
         assert classification is DataClassification.INTERNAL
         assert artifact_role == "modeling.hardening_curve"
         assert media_type == "application/vnd.apache.parquet"
-        assert idempotency_key.startswith("modeling-hardening:")
+        assert idempotency_key.startswith(
+            ("modeling-hardening:", "processed-tabulated-projection:")
+        )
         self.hardening_bytes = value
         return _artifact(HARDENING_ARTIFACT, value, role=artifact_role, schema_ref=schema_ref)
 
@@ -338,13 +444,13 @@ class _Store(RevisionStore[ReferenceIsotropicTabulatedPlasticityContent]):
         self.repository = repository
 
     def canonical_content(self, content: ReferenceIsotropicTabulatedPlasticityContent) -> object:
+        if isinstance(content, ReferenceProcessedTabulatedPlasticityContent):
+            return reference_processed_tabulated_plasticity_canonical(content)
         return reference_isotropic_tabulated_plasticity_canonical(content)
 
     def transaction(
         self,
-    ) -> AbstractContextManager[
-        RevisionTransaction[ReferenceIsotropicTabulatedPlasticityContent]
-    ]:
+    ) -> AbstractContextManager[RevisionTransaction[ReferenceIsotropicTabulatedPlasticityContent]]:
         return self._transaction()
 
     @contextmanager
@@ -373,12 +479,14 @@ def _service(
     artifacts: _Artifacts,
     *,
     material_class: str = "metal",
+    processing_outputs: _ProcessingOutputs | None = None,
 ) -> TabulatedPlasticityModelService:
     return TabulatedPlasticityModelService(
         repository=cast(TabulatedPlasticityRepository, repository),
         material_models=cast(MaterialModelService, _MaterialModels(material_class)),
         datasets=cast(DatasetService, _Datasets()),
         artifacts=cast(ArtifactService, artifacts),
+        processing_outputs=cast(CommonProcessingOutputService, processing_outputs),
         id_factory=lambda: MODEL,
     )
 
@@ -452,3 +560,41 @@ def test_service_rejects_nonmetal_material_before_reading_or_deriving_curve_data
 
     assert repository.content is None
     assert artifacts.hardening_bytes is None
+
+
+def test_service_promotes_exact_selected_hardening_output_without_refitting() -> None:
+    repository = _Repository()
+    artifacts = _Artifacts()
+    outputs = _ProcessingOutputs()
+    command = PromoteProcessingOutputToTabulatedPlasticity(
+        material_state_id=STATE,
+        property_set_revision_id=PROPERTY_REVISION,
+        processing_output_id=PROCESSING_OUTPUT,
+        processing_output_revision_id=PROCESSING_OUTPUT_REVISION,
+        acknowledge_bounded_extrapolation=True,
+        change_reason="promote exact selected hardening output",
+    )
+
+    snapshot = asyncio.run(
+        _service(repository, artifacts, processing_outputs=outputs).promote_processing_output(
+            CONTEXT, WRITE, command
+        )
+    )
+
+    content = snapshot.current.content
+    assert isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+    assert content.processing_output_revision_id == PROCESSING_OUTPUT_REVISION
+    assert content.source_test_data_revision_id == TEST_DOCUMENT_REVISION
+    assert content.mapping_profile_revision_id == MAPPING_PROFILE_REVISION
+    assert content.primary_family == "swift"
+    assert content.secondary_family == "voce"
+    assert content.primary_weight == 0.5
+    assert artifacts.hardening_bytes is not None
+    points = hardening_curve_from_parquet(
+        artifacts.hardening_bytes,
+        transformation_profile_id=content.transformation_profile_id,
+        transformation_profile_digest=content.transformation_profile_digest,
+    )
+    assert len(points) == 21
+    assert all(point.origin is HardeningPointOrigin.PROCESSING_SELECTED_SAMPLE for point in points)
+    assert points[-1].true_plastic_strain == 0.5
