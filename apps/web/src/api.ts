@@ -2035,6 +2035,25 @@ export function createLinearViscoelasticModel(
   );
 }
 
+export function promotePronyProcessingOutput(
+  config: ApiConfig,
+  processingOutputId: string,
+  input: {
+    material_state_id: string;
+    property_set_revision_id: string;
+    processing_output_revision_id: string;
+    acknowledged_maximum_relative_mismatch: number;
+    review_acknowledged: boolean;
+    change_reason: string;
+  },
+): Promise<ApiResult<LinearViscoelasticModelResponse>> {
+  return request(
+    config,
+    `/processing-outputs/${encodeURIComponent(processingOutputId)}/linear-viscoelastic-models`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
 export function previewLinearViscoelasticResponse(
   config: ApiConfig,
   materialModelId: string,

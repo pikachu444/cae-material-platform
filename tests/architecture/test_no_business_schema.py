@@ -85,6 +85,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260911_076_T63_three_family_neutral.py",
         "20260912_077_T64_neutral_export_parity.py",
         "20260913_078_T65_domain_binding_rls_validator.py",
+        "20260914_079_T67_polymer_processing_promotion.py",
     ]
 
 

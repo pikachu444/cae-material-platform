@@ -150,7 +150,8 @@
     "Selection": {
       "oneOf": [
         {"$ref": "#/$defs/CandidateSelection"},
-        {"$ref": "#/$defs/ProcessingSelection"}
+        {"$ref": "#/$defs/ProcessingSelection"},
+        {"$ref": "#/$defs/PronyProcessingSelection"}
       ]
     },
     "CandidateSelection": {
@@ -190,6 +191,33 @@
         "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
         "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
         "primary_weight": {"type": "number", "minimum": 0, "maximum": 1},
+        "warnings": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
+      }
+    },
+    "PronyProcessingSelection": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "kind", "processing_output", "processing_output_sha256", "reason",
+        "selected_series", "selection_mode", "selected_term_count",
+        "normalized_rmse", "bic", "fitted_instantaneous_shear_modulus_pa",
+        "catalog_instantaneous_shear_modulus_pa",
+        "instantaneous_modulus_relative_mismatch",
+        "acknowledged_maximum_relative_mismatch", "warnings"
+      ],
+      "properties": {
+        "kind": {"const": "prony_processing_output_selection"},
+        "processing_output": {"$ref": "#/$defs/RevisionReference"},
+        "processing_output_sha256": {"$ref": "#/$defs/Sha256"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "selected_series": {"const": "modulus.prony.selected"},
+        "selection_mode": {"enum": ["automatic_bic", "manual"]},
+        "selected_term_count": {"type": "integer", "minimum": 1, "maximum": 10},
+        "normalized_rmse": {"type": "number", "minimum": 0},
+        "bic": {"type": "number"},
+        "fitted_instantaneous_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "catalog_instantaneous_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
+        "instantaneous_modulus_relative_mismatch": {"type": "number", "minimum": 0},
+        "acknowledged_maximum_relative_mismatch": {"type": "number", "minimum": 0, "maximum": 1},
         "warnings": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
       }
     },

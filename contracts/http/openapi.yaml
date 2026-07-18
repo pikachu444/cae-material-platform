@@ -5342,6 +5342,36 @@ paths:
         "403": {description: Modeling read is not authorized.}
         "404": {description: No visible linear-viscoelastic model matches the identifier.}
         "503": {description: Linear-viscoelastic service unavailable.}
+  /api/v1/processing-outputs/{processing_output_id}/linear-viscoelastic-models:
+    post:
+      operationId: promoteProcessingOutputToLinearViscoelasticModel
+      tags: [modeling]
+      summary: Promote one exact reviewed Prony Processing Output into non-production IR 1.2.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: processing_output_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ProcessingOutputPromotionRequest"}
+      responses:
+        "201":
+          description: Immutable one-to-ten-term generalized-Maxwell IR pinned to exact Processing evidence.
+          headers:
+            ETag: {$ref: "#/components/headers/RevisionETag"}
+          content:
+            application/json:
+              schema: {$ref: "../modeling/reference-linear-viscoelastic-resources.schema.json#/$defs/ModelResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Modeling write is not authorized.}
+        "404": {description: A pinned Property Set or Processing Output revision is not visible.}
+        "409": {description: Scope, exact lineage, method, or review threshold conflicts.}
+        "422": {description: The acknowledgement or selected Prony evidence is invalid.}
+        "503": {description: Linear-viscoelastic service unavailable.}
   /api/v1/linear-viscoelastic-models/{material_model_id}/response:
     get:
       operationId: previewLinearViscoelasticResponse

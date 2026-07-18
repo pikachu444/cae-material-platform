@@ -1,5 +1,5 @@
-version: 25
-verified_at: 2026-07-18
+version: 26
+verified_at: 2026-07-19
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
   - id: t60-guided-dashboard
@@ -304,3 +304,19 @@ captures:
     image: ../15-demo/images/t66-reverse-workflow-navigation.png
     width: 1440
     height: 1681
+  - id: reviewed-polymer-processing-output-promotion
+    route: /materials/{demo-polymer-material-id}/models
+    workflow: exact-prony-processing-output-review-and-promotion
+    fixture: T-67 clean Compose 3-term automatic-BIC synthetic relaxation Output
+    source_evidence: ../15-demo/evidence/t67-polymer-processing-promotion.md
+    image: ../15-demo/images/t67-polymer-processing-promotion.png
+    width: 1423
+    height: 1521
+  - id: promoted-polymer-processing-evidence
+    route: /materials/{demo-polymer-material-id}/models
+    workflow: promoted-generalized-maxwell-evidence-and-neutral-action
+    fixture: T-67 IR r1 with 3 terms, normalized RMSE 0.002094 and G0 mismatch 0.09 percent
+    source_evidence: ../15-demo/evidence/t67-polymer-processing-promotion.md
+    image: ../15-demo/images/t67-polymer-processing-evidence.png
+    width: 1380
+    height: 858

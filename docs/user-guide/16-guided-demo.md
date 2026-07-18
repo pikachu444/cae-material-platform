@@ -62,8 +62,10 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 1. Dashboard에서 **Open polymer journey**를 선택합니다.
 2. **Tests**에서 273.15/293.15/313.15 K, 온도별 두 반복 curve를 확인합니다.
 3. **Viscoelastic master curve**에서 log-time 정렬, 온도별 통계와 수동 shift factor를 확인합니다.
-4. **Models**에서 two-term generalized Maxwell/Prony response를 확인합니다.
-5. mapping report에서 bulk relaxation이 `not_applicable` 또는 명시된 상태인지 확인하고 Abaqus
+4. **Models**에서 exact common Processing Output, automatic BIC로 선택된 3항, RMSE와 catalog G₀
+   mismatch를 확인합니다. 이 자료는 public synthetic reference fixture입니다.
+5. **Create Neutral JSON and solver mapping**으로 같은 evidence의 Neutral 문서를 열고 mapping
+   report에서 bulk relaxation이 `not_applicable` 또는 명시된 상태인지 확인한 뒤 Abaqus
    `*VISCOELASTIC` `.inp` 파일을 내려받습니다.
 
 상세 조작은 [Polymer 점탄성 가이드](03-polymer-viscoelastic.md)를 따릅니다.

@@ -17,6 +17,7 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
     CreateReferenceLinearViscoelasticModel,
     LinearViscoelasticModelService,
     LinearViscoelasticModelSnapshot,
+    PromotePronyProcessingOutput,
 )
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     BulkRelaxationStatus,
@@ -51,6 +52,17 @@ class LinearViscoelasticCreateRequest(BaseModel):
     change_reason: Reason
 
 
+class ProcessingOutputPromotionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material_state_id: UUID
+    property_set_revision_id: UUID
+    processing_output_revision_id: UUID
+    acknowledged_maximum_relative_mismatch: Annotated[float, Field(ge=0, le=1)]
+    review_acknowledged: bool
+    change_reason: Reason
+
+
 class PronyTermResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -81,6 +93,7 @@ class LinearViscoelasticContentResponse(BaseModel):
     reference_temperature_k: float
     non_production: bool
     prony_promotion_evidence: dict[str, object] | None = None
+    processing_promotion_evidence: dict[str, object] | None = None
 
     @classmethod
     def from_domain(
@@ -90,6 +103,9 @@ class LinearViscoelasticContentResponse(BaseModel):
         promotion_evidence = canonical.get("prony_promotion_evidence")
         if not isinstance(promotion_evidence, dict):
             promotion_evidence = None
+        processing_evidence = canonical.get("processing_promotion_evidence")
+        if not isinstance(processing_evidence, dict):
+            processing_evidence = None
         return cls(
             model_family_id=value.model_family_id,
             model_schema_version=schema_version,
@@ -117,6 +133,7 @@ class LinearViscoelasticContentResponse(BaseModel):
             reference_temperature_k=value.reference_temperature_k,
             non_production=value.non_production,
             prony_promotion_evidence=promotion_evidence,
+            processing_promotion_evidence=processing_evidence,
         )
 
 
@@ -273,6 +290,47 @@ def install_linear_viscoelastic_api(
                         PronyTerm(term.g_ratio, term.k_ratio, term.relaxation_time_s)
                         for term in body.terms
                     ),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except Exception as error:
+            raise _translate(context, error) from error
+        response.headers["ETag"] = str(RevisionETag.from_ref(snapshot.current.record.ref))
+        response.headers["Location"] = f"/api/v1/linear-viscoelastic-models/{snapshot.id}"
+        return LinearViscoelasticModelResponse.from_snapshot(snapshot)
+
+    @application.post(
+        "/api/v1/processing-outputs/{processing_output_id}/linear-viscoelastic-models",
+        operation_id="promotePronyProcessingOutputToLinearViscoelasticModel",
+        response_model=LinearViscoelasticModelResponse,
+        status_code=status.HTTP_201_CREATED,
+        responses=errors,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["modeling"],
+        summary="Promote one exact selected generalized-Maxwell Processing Output into IR 1.2.",
+    )
+    async def promote_processing_output(
+        request: Request,
+        response: Response,
+        processing_output_id: UUID,
+        body: ProcessingOutputPromotionRequest,
+    ) -> LinearViscoelasticModelResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise LinearViscoelasticHttpError(context, 503, "service is unavailable")
+        try:
+            snapshot = await service.promote_processing_output(
+                context,
+                decision,
+                PromotePronyProcessingOutput(
+                    material_state_id=body.material_state_id,
+                    property_set_revision_id=body.property_set_revision_id,
+                    processing_output_id=processing_output_id,
+                    processing_output_revision_id=body.processing_output_revision_id,
+                    acknowledged_maximum_relative_mismatch=(
+                        body.acknowledged_maximum_relative_mismatch
+                    ),
+                    review_acknowledged=body.review_acknowledged,
                     change_reason=body.change_reason,
                 ),
             )

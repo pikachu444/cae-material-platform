@@ -2679,13 +2679,27 @@ export interface LinearViscoelasticPronyTerm {
   relaxation_time_s: number;
 }
 
+export interface LinearViscoelasticProcessingEvidence {
+  processing_output: { id: string; revision_id: string; sha256: string };
+  source_test_data: { id: string; revision_id: string };
+  mapping_profile: { id: string; revision_id: string };
+  selection_mode: "automatic_bic" | "manual";
+  selected_term_count: number;
+  normalized_rmse: number;
+  bic: number;
+  fitted_instantaneous_shear_modulus_pa: number;
+  catalog_instantaneous_shear_modulus_pa: number;
+  instantaneous_modulus_relative_mismatch: number;
+  acknowledged_maximum_relative_mismatch: number;
+}
+
 export interface LinearViscoelasticModelResponse {
   material_model_id: string;
   material_state_id: string;
   current_revision: RevisionMetadata & {
     content: {
       model_family_id: string;
-      model_schema_version: "1.0.0" | "1.1.0";
+      model_schema_version: "1.0.0" | "1.1.0" | "1.2.0";
       model_schema_digest: string;
       material_id: string;
       material_revision_id: string;
@@ -2702,6 +2716,7 @@ export interface LinearViscoelasticModelResponse {
       reference_temperature_k: number;
       non_production: true;
       prony_promotion_evidence?: Record<string, unknown> | null;
+      processing_promotion_evidence?: LinearViscoelasticProcessingEvidence | null;
     };
     ir: Record<string, unknown>;
   };
@@ -3032,7 +3047,7 @@ export interface NeutralMaterialResponse {
       reason: string;
       stability_status?: string;
       warnings: string[];
-      kind?: "processing_output_selection";
+      kind?: "processing_output_selection" | "prony_processing_output_selection";
       processing_output?: { id: string; revision_id: string };
     };
     material_model_ir: {

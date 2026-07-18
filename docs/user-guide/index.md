@@ -35,7 +35,8 @@
 - raw, normalized, processed Dataset과 curve 확인
 - 다온도 relaxation 반복시험의 common-domain 통계, 수동/WLF shift와 master curve 확인
 - 반복 인장 curve의 alignment/statistics/outlier assessment
-- reference Voce 또는 two-term Prony automatic fitting과 수동 IR 입력
+- 금속 공개식 후보와 generalized-Maxwell 1~10항 후보의 Recipe 기반 fitting
+- exact Processing Output의 BIC/RMSE/residual/G₀ 검토와 immutable IR/Neutral JSON 승격
 - 사람의 Candidate 선택과 새 IR revision 승격
 - Abaqus/OpenRadioss mapping report, card preview와 개별 download
 - one-term Ogden--Prony IR의 Abaqus/OpenRadioss LAW62 card 생성
@@ -44,12 +45,10 @@
 
 ## 아직 제한된 일
 
-- 관리자가 정의하는 Table/Attribute/Layout/Subset과 Catalog Explorer
-- 임의 record 사이의 typed revision-pinned link와 Workflow Explorer
-- canonical Neutral JSON에서 추가 금속·점탄성 family를 직접 승격하는 경로
-- Neutral JSON에서 모든 초탄성 family의 Abaqus/OpenRadioss 카드를 생성하는 확장 mapping
+- production 재료 데이터의 모델 qualification과 조직별 승인 기준
+- Abaqus/OpenRadioss가 지원하지 않는 모델 조합의 추가 공식 mapping
 - proprietary laboratory vendor format과 임의 channel schema
-- promoted IR을 다시 보정하는 iterative promotion
+- 공통 1~10항 Processing Output에서 기존 stable IR identity로 반복 승격하는 별도 workflow
 - 실제 Abaqus/OpenRadioss solver 실행과 qualification
 
 위 항목의 구현 순서는 [production-pilot 실행 계획](../13-delivery/production-pilot-execution-plan.md)에

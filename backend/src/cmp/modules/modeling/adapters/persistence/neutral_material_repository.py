@@ -26,6 +26,7 @@ from cmp.modules.modeling.domain.neutral_material import (
     NeutralHyperelasticIR,
     NeutralLinearViscoelasticIR,
     NeutralProcessingSelection,
+    NeutralPronyProcessingSelection,
     RevisionReference,
 )
 from cmp.shared.adapters.persistence.revisions import (
@@ -132,6 +133,14 @@ neutral_material_revision_table = sa.Table(
     sa.Column("primary_family", sa.String(64), nullable=True),
     sa.Column("secondary_family", sa.String(64), nullable=True),
     sa.Column("primary_weight", sa.Double(), nullable=True),
+    sa.Column("prony_selection_mode", sa.String(32), nullable=True),
+    sa.Column("prony_selected_term_count", sa.Integer(), nullable=True),
+    sa.Column("prony_normalized_rmse", sa.Double(), nullable=True),
+    sa.Column("prony_bic", sa.Double(), nullable=True),
+    sa.Column("prony_fitted_g0_pa", sa.Double(), nullable=True),
+    sa.Column("prony_catalog_g0_pa", sa.Double(), nullable=True),
+    sa.Column("prony_relative_mismatch", sa.Double(), nullable=True),
+    sa.Column("prony_acknowledged_max_mismatch", sa.Double(), nullable=True),
     sa.Column("youngs_modulus_pa", sa.Double(), nullable=True),
     sa.Column("poisson_ratio", sa.Double(), nullable=True),
     sa.Column("initial_yield_stress_pa", sa.Double(), nullable=True),
@@ -275,6 +284,24 @@ def _content_values(content: NeutralMaterialRevisionContent) -> dict[str, Any]:
             primary_family=selection.primary_family,
             secondary_family=selection.secondary_family,
             primary_weight=selection.primary_weight,
+        )
+    elif isinstance(selection, NeutralPronyProcessingSelection):
+        values.update(
+            selection_kind="prony_processing_output",
+            processing_output_id=selection.processing_output.object_id,
+            processing_output_revision_id=selection.processing_output.revision_id,
+            processing_output_sha256=selection.processing_output_sha256,
+            selected_series=selection.selected_series,
+            prony_selection_mode=selection.selection_mode,
+            prony_selected_term_count=selection.selected_term_count,
+            prony_normalized_rmse=selection.normalized_rmse,
+            prony_bic=selection.bic,
+            prony_fitted_g0_pa=selection.fitted_instantaneous_shear_modulus_pa,
+            prony_catalog_g0_pa=selection.catalog_instantaneous_shear_modulus_pa,
+            prony_relative_mismatch=selection.instantaneous_modulus_relative_mismatch,
+            prony_acknowledged_max_mismatch=(
+                selection.acknowledged_maximum_relative_mismatch
+            ),
         )
     else:  # pragma: no cover - closed domain union
         raise ValueError("unsupported Neutral Material selection")

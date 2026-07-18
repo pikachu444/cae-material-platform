@@ -746,7 +746,9 @@ def create_app(
     )
     resolved_linear_viscoelastic = (
         linear_viscoelastic_model_service
-        or build_linear_viscoelastic_model_service(services, resolved_material_models)
+        or build_linear_viscoelastic_model_service(
+            services, resolved_material_models, resolved_common_outputs
+        )
     )
     install_linear_viscoelastic_api(
         application,

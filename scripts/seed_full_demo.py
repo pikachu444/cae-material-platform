@@ -776,6 +776,309 @@ def _ensure_polymer_baseline(api: DemoApi) -> str:
     return _id(material, "material_id")
 
 
+def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[str, str]:
+    """Seed the reviewed common-Processing-to-Abaqus polymer vertical."""
+
+    detail = api.get(f"/materials/{material_id}")
+    states = detail.get("states")
+    properties = detail.get("property_sets")
+    if (
+        not isinstance(states, list)
+        or not states
+        or not isinstance(states[0], Mapping)
+        or not isinstance(properties, list)
+        or not properties
+        or not isinstance(properties[0], Mapping)
+    ):
+        raise DemoSeedError("polymer Processing demo requires one State and Property Set")
+    state = states[0]
+    property_set = properties[0]
+    document_key = "CMP-DEMO-POLYMER-RELAXATION-JSON"
+    test_data = next(
+        (
+            item
+            for item in _items(api.get("/test-data-documents"))
+            if item.get("document_key") == document_key
+        ),
+        None,
+    )
+    if test_data is None:
+        times = ["0.01", "0.03", "0.1", "0.3", "1", "3", "10", "30", "100"]
+        moduli = [
+            "1089000000", "1050000000", "954000000", "869000000", "814000000",
+            "766000000", "678000000", "572000000", "555000000",
+        ]
+        test_data = api.post(
+            "/test-data-documents",
+            {
+                "classification": "internal",
+                "document": {
+                    "document_type": "cmp.test-data",
+                    "schema_version": "1.0.0",
+                    "document_id": document_key,
+                    "material": {
+                        "maker": "CMP Synthetic Materials",
+                        "grade": "Demo Polymer Prony",
+                        "lot_batch": "CMP-DEMO-POLYMER-001",
+                    },
+                    "test": {
+                        "date": "2026-07-19",
+                        "operator": "Demo Operator",
+                        "laboratory": "CMP Demo Laboratory",
+                        "method": "synthetic shear relaxation reference",
+                        "equipment_maker": "Demo Instruments",
+                        "equipment_model": "Relaxometer-01",
+                    },
+                    "specimen": {
+                        "specimen_id": "CMP-DEMO-POLYMER-SR-01",
+                        "description": "public synthetic relaxation specimen",
+                    },
+                    "conditions": [
+                        {
+                            "key": "temperature",
+                            "quantity_semantics": "temperature.test",
+                            "original_value": "23",
+                            "original_unit_string": "Cel",
+                            "normalized_value": "296.15",
+                            "normalized_unit": "K",
+                        }
+                    ],
+                    "channels": [
+                        {
+                            "key": "time_s",
+                            "name": "Time",
+                            "quantity_semantics": "time.elapsed",
+                            "axis_role": "independent",
+                            "original_unit_string": "s",
+                            "normalized_unit": "s",
+                            "normalization": {"scale": "1", "offset": "0"},
+                            "original_values": times,
+                            "normalized_values": times,
+                            "missing_reasons": [None] * len(times),
+                        },
+                        {
+                            "key": "shear_modulus_pa",
+                            "name": "Shear relaxation modulus",
+                            "quantity_semantics": "modulus.shear.relaxation",
+                            "axis_role": "dependent",
+                            "original_unit_string": "Pa",
+                            "normalized_unit": "Pa",
+                            "normalization": {"scale": "1", "offset": "0"},
+                            "original_values": moduli,
+                            "normalized_values": moduli,
+                            "missing_reasons": [None] * len(moduli),
+                        },
+                    ],
+                    "source": {
+                        "file_name": "cmp-demo-polymer-relaxation.json",
+                        "media_type": "application/json",
+                        "sha256": "7" * 64,
+                    },
+                },
+                "change_reason": "Import public synthetic polymer relaxation Test JSON.",
+            },
+        )
+
+    profile = next(
+        (
+            item
+            for item in _items(api.get("/mapping-profiles"))
+            if item.get("content", {}).get("profile_key")
+            == "cmp_demo_polymer_relaxation"
+        ),
+        None,
+    )
+    if profile is None:
+        profile = api.post(
+            "/mapping-profiles",
+            {
+                "classification": "internal",
+                "content": {
+                    "profile_key": "cmp_demo_polymer_relaxation",
+                    "label": "CMP demo polymer relaxation mapping",
+                    "independent_quantity": "time",
+                    "missing_data_policy": "drop_any",
+                    "bindings": [
+                        {
+                            "channel_key": "time_s",
+                            "target_quantity": "time",
+                            "accepted_normalized_units": ["s"],
+                        },
+                        {
+                            "channel_key": "shear_modulus_pa",
+                            "target_quantity": "modulus.shear.relaxation",
+                            "accepted_normalized_units": ["Pa"],
+                        },
+                    ],
+                },
+                "change_reason": "Save the reusable polymer relaxation Mapping Profile.",
+            },
+        )
+
+    output_label = "CMP demo reviewed Prony Processing Output"
+    output = next(
+        (
+            item
+            for item in _items(api.get("/processing-outputs"))
+            if item.get("label") == output_label
+        ),
+        None,
+    )
+    steps = [
+        {
+            "method_id": "rows.sort_unique",
+            "method_version": "1.0.0",
+            "options": {"duplicate_policy": "reject"},
+        },
+        {
+            "method_id": "polymer.log_time_resample",
+            "method_version": "1.0.0",
+            "options": {
+                "start_time_s": 0.01,
+                "end_time_s": 100,
+                "count": 41,
+                "extrapolation": "reject",
+            },
+        },
+        {
+            "method_id": "polymer.prony_fit_compare",
+            "method_version": "1.0.0",
+            "options": {
+                "time_quantity": "time",
+                "modulus_quantity": "modulus.shear.relaxation",
+                "candidate_term_counts": [1, 2, 3, 4],
+                "selection_mode": "automatic_bic",
+                "selected_term_count": 2,
+                "normalization_modulus_pa": 1111111111,
+                "minimum_relaxation_time_s": 0.0001,
+                "maximum_relaxation_time_s": 1000000,
+                "maximum_function_evaluations": 5000,
+            },
+        },
+    ]
+    if output is None:
+        output = api.post(
+            "/processing-outputs",
+            {
+                "classification": "internal",
+                "label": output_label,
+                "source_document": {
+                    "aggregate_id": _id(test_data, "test_data_document_id"),
+                    "revision_id": _revision_id(test_data),
+                },
+                "mapping_profile": {
+                    "aggregate_id": _id(profile, "mapping_profile_id"),
+                    "revision_id": _revision_id(profile),
+                },
+                "steps": steps,
+                "change_reason": "Commit reviewed synthetic Prony candidate comparison.",
+            },
+        )
+
+    models = _items(
+        api.get(
+            f"/material-states/{_id(state, 'material_state_id')}/linear-viscoelastic-models"
+        )
+    )
+
+    def promoted_output_id(item: Mapping[str, Any]) -> object:
+        evidence = _content(item).get("processing_promotion_evidence")
+        processing_output = evidence.get("processing_output") if isinstance(
+            evidence, Mapping
+        ) else None
+        return processing_output.get("id") if isinstance(processing_output, Mapping) else None
+
+    model = next(
+        (
+            item
+            for item in models
+            if promoted_output_id(item) == _id(output, "processing_output_id")
+        ),
+        None,
+    )
+    if model is None:
+        model = api.post(
+            f"/processing-outputs/{_id(output, 'processing_output_id')}"
+            "/linear-viscoelastic-models",
+            {
+                "material_state_id": _id(state, "material_state_id"),
+                "property_set_revision_id": _revision_id(property_set),
+                "processing_output_revision_id": _revision_id(output),
+                "acknowledged_maximum_relative_mismatch": 0.1,
+                "review_acknowledged": True,
+                "change_reason": "Promote reviewed synthetic Prony Processing Output.",
+            },
+        )
+
+    neutral = None
+    for candidate in _items(api.get(f"/bulk-export-candidates?material_id={material_id}")):
+        source = candidate.get("source")
+        if not isinstance(source, Mapping) or source.get("kind") != "neutral_material_json":
+            continue
+        candidate_id = source.get("neutral_material_id")
+        if not isinstance(candidate_id, str):
+            continue
+        value = api.get(f"/neutral-materials/{candidate_id}")
+        selection = value.get("document", {}).get("candidate_selection", {})
+        if (
+            isinstance(selection, Mapping)
+            and selection.get("kind") == "prony_processing_output_selection"
+            and selection.get("processing_output", {}).get("id")
+            == _id(output, "processing_output_id")
+        ):
+            neutral = value
+            break
+    if neutral is None:
+        neutral = api.post(
+            "/neutral-materials:promote-linear-viscoelastic",
+            {
+                "material_model_id": _id(model, "material_model_id"),
+                "material_model_revision_id": _revision_id(model),
+                "selection_reason": "Select the reviewed synthetic Prony Processing result.",
+                "change_reason": "Create reproducible polymer Neutral Material JSON.",
+            },
+        )
+
+    neutral_id = _id(neutral, "neutral_material_id")
+    cards = _items(api.get(f"/neutral-materials/{neutral_id}/solver-cards"))
+    card = next(
+        (
+            item
+            for item in cards
+            if isinstance(item.get("target"), Mapping)
+            and item["target"].get("solver") == "abaqus"
+        ),
+        None,
+    )
+    if card is None:
+        target = {"solver": "abaqus", "version": "2025", "unit_system": "kg_m_s"}
+        report = api.post(
+            f"/neutral-materials/{neutral_id}/solver-card-preflight",
+            {
+                "neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
+                "target": target,
+            },
+        )
+        card = api.post(
+            f"/neutral-materials/{neutral_id}/solver-cards",
+            {
+                "neutral_material_revision_id": _id(neutral, "neutral_material_revision_id"),
+                "target": target,
+                "expected_mapping_report_sha256": _id(report, "mapping_report_sha256"),
+                "solver_material_id": 1201,
+                "material_name": "CMP_DEMO_POLYMER_PROCESSED",
+                "change_reason": "Generate Abaqus Prony card from exact Neutral JSON.",
+            },
+        )
+    return {
+        "polymer_test_data_document_id": _id(test_data, "test_data_document_id"),
+        "polymer_processing_output_id": _id(output, "processing_output_id"),
+        "polymer_processing_model_id": _id(model, "material_model_id"),
+        "polymer_processing_neutral_id": neutral_id,
+        "polymer_processing_card_id": _id(card, "solver_card_id"),
+    }
+
+
 def _ensure_elastomer_baseline(api: DemoApi) -> str:
     detail = _ensure_material(
         api,
@@ -1060,6 +1363,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         raise DemoSeedError("normal demo seed did not create CMP-DEMO-DP780")
     metal_id = _id(metal, "material_id")
     polymer_id = _ensure_polymer_baseline(api)
+    polymer_processing = _ensure_polymer_processing_card(api, material_id=polymer_id)
     elastomer_id = _ensure_elastomer_baseline(api)
 
     stamp = os.getenv("CMP_DEMO_FIXTURE_STAMP") or "t60-reference"
@@ -1168,6 +1472,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         **processing,
         **neutral,
         **bulk,
+        **polymer_processing,
     }
 
 

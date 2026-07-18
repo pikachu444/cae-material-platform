@@ -15,6 +15,32 @@
 7. Mapping Profile과 Recipe를 저장·publish하면 다른 compatible Dataset에 batch 실행할 수 있습니다.
    각 성공/실패와 Output revision은 별도로 남고 원본이나 이전 결과를 덮어쓰지 않습니다.
 
+## 공통 Processing Output을 모델과 카드로 승격
+
+1. **Processing**에서 마지막 step이 `polymer.prony_fit_compare`인 preview를 확인하고 Output으로
+   저장합니다. preview 상태만으로는 모델을 만들 수 없습니다.
+2. Material의 **Models** 탭에서 **Reviewed Processing Promotion**의 **Exact Processing Output**을
+   선택합니다. Output revision과 Artifact digest가 고정되며 서버가 selected 항과 수치를 다시
+   읽습니다.
+3. 화면의 selection 방식, 항수, normalized RMSE, fitted curve와 catalog 순간 전단계수 G₀의
+   불일치율을 확인합니다.
+4. **Reviewed maximum G₀ mismatch**에 이 사례에서 허용할 비율을 입력합니다. 이는 전 제품에
+   적용되는 silent default가 아니라 사용자가 기록하는 engineering review 결정입니다.
+5. review 확인란을 선택하고 **Promote exact Processing Output**을 누릅니다. client가 임의의
+   Prony coefficient를 전송해 저장된 Output을 바꿀 수 없습니다.
+6. **Saved Material Model IR**에서 exact Output revision, selected 항수, RMSE와 G₀ mismatch를
+   다시 확인합니다.
+7. **Create Neutral JSON and solver mapping**을 누른 뒤 Abaqus 2025 preflight를 실행하고
+   `*VISCOELASTIC, TIME=PRONY` preview와 `.inp`를 내려받습니다.
+
+![검토할 exact Processing Output과 사례별 G0 한계](../15-demo/images/t67-polymer-processing-promotion.png)
+
+![승격된 3항 IR의 선택 근거와 완화 응답](../15-demo/images/t67-polymer-processing-evidence.png)
+
+이 경로는 1~10항 공통 Recipe Output을 새 stable Material Model identity의 revision 1로 만듭니다.
+아래 기존 bounded two-term Candidate 경로는 과거 자료와 별도의 multistart 진단을 위해 유지되며,
+두 경로의 evidence를 서로 바꾸거나 최신값으로 암묵 연결하지 않습니다.
+
 ## 온도 이동 모델
 
 Viscoelastic master curve 화면은 세 가지 방식을 제공합니다.
@@ -53,8 +79,10 @@ time_s,shear_modulus_mpa
    수행하지 않으며 output은 별도 processed Dataset입니다.
 6. 여러 온도/반복시험을 처리하려면 아래 **다온도 master curve** 절차를 실행합니다. 한 curve
    fitting만 필요하면 이 단계는 생략할 수 있습니다.
-7. baseline linear-Prony IR을 만들거나 기존 compatible baseline을 선택합니다.
-8. processed 또는 검토한 master Dataset으로 bounded deterministic multistart calibration을 실행합니다.
+7. 새 공통 경로는 위 절차대로 saved `polymer.prony_fit_compare` Output을 승격합니다. 기존
+   bounded 경로를 사용할 때만 baseline linear-Prony IR을 만들거나 compatible baseline을 선택합니다.
+8. 기존 bounded 경로에서는 processed 또는 검토한 master Dataset으로 deterministic multistart
+   calibration을 실행합니다.
 9. Candidates의 objective, RMSE, fitted curve, residual, convergence, bound와 identifiability
    warning을 비교합니다.
 10. 수치가 가장 작다는 이유만으로 선택하지 말고 engineering 판단 이유를 입력해 Candidate를
@@ -96,15 +124,15 @@ immutable revision으로 저장됩니다. 온도별 curve가 겹치지 않거나
 
 ## 중요한 제한
 
-- 현재 자동 calibration은 bounded two-term reference fitting이며 T-42 master curve 자체가
-  곧바로 production-qualified Prony parameter를 뜻하지 않습니다.
+- 공통 Recipe는 1~10항 후보를 비교하고 기존 calibration은 bounded two-term reference fitting을
+  유지합니다. 어느 결과도 곧바로 production-qualified Prony parameter를 뜻하지 않습니다.
 - uncertainty가 `unassessed`이거나 identifiability warning이 있으면 그대로 보존됩니다.
 - linear-Prony IR은 OpenRadioss LAW62로 변환되지 않습니다.
 - T-44의 반복 승격 계약은 governed Ogden Candidate 흐름에 먼저 적용되었습니다. 이 문서의
   bounded linear-Prony 흐름은 아직 기존 단일 승격 guard를 유지하므로 promoted r2의 재승격은
   안전하게 거부됩니다.
 
-## Reviewed Prony 결과를 Neutral JSON으로 승격
+## 기존 bounded Candidate를 Neutral JSON으로 승격
 
 Candidate를 선택하고 같은 Material Model identity의 새 IR revision으로 승격한 뒤 **Create
 Neutral Material JSON**을 누릅니다. 수동 baseline만 있는 상태에서는 버튼을 사용하지

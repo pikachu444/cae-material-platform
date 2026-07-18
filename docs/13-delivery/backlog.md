@@ -1384,8 +1384,9 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   shift residual evidence를 typed PostgreSQL column/row로 보존한다. 기존 reviewed linear-Prony IR와
   Abaqus 2025 `*VISCOELASTIC` preview/download는 유지한다. OpenRadioss LAW62는 별도 Ogden-Prony
   hyper-viscoelastic family이므로 linear Prony를 silent 변환하지 않고 `unsupported`로 차단한다.
-  공통 1~10항 Output의 Neutral JSON/IR promotion은 중복 구현하지 않고 T-56에서 수행한다.
-- **상태:** `complete`.
+  공통 1~10항 Output의 Neutral JSON/IR promotion은 T-67에서 완료했다.
+- **상태:** `complete`. 계산·후보 비교·Recipe/Batch Output과 exact Output의 reviewed IR/Neutral/
+  Abaqus card 연결이 T-67까지 완료됐다. Production material qualification은 별도다.
 
 #### T-55E. Elastomer hyperelastic/hyper-viscoelastic workbench — `P0`
 
@@ -1546,3 +1547,22 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   열 수 있다. 선택 노드의 direct edge만 forward/reverse 목록에 표시한다.
 - **테스트:** protected API, PostgreSQL RLS reverse lookup, React navigation component, clean-demo
   Playwright reverse navigation, current screenshot와 user guide.
+
+#### T-67. Reviewed generalized-Maxwell Output to card — `P0`
+
+- **상태 (`2026-07-19`):** `implemented`.
+- **범위:** ADR-0031에 따라 exact `polymer.prony_fit_compare` Processing Output을 검토하여
+  1~10항 typed linear-viscoelastic IR, canonical Neutral Material JSON과 Abaqus native card로 연결한다.
+- **완료 조건:** server가 Artifact에서 selected terms를 재구성하고 Test JSON/Mapping Profile/
+  Processing Output/Property Set exact revision과 modulus-consistency evidence를 고정한다. UI는 후보
+  선택 근거를 표시하고 명시적 review 이후에만 IR/Neutral/card를 생성한다. OpenRadioss는
+  `unsupported`를 유지한다.
+- **테스트:** 공개 generalized-Maxwell 수치 fixture, digest/step/unit/modulus mismatch negative,
+  10-term PostgreSQL constraints, API/React/Playwright journey, Neutral round-trip와 Abaqus ASCII golden.
+- **구현 증거 (`2026-07-19`):** migration 079가 exact Processing Output/Test Data/Mapping Profile/
+  Property Set composite pin과 1~10항 ordered evidence를 저장한다. application service는 client가
+  보낸 coefficient를 받지 않고 immutable Output Artifact를 다시 export·검증하여 final
+  `polymer.prony_fit_compare` step의 selected terms와 BIC/RMSE를 재구성한다. UI는 사례별 허용
+  G₀ mismatch와 명시적 review를 요구하고 IR evidence, Neutral JSON, Abaqus `*VISCOELASTIC`
+  mapping/card를 같은 화면에 연결한다. Clean Compose seed/verifier와 PostgreSQL head migration,
+  React regression, 현재 GUI capture가 이 경로를 확인한다. OpenRadioss는 `unsupported`다.

@@ -28,6 +28,7 @@ from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     LinearViscoelasticNotFound,
     PronyTerm,
     ReferenceLinearViscoelasticContent,
+    ReferencePronyProcessingEvidence,
     ReferencePronyPromotionEvidence,
     reference_linear_viscoelastic_canonical,
 )
@@ -51,6 +52,7 @@ linear_viscoelastic_revision_table = sa.Table(
     sa.Column("material_model_revision_id", sa.Uuid(), nullable=False),
     sa.Column("bulk_relaxation_status", sa.String(32), nullable=False),
     sa.Column("term_count", sa.Integer(), nullable=False),
+    sa.Column("promotion_kind", sa.String(32), nullable=False),
     schema="modeling",
 )
 linear_viscoelastic_prony_term_table = sa.Table(
@@ -65,6 +67,31 @@ linear_viscoelastic_prony_term_table = sa.Table(
     sa.Column("g_ratio", sa.Double(), nullable=False),
     sa.Column("k_ratio", sa.Double(), nullable=False),
     sa.Column("relaxation_time_s", sa.Double(), nullable=False),
+    schema="modeling",
+)
+linear_viscoelastic_processing_evidence_table = sa.Table(
+    "linear_viscoelastic_processing_evidence",
+    metadata,
+    sa.Column("organization_id", sa.Uuid(), nullable=False),
+    sa.Column("project_id", sa.Uuid(), nullable=False),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("material_model_id", sa.Uuid(), nullable=False),
+    sa.Column("material_model_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("processing_output_id", sa.Uuid(), nullable=False),
+    sa.Column("processing_output_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("processing_output_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("source_test_data_id", sa.Uuid(), nullable=False),
+    sa.Column("source_test_data_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("mapping_profile_id", sa.Uuid(), nullable=False),
+    sa.Column("mapping_profile_revision_id", sa.Uuid(), nullable=False),
+    sa.Column("selection_mode", sa.String(32), nullable=False),
+    sa.Column("selected_term_count", sa.Integer(), nullable=False),
+    sa.Column("normalized_rmse", sa.Double(), nullable=False),
+    sa.Column("bic", sa.Double(), nullable=False),
+    sa.Column("fitted_instantaneous_shear_modulus_pa", sa.Double(), nullable=False),
+    sa.Column("catalog_instantaneous_shear_modulus_pa", sa.Double(), nullable=False),
+    sa.Column("instantaneous_modulus_relative_mismatch", sa.Double(), nullable=False),
+    sa.Column("acknowledged_maximum_relative_mismatch", sa.Double(), nullable=False),
     schema="modeling",
 )
 
@@ -164,6 +191,13 @@ def _write_terms(
             material_model_revision_id=draft.revision_id,
             bulk_relaxation_status=content.bulk_relaxation_status.value,
             term_count=len(content.terms),
+            promotion_kind=(
+                "processing_output"
+                if content.processing_promotion_evidence is not None
+                else "candidate_selection"
+                if content.prony_promotion_evidence is not None
+                else "manual"
+            ),
         )
     )
     session.execute(
@@ -183,6 +217,40 @@ def _write_terms(
             for ordinal, term in enumerate(content.terms, 1)
         ],
     )
+    evidence = content.processing_promotion_evidence
+    if evidence is not None:
+        session.execute(
+            sa.insert(linear_viscoelastic_processing_evidence_table).values(
+                organization_id=scope.organization_id,
+                project_id=scope.project_id,
+                classification=scope.classification,
+                material_model_id=draft.aggregate_id,
+                material_model_revision_id=draft.revision_id,
+                processing_output_id=evidence.processing_output_id,
+                processing_output_revision_id=evidence.processing_output_revision_id,
+                processing_output_sha256=evidence.processing_output_sha256,
+                source_test_data_id=evidence.source_test_data_id,
+                source_test_data_revision_id=evidence.source_test_data_revision_id,
+                mapping_profile_id=evidence.mapping_profile_id,
+                mapping_profile_revision_id=evidence.mapping_profile_revision_id,
+                selection_mode=evidence.selection_mode,
+                selected_term_count=evidence.selected_term_count,
+                normalized_rmse=evidence.normalized_rmse,
+                bic=evidence.bic,
+                fitted_instantaneous_shear_modulus_pa=(
+                    evidence.fitted_instantaneous_shear_modulus_pa
+                ),
+                catalog_instantaneous_shear_modulus_pa=(
+                    evidence.catalog_instantaneous_shear_modulus_pa
+                ),
+                instantaneous_modulus_relative_mismatch=(
+                    evidence.instantaneous_modulus_relative_mismatch
+                ),
+                acknowledged_maximum_relative_mismatch=(
+                    evidence.acknowledged_maximum_relative_mismatch
+                ),
+            )
+        )
 
 
 _TABLES = TypedRevisionTables[ReferenceLinearViscoelasticContent](
@@ -243,7 +311,11 @@ def _revision_columns(table: sa.Table) -> tuple[Any, ...]:
     return tuple(table.c[name] for name in names)
 
 
-def _content(row: Any, terms: tuple[PronyTerm, ...]) -> ReferenceLinearViscoelasticContent:
+def _content(
+    row: Any,
+    terms: tuple[PronyTerm, ...],
+    processing_evidence: ReferencePronyProcessingEvidence | None = None,
+) -> ReferenceLinearViscoelasticContent:
     evidence = (
         ReferencePronyPromotionEvidence(
             selection_id=cast(UUID, row["prony_selection_id"]),
@@ -276,6 +348,7 @@ def _content(row: Any, terms: tuple[PronyTerm, ...]) -> ReferenceLinearViscoelas
         applicability_note=row["applicability_note"],
         reference_temperature_k=float(row["reference_temperature_k"]),
         prony_promotion_evidence=evidence,
+        processing_promotion_evidence=processing_evidence,
         model_family_id=str(row["model_family_id"]),
         model_schema_digest=str(row["model_schema_digest"]),
         non_production=bool(row["non_production"]),
@@ -399,8 +472,55 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
             for value in rows
         )
 
+    @staticmethod
+    def _processing_evidence(
+        session: Session, row: Any
+    ) -> ReferencePronyProcessingEvidence | None:
+        value = session.execute(
+            sa.select(linear_viscoelastic_processing_evidence_table).where(
+                linear_viscoelastic_processing_evidence_table.c.organization_id
+                == row["organization_id"],
+                linear_viscoelastic_processing_evidence_table.c.project_id == row["project_id"],
+                linear_viscoelastic_processing_evidence_table.c.material_model_id
+                == row["aggregate_id"],
+                linear_viscoelastic_processing_evidence_table.c.material_model_revision_id
+                == row["id"],
+            )
+        ).mappings().one_or_none()
+        if value is None:
+            return None
+        return ReferencePronyProcessingEvidence(
+            processing_output_id=cast(UUID, value["processing_output_id"]),
+            processing_output_revision_id=cast(UUID, value["processing_output_revision_id"]),
+            processing_output_sha256=str(value["processing_output_sha256"]),
+            source_test_data_id=cast(UUID, value["source_test_data_id"]),
+            source_test_data_revision_id=cast(UUID, value["source_test_data_revision_id"]),
+            mapping_profile_id=cast(UUID, value["mapping_profile_id"]),
+            mapping_profile_revision_id=cast(UUID, value["mapping_profile_revision_id"]),
+            selection_mode=str(value["selection_mode"]),
+            selected_term_count=int(value["selected_term_count"]),
+            normalized_rmse=float(value["normalized_rmse"]),
+            bic=float(value["bic"]),
+            fitted_instantaneous_shear_modulus_pa=float(
+                value["fitted_instantaneous_shear_modulus_pa"]
+            ),
+            catalog_instantaneous_shear_modulus_pa=float(
+                value["catalog_instantaneous_shear_modulus_pa"]
+            ),
+            instantaneous_modulus_relative_mismatch=float(
+                value["instantaneous_modulus_relative_mismatch"]
+            ),
+            acknowledged_maximum_relative_mismatch=float(
+                value["acknowledged_maximum_relative_mismatch"]
+            ),
+        )
+
     def _snapshot(self, session: Session, row: Any) -> LinearViscoelasticModelSnapshot:
-        content = _content(row, self._terms(session, row))
+        content = _content(
+            row,
+            self._terms(session, row),
+            self._processing_evidence(session, row),
+        )
         return LinearViscoelasticModelSnapshot(
             cast(UUID, row["aggregate_id"]),
             content.material_state_id,
@@ -478,7 +598,14 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
                     raise LinearViscoelasticNotFound(
                         "linear-viscoelastic Material Model revision is not visible"
                     )
-                return RevisionSnapshot(_record(row), _content(row, self._terms(session, row)))
+                return RevisionSnapshot(
+                    _record(row),
+                    _content(
+                        row,
+                        self._terms(session, row),
+                        self._processing_evidence(session, row),
+                    ),
+                )
             except DBAPIError as error:
                 raise LinearViscoelasticNotFound(
                     "linear-viscoelastic Material Model revision is not available"
