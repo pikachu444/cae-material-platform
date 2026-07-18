@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.example/contracts/exporting/neutral-hyperelastic-resources.schema.json",
+  "$defs": {
+    "Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver", "version", "unit_system"],
+      "properties": {
+        "solver": {"enum": ["abaqus", "openradioss"]},
+        "version": {"const": "2025"},
+        "unit_system": {"const": "kg_m_s"}
+      }
+    },
+    "PreflightRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["neutral_material_revision_id", "target"],
+      "properties": {
+        "neutral_material_revision_id": {"type": "string", "format": "uuid"},
+        "target": {"$ref": "#/$defs/Target"}
+      }
+    },
+    "CreateRequest": {
+      "allOf": [
+        {"$ref": "#/$defs/PreflightRequest"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "neutral_material_revision_id", "target", "expected_mapping_report_sha256",
+            "solver_material_id", "material_name", "change_reason"
+          ],
+          "properties": {
+            "neutral_material_revision_id": {"type": "string", "format": "uuid"},
+            "target": {"$ref": "#/$defs/Target"},
+            "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+            "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
+            "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+          }
+        }
+      ]
+    },
+    "MappingReportResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mapping_report_sha256", "exportable", "report"],
+      "properties": {
+        "mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "exportable": {"type": "boolean"},
+        "report": {"type": "object"}
+      }
+    },
+    "CardResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver_card_id", "neutral_material_id", "target", "current_revision", "links"],
+      "properties": {
+        "solver_card_id": {"type": "string", "format": "uuid"},
+        "neutral_material_id": {"type": "string", "format": "uuid"},
+        "target": {"$ref": "#/$defs/Target"},
+        "current_revision": {"type": "object"},
+        "links": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "CapabilityManifest": {
+      "type": "object",
+      "required": [
+        "manifest_id", "manifest_version", "manifest_sha256", "model_schema_digest",
+        "mapping_statuses", "capabilities", "non_production"
+      ],
+      "properties": {
+        "manifest_id": {"const": "cmp.reference.neutral-hyperelastic-capability"},
+        "manifest_version": {"const": "1.0.0"},
+        "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "model_schema_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping_statuses": {
+          "type": "array",
+          "items": {"enum": ["exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"]}
+        },
+        "capabilities": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "object"}},
+        "non_production": {"const": true}
+      }
+    }
+  }
+}

@@ -328,6 +328,31 @@ class SqlAlchemyNeutralMaterialRepository(NeutralMaterialRepository):
             raise NeutralMaterialNotFound(str(neutral_material_id))
         return self._stored(row)
 
+    def get_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        neutral_material_id: UUID,
+        neutral_material_revision_id: UUID,
+    ) -> NeutralMaterialStoredRevision:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(neutral_material_revision_table).where(
+                        neutral_material_revision_table.c.aggregate_id
+                        == neutral_material_id,
+                        neutral_material_revision_table.c.id
+                        == neutral_material_revision_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise NeutralMaterialNotFound("exact Neutral Material revision is not visible")
+        return self._stored(row)
+
     def find_by_candidate(
         self,
         *,

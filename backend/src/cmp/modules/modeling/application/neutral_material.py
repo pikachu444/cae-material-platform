@@ -111,6 +111,15 @@ class NeutralMaterialRepository(Protocol):
         neutral_material_id: UUID,
     ) -> NeutralMaterialStoredRevision: ...
 
+    def get_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        neutral_material_id: UUID,
+        neutral_material_revision_id: UUID,
+    ) -> NeutralMaterialStoredRevision: ...
+
     def find_by_candidate(
         self,
         *,
@@ -411,6 +420,26 @@ class NeutralMaterialService:
             context=context,
             decision=decision,
             neutral_material_id=neutral_material_id,
+        )
+        return await self._snapshot_from_stored(context, decision, stored)
+
+    async def get_neutral_material_revision_for_export(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        neutral_material_id: UUID,
+        neutral_material_revision_id: UUID,
+    ) -> NeutralMaterialSnapshot:
+        """Expose one exact immutable Neutral revision through the Exporting boundary."""
+
+        if decision.permission not in {Permission.EXPORT_READ, Permission.EXPORT_EXECUTE}:
+            raise NeutralMaterialConflict("Neutral Material export permission is required")
+        _require(context, decision, decision.permission)
+        stored = self._repository.get_revision(
+            context=context,
+            decision=decision,
+            neutral_material_id=neutral_material_id,
+            neutral_material_revision_id=neutral_material_revision_id,
         )
         return await self._snapshot_from_stored(context, decision, stored)
 
