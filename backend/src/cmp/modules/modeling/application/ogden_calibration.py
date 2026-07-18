@@ -26,6 +26,11 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.modeling.application.ogden_prony import OgdenPronyModelService
 from cmp.modules.modeling.application.scientific_profile import ScientificProfileService
 from cmp.modules.modeling.application.service import RevisionSnapshot
+from cmp.modules.modeling.domain.hyperelastic_families import (
+    HyperelasticFamily,
+    HyperelasticFamilyCandidate,
+    fit_hyperelastic_families,
+)
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
     REFERENCE_OGDEN_CALIBRATION_DIAGNOSTICS_SCHEMA,
     REFERENCE_OGDEN_CALIBRATION_ENVIRONMENT_DIGEST,
@@ -81,6 +86,15 @@ class PersistedOgdenCandidate:
 
 
 @dataclass(frozen=True, slots=True)
+class PersistedHyperelasticFamilyCandidate:
+    id: UUID
+    calibration_run_id: UUID
+    value: HyperelasticFamilyCandidate
+    created_at: datetime
+    created_by: UUID
+
+
+@dataclass(frozen=True, slots=True)
 class OgdenCalibrationRun:
     id: UUID
     classification: DataClassification
@@ -107,6 +121,7 @@ class OgdenCalibrationRun:
     request_id: UUID
     trace_id: str
     candidates: tuple[PersistedOgdenCandidate, ...]
+    family_candidates: tuple[PersistedHyperelasticFamilyCandidate, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -398,6 +413,13 @@ class ReferenceOgdenCalibrationService:
             maximum_function_evaluations=plan.content.maximum_function_evaluations,
             curves=tuple(curves),
         )
+        family_candidates = fit_hyperelastic_families(
+            tuple(curves),
+            tuple(HyperelasticFamily),
+            multistart_count=profile.content.multistart_count,
+            random_seed=profile.content.seed,
+            maximum_function_evaluations=plan.content.maximum_function_evaluations,
+        )
         run_id = self._id()
         started_at = self._clock()
         persisted: list[PersistedOgdenCandidate] = []
@@ -455,6 +477,16 @@ class ReferenceOgdenCalibrationService:
             request_id=context.request_id,
             trace_id=context.trace_id,
             candidates=tuple(persisted),
+            family_candidates=tuple(
+                PersistedHyperelasticFamilyCandidate(
+                    id=self._id(),
+                    calibration_run_id=run_id,
+                    value=candidate,
+                    created_at=self._clock(),
+                    created_by=context.principal.id,
+                )
+                for candidate in family_candidates
+            ),
         )
         return self._repository.save_run(context=context, decision=decision, run=run)
 

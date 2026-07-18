@@ -21,10 +21,15 @@ from cmp.modules.modeling.application.ogden_calibration import (
     ExecuteReferenceOgdenCalibration,
     OgdenCalibrationPlanSnapshot,
     OgdenCalibrationRun,
+    PersistedHyperelasticFamilyCandidate,
     PersistedOgdenCandidate,
     ReferenceOgdenCalibrationService,
 )
 from cmp.modules.modeling.application.service import RevisionSnapshot
+from cmp.modules.modeling.domain.hyperelastic_families import (
+    HyperelasticFamily,
+    fit_hyperelastic_families,
+)
 from cmp.modules.modeling.domain.reference_ogden_calibration import (
     REFERENCE_OGDEN_CALIBRATION_PLAN_SCHEMA_ID,
     OgdenCalibrationCurve,
@@ -166,6 +171,18 @@ def _candidate() -> PersistedOgdenCandidate:
     )
 
 
+def _family_candidate() -> PersistedHyperelasticFamilyCandidate:
+    strain = (0.0, 0.05, 0.1, 0.2, 0.3)
+    stress = tuple(2.0e6 * ((1 + item) - (1 + item) ** -2) for item in strain)
+    value = fit_hyperelastic_families(
+        (OgdenCalibrationCurve(MEMBER, strain, stress),),
+        (HyperelasticFamily.NEO_HOOKEAN,),
+        multistart_count=1,
+        random_seed=7,
+    )[0]
+    return PersistedHyperelasticFamilyCandidate(IDS[17], RUN, value, NOW, ACTOR)
+
+
 class _Service:
     def __init__(self) -> None:
         self.plan = OgdenCalibrationPlanSnapshot(
@@ -197,6 +214,7 @@ class _Service:
             CONTEXT.request_id,
             TRACE,
             (_candidate(),),
+            (_family_candidate(),),
         )
 
     def create_plan(
@@ -294,6 +312,10 @@ async def _request() -> None:
         assert candidate["mu_pa"] == 2.0e6
         assert candidate["uncertainty_status"] == "estimated_jacobian_covariance"
         assert "no_holdout_data" in candidate["warnings"]
+        assert executed.json()["family_candidate_count"] == 1
+        family = executed.json()["family_candidates"][0]
+        assert family["family"] == "neo_hookean"
+        assert family["parameters"][0]["name"] == "c10_pa"
         diagnostics = await client.get(
             f"/api/v1/ogden-calibration-candidates/{CANDIDATE}/diagnostics"
         )

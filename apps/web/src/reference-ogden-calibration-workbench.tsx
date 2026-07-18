@@ -413,6 +413,24 @@ export function ReferenceOgdenCalibrationWorkbench({
       {run ? (
         <section className="statistics-result" aria-live="polite">
           <div className="curve-heading">
+            <div>
+              <p className="eyebrow">T-55E · public hyperelastic families</p>
+              <h5>{run.family_candidate_count} model families compared on the same revisions</h5>
+            </div>
+            <span className="reference-chip">normalized weighted fit</span>
+          </div>
+          <div className="candidate-table" role="table" aria-label="Hyperelastic family candidate comparison">
+            {run.family_candidates.slice().sort((left, right) => left.objective_total - right.objective_total).map((candidate) => (
+              <div className="candidate-row" role="row" key={candidate.hyperelastic_family_candidate_id}>
+                <strong>{candidate.family.replaceAll("_", " ")}</strong>
+                <span>{candidate.parameters.map((parameter) => `${parameter.name}=${parameter.unit === "Pa" ? mpa(parameter.value) : parameter.value.toPrecision(5)}`).join(" · ")}</span>
+                <span>NRMSE {candidate.calibration_normalized_rmse.toExponential(3)}</span>
+                <span>{candidate.stability_status.replaceAll("_", " ")}</span>
+                <span>{candidate.warnings.length ? candidate.warnings.join(", ").replaceAll("_", " ") : "no warning"}</span>
+              </div>
+            ))}
+          </div>
+          <div className="curve-heading">
             <div><p className="eyebrow">Immutable candidate comparison</p><h5>{run.candidate_count} candidates · {run.test_mode_count} modes</h5></div>
             <span className="reference-chip">{run.calibration_curve_count} fit · {run.holdout_curve_count} holdout</span>
           </div>

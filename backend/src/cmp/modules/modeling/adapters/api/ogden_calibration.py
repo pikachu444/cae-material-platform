@@ -22,6 +22,7 @@ from cmp.modules.modeling.application.ogden_calibration import (
     OgdenCalibrationNotFound,
     OgdenCalibrationPlanSnapshot,
     OgdenCalibrationRun,
+    PersistedHyperelasticFamilyCandidate,
     PersistedOgdenCandidate,
     ReferenceOgdenCalibrationService,
 )
@@ -250,6 +251,60 @@ class OgdenCandidateResponse(BaseModel):
         )
 
 
+class HyperelasticParameterResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    value: float
+    unit: str
+
+
+class HyperelasticFamilyCandidateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    hyperelastic_family_candidate_id: UUID
+    family: str
+    parameters: tuple[HyperelasticParameterResponse, ...]
+    objective_total: float
+    objective_by_mode: dict[str, float]
+    calibration_normalized_rmse: float
+    holdout_normalized_rmse: float | None
+    function_evaluations: int
+    convergence_reason: str
+    stability_status: str
+    warnings: tuple[str, ...]
+    candidate_sha256: str
+
+    @classmethod
+    def from_domain(
+        cls, value: PersistedHyperelasticFamilyCandidate
+    ) -> HyperelasticFamilyCandidateResponse:
+        candidate = value.value
+        return cls(
+            hyperelastic_family_candidate_id=value.id,
+            family=candidate.family.value,
+            parameters=tuple(
+                HyperelasticParameterResponse(
+                    name=parameter.name,
+                    value=parameter.value,
+                    unit=parameter.unit,
+                )
+                for parameter in candidate.parameters
+            ),
+            objective_total=candidate.objective_total,
+            objective_by_mode={
+                mode.value: objective for mode, objective in candidate.objective_by_mode
+            },
+            calibration_normalized_rmse=candidate.calibration_normalized_rmse,
+            holdout_normalized_rmse=candidate.holdout_normalized_rmse,
+            function_evaluations=candidate.function_evaluations,
+            convergence_reason=candidate.convergence_reason,
+            stability_status=candidate.stability_status,
+            warnings=candidate.warnings,
+            candidate_sha256=f"sha256:{candidate.candidate_sha256}",
+        )
+
+
 class OgdenRunResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -270,6 +325,8 @@ class OgdenRunResponse(BaseModel):
     attempt_count: int
     candidate_count: int
     candidates: tuple[OgdenCandidateResponse, ...]
+    family_candidate_count: int
+    family_candidates: tuple[HyperelasticFamilyCandidateResponse, ...]
     links: dict[str, str]
 
     @classmethod
@@ -294,6 +351,11 @@ class OgdenRunResponse(BaseModel):
             candidate_count=value.candidate_count,
             candidates=tuple(
                 OgdenCandidateResponse.from_domain(item) for item in value.candidates
+            ),
+            family_candidate_count=len(value.family_candidates),
+            family_candidates=tuple(
+                HyperelasticFamilyCandidateResponse.from_domain(item)
+                for item in value.family_candidates
             ),
             links={"self": root},
         )

@@ -32,7 +32,8 @@ REFERENCE_OGDEN_CALIBRATION_DIAGNOSTICS_SCHEMA = (
 )
 REFERENCE_OGDEN_CALIBRATION_ENVIRONMENT_DIGEST = "sha256:" + content_sha256(
     {
-        "kernel": "reference-multi-test-one-term-ogden:1.0.0",
+        "kernel": "reference-multi-test-hyperelastic-family-comparison:2.0.0",
+        "candidate_families": ("neo_hookean", "mooney_rivlin", "yeoh", "ogden_1"),
         "numpy": version("numpy"),
         "scipy": version("scipy"),
         "optimizer": "least_squares:trf",
