@@ -28,11 +28,16 @@ from cmp.modules.exporting.domain.bulk_bundle import (
     canonical_json_bytes,
     sha256_bytes,
 )
+from cmp.modules.exporting.domain.neutral_hyperelastic import (
+    NeutralHyperelasticExportTarget,
+    preflight_neutral_hyperelastic_export,
+)
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
     DataClassification,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.modeling.domain.neutral_material import neutral_material_from_json_bytes
 
 
 class RlsContext(Protocol):
@@ -230,6 +235,129 @@ class SqlAlchemyBulkExportSourceResolver(BulkExportSourceResolver):
                             kind,
                             solver_card_id=cast(UUID, row["card_id"]),
                             solver_card_revision_id=cast(UUID, row["revision_id"]),
+                        )
+                    )
+            test_rows = session.execute(
+                sa.text(
+                    """
+                    SELECT aggregate_id, id, canonical_artifact_id
+                    FROM datasets.test_data_document_revision
+                    WHERE organization_id=:organization_id AND project_id=:project_id
+                    ORDER BY aggregate_id, revision_no
+                    """
+                ),
+                {
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                },
+            ).mappings()
+            for row in test_rows:
+                refs.append(
+                    ExportSourceRef(
+                        ExportMemberKind.TEST_DATA_JSON,
+                        artifact_id=cast(UUID, row["canonical_artifact_id"]),
+                        test_data_document_id=cast(UUID, row["aggregate_id"]),
+                        test_data_document_revision_id=cast(UUID, row["id"]),
+                    )
+                )
+            profile_rows = session.execute(
+                sa.text(
+                    """
+                    SELECT aggregate_id, id FROM processing.mapping_profile_revision
+                    WHERE organization_id=:organization_id AND project_id=:project_id
+                    ORDER BY aggregate_id, revision_no
+                    """
+                ),
+                {
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                },
+            ).mappings()
+            for row in profile_rows:
+                refs.append(
+                    ExportSourceRef(
+                        ExportMemberKind.MAPPING_PROFILE_JSON,
+                        mapping_profile_id=cast(UUID, row["aggregate_id"]),
+                        mapping_profile_revision_id=cast(UUID, row["id"]),
+                    )
+                )
+            recipe_rows = session.execute(
+                sa.text(
+                    """
+                    SELECT aggregate_id, id FROM processing.common_processing_recipe_revision
+                    WHERE organization_id=:organization_id AND project_id=:project_id
+                    ORDER BY aggregate_id, revision_no
+                    """
+                ),
+                {
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                },
+            ).mappings()
+            for row in recipe_rows:
+                refs.append(
+                    ExportSourceRef(
+                        ExportMemberKind.PROCESSING_RECIPE_JSON,
+                        processing_recipe_id=cast(UUID, row["aggregate_id"]),
+                        processing_recipe_revision_id=cast(UUID, row["id"]),
+                    )
+                )
+            neutral_rows = session.execute(
+                sa.text(
+                    """
+                    SELECT aggregate_id, id, document_artifact_id
+                    FROM modeling.neutral_material_revision
+                    WHERE organization_id=:organization_id AND project_id=:project_id
+                      AND material_id=:material_id
+                    ORDER BY aggregate_id, revision_no
+                    """
+                ),
+                {
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                    "material_id": material_id,
+                },
+            ).mappings()
+            for row in neutral_rows:
+                refs.append(
+                    ExportSourceRef(
+                        ExportMemberKind.NEUTRAL_MATERIAL_JSON,
+                        artifact_id=cast(UUID, row["document_artifact_id"]),
+                        neutral_material_id=cast(UUID, row["aggregate_id"]),
+                        neutral_material_revision_id=cast(UUID, row["id"]),
+                    )
+                )
+            neutral_card_rows = session.execute(
+                sa.text(
+                    """
+                    SELECT card.aggregate_id, card.id
+                    FROM exporting.neutral_solver_card_revision card
+                    JOIN modeling.neutral_material_revision neutral
+                      ON neutral.aggregate_id=card.neutral_material_id
+                     AND neutral.id=card.neutral_material_revision_id
+                     AND neutral.organization_id=card.organization_id
+                     AND neutral.project_id=card.project_id
+                    WHERE card.organization_id=:organization_id AND card.project_id=:project_id
+                      AND neutral.material_id=:material_id
+                    ORDER BY card.aggregate_id, card.revision_no
+                    """
+                ),
+                {
+                    "organization_id": context.organization_id,
+                    "project_id": context.project_id,
+                    "material_id": material_id,
+                },
+            ).mappings()
+            for row in neutral_card_rows:
+                for kind in (
+                    ExportMemberKind.NEUTRAL_SOLVER_MAPPING_REPORT,
+                    ExportMemberKind.NEUTRAL_SOLVER_CARD_NATIVE,
+                ):
+                    refs.append(
+                        ExportSourceRef(
+                            kind,
+                            neutral_solver_card_id=cast(UUID, row["aggregate_id"]),
+                            neutral_solver_card_revision_id=cast(UUID, row["id"]),
                         )
                     )
         return tuple(refs)
@@ -510,6 +638,276 @@ class SqlAlchemyBulkExportSourceResolver(BulkExportSourceResolver):
             raise BulkExportNotFound("Solver Card revision is not visible")
         return dict(row)
 
+    def _canonical_test_row(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        source: ExportSourceRef,
+    ) -> dict[str, Any]:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.text(
+                        """
+                        SELECT * FROM datasets.test_data_document_revision
+                        WHERE aggregate_id=:document_id AND id=:revision_id
+                          AND canonical_artifact_id=:artifact_id
+                        """
+                    ),
+                    {
+                        "document_id": source.test_data_document_id,
+                        "revision_id": source.test_data_document_revision_id,
+                        "artifact_id": source.artifact_id,
+                    },
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise BulkExportNotFound("canonical Test Data revision is not visible")
+        return dict(row)
+
+    def _mapping_profile_document(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        source: ExportSourceRef,
+    ) -> tuple[DataClassification, str, bytes]:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.text(
+                        """
+                        SELECT * FROM processing.mapping_profile_revision
+                        WHERE aggregate_id=:profile_id AND id=:revision_id
+                        """
+                    ),
+                    {
+                        "profile_id": source.mapping_profile_id,
+                        "revision_id": source.mapping_profile_revision_id,
+                    },
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise BulkExportNotFound("Mapping Profile revision is not visible")
+            channels = session.execute(
+                sa.text(
+                    """
+                    SELECT channel_key, target_quantity, accepted_normalized_units,
+                           required, value_scale, value_offset
+                    FROM processing.mapping_profile_channel_binding
+                    WHERE profile_id=:profile_id AND profile_revision_id=:revision_id
+                    ORDER BY ordinal
+                    """
+                ),
+                {
+                    "profile_id": source.mapping_profile_id,
+                    "revision_id": source.mapping_profile_revision_id,
+                },
+            ).mappings()
+            attributes = session.execute(
+                sa.text(
+                    """
+                    SELECT attribute_definition_id, attribute_definition_revision_id,
+                           target_quantity, accepted_normalized_units, required
+                    FROM processing.mapping_profile_attribute_binding
+                    WHERE profile_id=:profile_id AND profile_revision_id=:revision_id
+                    ORDER BY ordinal
+                    """
+                ),
+                {
+                    "profile_id": source.mapping_profile_id,
+                    "revision_id": source.mapping_profile_revision_id,
+                },
+            ).mappings()
+            channel_values = [dict(value) for value in channels]
+            attribute_values = [dict(value) for value in attributes]
+        content = {
+            "profile_key": row["profile_key"],
+            "label": row["label"],
+            "independent_quantity": row["independent_quantity"],
+            "missing_data_policy": row["missing_data_policy"],
+            "bindings": [
+                {
+                    "channel_key": value["channel_key"],
+                    "target_quantity": value["target_quantity"],
+                    "accepted_normalized_units": list(value["accepted_normalized_units"]),
+                    "required": value["required"],
+                    "scale": value["value_scale"],
+                    "offset": value["value_offset"],
+                }
+                for value in channel_values
+            ],
+            "attribute_bindings": [
+                {
+                    "attribute_definition_id": str(value["attribute_definition_id"]),
+                    "attribute_definition_revision_id": str(
+                        value["attribute_definition_revision_id"]
+                    ),
+                    "target_quantity": value["target_quantity"],
+                    "accepted_normalized_units": list(value["accepted_normalized_units"]),
+                    "required": value["required"],
+                }
+                for value in attribute_values
+            ],
+        }
+        document = {
+            "schema": "urn:cmp:processing:mapping-profile-exchange:1.0.0",
+            "identity": {
+                "mapping_profile_id": str(row["aggregate_id"]),
+                "mapping_profile_revision_id": str(row["id"]),
+                "revision_no": row["revision_no"],
+                "content_hash": row["content_hash"],
+            },
+            "content": content,
+        }
+        return (
+            DataClassification(str(row["classification"])),
+            str(row["label"]),
+            canonical_json_bytes(document),
+        )
+
+    def _processing_recipe_document(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        source: ExportSourceRef,
+    ) -> tuple[DataClassification, str, bytes]:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.text(
+                        """
+                        SELECT * FROM processing.common_processing_recipe_revision
+                        WHERE aggregate_id=:recipe_id AND id=:revision_id
+                        """
+                    ),
+                    {
+                        "recipe_id": source.processing_recipe_id,
+                        "revision_id": source.processing_recipe_revision_id,
+                    },
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise BulkExportNotFound("Processing Recipe revision is not visible")
+            steps = [
+                dict(value)
+                for value in session.execute(
+                    sa.text(
+                        """
+                        SELECT method_id, method_version, options, options_sha256
+                        FROM processing.common_processing_recipe_step
+                        WHERE recipe_id=:recipe_id AND recipe_revision_id=:revision_id
+                        ORDER BY ordinal
+                        """
+                    ),
+                    {
+                        "recipe_id": source.processing_recipe_id,
+                        "revision_id": source.processing_recipe_revision_id,
+                    },
+                ).mappings()
+            ]
+        document = {
+            "schema": "urn:cmp:processing:recipe-exchange:1.0.0",
+            "identity": {
+                "processing_recipe_id": str(row["aggregate_id"]),
+                "processing_recipe_revision_id": str(row["id"]),
+                "revision_no": row["revision_no"],
+                "content_hash": row["content_hash"],
+            },
+            "content": {
+                "recipe_key": row["recipe_key"],
+                "label": row["label"],
+                "description": row["description"],
+                "mapping_profile": {
+                    "aggregate_id": str(row["mapping_profile_id"]),
+                    "revision_id": str(row["mapping_profile_revision_id"]),
+                    "sha256": row["mapping_profile_sha256"],
+                },
+                "steps": [
+                    {
+                        "method_id": value["method_id"],
+                        "method_version": value["method_version"],
+                        "options": value["options"],
+                        "options_sha256": value["options_sha256"],
+                    }
+                    for value in steps
+                ],
+                "lifecycle_state": row["lifecycle_state"],
+            },
+        }
+        return (
+            DataClassification(str(row["classification"])),
+            str(row["label"]),
+            canonical_json_bytes(document),
+        )
+
+    def _neutral_json_row(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        source: ExportSourceRef,
+    ) -> dict[str, Any]:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.text(
+                        """
+                        SELECT * FROM modeling.neutral_material_revision
+                        WHERE aggregate_id=:neutral_id AND id=:revision_id
+                          AND document_artifact_id=:artifact_id
+                        """
+                    ),
+                    {
+                        "neutral_id": source.neutral_material_id,
+                        "revision_id": source.neutral_material_revision_id,
+                        "artifact_id": source.artifact_id,
+                    },
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise BulkExportNotFound("Neutral Material revision is not visible")
+        return dict(row)
+
+    def _neutral_card_row(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        source: ExportSourceRef,
+    ) -> dict[str, Any]:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.text(
+                        """
+                        SELECT card.*, neutral.document_artifact_id
+                        FROM exporting.neutral_solver_card_revision card
+                        JOIN modeling.neutral_material_revision neutral
+                          ON neutral.aggregate_id=card.neutral_material_id
+                         AND neutral.id=card.neutral_material_revision_id
+                         AND neutral.organization_id=card.organization_id
+                         AND neutral.project_id=card.project_id
+                        WHERE card.aggregate_id=:card_id AND card.id=:revision_id
+                        """
+                    ),
+                    {
+                        "card_id": source.neutral_solver_card_id,
+                        "revision_id": source.neutral_solver_card_revision_id,
+                    },
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise BulkExportNotFound("Neutral solver card revision is not visible")
+        return dict(row)
+
     def _mapping_report(self, row: dict[str, Any]) -> bytes:
         status_fields = {
             key: value
@@ -605,6 +1003,130 @@ class SqlAlchemyBulkExportSourceResolver(BulkExportSourceResolver):
                 "application/schema+json",
                 f"{base}/ir.schema.json",
                 f"IR schema · {family}",
+            )
+        if source.kind is ExportMemberKind.TEST_DATA_JSON:
+            row = self._canonical_test_row(context, decision, source)
+            assert source.artifact_id is not None
+            value = await self._artifact_bytes(
+                context, decision, source.artifact_id, maximum_bytes
+            )
+            if sha256_bytes(value) != str(row["canonical_sha256"]):
+                raise BulkExportConflict("canonical Test Data JSON digest changed")
+            base = (
+                f"test-data/{source.test_data_document_id}/"
+                f"{source.test_data_document_revision_id}"
+            )
+            return (
+                DataClassification(str(row["classification"])),
+                value,
+                "application/json",
+                f"{base}/test-data.json",
+                f"Test Data JSON · {row['maker']} {row['grade']} · {row['test_date']}",
+            )
+        if source.kind is ExportMemberKind.MAPPING_PROFILE_JSON:
+            classification, label, value = self._mapping_profile_document(
+                context, decision, source
+            )
+            base = (
+                f"mapping-profiles/{source.mapping_profile_id}/"
+                f"{source.mapping_profile_revision_id}"
+            )
+            return (
+                classification,
+                value,
+                "application/json",
+                f"{base}/mapping-profile.json",
+                f"Mapping Profile · {label}",
+            )
+        if source.kind is ExportMemberKind.PROCESSING_RECIPE_JSON:
+            classification, label, value = self._processing_recipe_document(
+                context, decision, source
+            )
+            base = (
+                f"processing-recipes/{source.processing_recipe_id}/"
+                f"{source.processing_recipe_revision_id}"
+            )
+            return (
+                classification,
+                value,
+                "application/json",
+                f"{base}/processing-recipe.json",
+                f"Processing Recipe · {label}",
+            )
+        if source.kind is ExportMemberKind.NEUTRAL_MATERIAL_JSON:
+            row = self._neutral_json_row(context, decision, source)
+            assert source.artifact_id is not None
+            value = await self._artifact_bytes(
+                context, decision, source.artifact_id, maximum_bytes
+            )
+            if sha256_bytes(value) != str(row["document_artifact_sha256"]):
+                raise BulkExportConflict("Neutral Material JSON Artifact digest changed")
+            base = (
+                f"neutral-materials/{source.neutral_material_id}/"
+                f"{source.neutral_material_revision_id}"
+            )
+            return (
+                DataClassification(str(row["classification"])),
+                value,
+                "application/json",
+                f"{base}/neutral-material.json",
+                f"Neutral Material JSON · {row['family']} · r{row['revision_no']}",
+            )
+        if source.kind in {
+            ExportMemberKind.NEUTRAL_SOLVER_MAPPING_REPORT,
+            ExportMemberKind.NEUTRAL_SOLVER_CARD_NATIVE,
+        }:
+            row = self._neutral_card_row(context, decision, source)
+            classification = DataClassification(str(row["classification"]))
+            base = (
+                f"solver-cards/{source.neutral_solver_card_id}/"
+                f"{source.neutral_solver_card_revision_id}"
+            )
+            solver = str(row["target_solver"])
+            material_name = _filename(str(row["material_name"]), "MATERIAL")
+            if source.kind is ExportMemberKind.NEUTRAL_SOLVER_CARD_NATIVE:
+                extension = "inp" if solver == "abaqus" else "rad"
+                return (
+                    classification,
+                    str(row["card_text"]).encode("utf-8"),
+                    "text/plain",
+                    f"{base}/{material_name}.{extension}",
+                    f"Neutral {solver} native card · {material_name}",
+                )
+            neutral_bytes = await self._artifact_bytes(
+                context,
+                decision,
+                cast(UUID, row["document_artifact_id"]),
+                maximum_bytes,
+            )
+            neutral = neutral_material_from_json_bytes(neutral_bytes)
+            report = preflight_neutral_hyperelastic_export(
+                neutral_material_id=cast(UUID, row["neutral_material_id"]),
+                neutral_material_revision_id=cast(
+                    UUID, row["neutral_material_revision_id"]
+                ),
+                source=neutral,
+                target=NeutralHyperelasticExportTarget(
+                    solver,
+                    str(row["target_version"]),
+                    str(row["target_unit_system"]),
+                ),
+            )
+            if report.digest != str(row["mapping_report_sha256"]):
+                raise BulkExportConflict("Neutral solver mapping report digest changed")
+            value = canonical_json_bytes(
+                {
+                    "mapping_report_sha256": report.digest,
+                    "exportable": report.exportable,
+                    "report": report.canonical(),
+                }
+            )
+            return (
+                classification,
+                value,
+                "application/json",
+                f"{base}/mapping-report.json",
+                f"Neutral {solver} mapping report · {material_name}",
             )
         row = self._card_row(context, decision, source)
         classification = DataClassification(str(row["classification"]))

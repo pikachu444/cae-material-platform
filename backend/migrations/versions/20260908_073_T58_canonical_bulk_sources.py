@@ -141,11 +141,42 @@ def upgrade() -> None:
           (organization_id, project_id, member_kind, test_data_document_revision_id,
            mapping_profile_revision_id, processing_recipe_revision_id,
            neutral_material_revision_id, neutral_solver_card_revision_id);
+        CREATE POLICY processing_mapping_profile_revision_export_select
+          ON processing.mapping_profile_revision FOR SELECT USING
+          (access_control.can_access_row(organization_id, project_id, classification,
+                                         'export.read'));
+        CREATE POLICY processing_mapping_profile_channel_export_select
+          ON processing.mapping_profile_channel_binding FOR SELECT USING
+          (access_control.can_access_row(organization_id, project_id, classification,
+                                         'export.read'));
+        CREATE POLICY processing_mapping_profile_attribute_export_select
+          ON processing.mapping_profile_attribute_binding FOR SELECT USING
+          (access_control.can_access_row(organization_id, project_id, classification,
+                                         'export.read'));
+        CREATE POLICY processing_common_recipe_revision_export_select
+          ON processing.common_processing_recipe_revision FOR SELECT USING
+          (access_control.can_access_row(organization_id, project_id, classification,
+                                         'export.read'));
+        CREATE POLICY processing_common_recipe_step_export_select
+          ON processing.common_processing_recipe_step FOR SELECT USING
+          (access_control.can_access_row(organization_id, project_id, classification,
+                                         'export.read'));
         """
     )
 
 
 def downgrade() -> None:
+    for table, policy in (
+        ("common_processing_recipe_step", "processing_common_recipe_step_export_select"),
+        (
+            "common_processing_recipe_revision",
+            "processing_common_recipe_revision_export_select",
+        ),
+        ("mapping_profile_attribute_binding", "processing_mapping_profile_attribute_export_select"),
+        ("mapping_profile_channel_binding", "processing_mapping_profile_channel_export_select"),
+        ("mapping_profile_revision", "processing_mapping_profile_revision_export_select"),
+    ):
+        op.execute(f"DROP POLICY IF EXISTS {policy} ON processing.{table}")
     op.execute("DROP INDEX exporting.ix_export_selection_member_canonical_source")
     for constraint in (
         "fk_export_selection_member_neutral_card",

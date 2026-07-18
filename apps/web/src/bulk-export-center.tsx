@@ -28,6 +28,12 @@ const kindLabels: Record<BulkExportMemberKind, string> = {
   model_ir_schema: "IR JSON Schema",
   solver_mapping_report: "Solver mapping report",
   solver_card_native: "Native Solver Card",
+  test_data_json: "Canonical Test Data JSON",
+  mapping_profile_json: "Mapping Profile JSON",
+  processing_recipe_json: "Processing Recipe JSON",
+  neutral_material_json: "Neutral Material JSON",
+  neutral_solver_mapping_report: "Neutral solver mapping report",
+  neutral_solver_card_native: "Neutral native Solver Card",
 };
 
 const rank: Record<DataClassification, number> = {

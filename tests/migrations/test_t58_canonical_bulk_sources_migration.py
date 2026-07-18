@@ -55,3 +55,6 @@ def test_t58_member_sources_have_exact_scope_foreign_keys_and_index() -> None:
     ):
         assert constraint in migration
     assert "ix_export_selection_member_canonical_source" in migration
+    assert "processing_mapping_profile_revision_export_select" in migration
+    assert "processing_common_recipe_revision_export_select" in migration
+    assert "'export.read'" in migration
