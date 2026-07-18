@@ -34,8 +34,15 @@ from cmp.modules.processing.application.mapping_profiles import (
     MappingProfileSnapshot,
     ReviseMappingProfile,
 )
+from cmp.modules.processing.domain.common_ensemble import (
+    ENSEMBLE_METHOD_REGISTRY,
+    EnsembleAlignmentOptions,
+    EnsemblePreview,
+    preview_ensemble,
+)
 from cmp.modules.processing.domain.common_pipeline import (
     MAX_PIPELINE_STEPS,
+    MAX_PREVIEW_POINTS,
     AttributeBinding,
     ChannelBinding,
     CommonPipelineError,
@@ -347,6 +354,109 @@ class ProcessingOutputListResponse(BaseModel):
     items: tuple[ProcessingOutputResponse, ...]
 
 
+class EnsembleAlignmentInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    point_count: int = Field(ge=2, le=MAX_PREVIEW_POINTS)
+    domain_policy: str = "intersection"
+    extrapolation: str = "reject"
+
+    def to_domain(self) -> EnsembleAlignmentOptions:
+        return EnsembleAlignmentOptions(**self.model_dump())
+
+
+class EnsemblePreviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    documents: Annotated[tuple[dict[str, Any], ...], Field(min_length=2, max_length=100)]
+    mapping_profile: MappingProfileInput
+    preprocessing_steps: Annotated[
+        tuple[ProcessingStepInput, ...], Field(max_length=MAX_PIPELINE_STEPS)
+    ] = ()
+    alignment: EnsembleAlignmentInput
+
+
+class EnsembleMemberResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ordinal: int
+    source_document_sha256: str
+    stage: CurveStageResponse
+
+
+class PointwiseStatisticsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    quantity: str
+    unit: str
+    mean: tuple[float, ...]
+    median: tuple[float, ...]
+    standard_deviation: tuple[float, ...]
+    mad: tuple[float, ...]
+    q1: tuple[float, ...]
+    q3: tuple[float, ...]
+    confidence_95_lower: tuple[float, ...]
+    confidence_95_upper: tuple[float, ...]
+
+
+class EnsemblePreviewResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    execution_mode: str
+    promotable: bool
+    mapping_profile_sha256: str
+    independent_quantity: str
+    grid_unit: str
+    grid: tuple[float, ...]
+    members: tuple[EnsembleMemberResponse, ...]
+    statistics: tuple[PointwiseStatisticsResponse, ...]
+    diagnostics: tuple[str, ...]
+
+    @classmethod
+    def from_domain(cls, value: EnsemblePreview) -> EnsemblePreviewResponse:
+        return cls(
+            execution_mode="preview",
+            promotable=False,
+            mapping_profile_sha256=value.mapping_profile_sha256,
+            independent_quantity=value.independent_quantity,
+            grid_unit=value.grid_unit,
+            grid=value.grid,
+            members=tuple(
+                EnsembleMemberResponse(
+                    ordinal=member.ordinal,
+                    source_document_sha256=member.source_document_sha256,
+                    stage=CurveStageResponse(
+                        ordinal=member.stage.ordinal,
+                        method_id=member.stage.method_id,
+                        method_version=member.stage.method_version,
+                        point_count=member.stage.point_count,
+                        series=tuple(
+                            QuantitySeriesResponse(
+                                quantity=series.quantity,
+                                unit=series.unit,
+                                values=series.values,
+                            )
+                            for series in member.stage.series
+                        ),
+                        diagnostics=member.stage.diagnostics,
+                    ),
+                )
+                for member in value.members
+            ),
+            statistics=tuple(
+                PointwiseStatisticsResponse(
+                    quantity=item.quantity,
+                    unit=item.unit,
+                    mean=item.mean,
+                    median=item.median,
+                    standard_deviation=item.standard_deviation,
+                    mad=item.mad,
+                    q1=item.q1,
+                    q3=item.q3,
+                    confidence_95_lower=item.confidence_95_lower,
+                    confidence_95_upper=item.confidence_95_upper,
+                )
+                for item in value.statistics
+            ),
+            diagnostics=value.diagnostics,
+        )
+
+
 def install_common_processing_api(
     app: FastAPI,
     *,
@@ -485,6 +595,20 @@ def install_common_processing_api(
             items=tuple(MethodDefinitionResponse.from_domain(item) for item in METHOD_REGISTRY)
         )
 
+    @app.get(
+        "/api/v1/processing-ensemble-methods",
+        response_model=MethodRegistryResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["processing-workbench"],
+    )
+    def list_processing_ensemble_methods() -> MethodRegistryResponse:
+        return MethodRegistryResponse(
+            items=tuple(
+                MethodDefinitionResponse.from_domain(item)
+                for item in ENSEMBLE_METHOD_REGISTRY
+            )
+        )
+
     @app.post(
         "/api/v1/processing:preview",
         response_model=ProcessingPreviewResponse,
@@ -500,6 +624,25 @@ def install_common_processing_api(
                 tuple(item.to_domain() for item in body.steps),
             )
             return ProcessingPreviewResponse.from_domain(result)
+        except (CanonicalTestDataError, CommonPipelineError, TypeError, ValueError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+
+    @app.post(
+        "/api/v1/processing:preview-ensemble",
+        response_model=EnsemblePreviewResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["processing-workbench"],
+    )
+    def preview_common_ensemble(body: EnsemblePreviewRequest) -> EnsemblePreviewResponse:
+        try:
+            result = preview_ensemble(
+                tuple(parse_canonical_test_data(document) for document in body.documents),
+                body.mapping_profile.to_domain(),
+                tuple(item.to_domain() for item in body.preprocessing_steps),
+                body.alignment.to_domain(),
+            )
+            return EnsemblePreviewResponse.from_domain(result)
         except (CanonicalTestDataError, CommonPipelineError, TypeError, ValueError) as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
 

@@ -49,6 +49,23 @@ const documentResource = {
   channels: [],
 };
 
+const replicateResource = {
+  ...documentResource,
+  test_data_document_id: "53000000-0000-4000-8000-000000000012",
+  current_revision: {
+    ...revision,
+    id: "53000000-0000-4000-8000-000000000011",
+    aggregate_id: "53000000-0000-4000-8000-000000000012",
+    content_hash: "f".repeat(64),
+  },
+  document_key: "DP600-TENSILE-02",
+  specimen_id: "S-2",
+  canonical_artifact_id: "53000000-0000-4000-8000-000000000016",
+  canonical_sha256: "1".repeat(64),
+  normalized_artifact_id: "53000000-0000-4000-8000-000000000017",
+  normalized_sha256: "2".repeat(64),
+};
+
 const documentJson = {
   document_type: "cmp.test-data",
   schema_version: "1.0.0",
@@ -64,9 +81,33 @@ describe("Common Processing Workbench", () => {
   it("loads exact Test Data and renders server stage overlays", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
-      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
+      if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
       if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [] });
       if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-ensemble-methods")) {
+        return jsonResponse({
+          items: [
+            {
+              method_id: "curves.align_linear_intersection",
+              version: "1.0.0",
+              label: "Align curves on observed intersection",
+              description: "Linear interpolation without extrapolation",
+              option_schema: {},
+              deterministic: true,
+              allows_extrapolation: false,
+            },
+            {
+              method_id: "curves.pointwise_statistics",
+              version: "1.0.0",
+              label: "Pointwise replicate statistics",
+              description: "Mean, median, sample SD, MAD, IQR, and 95% mean CI",
+              option_schema: {},
+              deterministic: true,
+              allows_extrapolation: false,
+            },
+          ],
+        });
+      }
       if (url.endsWith("/processing-methods")) {
         return jsonResponse({
           items: [
@@ -126,6 +167,63 @@ describe("Common Processing Workbench", () => {
           ],
         });
       }
+      if (url.endsWith("/processing:preview-ensemble") && init?.method === "POST") {
+        return jsonResponse({
+          execution_mode: "preview",
+          promotable: false,
+          mapping_profile_sha256: "e".repeat(64),
+          independent_quantity: "strain.engineering",
+          grid_unit: "1",
+          grid: [0, 0.001, 0.002],
+          members: [
+            {
+              ordinal: 0,
+              source_document_sha256: "d".repeat(64),
+              stage: {
+                ordinal: 1,
+                method_id: "curves.align_linear_intersection",
+                method_version: "1.0.0",
+                point_count: 3,
+                series: [
+                  { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+                  { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
+                ],
+                diagnostics: [],
+              },
+            },
+            {
+              ordinal: 1,
+              source_document_sha256: "3".repeat(64),
+              stage: {
+                ordinal: 1,
+                method_id: "curves.align_linear_intersection",
+                method_version: "1.0.0",
+                point_count: 3,
+                series: [
+                  { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+                  { quantity: "stress.engineering", unit: "Pa", values: [0, 2.2e8, 3.2e8] },
+                ],
+                diagnostics: [],
+              },
+            },
+          ],
+          statistics: [
+            {
+              quantity: "stress.engineering",
+              unit: "Pa",
+              mean: [0, 2.1e8, 3.1e8],
+              median: [0, 2.1e8, 3.1e8],
+              standard_deviation: [0, 1.414e7, 1.414e7],
+              mad: [0, 1e7, 1e7],
+              q1: [0, 2.05e8, 3.05e8],
+              q3: [0, 2.15e8, 3.15e8],
+              confidence_95_lower: [0, 1.904e8, 2.904e8],
+              confidence_95_upper: [0, 2.296e8, 3.296e8],
+            },
+          ],
+          diagnostics: ["2 member curves retained", "sample standard deviation uses n - 1"],
+        });
+      }
       throw new Error(`unexpected request: ${url}`);
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -139,7 +237,7 @@ describe("Common Processing Workbench", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "Processing Workbench" })).toBeTruthy();
-    expect(await screen.findByText("DP600-TENSILE-01 · r1")).toBeTruthy();
+    expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(2);
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
     expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();
 
@@ -147,5 +245,10 @@ describe("Common Processing Workbench", () => {
     expect(await screen.findByText("Preview only · not promotable")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Align and calculate" }));
+    expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
+    expect(screen.getByText("Members (2)")).toBeTruthy();
+    expect(screen.getByText("sample standard deviation uses n - 1")).toBeTruthy();
   });
 });

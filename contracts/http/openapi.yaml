@@ -3677,6 +3677,20 @@ paths:
               schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MethodRegistryResponse"}
         "401": {description: Authentication required.}
         "403": {description: Processing read is not authorized.}
+  /api/v1/processing-ensemble-methods:
+    get:
+      operationId: listCommonProcessingEnsembleMethods
+      tags: [processing-workbench]
+      summary: List versioned cross-curve alignment and statistics methods.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Explicit intersection/no-extrapolation alignment and pointwise statistics contracts.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/MethodRegistryResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
   /api/v1/processing:preview:
     post:
       operationId: previewCommonProcessingPipeline
@@ -3698,6 +3712,27 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Processing execution is not authorized.}
         "422": {description: Mapping, units, method composition, or numerical options are invalid.}
+  /api/v1/processing:preview-ensemble:
+    post:
+      operationId: previewCommonProcessingEnsemble
+      tags: [processing-workbench]
+      summary: Retain, align and statistically summarize multiple canonical Test Data curves.
+      description: Uses only the observed domain intersection, rejects extrapolation, and returns every aligned member alongside pointwise statistics.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/EnsemblePreviewRequest"}
+      responses:
+        "200":
+          description: Aligned members, mean, median, sample SD, MAD, IQR and 95% mean confidence interval.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/EnsemblePreviewResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "422": {description: Member mapping/unit/domain, preprocessing, alignment, or statistics contract is invalid.}
   /api/v1/processing-outputs:
     post:
       operationId: commitCommonProcessingOutput

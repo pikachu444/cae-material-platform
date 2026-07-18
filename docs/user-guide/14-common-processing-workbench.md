@@ -51,9 +51,26 @@
 
 ![서버 재계산 후 저장된 immutable Processing Output](../15-demo/images/t53-processing-output-commit.png)
 
+## 반복시험 정렬과 pointwise 통계
+
+1. 동일 조건에서 얻은 각 반복시험을 별도 Test Data identity로 등록합니다. 한 문서의 평균값으로
+   합치거나 원본 curve를 삭제하지 않습니다.
+2. **Exact Test Data members**에서 비교할 현재 exact revision을 두 개 이상 선택합니다.
+3. 공통 grid point 수를 입력하고 **Align and calculate**를 누릅니다.
+4. 서버는 각 문서에 같은 Mapping Profile과 ordered preprocessing steps를 적용합니다.
+5. 모든 curve에서 실제로 관측된 x-domain의 교집합만 사용해 선형 보간합니다. 교집합 밖
+   extrapolation은 허용하지 않습니다.
+6. member curve, 평균, 95% 평균 신뢰구간을 함께 확인하고, 마지막 grid point의 표본 표준편차,
+   MAD와 IQR을 검토합니다.
+
+통계 계약은 표본 표준편차 `ddof=1`, unscaled MAD, linear q1/q3 quantile, normal-approximation
+95% mean CI를 명시합니다. 이 결과는 T-53 preview이며, T-54에서 exact Selection과 versioned
+Recipe/Batch 실행 결과로 저장됩니다.
+
+![두 exact 반복시험의 정렬과 pointwise 통계](../15-demo/images/t53-processing-ensemble-statistics.png)
+
 ## 현재 경계
 
-화면의 stage overlay는 명확히 **Preview only · not promotable**로 표시됩니다. 별도의 commit은
+화면의 stage overlay와 반복시험 통계는 명확히 preview로 표시됩니다. 별도의 single-curve commit은
 서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화하지만, 아직 일반
-Recipe/Batch 또는 Modeling 입력으로 승격되지는 않습니다. T-53의 다음 increment에서 다중 curve
-alignment/statistics를 연결하고, T-54에서 Recipe/Batch 실행 계약에 편입합니다.
+Recipe/Batch 또는 Modeling 입력으로 승격되지는 않습니다. 이 승격과 batch 재사용은 T-54 범위입니다.

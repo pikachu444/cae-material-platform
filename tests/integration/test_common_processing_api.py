@@ -169,3 +169,63 @@ def test_preview_rejects_unknown_method_and_hidden_extrapolation() -> None:
     )
     assert extrapolation.status_code == 422
     assert "extrapolate" in extrapolation.text
+
+
+def test_ensemble_registry_alignment_and_pointwise_statistics_contract() -> None:
+    import asyncio
+
+    methods = asyncio.run(_request("GET", "/api/v1/processing-ensemble-methods"))
+    assert methods.status_code == 200
+    assert [item["method_id"] for item in methods.json()["items"]] == [
+        "curves.align_linear_intersection",
+        "curves.pointwise_statistics",
+    ]
+    first = _document()
+    second = json.loads(json.dumps(first))
+    second["document_id"] = "DP600-TENSILE-REPLICATE-02"
+    response = asyncio.run(
+        _request(
+            "POST",
+            "/api/v1/processing:preview-ensemble",
+            json_body={
+                "documents": [first, second],
+                "mapping_profile": {
+                    "profile_key": "tensile-normalized",
+                    "label": "Normalized tensile channels",
+                    "independent_quantity": "strain.engineering",
+                    "missing_data_policy": "drop_any",
+                    "bindings": [
+                        {
+                            "channel_key": "engineering_strain",
+                            "target_quantity": "strain.engineering",
+                            "accepted_normalized_units": ["1"],
+                        },
+                        {
+                            "channel_key": "engineering_stress",
+                            "target_quantity": "stress.engineering",
+                            "accepted_normalized_units": ["Pa"],
+                        },
+                    ],
+                },
+                "preprocessing_steps": [
+                    {
+                        "method_id": "rows.sort_unique",
+                        "method_version": "1.0.0",
+                        "options": {"duplicate_policy": "reject"},
+                    }
+                ],
+                "alignment": {
+                    "point_count": 3,
+                    "domain_policy": "intersection",
+                    "extrapolation": "reject",
+                },
+            },
+        )
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["promotable"] is False
+    assert len(body["members"]) == 2
+    assert body["members"][0]["stage"]["method_id"] == "curves.align_linear_intersection"
+    assert body["statistics"][0]["quantity"] == "stress.engineering"
+    assert body["statistics"][0]["standard_deviation"] == [0.0, 0.0, 0.0]

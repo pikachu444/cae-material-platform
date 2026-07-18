@@ -175,6 +175,7 @@ import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingMethod,
+  CommonEnsemblePreview,
   CommonProcessingOutputResponse,
   CommonProcessingPreview,
   CommonProcessingStep,
@@ -396,6 +397,12 @@ export function listCommonProcessingMethods(
   return request(config, "/processing-methods");
 }
 
+export function listCommonProcessingEnsembleMethods(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonProcessingMethod[] }>> {
+  return request(config, "/processing-ensemble-methods");
+}
+
 export function listCommonMappingProfiles(
   config: ApiConfig,
 ): Promise<ApiResult<{ items: CommonMappingProfileResponse[] }>> {
@@ -438,6 +445,25 @@ export function previewCommonProcessing(
   },
 ): Promise<ApiResult<CommonProcessingPreview>> {
   return request(config, "/processing:preview", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewCommonProcessingEnsemble(
+  config: ApiConfig,
+  input: {
+    documents: Record<string, unknown>[];
+    mapping_profile: CommonMappingProfileContent;
+    preprocessing_steps: CommonProcessingStep[];
+    alignment: {
+      point_count: number;
+      domain_policy: "intersection";
+      extrapolation: "reject";
+    };
+  },
+): Promise<ApiResult<CommonEnsemblePreview>> {
+  return request(config, "/processing:preview-ensemble", {
     method: "POST",
     body: JSON.stringify(input),
   });

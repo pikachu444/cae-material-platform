@@ -1,7 +1,7 @@
 # T-53 common Mapping Profile and Processing Workbench evidence
 
 Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration head
-`20260829_063_T53_mapping_profiles`.
+`20260830_064_T53_common_processing_outputs`.
 
 ## Demonstrated workflow
 
@@ -19,6 +19,13 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 9. PostgreSQL pins both exact revisions, semantic and canonical source digests, ordered method
    versions/options and the immutable output Artifact. Download header, bytes and DB pin all matched
    SHA-256 `e281d8e6...291274` in the API check; the connected UI then committed `0410730d...9e479`.
+10. A second DP600 tensile replicate was imported as a separate stable identity and revision. The
+    general ensemble preview retained both exact documents, applied the same Mapping Profile and
+    preprocessing steps, aligned 21 points only on the observed domain intersection, and rejected
+    extrapolation.
+11. The server returned both member curves plus pointwise mean, median, sample SD (`ddof=1`),
+    unscaled MAD, linear IQR and a normal-approximation 95% mean CI. At the final point the live API
+    produced mean `210.125 MPa` and sample SD `7.247844 MPa`; the browser displayed the same values.
 
 ## Evidence
 
@@ -28,6 +35,8 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 
 ![Exact-input server recomputation and immutable Processing Output](../images/t53-processing-output-commit.png)
 
+![Two exact replicate curves, pointwise statistics and explicit assumptions](../images/t53-processing-ensemble-statistics.png)
+
 - Domain fixtures cover sorting, duplicate/missing policies, crop, scale/shift, interpolation,
   moving average, Savitzky–Golay, smoothing spline and invalid option/quantity paths.
 - API tests cover the method registry, preview composition and immutable profile create/list/get/revise.
@@ -36,7 +45,8 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 - Migration 064 adds one-revision-only Output identity/revision/step tables, composite exact Test
   Data/Profile FKs and an immutable Artifact FK. Method options use bounded schema-validated JSONB;
   they are not a catalog EAV value store.
-- React tests cover exact Test Data loading, saved profile selection and a real server-preview response.
+- React tests cover exact Test Data loading, saved profile selection, a real server-preview response,
+  two-member alignment, member retention and pointwise statistics rendering.
 
-This completes T-53 immutable single-curve output. Multi-curve alignment/statistics remain required
-before T-53 is complete.
+This completes T-53. General versioned Recipe persistence, exact batch Selection, partial retry and
+promotion of these previews into immutable reusable batch outputs remain T-54 scope.

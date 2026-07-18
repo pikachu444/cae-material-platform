@@ -3625,3 +3625,32 @@ export interface CommonProcessingOutputResponse {
   output_artifact_id: string;
   output_sha256: string;
 }
+
+export interface CommonPointwiseStatistics {
+  quantity: string;
+  unit: string;
+  mean: number[];
+  median: number[];
+  standard_deviation: number[];
+  mad: number[];
+  q1: number[];
+  q3: number[];
+  confidence_95_lower: number[];
+  confidence_95_upper: number[];
+}
+
+export interface CommonEnsemblePreview {
+  execution_mode: "preview";
+  promotable: false;
+  mapping_profile_sha256: string;
+  independent_quantity: string;
+  grid_unit: string;
+  grid: number[];
+  members: Array<{
+    ordinal: number;
+    source_document_sha256: string;
+    stage: CommonCurveStage;
+  }>;
+  statistics: CommonPointwiseStatistics[];
+  diagnostics: string[];
+}

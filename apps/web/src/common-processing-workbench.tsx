@@ -10,13 +10,16 @@ import {
   listCommonMappingProfiles,
   listCommonProcessingOutputs,
   listCommonProcessingMethods,
+  listCommonProcessingEnsembleMethods,
   previewCommonProcessing,
+  previewCommonProcessingEnsemble,
   reviseCommonMappingProfile,
   type ApiConfig,
 } from "./api";
 import type {
   CanonicalTestDataDocumentResponse,
   CommonCurveStage,
+  CommonEnsemblePreview,
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingMethod,
@@ -93,6 +96,16 @@ function curvePoints(
   const x = stage.series.find((item) => item.quantity === independentQuantity)?.values ?? [];
   const y = stage.series.find((item) => item.quantity !== independentQuantity)?.values ?? [];
   if (x.length < 2 || y.length !== x.length) return "";
+  return xyPoints(x, y, width, height, bounds);
+}
+
+function xyPoints(
+  x: number[],
+  y: number[],
+  width: number,
+  height: number,
+  bounds: { xMin: number; xMax: number; yMin: number; yMax: number },
+): string {
   const { xMin, xMax, yMin, yMax } = bounds;
   const xRange = xMax - xMin || 1;
   const yRange = yMax - yMin || 1;
@@ -127,6 +140,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
+  const [ensembleMethods, setEnsembleMethods] = useState<CommonProcessingMethod[]>([]);
   const [outputs, setOutputs] = useState<CommonProcessingOutputResponse[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState("");
   const [selectedProfileId, setSelectedProfileId] = useState("");
@@ -139,6 +153,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [outputReason, setOutputReason] = useState("Commit reviewed processing stages");
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   const [selectedStage, setSelectedStage] = useState(0);
+  const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
+  const [ensemblePointCount, setEnsemblePointCount] = useState(21);
+  const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -149,13 +166,16 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
       listCommonMappingProfiles(config),
       listCommonProcessingMethods(config),
       listCommonProcessingOutputs(config),
+      listCommonProcessingEnsembleMethods(config),
     ])
-      .then(([documentResult, profileResult, methodResult, outputResult]) => {
+      .then(([documentResult, profileResult, methodResult, outputResult, ensembleMethodResult]) => {
         setDocuments(documentResult.data.items);
         setProfiles(profileResult.data.items);
         setMethods(methodResult.data.items);
         setOutputs(outputResult.data.items);
+        setEnsembleMethods(ensembleMethodResult.data.items);
         setSelectedDocumentId((current) => current || documentResult.data.items[0]?.test_data_document_id || "");
+        setEnsembleDocumentIds((current) => current.length ? current : documentResult.data.items.slice(0, 2).map((item) => item.test_data_document_id));
       })
       .catch((caught: unknown) => setError(errorMessage(caught)));
   }, [config]);
@@ -313,6 +333,45 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
     }
   }
 
+  function toggleEnsembleDocument(id: string): void {
+    setEnsembleDocumentIds((current) => current.includes(id)
+      ? current.filter((item) => item !== id)
+      : current.length < 100 ? [...current, id] : current);
+    setEnsemblePreview(null);
+  }
+
+  async function runEnsemblePreview(): Promise<void> {
+    const selected = documents.filter((item) => ensembleDocumentIds.includes(item.test_data_document_id));
+    if (selected.length < 2) {
+      setError("Select at least two exact Test Data documents for replicate statistics.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const downloads = await Promise.all(selected.map((item) =>
+        downloadCanonicalTestDataDocument(config, item.test_data_document_id, item.current_revision.id)));
+      const canonicalDocuments = await Promise.all(downloads.map(async (item) =>
+        JSON.parse(await item.data.blob.text()) as Record<string, unknown>));
+      const result = await previewCommonProcessingEnsemble(config, {
+        documents: canonicalDocuments,
+        mapping_profile: JSON.parse(profileText) as CommonMappingProfileContent,
+        preprocessing_steps: JSON.parse(stepsText) as CommonProcessingStep[],
+        alignment: {
+          point_count: ensemblePointCount,
+          domain_policy: "intersection",
+          extrapolation: "reject",
+        },
+      });
+      setEnsemblePreview(result.data);
+      setNotice(`Aligned ${result.data.members.length} immutable curves; every member remains visible.`);
+    } catch (caught) {
+      setError(caught instanceof SyntaxError ? `Invalid ensemble JSON: ${caught.message}` : errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const activeStage = preview?.stages[selectedStage] ?? null;
   const baseStage = preview?.stages[0] ?? null;
   const overlayBounds = useMemo(
@@ -322,6 +381,22 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
     [activeStage, baseStage, preview],
   );
   const chart = useMemo(() => ({ width: 620, height: 250 }), []);
+  const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
+  const ensembleBounds = useMemo(() => {
+    if (!ensemblePreview || !ensembleStatistic) return null;
+    const values = [
+      ...ensemblePreview.members.flatMap((member) =>
+        member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []),
+      ...ensembleStatistic.confidence_95_lower,
+      ...ensembleStatistic.confidence_95_upper,
+    ];
+    return {
+      xMin: Math.min(...ensemblePreview.grid),
+      xMax: Math.max(...ensemblePreview.grid),
+      yMin: Math.min(...values),
+      yMax: Math.max(...values),
+    };
+  }, [ensemblePreview, ensembleStatistic]);
 
   return (
     <main className="processing-workbench-page">
@@ -371,6 +446,14 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
         <p className="mapping-note">Commit recomputes the selected exact Test Data and saved Mapping Profile on the server. Preview arrays are never accepted as authoritative output.</p>
         <div className="processing-output-form"><label>Output label<input value={outputLabel} onChange={(event) => setOutputLabel(event.target.value)} /></label><label>Change reason<input value={outputReason} onChange={(event) => setOutputReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit immutable output</button></div>
         {outputs.length ? <div className="processing-output-list">{outputs.map((output) => <article key={output.processing_output_id}><div><strong>{output.label}</strong><small>r{output.current_revision.revision_no} · {output.final_point_count} points · {output.stage_count} stages</small><code>{output.output_sha256}</code></div><button className="button secondary" type="button" disabled={busy} onClick={() => void downloadOutput(output)}>Download JSON</button></article>)}</div> : <p className="muted">No committed common Processing Output is visible yet.</p>}
+      </section>
+
+      <section className="workbench-card ensemble-card">
+        <div className="section-heading"><div><p className="eyebrow">6 · replicate evidence</p><h2>Alignment and pointwise statistics</h2></div><span className="status-chip warning">Preview · members retained</span></div>
+        <p className="mapping-note">Select multiple exact Test Data heads. Alignment uses only their observed domain intersection and rejects extrapolation; no raw curve or outlier is deleted.</p>
+        <div className="ensemble-methods">{ensembleMethods.map((method) => <article key={method.method_id}><strong>{method.label}</strong><code>{method.method_id} · {method.version}</code><small>{method.description}</small></article>)}</div>
+        <div className="ensemble-controls"><fieldset><legend>Exact Test Data members</legend>{documents.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset><label>Common grid points<input type="number" min="2" max="100000" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button primary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>Align and calculate</button></div>
+        {ensemblePreview && ensembleStatistic && ensembleBounds ? <div className="ensemble-results"><svg className="processing-curve ensemble-curve" role="img" aria-label="Aligned replicate curves with pointwise mean and confidence interval" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/>{ensemblePreview.members.map((member) => { const values = member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []; return <polyline key={member.ordinal} points={xyPoints(ensemblePreview.grid, values, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-member"/>; })}<polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_lower, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_upper, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.mean, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-mean"/></svg><div className="curve-legend"><span><i className="ensemble-member"/>Members ({ensemblePreview.members.length})</span><span><i className="ensemble-mean"/>Mean</span><span><i className="confidence"/>95% mean CI</span></div><div className="statistics-grid"><article><span>Quantity</span><strong>{ensembleStatistic.quantity}</strong><small>{ensembleStatistic.unit}</small></article><article><span>Last mean</span><strong>{ensembleStatistic.mean.at(-1)?.toPrecision(6)}</strong></article><article><span>Sample SD</span><strong>{ensembleStatistic.standard_deviation.at(-1)?.toPrecision(6)}</strong></article><article><span>MAD</span><strong>{ensembleStatistic.mad.at(-1)?.toPrecision(6)}</strong></article><article><span>IQR</span><strong>{ensembleStatistic.q1.at(-1)?.toPrecision(4)} – {ensembleStatistic.q3.at(-1)?.toPrecision(4)}</strong></article></div><div className="stage-diagnostics">{ensemblePreview.diagnostics.map((item) => <p key={item}>{item}</p>)}</div></div> : <p className="muted">At least two imported Test Data identities are required. Import each replicate separately so its exact revision remains addressable.</p>}
       </section>
     </main>
   );
