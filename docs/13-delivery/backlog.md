@@ -1284,8 +1284,8 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **구현 증거 (increment 1, 2026-07-18):** `cmp.test-data` validate/semantic preview, stable
   Test Data identity + immutable revision, typed condition/channel persistence, canonical JSON과
   normalized Parquet Artifact pin, list와 exact-revision JSON download를 PostgreSQL/API/UI까지
-  연결했다. Docker에서 다운로드 byte SHA-256 일치를 확인했다. JSON+ZIP, tabular adapter와
-  revision append는 남아 있으므로 T-52 전체 완료로 표시하지 않는다.
+  연결했다. exact current ETag 기반 revision append와 과거 revision 재다운로드도 Docker에서
+  검증했다. JSON+ZIP과 tabular adapter는 남아 있으므로 T-52 전체 완료로 표시하지 않는다.
 
 #### T-53. Mapping Profile and common Processing Workbench — `P0`
 

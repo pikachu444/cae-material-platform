@@ -13,6 +13,8 @@ Verified on 2026-07-18 against the Docker Compose demo and PostgreSQL migration 
 5. Listing reloaded from PostgreSQL and exposed the exact revision and canonical digest.
 6. Exact-revision download returned `application/vnd.cmp.test-data+json`; the downloaded byte digest
    matched the pinned `X-Content-SHA256` value (`5f3d3e3f...a25d`).
+7. Re-importing `DP600-TENSILE-01` with the exact current ETag appended revision 2 and new Artifact
+   digests; downloading revision 1 still returned the original `Kim Tester` evidence.
 
 ## Evidence
 

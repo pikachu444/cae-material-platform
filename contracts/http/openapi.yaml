@@ -81,6 +81,33 @@ paths:
         "403": {description: Dataset read is not authorized.}
         "404": {description: The exact Test Data revision is not visible.}
         "409": {description: Stored artifact digest evidence is inconsistent.}
+  /api/v1/test-data-documents/{document_id}/revisions:
+    post:
+      operationId: reviseCanonicalTestData
+      tags: [test-data-json]
+      summary: Append an immutable canonical Test Data revision using an exact current ETag.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: document_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: If-Match, in: header, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/ReviseRequest"}
+      responses:
+        "201":
+          description: Newly appended Test Data revision with new exact Artifact pins.
+          content:
+            application/json:
+              schema: {$ref: "../datasets/canonical-test-data-resources.schema.json#/$defs/DocumentResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Dataset write is not authorized.}
+        "404": {description: Test Data identity is not visible.}
+        "409": {description: Stable document identity or immutable evidence conflicts.}
+        "412": {description: If-Match names a stale revision.}
+        "422": {description: Canonical Test Data semantics are invalid.}
+        "428": {description: A strong exact-revision If-Match header is required.}
   /api/v1/health:
     get:
       operationId: getHealth

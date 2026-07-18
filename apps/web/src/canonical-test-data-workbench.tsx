@@ -5,6 +5,7 @@ import {
   downloadCanonicalTestDataDocument,
   importCanonicalTestData,
   listCanonicalTestDataDocuments,
+  reviseCanonicalTestData,
   validateCanonicalTestData,
   type ApiConfig,
 } from "./api";
@@ -101,11 +102,20 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
     setError(null);
     setNotice(null);
     try {
-      const result = await importCanonicalTestData(config, {
-        classification,
-        document: preview.canonical_document,
-        change_reason: changeReason,
-      });
+      const documentKey = String(preview.canonical_document.document_id ?? "");
+      const current = documents.find((item) => item.document_key === documentKey);
+      const result = current
+        ? await reviseCanonicalTestData(
+            config,
+            current.test_data_document_id,
+            `"revision:${current.current_revision.revision_no}:sha256:${current.current_revision.content_hash}"`,
+            { document: preview.canonical_document, change_reason: changeReason },
+          )
+        : await importCanonicalTestData(config, {
+            classification,
+            document: preview.canonical_document,
+            change_reason: changeReason,
+          });
       setNotice(`Imported ${result.data.document_key} as immutable revision ${result.data.current_revision.revision_no}.`);
       await loadDocuments();
     } catch (caught) {
@@ -114,6 +124,9 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
       setBusy(false);
     }
   }
+
+  const previewDocumentKey = preview ? String(preview.canonical_document.document_id ?? "") : "";
+  const matchingDocument = documents.find((item) => item.document_key === previewDocumentKey);
 
   async function downloadDocument(item: CanonicalTestDataDocumentResponse): Promise<void> {
     setError(null);
@@ -186,7 +199,7 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
               <div className="import-controls">
                 <label>Classification<select aria-label="Classification" value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label>
                 <label>Change reason<input aria-label="Change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label>
-                <button className="button primary" type="button" disabled={busy || changeReason.trim().length === 0} onClick={() => void importDocument()}>{busy ? "Importing…" : "Import immutable revision"}</button>
+                <button className="button primary" type="button" disabled={busy || changeReason.trim().length === 0} onClick={() => void importDocument()}>{busy ? "Saving…" : matchingDocument ? "Append immutable revision" : "Import immutable revision"}</button>
               </div>
               <p className="mapping-note">Import writes a stable Test Data identity, an immutable revision, canonical JSON evidence, and a normalized Parquet artifact. Existing evidence is never overwritten.</p>
             </>

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   importDocument: vi.fn(),
   listDocuments: vi.fn(),
   downloadDocument: vi.fn(),
+  reviseDocument: vi.fn(),
 }));
 
 vi.mock("./api", async (importOriginal) => {
@@ -19,6 +20,7 @@ vi.mock("./api", async (importOriginal) => {
     importCanonicalTestData: mocks.importDocument,
     listCanonicalTestDataDocuments: mocks.listDocuments,
     downloadCanonicalTestDataDocument: mocks.downloadDocument,
+    reviseCanonicalTestData: mocks.reviseDocument,
   };
 });
 
@@ -51,7 +53,7 @@ describe("CanonicalTestDataWorkbench", () => {
             missing_count: 1,
           },
         ],
-        canonical_document: {},
+        canonical_document: { document_id: "DP600-TENSILE-01" },
       },
       etag: null,
     });
@@ -63,6 +65,14 @@ describe("CanonicalTestDataWorkbench", () => {
         current_revision: { id: "revision-1", revision_no: 1 },
       },
       etag: '"revision-1"',
+    });
+    mocks.reviseDocument.mockResolvedValue({
+      data: {
+        test_data_document_id: "document-1",
+        document_key: "DP600-TENSILE-01",
+        current_revision: { id: "revision-2", revision_no: 2 },
+      },
+      etag: '"revision:2:sha256:updated"',
     });
   });
 
@@ -106,5 +116,46 @@ describe("CanonicalTestDataWorkbench", () => {
     );
     expect(await screen.findByText(/immutable revision 1/)).toBeTruthy();
     expect(mocks.listDocuments).toHaveBeenCalledTimes(2);
+  });
+
+  it("appends a revision when the canonical document identity already exists", async () => {
+    mocks.listDocuments.mockResolvedValue({
+      data: {
+        items: [
+          {
+            test_data_document_id: "document-1",
+            document_key: "DP600-TENSILE-01",
+            material_maker: "CMP Demo Metals",
+            material_grade: "DP600",
+            specimen_id: "S-01",
+            point_count: 3,
+            canonical_sha256: "b".repeat(64),
+            current_revision: {
+              id: "revision-1",
+              revision_no: 1,
+              content_hash: "c".repeat(64),
+            },
+          },
+        ],
+      },
+      etag: null,
+    });
+    const user = userEvent.setup();
+    render(
+      <CanonicalTestDataWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "dataset-token" }}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    await screen.findByText("1 documents");
+    await user.click(screen.getByRole("button", { name: "Validate with server" }));
+    await user.click(await screen.findByRole("button", { name: "Append immutable revision" }));
+    await waitFor(() => expect(mocks.reviseDocument).toHaveBeenCalledOnce());
+    expect(mocks.reviseDocument.mock.calls[0][2]).toBe(
+      `"revision:1:sha256:${"c".repeat(64)}"`,
+    );
+    expect(mocks.importDocument).not.toHaveBeenCalled();
   });
 });

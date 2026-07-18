@@ -52,6 +52,15 @@
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }
     },
+    "ReviseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document", "change_reason"],
+      "properties": {
+        "document": {"$ref": "canonical-test-data.schema.json"},
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
     "DocumentResponse": {
       "type": "object",
       "additionalProperties": false,

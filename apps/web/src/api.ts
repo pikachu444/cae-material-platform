@@ -315,6 +315,19 @@ export function listCanonicalTestDataDocuments(
   return request(config, "/test-data-documents");
 }
 
+export function reviseCanonicalTestData(
+  config: ApiConfig,
+  documentId: string,
+  etag: string,
+  input: { document: Record<string, unknown>; change_reason: string },
+): Promise<ApiResult<CanonicalTestDataDocumentResponse>> {
+  return request(config, `/test-data-documents/${encodeURIComponent(documentId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
 export async function downloadCanonicalTestDataDocument(
   config: ApiConfig,
   documentId: string,

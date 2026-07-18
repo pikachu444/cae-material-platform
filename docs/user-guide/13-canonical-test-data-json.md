@@ -24,5 +24,7 @@
 - canonical JSON Artifact UUID/SHA-256
 - 계산용 normalized Parquet Artifact UUID/SHA-256
 
-같은 `document_id`를 다시 최초 등록하면 충돌로 거부합니다. 기존 원본을 덮어쓰지 않습니다.
-후속 T-52 increment는 canonical revision 추가, CSV/XLSX adapter와 JSON+ZIP package를 제공합니다.
+같은 `document_id`를 다시 검증하면 화면은 현재 ETag를 사용해 새 immutable revision을
+추가합니다. 기존 revision과 Artifact는 덮어쓰지 않습니다. 다른 stable identity의 최초 등록과
+revision 추가는 서버에서 구분됩니다. 후속 T-52 increment는 CSV/XLSX adapter와 JSON+ZIP
+package를 제공합니다.

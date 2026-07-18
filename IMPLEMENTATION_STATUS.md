@@ -34,7 +34,8 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
   `/datasets/test-json` preview/import/list/download workflow, explicit PostgreSQL identity/revision,
   typed condition/channel rows and immutable canonical JSON/normalized Parquet Artifact pins. Exact
   revision download was verified byte-for-byte in the Docker/PostgreSQL demo. Deterministic JSON+ZIP,
-  CSV/XLSX canonical adapters and revision append remain in progress, so T-52 is not complete.
+  same-identity append uses a strong current-revision ETag and never overwrites prior evidence.
+  Deterministic JSON+ZIP and CSV/XLSX canonical adapters remain in progress, so T-52 is not complete.
 - `T-51`: Catalog Explorer now lazily expands administrator-defined Table, nested Folder and current
   Record nodes while preserving the existing flat routes. Material Workflow Explorer projects
   arbitrary active Record Links as a bounded, cycle-safe graph; every endpoint and Link Type pins an

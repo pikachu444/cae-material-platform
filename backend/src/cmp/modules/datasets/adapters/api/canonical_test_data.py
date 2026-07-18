@@ -9,7 +9,7 @@ from decimal import Decimal
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.exc import IntegrityError
 
@@ -17,6 +17,7 @@ from cmp.modules.datasets.adapters.api.datasets import _etag, _scope
 from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
     ImportCanonicalTestData,
+    ReviseCanonicalTestData,
     TestDataDocumentSnapshot,
 )
 from cmp.modules.datasets.domain.canonical_test_data import (
@@ -37,8 +38,17 @@ from cmp.modules.datasets.domain.governed_tabular import (
     GovernedImportNotFound,
 )
 from cmp.modules.identity_access.domain.authorization import DataClassification
-from cmp.shared.contracts.revisions import RevisionMetadataResponse
-from cmp.shared.domain.revisions import AggregateAlreadyExists
+from cmp.shared.contracts.revisions import (
+    InvalidRevisionETag,
+    RevisionMetadataResponse,
+    RevisionPreconditionFailed,
+    require_matching_if_match,
+)
+from cmp.shared.domain.revisions import (
+    AggregateAlreadyExists,
+    RevisionConflict,
+    RevisionKernelError,
+)
 
 type Dependency = Callable[..., object]
 
@@ -238,6 +248,12 @@ class CanonicalTestDataImportRequest(BaseModel):
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 
 
+class CanonicalTestDataReviseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    document: CanonicalTestDataInput
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
 class CanonicalTestDataDocumentResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     test_data_document_id: UUID
@@ -380,6 +396,49 @@ def install_canonical_test_data_api(
             )
         except GovernedImportConflict as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
+
+    @app.post(
+        "/api/v1/test-data-documents/{document_id}/revisions",
+        response_model=CanonicalTestDataDocumentResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["test-data-json"],
+    )
+    async def revise_test_data(
+        document_id: UUID,
+        body: CanonicalTestDataReviseRequest,
+        request: Request,
+        response: Response,
+        if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    ) -> CanonicalTestDataDocumentResponse:
+        context, decision = _scope(request)
+        if service is None:
+            raise HTTPException(status_code=503, detail="canonical Test Data store unavailable")
+        try:
+            current = service.get_document_for_write(context, decision, document_id)
+            expected = require_matching_if_match(if_match, current.current.ref)
+            snapshot = await service.revise_document(
+                context,
+                decision,
+                document_id,
+                ReviseCanonicalTestData(
+                    expected_current_revision_id=expected,
+                    document=body.document.to_domain(),
+                    change_reason=body.change_reason,
+                ),
+            )
+        except InvalidRevisionETag as error:
+            raise HTTPException(status_code=428, detail=str(error)) from error
+        except RevisionPreconditionFailed as error:
+            raise HTTPException(status_code=412, detail=str(error)) from error
+        except GovernedImportNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except (GovernedImportConflict, RevisionConflict, RevisionKernelError) as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        except (CanonicalTestDataError, ValueError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        _etag(response, snapshot.current)
+        return CanonicalTestDataDocumentResponse.from_snapshot(snapshot)
 
     @app.get(
         "/api/v1/test-data-documents/{document_id}/revisions/{revision_id}/content",

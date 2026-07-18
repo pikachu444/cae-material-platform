@@ -35,6 +35,7 @@ from cmp.modules.identity_access.domain.authorization import (
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.shared.application.revisions import (
     CreateRevisionedAggregate,
+    ReviseAggregate,
     RevisionService,
     RevisionStore,
 )
@@ -85,6 +86,13 @@ class TestDataDocumentSnapshot:
 @dataclass(frozen=True, slots=True)
 class ImportCanonicalTestData:
     classification: DataClassification
+    document: CanonicalTestDataDocument
+    change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ReviseCanonicalTestData:
+    expected_current_revision_id: UUID
     document: CanonicalTestDataDocument
     change_reason: str
 
@@ -238,41 +246,11 @@ class CanonicalTestDataService:
     ) -> TestDataDocumentSnapshot:
         _require(context, decision, Permission.DATASET_WRITE)
         document = command.document
-        canonical_bytes = canonical_json_bytes(document)
-        canonical_artifact = await self._artifacts.finalize_derived_bytes(
+        content = await self._finalize_content(
             context,
             decision,
             classification=command.classification,
-            artifact_role="test-data.canonical-json",
-            schema_ref=TEST_DATA_SCHEMA_ID,
-            media_type="application/vnd.cmp.test-data+json",
-            value=canonical_bytes,
-            idempotency_key=f"test-data-json:{document.digest}",
-        )
-        parquet = normalized_parquet_bytes(document)
-        normalized_artifact = await self._artifacts.finalize_derived_bytes(
-            context,
-            decision,
-            classification=command.classification,
-            artifact_role="test-data.normalized-parquet",
-            schema_ref=NORMALIZED_PARQUET_SCHEMA,
-            media_type="application/vnd.apache.parquet",
-            value=parquet,
-            idempotency_key=f"test-data-parquet:{document.digest}",
-        )
-        content = TestDataDocumentContent(
-            document_key=document.document_id,
-            material=document.material,
-            test=document.test,
-            specimen=document.specimen,
-            conditions=document.conditions,
-            channels=tuple(self._summary(item) for item in document.channels),
-            source=document.source,
-            canonical_artifact_id=canonical_artifact.artifact.id,
-            canonical_sha256=canonical_artifact.artifact.sha256,
-            normalized_artifact_id=normalized_artifact.artifact.id,
-            normalized_sha256=normalized_artifact.artifact.sha256,
-            point_count=document.point_count,
+            document=document,
         )
         document_id = self._id()
         record = RevisionService(
@@ -296,6 +274,93 @@ class CanonicalTestDataService:
             )
         )
         return TestDataDocumentSnapshot(document_id, record, content)
+
+    async def revise_document(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        document_id: UUID,
+        command: ReviseCanonicalTestData,
+    ) -> TestDataDocumentSnapshot:
+        _require(context, decision, Permission.DATASET_WRITE)
+        current = self._repository.get_document(
+            context=context,
+            decision=decision,
+            document_id=document_id,
+        )
+        if current.content.document_key != command.document.document_id:
+            raise GovernedImportConflict("Test Data document_id cannot change across revisions")
+        classification = DataClassification(current.current.scope.classification)
+        content = await self._finalize_content(
+            context,
+            decision,
+            classification=classification,
+            document=command.document,
+        )
+        record = RevisionService(
+            aggregate_type=TEST_DATA_DOCUMENT_AGGREGATE_TYPE,
+            store=self._repository.document_store(context, decision),
+        ).revise(
+            ReviseAggregate(
+                aggregate_id=document_id,
+                scope=current.current.scope,
+                expected_current_revision_id=command.expected_current_revision_id,
+                based_on_revision_id=command.expected_current_revision_id,
+                schema_id=TEST_DATA_SCHEMA_ID,
+                schema_version=TEST_DATA_SCHEMA_VERSION,
+                content=content,
+                created_by=context.principal.id,
+                change_reason=command.change_reason,
+                request_id=context.request_id,
+                trace_id=context.trace_id,
+            )
+        )
+        return TestDataDocumentSnapshot(document_id, record, content)
+
+    async def _finalize_content(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        *,
+        classification: DataClassification,
+        document: CanonicalTestDataDocument,
+    ) -> TestDataDocumentContent:
+        canonical_bytes = canonical_json_bytes(document)
+        canonical_artifact = await self._artifacts.finalize_derived_bytes(
+            context,
+            decision,
+            classification=classification,
+            artifact_role="test-data.canonical-json",
+            schema_ref=TEST_DATA_SCHEMA_ID,
+            media_type="application/vnd.cmp.test-data+json",
+            value=canonical_bytes,
+            idempotency_key=f"test-data-json:{document.digest}",
+        )
+        parquet = normalized_parquet_bytes(document)
+        normalized_artifact = await self._artifacts.finalize_derived_bytes(
+            context,
+            decision,
+            classification=classification,
+            artifact_role="test-data.normalized-parquet",
+            schema_ref=NORMALIZED_PARQUET_SCHEMA,
+            media_type="application/vnd.apache.parquet",
+            value=parquet,
+            idempotency_key=f"test-data-parquet:{document.digest}",
+        )
+        return TestDataDocumentContent(
+            document_key=document.document_id,
+            material=document.material,
+            test=document.test,
+            specimen=document.specimen,
+            conditions=document.conditions,
+            channels=tuple(self._summary(item) for item in document.channels),
+            source=document.source,
+            canonical_artifact_id=canonical_artifact.artifact.id,
+            canonical_sha256=canonical_artifact.artifact.sha256,
+            normalized_artifact_id=normalized_artifact.artifact.id,
+            normalized_sha256=normalized_artifact.artifact.sha256,
+            point_count=document.point_count,
+        )
 
     @staticmethod
     def _summary(channel: TestDataChannel) -> TestDataChannelSummary:
@@ -341,3 +406,16 @@ class CanonicalTestDataService:
     ) -> tuple[TestDataDocumentSnapshot, ...]:
         _require(context, decision, Permission.DATASET_READ)
         return self._repository.list_documents(context=context, decision=decision)
+
+    def get_document_for_write(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        document_id: UUID,
+    ) -> TestDataDocumentSnapshot:
+        _require(context, decision, Permission.DATASET_WRITE)
+        return self._repository.get_document(
+            context=context,
+            decision=decision,
+            document_id=document_id,
+        )

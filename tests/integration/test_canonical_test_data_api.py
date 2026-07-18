@@ -13,6 +13,7 @@ from cmp.modules.datasets.adapters.api.canonical_test_data import (
 )
 from cmp.modules.datasets.application.canonical_test_data import (
     ImportCanonicalTestData,
+    ReviseCanonicalTestData,
     canonical_json_bytes,
 )
 from cmp.modules.datasets.application.canonical_test_data import (
@@ -41,6 +42,7 @@ PROJECT = UUID("de000000-0000-4000-8000-000000000002")
 ACTOR = UUID("de000000-0000-4000-8000-000000000003")
 DOCUMENT = UUID("de000000-0000-4000-8000-000000000004")
 REVISION = UUID("de000000-0000-4000-8000-000000000005")
+REVISION_TWO = UUID("de000000-0000-4000-8000-000000000008")
 CANONICAL_ARTIFACT = UUID("de000000-0000-4000-8000-000000000006")
 PARQUET_ARTIFACT = UUID("de000000-0000-4000-8000-000000000007")
 
@@ -148,6 +150,45 @@ class _Service:
         del args, kwargs
         assert self.snapshot is not None
         return self.snapshot, self.value
+
+    def get_document_for_write(
+        self, context: Any, decision: Any, document_id: UUID
+    ) -> DocumentSnapshot:
+        del context, decision
+        assert document_id == DOCUMENT
+        assert self.snapshot is not None
+        return self.snapshot
+
+    async def revise_document(
+        self,
+        context: Any,
+        decision: Any,
+        document_id: UUID,
+        command: ReviseCanonicalTestData,
+    ) -> DocumentSnapshot:
+        del context, decision
+        assert document_id == DOCUMENT
+        assert command.expected_current_revision_id == REVISION
+        assert self.snapshot is not None
+        self.value = canonical_json_bytes(command.document)
+        record = RevisionRecord(
+            REVISION_TWO,
+            "datasets.test_data_document",
+            DOCUMENT,
+            TenantScope(ORG, PROJECT, "internal"),
+            2,
+            REVISION,
+            "urn:cmp:test-data:1.0.0",
+            "1.0.0",
+            "d" * 64,
+            NOW,
+            ACTOR,
+            command.change_reason,
+            CONTEXT.request_id,
+            CONTEXT.trace_id,
+        )
+        self.snapshot = DocumentSnapshot(DOCUMENT, record, self.snapshot.content)
+        return self.snapshot
 
 
 class _ConflictingService(_Service):
@@ -272,3 +313,34 @@ async def test_duplicate_document_identity_is_a_conflict_not_a_server_error() ->
         )
 
     assert response.status_code == 409
+
+
+@pytest.mark.anyio
+async def test_append_revision_requires_exact_current_etag() -> None:
+    service = _Service()
+    app = _app(service)
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        imported = await client.post(
+            "/api/v1/test-data-documents",
+            json={
+                "classification": "internal",
+                "document": _fixture(),
+                "change_reason": "Import revision one",
+            },
+        )
+        revised = await client.post(
+            f"/api/v1/test-data-documents/{DOCUMENT}/revisions",
+            headers={"If-Match": imported.headers["etag"]},
+            json={"document": _fixture(), "change_reason": "Append revision two"},
+        )
+        missing_precondition = await client.post(
+            f"/api/v1/test-data-documents/{DOCUMENT}/revisions",
+            json={"document": _fixture(), "change_reason": "Unsafe append"},
+        )
+
+    assert revised.status_code == 201
+    assert revised.json()["current_revision"]["revision_no"] == 2
+    assert revised.json()["current_revision"]["based_on_revision_id"] == str(REVISION)
+    assert missing_precondition.status_code == 428
