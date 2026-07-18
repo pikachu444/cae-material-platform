@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Protocol
 from uuid import UUID, uuid4
 
@@ -63,6 +64,31 @@ class CatalogExplorerChildren:
     records: tuple[RecordSnapshot, ...]
 
 
+class DomainBindingKind(StrEnum):
+    MATERIAL = "material"
+    MATERIAL_STATE = "material_state"
+    SPECIMEN = "specimen"
+    TEST_RUN = "test_run"
+    TEST_DATA = "test_data"
+    PROCESSING_OUTPUT = "processing_output"
+    MATERIAL_MODEL = "material_model"
+    NEUTRAL_MATERIAL = "neutral_material"
+    SOLVER_CARD = "solver_card"
+    NEUTRAL_SOLVER_CARD = "neutral_solver_card"
+    RELEASE = "release"
+
+
+@dataclass(frozen=True, slots=True)
+class DomainRevisionBinding:
+    id: UUID
+    record_id: UUID
+    record_revision_id: UUID
+    kind: DomainBindingKind
+    object_id: UUID
+    revision_id: UUID
+    workbench_path: str
+
+
 @dataclass(frozen=True, slots=True)
 class LinkEndpoint:
     record_id: UUID
@@ -71,6 +97,7 @@ class LinkEndpoint:
     table_id: UUID
     name: str
     external_key: str | None
+    domain_binding: DomainRevisionBinding | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,6 +134,13 @@ class CreateRecordLink:
     classification: DataClassification
     content: RecordLinkContent
     change_reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class BindDomainRevision:
+    kind: DomainBindingKind
+    object_id: UUID
+    revision_id: UUID
 
 
 @dataclass(frozen=True, slots=True)
@@ -173,6 +207,29 @@ class CatalogLinkRepository(Protocol):
         link_type: LinkTypeContent,
         exclude_link_id: UUID | None = None,
     ) -> bool: ...
+
+    def create_domain_binding(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        binding_id: UUID,
+        record_id: UUID,
+        record_revision_id: UUID,
+        kind: DomainBindingKind,
+        object_id: UUID,
+        revision_id: UUID,
+        classification: str,
+    ) -> DomainRevisionBinding: ...
+
+    def get_domain_binding(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+    ) -> DomainRevisionBinding | None: ...
 
 
 def _require(
@@ -326,6 +383,62 @@ class CatalogLinkService:
             revision.content.table_id,
             revision.content.name,
             revision.content.external_key,
+            self._repository.get_domain_binding(
+                context=context,
+                decision=decision,
+                record_id=record_id,
+                record_revision_id=revision_id,
+            ),
+        )
+
+    def bind_domain_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+        command: BindDomainRevision,
+    ) -> DomainRevisionBinding:
+        """Pin one configurable Record revision to one exact governed domain revision."""
+
+        _require(context, decision, Permission.CATALOG_WRITE)
+        record_revision = self._records.get_record_revision(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            revision_id=record_revision_id,
+        )
+        return self._repository.create_domain_binding(
+            context=context,
+            decision=decision,
+            binding_id=self._id(),
+            record_id=record_id,
+            record_revision_id=record_revision_id,
+            kind=command.kind,
+            object_id=command.object_id,
+            revision_id=command.revision_id,
+            classification=record_revision.record.scope.classification,
+        )
+
+    def get_domain_binding(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        record_id: UUID,
+        record_revision_id: UUID,
+    ) -> DomainRevisionBinding | None:
+        _require(context, decision, Permission.CATALOG_READ)
+        self._records.get_record_revision(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            revision_id=record_revision_id,
+        )
+        return self._repository.get_domain_binding(
+            context=context,
+            decision=decision,
+            record_id=record_id,
+            record_revision_id=record_revision_id,
         )
 
     def _validate_record_link(

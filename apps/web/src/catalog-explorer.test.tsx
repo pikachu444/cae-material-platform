@@ -76,6 +76,7 @@ const graph = {
     table_id: materialTableId,
     name: "DP780 Sheet",
     external_key: "dp780",
+    domain_binding: null,
   },
   nodes: [
     {
@@ -85,6 +86,7 @@ const graph = {
       table_id: materialTableId,
       name: "DP780 Sheet",
       external_key: "dp780",
+      domain_binding: null,
     },
     {
       record_id: testRecordId,
@@ -93,6 +95,15 @@ const graph = {
       table_id: testTableId,
       name: "Tensile Test 01",
       external_key: "tensile-01",
+      domain_binding: {
+        binding_id: "51000000-0000-4000-8000-000000000050",
+        record_id: testRecordId,
+        record_revision_id: testRecordRevisionId,
+        kind: "test_run" as const,
+        object_id: "51000000-0000-4000-8000-000000000051",
+        revision_id: "51000000-0000-4000-8000-000000000052",
+        workbench_path: "/tests?object_id=51000000-0000-4000-8000-000000000051&revision_id=51000000-0000-4000-8000-000000000052",
+      },
     },
   ],
   links: [],
@@ -107,6 +118,7 @@ const mocks = vi.hoisted(() => ({
   createLink: vi.fn(),
   reviseLink: vi.fn(),
   createLinkType: vi.fn(),
+  bindDomain: vi.fn(),
 }));
 
 vi.mock("./api", async (importOriginal) => {
@@ -121,6 +133,7 @@ vi.mock("./api", async (importOriginal) => {
     createConfigurableRecordLink: mocks.createLink,
     reviseConfigurableRecordLink: mocks.reviseLink,
     createConfigurableCatalogLinkType: mocks.createLinkType,
+    bindCatalogRecordDomainRevision: mocks.bindDomain,
   };
 });
 
@@ -160,6 +173,26 @@ describe("CatalogExplorer", () => {
     expect(screen.getByRole("button", { name: /Tensile Test 01/ })).toBeTruthy();
     expect(navigate).toHaveBeenCalledWith(
       `/catalog/explorer/records/${materialRecordId}/revisions/${materialRecordRevisionId}`,
+    );
+  });
+
+  it("opens a bound governed domain revision from a Workflow node", async () => {
+    const user = userEvent.setup();
+    const navigate = vi.fn();
+    render(
+      <CatalogExplorer
+        config={{ baseUrl: "/api/v1", accessToken: "catalog-token" }}
+        initialRecordId={materialRecordId}
+        initialRevisionId={materialRecordRevisionId}
+        onNavigate={navigate}
+        onOpenConnection={() => undefined}
+      />,
+    );
+
+    const node = await screen.findByRole("button", { name: /Tensile Test 01/ });
+    await user.click(node);
+    expect(navigate).toHaveBeenCalledWith(
+      "/tests?object_id=51000000-0000-4000-8000-000000000051&revision_id=51000000-0000-4000-8000-000000000052",
     );
   });
 });

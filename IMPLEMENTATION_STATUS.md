@@ -13,7 +13,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | --- | --- | --- |
 | Administrator-defined Table/Attribute/Layout/Subset | T-49 definitions and T-50 datasheet consumption implemented | T-51 Explorer |
 | Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | T-51 links/tree |
-| Catalog and Material Workflow Explorers | Catalog tree is implemented; T-51 workflow graph is limited to configurable Records and has no typed binding to actual Material/State/Test/IR/Card revisions | T-62 domain-backed workflow |
+| Catalog and Material Workflow Explorers | T-62 now binds configurable Record revisions to exact governed Material/State/Test/Data/Processing/Model/Neutral/Card/Release revisions; T-65 still must seed the complete product genealogy | T-65 clean full journey |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
 | General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, seven-method single-curve pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | T-54 Recipe/Batch |
@@ -31,12 +31,21 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
 
 ## In progress
 
-- `T-61~T-65`: close the gaps recorded in
+- `T-63~T-65`: close the remaining gaps recorded in
   [the v3 completion audit](docs/13-delivery/v3-completion-audit.md). Actual solver execution remains
   excluded, but domain-backed workflow navigation, three-family Neutral exchange and full download
   E2E are not complete yet.
 
 ## Completed
+
+- `T-62`: migration 075 adds an immutable, same-scope, closed-kind binding from one configurable
+  Catalog Record revision to one exact governed domain revision. PostgreSQL validates each target
+  against its explicit Material, State, Specimen, Test Run, Test Data, Processing Output, Material
+  Model, Neutral Material, Solver Card, Neutral Solver Card or Release table and rejects stale UUIDs
+  and cross-scope targets. The existing forward/reverse Record Link graph now returns this binding;
+  the connected Explorer shows its kind/revision and opens the corresponding flat-route workbench.
+  API, migration, React and non-bypass PostgreSQL tests cover creation, graph projection, invalid
+  targets and immutable mutation rejection. T-65 remains responsible for seeding the complete graph.
 
 - `T-60`: clean Compose now seeds three public synthetic material-family journeys through protected
   APIs. `make demo-verify` confirms the exact Material/State/Model heads and required Abaqus/

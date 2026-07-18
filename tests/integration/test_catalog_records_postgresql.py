@@ -17,15 +17,18 @@ from cmp.modules.catalog.adapters.persistence.configurable import (
 )
 from cmp.modules.catalog.adapters.persistence.links import SqlAlchemyCatalogLinkRepository
 from cmp.modules.catalog.adapters.persistence.records import SqlAlchemyCatalogRecordRepository
+from cmp.modules.catalog.adapters.persistence.repository import SqlAlchemyCatalogRepository
 from cmp.modules.catalog.application.configurable import (
     ConfigurableCatalogService,
     CreateAttribute,
     CreateTable,
 )
 from cmp.modules.catalog.application.links import (
+    BindDomainRevision,
     CatalogLinkService,
     CreateLinkType,
     CreateRecordLink,
+    DomainBindingKind,
     ReviseRecordLink,
 )
 from cmp.modules.catalog.application.records import (
@@ -35,6 +38,7 @@ from cmp.modules.catalog.application.records import (
     ReviseFolder,
     ReviseRecord,
 )
+from cmp.modules.catalog.application.service import CatalogService, CreateMaterial
 from cmp.modules.catalog.domain.configurable import (
     AttributeDataType,
     AttributeDefinitionContent,
@@ -42,6 +46,7 @@ from cmp.modules.catalog.domain.configurable import (
     ConfigurableCatalogConflict,
 )
 from cmp.modules.catalog.domain.links import LinkCardinality, LinkTypeContent, RecordLinkContent
+from cmp.modules.catalog.domain.model import MaterialClass, MaterialContent
 from cmp.modules.catalog.domain.records import (
     CatalogFolderContent,
     CatalogRecordContent,
@@ -86,6 +91,7 @@ class Harness:
     schemas: ConfigurableCatalogService
     records: CatalogRecordService
     links: CatalogLinkService
+    catalog: CatalogService
 
 
 def _psycopg_url(value: str) -> URL:
@@ -165,6 +171,9 @@ def postgres() -> Iterator[Harness]:
                 SqlAlchemyCatalogLinkRepository(session_factory=sessions, rls_context=rls),
                 schema_repository,
                 record_repository,
+            ),
+            catalog=CatalogService(
+                repository=SqlAlchemyCatalogRepository(session_factory=sessions, rls_context=rls)
             ),
         )
     finally:
@@ -414,7 +423,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260907_072_t57_cards"
+        assert version == "20260910_075_t62_binding"
 
 
 def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
@@ -529,6 +538,29 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
         write,
         CreateRecordLink(DataClassification.INTERNAL, content, "link exact test evidence"),
     )
+    governed_material = postgres.catalog.create_material(
+        context,
+        write,
+        CreateMaterial(
+            DataClassification.INTERNAL,
+            MaterialContent("DP780 governed", material_class=MaterialClass.METAL),
+            "create governed Material for exact workflow binding",
+        ),
+    )
+    binding = postgres.links.bind_domain_revision(
+        context,
+        write,
+        material.id,
+        material.current.record.revision_id,
+        BindDomainRevision(
+            DomainBindingKind.MATERIAL,
+            governed_material.id,
+            governed_material.current.record.revision_id,
+        ),
+    )
+    assert binding.workbench_path == (
+        f"/materials/{governed_material.id}?revision_id={governed_material.current.record.revision_id}"
+    )
     forward = postgres.links.list_record_links(
         context,
         read,
@@ -552,6 +584,24 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
         depth=2,
     )
     assert {node.name for node in graph.nodes} == {"DP780", "DP780 tensile run 1"}
+    assert graph.root.domain_binding == binding
+    with pytest.raises(sa.exc.IntegrityError, match="exact revision in the same scope"):
+        postgres.links.bind_domain_revision(
+            context,
+            write,
+            tensile.id,
+            tensile.current.record.revision_id,
+            BindDomainRevision(DomainBindingKind.MATERIAL, uuid4(), uuid4()),
+        )
+    with pytest.raises(sa.exc.DBAPIError, match="immutable"):
+        with postgres.admin_engine.begin() as connection:
+            connection.execute(
+                sa.text(
+                    "UPDATE catalog.domain_record_binding SET domain_revision_id=:revision "
+                    "WHERE id=:binding"
+                ),
+                {"revision": uuid4(), "binding": binding.id},
+            )
     children = postgres.links.explorer_children(context, read, material_table.id, folder.id)
     assert children.records[0].id == material.id
 

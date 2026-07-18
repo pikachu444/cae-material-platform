@@ -15,10 +15,13 @@ from cmp.modules.catalog.adapters.api.configurable import TableResponse
 from cmp.modules.catalog.adapters.api.records import FolderResponse, RecordResponse
 from cmp.modules.catalog.application.configurable import ConfigRevision
 from cmp.modules.catalog.application.links import (
+    BindDomainRevision,
     CatalogExplorerChildren,
     CatalogLinkService,
     CreateLinkType,
     CreateRecordLink,
+    DomainBindingKind,
+    DomainRevisionBinding,
     LinkEndpoint,
     LinkTypeSnapshot,
     RecordLinkSnapshot,
@@ -204,6 +207,36 @@ class RecordLinkResponse(BaseModel):
         )
 
 
+class DomainRevisionBindingRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    kind: DomainBindingKind
+    object_id: UUID
+    revision_id: UUID
+
+
+class DomainRevisionBindingResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    binding_id: UUID
+    record_id: UUID
+    record_revision_id: UUID
+    kind: DomainBindingKind
+    object_id: UUID
+    revision_id: UUID
+    workbench_path: str
+
+    @classmethod
+    def from_domain(cls, value: DomainRevisionBinding) -> DomainRevisionBindingResponse:
+        return cls(
+            binding_id=value.id,
+            record_id=value.record_id,
+            record_revision_id=value.record_revision_id,
+            kind=value.kind,
+            object_id=value.object_id,
+            revision_id=value.revision_id,
+            workbench_path=value.workbench_path,
+        )
+
+
 class LinkEndpointResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     record_id: UUID
@@ -212,6 +245,7 @@ class LinkEndpointResponse(BaseModel):
     table_id: UUID
     name: str
     external_key: str | None
+    domain_binding: DomainRevisionBindingResponse | None = None
 
     @classmethod
     def from_endpoint(cls, value: LinkEndpoint) -> LinkEndpointResponse:
@@ -222,6 +256,11 @@ class LinkEndpointResponse(BaseModel):
             table_id=value.table_id,
             name=value.name,
             external_key=value.external_key,
+            domain_binding=(
+                None
+                if value.domain_binding is None
+                else DomainRevisionBindingResponse.from_domain(value.domain_binding)
+            ),
         )
 
 
@@ -541,6 +580,54 @@ def install_catalog_link_api(
             )
             _etag(response, value.current.record)
             return RecordLinkResponse.from_snapshot(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.post(
+        "/api/v1/catalog/records/{record_id}/revisions/{revision_id}/domain-binding",
+        response_model=DomainRevisionBindingResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(write_dependency)],
+        tags=["catalog-explorer"],
+    )
+    def bind_domain_revision(
+        request: Request,
+        record_id: UUID,
+        revision_id: UUID,
+        body: DomainRevisionBindingRequest,
+    ) -> DomainRevisionBindingResponse:
+        context, decision = _scope(request)
+        try:
+            value = required(context).bind_domain_revision(
+                context,
+                decision,
+                record_id,
+                revision_id,
+                BindDomainRevision(body.kind, body.object_id, body.revision_id),
+            )
+            return DomainRevisionBindingResponse.from_domain(value)
+        except CatalogHttpError:
+            raise
+        except Exception as error:
+            raise _error(context, error) from error
+
+    @application.get(
+        "/api/v1/catalog/records/{record_id}/revisions/{revision_id}/domain-binding",
+        response_model=DomainRevisionBindingResponse | None,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["catalog-explorer"],
+    )
+    def get_domain_revision_binding(
+        request: Request, record_id: UUID, revision_id: UUID
+    ) -> DomainRevisionBindingResponse | None:
+        context, decision = _scope(request)
+        try:
+            value = required(context).get_domain_binding(
+                context, decision, record_id, revision_id
+            )
+            return None if value is None else DomainRevisionBindingResponse.from_domain(value)
         except CatalogHttpError:
             raise
         except Exception as error:

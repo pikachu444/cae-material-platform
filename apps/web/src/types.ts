@@ -3680,6 +3680,30 @@ export interface ConfigurableLinkEndpoint {
   table_id: string;
   name: string;
   external_key: string | null;
+  domain_binding: DomainRevisionBinding | null;
+}
+
+export type DomainBindingKind =
+  | "material"
+  | "material_state"
+  | "specimen"
+  | "test_run"
+  | "test_data"
+  | "processing_output"
+  | "material_model"
+  | "neutral_material"
+  | "solver_card"
+  | "neutral_solver_card"
+  | "release";
+
+export interface DomainRevisionBinding {
+  binding_id: string;
+  record_id: string;
+  record_revision_id: string;
+  kind: DomainBindingKind;
+  object_id: string;
+  revision_id: string;
+  workbench_path: string;
 }
 
 export interface ConfigurableRecordLinkView {

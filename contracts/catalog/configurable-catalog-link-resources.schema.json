@@ -130,16 +130,45 @@
       },
       "additionalProperties": false
     },
+    "DomainBindingKind": {
+      "type": "string",
+      "enum": ["material", "material_state", "specimen", "test_run", "test_data", "processing_output", "material_model", "neutral_material", "solver_card", "neutral_solver_card", "release"]
+    },
+    "DomainRevisionBindingRequest": {
+      "type": "object",
+      "required": ["kind", "object_id", "revision_id"],
+      "properties": {
+        "kind": {"$ref": "#/$defs/DomainBindingKind"},
+        "object_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"}
+      },
+      "additionalProperties": false
+    },
+    "DomainRevisionBindingResponse": {
+      "type": "object",
+      "required": ["binding_id", "record_id", "record_revision_id", "kind", "object_id", "revision_id", "workbench_path"],
+      "properties": {
+        "binding_id": {"$ref": "#/$defs/Uuid"},
+        "record_id": {"$ref": "#/$defs/Uuid"},
+        "record_revision_id": {"$ref": "#/$defs/Uuid"},
+        "kind": {"$ref": "#/$defs/DomainBindingKind"},
+        "object_id": {"$ref": "#/$defs/Uuid"},
+        "revision_id": {"$ref": "#/$defs/Uuid"},
+        "workbench_path": {"type": "string", "pattern": "^/"}
+      },
+      "additionalProperties": false
+    },
     "LinkEndpoint": {
       "type": "object",
-      "required": ["record_id", "record_revision_id", "revision_no", "table_id", "name", "external_key"],
+      "required": ["record_id", "record_revision_id", "revision_no", "table_id", "name", "external_key", "domain_binding"],
       "properties": {
         "record_id": {"$ref": "#/$defs/Uuid"},
         "record_revision_id": {"$ref": "#/$defs/Uuid"},
         "revision_no": {"type": "integer", "minimum": 1},
         "table_id": {"$ref": "#/$defs/Uuid"},
         "name": {"type": "string", "minLength": 1, "maxLength": 200},
-        "external_key": {"type": ["string", "null"], "minLength": 1, "maxLength": 255}
+        "external_key": {"type": ["string", "null"], "minLength": 1, "maxLength": 255},
+        "domain_binding": {"oneOf": [{"$ref": "#/$defs/DomainRevisionBindingResponse"}, {"type": "null"}]}
       },
       "additionalProperties": false
     },

@@ -187,4 +187,63 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByRole("button", { name: "Models & Cards" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByRole("button", { name: "Models" }).getAttribute("aria-current")).toBe("page");
   });
+
+  it("opens a governed Material binding while preserving its exact revision query", async () => {
+    const materialId = visibleMaterial.material_id;
+    const materialRevisionId = visibleMaterial.current_revision.id;
+    const recordId = "00000000-0000-4000-8000-000000000010";
+    const recordRevisionId = "00000000-0000-4000-8000-000000000011";
+    window.history.pushState(
+      {},
+      "",
+      `/catalog/explorer/records/${recordId}/revisions/${recordRevisionId}`,
+    );
+    window.localStorage.setItem(
+      "cmp.material-platform.api-config",
+      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
+    );
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>().mockImplementation(async (input) => {
+        const url = String(input);
+        if (url.endsWith("/catalog/explorer/tables") || url.endsWith("/catalog/link-types")) {
+          return jsonResponse({ items: [] });
+        }
+        if (url.includes("/catalog/workflow-explorer/")) {
+          const root = {
+            record_id: recordId,
+            record_revision_id: recordRevisionId,
+            revision_no: 1,
+            table_id: "00000000-0000-4000-8000-000000000012",
+            name: "Demo DP780 Steel",
+            external_key: "DP780",
+            domain_binding: {
+              binding_id: "00000000-0000-4000-8000-000000000013",
+              record_id: recordId,
+              record_revision_id: recordRevisionId,
+              kind: "material",
+              object_id: materialId,
+              revision_id: materialRevisionId,
+              workbench_path: `/materials/${materialId}?revision_id=${materialRevisionId}`,
+            },
+          };
+          return jsonResponse({ root, nodes: [root], links: [] });
+        }
+        if (url.endsWith(`/materials/${materialId}/revisions`)) {
+          return jsonResponse({ material_id: materialId, revisions: [visibleMaterial.current_revision] });
+        }
+        if (url.endsWith(`/materials/${materialId}`)) {
+          return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+        }
+        throw new Error(`Unexpected request: ${url}`);
+      }),
+    );
+
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "Open governed object" }));
+
+    expect(await screen.findByRole("heading", { name: "Demo DP780 Steel" })).toBeTruthy();
+    expect(window.location.pathname).toBe(`/materials/${materialId}`);
+    expect(new URLSearchParams(window.location.search).get("revision_id")).toBe(materialRevisionId);
+  });
 });

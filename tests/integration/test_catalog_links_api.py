@@ -13,6 +13,8 @@ from cmp.modules.catalog.application.links import (
     LINK_TYPE_AGGREGATE_TYPE,
     RECORD_LINK_AGGREGATE_TYPE,
     CatalogExplorerChildren,
+    DomainBindingKind,
+    DomainRevisionBinding,
     LinkEndpoint,
     LinkTypeSnapshot,
     RecordLinkSnapshot,
@@ -50,6 +52,9 @@ LINK_TYPE_REV = UUID("dd000000-0000-4000-8000-000000000013")
 LINK = UUID("dd000000-0000-4000-8000-000000000014")
 LINK_REV_1 = UUID("dd000000-0000-4000-8000-000000000015")
 LINK_REV_2 = UUID("dd000000-0000-4000-8000-000000000016")
+DOMAIN_MATERIAL = UUID("dd000000-0000-4000-8000-000000000017")
+DOMAIN_MATERIAL_REV = UUID("dd000000-0000-4000-8000-000000000018")
+BINDING = UUID("dd000000-0000-4000-8000-000000000019")
 
 
 def _context() -> SecurityContext:
@@ -116,6 +121,7 @@ class _Service:
     def __init__(self) -> None:
         self.link_type: LinkTypeSnapshot | None = None
         self.link: RecordLinkSnapshot | None = None
+        self.binding: DomainRevisionBinding | None = None
         self.material_endpoint = LinkEndpoint(
             MATERIAL, MATERIAL_REV, 1, MATERIAL_TABLE, "DP780", "dp780"
         )
@@ -228,11 +234,48 @@ class _Service:
 
     def workflow_graph(self, *args: Any, **kwargs: Any) -> WorkflowGraph:
         del args, kwargs
-        return WorkflowGraph(
-            self.material_endpoint,
-            (self.material_endpoint, self.test_endpoint),
-            (self._view(),),
+        material = LinkEndpoint(
+            MATERIAL,
+            MATERIAL_REV,
+            1,
+            MATERIAL_TABLE,
+            "DP780",
+            "dp780",
+            self.binding,
         )
+        return WorkflowGraph(
+            material,
+            (material, self.test_endpoint),
+            (self._view(),) if self.link is not None else (),
+        )
+
+    def bind_domain_revision(
+        self,
+        context: Any,
+        decision: Any,
+        record_id: UUID,
+        revision_id: UUID,
+        command: Any,
+    ) -> DomainRevisionBinding:
+        del context, decision
+        assert record_id == MATERIAL and revision_id == MATERIAL_REV
+        self.binding = DomainRevisionBinding(
+            BINDING,
+            record_id,
+            revision_id,
+            command.kind,
+            command.object_id,
+            command.revision_id,
+            f"/materials/{command.object_id}?revision_id={command.revision_id}",
+        )
+        return self.binding
+
+    def get_domain_binding(
+        self, context: Any, decision: Any, record_id: UUID, revision_id: UUID
+    ) -> DomainRevisionBinding | None:
+        del context, decision
+        assert record_id == MATERIAL and revision_id == MATERIAL_REV
+        return self.binding
 
 
 def _app(service: _Service) -> FastAPI:
@@ -374,3 +417,35 @@ async def test_latest_alias_and_missing_exact_revision_are_rejected_by_schema() 
     body["content"]["source_record_revision_id"] = "latest"
     response = await _request(app, "POST", "/api/v1/catalog/record-links", json=body)
     assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_record_revision_can_pin_and_open_an_exact_domain_revision() -> None:
+    app = _app(_Service())
+    path = f"/api/v1/catalog/records/{MATERIAL}/revisions/{MATERIAL_REV}/domain-binding"
+    created = await _request(
+        app,
+        "POST",
+        path,
+        json={
+            "kind": DomainBindingKind.MATERIAL.value,
+            "object_id": str(DOMAIN_MATERIAL),
+            "revision_id": str(DOMAIN_MATERIAL_REV),
+        },
+    )
+    assert created.status_code == 201
+    assert created.json()["workbench_path"] == (
+        f"/materials/{DOMAIN_MATERIAL}?revision_id={DOMAIN_MATERIAL_REV}"
+    )
+
+    fetched = await _request(app, "GET", path)
+    assert fetched.status_code == 200
+    assert fetched.json()["revision_id"] == str(DOMAIN_MATERIAL_REV)
+
+    graph = await _request(
+        app,
+        "GET",
+        f"/api/v1/catalog/workflow-explorer/{MATERIAL}/revisions/{MATERIAL_REV}",
+    )
+    assert graph.status_code == 200
+    assert graph.json()["root"]["domain_binding"]["kind"] == "material"

@@ -188,7 +188,7 @@ function useLocationPath(): [string, Navigate] {
       return;
     }
     window.history.pushState({}, "", nextPath);
-    setPath(nextPath);
+    setPath(window.location.pathname || "/");
   };
   return [path, navigate];
 }

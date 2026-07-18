@@ -64,6 +64,20 @@ Explorer와 함께 확장한다.
 
 ![시험 Record에서 Material revision으로 이동하는 역방향 링크](../15-demo/images/t51-reverse-record-link.png)
 
+### Open a governed object from the Workflow Explorer
+
+An administrator or catalog editor can bind the selected configurable Record revision to one exact
+governed domain revision. In **Domain revision binding**, choose the object type and paste the stable
+object UUID plus its exact revision UUID. The server rejects a missing, cross-project, differently
+classified, or already-bound target. A binding cannot be edited or deleted; create a new Record
+revision when the catalog representation must point at a newer governed revision.
+
+After binding, the node shows the domain type and shortened exact revision. Selecting that node opens
+the existing Materials, Tests, Datasets, Models, Exports, or Governance workbench while retaining the
+exact object and revision in the URL. Unbound nodes continue to open their configurable datasheet.
+
+![A configurable Material Record pinned to one exact governed Material revision](../15-demo/images/t62-domain-workflow-binding.png)
+
 ## 목표 따라하기
 
 1. Catalog Explorer 또는 검색에서 Material record를 찾는다.
