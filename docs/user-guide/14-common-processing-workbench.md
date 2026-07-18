@@ -39,10 +39,21 @@
 
 ![공통 축으로 비교하는 처리 단계 curve overlay](../15-demo/images/t53-processing-curve-overlay.png)
 
+## 불변 Processing Output 저장
+
+1. preview 결과와 저장된 Mapping Profile revision이 일치하는지 확인합니다.
+2. Output label과 변경 사유를 입력합니다.
+3. **Commit immutable output**을 누릅니다.
+4. 서버는 화면의 preview 배열을 저장하지 않고 exact Test Data revision과 exact Mapping Profile
+   revision을 다시 읽어 동일한 ordered steps를 재실행합니다.
+5. 저장된 목록에서 revision 1, stage/point 수, Output SHA-256을 확인합니다.
+6. **Download JSON**으로 `cmp.processing-output` Artifact의 정확한 바이트를 받습니다.
+
+![서버 재계산 후 저장된 immutable Processing Output](../15-demo/images/t53-processing-output-commit.png)
+
 ## 현재 경계
 
-화면의 결과는 명확히 **Preview only · not promotable**로 표시됩니다. 이 단계에서는 Mapping
-Profile revision만 PostgreSQL에 영속화되고, preview curve는 아직 Dataset/Processing Run
-revision으로 승격되지 않습니다. T-53의 다음 increment에서 immutable output과 다중 curve
-alignment/statistics를 연결한 뒤에만 저장 결과를 후속 Recipe와 Modeling 입력으로 사용할 수
-있습니다.
+화면의 stage overlay는 명확히 **Preview only · not promotable**로 표시됩니다. 별도의 commit은
+서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화하지만, 아직 일반
+Recipe/Batch 또는 Modeling 입력으로 승격되지는 않습니다. T-53의 다음 increment에서 다중 curve
+alignment/statistics를 연결하고, T-54에서 Recipe/Batch 실행 계약에 편입합니다.

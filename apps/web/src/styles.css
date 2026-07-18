@@ -3278,4 +3278,12 @@ summary {
 .curve-legend i.processed { background: #e56734; }
 .stage-diagnostics { margin-top: .8rem; border-left: 3px solid #55a49c; padding-left: .75rem; color: #34565b; }
 .stage-diagnostics p { margin: .25rem 0; }
-@media (max-width: 900px) { .processing-setup-grid, .processing-result-grid { grid-template-columns: 1fr; } .profile-save-row { grid-template-columns: 1fr; } }
+.processing-output-card { min-width: 0; }
+.processing-output-form { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(14rem, 1.4fr) auto; gap: .8rem; align-items: end; }
+.processing-output-form label { display: grid; gap: .4rem; color: var(--muted); font-size: .82rem; }
+.processing-output-list { display: grid; gap: .65rem; margin-top: 1rem; }
+.processing-output-list article { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-soft); }
+.processing-output-list article > div { display: grid; gap: .2rem; min-width: 0; }
+.processing-output-list small { color: var(--muted); }
+.processing-output-list code { overflow: hidden; text-overflow: ellipsis; font-size: .72rem; color: #246e6b; }
+@media (max-width: 900px) { .processing-setup-grid, .processing-result-grid { grid-template-columns: 1fr; } .profile-save-row, .processing-output-form { grid-template-columns: 1fr; } }

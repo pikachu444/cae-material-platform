@@ -170,6 +170,60 @@
         "independent_quantity": {"type": "string"},
         "stages": {"type": "array", "minItems": 1, "maxItems": 33, "items": {"$ref": "#/$defs/CurveStage"}}
       }
+    },
+    "ExactRevisionPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregate_id", "revision_id"],
+      "properties": {
+        "aggregate_id": {"type": "string", "format": "uuid"},
+        "revision_id": {"type": "string", "format": "uuid"}
+      }
+    },
+    "CommitProcessingOutputRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "label", "source_document", "mapping_profile", "steps", "change_reason"],
+      "properties": {
+        "classification": {"enum": ["internal", "confidential", "restricted", "export_controlled"]},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "source_document": {"$ref": "#/$defs/ExactRevisionPin"},
+        "mapping_profile": {"$ref": "#/$defs/ExactRevisionPin"},
+        "steps": {
+          "type": "array", "minItems": 1, "maxItems": 32,
+          "items": {"$ref": "#/$defs/ProcessingStep"}
+        },
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "ProcessingOutputResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256"],
+      "properties": {
+        "processing_output_id": {"type": "string", "format": "uuid"},
+        "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
+        "label": {"type": "string"},
+        "source_document": {"$ref": "#/$defs/ExactRevisionPin"},
+        "source_document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_canonical_artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping_profile": {"$ref": "#/$defs/ExactRevisionPin"},
+        "mapping_profile_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "steps": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/ProcessingStep"}},
+        "independent_quantity": {"type": "string"},
+        "stage_count": {"type": "integer", "minimum": 2, "maximum": 33},
+        "final_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
+        "output_artifact_id": {"type": "string", "format": "uuid"},
+        "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "ProcessingOutputListResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {"type": "array", "items": {"$ref": "#/$defs/ProcessingOutputResponse"}}
+      }
     }
   }
 }

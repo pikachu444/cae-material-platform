@@ -1,4 +1,4 @@
-version: 13
+version: 14
 verified_at: 2026-07-18
 source_evidence: ../15-demo/evidence/t51-dual-explorer-record-links.md
 captures:
@@ -202,5 +202,12 @@ captures:
     workflow: server-produced-stage-selection-and-shared-axis-curve-overlay
     fixture: T-53 DP600 mapping plus rows.sort_unique preview stages
     image: ../15-demo/images/t53-processing-curve-overlay.png
+    width: 1265
+    height: 712
+  - id: common-processing-output-commit
+    route: /datasets/processing
+    workflow: exact-input-server-recomputation-immutable-output-and-json-download
+    fixture: T-53 DP600 Test Data r2, Mapping Profile r2 and three revision-1 Outputs
+    image: ../15-demo/images/t53-processing-output-commit.png
     width: 1265
     height: 712

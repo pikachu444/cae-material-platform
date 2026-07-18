@@ -19,6 +19,14 @@ from cmp.modules.identity_access.domain.authorization import (
     DataClassification,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.processing.application.common_outputs import (
+    PROCESSING_OUTPUT_MEDIA_TYPE,
+    CommitProcessingOutput,
+    CommonProcessingOutputService,
+    ExactRevisionPin,
+    ProcessingOutputNotFound,
+    ProcessingOutputSnapshot,
+)
 from cmp.modules.processing.application.mapping_profiles import (
     CreateMappingProfile,
     MappingProfileNotFound,
@@ -262,10 +270,88 @@ class ProcessingPreviewResponse(BaseModel):
         )
 
 
+class ExactRevisionPinInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    aggregate_id: UUID
+    revision_id: UUID
+
+    def to_domain(self) -> ExactRevisionPin:
+        return ExactRevisionPin(self.aggregate_id, self.revision_id)
+
+
+class CommitProcessingOutputRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    classification: DataClassification
+    label: Annotated[str, StringConstraints(min_length=1, max_length=200)]
+    source_document: ExactRevisionPinInput
+    mapping_profile: ExactRevisionPinInput
+    steps: Annotated[
+        tuple[ProcessingStepInput, ...], Field(min_length=1, max_length=MAX_PIPELINE_STEPS)
+    ]
+    change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+
+class ProcessingOutputResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    processing_output_id: UUID
+    current_revision: RevisionMetadataResponse
+    label: str
+    source_document: ExactRevisionPinInput
+    source_document_sha256: str
+    source_canonical_artifact_sha256: str
+    mapping_profile: ExactRevisionPinInput
+    mapping_profile_sha256: str
+    steps: tuple[ProcessingStepInput, ...]
+    independent_quantity: str
+    stage_count: int
+    final_point_count: int
+    output_artifact_id: UUID
+    output_sha256: str
+
+    @classmethod
+    def from_snapshot(cls, value: ProcessingOutputSnapshot) -> ProcessingOutputResponse:
+        content = value.content
+        return cls(
+            processing_output_id=value.id,
+            current_revision=RevisionMetadataResponse.from_record(value.current, "published"),
+            label=content.label,
+            source_document=ExactRevisionPinInput(
+                aggregate_id=content.source_document.aggregate_id,
+                revision_id=content.source_document.revision_id,
+            ),
+            source_document_sha256=content.source_document_sha256,
+            source_canonical_artifact_sha256=content.source_canonical_artifact_sha256,
+            mapping_profile=ExactRevisionPinInput(
+                aggregate_id=content.mapping_profile.aggregate_id,
+                revision_id=content.mapping_profile.revision_id,
+            ),
+            mapping_profile_sha256=content.mapping_profile_sha256,
+            steps=tuple(
+                ProcessingStepInput(
+                    method_id=step.method_id,
+                    method_version=step.method_version,
+                    options=step.options,
+                )
+                for step in content.steps
+            ),
+            independent_quantity=content.independent_quantity,
+            stage_count=content.stage_count,
+            final_point_count=content.final_point_count,
+            output_artifact_id=content.output_artifact_id,
+            output_sha256=content.output_sha256,
+        )
+
+
+class ProcessingOutputListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: tuple[ProcessingOutputResponse, ...]
+
+
 def install_common_processing_api(
     app: FastAPI,
     *,
     service: MappingProfileService | None = None,
+    output_service: CommonProcessingOutputService | None = None,
     security_dependency: Dependency,
     read_dependency: Dependency,
     execute_dependency: Dependency,
@@ -416,3 +502,80 @@ def install_common_processing_api(
             return ProcessingPreviewResponse.from_domain(result)
         except (CanonicalTestDataError, CommonPipelineError, TypeError, ValueError) as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
+
+    @app.post(
+        "/api/v1/processing-outputs",
+        response_model=ProcessingOutputResponse,
+        status_code=status.HTTP_201_CREATED,
+        dependencies=[Depends(security_dependency), Depends(execute_dependency)],
+        tags=["processing-workbench"],
+    )
+    async def commit_processing_output(
+        body: CommitProcessingOutputRequest, request: Request
+    ) -> ProcessingOutputResponse:
+        context, decision = scope(request)
+        if output_service is None:
+            raise HTTPException(status_code=503, detail="Processing Output store unavailable")
+        try:
+            snapshot = await output_service.commit(
+                context,
+                decision,
+                CommitProcessingOutput(
+                    classification=body.classification,
+                    label=body.label,
+                    source_document=body.source_document.to_domain(),
+                    mapping_profile=body.mapping_profile.to_domain(),
+                    steps=tuple(step.to_domain() for step in body.steps),
+                    change_reason=body.change_reason,
+                ),
+            )
+            return ProcessingOutputResponse.from_snapshot(snapshot)
+        except ProcessingOutputNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except (CommonPipelineError, CanonicalTestDataError, ValueError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        except (AggregateAlreadyExists, IntegrityError, RevisionKernelError) as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+
+    @app.get(
+        "/api/v1/processing-outputs",
+        response_model=ProcessingOutputListResponse,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["processing-workbench"],
+    )
+    def list_processing_outputs(request: Request) -> ProcessingOutputListResponse:
+        context, decision = scope(request)
+        if output_service is None:
+            raise HTTPException(status_code=503, detail="Processing Output store unavailable")
+        return ProcessingOutputListResponse(
+            items=tuple(
+                ProcessingOutputResponse.from_snapshot(item)
+                for item in output_service.list_outputs(context, decision)
+            )
+        )
+
+    @app.get(
+        "/api/v1/processing-outputs/{output_id}/content",
+        response_class=Response,
+        dependencies=[Depends(security_dependency), Depends(read_dependency)],
+        tags=["processing-workbench"],
+    )
+    async def download_processing_output(output_id: UUID, request: Request) -> Response:
+        context, decision = scope(request)
+        if output_service is None:
+            raise HTTPException(status_code=503, detail="Processing Output store unavailable")
+        try:
+            snapshot, value = await output_service.export(
+                context, decision, output_id
+            )
+        except ProcessingOutputNotFound as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        return Response(
+            content=value,
+            media_type=PROCESSING_OUTPUT_MEDIA_TYPE,
+            headers={
+                "Content-Disposition": f'attachment; filename="processing-output-{output_id}.json"',
+                "X-Content-SHA256": snapshot.content.output_sha256,
+                "Cache-Control": "no-store",
+            },
+        )

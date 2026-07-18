@@ -175,6 +175,7 @@ import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingMethod,
+  CommonProcessingOutputResponse,
   CommonProcessingPreview,
   CommonProcessingStep,
 } from "./types";
@@ -440,6 +441,57 @@ export function previewCommonProcessing(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listCommonProcessingOutputs(
+  config: ApiConfig,
+): Promise<ApiResult<{
+  items: CommonProcessingOutputResponse[];
+}>> {
+  return request(config, "/processing-outputs");
+}
+
+export function commitCommonProcessingOutput(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    label: string;
+    source_document: { aggregate_id: string; revision_id: string };
+    mapping_profile: { aggregate_id: string; revision_id: string };
+    steps: CommonProcessingStep[];
+    change_reason: string;
+  },
+): Promise<ApiResult<CommonProcessingOutputResponse>> {
+  return request(config, "/processing-outputs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function downloadCommonProcessingOutput(
+  config: ApiConfig,
+  outputId: string,
+): Promise<ApiResult<SolverCardDownload>> {
+  const init: RequestInit = {};
+  const headers = authenticatedHeaders(
+    config,
+    init,
+    "application/vnd.cmp.processing-output+json",
+  );
+  const response = await fetch(
+    endpoint(config, `/processing-outputs/${encodeURIComponent(outputId)}/content`),
+    { ...init, headers },
+  );
+  if (!response.ok) return throwResponseError(response);
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  return {
+    data: {
+      blob: await response.blob(),
+      filename: match?.[1] ?? `processing-output-${outputId}.json`,
+    },
+    etag: response.headers.get("etag"),
+  };
 }
 
 export function createConfigurableCatalogTable(

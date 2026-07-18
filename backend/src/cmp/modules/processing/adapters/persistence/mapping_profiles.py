@@ -349,3 +349,26 @@ class SqlAlchemyMappingProfileRepository(MappingProfileRepository):
                 .all()
             )
             return tuple(self._snapshot(session, row) for row in rows)
+
+    def get_profile_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        profile_id: UUID,
+        revision_id: UUID,
+    ) -> MappingProfileSnapshot:
+        with self._session(context, decision) as session:
+            row = (
+                session.execute(
+                    sa.select(revision_table).where(
+                        revision_table.c.aggregate_id == profile_id,
+                        revision_table.c.id == revision_id,
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise MappingProfileNotFound("Mapping Profile revision is not visible")
+            return self._snapshot(session, row)

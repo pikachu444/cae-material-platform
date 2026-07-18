@@ -141,6 +141,34 @@ class ProcessingPreview:
     stages: tuple[CurveStage, ...]
 
 
+def processing_preview_canonical(value: ProcessingPreview) -> dict[str, object]:
+    """Return the stable numeric representation used by committed processing evidence."""
+
+    return {
+        "source_document_sha256": value.source_document_sha256,
+        "mapping_profile_sha256": value.mapping_profile_sha256,
+        "independent_quantity": value.independent_quantity,
+        "stages": [
+            {
+                "ordinal": stage.ordinal,
+                "method_id": stage.method_id,
+                "method_version": stage.method_version,
+                "point_count": stage.point_count,
+                "series": [
+                    {
+                        "quantity": series.quantity,
+                        "unit": series.unit,
+                        "values": list(series.values),
+                    }
+                    for series in stage.series
+                ],
+                "diagnostics": list(stage.diagnostics),
+            }
+            for stage in value.stages
+        ],
+    }
+
+
 @dataclass(frozen=True, slots=True)
 class MethodDefinition:
     method_id: str

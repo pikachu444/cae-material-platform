@@ -68,6 +68,15 @@ class MappingProfileRepository(Protocol):
         profile_id: UUID,
     ) -> MappingProfileSnapshot: ...
 
+    def get_profile_revision(
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        profile_id: UUID,
+        revision_id: UUID,
+    ) -> MappingProfileSnapshot: ...
+
     def list_profiles(
         self, *, context: SecurityContext, decision: AuthorizationDecision
     ) -> tuple[MappingProfileSnapshot, ...]: ...
@@ -182,3 +191,18 @@ class MappingProfileService:
     ) -> tuple[MappingProfileSnapshot, ...]:
         _require(context, decision, Permission.PROCESSING_READ)
         return self._repository.list_profiles(context=context, decision=decision)
+
+    def get_profile_revision(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        profile_id: UUID,
+        revision_id: UUID,
+    ) -> MappingProfileSnapshot:
+        _require(context, decision, Permission.PROCESSING_READ)
+        return self._repository.get_profile_revision(
+            context=context,
+            decision=decision,
+            profile_id=profile_id,
+            revision_id=revision_id,
+        )

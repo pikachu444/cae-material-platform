@@ -16,7 +16,7 @@ Workbench defined by ADR-0028 through ADR-0030.
 | Catalog and Material Workflow Explorers | T-51 implemented: lazy Table/Folder/Record tree and bounded exact-revision graph | T-52 Test JSON |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | T-52 Test JSON |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | T-53 Mapping Profile |
-| General Mapping Profile and Processing Workbench | T-53 increment 1: immutable typed Mapping Profiles, seven-method registry and connected stage-preview UI; immutable output/alignment/statistics remain | T-53 completion |
+| General Mapping Profile and Processing Workbench | T-53: immutable typed Mapping Profiles, seven-method registry, connected stage-preview UI and exact-input immutable Output JSON; alignment/statistics remain | T-53 completion |
 | Saved Recipe library/general batch execution | typed recipes and bounded alignment batch only | T-54 |
 | Metal/Polymer/Elastomer modeling | bounded reference flows; method breadth incomplete | T-55M/P/E |
 | Neutral Material exchange JSON | IR JSON exists; complete exchange envelope is missing | T-56 |
@@ -35,8 +35,10 @@ bounded Tasks, but must not be read as completion of T-49 through T-60.
   Profile identity/revisions and typed channel/Attribute bindings persist in explicit PostgreSQL tables;
   exact Attribute Definition revisions are pinned when used. The connected `/datasets/processing`
   workbench loads exact Test Data JSON, creates or revises reusable profiles and compares every
-  server-produced stage on shared axes. Preview is deliberately not promotable. Immutable processing
-  output plus multi-curve alignment/statistics remain before T-53 can be marked complete.
+  server-produced stage on shared axes. Preview is deliberately not promotable. A separate commit
+  reloads exact Test Data/Profile revisions, recomputes the pipeline and persists a one-revision-only
+  Output plus canonical JSON Artifact; browser preview arrays are never authoritative. Multi-curve
+  alignment/statistics remain before T-53 can be marked complete.
 - `T-52 increment 1`: `cmp.test-data` 1.0.0 now has schema plus semantic validation, a connected
   `/datasets/test-json` preview/import/list/download workflow, explicit PostgreSQL identity/revision,
   typed condition/channel rows and immutable canonical JSON/normalized Parquet Artifact pins. Exact

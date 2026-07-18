@@ -2,10 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   ApiError,
+  commitCommonProcessingOutput,
   createCommonMappingProfile,
   downloadCanonicalTestDataDocument,
+  downloadCommonProcessingOutput,
   listCanonicalTestDataDocuments,
   listCommonMappingProfiles,
+  listCommonProcessingOutputs,
   listCommonProcessingMethods,
   previewCommonProcessing,
   reviseCommonMappingProfile,
@@ -17,6 +20,7 @@ import type {
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
   CommonProcessingMethod,
+  CommonProcessingOutputResponse,
   CommonProcessingPreview,
   CommonProcessingStep,
   DataClassification,
@@ -123,6 +127,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
+  const [outputs, setOutputs] = useState<CommonProcessingOutputResponse[]>([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState("");
   const [selectedProfileId, setSelectedProfileId] = useState("");
   const [document, setDocument] = useState<Record<string, unknown> | null>(null);
@@ -130,6 +135,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
   const [stepsText, setStepsText] = useState(JSON.stringify(DEFAULT_STEPS, null, 2));
   const [classification, setClassification] = useState<DataClassification>("internal");
   const [changeReason, setChangeReason] = useState("Save reusable channel mapping");
+  const [outputLabel, setOutputLabel] = useState("Processed tensile curve");
+  const [outputReason, setOutputReason] = useState("Commit reviewed processing stages");
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   const [selectedStage, setSelectedStage] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -141,11 +148,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
       listCanonicalTestDataDocuments(config),
       listCommonMappingProfiles(config),
       listCommonProcessingMethods(config),
+      listCommonProcessingOutputs(config),
     ])
-      .then(([documentResult, profileResult, methodResult]) => {
+      .then(([documentResult, profileResult, methodResult, outputResult]) => {
         setDocuments(documentResult.data.items);
         setProfiles(profileResult.data.items);
         setMethods(methodResult.data.items);
+        setOutputs(outputResult.data.items);
         setSelectedDocumentId((current) => current || documentResult.data.items[0]?.test_data_document_id || "");
       })
       .catch((caught: unknown) => setError(errorMessage(caught)));
@@ -241,6 +250,69 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
     }
   }
 
+  async function commitOutput(): Promise<void> {
+    const source = documents.find((item) => item.test_data_document_id === selectedDocumentId);
+    const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
+    if (!preview || !source || !profile) {
+      setError("Preview an exact Test Data revision with a saved Mapping Profile before commit.");
+      return;
+    }
+    if (preview.mapping_profile_sha256 !== profile.current_revision.content_hash) {
+      setError("The preview differs from the selected exact input/profile. Save changes and preview again.");
+      return;
+    }
+    if (source.current_revision.classification !== profile.current_revision.classification) {
+      setError("Exact Test Data and Mapping Profile revisions must share classification.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await commitCommonProcessingOutput(config, {
+        classification: source.current_revision.classification as DataClassification,
+        label: outputLabel,
+        source_document: {
+          aggregate_id: source.test_data_document_id,
+          revision_id: source.current_revision.id,
+        },
+        mapping_profile: {
+          aggregate_id: profile.mapping_profile_id,
+          revision_id: profile.current_revision.id,
+        },
+        steps: JSON.parse(stepsText) as CommonProcessingStep[],
+        change_reason: outputReason,
+      });
+      const refreshed = await listCommonProcessingOutputs(config);
+      setOutputs(refreshed.data.items);
+      setNotice(
+        `Committed immutable Processing Output ${result.data.processing_output_id} · ${result.data.output_sha256.slice(0, 12)}…`,
+      );
+    } catch (caught) {
+      setError(caught instanceof SyntaxError ? `Invalid step JSON: ${caught.message}` : errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function downloadOutput(output: CommonProcessingOutputResponse): Promise<void> {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await downloadCommonProcessingOutput(config, output.processing_output_id);
+      const url = URL.createObjectURL(result.data.blob);
+      const anchor = window.document.createElement("a");
+      anchor.href = url;
+      anchor.download = result.data.filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setNotice(`Downloaded exact Processing Output ${output.output_sha256.slice(0, 12)}…`);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const activeStage = preview?.stages[selectedStage] ?? null;
   const baseStage = preview?.stages[0] ?? null;
   const overlayBounds = useMemo(
@@ -292,6 +364,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
           <div className="section-heading"><div><p className="eyebrow">Curve overlay</p><h2>{activeStage?.method_id ?? "Awaiting preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not promotable</span> : null}</div>
           {preview && activeStage && baseStage && overlayBounds ? <><svg className="processing-curve" role="img" aria-label="Mapped and selected processing stage curve overlay" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/><polyline points={curvePoints(baseStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line source"/><polyline points={curvePoints(activeStage, preview.independent_quantity, chart.width, chart.height, overlayBounds)} className="curve-line processed"/></svg><div className="curve-legend"><span><i className="source"/>Mapped input</span><span><i className="processed"/>Selected stage</span></div><div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div><p className="digest-line"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p></> : <p className="muted">The overlay uses the actual server result. No browser-only curve is treated as evidence.</p>}
         </article>
+      </section>
+
+      <section className="workbench-card processing-output-card">
+        <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Commit reviewed result</h2></div><span className="status-chip">{outputs.length} committed</span></div>
+        <p className="mapping-note">Commit recomputes the selected exact Test Data and saved Mapping Profile on the server. Preview arrays are never accepted as authoritative output.</p>
+        <div className="processing-output-form"><label>Output label<input value={outputLabel} onChange={(event) => setOutputLabel(event.target.value)} /></label><label>Change reason<input value={outputReason} onChange={(event) => setOutputReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit immutable output</button></div>
+        {outputs.length ? <div className="processing-output-list">{outputs.map((output) => <article key={output.processing_output_id}><div><strong>{output.label}</strong><small>r{output.current_revision.revision_no} · {output.final_point_count} points · {output.stage_count} stages</small><code>{output.output_sha256}</code></div><button className="button secondary" type="button" disabled={busy} onClick={() => void downloadOutput(output)}>Download JSON</button></article>)}</div> : <p className="muted">No committed common Processing Output is visible yet.</p>}
       </section>
     </main>
   );

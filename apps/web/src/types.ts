@@ -3603,3 +3603,25 @@ export interface CommonProcessingPreview {
   independent_quantity: string;
   stages: CommonCurveStage[];
 }
+
+export interface CommonExactRevisionPin {
+  aggregate_id: string;
+  revision_id: string;
+}
+
+export interface CommonProcessingOutputResponse {
+  processing_output_id: string;
+  current_revision: RevisionMetadata;
+  label: string;
+  source_document: CommonExactRevisionPin;
+  source_document_sha256: string;
+  source_canonical_artifact_sha256: string;
+  mapping_profile: CommonExactRevisionPin;
+  mapping_profile_sha256: string;
+  steps: CommonProcessingStep[];
+  independent_quantity: string;
+  stage_count: number;
+  final_point_count: number;
+  output_artifact_id: string;
+  output_sha256: string;
+}

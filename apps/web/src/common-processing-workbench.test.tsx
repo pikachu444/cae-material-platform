@@ -66,6 +66,7 @@ describe("Common Processing Workbench", () => {
       const url = String(input);
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource] });
       if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
       if (url.endsWith("/processing-methods")) {
         return jsonResponse({
           items: [

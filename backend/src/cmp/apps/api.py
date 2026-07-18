@@ -49,6 +49,7 @@ from cmp.bootstrap.modeling import (
 )
 from cmp.bootstrap.plugins import build_plugin_registry_service
 from cmp.bootstrap.processing import (
+    build_common_processing_output_service,
     build_mapping_profile_service,
     build_processing_service,
     build_shear_relaxation_processing_service,
@@ -508,9 +509,12 @@ def create_app(
             services.authorization, Permission.DATASET_WRITE
         ),
     )
+    resolved_canonical_test_data = build_canonical_test_data_service(
+        services, resolved_artifacts
+    )
     install_canonical_test_data_api(
         application,
-        service=build_canonical_test_data_service(services, resolved_artifacts),
+        service=resolved_canonical_test_data,
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.DATASET_READ
@@ -570,9 +574,16 @@ def create_app(
             services.authorization, Permission.PROCESSING_EXECUTE
         ),
     )
+    resolved_mapping_profiles = build_mapping_profile_service(services)
     install_common_processing_api(
         application,
-        service=build_mapping_profile_service(services),
+        service=resolved_mapping_profiles,
+        output_service=build_common_processing_output_service(
+            services,
+            resolved_canonical_test_data,
+            resolved_mapping_profiles,
+            resolved_artifacts,
+        ),
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.PROCESSING_READ

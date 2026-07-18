@@ -3698,6 +3698,66 @@ paths:
         "401": {description: Authentication required.}
         "403": {description: Processing execution is not authorized.}
         "422": {description: Mapping, units, method composition, or numerical options are invalid.}
+  /api/v1/processing-outputs:
+    post:
+      operationId: commitCommonProcessingOutput
+      tags: [processing-workbench]
+      summary: Recompute exact inputs and commit an immutable common Processing Output.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/CommitProcessingOutputRequest"}
+      responses:
+        "201":
+          description: Revision-1 Processing Output with exact source/profile pins and Artifact digest.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ProcessingOutputResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing execution is not authorized.}
+        "409": {description: Immutable identity, Artifact, or revision state conflicts.}
+        "422": {description: Exact inputs, classification, mapping, units, or method options are invalid.}
+        "503": {description: Processing Output store unavailable.}
+    get:
+      operationId: listCommonProcessingOutputs
+      tags: [processing-workbench]
+      summary: List visible immutable common Processing Outputs.
+      security: [{BearerAuth: []}]
+      responses:
+        "200":
+          description: Output heads; each currently has exactly one immutable revision.
+          content:
+            application/json:
+              schema: {$ref: "../processing/common-processing-resources.schema.json#/$defs/ProcessingOutputListResponse"}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "503": {description: Processing Output store unavailable.}
+  /api/v1/processing-outputs/{output_id}/content:
+    get:
+      operationId: downloadCommonProcessingOutput
+      tags: [processing-workbench]
+      summary: Download the canonical JSON Artifact pinned by one immutable Processing Output.
+      security: [{BearerAuth: []}]
+      parameters:
+        - name: output_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Exact cmp.processing-output JSON bytes with detached digest header.
+          headers:
+            X-Content-SHA256: {schema: {type: string, pattern: "^[0-9a-f]{64}$"}}
+          content:
+            application/vnd.cmp.processing-output+json:
+              schema: {type: object}
+        "401": {description: Authentication required.}
+        "403": {description: Processing read is not authorized.}
+        "404": {description: Processing Output is not visible.}
+        "409": {description: Immutable Artifact integrity is inconsistent.}
+        "503": {description: Processing Output store unavailable.}
   /api/v1/processing-recipes/reference-shear-relaxation-crop:
     post:
       operationId: createReferenceShearRelaxationCropRecipe
