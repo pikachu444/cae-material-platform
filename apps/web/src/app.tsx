@@ -128,6 +128,11 @@ const CanonicalTestDataWorkbench = lazy(() =>
     default: module.CanonicalTestDataWorkbench,
   })),
 );
+const CommonProcessingWorkbench = lazy(() =>
+  import("./common-processing-workbench").then((module) => ({
+    default: module.CommonProcessingWorkbench,
+  })),
+);
 
 type Navigate = (path: string) => void;
 type MaterialArea = "overview" | "testing" | "datasets" | "models" | "governance";
@@ -761,9 +766,7 @@ function ModuleHubPage({
           <p>{copy.description}</p>
         </div>
         {area === "datasets" ? (
-          <button className="button primary" type="button" onClick={() => navigate("/datasets/test-json")}>
-            Import Test Data JSON
-          </button>
+          <div className="hero-actions"><button className="button secondary" type="button" onClick={() => navigate("/datasets/test-json")}>Import Test Data JSON</button><button className="button primary" type="button" onClick={() => navigate("/datasets/processing")}>Open Processing Workbench</button></div>
         ) : null}
       </section>
       <section className="content-card">
@@ -2080,6 +2083,14 @@ export function App() {
   } else if (path === "/datasets/test-json") {
     page = (
       <CanonicalTestDataWorkbench
+        config={config}
+        onNavigate={navigate}
+        onOpenConnection={() => setConnectionOpen(true)}
+      />
+    );
+  } else if (path === "/datasets/processing") {
+    page = (
+      <CommonProcessingWorkbench
         config={config}
         onNavigate={navigate}
         onOpenConnection={() => setConnectionOpen(true)}

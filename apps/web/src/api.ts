@@ -172,6 +172,11 @@ import type {
   CatalogWorkflowGraphResponse,
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
+  CommonMappingProfileContent,
+  CommonMappingProfileResponse,
+  CommonProcessingMethod,
+  CommonProcessingPreview,
+  CommonProcessingStep,
 } from "./types";
 
 export interface ApiConfig {
@@ -382,6 +387,59 @@ export async function downloadCanonicalTestDataPackage(
     data: { blob: await response.blob(), filename: "cmp-test-data-package.zip" },
     etag: response.headers.get("etag"),
   };
+}
+
+export function listCommonProcessingMethods(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonProcessingMethod[] }>> {
+  return request(config, "/processing-methods");
+}
+
+export function listCommonMappingProfiles(
+  config: ApiConfig,
+): Promise<ApiResult<{ items: CommonMappingProfileResponse[] }>> {
+  return request(config, "/mapping-profiles");
+}
+
+export function createCommonMappingProfile(
+  config: ApiConfig,
+  input: {
+    classification: DataClassification;
+    content: CommonMappingProfileContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<CommonMappingProfileResponse>> {
+  return request(config, "/mapping-profiles", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function reviseCommonMappingProfile(
+  config: ApiConfig,
+  profileId: string,
+  etag: string,
+  input: { content: CommonMappingProfileContent; change_reason: string },
+): Promise<ApiResult<CommonMappingProfileResponse>> {
+  return request(config, `/mapping-profiles/${encodeURIComponent(profileId)}/revisions`, {
+    method: "POST",
+    headers: { "If-Match": etag },
+    body: JSON.stringify(input),
+  });
+}
+
+export function previewCommonProcessing(
+  config: ApiConfig,
+  input: {
+    document: Record<string, unknown>;
+    mapping_profile: CommonMappingProfileContent;
+    steps: CommonProcessingStep[];
+  },
+): Promise<ApiResult<CommonProcessingPreview>> {
+  return request(config, "/processing:preview", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export function createConfigurableCatalogTable(

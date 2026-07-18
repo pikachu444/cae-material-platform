@@ -3537,3 +3537,69 @@ export interface CanonicalTestDataDocumentResponse {
   normalized_sha256: string;
   channels: CanonicalTestDataChannelPreview[];
 }
+
+export interface CommonChannelBinding {
+  channel_key: string;
+  target_quantity: string;
+  accepted_normalized_units: string[];
+  required: boolean;
+  scale: number;
+  offset: number;
+}
+
+export interface CommonAttributeBinding {
+  attribute_definition_id: string;
+  attribute_definition_revision_id: string;
+  target_quantity: string;
+  accepted_normalized_units: string[];
+  required: boolean;
+}
+
+export interface CommonMappingProfileContent {
+  profile_key: string;
+  label: string;
+  independent_quantity: string;
+  missing_data_policy: "reject" | "drop_any";
+  bindings: CommonChannelBinding[];
+  attribute_bindings: CommonAttributeBinding[];
+}
+
+export interface CommonMappingProfileResponse {
+  mapping_profile_id: string;
+  current_revision: RevisionMetadata;
+  content: CommonMappingProfileContent;
+}
+
+export interface CommonProcessingMethod {
+  method_id: string;
+  version: string;
+  label: string;
+  description: string;
+  option_schema: Record<string, unknown>;
+  deterministic: boolean;
+  allows_extrapolation: boolean;
+}
+
+export interface CommonProcessingStep {
+  method_id: string;
+  method_version: string;
+  options: Record<string, unknown>;
+}
+
+export interface CommonCurveStage {
+  ordinal: number;
+  method_id: string;
+  method_version: string;
+  point_count: number;
+  series: Array<{ quantity: string; unit: string; values: number[] }>;
+  diagnostics: string[];
+}
+
+export interface CommonProcessingPreview {
+  execution_mode: "preview";
+  promotable: false;
+  source_document_sha256: string;
+  mapping_profile_sha256: string;
+  independent_quantity: string;
+  stages: CommonCurveStage[];
+}

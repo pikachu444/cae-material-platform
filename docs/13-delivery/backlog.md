@@ -1298,6 +1298,12 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   resample, moving-average, Savitzky–Golay, spline, alignment/statistics, stage overlay UI.
 - **완료 조건:** 사용자가 mapping과 ordered steps를 편집하고 preview 후 immutable output을 만든다.
 - **테스트:** method schema/composition, numeric public fixture, preview/commit separation, UI E2E.
+- **Increment 1 증거 (2026-07-18):** explicit PostgreSQL identity/revision/binding tables에 Mapping
+  Profile을 저장·개정하고 exact Attribute Definition revision을 고정한다. 일곱 개의 versioned
+  deterministic method와 composed preview API, exact Test Data/profile/step editor, 공통 축 stage
+  overlay를 연결했다. Docker/PostgreSQL에서 profile r1→r2와 실제 server preview를 검증했다.
+- **남은 완료 범위:** preview를 새 immutable Processing output revision으로 commit하고, 복수 curve
+  alignment와 통계 method/UI를 추가한 뒤 전체 UI E2E와 `make ci`를 통과시킨다.
 
 #### T-54. Versioned Recipe library and batch execution — `P0`
 
