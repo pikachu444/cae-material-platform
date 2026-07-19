@@ -47,6 +47,39 @@ Workbench**에 익숙한 엔지니어가 별도 API 지식 없이 사용할 수 
 독립 UI와 공개 수식·공식 solver 문서를 사용하되, 공개 사용자 업무에는 동등한 결과와 편의성을
 제공한다.
 
+### 2.1 모던 UI와 상용 업무 흐름을 함께 적용하는 기준
+
+`2026-07-20` 재조사 결과, “클론 수준”을 오래된 화면의 색·테두리까지 복제하는 것으로 해석하지
+않는다. 최신 제품 UI의 시각 위계에 GRANTA/Material Modeler의 검증된 업무 배치를 결합한다.
+
+- [Granta MI 2026 R1 Contents Tree](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/MI_Viewer_Help/MI_Viewer/GetStart_Profile.html)는
+  Database/Profile가 Table·Folder·Record와 검색 범위를 결정하고 Subset이 tree와 결과를 함께
+  제한하는 것을 기준으로 삼는다. Tree는 장식 navigation이 아니라 실제 record 탐색기다.
+- [Granta MI 2026 R1 변경사항](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Granta_MI_Rel_Notes/release_notes/what_s_new_mi.html)은
+  web Record Tree, record version 비교, data view를 최신 기준으로 삼는다.
+- [Altair Material Modeler 2025 Extrapolation](https://help.altair.com/material_modeler/topics/material_modeler/extrapolation_t.htm)은
+  후보 두 개 선택, ratio slider, raw/fitted/extrapolated/derivative 동시 확인, 명시적 Save 순서를
+  금속 작업 흐름의 직접 기준으로 삼는다.
+- [Microsoft Fluent 2 Tree](https://fluent2.microsoft.design/components/web/react/core/tree/usage)는
+  hierarchy 탐색과 detail panel의 역할 분리, 짧은 label, keyboard navigation을 적용한다.
+- [Microsoft Fluent 2 Drawer](https://fluent2.microsoft.design/components/web/react/core/drawer/usage)는
+  왼쪽 탐색·오른쪽 문맥 action을 고정 inline surface로 배치하는 기준이다.
+- [Carbon Data Table](https://carbondesignsystem.com/components/data-table/usage/)과
+  [Disclosure pattern](https://carbondesignsystem.com/patterns/disclosures-pattern/)은 search/filter/action
+  toolbar와 보조 정보의 progressive disclosure를 적용하는 기준이다.
+
+따라서 모든 GUI PR은 다음 visual acceptance를 통과한다.
+
+| 검사 항목 | 합격 기준 |
+| --- | --- |
+| 작업 초점 | 1440×900 첫 화면에서 주 graph 또는 Datasheet가 가장 큰 surface이고 한 개의 primary action만 강조된다. |
+| pane 역할 | 왼쪽은 hierarchy/curve/step 탐색, 중앙은 비교할 본문, 오른쪽은 선택 항목의 action·warning만 표시한다. |
+| 정보 위계 | 설명, digest, 과거 결과, raw JSON, 통계 상세는 drawer/details/Diagnostics로 접고 기본 surface를 밀어내지 않는다. |
+| 시각 체계 | 중립 surface, 8px 기반 spacing, 작은 radius, 제한된 accent, 일관된 type scale과 상태 색을 사용한다. 큰 marketing hero와 중첩 card 남용을 금지한다. |
+| 직접 조작 | graph 선택·slider·candidate toggle의 결과가 1초 내 preview/progress로 보이며 generic JSON/input을 정상 경로로 사용하지 않는다. |
+| 연속성 | Datasheet/Test Data/최근 session에서 Material·State·Dataset·Recipe exact revision이 자동 복원된다. 사용자는 UUID를 입력하지 않는다. |
+| 회귀 검수 | 공식 reference, 직전 accepted screenshot, 현재 1440×900/1280×800 screenshot을 나란히 검토한다. 자동 test만으로 GUI를 완료 처리하지 않는다. |
+
 ## 3. 현재 상태와 7/9 단계 안전 조치
 
 ### 3.1 보존할 기반

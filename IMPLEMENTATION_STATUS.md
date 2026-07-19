@@ -32,7 +32,7 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Catalog and Material Workflow Explorers | Exact tree/link engines exist; current three-pane GUI is `partial` until state restoration, keyboard, realistic hierarchy and linked navigation pass T-91 | T-91 Database parity |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
-| General Mapping Profile and Processing Workbench | T-85 checkpoint: compact shell, family-compatible curve rail and a reusable server-backed plot provide axes/units/ticks, crosshair, zoom/pan, legend visibility, ephemeral range/point commands and cancellable 300 ms preview. Method-specific direct controls remain `partial`. | T-85~T-87 |
+| General Mapping Profile and Processing Workbench | T-85 accepted foundation: compact 3-pane shell, auto exact preview, family-compatible curve rail, axes/units/ticks/crosshair/zoom/pan/visibility, ephemeral range/point commands, cancellable 300 ms preview and exact Datasheet/Test/recent-session restoration. T-86 direct method controls remain `partial`. | T-86~T-87 |
 | Saved Recipe library/general batch execution | Lifecycle/preflight/execute/retry engines are connected; library and batch UX remain `partial` | T-92 |
 | Metal/Polymer/Elastomer modeling | Real reference engines and exact context are connected; Material Modeler-level GUI is **not complete** | T-86~T-90 |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
@@ -47,7 +47,7 @@ must not be read as product-experience completion.
 
 ## Product rebuild in progress
 
-- `T-85` (`in progress; graph foundation checkpoint verified`): the interrupted plot work was preserved
+- `T-85` (`completed; graph/session foundation accepted`): the interrupted plot work was preserved
   and extracted into a reusable `EngineeringCurvePlot`. Each series retains its own x-array, so raw,
   resampled and extrapolated curves with different point counts are not joined against the wrong grid.
   The live plot now has quantity/unit axes, engineering-scaled ticks, crosshair coordinates, zoom,
@@ -56,13 +56,19 @@ must not be read as product-experience completion.
   and collapsed method library move the persistent plot and task inspector into the 1440×900 first
   viewport. Focused Vitest, production build/bundle budgets and a live Docker/PostgreSQL browser
   interaction passed. Evidence is in `docs/15-demo/evidence/t85-engineering-modeling-shell.md`.
-  A later checkpoint added graph range/point selection, explicit Recipe-draft Apply and cancellable
-  300 ms previews. Datasheet/session deep-linking and family-specific T-86~T-90 controls remain open;
-  therefore T-85 and product GUI completion are not marked complete.
+  A later checkpoint added graph range/point selection, explicit Recipe-draft Apply, cancellable
+  300 ms previews and exact Datasheet/Test/recent-session restoration. Supplemental content now uses
+  progressive disclosure and the live 1440×900 surface keeps curve/step rail, graph and task inspector
+  visible together. T-85 is complete; family-specific T-86~T-90 and product acceptance remain open.
   The Dashboard audit also found that a marketing-style hero and three demo cards did not explain the
   two core jobs clearly enough. T-85 now owns its replacement with an explicit Material Database lane
   and Material Modeling lane; recent work and reference workflows remain supporting content rather
   than the product definition.
+
+- `T-86` (`in progress`): the metal inspector now provides five Elastic Modulus methods, graph-selected
+  strain range, manual GPa slider, proof offset/search controls, necking boundary and true/plastic policy,
+  plus four hardening candidate toggles and blend/extrapolation controls. The server preview remains
+  authoritative. Smoothing/mean/statistical overlays and directly draggable proof/necking markers remain.
 
 - `T-81` (`engine integration verified; product UX rejected`): all three Material Modeling tracks now finish in one
   four-state reviewed-delivery panel: exact evidence, canonical Neutral JSON, explicit solver

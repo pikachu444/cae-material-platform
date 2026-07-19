@@ -409,6 +409,14 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("210.000 GPa")).toBeTruthy();
 
     fireEvent.click(screen.getAllByRole("button", { name: /metal\.elastic_modulus/ })[0]);
+    expect(screen.getByRole("button", { name: "Auto robust" }).className).toContain("active");
+    fireEvent.click(screen.getByRole("button", { name: "Manual slope" }));
+    fireEvent.change(screen.getByLabelText("Manual Young's modulus"), { target: { value: "205" } });
+    const guidedSteps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(guidedSteps[1].options.method).toBe("manual");
+    expect(guidedSteps[1].options.manual_modulus_pa).toBe(205_000_000_000);
+    await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" });
+    fireEvent.click(screen.getAllByRole("button", { name: /metal\.elastic_modulus/ })[0]);
     const elasticPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     Object.defineProperty(elasticPlot, "getBoundingClientRect", {
       value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),

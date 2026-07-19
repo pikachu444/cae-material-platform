@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
 import { CommonProcessingWorkbench, type ModelingTrack } from "./common-processing-workbench";
+import { loadModelingSession, saveModelingSession, type ModelingSessionSummary } from "./modeling-session-context";
 import type {
   MaterialDetail,
   MaterialResponse,
@@ -184,13 +185,18 @@ function FamilyModelingPanel({
 }
 
 export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection }: Props) {
-  const [track, setTrack] = useState<ModelingTrack>("metal");
+  const [initialSession] = useState<ModelingSessionSummary | null>(() => loadModelingSession());
+  const [session, setSession] = useState<ModelingSessionSummary | null>(initialSession);
+  const [track, setTrack] = useState<ModelingTrack>(session?.materialFamily ?? "metal");
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
   const [selectedMaterialId, setSelectedMaterialId] = useState("");
   const [detail, setDetail] = useState<MaterialDetail | null>(null);
   const [selectedStateId, setSelectedStateId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const updateSession = useCallback((patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => {
+    setSession(saveModelingSession(patch));
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -203,7 +209,12 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
         if (!active) return;
         const items = result.data.items;
         setMaterials(items);
-        setSelectedMaterialId(items[0]?.material_id ?? "");
+        const restored = items.find((item) => item.material_id === initialSession?.material?.id
+          && item.current_revision.id === initialSession.material.revisionId);
+        setSelectedMaterialId(restored?.material_id ?? items[0]?.material_id ?? "");
+        if (initialSession?.material && !restored) {
+          setError(`The recent ${initialSession.material.label} r${initialSession.material.revisionNo} revision is no longer a current selectable head. A compatible current Material was selected for review.`);
+        }
         if (!items.length) setLoading(false);
       })
       .catch((cause: unknown) => {
@@ -214,7 +225,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
         setLoading(false);
       });
     return () => { active = false; };
-  }, [config, track]);
+  }, [config, initialSession, track]);
 
   useEffect(() => {
     if (!selectedMaterialId) return;
@@ -225,7 +236,9 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       .then((result) => {
         if (!active) return;
         setDetail(result.data);
-        setSelectedStateId(result.data.states[0]?.material_state_id ?? "");
+        const restored = result.data.states.find((item) => item.material_state_id === initialSession?.materialState?.id
+          && item.current_revision.id === initialSession.materialState.revisionId);
+        setSelectedStateId(restored?.material_state_id ?? result.data.states[0]?.material_state_id ?? "");
         setLoading(false);
       })
       .catch((cause: unknown) => {
@@ -236,7 +249,32 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
         setLoading(false);
       });
     return () => { active = false; };
-  }, [config, selectedMaterialId]);
+  }, [config, initialSession, selectedMaterialId]);
+
+  useEffect(() => {
+    const material = materials.find((item) => item.material_id === selectedMaterialId);
+    if (!material) return;
+    updateSession({
+      materialFamily: track,
+      material: {
+        id: material.material_id,
+        revisionId: material.current_revision.id,
+        label: material.current_revision.content.name,
+        revisionNo: material.current_revision.revision_no,
+      },
+    });
+  }, [materials, selectedMaterialId, track, updateSession]);
+
+  useEffect(() => {
+    const state = detail?.states.find((item) => item.material_state_id === selectedStateId);
+    if (!state) return;
+    updateSession({ materialState: {
+      id: state.material_state_id,
+      revisionId: state.current_revision.id,
+      label: state.current_revision.content.name,
+      revisionNo: state.current_revision.revision_no,
+    } });
+  }, [detail, selectedStateId, updateSession]);
 
   const familyWorkbench = useMemo(() => (
     <FamilyModelingPanel
@@ -261,6 +299,8 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onNavigate={onNavigate}
       onOpenConnection={onOpenConnection}
       onModelingTrackChange={setTrack}
+      initialSession={session}
+      onSessionChange={updateSession}
       familyWorkbench={familyWorkbench}
     />
   );

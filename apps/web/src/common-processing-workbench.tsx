@@ -42,12 +42,15 @@ import type {
   GraphSelectionCommand,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
+import type { ModelingSessionSummary } from "./modeling-session-context";
 
 interface Props {
   config: ApiConfig;
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
   onModelingTrackChange?: (track: ModelingTrack) => void;
+  initialSession?: ModelingSessionSummary | null;
+  onSessionChange?: (patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => void;
   familyWorkbench?: ReactNode;
 }
 
@@ -244,6 +247,66 @@ const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
   },
 ];
 
+const HARDENING_FAMILIES = ["voce", "swift", "hockett_sherby", "ghosh"] as const;
+
+function numberOption(step: CommonProcessingStep, key: string): number {
+  const value = step.options[key];
+  return typeof value === "number" ? value : Number(value ?? 0);
+}
+
+function GuidedStepOptions({
+  step,
+  onChange,
+}: {
+  step: CommonProcessingStep;
+  onChange: (option: string, value: unknown) => void;
+}) {
+  if (step.method_id === "metal.elastic_modulus") {
+    const method = String(step.options.method);
+    const modulusGpa = numberOption(step, "manual_modulus_pa") / 1e9;
+    return <div className="guided-step-options">
+      <fieldset className="option-choice-grid"><legend>Evaluation method</legend>{[
+        ["robust_huber", "Auto robust"], ["linear_regression", "Linear regression"], ["chord", "Chord"], ["secant", "Secant"], ["manual", "Manual slope"],
+      ].map(([value, label]) => <button type="button" className={method === value ? "active" : ""} key={value} onClick={() => onChange("method", value)}>{label}</button>)}</fieldset>
+      <div className="guided-range-row"><label>Start strain<input aria-label="Elastic range start" type="number" step="any" value={numberOption(step, "minimum_strain")} onChange={(event) => onChange("minimum_strain", Number(event.target.value))}/></label><label>End strain<input aria-label="Elastic range end" type="number" step="any" value={numberOption(step, "maximum_strain")} onChange={(event) => onChange("maximum_strain", Number(event.target.value))}/></label></div>
+      <p className="option-hint">Use <strong>Select range</strong> on the graph to set both limits directly.</p>
+      <label className="slider-option">Young&apos;s modulus <output>{modulusGpa.toFixed(1)} GPa</output><input aria-label="Manual Young's modulus" type="range" min="1" max="400" step="0.5" value={modulusGpa} onChange={(event) => onChange("manual_modulus_pa", Number(event.target.value) * 1e9)} /></label>
+    </div>;
+  }
+  if (step.method_id === "metal.proof_stress") {
+    return <div className="guided-step-options">
+      <label className="slider-option">Proof offset <output>{(numberOption(step, "offset_strain") * 100).toFixed(2)}%</output><input aria-label="Proof stress offset" type="range" min="0.05" max="1" step="0.05" value={numberOption(step, "offset_strain") * 100} onChange={(event) => onChange("offset_strain", Number(event.target.value) / 100)} /></label>
+      <div className="guided-range-row"><label>Search start<input type="number" step="any" value={numberOption(step, "search_start")} onChange={(event) => onChange("search_start", Number(event.target.value))}/></label><label>Search end<input type="number" step="any" value={numberOption(step, "search_end")} onChange={(event) => onChange("search_end", Number(event.target.value))}/></label></div>
+      <label>Elastic modulus (GPa)<input type="number" step="any" value={numberOption(step, "youngs_modulus_pa") / 1e9} onChange={(event) => onChange("youngs_modulus_pa", Number(event.target.value) * 1e9)}/></label>
+      <p className="option-hint">The offset line and observed intersection update in the live preview.</p>
+    </div>;
+  }
+  if (step.method_id === "metal.necking_candidate") {
+    return <div className="guided-step-options"><div className="engineering-callout"><strong>Automatic peak candidate</strong><p>The maximum observed engineering stress is marked as the first necking candidate. Confirm or replace it in the Workup step.</p></div></div>;
+  }
+  if (step.method_id === "metal.engineering_to_true_plastic") {
+    return <div className="guided-step-options">
+      <label>Necking boundary<select value={String(step.options.necking_policy)} onChange={(event) => onChange("necking_policy", event.target.value)}><option value="observed_full_domain">Use full observed domain</option><option value="manual_index">Use selected point</option></select></label>
+      <label>Selected point index<input aria-label="Manual necking point index" type="number" min="0" step="1" value={numberOption(step, "manual_necking_index")} onChange={(event) => onChange("manual_necking_index", Number(event.target.value))}/></label>
+      <p className="option-hint">Choose <strong>Pick point</strong> on the graph; the nearest observed index is applied here.</p>
+      <label>Negative plastic strain<select value={String(step.options.negative_plastic_policy)} onChange={(event) => onChange("negative_plastic_policy", event.target.value)}><option value="drop">Drop pre-yield negatives</option><option value="clip_zero">Clip to zero</option><option value="retain">Retain with warning</option></select></label>
+    </div>;
+  }
+  if (step.method_id === "metal.hardening_fit_extrapolate") {
+    const families = Array.isArray(step.options.families) ? step.options.families.map(String) : [];
+    const toggleFamily = (family: string) => onChange("families", families.includes(family) ? families.filter((item) => item !== family) : [...families, family]);
+    return <div className="guided-step-options">
+      <fieldset className="candidate-check-grid"><legend>Candidate equations</legend>{HARDENING_FAMILIES.map((family) => <label key={family}><input type="checkbox" checked={families.includes(family)} onChange={() => toggleFamily(family)} />{family.replace("_", "-")}</label>)}</fieldset>
+      <div className="guided-range-row"><label>Fit start<input type="number" step="any" value={numberOption(step, "fit_minimum_strain")} onChange={(event) => onChange("fit_minimum_strain", Number(event.target.value))}/></label><label>Fit end<input type="number" step="any" value={numberOption(step, "fit_maximum_strain")} onChange={(event) => onChange("fit_maximum_strain", Number(event.target.value))}/></label></div>
+      <p className="option-hint">Select the observed fitting domain directly on the graph.</p>
+      <div className="guided-range-row"><label>Primary<select value={String(step.options.primary_family)} onChange={(event) => onChange("primary_family", event.target.value)}>{HARDENING_FAMILIES.map((family) => <option key={family} value={family}>{family}</option>)}</select></label><label>Secondary<select value={String(step.options.secondary_family)} onChange={(event) => onChange("secondary_family", event.target.value)}>{HARDENING_FAMILIES.map((family) => <option key={family} value={family}>{family}</option>)}</select></label></div>
+      <label className="slider-option">Primary contribution <output>{Math.round(numberOption(step, "primary_weight") * 100)}%</output><input aria-label="Primary hardening candidate contribution" type="range" min="0" max="1" step="0.01" value={numberOption(step, "primary_weight")} onChange={(event) => onChange("primary_weight", Number(event.target.value))}/></label>
+      <div className="guided-range-row"><label>Extrapolate to strain<input type="number" min="0" max="5" step="0.01" value={numberOption(step, "extrapolation_maximum_strain")} onChange={(event) => onChange("extrapolation_maximum_strain", Number(event.target.value))}/></label><label>Output points<input type="number" min="21" max="501" step="1" value={numberOption(step, "output_point_count")} onChange={(event) => onChange("output_point_count", Number(event.target.value))}/></label></div>
+    </div>;
+  }
+  return <div className="step-option-grid">{Object.entries(step.options).map(([option, value]) => <label key={option}>{option.replaceAll("_", " ")}{typeof value === "boolean" ? <input type="checkbox" checked={value} onChange={(event) => onChange(option, event.target.checked)} /> : <input value={Array.isArray(value) ? value.join(", ") : String(value)} type={typeof value === "number" ? "number" : "text"} onChange={(event) => onChange(option, typeof value === "number" ? Number(event.target.value) : Array.isArray(value) ? event.target.value.split(",").map((item) => item.trim()).filter(Boolean) : event.target.value)} />}</label>)}</div>;
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "The Processing Workbench operation failed.";
 }
@@ -387,7 +450,7 @@ function paddedBounds(x: number[], y: number[]): PlotBounds {
   };
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, familyWorkbench }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench }: Props) {
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
@@ -412,7 +475,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   const [selectedStage, setSelectedStage] = useState(0);
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
-  const [modelingTrack, setModelingTrack] = useState<ModelingTrack>("metal");
+  const [modelingTrack, setModelingTrack] = useState<ModelingTrack>(initialSession?.materialFamily ?? "metal");
   const [workspaceInspector, setWorkspaceInspector] = useState<WorkspaceInspector>("step");
   const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
   const [batchDocumentIds, setBatchDocumentIds] = useState<string[]>([]);
@@ -480,13 +543,18 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   useEffect(() => {
     if (selectedDocumentId || !documents.length) return;
-    const compatible = documents.find((item) => documentMatchesTrack(item, modelingTrack));
+    const restored = documents.find((item) => item.test_data_document_id === initialSession?.testData?.id
+      && item.current_revision.id === initialSession.testData.revisionId
+      && documentMatchesTrack(item, modelingTrack));
+    const compatible = restored ?? documents.find((item) => documentMatchesTrack(item, modelingTrack));
     if (compatible) setSelectedDocumentId(compatible.test_data_document_id);
-  }, [documents, modelingTrack, selectedDocumentId]);
+  }, [documents, initialSession, modelingTrack, selectedDocumentId]);
 
   useEffect(() => {
     if (selectedProfileId || !profiles.length) return;
-    const compatible = profiles.find((item) => {
+    const exactRestored = profiles.find((item) => item.mapping_profile_id === initialSession?.mappingProfile?.id
+      && item.current_revision.id === initialSession.mappingProfile.revisionId);
+    const compatible = exactRestored ?? profiles.find((item) => {
       const content = item.content;
       if (modelingTrack === "metal") {
         return content.independent_quantity.includes("strain")
@@ -501,7 +569,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (!compatible) return;
     setSelectedProfileId(compatible.mapping_profile_id);
     setProfileText(JSON.stringify(compatible.content, null, 2));
-  }, [modelingTrack, profiles, selectedProfileId]);
+  }, [initialSession, modelingTrack, profiles, selectedProfileId]);
 
   useEffect(() => {
     if (!selectedDocumentId || document || busy) return;
@@ -522,6 +590,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   function applyModelingTrack(track: ModelingTrack): void {
     setModelingTrack(track);
     onModelingTrackChange?.(track);
+    onSessionChange?.({ materialFamily: track });
   }
 
   function selectProfile(id: string): void {
@@ -788,13 +857,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
-  function parseStepOption(value: unknown, rawValue: string): unknown {
-    if (typeof value === "number") return Number(rawValue);
-    if (!Array.isArray(value)) return rawValue;
-    const items = rawValue.split(",").map((item) => item.trim()).filter(Boolean);
-    return typeof value[0] === "number" ? items.map(Number) : items;
-  }
-
   function removeSelectedStep(): void {
     try {
       const steps = JSON.parse(stepsText) as CommonProcessingStep[];
@@ -1006,6 +1068,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (modelingTrack === "polymer") return methodIds.some((methodId) => methodId.startsWith("polymer."));
     return !methodIds.some((methodId) => methodId.startsWith("metal.") || methodId.startsWith("polymer."));
   }), [recipes, modelingTrack]);
+  useEffect(() => {
+    if (selectedRecipeId || !initialSession?.recipe) return;
+    const exact = trackRecipes.find((recipe) => recipe.processing_recipe_id === initialSession.recipe?.id
+      && recipe.current_revision.id === initialSession.recipe.revisionId);
+    if (exact) selectRecipe(exact.processing_recipe_id);
+  }, [initialSession, selectedRecipeId, trackRecipes]);
   const trackMethods = useMemo(() => methods.filter((method) => {
     const family = method.method_id.split(".")[0];
     if (family === "metal") return modelingTrack === "metal";
@@ -1013,6 +1081,45 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     return true;
   }), [methods, modelingTrack]);
   const chart = useMemo(() => ({ width: 760, height: 420 }), []);
+  useEffect(() => {
+    const item = trackDocuments.find((candidate) => candidate.test_data_document_id === selectedDocumentId);
+    if (!item) return;
+    onSessionChange?.({
+      materialFamily: modelingTrack,
+      testData: {
+        id: item.test_data_document_id,
+        revisionId: item.current_revision.id,
+        label: item.document_key,
+        revisionNo: item.current_revision.revision_no,
+      },
+    });
+  }, [modelingTrack, onSessionChange, selectedDocumentId, trackDocuments]);
+
+  useEffect(() => {
+    const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
+    if (!profile) return;
+    onSessionChange?.({ mappingProfile: {
+      id: profile.mapping_profile_id,
+      revisionId: profile.current_revision.id,
+      label: profile.content.label,
+      revisionNo: profile.current_revision.revision_no,
+    } });
+  }, [onSessionChange, profiles, selectedProfileId]);
+
+  useEffect(() => {
+    const recipe = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
+    if (!recipe) return;
+    onSessionChange?.({ recipe: {
+      id: recipe.processing_recipe_id,
+      revisionId: recipe.current_revision.id,
+      label: recipe.content.label,
+      revisionNo: recipe.current_revision.revision_no,
+    } });
+  }, [onSessionChange, recipes, selectedRecipeId]);
+
+  useEffect(() => {
+    if (activeStage) onSessionChange?.({ lastStage: activeStage.method_id });
+  }, [activeStage, onSessionChange]);
   const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
   const ensembleBounds = useMemo(() => {
     if (!ensemblePreview || !ensembleStatistic) return null;
@@ -1096,7 +1203,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   return (
     <main className="processing-workbench-page">
       <header className="modeling-app-header">
-        <div className="modeling-session-heading"><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p>Exact Test Data · live processing preview · immutable reviewed output</p></div>
+        <div className="modeling-session-heading"><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p className="modeling-session-context">{[initialSession?.material ? `${initialSession.material.label} r${initialSession.material.revisionNo}` : null, initialSession?.materialState ? `${initialSession.materialState.label} r${initialSession.materialState.revisionNo}` : null, selectedTrackDocument ? `${selectedTrackDocument.document_key} r${selectedTrackDocument.current_revision.revision_no}` : null].filter(Boolean).join("  /  ") || "Demo material  /  exact Test Data  /  live preview"}</p></div>
         <div className="modeling-session-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
         <nav className="modeling-flow-nav" aria-label="Material Modeling steps"><a href="#modeling-import">Import</a><a href="#modeling-map">Map</a><a href="#modeling-prepare">Prepare</a><a href="#modeling-fit">Fit</a><a href="#modeling-fit">Extrapolate</a><a href="#modeling-output">Card</a></nav>
         <div className="modeling-track-selector" role="tablist" aria-label="Material modeling family">
@@ -1108,6 +1215,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}
 
+      <details className="modeling-support-drawer">
+        <summary><span><strong>Session inputs &amp; mapping</strong><small>{selectedTrackDocument ? `${selectedTrackDocument.document_key} · r${selectedTrackDocument.current_revision.revision_no}` : "Choose exact Test Data and Mapping Profile"}</small></span><span>Configure</span></summary>
       <section className="processing-setup-grid">
         <article className="workbench-card processing-input-card" id="modeling-import">
           <p className="eyebrow">1 · exact input</p><h2>Test Data revision</h2>
@@ -1124,6 +1233,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           <div className="profile-save-row"><label>Classification<select value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label><label>Change reason<input value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !changeReason.trim()} onClick={() => void saveProfile()}>{selectedProfileId ? "Append profile revision" : "Save new profile"}</button></div>
         </article>
       </section>
+      </details>
 
       <section className="workbench-card method-builder-card" id="modeling-prepare">
         <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div>
@@ -1146,7 +1256,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             </nav>
             {workspaceInspector === "step" ? selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
-              <div className="step-option-grid">{Object.entries(selectedConfiguredStep.options).map(([option, value]) => <label key={option}>{option.replaceAll("_", " ")}{typeof value === "boolean" ? <input type="checkbox" checked={value} onChange={(event) => updateStepOption(option, event.target.checked)} /> : <input value={Array.isArray(value) ? value.join(", ") : String(value)} type={typeof value === "number" ? "number" : "text"} onChange={(event) => updateStepOption(option, parseStepOption(value, event.target.value))} />}</label>)}</div>
+              <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} />
             </> : <p className="muted">Add or select a processing step.</p> : null}
             {workspaceInspector === "recipe" ? <div className="inspector-recipe-panel">
               <div className="section-heading"><div><p className="eyebrow">Reusable execution</p><h3>Processing Recipe</h3></div><span className="status-chip">{trackRecipes.length} saved</span></div>
@@ -1172,22 +1282,22 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
       </section>
 
-      {familyWorkbench ? <section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section> : null}
+      {familyWorkbench ? <details className="modeling-support-drawer modeling-delivery-drawer"><summary><span><strong>Material model &amp; solver delivery</strong><small>Promote the reviewed curve to Neutral JSON and solver-native cards</small></span><span>Open delivery</span></summary><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></details> : null}
 
-      <section className="workbench-card processing-output-card" id="modeling-output">
+      <details className="modeling-support-drawer" id="modeling-output"><summary><span><strong>Reviewed outputs</strong><small>{outputs.length} committed immutable processing results</small></span><span>Review</span></summary><section className="workbench-card processing-output-card">
         <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Commit reviewed result</h2></div><span className="status-chip">{outputs.length} committed</span></div>
         <p className="mapping-note">Commit recomputes the selected exact Test Data and saved Mapping Profile on the server. Preview arrays are never accepted as authoritative output.</p>
         <div className="processing-output-form"><label>Output label<input value={outputLabel} onChange={(event) => setOutputLabel(event.target.value)} /></label><label>Change reason<input value={outputReason} onChange={(event) => setOutputReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit immutable output</button></div>
         {outputs.length ? <div className="processing-output-list">{outputs.map((output) => <article key={output.processing_output_id}><div><strong>{output.label}</strong><small>r{output.current_revision.revision_no} · {output.final_point_count} points · {output.stage_count} stages</small><code>{output.output_sha256}</code></div><button className="button secondary" type="button" disabled={busy} onClick={() => void downloadOutput(output)}>Download JSON</button><DomainWorkflowLinks compact config={config} target={{ kind: "processing_output", objectId: output.processing_output_id, revisionId: output.current_revision.id, label: `${output.label} r${output.current_revision.revision_no}` }} /></article>)}</div> : <p className="muted">No committed common Processing Output is visible yet.</p>}
-      </section>
+      </section></details>
 
-      <section className="workbench-card ensemble-card">
+      <details className="modeling-support-drawer"><summary><span><strong>Replicate statistics</strong><small>Alignment, mean, variation and confidence bands without deleting members</small></span><span>Analyze</span></summary><section className="workbench-card ensemble-card">
         <div className="section-heading"><div><p className="eyebrow">6 · replicate evidence</p><h2>Alignment and pointwise statistics</h2></div><span className="status-chip warning">Preview · members retained</span></div>
         <p className="mapping-note">Select multiple exact Test Data heads. Alignment uses only their observed domain intersection and rejects extrapolation; no raw curve or outlier is deleted.</p>
         <div className="ensemble-methods">{ensembleMethods.map((method) => <article key={method.method_id}><strong>{method.label}</strong><code>{method.method_id} · {method.version}</code><small>{method.description}</small></article>)}</div>
         <div className="ensemble-controls"><fieldset><legend>Exact Test Data members</legend>{trackDocuments.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset><label>Common grid points<input type="number" min="2" max="100000" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button primary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>Align and calculate</button></div>
         {ensemblePreview && ensembleStatistic && ensembleBounds ? <div className="ensemble-results"><svg className="processing-curve ensemble-curve" role="img" aria-label="Aligned replicate curves with pointwise mean and confidence interval" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/>{ensemblePreview.members.map((member) => { const values = member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []; return <polyline key={member.ordinal} points={xyPoints(ensemblePreview.grid, values, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-member"/>; })}<polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_lower, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_upper, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.mean, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-mean"/></svg><div className="curve-legend"><span><i className="ensemble-member"/>Members ({ensemblePreview.members.length})</span><span><i className="ensemble-mean"/>Mean</span><span><i className="confidence"/>95% mean CI</span></div><div className="statistics-grid"><article><span>Quantity</span><strong>{ensembleStatistic.quantity}</strong><small>{ensembleStatistic.unit}</small></article><article><span>Last mean</span><strong>{ensembleStatistic.mean.at(-1)?.toPrecision(6)}</strong></article><article><span>Sample SD</span><strong>{ensembleStatistic.standard_deviation.at(-1)?.toPrecision(6)}</strong></article><article><span>MAD</span><strong>{ensembleStatistic.mad.at(-1)?.toPrecision(6)}</strong></article><article><span>IQR</span><strong>{ensembleStatistic.q1.at(-1)?.toPrecision(4)} – {ensembleStatistic.q3.at(-1)?.toPrecision(4)}</strong></article></div><div className="stage-diagnostics">{ensemblePreview.diagnostics.map((item) => <p key={item}>{item}</p>)}</div></div> : <p className="muted">At least two imported Test Data identities are required. Import each replicate separately so its exact revision remains addressable.</p>}
-      </section>
+      </section></details>
     </main>
   );
 }

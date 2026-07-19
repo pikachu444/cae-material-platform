@@ -1,8 +1,9 @@
-# T-85 Engineering Modeling Shell — checkpoint evidence
+# T-85 Engineering Modeling Shell — accepted foundation evidence
 
 Date: 2026-07-20
 
-This is an implementation checkpoint, not a claim that T-85 or GUI parity is complete.
+This accepts the T-85 shell and graph foundation. It does not claim that T-86~T-93 family modeling
+and full product parity are complete.
 
 ## Live product evidence
 
@@ -19,6 +20,13 @@ This is an implementation checkpoint, not a claim that T-85 or GUI parity is com
   to a compatible step option in the Recipe draft, after which an existing Save action creates a new revision.
 - Preview lifetime: changes debounce for 300 ms, abort the preceding preview request and only let the latest
   response update the graph.
+- Visual hierarchy: supplemental Mapping, reviewed outputs, delivery and replicate statistics are collapsed;
+  the first viewport is reserved for the semantic curve/step rail, persistent graph and selected task panel.
+- Guided metal controls: Elastic Modulus exposes robust/OLS/chord/secant/manual choices, graph range inputs
+  and a live GPa slider rather than requiring JSON editing.
+- Exact-session journey: the live browser opened Database → DP780 record → exact Material workbench →
+  `Open in Material Modeling`; `/modeling` restored `DP780 synthetic demo steel r1`, its exact State and
+  exact Test Data r1 without URL/token/UUID input.
 
 ![T-85 workspace dashboard with Database and Modeling work lanes](../images/t85-workspace-dashboard.png)
 
@@ -27,16 +35,16 @@ This is an implementation checkpoint, not a claim that T-85 or GUI parity is com
 ## Automated evidence
 
 ```text
-npm test --workspace @cmp/web -- --run src/engineering-curve-plot.test.tsx src/common-processing-workbench.test.tsx src/material-modeling-workspace.test.tsx
-3 test files passed, 13 tests passed
+npm test --workspace @cmp/web -- --run
+34 test files passed, 76 tests passed
 
 npm run build --workspace @cmp/web
 TypeScript, Vite build, and bundle budgets passed
 ```
 
-## Still open before T-85 completion
+## Still open after the T-85 foundation
 
-- Datasheet/recent-session deep links that restore Material, Dataset, Recipe and objective context.
-- Fit-domain handles, modulus and blend sliders, necking marker, residual/derivative panels.
+- T-86 completion: smoothing/mean/statistics overlays and draggable proof/necking markers.
+- T-87 completion: residual/derivative split view and accepted immutable candidate selection.
 - Complete T-86 through T-90 family workflows and T-93 clean-environment acceptance.
 

@@ -38,6 +38,7 @@ import type {
   SolverCardResponse,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
+import { saveModelingSession } from "./modeling-session-context";
 
 const ReferenceTensileWorkflow = lazy(() =>
   import("./reference-tensile-workflow").then((module) => ({
@@ -1093,6 +1094,33 @@ function MaterialDetailPage({
             currentMaterialClass={current.content.material_class}
             activeArea={activeArea}
             onChanged={reload}
+            onOpenModeling={() => {
+              const materialFamily = current.content.material_class === "metal"
+                ? "metal"
+                : current.content.material_class === "polymer"
+                  ? "polymer"
+                  : current.content.material_class === "elastomer"
+                    ? "elastomer"
+                    : null;
+              if (!materialFamily) return;
+              saveModelingSession({
+                materialFamily,
+                objective: "Prepare test curves and create a simulation-ready material card",
+                material: {
+                  id: material.material_id,
+                  revisionId: current.id,
+                  label: current.content.name,
+                  revisionNo: current.revision_no,
+                },
+                materialState: {
+                  id: state.material_state_id,
+                  revisionId: state.current_revision.id,
+                  label: state.current_revision.content.name,
+                  revisionNo: state.current_revision.revision_no,
+                },
+              });
+              navigate("/modeling");
+            }}
           />
         ))}
       </div>
@@ -1361,6 +1389,7 @@ function MaterialStateCard({
   currentMaterialClass,
   activeArea,
   onChanged,
+  onOpenModeling,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
@@ -1370,6 +1399,7 @@ function MaterialStateCard({
   currentMaterialClass: MaterialClass;
   activeArea: MaterialArea;
   onChanged: () => void;
+  onOpenModeling: () => void;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [rebasing, setRebasing] = useState(false);
@@ -1420,6 +1450,7 @@ function MaterialStateCard({
         <div><dt>Heat treatment</dt><dd>{content.heat_treatment ?? "—"}</dd></div>
         <div><dt>Lot / batch</dt><dd>{content.lot_or_batch ?? "—"}</dd></div>
       </dl>
+      {materialClass === "metal" || materialClass === "polymer" || materialClass === "elastomer" ? <button className="button secondary state-modeling-action" type="button" onClick={onOpenModeling}>Open in Material Modeling</button> : null}
       {content.description ? <p className="state-description">{content.description}</p> : null}
       {activeArea === "overview" ? <CatalogGenealogyWorkbench config={config} state={state} /> : null}
       {activeArea === "testing" ? (

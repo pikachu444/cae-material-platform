@@ -17,6 +17,7 @@ import type {
   DataClassification,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
+import { modelingFamilyFromQuantities, saveModelingSession } from "./modeling-session-context";
 
 interface Props {
   config: ApiConfig;
@@ -311,6 +312,19 @@ export function CanonicalTestDataWorkbench({ config, onNavigate }: Props) {
                 <div><strong>{item.material_maker} · {item.material_grade}</strong><small>{item.document_key} · specimen {item.specimen_id} · {item.point_count} points</small></div>
                 <div><span>Revision {item.current_revision.revision_no}</span><code title={item.canonical_sha256}>{item.canonical_sha256.slice(0, 12)}…</code></div>
                 <button className="button secondary" type="button" onClick={() => void downloadDocument(item)}>Download exact JSON</button>
+                <button className="button secondary" type="button" onClick={() => {
+                  saveModelingSession({
+                    materialFamily: modelingFamilyFromQuantities(item.channels.map((channel) => channel.quantity_semantics)),
+                    objective: "Prepare imported test curves and create a material card",
+                    testData: {
+                      id: item.test_data_document_id,
+                      revisionId: item.current_revision.id,
+                      label: item.document_key,
+                      revisionNo: item.current_revision.revision_no,
+                    },
+                  });
+                  onNavigate("/modeling");
+                }}>Open in Material Modeling</button>
                 <DomainWorkflowLinks
                   compact
                   config={config}
