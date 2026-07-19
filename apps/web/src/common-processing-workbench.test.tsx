@@ -46,7 +46,28 @@ const documentResource = {
   canonical_sha256: "b".repeat(64),
   normalized_artifact_id: "53000000-0000-4000-8000-000000000007",
   normalized_sha256: "c".repeat(64),
-  channels: [],
+  channels: [
+    {
+      key: "engineering_strain",
+      name: "Engineering strain",
+      quantity_semantics: "mechanics.strain.engineering",
+      axis_role: "independent",
+      original_unit_string: "%",
+      normalized_unit: "1",
+      point_count: 3,
+      missing_count: 0,
+    },
+    {
+      key: "engineering_stress",
+      name: "Engineering stress",
+      quantity_semantics: "mechanics.stress.engineering",
+      axis_role: "dependent",
+      original_unit_string: "MPa",
+      normalized_unit: "Pa",
+      point_count: 3,
+      missing_count: 0,
+    },
+  ],
 };
 
 const replicateResource = {
@@ -72,6 +93,41 @@ const documentJson = {
   document_id: "DP600-TENSILE-01",
 };
 
+const mappingProfileResource = {
+  mapping_profile_id: "53000000-0000-4000-8000-000000000020",
+  current_revision: {
+    ...revision,
+    id: "53000000-0000-4000-8000-000000000021",
+    aggregate_id: "53000000-0000-4000-8000-000000000020",
+    content_hash: "e".repeat(64),
+  },
+  content: {
+    profile_key: "demo-metal-tensile",
+    label: "Demo metal tensile mapping",
+    independent_quantity: "strain.engineering",
+    missing_data_policy: "drop_any",
+    bindings: [
+      {
+        channel_key: "engineering_strain",
+        target_quantity: "strain.engineering",
+        accepted_normalized_units: ["1"],
+        required: true,
+        scale: 1,
+        offset: 0,
+      },
+      {
+        channel_key: "engineering_stress",
+        target_quantity: "stress.engineering",
+        accepted_normalized_units: ["Pa"],
+        required: true,
+        scale: 1,
+        offset: 0,
+      },
+    ],
+    attribute_bindings: [],
+  },
+};
+
 describe("Common Processing Workbench", () => {
   afterEach(() => {
     cleanup();
@@ -82,7 +138,7 @@ describe("Common Processing Workbench", () => {
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
-      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [] });
+      if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
       if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
       if (url.endsWith("/common-processing-recipes")) return jsonResponse({ items: [] });
       if (url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
@@ -271,6 +327,7 @@ describe("Common Processing Workbench", () => {
     expect(await screen.findByRole("heading", { name: "Test curves to material model" })).toBeTruthy();
     expect(screen.getByRole("navigation", { name: "Material Modeling steps" })).toBeTruthy();
     expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();
+    expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     fireEvent.click(screen.getByRole("tab", { name: /Polymer/ }));
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
       '"profile_key": "polymer-shear-relaxation"',

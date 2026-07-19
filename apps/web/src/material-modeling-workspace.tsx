@@ -156,6 +156,7 @@ function FamilyModelingPanel({
               config={config}
               state={state}
               propertySet={propertySet}
+              onNavigate={onNavigate}
             />
           ) : null}
           {track === "polymer" ? (
@@ -164,6 +165,7 @@ function FamilyModelingPanel({
               config={config}
               state={state}
               propertySet={propertySet}
+              onNavigate={onNavigate}
             />
           ) : null}
           {track === "elastomer" ? (
@@ -172,6 +174,7 @@ function FamilyModelingPanel({
               config={config}
               state={state}
               propertySet={propertySet}
+              onNavigate={onNavigate}
             />
           ) : null}
         </Suspense>

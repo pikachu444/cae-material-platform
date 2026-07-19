@@ -31,15 +31,24 @@ immutable ZIP으로 받을 수 있습니다.
 내비게이션으로 교체했습니다. T-76은 Database/Profile/Table/Folder/Record **Contents Tree**와
 Material에서 두 solver card까지 이어지는 exact-revision **Workflow Tree**를 실제 PostgreSQL
 데이터에 연결했습니다. Layout Datasheet·AMDC식 검색/비교와 그래프 중심 Modeling Workbench는
-[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 순차 교체 중입니다. T-77은 같은
+[GUI 기능·사용성 동등성 제품 계획](docs/01-product/gui-functional-parity-plan.md)에 따라 순차 교체
+중입니다. T-77은 같은
 `/database` workspace에 Layout section 기반 Datasheet, 원본/정규화 단위, discrete facet,
 normalized 수치 범위와 다중 Record 비교를 연결했습니다. T-79는 `/modeling`에 exact Dataset과
 Recipe 단계, 서버 계산 곡선, 단계별 option을 함께 유지하는 그래프 중심 Modeling Workbench를
 연결했습니다. T-80은 같은 화면에 Metal/Polymer/Elastomer track, Step/Recipe/Batch inspector와
 각 재료군의 실제 Material/State/Property context를 연결했습니다. 금속 hardening 네 후보,
 폴리머 Prony 처리, 엘라스토머 multi-mode 네 model family·multistart·residual 비교까지 Docker
-데모에서 실행됩니다. reviewed Neutral/Card를 하나의 마지막 단계로 정리하는 T-81이 남아 있으므로
-아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
+데모에서 계산됩니다. T-81은 세 흐름을 같은 **Reviewed delivery** 기반에 연결했지만, 이 상태는
+Material Modeler 수준의 GUI 완료가 아니라 engine integration evidence입니다. 사용자는 현재
+exact evidence와 Neutral Material JSON을 확인하고 Abaqus/OpenRadioss의 모든 mapping 상태를
+검토·승인한 뒤 native ASCII card를 미리보기·다운로드하거나 같은 Material의 bulk package로
+이동할 수 있습니다. T-84~T-93은 현재의 긴 form stack과 제한된 graph를 직접 조작 가능한
+engineering workbench로 교체하고 Material Database tree/datasheet 사용성을 다시 검증합니다.
+따라서 아직 전체 제품 경험 완료 상태로 표시하지 않습니다. T-85의 첫 검증 체크포인트는
+Material Modeling을 compact engineering shell로 바꾸고 실제 server curve에 axis/unit/tick,
+crosshair, zoom/pan/reset과 curve visibility를 연결했습니다. graph range/point 직접 선택과
+금속·폴리머·엘라스토머별 guided control은 T-86~T-90에서 계속 구현합니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog

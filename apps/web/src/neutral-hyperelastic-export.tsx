@@ -4,6 +4,7 @@ import {
   ApiError,
   type ApiConfig,
   createNeutralHyperelasticSolverCard,
+  downloadNeutralMaterial,
   downloadNeutralHyperelasticMappingReport,
   downloadNeutralHyperelasticSolverCard,
   preflightNeutralHyperelasticSolverCard,
@@ -36,9 +37,11 @@ function save(blob: Blob, filename: string): void {
 export function NeutralSolverExport({
   config,
   neutralMaterial,
+  onNavigate,
 }: {
   config: ApiConfig;
   neutralMaterial: NeutralMaterialResponse;
+  onNavigate?: (path: string) => void;
 }) {
   const [solver, setSolver] = useState<"abaqus" | "openradioss">("abaqus");
   const [solverMaterialId, setSolverMaterialId] = useState("301");
@@ -59,6 +62,17 @@ export function NeutralSolverExport({
   const reviewRequired = report?.report.items.some(
     (item) => item.status === "approximated" || item.status === "ignored",
   ) ?? false;
+  const source = neutralMaterial.document.sources ?? { datasets: [] };
+  const model = neutralMaterial.document.material_model_ir;
+  const selection = neutralMaterial.document.candidate_selection;
+  const reviewedEvidenceCount = [
+    source.material,
+    source.material_state,
+    source.property_set,
+    ...(source.datasets ?? []),
+    selection?.processing_output,
+    model?.model,
+  ].filter(Boolean).length;
 
   useEffect(() => {
     const modelFamily = neutralMaterial.document?.material_model_ir?.model_family;
@@ -156,8 +170,21 @@ export function NeutralSolverExport({
     }
   }
 
+  async function downloadNeutralJson(): Promise<void> {
+    setBusy("neutral");
+    setError(null);
+    try {
+      const result = await downloadNeutralMaterial(config, neutralMaterial.neutral_material_id);
+      save(result.data.blob, result.data.filename);
+    } catch (cause) {
+      setError(messageFor(cause));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
-    <section className="workflow-step neutral-solver-export" aria-label="Neutral Material solver card generation">
+    <section className="workflow-step neutral-solver-export reviewed-delivery" aria-label="Reviewed Neutral Material and solver card delivery">
       <DomainWorkflowLinks
         config={config}
         target={{
@@ -169,15 +196,52 @@ export function NeutralSolverExport({
       />
       <div className="curve-heading">
         <div>
-          <p className="eyebrow">T-64 · family-neutral solver mapping</p>
-          <h5>Generate a native solver card from this exact Neutral revision</h5>
+          <p className="eyebrow">Final step · reviewed delivery</p>
+          <h5>Neutral Material JSON → verified mapping → native solver card</h5>
         </div>
         <span className="reference-chip">reference / non-production</span>
       </div>
       <p className="form-hint">
-        Select a declared 2025 target, inspect every mapping state, then acknowledge any
-        approximation before creating immutable ASCII output.
+        This panel pins the selected result and its exact evidence. Review the neutral model,
+        inspect every solver mapping state, then download the native ASCII card without leaving
+        the modeling workspace.
       </p>
+      <ol className="delivery-progress" aria-label="Reviewed delivery progress">
+        <li className="complete"><span>1</span><strong>Evidence reviewed</strong><small>{reviewedEvidenceCount} exact references</small></li>
+        <li className="complete"><span>2</span><strong>Neutral JSON</strong><small>r{neutralMaterial.revision_no} · {(neutralMaterial.document.content_sha256 ?? neutralMaterial.content_hash).slice(0, 10)}…</small></li>
+        <li className={report ? "complete" : "current"}><span>3</span><strong>Solver mapping</strong><small>{report ? `${report.report.items.length} states checked` : "Preflight required"}</small></li>
+        <li className={card ? "complete" : report ? "current" : "pending"}><span>4</span><strong>Native card</strong><small>{card ? `${card.target.solver} r${card.current_revision.revision_no}` : "Preview and download"}</small></li>
+      </ol>
+      <section className="delivery-evidence" aria-label="Exact reviewed evidence">
+        <div className="delivery-evidence-heading">
+          <div>
+            <strong>Selected model result</strong>
+            <small>{model?.constitutive_model.family.replaceAll("_", " ") ?? "canonical material model"} · {model?.maturity ?? "exact revision"}</small>
+          </div>
+          <span className="status-chip success">exact revisions</span>
+        </div>
+        <dl>
+          <div><dt>Selection reason</dt><dd>{selection?.reason ?? "Canonical Neutral revision selected"}</dd></div>
+          <div><dt>Model revision</dt><dd>{model?.model.revision_id ?? neutralMaterial.neutral_material_revision_id}</dd></div>
+          {selection?.processing_output ? <div><dt>Processing Output</dt><dd>{selection.processing_output.revision_id}</dd></div> : null}
+          <div><dt>Input datasets</dt><dd>{source.datasets?.length ?? 0} pinned revision{source.datasets?.length === 1 ? "" : "s"}</dd></div>
+          <div><dt>Curve stages</dt><dd>{neutralMaterial.document.curve_stages?.length ?? 0} preserved stages</dd></div>
+          <div><dt>Applicability</dt><dd>{Object.keys(neutralMaterial.document.applicability ?? {})[0]?.replaceAll("_", " ") ?? "declared in document"}</dd></div>
+        </dl>
+        {selection?.warnings?.length ? (
+          <ul className="delivery-warnings">{selection.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+        ) : <p className="success-notice">No candidate warning was recorded in this exact Neutral revision.</p>}
+        <div className="button-row">
+          <button className="button secondary" type="button" disabled={busy !== null} onClick={() => void downloadNeutralJson()}>
+            {busy === "neutral" ? "Preparing Neutral JSON…" : "Download exact Neutral JSON"}
+          </button>
+          {source.material && onNavigate ? (
+            <button className="text-button" type="button" onClick={() => onNavigate(`/materials/${source.material!.id}/models`)}>
+              Return to Material datasheet
+            </button>
+          ) : null}
+        </div>
+      </section>
       <div className="form-grid compact-grid">
         <label>
           Solver target
@@ -274,6 +338,11 @@ export function NeutralSolverExport({
             <button className="button secondary" type="button" disabled={busy !== null} onClick={() => void downloadReport()}>
               {busy === "report" ? "Preparing report…" : "Download mapping report JSON"}
             </button>
+            {onNavigate ? (
+              <button className="text-button" type="button" onClick={() => onNavigate("/exports")}>
+                Add exact files to a bulk package
+              </button>
+            ) : null}
           </div>
           {preview ? <pre className="solver-card-preview" aria-label="Solver card preview">{preview}</pre> : null}
         </div>

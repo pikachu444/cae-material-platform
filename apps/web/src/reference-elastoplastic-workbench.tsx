@@ -7,7 +7,9 @@ import {
   createTabulatedPlasticityModel,
   downloadNeutralMaterial,
   downloadElastoplasticSolverCard,
+  getNeutralMaterial,
   getTabulatedPlasticityHardeningCurve,
+  listBulkExportCandidates,
   listCommonProcessingOutputs,
   listDatasetsForMaterialState,
   listElastoplasticSolverCards,
@@ -156,9 +158,10 @@ interface Props {
   config: ApiConfig;
   state: MaterialStateResponse;
   propertySet: PropertySetResponse;
+  onNavigate?: (path: string) => void;
 }
 
-export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: Props) {
+export function ReferenceElastoplasticWorkbench({ config, state, propertySet, onNavigate }: Props) {
   const [open, setOpen] = useState(false);
   const [datasets, setDatasets] = useState<DatasetResponse[]>([]);
   const [processingOutputs, setProcessingOutputs] = useState<CommonProcessingOutputResponse[]>([]);
@@ -270,6 +273,37 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
       current = false;
     };
   }, [config, selectedModel?.material_model_id]);
+
+  useEffect(() => {
+    let current = true;
+    const evidence = selectedModel?.current_revision.content.processing_projection;
+    if (!selectedModel || !evidence) {
+      return () => { current = false; };
+    }
+    void listBulkExportCandidates(config, state.material_id)
+      .then(async (candidates) => {
+        const ids = candidates.data.items
+          .filter((candidate) => candidate.source.kind === "neutral_material_json")
+          .map((candidate) => candidate.source.neutral_material_id)
+          .filter((id): id is string => typeof id === "string");
+        const snapshots = await Promise.all(
+          [...new Set(ids)].map((id) => getNeutralMaterial(config, id)),
+        );
+        const exact = snapshots.find(({ data }) =>
+          data.document.sources.material_state?.id === selectedModel.material_state_id
+          && data.document.sources.material_state.revision_id
+            === selectedModel.current_revision.content.material_state_revision_id
+          && data.document.sources.property_set?.revision_id
+            === selectedModel.current_revision.content.property_set_revision_id
+          && data.document.candidate_selection.processing_output?.id === evidence.output_id
+          && data.document.candidate_selection.processing_output.revision_id
+            === evidence.output_revision_id,
+        );
+        if (current) setNeutralMaterial(exact?.data ?? null);
+      })
+      .catch(() => undefined);
+    return () => { current = false; };
+  }, [config, selectedModel?.material_model_id, selectedModel?.current_revision.id, state.material_id]);
 
   useEffect(() => {
     setReport(null);
@@ -638,19 +672,25 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
               ) : null}
               {selectedModel?.current_revision.content.processing_projection ? (
                 <div className="card-actions">
-                  <button
-                    className="button secondary"
-                    type="button"
-                    onClick={() => void promoteNeutral()}
-                    disabled={action !== null}
-                  >
-                    {action === "neutral" ? "Creating Neutral JSON…" : "Create Neutral Material JSON"}
-                  </button>
                   {neutralMaterial ? (
+                    <>
+                      <span className="status-chip success">
+                        Exact Neutral JSON r{neutralMaterial.revision_no} restored
+                      </span>
                     <button className="text-button" type="button" onClick={() => void downloadNeutral()}>
                       Download Neutral JSON r{neutralMaterial.revision_no}
                     </button>
-                  ) : null}
+                    </>
+                  ) : (
+                    <button
+                      className="button secondary"
+                      type="button"
+                      onClick={() => void promoteNeutral()}
+                      disabled={action !== null}
+                    >
+                      {action === "neutral" ? "Creating Neutral JSON…" : "Create Neutral Material JSON"}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <small className="muted">
@@ -660,7 +700,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
             </div>
           ) : null}
           {neutralMaterial ? (
-            <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} />
+            <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} onNavigate={onNavigate} />
           ) : null}
           {selectedModel ? (
             <div className="workflow-step">

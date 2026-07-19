@@ -1,5 +1,5 @@
-version: 28
-verified_at: 2026-07-19
+version: 29
+verified_at: 2026-07-20
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
   - id: t60-guided-dashboard
@@ -448,3 +448,19 @@ captures:
     image: ../15-demo/images/t80-elastomer-calibration-track.png
     width: 1265
     height: 712
+  - id: reviewed-neutral-solver-delivery
+    route: /modeling
+    workflow: interim-reviewed-result-neutral-json-explicit-mapping-and-native-card
+    fixture: T-81 DP780 exact Processing Output, canonical Neutral Material and Abaqus mapping report
+    source_evidence: ../15-demo/evidence/t81-reviewed-delivery.md
+    image: ../15-demo/images/t81-reviewed-delivery.png
+    width: 1036
+    height: 1199
+  - id: engineering-modeling-shell
+    route: /modeling
+    workflow: compact-family-compatible-curve-rail-and-interactive-server-plot
+    fixture: T-85 clean Compose DP780 hardening candidates with exact Test JSON and published Recipe
+    source_evidence: ../15-demo/evidence/t85-engineering-modeling-shell.md
+    image: ../15-demo/images/t85-engineering-modeling-shell.png
+    width: 1440
+    height: 900

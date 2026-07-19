@@ -1773,6 +1773,15 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **완료 조건:** silent mapping 없이 card를 내려받고 Material record에서 Test/Recipe/Neutral/Card
   exact links를 다시 열 수 있다. 기존 exporters와 Bulk package engine을 재사용한다.
 - **테스트:** three-family Neutral/card semantic regression, download SHA-256, linked return E2E.
+- **Engine integration evidence:** `verified`; **product GUI completion:** `rejected by T-84`.
+  All three family tracks use the same four-state
+  reviewed-delivery panel. It summarizes exact source/selection/model evidence, restores an existing
+  Processing Output-backed Neutral revision on re-entry, downloads canonical Neutral JSON, runs the
+  existing six-state preflight, requires approximation acknowledgement and previews/downloads the
+  native card plus mapping report. Material-datasheet and bulk-package navigation are direct product
+  actions. The live metal, polymer and elastomer journeys and current screenshot are recorded in
+  `docs/15-demo/evidence/t81-reviewed-delivery.md`. This evidence is retained while T-85~T-90
+  replace the long form stack and generic option editor with graph-direct family workbenches.
 
 #### T-82. Realistic hierarchical demo and task-oriented manuals — `P0`
 
@@ -1789,3 +1798,59 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   candidate/extrapolation → Recipe reuse → Neutral → two solver cards → linked Material return을 사람이
   이해 가능한 label만으로 완료한다. API/seed/direct-deep-link evidence로 대체하지 않는다.
 - **테스트:** full Playwright journey, downloads, screenshots, manuals, `make ci`와 protected PostgreSQL.
+
+T-82/T-83 are superseded as product-GUI completion tasks by the stricter T-84~T-93 sequence in
+[`gui-functional-parity-plan.md`](../01-product/gui-functional-parity-plan.md). Their demo/manual and
+clean-acceptance intent is retained in T-93.
+
+#### T-84. Product status correction and interaction inventory — `P0`
+
+- **상태 (`2026-07-20`):** `completed`. 공개 GUI reference 20개, interaction inventory,
+  과장된 완료 판정 철회와 T-85~T-93 acceptance 기준이 권위 계획서에 고정됐다.
+- T-79~T-81을 engine evidence와 GUI acceptance로 분리하고 공개 workflow의 action/result를
+  Capability/Interaction/E2E 대응표로 고정한다.
+- 기존 component와 API를 유지·재배치·교체·누락으로 분류하고 안정 체크포인트를 보존한다.
+
+#### T-85. Engineering shell and graph foundation — `P0`
+
+- compact session/task shell, curve rail, persistent graph, task inspector와 stage/status bar.
+- auto first plot, axis/unit/tick/tooltip, zoom/pan, legend/visibility와 cancellable preview.
+- **상태 (`2026-07-20`):** `in progress`. reusable `EngineeringCurvePlot`, series별 독립 x-grid,
+  family-compatible curve rail, axis/unit/tick/crosshair, zoom/pan/reset/visibility와 compact
+  1440×900 shell이 live Compose에서 검증됐다. graph range/point command, cancellable request와
+  method-specific direct controls가 남아 있으므로 완료로 표시하지 않는다.
+- **증거:** `docs/15-demo/evidence/t85-engineering-modeling-shell.md`,
+  `docs/15-demo/images/t85-engineering-modeling-shell.png`.
+
+#### T-86. Metal Prepare direct manipulation — `P0`
+
+- smoothing/mean/statistics, elastic methods/range/manual slider, proof/necking markers와 Workup.
+
+#### T-87. Metal Fit and Extrapolate direct manipulation — `P0`
+
+- four-family comparison, residual/derivative, fit domain, parameter/bounds, ratio slider와 save.
+
+#### T-88. In-workbench Neutral and Card delivery — `P0`
+
+- guided Neutral review, solver/version/law form, six-state mapping과 two native card downloads.
+
+#### T-89. Polymer workbench parity — `P0`
+
+- relaxation/DMA, log resampling, Prony candidates, WLF/Arrhenius master curve와 card journey.
+
+#### T-90. Elastomer workbench parity — `P0`
+
+- multi-mode roles/weights/holdout, four-family multistart, residual/stability, Prony/card journey.
+
+#### T-91. Material Database tree and datasheet parity — `P0`
+
+- persistent dense tree, keyboard/state restoration, Layout tabs/viewers/revision diff와 typed links.
+
+#### T-92. Search/Compare/Admin and Recipe/Batch polish — `P1`
+
+- typed facets/ranges/subsets/compare, guided schema administration, Recipe Library와 batch monitor.
+
+#### T-93. Clean clone-level product acceptance — `P0`
+
+- clean home-to-material-to-test-to-model-to-two-cards journey, three family E2E, screenshots,
+  manuals, frontend/Python/PostgreSQL tests와 `make ci`.

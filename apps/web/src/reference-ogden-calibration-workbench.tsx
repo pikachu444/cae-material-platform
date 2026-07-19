@@ -8,9 +8,11 @@ import {
   downloadNeutralMaterial,
   executeReferenceOgdenCalibration,
   getHyperelasticFamilyCandidateDiagnostics,
+  getNeutralMaterial,
   getReferenceOgdenCalibrationRun,
   getReferenceOgdenCandidateDiagnostics,
   importNeutralMaterial,
+  listBulkExportCandidates,
   listReferenceOgdenCalibrationPlans,
   listGovernedDatasetsForTestRun,
   listOgdenPronyModelRevisions,
@@ -153,11 +155,13 @@ export function ReferenceOgdenCalibrationWorkbench({
   state,
   model,
   onPromoted,
+  onNavigate,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   model: OgdenPronyModelResponse;
   onPromoted?: (value: OgdenPronyModelResponse) => void;
+  onNavigate?: (path: string) => void;
 }) {
   const [profiles, setProfiles] = useState<ScientificProfileResponse[]>([]);
   const [choices, setChoices] = useState<DatasetChoice[]>([]);
@@ -259,6 +263,31 @@ export function ReferenceOgdenCalibrationWorkbench({
     setSelectedCandidateId("");
     void loadInputs();
   }, [config.baseUrl, config.accessToken, state.material_state_id, model.current_revision.id]);
+
+  useEffect(() => {
+    let active = true;
+    void listBulkExportCandidates(config, state.material_id)
+      .then(async (candidates) => {
+        const ids = candidates.data.items
+          .filter((candidate) => candidate.source.kind === "neutral_material_json")
+          .map((candidate) => candidate.source.neutral_material_id)
+          .filter((id): id is string => typeof id === "string");
+        const snapshots = await Promise.all(
+          [...new Set(ids)].map((id) => getNeutralMaterial(config, id)),
+        );
+        const exact = snapshots.find(({ data }) =>
+          data.document.sources.material_state?.id === state.material_state_id
+          && data.document.sources.material_state.revision_id
+            === model.current_revision.content.material_state_revision_id
+          && data.document.sources.property_set?.revision_id
+            === model.current_revision.content.property_set_revision_id
+          && data.document.material_model_ir.model_family === "hyperelastic",
+        );
+        if (active) setNeutralMaterial(exact?.data ?? null);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [config.baseUrl, config.accessToken, model.material_model_id, model.current_revision.id, state.material_id]);
 
   const selected = choices.filter((choice) => choice.included);
   const best = useMemo(
@@ -890,7 +919,7 @@ export function ReferenceOgdenCalibrationWorkbench({
         </section>
       ) : null}
       {neutralMaterial ? (
-        <NeutralHyperelasticExport config={config} neutralMaterial={neutralMaterial} />
+        <NeutralHyperelasticExport config={config} neutralMaterial={neutralMaterial} onNavigate={onNavigate} />
       ) : null}
       {diagnostics ? <OgdenDiagnosticsPlot value={diagnostics} /> : null}
       {run && selectedCandidateId ? (

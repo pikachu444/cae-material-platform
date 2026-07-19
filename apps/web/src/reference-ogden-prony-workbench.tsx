@@ -33,10 +33,12 @@ export function ReferenceOgdenPronyWorkbench({
   config,
   state,
   propertySet,
+  onNavigate,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   propertySet: PropertySetResponse;
+  onNavigate?: (path: string) => void;
 }) {
   const [models, setModels] = useState<OgdenPronyModelResponse[]>([]);
   const [cards, setCards] = useState<OgdenPronyCardResponse[]>([]);
@@ -203,6 +205,7 @@ export function ReferenceOgdenPronyWorkbench({
           config={config}
           state={state}
           model={model}
+          onNavigate={onNavigate}
           onPromoted={(promoted) => {
             setModels((current) => [
               promoted,
