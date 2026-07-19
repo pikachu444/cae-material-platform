@@ -1665,3 +1665,93 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   production identity/object-store 운영은 계획에서 명시한 후속 범위다.
 - **검증:** 최종 full CI Python 774건, 별도 PostgreSQL 76건, frontend 62건, clean-demo verifier,
   55개 GUI capture gate와 문서/아키텍처/계약/OpenAPI/bundle gate가 통과했다.
+
+#### T-74. Product experience reset and completion correction — `P0`
+
+- **상태 (`2026-07-19`):** `implemented and verified`.
+- **범위:** T-73의 bounded engineering evidence는 보존하되 제품 완료 결론을 철회한다.
+  ADR-0034와 `docs/01-product/product-experience-spec.md`를 사용자-facing 단일 기준으로 삼고,
+  engine evidence와 product acceptance를 분리한다.
+- **완료 조건:** README, implementation status, capability map, requirements와 architecture가
+  visible API/token, flat Explorer와 disconnected Modeling UI를 완료로 표현하지 않는다.
+- **테스트:** 문서 링크/guide gate, `git diff --check`, architecture/contract 문서 정합성.
+  Full CI는 Python 774건(별도 PostgreSQL 환경이 필요한 76건 skip), frontend 62건과 static
+  type/architecture/contracts/OpenAPI/user-guide/bundle gate를 통과했다.
+
+#### T-75. Hidden product session, product shell and Dashboard — `P0`
+
+- **범위:** visible API connection/bearer token을 제거한다. demo는 same-origin 자동 session,
+  non-demo는 일반 login boundary를 사용한다. primary navigation을 Material Database, Material
+  Modeling, Jobs & Reviews, Administration으로 교체하고 Dashboard를 material search/recent/
+  favorite/modeling/job/review/create/import 중심으로 재구성한다.
+- **완료 조건:** clean demo 접속 후 configuration dialog 없이 데이터가 보이고 token 만료가 빈
+  화면을 만들지 않는다. 기존 bearer API는 integration compatibility로만 유지한다.
+- **테스트:** session refresh/error, no-token-text DOM assertion, Dashboard→workspace E2E, screenshot.
+
+#### T-76. Persistent hierarchical Material Database Contents Tree — `P0`
+
+- **범위:** Database/Profile → Table → nested Folder → Record tree와 exact-link Workflow Tree를
+  product read model로 제공한다. 기존 Folder/Record/Subset/Link/Binding engine을 재사용한다.
+- **완료 조건:** tree는 datasheet와 linked workbench 이동 중 유지되고 selection/expansion,
+  Subset, breadcrumb, deep link와 version state를 보존한다. workflow는 flat card list가 아니다.
+- **테스트:** nested folders, cycles, lazy expansion, subset visibility, reverse link, deep-link E2E.
+
+#### T-77. Layout Datasheet, AMDC-style search and comparison — `P0`
+
+- **범위:** three-pane Material Database에서 Layout-driven Datasheet, quick/advanced search,
+  facet/range/unit filters, table/tile results, configurable columns, record compare와 curve overlay를
+  제공한다. record tabs는 Overview/Properties/Curves/Test Data/Models/CAE Cards/Links다.
+- **완료 조건:** tree와 search가 동일 datasheet를 열고 linked/local values 및 revision context를
+  구분하며, 관련 record를 열어도 browse context가 유지된다.
+- **테스트:** typed filter/normalization, layout, compare/curve, linked navigation E2E와 screenshots.
+
+#### T-78. Product Administration and extensible access — `P1`
+
+- **범위:** Administrator/User, 기능 토글, Database/Profile/Table/Attribute/Layout/Subset/Link Type
+  관리를 하나의 task-oriented Administration에 통합한다. 내부 granular enforcement는 유지한다.
+- **완료 조건:** 일반 권한 설정은 policy vocabulary 없이 가능하고, future resource/action/scope
+  grant가 schema rewrite 없이 추가될 extension point가 contract test로 고정된다.
+- **테스트:** admin/user positive-negative, attribute-to-datasheet, layout/subset/link lifecycle E2E.
+
+#### T-79. Graph-centered Material Modeling shell and data preparation — `P0`
+
+- **범위:** Dataset/curve list, persistent main plot, step options와 Import → Map → Prepare → Fit →
+  Extrapolate → Card navigation을 한 workspace로 제공한다. Test JSON/CSV/XLSX, Mapping Profile,
+  common Processing methods와 preview/commit engine을 재사용한다.
+- **완료 조건:** raw/normalized/processed overlay와 diagnostics가 option 변경 즉시 preview되고,
+  명시적 commit만 immutable Output을 만든다. UUID 복사나 module route 이동이 필요 없다.
+- **테스트:** import/map, step reorder/options, preview-vs-commit, curve stage E2E와 screenshot.
+
+#### T-80. Family modeling tracks and reusable Recipe/Batch UX — `P0`
+
+- **범위:** 같은 Workbench shell에서 metal elastoplastic, polymer viscoelastic, elastomer
+  hyperelastic/hyper-viscoelastic methods를 제공하고 Recipe save/revise/reuse와 Batch preflight/
+  execution/retry/monitor를 연결한다.
+- **완료 조건:** 금속 E/proof/necking/four-family fitting/combination/extrapolation, polymer
+  Prony/WLF/Arrhenius, elastomer multi-mode/four-family/stability/Prony overlay를 plot과 option panel에서
+  실행·비교한다.
+- **테스트:** existing numeric fixtures + family-specific browser journeys + deterministic Recipe/Batch.
+
+#### T-81. Reviewed result to Neutral Material and solver cards — `P0`
+
+- **범위:** candidate review, exact Recipe/Batch/Attempt/Output evidence, Neutral JSON, mapping preflight,
+  Abaqus/OpenRadioss preview/download와 Material Datasheet backlink를 Workbench 마지막 단계에 통합한다.
+- **완료 조건:** silent mapping 없이 card를 내려받고 Material record에서 Test/Recipe/Neutral/Card
+  exact links를 다시 열 수 있다. 기존 exporters와 Bulk package engine을 재사용한다.
+- **테스트:** three-family Neutral/card semantic regression, download SHA-256, linked return E2E.
+
+#### T-82. Realistic hierarchical demo and task-oriented manuals — `P0`
+
+- **범위:** one-table flat seed를 Metals/Polymers/Elastomers와 Tensile/Relaxation/Hyperelastic nested
+  hierarchy로 교체한다. 사용자는 ID를 복사하지 않고 tree/search에서 세 흐름을 발견한다.
+- **완료 조건:** auto-session clean demo, current GUI captures, user/admin guide와 screenshot manifest가
+  새 product shell 및 workspace를 설명한다.
+- **테스트:** clean volume seed/reseed, tree counts/links, guide capture gate, desktop responsive E2E.
+
+#### T-83. Product acceptance audit — `P0`
+
+- **범위:** `product-experience-spec.md`의 모든 explicit requirement를 clean deployment에서 감사한다.
+- **완료 조건:** home에서 시작해 material find → datasheet/test curve → modeling processing/fitting →
+  candidate/extrapolation → Recipe reuse → Neutral → two solver cards → linked Material return을 사람이
+  이해 가능한 label만으로 완료한다. API/seed/direct-deep-link evidence로 대체하지 않는다.
+- **테스트:** full Playwright journey, downloads, screenshots, manuals, `make ci`와 protected PostgreSQL.

@@ -25,9 +25,12 @@ Exports 화면에서는 exact Test Data JSON, Mapping Profile, Processing Recipe
 JSON, mapping report와 native card를 선택해 `manifest.json`과 `checksums.sha256`을 포함한
 immutable ZIP으로 받을 수 있습니다.
 
-통합 제품 v3은 위 `reference/non-production` 범위에서 구현·검증됐습니다. 이는 실제 입력,
-저장, 처리, fitting, 링크 탐색, JSON/카드/ZIP 다운로드가 동작한다는 뜻이며, 특정 회사 재료의
-production qualification이나 실제 Abaqus/OpenRadioss 실행 검증을 의미하지는 않습니다.
+현재 저장소에는 위 흐름을 지지하는 PostgreSQL, revision, processing, Neutral JSON과 exporter
+엔진이 구현되어 있습니다. 그러나 기존 v3 웹 화면은 기능을 기술 화면에 분산하고 API/token
+설정을 사용자에게 노출했기 때문에 GRANTA/Material Data Center형 Material Database 또는
+Material Modeler형 통합 Workbench의 제품 완료 상태로 인정하지 않습니다. T-74 이후에는
+[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 사용자-facing shell을
+교체합니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog

@@ -3,42 +3,45 @@
 Date: `2026-07-19`
 Foundation version: `0.32.0`
 
-## Product direction correction (T-48)
+## Product experience correction (T-74)
 
-The integrated product v3 baseline is complete for the bounded `reference/non-production` scope
-defined by ADR-0028 through ADR-0033. It includes the configurable Material Information System,
-general Processing Recipe/Batch workbench, three material-family modeling paths, canonical exchange,
-and dual-solver card generation. This statement does **not** claim production material
-qualification or actual solver execution validation.
+The previous T-73 statement confused bounded engineering evidence with an accepted product
+experience. The repository has reusable database, revision, calculation and export foundations, but
+the current web shell is **not** a completed Granta/Material Data Center-like Material Information
+System or Material Modeler-like cohesive workbench. T-74 withdraws that product-completion claim and
+starts the product-facing rebuild defined by ADR-0034 and the product experience specification.
 
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
-| Administrator-defined Table/Attribute/Layout/Subset | T-49 definitions and T-50 datasheet consumption implemented | Production schema governance (outside v3) |
-| Catalog record datasheet/search/facet/compare | T-50 implemented for configurable typed Records | Production catalog population (outside v3) |
-| Catalog and Material Workflow Explorers | T-62 binds configurable Record revisions to exact governed domain revisions; T-65 clean seed proves an eight-node Material → State → Test JSON → Processing Output → Model IR → Neutral → two native-card graph | Production dataset qualification (outside v3) |
+| Administrator-defined Table/Attribute/Layout/Subset | Engineering storage/API and a technical editor exist; task-oriented Administration is incomplete | T-78 product Administration |
+| Catalog record datasheet/search/facet/compare | Low-level screens exist but not the persistent Contents Tree/datasheet experience | T-76/T-77 Material Database |
+| Catalog and Material Workflow Explorers | Exact bindings and graph APIs exist; the current flat record/card presentation is not a Granta-like hierarchy | T-76 hierarchical Contents/Workflow Tree |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
-| General Mapping Profile and Processing Workbench | T-53 implemented: immutable typed Mapping Profiles, twelve-method pipeline, immutable Output JSON, observed-intersection replicate alignment and explicit pointwise statistics UI | Additional domain methods through the registry |
-| Saved Recipe library/general batch execution | T-54 implements exact-profile Recipe revisions, compatibility preflight, isolated member outputs and append-only attempts. T-69/T-70 carry successful polymer and metal Recipe/Batch/Attempt pins through IR, Neutral and Bulk. | Production scale-out (outside v3) |
-| Metal/Polymer/Elastomer modeling | T-70 carries saved metal Recipe/Batch evidence to dual-solver Bulk; T-67~T-69 close generalized-Maxwell processing/promotion and conditional OpenRadioss LPRONY; T-72 closes reusable multi-test hyperelastic Plan revision flow | Production material qualification (outside v3) |
+| General Mapping Profile and Processing Workbench | Methods and revisioned Outputs exist, but the graph-centered import→map→prepare workflow is incomplete | T-79 Modeling Workbench shell |
+| Saved Recipe library/general batch execution | Engine contracts exist; cohesive Recipe authoring and batch experience is incomplete | T-80/T-81 product integration |
+| Metal/Polymer/Elastomer modeling | Bounded calculation/export paths exist across disconnected pages; one cohesive family-aware Workbench is incomplete | T-80 Modeling tracks |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | Production package qualification (outside v3) |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | Production identity integration (outside v3) |
-| Clean guided product demo | T-65 creates the full governed metal journey in clean PostgreSQL and verifies exact native-card and ZIP downloads, checksums, screenshot evidence and user walkthrough | Actual solver execution (excluded) |
+| Clean guided product demo | Seed/verifier evidence exists, but the flat one-table demo and visible token setup do not satisfy product acceptance | T-82/T-83 realistic demo and acceptance |
 
-The [product capability map](docs/00-research/product-capability-map.md) is the authoritative
-DB/API/UI/Test status matrix. T-49 through T-60 and the closure Tasks T-61 through T-73 form the
-verified v3 reference baseline; later production qualification remains a separate program.
+The [product capability map](docs/00-research/product-capability-map.md) is the authoritative status
+matrix. T-49 through T-73 remain valid engineering evidence only for their bounded contracts. They
+must not be read as product-experience completion.
 
-## Completed
+## Product rebuild in progress
 
-- `T-73`: final capability audit confirms the v3 objective across configurable attributes,
-  tree/search, exact revision links, canonical Test JSON, saved processing Recipe/Batch, metal,
-  polymer and elastomer modeling, Neutral JSON, Abaqus/OpenRadioss cards and checksum Bulk ZIP.
-  The remaining fixed Material/State row is an intentional compatibility projection, not the
-  configurable Catalog implementation. Actual solver execution and production material
-  qualification remain explicitly outside v3.
+- `T-74` (`implemented and verified`): withdraw the v3 product-completion claim, establish the
+  product experience contract and create the T-75~T-83 replacement sequence. Existing engine
+  evidence remains intact. Full CI passed 774 Python and 62 frontend tests plus the static type,
+  architecture, contract, OpenAPI, user-guide and bundle gates.
+
+## Completed engineering foundations
+
+- `T-73` (superseded product conclusion): its DB/API/test evidence remains useful, but its product
+  completion conclusion is withdrawn by T-74 because the browser acceptance scope was too narrow.
 
 - `T-72`: the hyperelastic Modeling Workbench now lists saved Calibration Plans for the current
   Material State and baseline model. Users can execute an exact immutable Plan revision or reload
