@@ -448,3 +448,11 @@ captures:
     image: ../15-demo/images/t80-elastomer-calibration-track.png
     width: 1265
     height: 712
+  - id: reviewed-neutral-solver-delivery
+    route: /modeling
+    workflow: interim-reviewed-result-neutral-json-explicit-mapping-and-native-card
+    fixture: T-81 DP780 exact Processing Output, canonical Neutral Material and Abaqus mapping report
+    source_evidence: ../15-demo/evidence/t81-reviewed-delivery.md
+    image: ../15-demo/images/t81-reviewed-delivery.png
+    width: 1036
+    height: 1199

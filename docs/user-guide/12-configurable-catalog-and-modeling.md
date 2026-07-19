@@ -133,6 +133,30 @@ uncertainty를 비교한 뒤에만 Candidate 선택 또는 Neutral 승격으로 
 
 ![exact multi-mode Plan으로 실행한 elastomer family 비교](../15-demo/images/t80-elastomer-calibration-track.png)
 
+### Interim reviewed-delivery controls
+
+> This section documents the retained T-81 engine-connected controls. The interaction is an interim
+> baseline, not the accepted clone-level Material Modeling experience. T-85~T-90 will move these
+> actions into the fixed graph/task workbench without changing the exact Neutral/card contracts.
+
+After a metal, polymer or elastomer result is promoted, the same **Final step · reviewed delivery**
+panel appears inside Material Modeling. Do not create a second Neutral revision when the panel says
+`Exact Neutral JSON rN restored`; the exact immutable result has already been found for the selected
+Material and Processing/Candidate evidence.
+
+1. Check **Evidence reviewed** for the selected model family, selection reason, exact model or
+   Processing Output revision, input revision count, preserved curve stages and applicability.
+2. Select **Download exact Neutral JSON** when the solver-neutral exchange document is required.
+3. Choose Abaqus or OpenRadioss and select **Run mapping preflight**.
+4. Read every `exact`, `transformed`, `approximated`, `ignored`, `unsupported` and
+   `not_applicable` row. The card remains blocked when the report is not exportable.
+5. When an approximation or ignored field exists, check the explicit review acknowledgement.
+6. Select **Create solver card**, inspect the native ASCII preview, then download the card and
+   mapping report. **Add exact files to a bulk package** opens the package builder with the same
+   Material context; **Return to Material datasheet** returns without copying an ID.
+
+![Reviewed Neutral result and explicit Abaqus mapping states](../15-demo/images/t81-reviewed-delivery.png)
+
 ### Open a governed object from the Workflow Explorer
 
 An administrator or catalog editor can bind the selected configurable Record revision to one exact
