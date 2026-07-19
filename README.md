@@ -60,7 +60,10 @@ family, response/residual graph, Prony overlay와 Abaqus/OpenRadioss card를 같
 Catalog/Workflow projection, Layout Datasheet, exact Related/Revisions와 keyboard/session 복원을
 검증했습니다. T-92는 typed search/compare와 guided Database Administration을 재검증하고,
 material-family별 게시 Recipe 자동 복원·clone/revision/publish와 member별 compatibility를 보여주는
-Batch Monitor를 연결했습니다. 다음 제품 우선순위는 T-93 clean product acceptance입니다.
+Batch Monitor를 연결했습니다. T-93에서는 기존 demo volume을 제거한 clean Docker/PostgreSQL 환경에서 migration, seed,
+Material Database, 세 재료군 Modeling, Neutral JSON, Abaqus/OpenRadioss card와 bulk package를
+처음부터 재현했습니다. 이 완료 표시는 공개식 기반 `reference/non-production` 제품 흐름에 대한
+것이며 실제 solver correlation과 회사별 material qualification을 의미하지 않습니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog

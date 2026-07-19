@@ -39,7 +39,7 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | Production package qualification (outside v3) |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | Production identity integration (outside v3) |
-| Clean guided product demo | Automatic session and engine-backed DP780 demo exist, but the cohesive clone-level Database/Modeling journey is **not accepted** | T-93 clean acceptance |
+| Clean guided product demo | T-93 accepts clean-volume migration/seed, cohesive Dashboard/Database/three-family Modeling/Card browser journeys and full regression evidence | Production material/solver qualification (outside reference goal) |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative status
 matrix. T-49 through T-73 remain valid engineering evidence only for their bounded contracts. They
@@ -116,6 +116,16 @@ must not be read as product-experience completion.
   retry. The existing typed search/facet/range/Subset/Layout comparison and guided Table/Attribute/Layout/
   Link Type Administration were re-audited in the live Docker/PostgreSQL product. Evidence is in
   `docs/15-demo/evidence/t92-search-admin-recipe-batch.md`. T-93 now owns clean product acceptance.
+
+- `T-93` (`completed for the bounded reference product`): Docker/PostgreSQL/object volumes were
+  removed and the complete service was rebuilt, migrated and seeded from zero. The verifier reproduced
+  the exact Catalog workflow, three-family processing/modeling evidence, Neutral JSON, native Abaqus/
+  OpenRadioss cards and bulk bundles. Live browser acceptance covered Dashboard, the GRANTA-like
+  Database Datasheet/link projections, Metal, Polymer and Elastomer graphs and their Card tasks. A stale
+  session revision discovered during clean acceptance now falls back to a valid newly seeded record.
+  Full Python, actual PostgreSQL and frontend regressions passed. Evidence is in
+  `docs/15-demo/evidence/t93-clean-product-acceptance.md`. Reference model status remains explicit;
+  real solver correlation and company material qualification remain outside this acceptance.
 
 - `T-88` (`completed`): **Card** is now a first-class task in the Material Modeling shell rather than
   a legacy drawer below the graph. It pins friendly Material/State and exact reviewed Output/IR/Neutral
