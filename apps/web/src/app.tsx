@@ -434,31 +434,38 @@ function DashboardPage({
 
   return (
     <div className="page-stack">
-      <section className="database-dashboard-hero">
-        <p className="eyebrow">Material intelligence workspace</p>
-        <h1>Find, understand, and model materials.</h1>
-        <p>Search trusted material records, inspect linked test evidence, and continue directly into modeling and solver-card delivery.</p>
-        <form className="dashboard-material-search" onSubmit={searchMaterials}>
-          <span aria-hidden="true">⌕</span>
-          <input
-            aria-label="Search materials"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search materials, grades, makers or standards"
-          />
-          <button className="button primary" type="submit">Search</button>
-        </form>
-        <div className="dashboard-quick-actions">
-          <button type="button" onClick={() => navigate("/database")}>Browse Material Database</button>
-          <button type="button" onClick={() => navigate("/datasets/test-json")}>Import test data</button>
-          <button type="button" onClick={() => navigate("/modeling")}>Start Material Modeling</button>
-        </div>
+      <section className="workspace-home-intro">
+        <div><p className="eyebrow">Workspace home</p><h1>Material data to solver-ready models</h1></div>
+        <p>Choose the work you need to do. The database path finds trusted material knowledge; the modeling path turns linked test curves into reviewed Neutral JSON and solver cards.</p>
+      </section>
+      <section className="workspace-lane-grid" aria-label="Primary material workspace tasks">
+        <article className="workspace-lane database-lane">
+          <header><span>01</span><div><p className="eyebrow">Material Database · {loading ? "Loading" : `${totalCount.toLocaleString()} records`}</p><h2>Find and inspect material data</h2></div></header>
+          <p>Browse the Contents Tree or search by material, grade, maker and standard. Open a Datasheet to follow exact links to tests, models and cards.</p>
+          <form className="dashboard-material-search" onSubmit={searchMaterials}>
+            <span aria-hidden="true">⌕</span>
+            <input
+              aria-label="Search materials"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Material, grade, maker or standard"
+            />
+            <button className="button primary" type="submit">Search database</button>
+          </form>
+          <button className="text-button lane-primary-action" type="button" onClick={() => navigate("/database")}>Open Contents Tree and Datasheets ›</button>
+        </article>
+        <article className="workspace-lane modeling-lane">
+          <header><span>02</span><div><p className="eyebrow">Material Modeling</p><h2>Process test curves and create cards</h2></div></header>
+          <p>Map test channels, prepare curves, compare fitting and extrapolation candidates, then create Neutral JSON and Abaqus/OpenRadioss cards.</p>
+          <div className="modeling-lane-flow" aria-label="Material Modeling workflow"><span>Prepare</span><span>Fit</span><span>Extrapolate</span><span>Card</span></div>
+          <div className="workspace-lane-actions"><button className="button primary" type="button" onClick={() => navigate("/modeling")}>Continue modeling</button><button className="button secondary" type="button" onClick={() => navigate("/datasets/test-json")}>Import test data</button></div>
+        </article>
       </section>
       <section className="content-card guided-demo-card" aria-labelledby="guided-demo-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Browse by material family</p>
-            <h2 id="guided-demo-title">Continue from material knowledge to a usable model.</h2>
+            <p className="eyebrow">Reference workflows by material family</p>
+            <h2 id="guided-demo-title">Start with an engineering example</h2>
             <p className="muted">
               Open a realistic example with linked test data, processing choices, model candidates and native solver cards.
             </p>

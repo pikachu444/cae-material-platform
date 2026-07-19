@@ -3946,6 +3946,24 @@ export interface CommonCurveStage {
   }>;
 }
 
+export type GraphSelectionCommand =
+  | {
+      kind: "range";
+      x_quantity: string;
+      x_unit: string;
+      minimum: number;
+      maximum: number;
+    }
+  | {
+      kind: "point";
+      x_quantity: string;
+      x_unit: string;
+      x: number;
+      y_quantity: string;
+      y_unit: string;
+      y: number;
+    };
+
 export interface CommonProcessingPreview {
   execution_mode: "preview";
   promotable: false;

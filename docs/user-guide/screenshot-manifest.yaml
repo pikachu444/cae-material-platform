@@ -1,4 +1,4 @@
-version: 29
+version: 30
 verified_at: 2026-07-20
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -462,5 +462,13 @@ captures:
     fixture: T-85 clean Compose DP780 hardening candidates with exact Test JSON and published Recipe
     source_evidence: ../15-demo/evidence/t85-engineering-modeling-shell.md
     image: ../15-demo/images/t85-engineering-modeling-shell.png
+    width: 1440
+    height: 900
+  - id: t85-workspace-dashboard
+    route: /
+    workflow: choose-material-database-or-material-modeling-as-the-primary-work-lane
+    fixture: T-85 clean Compose three-family workspace with three Material records
+    source_evidence: ../15-demo/evidence/t85-engineering-modeling-shell.md
+    image: ../15-demo/images/t85-workspace-dashboard.png
     width: 1440
     height: 900

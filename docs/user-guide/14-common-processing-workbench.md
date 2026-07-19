@@ -16,6 +16,14 @@
 주소나 토큰, tenant, UUID를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
+그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
+**Select range**를 누른 뒤 x-domain을 드래그합니다. necking처럼 한 점을 고르는 단계는
+**Pick point**를 사용합니다. 선택 영역과 marker는 임시 상태이며 **Apply selection**을 눌러야
+호환되는 Recipe step option으로 들어갑니다. 이때도 원본이나 저장된 Recipe revision은 바뀌지
+않습니다. 오른쪽 **Recipe** 탭에서 새 revision으로 저장해야 선택을 재사용할 수 있습니다.
+option 변경은 300 ms 동안 모아서 서버 preview를 다시 계산하며, 그 사이 더 최신 변경이 오면
+이전 계산 요청은 취소됩니다.
+
 ## 처리 미리보기
 
 1. `Datasets` → `Processing Workbench`를 엽니다.

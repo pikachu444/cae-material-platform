@@ -27,7 +27,6 @@ import {
 } from "./api";
 import type {
   CanonicalTestDataDocumentResponse,
-  CommonCurveStage,
   CommonEnsemblePreview,
   CommonMappingProfileContent,
   CommonMappingProfileResponse,
@@ -40,6 +39,7 @@ import type {
   CommonProcessingPreview,
   CommonProcessingStep,
   DataClassification,
+  GraphSelectionCommand,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 
@@ -421,9 +421,14 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [ensemblePointCount, setEnsemblePointCount] = useState(21);
   const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
   const [busy, setBusy] = useState(false);
+  const [previewBusy, setPreviewBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const autoPreviewKey = useRef("");
+  const previewAbortController = useRef<AbortController | null>(null);
+  const previewRequestNo = useRef(0);
+
+  useEffect(() => () => previewAbortController.current?.abort(), []);
 
   useEffect(() => {
     void Promise.all([
@@ -504,15 +509,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [busy, document, selectedDocumentId]);
 
   useEffect(() => {
-    if (!document || !selectedProfileId || busy || preview) return;
+    if (!document || !selectedProfileId || preview) return;
     const key = `${selectedDocumentId}:${selectedProfileId}:${stepsText}`;
     if (autoPreviewKey.current === key) return;
     const timer = window.setTimeout(() => {
       autoPreviewKey.current = key;
       void runPreview();
-    }, 180);
+    }, 300);
     return () => window.clearTimeout(timer);
-  }, [busy, document, preview, selectedDocumentId, selectedProfileId, stepsText]);
+  }, [document, preview, selectedDocumentId, selectedProfileId, stepsText]);
 
   function applyModelingTrack(track: ModelingTrack): void {
     setModelingTrack(track);
@@ -832,21 +837,31 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       setError("Load one exact Test Data revision before previewing processing.");
       return;
     }
-    setBusy(true);
+    previewAbortController.current?.abort();
+    const controller = new AbortController();
+    previewAbortController.current = controller;
+    const requestNo = previewRequestNo.current + 1;
+    previewRequestNo.current = requestNo;
+    setPreviewBusy(true);
     setError(null);
     try {
       const result = await previewCommonProcessing(config, {
         document,
         mapping_profile: JSON.parse(profileText) as CommonMappingProfileContent,
         steps: JSON.parse(stepsText) as CommonProcessingStep[],
-      });
+      }, controller.signal);
+      if (previewRequestNo.current !== requestNo) return;
       setPreview(result.data);
       setSelectedStage(result.data.stages.length - 1);
       setNotice("Preview completed. It is ephemeral and cannot be promoted or released.");
     } catch (caught) {
+      if (caught instanceof Error && caught.name === "AbortError") return;
       setError(caught instanceof SyntaxError ? `Invalid Workbench JSON: ${caught.message}` : errorMessage(caught));
     } finally {
-      setBusy(false);
+      if (previewRequestNo.current === requestNo) {
+        setPreviewBusy(false);
+        previewAbortController.current = null;
+      }
     }
   }
 
@@ -1022,6 +1037,62 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (stage) setSelectedStage(stage.ordinal);
   }
 
+  function applyGraphSelection(selection: GraphSelectionCommand): void {
+    if (!activeStage || activeStage.ordinal === 0) {
+      setError("Choose a processing stage before applying a graph selection.");
+      return;
+    }
+    try {
+      const steps = JSON.parse(stepsText) as CommonProcessingStep[];
+      const stepIndex = activeStage.ordinal - 1;
+      const step = steps[stepIndex];
+      if (!step) throw new Error("The selected preview stage no longer matches the Recipe draft.");
+      if (step.method_id !== activeStage.method_id) {
+        throw new Error("The selected preview stage is stale. Recalculate before applying a graph selection.");
+      }
+      const options = { ...step.options };
+      if (selection.kind === "range") {
+        if (step.method_id === "curve.crop") {
+          options.minimum = selection.minimum;
+          options.maximum = selection.maximum;
+        } else if (step.method_id === "metal.elastic_modulus") {
+          options.minimum_strain = selection.minimum;
+          options.maximum_strain = selection.maximum;
+        } else if (step.method_id === "metal.proof_stress") {
+          options.search_start = selection.minimum;
+          options.search_end = selection.maximum;
+        } else if (step.method_id === "metal.hardening_fit_extrapolate") {
+          options.fit_minimum_strain = selection.minimum;
+          options.fit_maximum_strain = selection.maximum;
+        } else {
+          throw new Error(`${step.method_id} does not accept an x-domain selection.`);
+        }
+      } else if (step.method_id === "metal.engineering_to_true_plastic") {
+        const xValues = activeStage.series.find(
+          (series) => series.quantity === selection.x_quantity,
+        )?.values ?? [];
+        if (!xValues.length) throw new Error("The selected stage has no points for a necking marker.");
+        const nearestIndex = xValues.reduce(
+          (best, value, index) => Math.abs(value - selection.x) < Math.abs(xValues[best] - selection.x) ? index : best,
+          0,
+        );
+        options.necking_policy = "manual_index";
+        options.manual_necking_index = nearestIndex;
+      } else {
+        throw new Error(`${step.method_id} does not accept a point selection.`);
+      }
+      steps[stepIndex] = { ...step, options };
+      setStepsText(JSON.stringify(steps, null, 2));
+      setSelectedStepIndex(stepIndex);
+      setWorkspaceInspector("step");
+      setPreview(null);
+      setError(null);
+      setNotice(`Applied the graph ${selection.kind} to ${step.method_id} in the Recipe draft. Save a new Recipe revision to preserve it.`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The graph selection could not be applied.");
+    }
+  }
+
   return (
     <main className="processing-workbench-page">
       <header className="modeling-app-header">
@@ -1055,7 +1126,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       </section>
 
       <section className="workbench-card method-builder-card" id="modeling-prepare">
-        <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy} onClick={() => void runPreview()}>{busy ? "Working…" : "Preview changes"}</button></div>
+        <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div>
         <details className="method-library"><summary>Add a processing method <span>{trackMethods.length} compatible</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details>
         <div className="modeling-graph-workspace">
           <aside className="modeling-workspace-rail">
@@ -1064,7 +1135,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           </aside>
           <article className="persistent-modeling-plot" id="modeling-fit">
             <div className="section-heading"><div><p className="eyebrow">Live curve comparison</p><h2>{activeStage?.method_id ?? "Load data and preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not committed</span> : null}</div>
-            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} /> : <div className="modeling-plot-empty"><strong>The graph stays here while you configure processing.</strong><p>Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source.</p></div>}
+            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} onApplySelection={applyGraphSelection} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you configure processing."}</strong><p>{previewBusy ? "The previous calculation is cancelled when a newer Recipe change is applied." : "Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source."}</p></div>}
             {preview ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : null}
           </article>
           <aside className="step-option-panel">

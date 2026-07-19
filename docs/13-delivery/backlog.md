@@ -1815,10 +1815,17 @@ clean-acceptance intent is retained in T-93.
 
 - compact session/task shell, curve rail, persistent graph, task inspector와 stage/status bar.
 - auto first plot, axis/unit/tick/tooltip, zoom/pan, legend/visibility와 cancellable preview.
+- Dashboard를 마케팅 소개 화면이 아닌 제품 작업 홈으로 교체한다. 첫 화면에서
+  `Material Database`(tree/search/datasheet)와 `Material Modeling`(prepare/fit/extrapolate/card)의
+  목적과 다음 동작을 분리하고, 최근 Material/진행 중 session/reference workflow로 바로 이동한다.
+- Dashboard 합격 기준은 두 코어 경로의 차이와 연결 관계를 별도 설명 없이 이해하고 각각 한 번의
+  동작으로 시작할 수 있는 것이다. Job, API, token, tenant, UUID 중심 상태판은 허용하지 않는다.
 - **상태 (`2026-07-20`):** `in progress`. reusable `EngineeringCurvePlot`, series별 독립 x-grid,
   family-compatible curve rail, axis/unit/tick/crosshair, zoom/pan/reset/visibility와 compact
-  1440×900 shell이 live Compose에서 검증됐다. graph range/point command, cancellable request와
-  method-specific direct controls가 남아 있으므로 완료로 표시하지 않는다.
+  1440×900 shell이 live Compose에서 검증됐다. 이후 range/point command의 ephemeral overlay와
+  Recipe draft 적용, 300 ms debounce/이전 request cancellation, Database/Modeling 작업 레인
+  Dashboard까지 연결했다. Datasheet/session deep-link와 method-specific direct controls가 남아
+  있으므로 완료로 표시하지 않는다.
 - **증거:** `docs/15-demo/evidence/t85-engineering-modeling-shell.md`,
   `docs/15-demo/images/t85-engineering-modeling-shell.png`.
 

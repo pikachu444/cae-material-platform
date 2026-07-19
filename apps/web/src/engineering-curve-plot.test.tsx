@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { EngineeringCurvePlot, paddedPlotBounds, plotPoints } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonProcessingPreview } from "./types";
@@ -65,6 +65,29 @@ describe("EngineeringCurvePlot", () => {
     fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
     fireEvent.click(screen.getByRole("button", { name: "Reset view" }));
     expect(screen.getByText("Wheel to zoom · drag to pan")).toBeTruthy();
+  });
+
+  it("keeps graph range selection ephemeral until the user applies it", () => {
+    const onApplySelection = vi.fn();
+    render(
+      <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} onApplySelection={onApplySelection} />,
+    );
+    const plot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
+    Object.defineProperty(plot, "getBoundingClientRect", {
+      value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Select range" }));
+    fireEvent.pointerDown(plot, { button: 0, pointerId: 1, clientX: 200, clientY: 200 });
+    fireEvent.pointerMove(plot, { pointerId: 1, clientX: 420, clientY: 200 });
+    fireEvent.pointerUp(plot, { pointerId: 1, clientX: 420, clientY: 200 });
+    expect(screen.getByText(/Selected .* – .* 1/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Apply selection" }));
+    expect(onApplySelection).toHaveBeenCalledWith(expect.objectContaining({
+      kind: "range",
+      x_quantity: "strain.engineering",
+      x_unit: "1",
+    }));
   });
 
   it("rejects mismatched arrays and pads constant ranges", () => {

@@ -6,7 +6,11 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from "react";
 
-import type { CommonCurveStage, CommonProcessingPreview } from "./types";
+import type {
+  CommonCurveStage,
+  CommonProcessingPreview,
+  GraphSelectionCommand,
+} from "./types";
 
 export interface PlotBounds {
   xMin: number;
@@ -191,17 +195,22 @@ export function EngineeringCurvePlot({
   baseStage,
   width,
   height,
+  onApplySelection,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
   baseStage: CommonCurveStage;
   width: number;
   height: number;
+  onApplySelection?: (selection: GraphSelectionCommand) => void;
 }) {
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
   const [drag, setDrag] = useState<{ clientX: number; clientY: number; bounds: PlotBounds } | null>(null);
+  const [interactionMode, setInteractionMode] = useState<"pan" | "range" | "point">("pan");
+  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
+  const [selection, setSelection] = useState<GraphSelectionCommand | null>(null);
   const model = useMemo(
     () => seriesForStage(preview, activeStage, baseStage),
     [activeStage, baseStage, preview],
@@ -223,6 +232,8 @@ export function EngineeringCurvePlot({
     setViewBounds(null);
     setCursor(null);
     setDrag(null);
+    setSelectionStart(null);
+    setSelection(null);
   }, [activeStage.method_id, activeStage.ordinal]);
 
   function zoom(factor: number, center = cursor): void {
@@ -247,7 +258,18 @@ export function EngineeringCurvePlot({
   }
 
   function onPointerMove(event: ReactPointerEvent<SVGSVGElement>): void {
-    setCursor(pointerCoordinates(event));
+    const coordinates = pointerCoordinates(event);
+    setCursor(coordinates);
+    if (interactionMode === "range" && selectionStart) {
+      setSelection({
+        kind: "range",
+        x_quantity: model.xQuantity,
+        x_unit: model.xUnit,
+        minimum: Math.min(selectionStart.x, coordinates.x),
+        maximum: Math.max(selectionStart.x, coordinates.x),
+      });
+      return;
+    }
     if (!drag) return;
     const rectangle = event.currentTarget.getBoundingClientRect();
     const deltaX = ((event.clientX - drag.clientX) / rectangle.width) * (drag.bounds.xMax - drag.bounds.xMin);
@@ -261,10 +283,11 @@ export function EngineeringCurvePlot({
   }
 
   function endPointer(event: ReactPointerEvent<SVGSVGElement>): void {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
     }
     setDrag(null);
+    setSelectionStart(null);
   }
 
   function onWheel(event: ReactWheelEvent<SVGSVGElement>): void {
@@ -284,18 +307,33 @@ export function EngineeringCurvePlot({
           <button type="button" aria-label="Zoom in" onClick={() => zoom(0.8)}>+</button>
           <button type="button" onClick={() => setViewBounds(null)}>Reset view</button>
         </div>
-        <span>{cursor ? `${axisNumber(cursor.x)} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : "Wheel to zoom · drag to pan"}</span>
+        <div className="plot-interaction-modes" role="group" aria-label="Graph selection mode">
+          <button type="button" className={interactionMode === "pan" ? "active" : ""} aria-pressed={interactionMode === "pan"} onClick={() => setInteractionMode("pan")}>Pan</button>
+          <button type="button" className={interactionMode === "range" ? "active" : ""} aria-pressed={interactionMode === "range"} onClick={() => setInteractionMode("range")}>Select range</button>
+          <button type="button" className={interactionMode === "point" ? "active" : ""} aria-pressed={interactionMode === "point"} onClick={() => setInteractionMode("point")}>Pick point</button>
+          <button type="button" disabled={!selection || !onApplySelection} onClick={() => selection && onApplySelection?.(selection)}>Apply selection</button>
+          {selection ? <button type="button" onClick={() => setSelection(null)}>Clear</button> : null}
+        </div>
+        <span>{selection?.kind === "range" ? `Selected ${axisNumber(selection.minimum)} – ${axisNumber(selection.maximum)} ${selection.x_unit}` : selection?.kind === "point" ? `Selected ${axisNumber(selection.x)} ${selection.x_unit} · ${axisNumber(selection.y / yScale.divisor)} ${yScale.label}` : cursor ? `${axisNumber(cursor.x)} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span>
       </div>
       <svg
-        className={`processing-curve interactive ${drag ? "is-panning" : ""}`}
+        className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
         aria-label={activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
         viewBox={`0 0 ${width} ${height}`}
         onDoubleClick={() => setViewBounds(null)}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
-          event.currentTarget.setPointerCapture(event.pointerId);
-          setDrag({ clientX: event.clientX, clientY: event.clientY, bounds });
+          const coordinates = pointerCoordinates(event);
+          event.currentTarget.setPointerCapture?.(event.pointerId);
+          if (interactionMode === "range") {
+            setSelectionStart(coordinates);
+            setSelection({ kind: "range", x_quantity: model.xQuantity, x_unit: model.xUnit, minimum: coordinates.x, maximum: coordinates.x });
+          } else if (interactionMode === "point") {
+            setSelection({ kind: "point", x_quantity: model.xQuantity, x_unit: model.xUnit, x: coordinates.x, y_quantity: model.yQuantity, y_unit: model.yUnit, y: coordinates.y });
+          } else {
+            setDrag({ clientX: event.clientX, clientY: event.clientY, bounds });
+          }
         }}
         onPointerMove={onPointerMove}
         onPointerLeave={() => setCursor(null)}
@@ -314,6 +352,8 @@ export function EngineeringCurvePlot({
         <line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
         <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
         {validSeries.map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, width, height, bounds)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />)}
+        {selection?.kind === "range" ? <rect className="graph-range-selection" x={PLOT_MARGIN.left + ((selection.minimum - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(1, ((selection.maximum - selection.minimum) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /> : null}
+        {selection?.kind === "point" ? <><line className="graph-point-selection" x1={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} /><circle className="graph-point-marker" cx={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5" /></> : null}
         {cursor ? <><line x1={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} className="chart-crosshair"/><line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} className="chart-crosshair"/></> : null}
         <text x={(PLOT_MARGIN.left + width - PLOT_MARGIN.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{model.xQuantity} [{model.xUnit}]</text>
         <text transform={`translate(15 ${(PLOT_MARGIN.top + height - PLOT_MARGIN.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{model.yQuantity} [{yScale.label}]</text>

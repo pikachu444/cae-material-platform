@@ -47,7 +47,9 @@ exact evidence와 Neutral Material JSON을 확인하고 Abaqus/OpenRadioss의 �
 engineering workbench로 교체하고 Material Database tree/datasheet 사용성을 다시 검증합니다.
 따라서 아직 전체 제품 경험 완료 상태로 표시하지 않습니다. T-85의 첫 검증 체크포인트는
 Material Modeling을 compact engineering shell로 바꾸고 실제 server curve에 axis/unit/tick,
-crosshair, zoom/pan/reset과 curve visibility를 연결했습니다. graph range/point 직접 선택과
+crosshair, zoom/pan/reset, curve visibility와 graph range/point selection을 연결했습니다. 변경된
+step option은 300 ms 뒤 최신 요청만 preview하며 이전 요청은 취소합니다. Dashboard도 Material
+Database와 Material Modeling의 목적·시작 동작을 나란히 보여주는 작업 홈으로 교체했습니다.
 금속·폴리머·엘라스토머별 guided control은 T-86~T-90에서 계속 구현합니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
