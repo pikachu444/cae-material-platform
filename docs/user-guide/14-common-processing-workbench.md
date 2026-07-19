@@ -9,6 +9,13 @@
 제공합니다. `/datasets/processing`은 같은 엔진의 기술 호환 route로 유지됩니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
 
+![Material Modeling의 curve rail, engineering plot, task panel](../15-demo/images/t85-engineering-modeling-shell.png)
+
+화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Recipe 단계, 가운데는 실제 서버 계산 결과를
+표시하는 engineering plot, 오른쪽은 선택 단계의 설정과 저장 동작입니다. 일반 작업에서는 API
+주소나 토큰, tenant, UUID를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
+드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
+
 ## 처리 미리보기
 
 1. `Datasets` → `Processing Workbench`를 엽니다.

@@ -378,6 +378,12 @@ API 보강은 UI에서 실제 사용하는 경우에만 추가한다. 새로운 
 - session/objective, curve rail, persistent graph, task panel, stage/status bar를 구현한다.
 - 첫 진입 auto data/preview, axis/unit/tick/tooltip/zoom/pan/legend/visibility를 구현한다.
 
+**2026-07-20 checkpoint:** compact header, semantic family-compatible curve rail, reusable
+`EngineeringCurvePlot`, series별 독립 sampling grid, axis/unit/tick/crosshair, zoom/pan/reset과
+legend visibility가 실제 Compose DP780 preview에서 검증됐다. 공식 reference의 graph-direct
+range/point selection, cancellable request와 method-specific task control은 아직 남아 있으므로
+T-85 전체 완료나 Material Modeler 동등성으로 판정하지 않는다.
+
 ### 3. T-86 — Metal Prepare 직접 조작
 
 - curve selection, crop, scale/shift, smoothing, Add Mean, statistics band

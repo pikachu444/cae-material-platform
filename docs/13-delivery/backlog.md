@@ -1805,7 +1805,8 @@ clean-acceptance intent is retained in T-93.
 
 #### T-84. Product status correction and interaction inventory — `P0`
 
-- **상태 (`2026-07-19`):** `in progress`.
+- **상태 (`2026-07-20`):** `completed`. 공개 GUI reference 20개, interaction inventory,
+  과장된 완료 판정 철회와 T-85~T-93 acceptance 기준이 권위 계획서에 고정됐다.
 - T-79~T-81을 engine evidence와 GUI acceptance로 분리하고 공개 workflow의 action/result를
   Capability/Interaction/E2E 대응표로 고정한다.
 - 기존 component와 API를 유지·재배치·교체·누락으로 분류하고 안정 체크포인트를 보존한다.
@@ -1814,6 +1815,12 @@ clean-acceptance intent is retained in T-93.
 
 - compact session/task shell, curve rail, persistent graph, task inspector와 stage/status bar.
 - auto first plot, axis/unit/tick/tooltip, zoom/pan, legend/visibility와 cancellable preview.
+- **상태 (`2026-07-20`):** `in progress`. reusable `EngineeringCurvePlot`, series별 독립 x-grid,
+  family-compatible curve rail, axis/unit/tick/crosshair, zoom/pan/reset/visibility와 compact
+  1440×900 shell이 live Compose에서 검증됐다. graph range/point command, cancellable request와
+  method-specific direct controls가 남아 있으므로 완료로 표시하지 않는다.
+- **증거:** `docs/15-demo/evidence/t85-engineering-modeling-shell.md`,
+  `docs/15-demo/images/t85-engineering-modeling-shell.png`.
 
 #### T-86. Metal Prepare direct manipulation — `P0`
 

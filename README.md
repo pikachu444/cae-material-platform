@@ -45,7 +45,10 @@ exact evidence와 Neutral Material JSON을 확인하고 Abaqus/OpenRadioss의 �
 검토·승인한 뒤 native ASCII card를 미리보기·다운로드하거나 같은 Material의 bulk package로
 이동할 수 있습니다. T-84~T-93은 현재의 긴 form stack과 제한된 graph를 직접 조작 가능한
 engineering workbench로 교체하고 Material Database tree/datasheet 사용성을 다시 검증합니다.
-따라서 아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
+따라서 아직 전체 제품 경험 완료 상태로 표시하지 않습니다. T-85의 첫 검증 체크포인트는
+Material Modeling을 compact engineering shell로 바꾸고 실제 server curve에 axis/unit/tick,
+crosshair, zoom/pan/reset과 curve visibility를 연결했습니다. graph range/point 직접 선택과
+금속·폴리머·엘라스토머별 guided control은 T-86~T-90에서 계속 구현합니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog
