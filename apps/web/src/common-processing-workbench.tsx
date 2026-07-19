@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import {
   ApiError,
@@ -538,6 +538,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const autoPreviewKey = useRef("");
 
   useEffect(() => {
     void Promise.all([
@@ -565,6 +566,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [config]);
 
   async function loadDocument(id: string): Promise<void> {
+    autoPreviewKey.current = "";
     setSelectedDocumentId(id);
     setPreview(null);
     const item = documents.find((candidate) => candidate.test_data_document_id === id);
@@ -588,6 +590,52 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       setBusy(false);
     }
   }
+
+  useEffect(() => {
+    if (selectedDocumentId || !documents.length) return;
+    const compatible = documents.find((item) => {
+      const key = `${item.document_key} ${item.method}`.toLowerCase();
+      if (modelingTrack === "metal") return key.includes("tensile") || key.includes("dp7") || key.includes("steel");
+      if (modelingTrack === "polymer") return key.includes("relax") || key.includes("prony") || key.includes("polymer");
+      return key.includes("elastomer") || key.includes("hyperelastic");
+    });
+    if (compatible) setSelectedDocumentId(compatible.test_data_document_id);
+  }, [documents, modelingTrack, selectedDocumentId]);
+
+  useEffect(() => {
+    if (selectedProfileId || !profiles.length) return;
+    const compatible = profiles.find((item) => {
+      const content = item.content;
+      if (modelingTrack === "metal") {
+        return content.independent_quantity.includes("strain")
+          && content.bindings.some((binding) => binding.target_quantity.includes("stress"));
+      }
+      if (modelingTrack === "polymer") {
+        return content.independent_quantity === "time"
+          || content.profile_key.includes("polymer");
+      }
+      return content.profile_key.includes("elastomer");
+    });
+    if (!compatible) return;
+    setSelectedProfileId(compatible.mapping_profile_id);
+    setProfileText(JSON.stringify(compatible.content, null, 2));
+  }, [modelingTrack, profiles, selectedProfileId]);
+
+  useEffect(() => {
+    if (!selectedDocumentId || document || busy) return;
+    void loadDocument(selectedDocumentId);
+  }, [busy, document, selectedDocumentId]);
+
+  useEffect(() => {
+    if (!document || !selectedProfileId || busy || preview) return;
+    const key = `${selectedDocumentId}:${selectedProfileId}:${stepsText}`;
+    if (autoPreviewKey.current === key) return;
+    const timer = window.setTimeout(() => {
+      autoPreviewKey.current = key;
+      void runPreview();
+    }, 180);
+    return () => window.clearTimeout(timer);
+  }, [busy, document, preview, selectedDocumentId, selectedProfileId, stepsText]);
 
   function applyModelingTrack(track: ModelingTrack): void {
     setModelingTrack(track);
