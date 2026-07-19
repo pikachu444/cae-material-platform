@@ -123,6 +123,11 @@ const CatalogExplorer = lazy(() =>
     default: module.CatalogExplorer,
   })),
 );
+const MaterialDatabaseExplorer = lazy(() =>
+  import("./material-database-explorer").then((module) => ({
+    default: module.MaterialDatabaseExplorer,
+  })),
+);
 const CanonicalTestDataWorkbench = lazy(() =>
   import("./canonical-test-data-workbench").then((module) => ({
     default: module.CanonicalTestDataWorkbench,
@@ -2007,7 +2012,13 @@ export function App() {
     } : null;
   }, [path]);
   const catalogExplorerRoute = useMemo(() => {
-    const match = path.match(/^\/(?:database|catalog\/explorer)(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/);
+    const match = path.match(/^\/catalog\/explorer(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/);
+    return match
+      ? { recordId: match[1] as string | undefined, revisionId: match[2] as string | undefined }
+      : null;
+  }, [path]);
+  const materialDatabaseRoute = useMemo(() => {
+    const match = path.match(/^\/database(?:\/records\/([^/]+)\/revisions\/([^/]+))?$/);
     return match
       ? { recordId: match[1] as string | undefined, revisionId: match[2] as string | undefined }
       : null;
@@ -2022,7 +2033,17 @@ export function App() {
   }
 
   let page: React.ReactNode;
-  if (catalogExplorerRoute) {
+  if (materialDatabaseRoute) {
+    page = (
+      <MaterialDatabaseExplorer
+        config={config}
+        initialRecordId={materialDatabaseRoute.recordId}
+        initialRevisionId={materialDatabaseRoute.revisionId}
+        onNavigate={navigate}
+        onRetry={retrySession}
+      />
+    );
+  } else if (catalogExplorerRoute) {
     page = (
       <CatalogExplorer
         config={config}

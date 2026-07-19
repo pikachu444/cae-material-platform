@@ -45,7 +45,20 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 
 ![금속·폴리머·엘라스토머 안내 Dashboard](../15-demo/images/t60-guided-dashboard.png)
 
-## 3. 금속 탄소성 경로
+## 3. Material Database에서 계층과 연결 확인하기
+
+1. 전역 **Material Database**를 엽니다.
+2. 왼쪽에서 **CAE Material Database → Engineering Materials Profile → Engineering Materials →
+   Material Library → Metals → Steels** 순서로 펼칩니다.
+3. **DP780 Dual-Phase Steel**을 선택하고 가운데 Workflow Tree에서 Material State, Test Data,
+   Processing Output, Material Model IR, Neutral Material과 두 Solver Card가 이어지는지 확인합니다.
+4. 오른쪽 Related Data에서 현재 exact revision에 직접 연결된 레코드를 확인합니다.
+5. Test Data 노드를 눌러 workbench를 연 뒤 브라우저의 뒤로 가기로 같은 Material Database
+   탐색 문맥에 돌아옵니다.
+
+![DP780의 다단계 Contents Tree와 exact workflow](../15-demo/images/t76-material-database-tree.png)
+
+## 4. 금속 탄소성 경로
 
 1. **Open metal journey**를 선택합니다.
 2. Material/State/Property revision을 확인합니다.
@@ -57,7 +70,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 
 상세 조작은 [Steel 탄소성 가이드](02-steel-elastoplastic.md)를 따릅니다.
 
-## 4. 폴리머 점탄성 경로
+## 5. 폴리머 점탄성 경로
 
 1. Dashboard에서 **Open polymer journey**를 선택합니다.
 2. **Tests**에서 273.15/293.15/313.15 K, 온도별 두 반복 curve를 확인합니다.
@@ -72,7 +85,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 
 상세 조작은 [Polymer 점탄성 가이드](03-polymer-viscoelastic.md)를 따릅니다.
 
-## 5. 엘라스토머 초탄성·초점탄성 경로
+## 6. 엘라스토머 초탄성·초점탄성 경로
 
 1. Dashboard에서 **Open elastomer journey**를 선택합니다.
 2. uniaxial, planar, biaxial calibration curve와 별도 holdout curve를 확인합니다.
@@ -83,7 +96,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 
 상세 조작은 [Elastomer Ogden-Prony 가이드](04-elastomer-ogden-prony.md)를 따릅니다.
 
-## 6. JSON과 카드 묶음 내려받기
+## 7. JSON과 카드 묶음 내려받기
 
 1. Dashboard의 **Open bulk downloads** 또는 전역 **Exports** 메뉴를 엽니다.
 2. exact Test Data JSON, Mapping Profile, Processing Recipe, Neutral Material JSON, mapping report와

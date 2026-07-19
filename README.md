@@ -28,8 +28,10 @@ immutable ZIP으로 받을 수 있습니다.
 현재 저장소에는 위 흐름을 지지하는 PostgreSQL, revision, processing, Neutral JSON과 exporter
 엔진이 구현되어 있습니다. T-75부터 일반 화면의 API/token 설정을 제거하고 자동 demo session,
 제품 중심 Dashboard와 **Material Database / Material Modeling / Jobs & Reviews / Administration**
-내비게이션으로 교체했습니다. 계층형 Contents Tree와 그래프 중심 Modeling Workbench는
-[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 T-76 이후 계속 교체하는 중이며,
+내비게이션으로 교체했습니다. T-76은 Database/Profile/Table/Folder/Record **Contents Tree**와
+Material에서 두 solver card까지 이어지는 exact-revision **Workflow Tree**를 실제 PostgreSQL
+데이터에 연결했습니다. Layout Datasheet·AMDC식 검색/비교와 그래프 중심 Modeling Workbench는
+[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 T-77 이후 교체 중이며,
 아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
@@ -56,9 +58,9 @@ Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두
 - Catalog 관리: **Catalog**에서 record Table을 만들고 number/text/discrete/file/curve/
   record-reference Attribute, datasheet Layout과 saved Subset을 revision으로 저장. 이어서
   **Catalog records**에서 Folder/Record를 만들고 원본·정규화 단위를 보존해 검색·비교
-- Catalog 탐색: **Catalog Explorer**에서 Table → Folder → Record 트리를 펼치고, Workflow
-  Explorer 안에서 이름·key·설명·text Attribute를 검색하거나 저장된 Subset을 다시 적용한 뒤,
-  Material/Test/Dataset/Model/Card 등 관리자가 정의한 링크를 exact revision으로 정방향·역방향 이동
+- Material Database 탐색: **Material Database**에서 Database → Profile → Table → nested Folder →
+  Record를 펼치고, 가운데 Workflow Tree에서 Material/State/Test/Processing/Model/Neutral/Card를
+  exact revision으로 이동. 이름·key·설명·text Attribute 검색과 저장된 Subset도 같은 화면에서 적용
 - 시험 JSON: **Datasets → Test Data JSON**에서 maker/시험/시편/채널/원본·정규화 단위를
   저장 전 검증하고 stable identity와 immutable revision으로 등록한 뒤 exact JSON을 다시 다운로드
 - 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce

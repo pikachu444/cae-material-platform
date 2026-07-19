@@ -423,7 +423,7 @@ def test_record_round_trip_search_facet_compare_and_folder_cycle(postgres: Harne
 
     with postgres.admin_engine.connect() as connection:
         version = connection.scalar(sa.text("SELECT version_num FROM alembic_version"))
-        assert version == "20260916_081_t70_metal_origin"
+        assert version == "20260917_082_t76_current_binding"
         validator = connection.execute(
             sa.text(
                 "SELECT p.prosecdef, p.proconfig, "
@@ -610,7 +610,7 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
         read,
         material.id,
         material.current.record.revision_id,
-        depth=2,
+        depth=8,
     )
     assert {node.name for node in graph.nodes} == {"DP780", "DP780 tensile run 1"}
     assert graph.root.domain_binding == binding
@@ -680,8 +680,50 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
         material.id,
         record_revision_id=material.current.record.revision_id,
     )
-
-    deactivated = postgres.links.revise_record_link(
+    revised_binding = postgres.links.bind_domain_revision(
+        context,
+        write,
+        material.id,
+        revised_material.current.record.revision_id,
+        BindDomainRevision(
+            DomainBindingKind.MATERIAL,
+            governed_material.id,
+            governed_material.current.record.revision_id,
+        ),
+    )
+    assert revised_binding.record_revision_id == revised_material.current.record.revision_id
+    assert (
+        postgres.links.get_domain_binding(
+            context,
+            read,
+            material.id,
+            material.current.record.revision_id,
+        )
+        == binding
+    )
+    assert (
+        postgres.links.resolve_domain_binding(
+            context,
+            read,
+            DomainBindingKind.MATERIAL,
+            governed_material.id,
+            governed_material.current.record.revision_id,
+        )
+        == revised_binding
+    )
+    with pytest.raises(sa.exc.IntegrityError):
+        postgres.links.bind_domain_revision(
+            context,
+            write,
+            tensile.id,
+            tensile.current.record.revision_id,
+            BindDomainRevision(
+                DomainBindingKind.MATERIAL,
+                governed_material.id,
+                governed_material.current.record.revision_id,
+            ),
+        )
+    advanced_link = postgres.links.revise_record_link(
         context,
         write,
         link.id,
@@ -691,7 +733,36 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
                 content.link_type_id,
                 content.link_type_revision_id,
                 content.source_record_id,
-                content.source_record_revision_id,
+                revised_material.current.record.revision_id,
+                content.target_record_id,
+                content.target_record_revision_id,
+                active=True,
+                note="advance the stable relationship to the reviewed Material revision",
+            ),
+            "advance exact source revision without changing the stable relationship",
+        ),
+    )
+    assert (
+        postgres.links.list_record_links(
+            context,
+            read,
+            material.id,
+            record_revision_id=revised_material.current.record.revision_id,
+        )[0].link.current.record.revision_id
+        == advanced_link.current.record.revision_id
+    )
+
+    deactivated = postgres.links.revise_record_link(
+        context,
+        write,
+        link.id,
+        ReviseRecordLink(
+            advanced_link.current.record.revision_id,
+            RecordLinkContent(
+                content.link_type_id,
+                content.link_type_revision_id,
+                content.source_record_id,
+                revised_material.current.record.revision_id,
                 content.target_record_id,
                 content.target_record_revision_id,
                 active=False,
@@ -700,7 +771,7 @@ def test_dual_explorer_exact_links_reverse_query_cardinality_and_deactivation(
             "deactivate without deleting history",
         ),
     )
-    assert deactivated.current.record.revision_no == 2
+    assert deactivated.current.record.revision_no == 3
     assert not postgres.links.list_record_links(context, read, tensile.id)
     historical = postgres.links.list_record_links(context, read, tensile.id, include_inactive=True)
     assert historical[0].link.current.content.active is False

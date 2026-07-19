@@ -546,22 +546,15 @@ class CatalogLinkService:
         new = command.content
         if (
             old.link_type_id,
-            old.link_type_revision_id,
             old.source_record_id,
-            old.source_record_revision_id,
             old.target_record_id,
-            old.target_record_revision_id,
         ) != (
             new.link_type_id,
-            new.link_type_revision_id,
             new.source_record_id,
-            new.source_record_revision_id,
             new.target_record_id,
-            new.target_record_revision_id,
         ):
             raise ConfigurableCatalogConflict(
-                "Record Link endpoints and Link Type pins are immutable; deactivate and create "
-                "a new link"
+                "Record Link Type and stable endpoints are immutable; create a new relationship"
             )
         self._validate_record_link(
             context, decision, command.content, exclude_link_id=record_link_id
@@ -697,8 +690,8 @@ class CatalogLinkService:
         depth: int = 3,
     ) -> WorkflowGraph:
         _require(context, decision, Permission.CATALOG_READ)
-        if not 1 <= depth <= 5:
-            raise ValueError("workflow depth must be between 1 and 5")
+        if not 1 <= depth <= 8:
+            raise ValueError("workflow depth must be between 1 and 8")
         root = self._record_endpoint(context, decision, record_id, revision_id)
         nodes: dict[tuple[UUID, UUID], LinkEndpoint] = {
             (root.record_id, root.record_revision_id): root

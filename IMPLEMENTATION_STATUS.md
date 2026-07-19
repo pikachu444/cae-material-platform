@@ -14,8 +14,8 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
 | Administrator-defined Table/Attribute/Layout/Subset | Engineering storage/API and a technical editor exist; task-oriented Administration is incomplete | T-78 product Administration |
-| Catalog record datasheet/search/facet/compare | Low-level screens exist but not the persistent Contents Tree/datasheet experience | T-76/T-77 Material Database |
-| Catalog and Material Workflow Explorers | Exact bindings and graph APIs exist; the current flat record/card presentation is not a Granta-like hierarchy | T-76 hierarchical Contents/Workflow Tree |
+| Catalog record datasheet/search/facet/compare | Persistent Contents Tree is implemented; Layout Datasheet, AMDC-style facets and comparison remain | T-77 Material Database |
+| Catalog and Material Workflow Explorers | T-76 implements the Database/Profile/Table/nested-Folder/Record Contents Tree and exact-revision Material-to-card Workflow Tree | T-77 datasheet integration |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
 | General Mapping Profile and Processing Workbench | Methods and revisioned Outputs exist, but the graph-centered import→map→prepare workflow is incomplete | T-79 Modeling Workbench shell |
@@ -25,13 +25,26 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | Production package qualification (outside v3) |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | Production identity integration (outside v3) |
-| Clean guided product demo | Automatic demo session and product Dashboard exist; realistic multi-level Contents Tree and cohesive modeling journey remain incomplete | T-76/T-82/T-83 realistic demo and acceptance |
+| Clean guided product demo | Automatic demo session, Dashboard and a real DP780 multi-level Contents/Workflow Tree exist; three-family hierarchy and cohesive modeling journey remain incomplete | T-82/T-83 realistic demo and acceptance |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative status
 matrix. T-49 through T-73 remain valid engineering evidence only for their bounded contracts. They
 must not be read as product-experience completion.
 
 ## Product rebuild in progress
+
+- `T-76` (`implemented and verified`): `/database` now presents a three-pane product workspace with
+  Database/Profile/Table/nested-Folder/Record lazy Contents Tree, an exact-revision Material → State
+  → Test Data → Processing Output → Material Model IR → Neutral Material → Abaqus/OpenRadioss
+  Workflow Tree and direct Related Data. Governed nodes open the existing exact workbench route.
+  Migration 082 separates the stable Catalog identity-to-domain mapping from append-only exact
+  Record revision bindings, and a Record Link can append a revision that advances exact endpoint
+  pins without rewriting history. Live PostgreSQL seed/reseed retained all 8 Record heads, the
+  graph returned 8 nodes and 7 links, and browser evidence is recorded in
+  `docs/15-demo/evidence/t76-material-database-tree.md`. Layout Datasheet, facets, comparison and
+  curve overlay remain T-77. Verification passed the official CI command body with 775 Python and
+  64 frontend tests plus all static/document/bundle gates; the 76 isolated PostgreSQL tests also
+  passed against the Docker test database.
 
 - `T-75` (`implemented and verified`): the web application now establishes the explicitly enabled
   local demo session in the background and shows only a normal sign-in boundary when that session
@@ -40,8 +53,9 @@ must not be read as product-experience completion.
   Administration; the Dashboard provides global material search, three task entry points and the
   three realistic synthetic material families from the live catalog. Frontend tests pass 62/62,
   the TypeScript/Vite/bundle build passes, and Docker browser evidence is recorded in
-  `docs/15-demo/evidence/t75-product-session-shell.md`. This does not complete the hierarchical
-  Contents Tree or graph-centered Modeling Workbench; those remain T-76 through T-81.
+  `docs/15-demo/evidence/t75-product-session-shell.md`. T-76 subsequently completed the hierarchical
+  Contents/Workflow Tree; Datasheet/search/compare and graph-centered Modeling remain T-77 through
+  T-81.
 
 - `T-74` (`implemented and verified`): withdraw the v3 product-completion claim, establish the
   product experience contract and create the T-75~T-83 replacement sequence. Existing engine

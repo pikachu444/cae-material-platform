@@ -1694,11 +1694,17 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-76. Persistent hierarchical Material Database Contents Tree — `P0`
 
+- **상태 (`2026-07-19`):** `implemented and verified`.
 - **범위:** Database/Profile → Table → nested Folder → Record tree와 exact-link Workflow Tree를
   product read model로 제공한다. 기존 Folder/Record/Subset/Link/Binding engine을 재사용한다.
 - **완료 조건:** tree는 datasheet와 linked workbench 이동 중 유지되고 selection/expansion,
   Subset, breadcrumb, deep link와 version state를 보존한다. workflow는 flat card list가 아니다.
 - **테스트:** nested folders, cycles, lazy expansion, subset visibility, reverse link, deep-link E2E.
+  `/database`의 실제 Docker/PostgreSQL 화면에서 DP780의 Metals → Steels 계층, 8-node/7-link exact
+  workflow, Test Data workbench 이동과 복귀를 확인했다. Migration 082는 같은 stable Record의 새
+  revision이 같은 exact domain revision을 다시 고정할 수 있게 하되 다른 stable Record의 중복
+  소유는 거부한다. Record Link endpoint pin 전진과 비활성화도 append-only link revision으로
+  검증한다. 화면 증거는 `docs/15-demo/evidence/t76-material-database-tree.md`에 있다.
 
 #### T-77. Layout Datasheet, AMDC-style search and comparison — `P0`
 

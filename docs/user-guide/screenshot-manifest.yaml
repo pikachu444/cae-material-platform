@@ -368,3 +368,11 @@ captures:
     image: ../15-demo/images/t75-product-dashboard.png
     width: 1440
     height: 1000
+  - id: hierarchical-material-database
+    route: /database
+    workflow: database-profile-table-folder-record-and-exact-linked-workflow-tree
+    fixture: T-76 clean Compose DP780 nested Metals and Steels folders with eight exact linked records
+    source_evidence: ../15-demo/evidence/t76-material-database-tree.md
+    image: ../15-demo/images/t76-material-database-tree.png
+    width: 1440
+    height: 1000

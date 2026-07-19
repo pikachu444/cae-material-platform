@@ -624,9 +624,7 @@ def install_catalog_link_api(
     ) -> DomainRevisionBindingResponse | None:
         context, decision = _scope(request)
         try:
-            value = required(context).get_domain_binding(
-                context, decision, record_id, revision_id
-            )
+            value = required(context).get_domain_binding(context, decision, record_id, revision_id)
             return None if value is None else DomainRevisionBindingResponse.from_domain(value)
         except CatalogHttpError:
             raise
@@ -666,7 +664,7 @@ def install_catalog_link_api(
         request: Request,
         record_id: UUID,
         revision_id: UUID,
-        depth: int = Query(default=3, ge=1, le=5),
+        depth: int = Query(default=3, ge=1, le=8),
     ) -> WorkflowGraphResponse:
         context, decision = _scope(request)
         try:
