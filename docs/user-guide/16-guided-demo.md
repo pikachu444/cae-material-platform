@@ -48,19 +48,23 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 ## 3. Material Database에서 계층과 연결 확인하기
 
 1. 전역 **Material Database**를 엽니다.
-2. 왼쪽에서 **CAE Material Database → Engineering Materials Profile → Engineering Materials →
-   Material Library → Metals → Steels** 순서로 펼칩니다.
-3. **DP780 Dual-Phase Steel**을 선택하고 가운데 Workflow Tree에서 Material State, Test Data,
-   Processing Output, Material Model IR, Neutral Material과 두 Solver Card가 이어지는지 확인합니다.
-4. 오른쪽 Related Data에서 현재 exact revision에 직접 연결된 레코드를 확인합니다.
-5. **Datasheet** 탭에서 density, Young's modulus, Poisson's ratio와 yield stress를 확인합니다.
+2. 첫 진입에서 **CAE Material Database → Engineering Materials Profile → Demo Material Records →
+   Material Library → Metals → Steels → DP780 Dual-Phase Steel**이 자동 전개되고 유용한 demo
+   Record의 **Overview**가 바로 표시되는지 확인합니다.
+3. 왼쪽 **Workflow**를 누르면 Material, Material State, Test Data, Processing Output, Material
+   Model IR, Neutral Material과 두 Solver Card의 exact revision graph로 바뀝니다.
+4. 오른쪽 **Related**에서 현재 revision의 양방향 링크를, **Revisions**에서 immutable history를
+   확인합니다. 링크를 누르면 해당 Datasheet 또는 실제 workbench로 이동합니다.
+5. 중앙 **Overview**와 **Properties**에서 density, Young's modulus, Poisson's ratio와 yield stress를 확인합니다.
    원본 `g/cm^3`, `MPa` 값과 normalized `kg/m^3`, `Pa` 값이 함께 보여야 합니다.
 6. 상단에서 `DP780`을 검색하고 Material과 Material State의 **Compare**를 선택한 뒤 Layout
    비교를 엽니다. 오른쪽 facet과 normalized numeric range도 같은 typed Record 검색에 적용됩니다.
 7. Test Data 노드를 눌러 workbench를 연 뒤 브라우저의 뒤로 가기로 같은 Material Database
    탐색 문맥에 돌아옵니다.
 
-![DP780의 다단계 Contents Tree와 exact workflow](../15-demo/images/t76-material-database-tree.png)
+![DP780의 자동 전개 Catalog와 Layout Datasheet](../15-demo/images/t91-material-database-catalog.png)
+
+![같은 Record를 exact revision link로 투영한 Workflow](../15-demo/images/t91-material-database-workflow.png)
 
 ![DP780 Material overview Datasheet](../15-demo/images/t77-material-datasheet.png)
 

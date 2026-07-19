@@ -56,7 +56,9 @@ Abaqus `.inp`/OpenRadioss `.rad` preview·download를 끝내도록 delivery 화�
 폴리머 T-89는 relaxation/DMA graph, Prony 후보·잔차, WLF/Arrhenius master curve와 두 solver card
 경로까지 검증했습니다. 엘라스토머 T-90은 exact multi-mode Plan, calibration/holdout, 네 public
 family, response/residual graph, Prony overlay와 Abaqus/OpenRadioss card를 같은 작업 화면에서
-검증했습니다. 다음 제품 우선순위는 T-91의 Material Database tree/datasheet 동등성입니다.
+검증했습니다. T-91은 `/database` 첫 진입의 빈 화면을 제거하고 nested Catalog 자동 전개,
+Catalog/Workflow projection, Layout Datasheet, exact Related/Revisions와 keyboard/session 복원을
+검증했습니다. 다음 제품 우선순위는 T-92의 search/admin 및 Recipe/Batch 사용성입니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog

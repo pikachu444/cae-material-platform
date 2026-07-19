@@ -4201,13 +4201,21 @@ summary {
 
 .material-database-toolbar {
   align-items: center;
+  background: linear-gradient(120deg, #102c25 0%, #183f34 58%, #225344 100%);
+  border: 1px solid #2c5b4d;
+  border-radius: 12px;
+  box-shadow: 0 14px 36px rgb(16 44 37 / 16%);
+  color: #f4faf7;
   display: grid;
   gap: 1rem;
   grid-template-columns: minmax(15rem, 0.65fr) minmax(30rem, 1.35fr) auto;
+  padding: 0.85rem 1rem;
 }
 
-.material-database-toolbar h1 { font-size: 1.65rem; margin: 0; }
-.material-database-toolbar .eyebrow { margin-bottom: 0.15rem; }
+.material-database-toolbar h1 { color: #f4faf7; font-size: 1.65rem; margin: 0; }
+.material-database-toolbar .eyebrow { color: #8bd5bc; margin-bottom: 0.15rem; }
+.database-toolbar-context { color: #b8d0c8; font-size: 0.72rem; margin: 0.2rem 0 0; }
+.material-database-toolbar > .button.secondary { background: #f4faf7; border-color: #f4faf7; color: #174d3c; }
 
 .material-database-search {
   align-items: center;
@@ -4231,15 +4239,16 @@ summary {
   box-shadow: 0 8px 28px rgb(31 63 52 / 8%);
   display: grid;
   grid-template-columns: minmax(18rem, 0.75fr) minmax(35rem, 1.75fr) minmax(18rem, 0.8fr);
-  min-height: 690px;
+  height: min(730px, calc(100vh - 205px));
+  min-height: 620px;
   overflow: hidden;
 }
 
 .material-contents-pane,
-.material-related-pane { background: #f6f8f7; min-width: 0; }
+.material-related-pane { background: #f6f8f7; min-width: 0; overflow: auto; }
 .material-contents-pane { border-right: 1px solid #d8e0dd; }
 .material-related-pane { border-left: 1px solid #d8e0dd; }
-.material-record-pane { min-width: 0; }
+.material-record-pane { min-width: 0; overflow: auto; }
 
 .pane-heading {
   align-items: center;
@@ -4256,7 +4265,21 @@ summary {
 }
 
 .pane-heading button { background: transparent; border: 0; color: #667a73; }
+.database-live-indicator { align-items: center; color: #28765d; display: flex; font-size: 0.58rem; gap: 0.3rem; }
+.database-live-indicator i,
+.database-status-pill i { background: #3ab384; border-radius: 50%; box-shadow: 0 0 0 3px rgb(58 179 132 / 15%); height: 0.4rem; width: 0.4rem; }
+.database-projection-switch { background: #e8eeeb; border-bottom: 1px solid #d0dbd7; display: grid; gap: 0.25rem; grid-template-columns: 1fr 1fr; padding: 0.45rem; }
+.database-projection-switch button { background: transparent; border: 1px solid transparent; border-radius: 5px; color: #667a73; font-size: 0.68rem; font-weight: 750; padding: 0.42rem; }
+.database-projection-switch button.active { background: #fff; border-color: #bdcec8; box-shadow: 0 2px 7px rgb(31 63 52 / 8%); color: #1f604b; }
+.database-projection-switch button:disabled { cursor: not-allowed; opacity: 0.45; }
 .material-contents-tree { padding: 0.65rem 0.45rem; }
+.workflow-projection-heading { background: #edf3f0; border: 1px solid #d3dfda; border-radius: 6px; display: grid; gap: 0.18rem; margin-bottom: 0.65rem; padding: 0.65rem; }
+.workflow-projection-heading small { color: #49806d; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.08em; }
+.workflow-projection-heading strong { color: #243f36; font-size: 0.78rem; }
+.workflow-projection-heading span { color: #778982; font-size: 0.62rem; }
+.material-workflow-tree.compact .material-workflow-node { border-radius: 5px; gap: 0.4rem; padding: 0.5rem; }
+.material-workflow-tree.compact .material-workflow-node strong { font-size: 0.71rem; }
+.material-workflow-tree.compact .material-workflow-node em { font-size: 0.59rem; }
 
 .database-tree-node {
   align-items: center;
@@ -4308,6 +4331,7 @@ summary {
 .record-pane-heading p { color: #65756f; margin: 0; }
 .record-heading-actions { align-items: flex-end; display: flex; flex-direction: column; gap: 0.65rem; }
 .record-revision-badge { background: #edf3f0; border: 1px solid #cfddd8; border-radius: 999px; color: #49665c; font-size: 0.67rem; font-style: normal; font-weight: 750; padding: 0.25rem 0.5rem; white-space: nowrap; }
+.database-status-pill { align-items: center; background: #e4f3ed; border: 1px solid #afd4c5; border-radius: 999px; color: #21634e; display: inline-flex; font-size: 0.58rem; font-weight: 850; gap: 0.38rem; letter-spacing: 0.07em; padding: 0.28rem 0.55rem; }
 
 .record-view-tabs { border-bottom: 1px solid #d6e0dc; display: flex; gap: 0.2rem; overflow-x: auto; }
 .record-view-tabs button { background: transparent; border: 0; border-bottom: 3px solid transparent; color: #657871; font-size: 0.77rem; padding: 0.65rem 0.8rem; }
@@ -4336,6 +4360,9 @@ summary {
 .related-record-summary { align-items: center; display: flex; gap: 0.6rem; }
 .related-record-summary > div { display: grid; gap: 0.15rem; }
 .related-record-summary small { color: #778781; }
+.database-context-tabs { border-bottom: 1px solid #d7e0dc; display: grid; grid-template-columns: 1fr 1fr; padding: 0 0.55rem; }
+.database-context-tabs button { background: transparent; border: 0; border-bottom: 2px solid transparent; color: #6b7f77; font-size: 0.68rem; font-weight: 750; padding: 0.7rem 0.4rem 0.55rem; }
+.database-context-tabs button.active { border-color: #317c63; color: #205d49; }
 .material-related-pane h3 { color: #496159; font-size: 0.75rem; margin: 0 0 0.65rem; text-transform: uppercase; }
 .related-link-list { display: grid; gap: 0.45rem; }
 .related-link-list button { background: #fff; border: 1px solid #d4dedb; border-radius: 6px; color: #2e443d; display: grid; gap: 0.15rem; padding: 0.65rem; text-align: left; }
@@ -4345,6 +4372,12 @@ summary {
 .record-facts div { display: flex; font-size: 0.72rem; justify-content: space-between; }
 .record-facts dt { color: #74847e; }
 .record-facts dd { color: #344e45; font-weight: 700; margin: 0; }
+.database-revision-list { display: grid; gap: 0.4rem; }
+.database-revision-list button { align-items: center; background: #fff; border: 1px solid #d5dfdb; border-radius: 6px; color: #314a41; display: flex; justify-content: space-between; padding: 0.55rem; text-align: left; }
+.database-revision-list button.active { background: #e5f1ec; border-color: #80b5a2; }
+.database-revision-list button span { display: grid; gap: 0.1rem; }
+.database-revision-list button small { color: #7a8a84; font-size: 0.6rem; }
+.database-revision-list button em { color: #47806d; font-size: 0.6rem; font-style: normal; font-weight: 750; }
 
 .database-welcome-view { align-items: center; display: flex; flex-direction: column; justify-content: center; min-height: 620px; padding: 2rem; text-align: center; }
 .database-welcome-view > p { color: #6c7c76; max-width: 34rem; }
@@ -4419,6 +4452,12 @@ summary {
   .material-related-pane { display: none; }
   .material-database-toolbar { grid-template-columns: 1fr auto; }
   .material-database-search { grid-column: 1 / -1; grid-row: 2; }
+}
+
+@media (max-height: 760px) {
+  .material-database-workspace { height: calc(100vh - 185px); min-height: 560px; }
+  .material-database-toolbar { padding-block: 0.65rem; }
+  .database-toolbar-context { display: none; }
 }
 
 @media (max-width: 760px) {

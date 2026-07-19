@@ -247,6 +247,7 @@ vi.mock("./api", async (importOriginal) => {
 describe("MaterialDatabaseExplorer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.sessionStorage.clear();
     mocks.tables.mockResolvedValue({ data: { items: [table] }, etag: null });
     mocks.children.mockImplementation((_config, _tableId, selectedFolderId) => Promise.resolve({
       data: selectedFolderId === null
@@ -263,16 +264,22 @@ describe("MaterialDatabaseExplorer", () => {
     mocks.compare.mockResolvedValue({ data: null, etag: null });
   });
 
-  it("lazily expands Database, Profile, Table and nested Folder contents", async () => {
+  it("opens Database, Profile, Table and a useful nested demo record on first entry", async () => {
     const user = userEvent.setup();
     render(<MaterialDatabaseExplorer config={{ baseUrl: "/api/v1", accessToken: "session" }} onNavigate={() => undefined} onRetry={() => undefined} />);
 
     expect(screen.getByText("CAE Material Database")).toBeTruthy();
     expect(screen.getByText("Engineering Materials Profile")).toBeTruthy();
-    await user.click(await screen.findByRole("button", { name: /Metals/ }));
     expect(await screen.findByRole("button", { name: /DP780 Sheet Steel/ })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Record information" })).toBeTruthy();
     expect(mocks.children).toHaveBeenCalledWith(expect.anything(), tableId, null);
     expect(mocks.children).toHaveBeenCalledWith(expect.anything(), tableId, folderId);
+    const metals = screen.getByRole("button", { name: /Metals/ });
+    metals.focus();
+    await user.keyboard("{ArrowLeft}");
+    expect(screen.queryByRole("button", { name: /DP780 Sheet Steel/ })).toBeNull();
+    await user.keyboard("{ArrowRight}");
+    expect(await screen.findByRole("button", { name: /DP780 Sheet Steel/ })).toBeTruthy();
   });
 
   it("opens an exact record and renders its linked workflow hierarchy", async () => {
@@ -280,15 +287,15 @@ describe("MaterialDatabaseExplorer", () => {
     const navigate = vi.fn();
     render(<MaterialDatabaseExplorer config={{ baseUrl: "/api/v1", accessToken: "session" }} onNavigate={navigate} onRetry={() => undefined} />);
 
-    await user.click(await screen.findByRole("button", { name: /Metals/ }));
-    await user.click(await screen.findByRole("button", { name: /DP780 Sheet Steel/ }));
+    await screen.findByRole("heading", { name: "Record information" });
     await waitFor(() => expect(mocks.graph).toHaveBeenCalledWith(expect.anything(), recordId, recordRevisionId, 8));
-    expect(screen.getByRole("heading", { name: "From source material to CAE delivery" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Workflow" }));
     const linkedTest = screen.getAllByRole("button", { name: /Room-temperature tensile test/ });
     expect(linkedTest.length).toBeGreaterThan(0);
-    expect(navigate).toHaveBeenCalledWith(`/database/records/${recordId}/revisions/${recordRevisionId}`);
 
-    await user.click(screen.getByRole("tab", { name: "Datasheet" }));
+    await user.click(screen.getByRole("button", { name: "Catalog" }));
+    await user.click(screen.getByRole("button", { name: /DP780 Sheet Steel/ }));
+    expect(navigate).toHaveBeenCalledWith(`/database/records/${recordId}/revisions/${recordRevisionId}`);
     expect(screen.getByText("Engineering datasheet")).toBeTruthy();
     expect(screen.getByText("Material code")).toBeTruthy();
     expect(screen.getAllByText("DP780").length).toBeGreaterThan(0);
@@ -308,6 +315,6 @@ describe("MaterialDatabaseExplorer", () => {
 
     expect(screen.getByRole("heading", { name: "Engineering datasheet" })).toBeTruthy();
     expect(screen.getByText("DP600 Sheet Steel")).toBeTruthy();
-    expect(screen.getByText("DP780 Sheet Steel")).toBeTruthy();
+    expect(screen.getAllByText("DP780 Sheet Steel").length).toBeGreaterThan(0);
   });
 });
