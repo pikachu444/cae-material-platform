@@ -101,6 +101,23 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 
 ![동일한 후보의 predicted-minus-observed residual](../15-demo/images/t87-metal-fit-residual.png)
 
+## Neutral Material과 solver card로 전달
+
+Fit/Extrapolate 검토가 끝나면 상단 **Card** task를 누릅니다. graph가 있던 작업 영역이 exact
+Material/State → reviewed Processing Output/IR → Neutral Material JSON → mapping → native card 흐름으로
+바뀝니다. 페이지 아래의 별도 exporter를 찾거나 UUID를 복사하지 않습니다. **Back to Fit**을 누르면
+같은 session과 Recipe draft를 유지한 채 후보 비교로 돌아갑니다.
+
+solver와 version을 고르면 지원되는 material law가 capability manifest에서 표시됩니다. preflight의
+모든 field는 `exact`, `transformed`, `approximated`, `ignored`, `unsupported`, `not_applicable` 중 하나를
+가져야 합니다. `approximated`는 acknowledgement 전에는 card 생성 버튼이 비활성이고,
+`unsupported`는 생성할 수 없습니다. 생성 후 native ASCII preview와 `.inp`/`.rad`, mapping report
+JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩니다.
+
+![금속 Card task와 exact Neutral evidence](../15-demo/images/t88-abaqus-card-delivery.png)
+
+![OpenRadioss LAW36 native ASCII result](../15-demo/images/t88-openradioss-card-delivery.png)
+
 ![금속 인장 처리 단계와 210 GPa Huber 탄성계수 결과](../15-demo/images/t55m-metal-processing-methods.png)
 
 각 method의 option 계약은 서버의 versioned registry에서 읽습니다. 알 수 없는 option, 호환되지
@@ -174,6 +191,7 @@ Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와
 ## 현재 경계
 
 화면의 stage overlay와 반복시험 통계는 명확히 preview로 표시됩니다. 별도의 single-curve commit은
-서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화하지만, 아직 일반
-Modeling 입력으로 자동 승격되지는 않습니다. Recipe 저장/게시와 exact-input batch 실행은 지원하며,
-처리 후보를 Neutral Material JSON/IR로 승격하는 계약은 T-56에서 구현합니다.
+서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화합니다. Recipe
+저장/게시와 exact-input batch 실행을 지원하며, reviewed 금속 Processing Output은 같은 Modeling
+화면의 Card task에서 IR/Neutral Material JSON으로 승격할 수 있습니다. 폴리머와 엘라스토머의
+동일한 graph/task 사용성은 T-89/T-90에서 계속 검증합니다.

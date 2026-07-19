@@ -369,6 +369,7 @@ describe("Common Processing Workbench", () => {
         config={{ baseUrl: "/api/v1", accessToken: "token" }}
         onNavigate={() => undefined}
         onOpenConnection={() => undefined}
+        familyWorkbench={<div>Exact Neutral and solver delivery fixture</div>}
       />,
     );
 
@@ -454,5 +455,11 @@ describe("Common Processing Workbench", () => {
     const ensembleRequest = fetchMock.mock.calls.find(([input]) => String(input).endsWith("/processing:preview-ensemble"));
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
+    fireEvent.click(screen.getByRole("button", { name: "Card" }));
+    expect(screen.getByRole("heading", { name: "Neutral model to solver-native material card" })).toBeTruthy();
+    expect(screen.getByText("Exact Neutral and solver delivery fixture")).toBeTruthy();
+    expect(screen.queryByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
+    expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
   });
 });
