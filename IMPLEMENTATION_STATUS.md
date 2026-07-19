@@ -32,9 +32,9 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Catalog and Material Workflow Explorers | Exact tree/link engines exist; current three-pane GUI is `partial` until state restoration, keyboard, realistic hierarchy and linked navigation pass T-91 | T-91 Database parity |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
-| General Mapping Profile and Processing Workbench | T-86 Metal Prepare, T-87 Metal Fit/Extrapolate and T-88 in-workbench Card delivery are accepted: compact 3-pane shell, exact curve selection, guided preprocessing, server mean/CI, graph-selected engineering domains, four-family response/residual/tangent comparison, explicit unobserved extrapolation, Neutral review and two native card downloads. | T-89/T-90 family parity |
+| General Mapping Profile and Processing Workbench | T-86 Metal Prepare, T-87 Metal Fit/Extrapolate, T-88 in-workbench Card delivery and T-89 Polymer relaxation/DMA are accepted: compact 3-pane shell, exact curve selection, guided preprocessing, response/residual comparison, immutable Neutral review and two native card downloads. | T-90 Elastomer family parity |
 | Saved Recipe library/general batch execution | Lifecycle/preflight/execute/retry engines are connected; library and batch UX remain `partial` | T-92 |
-| Metal/Polymer/Elastomer modeling | The cohesive Metal path through Neutral/Card is accepted through T-88. Existing Polymer/Elastomer engines remain integration evidence until T-89/T-90 rework their graph-centered GUI. | T-89/T-90 |
+| Metal/Polymer/Elastomer modeling | The cohesive Metal path through Neutral/Card is accepted through T-88. T-89 accepts Polymer relaxation and joint DMA storage/loss paths through exact Recipe/Batch/Output, Neutral JSON and both native cards. The Elastomer engine remains integration evidence until T-90 reworks its multi-mode graph-centered GUI. | T-90 |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | Production package qualification (outside v3) |
@@ -82,6 +82,14 @@ must not be read as product-experience completion.
   engineering selection reason remain deterministic Recipe options. Evidence is in
   `docs/15-demo/evidence/t87-metal-fit-extrapolation.md`. T-88 subsequently completed cohesive
   Neutral/Card delivery.
+
+- `T-89` (`completed`): Polymer Material Modeling now has separate relaxation and DMA flows.
+  Relaxation supplies log-time Prony comparison and WLF/Arrhenius master-curve evidence; DMA jointly
+  fits measured storage/loss modulus with one Prony set and presents response/residual/BIC/terms on a
+  log-frequency graph. Exact published Recipe/Batch Outputs promote to IR and Neutral JSON and create
+  both Abaqus `TIME=PRONY` and acknowledged OpenRadioss `/VISC/LPRONY` cards. The Card task follows the
+  selected Test Data revision instead of reopening an unrelated model. Live PostgreSQL/browser proof
+  is in `docs/15-demo/evidence/t89-polymer-viscoelastic-workbench.md`. T-90 now owns Elastomer parity.
 
 - `T-88` (`completed`): **Card** is now a first-class task in the Material Modeling shell rather than
   a legacy drawer below the graph. It pins friendly Material/State and exact reviewed Output/IR/Neutral

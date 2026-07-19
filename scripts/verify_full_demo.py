@@ -120,26 +120,6 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
         polymer_models = _items(
             _json(client.get(f"/material-states/{polymer_state_id}/linear-viscoelastic-models"))
         )
-        processed_model = next(
-            (
-                item
-                for item in polymer_models
-                if isinstance(_content(item).get("processing_promotion_evidence"), Mapping)
-            ),
-            None,
-        )
-        if processed_model is None:
-            raise RuntimeError("clean demo polymer has no Processing-promoted IR")
-        processed_content = _content(processed_model)
-        processing_evidence = processed_content["processing_promotion_evidence"]
-        assert isinstance(processing_evidence, Mapping)
-        terms = processed_content.get("terms")
-        if (
-            not isinstance(terms, list)
-            or not 1 <= len(terms) <= 10
-            or processing_evidence.get("selected_term_count") != len(terms)
-        ):
-            raise RuntimeError("processed polymer IR does not preserve selected Prony terms")
         polymer_recipe = next(
             item
             for item in _items(_json(client.get("/common-processing-recipes")))
@@ -162,6 +142,32 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             for item in _items(_json(client.get("/processing-outputs")))
             if item.get("processing_output_id") == polymer_attempt.get("output_id")
         )
+        processed_model = next(
+            (
+                item
+                for item in polymer_models
+                if isinstance(
+                    _content(item).get("processing_promotion_evidence"), Mapping
+                )
+                and _content(item)["processing_promotion_evidence"]
+                .get("processing_output", {})
+                .get("id")
+                == polymer_output.get("processing_output_id")
+            ),
+            None,
+        )
+        if processed_model is None:
+            raise RuntimeError("clean demo polymer has no exact Processing-promoted IR")
+        processed_content = _content(processed_model)
+        processing_evidence = processed_content["processing_promotion_evidence"]
+        assert isinstance(processing_evidence, Mapping)
+        terms = processed_content.get("terms")
+        if (
+            not isinstance(terms, list)
+            or not 1 <= len(terms) <= 10
+            or processing_evidence.get("selected_term_count") != len(terms)
+        ):
+            raise RuntimeError("processed polymer IR does not preserve selected Prony terms")
         exact_output = processing_evidence.get("processing_output")
         recipe_batch = processing_evidence.get("recipe_batch")
         exact_recipe = (
@@ -198,9 +204,17 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 continue
             candidate_neutral = _json(client.get(f"/neutral-materials/{candidate_id}"))
             selection = candidate_neutral.get("document", {}).get("candidate_selection", {})
+            candidate_recipe = (
+                candidate_neutral.get("document", {})
+                .get("sources", {})
+                .get("processing_recipe", {})
+                .get("reference", {})
+            )
             if (
                 isinstance(selection, Mapping)
                 and selection.get("kind") == "prony_processing_output_selection"
+                and isinstance(candidate_recipe, Mapping)
+                and candidate_recipe.get("id") == polymer_recipe.get("processing_recipe_id")
             ):
                 polymer_neutral = candidate_neutral
                 break
@@ -288,6 +302,129 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "bulk_bundle_id": polymer_bundle_id,
             "bulk_component_count": polymer_bundle["component_count"],
             "solver_cards": polymer_native_cards,
+        }
+
+        dma_document = next(
+            item
+            for item in _items(_json(client.get("/test-data-documents")))
+            if item.get("document_key") == "CMP-DEMO-POLYMER-DMA-JSON"
+        )
+        dma_profile = next(
+            item
+            for item in _items(_json(client.get("/mapping-profiles")))
+            if item.get("content", {}).get("profile_key") == "polymer-dma-frequency"
+        )
+        dma_recipe = next(
+            item
+            for item in _items(_json(client.get("/common-processing-recipes")))
+            if item.get("content", {}).get("recipe_key") == "cmp_demo_polymer_dma_prony"
+        )
+        dma_batch = next(
+            item
+            for item in _items(_json(client.get("/common-processing-batches")))
+            if item.get("label") == "CMP demo polymer DMA Prony batch"
+            and item.get("recipe_revision_id") == dma_recipe.get("current_revision", {}).get("id")
+        )
+        if dma_batch.get("status") != "succeeded":
+            raise RuntimeError("polymer DMA Processing Recipe batch did not succeed")
+        dma_attempt = next(
+            item
+            for item in dma_batch.get("attempts", [])
+            if isinstance(item, Mapping) and item.get("status") == "succeeded"
+        )
+        dma_output = next(
+            item
+            for item in _items(_json(client.get("/processing-outputs")))
+            if item.get("processing_output_id") == dma_attempt.get("output_id")
+        )
+        dma_model = next(
+            (
+                item
+                for item in polymer_models
+                if _content(item)
+                .get("processing_promotion_evidence", {})
+                .get("processing_output", {})
+                .get("id")
+                == dma_output.get("processing_output_id")
+            ),
+            None,
+        )
+        if dma_model is None:
+            raise RuntimeError("clean demo polymer has no exact DMA-promoted IR")
+        dma_content = _content(dma_model)
+        dma_evidence = dma_content.get("processing_promotion_evidence", {})
+        dma_terms = dma_content.get("terms")
+        if (
+            not isinstance(dma_evidence, Mapping)
+            or dma_evidence.get("selected_term_count") != 2
+            or not isinstance(dma_terms, list)
+            or len(dma_terms) != 2
+        ):
+            raise RuntimeError("DMA IR does not preserve the joint storage/loss Prony selection")
+        dma_neutral = None
+        for candidate in polymer_candidates:
+            source = candidate.get("source")
+            if not isinstance(source, Mapping) or source.get("kind") != "neutral_material_json":
+                continue
+            candidate_id = source.get("neutral_material_id")
+            if not isinstance(candidate_id, str):
+                continue
+            candidate_neutral = _json(client.get(f"/neutral-materials/{candidate_id}"))
+            selection = candidate_neutral.get("document", {}).get("candidate_selection", {})
+            if (
+                isinstance(selection, Mapping)
+                and selection.get("processing_output", {}).get("id")
+                == dma_output.get("processing_output_id")
+                and selection.get("selected_series")
+                == "modulus.storage.prony.selected+modulus.loss.prony.selected"
+            ):
+                dma_neutral = candidate_neutral
+                break
+        if dma_neutral is None:
+            raise RuntimeError("clean demo polymer has no DMA Neutral Material JSON")
+        dma_sources = dma_neutral.get("document", {}).get("sources", {})
+        dma_tests = dma_sources.get("datasets", []) if isinstance(dma_sources, Mapping) else []
+        if (
+            not isinstance(dma_tests, list)
+            or len(dma_tests) != 1
+            or dma_tests[0].get("test_mode") != "dma_frequency"
+            or dma_sources.get("mapping_profile", {}).get("reference", {}).get("id")
+            != dma_profile.get("mapping_profile_id")
+        ):
+            raise RuntimeError(
+                "DMA Neutral JSON does not pin its exact test mode and Mapping Profile"
+            )
+        dma_cards = _items(
+            _json(client.get(f"/neutral-materials/{dma_neutral['neutral_material_id']}/solver-cards"))
+        )
+        dma_native_cards: dict[str, dict[str, str]] = {}
+        for solver, keyword in (
+            ("abaqus", b"*VISCOELASTIC, TIME=PRONY"),
+            ("openradioss", b"/VISC/LPRONY"),
+        ):
+            card = next(
+                item
+                for item in dma_cards
+                if item.get("target", {}).get("solver") == solver
+            )
+            native = client.get(f"/neutral-solver-cards/{card['solver_card_id']}/download")
+            native.raise_for_status()
+            if keyword not in native.content:
+                raise RuntimeError(f"DMA native card omits {solver} Prony data")
+            dma_native_cards[solver] = {
+                "solver_card_id": str(card["solver_card_id"]),
+                "sha256": hashlib.sha256(native.content).hexdigest(),
+            }
+        result["polymer_dma_journey"] = {
+            "test_data_document_id": dma_document["test_data_document_id"],
+            "mapping_profile_id": dma_profile["mapping_profile_id"],
+            "processing_recipe_id": dma_recipe["processing_recipe_id"],
+            "processing_batch_id": dma_batch["batch_id"],
+            "processing_output_id": dma_output["processing_output_id"],
+            "material_model_id": dma_model["material_model_id"],
+            "neutral_material_id": dma_neutral["neutral_material_id"],
+            "selected_term_count": len(dma_terms),
+            "solver_cards": dma_native_cards,
         }
 
         metal = next(

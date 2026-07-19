@@ -4621,3 +4621,194 @@ summary {
   .family-modeling-heading { display: grid; }
   .family-context-bar { grid-template-columns: 1fr; }
 }
+
+/* T-89 · graph-centered polymer relaxation and temperature-shift evidence */
+.polymer-step-options .engineering-callout {
+  border-color: #bfd9e5;
+  background: linear-gradient(135deg, #f5fbfd, #eef7fa);
+}
+
+.prony-count-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.prony-candidate-evidence {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #d8e1e4;
+}
+
+.prony-candidate-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.prony-candidate-strip button {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px 10px;
+  text-align: left;
+  border: 1px solid #d6e0e3;
+  border-radius: 7px;
+  background: #fff;
+  color: #18333a;
+}
+
+.prony-candidate-strip button:hover,
+.prony-candidate-strip button.selected {
+  border-color: #12847d;
+  background: #effaf8;
+  box-shadow: inset 3px 0 #12847d;
+}
+
+.prony-candidate-strip button > span {
+  color: #688087;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.prony-candidate-strip button strong { font-size: 13px; }
+.prony-candidate-strip button small { color: #526970; }
+.prony-candidate-strip button b { color: #0c706b; font-size: 11px; }
+
+.prony-selected-terms {
+  overflow: hidden;
+  border: 1px solid #dce5e7;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.prony-selected-term {
+  display: grid;
+  grid-template-columns: 46px 1fr 1fr;
+  gap: 8px;
+  padding: 7px 9px;
+  border-top: 1px solid #edf1f2;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.prony-selected-term.header {
+  border-top: 0;
+  background: #f5f8f9;
+  color: #587078;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.prony-analysis-tabs { border-color: #cfe0e6; background: #f5fafb; }
+.prony-metric-strip article { min-width: 110px; }
+.prony-metric-strip article small { color: #60757b; font-size: 9px; }
+.curve-line.prony-observed { stroke-width: 3; stroke-linecap: round; }
+.curve-line.prony-candidate { stroke-width: 1.5; opacity: .74; }
+.curve-line.prony-selected { stroke-width: 3; stroke-dasharray: 8 3; }
+
+.polymer-temperature-shift-inspector {
+  margin-top: 12px;
+  border: 1px solid #cadde3;
+  border-radius: 8px;
+  background: #f8fbfc;
+}
+
+.polymer-temperature-shift-inspector > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.polymer-temperature-shift-inspector > summary span:first-child { display: grid; gap: 2px; }
+.polymer-temperature-shift-inspector > summary small { color: #657c83; }
+.polymer-temperature-shift-inspector > summary span:last-child { color: #08736e; font-weight: 750; }
+.polymer-temperature-shift-inspector[open] > summary { border-bottom: 1px solid #d8e4e7; }
+.polymer-temperature-shift-inspector .master-curve-workbench { padding: 12px; }
+
+.polymer-temperature-shift-inspector[open] {
+  background: #f8fbfc;
+  border-color: #9ebfc6;
+  bottom: 20px;
+  box-shadow: 0 0 0 9999px rgb(17 35 42 / 22%), 0 24px 64px rgb(17 35 42 / 28%);
+  margin: 0;
+  max-width: calc(100vw - 40px);
+  overflow: auto;
+  position: fixed;
+  right: 20px;
+  top: 72px;
+  width: 760px;
+  z-index: 120;
+}
+
+.polymer-temperature-shift-inspector[open] > summary {
+  background: #f8fbfc;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.master-curve-workbench.compact .selection-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-height: 180px;
+  overflow: auto;
+}
+
+.master-curve-workbench.compact .selection-card { padding: 8px; }
+.master-curve-workbench.compact .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.master-curve-result-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, .7fr) minmax(420px, 1.3fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.shift-factor-chart {
+  padding: 10px;
+  border: 1px solid #dce6e8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.shift-factor-chart h5 { margin: 2px 0 8px; }
+.shift-factor-chart svg { width: 100%; height: auto; }
+.shift-factor-chart text { fill: #5f747a; font-size: 9px; }
+.shift-factor-chart circle { fill: #e56734; stroke: #fff; stroke-width: 2; }
+.shift-factor-chart .shift-fit-line { fill: none; stroke: #0d8079; stroke-width: 2; }
+
+.reference-linear-viscoelastic-workbench.embedded { display: grid; gap: 14px; }
+.reference-linear-viscoelastic-workbench.embedded .reviewed-delivery-summary { margin: 0; }
+
+.reference-linear-viscoelastic-workbench.embedded .viscoelastic-result.embedded {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.reference-linear-viscoelastic-workbench.embedded .viscoelastic-result.embedded > .section-heading,
+.reference-linear-viscoelastic-workbench.embedded .viscoelastic-result.embedded > .viscoelastic-facts { display: none; }
+
+@media (max-width: 1280px) {
+  .prony-count-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .polymer-temperature-shift-inspector[open] {
+    bottom: 8px;
+    max-width: none;
+    right: 8px;
+    top: 64px;
+    width: calc(100vw - 16px);
+  }
+  .master-curve-workbench.compact .selection-grid,
+  .master-curve-workbench.compact .form-grid,
+  .master-curve-result-grid { grid-template-columns: 1fr; }
+}

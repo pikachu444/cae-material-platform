@@ -280,12 +280,8 @@ def _metal_curves(
         raise NeutralMaterialConflict("Processing Output JSON structure is invalid") from error
     if not isinstance(stages, list) or not stages:
         raise NeutralMaterialConflict("Processing Output has no curve stages")
-    engineering_x, engineering_y = _stage_series(
-        stages, "strain.engineering", "stress.engineering"
-    )
-    plastic_x, plastic_y = _stage_series(
-        stages, "strain.true_plastic", "stress.true", reverse=True
-    )
+    engineering_x, engineering_y = _stage_series(stages, "strain.engineering", "stress.engineering")
+    plastic_x, plastic_y = _stage_series(stages, "strain.true_plastic", "stress.true", reverse=True)
     fitted_x, fitted_y = _stage_series(
         stages, "strain.true_plastic", "stress.hardening.selected", reverse=True
     )
@@ -793,13 +789,9 @@ class NeutralMaterialService:
                 characterized_max_true_plastic_strain=(
                     content.characterized_max_true_plastic_strain
                 ),
-                extension_max_true_plastic_strain=(
-                    content.extension_max_true_plastic_strain
-                ),
+                extension_max_true_plastic_strain=(content.extension_max_true_plastic_strain),
                 extrapolation_policy=REFERENCE_PROCESSED_EXTRAPOLATION_POLICY,
-                approximation_acknowledged=(
-                    content.post_necking_approximation_acknowledged
-                ),
+                approximation_acknowledged=(content.post_necking_approximation_acknowledged),
             ),
             applicable_strain_min=content.fit_minimum_true_plastic_strain,
             applicable_strain_max=content.extension_max_true_plastic_strain,
@@ -838,9 +830,7 @@ class NeutralMaterialService:
         processing_evidence = content.processing_promotion_evidence
         if processing_evidence is not None:
             if self._processing_outputs is None or self._test_data is None:
-                raise NeutralMaterialConflict(
-                    "Processing Output Neutral promotion is unavailable"
-                )
+                raise NeutralMaterialConflict("Processing Output Neutral promotion is unavailable")
             output, output_bytes = await self._processing_outputs.export_exact(
                 context,
                 decision,
@@ -859,11 +849,50 @@ class NeutralMaterialService:
                 series = {item["quantity"]: item for item in stage["series"]}
                 scalars = {item["key"]: item for item in stage["scalar_results"]}
                 independent = series[output.content.independent_quantity]
-                observed = series["modulus.shear.relaxation"]
-                fitted = series["modulus.prony.selected"]
-                times = tuple(float(value) for value in independent["values"])
-                observed_values = tuple(float(value) for value in observed["values"])
-                fitted_values = tuple(float(value) for value in fitted["values"])
+                method_id = str(stage["method_id"])
+                independent_values = tuple(float(value) for value in independent["values"])
+                curve_contracts: tuple[tuple[str, str, str], ...]
+                if method_id == "polymer.dma_prony_fit_compare":
+                    test_mode = NeutralTestMode.DMA_FREQUENCY
+                    expected_independent_unit = "Hz"
+                    curve_contracts = (
+                        (
+                            "modulus.shear.storage",
+                            "modulus.storage.prony.selected",
+                            "modulus.storage.prony.residual",
+                        ),
+                        (
+                            "modulus.shear.loss",
+                            "modulus.loss.prony.selected",
+                            "modulus.loss.prony.residual",
+                        ),
+                    )
+                    selected_series_name = (
+                        "modulus.storage.prony.selected+modulus.loss.prony.selected"
+                    )
+                elif method_id == "polymer.prony_fit_compare":
+                    test_mode = NeutralTestMode.STRESS_RELAXATION
+                    expected_independent_unit = "s"
+                    curve_contracts = (
+                        (
+                            "modulus.shear.relaxation",
+                            "modulus.prony.selected",
+                            "modulus.shear.residual",
+                        ),
+                    )
+                    selected_series_name = "modulus.prony.selected"
+                else:
+                    raise KeyError("final method")
+                curve_values = tuple(
+                    (
+                        source_quantity,
+                        selected_quantity,
+                        residual_quantity,
+                        tuple(float(value) for value in series[source_quantity]["values"]),
+                        tuple(float(value) for value in series[selected_quantity]["values"]),
+                    )
+                    for source_quantity, selected_quantity, residual_quantity in curve_contracts
+                )
                 selected_count = int(scalars["prony_selected_term_count"]["value"])
                 terms = tuple(
                     (
@@ -878,10 +907,8 @@ class NeutralMaterialService:
                 ) from error
             if (
                 output.id != processing_evidence.processing_output_id
-                or output.current.revision_id
-                != processing_evidence.processing_output_revision_id
-                or output.content.output_sha256
-                != processing_evidence.processing_output_sha256
+                or output.current.revision_id != processing_evidence.processing_output_revision_id
+                or output.content.output_sha256 != processing_evidence.processing_output_sha256
                 or output.content.source_document.aggregate_id
                 != processing_evidence.source_test_data_id
                 or output.content.source_document.revision_id
@@ -890,16 +917,21 @@ class NeutralMaterialService:
                 != processing_evidence.mapping_profile_id
                 or output.content.mapping_profile.revision_id
                 != processing_evidence.mapping_profile_revision_id
-                or stage["method_id"] != "polymer.prony_fit_compare"
-                or independent["unit"] != "s"
-                or observed["unit"] != "Pa"
-                or fitted["unit"] != "Pa"
+                or method_id not in {"polymer.prony_fit_compare", "polymer.dma_prony_fit_compare"}
+                or independent["unit"] != expected_independent_unit
+                or any(
+                    series[source_quantity]["unit"] != "Pa"
+                    or series[selected_quantity]["unit"] != "Pa"
+                    for source_quantity, selected_quantity, _ in curve_contracts
+                )
                 or selected_count != processing_evidence.selected_term_count
-                or len(times) != output.content.final_point_count
-                or len(observed_values) != len(times)
-                or len(fitted_values) != len(times)
-                or terms
-                != tuple((term.g_ratio, term.relaxation_time_s) for term in content.terms)
+                or len(independent_values) != output.content.final_point_count
+                or any(
+                    len(observed_values) != len(independent_values)
+                    or len(fitted_values) != len(independent_values)
+                    for _, _, _, observed_values, fitted_values in curve_values
+                )
+                or terms != tuple((term.g_ratio, term.relaxation_time_s) for term in content.terms)
             ):
                 raise NeutralMaterialConflict(
                     "selected generalized-Maxwell IR no longer resolves to exact "
@@ -912,14 +944,33 @@ class NeutralMaterialService:
                 return NeutralCurve(
                     stage=stage_name,
                     dataset_revision_id=source.current.revision_id,
-                    test_mode=NeutralTestMode.STRESS_RELAXATION,
+                    test_mode=test_mode,
                     x_quantity=output.content.independent_quantity,
-                    x_unit="s",
+                    x_unit=expected_independent_unit,
                     y_quantity=quantity,
                     y_unit="Pa",
-                    x=times,
+                    x=independent_values,
                     y=values,
                 )
+
+            neutral_curves = tuple(
+                curve
+                for source_quantity, selected_quantity, residual_quantity, observed, fitted in (
+                    curve_values
+                )
+                for curve in (
+                    processing_curve(CurveStage.NORMALIZED, source_quantity, observed),
+                    processing_curve(CurveStage.FITTED, selected_quantity, fitted),
+                    processing_curve(
+                        CurveStage.RESIDUAL,
+                        residual_quantity,
+                        tuple(
+                            fitted_value - observed_value
+                            for fitted_value, observed_value in zip(fitted, observed, strict=True)
+                        ),
+                    ),
+                )
+            )
 
             neutral_id = self._id()
             neutral_revision_id = self._id()
@@ -975,37 +1026,18 @@ class NeutralMaterialService:
                     NeutralDatasetSource(
                         dataset=RevisionReference(source.id, source.current.revision_id),
                         role=NeutralDatasetRole.PROCESSING_INPUT,
-                        test_mode=NeutralTestMode.STRESS_RELAXATION,
+                        test_mode=test_mode,
                         normalized_artifact_id=source.content.normalized_artifact_id,
                         normalized_artifact_sha256=source.content.normalized_sha256,
                         source_kind=NeutralDatasetKind.TEST_DATA_DOCUMENT,
                     ),
                 ),
-                curves=(
-                    processing_curve(
-                        CurveStage.NORMALIZED,
-                        "modulus.shear.relaxation",
-                        observed_values,
-                    ),
-                    processing_curve(
-                        CurveStage.FITTED, "modulus.prony.selected", fitted_values
-                    ),
-                    processing_curve(
-                        CurveStage.RESIDUAL,
-                        "modulus.shear.residual",
-                        tuple(
-                            fitted_value - observed_value
-                            for fitted_value, observed_value in zip(
-                                fitted_values, observed_values, strict=True
-                            )
-                        ),
-                    ),
-                ),
+                curves=neutral_curves,
                 selection=NeutralPronyProcessingSelection(
                     processing_output=RevisionReference(output.id, output.current.revision_id),
                     processing_output_sha256=output.content.output_sha256,
                     reason=selection_reason,
-                    selected_series="modulus.prony.selected",
+                    selected_series=selected_series_name,
                     selection_mode=processing_evidence.selection_mode,
                     selected_term_count=processing_evidence.selected_term_count,
                     normalized_rmse=processing_evidence.normalized_rmse,
@@ -1046,8 +1078,16 @@ class NeutralMaterialService:
                 ),
                 applicable_strain_min=None,
                 applicable_strain_max=None,
-                applicable_time_min_s=min(times),
-                applicable_time_max_s=max(times),
+                applicable_time_min_s=(
+                    min(independent_values)
+                    if test_mode is NeutralTestMode.STRESS_RELAXATION
+                    else 1 / (2 * math.pi * max(independent_values))
+                ),
+                applicable_time_max_s=(
+                    max(independent_values)
+                    if test_mode is NeutralTestMode.STRESS_RELAXATION
+                    else 1 / (2 * math.pi * min(independent_values))
+                ),
                 validation_status="reviewed_processing_prony_fit_and_modulus_consistency",
             )
             return await self._persist_new_document(
@@ -1410,10 +1450,8 @@ class NeutralMaterialService:
                 or output.content.output_sha256 != selection.processing_output_sha256
                 or output.content.source_document.aggregate_id != source.dataset.object_id
                 or output.content.source_document.revision_id != source.dataset.revision_id
-                or source_snapshot.content.normalized_artifact_id
-                != source.normalized_artifact_id
-                or source_snapshot.content.normalized_sha256
-                != source.normalized_artifact_sha256
+                or source_snapshot.content.normalized_artifact_id != source.normalized_artifact_id
+                or source_snapshot.content.normalized_sha256 != source.normalized_artifact_sha256
                 or artifact.artifact.sha256 != material_ir.hardening_curve.sha256
                 or selection.candidate_families != material_ir.candidate_families
                 or selection.primary_family != material_ir.primary_family
@@ -1464,7 +1502,11 @@ class NeutralMaterialService:
                         "imported Processing Output does not reproduce Prony parameters"
                     ) from error
                 if (
-                    stage["method_id"] != "polymer.prony_fit_compare"
+                    stage["method_id"]
+                    not in {
+                        "polymer.prony_fit_compare",
+                        "polymer.dma_prony_fit_compare",
+                    }
                     or output.content.output_sha256 != selection.processing_output_sha256
                     or output.content.source_document.aggregate_id != source.dataset.object_id
                     or output.content.source_document.revision_id != source.dataset.revision_id
@@ -1473,9 +1515,7 @@ class NeutralMaterialService:
                     or source_snapshot.content.normalized_sha256
                     != source.normalized_artifact_sha256
                     or selection.selected_term_count != selected_count
-                    or tuple(
-                        (term.g_ratio, term.relaxation_time_s) for term in material_ir.terms
-                    )
+                    or tuple((term.g_ratio, term.relaxation_time_s) for term in material_ir.terms)
                     != expected_terms
                 ):
                     raise NeutralMaterialConflict(
@@ -1520,26 +1560,19 @@ class NeutralMaterialService:
                 if (
                     prony_candidate.calibration_run_id != prony_run.id
                     or prony_candidate.value.candidate_sha256 != selection.candidate_sha256
-                    or prony_candidate.diagnostics_artifact_id
-                    != selection.diagnostics_artifact_id
+                    or prony_candidate.diagnostics_artifact_id != selection.diagnostics_artifact_id
                     or prony_candidate.diagnostics_sha256 != selection.diagnostics_sha256
                     or prony_run.plan_id != calibration_plan.object_id
                     or prony_run.plan_revision_id != calibration_plan.revision_id
                     or source.source_kind is not NeutralDatasetKind.SHEAR_RELAXATION_DATASET
                     or prony_run.input_dataset_id != source.dataset.object_id
                     or prony_run.input_dataset_revision_id != source.dataset.revision_id
-                    or relaxation_dataset.content.data_artifact_id
-                    != source.normalized_artifact_id
-                    or relaxation_dataset.content.data_sha256
-                    != source.normalized_artifact_sha256
-                    or prony_baseline.content.density_kg_per_m3
-                    != material_ir.density_kg_per_m3
-                    or prony_baseline.content.youngs_modulus_pa
-                    != material_ir.youngs_modulus_pa
+                    or relaxation_dataset.content.data_artifact_id != source.normalized_artifact_id
+                    or relaxation_dataset.content.data_sha256 != source.normalized_artifact_sha256
+                    or prony_baseline.content.density_kg_per_m3 != material_ir.density_kg_per_m3
+                    or prony_baseline.content.youngs_modulus_pa != material_ir.youngs_modulus_pa
                     or prony_baseline.content.poisson_ratio != material_ir.poisson_ratio
-                    or tuple(
-                        (term.g_ratio, term.relaxation_time_s) for term in material_ir.terms
-                    )
+                    or tuple((term.g_ratio, term.relaxation_time_s) for term in material_ir.terms)
                     != expected_terms
                 ):
                     raise NeutralMaterialConflict(

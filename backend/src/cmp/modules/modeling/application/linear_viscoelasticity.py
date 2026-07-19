@@ -6,7 +6,7 @@ import json
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, replace
-from typing import Protocol
+from typing import Any, Protocol
 from uuid import UUID, uuid4
 
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
@@ -298,17 +298,34 @@ class LinearViscoelasticModelService:
             stage = document["result"]["stages"][-1]
             step = output.content.steps[-1]
             if (
-                stage["method_id"] != "polymer.prony_fit_compare"
+                stage["method_id"]
+                not in {
+                    "polymer.prony_fit_compare",
+                    "polymer.dma_prony_fit_compare",
+                }
                 or step.method_id != stage["method_id"]
                 or step.method_version != "1.0.0"
             ):
                 raise KeyError("final method")
             series = {item["quantity"]: item for item in stage["series"]}
-            selected_series = series["modulus.prony.selected"]
-            time_series = series[output.content.independent_quantity]
-            if selected_series["unit"] != "Pa" or time_series["unit"] != "s":
+            independent_series = series[output.content.independent_quantity]
+            selected_series: tuple[dict[str, Any], ...]
+            if step.method_id == "polymer.dma_prony_fit_compare":
+                selected_series = (
+                    series["modulus.storage.prony.selected"],
+                    series["modulus.loss.prony.selected"],
+                )
+                expected_independent_unit = "Hz"
+            else:
+                selected_series = (series["modulus.prony.selected"],)
+                expected_independent_unit = "s"
+            if independent_series["unit"] != expected_independent_unit or any(
+                item["unit"] != "Pa" for item in selected_series
+            ):
                 raise KeyError("selected units")
-            if len(selected_series["values"]) != output.content.final_point_count:
+            if any(
+                len(item["values"]) != output.content.final_point_count for item in selected_series
+            ):
                 raise KeyError("selected point count")
             scalars = {item["key"]: item for item in stage["scalar_results"]}
             selected_count_value = float(scalars["prony_selected_term_count"]["value"])

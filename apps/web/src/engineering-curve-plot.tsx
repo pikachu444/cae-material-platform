@@ -46,9 +46,11 @@ interface PlotModel {
   series: PlotSeries[];
   band?: PlotBand;
   extrapolationStart?: number;
+  xScale?: "linear" | "log10";
 }
 
 export type HardeningPlotMode = "response" | "residual" | "derivative";
+export type PronyPlotMode = "response" | "residual";
 
 const PLOT_MARGIN = { left: 64, right: 24, top: 24, bottom: 52 } as const;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
@@ -165,9 +167,11 @@ function seriesForStage(
   baseStage: CommonCurveStage,
   activeStep?: CommonProcessingStep,
   hardeningMode: HardeningPlotMode = "response",
+  pronyMode: PronyPlotMode = "response",
 ): PlotModel {
   const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
-  const prony = activeStage.method_id === "polymer.prony_fit_compare";
+  const prony = activeStage.method_id === "polymer.prony_fit_compare"
+    || activeStage.method_id === "polymer.dma_prony_fit_compare";
   const xQuantity = activeStage.series.some((item) => item.quantity === preview.independent_quantity)
     ? preview.independent_quantity
     : activeStage.series.find((item) => item.quantity.includes("strain"))?.quantity
@@ -293,31 +297,119 @@ function seriesForStage(
   }
 
   if (prony) {
+    const dma = activeStage.method_id === "polymer.dma_prony_fit_compare";
+    if (dma) {
+      const previousStage = preview.stages.find((item) => item.ordinal === activeStage.ordinal - 1);
+      const observedX = previousStage?.series.find((item) => item.quantity === xQuantity)?.values ?? [];
+      const observedStorage = previousStage?.series.find((item) => item.quantity === String(activeStep?.options.storage_modulus_quantity ?? "modulus.shear.storage"));
+      const observedLoss = previousStage?.series.find((item) => item.quantity === String(activeStep?.options.loss_modulus_quantity ?? "modulus.shear.loss"));
+      const candidates = activeStage.series.filter((item) => item.quantity.includes(".prony.candidate_"));
+      const selected = activeStage.series.filter((item) => item.quantity.endsWith(".prony.selected"));
+      const candidateSeries: PlotSeries[] = candidates.map((item, index) => ({
+        id: item.quantity,
+        label: item.quantity.replace("modulus.", "").replace(".prony.candidate_", " · ").replaceAll("_", " "),
+        xValues: activeX?.values ?? [],
+        yValues: item.values,
+        color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
+        className: item.quantity.startsWith("modulus.loss") ? "prony-candidate dma-loss" : "prony-candidate dma-storage",
+      }));
+      const selectedSeries: PlotSeries[] = selected.map((item, index) => ({
+        id: item.quantity,
+        label: item.quantity.startsWith("modulus.storage") ? "Selected storage modulus" : "Selected loss modulus",
+        xValues: activeX?.values ?? [],
+        yValues: item.values,
+        color: index === 0 ? "#111827" : "#7c3aed",
+        className: item.quantity.startsWith("modulus.storage") ? "prony-selected dma-storage" : "prony-selected dma-loss",
+      }));
+      if (pronyMode === "residual") {
+        return {
+          xQuantity,
+          xUnit: activeX?.unit ?? "Hz",
+          yQuantity: "predicted - measured",
+          yUnit: "Pa",
+          series: [...candidateSeries, ...selectedSeries].map((item) => ({
+            ...item,
+            ...residualValues(
+              observedX,
+              item.id.startsWith("modulus.storage") ? observedStorage?.values ?? [] : observedLoss?.values ?? [],
+              item.xValues,
+              item.yValues,
+            ),
+            label: `${item.label} residual`,
+          })),
+          xScale: "log10",
+        };
+      }
+      return {
+        xQuantity,
+        xUnit: activeX?.unit ?? "Hz",
+        yQuantity: "modulus.shear.dynamic",
+        yUnit: "Pa",
+        series: [
+          ...(observedStorage ? [{ id: "dma-storage-observed", label: "Measured storage modulus", xValues: observedX, yValues: observedStorage.values, color: "#e56734", className: "prony-observed dma-storage" }] : []),
+          ...(observedLoss ? [{ id: "dma-loss-observed", label: "Measured loss modulus", xValues: observedX, yValues: observedLoss.values, color: "#2f7f78", className: "prony-observed dma-loss" }] : []),
+          ...candidateSeries,
+          ...selectedSeries,
+        ],
+        xScale: "log10",
+      };
+    }
     const candidates = activeStage.series.filter((item) => item.quantity.startsWith("modulus.prony.candidate_"));
     const selected = activeStage.series.find((item) => item.quantity === "modulus.prony.selected");
+    const previousStage = preview.stages.find((item) => item.ordinal === activeStage.ordinal - 1);
+    const observedX = previousStage?.series.find((item) => item.quantity === xQuantity)?.values ?? [];
+    const observedSeries = previousStage?.series.find(
+      (item) => item.quantity === String(activeStep?.options.modulus_quantity ?? "modulus.shear.relaxation"),
+    );
+    const candidateSeries: PlotSeries[] = candidates.map((item, index) => ({
+      id: item.quantity,
+      label: item.quantity.replace("modulus.prony.candidate_", "").replaceAll("_", " "),
+      xValues: activeX?.values ?? [],
+      yValues: item.values,
+      color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
+      className: "prony-candidate",
+    }));
+    const selectedSeries: PlotSeries | null = selected ? {
+      id: selected.quantity,
+      label: "Selected Prony candidate",
+      xValues: activeX?.values ?? [],
+      yValues: selected.values,
+      color: "#111827",
+      className: "prony-selected",
+    } : null;
+    if (pronyMode === "residual") {
+      const comparison = [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])].map((item) => ({
+        ...item,
+        ...residualValues(observedX, observedSeries?.values ?? [], item.xValues, item.yValues),
+        label: `${item.label} residual`,
+      }));
+      return {
+        xQuantity,
+        xUnit: activeX?.unit ?? "s",
+        yQuantity: "predicted - measured",
+        yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
+        series: comparison,
+        xScale: "log10",
+      };
+    }
     return {
       xQuantity,
       xUnit: activeX?.unit ?? "s",
       yQuantity: "modulus.shear.relaxation",
       yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
       series: [
-        ...candidates.map((item, index) => ({
-          id: item.quantity,
-          label: item.quantity.replace("modulus.prony.candidate_", "").replaceAll("_", " "),
-          xValues: activeX?.values ?? [],
-          yValues: item.values,
-          color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
-          className: "hardening-candidate",
-        })),
-        ...(selected ? [{
-          id: selected.quantity,
-          label: "Selected Prony candidate",
-          xValues: activeX?.values ?? [],
-          yValues: selected.values,
-          color: "#111827",
-          className: "hardening-selected",
+        ...(observedSeries && observedX.length === observedSeries.values.length ? [{
+          id: "prony-observed",
+          label: "Measured relaxation",
+          xValues: observedX,
+          yValues: observedSeries.values,
+          color: "#e56734",
+          className: "prony-observed",
         }] : []),
+        ...candidateSeries,
+        ...(selectedSeries ? [selectedSeries] : []),
       ],
+      xScale: "log10",
     };
   }
 
@@ -463,32 +555,68 @@ export function EngineeringCurvePlot({
   const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
   const [selection, setSelection] = useState<GraphSelectionCommand | null>(null);
   const [hardeningMode, setHardeningMode] = useState<HardeningPlotMode>("response");
+  const [pronyMode, setPronyMode] = useState<PronyPlotMode>("response");
   const isHardening = !ensemblePreview && activeStage.method_id === "metal.hardening_fit_extrapolate";
+  const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
+    || activeStage.method_id === "polymer.dma_prony_fit_compare");
+  const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
   const hardeningMetrics = isHardening
     ? activeStage.scalar_results
       .filter((item) => item.key.endsWith(".relative_rmse"))
       .map((item) => ({ family: item.key.replace(".relative_rmse", ""), value: item.value }))
       .sort((left, right) => left.value - right.value)
     : [];
+  const pronyMetrics = isProny
+    ? activeStage.scalar_results
+      .filter((item) => /^prony_\d+_bic$/.test(item.key))
+      .map((item) => {
+        const count = Number(item.key.match(/^prony_(\d+)_bic$/)?.[1]);
+        const rmse = activeStage.scalar_results.find((candidate) => candidate.key === `prony_${count}_normalized_rmse`)?.value;
+        return { count, bic: item.value, rmse };
+      })
+      .sort((left, right) => left.bic - right.bic)
+    : [];
   const model = useMemo(
-    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode),
-    [activeStage, activeStep, baseStage, ensemblePreview, hardeningMode, preview],
+    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode),
+    [activeStage, activeStep, baseStage, ensemblePreview, hardeningMode, preview, pronyMode],
   );
   const validSeries = model.series.filter(
-    (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length,
+    (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length
+      && (model.xScale !== "log10" || item.xValues.every((value) => value > 0)),
   );
-  const dataBounds = paddedPlotBounds(
-    validSeries.flatMap((item) => item.xValues),
+  const toPlotX = (value: number) => model.xScale === "log10" ? Math.log10(value) : value;
+  const fromPlotX = (value: number) => model.xScale === "log10" ? 10 ** value : value;
+  const plottedSeries = validSeries.map((item) => ({
+    ...item,
+    xValues: item.xValues.map(toPlotX),
+  }));
+  const plottedBand = model.band && (model.xScale !== "log10" || model.band.xValues.every((value) => value > 0)) ? {
+    ...model.band,
+    xValues: model.band.xValues.map(toPlotX),
+  } : undefined;
+  const paddedDataBounds = paddedPlotBounds(
+    plottedSeries.flatMap((item) => item.xValues),
     [
       ...validSeries.flatMap((item) => item.yValues),
       ...(model.band?.lowerValues ?? []),
       ...(model.band?.upperValues ?? []),
     ],
   );
+  const dataBounds = isDmaProny && pronyMode === "response"
+    ? { ...paddedDataBounds, yMin: Math.max(0, paddedDataBounds.yMin) }
+    : paddedDataBounds;
   const bounds = viewBounds ?? dataBounds;
   const yScale = displayScale(model.yUnit, validSeries.flatMap((item) => item.yValues));
-  const xTicks = axisTicks(bounds.xMin, bounds.xMax);
+  const xTicks = model.xScale === "log10"
+    ? Array.from(
+        { length: Math.max(0, Math.floor(bounds.xMax) - Math.ceil(bounds.xMin) + 1) },
+        (_, index) => Math.ceil(bounds.xMin) + index,
+      ).filter((value) => value >= bounds.xMin && value <= bounds.xMax)
+    : axisTicks(bounds.xMin, bounds.xMax);
   const yTicks = axisTicks(bounds.yMin, bounds.yMax);
+  const extrapolationPlotStart = model.extrapolationStart === undefined
+    ? undefined
+    : toPlotX(model.extrapolationStart);
   const marker = useMemo(() => {
     if (ensemblePreview) return null;
     const keys = activeStage.method_id === "metal.proof_stress"
@@ -512,6 +640,7 @@ export function EngineeringCurvePlot({
     setSelectionStart(null);
     setSelection(null);
     setHardeningMode("response");
+    setPronyMode("response");
     if (ensemblePreview) setInteractionMode("pan");
   }, [activeStage.method_id, activeStage.ordinal, ensemblePreview]);
 
@@ -544,8 +673,8 @@ export function EngineeringCurvePlot({
         kind: "range",
         x_quantity: model.xQuantity,
         x_unit: model.xUnit,
-        minimum: Math.min(selectionStart.x, coordinates.x),
-        maximum: Math.max(selectionStart.x, coordinates.x),
+        minimum: fromPlotX(Math.min(selectionStart.x, coordinates.x)),
+        maximum: fromPlotX(Math.max(selectionStart.x, coordinates.x)),
       });
       return;
     }
@@ -593,17 +722,22 @@ export function EngineeringCurvePlot({
           <button type="button" disabled={!selection || !onApplySelection} onClick={() => selection && onApplySelection?.(selection)}>Apply selection</button>
           {selection ? <button type="button" onClick={() => setSelection(null)}>Clear</button> : null}
         </div>
-        <span>{selection?.kind === "range" ? `Selected ${axisNumber(selection.minimum)} – ${axisNumber(selection.maximum)} ${selection.x_unit}` : selection?.kind === "point" ? `Selected ${axisNumber(selection.x)} ${selection.x_unit} · ${axisNumber(selection.y / yScale.divisor)} ${yScale.label}` : cursor ? `${axisNumber(cursor.x)} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span>
+        <span>{selection?.kind === "range" ? `Selected ${axisNumber(selection.minimum)} – ${axisNumber(selection.maximum)} ${selection.x_unit}` : selection?.kind === "point" ? `Selected ${axisNumber(selection.x)} ${selection.x_unit} · ${axisNumber(selection.y / yScale.divisor)} ${yScale.label}` : cursor ? `${axisNumber(fromPlotX(cursor.x))} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span>
       </div>
       {isHardening ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
         {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Stress response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
         <span>{hardeningMode === "response" ? "Observed evidence + candidates + selected blend" : hardeningMode === "residual" ? "Predicted minus observed over the selected fit domain" : "Numerical slope; inspect stability into extrapolation"}</span>
       </div> : null}
+      {isProny ? <div className="hardening-analysis-tabs prony-analysis-tabs" role="tablist" aria-label="Prony comparison view">
+        {(["response", "residual"] as PronyPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={pronyMode === mode} className={pronyMode === mode ? "active" : ""} key={mode} onClick={() => setPronyMode(mode)}>{mode === "response" ? isDmaProny ? "Storage & loss" : "Relaxation response" : "Residual"}</button>)}
+        <span>{pronyMode === "response" ? isDmaProny ? "Measured and fitted storage/loss modulus with one shared Prony set" : "Measured modulus + every fitted term count + selected candidate" : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
+      </div> : null}
       {hardeningMetrics.length ? <div className="hardening-metric-strip" aria-label="Hardening candidate relative RMSE summary">{hardeningMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.family}><span>{index === 0 ? "BEST" : "RMSE"}</span><strong>{metric.family.replaceAll("_", "-")}</strong><b>{(metric.value * 100).toFixed(3)}%</b></article>)}</div> : null}
+      {pronyMetrics.length ? <div className="hardening-metric-strip prony-metric-strip" aria-label="Prony candidate BIC and normalized RMSE summary">{pronyMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.count}><span>{index === 0 ? "BEST BIC" : "CANDIDATE"}</span><strong>{metric.count} term{metric.count === 1 ? "" : "s"}</strong><b>{metric.bic.toFixed(2)}</b><small>{metric.rmse == null ? "nRMSE —" : `nRMSE ${(metric.rmse * 100).toFixed(3)}%`}</small></article>)}</div> : null}
       <svg
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
-        aria-label={ensemblePreview ? "Aligned replicate curves with pointwise mean and confidence interval" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
+        aria-label={ensemblePreview ? "Aligned replicate curves with pointwise mean and confidence interval" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
         viewBox={`0 0 ${width} ${height}`}
         onDoubleClick={() => setViewBounds(null)}
         onPointerDown={(event) => {
@@ -612,9 +746,9 @@ export function EngineeringCurvePlot({
           event.currentTarget.setPointerCapture?.(event.pointerId);
           if (interactionMode === "range") {
             setSelectionStart(coordinates);
-            setSelection({ kind: "range", x_quantity: model.xQuantity, x_unit: model.xUnit, minimum: coordinates.x, maximum: coordinates.x });
+            setSelection({ kind: "range", x_quantity: model.xQuantity, x_unit: model.xUnit, minimum: fromPlotX(coordinates.x), maximum: fromPlotX(coordinates.x) });
           } else if (interactionMode === "point") {
-            setSelection({ kind: "point", x_quantity: model.xQuantity, x_unit: model.xUnit, x: coordinates.x, y_quantity: model.yQuantity, y_unit: model.yUnit, y: coordinates.y });
+            setSelection({ kind: "point", x_quantity: model.xQuantity, x_unit: model.xUnit, x: fromPlotX(coordinates.x), y_quantity: model.yQuantity, y_unit: model.yUnit, y: coordinates.y });
           } else {
             setDrag({ clientX: event.clientX, clientY: event.clientY, bounds });
           }
@@ -627,22 +761,22 @@ export function EngineeringCurvePlot({
       >
         {xTicks.map((tick) => {
           const px = PLOT_MARGIN.left + ((tick - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right);
-          return <g key={`x-${tick}`}><line x1={px} y1={PLOT_MARGIN.top} x2={px} y2={height - PLOT_MARGIN.bottom} className="chart-grid"/><text x={px} y={height - 32} textAnchor="middle" className="chart-tick">{axisNumber(tick)}</text></g>;
+          return <g key={`x-${tick}`}><line x1={px} y1={PLOT_MARGIN.top} x2={px} y2={height - PLOT_MARGIN.bottom} className="chart-grid"/><text x={px} y={height - 32} textAnchor="middle" className="chart-tick">{axisNumber(fromPlotX(tick))}</text></g>;
         })}
         {yTicks.map((tick) => {
           const py = height - PLOT_MARGIN.bottom - ((tick - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom);
           return <g key={`y-${tick}`}><line x1={PLOT_MARGIN.left} y1={py} x2={width - PLOT_MARGIN.right} y2={py} className="chart-grid"/><text x={PLOT_MARGIN.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(tick / yScale.divisor)}</text></g>;
         })}
-        {model.extrapolationStart !== undefined && model.extrapolationStart < bounds.xMax ? <g className="extrapolation-region"><rect x={PLOT_MARGIN.left + ((Math.max(model.extrapolationStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(0, ((bounds.xMax - Math.max(model.extrapolationStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom}/><line x1={PLOT_MARGIN.left + ((model.extrapolationStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((model.extrapolationStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><text x={PLOT_MARGIN.left + ((model.extrapolationStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 7} y={PLOT_MARGIN.top + 14}>EXTRAPOLATED · UNOBSERVED</text></g> : null}
+        {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax ? <g className="extrapolation-region"><rect x={PLOT_MARGIN.left + ((Math.max(extrapolationPlotStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(0, ((bounds.xMax - Math.max(extrapolationPlotStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom}/><line x1={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><text x={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 7} y={PLOT_MARGIN.top + 14}>EXTRAPOLATED · UNOBSERVED</text></g> : null}
         <line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
         <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
-        {model.band && model.band.xValues.length >= 2 ? <polygon points={bandPolygon(model.band, width, height, bounds)} className="ensemble-confidence-band" /> : null}
-        {validSeries.map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, width, height, bounds)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />)}
-        {marker ? <g className="engineering-result-marker"><line x1={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><circle cx={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5"/><text x={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 8} y={Math.max(PLOT_MARGIN.top + 12, height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom) - 8)}>{marker.label}</text></g> : null}
-        {selection?.kind === "range" ? <rect className="graph-range-selection" x={PLOT_MARGIN.left + ((selection.minimum - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(1, ((selection.maximum - selection.minimum) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /> : null}
-        {selection?.kind === "point" ? <><line className="graph-point-selection" x1={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} /><circle className="graph-point-marker" cx={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5" /></> : null}
+        {plottedBand && plottedBand.xValues.length >= 2 ? <polygon points={bandPolygon(plottedBand, width, height, bounds)} className="ensemble-confidence-band" /> : null}
+        {plottedSeries.map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, width, height, bounds)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />)}
+        {marker ? <g className="engineering-result-marker"><line x1={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><circle cx={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5"/><text x={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 8} y={Math.max(PLOT_MARGIN.top + 12, height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom) - 8)}>{marker.label}</text></g> : null}
+        {selection?.kind === "range" ? <rect className="graph-range-selection" x={PLOT_MARGIN.left + ((toPlotX(selection.minimum) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(1, ((toPlotX(selection.maximum) - toPlotX(selection.minimum)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /> : null}
+        {selection?.kind === "point" ? <><line className="graph-point-selection" x1={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} /><circle className="graph-point-marker" cx={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5" /></> : null}
         {cursor ? <><line x1={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} className="chart-crosshair"/><line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} className="chart-crosshair"/></> : null}
-        <text x={(PLOT_MARGIN.left + width - PLOT_MARGIN.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{model.xQuantity} [{model.xUnit}]</text>
+        <text x={(PLOT_MARGIN.left + width - PLOT_MARGIN.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{model.xQuantity} [{model.xUnit}]{model.xScale === "log10" ? " · logarithmic" : ""}</text>
         <text transform={`translate(15 ${(PLOT_MARGIN.top + height - PLOT_MARGIN.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{model.yQuantity} [{yScale.label}]</text>
       </svg>
       <div className="curve-legend interactive" aria-label="Curve visibility">

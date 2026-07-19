@@ -9,6 +9,7 @@ database access and must never be used for production or confidential data.
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import time
 from collections.abc import Mapping, Sequence
@@ -118,6 +119,7 @@ def _ensure_catalog_binding(
                 "change_reason": "Add the demo Material code attribute without a DB migration.",
             },
         )
+
     def ensure_attribute(
         key: str,
         name: str,
@@ -251,9 +253,7 @@ def _ensure_catalog_binding(
         definition = attribute_by_key[key]
         return {
             "data_type": (
-                "discrete"
-                if _content(definition).get("data_type") == "discrete"
-                else "text"
+                "discrete" if _content(definition).get("data_type") == "discrete" else "text"
             ),
             "attribute_definition_id": _id(definition, "attribute_definition_id"),
             "attribute_definition_revision_id": _revision_id(definition),
@@ -1394,6 +1394,9 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
                 "minimum_relaxation_time_s": 0.0001,
                 "maximum_relaxation_time_s": 1000000,
                 "maximum_function_evaluations": 5000,
+                "selection_reason": (
+                    "Lowest BIC with stable monotonic relaxation over the observed time domain."
+                ),
             },
         },
     ]
@@ -1619,6 +1622,387 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
                 "change_reason": "Generate acknowledged OpenRadioss LPRONY reference fragment.",
             },
         )
+
+    dma_document_key = "CMP-DEMO-POLYMER-DMA-JSON"
+    dma_test_data = next(
+        (
+            item
+            for item in _items(api.get("/test-data-documents"))
+            if item.get("document_key") == dma_document_key
+        ),
+        None,
+    )
+    if dma_test_data is None:
+        frequencies = [10 ** (-2 + ordinal * 4 / 32) for ordinal in range(33)]
+        amplitudes = (300_000_000.0, 500_000_000.0)
+        relaxation_times = (0.08, 8.0)
+        equilibrium = 300_000_000.0
+        storage = [
+            equilibrium
+            + sum(
+                amplitude
+                * (2 * math.pi * frequency * tau) ** 2
+                / (1 + (2 * math.pi * frequency * tau) ** 2)
+                for amplitude, tau in zip(amplitudes, relaxation_times, strict=True)
+            )
+            for frequency in frequencies
+        ]
+        loss = [
+            sum(
+                amplitude
+                * (2 * math.pi * frequency * tau)
+                / (1 + (2 * math.pi * frequency * tau) ** 2)
+                for amplitude, tau in zip(amplitudes, relaxation_times, strict=True)
+            )
+            for frequency in frequencies
+        ]
+
+        def string_values(values: list[float]) -> list[str]:
+            return [f"{value:.12g}" for value in values]
+
+        dma_test_data = api.post(
+            "/test-data-documents",
+            {
+                "classification": "internal",
+                "document": {
+                    "document_type": "cmp.test-data",
+                    "schema_version": "1.0.0",
+                    "document_id": dma_document_key,
+                    "material": {
+                        "maker": "CMP Synthetic Materials",
+                        "grade": "Demo Polymer Prony",
+                        "lot_batch": "CMP-DEMO-POLYMER-001",
+                    },
+                    "test": {
+                        "date": "2026-07-20",
+                        "operator": "Demo Operator",
+                        "laboratory": "CMP Demo Laboratory",
+                        "method": "synthetic DMA frequency sweep reference",
+                        "equipment_maker": "Demo Instruments",
+                        "equipment_model": "DMA-01",
+                    },
+                    "specimen": {
+                        "specimen_id": "CMP-DEMO-POLYMER-DMA-01",
+                        "description": "public synthetic storage/loss modulus frequency sweep",
+                    },
+                    "conditions": [
+                        {
+                            "key": "temperature",
+                            "quantity_semantics": "temperature.test",
+                            "original_value": "23",
+                            "original_unit_string": "Cel",
+                            "normalized_value": "296.15",
+                            "normalized_unit": "K",
+                        }
+                    ],
+                    "channels": [
+                        {
+                            "key": "frequency_hz",
+                            "name": "Cyclic frequency",
+                            "quantity_semantics": "frequency.cyclic",
+                            "axis_role": "independent",
+                            "original_unit_string": "Hz",
+                            "normalized_unit": "Hz",
+                            "normalization": {"scale": "1", "offset": "0"},
+                            "original_values": string_values(frequencies),
+                            "normalized_values": string_values(frequencies),
+                            "missing_reasons": [None] * len(frequencies),
+                        },
+                        {
+                            "key": "storage_modulus_pa",
+                            "name": "Storage modulus",
+                            "quantity_semantics": "modulus.shear.storage",
+                            "axis_role": "dependent",
+                            "original_unit_string": "Pa",
+                            "normalized_unit": "Pa",
+                            "normalization": {"scale": "1", "offset": "0"},
+                            "original_values": string_values(storage),
+                            "normalized_values": string_values(storage),
+                            "missing_reasons": [None] * len(storage),
+                        },
+                        {
+                            "key": "loss_modulus_pa",
+                            "name": "Loss modulus",
+                            "quantity_semantics": "modulus.shear.loss",
+                            "axis_role": "dependent",
+                            "original_unit_string": "Pa",
+                            "normalized_unit": "Pa",
+                            "normalization": {"scale": "1", "offset": "0"},
+                            "original_values": string_values(loss),
+                            "normalized_values": string_values(loss),
+                            "missing_reasons": [None] * len(loss),
+                        },
+                    ],
+                    "source": {
+                        "file_name": "cmp-demo-polymer-dma.json",
+                        "media_type": "application/json",
+                        "sha256": "8" * 64,
+                    },
+                },
+                "change_reason": "Import public synthetic polymer DMA Test JSON.",
+            },
+        )
+    dma_profile = next(
+        (
+            item
+            for item in _items(api.get("/mapping-profiles"))
+            if item.get("content", {}).get("profile_key") == "polymer-dma-frequency"
+        ),
+        None,
+    )
+    if dma_profile is None:
+        dma_profile = api.post(
+            "/mapping-profiles",
+            {
+                "classification": "internal",
+                "content": {
+                    "profile_key": "polymer-dma-frequency",
+                    "label": "CMP demo polymer DMA mapping",
+                    "independent_quantity": "frequency",
+                    "missing_data_policy": "drop_any",
+                    "bindings": [
+                        {
+                            "channel_key": "frequency_hz",
+                            "target_quantity": "frequency",
+                            "accepted_normalized_units": ["Hz"],
+                        },
+                        {
+                            "channel_key": "storage_modulus_pa",
+                            "target_quantity": "modulus.shear.storage",
+                            "accepted_normalized_units": ["Pa"],
+                        },
+                        {
+                            "channel_key": "loss_modulus_pa",
+                            "target_quantity": "modulus.shear.loss",
+                            "accepted_normalized_units": ["Pa"],
+                        },
+                    ],
+                },
+                "change_reason": "Save the reusable polymer DMA Mapping Profile.",
+            },
+        )
+    dma_steps = [
+        {
+            "method_id": "rows.sort_unique",
+            "method_version": "1.0.0",
+            "options": {"duplicate_policy": "reject"},
+        },
+        {
+            "method_id": "polymer.dma_prony_fit_compare",
+            "method_version": "1.0.0",
+            "options": {
+                "frequency_quantity": "frequency",
+                "storage_modulus_quantity": "modulus.shear.storage",
+                "loss_modulus_quantity": "modulus.shear.loss",
+                "candidate_term_counts": [1, 2, 3, 4],
+                "selection_mode": "automatic_bic",
+                "selected_term_count": 2,
+                "normalization_modulus_pa": 1_100_000_000,
+                "minimum_relaxation_time_s": 0.0001,
+                "maximum_relaxation_time_s": 1000000,
+                "maximum_function_evaluations": 5000,
+                "selection_reason": (
+                    "Lowest joint storage/loss BIC over the measured frequency domain."
+                ),
+            },
+        },
+    ]
+    dma_recipe = next(
+        (
+            item
+            for item in _items(api.get("/common-processing-recipes"))
+            if item.get("content", {}).get("recipe_key") == "cmp_demo_polymer_dma_prony"
+        ),
+        None,
+    )
+    if dma_recipe is None:
+        dma_recipe_content = {
+            "recipe_key": "cmp_demo_polymer_dma_prony",
+            "label": "CMP demo polymer DMA Prony processing",
+            "description": ("Reusable joint storage/loss generalized-Maxwell frequency fitting."),
+            "mapping_profile_id": _id(dma_profile, "mapping_profile_id"),
+            "mapping_profile_revision_id": _revision_id(dma_profile),
+            "mapping_profile_sha256": _revision_hash(dma_profile),
+            "steps": dma_steps,
+            "lifecycle_state": "draft",
+        }
+        dma_recipe = api.post(
+            "/common-processing-recipes",
+            {
+                "classification": "internal",
+                "content": dma_recipe_content,
+                "change_reason": "Draft the reusable synthetic polymer DMA Recipe.",
+            },
+        )
+        dma_recipe_content["lifecycle_state"] = "published"
+        dma_recipe = api.post(
+            f"/common-processing-recipes/{_id(dma_recipe, 'processing_recipe_id')}/revisions",
+            {
+                "content": dma_recipe_content,
+                "change_reason": "Publish the reviewed synthetic polymer DMA Recipe.",
+            },
+            headers={"If-Match": _revision_etag(dma_recipe)},
+        )
+    dma_batch_label = "CMP demo polymer DMA Prony batch"
+    dma_batch = next(
+        (
+            item
+            for item in _items(api.get("/common-processing-batches"))
+            if item.get("label") == dma_batch_label
+            and item.get("recipe_revision_id") == _revision_id(dma_recipe)
+        ),
+        None,
+    )
+    dma_batch_source = {
+        "document_id": _id(dma_test_data, "test_data_document_id"),
+        "revision_id": _revision_id(dma_test_data),
+    }
+    if dma_batch is None:
+        dma_preflight = api.post(
+            "/common-processing-batches:preflight",
+            {
+                "classification": "internal",
+                "recipe_id": _id(dma_recipe, "processing_recipe_id"),
+                "recipe_revision_id": _revision_id(dma_recipe),
+                "sources": [dma_batch_source],
+            },
+        )
+        if dma_preflight.get("compatible") is not True:
+            raise DemoSeedError("polymer DMA Processing Recipe preflight was not compatible")
+        dma_batch = api.post(
+            "/common-processing-batches",
+            {
+                "classification": "internal",
+                "recipe_id": _id(dma_recipe, "processing_recipe_id"),
+                "recipe_revision_id": _revision_id(dma_recipe),
+                "sources": [dma_batch_source],
+                "label": dma_batch_label,
+                "change_reason": "Execute the exact published polymer DMA Prony Recipe.",
+            },
+        )
+    if dma_batch.get("status") != "succeeded":
+        raise DemoSeedError("polymer DMA Processing Recipe batch did not succeed")
+    dma_output_attempt = next(
+        (
+            item
+            for item in dma_batch.get("attempts", [])
+            if isinstance(item, Mapping)
+            and item.get("status") == "succeeded"
+            and item.get("output_id")
+        ),
+        None,
+    )
+    if dma_output_attempt is None:
+        raise DemoSeedError("polymer DMA Processing Batch has no successful Output")
+    dma_output = next(
+        (
+            item
+            for item in _items(api.get("/processing-outputs"))
+            if item.get("processing_output_id") == dma_output_attempt.get("output_id")
+        ),
+        None,
+    )
+    if dma_output is None:
+        raise DemoSeedError("polymer DMA Processing Output was not retained")
+    dma_model = next(
+        (
+            item
+            for item in _items(
+                api.get(
+                    f"/material-states/{_id(state, 'material_state_id')}/linear-viscoelastic-models"
+                )
+            )
+            if promoted_output_id(item) == _id(dma_output, "processing_output_id")
+        ),
+        None,
+    )
+    if dma_model is None:
+        dma_model = api.post(
+            f"/processing-outputs/{_id(dma_output, 'processing_output_id')}"
+            "/linear-viscoelastic-models",
+            {
+                "material_state_id": _id(state, "material_state_id"),
+                "property_set_revision_id": _revision_id(property_set),
+                "processing_output_revision_id": _revision_id(dma_output),
+                "acknowledged_maximum_relative_mismatch": 0.1,
+                "review_acknowledged": True,
+                "change_reason": "Promote reviewed synthetic DMA Prony Processing Output.",
+            },
+        )
+    dma_neutral = None
+    for candidate in _items(api.get(f"/bulk-export-candidates?material_id={material_id}")):
+        candidate_source = candidate.get("source")
+        if (
+            not isinstance(candidate_source, Mapping)
+            or candidate_source.get("kind") != "neutral_material_json"
+        ):
+            continue
+        candidate_id = candidate_source.get("neutral_material_id")
+        if not isinstance(candidate_id, str):
+            continue
+        candidate_neutral = api.get(f"/neutral-materials/{candidate_id}")
+        candidate_selection = candidate_neutral.get("document", {}).get("candidate_selection", {})
+        if (
+            isinstance(candidate_selection, Mapping)
+            and candidate_selection.get("kind") == "prony_processing_output_selection"
+            and candidate_selection.get("processing_output", {}).get("id")
+            == _id(dma_output, "processing_output_id")
+        ):
+            dma_neutral = candidate_neutral
+            break
+    if dma_neutral is None:
+        dma_neutral = api.post(
+            "/neutral-materials:promote-linear-viscoelastic",
+            {
+                "material_model_id": _id(dma_model, "material_model_id"),
+                "material_model_revision_id": _revision_id(dma_model),
+                "selection_reason": ("Select the joint storage/loss DMA Prony Processing result."),
+                "change_reason": "Create reproducible DMA Neutral Material JSON.",
+            },
+        )
+    dma_neutral_id = _id(dma_neutral, "neutral_material_id")
+    dma_cards = _items(api.get(f"/neutral-materials/{dma_neutral_id}/solver-cards"))
+    dma_card_ids: dict[str, str] = {}
+    for solver, material_id_number, material_name in (
+        ("abaqus", 1211, "CMP_DEMO_POLYMER_DMA"),
+        ("openradioss", 1212, "CMP_DEMO_POLYMER_DMA_LPRONY"),
+    ):
+        dma_card = next(
+            (
+                item
+                for item in dma_cards
+                if isinstance(item.get("target"), Mapping)
+                and item["target"].get("solver") == solver
+            ),
+            None,
+        )
+        if dma_card is None:
+            target = {"solver": solver, "version": "2025", "unit_system": "kg_m_s"}
+            report = api.post(
+                f"/neutral-materials/{dma_neutral_id}/solver-card-preflight",
+                {
+                    "neutral_material_revision_id": _id(
+                        dma_neutral, "neutral_material_revision_id"
+                    ),
+                    "target": target,
+                },
+            )
+            if not report.get("exportable"):
+                raise DemoSeedError(f"synthetic DMA did not pass {solver} preflight")
+            dma_card = api.post(
+                f"/neutral-materials/{dma_neutral_id}/solver-cards",
+                {
+                    "neutral_material_revision_id": _id(
+                        dma_neutral, "neutral_material_revision_id"
+                    ),
+                    "target": target,
+                    "expected_mapping_report_sha256": _id(report, "mapping_report_sha256"),
+                    "solver_material_id": material_id_number,
+                    "material_name": material_name,
+                    "change_reason": (f"Generate {solver} Prony card from exact DMA Neutral JSON."),
+                },
+            )
+        dma_card_ids[solver] = _id(dma_card, "solver_card_id")
     return {
         "polymer_test_data_document_id": _id(test_data, "test_data_document_id"),
         "polymer_processing_recipe_id": _id(recipe, "processing_recipe_id"),
@@ -1628,6 +2012,15 @@ def _ensure_polymer_processing_card(api: DemoApi, *, material_id: str) -> dict[s
         "polymer_processing_neutral_id": neutral_id,
         "polymer_processing_card_id": _id(abaqus_card, "solver_card_id"),
         "polymer_processing_openradioss_card_id": _id(openradioss_card, "solver_card_id"),
+        "polymer_dma_test_data_document_id": _id(dma_test_data, "test_data_document_id"),
+        "polymer_dma_mapping_profile_id": _id(dma_profile, "mapping_profile_id"),
+        "polymer_dma_processing_recipe_id": _id(dma_recipe, "processing_recipe_id"),
+        "polymer_dma_processing_batch_id": _id(dma_batch, "batch_id"),
+        "polymer_dma_processing_output_id": _id(dma_output, "processing_output_id"),
+        "polymer_dma_processing_model_id": _id(dma_model, "material_model_id"),
+        "polymer_dma_processing_neutral_id": dma_neutral_id,
+        "polymer_dma_abaqus_card_id": dma_card_ids["abaqus"],
+        "polymer_dma_openradioss_card_id": dma_card_ids["openradioss"],
     }
 
 

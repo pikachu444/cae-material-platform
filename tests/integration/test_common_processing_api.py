@@ -41,7 +41,7 @@ def test_method_registry_and_preview_share_the_versioned_contract() -> None:
 
     methods = asyncio.run(_request("GET", "/api/v1/processing-methods"))
     assert methods.status_code == 200
-    assert len(methods.json()["items"]) == 14
+    assert len(methods.json()["items"]) == 15
     assert methods.json()["items"][0]["method_id"] == "rows.sort_unique"
 
     preview = asyncio.run(

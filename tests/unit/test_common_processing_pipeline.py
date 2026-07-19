@@ -149,6 +149,99 @@ def _relaxation_profile() -> MappingProfileContent:
     )
 
 
+def _dma_document() -> CanonicalTestDataDocument:
+    frequencies = tuple(Decimal(str(10 ** (-2 + ordinal * 4 / 40))) for ordinal in range(41))
+    angular = tuple(2 * math.pi * float(value) for value in frequencies)
+    amplitudes = (3.0e6, 5.0e6)
+    times = (0.1, 10.0)
+    storage = tuple(
+        Decimal(
+            str(
+                2.0e6
+                + sum(
+                    amplitude * (omega * tau) ** 2 / (1 + (omega * tau) ** 2)
+                    for amplitude, tau in zip(amplitudes, times, strict=True)
+                )
+            )
+        )
+        for omega in angular
+    )
+    loss = tuple(
+        Decimal(
+            str(
+                sum(
+                    amplitude * (omega * tau) / (1 + (omega * tau) ** 2)
+                    for amplitude, tau in zip(amplitudes, times, strict=True)
+                )
+            )
+        )
+        for omega in angular
+    )
+    return CanonicalTestDataDocument(
+        document_id="dma-001",
+        material=MaterialMetadata("Demo", "Polymer DMA"),
+        test=ExecutionMetadata(date(2026, 7, 20), "operator", "lab", "DMA frequency sweep"),
+        specimen=SpecimenMetadata("P-DMA-1"),
+        conditions=(),
+        channels=(
+            CanonicalChannel(
+                "frequency",
+                "Frequency",
+                "frequency.cyclic",
+                ChannelAxisRole.INDEPENDENT,
+                "Hz",
+                "Hz",
+                Decimal("1"),
+                Decimal("0"),
+                frequencies,
+                frequencies,
+                (None,) * len(frequencies),
+            ),
+            CanonicalChannel(
+                "storage",
+                "Storage modulus",
+                "modulus.shear.storage",
+                ChannelAxisRole.DEPENDENT,
+                "Pa",
+                "Pa",
+                Decimal("1"),
+                Decimal("0"),
+                storage,
+                storage,
+                (None,) * len(storage),
+            ),
+            CanonicalChannel(
+                "loss",
+                "Loss modulus",
+                "modulus.shear.loss",
+                ChannelAxisRole.DEPENDENT,
+                "Pa",
+                "Pa",
+                Decimal("1"),
+                Decimal("0"),
+                loss,
+                loss,
+                (None,) * len(loss),
+            ),
+        ),
+        source=CanonicalSource("dma.json", "application/json", "2" * 64),
+    )
+
+
+def _dma_profile() -> MappingProfileContent:
+    return MappingProfileContent(
+        profile_key="polymer-dma",
+        label="Polymer DMA frequency sweep",
+        independent_quantity="frequency",
+        missing_data_policy=MissingDataPolicy.REJECT,
+        bindings=(
+            ChannelBinding("frequency", "frequency", ("Hz",)),
+            ChannelBinding("storage", "modulus.shear.storage", ("Pa",)),
+            ChannelBinding("loss", "modulus.shear.loss", ("Pa",)),
+        ),
+    )
+
+
 def _step(method: str, **options: object) -> ProcessingStep:
     return ProcessingStep(method, COMMON_METHOD_VERSION, dict(options))
 
@@ -169,6 +262,7 @@ def test_registry_exposes_versioned_solver_neutral_methods() -> None:
         "metal.hardening_fit_extrapolate",
         "polymer.log_time_resample",
         "polymer.prony_fit_compare",
+        "polymer.dma_prony_fit_compare",
     }
     assert all(item.deterministic for item in METHOD_REGISTRY)
     assert {item.method_id for item in METHOD_REGISTRY if item.allows_extrapolation} == {
@@ -197,6 +291,7 @@ def test_polymer_log_time_and_prony_candidates_are_explicit_and_deterministic() 
             minimum_relaxation_time_s=0.001,
             maximum_relaxation_time_s=1000.0,
             maximum_function_evaluations=5000,
+            selection_reason="Lowest BIC with stable relaxation times.",
         ),
     )
     first = preview_pipeline(_relaxation_document(), _relaxation_profile(), steps)
@@ -216,6 +311,43 @@ def test_polymer_log_time_and_prony_candidates_are_explicit_and_deterministic() 
     assert scalars["prony_selected_term_count"] == 2
     assert scalars["prony_g_ratio_1"] + scalars["prony_g_ratio_2"] < 1
     assert scalars["prony_2_normalized_rmse"] < 1e-7
+    assert "engineering selection reason: Lowest BIC" in fitted.diagnostics[-3]
+
+
+def test_polymer_dma_prony_fit_uses_joint_storage_and_loss_objective() -> None:
+    steps = (
+        _step("rows.sort_unique", duplicate_policy="reject"),
+        _step(
+            "polymer.dma_prony_fit_compare",
+            frequency_quantity="frequency",
+            storage_modulus_quantity="modulus.shear.storage",
+            loss_modulus_quantity="modulus.shear.loss",
+            candidate_term_counts=[1, 2, 3],
+            selection_mode="automatic_bic",
+            selected_term_count=2,
+            normalization_modulus_pa=10.0e6,
+            minimum_relaxation_time_s=0.0001,
+            maximum_relaxation_time_s=1000.0,
+            maximum_function_evaluations=5000,
+            selection_reason="Joint storage/loss residual and lowest BIC.",
+        ),
+    )
+    first = preview_pipeline(_dma_document(), _dma_profile(), steps)
+    second = preview_pipeline(_dma_document(), _dma_profile(), steps)
+    assert first == second
+    fitted = first.stages[-1]
+    quantities = {item.quantity for item in fitted.series}
+    assert {
+        "modulus.storage.prony.candidate_2_term",
+        "modulus.loss.prony.candidate_2_term",
+        "modulus.storage.prony.selected",
+        "modulus.loss.prony.selected",
+    } <= quantities
+    scalars = {item.key: item.value for item in fitted.scalar_results}
+    assert scalars["prony_selected_term_count"] == 2
+    assert scalars["prony_2_normalized_rmse"] < 1e-8
+    assert scalars["prony_g_ratio_1"] + scalars["prony_g_ratio_2"] < 1
+    assert "share one generalized-Maxwell parameter set" in fitted.diagnostics[-2]
 
 
 def test_polymer_methods_reject_nonpositive_time_and_unfitted_manual_choice() -> None:
@@ -250,6 +382,7 @@ def test_polymer_methods_reject_nonpositive_time_and_unfitted_manual_choice() ->
                     minimum_relaxation_time_s=0.001,
                     maximum_relaxation_time_s=1000.0,
                     maximum_function_evaluations=5000,
+                    selection_reason="Manual comparison fixture.",
                 ),
             ),
         )

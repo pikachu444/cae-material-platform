@@ -84,6 +84,7 @@ class NeutralTestMode(StrEnum):
     PLANAR_TENSION = "planar_tension"
     BIAXIAL_TENSION = "biaxial_tension"
     STRESS_RELAXATION = "stress_relaxation"
+    DMA_FREQUENCY = "dma_frequency"
 
 
 class NeutralModelFamily(StrEnum):
@@ -421,9 +422,9 @@ class NeutralProcessingSelection:
         _sha("processing_output_sha256", self.processing_output_sha256)
         _text("processing selection reason", self.reason)
         _text("selected_series", self.selected_series, 160)
-        if not 2 <= len(self.candidate_families) <= 4 or len(
-            set(self.candidate_families)
-        ) != len(self.candidate_families):
+        if not 2 <= len(self.candidate_families) <= 4 or len(set(self.candidate_families)) != len(
+            self.candidate_families
+        ):
             raise InvalidNeutralMaterial("processing candidate families must be 2..4 unique IDs")
         if (
             self.primary_family not in self.candidate_families
@@ -504,9 +505,7 @@ class NeutralPronyProcessingSelection:
         if self.instantaneous_modulus_relative_mismatch > (
             self.acknowledged_maximum_relative_mismatch
         ):
-            raise InvalidNeutralMaterial(
-                "Prony modulus mismatch exceeds the acknowledged maximum"
-            )
+            raise InvalidNeutralMaterial("Prony modulus mismatch exceeds the acknowledged maximum")
         if len(self.warnings) > 64 or any(
             not value or value != value.strip() for value in self.warnings
         ):
@@ -523,18 +522,12 @@ class NeutralPronyProcessingSelection:
             "selected_term_count": self.selected_term_count,
             "normalized_rmse": self.normalized_rmse,
             "bic": self.bic,
-            "fitted_instantaneous_shear_modulus_pa": (
-                self.fitted_instantaneous_shear_modulus_pa
-            ),
-            "catalog_instantaneous_shear_modulus_pa": (
-                self.catalog_instantaneous_shear_modulus_pa
-            ),
+            "fitted_instantaneous_shear_modulus_pa": (self.fitted_instantaneous_shear_modulus_pa),
+            "catalog_instantaneous_shear_modulus_pa": (self.catalog_instantaneous_shear_modulus_pa),
             "instantaneous_modulus_relative_mismatch": (
                 self.instantaneous_modulus_relative_mismatch
             ),
-            "acknowledged_maximum_relative_mismatch": (
-                self.acknowledged_maximum_relative_mismatch
-            ),
+            "acknowledged_maximum_relative_mismatch": (self.acknowledged_maximum_relative_mismatch),
             "warnings": list(self.warnings),
         }
 
@@ -618,9 +611,9 @@ class NeutralElastoplasticIR:
             _finite(name, value, positive=True)
         if not math.isfinite(self.poisson_ratio) or not -1 < self.poisson_ratio < 0.5:
             raise InvalidNeutralMaterial("poisson_ratio must remain within (-1,0.5)")
-        if not 2 <= len(self.candidate_families) <= 4 or len(
-            set(self.candidate_families)
-        ) != len(self.candidate_families):
+        if not 2 <= len(self.candidate_families) <= 4 or len(set(self.candidate_families)) != len(
+            self.candidate_families
+        ):
             raise InvalidNeutralMaterial("metal candidate families must contain 2..4 unique IDs")
         if (
             self.primary_family not in self.candidate_families
@@ -630,8 +623,7 @@ class NeutralElastoplasticIR:
         if not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1:
             raise InvalidNeutralMaterial("hardening primary_weight must be within [0,1]")
         if not (
-            0 < self.characterized_max_true_plastic_strain
-            < self.extension_max_true_plastic_strain
+            0 < self.characterized_max_true_plastic_strain < self.extension_max_true_plastic_strain
         ):
             raise InvalidNeutralMaterial("metal characterized and extension domains are invalid")
         if not self.approximation_acknowledged:
@@ -766,13 +758,9 @@ class NeutralMaterialDocument:
     source_datasets: tuple[NeutralDatasetSource, ...]
     curves: tuple[NeutralCurve, ...]
     selection: (
-        NeutralCandidateSelection
-        | NeutralProcessingSelection
-        | NeutralPronyProcessingSelection
+        NeutralCandidateSelection | NeutralProcessingSelection | NeutralPronyProcessingSelection
     )
-    material_model_ir: (
-        NeutralHyperelasticIR | NeutralElastoplasticIR | NeutralLinearViscoelasticIR
-    )
+    material_model_ir: NeutralHyperelasticIR | NeutralElastoplasticIR | NeutralLinearViscoelasticIR
     applicable_strain_min: float | None
     applicable_strain_max: float | None
     validation_status: str
@@ -848,9 +836,7 @@ class NeutralMaterialDocument:
                 raise InvalidNeutralMaterial(
                     "normalized, fitted, and residual curve stages are required"
                 )
-            raise InvalidNeutralMaterial(
-                f"{family.value} curve stages omit required values"
-            )
+            raise InvalidNeutralMaterial(f"{family.value} curve stages omit required values")
         if family is NeutralModelFamily.GENERALIZED_MAXWELL:
             if self.applicable_strain_min is not None or self.applicable_strain_max is not None:
                 raise InvalidNeutralMaterial(

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import math
 from collections.abc import Callable
 from typing import Annotated, Any
@@ -33,6 +34,8 @@ from cmp.shared.contracts.revisions import RevisionETag, RevisionMetadataRespons
 
 type Dependency = Callable[..., object]
 type Reason = Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+logger = logging.getLogger(__name__)
 
 
 class PronyTermRequest(BaseModel):
@@ -234,6 +237,7 @@ def _translate(context: SecurityContext, error: Exception) -> LinearViscoelastic
         return LinearViscoelasticHttpError(context, 409, str(error))
     if isinstance(error, (InvalidLinearViscoelasticModel, ValueError)):
         return LinearViscoelasticHttpError(context, 422, str(error))
+    logger.exception("unexpected linear-viscoelastic API failure", exc_info=error)
     return LinearViscoelasticHttpError(context, 503, "service is unavailable")
 
 
@@ -256,8 +260,7 @@ def install_linear_viscoelastic_api(
         return JSONResponse(error.problem.model_dump(mode="json"), status_code=error.problem.status)
 
     errors: dict[int | str, dict[str, Any]] = {
-        status_code: {"model": LinearViscoelasticProblem}
-        for status_code in (404, 409, 422, 503)
+        status_code: {"model": LinearViscoelasticProblem} for status_code in (404, 409, 422, 503)
     }
 
     @application.post(
@@ -400,9 +403,7 @@ def install_linear_viscoelastic_api(
         try:
             snapshot = service.get_model(context, decision, material_model_id)
             times = (
-                tuple(time_s)
-                if time_s is not None
-                else _default_times(snapshot.current.content)
+                tuple(time_s) if time_s is not None else _default_times(snapshot.current.content)
             )
             points = evaluate_relaxation(snapshot.current.content, times)
         except Exception as error:
