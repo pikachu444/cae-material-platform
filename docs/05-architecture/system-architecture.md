@@ -27,6 +27,34 @@ T-66부터 탐색은 단방향 route가 아니다. `domain kind + stable object 
 bounded Workflow graph를 표시한다. 역조회는 현재 권한의 `catalog.read` RLS 범위 안에서만 동작하며
 domain payload를 Catalog module로 복제하지 않는다.
 
+### 1.1 Product-facing boundary (T-74)
+
+ADR-0034 separates the product experience from low-level integration surfaces. The browser uses a
+same-origin product session and product-oriented read/orchestration services. API base URLs, bearer
+tokens, tenant/RLS terminology and object keys are not part of normal UI state. Bearer APIs remain
+available for integrations and automated tests, but they are not a user workflow.
+
+The new shell has two primary workspaces:
+
+```text
+Material Database
+  └─ persistent Contents Tree + search/list/compare + Layout datasheet/context
+
+Material Modeling
+  └─ Dataset/curve list + persistent plot + ordered workflow/option panel
+```
+
+Product read models compose existing module-owned facts without becoming a new source of truth:
+
+- `ContentsTree`: Database/Profile/Table/Folder/Record hierarchy, Subset visibility and current
+  display revision;
+- `RecordWorkspace`: Layout datasheet, curves, exact related records and revision context;
+- `ModelingSession`: selected test inputs, Mapping Profile, preview/committed pipeline, candidates,
+  Neutral promotion and card actions.
+
+The compatibility `/materials`, `/tests`, `/datasets`, `/models`, `/exports` and `/governance`
+routes may continue during cutover, but primary navigation and product E2E use the new workspaces.
+
 T-69 polymer 경로에서는 Processing이 성공한 Batch Attempt의 exact Output을 Recipe revision으로
 해석하는 read port를 소유한다. Modeling은 이 port만 소비하고 Processing 테이블을 직접 조회하지
 않는다. IR은 Recipe/Batch 실행 evidence를 저장하고 Neutral JSON은 exact Recipe pin을 교환한다.

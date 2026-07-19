@@ -25,7 +25,7 @@
 | `FR-NAV-002` | Workflow Explorer는 Material에서 Release까지 exact revision link를 투영하고 각 domain workbench에서 해당 Catalog node를 역조회해야 한다. | Explorer 노드에서 exact workbench로 이동하고 Material/Test JSON/Processing/Neutral 화면에서 같은 graph로 돌아가 관련 revision을 열 수 있으며 `latest`를 관계로 저장하지 않는다. |
 | `FR-NAV-003` | 전체 text와 typed Attribute facet/range 검색을 지원해야 한다. | unit-normalized 수치 범위와 권한 필터가 count/facet에도 동일하게 적용된다. |
 | `FR-NAV-004` | 여러 record를 선택한 Layout으로 비교해야 한다. | 값, 단위, 출처와 revision 차이를 한 화면에 표시한다. |
-| `FR-NAV-005` | 기존 flat module route를 유지해야 한다. | `/materials`, `/tests`, `/datasets`, `/models`, `/exports`, `/governance`가 계속 동작한다. |
+| `FR-NAV-005` | 기존 flat module route는 제품 재구축 중 compatibility route로만 유지할 수 있으며 primary navigation에서 제거해야 한다. | 사용자는 Material Database/Material Modeling에서 같은 기능에 도달하고 기존 deep link는 cutover 기간 동안 redirect 또는 compatibility view로 동작한다. |
 | `FR-NAV-006` | record page는 forward/back link와 breadcrumb를 제공해야 한다. | 검색 또는 link로 이동한 사용자가 이전 문맥으로 돌아갈 수 있다. |
 | `FR-LNK-001` | 관리자는 방향명, 허용 source/target Table과 cardinality를 가진 Link Type revision을 정의해야 한다. | 정의에 맞지 않는 endpoint와 개수는 거부된다. |
 | `FR-LNK-002` | record link 양 끝은 exact record revision을 고정해야 한다. | head가 바뀌어도 과거 link가 가리키는 content가 변하지 않는다. |
@@ -217,9 +217,16 @@
 | `FR-ACC-002` | schema 관리, catalog 편집, processing/calibration, model 승인과 card export를 feature grant로 제어해야 한다. | grant별 positive/negative API·UI test가 통과한다. |
 | `FR-ACC-003` | 기존 세부 permission과 RLS는 feature grant의 내부 enforcement로 유지해야 한다. | 기존 token과 tenant isolation regression이 유지된다. |
 | `FR-ACC-004` | 권한 설명은 작업 중심이어야 하며 보안 foundation을 제품 핵심 흐름보다 앞세우지 않아야 한다. | README와 UI가 가능한 작업과 필요한 grant를 먼저 설명한다. |
+| `FR-ACC-005` | 초기 관리자 UI는 Administrator/User와 기능 토글만 표시하되 내부 권한 모델은 resource/action/scope 확장이 가능해야 한다. | 사용자가 policy vocabulary를 입력하지 않아도 기본 권한을 관리하고, 새 세부 scope를 schema rewrite 없이 추가할 수 있다. |
 | `FR-UX-001` | GUI 변경 Task는 task-oriented user/admin guide와 deterministic screenshot을 함께 갱신해야 한다. | guide manifest가 stale/missing capture를 차단한다. |
 | `FR-UX-002` | Dashboard에서 Catalog 탐색, 시험 처리와 card 생성 시작점을 제공해야 한다. | E2E가 각 시작점에서 실제 workbench까지 이동한다. |
 | `FR-UX-003` | API error를 domain action과 해결 방법으로 표시해야 한다. | 사용자가 trace ID와 수정 가능한 입력을 확인한다. |
+| `FR-UX-004` | 일반 사용자 화면은 API URL, bearer token, tenant/RLS와 object-store 정보를 노출하지 않아야 한다. | clean demo는 자동 session으로 열리고 운영 모드는 일반 로그인만 표시한다. |
+| `FR-UX-005` | Material Database는 Database/Profile → Table → nested Folder → Record Contents Tree를 workbench 전환 중에도 유지해야 한다. | tree selection, expansion, Subset, breadcrumb와 deep link가 datasheet/link 이동 후에도 유지된다. |
+| `FR-UX-006` | Record는 Layout 기반 Datasheet를 중심으로 Properties, Curves, Test Data, Models, CAE Cards와 Links를 한 문맥에서 제공해야 한다. | 검색과 tree에서 연 record가 동일 datasheet를 사용하고 exact revision은 보조 정보로 표시된다. |
+| `FR-UX-007` | Material Modeling은 plot을 유지한 채 Import → Map → Prepare → Fit → Extrapolate → Card 단계를 한 workbench에서 완료해야 한다. | 사용자가 module route와 UUID를 복사하지 않고 raw/processed/fitted/extrapolated overlay와 option panel을 조작한다. |
+| `FR-UX-008` | Dashboard는 global material search, browse-by-family, recent/favorite records, modeling sessions, jobs/reviews와 create/import action을 제공해야 한다. | module inventory, connection setup 또는 infrastructure status가 primary content에 나타나지 않는다. |
+| `FR-UX-009` | 제품 capability 완료는 clean browser journey로 검증해야 하며 DB/API/UI checkbox만으로 완료 처리할 수 없다. | home에서 시작한 Playwright가 재료 탐색부터 Recipe, Neutral과 두 solver card download 및 linked datasheet 복귀까지 수행한다. |
 
 ## 3. 비기능 요구사항
 

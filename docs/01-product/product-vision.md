@@ -51,6 +51,17 @@ ADR-0030 및 [제품 capability map](../00-research/product-capability-map.md)�
 9. 자동화가 전문가 판단을 대체하지 않고 판단 근거를 고정한다.
 10. 웹 UI는 engineering calculation engine, validation, data pipeline을 조작하고 검토하는 shell이다.
 
+### 2.1 제품 경험 기준
+
+내부 API와 DB contract가 존재한다는 사실은 제품 완료가 아니다. Material Database는
+Database/Profile → Table → nested Folder → Record Contents Tree와 Layout Datasheet를 중심으로
+검색·필터·비교·링크를 제공해야 한다. Material Modeling은 plot을 유지한 상태에서
+Import → Map → Prepare → Fit → Extrapolate → Card를 하나의 workbench에서 완료해야 한다.
+
+일반 사용자는 API URL, bearer token, tenant/RLS 또는 object-store 개념을 보지 않는다. demo는
+자동 session으로 시작하고 non-demo는 일반 login만 표시한다. 상세 화면, 완료 증거와 교체 순서는
+[product experience specification](product-experience-spec.md)과 ADR-0034를 따른다.
+
 ## 3. 목표 사용자와 역할
 
 | 역할 | 주 책임 | 생성/판정하는 항목 |
