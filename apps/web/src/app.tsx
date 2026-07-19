@@ -302,27 +302,50 @@ function ProductSessionBoundary({ loading, onRetry }: { loading: boolean; onRetr
   );
 }
 
-function AdministrationLanding({ navigate }: { navigate: Navigate }) {
+function AdministrationWorkspace({
+  config,
+  navigate,
+  onOpenConnection,
+  section,
+}: {
+  config: ApiConfig;
+  navigate: Navigate;
+  onOpenConnection: () => void;
+  section: "overview" | "database" | "access";
+}) {
   return (
-    <div className="page-stack">
-      <section className="page-heading">
+    <div className="administration-workspace">
+      <aside className="administration-navigation">
         <div>
           <p className="eyebrow">Administration</p>
-          <h1>Configure the material workspace</h1>
-          <p>Manage database structure and user access without exposing infrastructure settings.</p>
+          <h2>Workspace setup</h2>
         </div>
-      </section>
-      <section className="workspace-choice-grid" aria-label="Administration areas">
-        <button className="workspace-choice-card" type="button" onClick={() => navigate("/catalog/schema")}>
-          <span className="workspace-choice-icon">DB</span>
-          <span><strong>Database configuration</strong><small>Tables, attributes, layouts, subsets and link types</small></span>
-          <span aria-hidden="true">›</span>
-        </button>
-        <button className="workspace-choice-card" type="button" onClick={() => navigate("/access")}>
-          <span className="workspace-choice-icon">ID</span>
-          <span><strong>Users &amp; access</strong><small>Administrator, User and feature permissions</small></span>
-          <span aria-hidden="true">›</span>
-        </button>
+        <nav aria-label="Administration areas">
+          <button className={section === "overview" ? "active" : ""} type="button" onClick={() => navigate("/administration")}>
+            <span>01</span><strong>Overview</strong>
+          </button>
+          <button className={section === "database" ? "active" : ""} type="button" onClick={() => navigate("/administration/database")}>
+            <span>02</span><strong>Database design</strong>
+          </button>
+          <button className={section === "access" ? "active" : ""} type="button" onClick={() => navigate("/administration/access")}>
+            <span>03</span><strong>Users &amp; access</strong>
+          </button>
+        </nav>
+        <button className="text-button" type="button" onClick={() => navigate("/database")}>Open Material Database</button>
+      </aside>
+      <section className="administration-content">
+        {section === "overview" ? <>
+          <header className="page-heading">
+            <div><p className="eyebrow">Administration</p><h1>Configure the material workspace</h1><p>Define what information is stored and who can work with it. Infrastructure settings stay out of the product interface.</p></div>
+          </header>
+          <section className="administration-task-grid" aria-label="Administration tasks">
+            <button type="button" onClick={() => navigate("/administration/database")}><span className="workspace-choice-icon">DB</span><span><small>Material information system</small><strong>Design the database</strong><p>Add Tables, typed Attributes, datasheet Layouts, saved Subsets and exact Record Link Types without a migration.</p></span><em>Configure ›</em></button>
+            <button type="button" onClick={() => navigate("/administration/access")}><span className="workspace-choice-icon">US</span><span><small>People and capabilities</small><strong>Manage access</strong><p>Assign Administrator or User and enable only the product features each team needs.</p></span><em>Manage ›</em></button>
+          </section>
+          <section className="administration-principle"><p className="eyebrow">Designed for extension</p><h2>Simple now, granular when needed.</h2><p>The product surface uses two roles and five understandable feature permissions. The existing resource/action/scope enforcement remains an internal extension point, so later policies do not require a Catalog schema rewrite.</p></section>
+        </> : null}
+        {section === "database" ? <ConfigurableCatalogAdmin config={config} onNavigate={navigate} onOpenConnection={onOpenConnection} productMode /> : null}
+        {section === "access" ? <ProductAccessCenter config={config} onOpenConnection={onOpenConnection} productMode /> : null}
       </section>
     </div>
   );
@@ -2103,10 +2126,12 @@ export function App() {
     page = <CommonProcessingWorkbench config={config} onNavigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/governance" || path === "/jobs-reviews") {
     page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={retrySession} />;
-  } else if (path === "/access") {
-    page = <ProductAccessCenter config={config} onOpenConnection={retrySession} />;
+  } else if (path === "/access" || path === "/administration/access") {
+    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="access" />;
+  } else if (path === "/administration/database") {
+    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="database" />;
   } else if (path === "/administration") {
-    page = <AdministrationLanding navigate={navigate} />;
+    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="overview" />;
   } else {
     page = <DashboardPage config={config} navigate={navigate} />;
   }

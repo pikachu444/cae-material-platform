@@ -6,7 +6,7 @@ PostgreSQL은 기존 세부 permission, organization/project 격리, classificat
 
 ## 내 권한 확인
 
-1. Docker demo를 실행하고 [Access](http://127.0.0.1:5173/access)를 엽니다.
+1. Docker demo를 실행하고 [Administration → Users & access](http://127.0.0.1:5173/administration/access)를 엽니다.
 2. demo에서는 workspace가 자동으로 준비됩니다. 일반 배포에서는 관리자 계정으로 로그인합니다.
 3. **My access**에서 제품 역할과 다음 다섯 기능의 상태를 확인합니다.
 
@@ -18,21 +18,19 @@ PostgreSQL은 기존 세부 permission, organization/project 격리, classificat
 | Model approval | review 결정과 release 발행 |
 | Solver Card export | mapping preflight, native card, bulk package 생성 |
 
-`legacy compatible` 표시는 기존 상세 role binding이 같은 제품 권한으로 안전하게 투영됐다는
-뜻입니다. 이전 토큰을 폐기하거나 데이터를 다시 만들 필요가 없습니다.
+기존 상세 role binding과 resource/action/scope enforcement는 서버 내부에서 같은 제품 권한으로
+안전하게 투영되지만 일반 화면에는 이 정책 용어를 표시하지 않습니다.
 
 ## User 권한 부여
 
 이 작업은 Administrator만 할 수 있습니다.
 
-1. **Assign product access**에서 대상 유형을 선택합니다.
-   - `Identity-provider group`: issuer와 group name을 정확히 입력합니다.
-   - `Principal ID`: 플랫폼에 등록된 principal UUID를 입력합니다.
+1. **Assign product access**에서 사용자 또는 팀 이름을 입력합니다.
 2. 제품 역할을 `User`로 선택합니다.
 3. 허용할 기능만 체크합니다. 예를 들어 solver card만 내려받을 사용자는 **Solver Card
    export**만 선택할 수 있습니다.
-4. 최대 classification과 현재 project 또는 organization-wide 범위를 선택합니다.
-5. 이유를 기록하고 **Create assignment**를 누릅니다.
+4. **Create assignment**를 누릅니다. 운영 identity directory와 scope/classification 정책은 내부
+   배포 설정에서 적용되며 이 일반 제품 form에는 노출되지 않습니다.
 
 부여하지 않은 기능의 API는 403으로 거부됩니다. 화면에서 버튼을 숨기는 것만으로 권한을
 구현하지 않으며, 서버의 permission 판정과 PostgreSQL RLS가 함께 적용됩니다.
@@ -49,7 +47,7 @@ PostgreSQL은 기존 세부 permission, organization/project 격리, classificat
 - group: `cmp-demo-material-team`
 - role: `Administrator`
 
-![제품 역할과 기능 권한 화면](../15-demo/images/t59-product-access.png)
+![통합 Administration의 제품 역할과 기능 권한 화면](../15-demo/images/t78-users-access.png)
 
 화면 캡처는 Codex 내장 브라우저의 좁은 viewport 증거입니다. 데스크톱에서는 같은 카드와
 assignment form이 여러 열로 배치됩니다.

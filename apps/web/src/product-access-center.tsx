@@ -57,12 +57,18 @@ function subjectLabel(assignment: ProductAccessAssignment): string {
     : `${assignment.group_name ?? "unknown group"} · ${assignment.group_issuer ?? "unknown issuer"}`;
 }
 
+function featureLabel(value: FeatureGrant): string {
+  return features.find((feature) => feature.value === value)?.label ?? value;
+}
+
 export function ProductAccessCenter({
   config,
   onOpenConnection,
+  productMode = false,
 }: {
   config: ApiConfig;
   onOpenConnection: () => void;
+  productMode?: boolean;
 }) {
   const [summary, setSummary] = useState<ProductAccessSummary | null>(null);
   const [assignments, setAssignments] = useState<ProductAccessAssignment[]>([]);
@@ -183,11 +189,11 @@ export function ProductAccessCenter({
     <div className="page-stack">
       <section className="page-heading">
         <div>
-          <p className="eyebrow">Access</p>
-          <h1>Product roles & feature grants</h1>
+          <p className="eyebrow">Users &amp; access</p>
+          <h1>{productMode ? "Choose what each team can do" : "Product roles & feature grants"}</h1>
           <p>
-            Work with Administrator and User roles. Detailed internal permissions remain an
-            implementation detail behind these five product capabilities.
+            Assign Administrator or User and enable the product capabilities they need. Detailed
+            enforcement stays behind this simple workspace setting.
           </p>
         </div>
         {summary ? <span className="reference-chip">{summary.product_role}</span> : null}
@@ -204,7 +210,7 @@ export function ProductAccessCenter({
               <p className="eyebrow">My access</p>
               <h2>{summary.product_role === "administrator" ? "Administrator" : "User"}</h2>
             </div>
-            {summary.legacy_compatible ? <span className="revision-chip">legacy compatible</span> : null}
+            {!productMode && summary.legacy_compatible ? <span className="revision-chip">legacy compatible</span> : null}
           </div>
           <div className="metrics-grid">
             {features.map((feature) => {
@@ -230,24 +236,30 @@ export function ProductAccessCenter({
                 <h2>Assign product access</h2>
               </div>
             </div>
-            <form className="form-stack" onSubmit={(event) => void submit(event)}>
+            <form className="form-stack product-access-form" onSubmit={(event) => void submit(event)}>
               <div className="form-grid">
-                <label>
+                {!productMode ? <label>
                   Subject type
                   <select value={subjectType} onChange={(event) => setSubjectType(event.target.value as "principal" | "group")}>
                     <option value="group">Identity-provider group</option>
                     <option value="principal">Principal ID</option>
                   </select>
-                </label>
+                </label> : null}
                 <label>
-                  Product role
+                  Role
                   <select value={productRole} onChange={(event) => setProductRole(event.target.value as ProductRole)}>
                     <option value="user">User</option>
                     <option value="administrator">Administrator</option>
                   </select>
                 </label>
               </div>
-              {subjectType === "group" ? (
+              {productMode ? (
+                <label>
+                  User or team name
+                  <input value={groupName} onChange={(event) => { setSubjectType("group"); setGroupName(event.target.value); }} placeholder="e.g. material-engineers" required />
+                  <small>This demo uses the configured workspace identity directory.</small>
+                </label>
+              ) : subjectType === "group" ? (
                 <div className="form-grid">
                   <label>
                     Group issuer
@@ -264,7 +276,7 @@ export function ProductAccessCenter({
                   <input value={principalId} onChange={(event) => setPrincipalId(event.target.value)} required />
                 </label>
               )}
-              <div className="form-grid">
+              {!productMode ? <div className="form-grid">
                 <label>
                   Maximum classification
                   <select value={classification} onChange={(event) => setClassification(event.target.value as Exclude<DataClassification, "export_controlled">)}>
@@ -277,7 +289,7 @@ export function ProductAccessCenter({
                   <input type="checkbox" checked={organizationWide} onChange={(event) => setOrganizationWide(event.target.checked)} />
                   Organization-wide assignment
                 </label>
-              </div>
+              </div> : null}
               <fieldset disabled={productRole === "administrator"}>
                 <legend>Feature grants</legend>
                 <div className="metrics-grid">
@@ -294,10 +306,10 @@ export function ProductAccessCenter({
                   ))}
                 </div>
               </fieldset>
-              <label>
+              {!productMode ? <label>
                 Reason
                 <input value={reason} onChange={(event) => setReason(event.target.value)} required />
-              </label>
+              </label> : null}
               <button className="button primary" type="submit" disabled={saving}>
                 {saving ? "Saving…" : "Create assignment"}
               </button>
@@ -317,10 +329,10 @@ export function ProductAccessCenter({
                 <article className="material-row" key={assignment.assignment_id}>
                   <span className="material-monogram">{assignment.product_role === "administrator" ? "AD" : "US"}</span>
                   <span className="material-row-main">
-                    <strong>{subjectLabel(assignment)}</strong>
-                    <small>{assignment.feature_grants.join(" · ") || "read-only user"}</small>
+                    <strong>{productMode && assignment.subject_type === "group" ? assignment.group_name : subjectLabel(assignment)}</strong>
+                    <small>{assignment.feature_grants.map(featureLabel).join(" · ") || "Read-only user"}</small>
                   </span>
-                  <span className="revision-chip">{assignment.product_role}</span>
+                  <span className="revision-chip">{assignment.product_role === "administrator" ? "Administrator" : "User"}</span>
                   {assignment.revoked_at ? (
                     <span className="mapping-status ignored">revoked</span>
                   ) : (

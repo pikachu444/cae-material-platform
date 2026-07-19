@@ -392,3 +392,27 @@ captures:
     image: ../15-demo/images/t77-material-search-compare.png
     width: 1440
     height: 1000
+  - id: product-administration-overview
+    route: /administration
+    workflow: task-oriented-database-and-access-administration
+    fixture: T-78 clean Compose automatic Administrator session
+    source_evidence: ../15-demo/evidence/t78-product-administration.md
+    image: ../15-demo/images/t78-administration-overview.png
+    width: 1440
+    height: 1128
+  - id: product-database-design
+    route: /administration/database
+    workflow: configure-table-typed-attribute-layout-subset-and-link-type
+    fixture: T-78 clean Compose one Table, eight typed Attributes, one Layout, one Subset and one Link Type
+    source_evidence: ../15-demo/evidence/t78-product-administration.md
+    image: ../15-demo/images/t78-database-design.png
+    width: 1440
+    height: 2339
+  - id: product-users-access
+    route: /administration/access
+    workflow: administrator-user-and-readable-feature-capability-assignment
+    fixture: T-78 clean Compose Administrator assignment without visible policy vocabulary
+    source_evidence: ../15-demo/evidence/t78-product-administration.md
+    image: ../15-demo/images/t78-users-access.png
+    width: 1440
+    height: 1681
