@@ -598,7 +598,7 @@ export function ReferenceOgdenCalibrationWorkbench({
       <div className="workflow-step" aria-label="Import canonical Neutral Material JSON">
         <strong>Import an existing Neutral Material JSON</strong>
         <p className="form-hint">
-          The canonical digest, tenant scope, family parameters, Candidate, Plan, profile,
+          The canonical digest, workspace, family parameters, Candidate, Plan, profile,
           Dataset revisions, and Artifact digests are verified before an identity is created.
         </p>
         <label>

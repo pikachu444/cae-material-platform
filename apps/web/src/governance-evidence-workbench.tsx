@@ -67,7 +67,7 @@ function GraphResult({ page, title }: { page: ProvenanceLineagePage; title: stri
           </li>
         ))}
       </ul>
-      {!page.nodes.length ? <p className="muted">No visible nodes were returned in this tenant and classification scope.</p> : null}
+      {!page.nodes.length ? <p className="muted">No evidence is available in this workspace.</p> : null}
     </section>
   );
 }

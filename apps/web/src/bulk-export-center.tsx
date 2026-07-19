@@ -227,8 +227,8 @@ export function BulkExportCenter({
       <section className="content-card empty-state">
         <p className="eyebrow">Governed transfer</p>
         <h1>Bulk Export Center</h1>
-        <p>Connect to the protected API to assemble immutable Material transfer bundles.</p>
-        <button className="button primary" type="button" onClick={onOpenConnection}>Connection</button>
+        <p>Sign in to assemble material transfer bundles.</p>
+        <button className="button primary" type="button" onClick={onOpenConnection}>Try again</button>
       </section>
     );
   }

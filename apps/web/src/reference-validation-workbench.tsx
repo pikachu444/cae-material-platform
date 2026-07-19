@@ -448,7 +448,7 @@ export function ReferenceValidationWorkbench({
 
           <form className="workflow-step" onSubmit={createPlan}>
             <strong>2. Pin the validation Plan inputs</strong>
-            <small>Each reference is an exact immutable revision; the API also verifies common tenant, classification, target, and Material State.</small>
+            <small>Each reference pins an exact revision; the workspace verifies compatible access, target, and Material State.</small>
             <div className="form-grid">
               <label>Virtual-specimen Template
                 <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)} required>

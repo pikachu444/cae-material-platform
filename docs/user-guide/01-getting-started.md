@@ -23,21 +23,23 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 모든 서비스가 준비된 뒤 다음 주소를 엽니다.
 
 - Web: <http://127.0.0.1:5173>
-- API health: <http://127.0.0.1:8000/api/v1/health>
+- 운영 상태는 **Jobs & Reviews**에서 확인합니다.
 
-## Demo identity 연결
+## Demo workspace 시작
 
-1. 화면 오른쪽 위의 **Connection**을 엽니다.
-2. **Use local demo identity**를 선택합니다.
-3. **Save connection**을 누릅니다.
-4. 상단에 connected 상태가 표시되는지 확인합니다.
+1. Web 주소를 엽니다.
+2. **Preparing your workspace…**가 사라질 때까지 기다립니다.
+3. 상단 오른쪽에 **Demo workspace**가 표시되는지 확인합니다.
+4. Dashboard에서 **Material Database** 또는 **Material Modeling**을 선택합니다.
 
-Demo identity는 `demo` mode에서만 발급됩니다. production identity 또는 실제 회사 권한을
-대체하지 않습니다.
+Demo session은 `demo` mode에서만 자동으로 준비됩니다. production에서는 같은 자리에 일반
+로그인 화면이 표시되며 사용자는 내부 연결 정보나 인증 문자열을 다루지 않습니다.
+
+![제품 중심 Dashboard](../15-demo/images/t75-product-dashboard.png)
 
 ## 첫 Material 만들기
 
-1. 상단 **Materials**를 엽니다.
+1. 상단 **Material Database**를 엽니다.
 2. 이름, code, family와 class를 입력합니다.
 3. Steel은 `metal`, 일반 점탄성 polymer는 `polymer`, Ogden--Prony는 `elastomer`를 선택합니다.
 4. Material 상세에서 State를 만들고 density, Young's modulus, Poisson ratio를 SI 단위로
@@ -47,7 +49,7 @@ Demo identity는 `demo` mode에서만 발급됩니다. production identity 또�
 저장할 때마다 새 immutable revision이 생깁니다. 브라우저 form을 고치는 것이 이미 저장된
 revision을 바꾸지 않습니다.
 
-상단 메뉴와 Material 문맥 탭의 역할, 연결·분류·mapping·다운로드 문제 해결은
+상단 메뉴와 Material 문맥 탭의 역할, 분류·mapping·다운로드 문제 해결은
 [메뉴와 Material 작업공간 사용법](10-navigation-and-troubleshooting.md)을 참고하십시오.
 
 ![Material 상세](../15-demo/images/e2e-material-detail.png)

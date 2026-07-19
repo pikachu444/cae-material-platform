@@ -227,7 +227,7 @@ export function ReleaseWorkbench({ config }: { config: ApiConfig }) {
       <p className="muted">
         Publish one digest-fixed package only after the Material Model, Solver Card, passed Validation Result,
         approved Review decision, and provenance snapshot all identify the same candidate. Draft, approximated,
-        unsupported, or cross-tenant inputs are rejected by the API.
+        unsupported or incompatible inputs are rejected before release.
       </p>
       <form className="form-stack" onSubmit={submit}>
         <div className="form-grid">

@@ -170,10 +170,10 @@ export function ProductAccessCenter({
   if (!config.accessToken.trim()) {
     return (
       <section className="empty-state">
-        <p className="eyebrow">Connection required</p>
-        <h2>Connect before inspecting product access.</h2>
+        <p className="eyebrow">Sign-in required</p>
+        <h2>Sign in before inspecting product access.</h2>
         <button className="button primary" type="button" onClick={onOpenConnection}>
-          Configure connection
+          Try again
         </button>
       </section>
     );

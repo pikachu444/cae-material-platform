@@ -527,9 +527,9 @@ export function ConfigurableCatalogRecords({
     return (
       <section className="hero-card">
         <p className="eyebrow">Configurable Catalog</p>
-        <h1>Connect a Catalog user identity</h1>
+        <h1>Sign in to open the Material Database</h1>
         <button className="button primary" type="button" onClick={onOpenConnection}>
-          Open connection
+          Try again
         </button>
       </section>
     );

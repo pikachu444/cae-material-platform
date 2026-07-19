@@ -464,7 +464,7 @@ export function CatalogExplorer({
         </div>
       </section>
 
-      {error ? <div className="error-banner" role="alert">{error}<button type="button" onClick={onOpenConnection}>Connection</button></div> : null}
+      {error ? <div className="error-banner" role="alert">{error}<button type="button" onClick={onOpenConnection}>Retry</button></div> : null}
       {notice ? <div className="success-banner">{notice}</div> : null}
 
       <section className="dual-explorer-grid">

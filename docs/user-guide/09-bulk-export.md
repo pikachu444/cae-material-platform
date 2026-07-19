@@ -20,7 +20,7 @@ SHA-256을 고정합니다. 같은 이름의 새 revision이 생겨도 이미 �
 
 ## Canonical package 만들기
 
-1. Docker demo를 실행하고 상단 상태가 **Connected token**인지 확인합니다.
+1. Docker demo를 실행하고 상단에 **Demo workspace**가 표시되는지 확인합니다.
 2. 상단 메뉴에서 **Exports**를 엽니다.
 3. **Select a Material**에서 작업할 Material을 고릅니다.
 4. 필요한 항목만 체크합니다. 재사용 가능한 Mapping Profile과 Recipe는 현재
