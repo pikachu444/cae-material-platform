@@ -596,10 +596,12 @@ export function previewCommonProcessing(
     mapping_profile: CommonMappingProfileContent;
     steps: CommonProcessingStep[];
   },
+  signal?: AbortSignal,
 ): Promise<ApiResult<CommonProcessingPreview>> {
   return request(config, "/processing:preview", {
     method: "POST",
     body: JSON.stringify(input),
+    signal,
   });
 }
 

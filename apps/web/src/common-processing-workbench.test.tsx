@@ -233,6 +233,54 @@ describe("Common Processing Workbench", () => {
             },
             {
               ordinal: 2,
+              method_id: "metal.elastic_modulus",
+              method_version: "1.0.0",
+              point_count: 3,
+              series: [
+                { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+                { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
+              ],
+              diagnostics: ["robust elastic fit calculated"],
+              scalar_results: [],
+            },
+            {
+              ordinal: 3,
+              method_id: "metal.proof_stress",
+              method_version: "1.0.0",
+              point_count: 3,
+              series: [
+                { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+                { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
+              ],
+              diagnostics: [],
+              scalar_results: [],
+            },
+            {
+              ordinal: 4,
+              method_id: "metal.necking_candidate",
+              method_version: "1.0.0",
+              point_count: 3,
+              series: [
+                { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+                { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
+              ],
+              diagnostics: [],
+              scalar_results: [],
+            },
+            {
+              ordinal: 5,
+              method_id: "metal.engineering_to_true_plastic",
+              method_version: "1.0.0",
+              point_count: 3,
+              series: [
+                { quantity: "strain.engineering", unit: "1", values: [0, 0.001, 0.002] },
+                { quantity: "stress.engineering", unit: "Pa", values: [0, 2e8, 3e8] },
+              ],
+              diagnostics: [],
+              scalar_results: [],
+            },
+            {
+              ordinal: 6,
               method_id: "metal.hardening_fit_extrapolate",
               method_version: "1.0.0",
               point_count: 3,
@@ -359,6 +407,21 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
     expect(screen.getByText("210.000 GPa")).toBeTruthy();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /metal\.elastic_modulus/ })[0]);
+    const elasticPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
+    Object.defineProperty(elasticPlot, "getBoundingClientRect", {
+      value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Select range" }));
+    fireEvent.pointerDown(elasticPlot, { button: 0, pointerId: 2, clientX: 100, clientY: 200 });
+    fireEvent.pointerMove(elasticPlot, { pointerId: 2, clientX: 160, clientY: 200 });
+    fireEvent.pointerUp(elasticPlot, { pointerId: 2, clientX: 160, clientY: 200 });
+    fireEvent.click(screen.getByRole("button", { name: "Apply selection" }));
+    const appliedSteps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, number> }>;
+    expect(appliedSteps[1].method_id).toBe("metal.elastic_modulus");
+    expect(appliedSteps[1].options.minimum_strain).not.toBe(0.0002);
+    expect(screen.getByText(/Applied the graph range to metal.elastic_modulus/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Align and calculate" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
