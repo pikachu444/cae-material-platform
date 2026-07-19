@@ -1897,7 +1897,15 @@ clean-acceptance intent is retained in T-93.
 
 #### T-91. Material Database tree and datasheet parity — `P0`
 
-- persistent dense tree, keyboard/state restoration, Layout tabs/viewers/revision diff와 typed links.
+- **상태 (`2026-07-20`):** `complete`. `/database`는 clean demo 진입 시 첫 유용한
+  Record와 그 nested Folder 경로를 자동으로 열고 실제 Layout Datasheet를 표시한다. 좌측은
+  Catalog/Workflow projection을 전환하며 Workflow는 8 exact revision Record와 7 typed link를
+  복제 없이 투영한다. 중앙은 Overview/Properties/Curves/Test Data/Models/CAE Cards/Links를,
+  우측은 forward/reverse Related와 immutable Revisions를 제공한다. 방향키/Home/End으로 tree를
+  이동·전개·축소하고 마지막 exact revision 문맥을 session에서 복원한다. 검색·Layout 비교와
+  normalized facet/range 엔진은 유지된다.
+- **증거:** `docs/15-demo/evidence/t91-material-database-parity.md`와
+  `docs/15-demo/images/t91-material-database-*.png`.
 
 #### T-92. Search/Compare/Admin and Recipe/Batch polish — `P1`
 

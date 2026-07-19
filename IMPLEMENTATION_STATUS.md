@@ -28,8 +28,8 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
 | Administrator-defined Table/Attribute/Layout/Subset/Link Type | Engine and protected APIs exist; the T-78 task surface is usable engineering evidence but still needs the T-92 clone-parity interaction audit | T-92 guided administration |
-| Catalog record datasheet/search/facet/compare | Typed values, Layout, search and compare engines exist; current datasheet interaction is `partial` | T-91/T-92 Database parity |
-| Catalog and Material Workflow Explorers | Exact tree/link engines exist; current three-pane GUI is `partial` until state restoration, keyboard, realistic hierarchy and linked navigation pass T-91 | T-91 Database parity |
+| Catalog record datasheet/search/facet/compare | T-91 accepts the engine-connected three-pane Layout Datasheet; T-92 owns richer saved-search/admin polish | T-92 search/admin polish |
+| Catalog and Material Workflow Explorers | T-91 accepts automatic nested demo entry, Catalog/Workflow projection, exact linked navigation, keyboard disclosure and session restoration | T-93 clean product acceptance |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
 | General Mapping Profile and Processing Workbench | T-86~T-90 accept all three family paths: compact workbench, exact curve selection, guided processing, response/residual comparison, immutable Neutral review and two native card previews/downloads. | T-92 Recipe/Batch polish |
@@ -99,6 +99,15 @@ must not be read as product-experience completion.
   and the same session previews Abaqus Ogden+Prony and OpenRadioss LAW62 ASCII. Approximation/ignored
   mapping now requires explicit review before new card generation. Evidence is in
   `docs/15-demo/evidence/t90-elastomer-multimode-workbench.md`. T-91 now owns Database parity.
+
+- `T-91` (`completed`): Material Database now opens on an actual governed demo Datasheet instead of
+  an empty center pane. The persistent left pane exposes the realistic Database/Profile/Table/Folder/
+  Record hierarchy and switches to an exact revision Workflow graph without duplicating records. The
+  middle pane renders configured Layout values and domain-specific Test/Model/Card views; the context
+  pane follows forward/reverse links or immutable revision history. Tree disclosure supports arrow,
+  Home and End keys, and the last exact revision is restored within the browser session. Live Docker/
+  PostgreSQL screenshots are in `docs/15-demo/evidence/t91-material-database-parity.md`. T-92 now owns
+  search, guided administration and Recipe/Batch polish.
 
 - `T-88` (`completed`): **Card** is now a first-class task in the Material Modeling shell rather than
   a legacy drawer below the graph. It pins friendly Material/State and exact reviewed Output/IR/Neutral
