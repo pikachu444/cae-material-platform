@@ -190,7 +190,7 @@ export function MaterialDatabaseExplorer({
     setExpanded((current) => new Set(current).add(branchKey));
   }, [config]);
 
-  const loadGraph = useCallback(async (recordId: string, revisionId: string) => {
+  const loadGraph = useCallback(async (recordId: string, revisionId: string): Promise<boolean> => {
     try {
       const [graphResult, revisionResult] = await Promise.all([
         getCatalogWorkflowGraph(config, recordId, revisionId, 8),
@@ -218,8 +218,10 @@ export function MaterialDatabaseExplorer({
         // Session restoration is a convenience; database access must still work when storage is disabled.
       }
       setError(null);
+      return true;
     } catch (caught) {
       setError(errorText(caught));
+      return false;
     }
   }, [config]);
 
@@ -286,8 +288,10 @@ export function MaterialDatabaseExplorer({
             break;
           }
         }
-        if (restored) await loadGraph(restored.recordId, restored.revisionId);
-        else if (discoveredRecord) await loadGraph(discoveredRecord.record_id, discoveredRecord.current_revision.id);
+        const restoredLoaded = restored ? await loadGraph(restored.recordId, restored.revisionId) : false;
+        if (!restoredLoaded && discoveredRecord) {
+          await loadGraph(discoveredRecord.record_id, discoveredRecord.current_revision.id);
+        }
       })
       .catch((caught: unknown) => active && setError(errorText(caught)))
       .finally(() => active && setLoading(false));

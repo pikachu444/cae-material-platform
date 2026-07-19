@@ -282,6 +282,22 @@ describe("MaterialDatabaseExplorer", () => {
     expect(await screen.findByRole("button", { name: /DP780 Sheet Steel/ })).toBeTruthy();
   });
 
+  it("recovers from an exact revision saved before a clean database reseed", async () => {
+    window.sessionStorage.setItem("cmp.material-database.view.v1", JSON.stringify({
+      recordId: "75000000-0000-4000-8000-000000000001",
+      revisionId: "75000000-0000-4000-8000-000000000002",
+    }));
+    mocks.graph.mockImplementation((_config, requestedRecordId) => requestedRecordId === recordId
+      ? Promise.resolve({ data: graph, etag: null })
+      : Promise.reject(new Error("stale exact revision")));
+
+    render(<MaterialDatabaseExplorer config={{ baseUrl: "/api/v1", accessToken: "session" }} onNavigate={() => undefined} onRetry={() => undefined} />);
+
+    expect(await screen.findByRole("heading", { name: "Record information" })).toBeTruthy();
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(mocks.graph).toHaveBeenCalledWith(expect.anything(), recordId, recordRevisionId, 8);
+  });
+
   it("opens an exact record and renders its linked workflow hierarchy", async () => {
     const user = userEvent.setup();
     const navigate = vi.fn();
