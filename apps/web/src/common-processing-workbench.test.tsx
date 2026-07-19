@@ -268,7 +268,8 @@ describe("Common Processing Workbench", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Processing Workbench" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Test curves to material model" })).toBeTruthy();
+    expect(screen.getByRole("navigation", { name: "Material Modeling steps" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Polymer relaxation template" }));
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
       '"profile_key": "polymer-shear-relaxation"',
@@ -283,12 +284,12 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
     expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Preview all stages" }));
-    expect(await screen.findByText("Preview only · not promotable")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    expect(await screen.findByText("Preview only · not committed")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByText("Selected combination")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /1 rows\.sort_unique/ }));
+    fireEvent.click(screen.getByRole("button", { name: /1rows\.sort_unique/ }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
     expect(screen.getByText("210.000 GPa")).toBeTruthy();

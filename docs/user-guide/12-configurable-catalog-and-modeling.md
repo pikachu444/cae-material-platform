@@ -74,7 +74,7 @@ Explorer와 함께 확장한다.
    range를 적용할 수 있다. 두 결과의 **Compare**를 체크한 뒤 **Compare 2**를 누르면 선택한 Layout
    순서로 exact current Record revision을 나란히 비교한다.
 10. **Curves**는 현재 Record revision의 curve Artifact provenance를 표시한다. 실제 raw/normalized/
-    processed curve overlay와 처리 option preview는 linked Test Data를 연 뒤 T-79 Material Modeling
+    processed curve overlay와 처리 option preview는 linked Test Data를 연 뒤 Material Modeling
     workspace에서 수행한다.
 
 ![Layout section, 원본/정규화 단위와 exact revision을 보존한 DP780 Datasheet](../15-demo/images/t77-material-datasheet.png)
@@ -86,6 +86,24 @@ Explorer와 함께 확장한다.
 ![Catalog tree와 Material workflow exact link](../15-demo/images/t51-catalog-workflow-explorer.png)
 
 ![시험 Record에서 Material revision으로 이동하는 역방향 링크](../15-demo/images/t51-reverse-record-link.png)
+
+## 시험 curve를 그래프 중심 Workbench에서 처리
+
+1. 전역 **Material Modeling**을 선택한다. 상단의 Import → Map → Prepare → Fit → Extrapolate →
+   Card 순서가 현재 작업의 전체 경로다.
+2. **Test Data revision**에서 등록된 문서를 고르고 **Load exact JSON**을 누른다. 왼쪽
+   **Datasets & curves**에서도 같은 exact revision을 다시 선택할 수 있다.
+3. 저장된 **Mapping Profile** 또는 Metal/Polymer template을 선택한다. 일반 사용자는 channel
+   mapping을 확인하고, 원시 JSON이 필요한 경우에만 **Advanced mapping definition**을 펼친다.
+4. 저장된 게시 Recipe를 불러오거나 상단 method를 눌러 ordered step을 추가한다. 왼쪽에서 단계를
+   선택하면 오른쪽에 해당 method의 option이 표시된다. option 변경은 원본을 수정하지 않는다.
+5. **Preview changes**를 누른다. 가운데 그래프는 실제 서버 계산 raw/mapped/processed/fitted/
+   extrapolated stage를 표시한다. 하단 stage chip을 선택해 입력과 각 단계 결과를 비교한다.
+6. 후보 진단은 그래프 아래에 보이고 전체 parameter/bound/수치 증거는 **Parameters and numerical
+   evidence**를 펼쳐 확인한다. 미리보기는 저장되지 않으며 **Commit immutable output**만 새
+   Processing Output revision을 만든다.
+
+![Exact Dataset, ordered Recipe, server curve와 단계 옵션이 연결된 Material Modeling workspace](../15-demo/images/t79-material-modeling-workspace.png)
 
 ### Open a governed object from the Workflow Explorer
 

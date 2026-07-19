@@ -416,3 +416,11 @@ captures:
     image: ../15-demo/images/t78-users-access.png
     width: 1440
     height: 1681
+  - id: graph-centered-material-modeling
+    route: /modeling
+    workflow: exact-test-data-published-recipe-server-preview-and-stage-options
+    fixture: T-79 clean Compose DP780 tensile JSON and published metal processing Recipe
+    source_evidence: ../15-demo/evidence/t79-material-modeling-workspace.md
+    image: ../15-demo/images/t79-material-modeling-workspace.png
+    width: 1036
+    height: 1199

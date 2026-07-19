@@ -382,15 +382,18 @@ function StageCurveEvidence({
       </div>
       <div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div>
       {(activeStage.scalar_results ?? []).length ? (
-        <div className="metal-scalar-grid" aria-label="Metal processing scalar results">
-          {(activeStage.scalar_results ?? []).map((item) => (
-            <article key={item.key}>
-              <span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span>
-              <strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong>
-              <small>{item.quantity_semantics} · {item.unit}</small>
-            </article>
-          ))}
-        </div>
+        <details className="model-diagnostics-details">
+          <summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary>
+          <div className="metal-scalar-grid" aria-label="Metal processing scalar results">
+            {(activeStage.scalar_results ?? []).map((item) => (
+              <article key={item.key}>
+                <span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span>
+                <strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong>
+                <small>{item.quantity_semantics} · {item.unit}</small>
+              </article>
+            ))}
+          </div>
+        </details>
       ) : null}
       <p className="digest-line"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p>
     </>
@@ -421,6 +424,7 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
   const [recipeReason, setRecipeReason] = useState("Save reusable Processing Recipe");
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   const [selectedStage, setSelectedStage] = useState(0);
+  const [selectedStepIndex, setSelectedStepIndex] = useState(0);
   const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
   const [batchDocumentIds, setBatchDocumentIds] = useState<string[]>([]);
   const [batchLabel, setBatchLabel] = useState("Published Recipe batch");
@@ -494,6 +498,7 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
     setSelectedProfileId("");
     setProfileText(JSON.stringify(profile, null, 2));
     setStepsText(JSON.stringify(steps, null, 2));
+    setSelectedStepIndex(0);
     setPreview(null);
     setNotice(`Loaded the ${profile.label} template. Confirm channel keys, units, and bounds before saving.`);
   }
@@ -507,6 +512,8 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
     setRecipeLabel(item.content.label);
     setRecipeDescription(item.content.description ?? "");
     setStepsText(JSON.stringify(item.content.steps, null, 2));
+    setSelectedStepIndex(0);
+    setPreview(null);
     const exactProfile = profiles.find(
       (profile) => profile.mapping_profile_id === item.content.mapping_profile_id
         && profile.current_revision.id === item.content.mapping_profile_revision_id,
@@ -696,9 +703,43 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
       const steps = JSON.parse(stepsText) as CommonProcessingStep[];
       steps.push({ method_id: method.method_id, method_version: method.version, options: defaultOptions(method.method_id) });
       setStepsText(JSON.stringify(steps, null, 2));
+      setSelectedStepIndex(steps.length - 1);
+      setPreview(null);
       setError(null);
     } catch (caught) {
       setError(caught instanceof SyntaxError ? caught.message : errorMessage(caught));
+    }
+  }
+
+  function updateStepOption(option: string, value: unknown): void {
+    try {
+      const steps = JSON.parse(stepsText) as CommonProcessingStep[];
+      const step = steps[selectedStepIndex];
+      if (!step) return;
+      steps[selectedStepIndex] = { ...step, options: { ...step.options, [option]: value } };
+      setStepsText(JSON.stringify(steps, null, 2));
+      setPreview(null);
+    } catch {
+      setError("The advanced processing definition is not valid JSON.");
+    }
+  }
+
+  function parseStepOption(value: unknown, rawValue: string): unknown {
+    if (typeof value === "number") return Number(rawValue);
+    if (!Array.isArray(value)) return rawValue;
+    const items = rawValue.split(",").map((item) => item.trim()).filter(Boolean);
+    return typeof value[0] === "number" ? items.map(Number) : items;
+  }
+
+  function removeSelectedStep(): void {
+    try {
+      const steps = JSON.parse(stepsText) as CommonProcessingStep[];
+      steps.splice(selectedStepIndex, 1);
+      setStepsText(JSON.stringify(steps, null, 2));
+      setSelectedStepIndex(Math.max(0, selectedStepIndex - 1));
+      setPreview(null);
+    } catch {
+      setError("The advanced processing definition is not valid JSON.");
     }
   }
 
@@ -854,6 +895,14 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
 
   const activeStage = preview?.stages[selectedStage] ?? null;
   const baseStage = preview?.stages[0] ?? null;
+  const configuredSteps = useMemo(() => {
+    try {
+      return JSON.parse(stepsText) as CommonProcessingStep[];
+    } catch {
+      return [];
+    }
+  }, [stepsText]);
+  const selectedConfiguredStep = configuredSteps[selectedStepIndex] ?? null;
   const chart = useMemo(() => ({ width: 620, height: 250 }), []);
   const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
   const ensembleBounds = useMemo(() => {
@@ -875,36 +924,49 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
   return (
     <main className="processing-workbench-page">
       <section className="page-hero compact-hero processing-hero">
-        <div><p className="eyebrow">T-53 · configurable processing</p><h1>Processing Workbench</h1><p>Pin Test Data, reuse a Mapping Profile, compose versioned methods, and inspect every curve stage before commit.</p></div>
+        <div><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p>Import, map and process test data while the graph stays visible. Only an explicit commit creates an immutable result.</p></div>
         <div className="hero-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
+        <nav className="modeling-flow-nav" aria-label="Material Modeling steps"><a href="#modeling-import">Import</a><a href="#modeling-map">Map</a><a href="#modeling-prepare">Prepare</a><a href="#modeling-fit">Fit</a><a href="#modeling-fit">Extrapolate</a><a href="#modeling-output">Card</a></nav>
       </section>
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}
 
       <section className="processing-setup-grid">
-        <article className="workbench-card processing-input-card">
+        <article className="workbench-card processing-input-card" id="modeling-import">
           <p className="eyebrow">1 · exact input</p><h2>Test Data revision</h2>
           <label>Imported document<select aria-label="Test Data revision" value={selectedDocumentId} onChange={(event) => void loadDocument(event.target.value)}><option value="">Choose a document</option>{documents.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
           <button className="button secondary" type="button" disabled={!selectedDocumentId || busy} onClick={() => void loadDocument(selectedDocumentId)}>Load exact JSON</button>
           {document ? <p className="mapping-note">Loaded <code>{String(document.document_id)}</code>. Original and normalized arrays remain unchanged.</p> : <p className="muted">Import Test Data JSON first, then load its exact revision.</p>}
         </article>
 
-        <article className="workbench-card mapping-profile-card">
+        <article className="workbench-card mapping-profile-card" id="modeling-map">
           <div className="section-heading"><div><p className="eyebrow">2 · reusable contract</p><h2>Mapping Profile</h2></div><span className="status-chip">{profiles.length} saved</span></div>
           <label>Saved profile<select aria-label="Saved Mapping Profile" value={selectedProfileId} onChange={(event) => selectProfile(event.target.value)}><option value="">New profile</option>{profiles.map((item) => <option key={item.mapping_profile_id} value={item.mapping_profile_id}>{item.content.label} · r{item.current_revision.revision_no}</option>)}</select></label>
           <div className="hero-actions" aria-label="Mapping Profile templates">
             <button className="button secondary" type="button" onClick={() => useProfileTemplate(DEFAULT_PROFILE, DEFAULT_STEPS)}>Metal tensile template</button>
             <button className="button secondary" type="button" onClick={() => useProfileTemplate(POLYMER_RELAXATION_PROFILE, POLYMER_RELAXATION_STEPS)}>Polymer relaxation template</button>
           </div>
-          <label>Profile JSON<textarea className="mapping-profile-editor" aria-label="Mapping Profile JSON" value={profileText} onChange={(event) => setProfileText(event.target.value)} spellCheck={false} /></label>
+          <details className="advanced-definition"><summary>Advanced mapping definition</summary><label>Profile JSON<textarea className="mapping-profile-editor" aria-label="Mapping Profile JSON" value={profileText} onChange={(event) => setProfileText(event.target.value)} spellCheck={false} /></label></details>
           <div className="profile-save-row"><label>Classification<select value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label><label>Change reason<input value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !changeReason.trim()} onClick={() => void saveProfile()}>{selectedProfileId ? "Append profile revision" : "Save new profile"}</button></div>
         </article>
       </section>
 
-      <section className="workbench-card method-builder-card">
-        <div className="section-heading"><div><p className="eyebrow">3 · ordered methods</p><h2>Pipeline builder</h2></div><button className="button primary" type="button" disabled={busy} onClick={() => void runPreview()}>{busy ? "Working…" : "Preview all stages"}</button></div>
-        <div className="method-registry-strip">{methods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>{method.label}</strong><small>{method.method_id} · {method.version}</small></button>)}</div>
-        <label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label>
+      <section className="workbench-card method-builder-card" id="modeling-prepare">
+        <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy} onClick={() => void runPreview()}>{busy ? "Working…" : "Preview changes"}</button></div>
+        <div className="method-registry-strip" aria-label="Available processing methods">{methods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div>
+        <div className="modeling-graph-workspace">
+          <aside className="modeling-workspace-rail">
+            <div className="modeling-dataset-list"><p className="eyebrow">Datasets &amp; curves</p>{documents.map((item) => <button type="button" className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id} onClick={() => void loadDocument(item.test_data_document_id)}><span className="dataset-curve-swatch"/><span><strong>{item.document_key}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button>)}</div>
+            <div className="configured-step-list"><p className="eyebrow">Recipe steps</p>{configuredSteps.map((step, index) => <button type="button" className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => setSelectedStepIndex(index)}><span>{index + 1}</span><span><strong>{methods.find((method) => method.method_id === step.method_id)?.label ?? step.method_id}</strong><small>{step.method_version}</small></span></button>)}</div>
+          </aside>
+          <article className="persistent-modeling-plot" id="modeling-fit">
+            <div className="section-heading"><div><p className="eyebrow">Live curve comparison</p><h2>{activeStage?.method_id ?? "Load data and preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not committed</span> : null}</div>
+            {preview && activeStage && baseStage ? <StageCurveEvidence preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} /> : <div className="modeling-plot-empty"><strong>The graph stays here while you configure processing.</strong><p>Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source.</p></div>}
+            {preview ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : null}
+          </article>
+          <aside className="step-option-panel">{selectedConfiguredStep ? <><div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div><div className="step-option-grid">{Object.entries(selectedConfiguredStep.options).map(([option, value]) => <label key={option}>{option.replaceAll("_", " ")}{typeof value === "boolean" ? <input type="checkbox" checked={value} onChange={(event) => updateStepOption(option, event.target.checked)} /> : <input value={Array.isArray(value) ? value.join(", ") : String(value)} type={typeof value === "number" ? "number" : "text"} onChange={(event) => updateStepOption(option, parseStepOption(value, event.target.value))} />}</label>)}</div></> : <p className="muted">Add or select a processing step.</p>}</aside>
+        </div>
+        <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label></details>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
       </section>
 
@@ -933,18 +995,7 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
         {batches.length ? <div className="batch-run-list">{batches.map((batch) => <article key={batch.batch_id}><div className="batch-run-heading"><div><strong>{batch.label}</strong><small>{batch.members.length} members · {batch.attempts.length} attempts</small></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span></div><code>{batch.recipe_revision_id}</code><div className="batch-member-list">{batch.members.map((member) => { const attempts = batch.attempts.filter((attempt) => attempt.member_id === member.member_id); const latest = attempts.at(-1); return <div key={member.member_id}><span>#{member.ordinal + 1}</span><strong>{latest?.status ?? "planned"}</strong><small>attempt {latest?.attempt_no ?? 0}</small><code>{latest?.output_revision_id ?? latest?.error_code ?? member.source.revision_id}</code></div>; })}</div>{batch.status === "partial" || batch.status === "failed" ? <button className="button secondary" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed members only</button> : null}</article>)}</div> : null}
       </section>
 
-      <section className="processing-result-grid">
-        <article className="workbench-card stage-list-card">
-          <p className="eyebrow">4 · immutable stage view</p><h2>Stage history</h2>
-          {preview ? <div className="stage-list">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "stage-item active" : "stage-item"} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><div><strong>{stage.method_id}</strong><small>{stage.point_count} points · {stage.method_version}</small></div></button>)}</div> : <p className="muted">Run a preview to preserve and compare the mapped and processed stages.</p>}
-        </article>
-        <article className="workbench-card curve-overlay-card">
-          <div className="section-heading"><div><p className="eyebrow">Curve overlay</p><h2>{activeStage?.method_id ?? "Awaiting preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not promotable</span> : null}</div>
-          {preview && activeStage && baseStage ? <StageCurveEvidence preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} /> : <p className="muted">The overlay uses the actual server result. No browser-only curve is treated as evidence.</p>}
-        </article>
-      </section>
-
-      <section className="workbench-card processing-output-card">
+      <section className="workbench-card processing-output-card" id="modeling-output">
         <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Commit reviewed result</h2></div><span className="status-chip">{outputs.length} committed</span></div>
         <p className="mapping-note">Commit recomputes the selected exact Test Data and saved Mapping Profile on the server. Preview arrays are never accepted as authoritative output.</p>
         <div className="processing-output-form"><label>Output label<input value={outputLabel} onChange={(event) => setOutputLabel(event.target.value)} /></label><label>Change reason<input value={outputReason} onChange={(event) => setOutputReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit immutable output</button></div>

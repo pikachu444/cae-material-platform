@@ -1736,12 +1736,19 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-79. Graph-centered Material Modeling shell and data preparation — `P0`
 
+- **상태 (`2026-07-19`):** `implemented and verified`.
 - **범위:** Dataset/curve list, persistent main plot, step options와 Import → Map → Prepare → Fit →
   Extrapolate → Card navigation을 한 workspace로 제공한다. Test JSON/CSV/XLSX, Mapping Profile,
   common Processing methods와 preview/commit engine을 재사용한다.
 - **완료 조건:** raw/normalized/processed overlay와 diagnostics가 option 변경 즉시 preview되고,
   명시적 commit만 immutable Output을 만든다. UUID 복사나 module route 이동이 필요 없다.
 - **테스트:** import/map, step reorder/options, preview-vs-commit, curve stage E2E와 screenshot.
+- **구현 증거:** `/modeling`은 exact Test Data 목록, ordered Recipe 단계, 서버 계산 curve overlay와
+  선택 단계의 구조화된 option editor를 한 3열 작업공간에 유지한다. 게시된 Recipe를 불러와
+  raw/mapped/processed/fitted/extrapolated stage를 비교할 수 있으며 상세 JSON과 수치 parameter는
+  고급 펼침 영역으로 분리했다. 실제 Docker/PostgreSQL 데모와 회귀 증거는
+  `docs/15-demo/evidence/t79-material-modeling-workspace.md`에 있다. Family별 완전한 option/candidate
+  UX와 Recipe/Batch 통합은 T-80, Neutral/Card 연결은 T-81이다.
 
 #### T-80. Family modeling tracks and reusable Recipe/Batch UX — `P0`
 
