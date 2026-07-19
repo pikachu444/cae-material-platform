@@ -19,7 +19,16 @@ const neutral: NeutralMaterialResponse = {
     schema_version: "1.0.0",
     document_id: neutralId,
     content_sha256: sha,
-    sources: { datasets: [] },
+    sources: {
+      material: { id: "material-1", revision_id: "material-revision-1" },
+      material_state: { id: "state-1", revision_id: "state-revision-1" },
+      property_set: { id: "properties-1", revision_id: "properties-revision-1" },
+      datasets: [{
+        dataset: { id: "dataset-1", revision_id: "dataset-revision-1" },
+        role: "calibration",
+        test_mode: "uniaxial_tension",
+      }],
+    },
     curve_stages: [],
     candidate_selection: {
       candidate_id: cardId,
@@ -166,13 +175,20 @@ describe("NeutralHyperelasticExport", () => {
       throw new Error(`unexpected request ${url}`);
     });
     vi.stubGlobal("fetch", fetchMock);
+    const onNavigate = vi.fn();
 
     render(
       <NeutralHyperelasticExport
         config={{ baseUrl: "/api/v1", accessToken: "token" }}
         neutralMaterial={neutral}
+        onNavigate={onNavigate}
       />,
     );
+    expect(screen.getByText("Neutral Material JSON → verified mapping → native solver card")).toBeTruthy();
+    expect(screen.getByText("5 exact references")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Download exact Neutral JSON" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Return to Material datasheet" }));
+    expect(onNavigate).toHaveBeenCalledWith("/materials/material-1/models");
     fireEvent.change(screen.getByLabelText("Solver target"), {
       target: { value: "openradioss" },
     });
@@ -187,5 +203,7 @@ describe("NeutralHyperelasticExport", () => {
     expect(await screen.findByText(/\/VISC\/LPRONY\/301\/1/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download native ASCII card" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download mapping report JSON" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Add exact files to a bulk package" }));
+    expect(onNavigate).toHaveBeenCalledWith("/exports");
   });
 });

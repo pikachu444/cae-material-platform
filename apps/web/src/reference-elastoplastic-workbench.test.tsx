@@ -463,6 +463,8 @@ describe("Reference elastoplastic workbench", () => {
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create Neutral Material JSON" }));
     expect(await screen.findByRole("button", { name: "Download Neutral JSON r1" })).toBeTruthy();
+    expect(screen.getByText("Exact Neutral JSON r1 restored")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Create Neutral Material JSON" })).toBeNull();
     await waitFor(() => {
       const promotionCall = fetchMock.mock.calls.find(([url, init]) =>
         String(url).endsWith(`/processing-outputs/${outputId}/tabulated-plasticity-models`) &&

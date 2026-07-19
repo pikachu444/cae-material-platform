@@ -61,10 +61,12 @@ export function ReferenceLinearViscoelasticWorkbench({
   config,
   state,
   propertySet,
+  onNavigate,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   propertySet: PropertySetResponse;
+  onNavigate?: (path: string) => void;
 }) {
   const [models, setModels] = useState<LinearViscoelasticModelResponse[]>([]);
   const [selectedId, setSelectedId] = useState("");
@@ -451,7 +453,7 @@ export function ReferenceLinearViscoelasticWorkbench({
             <ReferenceLinearViscoelasticExport config={config} model={selected} />
           )}
           {neutralMaterial ? (
-            <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} />
+            <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} onNavigate={onNavigate} />
           ) : null}
           {response ? (
             <div className="relaxation-chart">
