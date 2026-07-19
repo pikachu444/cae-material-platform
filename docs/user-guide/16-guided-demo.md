@@ -53,10 +53,18 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 3. **DP780 Dual-Phase Steel**을 선택하고 가운데 Workflow Tree에서 Material State, Test Data,
    Processing Output, Material Model IR, Neutral Material과 두 Solver Card가 이어지는지 확인합니다.
 4. 오른쪽 Related Data에서 현재 exact revision에 직접 연결된 레코드를 확인합니다.
-5. Test Data 노드를 눌러 workbench를 연 뒤 브라우저의 뒤로 가기로 같은 Material Database
+5. **Datasheet** 탭에서 density, Young's modulus, Poisson's ratio와 yield stress를 확인합니다.
+   원본 `g/cm^3`, `MPa` 값과 normalized `kg/m^3`, `Pa` 값이 함께 보여야 합니다.
+6. 상단에서 `DP780`을 검색하고 Material과 Material State의 **Compare**를 선택한 뒤 Layout
+   비교를 엽니다. 오른쪽 facet과 normalized numeric range도 같은 typed Record 검색에 적용됩니다.
+7. Test Data 노드를 눌러 workbench를 연 뒤 브라우저의 뒤로 가기로 같은 Material Database
    탐색 문맥에 돌아옵니다.
 
 ![DP780의 다단계 Contents Tree와 exact workflow](../15-demo/images/t76-material-database-tree.png)
+
+![DP780 Material overview Datasheet](../15-demo/images/t77-material-datasheet.png)
+
+![검색 facet과 두 Record Layout 비교](../15-demo/images/t77-material-search-compare.png)
 
 ## 4. 금속 탄소성 경로
 

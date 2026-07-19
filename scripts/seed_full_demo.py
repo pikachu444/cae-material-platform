@@ -117,8 +117,180 @@ def _ensure_catalog_binding(
                 "change_reason": "Add the demo Material code attribute without a DB migration.",
             },
         )
-    attribute_id = _id(attribute, "attribute_definition_id")
-    attribute_revision_id = _revision_id(attribute)
+    def ensure_attribute(
+        key: str,
+        name: str,
+        data_type: str,
+        *,
+        quantity_semantics: str | None = None,
+        normalized_unit: str | None = None,
+        allowed_values: Sequence[str] = (),
+        minimum_number: float | None = None,
+        maximum_number: float | None = None,
+    ) -> dict[str, Any]:
+        existing = _find_by_content(attributes, "key", key)
+        if existing is not None:
+            return existing
+        content: dict[str, Any] = {
+            "table_revision_id": table_revision_id,
+            "key": key,
+            "name": name,
+            "data_type": data_type,
+            "required": False,
+            "help_text": f"Synthetic demo {name.lower()} used in the product datasheet.",
+        }
+        if quantity_semantics is not None:
+            content["quantity_semantics"] = quantity_semantics
+        if normalized_unit is not None:
+            content["normalized_unit"] = normalized_unit
+        if allowed_values:
+            content["allowed_values"] = list(allowed_values)
+        if minimum_number is not None:
+            content["minimum_number"] = minimum_number
+        if maximum_number is not None:
+            content["maximum_number"] = maximum_number
+        created = api.post(
+            f"/catalog/tables/{table_id}/attributes",
+            {
+                "content": content,
+                "change_reason": f"Add the {name} demo datasheet Attribute.",
+            },
+        )
+        attributes.append(created)
+        return created
+
+    attribute_by_key = {
+        "material_code": attribute,
+        "material_family": ensure_attribute(
+            "material_family",
+            "Material family",
+            "discrete",
+            allowed_values=(
+                "Steel",
+                "Material state",
+                "Test data",
+                "Processing",
+                "Material model",
+                "Neutral material",
+                "Solver card",
+                "Release",
+            ),
+        ),
+        "manufacturer": ensure_attribute("manufacturer", "Manufacturer", "text"),
+        "grade": ensure_attribute("grade", "Grade", "text"),
+        "density": ensure_attribute(
+            "density",
+            "Density",
+            "number",
+            quantity_semantics="mass.density",
+            normalized_unit="kg/m^3",
+            minimum_number=0,
+        ),
+        "youngs_modulus": ensure_attribute(
+            "youngs_modulus",
+            "Young's modulus",
+            "number",
+            quantity_semantics="modulus.elastic.young",
+            normalized_unit="Pa",
+            minimum_number=0,
+        ),
+        "poisson_ratio": ensure_attribute(
+            "poisson_ratio",
+            "Poisson's ratio",
+            "number",
+            quantity_semantics="ratio.poisson",
+            normalized_unit="1",
+            minimum_number=0,
+            maximum_number=0.5,
+        ),
+        "yield_stress": ensure_attribute(
+            "yield_stress",
+            "Yield stress",
+            "number",
+            quantity_semantics="stress.yield",
+            normalized_unit="Pa",
+            minimum_number=0,
+        ),
+    }
+
+    layouts = _items(api.get(f"/catalog/tables/{table_id}/layouts"))
+    if not any(item.get("name") == "Material overview" for item in layouts):
+        sections = {
+            "material_code": "Identity",
+            "material_family": "Identity",
+            "manufacturer": "Identity",
+            "grade": "Identity",
+            "density": "Physical properties",
+            "youngs_modulus": "Elastic properties",
+            "poisson_ratio": "Elastic properties",
+            "yield_stress": "Plasticity",
+        }
+        api.post(
+            f"/catalog/tables/{table_id}/layouts",
+            {
+                "table_revision_id": table_revision_id,
+                "name": "Material overview",
+                "description": "Identity, physical, elastic and plastic properties for CAE use.",
+                "items": [
+                    {
+                        "attribute_definition_id": _id(
+                            attribute_by_key[key], "attribute_definition_id"
+                        ),
+                        "attribute_definition_revision_id": _revision_id(attribute_by_key[key]),
+                        "section": section,
+                        "ordinal": ordinal,
+                    }
+                    for ordinal, (key, section) in enumerate(sections.items())
+                ],
+                "change_reason": "Create the product Material overview datasheet Layout.",
+            },
+        )
+
+    def text_value(key: str, value: str) -> dict[str, Any]:
+        definition = attribute_by_key[key]
+        return {
+            "data_type": (
+                "discrete"
+                if _content(definition).get("data_type") == "discrete"
+                else "text"
+            ),
+            "attribute_definition_id": _id(definition, "attribute_definition_id"),
+            "attribute_definition_revision_id": _revision_id(definition),
+            "value": value,
+        }
+
+    def number_value(
+        key: str,
+        original_value: str,
+        original_unit: str,
+        normalized_value: str,
+    ) -> dict[str, Any]:
+        definition = attribute_by_key[key]
+        content = _content(definition)
+        return {
+            "data_type": "number",
+            "attribute_definition_id": _id(definition, "attribute_definition_id"),
+            "attribute_definition_revision_id": _revision_id(definition),
+            "original_value": original_value,
+            "original_unit_string": original_unit,
+            "normalized_value": normalized_value,
+            "normalized_unit": content["normalized_unit"],
+            "quantity_semantics": content["quantity_semantics"],
+        }
+
+    material_values = [
+        text_value(
+            "material_code",
+            str(_content(material).get("material_code") or "CMP-DEMO-DP780"),
+        ),
+        text_value("material_family", "Steel"),
+        text_value("manufacturer", "CMP Synthetic Materials"),
+        text_value("grade", "DP780 dual-phase sheet"),
+        number_value("density", "7.85", "g/cm^3", "7850"),
+        number_value("youngs_modulus", "210000", "MPa", "210000000000"),
+        number_value("poisson_ratio", "0.30", "1", "0.30"),
+        number_value("yield_stress", "560", "MPa", "560000000"),
+    ]
 
     folders = _items(api.get(f"/catalog/tables/{table_id}/folders"))
 
@@ -201,17 +373,30 @@ def _ensure_catalog_binding(
     def place_record(
         record_to_place: Mapping[str, Any],
         folder: Mapping[str, Any],
+        values: Sequence[Mapping[str, Any]] | None = None,
     ) -> dict[str, Any]:
         content = dict(_content(record_to_place))
         folder_id = _id(folder, "folder_id")
         folder_revision_id = _revision_id(folder)
-        if (
+        already_placed = (
             content.get("folder_id") == folder_id
             and content.get("folder_revision_id") == folder_revision_id
-        ):
+        )
+        current_values = content.get("values")
+        values_match = values is None or (
+            isinstance(current_values, list)
+            and sorted(current_values, key=lambda item: str(item["attribute_definition_id"]))
+            == sorted(
+                [dict(item) for item in values],
+                key=lambda item: str(item["attribute_definition_id"]),
+            )
+        )
+        if already_placed and values_match:
             return dict(record_to_place)
         content["folder_id"] = folder_id
         content["folder_revision_id"] = folder_revision_id
+        if values is not None:
+            content["values"] = list(values)
         return api.post(
             f"/catalog/records/{_id(record_to_place, 'record_id')}/revisions",
             {
@@ -271,20 +456,13 @@ def _ensure_catalog_binding(
                     "description": "Revision-pinned Catalog entry for the clean product demo.",
                     "folder_id": _id(dp780_folder, "folder_id"),
                     "folder_revision_id": _revision_id(dp780_folder),
-                    "values": [
-                        {
-                            "data_type": "text",
-                            "attribute_definition_id": attribute_id,
-                            "attribute_definition_revision_id": attribute_revision_id,
-                            "value": material_code,
-                        }
-                    ],
+                    "values": material_values,
                 },
                 "change_reason": "Create the configurable Catalog record for the demo Material.",
             },
         )
     else:
-        record = place_record(record, dp780_folder)
+        record = place_record(record, dp780_folder, material_values)
     record_id = _id(record, "record_id")
     record_revision_id = _revision_id(record)
     binding_path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
@@ -312,6 +490,20 @@ def _ensure_catalog_binding(
     }
     for node in workflow_nodes:
         external_key = node["external_key"]
+        family_by_kind = {
+            "material_state": "Material state",
+            "test_data": "Test data",
+            "processing_output": "Processing",
+            "material_model": "Material model",
+            "neutral_material": "Neutral material",
+            "solver_card": "Solver card",
+            "neutral_solver_card": "Solver card",
+            "release": "Release",
+        }
+        node_values = [
+            text_value("material_code", external_key),
+            text_value("material_family", family_by_kind.get(node["kind"], "Release")),
+        ]
         node_search = api.post(
             "/catalog/records:search",
             {"table_id": table_id, "text": external_key, "limit": 20},
@@ -337,14 +529,7 @@ def _ensure_catalog_binding(
                         "description": "Exact governed node in the clean demo Workflow Explorer.",
                         "folder_id": _id(node_folder, "folder_id"),
                         "folder_revision_id": _revision_id(node_folder),
-                        "values": [
-                            {
-                                "data_type": "text",
-                                "attribute_definition_id": attribute_id,
-                                "attribute_definition_revision_id": attribute_revision_id,
-                                "value": material_code,
-                            }
-                        ],
+                        "values": node_values,
                     },
                     "change_reason": f"Create the clean demo {node['kind']} workflow node.",
                 },
@@ -353,6 +538,7 @@ def _ensure_catalog_binding(
             node_record = place_record(
                 node_record,
                 node_folders.get(node["kind"], models_and_cards),
+                node_values,
             )
         node_record_id = _id(node_record, "record_id")
         node_record_revision_id = _revision_id(node_record)

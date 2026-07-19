@@ -12,6 +12,11 @@ const testRecordId = "76000000-0000-4000-8000-000000000005";
 const testRevisionId = "76000000-0000-4000-8000-000000000006";
 const folderId = "76000000-0000-4000-8000-000000000007";
 const folderRevisionId = "76000000-0000-4000-8000-000000000008";
+const attributeId = "76000000-0000-4000-8000-000000000009";
+const attributeRevisionId = "76000000-0000-4000-8000-00000000000a";
+const layoutId = "76000000-0000-4000-8000-00000000000b";
+const secondRecordId = "76000000-0000-4000-8000-00000000000d";
+const secondRecordRevisionId = "76000000-0000-4000-8000-00000000000e";
 
 function revision(id: string, aggregateId: string) {
   return {
@@ -38,6 +43,45 @@ const table = {
     ...revision(tableRevisionId, tableId),
     content: { key: "materials", name: "Engineering Materials", description: null },
   },
+};
+
+const attribute = {
+  attribute_definition_id: attributeId,
+  table_id: tableId,
+  current_revision: {
+    ...revision(attributeRevisionId, attributeId),
+    content: {
+      table_revision_id: tableRevisionId,
+      key: "material_code",
+      name: "Material code",
+      data_type: "text" as const,
+      required: true,
+      quantity_semantics: null,
+      normalized_unit: null,
+      minimum_number: null,
+      maximum_number: null,
+      minimum_length: null,
+      maximum_length: null,
+      pattern: null,
+      allowed_values: [],
+      reference_table_id: null,
+      help_text: null,
+    },
+  },
+};
+
+const layout = {
+  layout_id: layoutId,
+  table_id: tableId,
+  revision: revision("76000000-0000-4000-8000-00000000000c", layoutId),
+  name: "Engineering datasheet",
+  description: null,
+  items: [{
+    attribute_definition_id: attributeId,
+    attribute_definition_revision_id: attributeRevisionId,
+    section: "Identity",
+    ordinal: 0,
+  }],
 };
 
 const folder = {
@@ -74,7 +118,33 @@ const record = {
       description: "Automotive dual-phase sheet steel",
       folder_id: folderId,
       folder_revision_id: folderRevisionId,
-      values: [],
+      values: [{
+        attribute_definition_id: attributeId,
+        attribute_definition_revision_id: attributeRevisionId,
+        data_type: "text" as const,
+        value: "DP780",
+      }],
+    },
+  },
+};
+
+const secondRecord = {
+  ...record,
+  record_id: secondRecordId,
+  current_revision: {
+    ...record.current_revision,
+    id: secondRecordRevisionId,
+    aggregate_id: secondRecordId,
+    content: {
+      ...record.current_revision.content,
+      name: "DP600 Sheet Steel",
+      external_key: "DP600",
+      values: [{
+        attribute_definition_id: attributeId,
+        attribute_definition_revision_id: attributeRevisionId,
+        data_type: "text" as const,
+        value: "DP600",
+      }],
     },
   },
 };
@@ -152,6 +222,10 @@ const mocks = vi.hoisted(() => ({
   subsets: vi.fn(),
   graph: vi.fn(),
   search: vi.fn(),
+  attributes: vi.fn(),
+  layouts: vi.fn(),
+  revisions: vi.fn(),
+  compare: vi.fn(),
 }));
 
 vi.mock("./api", async (importOriginal) => {
@@ -163,6 +237,10 @@ vi.mock("./api", async (importOriginal) => {
     listConfigurableCatalogSubsets: mocks.subsets,
     getCatalogWorkflowGraph: mocks.graph,
     searchConfigurableCatalogRecords: mocks.search,
+    listConfigurableCatalogAttributes: mocks.attributes,
+    listConfigurableCatalogLayouts: mocks.layouts,
+    listConfigurableCatalogRecordRevisions: mocks.revisions,
+    compareConfigurableCatalogRecordRevisions: mocks.compare,
   };
 });
 
@@ -179,6 +257,10 @@ describe("MaterialDatabaseExplorer", () => {
     mocks.subsets.mockResolvedValue({ data: { items: [] }, etag: null });
     mocks.graph.mockResolvedValue({ data: graph, etag: null });
     mocks.search.mockResolvedValue({ data: { items: [record], total_count: 1, offset: 0, limit: 100, facets: [] }, etag: null });
+    mocks.attributes.mockResolvedValue({ data: { items: [attribute] }, etag: null });
+    mocks.layouts.mockResolvedValue({ data: { items: [layout] }, etag: null });
+    mocks.revisions.mockResolvedValue({ data: { items: [record.current_revision] }, etag: null });
+    mocks.compare.mockResolvedValue({ data: null, etag: null });
   });
 
   it("lazily expands Database, Profile, Table and nested Folder contents", async () => {
@@ -205,5 +287,27 @@ describe("MaterialDatabaseExplorer", () => {
     const linkedTest = screen.getAllByRole("button", { name: /Room-temperature tensile test/ });
     expect(linkedTest.length).toBeGreaterThan(0);
     expect(navigate).toHaveBeenCalledWith(`/database/records/${recordId}/revisions/${recordRevisionId}`);
+
+    await user.click(screen.getByRole("tab", { name: "Datasheet" }));
+    expect(screen.getByText("Engineering datasheet")).toBeTruthy();
+    expect(screen.getByText("Material code")).toBeTruthy();
+    expect(screen.getAllByText("DP780").length).toBeGreaterThan(0);
+  });
+
+  it("searches and compares multiple records with the configured Layout", async () => {
+    const user = userEvent.setup();
+    mocks.search.mockResolvedValue({ data: { items: [record, secondRecord], total_count: 2, offset: 0, limit: 100, facets: [] }, etag: null });
+    render(<MaterialDatabaseExplorer config={{ baseUrl: "/api/v1", accessToken: "session" }} onNavigate={() => undefined} onRetry={() => undefined} />);
+
+    await user.type(screen.getByLabelText("Search database"), "DP");
+    await user.click(screen.getByRole("button", { name: "Search" }));
+    expect(await screen.findByRole("heading", { name: "2 matching records" })).toBeTruthy();
+    await user.click(screen.getByLabelText("Compare DP780 Sheet Steel"));
+    await user.click(screen.getByLabelText("Compare DP600 Sheet Steel"));
+    await user.click(screen.getByRole("button", { name: "Compare 2" }));
+
+    expect(screen.getByRole("heading", { name: "Engineering datasheet" })).toBeTruthy();
+    expect(screen.getByText("DP600 Sheet Steel")).toBeTruthy();
+    expect(screen.getByText("DP780 Sheet Steel")).toBeTruthy();
   });
 });

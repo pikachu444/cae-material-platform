@@ -14,8 +14,8 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
 | Administrator-defined Table/Attribute/Layout/Subset | Engineering storage/API and a technical editor exist; task-oriented Administration is incomplete | T-78 product Administration |
-| Catalog record datasheet/search/facet/compare | Persistent Contents Tree is implemented; Layout Datasheet, AMDC-style facets and comparison remain | T-77 Material Database |
-| Catalog and Material Workflow Explorers | T-76 implements the Database/Profile/Table/nested-Folder/Record Contents Tree and exact-revision Material-to-card Workflow Tree | T-77 datasheet integration |
+| Catalog record datasheet/search/facet/compare | T-77 implements Layout-selected Datasheet, original/normalized units, discrete facets, normalized ranges and multi-Record comparison in the persistent Material Database | Production-scale search qualification (outside v3) |
+| Catalog and Material Workflow Explorers | T-76/T-77 implement the Database/Profile/Table/nested-Folder/Record Contents Tree, exact Material-to-card Workflow Tree and connected Datasheet/search/compare experience | T-82 three-family hierarchy |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
 | General Mapping Profile and Processing Workbench | Methods and revisioned Outputs exist, but the graph-centered import→map→prepare workflow is incomplete | T-79 Modeling Workbench shell |
@@ -33,6 +33,18 @@ must not be read as product-experience completion.
 
 ## Product rebuild in progress
 
+- `T-77` (`implemented and verified`): `/database` now opens the same exact Record revision from the
+  Contents Tree or typed search results and renders administrator-defined Layout sections,
+  original/normalized numeric units and quantity semantics. Users can filter discrete facets and
+  normalized numeric ranges and compare selected Records side by side in Layout order. Properties,
+  curve Artifact provenance, exact solver cards and forward/reverse links remain in the same
+  revision context. The clean demo creates eight typed Attributes plus the `Material overview`
+  Layout without a database migration and repeat seeding keeps the same revision. Live screenshots
+  and the explicit decision to implement semantic curve overlay in T-79 are recorded in
+  `docs/15-demo/evidence/t77-material-datasheet-search.md`. The complete CI command body passed 775
+  default Python tests, 65 frontend tests and all static/contract/document/bundle gates; all 76
+  environment-gated PostgreSQL tests passed separately against the isolated Docker database.
+
 - `T-76` (`implemented and verified`): `/database` now presents a three-pane product workspace with
   Database/Profile/Table/nested-Folder/Record lazy Contents Tree, an exact-revision Material → State
   → Test Data → Processing Output → Material Model IR → Neutral Material → Abaqus/OpenRadioss
@@ -41,8 +53,9 @@ must not be read as product-experience completion.
   Record revision bindings, and a Record Link can append a revision that advances exact endpoint
   pins without rewriting history. Live PostgreSQL seed/reseed retained all 8 Record heads, the
   graph returned 8 nodes and 7 links, and browser evidence is recorded in
-  `docs/15-demo/evidence/t76-material-database-tree.md`. Layout Datasheet, facets, comparison and
-  curve overlay remain T-77. Verification passed the official CI command body with 775 Python and
+  `docs/15-demo/evidence/t76-material-database-tree.md`. T-77 subsequently completed Layout
+  Datasheet, facets and comparison; semantic curve overlay remains T-79. Verification passed the
+  official CI command body with 775 Python and
   64 frontend tests plus all static/document/bundle gates; the 76 isolated PostgreSQL tests also
   passed against the Docker test database.
 
@@ -54,8 +67,8 @@ must not be read as product-experience completion.
   three realistic synthetic material families from the live catalog. Frontend tests pass 62/62,
   the TypeScript/Vite/bundle build passes, and Docker browser evidence is recorded in
   `docs/15-demo/evidence/t75-product-session-shell.md`. T-76 subsequently completed the hierarchical
-  Contents/Workflow Tree; Datasheet/search/compare and graph-centered Modeling remain T-77 through
-  T-81.
+  Contents/Workflow Tree and T-77 subsequently completed Datasheet/search/compare. Graph-centered
+  Modeling remains T-79 through T-81.
 
 - `T-74` (`implemented and verified`): withdraw the v3 product-completion claim, establish the
   product experience contract and create the T-75~T-83 replacement sequence. Existing engine

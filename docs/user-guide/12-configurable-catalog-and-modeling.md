@@ -67,9 +67,19 @@ Explorer와 함께 확장한다.
 
 ![Database/Profile/Table/Folder/Record Contents Tree와 exact Workflow Tree](../15-demo/images/t76-material-database-tree.png)
 
-현재 T-76 화면의 중심 탭은 Workflow다. Layout 기반 Datasheet, Properties/Curves/CAE Cards 탭,
-AMDC 계열 검색 facet과 비교 overlay를 같은 persistent workspace에 넣는 작업은 T-77 범위이며,
-비활성 탭을 완료 기능으로 해석하지 않는다.
+8. **Datasheet** 탭을 열면 관리자가 정의한 Layout section과 순서로 typed Attribute가 표시된다.
+   number 값은 원본 값/단위와 normalized 값/단위, quantity semantics를 함께 표시한다. 여러 Layout이
+   있으면 우측 Layout 선택기로 datasheet 구성을 바꾼다.
+9. 상단 검색에서 Table과 검색어를 선택한다. 오른쪽에서 discrete facet 또는 normalized numeric
+   range를 적용할 수 있다. 두 결과의 **Compare**를 체크한 뒤 **Compare 2**를 누르면 선택한 Layout
+   순서로 exact current Record revision을 나란히 비교한다.
+10. **Curves**는 현재 Record revision의 curve Artifact provenance를 표시한다. 실제 raw/normalized/
+    processed curve overlay와 처리 option preview는 linked Test Data를 연 뒤 T-79 Material Modeling
+    workspace에서 수행한다.
+
+![Layout section, 원본/정규화 단위와 exact revision을 보존한 DP780 Datasheet](../15-demo/images/t77-material-datasheet.png)
+
+![DP780 검색 결과의 facet과 Layout 기반 두 Record 비교](../15-demo/images/t77-material-search-compare.png)
 
 ![Explorer 검색 결과에서 exact Material revision과 전체 Workflow graph 열기](../15-demo/images/t71-explorer-search-workflow.png)
 
