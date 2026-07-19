@@ -105,6 +105,34 @@ Explorer와 함께 확장한다.
 
 ![Exact Dataset, ordered Recipe, server curve와 단계 옵션이 연결된 Material Modeling workspace](../15-demo/images/t79-material-modeling-workspace.png)
 
+### 재료군별 Modeling track 사용
+
+상단에서 **Metal**, **Polymer**, **Elastomer** 중 하나를 선택한다. 재료군을 바꾸면 이전 재료군의
+Test Data 선택은 해제되므로, 새 quantity 계약에 맞는 exact revision을 다시 선택해야 한다. 이렇게
+해야 금속 인장 curve가 폴리머 relaxation 또는 엘라스토머 다중 시험 입력으로 조용히 재사용되지 않는다.
+
+![하나의 Modeling 흐름에서 선택하는 금속·폴리머·엘라스토머 track](../15-demo/images/t80-material-family-tracks.png)
+
+- **Metal · Elastoplastic:** E/proof/necking, true-plastic 변환, Voce/Swift/
+  Hockett--Sherby/Ghosh 후보와 제한 외삽을 처리한다.
+- **Polymer · Viscoelastic:** time/modulus 매핑, log-time resampling, Prony 후보를 처리하고 exact
+  Processing Output에서 generalized-Maxwell IR과 Neutral/Card 단계로 이동한다.
+- **Elastomer · Hyper-viscoelastic:** 공통 Test JSON 처리가 선택 사항이며, 아래 family panel에서
+  uniaxial/planar/biaxial governed Dataset과 holdout, saved Calibration Plan을 선택한다.
+
+가운데 그래프 오른쪽의 **Step options / Recipe / Batch** 탭에서 현재 작업을 벗어나지 않고 method
+option을 바꾸고 Recipe revision을 저장·게시하거나 exact Dataset batch를 preflight·실행·재시도할 수 있다.
+각 track 아래의 Material context는 해당 분류의 Material, State, Property revision을 실제 API에서
+불러오며 **Open full datasheet**로 원본 Material record에 돌아간다.
+
+![공통 Workbench 안에서 실행한 polymer log-time/Prony 처리](../15-demo/images/t80-polymer-modeling-track.png)
+
+엘라스토머 데모는 저장된 exact Plan revision을 불러와 단축·평면·이축 calibration curve와 holdout을
+함께 실행한다. 실행 후 네 model family, 여덟 multistart candidate, fitted/residual plot, rank와
+uncertainty를 비교한 뒤에만 Candidate 선택 또는 Neutral 승격으로 진행한다.
+
+![exact multi-mode Plan으로 실행한 elastomer family 비교](../15-demo/images/t80-elastomer-calibration-track.png)
+
 ### Open a governed object from the Workflow Explorer
 
 An administrator or catalog editor can bind the selected configurable Record revision to one exact

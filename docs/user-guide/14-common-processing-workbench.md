@@ -4,6 +4,11 @@
 입력은 저장된 `cmp.test-data`의 정확한 revision이며, 브라우저에서 계산한 임시 값이 아니라
 서버가 반환한 각 처리 단계의 수치와 진단을 비교합니다.
 
+일반 사용자는 전역 **Material Modeling**(`/modeling`)에서 이 엔진을 사용합니다. 이 화면은
+공통 curve graph 옆에 **Step options / Recipe / Batch** inspector와 Metal/Polymer/Elastomer track을
+제공합니다. `/datasets/processing`은 같은 엔진의 기술 호환 route로 유지됩니다. 재료군을 바꾸면
+기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
+
 ## 처리 미리보기
 
 1. `Datasets` → `Processing Workbench`를 엽니다.

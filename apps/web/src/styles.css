@@ -3393,6 +3393,8 @@ summary {
 }
 .processing-workbench-page { display: grid; gap: 1.25rem; }
 .processing-hero { background: linear-gradient(120deg, #102e3b 0%, #16495a 55%, #1d6b70 100%); color: #f5fbfc; }
+.processing-hero h1, .processing-hero .eyebrow { color: #fff; }
+.processing-hero > div > p:last-child { color: #d7ecea; }
 .modeling-flow-nav { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 1rem; }
 .modeling-flow-nav a { border-bottom: 3px solid rgb(255 255 255 / 22%); color: #d8eeea; font-size: .78rem; font-weight: 700; padding: .65rem .4rem; text-align: center; text-decoration: none; }
 .modeling-flow-nav a:hover { border-color: #7bd0bd; color: #fff; }

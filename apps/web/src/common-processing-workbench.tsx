@@ -620,6 +620,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   function selectModelingTrack(track: ModelingTrack): void {
     applyModelingTrack(track);
     setWorkspaceInspector("step");
+    // A family switch changes the quantity contract. Do not silently carry a Test Data
+    // revision from another family into the new track; the user must select the exact input.
+    setSelectedDocumentId("");
+    setDocument(null);
+    setBatchDocumentIds([]);
     if (track === "metal") useProfileTemplate(DEFAULT_PROFILE, METAL_TENSILE_STEPS);
     if (track === "polymer") useProfileTemplate(POLYMER_RELAXATION_PROFILE, POLYMER_RELAXATION_STEPS);
     if (track === "elastomer") {
@@ -1082,7 +1087,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           <p className="eyebrow">1 · exact input</p><h2>Test Data revision</h2>
           <label>Imported document<select aria-label="Test Data revision" value={selectedDocumentId} onChange={(event) => void loadDocument(event.target.value)}><option value="">Choose a document</option>{documents.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
           <button className="button secondary" type="button" disabled={!selectedDocumentId || busy} onClick={() => void loadDocument(selectedDocumentId)}>Load exact JSON</button>
-          {document ? <p className="mapping-note">Loaded <code>{String(document.document_id)}</code>. Original and normalized arrays remain unchanged.</p> : <p className="muted">Import Test Data JSON first, then load its exact revision.</p>}
+          {document ? <p className="mapping-note">Loaded <code>{String(document.document_id)}</code>. Original and normalized arrays remain unchanged.</p> : <p className="muted">{modelingTrack === "elastomer" ? "Select multi-mode governed Datasets in the family calibration panel below, or import a canonical Test JSON for common preprocessing." : "Choose one exact family-compatible Test Data revision, then load its JSON."}</p>}
         </article>
 
         <article className="workbench-card mapping-profile-card" id="modeling-map">

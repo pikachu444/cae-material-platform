@@ -18,9 +18,9 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Catalog and Material Workflow Explorers | T-76/T-77 implement the Database/Profile/Table/nested-Folder/Record Contents Tree, exact Material-to-card Workflow Tree and connected Datasheet/search/compare experience | T-82 three-family hierarchy |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
-| General Mapping Profile and Processing Workbench | T-79 integrates exact Test Data, Mapping Profile, ordered methods, structured options and server curve overlays in one graph-centered workspace | T-80 family-aware Modeling UX |
-| Saved Recipe library/general batch execution | Engine contracts exist; cohesive Recipe authoring and batch experience is incomplete | T-80/T-81 product integration |
-| Metal/Polymer/Elastomer modeling | Bounded calculation/export paths exist across disconnected pages; one cohesive family-aware Workbench is incomplete | T-80 Modeling tracks |
+| General Mapping Profile and Processing Workbench | T-79 integrates exact Test Data, Mapping Profile, ordered methods, structured options and server curve overlays in one graph-centered workspace; T-80 adds explicit family contracts | T-81 reviewed delivery step |
+| Saved Recipe library/general batch execution | T-80 integrates author/revise/publish and exact preflight/execute/retry/monitor controls beside the graph | T-81 evidence summary in final delivery |
+| Metal/Polymer/Elastomer modeling | T-80 integrates all three real family engines, exact Material/State context and live browser journeys in one `/modeling` shell | T-81 Neutral/Card final step |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | Production package qualification (outside v3) |
@@ -33,6 +33,17 @@ must not be read as product-experience completion.
 
 ## Product rebuild in progress
 
+- `T-80` (`implemented and verified`): `/modeling` now exposes explicit Metal elastoplastic,
+  Polymer viscoelastic and Elastomer hyper-viscoelastic tracks. A family switch resets the prior
+  Test Data choice, loads the matching Material/State/Property revision and changes the available
+  method contract. Step options, versioned Recipe authoring and exact Batch preflight/execution/retry
+  are one graph-adjacent inspector. Live Docker journeys calculated the four metal hardening
+  candidates, polymer log-time/Prony processing and an exact four-curve elastomer Plan with four
+  hyperelastic families, eight multistart candidates and fitted/residual diagnostics. Evidence and
+  current screenshots are in `docs/15-demo/evidence/t80-family-modeling-tracks.md`. All 69 frontend
+  tests, 775 default Python tests, 76 isolated PostgreSQL tests and all static/contract/document/
+  bundle gates passed. T-81 still owns the cohesive reviewed Neutral/Card/bulk final step.
+
 - `T-79` (`implemented and verified`): `/modeling` now presents Import → Map → Prepare → Fit →
   Extrapolate → Card as one product flow. The central work area keeps exact Dataset/curve selection,
   ordered Recipe stages, the real server-calculated curve/candidate overlay and the selected stage's
@@ -43,8 +54,8 @@ must not be read as product-experience completion.
   with no browser console errors. Evidence is recorded in
   `docs/15-demo/evidence/t79-material-modeling-workspace.md`. The CI command body passed 775 default
   Python tests, 68 frontend tests, Ruff, mypy, architecture, contract/OpenAPI, user-guide and bundle
-  gates; the isolated PostgreSQL marker suite passed all 76 tests. T-80 still owns cohesive family-specific
-  Metal/Polymer/Elastomer controls and Recipe/Batch journeys; T-81 owns reviewed Neutral/Card output.
+  gates; the isolated PostgreSQL marker suite passed all 76 tests. T-80 subsequently completed the
+  family-specific controls and Recipe/Batch journeys; T-81 owns reviewed Neutral/Card output.
 
 - `T-78` (`implemented and verified`): product Administration now has Overview, Database design and
   Users & access navigation. The database surface manages Tables, nine typed Attribute kinds,

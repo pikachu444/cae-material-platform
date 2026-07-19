@@ -287,6 +287,9 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: /Batch/ }));
     expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(2);
+    fireEvent.change(screen.getByLabelText("Test Data revision"), {
+      target: { value: documentResource.test_data_document_id },
+    });
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
     expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();
 
