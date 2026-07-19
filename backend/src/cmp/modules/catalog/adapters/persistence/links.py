@@ -9,6 +9,7 @@ from typing import Any
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 from cmp.modules.catalog.adapters.persistence.configurable import RlsContext
@@ -138,6 +139,32 @@ domain_record_binding = sa.Table(
     sa.Column("created_by", _uuid, nullable=False),
     sa.Column("request_id", _uuid, nullable=False),
     sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="catalog",
+)
+domain_record_identity_binding = sa.Table(
+    "domain_record_identity_binding",
+    metadata,
+    sa.Column("organization_id", _uuid, primary_key=True),
+    sa.Column("project_id", _uuid, primary_key=True),
+    sa.Column("classification", sa.String(64), primary_key=True),
+    sa.Column("domain_kind", sa.String(32), primary_key=True),
+    sa.Column("domain_object_id", _uuid, primary_key=True),
+    sa.Column("domain_revision_id", _uuid, primary_key=True),
+    sa.Column("record_id", _uuid, nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("created_by", _uuid, nullable=False),
+    sa.Column("request_id", _uuid, nullable=False),
+    sa.Column("trace_id", sa.String(255), nullable=False),
+    schema="catalog",
+)
+catalog_record_identity = sa.Table(
+    "catalog_record",
+    metadata,
+    sa.Column("id", _uuid, primary_key=True),
+    sa.Column("organization_id", _uuid, primary_key=True),
+    sa.Column("project_id", _uuid, primary_key=True),
+    sa.Column("classification", sa.String(64), nullable=False),
+    sa.Column("current_revision_id", _uuid, nullable=False),
     schema="catalog",
 )
 
@@ -592,6 +619,23 @@ class SqlAlchemyCatalogLinkRepository(CatalogLinkRepository):
             "trace_id": context.trace_id,
         }
         with self._transaction(context, decision) as session:
+            session.execute(
+                postgresql.insert(domain_record_identity_binding)
+                .values(
+                    organization_id=context.organization_id,
+                    project_id=context.project_id,
+                    classification=classification,
+                    domain_kind=kind.value,
+                    domain_object_id=object_id,
+                    domain_revision_id=revision_id,
+                    record_id=record_id,
+                    created_at=values["created_at"],
+                    created_by=context.principal.id,
+                    request_id=context.request_id,
+                    trace_id=context.trace_id,
+                )
+                .on_conflict_do_nothing()
+            )
             session.execute(sa.insert(domain_record_binding).values(**values))
         return _domain_binding(values)
 
@@ -628,7 +672,22 @@ class SqlAlchemyCatalogLinkRepository(CatalogLinkRepository):
         with self._transaction(context, decision) as session:
             row = (
                 session.execute(
-                    sa.select(domain_record_binding).where(
+                    sa.select(domain_record_binding)
+                    .join(
+                        catalog_record_identity,
+                        sa.and_(
+                            catalog_record_identity.c.organization_id
+                            == domain_record_binding.c.organization_id,
+                            catalog_record_identity.c.project_id
+                            == domain_record_binding.c.project_id,
+                            catalog_record_identity.c.classification
+                            == domain_record_binding.c.classification,
+                            catalog_record_identity.c.id == domain_record_binding.c.record_id,
+                            catalog_record_identity.c.current_revision_id
+                            == domain_record_binding.c.record_revision_id,
+                        ),
+                    )
+                    .where(
                         domain_record_binding.c.domain_kind == kind.value,
                         domain_record_binding.c.domain_object_id == object_id,
                         domain_record_binding.c.domain_revision_id == revision_id,

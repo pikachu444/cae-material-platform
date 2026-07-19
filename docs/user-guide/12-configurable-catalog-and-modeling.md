@@ -46,22 +46,30 @@ file/curve 값은 이미 업로드된 Artifact UUID와 SHA-256을, record-refere
 정확한 revision UUID를 함께 입력한다. 사용자 친화적 Artifact picker와 link editor는 T-51에서
 Explorer와 함께 확장한다.
 
-## Catalog Explorer와 exact Record Link 사용
+## Material Database와 exact Record Link 사용
 
-1. 상단 **Catalog** 또는 `/catalog/explorer`를 연다.
-2. 왼쪽에서 검색할 Table을 선택한다. 이름·external key·설명·text Attribute를 입력해 검색하거나
-   **Saved subsets**의 revisioned 검색 조건을 적용한다. 검색 결과는 exact current Record revision이며,
-   선택하면 별도 화면을 거치지 않고 가운데 Workflow graph가 열린다.
-3. 전체 계층을 탐색할 때는 Table → Folder → Record를 펼친다. 하위 노드는 펼칠 때 실제
-   PostgreSQL API에서 불러온다.
-4. Record를 선택하면 가운데 Workflow Explorer가 현재 선택한 **정확한 revision UUID**를
-   표시한다. 주소에도 `/records/{record_id}/revisions/{revision_id}`가 남는다.
-5. 관련 노드나 링크의 **Open**을 누르면 대상 exact revision으로 이동한다. 정방향에서는 Link
-   Type의 forward label, 역방향에서는 reverse label이 표시된다.
+1. 전역 **Material Database** 또는 `/database`를 연다. `/catalog/explorer`는 기존 관리·호환
+   화면으로 남아 있지만 일반 탐색의 시작점이 아니다.
+2. 왼쪽 **Contents Tree**에서 CAE Material Database → Engineering Materials Profile → Table →
+   Folder → Record를 펼친다. Folder 하위 노드는 펼칠 때 실제 PostgreSQL에서 지연 로딩된다.
+3. 이름·external key·설명·text Attribute로 검색하거나 **Saved Subsets**의 revisioned 검색 조건을
+   적용한다. 검색 결과는 exact current Record revision이며 선택하면 같은 가운데 workspace가 열린다.
+4. Record를 선택하면 가운데 **Workflow Tree**가 Material → State → Test Data → Processing →
+   Material Model IR → Neutral Material → Solver Card 경로를 계층으로 표시한다. 주소에는
+   `/database/records/{record_id}/revisions/{revision_id}`가 남는다.
+5. Workflow 노드를 누르면 대상 exact governed revision의 workbench로 이동한다. 브라우저에서
+   돌아오면 기존 Contents Tree 문맥을 이어 탐색할 수 있다. 오른쪽 **Related Data**는 현재 선택한
+   exact revision에 직접 연결된 관계만 표시한다.
 6. 새 링크는 오른쪽에서 Link Type과 대상 Record의 현재 exact revision을 확인한 후 만든다.
-   이후 대상 Record가 새 revision을 만들어도 기존 링크는 자동으로 이동하지 않는다.
+   endpoint를 전진시키려면 기존 링크를 덮어쓰지 않고 같은 stable Link의 새 revision을 만든다.
 7. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
    추가한다.
+
+![Database/Profile/Table/Folder/Record Contents Tree와 exact Workflow Tree](../15-demo/images/t76-material-database-tree.png)
+
+현재 T-76 화면의 중심 탭은 Workflow다. Layout 기반 Datasheet, Properties/Curves/CAE Cards 탭,
+AMDC 계열 검색 facet과 비교 overlay를 같은 persistent workspace에 넣는 작업은 T-77 범위이며,
+비활성 탭을 완료 기능으로 해석하지 않는다.
 
 ![Explorer 검색 결과에서 exact Material revision과 전체 Workflow graph 열기](../15-demo/images/t71-explorer-search-workflow.png)
 

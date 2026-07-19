@@ -41,6 +41,9 @@ def _revision_id(value: Mapping[str, Any]) -> str:
 
 
 def _content(value: Mapping[str, Any]) -> Mapping[str, Any]:
+    direct_content = value.get("content")
+    if isinstance(direct_content, Mapping):
+        return direct_content
     revision = value.get("current_revision")
     content = revision.get("content") if isinstance(revision, Mapping) else None
     return content if isinstance(content, Mapping) else {}
@@ -117,6 +120,110 @@ def _ensure_catalog_binding(
     attribute_id = _id(attribute, "attribute_definition_id")
     attribute_revision_id = _revision_id(attribute)
 
+    folders = _items(api.get(f"/catalog/tables/{table_id}/folders"))
+
+    def ensure_folder(
+        name: str,
+        description: str,
+        parent: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        parent_id = _id(parent, "folder_id") if parent is not None else None
+        candidates = [
+            item
+            for item in folders
+            if _content(item).get("name") == name
+            and _content(item).get("parent_folder_id") == parent_id
+        ]
+        existing = max(
+            candidates,
+            key=lambda item: str(item.get("current_revision", {}).get("created_at", "")),
+            default=None,
+        )
+        if existing is not None:
+            return existing
+        created = api.post(
+            f"/catalog/tables/{table_id}/folders",
+            {
+                "classification": "internal",
+                "content": {
+                    "table_revision_id": table_revision_id,
+                    "name": name,
+                    "description": description,
+                    "parent_folder_id": parent_id,
+                    "parent_folder_revision_id": (
+                        _revision_id(parent) if parent is not None else None
+                    ),
+                },
+                "change_reason": f"Create the {name} Contents Tree folder.",
+            },
+        )
+        folders.append(created)
+        return created
+
+    material_library = ensure_folder(
+        "Material Library",
+        "Approved and working material records arranged by engineering family.",
+    )
+    metals = ensure_folder(
+        "Metals",
+        "Metal material families and their governed states.",
+        material_library,
+    )
+    steels = ensure_folder(
+        "Steels",
+        "Steel grades available for product design and CAE use.",
+        metals,
+    )
+    dp780_folder = ensure_folder(
+        "DP780 Dual-Phase Steel",
+        "Synthetic DP780 reference material and state records.",
+        steels,
+    )
+    test_data_folder = ensure_folder(
+        "Test Data",
+        "Source tests and normalized test documents.",
+    )
+    tensile_folder = ensure_folder(
+        "Tensile",
+        "Uniaxial tensile evidence linked to material revisions.",
+        test_data_folder,
+    )
+    models_and_cards = ensure_folder(
+        "Models & Cards",
+        "Processed data, neutral models and solver-native deliverables.",
+    )
+    elastoplastic_folder = ensure_folder(
+        "Elastoplastic",
+        "Metal elastoplastic processing, models and solver cards.",
+        models_and_cards,
+    )
+
+    def place_record(
+        record_to_place: Mapping[str, Any],
+        folder: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        content = dict(_content(record_to_place))
+        folder_id = _id(folder, "folder_id")
+        folder_revision_id = _revision_id(folder)
+        if (
+            content.get("folder_id") == folder_id
+            and content.get("folder_revision_id") == folder_revision_id
+        ):
+            return dict(record_to_place)
+        content["folder_id"] = folder_id
+        content["folder_revision_id"] = folder_revision_id
+        return api.post(
+            f"/catalog/records/{_id(record_to_place, 'record_id')}/revisions",
+            {
+                "content": content,
+                "change_reason": (
+                    f"Place the record in the {_content(folder).get('name')!s} "
+                    "Contents Tree folder."
+                ),
+            },
+            headers={"If-Match": _revision_etag(record_to_place)},
+        )
+
     material_content = _content(material)
     material_code = str(material_content.get("material_code") or "CMP-DEMO-DP780")
     subsets = _items(api.get(f"/catalog/tables/{table_id}/subsets"))
@@ -162,6 +269,8 @@ def _ensure_catalog_binding(
                     "name": str(material_content.get("name") or material_code),
                     "external_key": material_code,
                     "description": "Revision-pinned Catalog entry for the clean product demo.",
+                    "folder_id": _id(dp780_folder, "folder_id"),
+                    "folder_revision_id": _revision_id(dp780_folder),
                     "values": [
                         {
                             "data_type": "text",
@@ -174,6 +283,8 @@ def _ensure_catalog_binding(
                 "change_reason": "Create the configurable Catalog record for the demo Material.",
             },
         )
+    else:
+        record = place_record(record, dp780_folder)
     record_id = _id(record, "record_id")
     record_revision_id = _revision_id(record)
     binding_path = f"/catalog/records/{record_id}/revisions/{record_revision_id}/domain-binding"
@@ -189,6 +300,16 @@ def _ensure_catalog_binding(
             },
         )
     records_by_key: dict[str, dict[str, Any]] = {material_code: record}
+    node_folders = {
+        "material_state": dp780_folder,
+        "test_data": tensile_folder,
+        "processing_output": elastoplastic_folder,
+        "material_model": elastoplastic_folder,
+        "neutral_material": elastoplastic_folder,
+        "solver_card": elastoplastic_folder,
+        "neutral_solver_card": elastoplastic_folder,
+        "release": models_and_cards,
+    }
     for node in workflow_nodes:
         external_key = node["external_key"]
         node_search = api.post(
@@ -204,6 +325,7 @@ def _ensure_catalog_binding(
             None,
         )
         if node_record is None:
+            node_folder = node_folders.get(node["kind"], models_and_cards)
             node_record = api.post(
                 f"/catalog/tables/{table_id}/records",
                 {
@@ -213,6 +335,8 @@ def _ensure_catalog_binding(
                         "name": node["name"],
                         "external_key": external_key,
                         "description": "Exact governed node in the clean demo Workflow Explorer.",
+                        "folder_id": _id(node_folder, "folder_id"),
+                        "folder_revision_id": _revision_id(node_folder),
                         "values": [
                             {
                                 "data_type": "text",
@@ -224,6 +348,11 @@ def _ensure_catalog_binding(
                     },
                     "change_reason": f"Create the clean demo {node['kind']} workflow node.",
                 },
+            )
+        else:
+            node_record = place_record(
+                node_record,
+                node_folders.get(node["kind"], models_and_cards),
             )
         node_record_id = _id(node_record, "record_id")
         node_record_revision_id = _revision_id(node_record)
@@ -280,32 +409,47 @@ def _ensure_catalog_binding(
         source_id = _id(source, "record_id")
         source_revision_id = _revision_id(source)
         target_id = _id(target, "record_id")
-        linked = _items(
-            api.get(f"/catalog/records/{source_id}/links?revision_id={source_revision_id}")
+        desired_content = {
+            "link_type_id": link_type_id,
+            "link_type_revision_id": link_type_revision_id,
+            "source_record_id": source_id,
+            "source_record_revision_id": source_revision_id,
+            "target_record_id": target_id,
+            "target_record_revision_id": _revision_id(target),
+            "active": True,
+            "note": "Clean demo exact-revision product flow.",
+        }
+        linked = _items(api.get(f"/catalog/records/{source_id}/links?include_inactive=true"))
+        existing_link = next(
+            (
+                item
+                for item in linked
+                if isinstance(item.get("target"), Mapping)
+                and item["target"].get("record_id") == target_id
+                and _content(item).get("link_type_id") == link_type_id
+            ),
+            None,
         )
-        if any(
-            item.get("target", {}).get("record_id") == target_id
-            for item in linked
-            if isinstance(item.get("target"), Mapping)
-        ):
-            continue
-        api.post(
-            "/catalog/record-links",
-            {
-                "classification": "internal",
-                "content": {
-                    "link_type_id": link_type_id,
-                    "link_type_revision_id": link_type_revision_id,
-                    "source_record_id": source_id,
-                    "source_record_revision_id": source_revision_id,
-                    "target_record_id": target_id,
-                    "target_record_revision_id": _revision_id(target),
-                    "active": True,
-                    "note": "Clean demo exact-revision product flow.",
+        if existing_link is None:
+            api.post(
+                "/catalog/record-links",
+                {
+                    "classification": "internal",
+                    "content": desired_content,
+                    "change_reason": "Connect the next exact clean-demo workflow revision.",
                 },
-                "change_reason": "Connect the next exact clean-demo workflow revision.",
-            },
-        )
+            )
+        elif dict(_content(existing_link)) != desired_content:
+            api.post(
+                f"/catalog/record-links/{_id(existing_link, 'record_link_id')}/revisions",
+                {
+                    "content": desired_content,
+                    "change_reason": (
+                        "Advance the clean demo link to the reorganized exact record revisions."
+                    ),
+                },
+                headers={"If-Match": _revision_etag(existing_link)},
+            )
     return {
         "catalog_table_id": table_id,
         "catalog_subset_id": _id(workflow_subset, "subset_id"),

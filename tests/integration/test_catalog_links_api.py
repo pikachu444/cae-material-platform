@@ -410,7 +410,7 @@ async def test_explorer_link_create_reverse_graph_and_deactivation_contract() ->
     graph = await _request(
         app,
         "GET",
-        f"/api/v1/catalog/workflow-explorer/{MATERIAL}/revisions/{MATERIAL_REV}?depth=2",
+        f"/api/v1/catalog/workflow-explorer/{MATERIAL}/revisions/{MATERIAL_REV}?depth=8",
     )
     assert graph.status_code == 200
     assert {node["name"] for node in graph.json()["nodes"]} == {"DP780", "Tensile run 1"}
