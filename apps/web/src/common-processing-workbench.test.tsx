@@ -46,7 +46,28 @@ const documentResource = {
   canonical_sha256: "b".repeat(64),
   normalized_artifact_id: "53000000-0000-4000-8000-000000000007",
   normalized_sha256: "c".repeat(64),
-  channels: [],
+  channels: [
+    {
+      key: "engineering_strain",
+      name: "Engineering strain",
+      quantity_semantics: "mechanics.strain.engineering",
+      axis_role: "independent",
+      original_unit_string: "%",
+      normalized_unit: "1",
+      point_count: 3,
+      missing_count: 0,
+    },
+    {
+      key: "engineering_stress",
+      name: "Engineering stress",
+      quantity_semantics: "mechanics.stress.engineering",
+      axis_role: "dependent",
+      original_unit_string: "MPa",
+      normalized_unit: "Pa",
+      point_count: 3,
+      missing_count: 0,
+    },
+  ],
 };
 
 const replicateResource = {

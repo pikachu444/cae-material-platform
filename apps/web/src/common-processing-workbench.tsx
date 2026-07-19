@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import { EngineeringCurvePlot } from "./engineering-curve-plot";
+
 import {
   ApiError,
   commitCommonProcessingOutput,
@@ -319,187 +321,70 @@ function defaultOptions(methodId: string): Record<string, unknown> {
   return options[methodId] ?? {};
 }
 
-function curvePoints(
-  stage: CommonCurveStage,
-  independentQuantity: string,
-  width: number,
-  height: number,
-  bounds: { xMin: number; xMax: number; yMin: number; yMax: number },
-): string {
-  const x = stage.series.find((item) => item.quantity === independentQuantity)?.values ?? [];
-  const y = stage.series.find((item) => item.quantity !== independentQuantity)?.values ?? [];
-  if (x.length < 2 || y.length !== x.length) return "";
-  return xyPoints(x, y, width, height, bounds);
-}
-
 function xyPoints(
   x: number[],
   y: number[],
   width: number,
   height: number,
   bounds: { xMin: number; xMax: number; yMin: number; yMax: number },
+  margins: { left: number; right: number; top: number; bottom: number } = {
+    left: 28,
+    right: 20,
+    top: 20,
+    bottom: 24,
+  },
 ): string {
   const { xMin, xMax, yMin, yMax } = bounds;
   const xRange = xMax - xMin || 1;
   const yRange = yMax - yMin || 1;
   return x
     .map((value, index) => {
-      const px = 28 + ((value - xMin) / xRange) * (width - 48);
-      const py = height - 24 - ((y[index] - yMin) / yRange) * (height - 44);
+      const px = margins.left + ((value - xMin) / xRange) * (width - margins.left - margins.right);
+      const py = height - margins.bottom - ((y[index] - yMin) / yRange) * (height - margins.top - margins.bottom);
       return `${px.toFixed(1)},${py.toFixed(1)}`;
     })
     .join(" ");
 }
 
-function curveBounds(
-  stages: CommonCurveStage[],
-  independentQuantity: string,
-): { xMin: number; xMax: number; yMin: number; yMax: number } {
-  const x = stages.flatMap(
-    (stage) => stage.series.find((item) => item.quantity === independentQuantity)?.values ?? [],
-  );
-  const y = stages.flatMap(
-    (stage) => stage.series.find((item) => item.quantity !== independentQuantity)?.values ?? [],
-  );
-  return {
-    xMin: Math.min(...x),
-    xMax: Math.max(...x),
-    yMin: Math.min(...y),
-    yMax: Math.max(...y),
-  };
+function documentMatchesTrack(
+  item: CanonicalTestDataDocumentResponse,
+  track: ModelingTrack,
+): boolean {
+  const quantities = item.channels.map((channel) => channel.quantity_semantics.toLowerCase());
+  const hasQuantity = (suffix: string) => quantities.some((quantity) => quantity === suffix || quantity.endsWith(`.${suffix}`));
+  if (track === "polymer") {
+    return hasQuantity("time.elapsed") && hasQuantity("modulus.shear.relaxation");
+  }
+  const hasStressStrain = hasQuantity("strain.engineering") && hasQuantity("stress.engineering");
+  if (!hasStressStrain) return false;
+  const method = item.method.trim().toLowerCase();
+  if (track === "metal") return method === "tensile" || method === "uniaxial tensile reference method";
+  return ["uniaxial", "planar", "biaxial"].some((mode) => method === mode || method === `${mode} tension`);
 }
 
-const HARDENING_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
+interface PlotBounds {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+}
 
-function StageCurveEvidence({
-  preview,
-  activeStage,
-  baseStage,
-  width,
-  height,
-}: {
-  preview: CommonProcessingPreview;
-  activeStage: CommonCurveStage;
-  baseStage: CommonCurveStage;
-  width: number;
-  height: number;
-}) {
-  const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
-  const prony = activeStage.method_id === "polymer.prony_fit_compare";
-  const xQuantity = activeStage.series.some((item) => item.quantity === preview.independent_quantity)
-    ? preview.independent_quantity
-    : activeStage.series.find((item) => item.quantity.includes("strain"))?.quantity;
-  if (!xQuantity) return <p className="muted">The selected stage has no plottable independent quantity.</p>;
-  const candidateSeries = activeStage.series.filter(
-    (item) => item.quantity.startsWith("stress.hardening.")
-      && item.quantity !== "stress.hardening.selected",
-  );
-  const selectedSeries = activeStage.series.find(
-    (item) => item.quantity === "stress.hardening.selected",
-  );
-  const pronyCandidates = activeStage.series.filter((item) =>
-    item.quantity.startsWith("modulus.prony.candidate_"),
-  );
-  const selectedProny = activeStage.series.find(
-    (item) => item.quantity === "modulus.prony.selected",
-  );
-  const xValues = activeStage.series.find((item) => item.quantity === xQuantity)?.values ?? [];
-  const hardeningValues = [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])]
-    .flatMap((item) => item.values);
-  const pronyValues = [...pronyCandidates, ...(selectedProny ? [selectedProny] : [])]
-    .flatMap((item) => item.values);
-  const bounds = hardening ? {
-    xMin: Math.min(...xValues),
-    xMax: Math.max(...xValues),
-    yMin: Math.min(...hardeningValues),
-    yMax: Math.max(...hardeningValues),
-  } : prony ? {
-    xMin: Math.min(...xValues),
-    xMax: Math.max(...xValues),
-    yMin: Math.min(...pronyValues),
-    yMax: Math.max(...pronyValues),
-  } : curveBounds([baseStage, activeStage], xQuantity);
-  return (
-    <>
-      <svg className="processing-curve" role="img" aria-label={hardening ? "Hardening candidate and selected extrapolation curves" : prony ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"} viewBox={`0 0 ${width} ${height}`}>
-        <line x1="28" y1={height - 24} x2={width - 20} y2={height - 24} className="chart-axis" />
-        <line x1="28" y1="20" x2="28" y2={height - 24} className="chart-axis" />
-        {hardening ? candidateSeries.map((series, index) => (
-          <polyline
-            key={series.quantity}
-            points={xyPoints(xValues, series.values, width, height, bounds)}
-            className="curve-line hardening-candidate"
-            style={{ stroke: HARDENING_COLORS[index % HARDENING_COLORS.length] }}
-          />
-        )) : prony ? pronyCandidates.map((series, index) => (
-          <polyline
-            key={series.quantity}
-            points={xyPoints(xValues, series.values, width, height, bounds)}
-            className="curve-line hardening-candidate"
-            style={{ stroke: HARDENING_COLORS[index % HARDENING_COLORS.length] }}
-          />
-        )) : (
-          <>
-            <polyline points={curvePoints(baseStage, xQuantity, width, height, bounds)} className="curve-line source" />
-            <polyline points={curvePoints(activeStage, xQuantity, width, height, bounds)} className="curve-line processed" />
-          </>
-        )}
-        {hardening && selectedSeries ? (
-          <polyline
-            points={xyPoints(xValues, selectedSeries.values, width, height, bounds)}
-            className="curve-line hardening-selected"
-          />
-        ) : null}
-        {prony && selectedProny ? (
-          <polyline
-            points={xyPoints(xValues, selectedProny.values, width, height, bounds)}
-            className="curve-line hardening-selected"
-          />
-        ) : null}
-      </svg>
-      <div className="curve-legend">
-        {hardening ? (
-          <>
-            {candidateSeries.map((series, index) => (
-              <span key={series.quantity}>
-                <i style={{ background: HARDENING_COLORS[index % HARDENING_COLORS.length] }} />
-                {series.quantity.replace("stress.hardening.", "")}
-              </span>
-            ))}
-            <span><i className="hardening-selected" />Selected combination</span>
-          </>
-        ) : prony ? (
-          <>
-            {pronyCandidates.map((series, index) => (
-              <span key={series.quantity}>
-                <i style={{ background: HARDENING_COLORS[index % HARDENING_COLORS.length] }} />
-                {series.quantity.replace("modulus.prony.candidate_", "").replace("_", " ")}
-              </span>
-            ))}
-            <span><i className="hardening-selected" />Selected Prony candidate</span>
-          </>
-        ) : (
-          <><span><i className="source" />Mapped input</span><span><i className="processed" />Selected stage</span></>
-        )}
-      </div>
-      <div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div>
-      {(activeStage.scalar_results ?? []).length ? (
-        <details className="model-diagnostics-details">
-          <summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary>
-          <div className="metal-scalar-grid" aria-label="Metal processing scalar results">
-            {(activeStage.scalar_results ?? []).map((item) => (
-              <article key={item.key}>
-                <span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span>
-                <strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong>
-                <small>{item.quantity_semantics} · {item.unit}</small>
-              </article>
-            ))}
-          </div>
-        </details>
-      ) : null}
-      <p className="digest-line"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p>
-    </>
-  );
+function paddedBounds(x: number[], y: number[]): PlotBounds {
+  const finiteX = x.filter(Number.isFinite);
+  const finiteY = y.filter(Number.isFinite);
+  if (!finiteX.length || !finiteY.length) return { xMin: 0, xMax: 1, yMin: 0, yMax: 1 };
+  const xMin = Math.min(...finiteX);
+  const xMax = Math.max(...finiteX);
+  const yMin = Math.min(...finiteY);
+  const yMax = Math.max(...finiteY);
+  const xPadding = Math.max((xMax - xMin) * 0.025, Math.abs(xMax || 1) * 0.0025);
+  const yPadding = Math.max((yMax - yMin) * 0.06, Math.abs(yMax || 1) * 0.01);
+  return {
+    xMin: xMin - xPadding,
+    xMax: xMax + xPadding,
+    yMin: yMin - yPadding,
+    yMax: yMax + yPadding,
+  };
 }
 
 export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, familyWorkbench }: Props) {
@@ -558,9 +443,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         setEnsembleMethods(ensembleMethodResult.data.items);
         setRecipes(recipeResult.data.items);
         setBatches(batchResult.data.items);
-        setSelectedDocumentId((current) => current || documentResult.data.items[0]?.test_data_document_id || "");
-        setEnsembleDocumentIds((current) => current.length ? current : documentResult.data.items.slice(0, 2).map((item) => item.test_data_document_id));
-        setBatchDocumentIds((current) => current.length ? current : documentResult.data.items.slice(0, 2).map((item) => item.test_data_document_id));
       })
       .catch((caught: unknown) => setError(errorMessage(caught)));
   }, [config]);
@@ -593,12 +475,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   useEffect(() => {
     if (selectedDocumentId || !documents.length) return;
-    const compatible = documents.find((item) => {
-      const key = `${item.document_key} ${item.method}`.toLowerCase();
-      if (modelingTrack === "metal") return key.includes("tensile") || key.includes("dp7") || key.includes("steel");
-      if (modelingTrack === "polymer") return key.includes("relax") || key.includes("prony") || key.includes("polymer");
-      return key.includes("elastomer") || key.includes("hyperelastic");
-    });
+    const compatible = documents.find((item) => documentMatchesTrack(item, modelingTrack));
     if (compatible) setSelectedDocumentId(compatible.test_data_document_id);
   }, [documents, modelingTrack, selectedDocumentId]);
 
@@ -1084,6 +961,29 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       return [];
     }
   }, [stepsText]);
+  const trackDocuments = useMemo(
+    () => documents.filter((item) => documentMatchesTrack(item, modelingTrack)),
+    [documents, modelingTrack],
+  );
+  const selectedTrackDocument = trackDocuments.find(
+    (item) => item.test_data_document_id === selectedDocumentId,
+  );
+  useEffect(() => {
+    const exactIds = new Set(trackDocuments.map((item) => item.test_data_document_id));
+    if (!exactIds.has(selectedDocumentId)) {
+      setSelectedDocumentId(trackDocuments[0]?.test_data_document_id ?? "");
+      setDocument(null);
+      setPreview(null);
+    }
+    setEnsembleDocumentIds((current) => {
+      const compatible = current.filter((id) => exactIds.has(id));
+      return compatible.length ? compatible : trackDocuments.slice(0, 2).map((item) => item.test_data_document_id);
+    });
+    setBatchDocumentIds((current) => {
+      const compatible = current.filter((id) => exactIds.has(id));
+      return compatible.length ? compatible : trackDocuments.slice(0, 2).map((item) => item.test_data_document_id);
+    });
+  }, [modelingTrack, selectedDocumentId, trackDocuments]);
   const selectedConfiguredStep = configuredSteps[selectedStepIndex] ?? null;
   const trackRecipes = useMemo(() => recipes.filter((recipe) => {
     const methodIds = recipe.content.steps.map((step) => step.method_id);
@@ -1097,7 +997,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (family === "polymer") return modelingTrack === "polymer";
     return true;
   }), [methods, modelingTrack]);
-  const chart = useMemo(() => ({ width: 620, height: 250 }), []);
+  const chart = useMemo(() => ({ width: 760, height: 420 }), []);
   const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
   const ensembleBounds = useMemo(() => {
     if (!ensemblePreview || !ensembleStatistic) return null;
@@ -1115,27 +1015,34 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     };
   }, [ensemblePreview, ensembleStatistic]);
 
+  function focusConfiguredStep(index: number): void {
+    setSelectedStepIndex(index);
+    setWorkspaceInspector("step");
+    const stage = preview?.stages.find((item) => item.ordinal === index + 1);
+    if (stage) setSelectedStage(stage.ordinal);
+  }
+
   return (
     <main className="processing-workbench-page">
-      <section className="page-hero compact-hero processing-hero">
-        <div><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p>Import, map and process test data while the graph stays visible. Only an explicit commit creates an immutable result.</p></div>
-        <div className="hero-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
+      <header className="modeling-app-header">
+        <div className="modeling-session-heading"><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p>Exact Test Data · live processing preview · immutable reviewed output</p></div>
+        <div className="modeling-session-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
         <nav className="modeling-flow-nav" aria-label="Material Modeling steps"><a href="#modeling-import">Import</a><a href="#modeling-map">Map</a><a href="#modeling-prepare">Prepare</a><a href="#modeling-fit">Fit</a><a href="#modeling-fit">Extrapolate</a><a href="#modeling-output">Card</a></nav>
         <div className="modeling-track-selector" role="tablist" aria-label="Material modeling family">
           <button type="button" role="tab" aria-selected={modelingTrack === "metal"} className={modelingTrack === "metal" ? "active metal" : "metal"} onClick={() => selectModelingTrack("metal")}><span>Metal</span><strong>Elastoplastic</strong><small>E, proof, necking, hardening</small></button>
           <button type="button" role="tab" aria-selected={modelingTrack === "polymer"} className={modelingTrack === "polymer" ? "active polymer" : "polymer"} onClick={() => selectModelingTrack("polymer")}><span>Polymer</span><strong>Viscoelastic</strong><small>Log-time, Prony candidates</small></button>
           <button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} className={modelingTrack === "elastomer" ? "active elastomer" : "elastomer"} onClick={() => selectModelingTrack("elastomer")}><span>Elastomer</span><strong>Hyper-viscoelastic</strong><small>Multi-mode, stability, Prony</small></button>
         </div>
-      </section>
+      </header>
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}
 
       <section className="processing-setup-grid">
         <article className="workbench-card processing-input-card" id="modeling-import">
           <p className="eyebrow">1 · exact input</p><h2>Test Data revision</h2>
-          <label>Imported document<select aria-label="Test Data revision" value={selectedDocumentId} onChange={(event) => void loadDocument(event.target.value)}><option value="">Choose a document</option>{documents.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
+          <label>Imported document<select aria-label="Test Data revision" value={selectedDocumentId} onChange={(event) => void loadDocument(event.target.value)}><option value="">Choose a compatible document</option>{trackDocuments.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
           <button className="button secondary" type="button" disabled={!selectedDocumentId || busy} onClick={() => void loadDocument(selectedDocumentId)}>Load exact JSON</button>
-          {document ? <p className="mapping-note">Loaded <code>{String(document.document_id)}</code>. Original and normalized arrays remain unchanged.</p> : <p className="muted">{modelingTrack === "elastomer" ? "Select multi-mode governed Datasets in the family calibration panel below, or import a canonical Test JSON for common preprocessing." : "Choose one exact family-compatible Test Data revision, then load its JSON."}</p>}
+          {document && selectedTrackDocument ? <p className="mapping-note">Loaded <strong>{selectedTrackDocument.document_key}</strong> · revision {selectedTrackDocument.current_revision.revision_no}. Original and normalized arrays remain unchanged.</p> : <p className="muted">{modelingTrack === "elastomer" ? "Select multi-mode governed Datasets in the family calibration panel below, or import a canonical Test JSON for common preprocessing." : "Choose one exact family-compatible Test Data revision, then load its JSON."}</p>}
         </article>
 
         <article className="workbench-card mapping-profile-card" id="modeling-map">
@@ -1149,15 +1056,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
       <section className="workbench-card method-builder-card" id="modeling-prepare">
         <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy} onClick={() => void runPreview()}>{busy ? "Working…" : "Preview changes"}</button></div>
-        <div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div>
+        <details className="method-library"><summary>Add a processing method <span>{trackMethods.length} compatible</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details>
         <div className="modeling-graph-workspace">
           <aside className="modeling-workspace-rail">
-            <div className="modeling-dataset-list"><p className="eyebrow">Datasets &amp; curves</p>{documents.map((item) => <button type="button" className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id} onClick={() => void loadDocument(item.test_data_document_id)}><span className="dataset-curve-swatch"/><span><strong>{item.document_key}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button>)}</div>
-            <div className="configured-step-list"><p className="eyebrow">Recipe steps</p>{configuredSteps.map((step, index) => <button type="button" className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => setSelectedStepIndex(index)}><span>{index + 1}</span><span><strong>{methods.find((method) => method.method_id === step.method_id)?.label ?? step.method_id}</strong><small>{step.method_version}</small></span></button>)}</div>
+            <div className="modeling-dataset-list"><p className="eyebrow">Datasets &amp; curves</p>{trackDocuments.map((item) => <button type="button" className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id} onClick={() => void loadDocument(item.test_data_document_id)}><span className="dataset-curve-swatch"/><span><strong>{item.document_key}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button>)}{!trackDocuments.length ? <p className="muted">No Test Data revision declares the quantities required by this material track.</p> : null}</div>
+            <div className="configured-step-list"><p className="eyebrow">Recipe steps</p>{configuredSteps.map((step, index) => <button type="button" className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{index + 1}</span><span><strong>{methods.find((method) => method.method_id === step.method_id)?.label ?? step.method_id}</strong><small>{step.method_version}</small></span></button>)}</div>
           </aside>
           <article className="persistent-modeling-plot" id="modeling-fit">
             <div className="section-heading"><div><p className="eyebrow">Live curve comparison</p><h2>{activeStage?.method_id ?? "Load data and preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not committed</span> : null}</div>
-            {preview && activeStage && baseStage ? <StageCurveEvidence preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} /> : <div className="modeling-plot-empty"><strong>The graph stays here while you configure processing.</strong><p>Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source.</p></div>}
+            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} /> : <div className="modeling-plot-empty"><strong>The graph stays here while you configure processing.</strong><p>Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source.</p></div>}
             {preview ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : null}
           </article>
           <aside className="step-option-panel">
@@ -1182,7 +1089,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             </div> : null}
             {workspaceInspector === "batch" ? <div className="inspector-batch-panel">
               <div className="section-heading"><div><p className="eyebrow">Exact revision batch</p><h3>Batch execution</h3></div><span className="status-chip">{batches.length} runs</span></div>
-              <fieldset><legend>Test Data selection</legend>{documents.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={batchDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleBatchDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset>
+              <fieldset><legend>Test Data selection</legend>{trackDocuments.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={batchDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleBatchDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset>
               <label>Batch label<input aria-label="Processing Batch label" value={batchLabel} onChange={(event) => setBatchLabel(event.target.value)} /></label>
               <div className="inspector-action-stack"><button className="button secondary" type="button" disabled={busy || !selectedRecipeId || !batchDocumentIds.length} onClick={() => void preflightBatch()}>Compatibility preflight</button><button className="button primary" type="button" disabled={busy || !batchPreflight?.compatible || !batchLabel.trim()} onClick={() => void executeBatch()}>Execute published Recipe</button></div>
               {batchPreflight ? <div className="batch-summary"><strong>{batchPreflight.compatible ? "Compatible" : "Blocked"}</strong><span>{batchPreflight.members.length} exact revisions</span><code>{batchPreflight.recipe_sha256}</code></div> : <p className="muted">Select a published Recipe in the Recipe tab, then check exact inputs.</p>}
@@ -1207,7 +1114,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <div className="section-heading"><div><p className="eyebrow">6 · replicate evidence</p><h2>Alignment and pointwise statistics</h2></div><span className="status-chip warning">Preview · members retained</span></div>
         <p className="mapping-note">Select multiple exact Test Data heads. Alignment uses only their observed domain intersection and rejects extrapolation; no raw curve or outlier is deleted.</p>
         <div className="ensemble-methods">{ensembleMethods.map((method) => <article key={method.method_id}><strong>{method.label}</strong><code>{method.method_id} · {method.version}</code><small>{method.description}</small></article>)}</div>
-        <div className="ensemble-controls"><fieldset><legend>Exact Test Data members</legend>{documents.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset><label>Common grid points<input type="number" min="2" max="100000" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button primary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>Align and calculate</button></div>
+        <div className="ensemble-controls"><fieldset><legend>Exact Test Data members</legend>{trackDocuments.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset><label>Common grid points<input type="number" min="2" max="100000" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }} /></label><button className="button primary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>Align and calculate</button></div>
         {ensemblePreview && ensembleStatistic && ensembleBounds ? <div className="ensemble-results"><svg className="processing-curve ensemble-curve" role="img" aria-label="Aligned replicate curves with pointwise mean and confidence interval" viewBox={`0 0 ${chart.width} ${chart.height}`}><line x1="28" y1={chart.height - 24} x2={chart.width - 20} y2={chart.height - 24} className="chart-axis"/><line x1="28" y1="20" x2="28" y2={chart.height - 24} className="chart-axis"/>{ensemblePreview.members.map((member) => { const values = member.stage.series.find((series) => series.quantity === ensembleStatistic.quantity)?.values ?? []; return <polyline key={member.ordinal} points={xyPoints(ensemblePreview.grid, values, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-member"/>; })}<polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_lower, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.confidence_95_upper, chart.width, chart.height, ensembleBounds)} className="curve-line confidence"/><polyline points={xyPoints(ensemblePreview.grid, ensembleStatistic.mean, chart.width, chart.height, ensembleBounds)} className="curve-line ensemble-mean"/></svg><div className="curve-legend"><span><i className="ensemble-member"/>Members ({ensemblePreview.members.length})</span><span><i className="ensemble-mean"/>Mean</span><span><i className="confidence"/>95% mean CI</span></div><div className="statistics-grid"><article><span>Quantity</span><strong>{ensembleStatistic.quantity}</strong><small>{ensembleStatistic.unit}</small></article><article><span>Last mean</span><strong>{ensembleStatistic.mean.at(-1)?.toPrecision(6)}</strong></article><article><span>Sample SD</span><strong>{ensembleStatistic.standard_deviation.at(-1)?.toPrecision(6)}</strong></article><article><span>MAD</span><strong>{ensembleStatistic.mad.at(-1)?.toPrecision(6)}</strong></article><article><span>IQR</span><strong>{ensembleStatistic.q1.at(-1)?.toPrecision(4)} – {ensembleStatistic.q3.at(-1)?.toPrecision(4)}</strong></article></div><div className="stage-diagnostics">{ensemblePreview.diagnostics.map((item) => <p key={item}>{item}</p>)}</div></div> : <p className="muted">At least two imported Test Data identities are required. Import each replicate separately so its exact revision remains addressable.</p>}
       </section>
     </main>
