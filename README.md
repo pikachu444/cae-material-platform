@@ -35,7 +35,10 @@ Material에서 두 solver card까지 이어지는 exact-revision **Workflow Tree
 `/database` workspace에 Layout section 기반 Datasheet, 원본/정규화 단위, discrete facet,
 normalized 수치 범위와 다중 Record 비교를 연결했습니다. T-79는 `/modeling`에 exact Dataset과
 Recipe 단계, 서버 계산 곡선, 단계별 option을 함께 유지하는 그래프 중심 Modeling Workbench를
-연결했습니다. Family별 완전한 처리/후보 비교와 Neutral/Card 마지막 단계는 T-80/T-81 범위이므로
+연결했습니다. T-80은 같은 화면에 Metal/Polymer/Elastomer track, Step/Recipe/Batch inspector와
+각 재료군의 실제 Material/State/Property context를 연결했습니다. 금속 hardening 네 후보,
+폴리머 Prony 처리, 엘라스토머 multi-mode 네 model family·multistart·residual 비교까지 Docker
+데모에서 실행됩니다. reviewed Neutral/Card를 하나의 마지막 단계로 정리하는 T-81이 남아 있으므로
 아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling

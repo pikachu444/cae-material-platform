@@ -3393,9 +3393,19 @@ summary {
 }
 .processing-workbench-page { display: grid; gap: 1.25rem; }
 .processing-hero { background: linear-gradient(120deg, #102e3b 0%, #16495a 55%, #1d6b70 100%); color: #f5fbfc; }
+.processing-hero h1, .processing-hero .eyebrow { color: #fff; }
+.processing-hero > div > p:last-child { color: #d7ecea; }
 .modeling-flow-nav { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 1rem; }
 .modeling-flow-nav a { border-bottom: 3px solid rgb(255 255 255 / 22%); color: #d8eeea; font-size: .78rem; font-weight: 700; padding: .65rem .4rem; text-align: center; text-decoration: none; }
 .modeling-flow-nav a:hover { border-color: #7bd0bd; color: #fff; }
+.modeling-track-selector { display: grid; gap: .7rem; grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: .85rem; }
+.modeling-track-selector button { background: rgb(255 255 255 / 8%); border: 1px solid rgb(255 255 255 / 18%); border-radius: .75rem; color: #d8eeea; cursor: pointer; display: grid; gap: .15rem; padding: .75rem .85rem; text-align: left; }
+.modeling-track-selector button:hover, .modeling-track-selector button.active { background: #f5fbfa; border-color: #8dd4c5; color: #163c43; }
+.modeling-track-selector button.active { box-shadow: inset 4px 0 0 #2f8f83; }
+.modeling-track-selector button span { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.modeling-track-selector button small { color: inherit; opacity: .75; }
+.track-contract-note { background: var(--surface-subtle); border-left: 3px solid var(--accent); color: var(--muted); font-size: .82rem; margin: .7rem 0; padding: .65rem .75rem; }
+.track-contract-note strong { color: var(--ink); margin-right: .25rem; }
 .processing-setup-grid, .processing-result-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.5fr); gap: 1rem; }
 .processing-input-card, .mapping-profile-card, .method-builder-card, .stage-list-card, .curve-overlay-card { min-width: 0; }
 .processing-input-card label, .mapping-profile-card label, .method-builder-card label { display: grid; gap: .4rem; color: var(--muted); font-size: .82rem; }
@@ -3429,6 +3439,19 @@ summary {
 .configured-step-list > button small { color: var(--muted); }
 .configured-step-list > button.active { background: #e9f5f1; border-color: var(--accent); }
 .step-option-panel { background: #f7faf9; border: 1px solid var(--line); border-radius: 10px; min-height: 10rem; padding: .9rem; }
+.workspace-inspector-tabs { display: grid; gap: .3rem; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: .9rem; }
+.workspace-inspector-tabs button { background: transparent; border: 0; border-bottom: 2px solid var(--line); color: var(--muted); cursor: pointer; font-size: .74rem; font-weight: 700; padding: .55rem .2rem; }
+.workspace-inspector-tabs button.active { border-color: var(--accent); color: var(--accent-strong); }
+.workspace-inspector-tabs span { background: #dfecea; border-radius: 999px; font-size: .65rem; margin-left: .15rem; padding: .05rem .3rem; }
+.inspector-recipe-panel, .inspector-batch-panel { display: grid; gap: .65rem; }
+.inspector-recipe-panel > label, .inspector-batch-panel > label { display: grid; gap: .3rem; }
+.inspector-action-stack { display: grid; gap: .45rem; }
+.inspector-batch-panel fieldset { border: 1px solid var(--line); border-radius: .6rem; display: grid; gap: .4rem; margin: 0; padding: .65rem; }
+.inspector-batch-panel fieldset label { align-items: flex-start; display: flex; gap: .4rem; overflow-wrap: anywhere; }
+.inspector-batch-history { display: grid; gap: .45rem; }
+.inspector-batch-history article { align-items: center; background: #fff; border: 1px solid var(--line); border-radius: .6rem; display: grid; gap: .4rem; grid-template-columns: 1fr auto; padding: .55rem; }
+.inspector-batch-history article > div { display: grid; min-width: 0; }
+.inspector-batch-history small { color: var(--muted); }
 .step-option-grid { display: grid; gap: .65rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .step-option-grid label { text-transform: capitalize; }
 .step-option-grid input[type="checkbox"] { justify-self: start; }
@@ -3503,7 +3526,7 @@ summary {
 .batch-member-list > div { border-top: 1px solid var(--line); padding-top: .55rem; }
 .batch-run-list > article { display: grid; gap: .65rem; }
 @media (max-width: 1100px) { .modeling-graph-workspace { grid-template-columns: minmax(200px, .6fr) minmax(360px, 1.4fr); } .step-option-panel { grid-column: 1 / -1; } .persistent-modeling-plot { position: static; } }
-@media (max-width: 900px) { .processing-setup-grid, .processing-result-grid, .modeling-graph-workspace { grid-template-columns: 1fr; } .step-option-panel { grid-column: auto; } .profile-save-row, .processing-output-form, .ensemble-controls, .recipe-library-grid { grid-template-columns: 1fr; } .modeling-flow-nav { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { .processing-setup-grid, .processing-result-grid, .modeling-graph-workspace { grid-template-columns: 1fr; } .step-option-panel { grid-column: auto; } .profile-save-row, .processing-output-form, .ensemble-controls, .recipe-library-grid { grid-template-columns: 1fr; } .modeling-flow-nav { grid-template-columns: repeat(3, 1fr); } .modeling-track-selector { grid-template-columns: 1fr; } }
 @media (max-width: 820px) { .batch-builder-grid { grid-template-columns: 1fr; } .batch-preflight article, .batch-summary, .batch-member-list > div { align-items: flex-start; flex-direction: column; } .batch-summary code, .batch-member-list code { margin-left: 0; } }
 
 /* Product-facing shell: authentication and infrastructure stay behind the workspace boundary. */
@@ -3921,4 +3944,74 @@ summary {
 .domain-workflow-node-list span,
 .domain-workflow-node-list small {
   color: var(--muted);
+}
+
+/* T-80 keeps material-family modeling inside the common evidence-to-card workspace. */
+.family-modeling-workbench {
+  border-top: 1px solid #ccd9d4;
+  padding-top: 1rem;
+}
+
+.family-modeling-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.family-modeling-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.family-modeling-heading h2 {
+  margin: 0.15rem 0 0.35rem;
+}
+
+.family-modeling-heading p:last-child {
+  color: var(--muted);
+  margin: 0;
+  max-width: 58rem;
+}
+
+.family-context-bar {
+  align-items: end;
+  background: #edf4f1;
+  border: 1px solid #cdded8;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(14rem, 1.15fr) minmax(14rem, 1fr) auto;
+  padding: 0.85rem;
+}
+
+.family-context-bar label {
+  color: #526961;
+  display: grid;
+  font-size: 0.67rem;
+  font-weight: 800;
+  gap: 0.3rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.family-context-bar select {
+  background: #fff;
+  border: 1px solid #b9cec7;
+  border-radius: 6px;
+  color: #263e35;
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+  text-transform: none;
+}
+
+.family-context-error {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 860px) {
+  .family-modeling-heading { display: grid; }
+  .family-context-bar { grid-template-columns: 1fr; }
 }

@@ -1759,6 +1759,12 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   Prony/WLF/Arrhenius, elastomer multi-mode/four-family/stability/Prony overlay를 plot과 option panel에서
   실행·비교한다.
 - **테스트:** existing numeric fixtures + family-specific browser journeys + deterministic Recipe/Batch.
+- **구현 증거:** `/modeling`의 Metal/Polymer/Elastomer tab이 family별 Mapping/Method 계약과 exact
+  Material/State/Property context를 전환한다. Step/Recipe/Batch inspector가 persistent graph 옆에서
+  save/publish/preflight/execute/retry를 제공한다. 실제 Docker journey에서 metal hardening 네 후보,
+  polymer log-time/Prony, elastomer 4 exact curve Plan·4 family·8 multistart·residual을 실행했다.
+  `docs/15-demo/evidence/t80-family-modeling-tracks.md`에 screenshot과 검증 결과가 있다. T-81의
+  reviewed Neutral/Card final step을 제외하고 T-80은 완료·검증됐다.
 
 #### T-81. Reviewed result to Neutral Material and solver cards — `P0`
 
