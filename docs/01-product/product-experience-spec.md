@@ -1,6 +1,11 @@
 # Product experience specification
 
-Status: `authoritative rebuild baseline`
+Status: `baseline; interaction details superseded by gui-functional-parity-plan.md`
+
+The authoritative corrective implementation and acceptance plan is
+[`gui-functional-parity-plan.md`](gui-functional-parity-plan.md). This specification continues to
+define the two product workspaces, but a graph, form, route or API connection alone is no longer
+accepted as proof of Granta/Material Modeler-level usability.
 
 ## 1. Why this specification exists
 
