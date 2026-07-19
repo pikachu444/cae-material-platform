@@ -1,10 +1,10 @@
 # Elastomer Ogden--Prony 카드
 
-현재 Elastomer workflow는 one-term Ogden과 1~5 shear-Prony term을 수동 입력하거나,
-governed normalized tension curve들에서 `mu`와 `alpha`를 fitting하는
-`reference/non-production` 수직 기능입니다. shear-Prony term은 baseline IR에서 보존되며,
-fitted Candidate는 사람의 명시적 선택과 사유를 거친 뒤 같은 Material Model identity의 새
-immutable IR revision으로 승격할 수 있습니다.
+Elastomer workflow는 uniaxial/planar/biaxial normalized curve를 한 화면에서 비교하고
+Neo-Hookean, Mooney--Rivlin, Yeoh, one-term Ogden을 fitting하는 `reference/non-production`
+수직 기능입니다. 저장된 Plan을 열면 calibration/holdout 역할, mode와 weight, reviewed Run과
+선택된 diagnostics가 자동 복원됩니다. 일반 사용자는 Run ID를 입력할 필요가 없습니다.
+shear-Prony term은 baseline IR에서 별도 시간 의존 overlay로 보존·표시됩니다.
 
 ## 초탄성 모델 family 비교
 
@@ -18,10 +18,16 @@ canonical Neutral Material JSON/IR revision으로 승격할 수 있습니다. fa
 Abaqus/OpenRadioss mapping/card는 이 Neutral revision을 직접 소비합니다. 기존 Ogden 행의 사람 선택,
 Ogden--Prony IR revision과 두 solver card 경로는 계속 사용할 수 있습니다.
 
-![동일 Dataset revision에서 비교한 네 가지 공개 초탄성 모델 family](../15-demo/images/t55e-hyperelastic-family-comparison.png)
+![동일 exact Dataset에서 비교한 네 가지 공개 초탄성 모델과 다중시험 graph](../15-demo/images/t90-elastomer-multimode-workbench.png)
 
-이미 완료된 Run은 **Open a saved calibration Run**에 정확한 Run ID를 입력해 다시 열 수 있습니다.
-재실행 없이 family 후보, fitted/residual 진단과 기존 Ogden 선택 증거를 복원합니다.
+**Response / Residual** 탭에서 measured point, fitted curve와 residual을 전환합니다. 색상은
+시험 mode를, legend의 역할은 calibration/holdout을 구분합니다. `+`, `−`, **Reset**으로 graph
+domain을 검토할 수 있으며 point에 마우스를 올리면 strain과 nominal stress가 표시됩니다.
+
+![선택 family의 exact residual graph](../15-demo/images/t90-elastomer-residual.png)
+
+복구·진단 상황에서만 **Advanced recovery and Neutral JSON interchange**를 열어 exact Run ID나
+기존 Neutral JSON을 지정합니다. 이 영역은 정상 modeling 절차에서는 사용할 필요가 없습니다.
 
 ## Calibration Plan 저장·재사용
 
@@ -47,7 +53,12 @@ current revision을 다시 읽어야 합니다. 별도 Plan을 만들려면 **Ne
    - Abaqus 2025: `*HYPERELASTIC, OGDEN, N=1`과 `*VISCOELASTIC`
    - OpenRadioss 2025: `/MAT/LAW62`
 6. mapping report를 확인하고 report digest를 승인한 뒤 card를 생성합니다.
+   `approximated` 또는 `ignored` 항목이 있으면 화면의 검토 확인을 해야 생성 버튼이 활성화됩니다.
 7. preview와 `.inp` 또는 `.rad` download를 확인합니다.
+
+![Abaqus Ogden+Prony ASCII preview](../15-demo/images/t90-elastomer-abaqus-card.png)
+
+![OpenRadioss LAW62 ASCII preview](../15-demo/images/t90-elastomer-openradioss-card.png)
 
 ## Multi-test fitting 절차
 

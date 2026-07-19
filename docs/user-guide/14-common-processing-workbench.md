@@ -194,4 +194,5 @@ Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와
 서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화합니다. Recipe
 저장/게시와 exact-input batch 실행을 지원하며, reviewed 금속 Processing Output은 같은 Modeling
 화면의 Card task에서 IR/Neutral Material JSON으로 승격할 수 있습니다. 폴리머와 엘라스토머의
-동일한 graph/task 사용성은 T-89/T-90에서 계속 검증합니다.
+Polymer relaxation/DMA와 Elastomer multi-mode/holdout graph/task 흐름도 T-89/T-90에서
+검증되었습니다. 전체 clean 제품 journey는 T-93에서 최종 승인합니다.

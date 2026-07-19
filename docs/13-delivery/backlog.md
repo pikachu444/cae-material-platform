@@ -1884,7 +1884,16 @@ clean-acceptance intent is retained in T-93.
 
 #### T-90. Elastomer workbench parity — `P0`
 
-- multi-mode roles/weights/holdout, four-family multistart, residual/stability, Prony/card journey.
+- **상태 (`2026-07-20`):** `complete`. `/modeling`의 Elastomer Fit은 저장된 exact Plan과
+  Dataset 역할/mode/weight, reviewed Run과 selected family diagnostics를 자동 복원한다. normal
+  path에서 Run UUID 입력은 필요하지 않다. 3 calibration + 1 holdout, uniaxial/planar/biaxial,
+  네 public family와 8 multistart Candidate를 사용하며 family rail과 52-point response/residual
+  graph를 1440×900 첫 viewport에 함께 표시한다. 현재 model revision의 ordered Prony overlay도
+  독립 evidence로 표시한다. 같은 session에서 Neutral JSON과 Abaqus Ogden+Prony/OpenRadioss
+  LAW62 native ASCII를 preview/download하며 approximation/ignored mapping은 명시적 확인 없이
+  새 Card를 만들 수 없다.
+- **증거:** `docs/15-demo/evidence/t90-elastomer-multimode-workbench.md`와
+  `docs/15-demo/images/t90-elastomer-*.png`.
 
 #### T-91. Material Database tree and datasheet parity — `P0`
 

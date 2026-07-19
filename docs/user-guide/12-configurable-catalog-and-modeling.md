@@ -131,12 +131,12 @@ option을 바꾸고 Recipe revision을 저장·게시하거나 exact Dataset bat
 함께 실행한다. 실행 후 네 model family, 여덟 multistart candidate, fitted/residual plot, rank와
 uncertainty를 비교한 뒤에만 Candidate 선택 또는 Neutral 승격으로 진행한다.
 
-![exact multi-mode Plan으로 실행한 elastomer family 비교](../15-demo/images/t80-elastomer-calibration-track.png)
+![exact multi-mode Plan과 holdout으로 실행한 elastomer family 비교](../15-demo/images/t90-elastomer-multimode-workbench.png)
 
 ### Interim reviewed-delivery controls
 
 > This section documents the retained T-81 engine-connected controls. The interaction is an interim
-> baseline, not the accepted clone-level Material Modeling experience. T-85~T-90 will move these
+> baseline, not the accepted clone-level Material Modeling experience. T-85~T-90 moved these
 > actions into the fixed graph/task workbench without changing the exact Neutral/card contracts.
 
 After a metal, polymer or elastomer result is promoted, the same **Final step · reviewed delivery**
