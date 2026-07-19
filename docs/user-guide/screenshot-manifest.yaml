@@ -488,3 +488,19 @@ captures:
     image: ../15-demo/images/t86-metal-replicate-statistics.png
     width: 1440
     height: 900
+  - id: t87-metal-fit-candidate-comparison
+    route: /modeling
+    workflow: compare-four-hardening-equations-selected-blend-and-explicit-unobserved-domain
+    fixture: T-87 clean Compose synthetic DP780 true-plastic workup and server hardening candidates
+    source_evidence: ../15-demo/evidence/t87-metal-fit-extrapolation.md
+    image: ../15-demo/images/t87-metal-fit-candidate-comparison.png
+    width: 1440
+    height: 900
+  - id: t87-metal-fit-residual
+    route: /modeling
+    workflow: inspect-predicted-minus-observed-residual-for-all-hardening-candidates
+    fixture: T-87 clean Compose synthetic DP780 selected fit domain and server candidate arrays
+    source_evidence: ../15-demo/evidence/t87-metal-fit-extrapolation.md
+    image: ../15-demo/images/t87-metal-fit-residual.png
+    width: 1440
+    height: 900

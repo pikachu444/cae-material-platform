@@ -45,10 +45,63 @@ interface PlotModel {
   yUnit: string;
   series: PlotSeries[];
   band?: PlotBand;
+  extrapolationStart?: number;
 }
+
+export type HardeningPlotMode = "response" | "residual" | "derivative";
 
 const PLOT_MARGIN = { left: 64, right: 24, top: 24, bottom: 52 } as const;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
+
+export function linearInterpolate(
+  xValues: number[],
+  yValues: number[],
+  target: number,
+): number | null {
+  if (xValues.length < 2 || xValues.length !== yValues.length) return null;
+  if (target < xValues[0] || target > xValues[xValues.length - 1]) return null;
+  const exact = xValues.indexOf(target);
+  if (exact >= 0) return yValues[exact];
+  let upper = 1;
+  while (upper < xValues.length && xValues[upper] < target) upper += 1;
+  if (upper >= xValues.length || xValues[upper] === xValues[upper - 1]) return null;
+  const fraction = (target - xValues[upper - 1]) / (xValues[upper] - xValues[upper - 1]);
+  return yValues[upper - 1] + fraction * (yValues[upper] - yValues[upper - 1]);
+}
+
+export function residualValues(
+  observedX: number[],
+  observedY: number[],
+  predictedX: number[],
+  predictedY: number[],
+): { xValues: number[]; yValues: number[] } {
+  const xValues: number[] = [];
+  const yValues: number[] = [];
+  observedX.forEach((x, index) => {
+    const predicted = linearInterpolate(predictedX, predictedY, x);
+    if (predicted !== null && Number.isFinite(observedY[index])) {
+      xValues.push(x);
+      yValues.push(predicted - observedY[index]);
+    }
+  });
+  return { xValues, yValues };
+}
+
+export function derivativeValues(
+  xValues: number[],
+  yValues: number[],
+): { xValues: number[]; yValues: number[] } {
+  const x: number[] = [];
+  const y: number[] = [];
+  for (let index = 1; index < xValues.length; index += 1) {
+    const deltaX = xValues[index] - xValues[index - 1];
+    if (deltaX > 0 && Number.isFinite(deltaX)) {
+      x.push((xValues[index] + xValues[index - 1]) / 2);
+      y.push((yValues[index] - yValues[index - 1]) / deltaX);
+    }
+  }
+  return { xValues: x, yValues: y };
+}
 
 export function plotPoints(
   x: number[],
@@ -111,6 +164,7 @@ function seriesForStage(
   activeStage: CommonCurveStage,
   baseStage: CommonCurveStage,
   activeStep?: CommonProcessingStep,
+  hardeningMode: HardeningPlotMode = "response",
 ): PlotModel {
   const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
   const prony = activeStage.method_id === "polymer.prony_fit_compare";
@@ -127,29 +181,114 @@ function seriesForStage(
       (item) => item.quantity.startsWith("stress.hardening.") && item.quantity !== "stress.hardening.selected",
     );
     const selected = activeStage.series.find((item) => item.quantity === "stress.hardening.selected");
+    const fitMinimum = Number(activeStep?.options.fit_minimum_strain ?? 0);
+    const fitMaximum = Number(activeStep?.options.fit_maximum_strain ?? activeX?.values.at(-1) ?? 0);
+    const previousStage = preview.stages.find((item) => item.ordinal === activeStage.ordinal - 1);
+    const observedXSeries = previousStage?.series.find((item) => item.quantity === xQuantity);
+    const observedYSeries = previousStage?.series.find((item) => item.quantity === String(activeStep?.options.stress_quantity ?? "stress.true"));
+    const observedX = observedXSeries?.values ?? [];
+    const observedY = observedYSeries?.values ?? [];
+    const candidateSeries: PlotSeries[] = candidates.map((item, index) => ({
+      id: item.quantity,
+      label: item.quantity.replace("stress.hardening.", "").replaceAll("_", "-"),
+      xValues: activeX?.values ?? [],
+      yValues: item.values,
+      color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
+      className: "hardening-candidate",
+    }));
+    const selectedSeries: PlotSeries | null = selected ? {
+      id: selected.quantity,
+      label: "Selected blend",
+      xValues: activeX?.values ?? [],
+      yValues: selected.values,
+      color: "#111827",
+      className: "hardening-selected",
+    } : null;
+    const selectedBoundaryValue = selectedSeries
+      ? linearInterpolate(selectedSeries.xValues, selectedSeries.yValues, fitMaximum)
+      : null;
+    const selectedObserved = selectedSeries ? {
+      ...selectedSeries,
+      id: `${selectedSeries.id}.observed`,
+      label: "Selected blend · fitted domain",
+      xValues: [
+        ...selectedSeries.xValues.filter((value) => value < fitMaximum),
+        ...(selectedBoundaryValue !== null ? [fitMaximum] : []),
+      ],
+      yValues: [
+        ...selectedSeries.yValues.filter((_, index) => selectedSeries.xValues[index] < fitMaximum),
+        ...(selectedBoundaryValue !== null ? [selectedBoundaryValue] : []),
+      ],
+      className: "hardening-selected fitted-domain",
+    } : null;
+    const selectedExtrapolated = selectedSeries ? {
+      ...selectedSeries,
+      id: `${selectedSeries.id}.extrapolated`,
+      label: "Selected blend · extrapolated",
+      xValues: [
+        ...(selectedBoundaryValue !== null ? [fitMaximum] : []),
+        ...selectedSeries.xValues.filter((value) => value > fitMaximum),
+      ],
+      yValues: [
+        ...(selectedBoundaryValue !== null ? [selectedBoundaryValue] : []),
+        ...selectedSeries.yValues.filter((_, index) => selectedSeries.xValues[index] > fitMaximum),
+      ],
+      className: "hardening-selected extrapolated-domain",
+    } : null;
+
+    if (hardeningMode === "residual") {
+      const inFitDomain = observedX.map((value, index) => ({ value, index }))
+        .filter(({ value }) => value >= fitMinimum && value <= fitMaximum);
+      const fitX = inFitDomain.map(({ value }) => value);
+      const fitY = inFitDomain.map(({ index }) => observedY[index]);
+      const comparison = [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])]
+        .map((item) => {
+          const residual = residualValues(fitX, fitY, item.xValues, item.yValues);
+          return { ...item, ...residual, label: `${item.label} residual` };
+        });
+      return {
+        xQuantity,
+        xUnit: activeX?.unit ?? "1",
+        yQuantity: "predicted - observed",
+        yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
+        series: comparison,
+      };
+    }
+
+    if (hardeningMode === "derivative") {
+      return {
+        xQuantity,
+        xUnit: activeX?.unit ?? "1",
+        yQuantity: "d(stress) / d(plastic strain)",
+        yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
+        series: [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])].map((item) => ({
+          ...item,
+          ...derivativeValues(item.xValues, item.yValues),
+          label: `${item.label} tangent`,
+        })),
+        extrapolationStart: fitMaximum,
+      };
+    }
+
     return {
       xQuantity,
       xUnit: activeX?.unit ?? "1",
       yQuantity: "stress.hardening",
       yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
       series: [
-        ...candidates.map((item, index) => ({
-          id: item.quantity,
-          label: item.quantity.replace("stress.hardening.", ""),
-          xValues: activeX?.values ?? [],
-          yValues: item.values,
-          color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
-          className: "hardening-candidate",
-        })),
-        ...(selected ? [{
-          id: selected.quantity,
-          label: "Selected combination",
-          xValues: activeX?.values ?? [],
-          yValues: selected.values,
-          color: "#111827",
-          className: "hardening-selected",
+        ...(observedX.length === observedY.length ? [{
+          id: "hardening-observed",
+          label: "Observed plastic workup",
+          xValues: observedX,
+          yValues: observedY,
+          color: "#e56734",
+          className: "hardening-observed",
         }] : []),
+        ...candidateSeries,
+        ...(selectedObserved ? [selectedObserved] : []),
+        ...(selectedExtrapolated ? [selectedExtrapolated] : []),
       ],
+      extrapolationStart: fitMaximum,
     };
   }
 
@@ -323,9 +462,17 @@ export function EngineeringCurvePlot({
   const [interactionMode, setInteractionMode] = useState<"pan" | "range" | "point">("pan");
   const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
   const [selection, setSelection] = useState<GraphSelectionCommand | null>(null);
+  const [hardeningMode, setHardeningMode] = useState<HardeningPlotMode>("response");
+  const isHardening = !ensemblePreview && activeStage.method_id === "metal.hardening_fit_extrapolate";
+  const hardeningMetrics = isHardening
+    ? activeStage.scalar_results
+      .filter((item) => item.key.endsWith(".relative_rmse"))
+      .map((item) => ({ family: item.key.replace(".relative_rmse", ""), value: item.value }))
+      .sort((left, right) => left.value - right.value)
+    : [];
   const model = useMemo(
-    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep),
-    [activeStage, activeStep, baseStage, ensemblePreview, preview],
+    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode),
+    [activeStage, activeStep, baseStage, ensemblePreview, hardeningMode, preview],
   );
   const validSeries = model.series.filter(
     (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length,
@@ -364,6 +511,7 @@ export function EngineeringCurvePlot({
     setDrag(null);
     setSelectionStart(null);
     setSelection(null);
+    setHardeningMode("response");
     if (ensemblePreview) setInteractionMode("pan");
   }, [activeStage.method_id, activeStage.ordinal, ensemblePreview]);
 
@@ -447,6 +595,11 @@ export function EngineeringCurvePlot({
         </div>
         <span>{selection?.kind === "range" ? `Selected ${axisNumber(selection.minimum)} – ${axisNumber(selection.maximum)} ${selection.x_unit}` : selection?.kind === "point" ? `Selected ${axisNumber(selection.x)} ${selection.x_unit} · ${axisNumber(selection.y / yScale.divisor)} ${yScale.label}` : cursor ? `${axisNumber(cursor.x)} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span>
       </div>
+      {isHardening ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
+        {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Stress response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
+        <span>{hardeningMode === "response" ? "Observed evidence + candidates + selected blend" : hardeningMode === "residual" ? "Predicted minus observed over the selected fit domain" : "Numerical slope; inspect stability into extrapolation"}</span>
+      </div> : null}
+      {hardeningMetrics.length ? <div className="hardening-metric-strip" aria-label="Hardening candidate relative RMSE summary">{hardeningMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.family}><span>{index === 0 ? "BEST" : "RMSE"}</span><strong>{metric.family.replaceAll("_", "-")}</strong><b>{(metric.value * 100).toFixed(3)}%</b></article>)}</div> : null}
       <svg
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
@@ -480,6 +633,7 @@ export function EngineeringCurvePlot({
           const py = height - PLOT_MARGIN.bottom - ((tick - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom);
           return <g key={`y-${tick}`}><line x1={PLOT_MARGIN.left} y1={py} x2={width - PLOT_MARGIN.right} y2={py} className="chart-grid"/><text x={PLOT_MARGIN.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(tick / yScale.divisor)}</text></g>;
         })}
+        {model.extrapolationStart !== undefined && model.extrapolationStart < bounds.xMax ? <g className="extrapolation-region"><rect x={PLOT_MARGIN.left + ((Math.max(model.extrapolationStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(0, ((bounds.xMax - Math.max(model.extrapolationStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom}/><line x1={PLOT_MARGIN.left + ((model.extrapolationStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((model.extrapolationStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><text x={PLOT_MARGIN.left + ((model.extrapolationStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 7} y={PLOT_MARGIN.top + 14}>EXTRAPOLATED · UNOBSERVED</text></g> : null}
         <line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
         <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
         {model.band && model.band.xValues.length >= 2 ? <polygon points={bandPolygon(model.band, width, height, bounds)} className="ensemble-confidence-band" /> : null}

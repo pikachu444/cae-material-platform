@@ -50,7 +50,8 @@ Material Modeling을 compact engineering shell로 바꾸고 실제 server curve�
 crosshair, zoom/pan/reset, curve visibility와 graph range/point selection을 연결했습니다. 변경된
 step option은 300 ms 뒤 최신 요청만 preview하며 이전 요청은 취소합니다. Dashboard도 Material
 Database와 Material Modeling의 목적·시작 동작을 나란히 보여주는 작업 홈으로 교체했습니다.
-금속·폴리머·엘라스토머별 guided control은 T-86~T-90에서 계속 구현합니다.
+금속 Prepare와 네 경화식 Fit/Extrapolate guided control은 T-86/T-87에서 검증했습니다. 같은
+화면의 Neutral/Card delivery와 폴리머·엘라스토머 parity는 T-88~T-90에서 계속 구현합니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog

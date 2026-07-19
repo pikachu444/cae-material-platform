@@ -91,7 +91,15 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 `secondary_family`, `primary_weight`가 선택 조합을 완전히 정의합니다. 결과의 **Scalar results**에는
 후보별 RMSE와 parameter lower/initial/fitted/upper가 표시되므로 숨은 초기값이나 경계가 없습니다.
 
-![네 공개 hardening 후보, 선택 조합과 관측/외삽 domain](../15-demo/images/t55m-hardening-candidates.png)
+**Stress response**에서 observed plastic workup과 네 candidate, 선택 blend를 비교합니다. **Residual**은
+선택 fit domain에서 `predicted - observed`를, **Tangent modulus**는 후보별 수치 미분을 보여줍니다.
+황색 배경과 점선의 `EXTRAPOLATED · UNOBSERVED` 영역은 시험 관측값이 아닙니다. 상단 RMSE strip에서
+후보를 비교하고 오른쪽 **Fit evidence**에서 parameter와 lower/upper bound를 펼쳐 봅니다. 후보를
+선택하고 blend ratio를 조정한 뒤 **Selection reason**을 작성해야 검토 근거가 Recipe에 남습니다.
+
+![네 공개 hardening 후보, 선택 blend와 명시적 외삽 domain](../15-demo/images/t87-metal-fit-candidate-comparison.png)
+
+![동일한 후보의 predicted-minus-observed residual](../15-demo/images/t87-metal-fit-residual.png)
 
 ![금속 인장 처리 단계와 210 GPa Huber 탄성계수 결과](../15-demo/images/t55m-metal-processing-methods.png)
 

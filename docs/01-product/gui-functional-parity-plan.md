@@ -754,10 +754,16 @@ T-86 수용 상태:
 - primary/secondary 후보와 ratio slider를 바꾸면 resultant curve가 즉시 갱신된다.
 - combine/save가 현재 선택과 parameter를 명시적으로 보존한다.
 
-현재 CMP 차이:
+T-87 수용 상태:
 
-- 4-family backend와 선택 조합은 작동하지만 현재 graph는 axis/tick/tooltip/derivative/domain
-  selection이 없고 ratio는 generic field다. T-87이 해당 GUI를 교체한다.
+- 네 공개식과 observed plastic workup을 한 graph에 표시하고 candidate visibility, fit-domain range,
+  primary/secondary와 blend slider를 직접 조작한다.
+- Stress response, predicted-minus-observed Residual, numerical Tangent Modulus를 같은 graph에서
+  전환하며 observed boundary 이후를 shaded/dashed unobserved domain으로 표시한다.
+- relative RMSE를 첫 화면에서 비교하고 fitted parameter/lower/upper와 bound warning을 inspector에서
+  검토한다. 선택 이유와 bounded extrapolation option은 Recipe revision에 함께 저장한다.
+- 현재 제품 screenshot과 browser evidence는
+  `docs/15-demo/evidence/t87-metal-fit-extrapolation.md`에 고정한다. Neutral/Card delivery는 T-88이다.
 
 ### 15.11 Material Modeler — CAE card 생성과 검토
 

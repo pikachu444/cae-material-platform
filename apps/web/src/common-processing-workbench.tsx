@@ -39,6 +39,7 @@ import type {
   CommonProcessingRecipeResponse,
   CommonProcessingPreview,
   CommonProcessingStep,
+  CommonCurveStage,
   DataClassification,
   GraphSelectionCommand,
 } from "./types";
@@ -174,6 +175,7 @@ const POLYMER_RELAXATION_STEPS: CommonProcessingStep[] = [
       minimum_relaxation_time_s: 0.0001,
       maximum_relaxation_time_s: 1000000,
       maximum_function_evaluations: 5000,
+      selection_reason: "Balanced residual shape and stable monotonic extrapolation.",
     },
   },
 ];
@@ -358,6 +360,8 @@ function GuidedStepOptions({
       <div className="guided-range-row"><label>Primary<select value={String(step.options.primary_family)} onChange={(event) => onChange("primary_family", event.target.value)}>{HARDENING_FAMILIES.map((family) => <option key={family} value={family}>{family}</option>)}</select></label><label>Secondary<select value={String(step.options.secondary_family)} onChange={(event) => onChange("secondary_family", event.target.value)}>{HARDENING_FAMILIES.map((family) => <option key={family} value={family}>{family}</option>)}</select></label></div>
       <label className="slider-option">Primary contribution <output>{Math.round(numberOption(step, "primary_weight") * 100)}%</output><input aria-label="Primary hardening candidate contribution" type="range" min="0" max="1" step="0.01" value={numberOption(step, "primary_weight")} onChange={(event) => onChange("primary_weight", Number(event.target.value))}/></label>
       <div className="guided-range-row"><label>Extrapolate to strain<input type="number" min="0" max="5" step="0.01" value={numberOption(step, "extrapolation_maximum_strain")} onChange={(event) => onChange("extrapolation_maximum_strain", Number(event.target.value))}/></label><label>Output points<input type="number" min="21" max="501" step="1" value={numberOption(step, "output_point_count")} onChange={(event) => onChange("output_point_count", Number(event.target.value))}/></label></div>
+      <label>Selection reason<textarea aria-label="Hardening candidate selection reason" rows={3} value={String(step.options.selection_reason ?? "")} onChange={(event) => onChange("selection_reason", event.target.value)} /></label>
+      <p className="option-hint">The chosen equations, blend, fit domain, extrapolation bound and engineering reason are stored together in the Recipe revision.</p>
     </div>;
   }
   return <div className="step-option-grid">{Object.entries(step.options).map(([option, value]) => <label key={option}>{option.replaceAll("_", " ")}{typeof value === "boolean" ? <input type="checkbox" checked={value} onChange={(event) => onChange(option, event.target.checked)} /> : <input value={Array.isArray(value) ? value.join(", ") : String(value)} type={typeof value === "number" ? "number" : "text"} onChange={(event) => onChange(option, typeof value === "number" ? Number(event.target.value) : Array.isArray(value) ? event.target.value.split(",").map((item) => item.trim()).filter(Boolean) : event.target.value)} />}</label>)}</div>;
@@ -418,6 +422,7 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       primary_weight: 0.5,
       normalization_stress_pa: 100000000,
       maximum_function_evaluations: 5000,
+      selection_reason: "Balanced residual shape and stable monotonic extrapolation.",
     },
     "polymer.log_time_resample": {
       start_time_s: 0.01,
@@ -438,6 +443,57 @@ function defaultOptions(methodId: string): Record<string, unknown> {
     },
   };
   return options[methodId] ?? {};
+}
+
+function displayEngineeringValue(value: number, unit: string): string {
+  if (unit === "Pa") return `${(value / 1e6).toPrecision(5)} MPa`;
+  return `${Number(value.toPrecision(6))} ${unit}`;
+}
+
+function HardeningCandidateEvidence({
+  stage,
+  step,
+  onSelectPrimary,
+}: {
+  stage: CommonCurveStage;
+  step: CommonProcessingStep;
+  onSelectPrimary: (family: string) => void;
+}) {
+  const families = Array.isArray(step.options.families) ? step.options.families.map(String) : [];
+  const primary = String(step.options.primary_family ?? "");
+  const evidence = families.map((family) => {
+    const scalar = new Map(stage.scalar_results.map((item) => [item.key, item]));
+    const rmse = scalar.get(`${family}.rmse_pa`);
+    const relative = scalar.get(`${family}.relative_rmse`);
+    const parameterKeys = stage.scalar_results
+      .map((item) => item.key)
+      .filter((key) => key.startsWith(`${family}.parameter.`) && !key.endsWith(".lower") && !key.endsWith(".initial") && !key.endsWith(".upper"));
+    const parameters = parameterKeys.map((key) => ({
+      name: key.replace(`${family}.parameter.`, ""),
+      value: scalar.get(key),
+      lower: scalar.get(`${key}.lower`),
+      upper: scalar.get(`${key}.upper`),
+    }));
+    const boundWarning = parameters.some(({ value, lower, upper }) => {
+      if (!value || !lower || !upper) return false;
+      const span = upper.value - lower.value;
+      return span > 0 && Math.min(value.value - lower.value, upper.value - value.value) / span < 0.001;
+    });
+    return { family, rmse, relative, parameters, boundWarning };
+  }).sort((left, right) => (left.rmse?.value ?? Number.POSITIVE_INFINITY) - (right.rmse?.value ?? Number.POSITIVE_INFINITY));
+  const best = evidence[0]?.family;
+  return <section className="hardening-candidate-evidence" aria-label="Hardening candidate numerical comparison">
+    <div className="candidate-evidence-heading"><div><p className="eyebrow">Calculated candidates</p><h4>Fit evidence</h4></div><span>{evidence.length} equations</span></div>
+    <div className="candidate-evidence-list">{evidence.map((candidate) => <article className={primary === candidate.family ? "selected" : ""} key={candidate.family}>
+      <button type="button" className="candidate-summary" onClick={() => onSelectPrimary(candidate.family)} aria-label={`Use ${candidate.family} as primary hardening candidate`}>
+        <span className="candidate-rank">{candidate.family === best ? "BEST RMSE" : primary === candidate.family ? "PRIMARY" : "CANDIDATE"}</span>
+        <strong>{candidate.family.replaceAll("_", "-")}</strong>
+        <span><b>{candidate.rmse ? displayEngineeringValue(candidate.rmse.value, candidate.rmse.unit) : "—"}</b><small>{candidate.relative ? `${(candidate.relative.value * 100).toFixed(3)}% relative` : "No objective"}</small></span>
+      </button>
+      <details><summary>{candidate.parameters.length} parameters &amp; bounds {candidate.boundWarning ? <em>BOUND</em> : null}</summary><div className="candidate-parameter-table">{candidate.parameters.map(({ name, value, lower, upper }) => <div key={name}><span>{name.replaceAll("_", " ")}</span><strong>{value ? displayEngineeringValue(value.value, value.unit) : "—"}</strong><small>{lower && upper ? `${displayEngineeringValue(lower.value, lower.unit)} … ${displayEngineeringValue(upper.value, upper.unit)}` : "bounds unavailable"}</small></div>)}</div></details>
+    </article>)}</div>
+    <p className="option-hint">Click a candidate to make it primary. Compare response, residual and tangent modulus in the persistent plot before saving the Recipe.</p>
+  </section>;
 }
 
 function xyPoints(
@@ -974,6 +1030,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       if (previewRequestNo.current !== requestNo) return;
       setPreview(result.data);
       setSelectedStage(result.data.stages.length - 1);
+      setSelectedStepIndex(Math.max(0, result.data.stages.length - 2));
+      setWorkspaceInspector("step");
       setPlotView("pipeline");
       setNotice("Preview completed. It is ephemeral and cannot be promoted or released.");
     } catch (caught) {
@@ -1327,7 +1385,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           <article className="persistent-modeling-plot" id="modeling-fit">
             <div className="section-heading"><div><p className="eyebrow">Live curve comparison</p><h2>{plotView === "ensemble" ? "Replicate statistics" : activeStage?.method_id ?? "Load data and preview"}</h2></div><div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={plotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Pipeline</button><button type="button" className={plotView === "ensemble" ? "active" : ""} disabled={!ensemblePreview} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button>{preview || ensemblePreview ? <span className="status-chip warning">Preview only · not committed</span> : null}</div></div>
             {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} width={chart.width} height={chart.height} onApplySelection={plotView === "pipeline" ? applyGraphSelection : undefined} ensemblePreview={plotView === "ensemble" ? ensemblePreview : null} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you configure processing."}</strong><p>{previewBusy ? "The previous calculation is cancelled when a newer Recipe change is applied." : "Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source."}</p></div>}
-            {preview && plotView === "pipeline" ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : ensemblePreview && plotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
+            {preview && plotView === "pipeline" ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => stage.ordinal > 0 ? focusConfiguredStep(stage.ordinal - 1) : setSelectedStage(0)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : ensemblePreview && plotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>
           <aside className="step-option-panel">
             <nav className="workspace-inspector-tabs" aria-label="Modeling workspace inspector">
@@ -1338,6 +1396,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             {workspaceInspector === "step" ? selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
               <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} />
+              {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelectPrimary={(family) => updateStepOption("primary_family", family)} /> : null}
             </> : <p className="muted">Add or select a processing step.</p> : null}
             {workspaceInspector === "recipe" ? <div className="inspector-recipe-panel">
               <div className="section-heading"><div><p className="eyebrow">Reusable execution</p><h3>Processing Recipe</h3></div><span className="status-chip">{trackRecipes.length} saved</span></div>

@@ -224,6 +224,13 @@ def fit_hardening_candidates(
     extrapolation_maximum = _number(options, "extrapolation_maximum_strain")
     primary_weight = _number(options, "primary_weight")
     normalization = _number(options, "normalization_stress_pa")
+    selection_reason = options.get("selection_reason")
+    if selection_reason is not None and (
+        not isinstance(selection_reason, str)
+        or not selection_reason.strip()
+        or len(selection_reason) > 500
+    ):
+        raise MetalHardeningError("selection_reason must be 1..500 non-whitespace characters")
     point_count_value = options.get("output_point_count")
     maximum_evaluations_value = options.get("maximum_function_evaluations")
     if isinstance(point_count_value, bool) or not isinstance(point_count_value, int):
@@ -363,6 +370,8 @@ def fit_hardening_candidates(
     diagnostics.append(
         f"selected={primary_weight}*{primary}+{1.0 - primary_weight}*{secondary}"
     )
+    if isinstance(selection_reason, str):
+        diagnostics.append(f"selection reason: {selection_reason.strip()}")
     return HardeningFitResult(
         result_columns,
         result_units,

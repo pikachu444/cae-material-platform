@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { EngineeringCurvePlot, paddedPlotBounds, plotPoints } from "./engineering-curve-plot";
+import { derivativeValues, EngineeringCurvePlot, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
 import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./types";
 
 const baseStage: CommonCurveStage = {
@@ -162,5 +162,62 @@ describe("EngineeringCurvePlot", () => {
     expect(bounds.xMax).toBeGreaterThan(1);
     expect(bounds.yMin).toBeLessThan(5);
     expect(bounds.yMax).toBeGreaterThan(5);
+  });
+
+  it("derives residual and tangent evidence from server-evaluated candidate curves", () => {
+    expect(linearInterpolate([0, 1], [10, 20], 0.25)).toBe(12.5);
+    expect(linearInterpolate([0, 1], [10, 20], 1.1)).toBeNull();
+    expect(residualValues([0, 0.5, 1], [10, 20, 30], [0, 1], [12, 32])).toEqual({
+      xValues: [0, 0.5, 1],
+      yValues: [2, 2, 2],
+    });
+    expect(derivativeValues([0, 0.5, 1], [10, 20, 35])).toEqual({
+      xValues: [0.25, 0.75],
+      yValues: [20, 30],
+    });
+  });
+
+  it("compares observed hardening, residual, tangent, and explicit extrapolation domain", () => {
+    const observed: CommonCurveStage = {
+      ordinal: 1,
+      method_id: "metal.engineering_to_true_plastic",
+      method_version: "1.0.0",
+      point_count: 4,
+      series: [
+        { quantity: "strain.true_plastic", unit: "1", values: [0, 0.04, 0.08, 0.1] },
+        { quantity: "stress.true", unit: "Pa", values: [3e8, 4e8, 4.8e8, 5.1e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    const hardening: CommonCurveStage = {
+      ordinal: 2,
+      method_id: "metal.hardening_fit_extrapolate",
+      method_version: "1.0.0",
+      point_count: 6,
+      series: [
+        { quantity: "strain.true_plastic", unit: "1", values: [0, 0.04, 0.08, 0.1, 0.2, 0.3] },
+        { quantity: "stress.hardening.voce", unit: "Pa", values: [3e8, 4.05e8, 4.75e8, 5.05e8, 5.8e8, 6.2e8] },
+        { quantity: "stress.hardening.swift", unit: "Pa", values: [3.1e8, 3.95e8, 4.85e8, 5.15e8, 6e8, 6.5e8] },
+        { quantity: "stress.hardening.selected", unit: "Pa", values: [3.05e8, 4e8, 4.8e8, 5.1e8, 5.9e8, 6.35e8] },
+      ],
+      diagnostics: ["extrapolated domain (0.1, 0.3] is not observed"],
+      scalar_results: [],
+    };
+    const hardeningPreview = { ...preview, independent_quantity: "strain.true_plastic", stages: [baseStage, observed, hardening] };
+    const hardeningStep = {
+      method_id: "metal.hardening_fit_extrapolate",
+      method_version: "1.0.0",
+      options: { stress_quantity: "stress.true", fit_minimum_strain: 0, fit_maximum_strain: 0.1 },
+    };
+    const { container } = render(<EngineeringCurvePlot preview={hardeningPreview} activeStage={hardening} baseStage={baseStage} activeStep={hardeningStep} width={760} height={420} />);
+
+    expect(screen.getByText("Observed plastic workup")).toBeTruthy();
+    expect(container.querySelector(".extrapolation-region")).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
+    expect(screen.getByText("predicted - observed [MPa]")).toBeTruthy();
+    expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
+    fireEvent.click(screen.getByRole("tab", { name: "Tangent modulus" }));
+    expect(container.querySelectorAll(".chart-axis-label")[1]?.textContent).toMatch(/d\(stress\) \/ d\(plastic strain\) \[(M|G)Pa\]/);
   });
 });
