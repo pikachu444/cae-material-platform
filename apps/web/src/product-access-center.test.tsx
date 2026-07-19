@@ -107,4 +107,21 @@ describe("ProductAccessCenter", () => {
     expect(screen.queryByRole("heading", { name: "Assign product access" })).toBeNull();
     expect(mocks.listAssignments).not.toHaveBeenCalled();
   });
+
+  it("keeps identity and classification policy vocabulary out of product Administration", async () => {
+    render(
+      <ProductAccessCenter
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+        productMode
+      />,
+    );
+
+    expect(await screen.findByRole("heading", { name: "Choose what each team can do" })).toBeTruthy();
+    expect(screen.getByLabelText(/User or team name/)).toBeTruthy();
+    expect(screen.queryByLabelText("Group issuer")).toBeNull();
+    expect(screen.queryByLabelText("Principal ID")).toBeNull();
+    expect(screen.queryByLabelText("Maximum classification")).toBeNull();
+    expect(screen.queryByText("legacy compatible")).toBeNull();
+  });
 });

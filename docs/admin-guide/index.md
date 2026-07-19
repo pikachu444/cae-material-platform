@@ -8,17 +8,18 @@
 
 | 화면 | 주소 | 관리 대상 |
 | --- | --- | --- |
-| Catalog schema designer | `/catalog/schema` | Table, Attribute, Layout, Subset |
-| Catalog Explorer | `/catalog/explorer` | Folder, Record, Link Type, exact-revision link |
-| Product access | `/access` | Administrator/User와 기능 권한 |
+| Administration overview | `/administration` | 관리자 작업 선택과 제품 권한 원칙 |
+| Database design | `/administration/database` | Table, Attribute, Layout, Subset, Link Type |
+| Users & access | `/administration/access` | Administrator/User와 기능 권한 |
+| Material Database | `/database` | Folder, Record, exact-revision link 탐색 |
 
-Docker demo에서는 **Connected token → Use local demo identity → Save connection**으로
-Administrator 계정을 사용할 수 있습니다. 운영 환경에서는 회사 OIDC의 issuer, subject,
-group claim을 사용합니다.
+Docker demo는 **Demo workspace** Administrator session을 자동으로 준비합니다. 사용자는 API 주소나
+token을 입력하지 않습니다. 운영 환경의 회사 identity directory 연결은 배포 설정이며 일반
+Administration 화면에 issuer, subject 또는 token을 노출하지 않습니다.
 
 ## 2. Table과 Attribute 구성
 
-1. **Catalog schema designer**에서 stable key, 표시 이름, 설명과 classification을 입력해
+1. **Administration → Database design**에서 stable key, 표시 이름, 설명과 classification을 입력해
    Table revision 1을 만듭니다.
 2. Table을 선택하고 Attribute stable key, 표시 이름과 data type을 정의합니다.
 3. `number`에는 quantity semantics와 정규화 단위를 함께 지정합니다.
@@ -43,7 +44,7 @@ Layout은 입력 순서만 정의하며 값을 복제하지 않습니다. Subset
 
 ## 4. Link Type과 관련 데이터 이동
 
-Catalog Explorer의 **Define Link Type**에서 다음을 지정합니다.
+**Administration → Database design → Link Types**에서 다음을 지정합니다.
 
 - stable key와 이름
 - source/target Table
@@ -57,7 +58,7 @@ Deactivate를 사용합니다. 사용자는 Related records 패널과 Workflow E
 
 ## 5. Administrator/User 권한
 
-[Product access](http://127.0.0.1:5173/access)는 내부 역할 이름 대신 다음 두 역할만 표시합니다.
+[Users & access](http://127.0.0.1:5173/administration/access)는 내부 역할 이름 대신 다음 두 역할만 표시합니다.
 
 - `Administrator`: 사용자 관리와 다섯 제품 기능을 모두 사용
 - `User`: 지정된 기능만 사용
@@ -70,28 +71,33 @@ User에게 부여할 수 있는 기능은 다음과 같습니다.
 4. Model approval
 5. Solver Card export
 
-대상은 identity-provider group 또는 principal UUID로 지정합니다. project 범위가 기본이며,
-필요한 경우 organization-wide로 지정할 수 있습니다. 최대 classification도 함께 설정합니다.
-운영 환경에서 export-controlled 접근은 별도 승인을 거쳐야 하며 단순 기능 체크로 자동 부여하지
-않습니다.
+제품 화면에서는 사용자 또는 팀 이름만 선택합니다. identity-provider issuer, principal UUID,
+project/organization scope와 classification enforcement는 배포 identity directory 및 내부 정책
+확장점에서 처리합니다. export-controlled 접근은 별도 운영 승인을 거치며 단순 기능 체크로 자동
+부여하지 않습니다.
 
 권한 변경은 기존 assignment를 수정하는 방식이 아닙니다. 기존 assignment를 **Revoke**하고 새
 assignment를 추가합니다. 부여·회수 이력은 남으며 일반 User가 assignment 목록이나 생성 API를
 호출하면 403으로 거부됩니다.
 
-## 6. 기존 역할과 호환성
+## 6. 내부 확장성과 기존 역할 호환성
 
 T-59 이전의 상세 role binding은 제거하지 않습니다. 서버가 기존 role들의 permission 합계를
-Administrator/User와 기능 권한으로 투영하므로 기존 토큰과 RLS 정책이 계속 동작합니다. 화면의
-`legacy compatible` 표시는 이 호환 경로가 사용됐다는 의미입니다.
+Administrator/User와 기능 권한으로 투영하므로 기존 enforcement가 계속 동작합니다. 이 내부
+호환 정보는 일반 제품 화면에 표시하지 않습니다. 향후 resource/action/scope 단위 권한을 추가해도
+Catalog schema나 사용자 작업 흐름을 다시 만들지 않습니다.
 
-![제품 역할 및 기능 권한](../15-demo/images/t59-product-access.png)
+![통합 Administration 개요](../15-demo/images/t78-administration-overview.png)
+
+![Table, Attribute, Layout, Subset 및 Link Type 관리](../15-demo/images/t78-database-design.png)
+
+![제품 역할 및 기능 권한](../15-demo/images/t78-users-access.png)
 
 ## 7. 운영 점검
 
 - 사용자가 예상한 organization/project를 선택했는지 확인합니다.
-- OIDC issuer와 group name은 대소문자까지 정확히 일치시킵니다.
+- 운영 identity directory에서 사용자/팀 이름 mapping을 확인합니다.
 - 필요한 최소 classification과 기능만 부여합니다.
-- 권한 변경 뒤 새 토큰을 발급받고 `/access`에서 실제 effective access를 확인합니다.
+- 권한 변경 뒤 새 session에서 `/administration/access`의 실제 effective access를 확인합니다.
 - schema, catalog, processing, approval, export 각각 허용/거부 API를 점검합니다.
 - 기존 데이터를 지우거나 role table을 직접 수정하지 않습니다.

@@ -140,6 +140,18 @@ describe("Material Catalog workbench", () => {
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
+  it("opens task-oriented Administration without infrastructure or policy vocabulary", async () => {
+    window.history.pushState({}, "", "/administration");
+    mockProductFetch(() => jsonResponse({}));
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Configure the material workspace" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Design the database/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Manage access/ })).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS|principal ID|group issuer/i);
+  });
+
   it("opens a connected Tests hub that routes work through a Material context", async () => {
     window.history.pushState({}, "", "/tests");
     mockProductFetch(() => jsonResponse({ items: [visibleMaterial], total_count: 1 }));

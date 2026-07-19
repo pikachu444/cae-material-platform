@@ -1723,11 +1723,16 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-78. Product Administration and extensible access — `P1`
 
+- **상태 (`2026-07-19`):** `implemented and verified`.
 - **범위:** Administrator/User, 기능 토글, Database/Profile/Table/Attribute/Layout/Subset/Link Type
   관리를 하나의 task-oriented Administration에 통합한다. 내부 granular enforcement는 유지한다.
 - **완료 조건:** 일반 권한 설정은 policy vocabulary 없이 가능하고, future resource/action/scope
   grant가 schema rewrite 없이 추가될 extension point가 contract test로 고정된다.
-- **테스트:** admin/user positive-negative, attribute-to-datasheet, layout/subset/link lifecycle E2E.
+- **테스트:** product `/administration`은 Overview/Database design/Users & access를 하나의 좌측 작업
+  구조로 제공한다. database 화면은 clean demo의 8 typed Attributes/Layout/Subset/Link Type을 읽고
+  exact Table revision을 사용하는 새 Link Type을 만들 수 있다. access 화면은 token/API/principal/
+  issuer/classification policy vocabulary를 숨기고 Administrator/User와 다섯 product capability만
+  표시한다. 화면 증거는 `docs/15-demo/evidence/t78-product-administration.md`에 있다.
 
 #### T-79. Graph-centered Material Modeling shell and data preparation — `P0`
 

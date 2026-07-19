@@ -13,7 +13,7 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
-| Administrator-defined Table/Attribute/Layout/Subset | Engineering storage/API and a technical editor exist; task-oriented Administration is incomplete | T-78 product Administration |
+| Administrator-defined Table/Attribute/Layout/Subset/Link Type | T-78 provides one task-oriented Database design surface backed by the existing protected revision APIs | Production administrator qualification (outside v3) |
 | Catalog record datasheet/search/facet/compare | T-77 implements Layout-selected Datasheet, original/normalized units, discrete facets, normalized ranges and multi-Record comparison in the persistent Material Database | Production-scale search qualification (outside v3) |
 | Catalog and Material Workflow Explorers | T-76/T-77 implement the Database/Profile/Table/nested-Folder/Record Contents Tree, exact Material-to-card Workflow Tree and connected Datasheet/search/compare experience | T-82 three-family hierarchy |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
@@ -32,6 +32,16 @@ matrix. T-49 through T-73 remain valid engineering evidence only for their bound
 must not be read as product-experience completion.
 
 ## Product rebuild in progress
+
+- `T-78` (`implemented and verified`): product Administration now has Overview, Database design and
+  Users & access navigation. The database surface manages Tables, nine typed Attribute kinds,
+  Layouts, Subsets and exact source/target Table-revision Link Types. The access surface exposes
+  only Administrator/User, a user/team name and five readable capabilities; token/API, principal,
+  issuer, classification-policy and legacy compatibility vocabulary remain internal. Existing
+  resource/action/scope enforcement is retained as the granular extension point. Live Docker
+  screenshots and tests are recorded in `docs/15-demo/evidence/t78-product-administration.md`.
+  The complete CI command body passed 775 default Python tests, 68 frontend tests and all static,
+  contract, document and bundle gates; all 76 isolated PostgreSQL tests passed separately.
 
 - `T-77` (`implemented and verified`): `/database` now opens the same exact Record revision from the
   Contents Tree or typed search results and renders administrator-defined Layout sections,

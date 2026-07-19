@@ -4,10 +4,12 @@ import {
   ApiError,
   createConfigurableCatalogAttribute,
   createConfigurableCatalogLayout,
+  createConfigurableCatalogLinkType,
   createConfigurableCatalogSubset,
   createConfigurableCatalogTable,
   listConfigurableCatalogAttributes,
   listConfigurableCatalogLayouts,
+  listConfigurableCatalogLinkTypes,
   listConfigurableCatalogSubsets,
   listConfigurableCatalogTables,
   type ApiConfig,
@@ -16,6 +18,8 @@ import type {
   ConfigurableAttributeDataType,
   ConfigurableAttributeResponse,
   ConfigurableLayoutResponse,
+  ConfigurableLinkCardinality,
+  ConfigurableLinkTypeResponse,
   ConfigurableSubsetResponse,
   ConfigurableTableResponse,
   DataClassification,
@@ -44,16 +48,19 @@ export function ConfigurableCatalogAdmin({
   config,
   onOpenConnection,
   onNavigate,
+  productMode = false,
 }: {
   config: ApiConfig;
   onOpenConnection: () => void;
   onNavigate?: (path: string) => void;
+  productMode?: boolean;
 }) {
   const [tables, setTables] = useState<ConfigurableTableResponse[]>([]);
   const [selectedTableId, setSelectedTableId] = useState("");
   const [attributes, setAttributes] = useState<ConfigurableAttributeResponse[]>([]);
   const [layouts, setLayouts] = useState<ConfigurableLayoutResponse[]>([]);
   const [subsets, setSubsets] = useState<ConfigurableSubsetResponse[]>([]);
+  const [linkTypes, setLinkTypes] = useState<ConfigurableLinkTypeResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +81,14 @@ export function ConfigurableCatalogAdmin({
   const [normalizedUnit, setNormalizedUnit] = useState("");
   const [allowedValues, setAllowedValues] = useState("");
   const [referenceTableId, setReferenceTableId] = useState("");
+  const [linkKey, setLinkKey] = useState("has_test_data");
+  const [linkName, setLinkName] = useState("Test evidence");
+  const [sourceTableId, setSourceTableId] = useState("");
+  const [targetTableId, setTargetTableId] = useState("");
+  const [forwardLabel, setForwardLabel] = useState("has test evidence");
+  const [reverseLabel, setReverseLabel] = useState("tests material");
+  const [sourceCardinality, setSourceCardinality] = useState<ConfigurableLinkCardinality>("many");
+  const [targetCardinality, setTargetCardinality] = useState<ConfigurableLinkCardinality>("many");
 
   const selectedTable = useMemo(
     () => tables.find((item) => item.table_id === selectedTableId) ?? null,
@@ -87,13 +102,19 @@ export function ConfigurableCatalogAdmin({
     setLoading(true);
     setError(null);
     try {
-      const result = await listConfigurableCatalogTables(config);
+      const [result, linkTypeResult] = await Promise.all([
+        listConfigurableCatalogTables(config),
+        listConfigurableCatalogLinkTypes(config),
+      ]);
       setTables(result.data.items);
+      setLinkTypes(linkTypeResult.data.items);
       setSelectedTableId((current) =>
         result.data.items.some((item) => item.table_id === current)
           ? current
           : (result.data.items[0]?.table_id ?? ""),
       );
+      setSourceTableId((current) => current || result.data.items[0]?.table_id || "");
+      setTargetTableId((current) => current || result.data.items[0]?.table_id || "");
     } catch (caught) {
       setError(message(caught));
     } finally {
@@ -253,6 +274,41 @@ export function ConfigurableCatalogAdmin({
     }
   }
 
+  async function createLinkType(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const sourceTable = tables.find((table) => table.table_id === sourceTableId);
+    const targetTable = tables.find((table) => table.table_id === targetTableId);
+    if (!sourceTable || !targetTable) return;
+    setSaving(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const result = await createConfigurableCatalogLinkType(config, {
+        classification,
+        content: {
+          key: linkKey.trim(),
+          name: linkName.trim(),
+          source_table_id: sourceTable.table_id,
+          source_table_revision_id: sourceTable.current_revision.id,
+          target_table_id: targetTable.table_id,
+          target_table_revision_id: targetTable.current_revision.id,
+          forward_label: forwardLabel.trim(),
+          reverse_label: reverseLabel.trim(),
+          source_cardinality: sourceCardinality,
+          target_cardinality: targetCardinality,
+          description: null,
+        },
+        change_reason: "Create administrator-defined exact Record Link Type",
+      });
+      setNotice(`${result.data.current_revision.content.name} Link Type revision 1 created.`);
+      await loadTables();
+    } catch (caught) {
+      setError(message(caught));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (!config.accessToken.trim()) {
     return (
       <section className="hero-card">
@@ -267,8 +323,8 @@ export function ConfigurableCatalogAdmin({
   }
 
   return (
-    <div className="catalog-schema-workbench">
-      <section className="hero-card compact-hero">
+    <div className={productMode ? "catalog-schema-workbench product-admin-embedded" : "catalog-schema-workbench"}>
+      {!productMode ? <section className="hero-card compact-hero">
         <p className="eyebrow">T-49 · Configurable Material Information System</p>
         <h1>Catalog schema designer</h1>
         <p>
@@ -293,7 +349,7 @@ export function ConfigurableCatalogAdmin({
             </button>
           </div>
         ) : null}
-      </section>
+      </section> : <header className="page-heading"><div><p className="eyebrow">Database design</p><h1>Tables, Attributes and relationships</h1><p>Configure the Material Database without a software deployment. New values remain typed, unit-aware and revisioned.</p></div>{onNavigate ? <button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Preview database</button> : null}</header>}
 
       {error ? <div className="error-banner">{error}</div> : null}
       {notice ? <div className="success-banner">{notice}</div> : null}
@@ -456,6 +512,29 @@ export function ConfigurableCatalogAdmin({
           )}
         </section>
       </div>
+      <section className="content-card link-type-administration">
+        <div className="section-heading"><div><p className="eyebrow">Record relationships</p><h2>Link Types</h2><p>Define how records may be connected. Every created link pins exact source and target revisions.</p></div><span className="revision-chip">{linkTypes.length}</span></div>
+        <div className="link-type-admin-grid">
+          <div className="attribute-list">
+            {linkTypes.map((linkType) => <article className="attribute-card" key={linkType.link_type_id}><div><strong>{linkType.current_revision.content.name}</strong><small>{linkType.current_revision.content.key} · r{linkType.current_revision.revision_no}</small></div><span className="status-badge neutral">{linkType.current_revision.content.source_cardinality}:{linkType.current_revision.content.target_cardinality}</span><p>{linkType.current_revision.content.forward_label} / {linkType.current_revision.content.reverse_label}</p></article>)}
+            {!linkTypes.length ? <p className="muted">No Link Types are defined yet.</p> : null}
+          </div>
+          <form className="form-stack" onSubmit={(event) => void createLinkType(event)}>
+            <h3>Create Link Type</h3>
+            <div className="form-grid">
+              <label>Stable key<input value={linkKey} onChange={(event) => setLinkKey(event.target.value)} required /></label>
+              <label>Display name<input value={linkName} onChange={(event) => setLinkName(event.target.value)} required /></label>
+              <label>From Table<select value={sourceTableId} onChange={(event) => setSourceTableId(event.target.value)} required>{tables.map((table) => <option key={table.table_id} value={table.table_id}>{table.current_revision.content.name}</option>)}</select></label>
+              <label>To Table<select value={targetTableId} onChange={(event) => setTargetTableId(event.target.value)} required>{tables.map((table) => <option key={table.table_id} value={table.table_id}>{table.current_revision.content.name}</option>)}</select></label>
+              <label>Forward label<input value={forwardLabel} onChange={(event) => setForwardLabel(event.target.value)} required /></label>
+              <label>Reverse label<input value={reverseLabel} onChange={(event) => setReverseLabel(event.target.value)} required /></label>
+              <label>From cardinality<select value={sourceCardinality} onChange={(event) => setSourceCardinality(event.target.value as ConfigurableLinkCardinality)}><option value="one">One</option><option value="many">Many</option></select></label>
+              <label>To cardinality<select value={targetCardinality} onChange={(event) => setTargetCardinality(event.target.value as ConfigurableLinkCardinality)}><option value="one">One</option><option value="many">Many</option></select></label>
+            </div>
+            <button className="button primary" type="submit" disabled={saving || !tables.length}>Create Link Type revision 1</button>
+          </form>
+        </div>
+      </section>
     </div>
   );
 }
