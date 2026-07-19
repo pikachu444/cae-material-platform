@@ -910,6 +910,18 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
+  function cloneSelectedRecipe(): void {
+    const selected = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
+    if (!selected) return;
+    setSelectedRecipeId("");
+    setRecipeKey(`${selected.content.recipe_key}-copy`);
+    setRecipeLabel(`${selected.content.label} copy`);
+    setRecipeDescription(selected.content.description ?? "");
+    setRecipeReason("Create an independent Recipe from a reviewed revision");
+    setBatchPreflight(null);
+    setNotice(`Cloned ${selected.content.label} r${selected.current_revision.revision_no} into an unsaved Recipe draft.`);
+  }
+
   function toggleBatchDocument(id: string): void {
     setBatchDocumentIds((current) => current.includes(id)
       ? current.filter((item) => item !== id)
@@ -1334,11 +1346,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (modelingTrack === "polymer") return methodIds.some((methodId) => methodId.startsWith("polymer."));
     return !methodIds.some((methodId) => methodId.startsWith("metal.") || methodId.startsWith("polymer."));
   }), [recipes, modelingTrack]);
+  const trackRecipeIds = useMemo(
+    () => new Set(trackRecipes.map((recipe) => recipe.processing_recipe_id)),
+    [trackRecipes],
+  );
+  const trackBatches = useMemo(
+    () => batches.filter((batch) => trackRecipeIds.has(batch.recipe_id)),
+    [batches, trackRecipeIds],
+  );
   useEffect(() => {
-    if (selectedRecipeId || !initialSession?.recipe) return;
-    const exact = trackRecipes.find((recipe) => recipe.processing_recipe_id === initialSession.recipe?.id
-      && recipe.current_revision.id === initialSession.recipe.revisionId);
-    if (exact) selectRecipe(exact.processing_recipe_id);
+    if (selectedRecipeId || !trackRecipes.length) return;
+    const exact = initialSession?.recipe ? trackRecipes.find((recipe) => recipe.processing_recipe_id === initialSession.recipe?.id
+      && recipe.current_revision.id === initialSession.recipe.revisionId) : null;
+    const reviewed = trackRecipes.find((recipe) => recipe.content.lifecycle_state === "published") ?? trackRecipes[0];
+    selectRecipe((exact ?? reviewed).processing_recipe_id);
   }, [initialSession, selectedRecipeId, trackRecipes]);
   const trackMethods = useMemo(() => methods.filter((method) => {
     const family = method.method_id.split(".")[0];
@@ -1563,7 +1584,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             <nav className="workspace-inspector-tabs" aria-label="Modeling workspace inspector">
               <button type="button" className={workspaceInspector === "step" ? "active" : ""} onClick={() => setWorkspaceInspector("step")}>Step options</button>
               <button type="button" className={workspaceInspector === "recipe" ? "active" : ""} onClick={() => setWorkspaceInspector("recipe")}>Recipe <span>{trackRecipes.length}</span></button>
-              <button type="button" className={workspaceInspector === "batch" ? "active" : ""} onClick={() => setWorkspaceInspector("batch")}>Batch <span>{batches.length}</span></button>
+              <button type="button" className={workspaceInspector === "batch" ? "active" : ""} onClick={() => setWorkspaceInspector("batch")}>Batch <span>{trackBatches.length}</span></button>
             </nav>
             {workspaceInspector === "step" ? selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
@@ -1573,8 +1594,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}
             </> : <p className="muted">Add or select a processing step.</p> : null}
             {workspaceInspector === "recipe" ? <div className="inspector-recipe-panel">
-              <div className="section-heading"><div><p className="eyebrow">Reusable execution</p><h3>Processing Recipe</h3></div><span className="status-chip">{trackRecipes.length} saved</span></div>
+              <div className="section-heading"><div><p className="eyebrow">Reusable execution</p><h3>Recipe Library</h3></div><span className="status-chip">{trackRecipes.length} saved</span></div>
               <label>Saved Recipe<select aria-label="Saved Processing Recipe" value={selectedRecipeId} onChange={(event) => selectRecipe(event.target.value)}><option value="">New Recipe</option>{trackRecipes.map((item) => <option key={item.processing_recipe_id} value={item.processing_recipe_id}>{item.content.label} · r{item.current_revision.revision_no} · {item.content.lifecycle_state}</option>)}</select></label>
+              {selectedRecipeId ? <div className="recipe-library-summary"><span><strong>{recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.content.lifecycle_state}</strong><small>Exact revision r{recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.current_revision.revision_no}</small></span><button className="text-button" type="button" onClick={cloneSelectedRecipe}>Clone as new</button></div> : <div className="recipe-library-summary draft"><span><strong>Unsaved draft</strong><small>Choose an existing Recipe or save this pipeline.</small></span></div>}
               <label>Recipe key<input value={recipeKey} onChange={(event) => setRecipeKey(event.target.value)} /></label>
               <label>Label<input value={recipeLabel} onChange={(event) => setRecipeLabel(event.target.value)} /></label>
               <label>Description<input value={recipeDescription} onChange={(event) => setRecipeDescription(event.target.value)} /></label>
@@ -1583,12 +1605,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               {selectedRecipeId ? <p className="digest-line"><span>Exact Recipe</span><code>{recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.current_revision.content_hash}</code></p> : <p className="muted">Save these ordered method versions and options for reuse.</p>}
             </div> : null}
             {workspaceInspector === "batch" ? <div className="inspector-batch-panel">
-              <div className="section-heading"><div><p className="eyebrow">Exact revision batch</p><h3>Batch execution</h3></div><span className="status-chip">{batches.length} runs</span></div>
+              <div className="section-heading"><div><p className="eyebrow">Exact revision batch</p><h3>Batch monitor</h3></div><span className="status-chip">{trackBatches.length} runs</span></div>
               <fieldset><legend>Test Data selection</legend>{trackDocuments.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={batchDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleBatchDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset>
               <label>Batch label<input aria-label="Processing Batch label" value={batchLabel} onChange={(event) => setBatchLabel(event.target.value)} /></label>
               <div className="inspector-action-stack"><button className="button secondary" type="button" disabled={busy || !selectedRecipeId || !batchDocumentIds.length} onClick={() => void preflightBatch()}>Compatibility preflight</button><button className="button primary" type="button" disabled={busy || !batchPreflight?.compatible || !batchLabel.trim()} onClick={() => void executeBatch()}>Execute published Recipe</button></div>
-              {batchPreflight ? <div className="batch-summary"><strong>{batchPreflight.compatible ? "Compatible" : "Blocked"}</strong><span>{batchPreflight.members.length} exact revisions</span><code>{batchPreflight.recipe_sha256}</code></div> : <p className="muted">Select a published Recipe in the Recipe tab, then check exact inputs.</p>}
-              <div className="inspector-batch-history">{batches.map((batch) => <article key={batch.batch_id}><div><strong>{batch.label}</strong><small>{batch.members.length} members · {batch.attempts.length} attempts</small></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span>{batch.status === "partial" || batch.status === "failed" ? <button className="text-button" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed</button> : null}</article>)}</div>
+              {batchPreflight ? <div className="batch-summary"><strong>{batchPreflight.compatible ? "Ready to run" : "Blocked"}</strong><span>{batchPreflight.members.filter((member) => member.compatible).length}/{batchPreflight.members.length} compatible exact revisions</span><div className="batch-preflight-members">{batchPreflight.members.map((member) => <span className={member.compatible ? "compatible" : "blocked"} key={`${member.source.document_id}:${member.source.revision_id}`}><i />Input {member.ordinal + 1}<small>{member.compatible ? `${member.final_point_count} output points` : member.diagnostic ?? "Incompatible"}</small></span>)}</div><code>{batchPreflight.recipe_sha256}</code></div> : <p className="muted">The current published Recipe is restored automatically. Select exact Test Data, then run compatibility preflight.</p>}
+              <div className="inspector-batch-history">{trackBatches.map((batch) => { const succeeded = batch.attempts.filter((attempt) => attempt.status === "succeeded").length; return <article key={batch.batch_id}><div><strong>{batch.label}</strong><small>{batch.members.length} members · {succeeded}/{batch.attempts.length} attempts succeeded</small><em>{new Date(batch.created_at).toLocaleDateString()}</em></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span>{batch.status === "partial" || batch.status === "failed" ? <button className="text-button" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed</button> : null}</article>; })}{!trackBatches.length ? <p className="muted">No batch has run for this material family yet.</p> : null}</div>
             </div> : null}
           </aside>
         </div>

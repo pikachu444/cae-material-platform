@@ -1909,7 +1909,15 @@ clean-acceptance intent is retained in T-93.
 
 #### T-92. Search/Compare/Admin and Recipe/Batch polish — `P1`
 
-- typed facets/ranges/subsets/compare, guided schema administration, Recipe Library와 batch monitor.
+- **상태 (`2026-07-20`):** `complete`. T-77/T-91의 typed text/facet/normalized range 검색,
+  saved Subset과 Layout 비교를 유지한다. Administration은 Table, typed Attribute, Layout,
+  Subset, Link Type과 단순 Admin/User access 작업으로 안내한다. Modeling inspector는 현재
+  material family의 published Recipe를 자동 복원하고 lifecycle/exact revision을 표시하며,
+  clone/new revision/publish를 제공한다. Batch monitor는 다른 family run을 숨기고 exact Test
+  Data compatibility를 member별 output point/diagnostic으로 preflight하며 성공/전체 attempt와
+  실패 재실행 상태를 표시한다.
+- **증거:** `docs/15-demo/evidence/t92-search-admin-recipe-batch.md`와
+  `docs/15-demo/images/t92-*.png`.
 
 #### T-93. Clean clone-level product acceptance — `P0`
 
