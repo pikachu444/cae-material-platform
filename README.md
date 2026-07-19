@@ -33,8 +33,10 @@ Material에서 두 solver card까지 이어지는 exact-revision **Workflow Tree
 데이터에 연결했습니다. Layout Datasheet·AMDC식 검색/비교와 그래프 중심 Modeling Workbench는
 [제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 순차 교체 중입니다. T-77은 같은
 `/database` workspace에 Layout section 기반 Datasheet, 원본/정규화 단위, discrete facet,
-normalized 수치 범위와 다중 Record 비교를 연결했습니다. 그래프 중심 Modeling Workbench는 T-79
-이후 범위이므로 아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
+normalized 수치 범위와 다중 Record 비교를 연결했습니다. T-79는 `/modeling`에 exact Dataset과
+Recipe 단계, 서버 계산 곡선, 단계별 option을 함께 유지하는 그래프 중심 Modeling Workbench를
+연결했습니다. Family별 완전한 처리/후보 비교와 Neutral/Card 마지막 단계는 T-80/T-81 범위이므로
+아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog

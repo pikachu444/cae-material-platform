@@ -18,7 +18,7 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Catalog and Material Workflow Explorers | T-76/T-77 implement the Database/Profile/Table/nested-Folder/Record Contents Tree, exact Material-to-card Workflow Tree and connected Datasheet/search/compare experience | T-82 three-family hierarchy |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
-| General Mapping Profile and Processing Workbench | Methods and revisioned Outputs exist, but the graph-centered import→map→prepare workflow is incomplete | T-79 Modeling Workbench shell |
+| General Mapping Profile and Processing Workbench | T-79 integrates exact Test Data, Mapping Profile, ordered methods, structured options and server curve overlays in one graph-centered workspace | T-80 family-aware Modeling UX |
 | Saved Recipe library/general batch execution | Engine contracts exist; cohesive Recipe authoring and batch experience is incomplete | T-80/T-81 product integration |
 | Metal/Polymer/Elastomer modeling | Bounded calculation/export paths exist across disconnected pages; one cohesive family-aware Workbench is incomplete | T-80 Modeling tracks |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
@@ -32,6 +32,19 @@ matrix. T-49 through T-73 remain valid engineering evidence only for their bound
 must not be read as product-experience completion.
 
 ## Product rebuild in progress
+
+- `T-79` (`implemented and verified`): `/modeling` now presents Import → Map → Prepare → Fit →
+  Extrapolate → Card as one product flow. The central work area keeps exact Dataset/curve selection,
+  ordered Recipe stages, the real server-calculated curve/candidate overlay and the selected stage's
+  structured options together. Mapping and Recipe JSON plus full numerical parameter evidence remain
+  available in collapsed advanced sections instead of dominating the normal workflow. Preview stays
+  ephemeral; only the existing explicit server commit creates a revisioned Processing Output. A live
+  DP780 Test JSON and published Recipe produced four hardening candidates plus a selected combination
+  with no browser console errors. Evidence is recorded in
+  `docs/15-demo/evidence/t79-material-modeling-workspace.md`. The CI command body passed 775 default
+  Python tests, 68 frontend tests, Ruff, mypy, architecture, contract/OpenAPI, user-guide and bundle
+  gates; the isolated PostgreSQL marker suite passed all 76 tests. T-80 still owns cohesive family-specific
+  Metal/Polymer/Elastomer controls and Recipe/Batch journeys; T-81 owns reviewed Neutral/Card output.
 
 - `T-78` (`implemented and verified`): product Administration now has Overview, Database design and
   Users & access navigation. The database surface manages Tables, nine typed Attribute kinds,
@@ -78,7 +91,8 @@ must not be read as product-experience completion.
   the TypeScript/Vite/bundle build passes, and Docker browser evidence is recorded in
   `docs/15-demo/evidence/t75-product-session-shell.md`. T-76 subsequently completed the hierarchical
   Contents/Workflow Tree and T-77 subsequently completed Datasheet/search/compare. Graph-centered
-  Modeling remains T-79 through T-81.
+  Modeling is now graph-centered through T-79; family-aware controls and final Neutral/Card delivery
+  remain T-80 through T-81.
 
 - `T-74` (`implemented and verified`): withdraw the v3 product-completion claim, establish the
   product experience contract and create the T-75~T-83 replacement sequence. Existing engine
