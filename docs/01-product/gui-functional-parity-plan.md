@@ -706,10 +706,10 @@ reference**다. 이미지 파일을 우리 제품 UI asset으로 재사용하지
 - 계산 방법, 선택 domain, fit quality와 사용 curve가 명확하다.
 - graph는 결과 없는 placeholder로 돌아가지 않는다.
 
-현재 CMP 차이:
+T-86 수용 상태:
 
-- robust/OLS/chord/secant/manual 계산은 backend에 있지만 generic option field와 scalar details에
-  숨어 있다. T-86에서 action, range selection, fit line과 결과 card로 노출한다.
+- robust/OLS/chord/secant/manual 선택, graph range, manual GPa slider, elastic fit line과 수치 evidence를
+  persistent engineering graph와 task panel에 노출했다. candidate 비교/derivative는 T-87에서 확장한다.
 
 ### 15.8 Material Modeler — Young’s modulus 수동 조정
 
@@ -721,10 +721,10 @@ reference**다. 이미지 파일을 우리 제품 UI asset으로 재사용하지
 - slider를 움직이면 fit line과 후속 Workup preview가 즉시 갱신된다.
 - `All Curves`, `Smooth`, `Add Mean`을 반복 curve 업무의 direct action으로 제공한다.
 
-현재 CMP 차이:
+T-86 수용 상태:
 
-- 옵션 변경은 text/number input과 Preview button에 의존한다. T-86에서 graph-direct control과
-  debounce/cancellation을 구현한다.
+- slider와 guided option은 300 ms debounce/cancellation으로 server preview를 갱신한다. exact curve
+  include/exclude와 `Add mean & band`는 primary graph에서 직접 사용한다.
 
 ### 15.9 Material Modeler — Necking point와 Workup
 
@@ -736,10 +736,10 @@ reference**다. 이미지 파일을 우리 제품 UI asset으로 재사용하지
 - automatic peak 후보와 수동 확정을 구분한다.
 - Workup 이후 true stress/true plastic strain과 잘린 domain을 즉시 비교한다.
 
-현재 CMP 차이:
+T-86 수용 상태:
 
-- peak candidate와 manual index 계산은 있지만 graph point selection이 없다. T-86에서 marker,
-  point pick, source index/coordinates와 before/after overlay를 추가한다.
+- 자동 peak candidate marker와 graph point pick을 제공하며, 선택한 source index를 downstream
+  true/plastic Workup option에 명시적으로 기록한다. 저장 전에는 Recipe draft preview로만 유지한다.
 
 ### 15.10 Material Modeler — 4-family fitting과 extrapolation
 

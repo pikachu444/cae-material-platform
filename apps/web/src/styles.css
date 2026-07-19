@@ -3694,6 +3694,8 @@ summary {
 .curve-line { fill: none; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
 .curve-line.source { stroke: #8e9ca0; stroke-dasharray: 6 5; }
 .curve-line.processed { stroke: #e56734; }
+.curve-line.engineering-fit { stroke-dasharray: 7 4; stroke-width: 2; }
+.curve-line.proof-offset { stroke-dasharray: 4 4; stroke-width: 2; }
 .curve-line.hardening-candidate { stroke-width: 1.7; opacity: .8; }
 .curve-line.hardening-selected { stroke: #111827; stroke-width: 3.4; }
 .curve-legend { display: flex; gap: 1rem; margin-top: .6rem; color: var(--muted); font-size: .8rem; }
@@ -3735,6 +3737,13 @@ summary {
 .curve-line.ensemble-member { stroke: #6d979b; stroke-width: 1.5; opacity: .65; }
 .curve-line.ensemble-mean { stroke: #e56734; stroke-width: 3; }
 .curve-line.confidence { stroke: #8d5bb0; stroke-width: 1.5; stroke-dasharray: 6 4; }
+.ensemble-confidence-band { fill: rgb(47 143 131 / 14%); pointer-events: none; stroke: rgb(47 143 131 / 45%); stroke-width: 1; }
+.engineering-result-marker { pointer-events: none; }
+.engineering-result-marker line { stroke: #b45309; stroke-dasharray: 4 3; stroke-width: 1.2; }
+.engineering-result-marker circle { fill: #fff; stroke: #b45309; stroke-width: 3; }
+.engineering-result-marker text { fill: #92400e; font-size: 11px; font-weight: 750; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+.curve-band-legend { align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 999px; color: var(--ink); display: inline-flex; font-size: .72rem; gap: .35rem; padding: .3rem .55rem; }
+.curve-band-legend i { background: rgb(47 143 131 / 22%); border: 1px solid rgb(47 143 131 / 48%); height: .7rem; }
 .curve-legend i.ensemble-member { background: #6d979b; }
 .curve-legend i.ensemble-mean { background: #e56734; }
 .curve-legend i.confidence { background: #8d5bb0; }
@@ -3890,6 +3899,30 @@ summary {
   overflow: auto;
   padding: .7rem;
 }
+
+.rail-heading { align-items: center; display: flex; justify-content: space-between; }
+.rail-heading .eyebrow { margin: 0; }
+.rail-heading > span { color: #587078; font-size: .65rem; font-weight: 700; }
+.modeling-dataset-list > article { align-items: stretch; background: #f7faf9; border: 1px solid transparent; border-radius: 6px; display: grid; grid-template-columns: 2rem 1fr; min-width: 0; }
+.modeling-dataset-list > article:hover,
+.modeling-dataset-list > article.active { background: #edf5f3; border-color: #9bc4bb; }
+.modeling-dataset-list > article > button { background: transparent; border: 0; color: inherit; cursor: pointer; min-width: 0; padding: .52rem .5rem .52rem .1rem; text-align: left; }
+.modeling-dataset-list > article > button strong,
+.modeling-dataset-list > article > button small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.curve-include-toggle { align-items: center; cursor: pointer; display: grid; grid-template-columns: 1fr auto; padding: .45rem .25rem .45rem .45rem; }
+.curve-include-toggle input { accent-color: #2f8f83; margin: 0; }
+.curve-include-toggle .dataset-curve-swatch { background: hsl(calc(174deg + var(--curve-index, 0) * 42deg) 48% 43%); height: 1.25rem; width: .18rem; }
+.rail-statistics-action { background: #f2f7f6; border: 1px solid #d5e2df; border-radius: 6px; display: grid; gap: .45rem; padding: .55rem; }
+.rail-statistics-action label { align-items: center; color: #587078; display: grid; font-size: .68rem; gap: .25rem; grid-template-columns: 1fr 4.2rem; }
+.rail-statistics-action input { min-height: 1.8rem; padding: .25rem .35rem; width: 100%; }
+.rail-statistics-action .button { min-height: 1.9rem; padding: .35rem .5rem; }
+.rail-statistics-action small { color: #6b7f84; font-size: .62rem; text-align: center; }
+.plot-view-switch { align-items: center; display: flex; gap: .25rem; }
+.plot-view-switch > button { background: #fff; border: 1px solid #d5dde0; color: #53676e; cursor: pointer; font-size: .68rem; font-weight: 700; min-height: 1.8rem; padding: .28rem .5rem; }
+.plot-view-switch > button:first-child { border-radius: 5px 0 0 5px; }
+.plot-view-switch > button:nth-child(2) { border-radius: 0 5px 5px 0; margin-left: -1px; }
+.plot-view-switch > button.active { background: #173b44; border-color: #173b44; color: #fff; }
+.plot-view-switch > button:disabled { cursor: not-allowed; opacity: .45; }
 
 .modeling-dataset-list > button,
 .configured-step-list > button {

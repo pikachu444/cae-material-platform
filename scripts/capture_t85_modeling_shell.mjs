@@ -5,6 +5,7 @@ const output = process.env.CMP_DEMO_SCREENSHOT
   ?? "docs/15-demo/images/t85-engineering-modeling-shell.png";
 const dashboardOutput = process.env.CMP_DEMO_DASHBOARD_SCREENSHOT
   ?? "docs/15-demo/images/t85-workspace-dashboard.png";
+const ensembleOutput = process.env.CMP_DEMO_ENSEMBLE_SCREENSHOT;
 
 const browser = await chromium.launch();
 try {
@@ -48,6 +49,19 @@ try {
   }
   await page.screenshot({ path: output, fullPage: false });
   console.log(`captured ${output}`);
+  if (ensembleOutput) {
+    const addMean = page.getByRole("button", { name: "Add mean & band" });
+    await addMean.waitFor();
+    if (!(await addMean.isEnabled())) {
+      throw new Error("the demo must expose at least two exact tensile replicates");
+    }
+    await addMean.click();
+    await page.getByRole("img", {
+      name: "Aligned replicate curves with pointwise mean and confidence interval",
+    }).waitFor();
+    await page.screenshot({ path: ensembleOutput, fullPage: false });
+    console.log(`captured ${ensembleOutput}`);
+  }
 } finally {
   await browser.close();
 }

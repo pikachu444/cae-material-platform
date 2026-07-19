@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { EngineeringCurvePlot, paddedPlotBounds, plotPoints } from "./engineering-curve-plot";
-import type { CommonCurveStage, CommonProcessingPreview } from "./types";
+import type { CommonCurveStage, CommonEnsemblePreview, CommonProcessingPreview } from "./types";
 
 const baseStage: CommonCurveStage = {
   ordinal: 0,
@@ -88,6 +88,71 @@ describe("EngineeringCurvePlot", () => {
       x_quantity: "strain.engineering",
       x_unit: "1",
     }));
+  });
+
+  it("renders every replicate, the pointwise mean, and the confidence band in the primary plot", () => {
+    const ensemblePreview: CommonEnsemblePreview = {
+      execution_mode: "preview",
+      promotable: false,
+      mapping_profile_sha256: "c".repeat(64),
+      independent_quantity: "strain.engineering",
+      grid_unit: "1",
+      grid: [0, 0.001, 0.002],
+      members: [
+        { ordinal: 1, source_document_sha256: "d".repeat(64), stage: baseStage },
+        { ordinal: 2, source_document_sha256: "e".repeat(64), stage: { ...baseStage, series: [baseStage.series[0], { quantity: "stress.engineering", unit: "Pa", values: [0, 2.2e8, 3.2e8] }] } },
+      ],
+      statistics: [{
+        quantity: "stress.engineering",
+        unit: "Pa",
+        mean: [0, 2.1e8, 3.1e8],
+        median: [0, 2.1e8, 3.1e8],
+        standard_deviation: [0, 1.4e7, 1.4e7],
+        mad: [0, 1e7, 1e7],
+        q1: [0, 2.05e8, 3.05e8],
+        q3: [0, 2.15e8, 3.15e8],
+        confidence_95_lower: [0, 1.9e8, 2.9e8],
+        confidence_95_upper: [0, 2.3e8, 3.3e8],
+      }],
+      diagnostics: ["2 exact members retained"],
+    };
+    const { container } = render(
+      <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} ensemblePreview={ensemblePreview} />,
+    );
+
+    expect(screen.getByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
+    expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
+    expect(container.querySelector("polygon.ensemble-confidence-band")).toBeTruthy();
+    expect(screen.getByText("Pointwise mean")).toBeTruthy();
+    expect(screen.getByText("95% mean confidence interval")).toBeTruthy();
+  });
+
+  it("renders the evaluated elastic line from server scalars and exact Recipe bounds", () => {
+    const elasticStage: CommonCurveStage = {
+      ...activeStage,
+      method_id: "metal.elastic_modulus",
+      scalar_results: [
+        { key: "youngs_modulus", quantity_semantics: "modulus.young", value: 200e9, unit: "Pa" },
+        { key: "elastic_intercept", quantity_semantics: "stress.intercept", value: 1e6, unit: "Pa" },
+      ],
+    };
+    const { container } = render(
+      <EngineeringCurvePlot
+        preview={{ ...preview, stages: [baseStage, elasticStage] }}
+        activeStage={elasticStage}
+        baseStage={baseStage}
+        activeStep={{
+          method_id: "metal.elastic_modulus",
+          method_version: "1.0.0",
+          options: { minimum_strain: 0.0002, maximum_strain: 0.0018 },
+        }}
+        width={760}
+        height={420}
+      />,
+    );
+
+    expect(screen.getByText("Elastic fit")).toBeTruthy();
+    expect(container.querySelector("polyline.engineering-fit")?.getAttribute("points")?.split(" ")).toHaveLength(2);
   });
 
   it("rejects mismatched arrays and pads constant ranges", () => {

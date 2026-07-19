@@ -12,6 +12,7 @@ import argparse
 import os
 import time
 from collections.abc import Mapping, Sequence
+from copy import deepcopy
 from typing import Any
 
 import seed_ogden_calibration_demo
@@ -777,9 +778,63 @@ def _ensure_test_json(api: DemoApi) -> dict[str, str]:
                 "change_reason": "Import the canonical JSON evidence for the clean demo.",
             },
         )
+    primary_id = _id(existing, "test_data_document_id")
+    primary_revision_id = _revision_id(existing)
+    primary_document = api.get(
+        f"/test-data-documents/{primary_id}/revisions/{primary_revision_id}/content"
+    )
+    listed_documents = _items(api.get("/test-data-documents"))
+    for ordinal, scale in ((2, 0.985), (3, 1.018)):
+        replica_key = f"CMP-DEMO-DP780-TEST-JSON-{ordinal:02d}"
+        if any(item.get("document_key") == replica_key for item in listed_documents):
+            continue
+        replica = deepcopy(primary_document)
+        replica["document_id"] = replica_key
+        material = replica.get("material")
+        if isinstance(material, dict):
+            material["lot_batch"] = f"CMP-DEMO-LOT-{ordinal:03d}"
+        specimen = replica.get("specimen")
+        if isinstance(specimen, dict):
+            specimen["specimen_id"] = f"CMP-DEMO-S-JSON-{ordinal:02d}"
+        test = replica.get("test")
+        if isinstance(test, dict):
+            test["operator"] = f"Demo Operator {ordinal}"
+        channels = replica.get("channels")
+        if isinstance(channels, list):
+            stress_channel = next(
+                (
+                    channel
+                    for channel in channels
+                    if isinstance(channel, dict)
+                    and channel.get("quantity_semantics") == "mechanics.stress.engineering"
+                ),
+                None,
+            )
+            if isinstance(stress_channel, dict):
+                scaled = [
+                    format(float(value) * scale, ".12g")
+                    for value in stress_channel.get("normalized_values", [])
+                ]
+                stress_channel["normalized_values"] = scaled
+                stress_channel["original_values"] = list(scaled)
+        source = replica.get("source")
+        if isinstance(source, dict):
+            source["file_name"] = f"cmp-demo-dp780-test-{ordinal:02d}.json"
+            source["sha256"] = ("b" if ordinal == 2 else "c") * 64
+        api.post(
+            "/test-data-documents",
+            {
+                "classification": "internal",
+                "document": replica,
+                "change_reason": (
+                    "Import a distinct synthetic tensile replicate for mean, scatter, and "
+                    "confidence-band demonstration."
+                ),
+            },
+        )
     return {
-        "test_data_document_id": _id(existing, "test_data_document_id"),
-        "test_data_document_revision_id": _revision_id(existing),
+        "test_data_document_id": primary_id,
+        "test_data_document_revision_id": primary_revision_id,
     }
 
 

@@ -431,9 +431,28 @@ describe("Common Processing Workbench", () => {
     expect(appliedSteps[1].options.minimum_strain).not.toBe(0.0002);
     expect(screen.getByText(/Applied the graph range to metal.elastic_modulus/)).toBeTruthy();
 
+    await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" });
+    fireEvent.click(screen.getAllByRole("button", { name: /metal\.necking_candidate/ })[0]);
+    const neckingPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
+    Object.defineProperty(neckingPlot, "getBoundingClientRect", {
+      value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Pick point" }));
+    fireEvent.pointerDown(neckingPlot, { button: 0, pointerId: 3, clientX: 620, clientY: 180 });
+    fireEvent.pointerUp(neckingPlot, { pointerId: 3, clientX: 620, clientY: 180 });
+    fireEvent.click(screen.getByRole("button", { name: "Apply selection" }));
+    const neckingSteps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
+    expect(neckingSteps[4].method_id).toBe("metal.engineering_to_true_plastic");
+    expect(neckingSteps[4].options.necking_policy).toBe("manual_index");
+    expect(Number(neckingSteps[4].options.manual_necking_index)).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Applied the graph point to the downstream plastic Workup/)).toBeTruthy();
+
     fireEvent.click(screen.getByRole("button", { name: "Align and calculate" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
     expect(screen.getByText("Members (2)")).toBeTruthy();
     expect(screen.getByText("sample standard deviation uses n - 1")).toBeTruthy();
+    const ensembleRequest = fetchMock.mock.calls.find(([input]) => String(input).endsWith("/processing:preview-ensemble"));
+    const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
+    expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
   });
 });

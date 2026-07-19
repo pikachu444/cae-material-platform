@@ -1,4 +1,4 @@
-version: 31
+version: 33
 verified_at: 2026-07-20
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -470,5 +470,21 @@ captures:
     fixture: T-85 clean Compose three-family workspace with three Material records
     source_evidence: ../15-demo/evidence/t85-engineering-modeling-shell.md
     image: ../15-demo/images/t85-workspace-dashboard.png
+    width: 1440
+    height: 900
+  - id: t86-metal-prepare-workbench
+    route: /modeling
+    workflow: guided-common-preprocessing-and-direct-metal-elastic-domain-selection
+    fixture: T-86 clean Compose three exact synthetic DP780 tensile Test JSON revisions
+    source_evidence: ../15-demo/evidence/t86-metal-prepare-direct-manipulation.md
+    image: ../15-demo/images/t86-metal-prepare-workbench.png
+    width: 1440
+    height: 900
+  - id: t86-metal-replicate-statistics
+    route: /modeling
+    workflow: exact-replicate-include-exclude-observed-alignment-mean-and-confidence-band
+    fixture: T-86 clean Compose two included synthetic DP780 tensile revisions on 21-point intersection
+    source_evidence: ../15-demo/evidence/t86-metal-prepare-direct-manipulation.md
+    image: ../15-demo/images/t86-metal-replicate-statistics.png
     width: 1440
     height: 900

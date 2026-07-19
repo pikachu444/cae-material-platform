@@ -32,7 +32,7 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Catalog and Material Workflow Explorers | Exact tree/link engines exist; current three-pane GUI is `partial` until state restoration, keyboard, realistic hierarchy and linked navigation pass T-91 | T-91 Database parity |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
-| General Mapping Profile and Processing Workbench | T-85 accepted foundation: compact 3-pane shell, auto exact preview, family-compatible curve rail, axes/units/ticks/crosshair/zoom/pan/visibility, ephemeral range/point commands, cancellable 300 ms preview and exact Datasheet/Test/recent-session restoration. T-86 direct method controls remain `partial`. | T-86~T-87 |
+| General Mapping Profile and Processing Workbench | T-86 accepted Metal Prepare: compact 3-pane shell, exact curve include/exclude, guided common preprocessing, server mean/CI overlay, elastic/proof/necking graph evidence, ephemeral range/point commands, cancellable 300 ms preview and exact session restoration. Fit diagnostics remain `partial`. | T-87 |
 | Saved Recipe library/general batch execution | Lifecycle/preflight/execute/retry engines are connected; library and batch UX remain `partial` | T-92 |
 | Metal/Polymer/Elastomer modeling | Real reference engines and exact context are connected; Material Modeler-level GUI is **not complete** | T-86~T-90 |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
@@ -65,10 +65,12 @@ must not be read as product-experience completion.
   and Material Modeling lane; recent work and reference workflows remain supporting content rather
   than the product definition.
 
-- `T-86` (`in progress`): the metal inspector now provides five Elastic Modulus methods, graph-selected
-  strain range, manual GPa slider, proof offset/search controls, necking boundary and true/plastic policy,
-  plus four hardening candidate toggles and blend/extrapolation controls. The server preview remains
-  authoritative. Smoothing/mean/statistical overlays and directly draggable proof/necking markers remain.
+- `T-86` (`completed`): the Metal Prepare workspace provides exact curve include/exclude, guided crop,
+  scale/shift, resampling and three smoothing methods; five Elastic Modulus methods; graph-selected elastic,
+  proof and hardening ranges; a necking point applied to downstream true/plastic Workup; and a server-calculated
+  replicate mean/95% confidence band in the primary plot. Three distinct synthetic DP780 Test JSON revisions
+  make this path demonstrable in a clean seed. Evidence is in
+  `docs/15-demo/evidence/t86-metal-prepare-direct-manipulation.md`. T-87 fit/extrapolation comparison remains open.
 
 - `T-81` (`engine integration verified; product UX rejected`): all three Material Modeling tracks now finish in one
   four-state reviewed-delivery panel: exact evidence, canonical Neutral JSON, explicit solver
