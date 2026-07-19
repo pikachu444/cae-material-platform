@@ -40,7 +40,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 ## 2. 서비스에 연결하기
 
 1. [Dashboard](http://127.0.0.1:5173/)를 엽니다.
-2. **Connection → Use local demo identity → Save connection**을 선택합니다.
+2. **Demo workspace**가 자동으로 표시되는지 확인합니다.
 3. **Visible materials**가 `3`이고 금속·폴리머·엘라스토머 안내 카드가 보이는지 확인합니다.
 
 ![금속·폴리머·엘라스토머 안내 Dashboard](../15-demo/images/t60-guided-dashboard.png)
@@ -97,7 +97,7 @@ ZIP 안의 solver card는 JSON 문자열이 아니라 solver-native ASCII 파일
 ## 문제가 생겼을 때
 
 - Material이 3개보다 적으면 `docker compose ... logs seed`에서 첫 실패를 확인합니다.
-- 토큰 오류는 Connection에서 local demo identity를 다시 발급받아 저장합니다.
+- 로그인 화면이 계속되면 Docker 서비스 상태를 확인한 뒤 **Try again**을 누릅니다.
 - `make demo-verify`가 card 누락을 보고하면 mapping report와 Material Model revision을 확인합니다.
 - 포트 충돌, migration 또는 worker 문제는 [탐색·문제 해결 가이드](10-navigation-and-troubleshooting.md)를
   참고합니다.

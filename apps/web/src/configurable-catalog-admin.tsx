@@ -257,10 +257,10 @@ export function ConfigurableCatalogAdmin({
     return (
       <section className="hero-card">
         <p className="eyebrow">Catalog administration</p>
-        <h1>Connect an Administrator identity</h1>
+        <h1>Administrator sign-in required</h1>
         <p>Create configurable Tables, typed Attributes, datasheet Layouts and saved Subsets.</p>
         <button className="button primary" type="button" onClick={onOpenConnection}>
-          Open connection
+          Try again
         </button>
       </section>
     );

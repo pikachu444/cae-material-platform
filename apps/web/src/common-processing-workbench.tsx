@@ -397,7 +397,7 @@ function StageCurveEvidence({
   );
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
@@ -876,7 +876,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onOpenConnection
     <main className="processing-workbench-page">
       <section className="page-hero compact-hero processing-hero">
         <div><p className="eyebrow">T-53 · configurable processing</p><h1>Processing Workbench</h1><p>Pin Test Data, reuse a Mapping Profile, compose versioned methods, and inspect every curve stage before commit.</p></div>
-        <div className="hero-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Test Data JSON</button><button className="button secondary" type="button" onClick={onOpenConnection}>Connection</button></div>
+        <div className="hero-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
       </section>
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}

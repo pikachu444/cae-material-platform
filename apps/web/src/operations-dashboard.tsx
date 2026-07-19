@@ -51,7 +51,7 @@ export function OperationsDashboard({ config }: { config: ApiConfig }) {
       </div>
       <p className="muted">
         This auditor view shows one API process using bounded route templates. It never exposes URLs,
-        query strings, request bodies, test-data payloads, credentials, or tenant identifiers. The
+        query strings, request bodies, test-data payloads, credentials, or workspace identifiers. The
         OpenTelemetry backend remains authoritative across replicas and workers.
       </p>
       {error ? <p className="error-notice" role="alert">{error}</p> : null}

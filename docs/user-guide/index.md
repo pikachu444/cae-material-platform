@@ -80,5 +80,5 @@
 
 ![검토한 초탄성 family를 canonical Neutral Material JSON으로 승격](../15-demo/images/t56-neutral-material-json.png)
 
-문제가 생기면 먼저 브라우저의 Connection 상태, Material class, exact State/Property revision,
+문제가 생기면 먼저 workspace 상태, Material class, exact State/Property revision,
 CSV column/unit, mapping report의 `unsupported` 또는 `approximated` 항목을 확인하십시오.

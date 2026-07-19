@@ -26,11 +26,11 @@ JSON, mapping report와 native card를 선택해 `manifest.json`과 `checksums.s
 immutable ZIP으로 받을 수 있습니다.
 
 현재 저장소에는 위 흐름을 지지하는 PostgreSQL, revision, processing, Neutral JSON과 exporter
-엔진이 구현되어 있습니다. 그러나 기존 v3 웹 화면은 기능을 기술 화면에 분산하고 API/token
-설정을 사용자에게 노출했기 때문에 GRANTA/Material Data Center형 Material Database 또는
-Material Modeler형 통합 Workbench의 제품 완료 상태로 인정하지 않습니다. T-74 이후에는
-[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 사용자-facing shell을
-교체합니다.
+엔진이 구현되어 있습니다. T-75부터 일반 화면의 API/token 설정을 제거하고 자동 demo session,
+제품 중심 Dashboard와 **Material Database / Material Modeling / Jobs & Reviews / Administration**
+내비게이션으로 교체했습니다. 계층형 Contents Tree와 그래프 중심 Modeling Workbench는
+[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 T-76 이후 계속 교체하는 중이며,
+아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog
@@ -131,8 +131,8 @@ State genealogy와 별도로 Process Run은 consumed/produced Lot revision을 �
 mass/volume/count balance, split/merge와 Specimen source Lot를 보존합니다. ERP/PLM 연동은
 아직 후속 범위입니다.
 
-[http://127.0.0.1:5173](http://127.0.0.1:5173)에서 **Connected token → Use local demo
-identity → Save connection**을 선택합니다. 개발·migration·테스트 상세는
+[http://127.0.0.1:5173](http://127.0.0.1:5173)을 열면 demo workspace가 자동으로 준비됩니다.
+사용자가 API 주소나 token을 설정할 필요가 없습니다. 개발·migration·테스트 상세는
 [DEVELOPMENT.md](DEVELOPMENT.md)에 분리되어 있습니다.
 
 운영 후보 빌드의 SBOM, 취약점 검사, 서명된 품질 증거와 프론트엔드 용량 기준은 서비스
@@ -307,9 +307,8 @@ make demo
 docker compose -f deploy/compose/docker-compose.demo.yml up --build
 ```
 
-브라우저에서 [http://127.0.0.1:5173](http://127.0.0.1:5173)을 열고 **Connection**에서
-**Use local demo identity**를 선택합니다. API는 `http://127.0.0.1:8000`, PostgreSQL은
-Compose 내부 서비스로 실행됩니다. 실제 회사 데이터는 포함되지 않습니다.
+브라우저에서 [http://127.0.0.1:5173](http://127.0.0.1:5173)을 엽니다. demo workspace는
+자동으로 시작되며 내부 서비스 연결은 화면에 노출되지 않습니다. 실제 회사 데이터는 포함되지 않습니다.
 
 상세 설치, migration, 테스트, 아키텍처와 문제 해결은
 [DEVELOPMENT.md](DEVELOPMENT.md)를 참고하십시오. 제품 범위는

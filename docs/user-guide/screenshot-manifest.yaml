@@ -360,3 +360,11 @@ captures:
     image: ../15-demo/images/t70-metal-recipe-batch-evidence.png
     width: 1423
     height: 1913
+  - id: product-session-dashboard
+    route: /
+    workflow: automatic-demo-session-and-product-centered-entry
+    fixture: T-75 clean Compose three-family demo workspace without visible connection controls
+    source_evidence: ../15-demo/evidence/t75-product-session-shell.md
+    image: ../15-demo/images/t75-product-dashboard.png
+    width: 1440
+    height: 1000

@@ -61,7 +61,7 @@ function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
     return error.message;
   }
-  return "The reference tensile workflow could not be completed. Check the protected API connection and try again.";
+  return "The tensile workflow could not be completed. Try again in a moment.";
 }
 
 function optionalNumber(value: string): number | null {
@@ -1023,7 +1023,7 @@ export function ReferenceTensileWorkflow({ config, state, propertySet }: Referen
       {!open ? null : (
         <div className="workflow-stack tensile-workflow-stack">
           <div className="workflow-toolbar">
-            <span>{loading ? "Loading tenant-scoped test data…" : "All records are immutable revisions."}</span>
+            <span>{loading ? "Loading test data…" : "All source records are preserved."}</span>
             <button className="text-button" type="button" onClick={() => void refresh()} disabled={loading}>
               Refresh
             </button>

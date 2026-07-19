@@ -1680,6 +1680,7 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-75. Hidden product session, product shell and Dashboard — `P0`
 
+- **상태 (`2026-07-19`):** `implemented and verified`.
 - **범위:** visible API connection/bearer token을 제거한다. demo는 same-origin 자동 session,
   non-demo는 일반 login boundary를 사용한다. primary navigation을 Material Database, Material
   Modeling, Jobs & Reviews, Administration으로 교체하고 Dashboard를 material search/recent/
@@ -1687,6 +1688,9 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **완료 조건:** clean demo 접속 후 configuration dialog 없이 데이터가 보이고 token 만료가 빈
   화면을 만들지 않는다. 기존 bearer API는 integration compatibility로만 유지한다.
 - **테스트:** session refresh/error, no-token-text DOM assertion, Dashboard→workspace E2E, screenshot.
+  Frontend 62건과 TypeScript/Vite/bundle gate가 통과했고 clean Docker browser에서 자동 session,
+  세 demo Material과 다섯 product navigation을 확인했다. 화면 증거는
+  `docs/15-demo/evidence/t75-product-session-shell.md`에 기록했다.
 
 #### T-76. Persistent hierarchical Material Database Contents Tree — `P0`
 

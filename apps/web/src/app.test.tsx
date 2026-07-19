@@ -48,6 +48,26 @@ const visibleMaterial = {
   links: { self: "/api/v1/materials/1", revisions: "/api/v1/materials/1/revisions", states: "/api/v1/materials/1/states" },
 };
 
+const demoSession = {
+  access_token: "demo-token",
+  token_type: "Bearer",
+  expires_in_seconds: 900,
+  organization_id: "d0000000-0000-4000-8000-000000000001",
+  project_id: "d0000000-0000-4000-8000-000000000002",
+  group: "cmp-demo-material-team",
+};
+
+function mockProductFetch(
+  handler: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> | Response,
+) {
+  const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
+    if (String(input).endsWith("/demo-identity/token")) return jsonResponse(demoSession);
+    return handler(input, init);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
 describe("Material Catalog workbench", () => {
   beforeEach(() => {
     window.history.pushState({}, "", "/");
@@ -59,47 +79,32 @@ describe("Material Catalog workbench", () => {
     vi.unstubAllGlobals();
   });
 
-  it("requires an explicit protected API connection before catalog data is requested", () => {
+  it("shows a product sign-in boundary when the workspace session cannot start", async () => {
+    vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({}, 404)));
     render(<App />);
 
-    expect(screen.getByText("Connect this workbench to the protected Material Catalog.")).toBeTruthy();
-    for (const label of ["Dashboard", "Materials", "Tests", "Datasets", "Models", "Exports", "Governance"]) {
-      expect(screen.getByRole("button", { name: label })).toBeTruthy();
-    }
+    expect(await screen.findByRole("heading", { name: "Sign in to continue" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
   it("renders Material data returned by the real Catalog API contract", async () => {
-    window.localStorage.setItem(
-      "cmp.material-platform.api-config",
-      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
-    );
-    vi.stubGlobal(
-      "fetch",
-      vi.fn<typeof fetch>().mockResolvedValue(
-        jsonResponse({ items: [visibleMaterial], total_count: 10_000 }),
-      ),
-    );
+    mockProductFetch(() => jsonResponse({ items: [visibleMaterial], total_count: 10_000 }));
 
     render(<App />);
 
     expect(await screen.findByText("Demo DP780 Steel")).toBeTruthy();
     expect(screen.getByText("DP780")).toBeTruthy();
-    expect(screen.getByText("10,000")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Choose a material family and follow the evidence." })).toBeTruthy();
+    expect(screen.getByText(/10,000 records/)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Continue from material knowledge to a usable model." })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open metal journey" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open polymer journey" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open elastomer journey" })).toBeTruthy();
   });
 
   it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {
-    window.localStorage.setItem(
-      "cmp.material-platform.api-config",
-      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token-must-not-render" }),
-    );
-    vi.stubGlobal(
-      "fetch",
-      vi.fn<typeof fetch>().mockResolvedValue(
-        jsonResponse(
+    mockProductFetch(() =>
+      jsonResponse(
           {
             detail: "Reload the Material and select its current revision before retrying.",
             code: "CMP-REVISION-409",
@@ -107,7 +112,6 @@ describe("Material Catalog workbench", () => {
           },
           409,
         ),
-      ),
     );
 
     render(<App />);
@@ -118,74 +122,51 @@ describe("Material Catalog workbench", () => {
     expect(alert.textContent).toContain(
       "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
     );
-    expect(alert.textContent).not.toContain("catalog-token-must-not-render");
+    expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
-  it("can request an explicitly enabled local demo token without treating it as a normal fallback", async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-      jsonResponse({
-        access_token: "demo-token",
-        token_type: "Bearer",
-        expires_in_seconds: 900,
-        organization_id: "d0000000-0000-4000-8000-000000000001",
-        project_id: "d0000000-0000-4000-8000-000000000002",
-        group: "cmp-demo-material-team",
-      }),
-    );
-    vi.stubGlobal("fetch", fetchMock);
+  it("starts the demo workspace automatically without technical connection controls", async () => {
+    const fetchMock = mockProductFetch(() => jsonResponse({ items: [], total_count: 0 }));
     render(<App />);
 
-    fireEvent.click(screen.getByText("Connection"));
-    fireEvent.click(screen.getByRole("button", { name: "Use local demo identity" }));
-
-    expect(await screen.findByDisplayValue("demo-token")).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Find, understand, and model materials." })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/v1/demo-identity/token",
       expect.objectContaining({ headers: expect.anything() }),
     );
+    for (const label of ["Dashboard", "Material Database", "Material Modeling", "Jobs & Reviews", "Administration"]) {
+      expect(screen.getByRole("button", { name: label })).toBeTruthy();
+    }
+    expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
   it("opens a connected Tests hub that routes work through a Material context", async () => {
     window.history.pushState({}, "", "/tests");
-    window.localStorage.setItem(
-      "cmp.material-platform.api-config",
-      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
-    );
-    vi.stubGlobal(
-      "fetch",
-      vi.fn<typeof fetch>().mockResolvedValue(
-        jsonResponse({ items: [visibleMaterial], total_count: 1 }),
-      ),
-    );
+    mockProductFetch(() => jsonResponse({ items: [visibleMaterial], total_count: 1 }));
 
     render(<App />);
 
     expect(await screen.findByRole("heading", { name: "Test data" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Open test workspace" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Tests" }).getAttribute("aria-current")).toBe("page");
+    expect(await screen.findByRole("button", { name: "Open test workspace" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Material Database" }).getAttribute("aria-current")).toBe(null);
   });
 
   it("keeps a contextual Material model deep link addressable and selected", async () => {
     const materialId = visibleMaterial.material_id;
     window.history.pushState({}, "", `/materials/${materialId}/models`);
-    window.localStorage.setItem(
-      "cmp.material-platform.api-config",
-      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
-    );
-    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input) => {
+    mockProductFetch(async (input) => {
       const url = String(input);
       if (url.endsWith("/revisions")) {
         return jsonResponse({ material_id: materialId, revisions: [visibleMaterial.current_revision] });
       }
       return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
     });
-    vi.stubGlobal("fetch", fetchMock);
 
     render(<App />);
 
     expect(await screen.findByRole("heading", { name: "Demo DP780 Steel" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Models & Cards" }).getAttribute("aria-current")).toBe("page");
-    expect(screen.getByRole("button", { name: "Models" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("button", { name: "Material Database" }).getAttribute("aria-current")).toBe("page");
   });
 
   it("opens a governed Material binding while preserving its exact revision query", async () => {
@@ -198,13 +179,7 @@ describe("Material Catalog workbench", () => {
       "",
       `/catalog/explorer/records/${recordId}/revisions/${recordRevisionId}`,
     );
-    window.localStorage.setItem(
-      "cmp.material-platform.api-config",
-      JSON.stringify({ baseUrl: "/api/v1", accessToken: "catalog-token" }),
-    );
-    vi.stubGlobal(
-      "fetch",
-      vi.fn<typeof fetch>().mockImplementation(async (input) => {
+    mockProductFetch(async (input) => {
         const url = String(input);
         if (url.endsWith("/catalog/explorer/tables") || url.endsWith("/catalog/link-types")) {
           return jsonResponse({ items: [] });
@@ -236,8 +211,7 @@ describe("Material Catalog workbench", () => {
           return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
         }
         throw new Error(`Unexpected request: ${url}`);
-      }),
-    );
+      });
 
     render(<App />);
     fireEvent.click(await screen.findByRole("button", { name: "Open governed object" }));

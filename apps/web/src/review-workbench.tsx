@@ -111,7 +111,7 @@ export function ReviewWorkbench({ config }: { config: ApiConfig }) {
       </div>
       <p className="muted">
         Pin a concrete revision and its SHA-256 manifest before requesting review. Decisions are append-only;
-        the API enforces tenant scope, stale-manifest checks, and reviewer separation of duties.
+        the workspace enforces current evidence checks and reviewer separation of duties.
       </p>
       <form className="form-stack" onSubmit={submitRequest}>
         <div className="form-grid">

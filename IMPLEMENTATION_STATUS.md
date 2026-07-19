@@ -25,13 +25,23 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | Production package qualification (outside v3) |
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | Production identity integration (outside v3) |
-| Clean guided product demo | Seed/verifier evidence exists, but the flat one-table demo and visible token setup do not satisfy product acceptance | T-82/T-83 realistic demo and acceptance |
+| Clean guided product demo | Automatic demo session and product Dashboard exist; realistic multi-level Contents Tree and cohesive modeling journey remain incomplete | T-76/T-82/T-83 realistic demo and acceptance |
 
 The [product capability map](docs/00-research/product-capability-map.md) is the authoritative status
 matrix. T-49 through T-73 remain valid engineering evidence only for their bounded contracts. They
 must not be read as product-experience completion.
 
 ## Product rebuild in progress
+
+- `T-75` (`implemented and verified`): the web application now establishes the explicitly enabled
+  local demo session in the background and shows only a normal sign-in boundary when that session
+  is unavailable. API address, bearer-token and connection controls were removed from the product
+  UI. The primary shell is Dashboard, Material Database, Material Modeling, Jobs & Reviews and
+  Administration; the Dashboard provides global material search, three task entry points and the
+  three realistic synthetic material families from the live catalog. Frontend tests pass 62/62,
+  the TypeScript/Vite/bundle build passes, and Docker browser evidence is recorded in
+  `docs/15-demo/evidence/t75-product-session-shell.md`. This does not complete the hierarchical
+  Contents Tree or graph-centered Modeling Workbench; those remain T-76 through T-81.
 
 - `T-74` (`implemented and verified`): withdraw the v3 product-completion claim, establish the
   product experience contract and create the T-75~T-83 replacement sequence. Existing engine

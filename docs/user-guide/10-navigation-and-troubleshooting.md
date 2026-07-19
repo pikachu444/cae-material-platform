@@ -5,23 +5,21 @@ Material State의 exact revision 문맥을 공유합니다.
 
 | 상단 메뉴 | 주 작업 |
 | --- | --- |
-| **Dashboard** | 현재 tenant/project의 시작점과 최근 Material |
-| **Materials** | Material identity, State, 공정·Lot, 기본 물성과 revision |
-| **Tests** | Campaign, Instrument/Calibration, Test Run Context와 원본 파일 mapping |
-| **Datasets** | raw/normalized/processed curve, 통계, outlier와 master curve |
-| **Models** | calibration, Candidate, solver-neutral IR, mapping report와 Solver Card |
-| **Exports** | exact revision을 선택한 immutable ZIP Bundle |
-| **Governance** | provenance/audit, validation, review, release와 impact |
+| **Dashboard** | 재료 검색, 최근 Material과 세 재료 계열 작업 시작 |
+| **Material Database** | Contents Tree, Datasheet, 검색·비교·링크와 Material record |
+| **Material Modeling** | 시험 import, curve processing, Recipe, fitting, IR와 Solver Card |
+| **Jobs & Reviews** | Batch/Job 상태, 검토·승인·배포와 다운로드 |
+| **Administration** | Table/Attribute/Layout/Link Type과 사용자 기능 권한 |
 
 ## 권장 이동 순서
 
-1. **Materials**에서 Material을 검색하거나 생성합니다.
+1. **Material Database**에서 Material을 검색하거나 생성합니다.
 2. Material 상세의 **Overview**에서 State와 기본 물성을 확인합니다.
 3. **Test data** 탭에서 시험 실행 문맥과 column/unit mapping을 고정합니다.
 4. **Datasets & Processing**에서 개별 curve와 raw/normalized/processed 구분을 확인합니다.
 5. **Models & Cards**에서 fitting 또는 수동 IR 입력, mapping report와 card를 확인합니다.
 6. **Governance**에서 validation/provenance를 검토합니다.
-7. 여러 파일이 필요하면 전역 **Exports**에서 Bundle을 만듭니다.
+7. 여러 파일이 필요하면 **Jobs & Reviews**의 다운로드 영역에서 Bundle을 만듭니다.
 
 전역 **Tests**, **Datasets**, **Models**, **Governance** 메뉴에서 먼저 시작해도 됩니다. 각 화면은
 현재 권한으로 보이는 Material 목록을 제시하고 선택한 Material의 같은 문맥 탭으로 이동합니다.
@@ -49,11 +47,10 @@ route-template별 p95 상한을 보여줍니다. URL, query, request body, 시�
 시험 원본 또는 회사 데이터를 복사하지 말고 **Support reference 전체 문자열만** 운영 담당자에게
 전달하십시오. 이 값으로 API/worker trace를 찾을 수 있습니다.
 
-### `Connection required` 또는 token 만료
+### `Sign in to continue`가 표시됨
 
-오른쪽 위 **Connection/Connected token**을 열고 Docker demo에서는 **Use local demo identity**,
-**Save connection** 순서로 새 signed token을 받습니다. token 문자열은 스크린샷이나 이슈에
-복사하지 마십시오.
+Docker Desktop과 demo 서비스가 실행 중인지 확인한 뒤 **Try again**을 누릅니다. 일반 배포라면
+관리자가 제공한 로그인 화면에서 로그인합니다. 사용자에게 별도 연결 문자열 입력을 요구하지 않습니다.
 
 ### 메뉴에는 Material이 있지만 탭이 비어 있음
 

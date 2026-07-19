@@ -35,7 +35,7 @@ function messageFor(error: unknown): string {
   if (error instanceof ApiError) {
     return error.message;
   }
-  return "The elastoplastic workflow could not be completed. Check the protected API connection.";
+  return "The elastoplastic workflow could not be completed. Try again in a moment.";
 }
 
 function shortId(value: string): string {
@@ -457,7 +457,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet }: 
       {!open ? null : (
         <div className="workflow-stack elastoplastic-workflow-stack">
           <div className="workflow-toolbar">
-            <span>{loading ? "Loading tenant-scoped revisions…" : "No source revision is modified."}</span>
+            <span>{loading ? "Loading source revisions…" : "No source revision is modified."}</span>
             <button className="text-button" type="button" onClick={() => void refresh()} disabled={loading}>
               Refresh
             </button>

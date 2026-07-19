@@ -7,8 +7,7 @@ PostgreSQL은 기존 세부 permission, organization/project 격리, classificat
 ## 내 권한 확인
 
 1. Docker demo를 실행하고 [Access](http://127.0.0.1:5173/access)를 엽니다.
-2. 연결 정보가 없거나 만료됐다면 **Connected token → Use local demo identity → Save
-   connection** 순서로 갱신합니다.
+2. demo에서는 workspace가 자동으로 준비됩니다. 일반 배포에서는 관리자 계정으로 로그인합니다.
 3. **My access**에서 제품 역할과 다음 다섯 기능의 상태를 확인합니다.
 
 | 기능 권한 | 허용되는 제품 작업 |

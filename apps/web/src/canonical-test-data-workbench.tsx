@@ -78,7 +78,7 @@ function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "The Test Data JSON operation failed.";
 }
 
-export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnection }: Props) {
+export function CanonicalTestDataWorkbench({ config, onNavigate }: Props) {
   const [source, setSource] = useState(SAMPLE);
   const [fileName, setFileName] = useState("built-in DP600 example");
   const [tabularFile, setTabularFile] = useState<File | null>(null);
@@ -244,7 +244,7 @@ export function CanonicalTestDataWorkbench({ config, onNavigate, onOpenConnectio
         </div>
         <div className="hero-actions">
           <button className="button secondary" type="button" onClick={() => onNavigate("/datasets")}>Dataset hub</button>
-          <button className="button secondary" type="button" onClick={onOpenConnection}>Connection</button>
+          <button className="button secondary" type="button" onClick={() => onNavigate("/modeling")}>Material Modeling</button>
         </div>
       </section>
 
