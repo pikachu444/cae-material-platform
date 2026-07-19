@@ -24,6 +24,19 @@
 option 변경은 300 ms 동안 모아서 서버 preview를 다시 계산하며, 그 사이 더 최신 변경이 오면
 이전 계산 요청은 취소됩니다.
 
+Material Database의 Material 상세에서 State 아래 **Open in Material Modeling**을 누르면 해당
+Material/State exact revision이 자동으로 선택됩니다. Test Data JSON 목록의 **Open in Material
+Modeling**은 해당 Test Data exact revision을 같은 방식으로 전달합니다. 화면을 다시 열어도 최근
+Material, State, Test Data, Mapping Profile과 Recipe exact revision을 복원하며, 저장된 revision이
+현재 선택 가능한 head와 다르면 조용히 최신값으로 바꾸지 않고 검토 경고를 표시합니다.
+
+금속 **Metal elastic modulus** 단계에서는 오른쪽 패널에서 Auto robust, Linear regression,
+Chord, Secant, Manual slope를 직접 선택합니다. 그래프의 **Select range** 또는 Start/End strain으로
+평가 구간을 정하고, Manual slope에서는 GPa slider로 기울기를 조정합니다. **Offset proof stress**는
+offset과 검색 구간, **Engineering to true/plastic**은 necking boundary와 음의 plastic strain 정책을
+설정합니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
+혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
+
 ## 처리 미리보기
 
 1. `Datasets` → `Processing Workbench`를 엽니다.

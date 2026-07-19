@@ -1820,18 +1820,22 @@ clean-acceptance intent is retained in T-93.
   목적과 다음 동작을 분리하고, 최근 Material/진행 중 session/reference workflow로 바로 이동한다.
 - Dashboard 합격 기준은 두 코어 경로의 차이와 연결 관계를 별도 설명 없이 이해하고 각각 한 번의
   동작으로 시작할 수 있는 것이다. Job, API, token, tenant, UUID 중심 상태판은 허용하지 않는다.
-- **상태 (`2026-07-20`):** `in progress`. reusable `EngineeringCurvePlot`, series별 독립 x-grid,
+- **상태 (`2026-07-20`):** `completed`. reusable `EngineeringCurvePlot`, series별 독립 x-grid,
   family-compatible curve rail, axis/unit/tick/crosshair, zoom/pan/reset/visibility와 compact
   1440×900 shell이 live Compose에서 검증됐다. 이후 range/point command의 ephemeral overlay와
   Recipe draft 적용, 300 ms debounce/이전 request cancellation, Database/Modeling 작업 레인
-  Dashboard까지 연결했다. Datasheet/session deep-link와 method-specific direct controls가 남아
-  있으므로 완료로 표시하지 않는다.
+  Dashboard까지 연결했다. 이후 exact Material Datasheet/Test Data/recent session context 복원,
+  supplemental panel disclosure와 Elastic Modulus 전용 method/range/manual slider까지 실제
+  Docker 브라우저에서 검증했다. T-86 이후의 method-specific 작업은 별도 Task로 계속한다.
 - **증거:** `docs/15-demo/evidence/t85-engineering-modeling-shell.md`,
   `docs/15-demo/images/t85-engineering-modeling-shell.png`.
 
 #### T-86. Metal Prepare direct manipulation — `P0`
 
 - smoothing/mean/statistics, elastic methods/range/manual slider, proof/necking markers와 Workup.
+- **상태 (`2026-07-20`):** `in progress`. elastic method 5종, graph range, manual E slider,
+  proof offset/range, necking 안내와 true/plastic boundary control은 guided inspector에 연결됐다.
+  smoothing/mean/statistics overlay와 draggable proof/necking marker가 남았다.
 
 #### T-87. Metal Fit and Extrapolate direct manipulation — `P0`
 

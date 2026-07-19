@@ -1,4 +1,4 @@
-version: 30
+version: 31
 verified_at: 2026-07-20
 source_evidence: ../15-demo/evidence/t60-clean-demo.md
 captures:
@@ -458,8 +458,8 @@ captures:
     height: 1199
   - id: engineering-modeling-shell
     route: /modeling
-    workflow: compact-family-compatible-curve-rail-and-interactive-server-plot
-    fixture: T-85 clean Compose DP780 hardening candidates with exact Test JSON and published Recipe
+    workflow: exact-datasheet-session-to-guided-elastic-range-and-interactive-server-plot
+    fixture: T-85 clean Compose DP780 exact Material/State/Test Data with guided Elastic Modulus controls
     source_evidence: ../15-demo/evidence/t85-engineering-modeling-shell.md
     image: ../15-demo/images/t85-engineering-modeling-shell.png
     width: 1440

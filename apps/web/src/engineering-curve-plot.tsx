@@ -361,7 +361,7 @@ export function EngineeringCurvePlot({
       <div className="curve-legend interactive" aria-label="Curve visibility">
         {validSeries.map((series) => <button type="button" className={hiddenSeries.includes(series.id) ? "hidden" : ""} key={series.id} onClick={() => setHiddenSeries((current) => current.includes(series.id) ? current.filter((item) => item !== series.id) : [...current, series.id])} aria-pressed={!hiddenSeries.includes(series.id)}><i style={{ background: series.color }} />{series.label}</button>)}
       </div>
-      <div className="stage-diagnostics">{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</div>
+      {activeStage.diagnostics.length ? <details className="stage-diagnostics"><summary>Calculation notes <span>{activeStage.diagnostics.length}</span></summary>{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</details> : null}
       {(activeStage.scalar_results ?? []).length ? <details className="model-diagnostics-details"><summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary><div className="metal-scalar-grid" aria-label="Processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div></details> : null}
       <p className="digest-line diagnostics-only"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p>
     </>
