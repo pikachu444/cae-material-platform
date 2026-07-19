@@ -9,7 +9,7 @@
 제공합니다. `/datasets/processing`은 같은 엔진의 기술 호환 route로 유지됩니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
 
-![Material Modeling의 curve rail, engineering plot, task panel](../15-demo/images/t85-engineering-modeling-shell.png)
+![Material Modeling의 curve rail, engineering plot, task panel](../15-demo/images/t86-metal-prepare-workbench.png)
 
 화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Recipe 단계, 가운데는 실제 서버 계산 결과를
 표시하는 engineering plot, 오른쪽은 선택 단계의 설정과 저장 동작입니다. 일반 작업에서는 API
@@ -36,6 +36,13 @@ Chord, Secant, Manual slope를 직접 선택합니다. 그래프의 **Select ran
 offset과 검색 구간, **Engineering to true/plastic**은 necking boundary와 음의 plastic strain 정책을
 설정합니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
 혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
+
+왼쪽 곡선 목록의 checkbox는 반복시험 통계에 포함할 exact revision을 고릅니다. 두 개 이상을
+선택하고 **Add mean & band**를 누르면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
+pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
+공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.
+
+![두 exact DP780 반복시험, 평균과 95% mean confidence band](../15-demo/images/t86-metal-replicate-statistics.png)
 
 ## 처리 미리보기
 
@@ -112,8 +119,9 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 
 1. 동일 조건에서 얻은 각 반복시험을 별도 Test Data identity로 등록합니다. 한 문서의 평균값으로
    합치거나 원본 curve를 삭제하지 않습니다.
-2. **Exact Test Data members**에서 비교할 현재 exact revision을 두 개 이상 선택합니다.
-3. 공통 grid point 수를 입력하고 **Align and calculate**를 누릅니다.
+2. 왼쪽 **Datasets & curves**에서 비교할 exact revision을 checkbox로 두 개 이상 선택합니다.
+3. 공통 grid point 수를 입력하고 **Add mean & band**를 누릅니다. 상세 통계 drawer에서는 같은
+   계산을 **Align and calculate**로 다시 실행할 수 있습니다.
 4. 서버는 각 문서에 같은 Mapping Profile과 ordered preprocessing steps를 적용합니다.
 5. 모든 curve에서 실제로 관측된 x-domain의 교집합만 사용해 선형 보간합니다. 교집합 밖
    extrapolation은 허용하지 않습니다.

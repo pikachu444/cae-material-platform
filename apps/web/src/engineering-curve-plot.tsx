@@ -8,7 +8,9 @@ import {
 
 import type {
   CommonCurveStage,
+  CommonEnsemblePreview,
   CommonProcessingPreview,
+  CommonProcessingStep,
   GraphSelectionCommand,
 } from "./types";
 
@@ -26,6 +28,23 @@ interface PlotSeries {
   yValues: number[];
   color: string;
   className: string;
+}
+
+interface PlotBand {
+  id: string;
+  label: string;
+  xValues: number[];
+  lowerValues: number[];
+  upperValues: number[];
+}
+
+interface PlotModel {
+  xQuantity: string;
+  xUnit: string;
+  yQuantity: string;
+  yUnit: string;
+  series: PlotSeries[];
+  band?: PlotBand;
 }
 
 const PLOT_MARGIN = { left: 64, right: 24, top: 24, bottom: 52 } as const;
@@ -91,7 +110,8 @@ function seriesForStage(
   preview: CommonProcessingPreview,
   activeStage: CommonCurveStage,
   baseStage: CommonCurveStage,
-): { xQuantity: string; xUnit: string; yQuantity: string; yUnit: string; series: PlotSeries[] } {
+  activeStep?: CommonProcessingStep,
+): PlotModel {
   const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
   const prony = activeStage.method_id === "polymer.prony_fit_compare";
   const xQuantity = activeStage.series.some((item) => item.quantity === preview.independent_quantity)
@@ -163,6 +183,39 @@ function seriesForStage(
   }
 
   const baseDependent = baseStage.series.find((item) => item.quantity !== xQuantity);
+  const engineeringOverlays: PlotSeries[] = [];
+  if (activeStage.method_id === "metal.elastic_modulus") {
+    const modulus = activeStage.scalar_results.find((item) => item.key === "youngs_modulus")?.value;
+    const intercept = activeStage.scalar_results.find((item) => item.key === "elastic_intercept")?.value;
+    const minimum = Number(activeStep?.options.minimum_strain ?? activeX?.values[0]);
+    const maximum = Number(activeStep?.options.maximum_strain ?? activeX?.values.at(-1));
+    if (Number.isFinite(modulus) && Number.isFinite(intercept) && Number.isFinite(minimum) && Number.isFinite(maximum)) {
+      engineeringOverlays.push({
+        id: "elastic-fit-line",
+        label: "Elastic fit",
+        xValues: [minimum, maximum],
+        yValues: [modulus! * minimum + intercept!, modulus! * maximum + intercept!],
+        color: "#2563eb",
+        className: "engineering-fit",
+      });
+    }
+  }
+  if (activeStage.method_id === "metal.proof_stress") {
+    const modulus = Number(activeStep?.options.youngs_modulus_pa);
+    const offset = Number(activeStep?.options.offset_strain);
+    const minimum = Number(activeStep?.options.search_start);
+    const maximum = Number(activeStep?.options.search_end);
+    if ([modulus, offset, minimum, maximum].every(Number.isFinite)) {
+      engineeringOverlays.push({
+        id: "proof-offset-line",
+        label: `${(offset * 100).toPrecision(3)}% offset line`,
+        xValues: [minimum, maximum],
+        yValues: [modulus * (minimum - offset), modulus * (maximum - offset)],
+        color: "#7c3aed",
+        className: "proof-offset",
+      });
+    }
+  }
   return {
     xQuantity,
     xUnit: activeX?.unit ?? baseX?.unit ?? "1",
@@ -185,8 +238,63 @@ function seriesForStage(
         color: "#e56734",
         className: "processed",
       },
+      ...engineeringOverlays,
     ],
   };
+}
+
+function seriesForEnsemble(preview: CommonEnsemblePreview): PlotModel {
+  const statistic = preview.statistics[0];
+  if (!statistic) {
+    return {
+      xQuantity: preview.independent_quantity,
+      xUnit: preview.grid_unit,
+      yQuantity: "response",
+      yUnit: "1",
+      series: [],
+    };
+  }
+  const memberSeries = preview.members.map((member, index) => {
+    const response = member.stage.series.find((item) => item.quantity === statistic.quantity);
+    return {
+      id: `replicate-${member.ordinal}`,
+      label: `Replicate ${member.ordinal}`,
+      xValues: preview.grid,
+      yValues: response?.values ?? [],
+      color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
+      className: "ensemble-member",
+    };
+  });
+  return {
+    xQuantity: preview.independent_quantity,
+    xUnit: preview.grid_unit,
+    yQuantity: statistic.quantity,
+    yUnit: statistic.unit,
+    series: [
+      ...memberSeries,
+      {
+        id: "replicate-mean",
+        label: "Pointwise mean",
+        xValues: preview.grid,
+        yValues: statistic.mean,
+        color: "#111827",
+        className: "ensemble-mean",
+      },
+    ],
+    band: {
+      id: "confidence-95",
+      label: "95% mean confidence interval",
+      xValues: preview.grid,
+      lowerValues: statistic.confidence_95_lower,
+      upperValues: statistic.confidence_95_upper,
+    },
+  };
+}
+
+function bandPolygon(band: PlotBand, width: number, height: number, bounds: PlotBounds): string {
+  const upper = plotPoints(band.xValues, band.upperValues, width, height, bounds).split(" ");
+  const lower = plotPoints(band.xValues, band.lowerValues, width, height, bounds).split(" ").reverse();
+  return [...upper, ...lower].join(" ");
 }
 
 export function EngineeringCurvePlot({
@@ -196,6 +304,8 @@ export function EngineeringCurvePlot({
   width,
   height,
   onApplySelection,
+  ensemblePreview,
+  activeStep,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
@@ -203,6 +313,8 @@ export function EngineeringCurvePlot({
   width: number;
   height: number;
   onApplySelection?: (selection: GraphSelectionCommand) => void;
+  ensemblePreview?: CommonEnsemblePreview | null;
+  activeStep?: CommonProcessingStep;
 }) {
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
@@ -212,20 +324,38 @@ export function EngineeringCurvePlot({
   const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
   const [selection, setSelection] = useState<GraphSelectionCommand | null>(null);
   const model = useMemo(
-    () => seriesForStage(preview, activeStage, baseStage),
-    [activeStage, baseStage, preview],
+    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep),
+    [activeStage, activeStep, baseStage, ensemblePreview, preview],
   );
   const validSeries = model.series.filter(
     (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length,
   );
   const dataBounds = paddedPlotBounds(
     validSeries.flatMap((item) => item.xValues),
-    validSeries.flatMap((item) => item.yValues),
+    [
+      ...validSeries.flatMap((item) => item.yValues),
+      ...(model.band?.lowerValues ?? []),
+      ...(model.band?.upperValues ?? []),
+    ],
   );
   const bounds = viewBounds ?? dataBounds;
   const yScale = displayScale(model.yUnit, validSeries.flatMap((item) => item.yValues));
   const xTicks = axisTicks(bounds.xMin, bounds.xMax);
   const yTicks = axisTicks(bounds.yMin, bounds.yMax);
+  const marker = useMemo(() => {
+    if (ensemblePreview) return null;
+    const keys = activeStage.method_id === "metal.proof_stress"
+      ? { x: "proof_strain", y: "proof_stress", label: "Proof point" }
+      : activeStage.method_id === "metal.necking_candidate"
+        ? { x: "necking_candidate_engineering_strain", y: "necking_candidate_engineering_stress", label: "Automatic necking candidate" }
+        : activeStage.method_id === "metal.engineering_to_true_plastic"
+          ? { x: "necking_engineering_strain", y: "necking_engineering_stress", label: "Applied necking boundary" }
+          : null;
+    if (!keys) return null;
+    const x = activeStage.scalar_results.find((item) => item.key === keys.x)?.value;
+    const y = activeStage.scalar_results.find((item) => item.key === keys.y)?.value;
+    return Number.isFinite(x) && Number.isFinite(y) ? { x: x!, y: y!, label: keys.label } : null;
+  }, [activeStage, ensemblePreview]);
 
   useEffect(() => {
     setHiddenSeries([]);
@@ -234,7 +364,8 @@ export function EngineeringCurvePlot({
     setDrag(null);
     setSelectionStart(null);
     setSelection(null);
-  }, [activeStage.method_id, activeStage.ordinal]);
+    if (ensemblePreview) setInteractionMode("pan");
+  }, [activeStage.method_id, activeStage.ordinal, ensemblePreview]);
 
   function zoom(factor: number, center = cursor): void {
     const centerX = center?.x ?? (bounds.xMin + bounds.xMax) / 2;
@@ -309,8 +440,8 @@ export function EngineeringCurvePlot({
         </div>
         <div className="plot-interaction-modes" role="group" aria-label="Graph selection mode">
           <button type="button" className={interactionMode === "pan" ? "active" : ""} aria-pressed={interactionMode === "pan"} onClick={() => setInteractionMode("pan")}>Pan</button>
-          <button type="button" className={interactionMode === "range" ? "active" : ""} aria-pressed={interactionMode === "range"} onClick={() => setInteractionMode("range")}>Select range</button>
-          <button type="button" className={interactionMode === "point" ? "active" : ""} aria-pressed={interactionMode === "point"} onClick={() => setInteractionMode("point")}>Pick point</button>
+          <button type="button" disabled={!onApplySelection} className={interactionMode === "range" ? "active" : ""} aria-pressed={interactionMode === "range"} onClick={() => setInteractionMode("range")}>Select range</button>
+          <button type="button" disabled={!onApplySelection} className={interactionMode === "point" ? "active" : ""} aria-pressed={interactionMode === "point"} onClick={() => setInteractionMode("point")}>Pick point</button>
           <button type="button" disabled={!selection || !onApplySelection} onClick={() => selection && onApplySelection?.(selection)}>Apply selection</button>
           {selection ? <button type="button" onClick={() => setSelection(null)}>Clear</button> : null}
         </div>
@@ -319,7 +450,7 @@ export function EngineeringCurvePlot({
       <svg
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
-        aria-label={activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
+        aria-label={ensemblePreview ? "Aligned replicate curves with pointwise mean and confidence interval" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
         viewBox={`0 0 ${width} ${height}`}
         onDoubleClick={() => setViewBounds(null)}
         onPointerDown={(event) => {
@@ -351,7 +482,9 @@ export function EngineeringCurvePlot({
         })}
         <line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
         <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
+        {model.band && model.band.xValues.length >= 2 ? <polygon points={bandPolygon(model.band, width, height, bounds)} className="ensemble-confidence-band" /> : null}
         {validSeries.map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, width, height, bounds)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />)}
+        {marker ? <g className="engineering-result-marker"><line x1={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><circle cx={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5"/><text x={PLOT_MARGIN.left + ((marker.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 8} y={Math.max(PLOT_MARGIN.top + 12, height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom) - 8)}>{marker.label}</text></g> : null}
         {selection?.kind === "range" ? <rect className="graph-range-selection" x={PLOT_MARGIN.left + ((selection.minimum - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(1, ((selection.maximum - selection.minimum) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /> : null}
         {selection?.kind === "point" ? <><line className="graph-point-selection" x1={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} /><circle className="graph-point-marker" cx={PLOT_MARGIN.left + ((selection.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5" /></> : null}
         {cursor ? <><line x1={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} className="chart-crosshair"/><line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} className="chart-crosshair"/></> : null}
@@ -360,9 +493,10 @@ export function EngineeringCurvePlot({
       </svg>
       <div className="curve-legend interactive" aria-label="Curve visibility">
         {validSeries.map((series) => <button type="button" className={hiddenSeries.includes(series.id) ? "hidden" : ""} key={series.id} onClick={() => setHiddenSeries((current) => current.includes(series.id) ? current.filter((item) => item !== series.id) : [...current, series.id])} aria-pressed={!hiddenSeries.includes(series.id)}><i style={{ background: series.color }} />{series.label}</button>)}
+        {model.band ? <span className="curve-band-legend"><i />{model.band.label}</span> : null}
       </div>
-      {activeStage.diagnostics.length ? <details className="stage-diagnostics"><summary>Calculation notes <span>{activeStage.diagnostics.length}</span></summary>{activeStage.diagnostics.map((item) => <p key={item}>{item}</p>)}</details> : null}
-      {(activeStage.scalar_results ?? []).length ? <details className="model-diagnostics-details"><summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary><div className="metal-scalar-grid" aria-label="Processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div></details> : null}
+      {(ensemblePreview?.diagnostics ?? activeStage.diagnostics).length ? <details className="stage-diagnostics"><summary>{ensemblePreview ? "Alignment and statistics notes" : "Calculation notes"} <span>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).length}</span></summary>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).map((item) => <p key={item}>{item}</p>)}</details> : null}
+      {!ensemblePreview && (activeStage.scalar_results ?? []).length ? <details className="model-diagnostics-details"><summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary><div className="metal-scalar-grid" aria-label="Processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div></details> : null}
       <p className="digest-line diagnostics-only"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p>
     </>
   );

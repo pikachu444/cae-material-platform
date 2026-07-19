@@ -1833,9 +1833,14 @@ clean-acceptance intent is retained in T-93.
 #### T-86. Metal Prepare direct manipulation — `P0`
 
 - smoothing/mean/statistics, elastic methods/range/manual slider, proof/necking markers와 Workup.
-- **상태 (`2026-07-20`):** `in progress`. elastic method 5종, graph range, manual E slider,
-  proof offset/range, necking 안내와 true/plastic boundary control은 guided inspector에 연결됐다.
-  smoothing/mean/statistics overlay와 draggable proof/necking marker가 남았다.
+- **상태 (`2026-07-20`):** `completed`. exact curve include/exclude, guided crop/scale-shift/resample/
+  moving-average/Savitzky–Golay/spline, elastic method 5종, graph range, manual E slider, proof offset,
+  necking point-to-Workup 적용과 true/plastic policy가 persistent graph와 inspector에 연결됐다.
+  서버는 복수 exact revision에 공통 전처리만 적용해 observed-domain intersection에서 member/mean/
+  95% mean CI를 계산한다. 세 synthetic DP780 replicate와 1440×900 Docker 증거를 포함한다.
+- **증거:** `docs/15-demo/evidence/t86-metal-prepare-direct-manipulation.md`,
+  `docs/15-demo/images/t86-metal-prepare-workbench.png`,
+  `docs/15-demo/images/t86-metal-replicate-statistics.png`.
 
 #### T-87. Metal Fit and Extrapolate direct manipulation — `P0`
 

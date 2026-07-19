@@ -177,6 +177,8 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             or exact_recipe.get("id") != polymer_recipe.get("processing_recipe_id")
             or exact_recipe.get("revision_id")
             != polymer_recipe.get("current_revision", {}).get("id")
+            or not isinstance(recipe_batch, Mapping)
+            or not isinstance(polymer_attempt, Mapping)
             or recipe_batch.get("processing_batch_id") != polymer_batch.get("batch_id")
             or recipe_batch.get("batch_attempt_id") != polymer_attempt.get("attempt_id")
         ):
@@ -374,6 +376,13 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             raise RuntimeError("clean demo Workflow Explorer does not branch to both cards")
 
         documents = _items(_json(client.get("/test-data-documents")))
+        metal_replicates = [
+            item
+            for item in documents
+            if str(item.get("document_key", "")).startswith("CMP-DEMO-DP780-TEST-JSON")
+        ]
+        if len(metal_replicates) < 3:
+            raise RuntimeError("clean demo must expose three distinct DP780 Test JSON replicates")
         document = next(
             item for item in documents if item.get("document_key") == "CMP-DEMO-DP780-TEST-JSON"
         )
@@ -439,6 +448,8 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             or exact_metal_recipe.get("id") != recipe.get("processing_recipe_id")
             or exact_metal_recipe.get("revision_id")
             != recipe.get("current_revision", {}).get("id")
+            or not isinstance(metal_recipe_batch, Mapping)
+            or not isinstance(batch_attempt, Mapping)
             or metal_recipe_batch.get("processing_batch_id") != batch.get("batch_id")
             or metal_recipe_batch.get("batch_attempt_id") != batch_attempt.get("attempt_id")
             or metal_projection.get("output_revision_id")
@@ -546,6 +557,7 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
             "catalog_subset_id": workflow_subset["subset_id"],
             "catalog_workflow_node_count": len(workflow_nodes) + 2,
             "test_data_document_id": document["test_data_document_id"],
+            "metal_test_data_replicate_count": len(metal_replicates),
             "mapping_profile_id": profile["mapping_profile_id"],
             "processing_recipe_id": recipe["processing_recipe_id"],
             "processing_batch_id": batch["batch_id"],

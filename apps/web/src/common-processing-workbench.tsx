@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type React from "react";
 
 import { EngineeringCurvePlot } from "./engineering-curve-plot";
 
@@ -56,6 +57,7 @@ interface Props {
 
 export type ModelingTrack = "metal" | "polymer" | "elastomer";
 type WorkspaceInspector = "step" | "recipe" | "batch";
+type PlotView = "pipeline" | "ensemble";
 
 const DEFAULT_PROFILE: CommonMappingProfileContent = {
   profile_key: "normalized-tensile",
@@ -261,6 +263,60 @@ function GuidedStepOptions({
   step: CommonProcessingStep;
   onChange: (option: string, value: unknown) => void;
 }) {
+  if (step.method_id === "rows.sort_unique") {
+    const policy = String(step.options.duplicate_policy);
+    return <div className="guided-step-options">
+      <fieldset className="option-choice-grid"><legend>Duplicate x-values</legend>{[
+        ["reject", "Stop and review"], ["first", "Keep first"], ["mean", "Average duplicates"],
+      ].map(([value, label]) => <button type="button" className={policy === value ? "active" : ""} key={value} onClick={() => onChange("duplicate_policy", value)}>{label}</button>)}</fieldset>
+      <p className="option-hint">Rows are sorted by the mapped independent quantity. The source Test Data revision is never changed.</p>
+    </div>;
+  }
+  if (step.method_id === "curve.crop") {
+    return <div className="guided-step-options">
+      <div className="guided-range-row"><label>Range start<input aria-label="Crop range start" type="number" step="any" value={numberOption(step, "minimum")} onChange={(event) => onChange("minimum", Number(event.target.value))}/></label><label>Range end<input aria-label="Crop range end" type="number" step="any" value={numberOption(step, "maximum")} onChange={(event) => onChange("maximum", Number(event.target.value))}/></label></div>
+      <p className="option-hint">Use <strong>Select range</strong> on the graph to place both crop boundaries.</p>
+    </div>;
+  }
+  if (step.method_id === "curve.scale_shift") {
+    return <div className="guided-step-options">
+      <label>Response quantity<input aria-label="Scale and shift quantity" value={String(step.options.quantity)} onChange={(event) => onChange("quantity", event.target.value)}/></label>
+      <label className="slider-option">Scale <output>{numberOption(step, "scale").toPrecision(5)}</output><input aria-label="Curve scale" type="range" min="0.5" max="1.5" step="0.001" value={numberOption(step, "scale")} onChange={(event) => onChange("scale", Number(event.target.value))}/></label>
+      <label>Offset<input aria-label="Curve offset" type="number" step="any" value={numberOption(step, "offset")} onChange={(event) => onChange("offset", Number(event.target.value))}/></label>
+      <p className="option-hint">Scale and offset are explicit Recipe parameters. The mapped input stays visible as a reference overlay.</p>
+    </div>;
+  }
+  if (step.method_id === "curve.resample_linear") {
+    return <div className="guided-step-options">
+      <div className="guided-range-row"><label>Grid start<input aria-label="Resample grid start" type="number" step="any" value={numberOption(step, "start")} onChange={(event) => onChange("start", Number(event.target.value))}/></label><label>Grid end<input aria-label="Resample grid end" type="number" step="any" value={numberOption(step, "end")} onChange={(event) => onChange("end", Number(event.target.value))}/></label></div>
+      <label className="slider-option">Grid points <output>{numberOption(step, "count")}</output><input aria-label="Resample point count" type="range" min="5" max="501" step="1" value={numberOption(step, "count")} onChange={(event) => onChange("count", Number(event.target.value))}/></label>
+      <div className="engineering-callout"><strong>Observed domain only</strong><p>Linear interpolation rejects extrapolation. Extend the curve only in the reviewed model extrapolation step.</p></div>
+    </div>;
+  }
+  if (step.method_id === "curve.moving_average") {
+    const window = numberOption(step, "window");
+    return <div className="guided-step-options">
+      <label>Response quantity<input value={String(step.options.quantity)} onChange={(event) => onChange("quantity", event.target.value)}/></label>
+      <label className="slider-option">Window points <output>{window}</output><input aria-label="Moving average window" type="range" min="3" max="51" step="2" value={window} onChange={(event) => onChange("window", Number(event.target.value))}/></label>
+      <p className="option-hint">Centered moving average. Compare the orange processed curve against the gray mapped input before applying.</p>
+    </div>;
+  }
+  if (step.method_id === "curve.savitzky_golay") {
+    const window = numberOption(step, "window");
+    return <div className="guided-step-options">
+      <label>Response quantity<input value={String(step.options.quantity)} onChange={(event) => onChange("quantity", event.target.value)}/></label>
+      <label className="slider-option">Window points <output>{window}</output><input aria-label="Savitzky-Golay window" type="range" min="5" max="51" step="2" value={window} onChange={(event) => onChange("window", Number(event.target.value))}/></label>
+      <label className="slider-option">Polynomial order <output>{numberOption(step, "polynomial_order")}</output><input aria-label="Savitzky-Golay polynomial order" type="range" min="1" max={Math.max(1, window - 2)} step="1" value={numberOption(step, "polynomial_order")} onChange={(event) => onChange("polynomial_order", Number(event.target.value))}/></label>
+      <p className="option-hint">Window size remains odd and must exceed the polynomial order.</p>
+    </div>;
+  }
+  if (step.method_id === "curve.smoothing_spline") {
+    return <div className="guided-step-options">
+      <label>Response quantity<input value={String(step.options.quantity)} onChange={(event) => onChange("quantity", event.target.value)}/></label>
+      <label>Smoothing factor<input aria-label="Spline smoothing factor" type="number" min="0" step="any" value={numberOption(step, "smoothing_factor")} onChange={(event) => onChange("smoothing_factor", Number(event.target.value))}/></label>
+      <p className="option-hint">Zero interpolates the observations. Increase the non-negative factor only after comparing the residual shape.</p>
+    </div>;
+  }
   if (step.method_id === "metal.elastic_modulus") {
     const method = String(step.options.method);
     const modulusGpa = numberOption(step, "manual_modulus_pa") / 1e9;
@@ -483,6 +539,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [batchPreflight, setBatchPreflight] = useState<CommonProcessingBatchPreflight | null>(null);
   const [ensemblePointCount, setEnsemblePointCount] = useState(21);
   const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
+  const [plotView, setPlotView] = useState<PlotView>("pipeline");
   const [busy, setBusy] = useState(false);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -624,6 +681,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setSelectedDocumentId("");
     setDocument(null);
     setBatchDocumentIds([]);
+    setEnsemblePreview(null);
+    setPlotView("pipeline");
     if (track === "metal") useProfileTemplate(DEFAULT_PROFILE, METAL_TENSILE_STEPS);
     if (track === "polymer") useProfileTemplate(POLYMER_RELAXATION_PROFILE, POLYMER_RELAXATION_STEPS);
     if (track === "elastomer") {
@@ -915,6 +974,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       if (previewRequestNo.current !== requestNo) return;
       setPreview(result.data);
       setSelectedStage(result.data.stages.length - 1);
+      setPlotView("pipeline");
       setNotice("Preview completed. It is ephemeral and cannot be promoted or released.");
     } catch (caught) {
       if (caught instanceof Error && caught.name === "AbortError") return;
@@ -1010,10 +1070,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         downloadCanonicalTestDataDocument(config, item.test_data_document_id, item.current_revision.id)));
       const canonicalDocuments = await Promise.all(downloads.map(async (item) =>
         JSON.parse(await item.data.blob.text()) as Record<string, unknown>));
+      const preprocessingSteps = (JSON.parse(stepsText) as CommonProcessingStep[]).filter(
+        (step) => step.method_id.startsWith("rows.") || step.method_id.startsWith("curve."),
+      );
       const result = await previewCommonProcessingEnsemble(config, {
         documents: canonicalDocuments,
         mapping_profile: JSON.parse(profileText) as CommonMappingProfileContent,
-        preprocessing_steps: JSON.parse(stepsText) as CommonProcessingStep[],
+        preprocessing_steps: preprocessingSteps,
         alignment: {
           point_count: ensemblePointCount,
           domain_policy: "intersection",
@@ -1021,6 +1084,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         },
       });
       setEnsemblePreview(result.data);
+      setPlotView("ensemble");
       setNotice(`Aligned ${result.data.members.length} immutable curves; every member remains visible.`);
     } catch (caught) {
       setError(caught instanceof SyntaxError ? `Invalid ensemble JSON: ${caught.message}` : errorMessage(caught));
@@ -1038,6 +1102,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       return [];
     }
   }, [stepsText]);
+  const activeConfiguredStep = activeStage && activeStage.ordinal > 0
+    ? configuredSteps[activeStage.ordinal - 1]
+    : undefined;
   const trackDocuments = useMemo(
     () => documents.filter((item) => documentMatchesTrack(item, modelingTrack)),
     [documents, modelingTrack],
@@ -1174,7 +1241,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         } else {
           throw new Error(`${step.method_id} does not accept an x-domain selection.`);
         }
-      } else if (step.method_id === "metal.engineering_to_true_plastic") {
+      } else if (step.method_id === "metal.engineering_to_true_plastic" || step.method_id === "metal.necking_candidate") {
         const xValues = activeStage.series.find(
           (series) => series.quantity === selection.x_quantity,
         )?.values ?? [];
@@ -1183,18 +1250,32 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           (best, value, index) => Math.abs(value - selection.x) < Math.abs(xValues[best] - selection.x) ? index : best,
           0,
         );
-        options.necking_policy = "manual_index";
-        options.manual_necking_index = nearestIndex;
+        if (step.method_id === "metal.necking_candidate") {
+          const workupIndex = steps.findIndex(
+            (candidate, index) => index > stepIndex && candidate.method_id === "metal.engineering_to_true_plastic",
+          );
+          if (workupIndex < 0) throw new Error("Add an engineering-to-true/plastic Workup step after necking detection before selecting a boundary.");
+          const workup = steps[workupIndex];
+          steps[workupIndex] = {
+            ...workup,
+            options: { ...workup.options, necking_policy: "manual_index", manual_necking_index: nearestIndex },
+          };
+          setSelectedStepIndex(workupIndex);
+        } else {
+          options.necking_policy = "manual_index";
+          options.manual_necking_index = nearestIndex;
+          steps[stepIndex] = { ...step, options };
+          setSelectedStepIndex(stepIndex);
+        }
       } else {
         throw new Error(`${step.method_id} does not accept a point selection.`);
       }
-      steps[stepIndex] = { ...step, options };
+      if (selection.kind === "range") steps[stepIndex] = { ...step, options };
       setStepsText(JSON.stringify(steps, null, 2));
-      setSelectedStepIndex(stepIndex);
       setWorkspaceInspector("step");
       setPreview(null);
       setError(null);
-      setNotice(`Applied the graph ${selection.kind} to ${step.method_id} in the Recipe draft. Save a new Recipe revision to preserve it.`);
+      setNotice(`Applied the graph ${selection.kind} to ${step.method_id === "metal.necking_candidate" && selection.kind === "point" ? "the downstream plastic Workup" : step.method_id} in the Recipe draft. Save a new Recipe revision to preserve it.`);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The graph selection could not be applied.");
     }
@@ -1240,13 +1321,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <details className="method-library"><summary>Add a processing method <span>{trackMethods.length} compatible</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details>
         <div className="modeling-graph-workspace">
           <aside className="modeling-workspace-rail">
-            <div className="modeling-dataset-list"><p className="eyebrow">Datasets &amp; curves</p>{trackDocuments.map((item) => <button type="button" className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id} onClick={() => void loadDocument(item.test_data_document_id)}><span className="dataset-curve-swatch"/><span><strong>{item.document_key}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button>)}{!trackDocuments.length ? <p className="muted">No Test Data revision declares the quantities required by this material track.</p> : null}</div>
+            <div className="modeling-dataset-list"><div className="rail-heading"><p className="eyebrow">Datasets &amp; curves</p><span>{ensembleDocumentIds.length} included</span></div>{trackDocuments.map((item, index) => <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id}><label className="curve-include-toggle" title="Include this exact revision in replicate statistics"><input aria-label={`Include ${item.document_key} in replicate statistics`} type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)}/><span className="dataset-curve-swatch" style={{ "--curve-index": index } as React.CSSProperties}/></label><button type="button" onClick={() => { setPlotView("pipeline"); void loadDocument(item.test_data_document_id); }}><span><strong>{item.document_key}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button></article>)}{!trackDocuments.length ? <p className="muted">No Test Data revision declares the quantities required by this material track.</p> : null}<div className="rail-statistics-action"><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }}/></label><button className="button secondary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Add mean & band"}</button><small>Intersection only · no extrapolation</small></div></div>
             <div className="configured-step-list"><p className="eyebrow">Recipe steps</p>{configuredSteps.map((step, index) => <button type="button" className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{index + 1}</span><span><strong>{methods.find((method) => method.method_id === step.method_id)?.label ?? step.method_id}</strong><small>{step.method_version}</small></span></button>)}</div>
           </aside>
           <article className="persistent-modeling-plot" id="modeling-fit">
-            <div className="section-heading"><div><p className="eyebrow">Live curve comparison</p><h2>{activeStage?.method_id ?? "Load data and preview"}</h2></div>{preview ? <span className="status-chip warning">Preview only · not committed</span> : null}</div>
-            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} onApplySelection={applyGraphSelection} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you configure processing."}</strong><p>{previewBusy ? "The previous calculation is cancelled when a newer Recipe change is applied." : "Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source."}</p></div>}
-            {preview ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : null}
+            <div className="section-heading"><div><p className="eyebrow">Live curve comparison</p><h2>{plotView === "ensemble" ? "Replicate statistics" : activeStage?.method_id ?? "Load data and preview"}</h2></div><div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={plotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Pipeline</button><button type="button" className={plotView === "ensemble" ? "active" : ""} disabled={!ensemblePreview} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button>{preview || ensemblePreview ? <span className="status-chip warning">Preview only · not committed</span> : null}</div></div>
+            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} width={chart.width} height={chart.height} onApplySelection={plotView === "pipeline" ? applyGraphSelection : undefined} ensemblePreview={plotView === "ensemble" ? ensemblePreview : null} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you configure processing."}</strong><p>{previewBusy ? "The previous calculation is cancelled when a newer Recipe change is applied." : "Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source."}</p></div>}
+            {preview && plotView === "pipeline" ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : ensemblePreview && plotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>
           <aside className="step-option-panel">
             <nav className="workspace-inspector-tabs" aria-label="Modeling workspace inspector">
