@@ -105,24 +105,52 @@ function MasterCurveChart({ value }: { value: ViscoelasticMasterPreviewResponse 
   );
 }
 
+function ShiftFactorChart({ value }: { value: ViscoelasticMasterPreviewResponse }) {
+  const factors = [...value.run.shift_factors].sort((left, right) => left.temperature_k - right.temperature_k);
+  const minTemperature = Math.min(...factors.map((item) => item.temperature_k));
+  const maxTemperature = Math.max(...factors.map((item) => item.temperature_k));
+  const minShift = Math.min(...factors.map((item) => item.log10_a_t));
+  const maxShift = Math.max(...factors.map((item) => item.log10_a_t));
+  const points = factors.map((item) => {
+    const x = 42 + ((item.temperature_k - minTemperature) / (maxTemperature - minTemperature || 1)) * 286;
+    const y = 130 - ((item.log10_a_t - minShift) / (maxShift - minShift || 1)) * 104;
+    return { ...item, x, y };
+  });
+  return <section className="shift-factor-chart" aria-label="Temperature shift factor plot">
+    <div><p className="eyebrow">Shift model evidence</p><h5>log10(aT) vs temperature</h5></div>
+    <svg viewBox="0 0 360 164" role="img" aria-label="Temperature versus logarithmic shift factor">
+      <line x1="42" y1="130" x2="328" y2="130" className="chart-axis"/><line x1="42" y1="22" x2="42" y2="130" className="chart-axis"/>
+      <polyline points={points.map((item) => `${item.x.toFixed(1)},${item.y.toFixed(1)}`).join(" ")} className="shift-fit-line"/>
+      {points.map((item) => <g key={item.temperature_k}><circle cx={item.x} cy={item.y} r="4"/><text x={item.x} y="148" textAnchor="middle">{item.temperature_k.toFixed(0)} K</text></g>)}
+      <text x="8" y="82" transform="rotate(-90 8 82)">log10(aT)</text>
+    </svg>
+  </section>;
+}
+
 export function ViscoelasticMasterWorkbench({
   config,
   state,
   datasets,
   runs,
+  compact = false,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   datasets: ShearRelaxationDatasetResponse[];
   runs: TestRunResponse[];
+  compact?: boolean;
 }) {
   const eligible = useMemo(
     () => datasets.filter((item) => item.current_revision.content.representation !== "raw"),
     [datasets],
   );
-  const [selected, setSelected] = useState<string[]>([]);
-  const [method, setMethod] = useState<ViscoelasticShiftMethod>("manual");
-  const [referenceTemperature, setReferenceTemperature] = useState("");
+  const initialTemperatures = Array.from(new Set(eligible.flatMap((dataset) => {
+    const run = runs.find((item) => item.current_revision.id === dataset.current_revision.content.test_run_revision_id);
+    return run?.current_revision.content.test_temperature_k == null ? [] : [run.current_revision.content.test_temperature_k];
+  }))).sort((left, right) => left - right);
+  const [selected, setSelected] = useState<string[]>(() => compact ? eligible.map((item) => item.dataset_id) : []);
+  const [method, setMethod] = useState<ViscoelasticShiftMethod>(() => compact && initialTemperatures.length >= 3 ? "wlf_fit" : "manual");
+  const [referenceTemperature, setReferenceTemperature] = useState(() => compact && initialTemperatures.length ? String(initialTemperatures[Math.floor(initialTemperatures.length / 2)]) : "");
   const [manualShifts, setManualShifts] = useState<Record<string, string>>({});
   const [gridPointCount, setGridPointCount] = useState("101");
   const [busy, setBusy] = useState(false);
@@ -221,11 +249,11 @@ export function ViscoelasticMasterWorkbench({
   }
 
   return (
-    <form className="form-stack master-curve-workbench" onSubmit={execute}>
+    <form className={`form-stack master-curve-workbench ${compact ? "compact" : ""}`} onSubmit={execute}>
       <div className="section-heading compact-heading">
         <div>
           <p className="eyebrow">Replicates · statistics · time-temperature superposition</p>
-          <h5>Viscoelastic master curve</h5>
+          <h5>{compact ? "Time-temperature superposition" : "Viscoelastic master curve"}</h5>
         </div>
         <span className="reference-chip">typed Dataset revisions</span>
       </div>
@@ -331,7 +359,7 @@ export function ViscoelasticMasterWorkbench({
               </tbody>
             </table>
           </div>
-          <MasterCurveChart value={preview} />
+          <div className="master-curve-result-grid"><ShiftFactorChart value={preview}/><MasterCurveChart value={preview} /></div>
         </div>
       ) : null}
     </form>

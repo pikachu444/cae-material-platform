@@ -3,6 +3,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react
 import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
 import { CommonProcessingWorkbench, type ModelingTrack } from "./common-processing-workbench";
 import { loadModelingSession, saveModelingSession, type ModelingSessionSummary } from "./modeling-session-context";
+import { PolymerTemperatureShiftInspector } from "./polymer-temperature-shift-inspector";
 import type {
   MaterialDetail,
   MaterialResponse,
@@ -50,6 +51,7 @@ function FamilyModelingPanel({
   onStateChange,
   onNavigate,
   onOpenConnection,
+  preferredSourceDocumentId,
 }: {
   config: ApiConfig;
   track: ModelingTrack;
@@ -63,6 +65,7 @@ function FamilyModelingPanel({
   onStateChange: (stateId: string) => void;
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
+  preferredSourceDocumentId?: string;
 }) {
   const state = detail?.states.find((item) => item.material_state_id === selectedStateId);
   const propertySet = detail?.property_sets.find((item) => item.material_state_id === selectedStateId);
@@ -168,6 +171,8 @@ function FamilyModelingPanel({
               state={state}
               propertySet={propertySet}
               onNavigate={onNavigate}
+              embedded
+              preferredSourceDocumentId={preferredSourceDocumentId}
             />
           ) : null}
           {track === "elastomer" ? (
@@ -291,8 +296,13 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onStateChange={setSelectedStateId}
       onNavigate={onNavigate}
       onOpenConnection={onOpenConnection}
+      preferredSourceDocumentId={session?.testData?.id}
     />
-  ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, track]);
+  ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, session?.testData?.id, track]);
+  const selectedState = detail?.states.find((item) => item.material_state_id === selectedStateId);
+  const familyInspector = useMemo(() => track === "polymer" && selectedState ? (
+    <PolymerTemperatureShiftInspector config={config} state={selectedState} />
+  ) : null, [config, selectedState, track]);
 
   return (
     <CommonProcessingWorkbench
@@ -303,6 +313,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       initialSession={session}
       onSessionChange={updateSession}
       familyWorkbench={familyWorkbench}
+      familyInspector={familyInspector}
     />
   );
 }

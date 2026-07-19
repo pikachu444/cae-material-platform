@@ -25,6 +25,7 @@ from cmp.modules.processing.domain.metal_hardening import (
 )
 from cmp.modules.processing.domain.polymer_viscoelastic import (
     PolymerViscoelasticError,
+    fit_dma_prony_candidates,
     fit_prony_candidates,
     log_time_resample,
 )
@@ -558,6 +559,11 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
                     "minimum": 50,
                     "maximum": 100000,
                 },
+                "selection_reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                },
             },
             "required": [
                 "time_quantity",
@@ -569,6 +575,53 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
                 "minimum_relaxation_time_s",
                 "maximum_relaxation_time_s",
                 "maximum_function_evaluations",
+            ],
+        },
+    ),
+    MethodDefinition(
+        "polymer.dma_prony_fit_compare",
+        COMMON_METHOD_VERSION,
+        "Polymer DMA Prony candidate comparison",
+        "Fits one-to-ten-term generalized-Maxwell candidates jointly to storage and loss "
+        "modulus over an observed frequency sweep.",
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "frequency_quantity": {"type": "string", "minLength": 1},
+                "storage_modulus_quantity": {"type": "string", "minLength": 1},
+                "loss_modulus_quantity": {"type": "string", "minLength": 1},
+                "candidate_term_counts": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "uniqueItems": True,
+                    "items": {"type": "integer", "minimum": 1, "maximum": 10},
+                },
+                "selection_mode": {"enum": ["automatic_bic", "manual"]},
+                "selected_term_count": {"type": "integer", "minimum": 1, "maximum": 10},
+                "normalization_modulus_pa": _number_schema(minimum=1),
+                "minimum_relaxation_time_s": _number_schema(minimum=0),
+                "maximum_relaxation_time_s": _number_schema(minimum=0),
+                "maximum_function_evaluations": {
+                    "type": "integer",
+                    "minimum": 50,
+                    "maximum": 100000,
+                },
+                "selection_reason": {"type": "string", "minLength": 1, "maxLength": 1000},
+            },
+            "required": [
+                "frequency_quantity",
+                "storage_modulus_quantity",
+                "loss_modulus_quantity",
+                "candidate_term_counts",
+                "selection_mode",
+                "selected_term_count",
+                "normalization_modulus_pa",
+                "minimum_relaxation_time_s",
+                "maximum_relaxation_time_s",
+                "maximum_function_evaluations",
+                "selection_reason",
             ],
         },
     ),
@@ -1082,6 +1135,20 @@ def _apply_step(
             tuple(
                 ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
                 for item in fitted_prony.scalars
+            ),
+        )
+    if step.method_id == "polymer.dma_prony_fit_compare":
+        try:
+            fitted_dma = fit_dma_prony_candidates(columns, units, options)
+        except PolymerViscoelasticError as error:
+            raise CommonPipelineError(str(error)) from error
+        units.update(fitted_dma.units)
+        return (
+            fitted_dma.columns,
+            fitted_dma.diagnostics,
+            tuple(
+                ScalarResult(item.key, item.quantity_semantics, item.value, item.unit)
+                for item in fitted_dma.scalars
             ),
         )
     raise CommonPipelineError(f"method {step.method_id} is not executable")

@@ -230,6 +230,7 @@ describe("Viscoelastic master-curve workbench", () => {
     expect(await screen.findByTestId("viscoelastic-master-result")).toBeTruthy();
     expect(screen.getByText(/Three immutable outputs committed/i)).toBeTruthy();
     expect(screen.getByRole("img", { name: /shifted shear relaxation/i })).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Temperature versus logarithmic shift factor" })).toBeTruthy();
     expect(screen.getAllByText("not assessed").length).toBeGreaterThan(0);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
   });

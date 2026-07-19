@@ -54,6 +54,7 @@ interface Props {
   initialSession?: ModelingSessionSummary | null;
   onSessionChange?: (patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => void;
   familyWorkbench?: ReactNode;
+  familyInspector?: ReactNode;
 }
 
 export type ModelingTrack = "metal" | "polymer" | "elastomer";
@@ -109,6 +110,19 @@ const POLYMER_RELAXATION_PROFILE: CommonMappingProfileContent = {
       scale: 1,
       offset: 0,
     },
+  ],
+  attribute_bindings: [],
+};
+
+const POLYMER_DMA_PROFILE: CommonMappingProfileContent = {
+  profile_key: "polymer-dma-frequency",
+  label: "Polymer DMA storage/loss channels",
+  independent_quantity: "frequency",
+  missing_data_policy: "drop_any",
+  bindings: [
+    { channel_key: "frequency_hz", target_quantity: "frequency", accepted_normalized_units: ["Hz"], required: true, scale: 1, offset: 0 },
+    { channel_key: "storage_modulus_pa", target_quantity: "modulus.shear.storage", accepted_normalized_units: ["Pa"], required: true, scale: 1, offset: 0 },
+    { channel_key: "loss_modulus_pa", target_quantity: "modulus.shear.loss", accepted_normalized_units: ["Pa"], required: true, scale: 1, offset: 0 },
   ],
   attribute_bindings: [],
 };
@@ -177,6 +191,27 @@ const POLYMER_RELAXATION_STEPS: CommonProcessingStep[] = [
       maximum_relaxation_time_s: 1000000,
       maximum_function_evaluations: 5000,
       selection_reason: "Balanced residual shape and stable monotonic extrapolation.",
+    },
+  },
+];
+
+const POLYMER_DMA_STEPS: CommonProcessingStep[] = [
+  { method_id: "rows.sort_unique", method_version: "1.0.0", options: { duplicate_policy: "reject" } },
+  {
+    method_id: "polymer.dma_prony_fit_compare",
+    method_version: "1.0.0",
+    options: {
+      frequency_quantity: "frequency",
+      storage_modulus_quantity: "modulus.shear.storage",
+      loss_modulus_quantity: "modulus.shear.loss",
+      candidate_term_counts: [1, 2, 3, 4],
+      selection_mode: "automatic_bic",
+      selected_term_count: 2,
+      normalization_modulus_pa: 1000000000,
+      minimum_relaxation_time_s: 0.0001,
+      maximum_relaxation_time_s: 1000000,
+      maximum_function_evaluations: 5000,
+      selection_reason: "Joint storage/loss residual, lowest BIC and stable positive Prony terms.",
     },
   },
 ];
@@ -253,6 +288,7 @@ const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
 ];
 
 const HARDENING_FAMILIES = ["voce", "swift", "hockett_sherby", "ghosh"] as const;
+const PRONY_TERM_COUNTS = [1, 2, 3, 4, 5, 6, 8, 10] as const;
 
 function numberOption(step: CommonProcessingStep, key: string): number {
   const value = step.options[key];
@@ -365,6 +401,29 @@ function GuidedStepOptions({
       <p className="option-hint">The chosen equations, blend, fit domain, extrapolation bound and engineering reason are stored together in the Recipe revision.</p>
     </div>;
   }
+  if (step.method_id === "polymer.log_time_resample") {
+    return <div className="guided-step-options polymer-step-options">
+      <div className="engineering-callout"><strong>Logarithmic time domain</strong><p>Positive observed time is resampled uniformly in log10(t). Extrapolation is rejected.</p></div>
+      <div className="guided-range-row"><label>Start time (s)<input aria-label="Log-time resample start" type="number" min="0.000000001" step="any" value={numberOption(step, "start_time_s")} onChange={(event) => onChange("start_time_s", Number(event.target.value))}/></label><label>End time (s)<input aria-label="Log-time resample end" type="number" min="0.000000001" step="any" value={numberOption(step, "end_time_s")} onChange={(event) => onChange("end_time_s", Number(event.target.value))}/></label></div>
+      <label className="slider-option">Log-grid points <output>{numberOption(step, "count")}</output><input aria-label="Log-time resample point count" type="range" min="9" max="501" step="2" value={numberOption(step, "count")} onChange={(event) => onChange("count", Number(event.target.value))}/></label>
+      <p className="option-hint">Use <strong>Select range</strong> on the logarithmic graph to place both observed time limits.</p>
+    </div>;
+  }
+  if (step.method_id === "polymer.prony_fit_compare" || step.method_id === "polymer.dma_prony_fit_compare") {
+    const dma = step.method_id === "polymer.dma_prony_fit_compare";
+    const counts = Array.isArray(step.options.candidate_term_counts) ? step.options.candidate_term_counts.map(Number) : [];
+    const toggleCount = (count: number) => onChange("candidate_term_counts", counts.includes(count) ? counts.filter((item) => item !== count) : [...counts, count].sort((a, b) => a - b));
+    const mode = String(step.options.selection_mode);
+    return <div className="guided-step-options polymer-step-options">
+      <fieldset className="candidate-check-grid prony-count-grid"><legend>Generalized-Maxwell candidates</legend>{PRONY_TERM_COUNTS.map((count) => <label key={count}><input type="checkbox" checked={counts.includes(count)} onChange={() => toggleCount(count)} />{count} term{count === 1 ? "" : "s"}</label>)}</fieldset>
+      <fieldset className="option-choice-grid"><legend>Candidate selection</legend><button type="button" className={mode === "automatic_bic" ? "active" : ""} onClick={() => onChange("selection_mode", "automatic_bic")}>Automatic · lowest BIC</button><button type="button" className={mode === "manual" ? "active" : ""} onClick={() => onChange("selection_mode", "manual")}>Engineer selection</button></fieldset>
+      {mode === "manual" ? <label>Selected term count<select aria-label="Selected Prony term count" value={numberOption(step, "selected_term_count")} onChange={(event) => onChange("selected_term_count", Number(event.target.value))}>{counts.map((count) => <option key={count} value={count}>{count} term{count === 1 ? "" : "s"}</option>)}</select></label> : null}
+      <div className="guided-range-row"><label>Minimum τ (s)<input aria-label="Minimum Prony relaxation time" type="number" min="0.000000001" step="any" value={numberOption(step, "minimum_relaxation_time_s")} onChange={(event) => onChange("minimum_relaxation_time_s", Number(event.target.value))}/></label><label>Maximum τ (s)<input aria-label="Maximum Prony relaxation time" type="number" min="0.000000001" step="any" value={numberOption(step, "maximum_relaxation_time_s")} onChange={(event) => onChange("maximum_relaxation_time_s", Number(event.target.value))}/></label></div>
+      <label>Objective normalization (MPa)<input aria-label="Prony objective normalization" type="number" min="0.000001" step="any" value={numberOption(step, "normalization_modulus_pa") / 1e6} onChange={(event) => onChange("normalization_modulus_pa", Number(event.target.value) * 1e6)}/></label>
+      <label>Selection reason<textarea aria-label="Prony candidate selection reason" rows={3} value={String(step.options.selection_reason ?? "")} onChange={(event) => onChange("selection_reason", event.target.value)} /></label>
+      <p className="option-hint">{dma ? "Storage and loss modulus are fitted jointly with one parameter set. " : ""}The term candidates, bounds, objective, selected count and engineering reason are stored in the Recipe revision. No hidden term database is used.</p>
+    </div>;
+  }
   return <div className="step-option-grid">{Object.entries(step.options).map(([option, value]) => <label key={option}>{option.replaceAll("_", " ")}{typeof value === "boolean" ? <input type="checkbox" checked={value} onChange={(event) => onChange(option, event.target.checked)} /> : <input value={Array.isArray(value) ? value.join(", ") : String(value)} type={typeof value === "number" ? "number" : "text"} onChange={(event) => onChange(option, typeof value === "number" ? Number(event.target.value) : Array.isArray(value) ? event.target.value.split(",").map((item) => item.trim()).filter(Boolean) : event.target.value)} />}</label>)}</div>;
 }
 
@@ -441,6 +500,20 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       minimum_relaxation_time_s: 0.0001,
       maximum_relaxation_time_s: 1000000,
       maximum_function_evaluations: 5000,
+      selection_reason: "Lowest BIC with stable monotonic relaxation over the observed time domain.",
+    },
+    "polymer.dma_prony_fit_compare": {
+      frequency_quantity: "frequency",
+      storage_modulus_quantity: "modulus.shear.storage",
+      loss_modulus_quantity: "modulus.shear.loss",
+      candidate_term_counts: [1, 2, 3, 4],
+      selection_mode: "automatic_bic",
+      selected_term_count: 2,
+      normalization_modulus_pa: 1000000000,
+      minimum_relaxation_time_s: 0.0001,
+      maximum_relaxation_time_s: 1000000,
+      maximum_function_evaluations: 5000,
+      selection_reason: "Joint storage/loss residual, lowest BIC and stable positive Prony terms.",
     },
   };
   return options[methodId] ?? {};
@@ -497,6 +570,38 @@ function HardeningCandidateEvidence({
   </section>;
 }
 
+function PronyCandidateEvidence({
+  stage,
+  step,
+  onSelect,
+}: {
+  stage: CommonCurveStage;
+  step: CommonProcessingStep;
+  onSelect: (termCount: number) => void;
+}) {
+  const scalar = new Map(stage.scalar_results.map((item) => [item.key, item]));
+  const counts = Array.isArray(step.options.candidate_term_counts)
+    ? step.options.candidate_term_counts.map(Number)
+    : [];
+  const selectedCount = Number(scalar.get("prony_selected_term_count")?.value ?? step.options.selected_term_count ?? 0);
+  const candidates = counts.map((count) => ({
+    count,
+    bic: scalar.get(`prony_${count}_bic`),
+    rmse: scalar.get(`prony_${count}_normalized_rmse`),
+  })).sort((left, right) => (left.bic?.value ?? Number.POSITIVE_INFINITY) - (right.bic?.value ?? Number.POSITIVE_INFINITY));
+  const selectedTerms = Array.from({ length: Math.max(0, selectedCount) }, (_, index) => ({
+    ordinal: index + 1,
+    ratio: scalar.get(`prony_g_ratio_${index + 1}`)?.value,
+    time: scalar.get(`prony_relaxation_time_${index + 1}`)?.value,
+  }));
+  return <section className="prony-candidate-evidence" aria-label="Prony candidate numerical comparison">
+    <div className="candidate-evidence-heading"><div><p className="eyebrow">Calculated candidates</p><h4>Prony evidence</h4></div><span>{candidates.length} fits</span></div>
+    <div className="prony-candidate-strip">{candidates.map((candidate, index) => <button type="button" className={selectedCount === candidate.count ? "selected" : ""} key={candidate.count} onClick={() => onSelect(candidate.count)} aria-label={`Select ${candidate.count}-term Prony candidate`}><span>{index === 0 ? "BEST BIC" : selectedCount === candidate.count ? "SELECTED" : "CANDIDATE"}</span><strong>{candidate.count} term{candidate.count === 1 ? "" : "s"}</strong><small>BIC {candidate.bic?.value.toFixed(2) ?? "—"}</small><b>nRMSE {candidate.rmse ? `${(candidate.rmse.value * 100).toFixed(3)}%` : "—"}</b></button>)}</div>
+    {selectedTerms.length ? <div className="prony-selected-terms" role="table" aria-label="Selected Prony term parameters"><div className="prony-selected-term header" role="row"><span>Term</span><span>gᵢ ratio</span><span>τᵢ (s)</span></div>{selectedTerms.map((term) => <div className="prony-selected-term" role="row" key={term.ordinal}><strong>{term.ordinal}</strong><span>{term.ratio?.toPrecision(5) ?? "—"}</span><span>{term.time?.toPrecision(5) ?? "—"}</span></div>)}</div> : null}
+    <p className="option-hint">Click a fitted candidate to switch to an explicit engineer selection. Compare response and residual before saving the Recipe.</p>
+  </section>;
+}
+
 function xyPoints(
   x: number[],
   y: number[],
@@ -529,13 +634,41 @@ function documentMatchesTrack(
   const quantities = item.channels.map((channel) => channel.quantity_semantics.toLowerCase());
   const hasQuantity = (suffix: string) => quantities.some((quantity) => quantity === suffix || quantity.endsWith(`.${suffix}`));
   if (track === "polymer") {
-    return hasQuantity("time.elapsed") && hasQuantity("modulus.shear.relaxation");
+    const relaxation = hasQuantity("time.elapsed") && hasQuantity("modulus.shear.relaxation");
+    const dma = hasQuantity("frequency.cyclic")
+      && hasQuantity("modulus.shear.storage")
+      && hasQuantity("modulus.shear.loss");
+    return relaxation || dma;
   }
   const hasStressStrain = hasQuantity("strain.engineering") && hasQuantity("stress.engineering");
   if (!hasStressStrain) return false;
   const method = item.method.trim().toLowerCase();
   if (track === "metal") return method === "tensile" || method === "uniaxial tensile reference method";
   return ["uniaxial", "planar", "biaxial"].some((mode) => method === mode || method === `${mode} tension`);
+}
+
+function profileMatchesTrack(
+  item: CommonMappingProfileResponse,
+  track: ModelingTrack,
+): boolean {
+  const content = item.content;
+  if (track === "metal") {
+    return content.independent_quantity.includes("strain")
+      && content.bindings.some((binding) => binding.target_quantity.includes("stress"));
+  }
+  if (track === "polymer") {
+    return ["time", "frequency"].includes(content.independent_quantity)
+      || content.profile_key.includes("polymer");
+  }
+  return content.profile_key.includes("elastomer");
+}
+
+function documentIsPolymerDma(item: CanonicalTestDataDocumentResponse | undefined): boolean {
+  if (!item) return false;
+  const quantities = new Set(item.channels.map((channel) => channel.quantity_semantics.toLowerCase()));
+  return quantities.has("frequency.cyclic")
+    && quantities.has("modulus.shear.storage")
+    && quantities.has("modulus.shear.loss");
 }
 
 interface PlotBounds {
@@ -563,7 +696,7 @@ function paddedBounds(x: number[], y: number[]): PlotBounds {
   };
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench, familyInspector }: Props) {
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
@@ -647,6 +780,18 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         item.current_revision.id,
       );
       setDocument(JSON.parse(await result.data.blob.text()) as Record<string, unknown>);
+      if (modelingTrack === "polymer") {
+        const dma = documentIsPolymerDma(item);
+        const template = dma ? POLYMER_DMA_PROFILE : POLYMER_RELAXATION_PROFILE;
+        const steps = dma ? POLYMER_DMA_STEPS : POLYMER_RELAXATION_STEPS;
+        const compatible = profiles.find((candidate) => candidate.content.profile_key === template.profile_key)
+          ?? profiles.find((candidate) => candidate.content.independent_quantity === template.independent_quantity
+            && candidate.content.bindings.every((binding) => template.bindings.some((expected) => expected.target_quantity === binding.target_quantity)));
+        setSelectedProfileId(compatible?.mapping_profile_id ?? "");
+        setProfileText(JSON.stringify(compatible?.content ?? template, null, 2));
+        setStepsText(JSON.stringify(steps, null, 2));
+        setSelectedStepIndex(steps.length - 1);
+      }
       setNotice(`Loaded exact Test Data revision ${item.current_revision.revision_no}.`);
       setError(null);
     } catch (caught) {
@@ -668,19 +813,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   useEffect(() => {
     if (selectedProfileId || !profiles.length) return;
     const exactRestored = profiles.find((item) => item.mapping_profile_id === initialSession?.mappingProfile?.id
-      && item.current_revision.id === initialSession.mappingProfile.revisionId);
-    const compatible = exactRestored ?? profiles.find((item) => {
-      const content = item.content;
-      if (modelingTrack === "metal") {
-        return content.independent_quantity.includes("strain")
-          && content.bindings.some((binding) => binding.target_quantity.includes("stress"));
-      }
-      if (modelingTrack === "polymer") {
-        return content.independent_quantity === "time"
-          || content.profile_key.includes("polymer");
-      }
-      return content.profile_key.includes("elastomer");
-    });
+      && item.current_revision.id === initialSession.mappingProfile.revisionId
+      && profileMatchesTrack(item, modelingTrack));
+    const compatible = exactRestored ?? profiles.find((item) => profileMatchesTrack(item, modelingTrack));
     if (!compatible) return;
     setSelectedProfileId(compatible.mapping_profile_id);
     setProfileText(JSON.stringify(compatible.content, null, 2));
@@ -962,11 +1097,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }
 
   function updateStepOption(option: string, value: unknown): void {
+    updateStepOptions({ [option]: value });
+  }
+
+  function updateStepOptions(options: Record<string, unknown>): void {
     try {
       const steps = JSON.parse(stepsText) as CommonProcessingStep[];
       const step = steps[selectedStepIndex];
       if (!step) return;
-      steps[selectedStepIndex] = { ...step, options: { ...step.options, [option]: value } };
+      steps[selectedStepIndex] = { ...step, options: { ...step.options, ...options } };
       setStepsText(JSON.stringify(steps, null, 2));
       setPreview(null);
     } catch {
@@ -1289,6 +1428,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         if (step.method_id === "curve.crop") {
           options.minimum = selection.minimum;
           options.maximum = selection.maximum;
+        } else if (step.method_id === "polymer.log_time_resample") {
+          options.start_time_s = selection.minimum;
+          options.end_time_s = selection.maximum;
         } else if (step.method_id === "metal.elastic_modulus") {
           options.minimum_strain = selection.minimum;
           options.maximum_strain = selection.maximum;
@@ -1345,7 +1487,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setWorkflowTask(task);
     if (task === "card") return;
     const preferredMethod = task === "fit" || task === "extrapolate"
-      ? modelingTrack === "metal" ? "metal.hardening_fit_extrapolate" : modelingTrack === "polymer" ? "polymer.prony_fit_compare" : "rows.sort_unique"
+      ? modelingTrack === "metal"
+        ? "metal.hardening_fit_extrapolate"
+        : modelingTrack === "polymer"
+          ? documentIsPolymerDma(selectedTrackDocument)
+            ? "polymer.dma_prony_fit_compare"
+            : "polymer.prony_fit_compare"
+          : "rows.sort_unique"
       : task === "prepare"
         ? modelingTrack === "metal" ? "metal.elastic_modulus" : "rows.sort_unique"
         : null;
@@ -1366,7 +1514,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <nav className="modeling-flow-nav" aria-label="Material Modeling steps">{(["import", "map", "prepare", "fit", "extrapolate", "card"] as ModelingWorkflowTask[]).map((task) => <button type="button" className={workflowTask === task ? "active" : ""} aria-current={workflowTask === task ? "step" : undefined} key={task} onClick={() => openWorkflowTask(task)}>{task[0].toUpperCase() + task.slice(1)}</button>)}</nav>
         <div className="modeling-track-selector" role="tablist" aria-label="Material modeling family">
           <button type="button" role="tab" aria-selected={modelingTrack === "metal"} className={modelingTrack === "metal" ? "active metal" : "metal"} onClick={() => selectModelingTrack("metal")}><span>Metal</span><strong>Elastoplastic</strong><small>E, proof, necking, hardening</small></button>
-          <button type="button" role="tab" aria-selected={modelingTrack === "polymer"} className={modelingTrack === "polymer" ? "active polymer" : "polymer"} onClick={() => selectModelingTrack("polymer")}><span>Polymer</span><strong>Viscoelastic</strong><small>Log-time, Prony candidates</small></button>
+          <button type="button" role="tab" aria-selected={modelingTrack === "polymer"} className={modelingTrack === "polymer" ? "active polymer" : "polymer"} onClick={() => selectModelingTrack("polymer")}><span>Polymer</span><strong>Viscoelastic</strong><small>Relaxation or DMA · Prony</small></button>
           <button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} className={modelingTrack === "elastomer" ? "active elastomer" : "elastomer"} onClick={() => selectModelingTrack("elastomer")}><span>Elastomer</span><strong>Hyper-viscoelastic</strong><small>Multi-mode, stability, Prony</small></button>
         </div>
       </header>
@@ -1386,7 +1534,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <article className="workbench-card mapping-profile-card" id="modeling-map">
           <div className="section-heading"><div><p className="eyebrow">2 · reusable contract</p><h2>Mapping Profile</h2></div><span className="status-chip">{profiles.length} saved</span></div>
           <label>Saved profile<select aria-label="Saved Mapping Profile" value={selectedProfileId} onChange={(event) => selectProfile(event.target.value)}><option value="">New profile</option>{profiles.map((item) => <option key={item.mapping_profile_id} value={item.mapping_profile_id}>{item.content.label} · r{item.current_revision.revision_no}</option>)}</select></label>
-          <p className="track-contract-note"><strong>{modelingTrack === "metal" ? "Metal tensile" : modelingTrack === "polymer" ? "Polymer relaxation" : "Elastomer multi-mode"}</strong>{modelingTrack === "elastomer" ? " requires uniaxial, planar or biaxial roles; no single curve is silently treated as a complete calibration." : " profile and ordered method defaults are loaded from the selected family track."}</p>
+          <p className="track-contract-note"><strong>{modelingTrack === "metal" ? "Metal tensile" : modelingTrack === "polymer" ? documentIsPolymerDma(selectedTrackDocument) ? "Polymer DMA frequency sweep" : "Polymer relaxation" : "Elastomer multi-mode"}</strong>{modelingTrack === "elastomer" ? " requires uniaxial, planar or biaxial roles; no single curve is silently treated as a complete calibration." : " profile and ordered method defaults are loaded from the selected family track."}</p>
           <details className="advanced-definition"><summary>Advanced mapping definition</summary><label>Profile JSON<textarea className="mapping-profile-editor" aria-label="Mapping Profile JSON" value={profileText} onChange={(event) => setProfileText(event.target.value)} spellCheck={false} /></label></details>
           <div className="profile-save-row"><label>Classification<select value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label><label>Change reason<input value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !changeReason.trim()} onClick={() => void saveProfile()}>{selectedProfileId ? "Append profile revision" : "Save new profile"}</button></div>
         </article>
@@ -1416,6 +1564,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               <div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
               <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} />
               {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelectPrimary={(family) => updateStepOption("primary_family", family)} /> : null}
+              {(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage?.method_id === selectedConfiguredStep.method_id ? <PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelect={(termCount) => updateStepOptions({ selection_mode: "manual", selected_term_count: termCount })} /> : null}
+              {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}
             </> : <p className="muted">Add or select a processing step.</p> : null}
             {workspaceInspector === "recipe" ? <div className="inspector-recipe-panel">
               <div className="section-heading"><div><p className="eyebrow">Reusable execution</p><h3>Processing Recipe</h3></div><span className="status-chip">{trackRecipes.length} saved</span></div>

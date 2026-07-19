@@ -62,11 +62,15 @@ export function ReferenceLinearViscoelasticWorkbench({
   state,
   propertySet,
   onNavigate,
+  embedded = false,
+  preferredSourceDocumentId,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   propertySet: PropertySetResponse;
   onNavigate?: (path: string) => void;
+  embedded?: boolean;
+  preferredSourceDocumentId?: string;
 }) {
   const [models, setModels] = useState<LinearViscoelasticModelResponse[]>([]);
   const [selectedId, setSelectedId] = useState("");
@@ -90,19 +94,28 @@ export function ReferenceLinearViscoelasticWorkbench({
   async function reload(preferredId?: string): Promise<void> {
     const result = await listLinearViscoelasticModels(config, state.material_state_id);
     setModels(result.data.items);
-    setSelectedId(preferredId ?? result.data.items[0]?.material_model_id ?? "");
+    const sourceMatched = result.data.items.find(
+      (model) => model.current_revision.content.processing_promotion_evidence
+        ?.source_test_data.id === preferredSourceDocumentId,
+    );
+    setSelectedId(
+      preferredId ?? sourceMatched?.material_model_id ?? result.data.items[0]?.material_model_id ?? "",
+    );
   }
 
   useEffect(() => {
     setError(null);
     void Promise.all([reload(), listCommonProcessingOutputs(config)]).then(([, outputs]) => {
       const promotable = outputs.data.items.filter(
-        (output) => output.steps.at(-1)?.method_id === "polymer.prony_fit_compare",
+        (output) => [
+          "polymer.prony_fit_compare",
+          "polymer.dma_prony_fit_compare",
+        ].includes(output.steps.at(-1)?.method_id ?? ""),
       );
       setProcessingOutputs(promotable);
       setProcessingOutputId(promotable[0]?.processing_output_id ?? "");
     }).catch((cause: unknown) => setError(message(cause)));
-  }, [config.baseUrl, config.accessToken, state.material_state_id]);
+  }, [config.baseUrl, config.accessToken, preferredSourceDocumentId, state.material_state_id]);
 
   useEffect(() => {
     setResponse(null);
@@ -230,8 +243,8 @@ export function ReferenceLinearViscoelasticWorkbench({
   const path = response ? responsePath(response) : "";
 
   return (
-    <section className="reference-linear-viscoelastic-workbench">
-      <div className="section-heading">
+    <section className={`reference-linear-viscoelastic-workbench ${embedded ? "embedded" : ""}`}>
+      {!embedded ? <div className="section-heading">
         <div>
           <p className="eyebrow">Polymer / elastomer model</p>
           <h4>Linear Prony relaxation</h4>
@@ -241,9 +254,9 @@ export function ReferenceLinearViscoelasticWorkbench({
           </p>
         </div>
         <span className="revision-chip">reference · non-production</span>
-      </div>
+      </div> : <div className="section-heading compact-heading"><div><p className="eyebrow">Polymer viscoelastic delivery</p><h4>Reviewed Prony → Neutral JSON → solver card</h4><p className="muted">The exact fitted output and its engineering selection remain pinned. No term is re-entered in the Card task.</p></div><span className="revision-chip">reference · non-production</span></div>}
 
-      <form className="viscoelastic-form" onSubmit={promoteProcessing}>
+      {!embedded || !content?.processing_promotion_evidence ? <form className={`viscoelastic-form ${embedded ? "embedded-promotion" : ""}`} onSubmit={promoteProcessing}>
         <div className="section-heading compact-heading">
           <div>
             <p className="eyebrow">Reviewed processing promotion</p>
@@ -300,13 +313,13 @@ export function ReferenceLinearViscoelasticWorkbench({
           </>
         ) : (
           <p className="muted">
-            No committed Processing Output ends with polymer.prony_fit_compare. Create and commit
-            one in the Processing Workbench first.
+            No committed Processing Output ends with a relaxation or DMA Prony comparison.
+            Create and commit one in the Processing Workbench first.
           </p>
         )}
-      </form>
+      </form> : <section className="reviewed-delivery-summary" aria-label="Reviewed polymer Processing Output"><div><p className="eyebrow">1 · Reviewed Processing Output</p><h4>{content.processing_promotion_evidence.selection_mode.replaceAll("_", " ")} · {content.terms.length} Prony terms</h4><p>The exact fitted Output, residual metrics and instantaneous-modulus review are pinned by this IR.</p></div><div className="reviewed-output-facts"><span><small>Normalized RMSE</small><strong>{content.processing_promotion_evidence.normalized_rmse.toPrecision(4)}</strong></span><span><small>G₀ mismatch</small><strong>{(content.processing_promotion_evidence.instantaneous_modulus_relative_mismatch * 100).toFixed(2)}%</strong></span><span><small>IR revision</small><strong>r{selected?.current_revision.revision_no}</strong></span></div></section>}
 
-      <form className="viscoelastic-form" onSubmit={submit}>
+      {!embedded ? <form className="viscoelastic-form" onSubmit={submit}>
         <div className="viscoelastic-toolbar">
           <label>
             Bulk relaxation evidence
@@ -375,12 +388,12 @@ export function ReferenceLinearViscoelasticWorkbench({
             {busy ? "Creating…" : "Create immutable Prony IR"}
           </button>
         </div>
-      </form>
+      </form> : null}
 
       {error ? <p className="error-notice">{error}</p> : null}
 
       {content ? (
-        <section className="viscoelastic-result">
+        <section className={`viscoelastic-result ${embedded ? "embedded" : ""}`}>
           <div className="section-heading compact-heading">
             <div>
               <p className="eyebrow">Saved Material Model IR</p>
@@ -449,13 +462,13 @@ export function ReferenceLinearViscoelasticWorkbench({
                 </button>
               )}
             </div>
-          ) : (
+          ) : !embedded ? (
             <ReferenceLinearViscoelasticExport config={config} model={selected} />
-          )}
+          ) : null}
           {neutralMaterial ? (
             <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} onNavigate={onNavigate} />
           ) : null}
-          {response ? (
+          {!embedded && response ? (
             <div className="relaxation-chart">
               <div><strong>Shear relaxation response</strong><small>G(t), Pa · log-spaced time preview</small></div>
               <svg viewBox="0 0 540 132" role="img" aria-label="Shear relaxation modulus curve">
@@ -468,7 +481,7 @@ export function ReferenceLinearViscoelasticWorkbench({
                 <span>G(end) {(response.points.at(-1)!.shear_modulus_pa / 1e6).toFixed(1)} MPa</span>
               </div>
             </div>
-          ) : <p className="muted">Loading relaxation response…</p>}
+          ) : !embedded ? <p className="muted">Loading relaxation response…</p> : null}
         </section>
       ) : (
         <p className="muted">No Prony IR exists for this Material State yet.</p>

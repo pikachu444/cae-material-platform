@@ -220,4 +220,109 @@ describe("EngineeringCurvePlot", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Tangent modulus" }));
     expect(container.querySelectorAll(".chart-axis-label")[1]?.textContent).toMatch(/d\(stress\) \/ d\(plastic strain\) \[(M|G)Pa\]/);
   });
+
+  it("compares measured Prony relaxation and residuals on a logarithmic time axis", () => {
+    const observed: CommonCurveStage = {
+      ordinal: 1,
+      method_id: "polymer.log_time_resample",
+      method_version: "1.0.0",
+      point_count: 5,
+      series: [
+        { quantity: "time", unit: "s", values: [0.01, 0.1, 1, 10, 100] },
+        { quantity: "modulus.shear.relaxation", unit: "Pa", values: [1.1e9, 1e9, 8.5e8, 6.8e8, 5.5e8] },
+      ],
+      diagnostics: ["log-time grid; extrapolation rejected"],
+      scalar_results: [],
+    };
+    const prony: CommonCurveStage = {
+      ordinal: 2,
+      method_id: "polymer.prony_fit_compare",
+      method_version: "1.0.0",
+      point_count: 5,
+      series: [
+        observed.series[0],
+        observed.series[1],
+        { quantity: "modulus.prony.candidate_1_term", unit: "Pa", values: [1.08e9, 1.01e9, 8.7e8, 6.9e8, 5.6e8] },
+        { quantity: "modulus.prony.candidate_2_term", unit: "Pa", values: [1.1e9, 0.995e9, 8.52e8, 6.79e8, 5.51e8] },
+        { quantity: "modulus.prony.selected", unit: "Pa", values: [1.1e9, 0.995e9, 8.52e8, 6.79e8, 5.51e8] },
+      ],
+      diagnostics: ["selected 2-term candidate by automatic_bic"],
+      scalar_results: [
+        { key: "prony_1_bic", quantity_semantics: "statistics.bayesian_information_criterion", value: 12.4, unit: "1" },
+        { key: "prony_1_normalized_rmse", quantity_semantics: "statistics.root_mean_square.normalized", value: 0.025, unit: "1" },
+        { key: "prony_2_bic", quantity_semantics: "statistics.bayesian_information_criterion", value: 4.2, unit: "1" },
+        { key: "prony_2_normalized_rmse", quantity_semantics: "statistics.root_mean_square.normalized", value: 0.004, unit: "1" },
+      ],
+    };
+    const pronyPreview = { ...preview, independent_quantity: "time", stages: [baseStage, observed, prony] };
+    const { container } = render(<EngineeringCurvePlot preview={pronyPreview} activeStage={prony} baseStage={observed} activeStep={{ method_id: "polymer.prony_fit_compare", method_version: "1.0.0", options: { modulus_quantity: "modulus.shear.relaxation" } }} width={760} height={420} />);
+
+    expect(screen.getByText("Measured relaxation")).toBeTruthy();
+    expect(screen.getByText("time [s] · logarithmic")).toBeTruthy();
+    expect(screen.getByLabelText("Prony candidate BIC and normalized RMSE summary")).toBeTruthy();
+    expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(4);
+    fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
+    expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
+    expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
+  });
+
+  it("compares measured and fitted DMA storage/loss responses on log frequency", () => {
+    const measured: CommonCurveStage = {
+      ordinal: 1,
+      method_id: "rows.sort_unique",
+      method_version: "1.0.0",
+      point_count: 4,
+      series: [
+        { quantity: "frequency", unit: "Hz", values: [0.01, 0.1, 1, 10] },
+        { quantity: "modulus.shear.storage", unit: "Pa", values: [3.1e8, 3.8e8, 6.2e8, 8.9e8] },
+        { quantity: "modulus.shear.loss", unit: "Pa", values: [3e7, 8e7, 1.7e8, 1.1e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    const fitted: CommonCurveStage = {
+      ordinal: 2,
+      method_id: "polymer.dma_prony_fit_compare",
+      method_version: "1.0.0",
+      point_count: 4,
+      series: [
+        ...measured.series,
+        { quantity: "modulus.storage.prony.candidate_2_term", unit: "Pa", values: [3.1e8, 3.81e8, 6.19e8, 8.91e8] },
+        { quantity: "modulus.loss.prony.candidate_2_term", unit: "Pa", values: [3.01e7, 7.99e7, 1.69e8, 1.11e8] },
+        { quantity: "modulus.storage.prony.selected", unit: "Pa", values: [3.1e8, 3.81e8, 6.19e8, 8.91e8] },
+        { quantity: "modulus.loss.prony.selected", unit: "Pa", values: [3.01e7, 7.99e7, 1.69e8, 1.11e8] },
+      ],
+      diagnostics: ["selected 2-term candidate by automatic_bic"],
+      scalar_results: [
+        { key: "prony_2_bic", quantity_semantics: "statistics.bayesian_information_criterion", value: -42, unit: "1" },
+        { key: "prony_2_normalized_rmse", quantity_semantics: "statistics.root_mean_square.normalized", value: 0.001, unit: "1" },
+      ],
+    };
+    const dmaPreview = { ...preview, independent_quantity: "frequency", stages: [baseStage, measured, fitted] };
+    const { container } = render(
+      <EngineeringCurvePlot
+        preview={dmaPreview}
+        activeStage={fitted}
+        baseStage={measured}
+        activeStep={{
+          method_id: "polymer.dma_prony_fit_compare",
+          method_version: "1.0.0",
+          options: {
+            storage_modulus_quantity: "modulus.shear.storage",
+            loss_modulus_quantity: "modulus.shear.loss",
+          },
+        }}
+        width={760}
+        height={420}
+      />,
+    );
+
+    expect(screen.getByText("Measured storage modulus")).toBeTruthy();
+    expect(screen.getByText("Measured loss modulus")).toBeTruthy();
+    expect(screen.getByText("frequency [Hz] · logarithmic")).toBeTruthy();
+    expect(screen.getByLabelText("DMA storage and loss Prony candidate curves")).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
+    expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
+    expect(container.querySelectorAll("polyline.curve-line").length).toBeGreaterThanOrEqual(2);
+  });
 });
