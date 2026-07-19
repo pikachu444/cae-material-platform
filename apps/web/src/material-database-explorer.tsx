@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 
 import {
   ApiError,
@@ -66,7 +66,11 @@ interface TableDefinition {
   layouts: ConfigurableLayoutResponse[];
 }
 
-type RecordTab = "workflow" | "datasheet" | "properties" | "curves" | "cards" | "links";
+type RecordTab = "overview" | "properties" | "curves" | "tests" | "models" | "cards" | "links";
+type ExplorerProjection = "catalog" | "workflow";
+type ContextTab = "related" | "revisions";
+
+const DATABASE_VIEW_STATE_KEY = "cmp.material-database.view.v1";
 
 function latestSiblingFolders(
   folders: ConfigurableCatalogFolderResponse[],
@@ -98,8 +102,11 @@ export function MaterialDatabaseExplorer({
   const [selectedGraph, setSelectedGraph] = useState<CatalogWorkflowGraphResponse | null>(null);
   const [tableDefinitions, setTableDefinitions] = useState<Record<string, TableDefinition>>({});
   const [selectedRevision, setSelectedRevision] = useState<ConfigurableCatalogRecordResponse["current_revision"] | null>(null);
+  const [selectedRevisions, setSelectedRevisions] = useState<ConfigurableCatalogRecordResponse["current_revision"][]>([]);
   const [revisionComparison, setRevisionComparison] = useState<ConfigurableCatalogRecordComparison | null>(null);
-  const [activeTab, setActiveTab] = useState<RecordTab>("workflow");
+  const [activeTab, setActiveTab] = useState<RecordTab>("overview");
+  const [projection, setProjection] = useState<ExplorerProjection>("catalog");
+  const [contextTab, setContextTab] = useState<ContextTab>("related");
   const [selectedLayoutId, setSelectedLayoutId] = useState("");
   const [searchTableId, setSearchTableId] = useState("");
   const [searchLayoutId, setSearchLayoutId] = useState("");
@@ -192,6 +199,7 @@ export function MaterialDatabaseExplorer({
       const exactRevision = revisionResult.data.items.find((item) => item.id === revisionId) ?? null;
       setSelectedGraph(graphResult.data);
       setSelectedRevision(exactRevision);
+      setSelectedRevisions(revisionResult.data.items);
       if (exactRevision && revisionResult.data.items.length > 1) {
         const firstRevision = revisionResult.data.items[0];
         const comparison = await compareConfigurableCatalogRecordRevisions(
@@ -203,6 +211,11 @@ export function MaterialDatabaseExplorer({
         setRevisionComparison(comparison.data);
       } else {
         setRevisionComparison(null);
+      }
+      try {
+        window.sessionStorage.setItem(DATABASE_VIEW_STATE_KEY, JSON.stringify({ recordId, revisionId }));
+      } catch {
+        // Session restoration is a convenience; database access must still work when storage is disabled.
       }
       setError(null);
     } catch (caught) {
@@ -238,12 +251,48 @@ export function MaterialDatabaseExplorer({
         setSubsets(Object.fromEntries(metadata.map((item) => [item.tableId, item.subsets])));
         setTableDefinitions(Object.fromEntries(metadata.map((item) => [item.tableId, item.definition])));
         setSearchLayoutId(metadata[0]?.definition.layouts[0]?.layout_id ?? "");
-        if (nextTables[0]) await loadBranch(nextTables[0].table_id, null);
+        const restored = (() => {
+          if (initialRecordId && initialRevisionId) return { recordId: initialRecordId, revisionId: initialRevisionId };
+          try {
+            return JSON.parse(window.sessionStorage.getItem(DATABASE_VIEW_STATE_KEY) ?? "null") as { recordId: string; revisionId: string } | null;
+          } catch {
+            return null;
+          }
+        })();
+        const discoverRecord = async (
+          table: ConfigurableTableResponse,
+          folderId: string | null,
+          depth: number,
+        ): Promise<ConfigurableCatalogRecordResponse | null> => {
+          if (depth > 6) return null;
+          const branchResult = await listCatalogExplorerChildren(config, table.table_id, folderId);
+          const branchKey = key(table.table_id, folderId);
+          setChildren((current) => ({ ...current, [branchKey]: branchResult.data }));
+          setExpanded((current) => new Set(current).add(branchKey));
+          const preferred = branchResult.data.records.find((record) => /synthetic demo steel|sheet steel|demo material(?! state)/i.test(record.current_revision.content.name));
+          if (preferred) return preferred;
+          if (branchResult.data.records[0]) return branchResult.data.records[0];
+          for (const folder of latestSiblingFolders(branchResult.data.folders)) {
+            const found = await discoverRecord(table, folder.folder_id, depth + 1);
+            if (found) return found;
+          }
+          return null;
+        };
+        let discoveredRecord: ConfigurableCatalogRecordResponse | null = null;
+        for (const table of nextTables) {
+          const defaultRecord = await discoverRecord(table, null, 0);
+          if (defaultRecord) {
+            discoveredRecord = defaultRecord;
+            break;
+          }
+        }
+        if (restored) await loadGraph(restored.recordId, restored.revisionId);
+        else if (discoveredRecord) await loadGraph(discoveredRecord.record_id, discoveredRecord.current_revision.id);
       })
       .catch((caught: unknown) => active && setError(errorText(caught)))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [config, loadBranch]);
+  }, [config, initialRecordId, initialRevisionId, loadGraph]);
 
   useEffect(() => {
     if (initialRecordId && initialRevisionId) void loadGraph(initialRecordId, initialRevisionId);
@@ -277,7 +326,7 @@ export function MaterialDatabaseExplorer({
     const revisionId = record.current_revision.id;
     setSearchResults(null);
     setShowRecordCompare(false);
-    setActiveTab("workflow");
+    setActiveTab("overview");
     onNavigate(`/database/records/${record.record_id}/revisions/${revisionId}`);
     void loadGraph(record.record_id, revisionId);
   }
@@ -340,6 +389,31 @@ export function MaterialDatabaseExplorer({
   function search(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     void performSearch();
+  }
+
+  function navigateCatalogTree(event: KeyboardEvent<HTMLElement>): void {
+    if (!(event.target instanceof HTMLButtonElement) || !event.target.classList.contains("database-tree-node")) return;
+    const nodes = [...event.currentTarget.querySelectorAll<HTMLButtonElement>("button.database-tree-node:not(:disabled)")];
+    const currentIndex = nodes.indexOf(event.target);
+    if (currentIndex < 0) return;
+    const moveTo = event.key === "ArrowDown" ? currentIndex + 1
+      : event.key === "ArrowUp" ? currentIndex - 1
+        : event.key === "Home" ? 0
+          : event.key === "End" ? nodes.length - 1
+            : null;
+    if (moveTo !== null) {
+      event.preventDefault();
+      nodes[Math.max(0, Math.min(nodes.length - 1, moveTo))]?.focus();
+      return;
+    }
+    const disclosure = event.target.firstElementChild?.textContent;
+    if (event.key === "ArrowRight" && disclosure === "▸") {
+      event.preventDefault();
+      event.target.click();
+    } else if (event.key === "ArrowLeft" && disclosure === "▾") {
+      event.preventDefault();
+      event.target.click();
+    }
   }
 
   function renderBranch(tableId: string, folderId: string | null): ReactNode {
@@ -431,8 +505,9 @@ export function MaterialDatabaseExplorer({
     <div className="material-database-page">
       <header className="material-database-toolbar">
         <div>
-          <p className="eyebrow">Material Database</p>
-          <h1>Browse material knowledge</h1>
+          <p className="eyebrow">Engineering material intelligence</p>
+          <h1>Material Database</h1>
+          <p className="database-toolbar-context">Explore governed records, exact relationships and CAE-ready evidence.</p>
         </div>
         <form className="material-database-search" onSubmit={(event) => void search(event)}>
           <select aria-label="Search table" value={searchTableId} onChange={(event) => {
@@ -456,8 +531,12 @@ export function MaterialDatabaseExplorer({
 
       <section className="material-database-workspace">
         <aside className="material-contents-pane">
-          <div className="pane-heading"><span>CONTENTS</span><button type="button" aria-label="Database options">•••</button></div>
-          <nav className="material-contents-tree" aria-label="Material Database contents">
+          <div className="pane-heading"><span>CONTENTS</span><span className="database-live-indicator"><i />LIVE</span></div>
+          <div className="database-projection-switch" role="group" aria-label="Explorer projection">
+            <button type="button" className={projection === "catalog" ? "active" : ""} onClick={() => setProjection("catalog")}>Catalog</button>
+            <button type="button" className={projection === "workflow" ? "active" : ""} disabled={!selectedGraph} onClick={() => setProjection("workflow")}>Workflow</button>
+          </div>
+          {projection === "catalog" ? <nav className="material-contents-tree" aria-label="Material Database contents" onKeyDown={navigateCatalogTree}>
             <div className="database-tree-node database-root"><span>▾</span><span className="database-node-icon database-icon" /><strong>CAE Material Database</strong></div>
             <div className="database-tree-children root-level">
               <div className="database-tree-node profile-root"><span>▾</span><span className="database-node-icon profile-icon" /><strong>Engineering Materials Profile</strong></div>
@@ -477,7 +556,10 @@ export function MaterialDatabaseExplorer({
                 })}
               </div>
             </div>
-          </nav>
+          </nav> : <nav className="material-contents-tree database-workflow-projection" aria-label="Material workflow contents">
+            <div className="workflow-projection-heading"><small>EXACT REVISION GRAPH</small><strong>{selected?.name}</strong><span>{selectedGraph?.nodes.length ?? 0} records · {selectedGraph?.links.length ?? 0} links</span></div>
+            {selectedGraph ? <ul className="material-workflow-tree compact">{workflowTree(selectedGraph.root)}</ul> : null}
+          </nav>}
           <div className="saved-subset-section">
             <span>SAVED SUBSETS</span>
             {Object.values(subsets).flat().map((subset) => (
@@ -533,20 +615,16 @@ export function MaterialDatabaseExplorer({
           ) : selected && selectedGraph ? (
             <div className="material-record-view">
               <nav className="database-breadcrumb" aria-label="Record breadcrumb">CAE Material Database <span>›</span> Engineering Materials Profile <span>›</span> {tableNames.get(selected.table_id)} <span>›</span> {selected.name}</nav>
-              <div className="record-pane-heading">
+              <div className="record-pane-heading database-record-heading">
                 <div><p className="eyebrow">{recordType(selected, tableNames.get(selected.table_id))}</p><h2>{selected.name}</h2><p>{selectedRecord?.current_revision.content.description ?? "Linked material knowledge record"}</p></div>
-                <div className="record-heading-actions"><span className="record-revision-badge">Revision {selected.revision_no}</span>{selected.domain_binding ? <button className="button primary" type="button" onClick={() => onNavigate(selected.domain_binding!.workbench_path)}>Open workbench</button> : null}</div>
+                <div className="record-heading-actions"><span className="database-status-pill"><i />GOVERNED</span><span className="record-revision-badge">Revision {selected.revision_no}</span>{selected.domain_binding ? <button className="button primary" type="button" onClick={() => onNavigate(selected.domain_binding!.workbench_path)}>Open workbench</button> : null}</div>
               </div>
               <div className="record-view-tabs" role="tablist" aria-label="Record views">
-                {(["workflow", "datasheet", "properties", "curves", "cards", "links"] as const).map((tab) => <button role="tab" aria-selected={activeTab === tab} className={activeTab === tab ? "active" : ""} type="button" key={tab} onClick={() => setActiveTab(tab)}>{tab === "cards" ? "CAE Cards" : tab[0].toUpperCase() + tab.slice(1)}</button>)}
+                {(["overview", "properties", "curves", "tests", "models", "cards", "links"] as const).map((tab) => <button role="tab" aria-selected={activeTab === tab} className={activeTab === tab ? "active" : ""} type="button" key={tab} onClick={() => setActiveTab(tab)}>{tab === "tests" ? "Test Data" : tab === "cards" ? "CAE Cards" : tab[0].toUpperCase() + tab.slice(1)}</button>)}
               </div>
-              {activeTab === "workflow" ? <section className="workflow-tree-card">
-                <div><p className="eyebrow">Linked workflow</p><h3>From source material to CAE delivery</h3><p>Every node opens the exact linked record revision.</p></div>
-                <ul className="material-workflow-tree">{workflowTree(selectedGraph.root)}</ul>
-              </section> : null}
-              {activeTab === "datasheet" ? <section className="layout-datasheet-card">
+              {activeTab === "overview" ? <section className="layout-datasheet-card">
                 <div className="datasheet-title"><div><p className="eyebrow">{selectedLayout?.name ?? "Default datasheet"}</p><h3>Record information</h3></div><div className="layout-picker-actions">{(selectedDefinition?.layouts.length ?? 0) > 1 ? <label>Layout<select aria-label="Datasheet layout" value={selectedLayout?.layout_id ?? ""} onChange={(event) => setSelectedLayoutId(event.target.value)}>{selectedDefinition?.layouts.map((layout) => <option value={layout.layout_id} key={layout.layout_id}>{layout.name}</option>)}</select></label> : null}<span className="record-revision-badge">Exact r{selected.revision_no}</span></div></div>
-                <dl className="datasheet-metadata"><div><dt>Name</dt><dd>{selected.name}</dd></div><div><dt>External key</dt><dd>{selected.external_key ?? "—"}</dd></div><div><dt>Record revision</dt><dd>{selected.record_revision_id}</dd></div></dl>
+                <dl className="datasheet-metadata"><div><dt>Name</dt><dd>{selected.name}</dd></div><div><dt>External key</dt><dd>{selected.external_key ?? "—"}</dd></div><div><dt>Record revision</dt><dd>r{selected.revision_no} · immutable</dd></div></dl>
                 <div className="layout-attribute-grid">
                   {orderedAttributes.map((attribute) => {
                     const definition = attribute.current_revision.content;
@@ -560,6 +638,8 @@ export function MaterialDatabaseExplorer({
               </section> : null}
               {activeTab === "properties" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Typed values</p><h3>Properties and units</h3></div></div><div className="property-tile-grid">{orderedAttributes.filter((attribute) => !["curve", "file", "record_reference"].includes(attribute.current_revision.content.data_type)).map((attribute) => { const value = selectedValueMap.get(attribute.attribute_definition_id); return <article key={attribute.attribute_definition_id}><small>{attribute.current_revision.content.quantity_semantics ?? attribute.current_revision.content.data_type}</small><h4>{attribute.current_revision.content.name}</h4><strong>{value ? valueLabel(value) : "Not set"}</strong></article>; })}</div></section> : null}
               {activeTab === "curves" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Curve data</p><h3>Test and property curves</h3></div></div>{selectedValues.filter((value) => value.data_type === "curve").map((value) => <div className="curve-artifact-row" key={value.attribute_definition_id}><strong>{selectedAttributeMap.get(value.attribute_definition_id)?.current_revision.content.name ?? "Curve"}</strong><span>{valueLabel(value)}</span></div>)}{!selectedValues.some((value) => value.data_type === "curve") ? <div className="empty-tab-state"><p>No curve Attribute is stored on this record revision.</p><p>Open the linked Test Data record to inspect raw and normalized curves.</p></div> : null}</section> : null}
+              {activeTab === "tests" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Experimental evidence</p><h3>Test data and datasets</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.filter((node) => ["test_data", "dataset", "processing_output"].includes(node.domain_binding?.kind ?? "")).map((node) => <button type="button" key={`${node.record_id}:${node.record_revision_id}`} onClick={() => openEndpoint(node)}><small>{node.domain_binding?.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
+              {activeTab === "models" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Modeling evidence</p><h3>Processing and material models</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.filter((node) => ["processing_output", "neutral_material", "material_model_ir"].includes(node.domain_binding?.kind ?? "")).map((node) => <button type="button" key={`${node.record_id}:${node.record_revision_id}`} onClick={() => openEndpoint(node)}><small>{node.domain_binding?.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
               {activeTab === "cards" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">CAE delivery</p><h3>Linked solver cards</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.filter((node) => ["solver_card", "neutral_solver_card"].includes(node.domain_binding?.kind ?? "")).map((node) => <button type="button" key={`${node.record_id}:${node.record_revision_id}`} onClick={() => openEndpoint(node)}><small>{node.domain_binding?.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
               {activeTab === "links" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Exact relationships</p><h3>Forward and reverse links</h3></div></div><div className="linked-delivery-grid">{directLinks.map((link) => { const forward = link.source.record_id === selected.record_id && link.source.record_revision_id === selected.record_revision_id; const endpoint = forward ? link.target : link.source; return <button type="button" key={link.record_link_id} onClick={() => openEndpoint(endpoint)}><small>{forward ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label}</small><strong>{endpoint.name}</strong><span>Exact r{endpoint.revision_no}</span></button>; })}</div></section> : null}
             </div>
@@ -575,7 +655,7 @@ export function MaterialDatabaseExplorer({
         </section>
 
         <aside className="material-related-pane">
-          <div className="pane-heading"><span>{searchResults !== null ? "FILTER RESULTS" : "RELATED DATA"}</span></div>
+          <div className="pane-heading"><span>{searchResults !== null ? "FILTER RESULTS" : "CONTEXT"}</span></div>
           {searchResults !== null ? <div className="database-search-filters">
             <section><h3>Material facets</h3>{searchDiscreteAttributes.map((attribute) => {
               const buckets = searchFacets.filter((facet) => facet.attribute_definition_id === attribute.attribute_definition_id);
@@ -586,15 +666,16 @@ export function MaterialDatabaseExplorer({
           </div> : selected ? (
             <>
               <div className="related-record-summary"><span className="database-node-icon record-icon" /><div><strong>{selected.name}</strong><small>{selected.external_key ?? "Managed record"}</small></div></div>
-              <section><h3>Linked records</h3><div className="related-link-list">
+              <div className="database-context-tabs" role="tablist" aria-label="Record context"><button type="button" role="tab" aria-selected={contextTab === "related"} className={contextTab === "related" ? "active" : ""} onClick={() => setContextTab("related")}>Related</button><button type="button" role="tab" aria-selected={contextTab === "revisions"} className={contextTab === "revisions" ? "active" : ""} onClick={() => setContextTab("revisions")}>Revisions</button></div>
+              {contextTab === "related" ? <section><h3>Linked records</h3><div className="related-link-list">
                 {directLinks.map((link) => {
                   const forward = link.source.record_id === selected.record_id && link.source.record_revision_id === selected.record_revision_id;
                   const endpoint = forward ? link.target : link.source;
                   return <button type="button" key={link.record_link_id} onClick={() => openEndpoint(endpoint)}><span>{forward ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label}</span><strong>{endpoint.name}</strong><small>{recordType(endpoint, tableNames.get(endpoint.table_id))} · r{endpoint.revision_no}</small></button>;
                 })}
                 {!directLinks.length ? <p className="muted">No linked records for this revision.</p> : null}
-              </div></section>
-              <section><h3>Revision</h3><dl className="record-facts"><div><dt>Current view</dt><dd>r{selected.revision_no}</dd></div><div><dt>Reference</dt><dd>{selected.record_revision_id.slice(0, 8)}…</dd></div></dl></section>
+              </div></section> : <section><h3>Immutable history</h3><div className="database-revision-list">{selectedRevisions.map((revision) => <button type="button" className={revision.id === selected.record_revision_id ? "active" : ""} key={revision.id} onClick={() => void loadGraph(selected.record_id, revision.id)}><span><strong>Revision {revision.revision_no}</strong><small>{new Date(revision.created_at).toLocaleDateString()}</small></span><em>{revision.id === selected.record_revision_id ? "Viewing" : "Open"}</em></button>)}</div></section>}
+              <section><h3>Record facts</h3><dl className="record-facts"><div><dt>Current view</dt><dd>r{selected.revision_no}</dd></div><div><dt>Relationships</dt><dd>{directLinks.length}</dd></div><div><dt>Reference</dt><dd>{selected.record_revision_id.slice(0, 8)}…</dd></div></dl></section>
             </>
           ) : <p className="muted">Select a record to see linked tests, datasets, models and solver cards.</p>}
         </aside>
