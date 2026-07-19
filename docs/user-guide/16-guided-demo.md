@@ -43,7 +43,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 2. **Demo workspace**가 자동으로 표시되는지 확인합니다.
 3. **Visible materials**가 `3`이고 금속·폴리머·엘라스토머 안내 카드가 보이는지 확인합니다.
 
-![금속·폴리머·엘라스토머 안내 Dashboard](../15-demo/images/t60-guided-dashboard.png)
+![clean seed에서 재현된 제품 Dashboard](../15-demo/images/t93-clean-dashboard.png)
 
 ## 3. Material Database에서 계층과 연결 확인하기
 

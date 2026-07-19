@@ -1921,5 +1921,17 @@ clean-acceptance intent is retained in T-93.
 
 #### T-93. Clean clone-level product acceptance — `P0`
 
-- clean home-to-material-to-test-to-model-to-two-cards journey, three family E2E, screenshots,
-  manuals, frontend/Python/PostgreSQL tests와 `make ci`.
+- **상태 (`2026-07-20`):** `complete` for the bounded reference product. 기존 demo PostgreSQL과
+  object volume을 제거한 뒤 migration/build/seed를 처음부터 실행했다. clean verifier는 8-node
+  Material workflow, 금속 3 replicate와 19-component bulk, Polymer relaxation/DMA, Elastomer 4
+  Dataset·52 diagnostics point, 그리고 reference 범위의 Abaqus/OpenRadioss native card를 재현했다.
+  실제 브라우저에서 Dashboard → Database Datasheet/links → Metal/Polymer/Elastomer graph → 각
+  Card task를 확인했다. 이전 seed의 session revision이 남은 경우 새 Catalog의 유효 Record로
+  fallback하는 회귀도 추가했다.
+- **검증:** Ruff, mypy 652 files, architecture, OpenAPI lint/compat, Python 779 passed/76 expected
+  skipped, actual PostgreSQL 76 passed, frontend 34 files/83 tests, production bundle budgets,
+  user-guide checker, clean Docker seed/verifier와 live browser.
+- **증거:** `docs/15-demo/evidence/t93-clean-product-acceptance.md`와
+  `docs/15-demo/images/t93-clean-*.png`.
+- **명시적 경계:** 공개식 기반 reference model 제품 흐름의 승인이다. 실제 solver 실행 상관,
+  회사별 재료 qualification과 production-approved model 승인은 여전히 별도 검증 대상이다.
