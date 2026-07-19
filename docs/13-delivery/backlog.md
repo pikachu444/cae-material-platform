@@ -1873,7 +1873,14 @@ clean-acceptance intent is retained in T-93.
 
 #### T-89. Polymer workbench parity — `P0`
 
-- relaxation/DMA, log resampling, Prony candidates, WLF/Arrhenius master curve와 card journey.
+- **상태 (`2026-07-20`):** `complete`. Relaxation과 DMA Test JSON을 quantity semantics로
+  구분하고 compatible Mapping Profile/Recipe를 자동 선택한다. relaxation은 log-time resampling,
+  Prony 후보·잔차와 WLF/Arrhenius master curve를 제공한다. DMA는 storage/loss를 하나의 Prony
+  parameter set으로 동시 fitting하고 log-frequency response/residual, BIC, nRMSE와 ordered term을
+  표시한다. 두 경로 모두 exact Batch Output→IR→Neutral JSON→Abaqus/OpenRadioss card로 이어지며,
+  OpenRadioss 근사는 명시적 확인 없이는 생성할 수 없다.
+- **증거:** `docs/15-demo/evidence/t89-polymer-viscoelastic-workbench.md`와
+  `docs/15-demo/images/t89-polymer-*.png`.
 
 #### T-90. Elastomer workbench parity — `P0`
 
