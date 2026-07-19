@@ -880,7 +880,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     if (track === "polymer") useProfileTemplate(POLYMER_RELAXATION_PROFILE, POLYMER_RELAXATION_STEPS);
     if (track === "elastomer") {
       useProfileTemplate(ELASTOMER_CURVE_PROFILE, ELASTOMER_PREPARATION_STEPS);
-      setNotice("Elastomer multi-mode preparation is selected. T-80 connects its saved Plan and candidate controls without treating a single curve as a complete fit.");
+      setNotice("Elastomer workbench loaded the exact multi-mode Plan, holdout evidence and reviewed model result.");
     }
     setSelectedRecipeId("");
     setBatchPreflight(null);
@@ -1506,6 +1506,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
+  const elastomerWorkbenchTask = modelingTrack === "elastomer"
+    && workflowTask !== "card"
+    && familyWorkbench !== undefined;
+
   return (
     <main className="processing-workbench-page">
       <header className="modeling-app-header">
@@ -1521,27 +1525,28 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}
 
-      <details className="modeling-support-drawer">
+      {modelingTrack !== "elastomer" ? <details className="modeling-support-drawer">
         <summary><span><strong>Session inputs &amp; mapping</strong><small>{selectedTrackDocument ? `${selectedTrackDocument.document_key} · r${selectedTrackDocument.current_revision.revision_no}` : "Choose exact Test Data and Mapping Profile"}</small></span><span>Configure</span></summary>
       <section className="processing-setup-grid">
         <article className="workbench-card processing-input-card" id="modeling-import">
           <p className="eyebrow">1 · exact input</p><h2>Test Data revision</h2>
           <label>Imported document<select aria-label="Test Data revision" value={selectedDocumentId} onChange={(event) => void loadDocument(event.target.value)}><option value="">Choose a compatible document</option>{trackDocuments.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
           <button className="button secondary" type="button" disabled={!selectedDocumentId || busy} onClick={() => void loadDocument(selectedDocumentId)}>Load exact JSON</button>
-          {document && selectedTrackDocument ? <p className="mapping-note">Loaded <strong>{selectedTrackDocument.document_key}</strong> · revision {selectedTrackDocument.current_revision.revision_no}. Original and normalized arrays remain unchanged.</p> : <p className="muted">{modelingTrack === "elastomer" ? "Select multi-mode governed Datasets in the family calibration panel below, or import a canonical Test JSON for common preprocessing." : "Choose one exact family-compatible Test Data revision, then load its JSON."}</p>}
+          {document && selectedTrackDocument ? <p className="mapping-note">Loaded <strong>{selectedTrackDocument.document_key}</strong> · revision {selectedTrackDocument.current_revision.revision_no}. Original and normalized arrays remain unchanged.</p> : <p className="muted">Choose one exact family-compatible Test Data revision, then load its JSON.</p>}
         </article>
 
         <article className="workbench-card mapping-profile-card" id="modeling-map">
           <div className="section-heading"><div><p className="eyebrow">2 · reusable contract</p><h2>Mapping Profile</h2></div><span className="status-chip">{profiles.length} saved</span></div>
           <label>Saved profile<select aria-label="Saved Mapping Profile" value={selectedProfileId} onChange={(event) => selectProfile(event.target.value)}><option value="">New profile</option>{profiles.map((item) => <option key={item.mapping_profile_id} value={item.mapping_profile_id}>{item.content.label} · r{item.current_revision.revision_no}</option>)}</select></label>
-          <p className="track-contract-note"><strong>{modelingTrack === "metal" ? "Metal tensile" : modelingTrack === "polymer" ? documentIsPolymerDma(selectedTrackDocument) ? "Polymer DMA frequency sweep" : "Polymer relaxation" : "Elastomer multi-mode"}</strong>{modelingTrack === "elastomer" ? " requires uniaxial, planar or biaxial roles; no single curve is silently treated as a complete calibration." : " profile and ordered method defaults are loaded from the selected family track."}</p>
+          <p className="track-contract-note"><strong>{modelingTrack === "metal" ? "Metal tensile" : documentIsPolymerDma(selectedTrackDocument) ? "Polymer DMA frequency sweep" : "Polymer relaxation"}</strong> profile and ordered method defaults are loaded from the selected family track.</p>
           <details className="advanced-definition"><summary>Advanced mapping definition</summary><label>Profile JSON<textarea className="mapping-profile-editor" aria-label="Mapping Profile JSON" value={profileText} onChange={(event) => setProfileText(event.target.value)} spellCheck={false} /></label></details>
           <div className="profile-save-row"><label>Classification<select value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label><label>Change reason<input value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !changeReason.trim()} onClick={() => void saveProfile()}>{selectedProfileId ? "Append profile revision" : "Save new profile"}</button></div>
         </article>
       </section>
-      </details>
+      </details> : null}
 
-      {workflowTask !== "card" ? <section className="workbench-card method-builder-card" id="modeling-prepare">
+      {elastomerWorkbenchTask ? <section className="modeling-elastomer-workspace" id="modeling-fit" aria-label="Elastomer multi-mode modeling workspace">{familyWorkbench}</section> : null}
+      {workflowTask !== "card" && !elastomerWorkbenchTask ? <section className="workbench-card method-builder-card" id="modeling-prepare">
         <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div>
         <details className="method-library"><summary>Add a processing method <span>{trackMethods.length} compatible</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details>
         <div className="modeling-graph-workspace">
