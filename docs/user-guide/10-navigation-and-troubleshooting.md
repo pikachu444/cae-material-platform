@@ -5,7 +5,7 @@ Material State의 exact revision 문맥을 공유합니다.
 
 | 상단 메뉴 | 주 작업 |
 | --- | --- |
-| **Dashboard** | 재료 검색, 최근 Material과 세 재료 계열 작업 시작 |
+| **Dashboard** | Material Database 검색/tree 또는 Material Modeling/import 중 현재 할 작업 선택 |
 | **Material Database** | Contents Tree, Datasheet, 검색·비교·링크와 Material record |
 | **Material Modeling** | 시험 import, curve processing, Recipe, fitting, IR와 Solver Card |
 | **Jobs & Reviews** | Batch/Job 상태, 검토·승인·배포와 다운로드 |

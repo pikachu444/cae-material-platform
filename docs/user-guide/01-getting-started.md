@@ -30,12 +30,13 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 1. Web 주소를 엽니다.
 2. **Preparing your workspace…**가 사라질 때까지 기다립니다.
 3. 상단 오른쪽에 **Demo workspace**가 표시되는지 확인합니다.
-4. Dashboard에서 **Material Database** 또는 **Material Modeling**을 선택합니다.
+4. Dashboard의 왼쪽 **Find and inspect material data** 또는 오른쪽
+   **Process test curves and create cards** 작업을 선택합니다.
 
 Demo session은 `demo` mode에서만 자동으로 준비됩니다. production에서는 같은 자리에 일반
 로그인 화면이 표시되며 사용자는 내부 연결 정보나 인증 문자열을 다루지 않습니다.
 
-![제품 중심 Dashboard](../15-demo/images/t75-product-dashboard.png)
+![Material Database와 Material Modeling 작업을 구분한 Dashboard](../15-demo/images/t85-workspace-dashboard.png)
 
 ## 첫 Material 만들기
 
