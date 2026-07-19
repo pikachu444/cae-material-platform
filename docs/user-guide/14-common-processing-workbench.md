@@ -161,8 +161,10 @@ Recipe/Batch 실행 결과로 저장됩니다.
 
 ## Processing Recipe 저장과 게시
 
-1. 저장된 exact Mapping Profile을 선택하고 ordered step JSON을 검토합니다.
-2. **Processing Recipe library**에서 Recipe key, label, 설명과 변경 사유를 입력합니다.
+1. 저장된 exact Mapping Profile을 선택하고 ordered step을 검토합니다. 현재 재료군에 맞는 게시
+   Recipe가 있으면 가장 최근 exact revision이 자동 선택됩니다.
+2. **Recipe Library**에서 lifecycle과 exact revision을 확인합니다. 기존 설정에서 독립 Recipe를
+   만들려면 **Clone as new**를 누르고 Recipe key, label, 설명과 변경 사유를 수정합니다.
 3. **Save new Recipe**를 눌러 stable identity와 draft revision 1을 만듭니다.
 4. 옵션이나 순서를 변경할 때는 저장된 Recipe를 선택하고 **Append draft revision**을 누릅니다.
 5. 검토가 끝난 draft는 **Publish reviewed revision**으로 게시합니다. published revision을 직접
@@ -176,12 +178,12 @@ Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와
 
 ## Batch preflight와 실행
 
-1. **Saved Processing Recipe**에서 `published` revision을 선택합니다. draft Recipe는 실행할 수 없습니다.
-2. **Batch Run Monitor**의 **Exact Test Data selection**에서 처리할 revision을 선택합니다. 화면의 각
+1. **Saved Processing Recipe**에서 자동 복원된 `published` revision을 확인합니다. draft Recipe는 실행할 수 없습니다.
+2. **Batch Monitor**의 **Test Data selection**에서 처리할 revision을 선택합니다. 화면의 각
    항목은 current head를 표시하지만 실행 요청과 저장된 Member는 그 시점의 exact revision UUID를 고정합니다.
-3. **Run compatibility preflight**를 누릅니다. 모든 member의 채널 quantity, 단위, Mapping Profile과
-   ordered step을 서버에서 실제 실행하여 `ready` 또는 `incompatible`로 표시합니다.
-4. 모든 member가 `Compatible`일 때만 **Execute published Recipe**가 활성화됩니다.
+3. **Compatibility preflight**를 누릅니다. 모든 member의 채널 quantity, 단위, Mapping Profile과
+   ordered step을 서버에서 실제 실행하여 예상 output point 또는 차단 diagnostic을 표시합니다.
+4. 모든 member가 `Ready to run`일 때만 **Execute published Recipe**가 활성화됩니다.
 5. 실행 후 Monitor에서 member별 Attempt 번호, 성공 Output revision 또는 오류 코드를 확인합니다.
 6. 일부 member가 실패해도 성공한 Output은 유지됩니다. **Retry failed members only**는 실패 member에만
    다음 Attempt를 추가하며 이전 Attempt와 Output을 수정하지 않습니다.
@@ -191,7 +193,8 @@ Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와
 ## 현재 경계
 
 화면의 stage overlay와 반복시험 통계는 명확히 preview로 표시됩니다. 별도의 single-curve commit은
-서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화합니다. Recipe
+서버 재계산 결과를 exact input/profile FK와 canonical JSON Artifact로 영속화합니다. Monitor는
+현재 재료군 Recipe의 run만 표시하고 성공 attempt/전체 attempt를 함께 보여줍니다. Recipe
 저장/게시와 exact-input batch 실행을 지원하며, reviewed 금속 Processing Output은 같은 Modeling
 화면의 Card task에서 IR/Neutral Material JSON으로 승격할 수 있습니다. 폴리머와 엘라스토머의
 Polymer relaxation/DMA와 Elastomer multi-mode/holdout graph/task 흐름도 T-89/T-90에서

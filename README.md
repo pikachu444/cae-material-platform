@@ -58,7 +58,9 @@ Abaqus `.inp`/OpenRadioss `.rad` preview·download를 끝내도록 delivery 화�
 family, response/residual graph, Prony overlay와 Abaqus/OpenRadioss card를 같은 작업 화면에서
 검증했습니다. T-91은 `/database` 첫 진입의 빈 화면을 제거하고 nested Catalog 자동 전개,
 Catalog/Workflow projection, Layout Datasheet, exact Related/Revisions와 keyboard/session 복원을
-검증했습니다. 다음 제품 우선순위는 T-92의 search/admin 및 Recipe/Batch 사용성입니다.
+검증했습니다. T-92는 typed search/compare와 guided Database Administration을 재검증하고,
+material-family별 게시 Recipe 자동 복원·clone/revision/publish와 member별 compatibility를 보여주는
+Batch Monitor를 연결했습니다. 다음 제품 우선순위는 T-93 clean product acceptance입니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog

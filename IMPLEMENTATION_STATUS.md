@@ -27,13 +27,13 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 
 | Product capability | Actual current state | Next Task |
 | --- | --- | --- |
-| Administrator-defined Table/Attribute/Layout/Subset/Link Type | Engine and protected APIs exist; the T-78 task surface is usable engineering evidence but still needs the T-92 clone-parity interaction audit | T-92 guided administration |
-| Catalog record datasheet/search/facet/compare | T-91 accepts the engine-connected three-pane Layout Datasheet; T-92 owns richer saved-search/admin polish | T-92 search/admin polish |
+| Administrator-defined Table/Attribute/Layout/Subset/Link Type | T-92 accepts the guided Database design surface for migration-free typed configuration and exact Link Types | T-93 clean product acceptance |
+| Catalog record datasheet/search/facet/compare | T-91/T-92 accept the three-pane Layout Datasheet, typed facets/ranges, saved Subset and Layout comparison | T-93 clean product acceptance |
 | Catalog and Material Workflow Explorers | T-91 accepts automatic nested demo entry, Catalog/Workflow projection, exact linked navigation, keyboard disclosure and session restoration | T-93 clean product acceptance |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
 | General Mapping Profile and Processing Workbench | T-86~T-90 accept all three family paths: compact workbench, exact curve selection, guided processing, response/residual comparison, immutable Neutral review and two native card previews/downloads. | T-92 Recipe/Batch polish |
-| Saved Recipe library/general batch execution | Lifecycle/preflight/execute/retry engines are connected; library and batch UX remain `partial` | T-92 |
+| Saved Recipe library/general batch execution | T-92 accepts published Recipe auto-restore, lifecycle/exact revision, clone/revise/publish and family-filtered member-level Batch monitor | T-93 clean product acceptance |
 | Metal/Polymer/Elastomer modeling | Metal is accepted through T-88, Polymer relaxation/DMA through T-89, and Elastomer multi-mode/holdout/four-family/Prony/card through T-90. All are reference/non-production models; actual solver correlation remains excluded. | T-93 clean product acceptance |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
@@ -108,6 +108,14 @@ must not be read as product-experience completion.
   Home and End keys, and the last exact revision is restored within the browser session. Live Docker/
   PostgreSQL screenshots are in `docs/15-demo/evidence/t91-material-database-parity.md`. T-92 now owns
   search, guided administration and Recipe/Batch polish.
+
+- `T-92` (`completed`): the current family's reviewed published Processing Recipe is restored by
+  default instead of showing an unrelated empty draft. Recipe Library exposes lifecycle, exact revision,
+  clone, append and publish actions. Batch Monitor is filtered to compatible family Recipes, shows
+  member-level compatibility/output points and summarizes successful attempts while retaining failed-only
+  retry. The existing typed search/facet/range/Subset/Layout comparison and guided Table/Attribute/Layout/
+  Link Type Administration were re-audited in the live Docker/PostgreSQL product. Evidence is in
+  `docs/15-demo/evidence/t92-search-admin-recipe-batch.md`. T-93 now owns clean product acceptance.
 
 - `T-88` (`completed`): **Card** is now a first-class task in the Material Modeling shell rather than
   a legacy drawer below the graph. It pins friendly Material/State and exact reviewed Output/IR/Neutral
