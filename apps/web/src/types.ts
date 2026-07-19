@@ -3045,6 +3045,8 @@ export interface NeutralMaterialResponse {
       material?: { id: string; revision_id: string };
       material_state?: { id: string; revision_id: string };
       property_set?: { id: string; revision_id: string };
+      calibration_plan?: { id: string; revision_id: string };
+      scientific_profile?: { id: string; revision_id: string };
       datasets: Array<{
         dataset: { id: string; revision_id: string };
         role: OgdenCalibrationRole | "processing_input";
@@ -3060,8 +3062,15 @@ export interface NeutralMaterialResponse {
       y: number[];
     }>;
     candidate_selection: {
+      calibration_run_id?: string;
       candidate_id?: string;
+      candidate_sha256?: string;
+      diagnostics_artifact_id?: string;
+      diagnostics_sha256?: string;
       reason: string;
+      objective_total?: number;
+      calibration_normalized_rmse?: number;
+      holdout_normalized_rmse?: number | null;
       stability_status?: string;
       warnings: string[];
       kind?: "processing_output_selection" | "prony_processing_output_selection";

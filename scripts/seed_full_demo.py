@@ -2092,6 +2092,133 @@ def _ensure_elastomer_baseline(api: DemoApi) -> str:
     return _id(material, "material_id")
 
 
+def _ensure_elastomer_neutral_and_cards(
+    api: DemoApi, *, material_id: str
+) -> dict[str, str]:
+    """Create the exact reviewed family Neutral revision and both native cards."""
+    neutral = None
+    for candidate in _items(api.get(f"/bulk-export-candidates?material_id={material_id}")):
+        source = candidate.get("source")
+        if not isinstance(source, Mapping) or source.get("kind") != "neutral_material_json":
+            continue
+        candidate_id = source.get("neutral_material_id")
+        if not isinstance(candidate_id, str):
+            continue
+        value = api.get(f"/neutral-materials/{candidate_id}")
+        model_ir = value.get("document", {}).get("material_model_ir", {})
+        sources = value.get("document", {}).get("sources", {})
+        material_ref = sources.get("material") if isinstance(sources, Mapping) else None
+        if (
+            isinstance(model_ir, Mapping)
+            and model_ir.get("model_family") == "hyperelastic"
+            and isinstance(material_ref, Mapping)
+            and material_ref.get("id") == material_id
+        ):
+            neutral = value
+            break
+
+    if neutral is None:
+        detail = api.get(f"/materials/{material_id}")
+        states = detail.get("states")
+        if not isinstance(states, list) or not states or not isinstance(states[0], Mapping):
+            raise DemoSeedError("clean demo elastomer Material has no State")
+        state_id = _id(states[0], "material_state_id")
+        plans = [
+            item
+            for item in _items(api.get("/ogden-calibration-plans?limit=100"))
+            if _content(item).get("material_state_id") == state_id
+        ]
+        if not plans:
+            raise DemoSeedError("clean demo elastomer has no exact multi-test Plan")
+        plan = plans[0]
+        run = api.post(
+            f"/ogden-calibration-plans/{_id(plan, 'ogden_calibration_plan_id')}/runs",
+            {
+                "plan_revision_id": _revision_id(plan),
+                "change_reason": (
+                    "Execute the exact clean-demo multi-mode Plan for Neutral promotion."
+                ),
+            },
+        )
+        families = run.get("family_candidates")
+        if not isinstance(families, list):
+            raise DemoSeedError("clean demo elastomer Run has no family Candidates")
+        ogden = next(
+            (
+                item
+                for item in families
+                if isinstance(item, Mapping) and item.get("family") == "ogden_1"
+            ),
+            None,
+        )
+        if not isinstance(ogden, Mapping):
+            raise DemoSeedError("clean demo elastomer Run has no one-term Ogden Candidate")
+        neutral = api.post(
+            "/neutral-materials:promote",
+            {
+                "candidate_id": _id(ogden, "hyperelastic_family_candidate_id"),
+                "selection_reason": (
+                    "Select one-term Ogden after reviewing all four families, the three fit "
+                    "modes, holdout response, stability, and the exact residual Artifact."
+                ),
+                "change_reason": "Create the clean-demo hyper-viscoelastic Neutral Material JSON.",
+            },
+        )
+
+    neutral_id = _id(neutral, "neutral_material_id")
+    cards = _items(api.get(f"/neutral-materials/{neutral_id}/solver-cards"))
+    result = {
+        "elastomer_neutral_material_id": neutral_id,
+        "elastomer_neutral_material_revision_id": _id(
+            neutral, "neutral_material_revision_id"
+        ),
+    }
+    for solver, solver_material_id in (("abaqus", 2301), ("openradioss", 2302)):
+        card = next(
+            (
+                item
+                for item in cards
+                if isinstance(item.get("target"), Mapping)
+                and item["target"].get("solver") == solver
+            ),
+            None,
+        )
+        if card is None:
+            target = {"solver": solver, "version": "2025", "unit_system": "kg_m_s"}
+            report = api.post(
+                f"/neutral-materials/{neutral_id}/solver-card-preflight",
+                {
+                    "neutral_material_revision_id": _id(
+                        neutral, "neutral_material_revision_id"
+                    ),
+                    "target": target,
+                },
+            )
+            if not report.get("exportable"):
+                raise DemoSeedError(f"clean demo elastomer {solver} mapping is blocked")
+            card = api.post(
+                f"/neutral-materials/{neutral_id}/solver-cards",
+                {
+                    "neutral_material_revision_id": _id(
+                        neutral, "neutral_material_revision_id"
+                    ),
+                    "target": target,
+                    "expected_mapping_report_sha256": _id(
+                        report, "mapping_report_sha256"
+                    ),
+                    "solver_material_id": solver_material_id,
+                    "material_name": "CMP_DEMO_ELASTOMER_NEUTRAL",
+                    "change_reason": (
+                        f"Generate reviewed {solver} card from the exact elastomer Neutral JSON."
+                    ),
+                },
+            )
+        result[f"elastomer_{solver}_neutral_solver_card_id"] = _id(
+            card, "solver_card_id"
+        )
+    return result
+
+
 def _ensure_metal_neutral_and_cards(
     api: DemoApi, *, material_id: str, processing_batch_id: str
 ) -> dict[str, str]:
@@ -2331,6 +2458,9 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         expected_count=4,
     ):
         seed_ogden_calibration_demo.main(promote=True)
+    elastomer_neutral = _ensure_elastomer_neutral_and_cards(
+        api, material_id=elastomer_id
+    )
     test_data = _ensure_test_json(api)
     processing = _ensure_processing_journey(api, test_data=test_data)
     neutral = _ensure_metal_neutral_and_cards(
@@ -2427,6 +2557,7 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
         **bulk,
         **polymer_bulk,
         **polymer_processing,
+        **elastomer_neutral,
     }
 
 

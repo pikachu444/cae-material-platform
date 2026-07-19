@@ -34,11 +34,13 @@ export function ReferenceOgdenPronyWorkbench({
   state,
   propertySet,
   onNavigate,
+  embedded = false,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
   propertySet: PropertySetResponse;
   onNavigate?: (path: string) => void;
+  embedded?: boolean;
 }) {
   const [models, setModels] = useState<OgdenPronyModelResponse[]>([]);
   const [cards, setCards] = useState<OgdenPronyCardResponse[]>([]);
@@ -53,6 +55,7 @@ export function ReferenceOgdenPronyWorkbench({
   const [materialName, setMaterialName] = useState("ELASTOMER_REFERENCE");
   const [solverMaterialId, setSolverMaterialId] = useState("301");
   const [preview, setPreview] = useState<string | null>(null);
+  const [mappingAcknowledged, setMappingAcknowledged] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -120,6 +123,7 @@ export function ReferenceOgdenPronyWorkbench({
         solver,
       );
       setReport(result.data);
+      setMappingAcknowledged(false);
     } catch (cause) {
       setError(errorMessage(cause));
     } finally {
@@ -164,20 +168,21 @@ export function ReferenceOgdenPronyWorkbench({
 
   return (
     <section className="reference-linear-viscoelastic-workbench" aria-label="Ogden Prony card workflow">
-      <div className="section-heading">
+      <div className="section-heading elastomer-workbench-heading">
         <div>
-          <p className="eyebrow">Elastomer vertical slice</p>
-          <h4>Ogden–Prony to Abaqus / OpenRadioss LAW62</h4>
+          <p className="eyebrow">Elastomer engineering workbench</p>
+          <h4>Test modes → model comparison → solver card</h4>
           <p className="muted">
-            One-term incompressible Ogden with 1–5 instantaneous shear-Prony terms. This is a
-            bounded reference workflow, not a production-validated material model.
+            Compare uniaxial, planar and biaxial evidence across four public hyperelastic families,
+            retain holdout results, then deliver the selected Neutral model to Abaqus or OpenRadioss.
           </p>
         </div>
         <span className="revision-chip">reference · non-production</span>
       </div>
 
+      <details className="advanced-definition elastomer-baseline-editor" open={!embedded}>
+        <summary>Baseline model and scientific policy</summary>
       <OgdenScientificProfilePanel config={config} />
-
       <form className="viscoelastic-form" onSubmit={createModel}>
         <div className="form-grid">
           <label>Ogden μ (MPa)<input type="number" min="0.000001" step="any" value={muMpa} onChange={(event) => setMuMpa(event.target.value)} /></label>
@@ -198,6 +203,7 @@ export function ReferenceOgdenPronyWorkbench({
           <button className="button primary" type="submit" disabled={busy}>{busy ? "Saving…" : "Create immutable Ogden–Prony IR"}</button>
         </div>
       </form>
+      </details>
 
       {model ? (
         <>
@@ -222,7 +228,7 @@ export function ReferenceOgdenPronyWorkbench({
           <div className="workflow-step">
             <strong>Saved model revision {model.current_revision.revision_no}</strong>
             <div className="form-grid">
-              <label>Solver<select value={solver} onChange={(event) => { setSolver(event.target.value as "abaqus" | "openradioss"); setReport(null); }}><option value="abaqus">Abaqus 2025</option><option value="openradioss">OpenRadioss 2025 LAW62</option></select></label>
+              <label>Solver<select value={solver} onChange={(event) => { setSolver(event.target.value as "abaqus" | "openradioss"); setReport(null); setMappingAcknowledged(false); }}><option value="abaqus">Abaqus 2025</option><option value="openradioss">OpenRadioss 2025 LAW62</option></select></label>
               <label>Solver material ID<input type="number" min="1" value={solverMaterialId} onChange={(event) => setSolverMaterialId(event.target.value)} /></label>
               <label>Material name<input value={materialName} pattern="[A-Za-z][A-Za-z0-9_-]{0,79}" onChange={(event) => setMaterialName(event.target.value)} /></label>
             </div>
@@ -232,7 +238,24 @@ export function ReferenceOgdenPronyWorkbench({
             <div className="mapping-report">
               <strong>{report.exportable ? "Exportable mapping" : "Mapping blocked"}</strong>
               <ul className="mapping-list">{report.report.items.map((item) => <li key={item.name}><span className={`mapping-status ${item.status}`}>{item.status}</span><div><strong>{item.name.replaceAll("_", " ")}</strong><small>{item.detail}</small></div></li>)}</ul>
-              <button className="button primary" type="button" disabled={!report.exportable || busy} onClick={() => void generateCard()}>Generate immutable {solver === "abaqus" ? ".inp" : "LAW62 .rad"} card</button>
+              {report.report.items.some((item) => item.status === "approximated" || item.status === "ignored") ? (
+                <label className="mapping-acknowledgement">
+                  <input type="checkbox" checked={mappingAcknowledged} onChange={(event) => setMappingAcknowledged(event.target.checked)} />
+                  I reviewed the approximated or ignored mappings in this exact report.
+                </label>
+              ) : null}
+              <button
+                className="button primary"
+                type="button"
+                disabled={
+                  !report.exportable ||
+                  busy ||
+                  (report.report.items.some((item) => item.status === "approximated" || item.status === "ignored") && !mappingAcknowledged)
+                }
+                onClick={() => void generateCard()}
+              >
+                Generate immutable {solver === "abaqus" ? ".inp" : "LAW62 .rad"} card
+              </button>
             </div>
           ) : null}
         </div>

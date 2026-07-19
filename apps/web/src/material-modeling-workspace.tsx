@@ -182,6 +182,7 @@ function FamilyModelingPanel({
               state={state}
               propertySet={propertySet}
               onNavigate={onNavigate}
+              embedded
             />
           ) : null}
         </Suspense>

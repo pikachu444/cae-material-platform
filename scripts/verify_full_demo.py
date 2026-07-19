@@ -102,6 +102,113 @@ def verify_full_demo(base_url: str) -> dict[str, object]:
                 "solver_cards": sorted(solvers),
             }
 
+        elastomer = next(
+            item
+            for item in materials
+            if _content(item).get("material_code") == "CMP-DEMO-ELASTOMER-OGDEN"
+        )
+        elastomer_id = str(elastomer["material_id"])
+        elastomer_neutral = None
+        for candidate in _items(
+            _json(client.get(f"/bulk-export-candidates?material_id={elastomer_id}"))
+        ):
+            source = candidate.get("source")
+            if not isinstance(source, Mapping) or source.get("kind") != "neutral_material_json":
+                continue
+            neutral_id = source.get("neutral_material_id")
+            if not isinstance(neutral_id, str):
+                continue
+            candidate_neutral = _json(client.get(f"/neutral-materials/{neutral_id}"))
+            model_ir = candidate_neutral.get("document", {}).get("material_model_ir", {})
+            if (
+                isinstance(model_ir, Mapping)
+                and model_ir.get("model_family") == "hyperelastic"
+                and model_ir.get("constitutive_model", {}).get("family") == "ogden_1"
+            ):
+                elastomer_neutral = candidate_neutral
+                break
+        if elastomer_neutral is None:
+            raise RuntimeError("clean demo elastomer has no reviewed Ogden Neutral JSON")
+        elastomer_sources = elastomer_neutral["document"]["sources"]
+        elastomer_datasets = elastomer_sources.get("datasets")
+        if not isinstance(elastomer_datasets, list) or len(elastomer_datasets) != 4:
+            raise RuntimeError("elastomer Neutral JSON does not pin four exact Datasets")
+        roles = [item.get("role") for item in elastomer_datasets if isinstance(item, Mapping)]
+        modes = {
+            str(item.get("test_mode"))
+            for item in elastomer_datasets
+            if isinstance(item, Mapping)
+        }
+        if roles.count("calibration") != 3 or roles.count("holdout") != 1 or modes != {
+            "uniaxial_tension",
+            "planar_tension",
+            "biaxial_tension",
+        }:
+            raise RuntimeError("elastomer Neutral JSON roles or test modes are incomplete")
+        selection = elastomer_neutral["document"]["candidate_selection"]
+        run_id = str(selection["calibration_run_id"])
+        family_candidate_id = str(selection["candidate_id"])
+        elastomer_run = _json(client.get(f"/ogden-calibration-runs/{run_id}"))
+        families = elastomer_run.get("family_candidates")
+        if (
+            elastomer_run.get("calibration_curve_count") != 3
+            or elastomer_run.get("holdout_curve_count") != 1
+            or elastomer_run.get("test_mode_count") != 3
+            or elastomer_run.get("candidate_count") != 8
+            or not isinstance(families, list)
+            or {item.get("family") for item in families if isinstance(item, Mapping)}
+            != {"neo_hookean", "mooney_rivlin", "yeoh", "ogden_1"}
+        ):
+            raise RuntimeError("elastomer calibration Run is not the complete multi-mode fit")
+        diagnostics = _json(
+            client.get(f"/hyperelastic-family-candidates/{family_candidate_id}/diagnostics")
+        )
+        diagnostic_points = diagnostics.get("points")
+        if not isinstance(diagnostic_points, list) or len(diagnostic_points) != 52:
+            raise RuntimeError("elastomer family Candidate does not preserve 52 diagnostics points")
+        prony = elastomer_neutral["document"]["material_model_ir"].get("prony_overlay")
+        if (
+            not isinstance(prony, Mapping)
+            or prony.get("status") != "exact_revision"
+            or not isinstance(prony.get("terms"), list)
+            or len(prony["terms"]) != 2
+        ):
+            raise RuntimeError("elastomer Neutral JSON lost its exact two-term Prony overlay")
+        elastomer_neutral_id = str(elastomer_neutral["neutral_material_id"])
+        elastomer_cards = _items(
+            _json(client.get(f"/neutral-materials/{elastomer_neutral_id}/solver-cards"))
+        )
+        elastomer_native: dict[str, str] = {}
+        for solver, keyword in (
+            ("abaqus", b"*HYPERELASTIC, OGDEN, N=1"),
+            ("openradioss", b"/MAT/LAW62"),
+        ):
+            card = next(
+                (
+                    item
+                    for item in elastomer_cards
+                    if item.get("target", {}).get("solver") == solver
+                ),
+                None,
+            )
+            if card is None:
+                raise RuntimeError(f"elastomer Neutral JSON has no {solver} native card")
+            native = client.get(f"/neutral-solver-cards/{card['solver_card_id']}/download")
+            native.raise_for_status()
+            if keyword not in native.content:
+                raise RuntimeError(f"elastomer {solver} card is missing its native keyword")
+            elastomer_native[solver] = hashlib.sha256(native.content).hexdigest()
+        result["elastomer_modeling_journey"] = {
+            "neutral_material_id": elastomer_neutral_id,
+            "calibration_plan_id": elastomer_sources["calibration_plan"]["id"],
+            "calibration_run_id": run_id,
+            "family_candidate_id": family_candidate_id,
+            "dataset_count": len(elastomer_datasets),
+            "diagnostics_point_count": len(diagnostic_points),
+            "prony_term_count": len(prony["terms"]),
+            "neutral_solver_card_sha256": elastomer_native,
+        }
+
         polymer = next(
             item
             for item in materials

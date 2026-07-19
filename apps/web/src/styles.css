@@ -4812,3 +4812,261 @@ summary {
   .master-curve-workbench.compact .form-grid,
   .master-curve-result-grid { grid-template-columns: 1fr; }
 }
+
+/* T-90 · graph-centered elastomer multi-mode modeling */
+.modeling-elastomer-workspace {
+  min-height: min(760px, calc(100vh - 190px));
+  padding: 12px;
+  border: 1px solid #d6e0df;
+  border-radius: 10px;
+  background: #f5f8f7;
+}
+
+.modeling-elastomer-workspace .family-modeling-panel { gap: 10px; }
+.modeling-elastomer-workspace .family-modeling-heading { display: none; }
+.modeling-elastomer-workspace .family-context-bar { padding: 10px; }
+.modeling-elastomer-workspace .reference-linear-viscoelastic-workbench {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #d9e3e2;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.modeling-elastomer-workspace .elastomer-workbench-heading,
+.modeling-elastomer-workspace .elastomer-baseline-editor { display: none; }
+
+.elastomer-workbench-heading {
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dfe7e6;
+}
+
+.elastomer-workbench-heading h4 { margin: 2px 0 4px; font-size: 1.08rem; }
+.elastomer-workbench-heading .muted { max-width: 72rem; margin: 0; font-size: .76rem; }
+.elastomer-baseline-editor { margin: 0; }
+.elastomer-baseline-editor > summary,
+.elastomer-recovery-tools > summary { font-size: .72rem; }
+
+.ogden-calibration-workbench {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ogden-calibration-workbench > .compact-heading {
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #d7e3e1;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #f3f9f7, #f8faf9);
+}
+
+.ogden-calibration-workbench > .inline-action {
+  margin: -5px 2px 0;
+  justify-content: space-between;
+}
+
+.elastomer-recovery-tools {
+  margin: 0;
+  border-color: #dfe6e5;
+  background: #fafcfc;
+}
+
+.elastomer-recovery-tools[open] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.elastomer-recovery-tools[open] > summary { grid-column: 1 / -1; }
+.elastomer-recovery-tools .workflow-step { margin: 0; }
+
+.ogden-calibration-workbench .ogden-input-table {
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid #d9e4e2;
+  border-radius: 9px;
+  background: #f8faf9;
+}
+
+.ogden-calibration-workbench .ogden-input-row {
+  grid-template-columns: 24px minmax(250px, 1fr) 112px 142px 70px;
+  padding: 8px 10px;
+  border-color: #dce5e4;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.ogden-calibration-workbench .ogden-input-row:has(select option[value="holdout"]:checked) {
+  border-left: 3px solid #d97732;
+  background: #fffaf6;
+}
+
+.ogden-calibration-workbench .statistics-result {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d8e3e2;
+  border-radius: 9px;
+  background: #fafcfc;
+}
+
+.ogden-calibration-workbench .statistics-result > .candidate-table:first-of-type {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ogden-calibration-workbench .statistics-result > .candidate-table:first-of-type .candidate-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  min-height: 128px;
+  padding: 12px;
+  border-radius: 8px;
+  align-content: start;
+}
+
+.ogden-calibration-workbench .statistics-result > .candidate-table:first-of-type .candidate-row strong {
+  color: #183d37;
+  font-size: .84rem;
+  text-transform: capitalize;
+}
+
+.ogden-calibration-workbench .statistics-result > .candidate-table:first-of-type .candidate-row span {
+  color: #60736f;
+  font-size: .68rem;
+  line-height: 1.35;
+}
+
+.ogden-calibration-workbench .statistics-result > .candidate-table:first-of-type .candidate-row.selected::after {
+  content: "SELECTED";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #08736e;
+  font-size: .55rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+
+.engineering-diagnostics {
+  padding: 12px;
+  border: 1px solid #d5e1df;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(22 55 50 / 6%);
+}
+
+.elastomer-candidate-rail {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  padding: 11px 12px;
+  border: 1px solid #d7e2e0;
+  border-radius: 9px;
+  background: #f8fbfa;
+}
+
+.elastomer-candidate-rail > header { display: grid; gap: 7px; }
+
+.elastomer-candidate-rail h5 { margin: 2px 0 0; }
+.elastomer-candidate-rail > div { display: grid; grid-template-columns: 1fr; gap: 7px; }
+.elastomer-candidate-rail button {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  color: #34534c;
+  text-align: left;
+  border: 1px solid #d8e3e1;
+  border-radius: 8px;
+  background: #fff;
+}
+.elastomer-candidate-rail button:hover { border-color: #70aaa1; }
+.elastomer-candidate-rail button.selected { border-color: #0d8079; box-shadow: inset 0 0 0 1px #0d8079; background: #f1faf8; }
+.elastomer-candidate-rail button > span { color: #0d8079; font-size: .55rem; font-weight: 850; letter-spacing: .08em; }
+.elastomer-candidate-rail button > strong { font-size: .78rem; text-transform: capitalize; }
+.elastomer-candidate-rail button > small { overflow: hidden; color: #647772; font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.diagnostic-plot-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.hyperelastic-response-plot { width: 100%; min-height: 330px; border-radius: 8px; background: #fbfdfd; }
+.hyperelastic-response-plot .chart-gridline { stroke: #e6edec; stroke-width: 1; }
+.hyperelastic-response-plot .chart-axis { stroke: #809590; stroke-width: 1.1; }
+.hyperelastic-response-plot .chart-tick { fill: #667a75; font-size: 9px; }
+.hyperelastic-response-plot .chart-axis-title { fill: #455d57; font-size: 10px; font-weight: 700; }
+.hyperelastic-response-plot .fitted-curve { fill: none; stroke-width: 2.2; }
+.hyperelastic-response-plot .residual-curve { fill: none; stroke-width: 2; }
+.hyperelastic-response-plot .observed-point { stroke: #fff; stroke-width: 1.2; }
+.hyperelastic-response-plot .residual-zero { stroke: #98aaa6; stroke-dasharray: 5 4; }
+.diagnostic-legend { padding-top: 8px; border-top: 1px solid #e1e8e7; }
+.diagnostic-legend .legend-line::before { content: ""; width: 20px; border-top: 2px solid #345f59; }
+.diagnostic-legend .legend-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #345f59; }
+
+.elastomer-fit-stage {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+.elastomer-fit-stage .engineering-diagnostics { min-width: 0; }
+.elastomer-title-actions { display: grid; justify-items: end; gap: 5px; min-width: 160px; }
+.elastomer-title-actions .input-count { color: #61756f; font-size: .66rem; font-weight: 700; }
+.modeling-elastomer-workspace .ogden-calibration-workbench > .section-heading.compact-heading {
+  padding: 10px 12px;
+}
+.modeling-elastomer-workspace .ogden-calibration-workbench > .section-heading.compact-heading .muted {
+  max-width: 760px;
+  margin: 4px 0 0;
+  font-size: .69rem;
+  line-height: 1.35;
+}
+.modeling-elastomer-workspace .ogden-calibration-workbench > .elastomer-recovery-tools { margin: 0; }
+
+.elastomer-prony-overlay {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.2fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #d9e4e2;
+  border-radius: 9px;
+  background: linear-gradient(115deg, #f8fbfa, #fff);
+}
+.elastomer-prony-overlay h5 { margin: 2px 0 3px; }
+.elastomer-prony-overlay .form-hint { margin: 0; }
+.prony-overlay-terms { display: flex; flex-wrap: wrap; gap: 7px; }
+.prony-overlay-terms > div {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 8px;
+  min-width: 116px;
+  padding: 8px 10px;
+  border: 1px solid #dbe5e3;
+  border-radius: 7px;
+  background: #fff;
+}
+.prony-overlay-terms strong { color: #0d8079; }
+.prony-overlay-terms small { grid-column: 1 / -1; color: #647772; }
+
+@media (max-width: 1100px) {
+  .ogden-calibration-workbench .statistics-result > .candidate-table:first-of-type { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ogden-calibration-workbench .ogden-input-row { grid-template-columns: 24px minmax(220px, 1fr) 100px 128px 60px; }
+  .elastomer-fit-stage { grid-template-columns: 210px minmax(0, 1fr); }
+  .elastomer-prony-overlay { grid-template-columns: 1fr auto; }
+  .elastomer-prony-overlay > div:first-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  .elastomer-recovery-tools[open],
+  .ogden-calibration-workbench .statistics-result > .candidate-table:first-of-type,
+  .ogden-calibration-workbench .ogden-input-row,
+  .elastomer-candidate-rail > div,
+  .elastomer-prony-overlay { grid-template-columns: 1fr; }
+  .elastomer-fit-stage { grid-template-columns: 1fr; }
+  .elastomer-candidate-rail > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

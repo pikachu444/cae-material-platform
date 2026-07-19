@@ -158,7 +158,7 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
 
     const onPromoted = vi.fn();
     render(<ReferenceOgdenCalibrationWorkbench config={{ baseUrl: "/api/v1", accessToken: "token" }} state={state} model={model} onPromoted={onPromoted} />);
-    expect(await screen.findByText(/1 scientific profile · 1 supported normalized curves/)).toBeTruthy();
+    expect(await screen.findByText(/1 profile · 1 curves/)).toBeTruthy();
     expect(screen.getByText(/PLANAR-01/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create immutable calibration Plan" }));
     expect(await screen.findByText(/point → curve → mode aggregation/)).toBeTruthy();
@@ -171,13 +171,13 @@ describe("ReferenceOgdenCalibrationWorkbench", () => {
     expect(screen.getByRole("table", { name: "Hyperelastic family candidate comparison" })).toBeTruthy();
     expect(screen.getByText("mooney rivlin")).toBeTruthy();
     fireEvent.click(screen.getByRole("row", { name: /mooney rivlin/ }));
-    expect(await screen.findByRole("img", { name: "Multi-test mooney rivlin fit and residual plot" })).toBeTruthy();
+    expect(await screen.findByRole("img", { name: "Multi-test mooney rivlin response plot" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create Neutral Material JSON" }));
     expect(await screen.findByText(/Neutral model r1 · mooney rivlin/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download Neutral Material JSON" })).toBeTruthy();
     expect(screen.getByText(/estimated jacobian covariance/)).toBeTruthy();
     expect(screen.getAllByText(/no holdout data/).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByRole("img", { name: "Multi-test Ogden fit and residual plot" })).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Multi-test Ogden response plot" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Record immutable Candidate Selection" }));
     expect(await screen.findByText(/Selection r1 recorded/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Promote into model r2" }));

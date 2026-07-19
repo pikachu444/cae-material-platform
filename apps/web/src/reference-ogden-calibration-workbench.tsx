@@ -78,62 +78,76 @@ function OgdenDiagnosticsPlot({
   value: OgdenDiagnosticsResponse | HyperelasticDiagnosticsResponse;
   modelLabel?: string;
 }) {
+  const [view, setView] = useState<"response" | "residual">("response");
+  const [zoom, setZoom] = useState(1);
   const points = value.points;
   if (!points.length) return null;
   const maxStrain = Math.max(...points.map((point) => point.engineering_strain)) || 1;
+  const visibleMaximum = maxStrain / zoom;
+  const visiblePoints = points.filter((point) => point.engineering_strain <= visibleMaximum);
   const stressValues = points.flatMap((point) => [
     point.observed_nominal_stress_pa,
     point.predicted_nominal_stress_pa,
   ]);
   const maxStress = Math.max(...stressValues, 1);
   const residualScale = Math.max(...points.map((point) => Math.abs(point.residual_pa)), 1);
-  const x = (value: number) => 54 + (value / maxStrain) * 638;
-  const stressY = (value: number) => 218 - (value / maxStress) * 184;
-  const residualY = (value: number) => 316 - (value / residualScale) * 38;
+  const x = (input: number) => 68 + (input / visibleMaximum) * 616;
+  const stressY = (input: number) => 286 - (input / maxStress) * 238;
+  const residualY = (input: number) => 167 - (input / residualScale) * 112;
   const members = [...new Set(points.map((point) => point.member_ordinal))];
+  const xTicks = Array.from({ length: 6 }, (_, index) => (visibleMaximum * index) / 5);
+  const yTicks = Array.from({ length: 5 }, (_, index) => index / 4);
   return (
-    <section className="curve-panel ogden-diagnostics" aria-label={`Observed fitted and residual ${modelLabel} curves`}>
+    <section className="curve-panel ogden-diagnostics engineering-diagnostics" aria-label={`Observed fitted and residual ${modelLabel} curves`}>
       <div className="curve-heading">
         <div>
-          <p className="eyebrow">Candidate diagnostics Artifact</p>
-          <h5>Observed, fitted, and residual nominal stress</h5>
+          <p className="eyebrow">Selected candidate · exact diagnostics</p>
+          <h5>{modelLabel} response by test mode</h5>
         </div>
-        <span className="reference-chip">{points.length} exact points</span>
+        <div className="diagnostic-plot-actions">
+          <div className="plot-view-switch" role="tablist" aria-label="Hyperelastic diagnostic view">
+            <button type="button" role="tab" aria-selected={view === "response"} className={view === "response" ? "active" : ""} onClick={() => setView("response")}>Response</button>
+            <button type="button" role="tab" aria-selected={view === "residual"} className={view === "residual" ? "active" : ""} onClick={() => setView("residual")}>Residual</button>
+          </div>
+          <button type="button" className="plot-tool" aria-label="Zoom out hyperelastic plot" disabled={zoom <= 1} onClick={() => setZoom((current) => Math.max(1, current / 1.5))}>−</button>
+          <button type="button" className="plot-tool" aria-label="Zoom in hyperelastic plot" disabled={zoom >= 3} onClick={() => setZoom((current) => Math.min(3, current * 1.5))}>+</button>
+          <button type="button" className="plot-tool reset" onClick={() => setZoom(1)}>Reset</button>
+          <span className="reference-chip">{points.length} exact points</span>
+        </div>
       </div>
-      <svg className="curve-plot" viewBox="0 0 720 360" role="img" aria-label={`Multi-test ${modelLabel} fit and residual plot`}>
-        <line x1="54" x2="692" y1="218" y2="218" />
-        <line x1="54" x2="54" y1="34" y2="218" />
-        <line x1="54" x2="692" y1="316" y2="316" />
+      <svg className="curve-plot hyperelastic-response-plot" viewBox="0 0 720 340" role="img" aria-label={`Multi-test ${modelLabel} ${view} plot`}>
+        {xTicks.map((tick) => <g key={`x-${tick}`}><line className="chart-gridline" x1={x(tick)} x2={x(tick)} y1="42" y2="286"/><text className="chart-tick" x={x(tick)} y="309" textAnchor="middle">{tick.toFixed(tick < 0.1 ? 3 : 2)}</text></g>)}
+        {yTicks.map((fraction) => {
+          const coordinate = 286 - fraction * 238;
+          const label = view === "response"
+            ? `${(maxStress * fraction / 1e6).toPrecision(3)}`
+            : `${((fraction * 2 - 1) * residualScale / 1e6).toPrecision(3)}`;
+          const residualCoordinate = view === "response" ? coordinate : 279 - fraction * 224;
+          return <g key={`y-${fraction}`}><line className="chart-gridline" x1="68" x2="684" y1={residualCoordinate} y2={residualCoordinate}/><text className="chart-tick" x="58" y={residualCoordinate + 4} textAnchor="end">{label}</text></g>;
+        })}
+        <line className="chart-axis" x1="68" x2="684" y1="286" y2="286" />
+        <line className="chart-axis" x1="68" x2="68" y1="42" y2="286" />
+        {view === "residual" ? <line className="residual-zero" x1="68" x2="684" y1="167" y2="167"/> : null}
         {members.map((member) => {
-          const curve = points.filter((point) => point.member_ordinal === member);
+          const curve = visiblePoints.filter((point) => point.member_ordinal === member);
           const color = COLORS[member % COLORS.length];
           return (
             <g key={member}>
-              <polyline
-                className="fitted-curve"
-                style={{ stroke: color }}
-                points={curve.map((point) => `${x(point.engineering_strain)},${stressY(point.predicted_nominal_stress_pa)}`).join(" ")}
-              />
-              <polyline
-                className="residual-curve"
-                style={{ stroke: color }}
-                points={curve.map((point) => `${x(point.engineering_strain)},${residualY(point.residual_pa)}`).join(" ")}
-              />
-              {curve.map((point) => (
-                <circle
-                  key={`${member}-${point.point_ordinal}`}
-                  cx={x(point.engineering_strain)}
-                  cy={stressY(point.observed_nominal_stress_pa)}
-                  r="2.7"
-                  fill={color}
+              {view === "response" ? <>
+                <polyline className="fitted-curve" style={{ stroke: color }} points={curve.map((point) => `${x(point.engineering_strain)},${stressY(point.predicted_nominal_stress_pa)}`).join(" ")}/>
+                {curve.map((point) => <circle className="observed-point" key={`${member}-${point.point_ordinal}`} cx={x(point.engineering_strain)} cy={stressY(point.observed_nominal_stress_pa)} r="3" fill={color}><title>{`${point.test_mode.replaceAll("_", " ")} · strain ${point.engineering_strain.toPrecision(4)} · observed ${(point.observed_nominal_stress_pa / 1e6).toPrecision(5)} MPa`}</title></circle>)}
+              </> : (
+                <polyline
+                  className="residual-curve"
+                  style={{ stroke: color }}
+                  points={curve.map((point) => `${x(point.engineering_strain)},${residualY(point.residual_pa)}`).join(" ")}
                 />
-              ))}
+              )}
             </g>
           );
         })}
-        <text x="300" y="352">engineering strain (1)</text>
-        <text x="14" y="155" transform="rotate(-90 14 155)">nominal stress (Pa)</text>
-        <text x="14" y="330" transform="rotate(-90 14 330)">residual</text>
+        <text className="chart-axis-title" x="376" y="333" textAnchor="middle">engineering strain [1]</text>
+        <text className="chart-axis-title" x="15" y="164" textAnchor="middle" transform="rotate(-90 15 164)">{view === "response" ? "nominal stress [MPa]" : "residual [MPa]"}</text>
       </svg>
       <div className="diagnostic-legend">
         {members.map((member) => {
@@ -141,10 +155,12 @@ function OgdenDiagnosticsPlot({
           return (
             <span key={member}>
               <i style={{ background: COLORS[member % COLORS.length] }} />
-              {point.test_mode.replaceAll("_", " ")} · {point.role}
+              <strong>{point.test_mode.replaceAll("_", " ")}</strong> · {point.role}
             </span>
           );
         })}
+        <span className="legend-line fitted">model prediction</span>
+        {view === "response" ? <span className="legend-dot">measured point</span> : null}
       </div>
     </section>
   );
@@ -222,12 +238,10 @@ export function ReferenceOgdenCalibrationWorkbench({
         listReferenceOgdenCalibrationPlans(config),
       ]);
       setHistory(revisionResult.data.items);
-      setPlans(
-        planResult.data.items.filter(
-          (item) =>
-            item.current_revision.content.material_state_id === state.material_state_id &&
-            item.current_revision.content.baseline_model_id === model.material_model_id,
-        ),
+      const matchingPlans = planResult.data.items.filter(
+        (item) =>
+          item.current_revision.content.material_state_id === state.material_state_id &&
+          item.current_revision.content.baseline_model_id === model.material_model_id,
       );
       const datasets = await Promise.all(
         runResult.data.items.map(async (testRun) => ({
@@ -235,16 +249,31 @@ export function ReferenceOgdenCalibrationWorkbench({
           result: await listGovernedDatasetsForTestRun(config, testRun.test_run_id),
         })),
       );
-      setProfiles(profileResult.data);
-      setChoices(
-        datasets.flatMap(({ testRun, result }) =>
-          result.data.items.flatMap((dataset) => {
-            const mode = MODE_BY_SCHEMA[dataset.data_schema];
-            if (dataset.representation !== "normalized" || !mode) return [];
-            return [{ dataset, run: testRun, included: true, role: "calibration" as const, mode, weight: "1" }];
-          }),
-        ),
+      const availableChoices = datasets.flatMap(({ testRun, result }) =>
+        result.data.items.flatMap((dataset) => {
+          const mode = MODE_BY_SCHEMA[dataset.data_schema];
+          if (dataset.representation !== "normalized" || !mode) return [];
+          return [{ dataset, run: testRun, included: true, role: "calibration" as const, mode, weight: "1" }];
+        }),
       );
+      const preferredPlan = matchingPlans[0] ?? null;
+      const preferredMembers = new Map(
+        preferredPlan?.current_revision.content.members.map((member) => [member.dataset_revision_id, member]) ?? [],
+      );
+      setProfiles(profileResult.data);
+      setPlans(matchingPlans);
+      setPlan(preferredPlan);
+      setPlanLabel(preferredPlan?.current_revision.content.plan_label ?? "Governed multi-test Ogden reference fit");
+      setChoices(availableChoices.map((choice) => {
+        const member = preferredMembers.get(choice.dataset.current_revision.id);
+        return member ? {
+          ...choice,
+          included: true,
+          role: member.role,
+          mode: member.test_mode,
+          weight: String(member.weight),
+        } : { ...choice, included: preferredPlan === null };
+      }));
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -283,7 +312,23 @@ export function ReferenceOgdenCalibrationWorkbench({
             === model.current_revision.content.property_set_revision_id
           && data.document.material_model_ir.model_family === "hyperelastic",
         );
-        if (active) setNeutralMaterial(exact?.data ?? null);
+        if (!active) return;
+        setNeutralMaterial(exact?.data ?? null);
+        const runId = exact?.data.document.candidate_selection.calibration_run_id;
+        const candidateId = exact?.data.document.candidate_selection.candidate_id;
+        if (runId) {
+          const [runResult, diagnosticsResult] = await Promise.all([
+            getReferenceOgdenCalibrationRun(config, runId),
+            candidateId ? getHyperelasticFamilyCandidateDiagnostics(config, candidateId) : null,
+          ]);
+          if (!active) return;
+          setRun(runResult.data);
+          setRunIdToLoad(runResult.data.ogden_calibration_run_id);
+          if (candidateId && diagnosticsResult) {
+            setSelectedFamilyCandidateId(candidateId);
+            setFamilyDiagnostics(diagnosticsResult.data);
+          }
+        }
       })
       .catch(() => undefined);
     return () => { active = false; };
@@ -595,24 +640,23 @@ export function ReferenceOgdenCalibrationWorkbench({
     <section className="reference-calibration-workbench ogden-calibration-workbench" aria-label="Reference multi-test Ogden calibration workbench">
       <div className="section-heading compact-heading">
         <div>
-          <p className="eyebrow">T-43 · governed scientific fitting</p>
-          <h4>Multi-test Ogden calibration</h4>
+          <p className="eyebrow">Elastomer Material Modeling</p>
+          <h4>Multi-mode hyperelastic model comparison</h4>
           <p className="muted">
-            Exact normalized Dataset revisions are fitted together. Calibration and holdout curves remain disjoint and immutable.
+            Configure uniaxial, planar and biaxial evidence, compare public model families, review holdout response and promote the selected result without leaving this workbench.
           </p>
         </div>
-        <span className="reference-chip">reference · solver-neutral</span>
+        <div className="elastomer-title-actions">
+          <span className="reference-chip">reference · solver-neutral</span>
+          <span className="input-count">{profiles.length} profile · {choices.length} curves</span>
+          <button className="text-button" type="button" disabled={busy !== null} onClick={() => void loadInputs()}>
+            Refresh inputs
+          </button>
+        </div>
       </div>
 
-      <div className="inline-action">
-        <p className="form-hint">
-          {profiles.length} scientific profile · {choices.length} supported normalized curves
-        </p>
-        <button className="text-button" type="button" disabled={busy !== null} onClick={() => void loadInputs()}>
-          Refresh inputs
-        </button>
-      </div>
-
+      <details className="advanced-definition elastomer-recovery-tools">
+        <summary>Advanced recovery and Neutral JSON interchange</summary>
       <div className="workflow-step" aria-label="Open immutable hyperelastic calibration Run">
         <strong>Open a saved calibration Run</strong>
         <p className="form-hint">Paste an exact Run ID to restore its family comparison and diagnostics without re-running the fit.</p>
@@ -654,6 +698,7 @@ export function ReferenceOgdenCalibrationWorkbench({
           {busy === "neutral-import" ? "Verifying exact evidence…" : "Validate and import JSON"}
         </button>
       </div>
+      </details>
       {neutralMaterial && !selectedFamilyCandidateId ? (
         <div className="promotion-confirmation" aria-live="polite">
           <strong>
@@ -672,6 +717,62 @@ export function ReferenceOgdenCalibrationWorkbench({
           </button>
         </div>
       ) : null}
+
+      {run || familyDiagnostics ? <div className="elastomer-fit-stage">
+      {run ? (
+        <section className="elastomer-candidate-rail" aria-label="Hyperelastic family candidate selection">
+          <header>
+            <div><p className="eyebrow">Fit · public constitutive models</p><h5>Compare the same exact curves across four families</h5></div>
+            <span className="reference-chip">{run.calibration_curve_count} fit · {run.holdout_curve_count} holdout · {run.test_mode_count} modes</span>
+          </header>
+          <div role="table" aria-label="Hyperelastic family candidate comparison">
+            {run.family_candidates.slice().sort((left, right) => left.objective_total - right.objective_total).map((candidate, index) => (
+              <button
+                className={selectedFamilyCandidateId === candidate.hyperelastic_family_candidate_id ? "selected" : ""}
+                type="button"
+                role="row"
+                key={candidate.hyperelastic_family_candidate_id}
+                disabled={!candidate.links.diagnostics || busy !== null}
+                onClick={() => void showFamilyDiagnostics(candidate.hyperelastic_family_candidate_id)}
+              >
+                <span>{index === 0 ? "BEST FIT" : candidate.stability_status.replaceAll("_", " ")}</span>
+                <strong>{candidate.family.replaceAll("_", " ")}</strong>
+                <small>nRMSE {candidate.calibration_normalized_rmse.toExponential(3)}</small>
+                <small>{candidate.warnings.length ? candidate.warnings.join(", ").replaceAll("_", " ") : "stable on fitted domain"}</small>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
+      {familyDiagnostics ? (
+        <OgdenDiagnosticsPlot
+          value={familyDiagnostics}
+          modelLabel={familyDiagnostics.points[0]?.family.replaceAll("_", " ") ?? "hyperelastic family"}
+        />
+      ) : null}
+      </div> : null}
+      <section className="elastomer-prony-overlay" aria-label="Time dependent Prony overlay">
+        <div>
+          <p className="eyebrow">Hyper-viscoelastic overlay</p>
+          <h5>Prony relaxation applied after the equilibrium response</h5>
+          <p className="form-hint">
+            The hyperelastic family is fitted to the exact multi-mode curves above. The current
+            time-domain overlay remains an explicit, independently reviewable part of the model.
+          </p>
+        </div>
+        <div className="prony-overlay-terms" role="table" aria-label="Current Prony relaxation terms">
+          {model.current_revision.content.prony_terms.map((term) => (
+            <div role="row" key={term.ordinal}>
+              <strong>g{term.ordinal}</strong>
+              <span>{term.g_ratio.toPrecision(4)}</span>
+              <small>τ {term.relaxation_time_s.toPrecision(4)} s</small>
+            </div>
+          ))}
+        </div>
+        <span className="reference-chip">
+          {model.current_revision.content.prony_terms.length} term{model.current_revision.content.prony_terms.length === 1 ? "" : "s"} · {model.current_revision.content.moduli_convention}
+        </span>
+      </section>
 
       {!profiles.length ? (
         <p className="warning-notice">Create the explicit reference scientific profile above before fitting.</p>
@@ -781,31 +882,6 @@ export function ReferenceOgdenCalibrationWorkbench({
       {run ? (
         <section className="statistics-result" aria-live="polite">
           <div className="curve-heading">
-            <div>
-              <p className="eyebrow">T-55E · public hyperelastic families</p>
-              <h5>{run.family_candidate_count} model families compared on the same revisions</h5>
-            </div>
-            <span className="reference-chip">normalized weighted fit</span>
-          </div>
-          <div className="candidate-table" role="table" aria-label="Hyperelastic family candidate comparison">
-            {run.family_candidates.slice().sort((left, right) => left.objective_total - right.objective_total).map((candidate) => (
-              <button
-                className={`candidate-row ${selectedFamilyCandidateId === candidate.hyperelastic_family_candidate_id ? "selected" : ""}`}
-                type="button"
-                role="row"
-                key={candidate.hyperelastic_family_candidate_id}
-                disabled={!candidate.links.diagnostics || busy !== null}
-                onClick={() => void showFamilyDiagnostics(candidate.hyperelastic_family_candidate_id)}
-              >
-                <strong>{candidate.family.replaceAll("_", " ")}</strong>
-                <span>{candidate.parameters.map((parameter) => `${parameter.name}=${parameter.unit === "Pa" ? mpa(parameter.value) : parameter.value.toPrecision(5)}`).join(" · ")}</span>
-                <span>NRMSE {candidate.calibration_normalized_rmse.toExponential(3)}</span>
-                <span>{candidate.stability_status.replaceAll("_", " ")}</span>
-                <span>{candidate.warnings.length ? candidate.warnings.join(", ").replaceAll("_", " ") : "no warning"}</span>
-              </button>
-            ))}
-          </div>
-          <div className="curve-heading">
             <div><p className="eyebrow">Immutable candidate comparison</p><h5>{run.candidate_count} candidates · {run.test_mode_count} modes</h5></div>
             <span className="reference-chip">{run.calibration_curve_count} fit · {run.holdout_curve_count} holdout</span>
           </div>
@@ -842,12 +918,6 @@ export function ReferenceOgdenCalibrationWorkbench({
             </>
           ) : null}
         </section>
-      ) : null}
-      {familyDiagnostics ? (
-        <OgdenDiagnosticsPlot
-          value={familyDiagnostics}
-          modelLabel={familyDiagnostics.points[0]?.family.replaceAll("_", " ") ?? "hyperelastic family"}
-        />
       ) : null}
       {run && selectedFamilyCandidateId ? (
         <section
