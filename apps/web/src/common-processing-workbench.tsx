@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import {
   ApiError,
@@ -45,7 +45,12 @@ interface Props {
   config: ApiConfig;
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
+  onModelingTrackChange?: (track: ModelingTrack) => void;
+  familyWorkbench?: ReactNode;
 }
+
+export type ModelingTrack = "metal" | "polymer" | "elastomer";
+type WorkspaceInspector = "step" | "recipe" | "batch";
 
 const DEFAULT_PROFILE: CommonMappingProfileContent = {
   profile_key: "normalized-tensile",
@@ -99,6 +104,40 @@ const POLYMER_RELAXATION_PROFILE: CommonMappingProfileContent = {
   attribute_bindings: [],
 };
 
+const ELASTOMER_CURVE_PROFILE: CommonMappingProfileContent = {
+  profile_key: "elastomer-test-mode-preparation",
+  label: "Elastomer test-mode curve preparation",
+  independent_quantity: "strain.engineering",
+  missing_data_policy: "drop_any",
+  bindings: [
+    {
+      channel_key: "engineering_strain",
+      target_quantity: "strain.engineering",
+      accepted_normalized_units: ["1"],
+      required: true,
+      scale: 1,
+      offset: 0,
+    },
+    {
+      channel_key: "engineering_stress",
+      target_quantity: "stress.engineering",
+      accepted_normalized_units: ["Pa"],
+      required: true,
+      scale: 1,
+      offset: 0,
+    },
+  ],
+  attribute_bindings: [],
+};
+
+const ELASTOMER_PREPARATION_STEPS: CommonProcessingStep[] = [
+  {
+    method_id: "rows.sort_unique",
+    method_version: "1.0.0",
+    options: { duplicate_policy: "reject" },
+  },
+];
+
 const POLYMER_RELAXATION_STEPS: CommonProcessingStep[] = [
   {
     method_id: "rows.sort_unique",
@@ -132,11 +171,74 @@ const POLYMER_RELAXATION_STEPS: CommonProcessingStep[] = [
   },
 ];
 
-const DEFAULT_STEPS: CommonProcessingStep[] = [
+const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
   {
     method_id: "rows.sort_unique",
     method_version: "1.0.0",
     options: { duplicate_policy: "reject" },
+  },
+  {
+    method_id: "metal.elastic_modulus",
+    method_version: "1.0.0",
+    options: {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      method: "robust_huber",
+      minimum_strain: 0.0002,
+      maximum_strain: 0.002,
+      manual_modulus_pa: 210000000000,
+    },
+  },
+  {
+    method_id: "metal.proof_stress",
+    method_version: "1.0.0",
+    options: {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      youngs_modulus_pa: 210000000000,
+      offset_strain: 0.002,
+      search_start: 0.002,
+      search_end: 0.1,
+    },
+  },
+  {
+    method_id: "metal.necking_candidate",
+    method_version: "1.0.0",
+    options: {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      method: "peak_engineering_stress",
+    },
+  },
+  {
+    method_id: "metal.engineering_to_true_plastic",
+    method_version: "1.0.0",
+    options: {
+      strain_quantity: "strain.engineering",
+      stress_quantity: "stress.engineering",
+      youngs_modulus_pa: 210000000000,
+      necking_policy: "observed_full_domain",
+      manual_necking_index: 1,
+      negative_plastic_policy: "drop",
+    },
+  },
+  {
+    method_id: "metal.hardening_fit_extrapolate",
+    method_version: "1.0.0",
+    options: {
+      plastic_strain_quantity: "strain.true_plastic",
+      stress_quantity: "stress.true",
+      families: ["voce", "swift", "hockett_sherby", "ghosh"],
+      fit_minimum_strain: 0,
+      fit_maximum_strain: 0.1,
+      extrapolation_maximum_strain: 1,
+      output_point_count: 101,
+      primary_family: "swift",
+      secondary_family: "voce",
+      primary_weight: 0.5,
+      normalization_stress_pa: 100000000,
+      maximum_function_evaluations: 5000,
+    },
   },
 ];
 
@@ -400,7 +502,7 @@ function StageCurveEvidence({
   );
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, familyWorkbench }: Props) {
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
@@ -413,7 +515,7 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
   const [selectedRecipeId, setSelectedRecipeId] = useState("");
   const [document, setDocument] = useState<Record<string, unknown> | null>(null);
   const [profileText, setProfileText] = useState(JSON.stringify(DEFAULT_PROFILE, null, 2));
-  const [stepsText, setStepsText] = useState(JSON.stringify(DEFAULT_STEPS, null, 2));
+  const [stepsText, setStepsText] = useState(JSON.stringify(METAL_TENSILE_STEPS, null, 2));
   const [classification, setClassification] = useState<DataClassification>("internal");
   const [changeReason, setChangeReason] = useState("Save reusable channel mapping");
   const [outputLabel, setOutputLabel] = useState("Processed tensile curve");
@@ -425,6 +527,8 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   const [selectedStage, setSelectedStage] = useState(0);
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
+  const [modelingTrack, setModelingTrack] = useState<ModelingTrack>("metal");
+  const [workspaceInspector, setWorkspaceInspector] = useState<WorkspaceInspector>("step");
   const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
   const [batchDocumentIds, setBatchDocumentIds] = useState<string[]>([]);
   const [batchLabel, setBatchLabel] = useState("Published Recipe batch");
@@ -485,10 +589,20 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
     }
   }
 
+  function applyModelingTrack(track: ModelingTrack): void {
+    setModelingTrack(track);
+    onModelingTrackChange?.(track);
+  }
+
   function selectProfile(id: string): void {
     setSelectedProfileId(id);
     const item = profiles.find((candidate) => candidate.mapping_profile_id === id);
-    if (item) setProfileText(JSON.stringify(item.content, null, 2));
+    if (item) {
+      setProfileText(JSON.stringify(item.content, null, 2));
+      if (item.content.profile_key.includes("polymer") || item.content.independent_quantity === "time") applyModelingTrack("polymer");
+      else if (item.content.profile_key.includes("elastomer")) applyModelingTrack("elastomer");
+      else applyModelingTrack("metal");
+    }
   }
 
   function useProfileTemplate(
@@ -503,6 +617,19 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
     setNotice(`Loaded the ${profile.label} template. Confirm channel keys, units, and bounds before saving.`);
   }
 
+  function selectModelingTrack(track: ModelingTrack): void {
+    applyModelingTrack(track);
+    setWorkspaceInspector("step");
+    if (track === "metal") useProfileTemplate(DEFAULT_PROFILE, METAL_TENSILE_STEPS);
+    if (track === "polymer") useProfileTemplate(POLYMER_RELAXATION_PROFILE, POLYMER_RELAXATION_STEPS);
+    if (track === "elastomer") {
+      useProfileTemplate(ELASTOMER_CURVE_PROFILE, ELASTOMER_PREPARATION_STEPS);
+      setNotice("Elastomer multi-mode preparation is selected. T-80 connects its saved Plan and candidate controls without treating a single curve as a complete fit.");
+    }
+    setSelectedRecipeId("");
+    setBatchPreflight(null);
+  }
+
   function selectRecipe(id: string): void {
     setSelectedRecipeId(id);
     setBatchPreflight(null);
@@ -512,6 +639,8 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
     setRecipeLabel(item.content.label);
     setRecipeDescription(item.content.description ?? "");
     setStepsText(JSON.stringify(item.content.steps, null, 2));
+    if (item.content.steps.some((step) => step.method_id.startsWith("polymer."))) applyModelingTrack("polymer");
+    else if (item.content.steps.some((step) => step.method_id.startsWith("metal."))) applyModelingTrack("metal");
     setSelectedStepIndex(0);
     setPreview(null);
     const exactProfile = profiles.find(
@@ -903,6 +1032,18 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
     }
   }, [stepsText]);
   const selectedConfiguredStep = configuredSteps[selectedStepIndex] ?? null;
+  const trackRecipes = useMemo(() => recipes.filter((recipe) => {
+    const methodIds = recipe.content.steps.map((step) => step.method_id);
+    if (modelingTrack === "metal") return methodIds.some((methodId) => methodId.startsWith("metal."));
+    if (modelingTrack === "polymer") return methodIds.some((methodId) => methodId.startsWith("polymer."));
+    return !methodIds.some((methodId) => methodId.startsWith("metal.") || methodId.startsWith("polymer."));
+  }), [recipes, modelingTrack]);
+  const trackMethods = useMemo(() => methods.filter((method) => {
+    const family = method.method_id.split(".")[0];
+    if (family === "metal") return modelingTrack === "metal";
+    if (family === "polymer") return modelingTrack === "polymer";
+    return true;
+  }), [methods, modelingTrack]);
   const chart = useMemo(() => ({ width: 620, height: 250 }), []);
   const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
   const ensembleBounds = useMemo(() => {
@@ -927,6 +1068,11 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
         <div><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p>Import, map and process test data while the graph stays visible. Only an explicit commit creates an immutable result.</p></div>
         <div className="hero-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
         <nav className="modeling-flow-nav" aria-label="Material Modeling steps"><a href="#modeling-import">Import</a><a href="#modeling-map">Map</a><a href="#modeling-prepare">Prepare</a><a href="#modeling-fit">Fit</a><a href="#modeling-fit">Extrapolate</a><a href="#modeling-output">Card</a></nav>
+        <div className="modeling-track-selector" role="tablist" aria-label="Material modeling family">
+          <button type="button" role="tab" aria-selected={modelingTrack === "metal"} className={modelingTrack === "metal" ? "active metal" : "metal"} onClick={() => selectModelingTrack("metal")}><span>Metal</span><strong>Elastoplastic</strong><small>E, proof, necking, hardening</small></button>
+          <button type="button" role="tab" aria-selected={modelingTrack === "polymer"} className={modelingTrack === "polymer" ? "active polymer" : "polymer"} onClick={() => selectModelingTrack("polymer")}><span>Polymer</span><strong>Viscoelastic</strong><small>Log-time, Prony candidates</small></button>
+          <button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} className={modelingTrack === "elastomer" ? "active elastomer" : "elastomer"} onClick={() => selectModelingTrack("elastomer")}><span>Elastomer</span><strong>Hyper-viscoelastic</strong><small>Multi-mode, stability, Prony</small></button>
+        </div>
       </section>
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}
@@ -942,10 +1088,7 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
         <article className="workbench-card mapping-profile-card" id="modeling-map">
           <div className="section-heading"><div><p className="eyebrow">2 · reusable contract</p><h2>Mapping Profile</h2></div><span className="status-chip">{profiles.length} saved</span></div>
           <label>Saved profile<select aria-label="Saved Mapping Profile" value={selectedProfileId} onChange={(event) => selectProfile(event.target.value)}><option value="">New profile</option>{profiles.map((item) => <option key={item.mapping_profile_id} value={item.mapping_profile_id}>{item.content.label} · r{item.current_revision.revision_no}</option>)}</select></label>
-          <div className="hero-actions" aria-label="Mapping Profile templates">
-            <button className="button secondary" type="button" onClick={() => useProfileTemplate(DEFAULT_PROFILE, DEFAULT_STEPS)}>Metal tensile template</button>
-            <button className="button secondary" type="button" onClick={() => useProfileTemplate(POLYMER_RELAXATION_PROFILE, POLYMER_RELAXATION_STEPS)}>Polymer relaxation template</button>
-          </div>
+          <p className="track-contract-note"><strong>{modelingTrack === "metal" ? "Metal tensile" : modelingTrack === "polymer" ? "Polymer relaxation" : "Elastomer multi-mode"}</strong>{modelingTrack === "elastomer" ? " requires uniaxial, planar or biaxial roles; no single curve is silently treated as a complete calibration." : " profile and ordered method defaults are loaded from the selected family track."}</p>
           <details className="advanced-definition"><summary>Advanced mapping definition</summary><label>Profile JSON<textarea className="mapping-profile-editor" aria-label="Mapping Profile JSON" value={profileText} onChange={(event) => setProfileText(event.target.value)} spellCheck={false} /></label></details>
           <div className="profile-save-row"><label>Classification<select value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option><option value="export_controlled">Export controlled</option></select></label><label>Change reason<input value={changeReason} onChange={(event) => setChangeReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !changeReason.trim()} onClick={() => void saveProfile()}>{selectedProfileId ? "Append profile revision" : "Save new profile"}</button></div>
         </article>
@@ -953,7 +1096,7 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
 
       <section className="workbench-card method-builder-card" id="modeling-prepare">
         <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy} onClick={() => void runPreview()}>{busy ? "Working…" : "Preview changes"}</button></div>
-        <div className="method-registry-strip" aria-label="Available processing methods">{methods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div>
+        <div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div>
         <div className="modeling-graph-workspace">
           <aside className="modeling-workspace-rail">
             <div className="modeling-dataset-list"><p className="eyebrow">Datasets &amp; curves</p>{documents.map((item) => <button type="button" className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id} onClick={() => void loadDocument(item.test_data_document_id)}><span className="dataset-curve-swatch"/><span><strong>{item.document_key}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button>)}</div>
@@ -964,36 +1107,41 @@ export function CommonProcessingWorkbench({ config, onNavigate }: Props) {
             {preview && activeStage && baseStage ? <StageCurveEvidence preview={preview} activeStage={activeStage} baseStage={baseStage} width={chart.width} height={chart.height} /> : <div className="modeling-plot-empty"><strong>The graph stays here while you configure processing.</strong><p>Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source.</p></div>}
             {preview ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => setSelectedStage(stage.ordinal)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : null}
           </article>
-          <aside className="step-option-panel">{selectedConfiguredStep ? <><div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div><div className="step-option-grid">{Object.entries(selectedConfiguredStep.options).map(([option, value]) => <label key={option}>{option.replaceAll("_", " ")}{typeof value === "boolean" ? <input type="checkbox" checked={value} onChange={(event) => updateStepOption(option, event.target.checked)} /> : <input value={Array.isArray(value) ? value.join(", ") : String(value)} type={typeof value === "number" ? "number" : "text"} onChange={(event) => updateStepOption(option, parseStepOption(value, event.target.value))} />}</label>)}</div></> : <p className="muted">Add or select a processing step.</p>}</aside>
+          <aside className="step-option-panel">
+            <nav className="workspace-inspector-tabs" aria-label="Modeling workspace inspector">
+              <button type="button" className={workspaceInspector === "step" ? "active" : ""} onClick={() => setWorkspaceInspector("step")}>Step options</button>
+              <button type="button" className={workspaceInspector === "recipe" ? "active" : ""} onClick={() => setWorkspaceInspector("recipe")}>Recipe <span>{trackRecipes.length}</span></button>
+              <button type="button" className={workspaceInspector === "batch" ? "active" : ""} onClick={() => setWorkspaceInspector("batch")}>Batch <span>{batches.length}</span></button>
+            </nav>
+            {workspaceInspector === "step" ? selectedConfiguredStep ? <>
+              <div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
+              <div className="step-option-grid">{Object.entries(selectedConfiguredStep.options).map(([option, value]) => <label key={option}>{option.replaceAll("_", " ")}{typeof value === "boolean" ? <input type="checkbox" checked={value} onChange={(event) => updateStepOption(option, event.target.checked)} /> : <input value={Array.isArray(value) ? value.join(", ") : String(value)} type={typeof value === "number" ? "number" : "text"} onChange={(event) => updateStepOption(option, parseStepOption(value, event.target.value))} />}</label>)}</div>
+            </> : <p className="muted">Add or select a processing step.</p> : null}
+            {workspaceInspector === "recipe" ? <div className="inspector-recipe-panel">
+              <div className="section-heading"><div><p className="eyebrow">Reusable execution</p><h3>Processing Recipe</h3></div><span className="status-chip">{trackRecipes.length} saved</span></div>
+              <label>Saved Recipe<select aria-label="Saved Processing Recipe" value={selectedRecipeId} onChange={(event) => selectRecipe(event.target.value)}><option value="">New Recipe</option>{trackRecipes.map((item) => <option key={item.processing_recipe_id} value={item.processing_recipe_id}>{item.content.label} · r{item.current_revision.revision_no} · {item.content.lifecycle_state}</option>)}</select></label>
+              <label>Recipe key<input value={recipeKey} onChange={(event) => setRecipeKey(event.target.value)} /></label>
+              <label>Label<input value={recipeLabel} onChange={(event) => setRecipeLabel(event.target.value)} /></label>
+              <label>Description<input value={recipeDescription} onChange={(event) => setRecipeDescription(event.target.value)} /></label>
+              <label>Change reason<input value={recipeReason} onChange={(event) => setRecipeReason(event.target.value)} /></label>
+              <div className="inspector-action-stack"><button className="button primary" type="button" disabled={busy || !selectedProfileId || !recipeKey.trim() || !recipeLabel.trim() || !recipeReason.trim()} onClick={() => void saveRecipe()}>{selectedRecipeId ? "Append draft revision" : "Save new Recipe"}</button><button className="button secondary" type="button" disabled={busy || !recipes.some((item) => item.processing_recipe_id === selectedRecipeId && item.content.lifecycle_state === "draft")} onClick={() => void publishRecipe()}>Publish reviewed revision</button></div>
+              {selectedRecipeId ? <p className="digest-line"><span>Exact Recipe</span><code>{recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.current_revision.content_hash}</code></p> : <p className="muted">Save these ordered method versions and options for reuse.</p>}
+            </div> : null}
+            {workspaceInspector === "batch" ? <div className="inspector-batch-panel">
+              <div className="section-heading"><div><p className="eyebrow">Exact revision batch</p><h3>Batch execution</h3></div><span className="status-chip">{batches.length} runs</span></div>
+              <fieldset><legend>Test Data selection</legend>{documents.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={batchDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleBatchDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset>
+              <label>Batch label<input aria-label="Processing Batch label" value={batchLabel} onChange={(event) => setBatchLabel(event.target.value)} /></label>
+              <div className="inspector-action-stack"><button className="button secondary" type="button" disabled={busy || !selectedRecipeId || !batchDocumentIds.length} onClick={() => void preflightBatch()}>Compatibility preflight</button><button className="button primary" type="button" disabled={busy || !batchPreflight?.compatible || !batchLabel.trim()} onClick={() => void executeBatch()}>Execute published Recipe</button></div>
+              {batchPreflight ? <div className="batch-summary"><strong>{batchPreflight.compatible ? "Compatible" : "Blocked"}</strong><span>{batchPreflight.members.length} exact revisions</span><code>{batchPreflight.recipe_sha256}</code></div> : <p className="muted">Select a published Recipe in the Recipe tab, then check exact inputs.</p>}
+              <div className="inspector-batch-history">{batches.map((batch) => <article key={batch.batch_id}><div><strong>{batch.label}</strong><small>{batch.members.length} members · {batch.attempts.length} attempts</small></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span>{batch.status === "partial" || batch.status === "failed" ? <button className="text-button" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed</button> : null}</article>)}</div>
+            </div> : null}
+          </aside>
         </div>
         <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label></details>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
       </section>
 
-      <section className="workbench-card recipe-library-card">
-        <div className="section-heading"><div><p className="eyebrow">T-54 · reusable execution contract</p><h2>Processing Recipe library</h2></div><span className="status-chip">{recipes.length} saved</span></div>
-        <p className="mapping-note">A Recipe pins one exact Mapping Profile revision and every ordered method version/options. Publishing appends a revision; it never edits a reviewed Recipe in place.</p>
-        <div className="recipe-library-grid">
-          <label>Saved Recipe<select aria-label="Saved Processing Recipe" value={selectedRecipeId} onChange={(event) => selectRecipe(event.target.value)}><option value="">New Recipe</option>{recipes.map((item) => <option key={item.processing_recipe_id} value={item.processing_recipe_id}>{item.content.label} · r{item.current_revision.revision_no} · {item.content.lifecycle_state}</option>)}</select></label>
-          <label>Recipe key<input value={recipeKey} onChange={(event) => setRecipeKey(event.target.value)} /></label>
-          <label>Label<input value={recipeLabel} onChange={(event) => setRecipeLabel(event.target.value)} /></label>
-          <label>Description<input value={recipeDescription} onChange={(event) => setRecipeDescription(event.target.value)} /></label>
-          <label>Change reason<input value={recipeReason} onChange={(event) => setRecipeReason(event.target.value)} /></label>
-        </div>
-        <div className="recipe-actions"><button className="button primary" type="button" disabled={busy || !selectedProfileId || !recipeKey.trim() || !recipeLabel.trim() || !recipeReason.trim()} onClick={() => void saveRecipe()}>{selectedRecipeId ? "Append draft revision" : "Save new Recipe"}</button><button className="button secondary" type="button" disabled={busy || !recipes.some((item) => item.processing_recipe_id === selectedRecipeId && item.content.lifecycle_state === "draft")} onClick={() => void publishRecipe()}>Publish reviewed revision</button></div>
-        {selectedRecipeId ? <p className="digest-line"><span>Exact profile and Recipe content</span><code>{recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.content.mapping_profile_revision_id} · {recipes.find((item) => item.processing_recipe_id === selectedRecipeId)?.current_revision.content_hash}</code></p> : null}
-      </section>
-
-      <section className="workbench-card batch-monitor-card">
-        <div className="section-heading"><div><p className="eyebrow">T-54 · reusable batch execution</p><h2>Batch Run Monitor</h2></div><span className="status-chip">{batches.length} batches</span></div>
-        <p className="mapping-note">The selected published Recipe, Mapping Profile, and every Test Data revision are pinned exactly. Compatibility is checked before execution; successful outputs survive other member failures.</p>
-        <div className="batch-builder-grid">
-          <fieldset><legend>Exact Test Data selection</legend>{documents.map((item) => <label key={item.test_data_document_id}><input type="checkbox" checked={batchDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleBatchDocument(item.test_data_document_id)} />{item.document_key} · r{item.current_revision.revision_no}</label>)}</fieldset>
-          <div className="batch-actions"><label>Batch label<input aria-label="Processing Batch label" value={batchLabel} onChange={(event) => setBatchLabel(event.target.value)} /></label><button className="button secondary" type="button" disabled={busy || !selectedRecipeId || !batchDocumentIds.length} onClick={() => void preflightBatch()}>Run compatibility preflight</button><button className="button primary" type="button" disabled={busy || !batchPreflight?.compatible || !batchLabel.trim()} onClick={() => void executeBatch()}>Execute published Recipe</button></div>
-        </div>
-        {batchPreflight ? <div className="batch-preflight" aria-label="Batch compatibility report"><div className="batch-summary"><strong>{batchPreflight.compatible ? "Compatible" : "Blocked"}</strong><span>{batchPreflight.members.length} exact revisions</span><code>{batchPreflight.recipe_sha256}</code></div>{batchPreflight.members.map((member) => <article key={`${member.source.document_id}-${member.source.revision_id}`}><span className={`status-chip ${member.compatible ? "" : "warning"}`}>{member.compatible ? "ready" : "incompatible"}</span><div><strong>Member {member.ordinal + 1}</strong><small>{member.final_point_count ?? 0} output points</small><code>{member.source.revision_id}</code>{member.diagnostic ? <p>{member.diagnostic}</p> : null}</div></article>)}</div> : <p className="muted">Choose a published Recipe and exact Test Data revisions, then run preflight.</p>}
-        {batches.length ? <div className="batch-run-list">{batches.map((batch) => <article key={batch.batch_id}><div className="batch-run-heading"><div><strong>{batch.label}</strong><small>{batch.members.length} members · {batch.attempts.length} attempts</small></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span></div><code>{batch.recipe_revision_id}</code><div className="batch-member-list">{batch.members.map((member) => { const attempts = batch.attempts.filter((attempt) => attempt.member_id === member.member_id); const latest = attempts.at(-1); return <div key={member.member_id}><span>#{member.ordinal + 1}</span><strong>{latest?.status ?? "planned"}</strong><small>attempt {latest?.attempt_no ?? 0}</small><code>{latest?.output_revision_id ?? latest?.error_code ?? member.source.revision_id}</code></div>; })}</div>{batch.status === "partial" || batch.status === "failed" ? <button className="button secondary" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed members only</button> : null}</article>)}</div> : null}
-      </section>
+      {familyWorkbench ? <section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section> : null}
 
       <section className="workbench-card processing-output-card" id="modeling-output">
         <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Commit reviewed result</h2></div><span className="status-chip">{outputs.length} committed</span></div>

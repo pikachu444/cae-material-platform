@@ -270,16 +270,22 @@ describe("Common Processing Workbench", () => {
 
     expect(await screen.findByRole("heading", { name: "Test curves to material model" })).toBeTruthy();
     expect(screen.getByRole("navigation", { name: "Material Modeling steps" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Polymer relaxation template" }));
+    expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: /Polymer/ }));
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
       '"profile_key": "polymer-shear-relaxation"',
     );
     expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
       '"method_id": "polymer.prony_fit_compare"',
     );
-    fireEvent.click(screen.getByRole("button", { name: "Metal tensile template" }));
-    expect(await screen.findByRole("heading", { name: "Processing Recipe library" })).toBeTruthy();
-    expect(await screen.findByRole("heading", { name: "Batch Run Monitor" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: /Metal/ }));
+    expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
+      '"method_id": "metal.hardening_fit_extrapolate"',
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Recipe/ }));
+    expect(screen.getByLabelText("Saved Processing Recipe")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Batch/ }));
+    expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(2);
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
     expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();

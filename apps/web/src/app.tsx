@@ -138,6 +138,11 @@ const CommonProcessingWorkbench = lazy(() =>
     default: module.CommonProcessingWorkbench,
   })),
 );
+const MaterialModelingWorkspace = lazy(() =>
+  import("./material-modeling-workspace").then((module) => ({
+    default: module.MaterialModelingWorkspace,
+  })),
+);
 const ProductAccessCenter = lazy(() =>
   import("./product-access-center").then((module) => ({
     default: module.ProductAccessCenter,
@@ -2123,7 +2128,7 @@ export function App() {
   } else if (path === "/models") {
     page = <ModuleHubPage area="models" config={config} navigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/modeling") {
-    page = <CommonProcessingWorkbench config={config} onNavigate={navigate} onOpenConnection={retrySession} />;
+    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/governance" || path === "/jobs-reviews") {
     page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/access" || path === "/administration/access") {
