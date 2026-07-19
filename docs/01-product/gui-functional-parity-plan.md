@@ -482,3 +482,271 @@ API 보강은 UI에서 실제 사용하는 경우에만 추가한다. 새로운 
 
 이 자료는 공개 사용자 기능과 업무 순서를 확인하는 근거다. 비공개 구현을 추정하거나 복제하는
 근거로 사용하지 않는다.
+
+## 15. 공식 GUI 시각 기준
+
+아래 이미지는 `2026-07-19`에 공식 Ansys/Altair 도움말에서 수집한 **기획·acceptance 전용
+reference**다. 이미지 파일을 우리 제품 UI asset으로 재사용하지 않는다. 색상이나 pixel 배치를
+복제하는 것이 아니라, 화면 밀도·정보 위치·직접 조작·업무 연속성을 구현하고 검토할 때 사용한다.
+
+### 15.1 GRANTA — Profile과 Contents Tree
+
+[공식 Profile/Contents Tree 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/MI_Viewer_Help/MI_Viewer/GetStart_Profile.html)
+
+![Granta MI Profile selection](../00-research/images/gui-reference/granta-profile.png)
+
+반영할 기준:
+
+- profile은 연결 설정이 아니라 사용자가 보는 데이터 범위를 선택하는 제품 개념이다.
+- database/table/subset/layout 조합은 사람이 읽을 수 있는 이름으로 전환한다.
+- API 주소나 tenant ID를 입력하지 않는다.
+
+![Granta MI database and folder Contents Tree](../00-research/images/gui-reference/granta-contents-tree.png)
+
+반영할 기준:
+
+- 왼쪽 tree에서 database/table/folder/record 계층과 현재 선택 위치를 즉시 이해한다.
+- folder와 record의 시각적 위계, expand/collapse, selection highlight를 유지한다.
+- 중앙 datasheet나 search result를 열어도 tree가 사라지지 않는다.
+
+현재 CMP 차이:
+
+- engine-backed 계층은 있으나 demo hierarchy와 row density, keyboard/state restoration을 T-91에서
+  다시 검증해야 한다.
+
+### 15.2 GRANTA — Search result와 embedded Datasheet
+
+[공식 search result list 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/one_mi/tab_list.html)
+
+![Granta MI search result list with configurable columns](../00-research/images/gui-reference/granta-list-results.png)
+
+반영할 기준:
+
+- 검색 조건과 결과가 한 workspace에 있고 사용자가 column을 추가·삭제·정렬한다.
+- result 선택은 embedded datasheet 또는 동일 record의 full datasheet로 이어진다.
+- 여러 record를 선택해 compare/export 작업을 시작할 수 있다.
+
+[공식 datasheet 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/one_mi/datasheet.html)
+
+![Granta MI embedded datasheet beside results](../00-research/images/gui-reference/granta-datasheet-embedded.png)
+
+반영할 기준:
+
+- result와 datasheet를 오가며 탐색 context를 잃지 않는다.
+- Layout heading, attribute name/value/unit이 촘촘하지만 읽을 수 있게 정렬된다.
+- toolbar는 record 작업에 한정되고 global 개발 기능을 섞지 않는다.
+
+![Granta MI full-page Layout-driven datasheet](../00-research/images/gui-reference/granta-datasheet-full.png)
+
+반영할 기준:
+
+- full datasheet는 Layout section과 rich value를 한 record context에서 제공한다.
+- functional/table/file/linked data를 타입에 맞게 열 수 있다.
+- record name과 version 상태는 고정 header에서 확인한다.
+
+현재 CMP 차이:
+
+- Layout value와 unit은 표시되지만 search/list/datasheet/compare 전환의 밀도와 context 보존은
+  T-91/T-92 acceptance가 필요하다.
+
+### 15.3 GRANTA — Curves와 functional data editing
+
+[공식 Curves page 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/one_mi/tab_curves.html)
+
+![Granta MI curve plot with record selection](../00-research/images/gui-reference/granta-curves-view.png)
+
+반영할 기준:
+
+- curve plot과 record/curve selection 목록을 같은 화면에서 본다.
+- axis property, unit/scale, selected curves와 legend를 직접 바꾼다.
+- curve에서 해당 record datasheet로 이동한다.
+
+[공식 data editing 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/one_mi/records_edit.html)
+
+![Granta MI functional curve data editor](../00-research/images/gui-reference/granta-functional-edit.png)
+
+반영할 기준:
+
+- functional value는 opaque artifact ID가 아니라 table+graph로 확인한다.
+- parameter와 unit을 curve 옆에서 편집·검증한다.
+- 원본/현재 revision 구분과 명시적 save가 필요하다.
+
+현재 CMP 차이:
+
+- Catalog curve Artifact provenance는 있으나 일반 datasheet의 타입별 curve/table editor/viewer가
+  충분하지 않다. T-91에서 구현한다.
+
+### 15.4 GRANTA — Administrator schema, Table과 Layout
+
+[공식 Schema tool 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/mi_admin_and_config/mischema_schematool.html)
+
+![Granta MI Admin Schema tool navigation](../00-research/images/gui-reference/granta-admin-schema-tool.png)
+
+반영할 기준:
+
+- 관리자는 database와 table context를 먼저 선택하고 해당 schema object를 편집한다.
+- Table/Attribute/Layout/Subset/Link Type은 서로 관련된 schema 작업으로 묶는다.
+- 일반 사용자 화면과 관리자 구성 화면을 분리한다.
+
+[공식 Tables 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/mi_admin_and_config/mischema_table.html)
+
+![Granta MI Admin table schema objects](../00-research/images/gui-reference/granta-admin-tables.png)
+
+반영할 기준:
+
+- 하나의 Table 아래 Attribute, Subset, Layout, template와 관련 object가 구조적으로 보인다.
+- 새 Attribute 추가가 개별 record의 임의 JSON 편집으로 보이지 않는다.
+
+[공식 Layout 관리 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/mi_admin_and_config/mischema_layouts_manage.html)
+
+![Granta MI Layout editor with headings and attributes](../00-research/images/gui-reference/granta-admin-layout.png)
+
+반영할 기준:
+
+- Layout은 section heading과 ordered Attribute/Record Link Group을 직접 구성한다.
+- datasheet에서 보이는 결과를 preview한다.
+- required/read-only/visibility를 guided control로 설정한다.
+
+현재 CMP 차이:
+
+- typed schema engine과 기본 관리 화면은 있지만 object 관계, ordered layout authoring과 result
+  preview 편의성은 T-92에서 재설계한다.
+
+### 15.5 GRANTA — Record Link 표시와 편집
+
+[공식 Record Link Group 도움말](https://ansyshelp.ansys.com/public/Views/Secured/Granta/v252/en/Granta_MI/mi_admin_and_config/mischema_rlinkgrp.html)
+
+![Granta MI linked records on a datasheet](../00-research/images/gui-reference/granta-record-links-datasheet.png)
+
+![Granta MI static record link editor](../00-research/images/gui-reference/granta-record-links-edit.png)
+
+![Granta MI linked record navigation in Explore](../00-research/images/gui-reference/granta-record-links-explore.png)
+
+반영할 기준:
+
+- 관련 record는 datasheet의 의미 있는 section에 사람이 읽을 수 있는 이름으로 표시한다.
+- 편집자는 대상 table/tree/search에서 record를 찾아 link한다.
+- forward/reverse 방향과 관계 이름을 이해할 수 있고 click으로 대상 datasheet에 이동한다.
+- CMP 내부에서는 링크 양 끝을 exact revision에 pin하되 UUID는 일반 화면에 표시하지 않는다.
+
+현재 CMP 차이:
+
+- exact-revision Link Type/endpoint/cardinality engine은 강점이다. T-91/T-92는 이를 사용자에게
+  자연스러운 related-record navigation으로 보여주는 데 집중한다.
+
+### 15.6 Material Modeler — 시작 데이터와 작업 화면 밀도
+
+[공식 plastic behavior tutorial](https://help.altair.com/material_modeler/topics/material_modeler/tutorials/amm_material_plastic_behavior.htm)
+
+![Material Modeler data file list and raw curve workspace](../00-research/images/gui-reference/modeler-start-data.png)
+
+반영할 기준:
+
+- 왼쪽 file/curve 목록, 중앙 graph, 오른쪽 작업 control을 동시에 본다.
+- 선택한 objective가 필요한 file 역할과 processing action을 안내한다.
+- raw curve가 첫 진입부터 보이고 각 file을 즉시 선택·편집한다.
+
+현재 CMP 차이:
+
+- 최근 체크포인트에서 demo curve auto preview는 추가했지만 큰 hero, setup card와 method button이
+  graph 위 공간을 차지한다. T-85는 위 이미지와 같은 engineering application density로 교체한다.
+
+### 15.7 Material Modeler — Young’s modulus 자동 평가
+
+![Material Modeler automatic Young's modulus evaluation](../00-research/images/gui-reference/modeler-youngs-auto.png)
+
+반영할 기준:
+
+- `YM Eval` action 후 같은 context에 elastic fit graph와 계산 E가 즉시 나타난다.
+- 계산 방법, 선택 domain, fit quality와 사용 curve가 명확하다.
+- graph는 결과 없는 placeholder로 돌아가지 않는다.
+
+현재 CMP 차이:
+
+- robust/OLS/chord/secant/manual 계산은 backend에 있지만 generic option field와 scalar details에
+  숨어 있다. T-86에서 action, range selection, fit line과 결과 card로 노출한다.
+
+### 15.8 Material Modeler — Young’s modulus 수동 조정
+
+![Material Modeler manual Young's modulus slider and All Curves](../00-research/images/gui-reference/modeler-youngs-manual.png)
+
+반영할 기준:
+
+- Automatic/manual toggle, numeric value와 slider가 하나의 control group이다.
+- slider를 움직이면 fit line과 후속 Workup preview가 즉시 갱신된다.
+- `All Curves`, `Smooth`, `Add Mean`을 반복 curve 업무의 direct action으로 제공한다.
+
+현재 CMP 차이:
+
+- 옵션 변경은 text/number input과 Preview button에 의존한다. T-86에서 graph-direct control과
+  debounce/cancellation을 구현한다.
+
+### 15.9 Material Modeler — Necking point와 Workup
+
+![Material Modeler necking point selection on the curve](../00-research/images/gui-reference/modeler-necking-point.png)
+
+반영할 기준:
+
+- curve 위 marker와 selected point를 직접 보고 necking point를 선택한다.
+- automatic peak 후보와 수동 확정을 구분한다.
+- Workup 이후 true stress/true plastic strain과 잘린 domain을 즉시 비교한다.
+
+현재 CMP 차이:
+
+- peak candidate와 manual index 계산은 있지만 graph point selection이 없다. T-86에서 marker,
+  point pick, source index/coordinates와 before/after overlay를 추가한다.
+
+### 15.10 Material Modeler — 4-family fitting과 extrapolation
+
+[공식 extrapolation 도움말](https://help.altair.com/material_modeler/topics/material_modeler/extrapolation_t.htm)
+
+![Material Modeler multi-family curve fitting, extrapolation and ratio controls](../00-research/images/gui-reference/modeler-fit-extrapolation.png)
+
+반영할 기준:
+
+- Voce, Swift, Hockett–Sherby, Ghosh 후보를 같은 graph와 목록에서 동시에 비교한다.
+- 후보 show/hide, fit domain, observed/extrapolated 구간과 first derivative를 확인한다.
+- primary/secondary 후보와 ratio slider를 바꾸면 resultant curve가 즉시 갱신된다.
+- combine/save가 현재 선택과 parameter를 명시적으로 보존한다.
+
+현재 CMP 차이:
+
+- 4-family backend와 선택 조합은 작동하지만 현재 graph는 axis/tick/tooltip/derivative/domain
+  selection이 없고 ratio는 generic field다. T-87이 해당 GUI를 교체한다.
+
+### 15.11 Material Modeler — CAE card 생성과 검토
+
+![Material Modeler solver, version, material law and card identity controls](../00-research/images/gui-reference/modeler-create-cae-card.png)
+
+반영할 기준:
+
+- solver/version/material law/material ID/name을 같은 Card task에서 guided control로 입력한다.
+- 모델 선택 결과가 어떤 solver law로 변환되는지 생성 전에 확인한다.
+
+![Material Modeler native CAE card details and ASCII review](../00-research/images/gui-reference/modeler-cae-card-details.png)
+
+반영할 기준:
+
+- native ASCII card를 line-oriented viewer에서 검토한다.
+- source/model/mapping warning과 download를 같은 result context에 둔다.
+- CMP는 여기에 six-state mapping과 approximation acknowledgement를 추가하여 silent mapping을
+  막는다.
+
+현재 CMP 차이:
+
+- exporter와 ASCII preview는 연결되어 있지만 긴 페이지 아래의 별도 delivery panel이다. T-88은
+  이를 persistent graph workbench의 마지막 Card task로 재배치한다.
+
+### 15.12 이미지 기반 PR 검토 규칙
+
+T-85 이후 모든 GUI PR은 다음을 포함한다.
+
+1. 이 section의 해당 공식 reference image 링크
+2. 변경 전 CMP screenshot
+3. 변경 후 CMP screenshot
+4. reference에서 채택한 interaction 목록
+5. 의도적으로 채택하지 않은 요소와 이유
+6. Playwright action/result assertion
+
+검토자는 “비슷한 색인가”가 아니라 “동일한 엔지니어 업무를 같은 수준의 가시성과 직접성으로
+끝내는가”를 기준으로 승인한다.
