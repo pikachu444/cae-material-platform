@@ -3628,6 +3628,11 @@ summary {
 .workspace-inspector-tabs span { background: #dfecea; border-radius: 999px; font-size: .65rem; margin-left: .15rem; padding: .05rem .3rem; }
 .inspector-recipe-panel, .inspector-batch-panel { display: grid; gap: .65rem; }
 .inspector-recipe-panel > label, .inspector-batch-panel > label { display: grid; gap: .3rem; }
+.recipe-library-summary { align-items: center; background: #eaf4f0; border: 1px solid #bdd8ce; border-radius: .6rem; display: flex; justify-content: space-between; padding: .55rem .65rem; }
+.recipe-library-summary.draft { background: #f5f1e8; border-color: #dfd2b7; }
+.recipe-library-summary > span { display: grid; gap: .12rem; }
+.recipe-library-summary strong { color: #245e4b; font-size: .7rem; text-transform: capitalize; }
+.recipe-library-summary small { color: var(--muted); font-size: .63rem; }
 .inspector-action-stack { display: grid; gap: .45rem; }
 .inspector-batch-panel fieldset { border: 1px solid var(--line); border-radius: .6rem; display: grid; gap: .4rem; margin: 0; padding: .65rem; }
 .inspector-batch-panel fieldset label { align-items: flex-start; display: flex; gap: .4rem; overflow-wrap: anywhere; }
@@ -3635,6 +3640,14 @@ summary {
 .inspector-batch-history article { align-items: center; background: #fff; border: 1px solid var(--line); border-radius: .6rem; display: grid; gap: .4rem; grid-template-columns: 1fr auto; padding: .55rem; }
 .inspector-batch-history article > div { display: grid; min-width: 0; }
 .inspector-batch-history small { color: var(--muted); }
+.inspector-batch-history em { color: #82918c; font-size: .59rem; font-style: normal; }
+.inspector-batch-panel > .batch-summary { align-items: stretch; background: #f5f8f7; border: 1px solid var(--line); border-radius: .65rem; display: grid; gap: .45rem; padding: .65rem; }
+.inspector-batch-panel > .batch-summary > code { font-size: .58rem; margin: 0; overflow-wrap: anywhere; }
+.batch-preflight-members { display: grid; gap: .3rem; }
+.batch-preflight-members > span { align-items: center; background: #fff; border: 1px solid var(--line); border-radius: .45rem; display: grid; font-size: .65rem; gap: .35rem; grid-template-columns: auto 1fr auto; padding: .4rem; }
+.batch-preflight-members i { background: #3aa078; border-radius: 50%; height: .42rem; width: .42rem; }
+.batch-preflight-members .blocked i { background: #c47a3d; }
+.batch-preflight-members small { color: var(--muted); }
 .step-option-grid { display: grid; gap: .65rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .step-option-grid label { text-transform: capitalize; }
 .step-option-grid input[type="checkbox"] { justify-self: start; }
