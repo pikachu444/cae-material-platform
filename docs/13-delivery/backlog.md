@@ -1859,7 +1859,17 @@ clean-acceptance intent is retained in T-93.
 
 #### T-88. In-workbench Neutral and Card delivery — `P0`
 
-- guided Neutral review, solver/version/law form, six-state mapping과 two native card downloads.
+- **상태 (`2026-07-20`):** `complete`. `/modeling` 상단의 **Card** task가 Fit graph 아래의
+  legacy delivery drawer를 대체한다. exact Material/State와 reviewed Processing Output/IR을 고정한 뒤
+  기존 canonical Neutral Material revision을 복원하고, solver/version/law/material identity를 같은
+  task에서 설정한다. six-state mapping legend와 field-level preflight를 항상 표시하며
+  `approximated`는 명시적 acknowledgement를 요구하고 `unsupported`는 생성을 차단한다. 생성 후
+  evidence/mapping은 접어 native ASCII result에 공간을 주되 다시 열어 검토할 수 있다. 실제 Docker/
+  PostgreSQL browser journey가 Abaqus `.inp`, OpenRadioss `.rad`와 mapping JSON download를 검증했다.
+- **범위:** guided Neutral review, solver/version/law form, six-state mapping과 two native card downloads.
+- **증거:** `docs/15-demo/evidence/t88-neutral-card-delivery.md`,
+  `docs/15-demo/images/t88-abaqus-card-delivery.png`,
+  `docs/15-demo/images/t88-openradioss-card-delivery.png`.
 
 #### T-89. Polymer workbench parity — `P0`
 

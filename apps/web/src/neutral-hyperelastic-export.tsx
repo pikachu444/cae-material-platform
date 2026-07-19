@@ -53,6 +53,7 @@ export function NeutralSolverExport({
   const [acknowledged, setAcknowledged] = useState(false);
   const [card, setCard] = useState<NeutralHyperelasticSolverCardResponse | null>(null);
   const [preview, setPreview] = useState("");
+  const [showReview, setShowReview] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const target: ExportTarget = useMemo(
@@ -65,6 +66,11 @@ export function NeutralSolverExport({
   const source = neutralMaterial.document.sources ?? { datasets: [] };
   const model = neutralMaterial.document.material_model_ir;
   const selection = neutralMaterial.document.candidate_selection;
+  const materialLaw = model?.model_family === "isotropic_tabulated_plasticity"
+    ? solver === "abaqus" ? "Isotropic *PLASTIC" : "/MAT/LAW36 + /FUNCT"
+    : model?.model_family === "generalized_maxwell"
+      ? solver === "abaqus" ? "TIME=PRONY" : "/VISC/LPRONY"
+      : solver === "abaqus" ? "Hyperelastic + TIME=PRONY" : "/MAT/LAW62 + /VISC/PRONY";
   const reviewedEvidenceCount = [
     source.material,
     source.material_state,
@@ -87,6 +93,7 @@ export function NeutralSolverExport({
     setAcknowledged(false);
     setCard(null);
     setPreview("");
+    setShowReview(true);
   }, [solver, neutralMaterial.neutral_material_revision_id]);
 
   async function preflight(): Promise<void> {
@@ -105,6 +112,7 @@ export function NeutralSolverExport({
       );
       setReport(result.data);
       setAcknowledged(false);
+      setShowReview(true);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -135,6 +143,7 @@ export function NeutralSolverExport({
         result.data.solver_card_id,
       );
       setPreview(rendered.data);
+      setShowReview(false);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -184,7 +193,7 @@ export function NeutralSolverExport({
   }
 
   return (
-    <section className="workflow-step neutral-solver-export reviewed-delivery" aria-label="Reviewed Neutral Material and solver card delivery">
+    <section className={`workflow-step neutral-solver-export reviewed-delivery ${card ? "has-card" : ""}`} aria-label="Reviewed Neutral Material and solver card delivery">
       <DomainWorkflowLinks
         config={config}
         target={{
@@ -212,7 +221,7 @@ export function NeutralSolverExport({
         <li className={report ? "complete" : "current"}><span>3</span><strong>Solver mapping</strong><small>{report ? `${report.report.items.length} states checked` : "Preflight required"}</small></li>
         <li className={card ? "complete" : report ? "current" : "pending"}><span>4</span><strong>Native card</strong><small>{card ? `${card.target.solver} r${card.current_revision.revision_no}` : "Preview and download"}</small></li>
       </ol>
-      <section className="delivery-evidence" aria-label="Exact reviewed evidence">
+      {!card || showReview ? <section className="delivery-evidence" aria-label="Exact reviewed evidence">
         <div className="delivery-evidence-heading">
           <div>
             <strong>Selected model result</strong>
@@ -222,8 +231,8 @@ export function NeutralSolverExport({
         </div>
         <dl>
           <div><dt>Selection reason</dt><dd>{selection?.reason ?? "Canonical Neutral revision selected"}</dd></div>
-          <div><dt>Model revision</dt><dd>{model?.model.revision_id ?? neutralMaterial.neutral_material_revision_id}</dd></div>
-          {selection?.processing_output ? <div><dt>Processing Output</dt><dd>{selection.processing_output.revision_id}</dd></div> : null}
+          <div><dt>Model revision</dt><dd>Exact model revision pinned in Neutral JSON</dd></div>
+          {selection?.processing_output ? <div><dt>Processing Output</dt><dd>Exact reviewed output revision pinned</dd></div> : null}
           <div><dt>Input datasets</dt><dd>{source.datasets?.length ?? 0} pinned revision{source.datasets?.length === 1 ? "" : "s"}</dd></div>
           <div><dt>Curve stages</dt><dd>{neutralMaterial.document.curve_stages?.length ?? 0} preserved stages</dd></div>
           <div><dt>Applicability</dt><dd>{Object.keys(neutralMaterial.document.applicability ?? {})[0]?.replaceAll("_", " ") ?? "declared in document"}</dd></div>
@@ -241,7 +250,7 @@ export function NeutralSolverExport({
             </button>
           ) : null}
         </div>
-      </section>
+      </section> : null}
       <div className="form-grid compact-grid">
         <label>
           Solver target
@@ -264,6 +273,7 @@ export function NeutralSolverExport({
           Material name
           <input value={materialName} onChange={(event) => setMaterialName(event.target.value)} />
         </label>
+        <div className="delivery-readonly-field"><span>Material law</span><strong>{materialLaw}</strong><small>Declared by the exporter capability manifest</small></div>
       </div>
       <label>
         Card creation reason
@@ -272,7 +282,7 @@ export function NeutralSolverExport({
       <button className="button secondary" type="button" disabled={busy !== null} onClick={() => void preflight()}>
         {busy === "preflight" ? "Checking mapping…" : "Run mapping preflight"}
       </button>
-      {report ? (
+      {report && (!card || showReview) ? (
         <section className="mapping-report" aria-label="Neutral Material solver mapping report">
           <div className="mapping-report-heading">
             <div>
@@ -294,6 +304,7 @@ export function NeutralSolverExport({
               </li>
             ))}
           </ul>
+          <div className="mapping-status-legend" aria-label="All solver mapping status meanings">{(["exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"] as const).map((status) => <span className={`mapping-status ${status}`} key={status}>{status.replace("_", " ")}</span>)}</div>
           {report.report.exporter.documentation_url ? (
             <a href={report.report.exporter.documentation_url} target="_blank" rel="noreferrer">
               Official keyword reference used by this exporter
@@ -343,6 +354,9 @@ export function NeutralSolverExport({
                 Add exact files to a bulk package
               </button>
             ) : null}
+            <button className="text-button" type="button" onClick={() => setShowReview((value) => !value)}>
+              {showReview ? "Hide evidence and mapping" : "Review exact evidence and mapping"}
+            </button>
           </div>
           {preview ? <pre className="solver-card-preview" aria-label="Solver card preview">{preview}</pre> : null}
         </div>

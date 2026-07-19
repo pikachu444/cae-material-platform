@@ -158,6 +158,7 @@ function FamilyModelingPanel({
               state={state}
               propertySet={propertySet}
               onNavigate={onNavigate}
+              embedded
             />
           ) : null}
           {track === "polymer" ? (

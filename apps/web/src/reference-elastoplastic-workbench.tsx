@@ -159,10 +159,11 @@ interface Props {
   state: MaterialStateResponse;
   propertySet: PropertySetResponse;
   onNavigate?: (path: string) => void;
+  embedded?: boolean;
 }
 
-export function ReferenceElastoplasticWorkbench({ config, state, propertySet, onNavigate }: Props) {
-  const [open, setOpen] = useState(false);
+export function ReferenceElastoplasticWorkbench({ config, state, propertySet, onNavigate, embedded = false }: Props) {
+  const [open, setOpen] = useState(embedded);
   const [datasets, setDatasets] = useState<DatasetResponse[]>([]);
   const [processingOutputs, setProcessingOutputs] = useState<CommonProcessingOutputResponse[]>([]);
   const [models, setModels] = useState<TabulatedPlasticityModelResponse[]>([]);
@@ -472,8 +473,8 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
   }
 
   return (
-    <section className="reference-elastoplastic-workbench" aria-label="Elastoplastic material card workflow">
-      <div className="section-heading compact-heading">
+    <section className={`reference-elastoplastic-workbench ${embedded ? "embedded" : ""}`} aria-label="Elastoplastic material card workflow">
+      {!embedded ? <><div className="section-heading compact-heading">
         <div>
           <p className="eyebrow">Data-to-card vertical slice</p>
           <h4>Tensile Dataset → Elastoplastic IR → Solver Card</h4>
@@ -487,7 +488,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
       </p>
       <button className="text-button workflow-toggle" type="button" onClick={() => setOpen((value) => !value)}>
         {open ? "Close elastoplastic workflow" : "Build an elastoplastic Solver Card"}
-      </button>
+      </button></> : <div className="embedded-delivery-heading"><div><p className="eyebrow">Metal elastoplastic delivery</p><h3>Reviewed hardening → Neutral JSON → solver card</h3></div><span className="reference-chip">Reference / non-production</span></div>}
       {!open ? null : (
         <div className="workflow-stack elastoplastic-workflow-stack">
           <div className="workflow-toolbar">
@@ -502,7 +503,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
               Add a typed yield stress to this Property Set before deriving an elastoplastic IR.
             </p>
           ) : null}
-          <div className="workflow-step">
+          {!embedded ? <div className="workflow-step">
             <strong>1. Select concrete Dataset and Property Set revisions</strong>
             <label>
               Normalized or processed tensile Dataset revision
@@ -557,8 +558,12 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
             >
               {action === "model" ? "Deriving hardening curve…" : "Create elastoplastic IR"}
             </button>
-          </div>
-          <div className="workflow-step">
+          </div> : null}
+          {embedded && neutralMaterial ? <div className="workflow-step embedded-source-summary">
+            <strong>1. Reviewed Processing Output</strong>
+            <p className="form-hint">The exact fitted hardening output and its selection reason are already pinned by Neutral JSON r{neutralMaterial.revision_no}. No refit is performed here.</p>
+            <div className="transformation-facts"><span>Output revision: exact and immutable</span><span>Curve stages: {neutralMaterial.document.curve_stages?.length ?? 0}</span><span>Model maturity: {neutralMaterial.document.material_model_ir.maturity}</span></div>
+          </div> : <div className="workflow-step">
             <strong>1B. Promote a fitted metal Processing Output (recommended)</strong>
             <p className="form-hint">
               Select one exact immutable output whose final Recipe step compared and blended
@@ -613,7 +618,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
             >
               {action === "model" ? "Promoting exact output…" : "Promote fitted output to IR"}
             </button>
-          </div>
+          </div>}
           {models.length ? (
             <div className="workflow-step">
               <strong>2. Inspect immutable IR and hardening Artifact</strong>
@@ -664,7 +669,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
                   ) : null}
                 </div>
               ) : null}
-              {curve && selectedModel ? (
+              {curve && selectedModel && !embedded ? (
                 <HardeningCurvePanel
                   curve={curve}
                   policy={selectedModel.current_revision.content.post_necking_extension_policy}
@@ -702,7 +707,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
           {neutralMaterial ? (
             <NeutralSolverExport config={config} neutralMaterial={neutralMaterial} onNavigate={onNavigate} />
           ) : null}
-          {selectedModel ? (
+          {!embedded && selectedModel ? (
             <div className="workflow-step">
               <strong>3. Select solver and acknowledge the explicit mapping</strong>
               <label>
@@ -718,7 +723,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
               {report ? <MappingPanel report={report} /> : null}
             </div>
           ) : null}
-          {selectedModel && report ? (
+          {!embedded && selectedModel && report ? (
             <div className="workflow-step">
               <strong>4. Generate, preview, and download the immutable card</strong>
               <div className="form-grid">
@@ -743,7 +748,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
               </button>
             </div>
           ) : null}
-          <section className="solver-card-results">
+          {!embedded ? <section className="solver-card-results">
             <div className="section-heading compact-heading">
               <div>
                 <p className="eyebrow">Generated cards</p>
@@ -771,7 +776,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
                 </article>
               ))}
             </div>
-          </section>
+          </section> : null}
         </div>
       )}
     </section>

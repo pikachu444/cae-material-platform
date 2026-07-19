@@ -85,8 +85,10 @@ domain approval이 필요합니다. `unsupported`가 하나라도 있으면 card
 
 ## Canonical Neutral Material JSON 받기
 
-선택한 IR의 origin이 `selected fitted hardening Processing Output`인지 확인한 뒤 **Create
-Neutral Material JSON**을 누릅니다. 이 작업은 현재 IR을 다시 fitting하지 않습니다. exact
+Material Modeling 상단에서 **Card**를 누릅니다. 화면은 현재 Fit/Extrapolate 결과를 버리지 않고
+exact Material/State와 reviewed Processing Output/IR을 고정한 delivery task로 전환됩니다. 선택한
+IR의 origin이 `selected fitted hardening Processing Output`인지 확인한 뒤 **Create Neutral Material
+JSON**을 누릅니다. 이 작업은 현재 IR을 다시 fitting하지 않습니다. exact
 Test Data revision, Mapping Profile revision, Processing Output revision, 후보 family 조합,
 hardening Artifact와 관측/외삽 영역을 하나의 immutable `cmp.neutral-material` revision으로
 고정합니다.
@@ -97,5 +99,12 @@ curve, processed true stress/plastic strain, fitted 영역과 extrapolated 영�
 선택 hardening Output을 먼저 만들어야 합니다. Neutral JSON 생성 뒤 같은 화면에 나타나는
 **T-64 · family-neutral solver mapping**에서 target을 고르고 **Run mapping preflight**를 누릅니다.
 `approximated`인 bounded extension을 검토·확인한 뒤 카드를 생성하면 Abaqus `*PLASTIC` 또는
-OpenRadioss `LAW36` ASCII를 preview하고 내려받을 수 있습니다. 이 경로는 exact Neutral revision의
-fitted/extrapolated stage를 다시 fitting하지 않습니다.
+OpenRadioss `LAW36` ASCII를 preview하고 내려받을 수 있습니다. 생성 결과에서 **Download native
+ASCII card**로 `.inp`/`.rad`를, **Download mapping report JSON**으로 sidecar를 받습니다. 생성 후에는
+exact evidence가 접혀 카드가 먼저 보이며 **Review exact evidence and mapping**으로 같은 화면에서
+다시 펼칠 수 있습니다. 이 경로는 exact Neutral revision의 fitted/extrapolated stage를 다시
+fitting하지 않습니다.
+
+![Card task의 exact Neutral과 Abaqus/OpenRadioss 전달 화면](../15-demo/images/t88-abaqus-card-delivery.png)
+
+![동일한 reviewed Neutral에서 생성한 OpenRadioss native ASCII](../15-demo/images/t88-openradioss-card-delivery.png)

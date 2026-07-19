@@ -193,7 +193,9 @@ describe("NeutralHyperelasticExport", () => {
       target: { value: "openradioss" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Run mapping preflight" }));
-    expect(await screen.findByText("approximated")).toBeTruthy();
+    expect((await screen.findAllByText("approximated")).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText("/VISC/LPRONY")).toBeTruthy();
+    expect(screen.getByLabelText("All solver mapping status meanings")).toBeTruthy();
     const create = screen.getByRole("button", { name: "Create solver card" });
     expect((create as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByLabelText(/I reviewed every approximated/));
@@ -201,6 +203,9 @@ describe("NeutralHyperelasticExport", () => {
     fireEvent.click(create);
     expect(await screen.findByText(/openradioss card r1 created/)).toBeTruthy();
     expect(await screen.findByText(/\/VISC\/LPRONY\/301\/1/)).toBeTruthy();
+    expect(screen.queryByLabelText("Exact reviewed evidence")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Review exact evidence and mapping" }));
+    expect(screen.getByLabelText("Exact reviewed evidence")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download native ASCII card" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Download mapping report JSON" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Add exact files to a bulk package" }));

@@ -3572,8 +3572,10 @@ summary {
 .processing-hero h1, .processing-hero .eyebrow { color: #fff; }
 .processing-hero > div > p:last-child { color: #d7ecea; }
 .modeling-flow-nav { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: .05rem; }
-.modeling-flow-nav a { border-bottom: 2px solid rgb(255 255 255 / 22%); color: #d8eeea; font-size: .72rem; font-weight: 700; padding: .32rem .3rem; text-align: center; text-decoration: none; }
-.modeling-flow-nav a:hover { border-color: #7bd0bd; color: #fff; }
+.modeling-flow-nav a,
+.modeling-flow-nav button { background: transparent; border: 0; border-bottom: 2px solid rgb(255 255 255 / 22%); color: #d8eeea; cursor: pointer; font-size: .72rem; font-weight: 700; padding: .32rem .3rem; text-align: center; text-decoration: none; }
+.modeling-flow-nav a:hover,
+.modeling-flow-nav button:hover { border-color: #7bd0bd; color: #fff; }
 .modeling-track-selector { display: grid; gap: .4rem; grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: .05rem; }
 .modeling-track-selector button { background: rgb(255 255 255 / 7%); border: 1px solid rgb(255 255 255 / 16%); border-radius: .45rem; color: #d8eeea; cursor: pointer; display: grid; gap: .05rem; grid-template-columns: auto 1fr; padding: .38rem .55rem; text-align: left; }
 .modeling-track-selector button:hover, .modeling-track-selector button.active { background: #f5fbfa; border-color: #8dd4c5; color: #163c43; }
@@ -3860,12 +3862,16 @@ summary {
 .modeling-session-actions .button { background: #f8faf9; border-color: #cbd6d8; color: #29444b; }
 
 .modeling-flow-nav { grid-column: 1 / 2; grid-row: 2; }
-.modeling-flow-nav a {
+.modeling-flow-nav a,
+.modeling-flow-nav button {
   border-color: #d9e1e3;
   color: #6a797e;
   padding: .3rem;
 }
-.modeling-flow-nav a:hover { border-color: #2f8f83; color: #235e56; }
+.modeling-flow-nav a:hover,
+.modeling-flow-nav button:hover,
+.modeling-flow-nav button.active { border-color: #2f8f83; color: #235e56; }
+.modeling-flow-nav button.active { background: #eef7f5; }
 
 .modeling-track-selector {
   display: flex;
@@ -4486,6 +4492,70 @@ summary {
 .family-modeling-workbench {
   border-top: 1px solid #ccd9d4;
   padding-top: 1rem;
+}
+
+.modeling-card-workspace {
+  background: #f8faf9;
+  border: 1px solid #d5dfe0;
+  border-radius: 9px;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 5%);
+  display: grid;
+  gap: .8rem;
+  min-height: min(680px, calc(100vh - 190px));
+  padding: .8rem;
+}
+
+.modeling-card-workspace > header {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dce4e5;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  padding: .65rem .8rem;
+}
+
+.modeling-card-workspace > header h2 { font-size: 1.05rem; margin: .08rem 0 .2rem; }
+.modeling-card-workspace > header p:last-child { color: var(--muted); font-size: .76rem; margin: 0; }
+.modeling-card-workspace > .family-modeling-workbench { border: 0; padding: 0; }
+
+.embedded-delivery-heading { align-items: center; display: flex; justify-content: space-between; }
+.embedded-delivery-heading h3 { font-size: .95rem; margin: .08rem 0 0; }
+.reference-elastoplastic-workbench.embedded .elastoplastic-workflow-stack { align-items: start; display: grid; gap: .65rem; grid-template-columns: 300px minmax(560px, 1fr); }
+.reference-elastoplastic-workbench.embedded .workflow-toolbar,
+.reference-elastoplastic-workbench.embedded .error-notice,
+.reference-elastoplastic-workbench.embedded .warning-notice { grid-column: 1 / -1; }
+.reference-elastoplastic-workbench.embedded .elastoplastic-workflow-stack > .workflow-step:not(.neutral-solver-export) { grid-column: 1; }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export { grid-column: 2; grid-row: 2 / span 4; }
+.reference-elastoplastic-workbench.embedded .transformation-facts { font-size: .68rem; }
+.reference-elastoplastic-workbench.embedded .workflow-step { border-radius: 8px; padding: .7rem; }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export { display: grid; gap: .55rem; grid-template-columns: minmax(260px, .85fr) minmax(330px, 1.15fr); }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .domain-workflow-links,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .curve-heading,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .form-hint,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .delivery-progress { grid-column: 1 / -1; }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .delivery-evidence { grid-column: 1; grid-row: span 5; }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .form-grid,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > label,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > button,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .mapping-report,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .promotion-confirmation,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export > .error-banner { grid-column: 2; }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export.has-card > .promotion-confirmation { grid-column: 1 / -1; }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export.has-card > .form-grid,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export.has-card > label,
+.reference-elastoplastic-workbench.embedded .neutral-solver-export.has-card > button { grid-column: 1 / -1; }
+.reference-elastoplastic-workbench.embedded .neutral-solver-export.has-card .solver-card-preview { max-height: 310px; }
+.delivery-readonly-field { background: #f1f5f4; border: 1px solid #d7e0df; border-radius: 6px; display: grid; gap: .15rem; padding: .5rem .6rem; }
+.delivery-readonly-field span { color: var(--muted); font-size: .68rem; font-weight: 750; }
+.delivery-readonly-field strong { font-size: .78rem; }
+.delivery-readonly-field small { color: var(--muted); font-size: .6rem; }
+.mapping-status-legend { border-top: 1px solid #dde5e4; display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .55rem; padding-top: .55rem; }
+.mapping-status-legend .mapping-status { font-size: .58rem; }
+
+@media (max-width: 1100px) {
+  .reference-elastoplastic-workbench.embedded .elastoplastic-workflow-stack { grid-template-columns: 1fr; }
+  .reference-elastoplastic-workbench.embedded .neutral-solver-export { grid-column: 1; grid-row: auto; }
 }
 
 .family-modeling-panel {

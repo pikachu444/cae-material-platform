@@ -59,6 +59,7 @@ interface Props {
 export type ModelingTrack = "metal" | "polymer" | "elastomer";
 type WorkspaceInspector = "step" | "recipe" | "batch";
 type PlotView = "pipeline" | "ensemble";
+type ModelingWorkflowTask = "import" | "map" | "prepare" | "fit" | "extrapolate" | "card";
 
 const DEFAULT_PROFILE: CommonMappingProfileContent = {
   profile_key: "normalized-tensile",
@@ -596,6 +597,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [ensemblePointCount, setEnsemblePointCount] = useState(21);
   const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
   const [plotView, setPlotView] = useState<PlotView>("pipeline");
+  const [workflowTask, setWorkflowTask] = useState<ModelingWorkflowTask>("fit");
   const [busy, setBusy] = useState(false);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1339,12 +1341,29 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
+  function openWorkflowTask(task: ModelingWorkflowTask): void {
+    setWorkflowTask(task);
+    if (task === "card") return;
+    const preferredMethod = task === "fit" || task === "extrapolate"
+      ? modelingTrack === "metal" ? "metal.hardening_fit_extrapolate" : modelingTrack === "polymer" ? "polymer.prony_fit_compare" : "rows.sort_unique"
+      : task === "prepare"
+        ? modelingTrack === "metal" ? "metal.elastic_modulus" : "rows.sort_unique"
+        : null;
+    if (preferredMethod) {
+      const index = configuredSteps.findIndex((step) => step.method_id === preferredMethod);
+      if (index >= 0) focusConfiguredStep(index);
+    }
+    if (task === "import" || task === "map") {
+      window.setTimeout(() => window.document.getElementById(`modeling-${task}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
+    }
+  }
+
   return (
     <main className="processing-workbench-page">
       <header className="modeling-app-header">
         <div className="modeling-session-heading"><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p className="modeling-session-context">{[initialSession?.material ? `${initialSession.material.label} r${initialSession.material.revisionNo}` : null, initialSession?.materialState ? `${initialSession.materialState.label} r${initialSession.materialState.revisionNo}` : null, selectedTrackDocument ? `${selectedTrackDocument.document_key} r${selectedTrackDocument.current_revision.revision_no}` : null].filter(Boolean).join("  /  ") || "Demo material  /  exact Test Data  /  live preview"}</p></div>
         <div className="modeling-session-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
-        <nav className="modeling-flow-nav" aria-label="Material Modeling steps"><a href="#modeling-import">Import</a><a href="#modeling-map">Map</a><a href="#modeling-prepare">Prepare</a><a href="#modeling-fit">Fit</a><a href="#modeling-fit">Extrapolate</a><a href="#modeling-output">Card</a></nav>
+        <nav className="modeling-flow-nav" aria-label="Material Modeling steps">{(["import", "map", "prepare", "fit", "extrapolate", "card"] as ModelingWorkflowTask[]).map((task) => <button type="button" className={workflowTask === task ? "active" : ""} aria-current={workflowTask === task ? "step" : undefined} key={task} onClick={() => openWorkflowTask(task)}>{task[0].toUpperCase() + task.slice(1)}</button>)}</nav>
         <div className="modeling-track-selector" role="tablist" aria-label="Material modeling family">
           <button type="button" role="tab" aria-selected={modelingTrack === "metal"} className={modelingTrack === "metal" ? "active metal" : "metal"} onClick={() => selectModelingTrack("metal")}><span>Metal</span><strong>Elastoplastic</strong><small>E, proof, necking, hardening</small></button>
           <button type="button" role="tab" aria-selected={modelingTrack === "polymer"} className={modelingTrack === "polymer" ? "active polymer" : "polymer"} onClick={() => selectModelingTrack("polymer")}><span>Polymer</span><strong>Viscoelastic</strong><small>Log-time, Prony candidates</small></button>
@@ -1374,7 +1393,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       </section>
       </details>
 
-      <section className="workbench-card method-builder-card" id="modeling-prepare">
+      {workflowTask !== "card" ? <section className="workbench-card method-builder-card" id="modeling-prepare">
         <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div>
         <details className="method-library"><summary>Add a processing method <span>{trackMethods.length} compatible</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details>
         <div className="modeling-graph-workspace">
@@ -1420,9 +1439,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         </div>
         <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label></details>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
-      </section>
+      </section> : null}
 
-      {familyWorkbench ? <details className="modeling-support-drawer modeling-delivery-drawer"><summary><span><strong>Material model &amp; solver delivery</strong><small>Promote the reviewed curve to Neutral JSON and solver-native cards</small></span><span>Open delivery</span></summary><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></details> : null}
+      {workflowTask === "card" && familyWorkbench ? <section className="modeling-card-workspace" id="modeling-card" aria-label="Material model and solver card delivery workspace"><header><div><p className="eyebrow">Card task · exact reviewed evidence</p><h2>Neutral model to solver-native material card</h2><p>Choose the reviewed immutable result, inspect every mapping state, then preview and download Abaqus or OpenRadioss ASCII without leaving this workbench.</p></div><button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section> : null}
 
       <details className="modeling-support-drawer" id="modeling-output"><summary><span><strong>Reviewed outputs</strong><small>{outputs.length} committed immutable processing results</small></span><span>Review</span></summary><section className="workbench-card processing-output-card">
         <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Commit reviewed result</h2></div><span className="status-chip">{outputs.length} committed</span></div>

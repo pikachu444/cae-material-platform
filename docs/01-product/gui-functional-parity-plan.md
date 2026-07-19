@@ -783,10 +783,19 @@ T-87 수용 상태:
 - CMP는 여기에 six-state mapping과 approximation acknowledgement를 추가하여 silent mapping을
   막는다.
 
-현재 CMP 차이:
+T-88 수용 상태:
 
-- exporter와 ASCII preview는 연결되어 있지만 긴 페이지 아래의 별도 delivery panel이다. T-88은
-  이를 persistent graph workbench의 마지막 Card task로 재배치한다.
+- 상단 workflow의 **Card**를 누르면 graph 대신 exact reviewed result → Neutral JSON → mapping →
+  native card 전용 workspace가 같은 application shell 안에서 열린다. 아래쪽 legacy drawer는 제거했다.
+- exact Material/State와 Processing Output/IR/Neutral revision을 friendly label로 고정하며 일반 화면에
+  UUID 입력을 요구하지 않는다.
+- solver/version/law/material ID/name, six-state legend, field별 mapping과 acknowledgement를 생성 전에
+  검토한다. `unsupported`는 차단하고 근사를 조용히 적용하지 않는다.
+- 생성 후 evidence는 접혀 native line-oriented ASCII viewer와 `.inp`/`.rad` 및 mapping JSON download가
+  우선 보인다. evidence와 mapping은 같은 result context에서 다시 펼칠 수 있다.
+- 실제 Docker/PostgreSQL 화면과 native download 증거는
+  `docs/15-demo/evidence/t88-neutral-card-delivery.md`에 고정한다. Polymer/Elastomer 전용 graph/task
+  동등성은 T-89/T-90 범위다.
 
 ### 15.12 이미지 기반 PR 검토 규칙
 

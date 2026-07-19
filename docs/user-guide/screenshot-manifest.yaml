@@ -504,3 +504,19 @@ captures:
     image: ../15-demo/images/t87-metal-fit-residual.png
     width: 1440
     height: 900
+  - id: t88-abaqus-card-delivery
+    route: /modeling
+    workflow: reviewed-metal-output-to-neutral-six-state-mapping-and-abaqus-native-card
+    fixture: T-88 clean Compose DP780 exact Processing Output and canonical Neutral Material
+    source_evidence: ../15-demo/evidence/t88-neutral-card-delivery.md
+    image: ../15-demo/images/t88-abaqus-card-delivery.png
+    width: 1440
+    height: 900
+  - id: t88-openradioss-card-delivery
+    route: /modeling
+    workflow: same-reviewed-neutral-to-openradioss-law36-preview-and-download
+    fixture: T-88 clean Compose DP780 exact Neutral Material and acknowledged OpenRadioss mapping
+    source_evidence: ../15-demo/evidence/t88-neutral-card-delivery.md
+    image: ../15-demo/images/t88-openradioss-card-delivery.png
+    width: 1440
+    height: 900
