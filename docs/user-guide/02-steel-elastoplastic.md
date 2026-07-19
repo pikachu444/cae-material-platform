@@ -33,7 +33,13 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
 
    ![Recipe로 재사용할 수 있는 금속 인장 처리 단계](../15-demo/images/t55m-metal-processing-methods.png)
 
-   ![네 hardening 후보와 선택 조합의 제한 외삽](../15-demo/images/t55m-hardening-candidates.png)
+   **Stress response / Residual / Tangent modulus**를 차례로 확인하고, observed 영역 이후의 황색
+   배경과 점선이 실제 시험값이 아닌지 확인합니다. 상단 RMSE와 오른쪽 parameter/bound evidence를
+   비교한 뒤 primary/secondary, blend ratio와 **Selection reason**을 정합니다.
+
+   ![네 hardening 후보와 선택 조합의 제한 외삽](../15-demo/images/t87-metal-fit-candidate-comparison.png)
+
+   ![후보별 predicted-minus-observed residual](../15-demo/images/t87-metal-fit-residual.png)
 9. 여러 반복시험이면 Selection을 만들고 명시적 common-grid alignment를 실행합니다.
 10. 통계 band와 outlier Candidate를 확인합니다. Candidate는 원본 curve를 삭제하지 않습니다.
 11. Material 상세의 **Tensile Dataset → Elastoplastic IR → Solver Card**를 엽니다.

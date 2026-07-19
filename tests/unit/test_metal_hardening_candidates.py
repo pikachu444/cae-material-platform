@@ -43,6 +43,7 @@ def _options() -> dict[str, object]:
         "primary_weight": 0.25,
         "normalization_stress_pa": 100e6,
         "maximum_function_evaluations": 10_000,
+        "selection_reason": "Best residual shape without late-strain softening.",
     }
 
 
@@ -81,6 +82,10 @@ def test_candidates_share_objective_and_combination_is_explicit_and_bounded() ->
     assert scalar["fit.observed_maximum_strain"] == 0.15
     assert scalar["fit.extrapolation_maximum_strain"] == 0.5
     assert "extrapolated domain (0.15, 0.5] is not observed" in result.diagnostics
+    assert (
+        "selection reason: Best residual shape without late-strain softening."
+        in result.diagnostics
+    )
 
     repeated = fit_hardening_candidates(
         {"strain.true_plastic": strain, "stress.true": stress},

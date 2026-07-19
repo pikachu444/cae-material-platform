@@ -32,9 +32,9 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Catalog and Material Workflow Explorers | Exact tree/link engines exist; current three-pane GUI is `partial` until state restoration, keyboard, realistic hierarchy and linked navigation pass T-91 | T-91 Database parity |
 | Arbitrary typed exact-revision record links | T-51 implemented: administrator Link Type, cardinality, forward/reverse navigation | Production link taxonomy (outside v3) |
 | Canonical Test Data JSON/JSON+ZIP | T-52 implemented: validate/import/revise/exact export, governed CSV/TSV/XLSX adapter and deterministic checksum package | Production importer qualification (outside v3) |
-| General Mapping Profile and Processing Workbench | T-86 accepted Metal Prepare: compact 3-pane shell, exact curve include/exclude, guided common preprocessing, server mean/CI overlay, elastic/proof/necking graph evidence, ephemeral range/point commands, cancellable 300 ms preview and exact session restoration. Fit diagnostics remain `partial`. | T-87 |
+| General Mapping Profile and Processing Workbench | T-86 Metal Prepare and T-87 Metal Fit/Extrapolate are accepted: compact 3-pane shell, exact curve selection, guided preprocessing, server mean/CI, graph-selected engineering domains, four-family response/residual/tangent comparison, explicit unobserved extrapolation and selection-reasoned Recipe options. | T-88 delivery, then T-89/T-90 family parity |
 | Saved Recipe library/general batch execution | Lifecycle/preflight/execute/retry engines are connected; library and batch UX remain `partial` | T-92 |
-| Metal/Polymer/Elastomer modeling | Real reference engines and exact context are connected; Material Modeler-level GUI is **not complete** | T-86~T-90 |
+| Metal/Polymer/Elastomer modeling | Metal Prepare/Fit/Extrapolate is accepted through T-87. Existing delivery and Polymer/Elastomer engines remain integration evidence until T-88~T-90 rework their cohesive GUI. | T-88~T-90 |
 | Neutral Material exchange JSON | T-63 implements three closed typed families, exact source-kind verification, canonical round-trip, PostgreSQL projections and connected JSON download controls; T-65 verifies exact download | Production material qualification (outside v3) |
 | Abaqus/OpenRadioss native cards | T-64 regenerates bounded metal, polymer and elastomer cards from exact Neutral revisions with explicit unsupported/approximation states; T-65 Playwright verifies exact Abaqus/OpenRadioss native downloads | Actual solver execution (excluded) |
 | Canonical JSON Bulk Package | T-58 implemented: exact Test/Profile/Recipe/Neutral/report/card sources in deterministic checksum-verifiable JSON+ZIP | Production package qualification (outside v3) |
@@ -70,7 +70,17 @@ must not be read as product-experience completion.
   proof and hardening ranges; a necking point applied to downstream true/plastic Workup; and a server-calculated
   replicate mean/95% confidence band in the primary plot. Three distinct synthetic DP780 Test JSON revisions
   make this path demonstrable in a clean seed. Evidence is in
-  `docs/15-demo/evidence/t86-metal-prepare-direct-manipulation.md`. T-87 fit/extrapolation comparison remains open.
+  `docs/15-demo/evidence/t86-metal-prepare-direct-manipulation.md`. T-87 subsequently completed the
+  fit/extrapolation comparison surface.
+
+- `T-87` (`completed`): the Metal Fit/Extrapolate stage now compares the four public hardening
+  equations against the exact observed plastic workup in one persistent graph. Stress response,
+  predicted-minus-observed residual and tangent-modulus views use the server-evaluated candidate
+  series; relative RMSE, fitted parameters and bounds remain visible as numerical evidence. The
+  selected blend changes through primary/secondary and ratio controls, while the unobserved domain
+  is shaded and the selected extension is dashed. Fit range, bounded extension and the required
+  engineering selection reason remain deterministic Recipe options. Evidence is in
+  `docs/15-demo/evidence/t87-metal-fit-extrapolation.md`. T-88 owns cohesive Neutral/Card delivery.
 
 - `T-81` (`engine integration verified; product UX rejected`): all three Material Modeling tracks now finish in one
   four-state reviewed-delivery panel: exact evidence, canonical Neutral JSON, explicit solver

@@ -489,6 +489,11 @@ METHOD_REGISTRY: tuple[MethodDefinition, ...] = (
                     "minimum": 50,
                     "maximum": 100000,
                 },
+                "selection_reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                },
             },
             "required": [
                 "plastic_strain_quantity",

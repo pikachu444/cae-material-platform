@@ -1845,6 +1845,17 @@ clean-acceptance intent is retained in T-93.
 #### T-87. Metal Fit and Extrapolate direct manipulation — `P0`
 
 - four-family comparison, residual/derivative, fit domain, parameter/bounds, ratio slider와 save.
+- **상태 (`2026-07-20`):** `completed`. 동일한 server preview가 Voce/Swift/Hockett–Sherby/
+  Ghosh 후보, 관측 true-plastic workup, 선택 blend를 persistent graph에 표시한다. Response,
+  predicted-minus-observed Residual, numerical Tangent Modulus 보기를 전환하며 fit boundary 이후는
+  shaded/dashed `EXTRAPOLATED · UNOBSERVED` 영역으로 구분한다. 후보별 relative RMSE를 첫 화면에서
+  비교하고 parameter의 lower/fitted/upper와 bound sticking을 inspector에서 검토한다. graph range,
+  primary/secondary, blend ratio와 bounded strain을 300 ms cancellable server preview에 연결하고,
+  선택 이유를 Recipe option에 보존한다. 저장/commit은 기존 immutable Recipe/Processing Output
+  경계를 사용하며 preview가 source를 덮어쓰지 않는다.
+- **증거:** `docs/15-demo/evidence/t87-metal-fit-extrapolation.md`,
+  `docs/15-demo/images/t87-metal-fit-candidate-comparison.png`,
+  `docs/15-demo/images/t87-metal-fit-residual.png`.
 
 #### T-88. In-workbench Neutral and Card delivery — `P0`
 

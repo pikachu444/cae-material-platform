@@ -401,7 +401,7 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     expect(await screen.findByText("Preview only · not committed")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
-    expect(screen.getByText("Selected combination")).toBeTruthy();
+    expect(screen.getByText("Selected blend · fitted domain")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /1rows\.sort_unique/ }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
