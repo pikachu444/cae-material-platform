@@ -95,8 +95,11 @@ describe("Material Catalog workbench", () => {
 
     expect(await screen.findByText("Demo DP780 Steel")).toBeTruthy();
     expect(screen.getByText("DP780")).toBeTruthy();
-    expect(screen.getByText(/10,000 records/)).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Continue from material knowledge to a usable model." })).toBeTruthy();
+    expect(screen.getAllByText(/10,000 records/)).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: "Material data to solver-ready models" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Find and inspect material data" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Process test curves and create cards" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Start with an engineering example" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open metal journey" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open polymer journey" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open elastomer journey" })).toBeTruthy();
@@ -129,7 +132,7 @@ describe("Material Catalog workbench", () => {
     const fetchMock = mockProductFetch(() => jsonResponse({ items: [], total_count: 0 }));
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "Find, understand, and model materials." })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Material data to solver-ready models" })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/v1/demo-identity/token",
       expect.objectContaining({ headers: expect.anything() }),
@@ -137,6 +140,8 @@ describe("Material Catalog workbench", () => {
     for (const label of ["Dashboard", "Material Database", "Material Modeling", "Jobs & Reviews", "Administration"]) {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
+    expect(screen.getByRole("button", { name: "Open Contents Tree and Datasheets ›" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Continue modeling" })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
