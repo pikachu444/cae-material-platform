@@ -1708,12 +1708,18 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-77. Layout Datasheet, AMDC-style search and comparison — `P0`
 
+- **상태 (`2026-07-19`):** `implemented and verified`.
 - **범위:** three-pane Material Database에서 Layout-driven Datasheet, quick/advanced search,
-  facet/range/unit filters, table/tile results, configurable columns, record compare와 curve overlay를
-  제공한다. record tabs는 Overview/Properties/Curves/Test Data/Models/CAE Cards/Links다.
+  discrete facet/normalized-range filters, record compare와 exact-revision tab을 제공한다. record
+  tabs는 Workflow/Datasheet/Properties/Curves/CAE Cards/Links다. curve Attribute는 artifact provenance와
+  linked Test Data 이동을 제공하며, channel semantics가 필요한 raw/normalized/processed overlay는
+  가짜 generic plot으로 만들지 않고 T-79 persistent Modeling plot에서 구현한다.
 - **완료 조건:** tree와 search가 동일 datasheet를 열고 linked/local values 및 revision context를
-  구분하며, 관련 record를 열어도 browse context가 유지된다.
-- **테스트:** typed filter/normalization, layout, compare/curve, linked navigation E2E와 screenshots.
+  구분하며, 관련 record를 열어도 browse context가 유지된다. 관리자가 여러 Layout을 정의하면
+  datasheet와 비교 화면에서 Layout을 선택하고 그 item 순서로 값을 읽는다.
+- **테스트:** typed filter/normalization, Layout, exact revision, linked navigation과 comparison을
+  Vitest 및 live Docker/PostgreSQL Playwright 화면으로 검증했다. clean seed/reseed는 같은 Record
+  revision을 유지했다. 화면 증거는 `docs/15-demo/evidence/t77-material-datasheet-search.md`에 있다.
 
 #### T-78. Product Administration and extensible access — `P1`
 

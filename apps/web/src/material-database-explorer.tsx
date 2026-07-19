@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 
 import {
   ApiError,
+  compareConfigurableCatalogRecordRevisions,
   getCatalogWorkflowGraph,
   listCatalogExplorerChildren,
   listCatalogExplorerTables,
+  listConfigurableCatalogAttributes,
+  listConfigurableCatalogLayouts,
+  listConfigurableCatalogRecordRevisions,
   listConfigurableCatalogSubsets,
   searchConfigurableCatalogRecords,
   type ApiConfig,
@@ -12,9 +16,13 @@ import {
 import type {
   CatalogExplorerChildrenResponse,
   CatalogWorkflowGraphResponse,
+  ConfigurableAttributeResponse,
   ConfigurableCatalogFolderResponse,
+  ConfigurableCatalogRecordComparison,
   ConfigurableCatalogRecordResponse,
+  ConfigurableLayoutResponse,
   ConfigurableLinkEndpoint,
+  ConfigurableRecordValue,
   ConfigurableSubsetResponse,
   ConfigurableTableResponse,
 } from "./types";
@@ -38,6 +46,27 @@ function errorText(error: unknown): string {
 function recordType(endpoint: ConfigurableLinkEndpoint, tableName: string | undefined): string {
   return endpoint.domain_binding?.kind.replaceAll("_", " ") ?? tableName ?? "record";
 }
+
+function valueLabel(value: ConfigurableRecordValue): string {
+  if (value.data_type === "number") {
+    return `${value.original_value} ${value.original_unit_string} → ${value.normalized_value} ${value.normalized_unit}`;
+  }
+  if (value.data_type === "file" || value.data_type === "curve") {
+    return `Artifact ${value.artifact_id.slice(0, 8)}… · SHA-256 ${value.artifact_sha256.slice(0, 12)}…`;
+  }
+  if (value.data_type === "record_reference") {
+    return `Record ${value.target_record_id.slice(0, 8)}… @ ${value.target_record_revision_id.slice(0, 8)}…`;
+  }
+  if (value.data_type === "boolean") return value.value ? "Yes" : "No";
+  return String(value.value);
+}
+
+interface TableDefinition {
+  attributes: ConfigurableAttributeResponse[];
+  layouts: ConfigurableLayoutResponse[];
+}
+
+type RecordTab = "workflow" | "datasheet" | "properties" | "curves" | "cards" | "links";
 
 function latestSiblingFolders(
   folders: ConfigurableCatalogFolderResponse[],
@@ -67,9 +96,22 @@ export function MaterialDatabaseExplorer({
   const [children, setChildren] = useState<Record<string, CatalogExplorerChildrenResponse>>({});
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [selectedGraph, setSelectedGraph] = useState<CatalogWorkflowGraphResponse | null>(null);
+  const [tableDefinitions, setTableDefinitions] = useState<Record<string, TableDefinition>>({});
+  const [selectedRevision, setSelectedRevision] = useState<ConfigurableCatalogRecordResponse["current_revision"] | null>(null);
+  const [revisionComparison, setRevisionComparison] = useState<ConfigurableCatalogRecordComparison | null>(null);
+  const [activeTab, setActiveTab] = useState<RecordTab>("workflow");
+  const [selectedLayoutId, setSelectedLayoutId] = useState("");
   const [searchTableId, setSearchTableId] = useState("");
+  const [searchLayoutId, setSearchLayoutId] = useState("");
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<ConfigurableCatalogRecordResponse[] | null>(null);
+  const [searchFacets, setSearchFacets] = useState<Array<{ attribute_definition_id: string; value: string; count: number }>>([]);
+  const [facetFilters, setFacetFilters] = useState<Record<string, string>>({});
+  const [numberAttributeId, setNumberAttributeId] = useState("");
+  const [numberMinimum, setNumberMinimum] = useState("");
+  const [numberMaximum, setNumberMaximum] = useState("");
+  const [compareRecordIds, setCompareRecordIds] = useState<Set<string>>(new Set());
+  const [showRecordCompare, setShowRecordCompare] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,6 +130,51 @@ export function MaterialDatabaseExplorer({
       : null,
     [loadedRecords, searchResults, selected],
   );
+  const selectedDefinition = selected ? tableDefinitions[selected.table_id] : undefined;
+  const selectedLayout = selectedDefinition?.layouts.find((layout) => layout.layout_id === selectedLayoutId)
+    ?? selectedDefinition?.layouts[0]
+    ?? null;
+  const selectedAttributes = selectedDefinition?.attributes ?? [];
+  const selectedValues = selectedRevision?.content.values ?? selectedRecord?.current_revision.content.values ?? [];
+  const selectedValueMap = useMemo(
+    () => new Map(selectedValues.map((value) => [value.attribute_definition_id, value])),
+    [selectedValues],
+  );
+  const selectedAttributeMap = useMemo(
+    () => new Map(selectedAttributes.map((attribute) => [attribute.attribute_definition_id, attribute])),
+    [selectedAttributes],
+  );
+  const orderedAttributes = useMemo(() => {
+    if (!selectedDefinition) return [];
+    const positions = new Map(
+      (selectedLayout?.items ?? []).map((item) => [item.attribute_definition_id, item.ordinal]),
+    );
+    return [...selectedDefinition.attributes].sort((left, right) => (
+      (positions.get(left.attribute_definition_id) ?? Number.MAX_SAFE_INTEGER)
+      - (positions.get(right.attribute_definition_id) ?? Number.MAX_SAFE_INTEGER)
+    ));
+  }, [selectedDefinition, selectedLayout]);
+  const searchDefinition = tableDefinitions[searchTableId];
+  const searchLayout = searchDefinition?.layouts.find((layout) => layout.layout_id === searchLayoutId)
+    ?? searchDefinition?.layouts[0]
+    ?? null;
+  const searchDiscreteAttributes = searchDefinition?.attributes.filter(
+    (attribute) => attribute.current_revision.content.data_type === "discrete",
+  ) ?? [];
+  const searchNumberAttributes = searchDefinition?.attributes.filter(
+    (attribute) => attribute.current_revision.content.data_type === "number",
+  ) ?? [];
+  const searchComparedAttributes = useMemo(() => {
+    if (!searchDefinition) return [];
+    const positions = new Map(
+      (searchLayout?.items ?? []).map((item) => [item.attribute_definition_id, item.ordinal]),
+    );
+    return [...searchDefinition.attributes].sort((left, right) => (
+      (positions.get(left.attribute_definition_id) ?? Number.MAX_SAFE_INTEGER)
+      - (positions.get(right.attribute_definition_id) ?? Number.MAX_SAFE_INTEGER)
+    ));
+  }, [searchDefinition, searchLayout]);
+  const comparedRecords = (searchResults ?? []).filter((record) => compareRecordIds.has(record.record_id));
 
   const loadBranch = useCallback(async (tableId: string, folderId: string | null) => {
     const branchKey = key(tableId, folderId);
@@ -98,8 +185,25 @@ export function MaterialDatabaseExplorer({
 
   const loadGraph = useCallback(async (recordId: string, revisionId: string) => {
     try {
-      const result = await getCatalogWorkflowGraph(config, recordId, revisionId, 8);
-      setSelectedGraph(result.data);
+      const [graphResult, revisionResult] = await Promise.all([
+        getCatalogWorkflowGraph(config, recordId, revisionId, 8),
+        listConfigurableCatalogRecordRevisions(config, recordId),
+      ]);
+      const exactRevision = revisionResult.data.items.find((item) => item.id === revisionId) ?? null;
+      setSelectedGraph(graphResult.data);
+      setSelectedRevision(exactRevision);
+      if (exactRevision && revisionResult.data.items.length > 1) {
+        const firstRevision = revisionResult.data.items[0];
+        const comparison = await compareConfigurableCatalogRecordRevisions(
+          config,
+          recordId,
+          firstRevision.id,
+          exactRevision.id,
+        );
+        setRevisionComparison(comparison.data);
+      } else {
+        setRevisionComparison(null);
+      }
       setError(null);
     } catch (caught) {
       setError(errorText(caught));
@@ -115,12 +219,25 @@ export function MaterialDatabaseExplorer({
         const nextTables = tableResult.data.items;
         setTables(nextTables);
         setSearchTableId(nextTables[0]?.table_id ?? "");
-        const subsetPairs = await Promise.all(nextTables.map(async (table) => [
-          table.table_id,
-          (await listConfigurableCatalogSubsets(config, table.table_id)).data.items,
-        ] as const));
+        const metadata = await Promise.all(nextTables.map(async (table) => {
+          const [subsetResult, attributeResult, layoutResult] = await Promise.all([
+            listConfigurableCatalogSubsets(config, table.table_id),
+            listConfigurableCatalogAttributes(config, table.table_id),
+            listConfigurableCatalogLayouts(config, table.table_id),
+          ]);
+          return {
+            tableId: table.table_id,
+            subsets: subsetResult.data.items,
+            definition: {
+              attributes: attributeResult.data.items,
+              layouts: layoutResult.data.items,
+            },
+          };
+        }));
         if (!active) return;
-        setSubsets(Object.fromEntries(subsetPairs));
+        setSubsets(Object.fromEntries(metadata.map((item) => [item.tableId, item.subsets])));
+        setTableDefinitions(Object.fromEntries(metadata.map((item) => [item.tableId, item.definition])));
+        setSearchLayoutId(metadata[0]?.definition.layouts[0]?.layout_id ?? "");
         if (nextTables[0]) await loadBranch(nextTables[0].table_id, null);
       })
       .catch((caught: unknown) => active && setError(errorText(caught)))
@@ -131,6 +248,12 @@ export function MaterialDatabaseExplorer({
   useEffect(() => {
     if (initialRecordId && initialRevisionId) void loadGraph(initialRecordId, initialRevisionId);
   }, [initialRecordId, initialRevisionId, loadGraph]);
+
+  useEffect(() => {
+    if (!selectedDefinition?.layouts.some((layout) => layout.layout_id === selectedLayoutId)) {
+      setSelectedLayoutId(selectedDefinition?.layouts[0]?.layout_id ?? "");
+    }
+  }, [selectedDefinition, selectedLayoutId]);
 
   async function toggle(tableId: string, folderId: string | null): Promise<void> {
     const branchKey = key(tableId, folderId);
@@ -152,6 +275,9 @@ export function MaterialDatabaseExplorer({
 
   function openRecord(record: ConfigurableCatalogRecordResponse): void {
     const revisionId = record.current_revision.id;
+    setSearchResults(null);
+    setShowRecordCompare(false);
+    setActiveTab("workflow");
     onNavigate(`/database/records/${record.record_id}/revisions/${revisionId}`);
     void loadGraph(record.record_id, revisionId);
   }
@@ -165,8 +291,19 @@ export function MaterialDatabaseExplorer({
     void loadGraph(endpoint.record_id, endpoint.record_revision_id);
   }
 
-  async function search(event: FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
+  function toggleRecordCompare(recordId: string): void {
+    setCompareRecordIds((current) => {
+      const next = new Set(current);
+      if (next.has(recordId)) next.delete(recordId);
+      else next.add(recordId);
+      return next;
+    });
+  }
+
+  async function performSearch(
+    nextFacetFilters = facetFilters,
+    range = { attributeId: numberAttributeId, minimum: numberMinimum, maximum: numberMaximum },
+  ): Promise<void> {
     if (!searchTableId) return;
     setLoading(true);
     try {
@@ -174,18 +311,35 @@ export function MaterialDatabaseExplorer({
         table_id: searchTableId,
         text: query.trim() || null,
         folder_id: null,
-        discrete_filters: [],
-        number_filters: [],
-        facet_attribute_ids: [],
+        discrete_filters: Object.entries(nextFacetFilters).map(([attributeDefinitionId, value]) => ({
+          attribute_definition_id: attributeDefinitionId,
+          values: [value],
+        })),
+        number_filters: range.attributeId && (range.minimum || range.maximum) ? [{
+          attribute_definition_id: range.attributeId,
+          minimum: range.minimum || null,
+          maximum: range.maximum || null,
+        }] : [],
+        facet_attribute_ids: searchDiscreteAttributes.map(
+          (attribute) => attribute.attribute_definition_id,
+        ),
         limit: 100,
       });
       setSearchResults(result.data.items);
+      setSearchFacets(result.data.facets);
+      setCompareRecordIds(new Set());
+      setShowRecordCompare(false);
       setError(null);
     } catch (caught) {
       setError(errorText(caught));
     } finally {
       setLoading(false);
     }
+  }
+
+  function search(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    void performSearch();
   }
 
   function renderBranch(tableId: string, folderId: string | null): ReactNode {
@@ -281,7 +435,15 @@ export function MaterialDatabaseExplorer({
           <h1>Browse material knowledge</h1>
         </div>
         <form className="material-database-search" onSubmit={(event) => void search(event)}>
-          <select aria-label="Search table" value={searchTableId} onChange={(event) => setSearchTableId(event.target.value)}>
+          <select aria-label="Search table" value={searchTableId} onChange={(event) => {
+            const nextTableId = event.target.value;
+            setSearchTableId(nextTableId);
+            setSearchLayoutId(tableDefinitions[nextTableId]?.layouts[0]?.layout_id ?? "");
+            setFacetFilters({});
+            setNumberAttributeId("");
+            setNumberMinimum("");
+            setNumberMaximum("");
+          }}>
             {tables.map((table) => <option value={table.table_id} key={table.table_id}>{table.current_revision.content.name}</option>)}
           </select>
           <input aria-label="Search database" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search materials, grades, tests or models" />
@@ -335,16 +497,38 @@ export function MaterialDatabaseExplorer({
         <section className="material-record-pane">
           {searchResults !== null ? (
             <div className="database-result-view">
-              <div className="record-pane-heading"><div><p className="eyebrow">Search results</p><h2>{searchResults.length} matching records</h2></div><button className="text-button" type="button" onClick={() => setSearchResults(null)}>Close results</button></div>
-              <div className="database-result-list">
-                {searchResults.map((record) => (
-                  <button type="button" key={record.record_id} onClick={() => openRecord(record)}>
-                    <span className="database-node-icon record-icon" />
-                    <span><strong>{record.current_revision.content.name}</strong><small>{record.current_revision.content.external_key ?? "Managed material record"}</small></span>
-                    <span className="record-revision-badge">r{record.current_revision.revision_no}</span>
-                  </button>
-                ))}
-              </div>
+              <div className="record-pane-heading"><div><p className="eyebrow">Search results</p><h2>{searchResults.length} matching records</h2></div><div className="record-heading-actions"><button className="button secondary" type="button" disabled={compareRecordIds.size < 2} onClick={() => setShowRecordCompare(true)}>Compare {compareRecordIds.size || ""}</button><button className="text-button" type="button" onClick={() => setSearchResults(null)}>Close results</button></div></div>
+              {showRecordCompare && comparedRecords.length > 1 ? (
+                <div className="material-record-compare">
+                  <div className="compare-toolbar"><div><p className="eyebrow">Layout comparison</p><h3>{searchLayout?.name ?? "Default datasheet"}</h3></div><div className="layout-picker-actions">{(searchDefinition?.layouts.length ?? 0) > 1 ? <label>Layout<select aria-label="Comparison layout" value={searchLayout?.layout_id ?? ""} onChange={(event) => setSearchLayoutId(event.target.value)}>{searchDefinition?.layouts.map((layout) => <option value={layout.layout_id} key={layout.layout_id}>{layout.name}</option>)}</select></label> : null}<button className="text-button" type="button" onClick={() => setShowRecordCompare(false)}>Back to results</button></div></div>
+                  <div className="record-compare-grid" style={{ gridTemplateColumns: `minmax(180px, .8fr) repeat(${comparedRecords.length}, minmax(190px, 1fr))` }}>
+                    <strong>Attribute</strong>
+                    {comparedRecords.map((record) => <strong key={record.record_id}>{record.current_revision.content.name}<small>r{record.current_revision.revision_no}</small></strong>)}
+                    {searchComparedAttributes.map((attribute) => (
+                      <Fragment key={attribute.attribute_definition_id}>
+                        <span>{attribute.current_revision.content.name}<small>{attribute.current_revision.content.quantity_semantics ?? attribute.current_revision.content.data_type}</small></span>
+                        {comparedRecords.map((record) => {
+                          const value = record.current_revision.content.values.find((item) => item.attribute_definition_id === attribute.attribute_definition_id);
+                          return <span key={`${record.record_id}:${attribute.attribute_definition_id}`}>{value ? valueLabel(value) : "—"}</span>;
+                        })}
+                      </Fragment>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="database-result-list">
+                  {searchResults.map((record) => (
+                    <div className="database-result-row" key={record.record_id}>
+                      <label className="compare-check"><input aria-label={`Compare ${record.current_revision.content.name}`} type="checkbox" checked={compareRecordIds.has(record.record_id)} onChange={() => toggleRecordCompare(record.record_id)} /><span>Compare</span></label>
+                      <button type="button" onClick={() => openRecord(record)}>
+                        <span className="database-node-icon record-icon" />
+                        <span><strong>{record.current_revision.content.name}</strong><small>{record.current_revision.content.external_key ?? "Managed material record"}</small></span>
+                        <span className="record-revision-badge">r{record.current_revision.revision_no}</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : selected && selectedGraph ? (
             <div className="material-record-view">
@@ -353,11 +537,31 @@ export function MaterialDatabaseExplorer({
                 <div><p className="eyebrow">{recordType(selected, tableNames.get(selected.table_id))}</p><h2>{selected.name}</h2><p>{selectedRecord?.current_revision.content.description ?? "Linked material knowledge record"}</p></div>
                 <div className="record-heading-actions"><span className="record-revision-badge">Revision {selected.revision_no}</span>{selected.domain_binding ? <button className="button primary" type="button" onClick={() => onNavigate(selected.domain_binding!.workbench_path)}>Open workbench</button> : null}</div>
               </div>
-              <div className="record-view-tabs" role="tablist" aria-label="Record views"><button className="active" type="button">Workflow</button><button type="button" disabled>Datasheet</button><button type="button" disabled>Properties</button><button type="button" disabled>Curves</button><button type="button" disabled>CAE Cards</button></div>
-              <section className="workflow-tree-card">
+              <div className="record-view-tabs" role="tablist" aria-label="Record views">
+                {(["workflow", "datasheet", "properties", "curves", "cards", "links"] as const).map((tab) => <button role="tab" aria-selected={activeTab === tab} className={activeTab === tab ? "active" : ""} type="button" key={tab} onClick={() => setActiveTab(tab)}>{tab === "cards" ? "CAE Cards" : tab[0].toUpperCase() + tab.slice(1)}</button>)}
+              </div>
+              {activeTab === "workflow" ? <section className="workflow-tree-card">
                 <div><p className="eyebrow">Linked workflow</p><h3>From source material to CAE delivery</h3><p>Every node opens the exact linked record revision.</p></div>
                 <ul className="material-workflow-tree">{workflowTree(selectedGraph.root)}</ul>
-              </section>
+              </section> : null}
+              {activeTab === "datasheet" ? <section className="layout-datasheet-card">
+                <div className="datasheet-title"><div><p className="eyebrow">{selectedLayout?.name ?? "Default datasheet"}</p><h3>Record information</h3></div><div className="layout-picker-actions">{(selectedDefinition?.layouts.length ?? 0) > 1 ? <label>Layout<select aria-label="Datasheet layout" value={selectedLayout?.layout_id ?? ""} onChange={(event) => setSelectedLayoutId(event.target.value)}>{selectedDefinition?.layouts.map((layout) => <option value={layout.layout_id} key={layout.layout_id}>{layout.name}</option>)}</select></label> : null}<span className="record-revision-badge">Exact r{selected.revision_no}</span></div></div>
+                <dl className="datasheet-metadata"><div><dt>Name</dt><dd>{selected.name}</dd></div><div><dt>External key</dt><dd>{selected.external_key ?? "—"}</dd></div><div><dt>Record revision</dt><dd>{selected.record_revision_id}</dd></div></dl>
+                <div className="layout-attribute-grid">
+                  {orderedAttributes.map((attribute) => {
+                    const definition = attribute.current_revision.content;
+                    const value = selectedValueMap.get(attribute.attribute_definition_id);
+                    const section = selectedLayout?.items.find((item) => item.attribute_definition_id === attribute.attribute_definition_id)?.section ?? "Properties";
+                    return <div className="layout-attribute-row" key={attribute.attribute_definition_id}><span><small>{section}</small><strong>{definition.name}</strong><em>{definition.quantity_semantics ?? definition.data_type}</em></span><span>{value ? valueLabel(value) : "Not set"}</span></div>;
+                  })}
+                  {!orderedAttributes.length ? <p className="muted">No Attributes are assigned to this Table yet.</p> : null}
+                </div>
+                {revisionComparison ? <div className="datasheet-history"><h3>Revision changes</h3>{revisionComparison.value_differences.filter((item) => item.status !== "unchanged").map((difference) => <div key={difference.attribute_definition_id}><strong>{selectedAttributeMap.get(difference.attribute_definition_id)?.current_revision.content.name ?? "Attribute"}</strong><span>{difference.before ? valueLabel(difference.before) : "—"} → {difference.after ? valueLabel(difference.after) : "—"}</span><em>{difference.status}</em></div>)}</div> : null}
+              </section> : null}
+              {activeTab === "properties" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Typed values</p><h3>Properties and units</h3></div></div><div className="property-tile-grid">{orderedAttributes.filter((attribute) => !["curve", "file", "record_reference"].includes(attribute.current_revision.content.data_type)).map((attribute) => { const value = selectedValueMap.get(attribute.attribute_definition_id); return <article key={attribute.attribute_definition_id}><small>{attribute.current_revision.content.quantity_semantics ?? attribute.current_revision.content.data_type}</small><h4>{attribute.current_revision.content.name}</h4><strong>{value ? valueLabel(value) : "Not set"}</strong></article>; })}</div></section> : null}
+              {activeTab === "curves" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Curve data</p><h3>Test and property curves</h3></div></div>{selectedValues.filter((value) => value.data_type === "curve").map((value) => <div className="curve-artifact-row" key={value.attribute_definition_id}><strong>{selectedAttributeMap.get(value.attribute_definition_id)?.current_revision.content.name ?? "Curve"}</strong><span>{valueLabel(value)}</span></div>)}{!selectedValues.some((value) => value.data_type === "curve") ? <div className="empty-tab-state"><p>No curve Attribute is stored on this record revision.</p><p>Open the linked Test Data record to inspect raw and normalized curves.</p></div> : null}</section> : null}
+              {activeTab === "cards" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">CAE delivery</p><h3>Linked solver cards</h3></div></div><div className="linked-delivery-grid">{selectedGraph.nodes.filter((node) => ["solver_card", "neutral_solver_card"].includes(node.domain_binding?.kind ?? "")).map((node) => <button type="button" key={`${node.record_id}:${node.record_revision_id}`} onClick={() => openEndpoint(node)}><small>{node.domain_binding?.kind.replaceAll("_", " ")}</small><strong>{node.name}</strong><span>Exact revision {node.revision_no}</span></button>)}</div></section> : null}
+              {activeTab === "links" ? <section className="layout-datasheet-card"><div className="datasheet-title"><div><p className="eyebrow">Exact relationships</p><h3>Forward and reverse links</h3></div></div><div className="linked-delivery-grid">{directLinks.map((link) => { const forward = link.source.record_id === selected.record_id && link.source.record_revision_id === selected.record_revision_id; const endpoint = forward ? link.target : link.source; return <button type="button" key={link.record_link_id} onClick={() => openEndpoint(endpoint)}><small>{forward ? link.link_type_revision.content.forward_label : link.link_type_revision.content.reverse_label}</small><strong>{endpoint.name}</strong><span>Exact r{endpoint.revision_no}</span></button>; })}</div></section> : null}
             </div>
           ) : (
             <div className="database-welcome-view">
@@ -371,8 +575,15 @@ export function MaterialDatabaseExplorer({
         </section>
 
         <aside className="material-related-pane">
-          <div className="pane-heading"><span>RELATED DATA</span></div>
-          {selected ? (
+          <div className="pane-heading"><span>{searchResults !== null ? "FILTER RESULTS" : "RELATED DATA"}</span></div>
+          {searchResults !== null ? <div className="database-search-filters">
+            <section><h3>Material facets</h3>{searchDiscreteAttributes.map((attribute) => {
+              const buckets = searchFacets.filter((facet) => facet.attribute_definition_id === attribute.attribute_definition_id);
+              return <div className="database-facet-group" key={attribute.attribute_definition_id}><strong>{attribute.current_revision.content.name}</strong>{buckets.map((bucket) => <button className={facetFilters[attribute.attribute_definition_id] === bucket.value ? "active" : ""} type="button" key={bucket.value} onClick={() => { const next = facetFilters[attribute.attribute_definition_id] === bucket.value ? Object.fromEntries(Object.entries(facetFilters).filter(([key]) => key !== attribute.attribute_definition_id)) : { ...facetFilters, [attribute.attribute_definition_id]: bucket.value }; setFacetFilters(next); void performSearch(next); }}><span>{bucket.value}</span><small>{bucket.count}</small></button>)}</div>;
+            })}{!searchDiscreteAttributes.length ? <p className="muted">No discrete facets are defined for this Table.</p> : null}</section>
+            <section><h3>Numeric range</h3><label>Property<select value={numberAttributeId} onChange={(event) => setNumberAttributeId(event.target.value)}><option value="">No range filter</option>{searchNumberAttributes.map((attribute) => <option key={attribute.attribute_definition_id} value={attribute.attribute_definition_id}>{attribute.current_revision.content.name}</option>)}</select></label><div className="database-range-inputs"><input aria-label="Normalized minimum" value={numberMinimum} onChange={(event) => setNumberMinimum(event.target.value)} placeholder="Minimum" /><input aria-label="Normalized maximum" value={numberMaximum} onChange={(event) => setNumberMaximum(event.target.value)} placeholder="Maximum" /></div><button className="button secondary" type="button" onClick={() => void performSearch()}>Apply range</button></section>
+            <button className="text-button" type="button" onClick={() => { setFacetFilters({}); setNumberAttributeId(""); setNumberMinimum(""); setNumberMaximum(""); void performSearch({}, { attributeId: "", minimum: "", maximum: "" }); }}>Clear filters</button>
+          </div> : selected ? (
             <>
               <div className="related-record-summary"><span className="database-node-icon record-icon" /><div><strong>{selected.name}</strong><small>{selected.external_key ?? "Managed record"}</small></div></div>
               <section><h3>Linked records</h3><div className="related-link-list">

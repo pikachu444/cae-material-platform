@@ -31,8 +31,10 @@ immutable ZIP으로 받을 수 있습니다.
 내비게이션으로 교체했습니다. T-76은 Database/Profile/Table/Folder/Record **Contents Tree**와
 Material에서 두 solver card까지 이어지는 exact-revision **Workflow Tree**를 실제 PostgreSQL
 데이터에 연결했습니다. Layout Datasheet·AMDC식 검색/비교와 그래프 중심 Modeling Workbench는
-[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 T-77 이후 교체 중이며,
-아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
+[제품 경험 기준](docs/01-product/product-experience-spec.md)에 따라 순차 교체 중입니다. T-77은 같은
+`/database` workspace에 Layout section 기반 Datasheet, 원본/정규화 단위, discrete facet,
+normalized 수치 범위와 다중 Record 비교를 연결했습니다. 그래프 중심 Modeling Workbench는 T-79
+이후 범위이므로 아직 전체 제품 경험 완료 상태로 표시하지 않습니다.
 
 현재 제품 빌드는 고정 Material/State schema와 세 가지 `reference/non-production` modeling
 흐름에 더해, 관리자가 migration 없이 Table/typed Attribute/Layout/Subset을 정의하는 Catalog
@@ -60,7 +62,8 @@ Test JSON 등록부터 published Recipe의 Batch 실행, selected Neutral과 두
   **Catalog records**에서 Folder/Record를 만들고 원본·정규화 단위를 보존해 검색·비교
 - Material Database 탐색: **Material Database**에서 Database → Profile → Table → nested Folder →
   Record를 펼치고, 가운데 Workflow Tree에서 Material/State/Test/Processing/Model/Neutral/Card를
-  exact revision으로 이동. 이름·key·설명·text Attribute 검색과 저장된 Subset도 같은 화면에서 적용
+  exact revision으로 이동. Datasheet에서 Layout section과 원본/정규화 단위를 확인하고 이름·key·
+  설명·text Attribute, discrete facet, normalized range로 검색하거나 여러 Record를 Layout 순서로 비교
 - 시험 JSON: **Datasets → Test Data JSON**에서 maker/시험/시편/채널/원본·정규화 단위를
   저장 전 검증하고 stable identity와 immutable revision으로 등록한 뒤 exact JSON을 다시 다운로드
 - 금속: Material/State/기본 물성 → governed CSV/TSV/XLSX tensile data → tabulated plasticity 또는 reference Voce

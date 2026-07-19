@@ -376,3 +376,19 @@ captures:
     image: ../15-demo/images/t76-material-database-tree.png
     width: 1440
     height: 1000
+  - id: material-layout-datasheet
+    route: /database/records/{demo-material-record-id}/revisions/{exact-record-revision-id}
+    workflow: tree-or-search-to-layout-selected-exact-material-datasheet
+    fixture: T-77 clean Compose DP780 with eight typed Attributes and Material overview Layout
+    source_evidence: ../15-demo/evidence/t77-material-datasheet-search.md
+    image: ../15-demo/images/t77-material-datasheet.png
+    width: 1440
+    height: 1232
+  - id: material-search-layout-comparison
+    route: /database
+    workflow: typed-search-facet-normalized-range-and-multi-record-layout-comparison
+    fixture: T-77 clean Compose DP780 Material and exact linked workflow Records
+    source_evidence: ../15-demo/evidence/t77-material-datasheet-search.md
+    image: ../15-demo/images/t77-material-search-compare.png
+    width: 1440
+    height: 1000
