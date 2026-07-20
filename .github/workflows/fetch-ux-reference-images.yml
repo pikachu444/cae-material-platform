@@ -1,0 +1,164 @@
+name: Fetch UX reference images
+
+on:
+  push:
+    branches:
+      - docs/add-ux-reference-gallery
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/add-ux-reference-gallery
+
+      - name: Download official public screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="docs/00-research/ux-reference-gallery/images"
+          mkdir -p "$out"
+
+          curl -fL --retry 3 --connect-timeout 20 \
+            'https://images.ansys.com/is/image/ansys/image%2013-Favourites%20list%202?fmt=png-alpha&wid=1400' \
+            -o "$out/granta-mi-favourites-list.png"
+
+          curl -fL --retry 3 --connect-timeout 20 \
+            'https://help.altair.com/2022/altairone/prod_help/altair_amdc/images/amdc_homepagedetails.png' \
+            -o "$out/material-data-center-search-detail.png"
+
+          curl -fL --retry 3 --connect-timeout 20 \
+            'https://2022.help.altair.com/2022/altairone/prod_help/altair_amdc/images/amdc_caemodeloptions.png' \
+            -o "$out/material-data-center-cae-model.png"
+
+          curl -fL --retry 3 --connect-timeout 20 \
+            'https://help.altair.com/material_modeler/images/amm_curve_fit1.png' \
+            -o "$out/material-modeler-curve-fitting.png"
+
+          curl -fL --retry 3 --connect-timeout 20 \
+            'https://help.altair.com/material_modeler/images/ammp_hyperelastic_tab.jpg' \
+            -o "$out/material-modeler-hyperelastic-fitting.jpg"
+
+          file "$out"/*
+          test "$(find "$out" -type f -size +10k | wc -l)" -eq 5
+
+      - name: Add reference gallery documentation
+        shell: bash
+        run: |
+          cat > docs/00-research/ux-reference-gallery/README.md <<'EOF'
+          # UX Reference Gallery
+
+          These images are official public product screenshots retained only as internal design references.
+          They are not implementation specifications and must not be copied pixel-for-pixel.
+
+          Codex must open every local image before changing the frontend. For each image, identify the
+          interaction principle, the information hierarchy to adapt, and the proprietary or brand-specific
+          details that must not be copied.
+
+          ## 1. Ansys Granta MI — dense material list
+
+          ![Granta MI favourites and material list](images/granta-mi-favourites-list.png)
+
+          Apply:
+          - a stable navigation/filter area and a comparison-friendly material list
+          - restrained visual hierarchy with data taking priority over decorative cards
+          - clear selection state and immediate access to a chosen record
+
+          Do not copy:
+          - product branding, icons, exact colors, labels, or proprietary database structure
+
+          Source: https://www.ansys.com/products/materials/granta-mi-pro
+
+          ## 2. Altair Material Data Center — search, filter, result and detail
+
+          ![Material Data Center search and detail layout](images/material-data-center-search-detail.png)
+
+          Apply:
+          - search and filters remain spatially stable while results change
+          - selected material opens contextual detail instead of adding another dashboard page
+          - table/tile choice is secondary to finding and comparing materials
+
+          Source: https://help.altair.com/2022/altairone/prod_help/altair_amdc/topics/materialsdb/tutorial_amdc_interface_r.htm
+
+          ## 3. Altair Material Data Center — CAE model delivery
+
+          ![Material Data Center CAE model options](images/material-data-center-cae-model.png)
+
+          Apply:
+          - solver, material law and unit selection form a short delivery flow
+          - the download action becomes enabled only when required choices are complete
+          - mapping or compatibility warnings stay visible without exposing internal IDs
+
+          Source: https://2022.help.altair.com/2022/altairone/prod_help/altair_amdc/topics/materialsdb/tutorial_advsearch_caemodel_r.htm
+
+          ## 4. Altair Material Modeler — graph-centered fitting
+
+          ![Material Modeler curve fitting](images/material-modeler-curve-fitting.png)
+
+          Apply:
+          - the engineering graph is the dominant work area
+          - curve selection, candidate fitting, extrapolation and card creation remain visibly connected
+          - controls are compact and task-specific rather than separate nested cards
+
+          Source: https://help.altair.com/material_modeler/topics/material_modeler/curve_fitting_t.htm
+
+          ## 5. Altair Material Modeler — fitting result comparison
+
+          ![Material Modeler hyperelastic fitting](images/material-modeler-hyperelastic-fitting.jpg)
+
+          Apply:
+          - experimental points and fitted candidates are compared in one persistent plot
+          - model controls support the plot instead of competing with it
+          - approval/export follows review of the actual response curve
+
+          Source: https://help.altair.com/material_modeler/topics/material_modeler/hyperelastic_r.htm
+
+          ## Required interpretation
+
+          The target product should combine these principles:
+
+          1. Granta-style material discovery and dense list comparison
+          2. Material Data Center-style filter/result/detail continuity
+          3. Material Modeler-style persistent graph and compact engineering controls
+          4. a direct path from selected material or reviewed fit to a solver card
+          5. progressive disclosure for revision, provenance, recipes, batches and mapping evidence
+
+          The images are copyrighted by their respective owners and are retained in this private repository
+          solely for product research and internal implementation guidance. Do not redistribute them.
+          EOF
+
+          python - <<'PY'
+          from pathlib import Path
+
+          start = Path('CODEX_UX_REDESIGN_START.md')
+          text = start.read_text(encoding='utf-8')
+          marker = '## Reference image requirement'
+          block = '''\n## Reference image requirement\n\nBefore analyzing or implementing the frontend, open every local image in\n`docs/00-research/ux-reference-gallery/images/` and read the gallery README.\nDo not rely only on filenames, alt text or source links. Record which interaction\nprinciple from each image is applied to each redesigned screen.\n'''
+          if marker not in text:
+              text += block
+          start.write_text(text, encoding='utf-8')
+
+          prompt = Path('docs/01-product/ux-redesign-package/04_CODEX_MASTER_PROMPT.md')
+          text = prompt.read_text(encoding='utf-8')
+          marker = '## Local reference gallery'
+          block = '''\n## Local reference gallery\n\nThe repository contains official public screenshots under\n`docs/00-research/ux-reference-gallery/images/`. Open and inspect every image before\nimplementation. Use them as visual and interaction references for information density,\npanel hierarchy, material discovery, graph-centered modeling and solver-card delivery.\nDo not copy branding or reproduce the products pixel-for-pixel.\n'''
+          if marker not in text:
+              text += block
+          prompt.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit gallery and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/fetch-ux-reference-images.yml
+          git add CODEX_UX_REDESIGN_START.md docs/00-research/ux-reference-gallery docs/01-product/ux-redesign-package/04_CODEX_MASTER_PROMPT.md
+          git commit -m 'docs: add official UX reference gallery'
+          git push origin HEAD:docs/add-ux-reference-gallery
