@@ -1,0 +1,187 @@
+# UX Acceptance Criteria
+
+## 1. 판정 원칙
+
+- API 호출 성공만으로 UX 완료라고 판정하지 않는다.
+- screenshot 존재만으로 UX 완료라고 판정하지 않는다.
+- clean demo에서 실제 사용자 task가 완료되어야 한다.
+- normal user path와 Advanced/Admin path를 별도로 검증한다.
+- 기존 domain invariant와 solver mapping block은 유지한다.
+
+## 2. Scenario A — Known Material Search and Download
+
+### Given
+
+- clean demo가 실행 중이다.
+- DP780 Material과 Abaqus/OpenRadioss card가 존재한다.
+- 사용자는 Materials 홈에 있다.
+
+### When
+
+1. `DP780`을 검색한다.
+2. 결과 행을 선택한다.
+3. OpenRadioss card를 미리 본다.
+4. card를 다운로드한다.
+
+### Then
+
+- 검색 결과에 material family, grade, key properties와 solver availability가 보인다.
+- 사용자는 UUID, SHA와 revision ID를 입력하거나 복사하지 않는다.
+- primary action 3회 이하로 download에 도달한다.
+- 신규 사용자 기준 60초 이내 완료 가능하다.
+- 다운로드 파일은 기존 exporter domain contract를 만족한다.
+- approximated/unsupported 상태는 숨겨지지 않는다.
+
+## 3. Scenario B — Browse and Filter
+
+### Given
+
+사용자는 정확한 material name을 모른다.
+
+### When
+
+1. material family를 Metal로 선택한다.
+2. OpenRadioss 지원 필터를 적용한다.
+3. yield strength 범위를 적용한다.
+4. 결과를 정렬한다.
+
+### Then
+
+- filter가 left panel 또는 compact filter bar에 일관되게 위치한다.
+- 결과 table에서 선택한 조건이 명확히 표시된다.
+- filter reset이 한 번의 action으로 가능하다.
+- result count가 즉시 갱신된다.
+- empty state가 다음 행동을 설명한다.
+
+## 4. Scenario C — Material Detail
+
+### When
+
+사용자가 material detail을 연다.
+
+### Then
+
+- 첫 viewport에서 name, grade, maker/source, status, key properties와 card availability를 확인한다.
+- tab은 최대 5개다.
+- CAE Card download가 식별 가능한 위치에 있다.
+- curve는 축, 단위와 legend를 가진다.
+- Evidence를 열기 전에는 hash, full revision ID와 mapping JSON이 보이지 않는다.
+- Evidence에서는 기존 provenance와 revision 정보를 잃지 않는다.
+
+## 5. Scenario D — No Existing Card
+
+### Given
+
+선택한 material에 target solver card가 없다.
+
+### Then
+
+사용자는 다음 중 가능한 action을 구분할 수 있다.
+
+- existing neutral model로 card 생성
+- test data로 새 model 생성
+- unsupported로 인해 생성 불가
+
+silent fallback 또는 의미 없는 빈 download button을 제공하지 않는다.
+
+## 6. Scenario E — Upload to Card
+
+### Given
+
+사용자는 CSV 또는 XLSX 인장시험 데이터를 가지고 있다.
+
+### When
+
+1. 파일을 업로드한다.
+2. 자동 탐지된 열과 단위를 검토한다.
+3. Process에서 crop/smoothing/replicate selection을 확인한다.
+4. Fit에서 candidate와 residual을 비교한다.
+5. Export에서 solver card를 생성한다.
+
+### Then
+
+- top-level 단계는 Data/Process/Fit/Export 4개다.
+- JSON editor를 열지 않고 완료 가능하다.
+- classification/change reason은 normal path에서 필수가 아니다.
+- graph는 Process와 Fit에서 지속적으로 보인다.
+- raw curve와 processed/fitted/extrapolated curve를 구분한다.
+- 생성 결과는 Material Library에서 검색 가능하다.
+- 기존 revision/provenance는 내부적으로 저장된다.
+
+## 7. Scenario F — Advanced Engineering Work
+
+### When
+
+고급 사용자가 Advanced를 연다.
+
+### Then
+
+다음 기능에 접근할 수 있다.
+
+- Mapping Profile
+- Recipe Library
+- Batch Monitor
+- exact revision
+- JSON definition
+- detailed mapping report
+
+Advanced를 닫으면 normal task UI가 다시 단순해진다.
+
+## 8. Visual Acceptance
+
+### 기본 화면
+
+- 1440×900에서 major region 3개 이하
+- 첫 viewport에 현재 task의 main content와 primary action 표시
+- 중첩 card가 2단계를 넘지 않음
+- decorative badge가 데이터보다 눈에 띄지 않음
+- primary color 1개
+- background/surface hierarchy가 명확함
+- 한 화면에 불필요한 gradient 없음
+
+### Typography
+
+- body 14px 이상
+- primary data 16px 이상
+- metadata 12px 이상
+- line-height 1.4 이상
+- uppercase eyebrow 남용 금지
+- 전문 용어는 tooltip 또는 Evidence에서 설명
+
+### Interaction
+
+- click target 목표 32×32px 이상
+- visible focus
+- keyboard table navigation
+- Escape로 drawer/modal 닫기
+- loading 중 이전 context 유지
+- error는 원인과 recovery action 제공
+
+## 9. Regression Gate
+
+다음은 유지되어야 한다.
+
+- immutable raw/released artifact
+- original/normalized unit
+- exact input revision pin
+- solver mapping exact/transformed/approximated/unsupported
+- unsupported generation block
+- explicit approximation acknowledgement
+- card native ASCII preview/download
+- three existing reference material families
+- PostgreSQL clean seed/demo verification
+
+## 10. Completion Definition
+
+UX redesign은 다음이 모두 충족될 때 완료다.
+
+- Search-to-download task accepted
+- Upload-to-card task accepted
+- baseline 대비 click/time/internal-term count 개선 기록
+- current and target screenshots available
+- frontend tests and build pass
+- backend regression pass
+- clean PostgreSQL demo pass
+- keyboard/accessibility checks pass
+- legacy UI와 dead CSS 제거
+- README/user guide/AGENTS/product docs가 새 방향과 일치
