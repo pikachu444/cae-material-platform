@@ -149,3 +149,10 @@ CSV/XLSX upload
 7. 다음 단계
 
 `modernized`, `polished`, `enterprise-grade` 같은 추상적 표현보다 실제 task와 화면 근거로 설명하라.
+
+## Reference image requirement
+
+Before analyzing or implementing the frontend, open every local image in
+`docs/00-research/ux-reference-gallery/images/` and read the gallery README.
+Do not rely only on filenames, alt text or source links. Record which interaction
+principle from each image is applied to each redesigned screen.

@@ -313,3 +313,11 @@ CSV/XLSX upload
 9. 다음 PR 또는 후속 작업
 
 `modernized`, `polished`, `enterprise-grade` 같은 추상적 표현보다 실제 task와 화면 근거로 설명하라.
+
+## Local reference gallery
+
+The repository contains official public screenshots under
+`docs/00-research/ux-reference-gallery/images/`. Open and inspect every image before
+implementation. Use them as visual and interaction references for information density,
+panel hierarchy, material discovery, graph-centered modeling and solver-card delivery.
+Do not copy branding or reproduce the products pixel-for-pixel.
