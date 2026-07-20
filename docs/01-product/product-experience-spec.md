@@ -1,11 +1,11 @@
 # Product experience specification
 
-Status: `baseline; interaction details superseded by gui-functional-parity-plan.md`
+Status: `search-first contract; visual rules require approved reference comparison`
 
-The authoritative corrective implementation and acceptance plan is
-[`gui-functional-parity-plan.md`](gui-functional-parity-plan.md). This specification continues to
-define the two product workspaces, but a graph, form, route or API connection alone is no longer
-accepted as proof of Granta/Material Modeler-level usability.
+The authoritative visual contract is [`ux-visual-system.md`](ux-visual-system.md). A graph, form,
+route, API connection, or screenshot alone is not proof of Granta/Material Modeler-level usability.
+The reference topology, dominant-area ratio, density, surface grammar, and task continuity must pass
+the measured comparison and product-owner review before production implementation.
 
 ## 1. Why this specification exists
 
@@ -29,10 +29,10 @@ architecture and can complete the same public task sequence without learning pla
 
 ### 2.1 What normal users see
 
-The global navigation is limited to:
+The normal-user global navigation is limited to:
 
 ```text
-Material Database | Material Modeling | Jobs & Reviews | Administration
+Materials | Modeling | Activity
 ```
 
 Normal users never configure or see an API base URL, bearer token, tenant identifier, RLS policy,
@@ -57,18 +57,18 @@ policy, but the initial administrator UI does not require security vocabulary or
 
 ## 3. Material Database workspace
 
-### 3.1 Persistent three-pane shell
+### 3.1 Search-first continuous workspace
 
 ```text
-┌ Contents Tree ─────┬ Results / Datasheet / Compare ───────┬ Context ─────────┐
-│ Database / Profile │ selected record or search result      │ Related records  │
-│  Table             │ attributes, tables and curves         │ Revisions        │
-│   Folder           │                                        │ Files / actions  │
-│    Record          │                                        │                  │
-└────────────────────┴────────────────────────────────────────┴──────────────────┘
+┌ Explorer / filters ──┬ Material results / Layout datasheet ──────────────────┐
+│ Database / Profile   │ dense comparable rows or selected Record               │
+│  Table / Folder      │ attributes, tables, curves and direct CAE action       │
+│   Record             │ optional selected context opens only when width allows │
+└──────────────────────┴────────────────────────────────────────────────────────┘
 ```
 
-The Contents Tree remains mounted while the user opens records and follows links. It supports
+Search is the default entry, but the Contents Tree remains mounted in the same workspace while the
+user opens records and follows links. It supports
 Database/Profile, Table, nested Folder and Record nodes, lazy expansion, selection, breadcrumb,
 deep links, saved Subsets and visible version state. A list of unrelated cards is not a tree.
 
@@ -80,8 +80,10 @@ A record opens a Layout-driven datasheet. Material-facing tabs are:
 Overview | Properties | Curves | Test Data | Models | CAE Cards | Links
 ```
 
-The same page provides exact revision history without making UUIDs the primary label. Linked and
-local values are visually distinct, and following a link preserves the browse context.
+The material-facing tabs are `Overview | Properties | Curves | CAE Cards | Evidence`. Exact revision,
+workflow, Layout choice, and additional administrative datasheets remain accessible in Evidence or
+Advanced without making UUIDs the primary label. Linked and local values are visually distinct, and
+following a link preserves the browse context.
 
 ### 3.3 Search, selection and comparison
 
@@ -94,14 +96,17 @@ comparison tables and curve overlay. Search results open the same datasheet used
 ### 4.1 One cohesive graph-centered workbench
 
 ```text
-┌ Dataset / curve list ─┬ Raw / processed / fitted graph ───┬ Step options ──┐
-│ specimens and curves  │ overlay, residual and candidates  │ parameters     │
-└───────────────────────┴────────────────────────────────────┴────────────────┘
- Import → Map → Prepare → Fit → Extrapolate → Card
+┌ Curve / process tree ─┬ Current-step settings ribbon ─────────────────────────┐
+│ specimens and curves  ├───────────────────────────────────────────────────────┤
+│ ordered process       │ Raw / processed / fitted graph                       │
+│                       │ overlay, residual, candidates and extrapolation       │
+└───────────────────────┴───────────────────────────────────────────────────────┘
+ Data → Process → Fit → Export
 ```
 
-The plot stays visible while the user moves through the workflow. The selected step owns the right
-option panel. Raw, normalized, processed, fitted and extrapolated curves have distinct legend and
+The plot stays visible while the user moves through the workflow. The selected step owns a shallow
+settings ribbon above the plot; there is no permanent third inspector column. Raw, normalized,
+processed, fitted and extrapolated curves have distinct legend and
 line semantics. Changing an option updates a preview; only an explicit commit creates an immutable
 result revision.
 
@@ -123,12 +128,11 @@ The workbench must let a user:
 Metal, polymer and elastomer tracks share this shell and method registry. Family-specific methods
 change the available steps and option schemas, not the navigation model.
 
-## 5. Dashboard
+## 5. Materials home and Activity
 
-The Dashboard is a product launch surface, not a module inventory. It contains global material
-search, browse-by-family, recent/favorite records, recent modeling sessions, active import/batch
-jobs, review work and primary actions to create a Material or import Test Data. It contains no
-connection setup, API health, internal aggregate identifiers or infrastructure metrics.
+There is no separate Dashboard. `/` redirects to `/materials`. Activity contains recent modeling,
+export, import, batch, and review work without placing infrastructure or exact identifiers in its
+first viewport.
 
 ## 6. Demo dataset
 

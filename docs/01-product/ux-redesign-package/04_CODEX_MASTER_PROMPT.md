@@ -73,6 +73,14 @@
 - 현재 screenshot을 보지 않고 문서 설명만으로 UI를 수정하지 않는다.
 - 전체 프론트엔드를 검증 없이 한 번에 rewrite하지 않는다.
 
+## 디자인 승인 게이트
+
+Production React/CSS 변경 전에 responsive HTML prototype과 reference side-by-side comparison을
+먼저 제출한다. `docs/01-product/ux-visual-system.md`의 structural similarity rubric 85/100,
+topology/dominant-area/zero-nested-card hard gate, product-owner approval을 모두 통과하기 전에는
+구현을 진행하지 않는다. Permanent three-column Modeling이나 Tree를 별도 링크로만 제공하는
+Materials 시안은 자동 반려한다.
+
 ## Phase 0 — Current baseline
 
 1. 현재 `main`과 branch 상태를 확인한다.

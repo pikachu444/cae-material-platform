@@ -21,8 +21,8 @@ Workbench**에 익숙한 엔지니어가 별도 API 지식 없이 사용할 수 
 > Modeler의 공개 사용자 기능을 기준으로 기능·정보구조·조작성 동등성을 갖춘 제품 GUI를
 > 완성한다. Material Database는 계층 Contents Tree, Layout Datasheet, 검색·facet·비교,
 > exact-revision 링크 이동을 제공한다. Material Modeling은 화면 진입 즉시 실제 곡선을
-> 표시하고 Dataset/curve 목록, 대형 graph, Prepare/Fit/Extrapolate/Card 작업 패널을
-> 고정하며, 그래프 직접 조작과 즉시 preview를 지원한다. Recipe·batch·Neutral JSON·명시적
+> 표시하고 compact Dataset/curve 목록, 대형 graph, Prepare/Fit/Extrapolate/Card 설정 ribbon을
+> 유지하며, 그래프 직접 조작과 즉시 preview를 지원한다. Recipe·batch·Neutral JSON·명시적
 > solver mapping·Abaqus/OpenRadioss native card를 하나의 작업 흐름으로 연결한다. UUID, API,
 > token과 raw JSON은 일반 작업에서 숨긴다. 각 단계는 기존 계산·DB 계약 회귀 없이 실제
 > Docker/PostgreSQL E2E, GUI 캡처와 사용자 매뉴얼까지 통과해야 완료한다.
@@ -146,11 +146,14 @@ route 내부에서 점진 교체한다. 단계별 E2E가 통과한 뒤에만 기
 
 ## 5. 제품 정보 구조
 
-전역 navigation은 다음 다섯 개만 유지한다.
+일반 사용자 전역 navigation은 다음 세 개만 유지한다.
 
 ```text
-Dashboard | Material Database | Material Modeling | Jobs & Reviews | Administration
+Materials | Modeling | Activity
 ```
+
+`Administration`은 role-gated 사용자 메뉴 또는 설정 경로에 둔다. 기존 Dashboard의 작업 재개
+정보는 Materials home과 Activity에 투영한다.
 
 Material Database와 Material Modeling은 서로 단절된 module이 아니다.
 
@@ -168,17 +171,17 @@ Material Database record
 
 ## 6. GRANTA 계열 Material Database GUI
 
-### 6.1 고정 desktop shell
+### 6.1 연속형 desktop workspace
 
 ```text
-+----------------------+-----------------------------------------+----------------------+
-| Contents             | Results / Datasheet / Compare           | Context              |
-| quick search         | breadcrumb + record title + revision    | Related records      |
-| Database/Profile     | Overview Properties Curves Test Data    | Revisions            |
-|  Table               | Models CAE Cards Links                  | Files / actions      |
-|   Folder             |                                         |                      |
-|    Record            | Layout-driven values and curves         |                      |
-+----------------------+-----------------------------------------+----------------------+
++----------------------+----------------------------------------------------------+
+| Contents / filters   | Results / Datasheet / Compare                           |
+| quick search         | breadcrumb + record title + revision                    |
+| Database/Profile     | Overview Properties Curves CAE Cards Evidence            |
+|  Table               | Layout-driven values, curves and selected-record context |
+|   Folder             |                                                          |
+|    Record            |                                                          |
++----------------------+----------------------------------------------------------+
 ```
 
 - 왼쪽 Contents Tree는 record와 link를 열어도 사라지지 않는다.
@@ -186,6 +189,8 @@ Material Database record
 - 선택 node, ancestor path, loading, empty, error 상태를 구분한다.
 - keyboard navigation, expand/collapse all, pinned/favorite, recent record를 제공한다.
 - Tree와 search result는 동일한 datasheet를 연다.
+- 선택 context가 필요한 검색 화면에서만 제한된 우측 quick preview를 열며, 1366 px에서는 닫는다.
+  Context를 고정 세 번째 열로 만들어 result/datasheet 폭을 잠식하지 않는다.
 - Workflow projection은 별도 toggle로 Material → State → Test/Specimen → Dataset → Processing →
   Neutral → Card → Release를 보여준다.
 
@@ -194,7 +199,7 @@ Material Database record
 기본 tab은 다음과 같다.
 
 ```text
-Overview | Properties | Curves | Test Data | Models | CAE Cards | Links
+Overview | Properties | Curves | CAE Cards | Evidence
 ```
 
 - 관리자가 만든 Layout 순서와 section으로 값을 표시한다.
@@ -229,17 +234,20 @@ Overview | Properties | Curves | Test Data | Models | CAE Cards | Links
 
 ```text
 +----------------------------------------------------------------------------------+
-| Session / Material / Objective       Import  Prepare  Fit  Extrapolate  Card      |
-+----------------------+------------------------------------------+----------------+
-| Test files & curves  | Main graph                               | Task panel     |
-| [x] specimen 01      | raw / processed / fit / extrapolation    | method options |
-| [x] specimen 02      | zoom, pan, range pick, point pick         | sliders        |
-| mean / excluded      | axis/unit, legend, cursor coordinates    | warnings       |
-|                      | residual/derivative split view            | apply/save     |
-+----------------------+------------------------------------------+----------------+
-| stage history / Recipe / run status / messages                                   |
-+----------------------------------------------------------------------------------+
+| Material / Dataset / Objective                       Data  Process  Fit  Export    |
++--------------------+-------------------------------------------------------------+
+| curves / process   | compact method and parameter ribbon                         |
+| [x] specimen 01    +-------------------------------------------------------------+
+| [x] specimen 02    |                                                             |
+| mean / excluded    | dominant graph: raw / processed / fit / extrapolation       |
+| compact metadata   | zoom, pan, range pick, residual and candidate comparison    |
+|                    |                                                             |
++--------------------+-------------------------------------------------------------+
 ```
+
+영구적인 우측 inspector를 두지 않는다. 현재 단계의 자주 쓰는 입력은 그래프 위 150 px 안팎의
+설정 ribbon에 둔다. JSON, Recipe lifecycle, Mapping Profile과 상세 diagnostics는 `Advanced` drawer
+또는 별도 화면에서만 연다.
 
 화면 진입 후 5초 이내에 다음 중 하나가 반드시 보인다.
 
@@ -280,7 +288,7 @@ Overview | Properties | Curves | Test Data | Models | CAE Cards | Links
 - curve alignment
 - 개별 curve와 mean/median, SD/MAD/IQR/confidence band
 - 처리 전후 overlay와 undo/redo 가능한 stage history
-- 순서를 drag-and-drop하고 각 method option을 right panel에서 조작
+- 순서를 drag-and-drop하고 각 method option을 graph 위 compact settings ribbon에서 조작
 - 전체 pipeline을 Recipe draft/published revision으로 저장
 
 ### 7.5 금속 탄소성 track
@@ -412,7 +420,8 @@ API 보강은 UI에서 실제 사용하는 경우에만 추가한다. 새로운 
   한 번의 동작으로 시작한다. 가족별 demo journey는 코어 목적을 설명하는 상단 영역이 아니라
   두 경로 아래의 reference workflow로 배치한다.
 - 큰 hero/form stack을 compact application shell로 교체한다.
-- session/objective, curve rail, persistent graph, task panel, stage/status bar를 구현한다.
+- session/objective, compact curve rail, persistent dominant graph, current-step ribbon과 stage/status
+  bar를 구현한다. 영구 우측 task panel은 사용하지 않는다.
 - 첫 진입 auto data/preview, axis/unit/tick/tooltip/zoom/pan/legend/visibility를 구현한다.
 
 **2026-07-20 checkpoint:** compact header, semantic family-compatible curve rail, reusable
@@ -687,7 +696,8 @@ reference**다. 이미지 파일을 우리 제품 UI asset으로 재사용하지
 
 반영할 기준:
 
-- 왼쪽 file/curve 목록, 중앙 graph, 오른쪽 작업 control을 동시에 본다.
+- 왼쪽 file/curve 목록과 확장되는 중앙 graph를 유지하고, 현재 작업 control은 graph 위의 얕은
+  ribbon에 둔다. 고급 inspector는 필요할 때만 drawer로 연다.
 - 선택한 objective가 필요한 file 역할과 processing action을 안내한다.
 - raw curve가 첫 진입부터 보이고 각 file을 즉시 선택·편집한다.
 

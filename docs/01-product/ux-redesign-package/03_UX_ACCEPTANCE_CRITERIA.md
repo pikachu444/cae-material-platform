@@ -129,15 +129,42 @@ Advanced를 닫으면 normal task UI가 다시 단순해진다.
 
 ## 8. Visual Acceptance
 
+### Reference-layout similarity gate
+
+각 reference와 target 화면은 navigation, search/control band, explorer/filter, result/datasheet,
+context, curve tree, settings, graph, primary action, advanced disclosure의 normalized rectangle로
+표시한다. 실제 앱은 브라우저 DOM bounds를 같은 형식으로 기록한다.
+
+| Criterion | Points | Required result |
+| --- | ---: | --- |
+| Region topology | 25 | reference-derived order and adjacency; hard gate |
+| Dominant area and proportion | 25 | same work region dominates; no more than 12 percentage-point area deviation |
+| Density and typography | 15 | title/body ratio ≤ 1.5; tree/table rows and font sizes within contract |
+| Surface/divider grammar | 15 | nested cards 0; persistent pane shadows 0; hard gate |
+| Selection/task continuity | 10 | selected Material/curve visibly owns detail/graph |
+| Primary action/disclosure | 10 | one task primary; internal detail does not compete |
+
+Every target screen must score at least 85/100. Materials fails if Tree is merely a link, results are
+not wider than context, or headings/forms dominate data. Modeling fails if a permanent third column
+exists, graph width is below 70%, three boxed bars precede the graph, curve names are oversized or
+truncated, or key settings exist only under Advanced. CAE Card fails if multiple primary actions
+compete with Download or internal identifiers appear in the normal viewport.
+
+Approval evidence contains reference, rejected current screen, proposal, and annotated region mask.
+An explicit product-owner approval is required; automated score alone cannot approve the design.
+
 ### 기본 화면
 
 - 1440×900에서 major region 3개 이하
 - 첫 viewport에 현재 task의 main content와 primary action 표시
-- 중첩 card가 2단계를 넘지 않음
+- 중첩 card가 0개
 - decorative badge가 데이터보다 눈에 띄지 않음
 - primary color 1개
 - background/surface hierarchy가 명확함
 - 한 화면에 불필요한 gradient 없음
+- Materials result/datasheet 또는 Modeling graph가 가장 큰 region
+- 1440px Modeling graph SVG가 최소 1,050px이자 workspace의 72% 이상
+- 1440px Materials results가 optional context가 열린 상태에서도 최소 820px
 
 ### Typography
 
@@ -185,3 +212,5 @@ UX redesign은 다음이 모두 충족될 때 완료다.
 - keyboard/accessibility checks pass
 - legacy UI와 dead CSS 제거
 - README/user guide/AGENTS/product docs가 새 방향과 일치
+- reference similarity screen score가 모두 85점 이상이고 hard-gate 위반이 없음
+- product-owner가 side-by-side prototype과 live implementation을 승인

@@ -3,6 +3,19 @@
 Date: `2026-07-20`
 Foundation version: `0.32.0`
 
+## Visual acceptance withdrawn pending reference-layout approval (2026-07-21)
+
+The T-85~T-93 engine and functional browser evidence remain valid, but their visual acceptance is
+reopened. The 1440 px Modeling screen gave the actual graph only 743 px (55.7% of its workspace),
+kept a permanent third inspector column, oversized/truncated curve rows, and stacked boxed bars above
+the plot. The Materials entry did not present its governed hierarchy as a normal-density continuous
+explorer. Those results do not reproduce the design grammar visible in the directly opened Granta MI,
+Material Data Center, and Material Modeler references.
+
+Production visual changes are frozen until the responsive prototypes, structural similarity report,
+and explicit product-owner approval defined by `docs/01-product/ux-visual-system.md` are complete.
+Connected APIs and passing tests do not override this gate.
+
 ## Product experience correction (T-84)
 
 The T-79~T-81 work connected real calculation, Neutral Material and exporter engines, but its

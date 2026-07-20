@@ -4,6 +4,12 @@
 처리·fitting·extrapolation하여 CAE card로 만드는 **Material Modeling Workbench**를 하나로
 연결하는 서비스입니다.
 
+> **UX implementation gate:** 일반 사용자 정보 구조는 `Materials | Modeling | Activity`이고,
+> search-first는 Contents Tree, Table, Attribute, Layout, Subset, Link Type 또는 exact-revision
+> workflow를 제거한다는 뜻이 아니다. 현재 제품 UI 구현은
+> [reference-layout design review](docs/00-research/ux-layout-review/README.md)의 명시적 승인 뒤에만
+> 진행한다. 이 승인 전에는 기존 화면의 시각적 완료 주장을 사용하지 않는다.
+
 목표 사용자 흐름은 다음과 같습니다.
 
 ```text

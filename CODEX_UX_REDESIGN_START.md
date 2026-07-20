@@ -156,3 +156,18 @@ Before analyzing or implementing the frontend, open every local image in
 `docs/00-research/ux-reference-gallery/images/` and read the gallery README.
 Do not rely only on filenames, alt text or source links. Record which interaction
 principle from each image is applied to each redesigned screen.
+
+## Mandatory design approval gate
+
+Do not begin production React/CSS changes immediately after the reference audit. First produce a
+responsive, non-production layout prototype for Materials, Material Detail/CAE Card, and Modeling,
+render it at 1366×768, 1440×900, and 1920×1080, and compare it directly with every gallery image.
+
+The comparison must evaluate region topology, dominant-area ratio, information density, typography,
+surface/divider grammar, selection continuity, primary action placement, and progressive disclosure.
+Pixel similarity, brand color, icons, logos, and exact commercial geometry are excluded.
+
+Each screen must score at least 85/100 under `docs/01-product/ux-visual-system.md`. Region topology,
+dominant result/graph area, and zero nested-card violations are hard gates. Product-owner approval of
+the comparison prototype is required before implementation. A prior functional screenshot or test
+pass does not waive this gate.
