@@ -1,0 +1,1382 @@
+[
+  {
+    "curveNames": [],
+    "graphSvg": null,
+    "graphWorkspacePercent": null,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1366,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 656,
+        "radius": "0px",
+        "role": "materials-workspace",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 655,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 220,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 655,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 1106,
+        "x": 240,
+        "y": 96
+      },
+      {
+        "height": 0,
+        "radius": "0px",
+        "role": "context",
+        "shadow": "none",
+        "width": 0,
+        "x": 0,
+        "y": 0
+      }
+    ],
+    "resultHorizontalOverflow": false,
+    "rowHeights": {
+      "data": 43,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "16px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    },
+    "visiblePrimaryActions": 1,
+    "screen": "materials",
+    "requestedViewport": {
+      "width": 1366,
+      "height": 768
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": {
+      "height": 301.7,
+      "width": 794,
+      "y": 330
+    },
+    "graphWorkspacePercent": 59.9,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1366,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 656,
+        "radius": "0px",
+        "role": "detail-workspace",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 655,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 220,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 655,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 1106,
+        "x": 240,
+        "y": 96
+      },
+      {
+        "height": 340,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 794,
+        "x": 253,
+        "y": 322
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "19px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    },
+    "visiblePrimaryActions": 3,
+    "screen": "detail",
+    "requestedViewport": {
+      "width": 1366,
+      "height": 768
+    }
+  },
+  {
+    "curveNames": [
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 139,
+        "width": 139
+      },
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 139,
+        "width": 139
+      },
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 139,
+        "width": 139
+      },
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 139,
+        "width": 139
+      }
+    ],
+    "graphSvg": {
+      "height": 424,
+      "width": 1122,
+      "y": 319
+    },
+    "graphWorkspacePercent": 86,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1366,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 50,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 620,
+        "radius": "0px",
+        "role": "modeling-workspace",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 619,
+        "radius": "0px",
+        "role": "curve-tree",
+        "shadow": "none",
+        "width": 186,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 150,
+        "radius": "0px",
+        "role": "settings",
+        "shadow": "none",
+        "width": 1140,
+        "x": 206,
+        "y": 132
+      },
+      {
+        "height": 469,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 1140,
+        "x": 206,
+        "y": 282
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 56.1
+    },
+    "typography": {
+      "body": "14px",
+      "title": "17px",
+      "tree": "12px"
+    },
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    },
+    "visiblePrimaryActions": 1,
+    "screen": "modeling",
+    "requestedViewport": {
+      "width": 1366,
+      "height": 768
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": {
+      "height": 424,
+      "width": 1122,
+      "y": 319
+    },
+    "graphWorkspacePercent": 86,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1366,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 50,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 620,
+        "radius": "0px",
+        "role": "modeling-workspace",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 619,
+        "radius": "0px",
+        "role": "curve-tree",
+        "shadow": "none",
+        "width": 186,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 150,
+        "radius": "0px",
+        "role": "settings",
+        "shadow": "none",
+        "width": 1140,
+        "x": 206,
+        "y": 132
+      },
+      {
+        "height": 469,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 1140,
+        "x": 206,
+        "y": 282
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": null
+    },
+    "typography": {
+      "body": "14px",
+      "title": "17px",
+      "tree": null
+    },
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    },
+    "visiblePrimaryActions": 2,
+    "screen": "export",
+    "requestedViewport": {
+      "width": 1366,
+      "height": 768
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": null,
+    "graphWorkspacePercent": null,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1366,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 656,
+        "radius": "0px",
+        "role": "card-workspace",
+        "shadow": "none",
+        "width": 1326,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 655,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 220,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 559,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 796,
+        "x": 240,
+        "y": 192
+      },
+      {
+        "height": 559,
+        "radius": "0px",
+        "role": "primary-action",
+        "shadow": "none",
+        "width": 310,
+        "x": 1036,
+        "y": 192
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "19px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    },
+    "visiblePrimaryActions": 1,
+    "screen": "card",
+    "requestedViewport": {
+      "width": 1366,
+      "height": 768
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": null,
+    "graphWorkspacePercent": null,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 788,
+        "radius": "0px",
+        "role": "materials-workspace",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 787,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 238,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 787,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 870,
+        "x": 258,
+        "y": 96
+      },
+      {
+        "height": 787,
+        "radius": "0px",
+        "role": "context",
+        "shadow": "none",
+        "width": 292,
+        "x": 1128,
+        "y": 96
+      }
+    ],
+    "resultHorizontalOverflow": false,
+    "rowHeights": {
+      "data": 43,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "16px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    },
+    "visiblePrimaryActions": 2,
+    "screen": "materials",
+    "requestedViewport": {
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": {
+      "height": 323,
+      "width": 850,
+      "y": 330
+    },
+    "graphWorkspacePercent": 60.7,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 788,
+        "radius": "0px",
+        "role": "detail-workspace",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 787,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 238,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 787,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 1162,
+        "x": 258,
+        "y": 96
+      },
+      {
+        "height": 356,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 850,
+        "x": 271,
+        "y": 322
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "19px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    },
+    "visiblePrimaryActions": 3,
+    "screen": "detail",
+    "requestedViewport": {
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "curveNames": [
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 151,
+        "width": 151
+      },
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 151,
+        "width": 151
+      },
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 151,
+        "width": 151
+      },
+      {
+        "height": 30.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 2,
+        "scrollWidth": 151,
+        "width": 151
+      }
+    ],
+    "graphSvg": {
+      "height": 552,
+      "width": 1184,
+      "y": 323
+    },
+    "graphWorkspacePercent": 85.9,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 50,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 752,
+        "radius": "0px",
+        "role": "modeling-workspace",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 751,
+        "radius": "0px",
+        "role": "curve-tree",
+        "shadow": "none",
+        "width": 198,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 154,
+        "radius": "0px",
+        "role": "settings",
+        "shadow": "none",
+        "width": 1202,
+        "x": 218,
+        "y": 132
+      },
+      {
+        "height": 597,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 1202,
+        "x": 218,
+        "y": 286
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 56.1
+    },
+    "typography": {
+      "body": "14px",
+      "title": "17px",
+      "tree": "12px"
+    },
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    },
+    "visiblePrimaryActions": 1,
+    "screen": "modeling",
+    "requestedViewport": {
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": {
+      "height": 552,
+      "width": 1184,
+      "y": 323
+    },
+    "graphWorkspacePercent": 85.9,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 50,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 752,
+        "radius": "0px",
+        "role": "modeling-workspace",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 751,
+        "radius": "0px",
+        "role": "curve-tree",
+        "shadow": "none",
+        "width": 198,
+        "x": 20,
+        "y": 132
+      },
+      {
+        "height": 154,
+        "radius": "0px",
+        "role": "settings",
+        "shadow": "none",
+        "width": 1202,
+        "x": 218,
+        "y": 132
+      },
+      {
+        "height": 597,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 1202,
+        "x": 218,
+        "y": 286
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": null
+    },
+    "typography": {
+      "body": "14px",
+      "title": "17px",
+      "tree": null
+    },
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    },
+    "visiblePrimaryActions": 2,
+    "screen": "export",
+    "requestedViewport": {
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": null,
+    "graphWorkspacePercent": null,
+    "nestedCards": 0,
+    "outerMarginTotal": 40,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 48
+      },
+      {
+        "height": 788,
+        "radius": "0px",
+        "role": "card-workspace",
+        "shadow": "none",
+        "width": 1400,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 787,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 238,
+        "x": 20,
+        "y": 96
+      },
+      {
+        "height": 691,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 852,
+        "x": 258,
+        "y": 192
+      },
+      {
+        "height": 691,
+        "radius": "0px",
+        "role": "primary-action",
+        "shadow": "none",
+        "width": 310,
+        "x": 1110,
+        "y": 192
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "19px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    },
+    "visiblePrimaryActions": 1,
+    "screen": "card",
+    "requestedViewport": {
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": null,
+    "graphWorkspacePercent": null,
+    "nestedCards": 0,
+    "outerMarginTotal": 48,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 48
+      },
+      {
+        "height": 968,
+        "radius": "0px",
+        "role": "materials-workspace",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 96
+      },
+      {
+        "height": 967,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 248,
+        "x": 24,
+        "y": 96
+      },
+      {
+        "height": 967,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 1324,
+        "x": 272,
+        "y": 96
+      },
+      {
+        "height": 967,
+        "radius": "0px",
+        "role": "context",
+        "shadow": "none",
+        "width": 300,
+        "x": 1596,
+        "y": 96
+      }
+    ],
+    "resultHorizontalOverflow": false,
+    "rowHeights": {
+      "data": 43,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "16px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 1080,
+      "width": 1920
+    },
+    "visiblePrimaryActions": 2,
+    "screen": "materials",
+    "requestedViewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": {
+      "height": 498.5,
+      "width": 1312,
+      "y": 330
+    },
+    "graphWorkspacePercent": 70.1,
+    "nestedCards": 0,
+    "outerMarginTotal": 48,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 48
+      },
+      {
+        "height": 968,
+        "radius": "0px",
+        "role": "detail-workspace",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 96
+      },
+      {
+        "height": 967,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 248,
+        "x": 24,
+        "y": 96
+      },
+      {
+        "height": 967,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 1624,
+        "x": 272,
+        "y": 96
+      },
+      {
+        "height": 531.5,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 1312,
+        "x": 285,
+        "y": 322
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "19px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 1080,
+      "width": 1920
+    },
+    "visiblePrimaryActions": 3,
+    "screen": "detail",
+    "requestedViewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  {
+    "curveNames": [
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 157,
+        "width": 157
+      },
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 157,
+        "width": 157
+      },
+      {
+        "height": 45.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 3,
+        "scrollWidth": 157,
+        "width": 157
+      },
+      {
+        "height": 30.1,
+        "horizontalOverflow": false,
+        "lineHeight": 15,
+        "lines": 2,
+        "scrollWidth": 157,
+        "width": 157
+      }
+    ],
+    "graphSvg": {
+      "height": 734,
+      "width": 1650,
+      "y": 321
+    },
+    "graphWorkspacePercent": 89.1,
+    "nestedCards": 0,
+    "outerMarginTotal": 48,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 50,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 48
+      },
+      {
+        "height": 932,
+        "radius": "0px",
+        "role": "modeling-workspace",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 132
+      },
+      {
+        "height": 931,
+        "radius": "0px",
+        "role": "curve-tree",
+        "shadow": "none",
+        "width": 204,
+        "x": 24,
+        "y": 132
+      },
+      {
+        "height": 152,
+        "radius": "0px",
+        "role": "settings",
+        "shadow": "none",
+        "width": 1668,
+        "x": 228,
+        "y": 132
+      },
+      {
+        "height": 779,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 1668,
+        "x": 228,
+        "y": 284
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 56.1
+    },
+    "typography": {
+      "body": "14px",
+      "title": "17px",
+      "tree": "12px"
+    },
+    "viewport": {
+      "height": 1080,
+      "width": 1920
+    },
+    "visiblePrimaryActions": 1,
+    "screen": "modeling",
+    "requestedViewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": {
+      "height": 734,
+      "width": 1650,
+      "y": 321
+    },
+    "graphWorkspacePercent": 89.1,
+    "nestedCards": 0,
+    "outerMarginTotal": 48,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 50,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 48
+      },
+      {
+        "height": 932,
+        "radius": "0px",
+        "role": "modeling-workspace",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 132
+      },
+      {
+        "height": 931,
+        "radius": "0px",
+        "role": "curve-tree",
+        "shadow": "none",
+        "width": 204,
+        "x": 24,
+        "y": 132
+      },
+      {
+        "height": 152,
+        "radius": "0px",
+        "role": "settings",
+        "shadow": "none",
+        "width": 1668,
+        "x": 228,
+        "y": 132
+      },
+      {
+        "height": 779,
+        "radius": "0px",
+        "role": "graph",
+        "shadow": "none",
+        "width": 1668,
+        "x": 228,
+        "y": 284
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": null
+    },
+    "typography": {
+      "body": "14px",
+      "title": "17px",
+      "tree": null
+    },
+    "viewport": {
+      "height": 1080,
+      "width": 1920
+    },
+    "visiblePrimaryActions": 2,
+    "screen": "export",
+    "requestedViewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  {
+    "curveNames": [],
+    "graphSvg": null,
+    "graphWorkspacePercent": null,
+    "nestedCards": 0,
+    "outerMarginTotal": 48,
+    "regions": [
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "navigation",
+        "shadow": "none",
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "height": 48,
+        "radius": "0px",
+        "role": "search-control-band",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 48
+      },
+      {
+        "height": 968,
+        "radius": "0px",
+        "role": "card-workspace",
+        "shadow": "none",
+        "width": 1872,
+        "x": 24,
+        "y": 96
+      },
+      {
+        "height": 967,
+        "radius": "0px",
+        "role": "explorer-filter",
+        "shadow": "none",
+        "width": 248,
+        "x": 24,
+        "y": 96
+      },
+      {
+        "height": 871,
+        "radius": "0px",
+        "role": "result-datasheet",
+        "shadow": "none",
+        "width": 1314,
+        "x": 272,
+        "y": 192
+      },
+      {
+        "height": 871,
+        "radius": "0px",
+        "role": "primary-action",
+        "shadow": "none",
+        "width": 310,
+        "x": 1586,
+        "y": 192
+      }
+    ],
+    "resultHorizontalOverflow": null,
+    "rowHeights": {
+      "data": null,
+      "tree": 26
+    },
+    "typography": {
+      "body": "14px",
+      "title": "19px",
+      "tree": "12.5px"
+    },
+    "viewport": {
+      "height": 1080,
+      "width": 1920
+    },
+    "visiblePrimaryActions": 1,
+    "screen": "card",
+    "requestedViewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  }
+]
