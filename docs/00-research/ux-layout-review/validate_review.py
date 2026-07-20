@@ -36,6 +36,7 @@ for screen in SCREENS:
         require(entry["outerMarginTotal"] <= (48 if width >= 1440 else 40), f"{screen}: outer margin")
         require(entry["nestedCards"] == 0, f"{screen}: nested card detected")
         require(entry["typography"]["body"] == "14px", f"{screen}: body typography")
+        require(float(entry["typography"]["utility"].removesuffix("px")) >= 12, f"{screen}: utility typography")
         for item in entry["regions"]:
             require(item["radius"] == "0px", f"{screen}: rounded workspace region")
             require(item["shadow"] == "none", f"{screen}: shadowed workspace region")
@@ -45,18 +46,25 @@ for screen in SCREENS:
 materials_1366 = index[("materials", 1366, 768)]
 materials_1440 = index[("materials", 1440, 900)]
 require(region(materials_1366, "context")["width"] == 0, "1366 Materials context must close")
-require(region(materials_1366, "result-datasheet")["width"] >= 1100, "1366 results too narrow")
-require(220 <= region(materials_1440, "explorer-filter")["width"] <= 250, "Materials Tree width")
+require(region(materials_1366, "result-datasheet")["width"] >= 1080, "1366 results too narrow")
+require(240 <= region(materials_1440, "explorer-filter")["width"] <= 280, "Materials Tree width")
 require(region(materials_1440, "result-datasheet")["width"] >= 850, "1440 results too narrow")
 require(region(materials_1440, "context")["width"] <= 300, "Materials context too wide")
 require(materials_1440["resultHorizontalOverflow"] is False, "Materials result overflow")
+require(materials_1440["treeSearchVisible"] is True, "Tree-specific search is not visible")
+require(materials_1440["treeKeyboardNavigation"] is True, "Tree keyboard navigation contract missing")
+require(materials_1440["treeIndependentScroll"] is True, "Tree and controls share one scroll")
+require(all(not label["truncated"] for label in materials_1440["treeLabels"]), "demo Tree label truncated")
+require(materials_1440["rowHeights"]["data"] <= 40, "Materials rows are not dense")
 
 for width, height in VIEWPORTS:
     modeling = index[("modeling", width, height)]
     require(modeling["graphWorkspacePercent"] >= 85, f"{width} Modeling graph width share")
     require(region(modeling, "settings")["height"] <= 156, f"{width} Modeling settings too tall")
     require(modeling["graphSvg"]["width"] >= (1100 if width < 1920 else 1600), f"{width} graph SVG")
+    require(len(modeling["curveNames"]) == 4, "curve rows were not measured")
     require(all(not curve["horizontalOverflow"] for curve in modeling["curveNames"]), "curve name overflow")
+    require(all(curve["height"] <= 27 for curve in modeling["curveNames"]), "curve rows are not compact")
     require(not any(item["role"] == "context" for item in modeling["regions"]), "persistent third column")
 
 for board in (

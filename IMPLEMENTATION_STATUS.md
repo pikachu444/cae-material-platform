@@ -16,6 +16,12 @@ Production visual changes are frozen until the responsive prototypes, structural
 and explicit product-owner approval defined by `docs/01-product/ux-visual-system.md` are complete.
 Connected APIs and passing tests do not override this gate.
 
+The responsive prototype and measured report are now complete but remain unapproved. A follow-up
+review replaced Modeling's multi-line source-ID curve blocks with 26 px plain-text tree rows and
+added a fixed Tree-local search, retained ancestor path, independent node scroll, keyboard movement,
+and Browse/Filters/Subsets modes to Materials. The large-volume 10,000-record virtualization gate is
+specified for T-95 and is not claimed by the static prototype.
+
 ## Product experience correction (T-84)
 
 The T-79~T-81 work connected real calculation, Neutral Material and exporter engines, but its

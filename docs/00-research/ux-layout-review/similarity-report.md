@@ -20,29 +20,33 @@ of the left and right application-workspace margins.
 
 | Viewport | Workspace / outer margin | Explorer | Results | Context | Result row |
 | --- | --- | ---: | ---: | ---: | ---: |
-| 1366×768 | 1326 / 40 | 220 | 1106 | closed | 43 |
-| 1440×900 | 1400 / 40 | 238 | 870 | 292 | 43 |
-| 1920×1080 | 1872 / 48 | 248 | 1324 | 300 | 43 |
+| 1366×768 | 1326 / 40 | 244 | 1082 | closed | 38 |
+| 1440×900 | 1400 / 40 | 264 | 856 | 280 | 38 |
+| 1920×1080 | 1872 / 48 | 280 | 1292 | 300 | 38 |
 
-The governed Database/Profile/Table/Folder/Record tree uses 26 px rows and 12.5 px labels. At
-1440 px the result table keeps seven decision columns readable without horizontal overflow. At
-1366 px the optional selected-record context closes, leaving 83.4% of the workspace width to the
-result area; the Tree is not replaced by a family filter.
+The governed Database/Profile/Table/Folder/Record tree uses 26 px rows and 12.5 px labels. Its
+`Find in tree` control remains fixed above an independent node scroll; a `DP780` query was exercised
+in Chromium and retained Database/Profile/Table/Folder ancestors. Up/Down keyboard movement was also
+exercised. All eight demo labels, including the depth-6 record, remain untruncated at all measured
+viewports. At 1440 px the result table keeps seven decision columns readable without horizontal
+overflow. At 1366 px the optional selected-record context closes, leaving 81.6% of workspace width
+to results; the governed Tree is not replaced by a family filter.
 
 ### Modeling
 
 | Viewport | Workspace / outer margin | Curve tree | Settings ribbon | Graph region | Graph SVG | Graph width share |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| 1366×768 | 1326 / 40 | 186 | 1140×150 | 1140×469 | 1122×424 | 86.0% |
-| 1440×900 | 1400 / 40 | 198 | 1202×154 | 1202×597 | 1184×552 | 85.9% |
-| 1920×1080 | 1872 / 48 | 204 | 1668×152 | 1668×779 | 1650×734 | 89.1% |
+| 1366×768 | 1326 / 40 | 176 | 1150×150 | 1150×469 | 1132×424 | 86.7% |
+| 1440×900 | 1400 / 40 | 184 | 1216×154 | 1216×597 | 1198×552 | 86.9% |
+| 1920×1080 | 1872 / 48 | 196 | 1676×152 | 1676×779 | 1658×734 | 89.5% |
 
-At 1440×900 the graph region occupies 68.2% of total workbench area, compared with approximately
+At 1440×900 the graph region occupies 68.9% of total workbench area, compared with approximately
 66.8% in the curve-fitting reference mask. The prior product screenshot exposed a 743×410 SVG;
-the proposed 1440 layout exposes 1184×552, an increase of 441 px in graph width. Method, response,
-domain, weighting, iterations and Fit action are all visible in the first viewport. The left rail uses
-12 px labels; each long specimen name uses at most two name lines plus one metadata line with no
-horizontal overflow.
+the revised 1440 layout exposes 1198×552, an increase of 455 px in graph width. Method, response,
+domain, weighting, iterations and Fit action are all visible in the first viewport. The left rail now
+uses 26 px rows and 12.5 px ordinary string labels (`Specimen 01`, `Specimen 02`, …). No curve label
+wraps or overflows. Full source identifiers, revisions and unit mapping move to hover/focus detail or
+Evidence rather than consuming three lines per curve.
 
 ### Detail and CAE card
 
@@ -52,7 +56,8 @@ horizontal overflow.
 | CAE Card | 238 | 852 native preview | 310 download/action area |
 
 All measured workspace regions have 0 px radius, no shadow, and zero nested cards. Workspace body
-text is 14 px; compact workbench titles are 16–19 px. Dividers, row selection and whitespace carry
+and data text is 14 px, utility/metadata has a 12 px floor, and compact workbench titles are 16–19 px.
+Dividers, row selection and whitespace carry
 the hierarchy instead of repeated rounded surfaces.
 
 ## Rubric
@@ -86,6 +91,9 @@ the required product-owner decision.
 - Modeling uses the Modeler curve-fitting top-ribbon topology rather than permanently showing the
   hyperelastic reference's side settings. The narrow left region is limited to curves/process; current
   settings remain above the graph, preserving graph width.
+- The static Tree proves topology, search behavior, ancestor retention, keyboard movement, independent
+  scrolling, and label allocation. It does not prove server latency or virtualization at production
+  volume; the 10,000-record/150-DOM-row gate remains a T-95 implementation requirement.
 
 ## Approval
 

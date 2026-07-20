@@ -153,6 +153,21 @@ compete with Download or internal identifiers appear in the normal viewport.
 Approval evidence contains reference, rejected current screen, proposal, and annotated region mask.
 An explicit product-owner approval is required; automated score alone cannot approve the design.
 
+### Large-hierarchy navigation gate
+
+- Materials Browse는 Database/Profile/Table/Folder/Record type을 한 줄 26 px 행, node glyph,
+  indentation과 selection marker로 구분한다.
+- Tree 전용 검색은 record 이름/grade뿐 아니라 Database, Profile, Table과 Folder 이름을 찾고,
+  일치 node의 ancestor path를 유지한다. 전역 Material 검색으로 이를 대체하지 않는다.
+- synthetic hierarchy 10,000 records에서 expanded visible rows는 virtualized되고 DOM treeitem은
+  viewport overscan을 포함해 150개 이하를 유지한다. 검색 응답 후 첫 match와 path는 1초 안에
+  keyboard focus를 받을 수 있어야 한다.
+- Tree scroll은 검색, Browse/Filters/Subsets mode와 독립이다. 깊은 node를 스크롤해도 `Find in tree`
+  control은 사라지지 않는다.
+- Modeling curve/process navigator는 Materials와 같은 26 px row, 12–13 px normal text, selection
+  background/leading marker를 사용한다. full source ID, revision과 unit metadata를 각 row 아래에
+  반복하면 실패한다.
+
 ### 기본 화면
 
 - 1440×900에서 major region 3개 이하
@@ -177,7 +192,8 @@ An explicit product-owner approval is required; automated score alone cannot app
 
 ### Interaction
 
-- click target 목표 32×32px 이상
+- 독립 button/input click target은 32×32px를 목표로 한다. Tree/table의 dense row는 24px WCAG
+  minimum과 keyboard equivalent를 충족하며 전체 행이 하나의 target이어야 한다.
 - visible focus
 - keyboard table navigation
 - Escape로 drawer/modal 닫기

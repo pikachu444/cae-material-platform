@@ -3,9 +3,10 @@
 This directory is the mandatory design gate before production React/CSS implementation. The pages
 are responsive static prototypes; they do not call product APIs and are not application routes.
 
-- [`materials.html`](materials.html): governed explorer, filters, dense results, selected context
+- [`materials.html`](materials.html): governed searchable explorer, sibling Filter/Subset modes,
+  dense results, selected context
 - [`detail.html`](detail.html): Layout-style Material datasheet and direct CAE action
-- [`modeling.html`](modeling.html): curve/process tree, settings ribbon, dominant Fit graph
+- [`modeling.html`](modeling.html): 26 px plain-text curve/process tree, settings ribbon, dominant Fit graph
 - [`export.html`](export.html): reviewed graph continuity into solver mapping/export
 - [`card.html`](card.html): focused native preview and one Download action
 

@@ -100,7 +100,7 @@ def main() -> None:
         [
             ("Reference: Granta continuous browse + list", GALLERY / "granta-mi-favourites-list.png"),
             ("Rejected current: Tree is not in the default surface", OUTPUT / "rejected-materials-1440x900.png"),
-            ("Proposed: governed explorer + dominant results", OUTPUT / "materials-1440x900.png"),
+            ("Proposed: searchable governed explorer + dominant results", OUTPUT / "materials-1440x900.png"),
             ("Measured proposal regions", OUTPUT / "materials-1440x900-mask.png"),
         ],
         OUTPUT / "materials-reference-comparison.png",
@@ -109,7 +109,7 @@ def main() -> None:
         [
             ("Reference: Material Modeler control band + graph", GALLERY / "material-modeler-curve-fitting.png"),
             ("Rejected current: 250 + 767 + 340 three columns", OUTPUT / "rejected-modeling-1440x900.png"),
-            ("Proposed: 198 tree + 1,202 graph region", OUTPUT / "modeling-1440x900.png"),
+            ("Proposed: 184 compact tree + 1,216 graph region", OUTPUT / "modeling-1440x900.png"),
             ("Measured proposal regions", OUTPUT / "modeling-1440x900-mask.png"),
         ],
         OUTPUT / "modeling-reference-comparison.png",

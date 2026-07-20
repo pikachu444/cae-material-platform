@@ -27,5 +27,21 @@ The approved target uses:
 - CAE Card: one focused delivery surface with one Download action;
 - flat continuous workspace regions instead of independent rounded cards.
 
+## Follow-up density correction
+
+The first prototype still rendered each Modeling curve as a 39–56 px multi-line evidence item. That
+choice attempted to preserve the full imported identifier and revision in the always-visible rail,
+but it contradicted both the Modeler reference and progressive disclosure. The reference treats
+curve/file names as ordinary compact list strings; units live in graph axes and mapping controls.
+The corrected prototype therefore uses 26 px tree rows with `Specimen 01`-style labels and moves the
+full source ID, revision, unit mapping, and provenance to hover/focus detail or Evidence.
+
+The first Materials prototype also proved only an eight-node tree and had no Tree-local search. That
+was insufficient evidence for a governed large database. The corrected explorer has fixed Browse /
+Filters / Subsets modes, a fixed `Find in tree` field, an independently scrolling hierarchy, retained
+ancestor paths for matches, keyboard focus movement, node-type glyphs, and a 240–280 px responsive
+pane. Production acceptance additionally requires lazy server loading and row virtualization against
+a synthetic 10,000-record hierarchy.
+
 The full scoring method and hard gates are defined in
 [`ux-visual-system.md`](../01-product/ux-visual-system.md).

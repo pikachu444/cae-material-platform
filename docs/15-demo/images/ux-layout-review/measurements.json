@@ -38,7 +38,7 @@
         "radius": "0px",
         "role": "explorer-filter",
         "shadow": "none",
-        "width": 220,
+        "width": 244,
         "x": 20,
         "y": 96
       },
@@ -47,8 +47,8 @@
         "radius": "0px",
         "role": "result-datasheet",
         "shadow": "none",
-        "width": 1106,
-        "x": 240,
+        "width": 1082,
+        "x": 264,
         "y": 96
       },
       {
@@ -61,33 +61,96 @@
         "y": 0
       }
     ],
+    "requestedViewport": {
+      "height": 768,
+      "width": 1366
+    },
     "resultHorizontalOverflow": false,
     "rowHeights": {
-      "data": 43,
+      "data": 38,
       "tree": 26
     },
+    "screen": "materials",
+    "treeIndependentScroll": true,
+    "treeKeyboardNavigation": true,
+    "treeLabels": [
+      {
+        "scrollWidth": 154,
+        "text": "Material Database",
+        "title": "Material Database",
+        "truncated": false,
+        "width": 153.8
+      },
+      {
+        "scrollWidth": 157,
+        "text": "Engineering Profile",
+        "title": "Engineering Profile",
+        "truncated": false,
+        "width": 157.2
+      },
+      {
+        "scrollWidth": 152,
+        "text": "Material Records",
+        "title": "Material Records",
+        "truncated": false,
+        "width": 151.7
+      },
+      {
+        "scrollWidth": 167,
+        "text": "Metal",
+        "title": "Metal",
+        "truncated": false,
+        "width": 167
+      },
+      {
+        "scrollWidth": 155,
+        "text": "Steel",
+        "title": "Steel",
+        "truncated": false,
+        "width": 155
+      },
+      {
+        "scrollWidth": 132,
+        "text": "DP780 Dual-Phase Steel",
+        "title": "DP780 Dual-Phase Steel",
+        "truncated": false,
+        "width": 132.4
+      },
+      {
+        "scrollWidth": 167,
+        "text": "Polymer",
+        "title": "Polymer",
+        "truncated": false,
+        "width": 167
+      },
+      {
+        "scrollWidth": 167,
+        "text": "Elastomer",
+        "title": "Elastomer",
+        "truncated": false,
+        "width": 167
+      }
+    ],
+    "treeSearchVisible": true,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "16px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "12px"
     },
     "viewport": {
       "height": 768,
       "width": 1366
     },
-    "visiblePrimaryActions": 1,
-    "screen": "materials",
-    "requestedViewport": {
-      "width": 1366,
-      "height": 768
-    }
+    "visiblePrimaryActions": 1
   },
   {
     "curveNames": [],
     "graphSvg": {
       "height": 301.7,
       "width": 794,
-      "y": 330
+      "y": 331
     },
     "graphWorkspacePercent": 59.9,
     "nestedCards": 0,
@@ -145,71 +208,140 @@
         "shadow": "none",
         "width": 794,
         "x": 253,
-        "y": 322
+        "y": 323
       }
     ],
+    "requestedViewport": {
+      "height": 768,
+      "width": 1366
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": 26
     },
+    "screen": "detail",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [
+      {
+        "scrollWidth": 198,
+        "text": "Material Database",
+        "title": null,
+        "truncated": false,
+        "width": 198
+      },
+      {
+        "scrollWidth": 186,
+        "text": "Engineering Profile",
+        "title": null,
+        "truncated": false,
+        "width": 186
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Material Records",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 162,
+        "text": "Metal",
+        "title": null,
+        "truncated": false,
+        "width": 162
+      },
+      {
+        "scrollWidth": 150,
+        "text": "Steel",
+        "title": null,
+        "truncated": false,
+        "width": 150
+      },
+      {
+        "scrollWidth": 132,
+        "text": "DP780 Dual-Phase Steel",
+        "title": null,
+        "truncated": true,
+        "width": 127.4
+      },
+      {
+        "scrollWidth": 186,
+        "text": "Room-temperature State",
+        "title": null,
+        "truncated": false,
+        "width": 186
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Tensile Test Campaign",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Neutral Material",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 174,
+        "text": "OpenRadioss Card",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      }
+    ],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "19px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "14px"
     },
     "viewport": {
       "height": 768,
       "width": 1366
     },
-    "visiblePrimaryActions": 3,
-    "screen": "detail",
-    "requestedViewport": {
-      "width": 1366,
-      "height": 768
-    }
+    "visiblePrimaryActions": 3
   },
   {
     "curveNames": [
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 139,
-        "width": 139
+        "scrollWidth": 120,
+        "width": 175
       },
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 139,
-        "width": 139
+        "scrollWidth": 120,
+        "width": 175
       },
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 139,
-        "width": 139
+        "scrollWidth": 120,
+        "width": 175
       },
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 139,
-        "width": 139
+        "scrollWidth": 120,
+        "width": 175
       }
     ],
     "graphSvg": {
       "height": 424,
-      "width": 1122,
+      "width": 1132,
       "y": 319
     },
-    "graphWorkspacePercent": 86,
+    "graphWorkspacePercent": 86.7,
     "nestedCards": 0,
     "outerMarginTotal": 40,
     "regions": [
@@ -245,7 +377,7 @@
         "radius": "0px",
         "role": "curve-tree",
         "shadow": "none",
-        "width": 186,
+        "width": 176,
         "x": 20,
         "y": 132
       },
@@ -254,8 +386,8 @@
         "radius": "0px",
         "role": "settings",
         "shadow": "none",
-        "width": 1140,
-        "x": 206,
+        "width": 1150,
+        "x": 196,
         "y": 132
       },
       {
@@ -263,40 +395,46 @@
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
-        "width": 1140,
-        "x": 206,
+        "width": 1150,
+        "x": 196,
         "y": 282
       }
     ],
+    "requestedViewport": {
+      "height": 768,
+      "width": 1366
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
-      "tree": 56.1
+      "tree": 26
     },
+    "screen": "modeling",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "17px",
-      "tree": "12px"
+      "tree": "12.5px",
+      "utility": "12px"
     },
     "viewport": {
       "height": 768,
       "width": 1366
     },
-    "visiblePrimaryActions": 1,
-    "screen": "modeling",
-    "requestedViewport": {
-      "width": 1366,
-      "height": 768
-    }
+    "visiblePrimaryActions": 1
   },
   {
     "curveNames": [],
     "graphSvg": {
       "height": 424,
-      "width": 1122,
+      "width": 1132,
       "y": 319
     },
-    "graphWorkspacePercent": 86,
+    "graphWorkspacePercent": 86.7,
     "nestedCards": 0,
     "outerMarginTotal": 40,
     "regions": [
@@ -332,7 +470,7 @@
         "radius": "0px",
         "role": "curve-tree",
         "shadow": "none",
-        "width": 186,
+        "width": 176,
         "x": 20,
         "y": 132
       },
@@ -341,8 +479,8 @@
         "radius": "0px",
         "role": "settings",
         "shadow": "none",
-        "width": 1140,
-        "x": 206,
+        "width": 1150,
+        "x": 196,
         "y": 132
       },
       {
@@ -350,31 +488,37 @@
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
-        "width": 1140,
-        "x": 206,
+        "width": 1150,
+        "x": 196,
         "y": 282
       }
     ],
+    "requestedViewport": {
+      "height": 768,
+      "width": 1366
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": null
     },
+    "screen": "export",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "17px",
-      "tree": null
+      "tree": null,
+      "utility": "14px"
     },
     "viewport": {
       "height": 768,
       "width": 1366
     },
-    "visiblePrimaryActions": 2,
-    "screen": "export",
-    "requestedViewport": {
-      "width": 1366,
-      "height": 768
-    }
+    "visiblePrimaryActions": 2
   },
   {
     "curveNames": [],
@@ -438,26 +582,61 @@
         "y": 192
       }
     ],
+    "requestedViewport": {
+      "height": 768,
+      "width": 1366
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": 26
     },
+    "screen": "card",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [
+      {
+        "scrollWidth": 198,
+        "text": "DP780 Dual-Phase Steel",
+        "title": null,
+        "truncated": false,
+        "width": 198
+      },
+      {
+        "scrollWidth": 186,
+        "text": "CAE Cards",
+        "title": null,
+        "truncated": false,
+        "width": 186
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Abaqus 2025",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 174,
+        "text": "OpenRadioss 2025",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      }
+    ],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "12px",
       "title": "19px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "14px"
     },
     "viewport": {
       "height": 768,
       "width": 1366
     },
-    "visiblePrimaryActions": 1,
-    "screen": "card",
-    "requestedViewport": {
-      "width": 1366,
-      "height": 768
-    }
+    "visiblePrimaryActions": 1
   },
   {
     "curveNames": [],
@@ -498,7 +677,7 @@
         "radius": "0px",
         "role": "explorer-filter",
         "shadow": "none",
-        "width": 238,
+        "width": 264,
         "x": 20,
         "y": 96
       },
@@ -507,8 +686,8 @@
         "radius": "0px",
         "role": "result-datasheet",
         "shadow": "none",
-        "width": 870,
-        "x": 258,
+        "width": 856,
+        "x": 284,
         "y": 96
       },
       {
@@ -516,38 +695,101 @@
         "radius": "0px",
         "role": "context",
         "shadow": "none",
-        "width": 292,
-        "x": 1128,
+        "width": 280,
+        "x": 1140,
         "y": 96
       }
     ],
+    "requestedViewport": {
+      "height": 900,
+      "width": 1440
+    },
     "resultHorizontalOverflow": false,
     "rowHeights": {
-      "data": 43,
+      "data": 38,
       "tree": 26
     },
+    "screen": "materials",
+    "treeIndependentScroll": true,
+    "treeKeyboardNavigation": true,
+    "treeLabels": [
+      {
+        "scrollWidth": 174,
+        "text": "Material Database",
+        "title": "Material Database",
+        "truncated": false,
+        "width": 173.8
+      },
+      {
+        "scrollWidth": 177,
+        "text": "Engineering Profile",
+        "title": "Engineering Profile",
+        "truncated": false,
+        "width": 177.2
+      },
+      {
+        "scrollWidth": 172,
+        "text": "Material Records",
+        "title": "Material Records",
+        "truncated": false,
+        "width": 171.7
+      },
+      {
+        "scrollWidth": 187,
+        "text": "Metal",
+        "title": "Metal",
+        "truncated": false,
+        "width": 187
+      },
+      {
+        "scrollWidth": 175,
+        "text": "Steel",
+        "title": "Steel",
+        "truncated": false,
+        "width": 175
+      },
+      {
+        "scrollWidth": 152,
+        "text": "DP780 Dual-Phase Steel",
+        "title": "DP780 Dual-Phase Steel",
+        "truncated": false,
+        "width": 152.4
+      },
+      {
+        "scrollWidth": 187,
+        "text": "Polymer",
+        "title": "Polymer",
+        "truncated": false,
+        "width": 187
+      },
+      {
+        "scrollWidth": 187,
+        "text": "Elastomer",
+        "title": "Elastomer",
+        "truncated": false,
+        "width": 187
+      }
+    ],
+    "treeSearchVisible": true,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "16px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "12px"
     },
     "viewport": {
       "height": 900,
       "width": 1440
     },
-    "visiblePrimaryActions": 2,
-    "screen": "materials",
-    "requestedViewport": {
-      "width": 1440,
-      "height": 900
-    }
+    "visiblePrimaryActions": 2
   },
   {
     "curveNames": [],
     "graphSvg": {
       "height": 323,
       "width": 850,
-      "y": 330
+      "y": 331
     },
     "graphWorkspacePercent": 60.7,
     "nestedCards": 0,
@@ -599,77 +841,146 @@
         "y": 96
       },
       {
-        "height": 356,
+        "height": 357,
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
         "width": 850,
         "x": 271,
-        "y": 322
+        "y": 323
       }
     ],
+    "requestedViewport": {
+      "height": 900,
+      "width": 1440
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": 26
     },
+    "screen": "detail",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [
+      {
+        "scrollWidth": 198,
+        "text": "Material Database",
+        "title": null,
+        "truncated": false,
+        "width": 198
+      },
+      {
+        "scrollWidth": 186,
+        "text": "Engineering Profile",
+        "title": null,
+        "truncated": false,
+        "width": 186
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Material Records",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 162,
+        "text": "Metal",
+        "title": null,
+        "truncated": false,
+        "width": 162
+      },
+      {
+        "scrollWidth": 150,
+        "text": "Steel",
+        "title": null,
+        "truncated": false,
+        "width": 150
+      },
+      {
+        "scrollWidth": 132,
+        "text": "DP780 Dual-Phase Steel",
+        "title": null,
+        "truncated": true,
+        "width": 127.4
+      },
+      {
+        "scrollWidth": 186,
+        "text": "Room-temperature State",
+        "title": null,
+        "truncated": false,
+        "width": 186
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Tensile Test Campaign",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Neutral Material",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 174,
+        "text": "OpenRadioss Card",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      }
+    ],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "19px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "14px"
     },
     "viewport": {
       "height": 900,
       "width": 1440
     },
-    "visiblePrimaryActions": 3,
-    "screen": "detail",
-    "requestedViewport": {
-      "width": 1440,
-      "height": 900
-    }
+    "visiblePrimaryActions": 3
   },
   {
     "curveNames": [
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 151,
-        "width": 151
+        "scrollWidth": 128,
+        "width": 183
       },
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 151,
-        "width": 151
+        "scrollWidth": 128,
+        "width": 183
       },
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 151,
-        "width": 151
+        "scrollWidth": 128,
+        "width": 183
       },
       {
-        "height": 30.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 2,
-        "scrollWidth": 151,
-        "width": 151
+        "scrollWidth": 128,
+        "width": 183
       }
     ],
     "graphSvg": {
       "height": 552,
-      "width": 1184,
+      "width": 1198,
       "y": 323
     },
-    "graphWorkspacePercent": 85.9,
+    "graphWorkspacePercent": 86.9,
     "nestedCards": 0,
     "outerMarginTotal": 40,
     "regions": [
@@ -705,7 +1016,7 @@
         "radius": "0px",
         "role": "curve-tree",
         "shadow": "none",
-        "width": 198,
+        "width": 184,
         "x": 20,
         "y": 132
       },
@@ -714,8 +1025,8 @@
         "radius": "0px",
         "role": "settings",
         "shadow": "none",
-        "width": 1202,
-        "x": 218,
+        "width": 1216,
+        "x": 204,
         "y": 132
       },
       {
@@ -723,40 +1034,46 @@
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
-        "width": 1202,
-        "x": 218,
+        "width": 1216,
+        "x": 204,
         "y": 286
       }
     ],
+    "requestedViewport": {
+      "height": 900,
+      "width": 1440
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
-      "tree": 56.1
+      "tree": 26
     },
+    "screen": "modeling",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "17px",
-      "tree": "12px"
+      "tree": "12.5px",
+      "utility": "12px"
     },
     "viewport": {
       "height": 900,
       "width": 1440
     },
-    "visiblePrimaryActions": 1,
-    "screen": "modeling",
-    "requestedViewport": {
-      "width": 1440,
-      "height": 900
-    }
+    "visiblePrimaryActions": 1
   },
   {
     "curveNames": [],
     "graphSvg": {
       "height": 552,
-      "width": 1184,
+      "width": 1198,
       "y": 323
     },
-    "graphWorkspacePercent": 85.9,
+    "graphWorkspacePercent": 86.9,
     "nestedCards": 0,
     "outerMarginTotal": 40,
     "regions": [
@@ -792,7 +1109,7 @@
         "radius": "0px",
         "role": "curve-tree",
         "shadow": "none",
-        "width": 198,
+        "width": 184,
         "x": 20,
         "y": 132
       },
@@ -801,8 +1118,8 @@
         "radius": "0px",
         "role": "settings",
         "shadow": "none",
-        "width": 1202,
-        "x": 218,
+        "width": 1216,
+        "x": 204,
         "y": 132
       },
       {
@@ -810,31 +1127,37 @@
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
-        "width": 1202,
-        "x": 218,
+        "width": 1216,
+        "x": 204,
         "y": 286
       }
     ],
+    "requestedViewport": {
+      "height": 900,
+      "width": 1440
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": null
     },
+    "screen": "export",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "17px",
-      "tree": null
+      "tree": null,
+      "utility": "14px"
     },
     "viewport": {
       "height": 900,
       "width": 1440
     },
-    "visiblePrimaryActions": 2,
-    "screen": "export",
-    "requestedViewport": {
-      "width": 1440,
-      "height": 900
-    }
+    "visiblePrimaryActions": 2
   },
   {
     "curveNames": [],
@@ -898,26 +1221,61 @@
         "y": 192
       }
     ],
+    "requestedViewport": {
+      "height": 900,
+      "width": 1440
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": 26
     },
+    "screen": "card",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [
+      {
+        "scrollWidth": 198,
+        "text": "DP780 Dual-Phase Steel",
+        "title": null,
+        "truncated": false,
+        "width": 198
+      },
+      {
+        "scrollWidth": 186,
+        "text": "CAE Cards",
+        "title": null,
+        "truncated": false,
+        "width": 186
+      },
+      {
+        "scrollWidth": 174,
+        "text": "Abaqus 2025",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      },
+      {
+        "scrollWidth": 174,
+        "text": "OpenRadioss 2025",
+        "title": null,
+        "truncated": false,
+        "width": 174
+      }
+    ],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "12px",
       "title": "19px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "14px"
     },
     "viewport": {
       "height": 900,
       "width": 1440
     },
-    "visiblePrimaryActions": 1,
-    "screen": "card",
-    "requestedViewport": {
-      "width": 1440,
-      "height": 900
-    }
+    "visiblePrimaryActions": 1
   },
   {
     "curveNames": [],
@@ -958,7 +1316,7 @@
         "radius": "0px",
         "role": "explorer-filter",
         "shadow": "none",
-        "width": 248,
+        "width": 280,
         "x": 24,
         "y": 96
       },
@@ -967,8 +1325,8 @@
         "radius": "0px",
         "role": "result-datasheet",
         "shadow": "none",
-        "width": 1324,
-        "x": 272,
+        "width": 1292,
+        "x": 304,
         "y": 96
       },
       {
@@ -981,33 +1339,96 @@
         "y": 96
       }
     ],
+    "requestedViewport": {
+      "height": 1080,
+      "width": 1920
+    },
     "resultHorizontalOverflow": false,
     "rowHeights": {
-      "data": 43,
+      "data": 38,
       "tree": 26
     },
+    "screen": "materials",
+    "treeIndependentScroll": true,
+    "treeKeyboardNavigation": true,
+    "treeLabels": [
+      {
+        "scrollWidth": 190,
+        "text": "Material Database",
+        "title": "Material Database",
+        "truncated": false,
+        "width": 189.8
+      },
+      {
+        "scrollWidth": 193,
+        "text": "Engineering Profile",
+        "title": "Engineering Profile",
+        "truncated": false,
+        "width": 193.2
+      },
+      {
+        "scrollWidth": 188,
+        "text": "Material Records",
+        "title": "Material Records",
+        "truncated": false,
+        "width": 187.7
+      },
+      {
+        "scrollWidth": 203,
+        "text": "Metal",
+        "title": "Metal",
+        "truncated": false,
+        "width": 203
+      },
+      {
+        "scrollWidth": 191,
+        "text": "Steel",
+        "title": "Steel",
+        "truncated": false,
+        "width": 191
+      },
+      {
+        "scrollWidth": 168,
+        "text": "DP780 Dual-Phase Steel",
+        "title": "DP780 Dual-Phase Steel",
+        "truncated": false,
+        "width": 168.4
+      },
+      {
+        "scrollWidth": 203,
+        "text": "Polymer",
+        "title": "Polymer",
+        "truncated": false,
+        "width": 203
+      },
+      {
+        "scrollWidth": 203,
+        "text": "Elastomer",
+        "title": "Elastomer",
+        "truncated": false,
+        "width": 203
+      }
+    ],
+    "treeSearchVisible": true,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "16px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "12px"
     },
     "viewport": {
       "height": 1080,
       "width": 1920
     },
-    "visiblePrimaryActions": 2,
-    "screen": "materials",
-    "requestedViewport": {
-      "width": 1920,
-      "height": 1080
-    }
+    "visiblePrimaryActions": 2
   },
   {
     "curveNames": [],
     "graphSvg": {
       "height": 498.5,
       "width": 1312,
-      "y": 330
+      "y": 331
     },
     "graphWorkspacePercent": 70.1,
     "nestedCards": 0,
@@ -1059,77 +1480,146 @@
         "y": 96
       },
       {
-        "height": 531.5,
+        "height": 532.5,
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
         "width": 1312,
         "x": 285,
-        "y": 322
+        "y": 323
       }
     ],
+    "requestedViewport": {
+      "height": 1080,
+      "width": 1920
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": 26
     },
+    "screen": "detail",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [
+      {
+        "scrollWidth": 207,
+        "text": "Material Database",
+        "title": null,
+        "truncated": false,
+        "width": 207
+      },
+      {
+        "scrollWidth": 195,
+        "text": "Engineering Profile",
+        "title": null,
+        "truncated": false,
+        "width": 195
+      },
+      {
+        "scrollWidth": 183,
+        "text": "Material Records",
+        "title": null,
+        "truncated": false,
+        "width": 183
+      },
+      {
+        "scrollWidth": 171,
+        "text": "Metal",
+        "title": null,
+        "truncated": false,
+        "width": 171
+      },
+      {
+        "scrollWidth": 159,
+        "text": "Steel",
+        "title": null,
+        "truncated": false,
+        "width": 159
+      },
+      {
+        "scrollWidth": 136,
+        "text": "DP780 Dual-Phase Steel",
+        "title": null,
+        "truncated": false,
+        "width": 136.4
+      },
+      {
+        "scrollWidth": 195,
+        "text": "Room-temperature State",
+        "title": null,
+        "truncated": false,
+        "width": 195
+      },
+      {
+        "scrollWidth": 183,
+        "text": "Tensile Test Campaign",
+        "title": null,
+        "truncated": false,
+        "width": 183
+      },
+      {
+        "scrollWidth": 183,
+        "text": "Neutral Material",
+        "title": null,
+        "truncated": false,
+        "width": 183
+      },
+      {
+        "scrollWidth": 183,
+        "text": "OpenRadioss Card",
+        "title": null,
+        "truncated": false,
+        "width": 183
+      }
+    ],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "19px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "14px"
     },
     "viewport": {
       "height": 1080,
       "width": 1920
     },
-    "visiblePrimaryActions": 3,
-    "screen": "detail",
-    "requestedViewport": {
-      "width": 1920,
-      "height": 1080
-    }
+    "visiblePrimaryActions": 3
   },
   {
     "curveNames": [
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 157,
-        "width": 157
+        "scrollWidth": 140,
+        "width": 195
       },
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 157,
-        "width": 157
+        "scrollWidth": 140,
+        "width": 195
       },
       {
-        "height": 45.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 3,
-        "scrollWidth": 157,
-        "width": 157
+        "scrollWidth": 140,
+        "width": 195
       },
       {
-        "height": 30.1,
+        "height": 26,
         "horizontalOverflow": false,
-        "lineHeight": 15,
-        "lines": 2,
-        "scrollWidth": 157,
-        "width": 157
+        "scrollWidth": 140,
+        "width": 195
       }
     ],
     "graphSvg": {
       "height": 734,
-      "width": 1650,
+      "width": 1658,
       "y": 321
     },
-    "graphWorkspacePercent": 89.1,
+    "graphWorkspacePercent": 89.5,
     "nestedCards": 0,
     "outerMarginTotal": 48,
     "regions": [
@@ -1165,7 +1655,7 @@
         "radius": "0px",
         "role": "curve-tree",
         "shadow": "none",
-        "width": 204,
+        "width": 196,
         "x": 24,
         "y": 132
       },
@@ -1174,8 +1664,8 @@
         "radius": "0px",
         "role": "settings",
         "shadow": "none",
-        "width": 1668,
-        "x": 228,
+        "width": 1676,
+        "x": 220,
         "y": 132
       },
       {
@@ -1183,40 +1673,46 @@
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
-        "width": 1668,
-        "x": 228,
+        "width": 1676,
+        "x": 220,
         "y": 284
       }
     ],
+    "requestedViewport": {
+      "height": 1080,
+      "width": 1920
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
-      "tree": 56.1
+      "tree": 26
     },
+    "screen": "modeling",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "17px",
-      "tree": "12px"
+      "tree": "12.5px",
+      "utility": "12px"
     },
     "viewport": {
       "height": 1080,
       "width": 1920
     },
-    "visiblePrimaryActions": 1,
-    "screen": "modeling",
-    "requestedViewport": {
-      "width": 1920,
-      "height": 1080
-    }
+    "visiblePrimaryActions": 1
   },
   {
     "curveNames": [],
     "graphSvg": {
       "height": 734,
-      "width": 1650,
+      "width": 1658,
       "y": 321
     },
-    "graphWorkspacePercent": 89.1,
+    "graphWorkspacePercent": 89.5,
     "nestedCards": 0,
     "outerMarginTotal": 48,
     "regions": [
@@ -1252,7 +1748,7 @@
         "radius": "0px",
         "role": "curve-tree",
         "shadow": "none",
-        "width": 204,
+        "width": 196,
         "x": 24,
         "y": 132
       },
@@ -1261,8 +1757,8 @@
         "radius": "0px",
         "role": "settings",
         "shadow": "none",
-        "width": 1668,
-        "x": 228,
+        "width": 1676,
+        "x": 220,
         "y": 132
       },
       {
@@ -1270,31 +1766,37 @@
         "radius": "0px",
         "role": "graph",
         "shadow": "none",
-        "width": 1668,
-        "x": 228,
+        "width": 1676,
+        "x": 220,
         "y": 284
       }
     ],
+    "requestedViewport": {
+      "height": 1080,
+      "width": 1920
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": null
     },
+    "screen": "export",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "14px",
       "title": "17px",
-      "tree": null
+      "tree": null,
+      "utility": "14px"
     },
     "viewport": {
       "height": 1080,
       "width": 1920
     },
-    "visiblePrimaryActions": 2,
-    "screen": "export",
-    "requestedViewport": {
-      "width": 1920,
-      "height": 1080
-    }
+    "visiblePrimaryActions": 2
   },
   {
     "curveNames": [],
@@ -1358,25 +1860,60 @@
         "y": 192
       }
     ],
+    "requestedViewport": {
+      "height": 1080,
+      "width": 1920
+    },
     "resultHorizontalOverflow": null,
     "rowHeights": {
       "data": null,
       "tree": 26
     },
+    "screen": "card",
+    "treeIndependentScroll": false,
+    "treeKeyboardNavigation": false,
+    "treeLabels": [
+      {
+        "scrollWidth": 207,
+        "text": "DP780 Dual-Phase Steel",
+        "title": null,
+        "truncated": false,
+        "width": 207
+      },
+      {
+        "scrollWidth": 195,
+        "text": "CAE Cards",
+        "title": null,
+        "truncated": false,
+        "width": 195
+      },
+      {
+        "scrollWidth": 183,
+        "text": "Abaqus 2025",
+        "title": null,
+        "truncated": false,
+        "width": 183
+      },
+      {
+        "scrollWidth": 183,
+        "text": "OpenRadioss 2025",
+        "title": null,
+        "truncated": false,
+        "width": 183
+      }
+    ],
+    "treeSearchVisible": false,
     "typography": {
       "body": "14px",
+      "data": "12px",
       "title": "19px",
-      "tree": "12.5px"
+      "tree": "12.5px",
+      "utility": "14px"
     },
     "viewport": {
       "height": 1080,
       "width": 1920
     },
-    "visiblePrimaryActions": 1,
-    "screen": "card",
-    "requestedViewport": {
-      "width": 1920,
-      "height": 1080
-    }
+    "visiblePrimaryActions": 1
   }
 ]

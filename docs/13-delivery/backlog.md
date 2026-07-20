@@ -1952,6 +1952,9 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 - **범위:** five local references direct inspection, corrected visual contract, Materials/Detail/
   Card/Modeling responsive HTML prototypes, normalized region annotations, similarity scoring, and
   1366/1440/1920 screenshots.
+- **review correction:** Modeling curve/source ID blocks were replaced with 26 px plain-string tree
+  rows. Materials now includes fixed Tree-local search with retained ancestor paths, independent
+  scroll, keyboard focus movement, node-type glyphs, and sibling Browse/Filters/Subsets modes.
 - **완료 조건:** every screen scores at least 85/100; topology, dominant area, and zero nested-card
   hard gates pass; product owner explicitly approves the side-by-side review.
 
@@ -1961,6 +1964,8 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 - **범위:** actual Database/Profile/Table/Folder/Record explorer, filters, dense results, selected
   context, five-tab Material Detail, and direct CAE Card delivery on the approved continuous surface.
 - **보존:** typed search, saved Subset, Layout, Link Type, keyboard navigation, exact revision.
+- **scale gate:** synthetic 10,000-record hierarchy, server-backed lazy search, ≤150 rendered
+  treeitems with virtualization, and first-match keyboard focus within 1 second.
 
 #### T-96. Graph-dominant Modeling workspace — `P0`
 
