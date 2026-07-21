@@ -128,6 +128,7 @@ describe("ConfigurableCatalogAdmin", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "Materials" })).toBeTruthy();
+    await user.type(screen.getAllByRole("textbox", { name: "Description" })[1]!, "Supplier display value used in datasheets.");
     await user.click(screen.getByRole("button", { name: "Add Attribute revision 1" }));
 
     await waitFor(() => expect(mocks.createAttribute).toHaveBeenCalledOnce());
@@ -139,6 +140,7 @@ describe("ConfigurableCatalogAdmin", () => {
           table_revision_id: table.current_revision.id,
           key: "manufacturer",
           data_type: "text",
+          help_text: "Supplier display value used in datasheets.",
         }),
       }),
     );

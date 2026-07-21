@@ -23,29 +23,31 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 모든 서비스가 준비된 뒤 다음 주소를 엽니다.
 
 - Web: <http://127.0.0.1:5173>
-- 운영 상태는 **Jobs & Reviews**에서 확인합니다.
+- 최근 작업과 검토 진입은 **Activity**에서 확인합니다.
 
 ## Demo workspace 시작
 
 1. Web 주소를 엽니다.
 2. **Preparing your workspace…**가 사라질 때까지 기다립니다.
 3. 상단 오른쪽에 **Demo workspace**가 표시되는지 확인합니다.
-4. Dashboard의 왼쪽 **Find and inspect material data** 또는 오른쪽
-   **Process test curves and create cards** 작업을 선택합니다.
+4. 기본 `/materials` 검색에서 기존 Material을 찾습니다. 적절한 Material/card가 없을 때만
+   **Modeling**의 Data로 이동합니다.
 
 Demo session은 `demo` mode에서만 자동으로 준비됩니다. production에서는 같은 자리에 일반
 로그인 화면이 표시되며 사용자는 내부 연결 정보나 인증 문자열을 다루지 않습니다.
 
-![Material Database와 Material Modeling 작업을 구분한 Dashboard](../15-demo/images/t85-workspace-dashboard.png)
+![Search-first Materials 기본 화면](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
 
 ## 첫 Material 만들기
 
-1. 상단 **Material Database**를 엽니다.
+1. 일반 탐색은 **Materials → Browse Tree**, 생성·schema 관리는 우측 workspace menu의
+   **Administration**을 엽니다.
 2. 이름, code, family와 class를 입력합니다.
 3. Steel은 `metal`, 일반 점탄성 polymer는 `polymer`, Ogden--Prony는 `elastomer`를 선택합니다.
 4. Material 상세에서 State를 만들고 density, Young's modulus, Poisson ratio를 SI 단위로
    입력합니다.
-5. 화면의 Material/State/Property revision 번호를 확인합니다.
+5. 일반 상세에서는 `rN` 문맥만 확인하고 full revision ID는 Evidence 또는 Administration에서
+   확인합니다.
 
 저장할 때마다 새 immutable revision이 생깁니다. 브라우저 form을 고치는 것이 이미 저장된
 revision을 바꾸지 않습니다.

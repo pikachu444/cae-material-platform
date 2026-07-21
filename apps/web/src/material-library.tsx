@@ -50,6 +50,39 @@ interface BrowseSelection {
   graph: CatalogWorkflowGraphResponse;
 }
 
+const MATERIALS_RETURN_KEY = "cmp.materials.return-path";
+const MATERIALS_BROWSE_RECORD_KEY = "cmp.materials.browse-record";
+
+function materialSearchParams(): URLSearchParams {
+  return new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+}
+
+function initialNavigatorMode(): "filters" | "browse" | "subsets" {
+  const mode = materialSearchParams().get("mode");
+  return mode === "browse" || mode === "subsets" ? mode : "filters";
+}
+
+function initialSortKey(): "name" | "family" | "yield" | "cards" {
+  const key = materialSearchParams().get("sort");
+  return key === "family" || key === "yield" || key === "cards" ? key : "name";
+}
+
+function storedBrowseRecord(): ConfigurableLinkEndpoint | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const value = JSON.parse(window.sessionStorage.getItem(MATERIALS_BROWSE_RECORD_KEY) ?? "null") as ConfigurableLinkEndpoint | null;
+    return value?.record_id && value.table_id ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function materialsReturnPath(): string {
+  if (typeof window === "undefined") return "/materials";
+  const stored = window.sessionStorage.getItem(MATERIALS_RETURN_KEY) ?? "";
+  return /^\/materials(?:\?|$)/.test(stored) ? stored : "/materials";
+}
+
 const tabs: ReadonlyArray<{ id: MaterialTab; label: string }> = [
   { id: "overview", label: "Overview" },
   { id: "properties", label: "Properties" },
@@ -232,19 +265,19 @@ function SolverAvailability({ cards }: { cards: SolverCardSummary[] }) {
 }
 
 export function MaterialSearchPage({ config, onNavigate }: Props) {
-  const [draftQuery, setDraftQuery] = useState("");
-  const [query, setQuery] = useState("");
-  const [materialClass, setMaterialClass] = useState("");
-  const [solver, setSolver] = useState("");
-  const [source, setSource] = useState("");
-  const [status, setStatus] = useState("");
-  const [yieldMin, setYieldMin] = useState("");
-  const [yieldMax, setYieldMax] = useState("");
-  const [sortKey, setSortKey] = useState<"name" | "family" | "yield" | "cards">("name");
-  const [sortDirection, setSortDirection] = useState<"ascending" | "descending">("ascending");
+  const [draftQuery, setDraftQuery] = useState(() => materialSearchParams().get("q") ?? "");
+  const [query, setQuery] = useState(() => materialSearchParams().get("q") ?? "");
+  const [materialClass, setMaterialClass] = useState(() => materialSearchParams().get("family") ?? "");
+  const [solver, setSolver] = useState(() => materialSearchParams().get("solver") ?? "");
+  const [source, setSource] = useState(() => materialSearchParams().get("source") ?? "");
+  const [status, setStatus] = useState(() => materialSearchParams().get("status") ?? "");
+  const [yieldMin, setYieldMin] = useState(() => materialSearchParams().get("yieldMin") ?? "");
+  const [yieldMax, setYieldMax] = useState(() => materialSearchParams().get("yieldMax") ?? "");
+  const [sortKey, setSortKey] = useState<"name" | "family" | "yield" | "cards">(initialSortKey);
+  const [sortDirection, setSortDirection] = useState<"ascending" | "descending">(() => materialSearchParams().get("direction") === "descending" ? "descending" : "ascending");
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
-  const [leftMode, setLeftMode] = useState<"filters" | "browse" | "subsets">("filters");
-  const [requestedRecord, setRequestedRecord] = useState<ConfigurableLinkEndpoint | null>(null);
+  const [leftMode, setLeftMode] = useState<"filters" | "browse" | "subsets">(initialNavigatorMode);
+  const [requestedRecord, setRequestedRecord] = useState<ConfigurableLinkEndpoint | null>(storedBrowseRecord);
   const [browseSelection, setBrowseSelection] = useState<BrowseSelection | null>(null);
   const [filtersVisible, setFiltersVisible] = useState(true);
   const [contextVisible, setContextVisible] = useState(
@@ -253,7 +286,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [experience, setExperience] = useState<Record<string, MaterialExperience>>({});
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(() => materialSearchParams().get("selected") ?? "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -267,7 +300,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
         const items = [...result.data.items].sort((a, b) => a.current_revision.content.name.localeCompare(b.current_revision.content.name));
         setMaterials(items);
         setTotalCount(result.data.total_count);
-        setSelectedId(items[0]?.material_id ?? "");
+        setSelectedId((current) => items.some((item) => item.material_id === current) ? current : items[0]?.material_id ?? "");
         setLoading(false);
         const settled = await Promise.allSettled(items.map((item) => loadMaterialExperience(config, item)));
         if (!active) return;
@@ -288,6 +321,24 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
       });
     return () => { active = false; };
   }, [config, materialClass, query]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || window.location.pathname !== "/materials") return;
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (materialClass) params.set("family", materialClass);
+    if (solver) params.set("solver", solver);
+    if (source) params.set("source", source);
+    if (status) params.set("status", status);
+    if (yieldMin) params.set("yieldMin", yieldMin);
+    if (yieldMax) params.set("yieldMax", yieldMax);
+    if (sortKey !== "name") params.set("sort", sortKey);
+    if (sortDirection !== "ascending") params.set("direction", sortDirection);
+    if (leftMode !== "filters") params.set("mode", leftMode);
+    if (selectedId) params.set("selected", selectedId);
+    const search = params.toString();
+    window.history.replaceState(window.history.state, "", search ? `/materials?${search}` : "/materials");
+  }, [leftMode, materialClass, query, selectedId, solver, sortDirection, sortKey, source, status, yieldMax, yieldMin]);
 
   const filtered = useMemo(() => materials.filter((material) => {
     const itemExperience = experience[material.material_id];
@@ -336,6 +387,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
     setLeftMode("browse");
     setFiltersVisible(true);
     setRequestedRecord(record ?? null);
+    if (record) window.sessionStorage.setItem(MATERIALS_BROWSE_RECORD_KEY, JSON.stringify(record));
   }
 
   function selectBrowseRecord(
@@ -343,6 +395,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
     graph: CatalogWorkflowGraphResponse,
   ): void {
     setBrowseSelection({ record, graph });
+    window.sessionStorage.setItem(MATERIALS_BROWSE_RECORD_KEY, JSON.stringify(graph.root));
     const materialBinding = graph.root.domain_binding?.kind === "material"
       ? graph.root.domain_binding
       : graph.nodes.find((node) => node.record_id === record.record_id && node.domain_binding?.kind === "material")?.domain_binding;
@@ -370,6 +423,11 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
       else if (next.size < 3) next.add(materialId);
       return next;
     });
+  }
+
+  function openMaterial(materialId: string): void {
+    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, `${window.location.pathname}${window.location.search}`);
+    onNavigate(`/materials/${materialId}`);
   }
 
   return (
@@ -418,7 +476,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
             <div className="selection-property-grid"><div><span>Density</span><strong>{formatDensity(selectedProperty?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(selectedProperty?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(selectedProperty?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{selectedProperty?.poisson_ratio ?? "—"}</strong></div></div>
             <dl className="selection-context"><dt>Source</dt><dd>{sourceLabel(selectedExperience)}</dd><dt>Status</dt><dd>{selected.current_revision.lifecycle_state}</dd></dl>
             <h3>CAE card availability</h3><SolverAvailability cards={selectedExperience?.cards ?? []}/>
-            <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${selected.material_id}`)}>Open material</button>
+            <button className="ux-button primary" type="button" onClick={() => openMaterial(selected.material_id)}>Open material</button>
             <button className="ux-button tertiary" type="button" onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Show in Browse Tree</button>
           </> : <div className="ux-empty"><strong>Select a material</strong><p>Key properties and solver-card availability will appear here.</p></div>}
         </aside> : null}
@@ -456,7 +514,7 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
   }, [config, materialId]);
 
   if (loading) return <div className="ux-page"><div className="material-detail-shell"><p className="loading-state">Loading material…</p></div></div>;
-  if (error || !experience) return <div className="ux-page"><div className="material-detail-shell"><div className="ux-notice error" role="alert">{error ?? "Material not found."}</div><button className="ux-button" type="button" onClick={() => onNavigate("/materials")}>Back to Materials</button></div></div>;
+  if (error || !experience) return <div className="ux-page"><div className="material-detail-shell"><div className="ux-notice error" role="alert">{error ?? "Material not found."}</div><button className="ux-button" type="button" onClick={() => onNavigate(materialsReturnPath())}>Back to Materials</button></div></div>;
 
   const material = experience.detail.material;
   const content = material.current_revision.content;
@@ -489,7 +547,7 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
     }
   }
   return <div className="ux-page"><div className="material-detail-shell">
-    <header className="material-detail-header"><div><button className="ux-button tertiary" type="button" onClick={() => onNavigate("/materials")}>← Materials</button><p className="ux-kicker">{content.material_family ?? content.material_class}</p><h1>{content.name}</h1><div className="material-detail-meta"><span>{content.material_code ?? "No grade code"}</span><span>{sourceLabel(experience)}</span><span>{material.current_revision.lifecycle_state}</span></div><p>{content.description ?? "Governed material record and CAE delivery."}</p></div><div className="card-action-row">{preferredCard ? <><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${preferredCard.id}`)}>Preview {preferredCard.solver}</button><button className="ux-button primary" type="button" disabled={downloadingId === preferredCard.id} onClick={() => void downloadCard(preferredCard)}>{downloadingId === preferredCard.id ? "Preparing…" : `Download ${preferredCard.extension}`}</button></> : <button className="ux-button primary" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button>}</div></header>
+    <header className="material-detail-header"><div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(materialsReturnPath())}>← Materials</button><p className="ux-kicker">{content.material_family ?? content.material_class}</p><h1>{content.name}</h1><div className="material-detail-meta"><span>{content.material_code ?? "No grade code"}</span><span>{sourceLabel(experience)}</span><span>{material.current_revision.lifecycle_state}</span></div><p>{content.description ?? "Governed material record and CAE delivery."}</p></div><div className="card-action-row">{preferredCard ? <><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${preferredCard.id}`)}>Preview {preferredCard.solver}</button><button className="ux-button primary" type="button" disabled={downloadingId === preferredCard.id} onClick={() => void downloadCard(preferredCard)}>{downloadingId === preferredCard.id ? "Preparing…" : `Download ${preferredCard.extension}`}</button></> : <button className="ux-button primary" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button>}</div></header>
     <nav className="ux-tabs" role="tablist" aria-label="Material detail"><input type="hidden" value={activePath} readOnly />{tabs.map((tab) => <button key={tab.id} className="ux-tab" type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => onNavigate(tab.id === "overview" ? `/materials/${materialId}` : `/materials/${materialId}/${tab.id}`)}>{tab.label}</button>)}</nav>
     {actionError ? <div className="ux-notice error material-action-error" role="alert">{actionError}</div> : null}
     <section className="material-tab-panel" role="tabpanel">

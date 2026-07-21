@@ -189,4 +189,15 @@ describe("MaterialsBrowseTree", () => {
     expect(mounted.length).toBeLessThan(150);
     expect(screen.queryByRole("treeitem", { name: /Material 09999/ })).toBe(null);
   });
+
+  it("restores an exact Record by expanding its governed ancestor path", async () => {
+    const startedAt = performance.now();
+    render(<MaterialsBrowseTree config={{ baseUrl: "/api/v1", accessToken: "test" }} requestedRecord={graph.root} onSelectRecord={() => undefined} onOpenRecord={() => undefined}/>);
+
+    const restored = await screen.findByRole("treeitem", { name: /DP780 Sheet/ });
+    expect(restored.getAttribute("aria-selected")).toBe("true");
+    expect(performance.now() - startedAt).toBeLessThan(1_000);
+    expect(mocks.record).toHaveBeenCalledWith(expect.anything(), recordId);
+    expect(mocks.folders).toHaveBeenCalledWith(expect.anything(), tableId);
+  });
 });

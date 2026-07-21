@@ -6,7 +6,8 @@ Task 구현 시 실제 UI, 입력 fixture와 스크린샷으로 교체하며 미
 
 ## 지금 사용할 수 있는 Catalog schema designer
 
-1. 상단 **Catalog** 또는 `/catalog/schema`를 연다.
+1. 우측 workspace menu에서 **Administration → Database design**을 연다. `/catalog/schema`는
+   같은 Administration 화면으로 연결되는 호환 주소다.
 2. Table stable key와 표시명을 입력하고 **Create Table revision 1**을 선택한다.
 3. 선택한 Table에 typed Attribute를 추가한다. 수치 Attribute는 quantity semantics와 normalized
    unit을 함께 입력하고, Record reference는 대상 Table을 고정한다.
@@ -20,7 +21,8 @@ current ETag를 요구한다.
 
 ## Catalog Record 등록·검색·비교
 
-1. 상단 **Catalog** 또는 `/catalog/records`를 열고 Table과 datasheet Layout을 선택한다.
+1. 일반 탐색은 **Materials → Browse Tree**를 사용한다. 새 Folder/Record를 관리하는 고급 작업은
+   `/catalog/records`를 열고 Table과 datasheet Layout을 선택한다.
 2. 필요하면 왼쪽 **New Folder**에서 root 또는 parent Folder를 만든다. cycle은 거부된다.
 3. **New record**를 누르고 이름, 외부 key, Folder와 Layout 순서의 Attribute 값을 입력한다.
 4. 수치값은 원본 값·원본 단위 문자열·정규화 값이 모두 보이도록 입력한다. normalized unit과
@@ -48,8 +50,8 @@ Explorer와 함께 확장한다.
 
 ## Material Database와 exact Record Link 사용
 
-1. 전역 **Material Database** 또는 `/database`를 연다. `/catalog/explorer`는 기존 관리·호환
-   화면으로 남아 있지만 일반 탐색의 시작점이 아니다.
+1. 전역 **Materials → Browse Tree**를 연다. `/database`와 `/catalog/explorer`는 전체
+   datasheet/link 관리를 위한 호환·고급 화면으로 남아 있지만 일반 탐색의 시작점이 아니다.
 2. 왼쪽 **Contents Tree**에서 CAE Material Database → Engineering Materials Profile → Table →
    Folder → Record를 펼친다. Folder 하위 노드는 펼칠 때 실제 PostgreSQL에서 지연 로딩된다.
 3. 이름·external key·설명·text Attribute로 검색하거나 **Saved Subsets**의 revisioned 검색 조건을
@@ -89,21 +91,22 @@ Explorer와 함께 확장한다.
 
 ## 시험 curve를 그래프 중심 Workbench에서 처리
 
-1. 전역 **Material Modeling**을 선택한다. 상단의 Import → Map → Prepare → Fit → Extrapolate →
-   Card 순서가 현재 작업의 전체 경로다.
-2. **Test Data revision**에서 등록된 문서를 고르고 **Load exact JSON**을 누른다. 왼쪽
-   **Datasets & curves**에서도 같은 exact revision을 다시 선택할 수 있다.
-3. 저장된 **Mapping Profile** 또는 Metal/Polymer template을 선택한다. 일반 사용자는 channel
-   mapping을 확인하고, 원시 JSON이 필요한 경우에만 **Advanced mapping definition**을 펼친다.
-4. 저장된 게시 Recipe를 불러오거나 상단 method를 눌러 ordered step을 추가한다. 왼쪽에서 단계를
-   선택하면 오른쪽에 해당 method의 option이 표시된다. option 변경은 원본을 수정하지 않는다.
-5. **Preview changes**를 누른다. 가운데 그래프는 실제 서버 계산 raw/mapped/processed/fitted/
-   extrapolated stage를 표시한다. 하단 stage chip을 선택해 입력과 각 단계 결과를 비교한다.
-6. 후보 진단은 그래프 아래에 보이고 전체 parameter/bound/수치 증거는 **Parameters and numerical
-   evidence**를 펼쳐 확인한다. 미리보기는 저장되지 않으며 **Commit immutable output**만 새
-   Processing Output revision을 만든다.
+1. 전역 **Modeling**을 선택한다. 상단의 `Data | Process | Fit | Export`가 일반 작업 경로다.
+2. Data에서 Canonical JSON, CSV 또는 XLSX를 선택하고 **Test Data revision**과 channel/unit
+   Mapping Profile을 확인한다. 원시 JSON은 Advanced mapping definition에서만 연다.
+3. Process에서 왼쪽 `Curves`와 `Process`의 일반 문자열 행을 선택한다. `Add method`로 ordered
+   step을 추가하고 current-step settings ribbon에서 crop/smoothing/resample/statistics option을
+   바꾼다. 1366 px에서는 `Show settings`로 ribbon을 연다.
+4. **Preview changes**를 누른다. 오른쪽에 별도 inspector 열을 만들지 않고, 같은 큰 graph가 실제
+   서버 계산 raw/mapped/processed stage를 유지한다.
+5. Fit에서 candidate response, residual, tangent와 extrapolation을 비교한다. 현재 curve/step과
+   settings는 같은 surface에 연결된다.
+6. Recipe와 Batch는 ribbon의 **Advanced · Recipe and Batch**, ordered JSON은 **Advanced Recipe
+   JSON**에서 확인한다. 원본과 released artifact는 수정되지 않는다.
+7. Export에서 reviewed Processing Output/Material Model IR, Neutral Material, mapping 상태와 native
+   card preview/download를 실행한다.
 
-![Exact Dataset, ordered Recipe, server curve와 단계 옵션이 연결된 Material Modeling workspace](../15-demo/images/t79-material-modeling-workspace.png)
+![Compact curve/process tree, shallow settings ribbon and dominant graph](../15-demo/images/ux-redesign-v2/modeling-fit-1440x900.png)
 
 ### 재료군별 Modeling track 사용
 
@@ -120,8 +123,8 @@ Test Data 선택은 해제되므로, 새 quantity 계약에 맞는 exact revisio
 - **Elastomer · Hyper-viscoelastic:** 공통 Test JSON 처리가 선택 사항이며, 아래 family panel에서
   uniaxial/planar/biaxial governed Dataset과 holdout, saved Calibration Plan을 선택한다.
 
-가운데 그래프 오른쪽의 **Step options / Recipe / Batch** 탭에서 현재 작업을 벗어나지 않고 method
-option을 바꾸고 Recipe revision을 저장·게시하거나 exact Dataset batch를 preflight·실행·재시도할 수 있다.
+그래프 위의 **Current-step settings** ribbon에서 method option을 바꾼다. **Advanced · Recipe and
+Batch**를 펼치면 Recipe revision을 저장·게시하거나 exact Dataset batch를 preflight·실행·재시도할 수 있다.
 각 track 아래의 Material context는 해당 분류의 Material, State, Property revision을 실제 API에서
 불러오며 **Open full datasheet**로 원본 Material record에 돌아간다.
 
@@ -135,9 +138,8 @@ uncertainty를 비교한 뒤에만 Candidate 선택 또는 Neutral 승격으로 
 
 ### Interim reviewed-delivery controls
 
-> This section documents the retained T-81 engine-connected controls. The interaction is an interim
-> baseline, not the accepted clone-level Material Modeling experience. T-85~T-90 moved these
-> actions into the fixed graph/task workbench without changing the exact Neutral/card contracts.
+> 이 절은 Export 안에 보존된 T-81 engine-connected delivery contract를 설명한다. 외형은
+> Data/Process/Fit/Export shell로 바뀌었지만 exact Neutral/card 계약은 변경하지 않았다.
 
 After a metal, polymer or elastomer result is promoted, the same **Final step · reviewed delivery**
 panel appears inside Material Modeling. Do not create a second Neutral revision when the panel says

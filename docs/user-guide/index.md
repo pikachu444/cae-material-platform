@@ -57,7 +57,7 @@
 
 ## 화면 예시
 
-![금속·폴리머·엘라스토머 안내 Dashboard](../15-demo/images/t60-guided-dashboard.png)
+![Search-first Materials 검색과 Browse 진입](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
 
 ![Material 상세와 immutable revision](../15-demo/images/e2e-material-detail.png)
 

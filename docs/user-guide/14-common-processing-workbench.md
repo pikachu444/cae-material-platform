@@ -4,15 +4,17 @@
 입력은 저장된 `cmp.test-data`의 정확한 revision이며, 브라우저에서 계산한 임시 값이 아니라
 서버가 반환한 각 처리 단계의 수치와 진단을 비교합니다.
 
-일반 사용자는 전역 **Material Modeling**(`/modeling`)에서 이 엔진을 사용합니다. 이 화면은
-공통 curve graph 옆에 **Step options / Recipe / Batch** inspector와 Metal/Polymer/Elastomer track을
-제공합니다. `/datasets/processing`은 같은 엔진의 기술 호환 route로 유지됩니다. 재료군을 바꾸면
+일반 사용자는 전역 **Modeling**(`/modeling`)에서 이 엔진을 사용합니다. 이 화면은
+`Data | Process | Fit | Export`, compact curve/process tree, 얕은 current-step settings ribbon과
+Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같은 통합 Modeling 화면으로
+연결되는 기술 호환 route입니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
 
-![Material Modeling의 curve rail, engineering plot, task panel](../15-demo/images/t86-metal-prepare-workbench.png)
+![Material Modeling의 curve/process tree, settings ribbon, engineering graph](../15-demo/images/ux-redesign-v2/modeling-fit-1440x900.png)
 
-화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Recipe 단계, 가운데는 실제 서버 계산 결과를
-표시하는 engineering plot, 오른쪽은 선택 단계의 설정과 저장 동작입니다. 일반 작업에서는 API
+화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
+결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인
+오른쪽 열은 없습니다. 1366 px에서는 graph를 우선해 ribbon이 기본 닫히며 `Show settings`로 엽니다. 일반 작업에서는 API
 주소나 토큰, tenant, UUID를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
@@ -20,7 +22,7 @@
 **Select range**를 누른 뒤 x-domain을 드래그합니다. necking처럼 한 점을 고르는 단계는
 **Pick point**를 사용합니다. 선택 영역과 marker는 임시 상태이며 **Apply selection**을 눌러야
 호환되는 Recipe step option으로 들어갑니다. 이때도 원본이나 저장된 Recipe revision은 바뀌지
-않습니다. 오른쪽 **Recipe** 탭에서 새 revision으로 저장해야 선택을 재사용할 수 있습니다.
+않습니다. **Advanced · Recipe and Batch**에서 새 revision으로 저장해야 선택을 재사용할 수 있습니다.
 option 변경은 300 ms 동안 모아서 서버 preview를 다시 계산하며, 그 사이 더 최신 변경이 오면
 이전 계산 요청은 취소됩니다.
 
@@ -30,7 +32,7 @@ Modeling**은 해당 Test Data exact revision을 같은 방식으로 전달합�
 Material, State, Test Data, Mapping Profile과 Recipe exact revision을 복원하며, 저장된 revision이
 현재 선택 가능한 head와 다르면 조용히 최신값으로 바꾸지 않고 검토 경고를 표시합니다.
 
-금속 **Metal elastic modulus** 단계에서는 오른쪽 패널에서 Auto robust, Linear regression,
+금속 **Metal elastic modulus** 단계에서는 current-step settings ribbon에서 Auto robust, Linear regression,
 Chord, Secant, Manual slope를 직접 선택합니다. 그래프의 **Select range** 또는 Start/End strain으로
 평가 구간을 정하고, Manual slope에서는 GPa slider로 기울기를 조정합니다. **Offset proof stress**는
 offset과 검색 구간, **Engineering to true/plastic**은 necking boundary와 음의 plastic strain 정책을
@@ -46,19 +48,20 @@ pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산
 
 ## 처리 미리보기
 
-1. `Datasets` → `Processing Workbench`를 엽니다.
-2. **Exact Test Data input**에서 문서와 revision을 선택하고 **Load exact JSON**을 누릅니다.
-3. 저장된 Mapping Profile을 선택하거나 JSON editor에서 다음 항목을 확인합니다.
+1. `Modeling → Data`를 열고 canonical JSON, CSV 또는 XLSX 입력을 선택합니다.
+2. **Data input & mapping**에서 문서와 revision을 선택하고 **Load exact JSON**을 누릅니다.
+3. 저장된 Mapping Profile을 선택하거나 **Advanced mapping definition**의 JSON에서 다음 항목을 확인합니다.
    - `independent_quantity`
    - source `channel_key`와 계산용 `target_quantity`
    - 허용 normalized unit
    - required 여부와 명시적 scale/offset
    - `reject` 또는 `drop_any` missing-data 정책
-4. 재사용할 매핑이면 **Create profile**을 누릅니다. 기존 profile을 변경할 때는 변경 사유를
-   입력하고 **Append revision**을 눌러 새 revision을 만듭니다. 기존 revision은 덮어쓰지 않습니다.
-5. **Ordered processing steps**에서 method ID, version과 option을 순서대로 편집합니다.
-6. **Preview with server**를 누릅니다.
-7. Stage 목록에서 `mapping` 또는 각 method를 선택해 동일한 축의 원본/처리 curve overlay와
+4. 재사용할 매핑이면 **Save new profile**을 누릅니다. 기존 profile을 변경할 때는 변경 사유를
+   입력하고 **Append profile revision**을 눌러 새 revision을 만듭니다. 기존 revision은 덮어쓰지 않습니다.
+5. Process/Fit의 `Add method`와 settings ribbon을 사용합니다. method ID/version JSON이 필요할 때만
+   **Advanced Recipe JSON**의 **Ordered processing steps**를 엽니다.
+6. **Preview changes**를 누릅니다.
+7. Graph 아래 stage history에서 `mapping` 또는 각 method를 선택해 동일한 축의 원본/처리 curve overlay와
    row 수, warning, SHA-256을 확인합니다.
 
 현재 등록된 공통 method는 다음과 같습니다.
@@ -103,7 +106,7 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 
 ## Neutral Material과 solver card로 전달
 
-Fit/Extrapolate 검토가 끝나면 상단 **Card** task를 누릅니다. graph가 있던 작업 영역이 exact
+Fit 검토가 끝나면 상단 **Export** task를 누릅니다. graph가 있던 작업 영역이 exact
 Material/State → reviewed Processing Output/IR → Neutral Material JSON → mapping → native card 흐름으로
 바뀝니다. 페이지 아래의 별도 exporter를 찾거나 UUID를 복사하지 않습니다. **Back to Fit**을 누르면
 같은 session과 Recipe draft를 유지한 채 후보 비교로 돌아갑니다.
@@ -114,7 +117,7 @@ solver와 version을 고르면 지원되는 material law가 capability manifest�
 `unsupported`는 생성할 수 없습니다. 생성 후 native ASCII preview와 `.inp`/`.rad`, mapping report
 JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩니다.
 
-![금속 Card task와 exact Neutral evidence](../15-demo/images/t88-abaqus-card-delivery.png)
+![금속 Export task와 exact Neutral evidence](../15-demo/images/t88-abaqus-card-delivery.png)
 
 ![OpenRadioss LAW36 native ASCII result](../15-demo/images/t88-openradioss-card-delivery.png)
 
