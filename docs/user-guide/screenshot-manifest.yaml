@@ -1,10 +1,11 @@
-version: 34
+version: 35
 verified_at: 2026-07-22
 scope: current-product-baseline
 notes:
-  - "Captured from the accepted Search-first implementation on the same main baseline."
-  - "The in-app content viewport excludes 15 px browser chrome from the requested width."
-  - "Fresh clean-Compose recapture was attempted on 2026-07-22 but Docker Desktop was unavailable."
+  - "Recaptured from a clean Docker Compose rebuild of the current main baseline on 2026-07-22."
+  - "Migration and deterministic reference-plugin seed jobs completed successfully before browser validation."
+  - "Requested browser sizes were 1366x768, 1440x900, and 1920x1080; width and height below are the actual PNG content dimensions after in-app browser chrome and host-window limits."
+  - "All fixtures are synthetic, non-production reference data."
 captures:
   - id: materials-search-1366
     route: /materials
@@ -25,7 +26,7 @@ captures:
     workflow: wide-workspace-filter-result-and-optional-context
     fixture: synthetic DP780 Material library
     image: ../15-demo/images/ux-redesign-v2/final-materials-1920x1080.png
-    width: 1905
+    width: 1715
     height: 1072
   - id: materials-browse-tree-1366
     route: /materials
@@ -46,6 +47,13 @@ captures:
     workflow: exact-related-records-workflow-layout-and-provenance-disclosure
     fixture: DP780 exact linked workflow Records
     image: ../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png
+    width: 1425
+    height: 891
+  - id: material-detail-cae-cards-1440
+    route: /materials/:materialId/cae-cards
+    workflow: native-solver-card-preview-and-direct-download
+    fixture: DP780 with Abaqus and OpenRadioss native cards
+    image: ../15-demo/images/ux-redesign-v2/material-detail-cae-cards-1440x900.png
     width: 1425
     height: 891
   - id: modeling-data-1366
@@ -74,13 +82,27 @@ captures:
     workflow: graph-expansion-with-bounded-left-explorer
     fixture: DP780 reference hardening candidates
     image: ../15-demo/images/ux-redesign-v2/final-modeling-fit-1920x1080.png
-    width: 1905
+    width: 1715
     height: 1072
   - id: modeling-export-1440
     route: /modeling
     workflow: reviewed-ir-mapping-native-card-preview-and-download
     fixture: DP780 Abaqus and OpenRadioss delivery artifacts
     image: ../15-demo/images/ux-redesign-v2/modeling-export-1440x900.png
+    width: 1425
+    height: 891
+  - id: governed-tabular-import-1440
+    route: /datasets/import
+    workflow: upload-preview-profile-approval-and-exact-revision-import
+    fixture: synthetic DP780 CSV and XLSX test runs
+    image: ../15-demo/images/ux-redesign-v2/governed-import-1440x900.png
+    width: 1440
+    height: 900
+  - id: activity-1440
+    route: /activity
+    workflow: recent-modeling-reviews-and-progressive-advanced-jobs
+    fixture: clean deterministic demo activity
+    image: ../15-demo/images/ux-redesign-v2/activity-1440x900.png
     width: 1425
     height: 891
   - id: administration-overview-1440
@@ -99,8 +121,8 @@ captures:
     height: 891
   - id: administration-layout-datasheet-1440
     route: /database
-    workflow: attribute-revision-through-layout-to-record-datasheet
-    fixture: synthetic acceptance-note Attribute without engineering value
+    workflow: configured-layout-projection-to-record-datasheet
+    fixture: clean synthetic DP780 Layout datasheet
     image: ../15-demo/images/ux-redesign-v2/administration-layout-datasheet-1440x900.png
     width: 1425
     height: 891
