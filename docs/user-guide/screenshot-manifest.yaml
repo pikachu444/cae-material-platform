@@ -528,3 +528,11 @@ captures:
     image: ../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png
     width: 1425
     height: 891
+  - id: t95-materials-browse-tree
+    route: /materials
+    workflow: database-profile-table-folder-record-find-subset-and-material-selection
+    fixture: T-93 clean Compose reference Material library and DP780 exact workflow Records
+    source_evidence: ../15-demo/evidence/t95-materials-browse-tree.md
+    image: ../15-demo/images/ux-redesign-v2/materials-browse-tree-1366x768.png
+    width: 1351
+    height: 760
