@@ -1,5 +1,9 @@
 # UX Redesign Execution Plan
 
+Status (`2026-07-21`): T-94 design gate and T-95–T-97 live implementation are complete. The final
+1366/1440/1920 measurements, reference-image mapping, JSON/CSV/XLSX scenarios, accessibility and
+regression evidence are recorded in `docs/15-demo/evidence/t97-reference-similarity-final.md`.
+
 ## 1. 실행 원칙
 
 - backend domain, immutable revision, provenance, Neutral IR와 solver mapping 계약은 유지한다.

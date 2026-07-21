@@ -36,7 +36,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 Demo session은 `demo` mode에서만 자동으로 준비됩니다. production에서는 같은 자리에 일반
 로그인 화면이 표시되며 사용자는 내부 연결 정보나 인증 문자열을 다루지 않습니다.
 
-![Search-first Materials 기본 화면](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
+![Search-first Materials 기본 화면](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
 
 ## 첫 Material 만들기
 

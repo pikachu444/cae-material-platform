@@ -14,7 +14,9 @@ Dataset을 별도로 만드는 방법을 설명합니다. 특정 시험기 vendo
 
 ## 1. 원본 업로드와 preview
 
-1. Material State의 **Governed CSV / TSV / XLSX import** 영역으로 이동합니다.
+1. Modeling의 **Data → Import JSON / CSV / XLSX → Open governed mapping workbench**를 열거나
+   호환 주소 `/datasets/import`로 이동합니다. 화면 상단에서 복원된 Material/Material State와
+   exact revision을 먼저 확인합니다.
 2. 원본이 속하는 **Exact Test Run**을 선택합니다. 이후 Run의 최신 revision을 암묵적으로
    따라가지 않고 선택 당시 revision이 고정됩니다.
 3. `CSV`, `TSV`, `XLSX` 중 실제 형식을 고릅니다.
@@ -67,6 +69,8 @@ Run은 `failed` terminal evidence로 남고 failure code/detail과 발견한 row
 ## 안전 제한
 
 - XLSX formula, macro, external link는 실행하지 않고 거부합니다.
+- 표준 OOXML의 상대(`worksheets/sheet1.xml`)와 절대(`/xl/worksheets/sheet1.xml`) worksheet
+  relationship는 둘 다 허용하지만, backslash와 `..` parent traversal은 거부합니다.
 - 압축 해제 크기, member 수, row/column 수에는 상한이 있습니다.
 - CSV/TSV encoding과 decimal separator를 추측해 조용히 바꾸지 않습니다.
 - 다른 organization/project의 Profile, Run, Dataset은 PostgreSQL RLS로 보이지 않습니다.

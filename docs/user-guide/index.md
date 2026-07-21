@@ -57,7 +57,7 @@
 
 ## 화면 예시
 
-![Search-first Materials 검색과 Browse 진입](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
+![Search-first Materials 검색과 Browse 진입](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
 
 ![Material 상세와 immutable revision](../15-demo/images/e2e-material-detail.png)
 

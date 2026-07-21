@@ -43,7 +43,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 2. **Demo workspace**가 자동으로 표시되는지 확인합니다.
 3. 검색 결과에서 금속·폴리머·엘라스토머 합성 Material을 확인합니다.
 
-![Search-first Materials 작업공간](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
+![Search-first Materials 작업공간](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
 
 ## 3. Material Database에서 계층과 연결 확인하기
 

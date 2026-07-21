@@ -10,7 +10,7 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 연결되는 기술 호환 route입니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
 
-![Material Modeling의 curve/process tree, settings ribbon, engineering graph](../15-demo/images/ux-redesign-v2/modeling-fit-1440x900.png)
+![Material Modeling의 curve/process tree, settings ribbon, engineering graph](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
 화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
 결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인

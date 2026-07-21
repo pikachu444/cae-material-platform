@@ -57,6 +57,17 @@ Table과 Folder ancestor를 다시 조회해 펼칩니다.
 5. Export에서 Material Model IR, Neutral Material과 solver mapping을 확인하고 native card를
    생성한 뒤 Material Library에 저장합니다.
 
+`Import JSON / CSV / XLSX`에서 CSV/XLSX의 `Open governed mapping workbench`를 선택하면
+`/datasets/import`가 최근 Modeling session의 exact Material State를 복원합니다. 여기서 immutable
+원본 preview → sheet/header/channel/unit 확인 → Import Profile revision 승인 → raw/normalized SI
+Dataset 생성을 완료할 수 있습니다. Canonical adapter로 돌아오면 같은 파일을 `cmp.test-data`로
+검증·저장해 Process 입력으로 선택합니다. JSON 파일은 server validation에서 schema, channel,
+quantity semantics, original/normalized unit과 missing reason을 먼저 확인합니다.
+
+기존 Neutral/Card가 있어도 Export의 `Create from another reviewed output`으로 방금 commit한
+Processing Output을 선택할 수 있습니다. 이 action은 기존 immutable Neutral을 덮어쓰지 않고 새
+IR/Neutral/Card revision을 추가합니다.
+
 Mapping Profile, Recipe/Batch, full revision, hash와 JSON evidence는 Advanced/Evidence에 남습니다.
 Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요합니다.
 
@@ -73,14 +84,14 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   step JSON은 `Advanced Recipe JSON`에서 확인합니다.
 - Export는 reviewed fitting에서 Neutral Material과 solver-native preview/download로 이어집니다.
 
-![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
+![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
 
-![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/materials-browse-tree-1366x768.png)
+![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/final-browse-tree-1366x768.png)
 
 ![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
 ![Related, Workflow, Layout and progressive Evidence](../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png)
 
-![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/modeling-fit-1440x900.png)
+![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
 ![Explicit JSON, CSV and XLSX Modeling Data entry](../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png)

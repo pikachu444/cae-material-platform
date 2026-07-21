@@ -1,5 +1,10 @@
 # Codex UX Redesign — Start Here
 
+Implementation status (`2026-07-21`): the T-94 design gate and T-95–T-97 live implementation are
+complete. Future changes must preserve the same reference-similarity, full-width, governed Tree and
+JSON/CSV/XLSX-to-card acceptance gates. Final evidence is in
+`docs/15-demo/evidence/t97-reference-similarity-final.md`.
+
 현재 작업 저장소는 `pikachu444/cae-material-platform`이다.
 
 이 문서는 검색 중심 UX 개편 작업의 실행 진입점이다. 아래 기획 문서를 모두 읽은 뒤 현행 분석부터 실제 프론트엔드 구현과 검증까지 진행하라.

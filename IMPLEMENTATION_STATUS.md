@@ -1,9 +1,9 @@
 # Implementation Status
 
-Date: `2026-07-20`
+Date: `2026-07-21`
 Foundation version: `0.32.0`
 
-## Reference-layout design approved; production implementation authorized (2026-07-21)
+## Search-first reference-layout implementation accepted (2026-07-21)
 
 The T-85~T-93 engine and functional browser evidence remain valid, but their visual acceptance is
 reopened. The 1440 px Modeling screen gave the actual graph only 743 px (55.7% of its workspace),
@@ -13,21 +13,34 @@ explorer. Those results do not reproduce the design grammar visible in the direc
 Material Data Center, and Material Modeler references.
 
 The responsive prototypes, structural similarity report, and product-owner approval defined by
-`docs/01-product/ux-visual-system.md` are complete at commit `40726f6`. Production implementation may
-proceed, but live screens must independently pass the same topology, dominant-area, density,
-surface/divider, continuity, and primary-action gates.
+`docs/01-product/ux-visual-system.md` are complete at commit `40726f6`. T-95–T-97 have now applied the
+same topology, dominant-area, density, surface/divider, continuity and primary-action gates to the
+live React application.
 
 The approved follow-up
 review replaced Modeling's multi-line source-ID curve blocks with 26 px plain-text tree rows and
 added a fixed Tree-local search, retained ancestor path, independent node scroll, keyboard movement,
-and Browse/Filters/Subsets modes to Materials. The large-volume 10,000-record virtualization gate is
-specified for T-95 and is not claimed by the static prototype.
+and Browse/Filters/Subsets modes to Materials. The large-volume 10,000-record fixture now renders
+fewer than 150 virtualized `treeitem` nodes in the live component. The server-backed Tree retains
+Database/Profile/Table/Folder ancestors.
 
-The first production slice now uses the full application width, `Materials | Modeling | Activity`,
+The accepted production implementation uses the full application width, `Materials | Modeling | Activity`,
 compact 20 px workspace titles, 14 px data text, and divider-led surfaces. At 1440×900 the live
 Materials shell measures 1,376 px wide with 264 px filters, 830 px results, and 280 px selected
 context. At 1366×768 the context is closed and the result region receives the remaining width. This
-slice establishes the shell only; governed Tree scale and final Materials behavior remain T-95 work.
+screen retains the actual governed Tree, typed search and saved Subsets instead of replacing them
+with Material-family facets.
+
+Modeling is `Data | Process | Fit | Export` and uses a 190.1 px curve/process tree plus a 1,186 px
+fluid graph region at 1440×900; its actual SVG is 1,161.6 px/84.4% of workspace versus the rejected
+743 px graph. The current-step inspector is a 124 px horizontal ribbon, never a permanent third
+column. JSON, CSV and XLSX were exercised through the real canonical/governed import engines and then
+Process/Fit/IR/Neutral/Abaqus/OpenRadioss and Material Library discovery.
+
+The final T-97 evidence records 1366/1440/1920 DOM bounds, every local reference image's applied
+interaction principle, 95–99/100 structural scores, Tree keyboard/search behavior, native card
+downloads, frontend/backend/PostgreSQL regression and an isolated clean Docker seed/verifier. See
+`docs/15-demo/evidence/t97-reference-similarity-final.md`.
 
 ## Product experience correction (T-84)
 
