@@ -16,8 +16,9 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
 3. CSV를 업로드합니다. 원본은 immutable Raw Asset으로 먼저 저장됩니다.
 4. strain/stress column, original unit와 normalized unit을 확인하고 import합니다.
 5. raw와 normalized Dataset을 구분해 curve를 확인합니다.
-6. `Datasets` → `Processing Workbench`에서 strain을 `strain.engineering`/`1`, stress를
-   `stress.engineering`/`Pa`로 연결한 Mapping Profile을 선택합니다.
+6. **Modeling → Data**에서 JSON/CSV/XLSX 입력을 선택하고 strain을
+   `strain.engineering`/`1`, stress를 `stress.engineering`/`Pa`로 연결한 Mapping Profile을
+   확인합니다.
 7. `rows.sort_unique` 뒤에 필요한 금속 처리 단계를 순서대로 추가합니다.
    - `metal.elastic_modulus`: OLS, Huber robust, chord, secant 또는 manual 방식과 평가 구간
    - `metal.proof_stress`: E, proof offset(예: `0.002`)과 검색 구간
@@ -85,7 +86,7 @@ domain approval이 필요합니다. `unsupported`가 하나라도 있으면 card
 
 ## Canonical Neutral Material JSON 받기
 
-Material Modeling 상단에서 **Card**를 누릅니다. 화면은 현재 Fit/Extrapolate 결과를 버리지 않고
+Material Modeling 상단에서 **Export**를 누릅니다. 화면은 현재 Fit 결과를 버리지 않고
 exact Material/State와 reviewed Processing Output/IR을 고정한 delivery task로 전환됩니다. 선택한
 IR의 origin이 `selected fitted hardening Processing Output`인지 확인한 뒤 **Create Neutral Material
 JSON**을 누릅니다. 이 작업은 현재 IR을 다시 fitting하지 않습니다. exact

@@ -109,11 +109,6 @@ const CanonicalTestDataWorkbench = lazy(() =>
     default: module.CanonicalTestDataWorkbench,
   })),
 );
-const CommonProcessingWorkbench = lazy(() =>
-  import("./common-processing-workbench").then((module) => ({
-    default: module.CommonProcessingWorkbench,
-  })),
-);
 const MaterialModelingWorkspace = lazy(() =>
   import("./material-modeling-workspace").then((module) => ({
     default: module.MaterialModelingWorkspace,
@@ -695,13 +690,7 @@ export function App() {
   } else if (path === "/materials") {
     page = <MaterialSearchPage config={config} onNavigate={navigate} />;
   } else if (path === "/catalog/schema") {
-    page = (
-      <ConfigurableCatalogAdmin
-        config={config}
-        onNavigate={navigate}
-        onOpenConnection={retrySession}
-      />
-    );
+    page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="database" />;
   } else if (path === "/catalog/records") {
     page = (
       <ConfigurableCatalogRecords
@@ -723,13 +712,7 @@ export function App() {
       />
     );
   } else if (path === "/datasets/processing") {
-    page = (
-      <CommonProcessingWorkbench
-        config={config}
-        onNavigate={navigate}
-        onOpenConnection={retrySession}
-      />
-    );
+    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/datasets") {
     page = <ModuleHubPage area="datasets" config={config} navigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/models") {

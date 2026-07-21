@@ -31,6 +31,11 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Profile과 검색 동작을 다시 찾을
 수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
 
+검색어, family/source/solver/status/수치 범위, 정렬, Browse/Subsets mode와 선택 Material은
+`/materials` URL에 저장됩니다. Material Detail의 `← Materials`를 누르면 같은 검색 조건과 선택으로
+돌아옵니다. Browse에서 선택한 exact Record는 현재 browser session에만 보존되며 돌아올 때 실제
+Table과 Folder ancestor를 다시 조회해 펼칩니다.
+
 ### Layout, Related와 Evidence 확인
 
 - `Properties`와 `Curves`는 관리자가 정의한 현재 Record Layout의 Attribute를 해당 일반 사용자

@@ -1960,15 +1960,16 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-95. Continuous Materials explorer and datasheet — `P0`
 
-- **상태 (`2026-07-21`):** `in progress; explorer and Detail slices complete`. Full-width shell,
+- **상태 (`2026-07-21`):** `complete`. Full-width shell,
   three-item product navigation, the continuous governed Browse Tree, five-tab Material Detail,
   Layout projection, typed Related/Workflow tables, and direct native card preview/download are
   implemented. The Tree reads the
   actual Catalog Explorer tables/children, keeps Database/Profile/Table/Folder/Record semantics,
   uses the typed Record search and saved Subset contracts, supports Up/Down/Home/End/Left/Right/
   Enter, and renders only a virtualized visible window. Filters, Browse and Subsets are sibling
-  navigator modes. Saved URL search/query state, final cross-route Tree restoration, and the live
-  production-scale latency gate remain.
+  navigator modes. Search, family/source/solver/status/range, sort, navigator mode and selected
+  Material are persisted in the `/materials` query. Detail return restores that query and the last
+  governed Browse Record expands its Table/Folder ancestor path from session context.
 - **범위:** actual Database/Profile/Table/Folder/Record explorer, filters, dense results, selected
   context, five-tab Material Detail, and direct CAE Card delivery on the approved continuous surface.
 - **보존:** typed search, saved Subset, Layout, Link Type, keyboard navigation, exact revision.
@@ -1998,7 +1999,15 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-97. Reference-similarity acceptance and legacy cleanup — `P0`
 
-- **상태:** `pending T-95/T-96 implementation`.
+- **상태 (`2026-07-21`):** `in progress; T-95/T-96 complete`. Administration uses the same compact
+  divider/list grammar and keeps Table, Attribute, Layout, Subset, Link Type and access engines.
+  At 1440×900 its live workspace is 1,425 px with a 220 px navigation rail, 340 px Table column,
+  792.1 px Attribute/Layout column and 52 px Attribute rows. A browser scenario added a synthetic
+  Attribute revision, created a Layout and verified its `Not set` projection in the Record Datasheet.
+  Materials search/filter/selection and exact Browse Record return context are now restored.
+  Full 1366/1440/1920 scenarios, accessibility, clean-demo/backend regression, final dead-surface
+  audit and the consolidated completion report remain. See
+  `docs/15-demo/evidence/t97-administration-state-continuity.md`.
 - **범위:** live DOM region measurements, side-by-side reference masks, scenarios A–E (including
   canonical JSON, CSV, and XLSX input), accessibility,
   clean demo/backend regression, screenshot manifest, and only then obsolete route/component/CSS removal.

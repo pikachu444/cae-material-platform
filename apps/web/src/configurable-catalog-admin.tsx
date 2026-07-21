@@ -75,6 +75,7 @@ export function ConfigurableCatalogAdmin({
 
   const [attributeKey, setAttributeKey] = useState("manufacturer");
   const [attributeName, setAttributeName] = useState("Manufacturer");
+  const [attributeHelpText, setAttributeHelpText] = useState("");
   const [attributeType, setAttributeType] = useState<ConfigurableAttributeDataType>("text");
   const [required, setRequired] = useState(false);
   const [quantitySemantics, setQuantitySemantics] = useState("");
@@ -210,7 +211,7 @@ export function ConfigurableCatalogAdmin({
           allowed_values: attributeType === "discrete" ? choices : [],
           reference_table_id:
             attributeType === "record_reference" ? referenceTableId || null : null,
-          help_text: null,
+          help_text: attributeHelpText.trim() || null,
         },
         change_reason: "Add typed Attribute Definition",
       });
@@ -454,6 +455,10 @@ export function ConfigurableCatalogAdmin({
                   <label>
                     Display name
                     <input value={attributeName} onChange={(event) => setAttributeName(event.target.value)} required />
+                  </label>
+                  <label className="attribute-description-field">
+                    Description
+                    <input value={attributeHelpText} onChange={(event) => setAttributeHelpText(event.target.value)} placeholder="How this value should be interpreted" />
                   </label>
                   <label>
                     Data type

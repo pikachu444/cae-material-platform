@@ -2,7 +2,7 @@
 
 ## Material Modeling에서 시작하기
 
-상단 **Material Modeling**에서 **Polymer · Viscoelastic**을 선택합니다. 시험 자료가
+상단 **Modeling**에서 **Polymer · Viscoelastic**을 선택합니다. 시험 자료가
 `time + relaxation modulus`이면 relaxation Recipe가, `frequency + storage/loss modulus`이면 DMA
 Recipe가 선택됩니다. Test Data를 바꾸면 호환 Mapping Profile과 처리 단계도 같이 바뀌므로 서로
 다른 시험 형식을 같은 옵션으로 계산하지 않습니다.
@@ -14,7 +14,7 @@ parameter database나 silent smoothing은 없습니다.
 
 ![DMA storage/loss Prony 비교](../15-demo/images/t89-polymer-dma-workbench.png)
 
-**Card**에서는 현재 선택한 시험 revision에서 승격된 Neutral JSON을 자동으로 엽니다. Abaqus는
+**Export**에서는 현재 선택한 시험 revision에서 승격된 Neutral JSON을 자동으로 엽니다. Abaqus는
 `*VISCOELASTIC, TIME=PRONY`를 직접 생성합니다. OpenRadioss는 `/VISC/LPRONY`의 deviatoric-only
 근사와 외부 total-strain `/PROP` 요구를 확인해야 생성 버튼이 활성화됩니다.
 
@@ -24,7 +24,8 @@ parameter database나 silent smoothing은 없습니다.
 
 ## 재사용 가능한 Processing Recipe로 후보 비교
 
-1. 상단 메뉴에서 **Processing**을 열고 **Polymer relaxation template**을 선택합니다.
+1. **Modeling → Data**에서 시험을 고르고 **Process**에서 Polymer relaxation template을
+   확인합니다. Recipe Library는 current-step ribbon의 **Advanced · Recipe and Batch**에 있습니다.
 2. Test Data JSON의 실제 channel key가 `time_s`, `shear_modulus_mpa`와 다르면 Profile JSON의
    `channel_key`만 실제 이름으로 고칩니다. normalized unit은 각각 `s`, `Pa`여야 합니다.
 3. template은 0초 행을 crop한 뒤 관측 범위 안에서만 log-time resampling을 수행합니다.

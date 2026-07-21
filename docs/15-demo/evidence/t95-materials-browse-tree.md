@@ -77,10 +77,21 @@ Browse Tree → type/Find → Record selection. No UUID or revision string must 
 - Live clean-demo API/Chromium verified the real hierarchy, eight DP780 matches, selection coupling,
   and the measured widths above.
 
+The final T-95 slice also verifies state continuity:
+
+- `/materials?q=DP780&family=metal&solver=OpenRadioss&selected=…` restores the search input, typed
+  filters and selected governed Material after a reload.
+- Opening Material Detail stores that exact return path; `← Materials` restores the same query and
+  selection rather than returning to an empty search.
+- Browse/Subsets mode is URL-backed. The last selected `ConfigurableLinkEndpoint` is stored only in
+  session context and, on return, calls the real Record/folder contracts to reopen Database →
+  Profile → Table → ancestor Folders → exact Record.
+- A component gate restores the exact Record and selected row in under one second while the
+  10,000-Record fixture still mounts fewer than 150 `treeitem` nodes.
+
 ## Remaining limits
 
-- Material Detail still needs the integrated Layout projection and Related/Workflow/Evidence
-  continuity while the Browse context is retained.
-- The production 10,000-Record database latency and first-match-under-one-second browser gate remain
-  for final T-97 verification; this slice proves bounded DOM rendering, not production p95.
-- Column resizing and saved URL restoration remain in the final T-95/T-97 slice.
+- The under-one-second gate is a deterministic synthetic component fixture, not a production p95
+  claim for a remote 10,000-Record database.
+- Column resizing is not implemented; key columns instead use minimum widths, sticky identity and
+  horizontal scrolling. It remains an optional enhancement rather than a T-95 acceptance blocker.

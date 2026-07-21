@@ -17,11 +17,16 @@ Docker demo는 **Demo workspace** Administrator session을 자동으로 준비�
 token을 입력하지 않습니다. 운영 환경의 회사 identity directory 연결은 배포 설정이며 일반
 Administration 화면에 issuer, subject 또는 token을 노출하지 않습니다.
 
+Administration은 일반 사용자 메뉴에 상시 노출되지 않습니다. 우측 workspace menu에서 열며,
+왼쪽 220 px 관리 목록과 하나의 주 작업면을 사용합니다. Overview의 관리 작업은 card grid가 아닌
+divider 목록이고, Database design은 20 px 제목, 340 px Table 열과 나머지 Attribute/Layout 열을
+사용합니다. Attribute도 rounded card가 아닌 52 px divider 행으로 표시합니다.
+
 ## 2. Table과 Attribute 구성
 
 1. **Administration → Database design**에서 stable key, 표시 이름, 설명과 classification을 입력해
    Table revision 1을 만듭니다.
-2. Table을 선택하고 Attribute stable key, 표시 이름과 data type을 정의합니다.
+2. Table을 선택하고 Attribute stable key, 표시 이름, 설명과 data type을 정의합니다.
 3. `number`에는 quantity semantics와 정규화 단위를 함께 지정합니다.
 4. `discrete`에는 허용값을, `record_reference`에는 대상 Table을 지정합니다.
 5. Attribute를 Layout에 원하는 순서로 배치하고, 자주 쓰는 검색 조건은 Subset으로
@@ -87,9 +92,11 @@ Administrator/User와 기능 권한으로 투영하므로 기존 enforcement가 
 호환 정보는 일반 제품 화면에 표시하지 않습니다. 향후 resource/action/scope 단위 권한을 추가해도
 Catalog schema나 사용자 작업 흐름을 다시 만들지 않습니다.
 
-![통합 Administration 개요](../15-demo/images/t78-administration-overview.png)
+![통합 Administration 개요](../15-demo/images/ux-redesign-v2/administration-overview-1440x900.png)
 
-![Table, Attribute, Layout, Subset 및 Link Type 관리](../15-demo/images/t78-database-design.png)
+![평면 행으로 정리한 Table, Attribute, Layout, Subset 및 Link Type 관리](../15-demo/images/ux-redesign-v2/administration-database-1440x900.png)
+
+![새 Attribute revision이 Layout 기반 Record Datasheet에 투영된 결과](../15-demo/images/ux-redesign-v2/administration-layout-datasheet-1440x900.png)
 
 ![제품 역할 및 기능 권한](../15-demo/images/t78-users-access.png)
 

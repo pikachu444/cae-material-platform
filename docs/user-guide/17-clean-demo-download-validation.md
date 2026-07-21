@@ -29,7 +29,8 @@ ZIP 안의 `manifest.json`, `checksums.sha256`, `README.txt`를 검사합니다.
 
 ## 화면에서 내려받기
 
-1. [Dashboard](http://127.0.0.1:5173/)에서 **Open bulk downloads**를 누릅니다.
+1. [Activity](http://127.0.0.1:5173/activity)의 Advanced에서 **Bulk exports**를 누르거나
+   호환 route [Exports](http://127.0.0.1:5173/exports)를 엽니다.
 2. Material에서 `CMP-DEMO-DP780`을 선택합니다.
 3. Test Data JSON, Mapping Profile, published Processing Recipe, Neutral Material JSON,
    Neutral mapping report와 native Solver Card의 exact revision을 확인합니다.

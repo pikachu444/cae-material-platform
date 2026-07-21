@@ -95,6 +95,7 @@ describe("Material Catalog workbench", () => {
   beforeEach(() => {
     window.history.pushState({}, "", "/");
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -142,6 +143,19 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByRole("button", { name: "Open material" })).toBeTruthy();
     expect(await screen.findByText("1 cards")).toBeTruthy();
     expect(screen.getAllByText("OpenRadioss").length).toBeGreaterThanOrEqual(1);
+    fireEvent.change(screen.getByRole("textbox", { name: "Search materials" }), { target: { value: "DP780" } });
+    fireEvent.submit(screen.getByRole("search"));
+    fireEvent.click(screen.getByRole("button", { name: "Show filters" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Material class" }), { target: { value: "metal" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "CAE card" }), { target: { value: "OpenRadioss" } });
+    await waitFor(() => expect(window.location.search).toContain("q=DP780"));
+    expect(window.location.search).toContain("family=metal");
+    expect(window.location.search).toContain("solver=OpenRadioss");
+    fireEvent.click(screen.getByRole("button", { name: "Open material" }));
+    await waitFor(() => expect(window.location.pathname).toBe(`/materials/${visibleMaterial.material_id}`));
+    fireEvent.click(await screen.findByRole("button", { name: "← Materials" }));
+    expect(await screen.findByRole("textbox", { name: "Search materials" })).toHaveProperty("value", "DP780");
+    expect(window.location.search).toContain("q=DP780");
   });
 
   it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {

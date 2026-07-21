@@ -5,29 +5,28 @@ Material State의 exact revision 문맥을 공유합니다.
 
 | 상단 메뉴 | 주 작업 |
 | --- | --- |
-| **Dashboard** | Material Database 검색/tree 또는 Material Modeling/import 중 현재 할 작업 선택 |
-| **Material Database** | Contents Tree, Datasheet, 검색·비교·링크와 Material record |
-| **Material Modeling** | 시험 import, curve processing, Recipe, fitting, IR와 Solver Card |
-| **Jobs & Reviews** | Batch/Job 상태, 검토·승인·배포와 다운로드 |
-| **Administration** | Table/Attribute/Layout/Link Type과 사용자 기능 권한 |
+| **Materials** | 검색·필터·비교, Browse Tree, 5-tab datasheet와 직접 solver card download |
+| **Modeling** | Data, Process, Fit, Export와 Advanced Recipe/Batch/JSON |
+| **Activity** | 최근 Modeling, 검토·release, 고급 Job/export package 진입 |
+
+**Administration**은 우측 workspace menu의 role-gated 항목입니다. Table/Attribute/Layout/Subset/
+Link Type과 사용자 기능 권한을 관리합니다. `/database`, `/catalog/*`, `/datasets/*`의 기존 deep
+link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않습니다.
 
 ## 권장 이동 순서
 
-1. **Material Database**에서 Material을 검색하거나 생성합니다.
-2. Material 상세의 **Overview**에서 State와 기본 물성을 확인합니다.
-3. **Test data** 탭에서 시험 실행 문맥과 column/unit mapping을 고정합니다.
-4. **Datasets & Processing**에서 개별 curve와 raw/normalized/processed 구분을 확인합니다.
-5. **Models & Cards**에서 fitting 또는 수동 IR 입력, mapping report와 card를 확인합니다.
-6. **Governance**에서 validation/provenance를 검토합니다.
-7. 여러 파일이 필요하면 **Jobs & Reviews**의 다운로드 영역에서 Bundle을 만듭니다.
+1. **Materials**에서 이름/grade를 검색하거나 **Browse Tree**의 Database → Profile → Table →
+   Folder → Record를 탐색합니다.
+2. Material 상세의 `Overview | Properties | Curves | CAE Cards | Evidence`를 검토합니다.
+3. 카드가 있으면 Header 또는 CAE Cards에서 native preview/download를 실행합니다.
+4. 카드가 없을 때 **Modeling → Data**에서 JSON/CSV/XLSX와 channel/unit을 고정합니다.
+5. Process와 Fit의 같은 graph에서 처리·후보·residual·extrapolation을 검토하고 Export로 이동합니다.
+6. provenance/full ID는 Evidence, Recipe/Batch/JSON은 Advanced, batch/job/package는 Activity의
+   Advanced에서 확인합니다.
 
-전역 **Tests**, **Datasets**, **Models**, **Governance** 메뉴에서 먼저 시작해도 됩니다. 각 화면은
-현재 권한으로 보이는 Material 목록을 제시하고 선택한 Material의 같은 문맥 탭으로 이동합니다.
-`/materials/{material_id}` 기존 주소는 **Overview**로 계속 동작합니다.
+![통합 Materials 검색·결과·선택 문맥](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
 
-![전역 Models 허브에서 Material 선택](../15-demo/images/t46-global-navigation-model-hub.png)
-
-![Material의 Models & Cards 문맥 탭](../15-demo/images/t46-material-context-tabs.png)
+![Material의 5-tab 상세와 직접 card delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
 ## Governance 운영 상태
 
