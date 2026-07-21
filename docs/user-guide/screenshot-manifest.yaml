@@ -536,3 +536,19 @@ captures:
     image: ../15-demo/images/ux-redesign-v2/materials-browse-tree-1366x768.png
     width: 1351
     height: 760
+  - id: t95-material-detail-overview
+    route: /materials/:materialId
+    workflow: selected-material-properties-curve-conditions-preview-and-direct-native-card-download
+    fixture: T-93 clean Compose DP780 Material with Abaqus and OpenRadioss native cards
+    source_evidence: ../15-demo/evidence/t95-material-detail-card.md
+    image: ../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png
+    width: 1425
+    height: 891
+  - id: t95-material-detail-evidence
+    route: /materials/:materialId/evidence
+    workflow: typed-related-records-workflow-layout-selection-and-technical-provenance-disclosure
+    fixture: T-93 clean Compose DP780 exact eight-Record workflow and administrator Layout
+    source_evidence: ../15-demo/evidence/t95-material-detail-card.md
+    image: ../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png
+    width: 1425
+    height: 891

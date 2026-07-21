@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./app";
 
@@ -283,6 +283,54 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByLabelText("Native solver card preview").textContent).toContain("/MAT/LAW36/1");
     expect(screen.getByRole("button", { name: "Download .rad" })).toBeTruthy();
     expect(window.location.pathname).toBe(`/materials/${materialId}/cards/${cardId}`);
+  });
+
+  it("downloads the preferred native OpenRadioss card directly from Material Detail", async () => {
+    const materialId = visibleMaterial.material_id;
+    const cardId = "00000000-0000-4000-8000-000000000099";
+    const recordId = "00000000-0000-4000-8000-000000000010";
+    const recordRevisionId = "00000000-0000-4000-8000-000000000011";
+    window.history.pushState({}, "", `/materials/${materialId}`);
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:cmp-card");
+    const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    const fetchMock = mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith(`/materials/${materialId}`)) return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse({
+        binding_id: "00000000-0000-4000-8000-000000000013",
+        record_id: recordId,
+        record_revision_id: recordRevisionId,
+        kind: "material",
+        object_id: materialId,
+        revision_id: visibleMaterial.current_revision.id,
+        workbench_path: `/materials/${materialId}`,
+      });
+      if (url.includes("/catalog/workflow-explorer/")) {
+        const root = { record_id: recordId, record_revision_id: recordRevisionId, revision_no: 1, table_id: "00000000-0000-4000-8000-000000000012", name: "Demo DP780 Steel", external_key: "DP780", domain_binding: null };
+        return jsonResponse({ root, nodes: [root, { ...root, record_id: "00000000-0000-4000-8000-000000000020", record_revision_id: "00000000-0000-4000-8000-000000000021", name: "DP780 OpenRadioss native material card", domain_binding: { binding_id: "00000000-0000-4000-8000-000000000022", record_id: "00000000-0000-4000-8000-000000000020", record_revision_id: "00000000-0000-4000-8000-000000000021", kind: "neutral_solver_card", object_id: cardId, revision_id: "00000000-0000-4000-8000-000000000023", workbench_path: "/exports" } }], links: [] });
+      }
+      if (url.includes("/bulk-export-candidates?")) return jsonResponse({ items: [] });
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) return textResponse("/MAT/LAW36/1\nDP780");
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/download`)) return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-disposition": "attachment; filename=\"DP780.rad\"" }),
+        blob: async () => new Blob(["/MAT/LAW36/1\nDP780"], { type: "text/plain" }),
+      } as Response;
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "Download .rad" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(`/neutral-solver-cards/${cardId}/download`),
+      expect.anything(),
+    ));
+    expect(createObjectUrl).toHaveBeenCalled();
+    expect(revokeObjectUrl).toHaveBeenCalledWith("blob:cmp-card");
+    expect(anchorClick).toHaveBeenCalled();
   });
 
   it("opens a governed Material binding while preserving its exact revision query", async () => {
