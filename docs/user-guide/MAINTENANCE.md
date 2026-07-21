@@ -25,3 +25,19 @@ fixture와 연결된 browser E2E로 수행하고 PR 본문에 token/confidential
 - 역사적 E2E 문서의 이미지는 증거이므로 덮어쓰지 않는다. 새 검증일 directory와 문서를 만든다.
 - 현재 화면에서 제외된 manifest 항목은 `docs/15-demo/screenshot-archive.yaml`에 보존한다.
 - 문서 분류는 `docs/documentation-manifest.yaml`에 등록하고 누락된 Markdown을 만들지 않는다.
+
+## 로컬 강제와 Codex 훅
+
+`.codex/hooks.json`은 Codex의 `git commit`, `git push`, `gh pr create`, `gh pr merge` 직전과 작업
+종료 시 `cmp-check-doc-impact`를 실행합니다. 저장소를 처음 열거나 hook 파일이 바뀌면 `/hooks`에서
+프로젝트 hook의 정확한 내용을 검토하고 trust해야 합니다. 신뢰하지 않은 프로젝트 hook은 실행되지
+않습니다.
+
+```powershell
+make docs-screenshots
+make docs-impact
+```
+
+일반 Git pre-commit hook은 설치하지 않습니다. 따라서 Codex 밖에서 직접 실행한 Git 명령은 로컬
+hook을 우회할 수 있으며, `scripts/ci.sh`의 `origin/main...HEAD` 검사가 같은 문서 영향 계약을 다시
+확인합니다.
