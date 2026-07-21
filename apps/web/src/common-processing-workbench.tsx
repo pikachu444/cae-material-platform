@@ -60,7 +60,7 @@ interface Props {
 export type ModelingTrack = "metal" | "polymer" | "elastomer";
 type WorkspaceInspector = "step" | "recipe" | "batch";
 type PlotView = "pipeline" | "ensemble";
-type ModelingWorkflowTask = "import" | "map" | "prepare" | "fit" | "extrapolate" | "card";
+type ModelingWorkflowTask = "data" | "process" | "fit" | "export";
 
 const DEFAULT_PROFILE: CommonMappingProfileContent = {
   profile_key: "normalized-tensile",
@@ -696,6 +696,15 @@ function paddedBounds(x: number[], y: number[]): PlotBounds {
   };
 }
 
+function curveDisplayName(item: CanonicalTestDataDocumentResponse, index: number): string {
+  const specimenMatch = item.specimen_id.match(/(?:specimen|sample|s)[-_ ]*(\d+)$/i);
+  if (specimenMatch) return `Specimen ${specimenMatch[1].padStart(2, "0")}`;
+  const documentMatch = item.document_key.match(/[-_](\d+)$/);
+  if (documentMatch) return `Curve ${documentMatch[1].padStart(2, "0")}`;
+  if (/-JSON$/i.test(item.document_key)) return "Curve 01";
+  return `Curve ${String(index + 1).padStart(2, "0")}`;
+}
+
 export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench, familyInspector }: Props) {
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
@@ -723,6 +732,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
   const [modelingTrack, setModelingTrack] = useState<ModelingTrack>(initialSession?.materialFamily ?? "metal");
   const [workspaceInspector, setWorkspaceInspector] = useState<WorkspaceInspector>("step");
+  const [inspectorVisible, setInspectorVisible] = useState(() => typeof window === "undefined" || window.innerWidth >= 1400);
   const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
   const [batchDocumentIds, setBatchDocumentIds] = useState<string[]>([]);
   const [batchLabel, setBatchLabel] = useState("Published Recipe batch");
@@ -1506,8 +1516,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   function openWorkflowTask(task: ModelingWorkflowTask): void {
     setWorkflowTask(task);
-    if (task === "card") return;
-    const preferredMethod = task === "fit" || task === "extrapolate"
+    if (task === "export" || task === "data") return;
+    const preferredMethod = task === "fit"
       ? modelingTrack === "metal"
         ? "metal.hardening_fit_extrapolate"
         : modelingTrack === "polymer"
@@ -1515,28 +1525,25 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             ? "polymer.dma_prony_fit_compare"
             : "polymer.prony_fit_compare"
           : "rows.sort_unique"
-      : task === "prepare"
+      : task === "process"
         ? modelingTrack === "metal" ? "metal.elastic_modulus" : "rows.sort_unique"
         : null;
     if (preferredMethod) {
       const index = configuredSteps.findIndex((step) => step.method_id === preferredMethod);
       if (index >= 0) focusConfiguredStep(index);
     }
-    if (task === "import" || task === "map") {
-      window.setTimeout(() => window.document.getElementById(`modeling-${task}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
-    }
   }
 
   const elastomerWorkbenchTask = modelingTrack === "elastomer"
-    && workflowTask !== "card"
+    && workflowTask === "fit"
     && familyWorkbench !== undefined;
 
   return (
     <main className="processing-workbench-page">
       <header className="modeling-app-header">
-        <div className="modeling-session-heading"><p className="eyebrow">Material Modeling</p><h1>Test curves to material model</h1><p className="modeling-session-context">{[initialSession?.material ? `${initialSession.material.label} r${initialSession.material.revisionNo}` : null, initialSession?.materialState ? `${initialSession.materialState.label} r${initialSession.materialState.revisionNo}` : null, selectedTrackDocument ? `${selectedTrackDocument.document_key} r${selectedTrackDocument.current_revision.revision_no}` : null].filter(Boolean).join("  /  ") || "Demo material  /  exact Test Data  /  live preview"}</p></div>
-        <div className="modeling-session-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import test data</button><button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Material Database</button></div>
-        <nav className="modeling-flow-nav" aria-label="Material Modeling steps">{(["import", "map", "prepare", "fit", "extrapolate", "card"] as ModelingWorkflowTask[]).map((task) => <button type="button" className={workflowTask === task ? "active" : ""} aria-current={workflowTask === task ? "step" : undefined} key={task} onClick={() => openWorkflowTask(task)}>{task[0].toUpperCase() + task.slice(1)}</button>)}</nav>
+        <div className="modeling-session-heading"><p className="eyebrow">Modeling</p><h1>Test curves to material model</h1><p className="modeling-session-context">{[initialSession?.material ? `${initialSession.material.label} r${initialSession.material.revisionNo}` : null, initialSession?.materialState ? `${initialSession.materialState.label} r${initialSession.materialState.revisionNo}` : null, selectedTrackDocument ? `${selectedTrackDocument.specimen_id || selectedTrackDocument.document_key} · r${selectedTrackDocument.current_revision.revision_no}` : null].filter(Boolean).join("  /  ") || "Material  /  exact Test Data  /  live preview"}</p></div>
+        <div className="modeling-session-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import JSON / CSV / XLSX</button><details className="modeling-header-advanced"><summary>Advanced</summary><button type="button" onClick={() => onNavigate("/database")}>Material Database</button></details></div>
+        <nav className="modeling-flow-nav" aria-label="Material Modeling steps">{(["data", "process", "fit", "export"] as ModelingWorkflowTask[]).map((task) => <button type="button" className={workflowTask === task ? "active" : ""} aria-current={workflowTask === task ? "step" : undefined} key={task} onClick={() => openWorkflowTask(task)}>{task[0].toUpperCase() + task.slice(1)}</button>)}</nav>
         <div className="modeling-track-selector" role="tablist" aria-label="Material modeling family">
           <button type="button" role="tab" aria-selected={modelingTrack === "metal"} className={modelingTrack === "metal" ? "active metal" : "metal"} onClick={() => selectModelingTrack("metal")}><span>Metal</span><strong>Elastoplastic</strong><small>E, proof, necking, hardening</small></button>
           <button type="button" role="tab" aria-selected={modelingTrack === "polymer"} className={modelingTrack === "polymer" ? "active polymer" : "polymer"} onClick={() => selectModelingTrack("polymer")}><span>Polymer</span><strong>Viscoelastic</strong><small>Relaxation or DMA · Prony</small></button>
@@ -1546,8 +1553,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {notice ? <div className="success-banner" role="status">{notice}</div> : null}
 
-      {modelingTrack !== "elastomer" ? <details className="modeling-support-drawer">
-        <summary><span><strong>Session inputs &amp; mapping</strong><small>{selectedTrackDocument ? `${selectedTrackDocument.document_key} · r${selectedTrackDocument.current_revision.revision_no}` : "Choose exact Test Data and Mapping Profile"}</small></span><span>Configure</span></summary>
+      {workflowTask === "data" ? <section className="modeling-data-entry" aria-label="Modeling data input">
+        <header><div><p className="eyebrow">Data</p><h2>Test data and channel mapping</h2><p>Choose Library data or import a governed document, then confirm channels, quantity semantics, and original/normalized units.</p></div><div className="modeling-format-actions" aria-label="Supported Modeling input formats"><button className="button primary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Canonical JSON</button><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>CSV</button><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>XLSX</button></div></header>
+      </section> : null}
+
+      {modelingTrack !== "elastomer" && workflowTask === "data" ? <details className="modeling-support-drawer" open>
+        <summary><span><strong>Data input &amp; mapping</strong><small>{selectedTrackDocument ? `${selectedTrackDocument.specimen_id || selectedTrackDocument.document_key} · r${selectedTrackDocument.current_revision.revision_no}` : "Choose exact Test Data and Mapping Profile"}</small></span><span>{workflowTask === "data" ? "Current step" : "Advanced"}</span></summary>
       <section className="processing-setup-grid">
         <article className="workbench-card processing-input-card" id="modeling-import">
           <p className="eyebrow">1 · exact input</p><h2>Test Data revision</h2>
@@ -1567,13 +1578,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       </details> : null}
 
       {elastomerWorkbenchTask ? <section className="modeling-elastomer-workspace" id="modeling-fit" aria-label="Elastomer multi-mode modeling workspace">{familyWorkbench}</section> : null}
-      {workflowTask !== "card" && !elastomerWorkbenchTask ? <section className="workbench-card method-builder-card" id="modeling-prepare">
-        <div className="section-heading"><div><p className="eyebrow">3 · Prepare, fit and extrapolate</p><h2>Processing pipeline</h2></div><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div>
-        <details className="method-library"><summary>Add a processing method <span>{trackMethods.length} compatible</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details>
-        <div className="modeling-graph-workspace">
+      {(workflowTask === "process" || workflowTask === "fit") && !elastomerWorkbenchTask ? <section className="workbench-card method-builder-card" id="modeling-process">
+        <div className="section-heading"><div><p className="eyebrow">{workflowTask}</p><h2>{workflowTask === "fit" ? "Fit response, residual, and extrapolation" : "Process selected curves"}</h2></div><div className="modeling-section-actions"><details className="method-library"><summary>Add method <span>{trackMethods.length}</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details><button className="button secondary" type="button" aria-expanded={inspectorVisible} onClick={() => setInspectorVisible((current) => !current)}>{inspectorVisible ? "Hide settings" : "Show settings"}</button><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div></div>
+        <div className={`modeling-graph-workspace${inspectorVisible ? " inspector-visible" : ""}`}>
           <aside className="modeling-workspace-rail">
-            <div className="modeling-dataset-list"><div className="rail-heading"><p className="eyebrow">Datasets &amp; curves</p><span>{ensembleDocumentIds.length} included</span></div>{trackDocuments.map((item, index) => <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id}><label className="curve-include-toggle" title="Include this exact revision in replicate statistics"><input aria-label={`Include ${item.document_key} in replicate statistics`} type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)}/><span className="dataset-curve-swatch" style={{ "--curve-index": index } as React.CSSProperties}/></label><button type="button" onClick={() => { setPlotView("pipeline"); void loadDocument(item.test_data_document_id); }}><span><strong>{item.document_key}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button></article>)}{!trackDocuments.length ? <p className="muted">No Test Data revision declares the quantities required by this material track.</p> : null}<div className="rail-statistics-action"><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }}/></label><button className="button secondary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Add mean & band"}</button><small>Intersection only · no extrapolation</small></div></div>
-            <div className="configured-step-list"><p className="eyebrow">Recipe steps</p>{configuredSteps.map((step, index) => <button type="button" className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{index + 1}</span><span><strong>{methods.find((method) => method.method_id === step.method_id)?.label ?? step.method_id}</strong><small>{step.method_version}</small></span></button>)}</div>
+            <div className="modeling-dataset-list"><div className="rail-heading"><p className="eyebrow">Curves</p><span>{ensembleDocumentIds.length} included</span></div>{trackDocuments.map((item, index) => <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id}><label className="curve-include-toggle" title="Include this exact revision in replicate statistics"><input aria-label={`Include ${item.document_key} in replicate statistics`} type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)}/><span className="dataset-curve-swatch" style={{ "--curve-index": index } as React.CSSProperties}/></label><button type="button" title={`${item.document_key} · ${item.specimen_id} · exact revision r${item.current_revision.revision_no}`} onClick={() => { setPlotView("pipeline"); void loadDocument(item.test_data_document_id); }}><span><strong>{curveDisplayName(item, index)}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button></article>)}{!trackDocuments.length ? <p className="muted">No Test Data revision declares the quantities required by this material track.</p> : null}<div className="rail-statistics-action"><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }}/></label><button className="button secondary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Add mean & band"}</button><small>Intersection only · no extrapolation</small></div></div>
+            <div className="configured-step-list"><p className="eyebrow">Process</p>{configuredSteps.map((step, index) => { const label = methods.find((method) => method.method_id === step.method_id)?.label ?? step.method_id; return <button type="button" title={`${label} · ${step.method_id} ${step.method_version}`} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{index + 1}</span><span><strong>{label}</strong><small>{step.method_version}</small></span></button>; })}</div>
           </aside>
           <article className="persistent-modeling-plot" id="modeling-fit">
             <div className="section-heading"><div><p className="eyebrow">Live curve comparison</p><h2>{plotView === "ensemble" ? "Replicate statistics" : activeStage?.method_id ?? "Load data and preview"}</h2></div><div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={plotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Pipeline</button><button type="button" className={plotView === "ensemble" ? "active" : ""} disabled={!ensemblePreview} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button>{preview || ensemblePreview ? <span className="status-chip warning">Preview only · not committed</span> : null}</div></div>
@@ -1581,18 +1591,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             {preview && plotView === "pipeline" ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => stage.ordinal > 0 ? focusConfiguredStep(stage.ordinal - 1) : setSelectedStage(0)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : ensemblePreview && plotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>
           <aside className="step-option-panel">
-            <nav className="workspace-inspector-tabs" aria-label="Modeling workspace inspector">
-              <button type="button" className={workspaceInspector === "step" ? "active" : ""} onClick={() => setWorkspaceInspector("step")}>Step options</button>
-              <button type="button" className={workspaceInspector === "recipe" ? "active" : ""} onClick={() => setWorkspaceInspector("recipe")}>Recipe <span>{trackRecipes.length}</span></button>
-              <button type="button" className={workspaceInspector === "batch" ? "active" : ""} onClick={() => setWorkspaceInspector("batch")}>Batch <span>{trackBatches.length}</span></button>
-            </nav>
-            {workspaceInspector === "step" ? selectedConfiguredStep ? <>
+            <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div>
+            {selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="eyebrow">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
               <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} />
               {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelectPrimary={(family) => updateStepOption("primary_family", family)} /> : null}
               {(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage?.method_id === selectedConfiguredStep.method_id ? <PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelect={(termCount) => updateStepOptions({ selection_mode: "manual", selected_term_count: termCount })} /> : null}
               {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}
-            </> : <p className="muted">Add or select a processing step.</p> : null}
+            </> : <p className="muted">Add or select a processing step.</p>}
+            <details className="advanced-workflow-settings">
+              <summary>Advanced · Recipe and Batch</summary>
+              <nav className="workspace-inspector-tabs" aria-label="Advanced Modeling tools">
+                <button type="button" className={workspaceInspector === "recipe" ? "active" : ""} onClick={() => setWorkspaceInspector("recipe")}>Recipe <span>{trackRecipes.length}</span></button>
+                <button type="button" className={workspaceInspector === "batch" ? "active" : ""} onClick={() => setWorkspaceInspector("batch")}>Batch <span>{trackBatches.length}</span></button>
+              </nav>
             {workspaceInspector === "recipe" ? <div className="inspector-recipe-panel">
               <div className="section-heading"><div><p className="eyebrow">Reusable execution</p><h3>Recipe Library</h3></div><span className="status-chip">{trackRecipes.length} saved</span></div>
               <label>Saved Recipe<select aria-label="Saved Processing Recipe" value={selectedRecipeId} onChange={(event) => selectRecipe(event.target.value)}><option value="">New Recipe</option>{trackRecipes.map((item) => <option key={item.processing_recipe_id} value={item.processing_recipe_id}>{item.content.label} · r{item.current_revision.revision_no} · {item.content.lifecycle_state}</option>)}</select></label>
@@ -1612,13 +1624,14 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               {batchPreflight ? <div className="batch-summary"><strong>{batchPreflight.compatible ? "Ready to run" : "Blocked"}</strong><span>{batchPreflight.members.filter((member) => member.compatible).length}/{batchPreflight.members.length} compatible exact revisions</span><div className="batch-preflight-members">{batchPreflight.members.map((member) => <span className={member.compatible ? "compatible" : "blocked"} key={`${member.source.document_id}:${member.source.revision_id}`}><i />Input {member.ordinal + 1}<small>{member.compatible ? `${member.final_point_count} output points` : member.diagnostic ?? "Incompatible"}</small></span>)}</div><code>{batchPreflight.recipe_sha256}</code></div> : <p className="muted">The current published Recipe is restored automatically. Select exact Test Data, then run compatibility preflight.</p>}
               <div className="inspector-batch-history">{trackBatches.map((batch) => { const succeeded = batch.attempts.filter((attempt) => attempt.status === "succeeded").length; return <article key={batch.batch_id}><div><strong>{batch.label}</strong><small>{batch.members.length} members · {succeeded}/{batch.attempts.length} attempts succeeded</small><em>{new Date(batch.created_at).toLocaleDateString()}</em></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span>{batch.status === "partial" || batch.status === "failed" ? <button className="text-button" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed</button> : null}</article>; })}{!trackBatches.length ? <p className="muted">No batch has run for this material family yet.</p> : null}</div>
             </div> : null}
+            </details>
           </aside>
         </div>
         <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label></details>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
       </section> : null}
 
-      {workflowTask === "card" && familyWorkbench ? <section className="modeling-card-workspace" id="modeling-card" aria-label="Material model and solver card delivery workspace"><header><div><p className="eyebrow">Card task · exact reviewed evidence</p><h2>Neutral model to solver-native material card</h2><p>Choose the reviewed immutable result, inspect every mapping state, then preview and download Abaqus or OpenRadioss ASCII without leaving this workbench.</p></div><button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section> : null}
+      {workflowTask === "export" && familyWorkbench ? <section className="modeling-card-workspace" id="modeling-export" aria-label="Material model and solver card delivery workspace"><header><div><p className="eyebrow">Export</p><h2>Neutral model to solver-native material card</h2><p>Choose the reviewed immutable result, inspect every mapping state, then preview and download Abaqus or OpenRadioss ASCII without leaving this workbench.</p></div><button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section> : null}
 
       <details className="modeling-support-drawer" id="modeling-output"><summary><span><strong>Reviewed outputs</strong><small>{outputs.length} committed immutable processing results</small></span><span>Review</span></summary><section className="workbench-card processing-output-card">
         <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Commit reviewed result</h2></div><span className="status-chip">{outputs.length} committed</span></div>
