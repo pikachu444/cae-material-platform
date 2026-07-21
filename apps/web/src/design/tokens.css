@@ -1,0 +1,28 @@
+:root {
+  --ux-accent: #245ea8;
+  --ux-accent-hover: #184b8b;
+  --ux-accent-soft: #eaf2fc;
+  --ux-canvas: #f3f5f7;
+  --ux-surface: #ffffff;
+  --ux-surface-subtle: #eef2f5;
+  --ux-text: #17212b;
+  --ux-text-muted: #5d6874;
+  --ux-border: #cbd3da;
+  --ux-border-strong: #97a5b2;
+  --ux-success: #176b45;
+  --ux-warning: #8a5700;
+  --ux-danger: #a62929;
+  --ux-focus: #0b6fe8;
+  --ux-radius-control: 4px;
+  --ux-radius-panel: 8px;
+  --ux-shadow-none: none;
+  --ux-shadow-overlay: 0 12px 30px rgb(22 34 46 / 18%);
+  --ux-space-1: 4px;
+  --ux-space-2: 8px;
+  --ux-space-3: 12px;
+  --ux-space-4: 16px;
+  --ux-space-5: 24px;
+  --ux-space-6: 32px;
+  --ux-space-7: 48px;
+  --ux-header-height: 60px;
+}

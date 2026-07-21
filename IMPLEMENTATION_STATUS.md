@@ -23,6 +23,12 @@ added a fixed Tree-local search, retained ancestor path, independent node scroll
 and Browse/Filters/Subsets modes to Materials. The large-volume 10,000-record virtualization gate is
 specified for T-95 and is not claimed by the static prototype.
 
+The first production slice now uses the full application width, `Materials | Modeling | Activity`,
+compact 20 px workspace titles, 14 px data text, and divider-led surfaces. At 1440×900 the live
+Materials shell measures 1,376 px wide with 264 px filters, 830 px results, and 280 px selected
+context. At 1366×768 the context is closed and the result region receives the remaining width. This
+slice establishes the shell only; governed Tree scale and final Materials behavior remain T-95 work.
+
 ## Product experience correction (T-84)
 
 The T-79~T-81 work connected real calculation, Neutral Material and exporter engines, but its
