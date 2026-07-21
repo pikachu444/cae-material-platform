@@ -57,6 +57,37 @@ function materialSearchParams(): URLSearchParams {
   return new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
 }
 
+interface MaterialsLocationState {
+  query: string;
+  materialClass: string;
+  solver: string;
+  source: string;
+  status: string;
+  yieldMin: string;
+  yieldMax: string;
+  sortKey: "name" | "family" | "yield" | "cards";
+  sortDirection: "ascending" | "descending";
+  leftMode: "filters" | "browse" | "subsets";
+  selectedId: string;
+}
+
+function materialsPath(state: MaterialsLocationState): string {
+  const params = new URLSearchParams();
+  if (state.query) params.set("q", state.query);
+  if (state.materialClass) params.set("family", state.materialClass);
+  if (state.solver) params.set("solver", state.solver);
+  if (state.source) params.set("source", state.source);
+  if (state.status) params.set("status", state.status);
+  if (state.yieldMin) params.set("yieldMin", state.yieldMin);
+  if (state.yieldMax) params.set("yieldMax", state.yieldMax);
+  if (state.sortKey !== "name") params.set("sort", state.sortKey);
+  if (state.sortDirection !== "ascending") params.set("direction", state.sortDirection);
+  if (state.leftMode !== "filters") params.set("mode", state.leftMode);
+  if (state.selectedId) params.set("selected", state.selectedId);
+  const search = params.toString();
+  return search ? `/materials?${search}` : "/materials";
+}
+
 function initialNavigatorMode(): "filters" | "browse" | "subsets" {
   const mode = materialSearchParams().get("mode");
   return mode === "browse" || mode === "subsets" ? mode : "filters";
@@ -324,20 +355,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
 
   useEffect(() => {
     if (typeof window === "undefined" || window.location.pathname !== "/materials") return;
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (materialClass) params.set("family", materialClass);
-    if (solver) params.set("solver", solver);
-    if (source) params.set("source", source);
-    if (status) params.set("status", status);
-    if (yieldMin) params.set("yieldMin", yieldMin);
-    if (yieldMax) params.set("yieldMax", yieldMax);
-    if (sortKey !== "name") params.set("sort", sortKey);
-    if (sortDirection !== "ascending") params.set("direction", sortDirection);
-    if (leftMode !== "filters") params.set("mode", leftMode);
-    if (selectedId) params.set("selected", selectedId);
-    const search = params.toString();
-    window.history.replaceState(window.history.state, "", search ? `/materials?${search}` : "/materials");
+    window.history.replaceState(window.history.state, "", materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, leftMode, selectedId }));
   }, [leftMode, materialClass, query, selectedId, solver, sortDirection, sortKey, source, status, yieldMax, yieldMin]);
 
   const filtered = useMemo(() => materials.filter((material) => {
@@ -370,7 +388,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
   const comparedMaterials = filtered.filter((material) => compareIds.has(material.material_id));
 
   useEffect(() => {
-    if (!filtered.some((item) => item.material_id === selectedId)) setSelectedId(filtered[0]?.material_id ?? "");
+    if (filtered.length && !filtered.some((item) => item.material_id === selectedId)) setSelectedId(filtered[0]!.material_id);
   }, [filtered, selectedId]);
 
   const selected = filtered.find((item) => item.material_id === selectedId);
@@ -426,7 +444,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
   }
 
   function openMaterial(materialId: string): void {
-    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, `${window.location.pathname}${window.location.search}`);
+    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, leftMode, selectedId: materialId }));
     onNavigate(`/materials/${materialId}`);
   }
 

@@ -2663,6 +2663,95 @@ summary {
   gap: 1rem;
 }
 
+.app-shell > main:has(.governed-import-route) {
+  width: calc(100% - 2rem);
+  max-width: 1760px;
+  padding: 1rem 0 3rem;
+}
+
+.governed-import-route {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid #d5dde0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.governed-import-route-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .7rem .85rem;
+  border-bottom: 1px solid #d5dde0;
+  background: #f6f8f8;
+}
+
+.governed-import-route-header .eyebrow { margin-bottom: .15rem; }
+.governed-import-route-header h1 { margin: 0; font-size: 1.15rem; }
+.governed-import-route-header p:last-child { margin: .22rem 0 0; color: #607278; font-size: .76rem; }
+.governed-import-route-header .button { min-height: 2rem; padding: .38rem .65rem; }
+
+.governed-import-route > .governed-import {
+  margin: 0;
+  padding: .85rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.governed-import-route .governed-import > .section-heading {
+  align-items: start;
+  padding-bottom: .65rem;
+  border-bottom: 1px solid #dce3e4;
+}
+
+.governed-import-route .governed-import > .section-heading .eyebrow,
+.governed-import-route .governed-import > .section-heading .reference-chip { display: none; }
+.governed-import-route .governed-import > .section-heading h3 { margin: 0; font-size: .98rem; }
+.governed-import-route .governed-import > .section-heading p { max-width: 62rem; margin: .2rem 0 0; color: #63757a; font-size: .74rem; }
+
+.governed-import-route .workflow-grid {
+  grid-template-columns: minmax(250px, .8fr) minmax(360px, 1.15fr) minmax(250px, .8fr);
+  gap: 0;
+}
+
+.governed-import-route .workflow-card {
+  min-width: 0;
+  padding: .8rem;
+  border-right: 1px solid #dce3e4;
+}
+
+.governed-import-route .workflow-card:last-child { border-right: 0; }
+.governed-import-route .workflow-card h4 { margin-bottom: .65rem; font-size: .84rem; }
+.governed-import-route .workflow-card label { font-size: .72rem; }
+.governed-import-route .workflow-card input,
+.governed-import-route .workflow-card select { min-height: 2rem; padding: .35rem .45rem; }
+.governed-import-route .workflow-card button { min-height: 2rem; }
+
+.governed-import-empty {
+  display: grid;
+  justify-items: start;
+  gap: .75rem;
+  padding: 2rem;
+  border: 1px solid #d5dde0;
+  border-radius: 8px;
+  background: #fff;
+}
+.governed-import-empty h1,
+.governed-import-empty p { margin: 0; }
+
+@media (max-width: 1100px) {
+  .governed-import-route .workflow-grid { grid-template-columns: 1fr; }
+  .governed-import-route .workflow-card { border-right: 0; border-bottom: 1px solid #dce3e4; }
+  .governed-import-route .workflow-card:last-child { border-bottom: 0; }
+}
+
+@media (max-width: 700px) {
+  .governed-import-route-header { align-items: stretch; flex-direction: column; }
+}
+
 .preview-table-wrap {
   margin-top: 1.25rem;
   overflow-x: auto;

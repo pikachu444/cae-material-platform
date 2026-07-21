@@ -189,6 +189,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
   const [preview, setPreview] = useState<string | null>(null);
   const [previewCardId, setPreviewCardId] = useState<string | null>(null);
   const [neutralMaterial, setNeutralMaterial] = useState<NeutralMaterialResponse | null>(null);
+  const [switchingProcessingOutput, setSwitchingProcessingOutput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<"model" | "neutral" | "preflight" | "card" | "download" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -356,6 +357,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
       setModels((current) => [result.data, ...current]);
       setSelectedModelId(result.data.material_model_id);
       setProcessingAcknowledged(false);
+      setSwitchingProcessingOutput(false);
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
@@ -559,10 +561,11 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
               {action === "model" ? "Deriving hardening curve…" : "Create elastoplastic IR"}
             </button>
           </div> : null}
-          {embedded && neutralMaterial ? <div className="workflow-step embedded-source-summary">
+          {embedded && neutralMaterial && !switchingProcessingOutput ? <div className="workflow-step embedded-source-summary">
             <strong>1. Reviewed Processing Output</strong>
             <p className="form-hint">The exact fitted hardening output and its selection reason are already pinned by Neutral JSON r{neutralMaterial.revision_no}. No refit is performed here.</p>
             <div className="transformation-facts"><span>Output revision: exact and immutable</span><span>Curve stages: {neutralMaterial.document.curve_stages?.length ?? 0}</span><span>Model maturity: {neutralMaterial.document.material_model_ir.maturity}</span></div>
+            <button className="text-button" type="button" onClick={() => setSwitchingProcessingOutput(true)}>Create from another reviewed output</button>
           </div> : <div className="workflow-step">
             <strong>1B. Promote a fitted metal Processing Output (recommended)</strong>
             <p className="form-hint">

@@ -1775,6 +1775,43 @@
   font-size: 12px;
 }
 
+/* Engineering metadata must remain legible without inflating the workbench chrome. */
+.processing-workbench-page .modeling-plot-toolbar button,
+.processing-workbench-page .modeling-plot-toolbar span,
+.processing-workbench-page .hardening-analysis-tabs button,
+.processing-workbench-page .hardening-analysis-tabs > span,
+.processing-workbench-page .hardening-metric-strip span,
+.processing-workbench-page .hardening-metric-strip strong,
+.processing-workbench-page .hardening-metric-strip b,
+.processing-workbench-page .guided-range-row label,
+.processing-workbench-page .chart-tick,
+.processing-workbench-page .chart-axis-label,
+.processing-workbench-page .extrapolation-region text {
+  font-size: 12px;
+}
+
+.governed-import-route :is(label, small, .eyebrow, .reference-chip),
+.governed-import-route-header p:last-child,
+.governed-import-route .governed-import > .section-heading p {
+  font-size: 12px;
+}
+
+.app-shell main.processing-workbench-page :is(label, legend, small, code),
+.app-shell main.processing-workbench-page :is(.plot-view-switch, .workspace-inspector-tabs, .option-choice-grid, .candidate-check-grid) :is(button, span),
+.app-shell main.processing-workbench-page .modeling-support-drawer summary span,
+.app-shell main.processing-workbench-page .mapping-note {
+  font-size: 12px;
+}
+
+.app-shell main.processing-workbench-page .step-option-panel :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
+.app-shell main.processing-workbench-page .persistent-modeling-plot :is(.curve-legend button, .curve-band-legend),
+.app-shell main.processing-workbench-page .persistent-modeling-plot :is(.model-diagnostics-details, .candidate-evidence-list) :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
+.app-shell main.processing-workbench-page .stage-diagnostics :is(p, span, strong, b, em, code, summary),
+.app-shell main.processing-workbench-page .modeling-section-actions :is(span, small),
+.app-shell main.processing-workbench-page .stage-chip-rail :is(span, strong, small) {
+  font-size: 12px;
+}
+
 .processing-workbench-page > .success-banner,
 .processing-workbench-page > .error-banner {
   position: fixed;

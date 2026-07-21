@@ -57,14 +57,22 @@ def _axial_profile(
     )
 
 
-def _xlsx(*, formula: bool = False) -> bytes:
+def _xlsx(
+    *,
+    formula: bool = False,
+    absolute_target: bool = False,
+    worksheet_target: str | None = None,
+) -> bytes:
     workbook = """<?xml version="1.0" encoding="UTF-8"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
  <sheets><sheet name="Data" sheetId="1" r:id="rId1"/></sheets></workbook>"""
-    rels = """<?xml version="1.0" encoding="UTF-8"?>
+    worksheet_target = worksheet_target or (
+        "/xl/worksheets/sheet1.xml" if absolute_target else "worksheets/sheet1.xml"
+    )
+    rels = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
- <Relationship Id="rId1" Target="worksheets/sheet1.xml"
+ <Relationship Id="rId1" Target="{worksheet_target}"
   Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
 </Relationships>"""
     calculated = "<f>A2*2</f><v>100</v>" if formula else "<v>100</v>"
@@ -166,6 +174,44 @@ def test_xlsx_requires_explicit_sheet_and_rejects_formulas() -> None:
     with pytest.raises(InvalidGovernedImport, match="formulas"):
         inspect_tabular_source(
             _xlsx(formula=True),
+            raw_asset_id=RAW_ASSET,
+            raw_artifact_id=RAW_ARTIFACT,
+            raw_sha256=SHA,
+            file_format=TabularFileFormat.XLSX,
+            sheet_name="Data",
+            header_row=1,
+            encoding="binary",
+            delimiter=None,
+            decimal_separator=".",
+        )
+
+
+def test_xlsx_accepts_an_ooxml_absolute_worksheet_relationship_target() -> None:
+    preview = inspect_tabular_source(
+        _xlsx(absolute_target=True),
+        raw_asset_id=RAW_ASSET,
+        raw_artifact_id=RAW_ARTIFACT,
+        raw_sha256=SHA,
+        file_format=TabularFileFormat.XLSX,
+        sheet_name="Data",
+        header_row=1,
+        encoding="binary",
+        delimiter=None,
+        decimal_separator=".",
+    )
+
+    assert preview.header_columns == ("strain", "stress")
+    assert preview.sample_rows[-1] == ("1", "200")
+
+
+@pytest.mark.parametrize(
+    "worksheet_target",
+    ("../worksheets/sheet1.xml", "worksheets\\sheet1.xml"),
+)
+def test_xlsx_rejects_unsafe_worksheet_relationship_targets(worksheet_target: str) -> None:
+    with pytest.raises(InvalidGovernedImport, match="worksheet relationship is unsafe"):
+        inspect_tabular_source(
+            _xlsx(worksheet_target=worksheet_target),
             raw_asset_id=RAW_ASSET,
             raw_artifact_id=RAW_ARTIFACT,
             raw_sha256=SHA,
