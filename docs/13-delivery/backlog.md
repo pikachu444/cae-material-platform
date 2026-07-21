@@ -1743,12 +1743,13 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **완료 조건:** raw/normalized/processed overlay와 diagnostics가 option 변경 즉시 preview되고,
   명시적 commit만 immutable Output을 만든다. UUID 복사나 module route 이동이 필요 없다.
 - **테스트:** import/map, step reorder/options, preview-vs-commit, curve stage E2E와 screenshot.
-- **구현 증거:** `/modeling`은 exact Test Data 목록, ordered Recipe 단계, 서버 계산 curve overlay와
-  선택 단계의 구조화된 option editor를 한 3열 작업공간에 유지한다. 게시된 Recipe를 불러와
+- **당시 구현 증거:** `/modeling`은 exact Test Data 목록, ordered Recipe 단계, 서버 계산 curve overlay와
+  선택 단계의 구조화된 option editor를 한 3열 작업공간에 유지했다. 게시된 Recipe를 불러와
   raw/mapped/processed/fitted/extrapolated stage를 비교할 수 있으며 상세 JSON과 수치 parameter는
   고급 펼침 영역으로 분리했다. 실제 Docker/PostgreSQL 데모와 회귀 증거는
   `docs/15-demo/evidence/t79-material-modeling-workspace.md`에 있다. Family별 완전한 option/candidate
-  UX와 Recipe/Batch 통합은 T-80, Neutral/Card 연결은 T-81이다.
+  UX와 Recipe/Batch 통합은 T-80, Neutral/Card 연결은 T-81이다. 이 3열 presentation은 T-94에서
+  visual acceptance failure로 철회했으며 엔진과 contract 증거만 보존한다.
 
 #### T-80. Family modeling tracks and reusable Recipe/Batch UX — `P0`
 
@@ -1759,11 +1760,12 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
   Prony/WLF/Arrhenius, elastomer multi-mode/four-family/stability/Prony overlay를 plot과 option panel에서
   실행·비교한다.
 - **테스트:** existing numeric fixtures + family-specific browser journeys + deterministic Recipe/Batch.
-- **구현 증거:** `/modeling`의 Metal/Polymer/Elastomer tab이 family별 Mapping/Method 계약과 exact
+- **당시 구현 증거:** `/modeling`의 Metal/Polymer/Elastomer tab이 family별 Mapping/Method 계약과 exact
   Material/State/Property context를 전환한다. Step/Recipe/Batch inspector가 persistent graph 옆에서
   save/publish/preflight/execute/retry를 제공한다. 실제 Docker journey에서 metal hardening 네 후보,
   polymer log-time/Prony, elastomer 4 exact curve Plan·4 family·8 multistart·residual을 실행했다.
-  `docs/15-demo/evidence/t80-family-modeling-tracks.md`에 screenshot과 검증 결과가 있다. T-81의
+  `docs/15-demo/evidence/t80-family-modeling-tracks.md`에 screenshot과 검증 결과가 있다. 이 inspector
+  배치는 T-94에서 철회했고 기능은 Advanced drawer/routed screen으로 이동한다. T-81의
   reviewed Neutral/Card final step을 제외하고 T-80은 완료·검증됐다.
 
 #### T-81. Reviewed result to Neutral Material and solver cards — `P0`
@@ -1935,3 +1937,47 @@ clean-acceptance intent is retained in T-93.
   `docs/15-demo/images/t93-clean-*.png`.
 - **명시적 경계:** 공개식 기반 reference model 제품 흐름의 승인이다. 실제 solver 실행 상관,
   회사별 재료 qualification과 production-approved model 승인은 여전히 별도 검증 대상이다.
+
+## E-15. Reference-layout UX correction
+
+T-85~T-93의 engine integration과 database capability는 유지한다. 2026-07-21 product review는
+Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual acceptance failure로
+판정했다. 다음 Task는 기능을 다시 만드는 것이 아니라 reference-derived layout grammar를
+승인 가능한 presentation layer로 교정한다.
+
+#### T-94. Design policy, responsive prototype, and approval gate — `P0`
+
+- **상태 (`2026-07-21`):** `complete / approved`. Responsive prototypes and measured evidence pass;
+  the product owner approved commit `40726f6` after the compact navigator and Tree-search correction.
+- **범위:** five local references direct inspection, corrected visual contract, Materials/Detail/
+  Card/Modeling responsive HTML prototypes, normalized region annotations, similarity scoring, and
+  1366/1440/1920 screenshots.
+- **review correction:** Modeling curve/source ID blocks were replaced with 26 px plain-string tree
+  rows. Materials now includes fixed Tree-local search with retained ancestor paths, independent
+  scroll, keyboard focus movement, node-type glyphs, and sibling Browse/Filters/Subsets modes.
+- **완료 조건:** every screen scores at least 85/100; topology, dominant area, and zero nested-card
+  hard gates pass; product owner explicitly approves the side-by-side review.
+
+#### T-95. Continuous Materials explorer and datasheet — `P0`
+
+- **상태:** `ready; T-94 approved`.
+- **범위:** actual Database/Profile/Table/Folder/Record explorer, filters, dense results, selected
+  context, five-tab Material Detail, and direct CAE Card delivery on the approved continuous surface.
+- **보존:** typed search, saved Subset, Layout, Link Type, keyboard navigation, exact revision.
+- **scale gate:** synthetic 10,000-record hierarchy, server-backed lazy search, ≤150 rendered
+  treeitems with virtualization, and first-match keyboard focus within 1 second.
+
+#### T-96. Graph-dominant Modeling workspace — `P0`
+
+- **상태:** `ready; T-94 approved`.
+- **범위:** compact curve/process tree, shallow current-step ribbon, dominant persistent graph,
+  Data/Process/Fit/Export, and Advanced drawer for Recipe/Batch/JSON/evidence.
+- **완료 조건:** no permanent third column; 1440 graph SVG ≥1,050 px and ≥72% workspace; key Fit
+  controls stay visible; long curve names remain readable.
+
+#### T-97. Reference-similarity acceptance and legacy cleanup — `P0`
+
+- **상태:** `pending T-95/T-96 implementation`.
+- **범위:** live DOM region measurements, side-by-side reference masks, scenarios A–E (including
+  canonical JSON, CSV, and XLSX input), accessibility,
+  clean demo/backend regression, screenshot manifest, and only then obsolete route/component/CSS removal.

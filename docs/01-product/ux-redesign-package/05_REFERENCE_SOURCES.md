@@ -69,6 +69,10 @@
 - `README.md`
 - `AGENTS.md`
 - `IMPLEMENTATION_STATUS.md`
+- `docs/00-research/ux-reference-analysis.md`
+- `docs/00-research/ux-layout-review/README.md`
+- `docs/00-research/ux-layout-review/similarity-report.md`
+- `docs/00-research/ux-layout-review/region-annotations.json`
 - `docs/01-product/product-vision.md`
 - `docs/01-product/product-experience-spec.md`
 - `docs/01-product/gui-functional-parity-plan.md`
@@ -90,6 +94,8 @@
 
 - 공식 자료는 기능과 사용자 workflow의 존재를 확인하는 근거로만 사용한다.
 - 경쟁 제품의 내부 schema, algorithm, storage와 private API를 추정하지 않는다.
-- 화면 구조를 그대로 복제하지 않는다.
-- search, filter, list, datasheet, curve review와 CAE card delivery 같은 interaction principle만 채택한다.
+- 화면 구조는 brand pixel copy가 아니라 region topology, dominant-area ratio, density, surface grammar,
+  selection continuity, action position과 progressive disclosure 단위로 비교한다.
+- search, filter, governed Tree, list, datasheet, curve review와 CAE card delivery interaction principle을
+  반응형 시안과 정량 측정으로 검증한다.
 - 최신 제품명과 과거 도움말 제품명이 다를 수 있으므로 문서에 표시된 이름을 유지한다.

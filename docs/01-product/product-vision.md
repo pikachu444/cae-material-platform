@@ -2,6 +2,13 @@
 
 ## 1. 제품 비전
 
+> **Search-first and reference-layout correction:** 일반 사용자의 첫 작업은 기존 Material을
+> 검색·비교하고 Detail에서 CAE card를 preview/download하는 것이다. Search-first는 configurable
+> Database 기능을 삭제한다는 뜻이 아니며 Tree/Table/Attribute/Layout/Subset/Link Type과 exact
+> Record link는 Browse, Evidence, Administration에 그대로 유지한다. Materials는 연속형
+> explorer/datasheet, Modeling은 compact curve tree와 dominant graph 구조를 사용한다. 3열 수만
+> 맞추거나 독립 panel을 쌓는 화면은 reference-level 유사성으로 인정하지 않는다.
+
 재료시험 파일과 개인별 스크립트, spreadsheet, solver card가 분산된 상태를 없애고,
 **찾을 수 있고 연결할 수 있는 Material Information System**과 **재사용할 수 있는 Material
 Modeling Workbench**를 하나의 서비스로 제공한다. 사용자는 어떤 시험과 처리·보정·검증을
@@ -54,13 +61,15 @@ ADR-0030 및 [제품 capability map](../00-research/product-capability-map.md)�
 ### 2.1 제품 경험 기준
 
 내부 API와 DB contract가 존재한다는 사실은 제품 완료가 아니다. Material Database는
-Database/Profile → Table → nested Folder → Record Contents Tree와 Layout Datasheet를 중심으로
-검색·필터·비교·링크를 제공해야 한다. Material Modeling은 plot을 유지한 상태에서
-Import → Map → Prepare → Fit → Extrapolate → Card를 하나의 workbench에서 완료해야 한다.
+검색을 기본 진입으로 하고 Database/Profile → Table → nested Folder → Record Contents Tree와
+Layout Datasheet, 검색·필터·비교·링크를 한 연속형 workspace에서 제공해야 한다. Material
+Modeling은 compact curve/process explorer와 dominant plot을 유지한 상태에서 Data → Process →
+Fit → Export를 하나의 workbench에서 완료해야 한다.
 
 일반 사용자는 API URL, bearer token, tenant/RLS 또는 object-store 개념을 보지 않는다. demo는
 자동 session으로 시작하고 non-demo는 일반 login만 표시한다. 상세 화면, 완료 증거와 교체 순서는
-[product experience specification](product-experience-spec.md)과 ADR-0034를 따른다.
+[product experience specification](product-experience-spec.md),
+[visual system contract](ux-visual-system.md), ADR-0034를 따른다.
 
 ## 3. 목표 사용자와 역할
 

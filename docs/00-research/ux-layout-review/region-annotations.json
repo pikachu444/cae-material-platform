@@ -1,0 +1,74 @@
+{
+  "method": "Normalized role rectangles compare topology and area, not pixels or brand styling.",
+  "references": {
+    "granta-mi-favourites-list.png": {
+      "source_size": [1400, 776],
+      "regions": [
+        { "role": "navigation", "rect": [0.0, 0.0, 0.038, 1.0] },
+        { "role": "explorer-filter", "rect": [0.039, 0.07, 0.28, 0.93] },
+        { "role": "result-datasheet", "rect": [0.352, 0.07, 0.648, 0.93] }
+      ],
+      "topology": ["navigation left of explorer-filter", "explorer-filter left of result-datasheet"],
+      "dominant_role": "result-datasheet"
+    },
+    "material-data-center-search-detail.png": {
+      "source_size": [1280, 637],
+      "regions": [
+        { "role": "explorer-filter", "rect": [0.0, 0.04, 0.168, 0.895] },
+        { "role": "result-datasheet", "rect": [0.17, 0.04, 0.43, 0.895] },
+        { "role": "context", "rect": [0.602, 0.04, 0.398, 0.895] }
+      ],
+      "topology": ["explorer-filter left of result-datasheet", "result-datasheet left of context"],
+      "dominant_role": "result-datasheet plus selected context"
+    },
+    "material-data-center-cae-model.png": {
+      "source_size": [536, 274],
+      "regions": [
+        { "role": "result-datasheet", "rect": [0.0, 0.0, 1.0, 1.0] },
+        { "role": "primary-action", "rect": [0.012, 0.806, 0.18, 0.096] }
+      ],
+      "topology": ["solver then model then unit then primary-action"],
+      "dominant_role": "focused card delivery"
+    },
+    "material-modeler-curve-fitting.png": {
+      "source_size": [792, 440],
+      "regions": [
+        { "role": "settings", "rect": [0.0, 0.0, 1.0, 0.318] },
+        { "role": "graph", "rect": [0.0, 0.332, 1.0, 0.668] }
+      ],
+      "topology": ["settings above graph"],
+      "dominant_role": "graph"
+    },
+    "material-modeler-hyperelastic-fitting.jpg": {
+      "source_size": [1299, 772],
+      "regions": [
+        { "role": "settings", "rect": [0.012, 0.148, 0.272, 0.77] },
+        { "role": "graph", "rect": [0.293, 0.148, 0.679, 0.77] }
+      ],
+      "topology": ["settings left of graph"],
+      "dominant_role": "graph"
+    }
+  },
+  "prototype_targets": {
+    "materials": {
+      "references": ["granta-mi-favourites-list.png", "material-data-center-search-detail.png"],
+      "required_topology": ["explorer-filter left of result-datasheet", "optional context right of result-datasheet"],
+      "hard_gates": ["real hierarchy visible", "results wider than context", "no nested cards"]
+    },
+    "detail": {
+      "references": ["granta-mi-favourites-list.png", "material-data-center-search-detail.png"],
+      "required_topology": ["explorer-filter left of result-datasheet", "selected record owns all facts"],
+      "hard_gates": ["datasheet dominates", "one card-preview primary action", "no internal IDs before Evidence"]
+    },
+    "modeling": {
+      "references": ["material-modeler-curve-fitting.png", "material-modeler-hyperelastic-fitting.jpg"],
+      "required_topology": ["curve-tree left of graph", "settings above graph", "no persistent third column"],
+      "hard_gates": ["graph at least 70 percent workspace width", "curve names readable", "key settings visible"]
+    },
+    "card": {
+      "references": ["material-data-center-cae-model.png"],
+      "required_topology": ["selected material context before solver fields", "primary-action after required fields"],
+      "hard_gates": ["one download primary", "native preview visible", "technical evidence disclosed"]
+    }
+  }
+}

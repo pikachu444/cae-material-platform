@@ -69,6 +69,11 @@ docs/01-product/ux-visual-system.md
 
 ## 4. Phase 2 — Design System Reset
 
+Phase 2 begins with a mandatory design gate. Before production React/CSS changes, create responsive
+HTML prototypes for Materials, Material Detail/CAE Card, and Modeling; render 1366×768, 1440×900,
+and 1920×1080; annotate reference and target regions; and obtain explicit product-owner approval.
+The prototype PR contains no production application implementation.
+
 새 foundation:
 
 ```text
@@ -110,6 +115,13 @@ apps/web/src/design/
 - decorative gradient 제거
 - nested card 제거
 - border보다 whitespace와 section divider 우선
+- persistent workspace pane의 radius/shadow 제거
+- Materials는 연속형 explorer + dominant data surface
+- Modeling은 permanent third inspector 없이 compact tree + settings ribbon + dominant graph
+
+각 화면은 `docs/01-product/ux-visual-system.md`의 100점 structural similarity rubric에서 85점
+이상이어야 한다. Region topology, dominant result/graph, zero nested-card는 hard gate다. 색상,
+브랜드, 로고, 상용 icon과 pixel-level geometry는 비교 대상이 아니다.
 
 새 화면은 새 token만 사용한다. 기존 화면은 동시에 전부 변환하지 않고, 새 Materials 경로가 완료되면 dead CSS와 legacy component를 제거한다.
 
@@ -138,7 +150,7 @@ apps/web/src/design/
 - keyboard navigation
 - loading/empty/error states
 
-P0에서 제외:
+P0의 normal path에서 숨김:
 
 - complex schema administration
 - full workflow graph
@@ -146,7 +158,7 @@ P0에서 제외:
 - revision compare
 - arbitrary record link authoring
 
-이 기능들은 backend에서 유지하고 Advanced/Admin route에서 제공한다.
+이 기능들은 삭제하지 않으며 Browse Tree, Evidence, Advanced, Administration에서 제공한다.
 
 Acceptance slice:
 
@@ -359,3 +371,9 @@ task time, click count와 terminology count를 acceptance에 포함한다.
 ### 한 PR에서 대규모 rewrite
 
 각 PR은 하나의 사용자 task를 완료하고 독립적으로 검증한다.
+
+### 문서가 구현 뒤에 뒤처짐
+
+각 기능 PR에서 요구사항·제품 계약·status/backlog·API/JSON 계약·사용자 가이드·navigation
+contract·screenshot manifest·before/after evidence를 해당 코드 및 테스트와 함께 갱신한다. 최종
+acceptance PR은 처음 문서를 작성하는 단계가 아니라 전체 일관성을 감사하는 단계다.

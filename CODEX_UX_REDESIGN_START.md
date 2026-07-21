@@ -124,7 +124,7 @@ DP780 검색
 ### Upload-to-card
 
 ```text
-CSV/XLSX upload
+Canonical Test Data JSON / CSV / XLSX upload
 → mapping 확인
 → Process
 → Fit
@@ -133,7 +133,10 @@ CSV/XLSX upload
 ```
 
 - top-level 단계 4개
-- JSON editor 불필요
+- JSON 입력은 schema/channel/quantity semantics/original+normalized unit을 복원
+- CSV/XLSX 입력은 worksheet/column/channel/unit mapping을 확인
+- invalid schema/unit/worksheet/column은 silent fallback 없이 오류 표시
+- normal path에서 JSON editor 직접 작성 불필요; JSON/IR/report는 Evidence에서 다운로드
 - 기존 provenance와 solver mapping contract 유지
 
 ## 작업 보고
@@ -156,3 +159,28 @@ Before analyzing or implementing the frontend, open every local image in
 `docs/00-research/ux-reference-gallery/images/` and read the gallery README.
 Do not rely only on filenames, alt text or source links. Record which interaction
 principle from each image is applied to each redesigned screen.
+
+## Mandatory design approval gate
+
+Do not begin production React/CSS changes immediately after the reference audit. First produce a
+responsive, non-production layout prototype for Materials, Material Detail/CAE Card, and Modeling,
+render it at 1366×768, 1440×900, and 1920×1080, and compare it directly with every gallery image.
+
+The comparison must evaluate region topology, dominant-area ratio, information density, typography,
+surface/divider grammar, selection continuity, primary action placement, and progressive disclosure.
+Pixel similarity, brand color, icons, logos, and exact commercial geometry are excluded.
+
+Each screen must score at least 85/100 under `docs/01-product/ux-visual-system.md`. Region topology,
+dominant result/graph area, and zero nested-card violations are hard gates. Product-owner approval of
+the comparison prototype is required before implementation. A prior functional screenshot or test
+pass does not waive this gate.
+
+The product owner approved the responsive comparison at commit `40726f6` on 2026-07-21. Production
+implementation may proceed, but every live screen must pass the same structural rubric and hard gates.
+
+## Documentation synchronization contract
+
+Every implementation PR updates the requirements/product contract, status/backlog, relevant API or
+JSON contract, user/admin guide, screenshot manifest, before/after evidence, tests, and known limits
+that changed in that PR. The final acceptance PR audits consistency; it is not the first time product
+documentation is updated.

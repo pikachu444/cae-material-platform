@@ -73,6 +73,14 @@
 - 현재 screenshot을 보지 않고 문서 설명만으로 UI를 수정하지 않는다.
 - 전체 프론트엔드를 검증 없이 한 번에 rewrite하지 않는다.
 
+## 디자인 승인 게이트
+
+Production React/CSS 변경 전에 responsive HTML prototype과 reference side-by-side comparison을
+먼저 제출한다. `docs/01-product/ux-visual-system.md`의 structural similarity rubric 85/100,
+topology/dominant-area/zero-nested-card hard gate, product-owner approval을 모두 통과하기 전에는
+구현을 진행하지 않는다. Permanent three-column Modeling이나 Tree를 별도 링크로만 제공하는
+Materials 시안은 자동 반려한다.
+
 ## Phase 0 — Current baseline
 
 1. 현재 `main`과 branch 상태를 확인한다.
@@ -264,7 +272,7 @@ DP780 검색
 ### Upload-to-card
 
 ```text
-CSV/XLSX upload
+Canonical Test Data JSON / CSV / XLSX upload
 → mapping 확인
 → Process
 → Fit
@@ -273,7 +281,10 @@ CSV/XLSX upload
 ```
 
 - top-level 단계 4개
-- JSON editor 불필요
+- JSON은 schema/channel/quantity semantics/original+normalized unit을 복원
+- CSV/XLSX는 worksheet/column/channel/unit mapping을 확인
+- invalid schema/unit/worksheet/column은 silent fallback 없이 차단
+- normal path에서 JSON을 직접 작성할 필요는 없지만 JSON/IR/report는 Evidence에서 보존·다운로드
 - 기존 provenance와 solver mapping contract 유지
 
 ## PR 순서

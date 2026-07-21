@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CAE card layout review</title><link rel="stylesheet" href="review.css"></head>
+<body><header class="appbar" data-region="navigation"><div class="brand"><span class="brand-mark">CMP</span><span><strong>CAE Material Platform</strong><small>Material data and solver delivery</small></span></div><nav class="global-nav"><a class="active" href="materials.html">Materials</a><a href="modeling.html">Modeling</a><a href="card.html">Activity</a></nav><span class="user-menu">Demo workspace ▾</span></header>
+<main class="prototype-screen card-screen" style="display:grid"><section class="command-bar" data-region="search-control-band"><div class="command-context"><strong>CAE Card</strong><span>DP780 / OpenRadioss 2025</span></div><div class="quick-search" style="grid-template-columns:1fr auto"><span style="align-self:center;color:var(--muted);font-size:12px">Selected Material and reviewed model remain fixed</span><a class="button" href="detail.html" style="display:grid;place-items:center;text-decoration:none">Back to datasheet</a></div><div class="command-actions"></div></section>
+<section class="card-layout" data-region="card-workspace"><aside class="explorer" data-region="explorer-filter"><div class="pane-title"><span>Material context</span><span>r1</span></div><div class="tree"><div class="tree-row selected" style="--depth:0"><span>▾</span><i class="tree-icon record"></i><span>DP780 Dual-Phase Steel</span></div><div class="tree-row" style="--depth:1"><span>▾</span><i class="tree-icon folder"></i><span>CAE Cards</span></div><div class="tree-row" style="--depth:2"><span></span><i class="tree-icon record"></i><span>Abaqus 2025</span></div><div class="tree-row selected" style="--depth:2"><span></span><i class="tree-icon record"></i><span>OpenRadioss 2025</span></div></div><details class="filter-disclosure"><summary>Evidence and mapping</summary></details><details class="filter-disclosure"><summary>Revision and checksum</summary></details></aside>
+<article class="card-main"><header class="record-header"><div><h1>OpenRadioss native material card</h1><p>DP780 · reviewed hardening response · native .rad</p></div><div class="record-meta"><span>Mapping reviewed</span><span>2 transformed · 0 unsupported</span></div></header><nav class="detail-tabs"><span>Overview</span><span>Properties</span><span>Curves</span><span class="active">CAE Cards</span><span>Evidence</span></nav><div class="card-content"><section class="native-preview" data-region="result-datasheet"><div class="section-heading"><h2>Native ASCII preview</h2><span>Generated from the selected reviewed model</span></div><pre>/MAT/LAW36/1
+DP780_REVIEWED_REFERENCE
+#              RHO_I
+              7.800000000000e-09
+#                  E                  Nu
+              2.100000000000e+05     3.000000000000e-01
+#             Fsmooth              Fcut
+                       1                  0
+/FUNCT/1001
+DP780_TRUE_STRESS_PLASTIC_STRAIN
+#                  X                   Y
+              0.000000              450.000
+              0.010000              520.240
+              0.050000              641.880
+              0.100000              702.410
+              0.250000              790.650
+              0.500000              862.120</pre></section><aside class="delivery-form" data-region="primary-action"><h2>Card delivery</h2><p>Choose the target combination, review the native content, then download one solver-ready file.</p><label>Solver<select class="compact-select"><option>OpenRadioss</option></select></label><label>Version<select class="compact-select"><option>2025</option></select></label><label>Material law<select class="compact-select"><option>LAW36 · reference mapping</option></select></label><label>Unit system<select class="compact-select"><option>mm · ms · kg · MPa</option></select></label><div class="mapping-summary"><div><span>Exact</span><strong>7 fields</strong></div><div><span>Transformed</span><strong>2 fields</strong></div><div><span>Approximated</span><strong>0</strong></div><div><span>Unsupported</span><strong>0</strong></div></div><button class="button primary download-action">Download DP780.rad</button><a class="advanced-link">Mapping evidence and checksum ▸</a></aside></div></article></section></main></body></html>
