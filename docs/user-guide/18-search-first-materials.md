@@ -55,6 +55,19 @@ Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Prof
 Mapping Profile, Recipe/Batch, full revision, hash와 JSON evidence는 Advanced/Evidence에 남습니다.
 Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요합니다.
 
+### Modeling 화면 읽기
+
+- 왼쪽 `Curves`와 `Process`는 26 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
+  선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
+- 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
+  유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.
+- 1440 px 이상에서는 current-step settings가 그래프 위의 얕은 ribbon으로 열립니다. 1366 px에서는
+  그래프 노출을 위해 기본적으로 닫혀 있으며 `Show settings`로 엽니다. 이 ribbon은 세 번째
+  열이 아니므로 그래프 폭을 줄이지 않습니다.
+- `Add method`는 한 줄 도구 메뉴입니다. Recipe와 Batch는 `Advanced · Recipe and Batch`, ordered
+  step JSON은 `Advanced Recipe JSON`에서 확인합니다.
+- Export는 reviewed fitting에서 Neutral Material과 solver-native preview/download로 이어집니다.
+
 ![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
 
 ![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/materials-browse-tree-1366x768.png)
@@ -62,3 +75,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 ![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
 ![Related, Workflow, Layout and progressive Evidence](../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png)
+
+![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/modeling-fit-1440x900.png)
+
+![Explicit JSON, CSV and XLSX Modeling Data entry](../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png)

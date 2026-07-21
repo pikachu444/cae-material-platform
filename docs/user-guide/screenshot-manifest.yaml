@@ -552,3 +552,35 @@ captures:
     image: ../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png
     width: 1425
     height: 891
+  - id: t96-modeling-fit-1366
+    route: /modeling
+    workflow: compact-curve-process-tree-with-collapsed-settings-and-dominant-fit-graph
+    fixture: T-93 clean Compose DP780 three exact tensile curves and reviewed hardening preview
+    source_evidence: ../15-demo/evidence/t96-modeling-graph-workspace.md
+    image: ../15-demo/images/ux-redesign-v2/modeling-fit-1366x768.png
+    width: 1351
+    height: 760
+  - id: t96-modeling-fit-1440
+    route: /modeling
+    workflow: shallow-current-step-ribbon-above-dominant-response-residual-extrapolation-graph
+    fixture: T-93 clean Compose DP780 reviewed hardening candidates and selected blend
+    source_evidence: ../15-demo/evidence/t96-modeling-graph-workspace.md
+    image: ../15-demo/images/ux-redesign-v2/modeling-fit-1440x900.png
+    width: 1425
+    height: 891
+  - id: t96-modeling-data-1366
+    route: /modeling
+    workflow: canonical-json-csv-xlsx-exact-test-data-and-typed-channel-unit-mapping
+    fixture: T-93 clean Compose canonical JSON and governed tabular input adapters
+    source_evidence: ../15-demo/evidence/t96-modeling-graph-workspace.md
+    image: ../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png
+    width: 1351
+    height: 760
+  - id: t96-modeling-export-1440
+    route: /modeling
+    workflow: reviewed-material-model-ir-neutral-mapping-and-native-solver-card-delivery
+    fixture: T-93 clean Compose DP780 Abaqus and OpenRadioss delivery artifacts
+    source_evidence: ../15-demo/evidence/t96-modeling-graph-workspace.md
+    image: ../15-demo/images/ux-redesign-v2/modeling-export-1440x900.png
+    width: 1425
+    height: 891

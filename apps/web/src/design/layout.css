@@ -937,6 +937,8 @@
 }
 
 .modeling-app-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   padding: var(--ux-space-3) var(--ux-space-4);
   border: 0;
   border-bottom: 1px solid var(--ux-border);
@@ -952,17 +954,45 @@
   color: var(--ux-text);
 }
 
+.modeling-session-heading {
+  display: grid;
+  grid-template-columns: auto auto minmax(180px, 1fr);
+  align-items: baseline;
+  gap: 0 var(--ux-space-3);
+  min-width: 0;
+}
+
 .modeling-session-heading .eyebrow,
 .modeling-session-heading > p:last-child {
   font-size: 12px;
 }
 
+.modeling-session-heading .eyebrow {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .modeling-session-heading h1 {
+  margin: 0;
   font-size: 18px;
+  font-weight: 650;
+}
+
+.modeling-session-heading > p:last-child {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .modeling-flow-nav {
+  grid-column: 1;
+  grid-row: 2;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: min(640px, 100%);
 }
 
 .modeling-flow-nav button {
@@ -985,6 +1015,32 @@
   border-radius: var(--ux-radius-control);
   background: var(--ux-surface-subtle);
   color: var(--ux-text-muted);
+}
+
+.modeling-track-selector {
+  display: flex;
+  grid-column: 2;
+  grid-row: 2;
+  justify-content: flex-end;
+}
+
+.modeling-track-selector button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+}
+
+.modeling-track-selector button span,
+.modeling-track-selector button strong {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.modeling-track-selector button small {
+  display: none;
 }
 
 .modeling-track-selector button:hover,
@@ -1030,6 +1086,41 @@
   background: var(--ux-surface);
   box-shadow: var(--ux-shadow-overlay);
   color: var(--ux-accent);
+}
+
+.modeling-data-entry {
+  border-block: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-data-entry > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-5);
+  padding: var(--ux-space-3) var(--ux-space-4);
+}
+
+.modeling-data-entry h2,
+.modeling-data-entry p {
+  margin: 0;
+}
+
+.modeling-data-entry h2 {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.modeling-data-entry p:not(.eyebrow) {
+  margin-top: 2px;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.modeling-format-actions {
+  display: flex;
+  gap: var(--ux-space-2);
+  flex: 0 0 auto;
 }
 
 .method-builder-card > .section-heading,
@@ -1132,6 +1223,63 @@
   box-shadow: none;
 }
 
+.method-builder-card > .section-heading {
+  min-height: 40px;
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+.method-builder-card > .method-library {
+  margin: 0;
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: var(--ux-surface);
+}
+
+.modeling-section-actions .method-library {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.modeling-section-actions .method-library summary {
+  min-height: 32px;
+  padding: 7px 10px;
+  border: 1px solid var(--ux-border);
+  border-radius: var(--ux-radius-control);
+  background: var(--ux-surface);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.modeling-section-actions .method-library[open] summary {
+  margin: 0;
+}
+
+.modeling-section-actions .method-registry-strip {
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  top: calc(100% + 4px);
+  width: min(720px, 70vw);
+  max-height: 260px;
+  overflow: auto;
+  padding: var(--ux-space-3);
+  border: 1px solid var(--ux-border);
+  border-radius: var(--ux-radius-control);
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
 .modeling-graph-workspace {
   grid-template-columns: clamp(176px, 13.2vw, 196px) minmax(0, 1fr);
   grid-template-rows: auto minmax(424px, 1fr);
@@ -1167,7 +1315,7 @@
 .modeling-graph-workspace.inspector-visible .step-option-panel {
   grid-column: 2;
   grid-row: 1;
-  max-height: 154px;
+  max-height: 124px;
   overflow: auto;
   border-radius: 0;
   border-bottom: 0;
@@ -1180,7 +1328,26 @@
   min-width: 0;
   min-height: min(680px, calc(100vh - 235px));
   border-radius: 0;
-  position: static;
+  position: relative;
+}
+
+.persistent-modeling-plot .hardening-analysis-tabs {
+  position: absolute;
+  z-index: 3;
+  top: 84px;
+  right: var(--ux-space-3);
+  left: var(--ux-space-3);
+  margin: 0;
+  background: color-mix(in srgb, var(--ux-surface) 92%, transparent);
+}
+
+.persistent-modeling-plot .hardening-metric-strip:not(.prony-metric-strip) {
+  position: absolute;
+  z-index: 3;
+  top: 126px;
+  right: var(--ux-space-3);
+  left: var(--ux-space-3);
+  margin: 0;
 }
 
 .modeling-dataset-list,
@@ -1214,6 +1381,25 @@
   display: none;
 }
 
+.modeling-workspace-rail .eyebrow {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.modeling-graph-workspace.inspector-visible .guided-step-options,
+.modeling-graph-workspace.inspector-visible .step-option-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--ux-space-2) var(--ux-space-4);
+}
+
+.modeling-graph-workspace.inspector-visible .guided-step-options > .option-hint,
+.modeling-graph-workspace.inspector-visible .guided-step-options > .engineering-callout {
+  align-self: end;
+}
+
 .processing-workbench-page button,
 .processing-workbench-page input,
 .processing-workbench-page select {
@@ -1227,6 +1413,16 @@
 .processing-workbench-page .rail-heading > span,
 .processing-workbench-page .stage-chip-rail button strong {
   font-size: 12px;
+}
+
+.processing-workbench-page > .success-banner,
+.processing-workbench-page > .error-banner {
+  position: fixed;
+  z-index: 30;
+  top: calc(var(--ux-header-height) + var(--ux-space-3));
+  right: clamp(16px, 1.7vw, 32px);
+  width: min(520px, calc(100vw - 32px));
+  box-shadow: var(--ux-shadow-overlay);
 }
 
 .workspace-inspector-heading {

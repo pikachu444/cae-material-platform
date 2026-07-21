@@ -1981,11 +1981,20 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-96. Graph-dominant Modeling workspace — `P0`
 
-- **상태:** `ready; T-94 approved`.
+- **상태 (`2026-07-21`):** `complete`. Modeling is now `Data | Process | Fit | Export`; canonical
+  JSON, CSV and XLSX are explicit Data inputs. Process/Fit use one 180–190 px plain-text
+  curve/process tree and one fluid graph region. Current-step controls use a 124 px collapsible
+  ribbon above the plot, defaulting to a toggle at 1366 px, rather than a permanent third column.
+  Recipe, Batch, Mapping Profile/Recipe JSON and exact technical evidence remain under Advanced.
 - **범위:** compact curve/process tree, shallow current-step ribbon, dominant persistent graph,
   Data/Process/Fit/Export, and Advanced drawer for Recipe/Batch/JSON/evidence.
 - **완료 조건:** no permanent third column; 1440 graph SVG ≥1,050 px and ≥72% workspace; key Fit
   controls stay visible; long curve names remain readable.
+- **현재 검증:** at 1440×900 the workspace is 1,376.1 px, the curve/process tree is 190.1 px,
+  the graph region is 1,186 px and the actual SVG is 1,161.6 px (84.4% of workspace). At
+  1366×768 the ribbon defaults closed, the graph remains 1,124.3 px and 295.7 px of the live SVG is
+  visible in the first viewport. Curve rows are 26 px with 12.5 px normal labels and full exact
+  source/revision in the title. See `docs/15-demo/evidence/t96-modeling-graph-workspace.md`.
 
 #### T-97. Reference-similarity acceptance and legacy cleanup — `P0`
 
