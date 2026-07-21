@@ -1,17 +1,11 @@
-version: 6
+version: 7
 items:
-  - label: Dashboard
-    route: /
-    guide: 01-getting-started.md
-  - label: Material Database
-    route: /database
-    guide: 12-configurable-catalog-and-modeling.md
-  - label: Material Modeling
+  - label: Materials
+    route: /materials
+    guide: 18-search-first-materials.md
+  - label: Modeling
     route: /modeling
-    guide: 14-common-processing-workbench.md
-  - label: Jobs & Reviews
-    route: /jobs-reviews
-    guide: 10-navigation-and-troubleshooting.md
-  - label: Administration
-    route: /administration
-    guide: 15-product-access.md
+    guide: 18-search-first-materials.md
+  - label: Activity
+    route: /activity
+    guide: 18-search-first-materials.md

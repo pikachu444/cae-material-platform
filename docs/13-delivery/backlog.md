@@ -1960,7 +1960,8 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-95. Continuous Materials explorer and datasheet — `P0`
 
-- **상태:** `ready; T-94 approved`.
+- **상태:** `in progress; T-94 approved`. Full-width shell and the three-item product navigation are
+  implemented; governed Browse Tree, typed Catalog search, and the 10,000-record gate remain.
 - **범위:** actual Database/Profile/Table/Folder/Record explorer, filters, dense results, selected
   context, five-tab Material Detail, and direct CAE Card delivery on the approved continuous surface.
 - **보존:** typed search, saved Subset, Layout, Link Type, keyboard navigation, exact revision.

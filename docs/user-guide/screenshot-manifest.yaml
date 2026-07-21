@@ -520,3 +520,11 @@ captures:
     image: ../15-demo/images/t88-openradioss-card-delivery.png
     width: 1440
     height: 900
+  - id: t95-ux-foundation-materials
+    route: /materials
+    workflow: full-width-search-first-material-results-and-selected-solver-context
+    fixture: T-93 clean Compose reference Material library
+    source_evidence: ../15-demo/evidence/t95-ux-foundation-shell.md
+    image: ../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png
+    width: 1425
+    height: 891

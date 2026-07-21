@@ -11,6 +11,15 @@ function jsonResponse(body: unknown, status = 200): Response {
   } as Response;
 }
 
+function textResponse(body: string, status = 200): Response {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: new Headers({ "content-type": "text/plain" }),
+    text: async () => body,
+  } as Response;
+}
+
 const visibleMaterial = {
   material_id: "00000000-0000-0000-0000-000000000001",
   current_revision: {
@@ -57,6 +66,20 @@ const demoSession = {
   group: "cmp-demo-material-team",
 };
 
+const generatedCardCandidate = {
+  source: {
+    kind: "neutral_solver_card_native",
+    neutral_solver_card_id: "00000000-0000-4000-8000-000000000010",
+    neutral_solver_card_revision_id: "00000000-0000-4000-8000-000000000011",
+  },
+  classification: "internal",
+  source_sha256: "b".repeat(64),
+  source_size_bytes: 256,
+  media_type: "text/plain",
+  default_archive_path: "solver-cards/METAL_REFERENCE.rad",
+  label: "Neutral openradioss native card · METAL_REFERENCE",
+};
+
 function mockProductFetch(
   handler: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> | Response,
 ) {
@@ -89,20 +112,36 @@ describe("Material Catalog workbench", () => {
   });
 
   it("renders Material data returned by the real Catalog API contract", async () => {
-    mockProductFetch(() => jsonResponse({ items: [visibleMaterial], total_count: 10_000 }));
+    mockProductFetch((input) => {
+      const url = String(input);
+      if (url.includes("/materials?")) return jsonResponse({ items: [visibleMaterial], total_count: 10_000 });
+      if (url.endsWith(`/materials/${visibleMaterial.material_id}`)) {
+        return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+      }
+      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse(null);
+      if (url.includes("/bulk-export-candidates?")) return jsonResponse({ items: [generatedCardCandidate] });
+      return jsonResponse({});
+    });
 
     render(<App />);
 
-    expect(await screen.findByText("Demo DP780 Steel")).toBeTruthy();
-    expect(screen.getByText("DP780")).toBeTruthy();
-    expect(screen.getAllByText(/10,000 records/)).toHaveLength(2);
-    expect(screen.getByRole("heading", { name: "Material data to solver-ready models" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Find and inspect material data" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Process test curves and create cards" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Start with an engineering example" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Open metal journey" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Open polymer journey" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Open elastomer journey" })).toBeTruthy();
+    expect((await screen.findAllByText("Demo DP780 Steel")).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("DP780").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/10,000 total/)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Find material data ready for CAE" })).toBeTruthy();
+    expect(screen.getByRole("search")).toBeTruthy();
+    expect(screen.getByRole("complementary", { name: "Material filters" })).toBeTruthy();
+    expect(screen.getByRole("table", { name: "Material results" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Manufacturer / source" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Validation / release status" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Browse Tree" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Hide filters" }));
+    expect(screen.queryByRole("complementary", { name: "Material filters" })).toBe(null);
+    expect(screen.getByRole("button", { name: "Show filters" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Show details" }));
+    expect(screen.getByRole("button", { name: "Open material" })).toBeTruthy();
+    expect(await screen.findByText("1 cards")).toBeTruthy();
+    expect(screen.getAllByText("OpenRadioss").length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {
@@ -132,16 +171,16 @@ describe("Material Catalog workbench", () => {
     const fetchMock = mockProductFetch(() => jsonResponse({ items: [], total_count: 0 }));
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "Material data to solver-ready models" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Find material data ready for CAE" })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/v1/demo-identity/token",
       expect.objectContaining({ headers: expect.anything() }),
     );
-    for (const label of ["Dashboard", "Material Database", "Material Modeling", "Jobs & Reviews", "Administration"]) {
+    for (const label of ["Materials", "Modeling", "Activity"]) {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
-    expect(screen.getByRole("button", { name: "Open Contents Tree and Datasheets ›" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Continue modeling" })).toBeTruthy();
+    expect(window.location.pathname).toBe("/materials");
+    expect(screen.getByRole("button", { name: "Browse Tree" })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
@@ -165,25 +204,85 @@ describe("Material Catalog workbench", () => {
 
     expect(await screen.findByRole("heading", { name: "Test data" })).toBeTruthy();
     expect(await screen.findByRole("button", { name: "Open test workspace" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Material Database" }).getAttribute("aria-current")).toBe(null);
+    expect(screen.getByRole("button", { name: "Materials" }).getAttribute("aria-current")).toBe(null);
   });
 
   it("keeps a contextual Material model deep link addressable and selected", async () => {
     const materialId = visibleMaterial.material_id;
     window.history.pushState({}, "", `/materials/${materialId}/models`);
-    mockProductFetch(async (input) => {
+    mockProductFetch((input) => {
       const url = String(input);
-      if (url.endsWith("/revisions")) {
-        return jsonResponse({ material_id: materialId, revisions: [visibleMaterial.current_revision] });
-      }
+      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse(null);
       return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
     });
 
     render(<App />);
 
     expect(await screen.findByRole("heading", { name: "Demo DP780 Steel" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Models & Cards" }).getAttribute("aria-current")).toBe("page");
-    expect(screen.getByRole("button", { name: "Material Database" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("tab", { name: "CAE Cards" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("button", { name: "Materials" }).getAttribute("aria-current")).toBe("page");
+  });
+
+  it("opens a material-owned native solver card preview without routing through bulk export", async () => {
+    const materialId = visibleMaterial.material_id;
+    const cardId = "00000000-0000-4000-8000-000000000099";
+    const recordId = "00000000-0000-4000-8000-000000000010";
+    const recordRevisionId = "00000000-0000-4000-8000-000000000011";
+    window.history.pushState({}, "", `/materials/${materialId}/cards/${cardId}`);
+    mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith(`/materials/${materialId}`)) {
+        return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+      }
+      if (url.includes("/catalog/domain-bindings:resolve")) {
+        return jsonResponse({
+          binding_id: "00000000-0000-4000-8000-000000000013",
+          record_id: recordId,
+          record_revision_id: recordRevisionId,
+          kind: "material",
+          object_id: materialId,
+          revision_id: visibleMaterial.current_revision.id,
+          workbench_path: `/materials/${materialId}`,
+        });
+      }
+      if (url.includes("/catalog/workflow-explorer/")) {
+        const root = {
+          record_id: recordId,
+          record_revision_id: recordRevisionId,
+          revision_no: 1,
+          table_id: "00000000-0000-4000-8000-000000000012",
+          name: "Demo DP780 Steel",
+          external_key: "DP780",
+          domain_binding: null,
+        };
+        return jsonResponse({ root, nodes: [root, {
+          ...root,
+          record_id: "00000000-0000-4000-8000-000000000020",
+          record_revision_id: "00000000-0000-4000-8000-000000000021",
+          name: "DP780 OpenRadioss native material card",
+          domain_binding: {
+            binding_id: "00000000-0000-4000-8000-000000000022",
+            record_id: "00000000-0000-4000-8000-000000000020",
+            record_revision_id: "00000000-0000-4000-8000-000000000021",
+            kind: "neutral_solver_card",
+            object_id: cardId,
+            revision_id: "00000000-0000-4000-8000-000000000023",
+            workbench_path: "/exports",
+          },
+        }], links: [] });
+      }
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) {
+        return textResponse("/MAT/LAW36/1\nDP780");
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "DP780 OpenRadioss native material card" })).toBeTruthy();
+    expect(screen.getByLabelText("Native solver card preview").textContent).toContain("/MAT/LAW36/1");
+    expect(screen.getByRole("button", { name: "Download .rad" })).toBeTruthy();
+    expect(window.location.pathname).toBe(`/materials/${materialId}/cards/${cardId}`);
   });
 
   it("opens a governed Material binding while preserving its exact revision query", async () => {
@@ -226,6 +325,9 @@ describe("Material Catalog workbench", () => {
         }
         if (url.endsWith(`/materials/${materialId}`)) {
           return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+        }
+        if (url.includes("/catalog/domain-bindings:resolve")) {
+          return jsonResponse(null);
         }
         throw new Error(`Unexpected request: ${url}`);
       });
