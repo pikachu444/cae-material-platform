@@ -1960,13 +1960,20 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-95. Continuous Materials explorer and datasheet — `P0`
 
-- **상태:** `in progress; T-94 approved`. Full-width shell and the three-item product navigation are
-  implemented; governed Browse Tree, typed Catalog search, and the 10,000-record gate remain.
+- **상태 (`2026-07-21`):** `in progress; explorer slice complete`. Full-width shell, three-item
+  product navigation, and the continuous governed Browse Tree are implemented. The Tree reads the
+  actual Catalog Explorer tables/children, keeps Database/Profile/Table/Folder/Record semantics,
+  uses the typed Record search and saved Subset contracts, supports Up/Down/Home/End/Left/Right/
+  Enter, and renders only a virtualized visible window. Filters, Browse and Subsets are sibling
+  navigator modes. Material Detail Layout projection and final cross-route state restoration remain.
 - **범위:** actual Database/Profile/Table/Folder/Record explorer, filters, dense results, selected
   context, five-tab Material Detail, and direct CAE Card delivery on the approved continuous surface.
 - **보존:** typed search, saved Subset, Layout, Link Type, keyboard navigation, exact revision.
 - **scale gate:** synthetic 10,000-record hierarchy, server-backed lazy search, ≤150 rendered
   treeitems with virtualization, and first-match keyboard focus within 1 second.
+- **현재 검증:** a 10,000-Record component fixture mounts fewer than 150 `treeitem` nodes; live
+  1366×768 Docker/Chromium shows a 1,304.6 px workspace, 244 px explorer and 1,058.6 px result
+  region. See `docs/15-demo/evidence/t95-materials-browse-tree.md`.
 
 #### T-96. Graph-dominant Modeling workspace — `P0`
 

@@ -378,6 +378,303 @@
   border-top: 1px solid var(--ux-border);
 }
 
+.materials-left-pane {
+  display: flex;
+  min-width: 0;
+  height: calc(100vh - 213px);
+  min-height: 500px;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.materials-left-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  min-height: 32px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.materials-left-modes button {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.materials-left-modes button.active {
+  border-bottom-color: var(--ux-accent);
+  color: var(--ux-accent);
+  font-weight: 650;
+}
+
+.materials-left-pane > .materials-filters {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  border-right: 0;
+}
+
+.materials-explorer {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.materials-explorer-heading,
+.tree-search-status,
+.browse-selection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ux-space-2);
+}
+
+.materials-explorer-heading {
+  min-height: 38px;
+  padding: 0 var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.materials-explorer-heading h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.materials-explorer-scope {
+  display: grid;
+  gap: 5px;
+  padding: var(--ux-space-2) var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.materials-explorer-scope .ux-field,
+.tree-subset {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ux-space-2);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.materials-explorer .ux-select,
+.materials-explorer .ux-input {
+  min-height: 28px;
+  height: 28px;
+  padding-block: 2px;
+  font-size: 12px;
+}
+
+.tree-find {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  padding: var(--ux-space-2) var(--ux-space-3) 5px;
+}
+
+.tree-find .ux-button {
+  min-height: 28px;
+  padding-inline: 8px;
+}
+
+.tree-subset-list {
+  display: grid;
+  gap: 0;
+  max-height: 150px;
+  overflow: auto;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.tree-subset-list > p {
+  margin: 0;
+  padding: 6px var(--ux-space-3) 4px;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.tree-subset-list > button {
+  display: grid;
+  gap: 1px;
+  min-height: 38px;
+  padding: 4px var(--ux-space-3);
+  overflow: hidden;
+  border: 0;
+  border-top: 1px solid var(--ux-border);
+  background: transparent;
+  color: var(--ux-text);
+  text-align: left;
+}
+
+.tree-subset-list > button.active {
+  background: var(--ux-accent-soft);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+.tree-subset-list > button strong,
+.tree-subset-list > button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-subset-list > button strong {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.tree-subset-list > button span {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.tree-subset-list > .ux-meta {
+  padding: var(--ux-space-2) var(--ux-space-3);
+}
+
+.tree-search-status {
+  min-height: 25px;
+  padding: 0 var(--ux-space-3) var(--ux-space-1);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tree-search-status span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-search-status button {
+  min-height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ux-accent);
+  font-size: 12px;
+}
+
+.materials-explorer > .ux-notice {
+  margin: 0 var(--ux-space-3) var(--ux-space-2);
+  padding: var(--ux-space-2);
+  font-size: 12px;
+}
+
+.materials-tree-scroll {
+  position: relative;
+  min-height: 180px;
+  flex: 1 1 auto;
+  overflow: auto;
+  border-block: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+  outline: 0;
+}
+
+.materials-tree-spacer {
+  position: relative;
+  min-width: 100%;
+}
+
+.materials-tree-row {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 12px 20px minmax(0, 1fr);
+  align-items: center;
+  height: 26px;
+  padding-inline-end: 7px;
+  border-bottom: 1px solid transparent;
+  color: var(--ux-text);
+  cursor: default;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 25px;
+  outline: 0;
+  user-select: none;
+}
+
+.materials-tree-row:hover,
+.materials-tree-row:focus-visible {
+  background: var(--ux-surface-subtle);
+}
+
+.materials-tree-row:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--ux-accent);
+}
+
+.materials-tree-row.selected {
+  background: var(--ux-accent-soft);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+.materials-tree-row.match .tree-label {
+  color: var(--ux-accent);
+  font-weight: 650;
+}
+
+.tree-disclosure,
+.tree-kind {
+  color: var(--ux-text-muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+.tree-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-subset {
+  padding: var(--ux-space-2) var(--ux-space-3);
+}
+
+.materials-explorer-help {
+  padding: 0 var(--ux-space-3) var(--ux-space-2);
+  line-height: 16px;
+}
+
+.browse-selection-bar {
+  min-height: 42px;
+  margin: 0 calc(var(--ux-space-5) * -1);
+  padding: 5px var(--ux-space-3);
+  border-top: 1px solid var(--ux-border);
+  background: var(--ux-accent-soft);
+}
+
+.browse-selection-bar > span {
+  display: grid;
+  min-width: 0;
+}
+
+.browse-selection-bar strong,
+.browse-selection-bar small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browse-selection-bar strong {
+  font-size: 13px;
+}
+
+.browse-selection-bar small {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
 .selection-context {
   display: grid;
   grid-template-columns: 70px minmax(0, 1fr);

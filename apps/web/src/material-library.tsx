@@ -14,10 +14,13 @@ import {
 } from "./api";
 import type {
   CatalogWorkflowGraphResponse,
+  ConfigurableCatalogRecordResponse,
+  ConfigurableLinkEndpoint,
   MaterialDetail,
   MaterialResponse,
   PropertySetResponse,
 } from "./types";
+import { MaterialsBrowseTree } from "./materials-browse-tree";
 
 export type MaterialTab = "overview" | "properties" | "curves" | "cards" | "evidence";
 
@@ -39,6 +42,11 @@ interface SolverCardSummary {
   label: string;
   solver: "Abaqus" | "OpenRadioss" | "Solver";
   extension: ".inp" | ".rad" | ".txt";
+}
+
+interface BrowseSelection {
+  record: ConfigurableCatalogRecordResponse;
+  graph: CatalogWorkflowGraphResponse;
 }
 
 const tabs: ReadonlyArray<{ id: MaterialTab; label: string }> = [
@@ -234,6 +242,9 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
   const [sortKey, setSortKey] = useState<"name" | "family" | "yield" | "cards">("name");
   const [sortDirection, setSortDirection] = useState<"ascending" | "descending">("ascending");
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+  const [leftMode, setLeftMode] = useState<"filters" | "browse" | "subsets">("filters");
+  const [requestedRecord, setRequestedRecord] = useState<ConfigurableLinkEndpoint | null>(null);
+  const [browseSelection, setBrowseSelection] = useState<BrowseSelection | null>(null);
   const [filtersVisible, setFiltersVisible] = useState(true);
   const [contextVisible, setContextVisible] = useState(
     () => typeof window === "undefined" || window.innerWidth > 1400,
@@ -316,7 +327,31 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
 
   function submit(event: FormEvent): void {
     event.preventDefault();
+    setLeftMode("filters");
     setQuery(draftQuery.trim());
+  }
+
+  function openBrowseTree(record: ConfigurableLinkEndpoint | null | undefined): void {
+    setLeftMode("browse");
+    setFiltersVisible(true);
+    setRequestedRecord(record ?? null);
+  }
+
+  function selectBrowseRecord(
+    record: ConfigurableCatalogRecordResponse,
+    graph: CatalogWorkflowGraphResponse,
+  ): void {
+    setBrowseSelection({ record, graph });
+    const materialBinding = graph.root.domain_binding?.kind === "material"
+      ? graph.root.domain_binding
+      : graph.nodes.find((node) => node.record_id === record.record_id && node.domain_binding?.kind === "material")?.domain_binding;
+    if (materialBinding?.kind === "material" && materials.some((item) => item.material_id === materialBinding.object_id)) {
+      setSelectedId(materialBinding.object_id);
+    }
+  }
+
+  function openExactRecord(record: ConfigurableCatalogRecordResponse): void {
+    onNavigate(`/catalog/explorer/records/${record.record_id}/revisions/${record.current_revision.id}`);
   }
 
   function changeSort(next: typeof sortKey): void {
@@ -339,15 +374,17 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
   return (
     <div className="ux-page">
       <header className="materials-page-header">
-        <div><div className="materials-mode-switch" role="group" aria-label="Material discovery mode"><button type="button" className="active">Search</button><button type="button" onClick={() => onNavigate(browsePath(selectedExperience))}>Browse Tree</button></div><h1>Find material data ready for CAE</h1><p>Compare governed material records and open an available native solver card.</p></div>
+        <div><div className="materials-mode-switch" role="group" aria-label="Material discovery mode"><button type="button" className={leftMode === "filters" ? "active" : ""} onClick={() => { setLeftMode("filters"); setFiltersVisible(true); }}>Search</button><button type="button" className={leftMode !== "filters" ? "active" : ""} onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Browse Tree</button></div><h1>Find material data ready for CAE</h1><p>Compare governed material records and open an available native solver card.</p></div>
         <form className="materials-search-form" role="search" onSubmit={submit}>
           <label className="ux-field" style={{ flex: 1 }}><span className="ux-meta">Material name, grade, code, or family</span><input className="ux-input" aria-label="Search materials" value={draftQuery} onChange={(event) => setDraftQuery(event.target.value)} placeholder="Search DP780, polymer, rubber…" /></label>
           <button className="ux-button primary" type="submit">Search</button>
         </form>
       </header>
-      <div className="materials-workspace-toolbar"><button className="ux-button tertiary" type="button" aria-expanded={filtersVisible} onClick={() => setFiltersVisible((current) => !current)}>{filtersVisible ? "Hide filters" : "Show filters"}</button><span className="ux-meta">Search uses governed Material identities; Browse Tree retains Profile, Table, Folder, Layout, Subset, and exact Record links.</span><button className="ux-button tertiary" type="button" aria-expanded={contextVisible} onClick={() => setContextVisible((current) => !current)}>{contextVisible ? "Hide details" : "Show details"}</button></div>
+      <div className="materials-workspace-toolbar"><button className="ux-button tertiary" type="button" aria-expanded={filtersVisible} onClick={() => setFiltersVisible((current) => !current)}>{filtersVisible ? `Hide ${leftMode === "filters" ? "filters" : "navigator"}` : `Show ${leftMode === "filters" ? "filters" : "navigator"}`}</button><span className="ux-meta">{leftMode === "filters" ? "Search uses governed Material identities; select Browse Tree for hierarchical database navigation." : "Database → Profile → Table → Folder → Record; tree search and saved Subsets use governed Catalog contracts."}</span><button className="ux-button tertiary" type="button" aria-expanded={contextVisible} onClick={() => setContextVisible((current) => !current)}>{contextVisible ? "Hide details" : "Show details"}</button></div>
       <div className={`materials-workspace${filtersVisible ? " filters-visible" : ""}${contextVisible ? " context-visible" : ""}`}>
-        {filtersVisible ? <aside className="materials-filters" aria-label="Material filters">
+        {filtersVisible ? <aside className="materials-left-pane" aria-label={leftMode === "filters" ? "Material filters" : "Materials Browse Tree"}>
+          <nav className="materials-left-modes" aria-label="Materials navigator mode"><button type="button" className={leftMode === "filters" ? "active" : ""} onClick={() => setLeftMode("filters")}>Filters</button><button type="button" className={leftMode === "browse" ? "active" : ""} onClick={() => setLeftMode("browse")}>Browse</button><button type="button" className={leftMode === "subsets" ? "active" : ""} onClick={() => setLeftMode("subsets")}>Subsets</button></nav>
+          {leftMode === "filters" ? <div className="materials-filters">
           <div><h2>Filters</h2><p className="ux-meta">Facets stay visible while the selected material changes.</p></div>
           <label className="ux-field">Material class<select className="ux-select" value={materialClass} onChange={(event) => setMaterialClass(event.target.value)}><option value="">All classes</option><option value="metal">Metal</option><option value="polymer">Polymer</option><option value="elastomer">Elastomer</option><option value="composite">Composite</option><option value="ceramic">Ceramic</option></select></label>
           <label className="ux-field">Manufacturer / source<select className="ux-select" value={source} onChange={(event) => setSource(event.target.value)}><option value="">Any source</option>{sourceOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
@@ -355,13 +392,15 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
           <label className="ux-field">Validation / release status<select className="ux-select" value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Any status</option><option value="draft">Draft / reference</option></select></label>
           <fieldset className="ux-field"><legend>Yield strength (MPa)</legend><div className="filter-range"><input className="ux-input" aria-label="Minimum yield strength" type="number" value={yieldMin} onChange={(event) => setYieldMin(event.target.value)} placeholder="Min"/><input className="ux-input" aria-label="Maximum yield strength" type="number" value={yieldMax} onChange={(event) => setYieldMax(event.target.value)} placeholder="Max"/></div></fieldset>
           <button className="ux-button tertiary" type="button" onClick={() => { setMaterialClass(""); setSource(""); setSolver(""); setStatus(""); setYieldMin(""); setYieldMax(""); }}>Clear filters</button>
-          <div className="browse-tree-entry"><strong>Browse and saved subsets</strong><p className="ux-meta">Navigate Database → Profile → Table → Folder → Record, or apply a governed saved Subset.</p><button className="ux-button" type="button" onClick={() => onNavigate(browsePath(selectedExperience))}>Open Browse Tree</button></div>
+          <div className="browse-tree-entry"><strong>Browse and saved subsets</strong><p className="ux-meta">Navigate Database → Profile → Table → Folder → Record, or apply a governed saved Subset.</p><button className="ux-button" type="button" onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Open Browse Tree</button></div>
+          </div> : <MaterialsBrowseTree config={config} subsetMode={leftMode === "subsets"} requestedRecord={requestedRecord} onSelectRecord={selectBrowseRecord} onOpenRecord={openExactRecord}/>}
         </aside> : null}
         <section className="materials-results" aria-labelledby="material-results-title">
           <div className="materials-results-header"><div><h2 id="material-results-title">Materials</h2><p className="ux-meta">{loading ? "Loading…" : `${filtered.length} shown · ${new Intl.NumberFormat().format(totalCount)} total`}</p></div><span className="ux-meta">Select up to 3 to compare</span></div>
           {error ? <div className="ux-notice error" role="alert">{error}</div> : null}
           {!loading && !error && !filtered.length ? <div className="ux-empty"><strong>No materials match these filters.</strong><p>Clear a filter or try a material grade, code, or family.</p></div> : null}
           {comparedMaterials.length > 1 ? <div className="material-compare-strip"><div><strong>Comparing {comparedMaterials.length} materials</strong><span className="ux-meta">Key normalized values</span></div>{comparedMaterials.map((material) => { const itemExperience = experience[material.material_id]; const property = currentProperty(itemExperience)?.current_revision.content; return <dl key={material.material_id}><dt>{material.current_revision.content.name}</dt><dd>{formatPressure(property?.yield_stress_pa)}</dd><dd>{formatDensity(property?.density_kg_per_m3)}</dd><dd>{itemExperience?.cards.length ?? 0} cards</dd></dl>; })}<button className="ux-button tertiary" type="button" onClick={() => setCompareIds(new Set())}>Clear comparison</button></div> : null}
+          {browseSelection ? <div className="browse-selection-bar"><span><strong>{browseSelection.record.current_revision.content.name}</strong><small>{browseSelection.graph.root.domain_binding?.kind?.replaceAll("_", " ") ?? "Catalog record"} · exact revision {browseSelection.record.current_revision.revision_no}</small></span><button className="ux-button tertiary" type="button" onClick={() => openExactRecord(browseSelection.record)}>Open datasheet</button></div> : null}
           <div className="materials-result-table-wrap"><table className="materials-result-table" aria-label="Material results"><thead><tr><th>Compare</th><th><button type="button" aria-sort={sortKey === "name" ? sortDirection : undefined} onClick={() => changeSort("name")}>Material</button></th><th><button type="button" aria-sort={sortKey === "family" ? sortDirection : undefined} onClick={() => changeSort("family")}>Family</button></th><th>Source</th><th><button type="button" aria-sort={sortKey === "yield" ? sortDirection : undefined} onClick={() => changeSort("yield")}>Yield</button></th><th><button type="button" aria-sort={sortKey === "cards" ? sortDirection : undefined} onClick={() => changeSort("cards")}>CAE cards</button></th></tr></thead><tbody>
             {filtered.map((material) => {
               const content = material.current_revision.content;
@@ -379,7 +418,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
             <dl className="selection-context"><dt>Source</dt><dd>{sourceLabel(selectedExperience)}</dd><dt>Status</dt><dd>{selected.current_revision.lifecycle_state}</dd></dl>
             <h3>CAE card availability</h3><SolverAvailability cards={selectedExperience?.cards ?? []}/>
             <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${selected.material_id}`)}>Open material</button>
-            <button className="ux-button tertiary" type="button" onClick={() => onNavigate(browsePath(selectedExperience))}>Show in Browse Tree</button>
+            <button className="ux-button tertiary" type="button" onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Show in Browse Tree</button>
           </> : <div className="ux-empty"><strong>Select a material</strong><p>Key properties and solver-card availability will appear here.</p></div>}
         </aside> : null}
       </div>

@@ -15,6 +15,21 @@ Browse Tree는 검색의 대체 수단으로 Database, Profile, Table, Folder, R
 Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 않으며 Browse, Evidence
 또는 Administration에서 접근합니다.
 
+### Browse Tree에서 Record 찾기
+
+1. Materials 상단의 `Browse Tree`를 선택합니다.
+2. 왼쪽의 `Filters | Browse | Subsets`에서 `Browse`를 선택하고 Database, Profile, Table을
+   확인합니다.
+3. Folder 앞의 disclosure를 열거나 고정된 `Find in tree`에 이름을 입력합니다. 검색 결과는
+   상위 Folder 경로를 유지합니다.
+4. 방향키와 Home/End로 이동하고, Left/Right로 접거나 펼치며, Enter로 Record를 선택합니다.
+5. Record를 한 번 선택하면 중앙 Material 결과와 exact revision 문맥이 연결됩니다. 두 번
+   누르면 Layout datasheet를 엽니다.
+6. `Subsets`에서는 관리자가 저장한 typed 검색 조건을 같은 Tree에 적용합니다.
+
+Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Profile과 검색 동작을 다시 찾을
+수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
+
 ## 시험 데이터에서 새 card 만들기
 
 1. Modeling의 Data에서 canonical Test Data JSON, CSV 또는 XLSX를 선택합니다.
@@ -29,3 +44,5 @@ Mapping Profile, Recipe/Batch, full revision, hash와 JSON evidence는 Advanced/
 Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요합니다.
 
 ![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
+
+![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/materials-browse-tree-1366x768.png)
