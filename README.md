@@ -9,14 +9,19 @@
 > workflow를 제거한다는 뜻이 아니다.
 > [reference-layout design review](docs/00-research/ux-layout-review/README.md)는 commit `40726f6`에서
 > 승인되었다. Production 화면은 같은 구조·폭·밀도·surface hard gate를 각 기능 PR에서 다시
-> 통과해야 하며, 승인된 시안만으로 live UI 완료를 주장하지 않는다.
+> 통과해야 하며, 승인된 시안만으로 live UI 완료를 주장하지 않는다. T-95–T-97 live 구현은
+> 1366/1440/1920 DOM 측정, 실제 Tree/JSON/CSV/XLSX/solver-card 시나리오와 95–99/100 구조 점수로
+> 이 gate를 통과했다. 자세한 결과는
+> [T-97 final acceptance](docs/15-demo/evidence/t97-reference-similarity-final.md)에 있다.
 
 목표 사용자 흐름은 다음과 같습니다.
 
 ```text
-Catalog tree/search/link → Test Data JSON → Mapping Profile
-→ saved Processing Recipe / Batch → Neutral Material JSON
-→ Abaqus/OpenRadioss mapping report → native material card
+Material 검색 → 결과 비교 → Material Detail → CAE card preview/download
+
+적절한 card가 없을 때:
+Test Data JSON/CSV/XLSX → Process → Fit → Material Model IR
+→ Neutral Material JSON → Abaqus/OpenRadioss mapping → native material card → Material Library
 ```
 
 검토한 금속 탄소성, generalized-Maxwell 점탄성, Neo-Hookean/Mooney--Rivlin/Yeoh/Ogden

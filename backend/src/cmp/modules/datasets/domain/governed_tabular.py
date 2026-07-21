@@ -547,7 +547,15 @@ def _safe_xlsx_rows(value: bytes, sheet_name: str) -> tuple[tuple[str, ...], lis
         target = rel_targets.get(sheet.attrib.get(office_rel, ""))
         if target is None:
             raise InvalidGovernedImport("selected XLSX sheet relationship is missing")
-        target_path = str(PurePosixPath("xl") / target).replace("xl/../", "")
+        relationship_target = PurePosixPath(target)
+        if "\\" in target or ".." in relationship_target.parts:
+            raise InvalidGovernedImport("selected XLSX worksheet relationship is unsafe")
+        target_path = (
+            PurePosixPath(*relationship_target.parts[1:])
+            if relationship_target.is_absolute()
+            else PurePosixPath("xl") / relationship_target
+        )
+        target_path = str(target_path)
         if target_path not in names:
             raise InvalidGovernedImport("selected XLSX worksheet payload is missing")
         shared: tuple[str, ...] = ()

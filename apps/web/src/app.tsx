@@ -71,9 +71,9 @@ const TestContextWorkbench = lazy(() =>
     default: module.TestContextWorkbench,
   })),
 );
-const GovernedImportWorkbench = lazy(() =>
-  import("./governed-import-workbench").then((module) => ({
-    default: module.GovernedImportWorkbench,
+const GovernedImportRoute = lazy(() =>
+  import("./governed-import-route").then((module) => ({
+    default: module.GovernedImportRoute,
   })),
 );
 const BulkExportCenter = lazy(() =>
@@ -706,6 +706,14 @@ export function App() {
   } else if (path === "/datasets/test-json") {
     page = (
       <CanonicalTestDataWorkbench
+        config={config}
+        onNavigate={navigate}
+        onOpenConnection={retrySession}
+      />
+    );
+  } else if (path === "/datasets/import") {
+    page = (
+      <GovernedImportRoute
         config={config}
         onNavigate={navigate}
         onOpenConnection={retrySession}

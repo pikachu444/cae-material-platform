@@ -153,9 +153,37 @@ describe("Material Catalog workbench", () => {
     expect(window.location.search).toContain("solver=OpenRadioss");
     fireEvent.click(screen.getByRole("button", { name: "Open material" }));
     await waitFor(() => expect(window.location.pathname).toBe(`/materials/${visibleMaterial.material_id}`));
+    expect(window.sessionStorage.getItem("cmp.materials.return-path")).toContain(`selected=${visibleMaterial.material_id}`);
     fireEvent.click(await screen.findByRole("button", { name: "← Materials" }));
     expect(await screen.findByRole("textbox", { name: "Search materials" })).toHaveProperty("value", "DP780");
     expect(window.location.search).toContain("q=DP780");
+  });
+
+  it("does not replace a URL-selected Material while the result list is still loading", async () => {
+    const alphabeticFirst = {
+      ...visibleMaterial,
+      material_id: "10000000-0000-4000-8000-000000000099",
+      current_revision: {
+        ...visibleMaterial.current_revision,
+        id: "20000000-0000-4000-8000-000000000099",
+        content: { ...visibleMaterial.current_revision.content, name: "AAA reference material", material_code: "AAA-001" },
+      },
+    };
+    window.history.pushState({}, "", `/materials?selected=${visibleMaterial.material_id}`);
+    mockProductFetch((input) => {
+      const url = String(input);
+      if (url.includes("/materials?")) return jsonResponse({ items: [alphabeticFirst, visibleMaterial], total_count: 2 });
+      if (url.endsWith(`/materials/${visibleMaterial.material_id}`)) return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
+      if (url.endsWith(`/materials/${alphabeticFirst.material_id}`)) return jsonResponse({ material: alphabeticFirst, states: [], property_sets: [] });
+      if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse(null);
+      if (url.includes("/bulk-export-candidates?")) return jsonResponse({ items: [] });
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    expect((await screen.findAllByText("Demo DP780 Steel")).length).toBeGreaterThanOrEqual(1);
+    await waitFor(() => expect(window.location.search).toContain(`selected=${visibleMaterial.material_id}`));
   });
 
   it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {
@@ -219,6 +247,68 @@ describe("Material Catalog workbench", () => {
     expect(await screen.findByRole("heading", { name: "Test data" })).toBeTruthy();
     expect(await screen.findByRole("button", { name: "Open test workspace" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Materials" }).getAttribute("aria-current")).toBe(null);
+  });
+
+  it("restores the exact Modeling Material State for governed CSV and XLSX import", async () => {
+    const materialStateId = "00000000-0000-4000-8000-000000000031";
+    const materialStateRevisionId = "00000000-0000-4000-8000-000000000032";
+    const materialState = {
+      material_state_id: materialStateId,
+      material_id: visibleMaterial.material_id,
+      current_revision: {
+        ...visibleMaterial.current_revision,
+        id: materialStateRevisionId,
+        aggregate_id: materialStateId,
+        schema_id: "urn:cmp:catalog:material-state:1.0.0",
+        content: {
+          material_id: visibleMaterial.material_id,
+          material_revision_id: visibleMaterial.current_revision.id,
+          name: "Room-temperature state",
+          manufacturing_route: null,
+          heat_treatment: null,
+          lot_or_batch: null,
+          description: null,
+        },
+      },
+      property_sets_url: `/api/v1/material-states/${materialStateId}/property-sets`,
+    };
+    window.history.pushState({}, "", "/datasets/import");
+    window.sessionStorage.setItem("cmp.modeling.recent-session.v1", JSON.stringify({
+      version: 1,
+      updatedAt: "2026-07-21T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Create a simulation-ready material card",
+      material: {
+        id: visibleMaterial.material_id,
+        revisionId: visibleMaterial.current_revision.id,
+        label: "Demo DP780 Steel",
+        revisionNo: 1,
+      },
+      materialState: {
+        id: materialStateId,
+        revisionId: materialStateRevisionId,
+        label: "Room-temperature state",
+        revisionNo: 1,
+      },
+    }));
+    mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith(`/materials/${visibleMaterial.material_id}`)) {
+        return jsonResponse({ material: visibleMaterial, states: [materialState], property_sets: [] });
+      }
+      if (url.endsWith(`/material-states/${materialStateId}/test-runs`)) return jsonResponse({ items: [] });
+      if (url.endsWith("/import-profiles")) return jsonResponse({ items: [] });
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    render(<App />);
+
+    const routeHeading = await screen.findByRole("heading", { name: "Map tabular test data" });
+    expect(routeHeading.nextElementSibling?.textContent).toContain("Demo DP780 Steel · DP780 · Room-temperature state · r1");
+    expect(await screen.findByRole("heading", { name: "Governed CSV / TSV / XLSX import" })).toBeTruthy();
+    expect(screen.getByLabelText("Format")).toBeTruthy();
+    expect(screen.getByLabelText("Source file")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "← Modeling Data" })).toBeTruthy();
   });
 
   it("keeps a contextual Material model deep link addressable and selected", async () => {

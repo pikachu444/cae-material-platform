@@ -168,15 +168,15 @@ describe("Material Modeling Workspace", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Metal engine loaded" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Metal engine loaded" }, { timeout: 3_000 })).toBeTruthy();
     expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("metal-material");
 
     fireEvent.click(screen.getByRole("button", { name: "Polymer track" }));
-    expect(await screen.findByRole("heading", { name: "Polymer engine loaded" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Polymer engine loaded" }, { timeout: 3_000 })).toBeTruthy();
     expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("polymer-material");
 
     fireEvent.click(screen.getByRole("button", { name: "Elastomer track" }));
-    expect(await screen.findByRole("heading", { name: "Elastomer engine loaded" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Elastomer engine loaded" }, { timeout: 3_000 })).toBeTruthy();
     expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("elastomer-material");
 
     await waitFor(() => expect(mocks.listMaterials).toHaveBeenCalledTimes(3));

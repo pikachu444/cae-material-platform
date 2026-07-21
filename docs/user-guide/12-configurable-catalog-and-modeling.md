@@ -106,7 +106,7 @@ Explorer와 함께 확장한다.
 7. Export에서 reviewed Processing Output/Material Model IR, Neutral Material, mapping 상태와 native
    card preview/download를 실행한다.
 
-![Compact curve/process tree, shallow settings ribbon and dominant graph](../15-demo/images/ux-redesign-v2/modeling-fit-1440x900.png)
+![Compact curve/process tree, shallow settings ribbon and dominant graph](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
 ### 재료군별 Modeling track 사용
 

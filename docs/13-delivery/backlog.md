@@ -1999,15 +1999,23 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-97. Reference-similarity acceptance and legacy cleanup — `P0`
 
-- **상태 (`2026-07-21`):** `in progress; T-95/T-96 complete`. Administration uses the same compact
-  divider/list grammar and keeps Table, Attribute, Layout, Subset, Link Type and access engines.
-  At 1440×900 its live workspace is 1,425 px with a 220 px navigation rail, 340 px Table column,
-  792.1 px Attribute/Layout column and 52 px Attribute rows. A browser scenario added a synthetic
-  Attribute revision, created a Layout and verified its `Not set` projection in the Record Datasheet.
-  Materials search/filter/selection and exact Browse Record return context are now restored.
-  Full 1366/1440/1920 scenarios, accessibility, clean-demo/backend regression, final dead-surface
-  audit and the consolidated completion report remain. See
-  `docs/15-demo/evidence/t97-administration-state-continuity.md`.
+- **상태 (`2026-07-21`):** `complete`. Administration uses the same compact divider/list grammar and
+  keeps Table, Attribute, Layout, Subset, Link Type and access engines. Materials Search/Browse,
+  Detail/CAE Card, Modeling Data/Process/Fit/Export and Advanced governed import were exercised in
+  live Chromium at 1366×768, 1440×900 and 1920×1080. The final 1440 graph SVG is 1,161.6 px/84.4%
+  of workspace versus the rejected 743 px graph; Materials uses a 1,376.1 px workspace with 49 px
+  total outer margin, 264 px navigator, 830.1 px results and optional 280 px context.
+- **수용 결과:** DP780 search-to-OpenRadioss download, governed Browse Tree/Workflow, real
+  Table→Attribute→Layout→Datasheet mutation and canonical JSON plus CSV/XLSX→Process→Fit→IR→Neutral
+  →Abaqus/OpenRadioss→Library discovery pass. All local reference images have an explicit applied
+  interaction principle; every live screen scores 95–99/100 with topology, dominant area and zero
+  nested-persistent-card hard gates passing.
+- **검증:** frontend 36 files/92 tests and bundle budgets; backend 782 passed/76 expected skipped;
+  dedicated PostgreSQL integration suite; separately named clean Docker migration/seed/verifier;
+  semantic Tree keyboard/search, named controls, no page-level horizontal overflow. Compatibility
+  routes retain Advanced capability; dead Common Processing lazy surface remains removed.
+- **증거:** `docs/15-demo/evidence/t97-administration-state-continuity.md` and
+  `docs/15-demo/evidence/t97-reference-similarity-final.md`.
 - **범위:** live DOM region measurements, side-by-side reference masks, scenarios A–E (including
   canonical JSON, CSV, and XLSX input), accessibility,
   clean demo/backend regression, screenshot manifest, and only then obsolete route/component/CSS removal.

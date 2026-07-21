@@ -1,5 +1,10 @@
 # UX Acceptance Criteria
 
+Acceptance record (`2026-07-21`): the product owner approved the T-94 responsive comparison and the
+live T-95–T-97 implementation passes the same structural hard gates. Exact browser dimensions,
+95–99/100 live scores, scenarios A–D including canonical JSON/CSV/XLSX, native downloads and full
+regression results are in `docs/15-demo/evidence/t97-reference-similarity-final.md`.
+
 ## 1. 판정 원칙
 
 - API 호출 성공만으로 UX 완료라고 판정하지 않는다.

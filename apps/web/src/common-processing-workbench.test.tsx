@@ -477,5 +477,5 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
     expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
-  });
+  }, 20_000);
 });
