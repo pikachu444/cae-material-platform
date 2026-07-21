@@ -272,7 +272,7 @@ DP780 검색
 ### Upload-to-card
 
 ```text
-CSV/XLSX upload
+Canonical Test Data JSON / CSV / XLSX upload
 → mapping 확인
 → Process
 → Fit
@@ -281,7 +281,10 @@ CSV/XLSX upload
 ```
 
 - top-level 단계 4개
-- JSON editor 불필요
+- JSON은 schema/channel/quantity semantics/original+normalized unit을 복원
+- CSV/XLSX는 worksheet/column/channel/unit mapping을 확인
+- invalid schema/unit/worksheet/column은 silent fallback 없이 차단
+- normal path에서 JSON을 직접 작성할 필요는 없지만 JSON/IR/report는 Evidence에서 보존·다운로드
 - 기존 provenance와 solver mapping contract 유지
 
 ## PR 순서

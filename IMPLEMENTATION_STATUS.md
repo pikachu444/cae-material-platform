@@ -3,7 +3,7 @@
 Date: `2026-07-20`
 Foundation version: `0.32.0`
 
-## Visual acceptance withdrawn pending reference-layout approval (2026-07-21)
+## Reference-layout design approved; production implementation authorized (2026-07-21)
 
 The T-85~T-93 engine and functional browser evidence remain valid, but their visual acceptance is
 reopened. The 1440 px Modeling screen gave the actual graph only 743 px (55.7% of its workspace),
@@ -12,11 +12,12 @@ the plot. The Materials entry did not present its governed hierarchy as a normal
 explorer. Those results do not reproduce the design grammar visible in the directly opened Granta MI,
 Material Data Center, and Material Modeler references.
 
-Production visual changes are frozen until the responsive prototypes, structural similarity report,
-and explicit product-owner approval defined by `docs/01-product/ux-visual-system.md` are complete.
-Connected APIs and passing tests do not override this gate.
+The responsive prototypes, structural similarity report, and product-owner approval defined by
+`docs/01-product/ux-visual-system.md` are complete at commit `40726f6`. Production implementation may
+proceed, but live screens must independently pass the same topology, dominant-area, density,
+surface/divider, continuity, and primary-action gates.
 
-The responsive prototype and measured report are now complete but remain unapproved. A follow-up
+The approved follow-up
 review replaced Modeling's multi-line source-ID curve blocks with 26 px plain-text tree rows and
 added a fixed Tree-local search, retained ancestor path, independent node scroll, keyboard movement,
 and Browse/Filters/Subsets modes to Materials. The large-volume 10,000-record virtualization gate is

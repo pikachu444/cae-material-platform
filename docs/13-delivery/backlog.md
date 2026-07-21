@@ -1947,8 +1947,8 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-94. Design policy, responsive prototype, and approval gate — `P0`
 
-- **상태 (`2026-07-21`):** responsive prototype and measured evidence complete; explicit product-owner
-  approval pending; production UI implementation blocked on approval.
+- **상태 (`2026-07-21`):** `complete / approved`. Responsive prototypes and measured evidence pass;
+  the product owner approved commit `40726f6` after the compact navigator and Tree-search correction.
 - **범위:** five local references direct inspection, corrected visual contract, Materials/Detail/
   Card/Modeling responsive HTML prototypes, normalized region annotations, similarity scoring, and
   1366/1440/1920 screenshots.
@@ -1960,7 +1960,7 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-95. Continuous Materials explorer and datasheet — `P0`
 
-- **상태:** `blocked by T-94 approval`.
+- **상태:** `ready; T-94 approved`.
 - **범위:** actual Database/Profile/Table/Folder/Record explorer, filters, dense results, selected
   context, five-tab Material Detail, and direct CAE Card delivery on the approved continuous surface.
 - **보존:** typed search, saved Subset, Layout, Link Type, keyboard navigation, exact revision.
@@ -1969,7 +1969,7 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-96. Graph-dominant Modeling workspace — `P0`
 
-- **상태:** `blocked by T-94 approval`.
+- **상태:** `ready; T-94 approved`.
 - **범위:** compact curve/process tree, shallow current-step ribbon, dominant persistent graph,
   Data/Process/Fit/Export, and Advanced drawer for Recipe/Batch/JSON/evidence.
 - **완료 조건:** no permanent third column; 1440 graph SVG ≥1,050 px and ≥72% workspace; key Fit
@@ -1977,6 +1977,7 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-97. Reference-similarity acceptance and legacy cleanup — `P0`
 
-- **상태:** `blocked by T-94 approval and T-95/T-96`.
-- **범위:** live DOM region measurements, side-by-side reference masks, scenarios A–D, accessibility,
+- **상태:** `pending T-95/T-96 implementation`.
+- **범위:** live DOM region measurements, side-by-side reference masks, scenarios A–E (including
+  canonical JSON, CSV, and XLSX input), accessibility,
   clean demo/backend regression, screenshot manifest, and only then obsolete route/component/CSS removal.

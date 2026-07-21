@@ -1,6 +1,6 @@
 # Responsive prototype and reference similarity report
 
-Status: browser measurements complete; pending product-owner approval
+Status: approved by the product owner on 2026-07-21
 
 ## Reference-to-prototype mapping
 
@@ -97,6 +97,6 @@ the required product-owner decision.
 
 ## Approval
 
-- Product-owner decision: **pending**
-- Approved screenshots/commit: pending
-- Production React/CSS implementation: **blocked**
+- Product-owner decision: **approved** on 2026-07-21 after the compact navigator and Tree-search review
+- Approved screenshots/commit: `40726f6` and `docs/15-demo/images/ux-layout-review/`
+- Production React/CSS implementation: **authorized**, subject to the same hard gates on live screens

@@ -88,12 +88,12 @@ silent fallback 또는 의미 없는 빈 download button을 제공하지 않는�
 
 ### Given
 
-사용자는 CSV 또는 XLSX 인장시험 데이터를 가지고 있다.
+사용자는 canonical Test Data JSON, CSV 또는 XLSX 인장시험 데이터를 가지고 있다.
 
 ### When
 
-1. 파일을 업로드한다.
-2. 자동 탐지된 열과 단위를 검토한다.
+1. JSON, CSV 또는 XLSX 파일을 업로드한다.
+2. JSON schema 또는 자동 탐지된 worksheet, 열, quantity semantics와 단위를 검토한다.
 3. Process에서 crop/smoothing/replicate selection을 확인한다.
 4. Fit에서 candidate와 residual을 비교한다.
 5. Export에서 solver card를 생성한다.
@@ -101,12 +101,24 @@ silent fallback 또는 의미 없는 빈 download button을 제공하지 않는�
 ### Then
 
 - top-level 단계는 Data/Process/Fit/Export 4개다.
-- JSON editor를 열지 않고 완료 가능하다.
+- canonical JSON은 기존 channel, quantity semantics, 원본/정규화 단위를 손실 없이 복원한다.
+- CSV/XLSX는 worksheet, 열, channel과 unit mapping을 명시적으로 확인한다.
+- JSON editor를 직접 작성하지 않고도 완료 가능하며, 고급 사용자는 원본 JSON을 Evidence에서 확인한다.
+- invalid schema, unit, worksheet 또는 column은 필드 수준 오류를 표시하고 silent fallback하지 않는다.
 - classification/change reason은 normal path에서 필수가 아니다.
 - graph는 Process와 Fit에서 지속적으로 보인다.
 - raw curve와 processed/fitted/extrapolated curve를 구분한다.
 - 생성 결과는 Material Library에서 검색 가능하다.
 - 기존 revision/provenance는 내부적으로 저장된다.
+
+### Required exported evidence
+
+- normalized Test Data JSON
+- Processing Output JSON
+- Material Model IR JSON
+- Neutral Material JSON
+- solver mapping report JSON
+- native `.inp`/`.rad`, manifest and checksum
 
 ## 7. Scenario F — Advanced Engineering Work
 

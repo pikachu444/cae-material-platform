@@ -206,10 +206,13 @@ DP780 검색 → 재료 선택 → Abaqus 또는 OpenRadioss card 다운로드
 ### Demo B
 
 ```text
-CSV/XLSX 인장시험 업로드
-→ 열과 단위 확인
+Canonical Test Data JSON / CSV / XLSX 인장시험 업로드
+→ schema 또는 worksheet·열·quantity semantics·단위 확인
 → 처리 결과와 반복시험 산포 확인
 → hardening 후보 비교
 → Abaqus/OpenRadioss card 생성
 → Library record에서 다시 검색
 ```
+
+JSON 입력은 기존 channel과 original/normalized unit을 복원하며, CSV/XLSX 입력은 명시적
+mapping을 거친다. invalid schema, unit, worksheet 또는 column은 silent fallback 없이 차단한다.

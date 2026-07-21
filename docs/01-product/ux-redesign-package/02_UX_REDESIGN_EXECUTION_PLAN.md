@@ -371,3 +371,9 @@ task time, click count와 terminology count를 acceptance에 포함한다.
 ### 한 PR에서 대규모 rewrite
 
 각 PR은 하나의 사용자 task를 완료하고 독립적으로 검증한다.
+
+### 문서가 구현 뒤에 뒤처짐
+
+각 기능 PR에서 요구사항·제품 계약·status/backlog·API/JSON 계약·사용자 가이드·navigation
+contract·screenshot manifest·before/after evidence를 해당 코드 및 테스트와 함께 갱신한다. 최종
+acceptance PR은 처음 문서를 작성하는 단계가 아니라 전체 일관성을 감사하는 단계다.
