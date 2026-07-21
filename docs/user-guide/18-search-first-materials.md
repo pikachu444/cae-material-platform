@@ -95,3 +95,18 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 ![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
 ![Explicit JSON, CSV and XLSX Modeling Data entry](../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png)
+
+![Reviewed IR to native solver-card Export](../15-demo/images/ux-redesign-v2/modeling-export-1440x900.png)
+
+## Desktop viewport evidence
+
+1366 px에서는 optional 상세와 settings를 접어 result/graph 폭을 지키고, 1920 px에서는 중앙 작업면이
+남는 폭을 확장합니다. 모든 panel을 같은 비율로 늘리거나 좁은 중앙 max-width에 가두지 않습니다.
+
+![Materials at 1366](../15-demo/images/ux-redesign-v2/final-materials-1366x768.png)
+
+![Materials at 1920](../15-demo/images/ux-redesign-v2/final-materials-1920x1080.png)
+
+![Modeling Fit at 1366](../15-demo/images/ux-redesign-v2/final-modeling-fit-1366x768.png)
+
+![Modeling Fit at 1920](../15-demo/images/ux-redesign-v2/final-modeling-fit-1920x1080.png)

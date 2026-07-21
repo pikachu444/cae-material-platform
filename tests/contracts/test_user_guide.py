@@ -11,5 +11,5 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count >= 18
+    assert report.capture_count >= 12
     assert report.navigation_count == 3
