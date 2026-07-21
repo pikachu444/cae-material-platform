@@ -28,14 +28,11 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 
 ![Material의 5-tab 상세와 직접 card delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
-## Governance 운영 상태
+## 운영 상태
 
-전역 **Governance**의 **API observability**는 현재 API process의 요청 수, 5xx 수, active request와
-route-template별 p95 상한을 보여줍니다. URL, query, request body, 시험 데이터, credential이나 tenant
-식별자는 표시하지 않습니다. 이 화면은 빠른 진단용이며 여러 replica를 합치는 telemetry backend를
-대신하지 않습니다. Docker demo에서는 local identity가 읽기 전용 auditor 역할을 포함합니다.
-
-![Governance API observability](../15-demo/images/t47-api-observability.png)
+최근 Modeling, review/release와 고급 job/bundle 진입은 **Activity**에서 확인합니다. API process의
+metric, trace와 복구 절차는 일반 사용자 전역 메뉴가 아니라 운영 배포의 observability 도구와
+[운영 가이드](11-operations-and-recovery.md)에서 확인합니다.
 
 ## 자주 생기는 문제
 

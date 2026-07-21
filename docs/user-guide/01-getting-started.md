@@ -55,7 +55,7 @@ revision을 바꾸지 않습니다.
 상단 메뉴와 Material 문맥 탭의 역할, 분류·mapping·다운로드 문제 해결은
 [메뉴와 Material 작업공간 사용법](10-navigation-and-troubleshooting.md)을 참고하십시오.
 
-![Material 상세](../15-demo/images/e2e-material-detail.png)
+![Material 상세와 직접 card delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
 ## 종료와 데이터 주의
 

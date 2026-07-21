@@ -1,85 +1,67 @@
 # CAE Material Platform 사용자 가이드
 
-이 가이드는 개발자가 아니라 재료시험·재료모델·CAE 사용자가 demo에서 실제로 Material과
-시험 데이터를 등록하고 material card를 내려받는 절차를 설명합니다. 현재 결과는
-`reference/non-production`이며 회사의 승인된 재료값이나 solver qualification을 대신하지
-않습니다.
+이 가이드는 재료시험·재료모델·CAE 사용자가 synthetic demo에서 Material을 찾고 검토하거나 시험
+데이터로 새 solver card를 만드는 절차를 설명합니다. 모든 결과는 `reference/non-production`이며
+회사의 승인된 재료값이나 solver qualification을 대신하지 않습니다.
 
-## 빠른 경로
+## 먼저 할 일
 
-1. [서비스 실행과 연결](01-getting-started.md)
-2. [Steel 시험 데이터에서 탄소성 카드까지](02-steel-elastoplastic.md)
-3. [Polymer 완화시험에서 Abaqus 점탄성 카드까지](03-polymer-viscoelastic.md)
-4. [Elastomer Ogden--Prony 카드](04-elastomer-ogden-prony.md)
-5. [Revision, provenance와 다운로드 이해](05-revisions-downloads.md)
-6. [Process Run과 Specimen source Lot 연결](06-process-run-genealogy.md)
-7. [시험 Campaign·장비 교정·실행 조건 고정](07-test-execution-context.md)
-8. [CSV/TSV/XLSX 시험 데이터 승인과 Dataset 생성](08-governed-tabular-import.md)
-9. [시험 데이터·중립 IR·Solver Card를 ZIP으로 받기](09-bulk-export.md)
-10. [메뉴와 Material 작업공간 사용법](10-navigation-and-troubleshooting.md)
-11. [운영 상태 확인과 격리 복구 드릴](11-operations-and-recovery.md)
-12. [Configurable Catalog와 Material Modeling 목표 흐름](12-configurable-catalog-and-modeling.md)
-13. [Canonical Test Data JSON 검증·등록·정확한 revision 다운로드](13-canonical-test-data-json.md)
-14. [Mapping Profile 저장과 공통 Processing Workbench](14-common-processing-workbench.md)
-15. [Administrator/User와 기능 권한](15-product-access.md)
-16. [세 재료 계열 통합 데모 따라하기](16-guided-demo.md)
-17. [깨끗한 Test JSON→Recipe→Neutral→두 솔버 카드→ZIP 검증](17-clean-demo-download-validation.md)
-18. [Search-first Materials와 Modeling](18-search-first-materials.md)
+1. [서비스 실행과 자동 demo session](01-getting-started.md)
+2. [Search-first Materials와 Modeling](18-search-first-materials.md)
+3. [메뉴·route와 문제 해결](10-navigation-and-troubleshooting.md)
 
-## 현재 할 수 있는 일
+기본 경로는 다음과 같습니다.
 
-- Material, Material State, 기본 물성과 immutable revision 등록·조회
-- Process Definition, Lot/Batch와 State genealogy 연결
-- Process Run의 consumed/produced Lot split·merge와 Specimen source Lot exact-pin
-- Test Campaign, 표준 적합성, Instrument 교정과 typed 실행 조건의 exact Test Run Context
-- CSV/TSV/XLSX 원본 등록, 안전 preview, reusable Profile 승인과 명시적 column/unit mapping
-- raw, normalized, processed Dataset과 curve 확인
-- 다온도 relaxation 반복시험의 common-domain 통계, 수동/WLF shift와 master curve 확인
-- 반복 인장 curve의 alignment/statistics/outlier assessment
-- 금속 공개식 후보와 generalized-Maxwell 1~10항 후보의 Recipe 기반 fitting
-- exact Processing Output의 BIC/RMSE/residual/G₀ 검토와 immutable IR/Neutral JSON 승격
-- 사람의 Candidate 선택과 새 IR revision 승격
-- Abaqus/OpenRadioss mapping report, card preview와 개별 download
-- one-term Ogden--Prony IR의 Abaqus/OpenRadioss LAW62 card 생성
-- 선택한 raw/Parquet/CSV/IR/schema/mapping report/card revision을 하나의 검증 가능한 ZIP으로 다운로드
-- Governance에서 민감정보가 제거된 API 관측성 snapshot 확인
+```text
+Materials 검색 → 결과 선택·비교 → 상세 검토 → CAE card preview/download
+```
 
-## 아직 제한된 일
+적합한 결과가 없을 때만 다음 경로를 사용합니다.
 
-- production 재료 데이터의 모델 qualification과 조직별 승인 기준
-- Abaqus/OpenRadioss가 지원하지 않는 모델 조합의 추가 공식 mapping
-- proprietary laboratory vendor format과 임의 channel schema
-- 공통 1~10항 Processing Output에서 기존 stable IR identity로 반복 승격하는 별도 workflow
-- 실제 Abaqus/OpenRadioss solver 실행과 qualification
+```text
+Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library 저장
+```
 
-위 항목의 구현 순서는 [production-pilot 실행 계획](../13-delivery/production-pilot-execution-plan.md)에
-기록합니다. 기능이 추가될 때 이 가이드와 화면 이미지를 함께 갱신합니다.
+![Search-first Materials 검색과 선택 문맥](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
 
-## 화면 예시
+![그래프 중심 Modeling Fit](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
-![Search-first Materials 검색과 Browse 진입](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
+## 업무별 가이드
 
-![Material 상세와 immutable revision](../15-demo/images/e2e-material-detail.png)
+| 목적 | 가이드 |
+| --- | --- |
+| Steel 시험에서 Abaqus/OpenRadioss card | [Steel elastoplastic](02-steel-elastoplastic.md) |
+| Polymer 완화시험과 Prony card | [Polymer viscoelastic](03-polymer-viscoelastic.md) |
+| Elastomer Ogden–Prony card | [Elastomer](04-elastomer-ogden-prony.md) |
+| revision, mapping과 다운로드 의미 | [Revision과 다운로드](05-revisions-downloads.md) |
+| Process Run/Lot/Specimen genealogy | [Process genealogy](06-process-run-genealogy.md) |
+| Campaign·장비·시험 조건 | [Test execution context](07-test-execution-context.md) |
+| CSV/TSV/XLSX 승인형 import | [Governed tabular import](08-governed-tabular-import.md) |
+| Test JSON·Neutral·card ZIP | [Bulk export](09-bulk-export.md) |
+| 운영 상태와 복구 | [Operations](11-operations-and-recovery.md) |
+| Tree, Layout, comparison, workflow | [Configurable catalog](12-configurable-catalog-and-modeling.md) |
+| Canonical Test Data JSON | [JSON 등록](13-canonical-test-data-json.md) |
+| Processing Recipe·Batch·workbench | [Common processing](14-common-processing-workbench.md) |
+| Administrator/User 기능 권한 | [Product access](15-product-access.md) |
+| 세 재료 계열 통합 demo | [Guided demo](16-guided-demo.md) |
+| clean demo와 다운로드 검증 | [Clean demo validation](17-clean-demo-download-validation.md) |
 
-![시험 데이터와 processing workflow](../15-demo/images/e2e-shear-workflow.png)
+## 화면의 정보 배치
 
-![Governed CSV/TSV/XLSX import 작업대](../15-demo/images/governed-tabular-import.png)
+- 일반 사용자 메뉴는 `Materials | Modeling | Activity`입니다.
+- Materials의 Browse Tree는 Database/Profile/Table/Folder/Record 계층과 검색을 유지합니다.
+- Material Detail은 `Overview | Properties | Curves | CAE Cards | Evidence`로 투영합니다.
+- Modeling은 compact curve/process explorer와 넓은 graph를 유지하고 설정은 ribbon/drawer로 엽니다.
+- full UUID, hash, classification, exact revision, JSON과 provenance graph는 Evidence/Advanced에 둡니다.
+- Table/Attribute/Layout/Subset/Link Type 관리는 role-gated Administration에서 수행합니다.
 
-![점탄성 반복시험 통계와 shift evidence](../15-demo/images/viscoelastic-master-statistics.png)
+![Searchable Browse Tree](../15-demo/images/ux-redesign-v2/final-browse-tree-1366x768.png)
 
-![Shifted relaxation curve와 master curve](../15-demo/images/viscoelastic-master-curve.png)
+![Material Detail과 native card action](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
-![정확한 revision을 선택하는 Bulk Export Center](../15-demo/images/t45-bulk-export-selection.png)
+## 현재 제한
 
-![생성된 immutable ZIP Bundle](../15-demo/images/t45-immutable-bundles.png)
-
-![전역 Models 허브와 전체 제품 메뉴](../15-demo/images/t46-global-navigation-model-hub.png)
-
-![Material 문맥별 작업 탭](../15-demo/images/t46-material-context-tabs.png)
-
-![민감정보를 제외한 Governance API 관측성](../15-demo/images/t47-api-observability.png)
-
-![검토한 초탄성 family를 canonical Neutral Material JSON으로 승격](../15-demo/images/t56-neutral-material-json.png)
-
-문제가 생기면 먼저 workspace 상태, Material class, exact State/Property revision,
-CSV column/unit, mapping report의 `unsupported` 또는 `approximated` 항목을 확인하십시오.
+- 실제 production 재료 데이터와 solver correlation은 포함하지 않습니다.
+- 공개식 기반 reference model의 결과를 승인된 engineering 값으로 사용하지 않습니다.
+- production identity provider, confidential-data 운영과 domain-approved golden은 별도 승인이 필요합니다.
+- 이전 deep link는 호환을 위해 열릴 수 있지만 현재 전역 navigation을 설명하지 않습니다.

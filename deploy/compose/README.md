@@ -93,11 +93,11 @@ Starting new application images against the previous schema is intentionally uns
 `up --build -d` already builds the one-shot migration image and applies this order through
 `depends_on`.
 
-Open `http://127.0.0.1:5173`, select **Connection**, choose **Use local demo identity**, then save the
-connection. The browser receives a 15-minute signed token only because the API is explicitly started
-with both `CMP_ENVIRONMENT=demo` and `CMP_DEMO_IDENTITY=true`. Every subsequent request still travels
-through normal JWT verification, RBAC, PostgreSQL RLS, immutable revision/provenance hooks, and the
-non-owner `cmp_app` role.
+Open `http://127.0.0.1:5173`. The demo workspace prepares a short-lived local session automatically
+because the API is explicitly started with both `CMP_ENVIRONMENT=demo` and
+`CMP_DEMO_IDENTITY=true`. Users do not enter an API URL or token. Every subsequent request still
+travels through normal JWT verification, RBAC, PostgreSQL RLS, immutable revision/provenance hooks,
+and the non-owner `cmp_app` role.
 
 The local API is `http://127.0.0.1:8000/api/v1`; PostgreSQL is exposed on `127.0.0.1:54329` only for
 local inspection. OTLP/HTTP is localhost `4318` and the Collector's Prometheus endpoint is
