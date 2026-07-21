@@ -741,6 +741,23 @@
   background: var(--ux-surface);
 }
 
+.solver-preview-links {
+  display: grid;
+  margin-bottom: var(--ux-space-3);
+  border-top: 1px solid var(--ux-border);
+}
+
+.solver-preview-links button {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  background: transparent;
+  color: var(--ux-accent);
+  font-size: 13px;
+  text-align: left;
+}
+
 .material-detail-header h1,
 .card-preview-header h1 {
   font-size: 20px;
@@ -763,6 +780,10 @@
 .card-preview-content,
 .activity-content {
   padding: var(--ux-space-6);
+}
+
+.material-action-error {
+  margin: var(--ux-space-3) var(--ux-space-5) 0;
 }
 
 .overview-grid {
@@ -1021,6 +1042,89 @@
   border-radius: var(--ux-radius-panel);
   background: var(--ux-surface);
   box-shadow: var(--ux-shadow-none);
+}
+
+.cae-card-table {
+  min-width: 820px;
+}
+
+.cae-card-table th:first-child { width: 150px; }
+.cae-card-table th:nth-child(3) { width: 180px; }
+.cae-card-table th:last-child { width: 250px; }
+.cae-card-table td:nth-child(2) { min-width: 260px; }
+
+.layout-projection {
+  margin-top: var(--ux-space-6);
+  padding-top: var(--ux-space-5);
+  border-top: 1px solid var(--ux-border);
+}
+
+.layout-projection.ux-disclosure {
+  padding-top: 0;
+}
+
+.layout-selector-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  align-items: end;
+  gap: var(--ux-space-4);
+  padding: var(--ux-space-4) 0;
+}
+
+.layout-projection-content {
+  display: grid;
+  gap: var(--ux-space-5);
+}
+
+.layout-projection-content section > h3,
+.evidence-overview h3 {
+  margin: 0 0 var(--ux-space-2);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.layout-projection-table td:first-child,
+.layout-projection-table td:nth-child(2) {
+  min-width: 220px;
+}
+
+.layout-projection-table td:last-child {
+  width: 130px;
+  color: var(--ux-text-muted);
+}
+
+.layout-projection-table td strong,
+.layout-projection-table td span,
+.layout-projection-table td small {
+  display: block;
+}
+
+.layout-projection-table td strong {
+  font-weight: 500;
+}
+
+.layout-projection-table td small {
+  max-width: 420px;
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evidence-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ux-space-6);
+}
+
+.evidence-overview > section {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.evidence-overview .ux-table {
+  min-width: 560px;
 }
 
 .method-builder-card {
@@ -1386,7 +1490,9 @@
   .materials-workspace,
   .overview-grid,
   .overview-data-grid,
-  .card-preview-content {
+  .card-preview-content,
+  .evidence-overview,
+  .layout-selector-row {
     grid-template-columns: 1fr;
   }
 

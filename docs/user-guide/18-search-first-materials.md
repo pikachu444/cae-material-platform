@@ -9,7 +9,8 @@
 2. family, source, normalized property 범위, solver availability 또는 release 상태를 좁힙니다.
 3. 결과 행을 선택해 핵심 물성과 사용 가능한 solver card를 확인합니다.
 4. Material을 열어 `Overview | Properties | Curves | CAE Cards | Evidence`를 검토합니다.
-5. native `.inp` 또는 `.rad`를 미리 보고 다운로드합니다.
+5. Header의 `Preview OpenRadioss`로 native ASCII를 확인한 뒤 `Download .rad`를 누릅니다. Preview가
+   필요 없다면 Header에서 바로 다운로드할 수 있습니다.
 
 Browse Tree는 검색의 대체 수단으로 Database, Profile, Table, Folder, Record 계층을 유지합니다.
 Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 않으며 Browse, Evidence
@@ -30,6 +31,17 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Profile과 검색 동작을 다시 찾을
 수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
 
+### Layout, Related와 Evidence 확인
+
+- `Properties`와 `Curves`는 관리자가 정의한 현재 Record Layout의 Attribute를 해당 일반 사용자
+  탭에 투영합니다.
+- `Evidence`의 Related Records는 Link Type의 forward/reverse label을 사용하고, Workflow는
+  Material에서 native solver card까지의 Record 순서를 표시합니다.
+- 추가 Layout은 `Additional Layout datasheets and typed values`에서 선택합니다.
+- full revision ID, aggregate ID, content hash, classification과 change reason은
+  `Technical revision and provenance identifiers`를 펼쳐 확인합니다.
+- 수량 Attribute는 원본 값/단위와 정규화 값/단위, quantity semantics를 함께 보존합니다.
+
 ## 시험 데이터에서 새 card 만들기
 
 1. Modeling의 Data에서 canonical Test Data JSON, CSV 또는 XLSX를 선택합니다.
@@ -46,3 +58,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 ![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/foundation-materials-1440x900.png)
 
 ![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/materials-browse-tree-1366x768.png)
+
+![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
+
+![Related, Workflow, Layout and progressive Evidence](../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png)
