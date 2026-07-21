@@ -98,8 +98,6 @@ Catalog schema나 사용자 작업 흐름을 다시 만들지 않습니다.
 
 ![새 Attribute revision이 Layout 기반 Record Datasheet에 투영된 결과](../15-demo/images/ux-redesign-v2/administration-layout-datasheet-1440x900.png)
 
-![제품 역할 및 기능 권한](../15-demo/images/t78-users-access.png)
-
 ## 7. 운영 점검
 
 - 사용자가 예상한 organization/project를 선택했는지 확인합니다.

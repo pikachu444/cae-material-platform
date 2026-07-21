@@ -13,3 +13,5 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.document_count >= 10
     assert report.capture_count >= 12
     assert report.navigation_count == 3
+    assert report.classified_markdown_count >= 175
+    assert report.current_document_count >= 15

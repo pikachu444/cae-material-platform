@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run python .codex/hooks/documentation_gate.py",
+            "commandWindows": "uv run python .codex/hooks/documentation_gate.py",
+            "timeout": 30,
+            "statusMessage": "Checking documentation impact"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run python .codex/hooks/documentation_gate.py",
+            "commandWindows": "uv run python .codex/hooks/documentation_gate.py",
+            "timeout": 30,
+            "statusMessage": "Checking unfinished visual documentation"
+          }
+        ]
+      }
+    ]
+  }
+}

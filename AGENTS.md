@@ -58,6 +58,29 @@ Do not choose or imply a production tensile standard, material family, constitut
 - For visual work, update the linked product policy, reference comparison, viewport evidence, and
   screenshot manifest in the same PR. Do not mark a visual Task complete before live browser review.
 
+## Documentation enforcement
+
+- `README.md` is a Korean project entrypoint, not an implementation journal. Keep it at or below
+  200 lines and preserve overview, two core user flows, features, runnable quickstart, structure,
+  verification, and documentation links. Move chronology to
+  `docs/13-delivery/implementation-history.md`.
+- Every tracked Markdown file must match exactly one `current`, `authoritative`, `historical`, or
+  `reference` rule in `docs/documentation-manifest.yaml`.
+- A commit that changes non-test `apps/web/**/*.tsx` or `apps/web/**/*.css` must also change all of:
+  a current `docs/user-guide/*.md`, `docs/user-guide/screenshot-manifest.yaml`, and a current
+  `docs/15-demo/images/ux-redesign-v2/*.png` captured from the live browser.
+- A change to `apps/web/src/app.tsx` must additionally update
+  `docs/user-guide/navigation-contract.yaml`. A user-visible OpenAPI workflow change must update a
+  current user guide.
+- Test-only, historical-evidence-only, and reference-research-only changes are exempt from visual
+  screenshot impact, but never from valid links and document classification.
+- Before committing visual work, run the affected live browser scenario at 1366x768 and 1440x900
+  (and 1920x1080 when the layout materially expands), then run `make docs-screenshots` and
+  `make docs-impact`.
+- Project Codex hooks in `.codex/hooks.json` block `git commit`, `git push`, `gh pr create`,
+  `gh pr merge`, and task completion when required documentation evidence is missing. Review and
+  trust the project hook with `/hooks` after cloning or whenever the hook definition changes.
+
 ## Forbidden shortcuts
 
 - Generic EAV tables for core domain data

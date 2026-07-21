@@ -1,10 +1,12 @@
-"""Verify task-oriented guides, navigation contracts, and screenshot evidence."""
+"""Verify current documentation, navigation contracts, and screenshot evidence."""
 
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import re
 import struct
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -12,11 +14,28 @@ from typing import Any, cast
 import yaml
 
 _MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)#]+)(?:#[^)]+)?\)")
+_MARKDOWN_IMAGE = re.compile(r"!\[[^\]]*\]\(([^)#]+)(?:#[^)]+)?\)")
 _PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+_HISTORICAL_IMAGE = re.compile(r"docs/15-demo/images/(?:t\d|e2e-|governed-|process-|test-run-)")
+_STALE_CURRENT_PATTERNS = {
+    "retired global navigation": re.compile(
+        r"(?:전역|global)\s+\*\*(?:Dashboard|Models|Exports|Governance)\*\*", re.IGNORECASE
+    ),
+    "manual connection panel": re.compile(r"Connection\s+panel", re.IGNORECASE),
+    "retired T-46 screenshot": re.compile(r"t46-[^)\s]+\.png", re.IGNORECASE),
+}
+_README_HEADINGS = (
+    "## 핵심 사용 흐름",
+    "## 주요 기능",
+    "## 5분 로컬 실행",
+    "## 구조",
+    "## 개발과 검증",
+    "## 문서",
+)
 
 
 class UserGuideContractError(RuntimeError):
-    """Raised when user-visible workflow evidence is stale or incomplete."""
+    """Raised when current documentation or screenshot evidence is incomplete."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +43,8 @@ class UserGuideReport:
     document_count: int
     capture_count: int
     navigation_count: int
+    classified_markdown_count: int
+    current_document_count: int
 
 
 def _mapping(value: object, name: str) -> dict[str, Any]:
@@ -53,34 +74,114 @@ def _inside(path: Path, parent: Path, name: str) -> Path:
     return resolved
 
 
+def _relative(path: Path, project: Path) -> str:
+    return path.resolve().relative_to(project.resolve()).as_posix()
+
+
+def _glob_matches(path: str, pattern: str) -> bool:
+    candidate = pattern
+    while True:
+        if fnmatch.fnmatchcase(path, candidate):
+            return True
+        if "/**/" not in candidate:
+            return False
+        candidate = candidate.replace("/**/", "/", 1)
+
+
+def _tracked_markdown(project: Path) -> list[str]:
+    result = subprocess.run(
+        ["git", "ls-files", "*.md"],
+        cwd=project,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return sorted(line.strip().replace("\\", "/") for line in result.stdout.splitlines() if line)
+
+
+def _documentation_classes(project: Path) -> dict[str, str]:
+    manifest_path = project / "docs" / "documentation-manifest.yaml"
+    manifest = _mapping(
+        yaml.safe_load(manifest_path.read_text(encoding="utf-8")),
+        "documentation manifest",
+    )
+    rules = _sequence(manifest.get("rules"), "documentation manifest rules")
+    classified: dict[str, str] = {}
+    for path in _tracked_markdown(project):
+        matches: list[str] = []
+        for ordinal, raw_rule in enumerate(rules, start=1):
+            rule = _mapping(raw_rule, f"documentation rule {ordinal}")
+            status = _text(rule.get("status"), f"documentation rule {ordinal} status")
+            if status not in {"current", "authoritative", "historical", "reference"}:
+                raise UserGuideContractError(f"unsupported documentation status: {status}")
+            patterns = _sequence(rule.get("include"), f"documentation rule {ordinal} include")
+            if any(
+                _glob_matches(path, _text(pattern, "documentation include"))
+                for pattern in patterns
+            ):
+                matches.append(status)
+        if len(matches) != 1:
+            raise UserGuideContractError(
+                f"tracked Markdown must match exactly one documentation rule: {path} ({matches})"
+            )
+        classified[path] = matches[0]
+    return classified
+
+
 def _image_dimensions(path: Path) -> tuple[int, int]:
     value = path.read_bytes()
     if len(value) >= 24 and value[:8] == _PNG_SIGNATURE and value[12:16] == b"IHDR":
         return cast(tuple[int, int], struct.unpack(">II", value[16:24]))
-    if value[:2] == b"\xff\xd8":
-        offset = 2
-        start_of_frame = frozenset(range(0xC0, 0xC4)) | frozenset(range(0xC5, 0xC8)) | frozenset(
-            range(0xC9, 0xCC)
-        ) | frozenset(range(0xCD, 0xD0))
-        while offset + 9 <= len(value):
-            if value[offset] != 0xFF:
-                offset += 1
+    raise UserGuideContractError(f"screenshot is not a PNG image: {path}")
+
+
+def _verify_current_documents(project: Path, classes: dict[str, str]) -> set[str]:
+    images: set[str] = set()
+    for relative_document, status in classes.items():
+        if status != "current":
+            continue
+        document = project / relative_document
+        content = document.read_text(encoding="utf-8")
+        for label, pattern in _STALE_CURRENT_PATTERNS.items():
+            if pattern.search(content):
+                raise UserGuideContractError(f"{relative_document} contains {label}")
+        for match in _MARKDOWN_LINK.finditer(content):
+            target = match.group(1).strip().strip("<>")
+            if re.match(r"^(?:https?://|mailto:)", target):
                 continue
-            marker = value[offset + 1]
-            offset += 2
-            if marker in {0xD8, 0xD9}:
-                continue
-            if offset + 2 > len(value):
-                break
-            segment_length = int.from_bytes(value[offset : offset + 2], "big")
-            if segment_length < 2 or offset + segment_length > len(value):
-                break
-            if marker in start_of_frame:
-                height = int.from_bytes(value[offset + 3 : offset + 5], "big")
-                width = int.from_bytes(value[offset + 5 : offset + 7], "big")
-                return width, height
-            offset += segment_length
-    raise UserGuideContractError(f"screenshot is not a recognized PNG/JPEG image: {path}")
+            linked = _inside(document.parent / target, project, f"link in {relative_document}")
+            if not linked.exists():
+                raise UserGuideContractError(
+                    f"missing link target in {relative_document}: {target}"
+                )
+        for match in _MARKDOWN_IMAGE.finditer(content):
+            target = match.group(1).strip().strip("<>")
+            linked = _inside(document.parent / target, project, f"image in {relative_document}")
+            relative_image = _relative(linked, project)
+            if _HISTORICAL_IMAGE.search(relative_image):
+                raise UserGuideContractError(
+                    "current document uses a historical screenshot: "
+                    f"{relative_document} -> {relative_image}"
+                )
+            images.add(relative_image)
+    return images
+
+
+def _verify_readme(project: Path, registered_images: set[str]) -> None:
+    readme = (project / "README.md").read_text(encoding="utf-8")
+    if len(readme.splitlines()) > 200:
+        raise UserGuideContractError("README.md must remain at or below 200 lines")
+    for heading in _README_HEADINGS:
+        if heading not in readme:
+            raise UserGuideContractError(f"README.md is missing required section: {heading}")
+    if "docker compose -f deploy/compose/docker-compose.demo.yml up --build -d" not in readme:
+        raise UserGuideContractError("README.md is missing the runnable Compose quickstart")
+    readme_images = {
+        _relative(_inside(project / match.group(1), project, "README image"), project)
+        for match in _MARKDOWN_IMAGE.finditer(readme)
+    }
+    if len(readme_images & registered_images) < 2:
+        raise UserGuideContractError("README.md must show at least two current registered screens")
 
 
 def verify_user_guide(root: Path) -> UserGuideReport:
@@ -91,15 +192,8 @@ def verify_user_guide(root: Path) -> UserGuideReport:
     if not documents:
         raise UserGuideContractError("no user-guide documents were found")
 
-    for document in documents:
-        content = document.read_text(encoding="utf-8")
-        for match in _MARKDOWN_LINK.finditer(content):
-            target = match.group(1).strip()
-            if re.match(r"^(?:https?://|mailto:)", target):
-                continue
-            linked = _inside(document.parent / target, project, f"link in {document.name}")
-            if not linked.exists():
-                raise UserGuideContractError(f"missing link target in {document.name}: {target}")
+    classes = _documentation_classes(project)
+    current_document_images = _verify_current_documents(project, classes)
 
     manifest = _mapping(
         yaml.safe_load((guide_root / "screenshot-manifest.yaml").read_text(encoding="utf-8")),
@@ -107,6 +201,7 @@ def verify_user_guide(root: Path) -> UserGuideReport:
     )
     captures = _sequence(manifest.get("captures"), "screenshot manifest captures")
     capture_ids: set[str] = set()
+    registered_images: set[str] = set()
     for ordinal, raw_capture in enumerate(captures, start=1):
         capture = _mapping(raw_capture, f"capture {ordinal}")
         capture_id = _text(capture.get("id"), f"capture {ordinal} id")
@@ -127,12 +222,27 @@ def verify_user_guide(root: Path) -> UserGuideReport:
             raise UserGuideContractError(
                 f"capture is below the minimum evidence viewport: {capture_id}"
             )
-        declared_width = capture.get("width")
-        declared_height = capture.get("height")
-        if declared_width is not None and declared_width != width:
-            raise UserGuideContractError(f"capture width drifted: {capture_id}")
-        if declared_height is not None and declared_height != height:
-            raise UserGuideContractError(f"capture height drifted: {capture_id}")
+        if capture.get("width") != width or capture.get("height") != height:
+            raise UserGuideContractError(f"capture viewport drifted: {capture_id}")
+        project_image = _relative(image, project)
+        if project_image in registered_images:
+            raise UserGuideContractError(
+                f"screenshot image is registered more than once: {project_image}"
+            )
+        registered_images.add(project_image)
+
+    missing_registration = current_document_images - registered_images
+    unused_registration = registered_images - current_document_images
+    if missing_registration:
+        raise UserGuideContractError(
+            f"current document images are absent from the manifest: {sorted(missing_registration)}"
+        )
+    if unused_registration:
+        raise UserGuideContractError(
+            "current manifest images are unused by current documents: "
+            f"{sorted(unused_registration)}"
+        )
+    _verify_readme(project, registered_images)
 
     navigation = _mapping(
         yaml.safe_load((guide_root / "navigation-contract.yaml").read_text(encoding="utf-8")),
@@ -158,7 +268,13 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         if not guide.is_file() or f"({guide_name})" not in index_source:
             raise UserGuideContractError(f"navigation guide is missing from the index: {label}")
 
-    return UserGuideReport(len(documents), len(captures), len(items))
+    return UserGuideReport(
+        document_count=len(documents),
+        capture_count=len(captures),
+        navigation_count=len(items),
+        classified_markdown_count=len(classes),
+        current_document_count=sum(status == "current" for status in classes.values()),
+    )
 
 
 def main() -> int:
@@ -167,12 +283,13 @@ def main() -> int:
     args = parser.parse_args()
     try:
         report = verify_user_guide(args.root)
-    except UserGuideContractError as error:
+    except (OSError, subprocess.CalledProcessError, UserGuideContractError) as error:
         parser.exit(1, f"user-guide check failed: {error}\n")
     print(
         "user-guide check passed: "
-        f"{report.document_count} documents, {report.capture_count} captures, "
-        f"{report.navigation_count} navigation items"
+        f"{report.document_count} guide documents, {report.capture_count} current captures, "
+        f"{report.navigation_count} navigation items, "
+        f"{report.classified_markdown_count} classified Markdown files"
     )
     return 0
 
