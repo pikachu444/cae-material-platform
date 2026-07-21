@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const webUrl = process.env.CMP_DEMO_WEB_URL ?? "http://127.0.0.1:5173";
 
-test("clean demo exposes three material-family journeys and bulk entry", async ({ page, request }) => {
+test("clean demo exposes Search-first material-family journeys and progressive bulk entry", async ({ page, request }) => {
   const tokenResponse = await request.get(`${webUrl}/api/v1/demo-identity/token`);
   expect(tokenResponse.ok()).toBeTruthy();
   const tokenPayload = (await tokenResponse.json()) as { access_token: string };
@@ -20,25 +20,29 @@ test("clean demo exposes three material-family journeys and bulk entry", async (
   );
 
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "Choose a material family and follow the evidence." }),
-  ).toBeVisible();
-  await expect(page.getByText("CMP-DEMO-DP780", { exact: true })).toBeVisible();
-  await expect(page.getByText("CMP-DEMO-POLYMER-PRONY", { exact: true })).toBeVisible();
-  await expect(page.getByText("CMP-DEMO-ELASTOMER-OGDEN", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/materials$/);
+  await expect(page.getByRole("heading", { name: "Find material data ready for CAE" })).toBeVisible();
 
-  for (const [action, materialCode] of [
-    ["Open metal journey", "CMP-DEMO-DP780"],
-    ["Open polymer journey", "CMP-DEMO-POLYMER-PRONY"],
-    ["Open elastomer journey", "CMP-DEMO-ELASTOMER-OGDEN"],
+  for (const materialCode of [
+    "CMP-DEMO-DP780",
+    "CMP-DEMO-POLYMER-PRONY",
+    "CMP-DEMO-ELASTOMER-OGDEN",
   ] as const) {
-    await expect(page.getByText(materialCode, { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: action }).click();
-    await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+\/models$/);
-    await page.goto("/");
+    await page.getByRole("textbox", { name: "Search materials" }).fill(materialCode);
+    await page.getByRole("search").getByRole("button", { name: "Search", exact: true }).click();
+    const resultRow = page.getByRole("row").filter({ hasText: materialCode });
+    await expect(resultRow).toBeVisible();
+    await resultRow.getByRole("button").click();
+    await page.getByRole("button", { name: "Open material" }).click();
+    await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+$/);
+    await expect(page.getByRole("tab", { name: "CAE Cards" })).toBeVisible();
+    await page.goto("/materials");
   }
 
-  await page.getByRole("button", { name: "Open bulk downloads" }).click();
+  await page.goto("/activity");
+  await expect(page.getByRole("heading", { name: "Jobs, reviews, and recent work" })).toBeVisible();
+  await page.getByText("Advanced jobs and export packages", { exact: true }).click();
+  await page.getByRole("button", { name: "Open export packages" }).click();
   await expect(page).toHaveURL(/\/exports$/);
 });
 
@@ -117,11 +121,12 @@ test("clean demo downloads exact Neutral cards and the governed ZIP", async ({ p
   const bundles = (await bundlesResponse.json()) as {
     items: Array<{ archive_sha256: string; component_count: number }>;
   };
-  expect(bundles.items).toHaveLength(1);
-  expect(bundles.items[0].component_count).toBeGreaterThanOrEqual(6);
-  expect(createHash("sha256").update(archive).digest("hex")).toBe(
-    bundles.items[0].archive_sha256.replace("sha256:", ""),
+  const downloadedSha256 = createHash("sha256").update(archive).digest("hex");
+  const downloadedBundle = bundles.items.find(
+    (item) => item.archive_sha256.replace("sha256:", "") === downloadedSha256,
   );
+  expect(downloadedBundle).toBeTruthy();
+  expect(downloadedBundle!.component_count).toBeGreaterThanOrEqual(6);
 });
 
 test("an exact Test JSON revision navigates back through the governed workflow graph", async ({ page, request }) => {

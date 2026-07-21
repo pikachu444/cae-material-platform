@@ -90,13 +90,24 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 
 ![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
+![Native CAE card preview and direct downloads](../15-demo/images/ux-redesign-v2/material-detail-cae-cards-1440x900.png)
+
 ![Related, Workflow, Layout and progressive Evidence](../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png)
 
 ![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
 ![Explicit JSON, CSV and XLSX Modeling Data entry](../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png)
 
+![Governed CSV and XLSX import workbench](../15-demo/images/ux-redesign-v2/governed-import-1440x900.png)
+
 ![Reviewed IR to native solver-card Export](../15-demo/images/ux-redesign-v2/modeling-export-1440x900.png)
+
+## Activity에서 진행 상황 확인
+
+`Activity`는 최근 Modeling session과 review를 먼저 보여 줍니다. Recipe lifecycle, Batch preflight,
+mapping report와 장시간 실행의 상세 진단은 같은 화면의 Advanced jobs에서 필요할 때만 펼칩니다.
+
+![Recent modeling and review activity](../15-demo/images/ux-redesign-v2/activity-1440x900.png)
 
 ## Desktop viewport evidence
 
