@@ -31,7 +31,7 @@ direct port 8000 is intercepted by a local HTTPS listener; this does not affect 
 | Browse Tree → Metal/Steel → DP780 → Related/Workflow → CAE Cards | Searchable Database/Profile/Table/Folder/Record hierarchy, exact Record selection, workflow links, and native cards passed. |
 | Administration → Table/Attribute/Layout → Record Datasheet | Role-gated configuration routes and clean DP780 Layout projection passed without acceptance-only mutations. |
 | JSON/CSV/XLSX → channel/unit mapping → Process/Fit → Export | Canonical JSON and governed tabular entry, graph-dominant Fit, mapping preflight, explicit approximation acknowledgement, generated Abaqus preview/download action, and library workflow passed. |
-| Activity | Recent Modeling/review-first view with Advanced jobs disclosure passed. |
+| Activity | The route and shell baseline passed. This capture does not prove exact session resume or review-attention behavior; DUI-08 remains pending. |
 
 ## Viewport and image evidence
 

@@ -1,5 +1,5 @@
-version: 42
-verified_at: 2026-07-22
+version: 43
+verified_at: 2026-07-23
 scope: current-main-product-baseline
 source_commit: f89cc50
 capture_script: ../../scripts/capture_current_product.py
@@ -8,6 +8,26 @@ notes:
   - "Captured from the live Docker Compose application after PR #112, #114 and #115 were merged."
   - "The capture script rejects aria-busy, unfinished async status text and horizontal overflow."
   - "All images use the deterministic synthetic non-production demo fixture."
+  - "These captures document the current baseline only; they are not acceptance evidence for pending DUI-03 or DUI-05 through DUI-09."
+allowed_duplicate_pairs:
+  - current: docs/user-guide/images/current/modeling-process-1366x768.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1366x768.png
+  - current: docs/user-guide/images/current/modeling-process-1440x900.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1440x900.png
+  - current: docs/user-guide/images/current/modeling-process-1920x1080.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1920x1080.png
+  - current: docs/user-guide/images/current/modeling-fit-1366x768.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1366x768.png
+  - current: docs/user-guide/images/current/modeling-fit-1440x900.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png
+  - current: docs/user-guide/images/current/modeling-fit-1920x1080.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1920x1080.png
+  - current: docs/user-guide/images/current/modeling-export-1366x768.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1366x768.png
+  - current: docs/user-guide/images/current/modeling-export-1440x900.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1440x900.png
+  - current: docs/user-guide/images/current/modeling-export-1920x1080.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png
 captures:
   - id: materials-search-1366
     route: /materials
@@ -53,92 +73,92 @@ captures:
     height: 900
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
-    workflow: exact-input-mapping-and-persistent-source-graph
-    fixture: synthetic DP780 exact Test Data revision
+    workflow: existing-exact-input-selection-and-source-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
     image: images/current/modeling-data-1366x768.png
     width: 1366
     height: 768
   - id: modeling-data-1440
     route: /modeling?stage=data&family=metal
-    workflow: exact-input-mapping-and-persistent-source-graph
-    fixture: synthetic DP780 exact Test Data revision
+    workflow: existing-exact-input-selection-and-source-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
     image: images/current/modeling-data-1440x900.png
     width: 1440
     height: 900
   - id: modeling-data-1920
     route: /modeling?stage=data&family=metal
-    workflow: exact-input-mapping-and-persistent-source-graph
-    fixture: synthetic DP780 exact Test Data revision
+    workflow: existing-exact-input-selection-and-source-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
     image: images/current/modeling-data-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-process-1366
     route: /modeling?stage=process&family=metal
-    workflow: ordered-processing-and-preview
-    fixture: synthetic DP780 server processing preview
+    workflow: ephemeral-processing-controls-and-preview
+    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
   - id: modeling-process-1440
     route: /modeling?stage=process&family=metal
-    workflow: ordered-processing-and-preview
-    fixture: synthetic DP780 server processing preview
+    workflow: ephemeral-processing-controls-and-preview
+    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
   - id: modeling-process-1920
     route: /modeling?stage=process&family=metal
-    workflow: ordered-processing-and-preview
-    fixture: synthetic DP780 server processing preview
+    workflow: ephemeral-processing-controls-and-preview
+    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
-    workflow: candidate-response-residual-and-extrapolation
-    fixture: synthetic DP780 reference hardening candidates
+    workflow: ephemeral-candidate-comparison-preview
+    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
     image: images/current/modeling-fit-1366x768.png
     width: 1366
     height: 768
   - id: modeling-fit-1440
     route: /modeling?stage=fit&family=metal
-    workflow: candidate-response-residual-and-extrapolation
-    fixture: synthetic DP780 reference hardening candidates
+    workflow: ephemeral-candidate-comparison-preview
+    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
     image: images/current/modeling-fit-1440x900.png
     width: 1440
     height: 900
   - id: modeling-fit-1920
     route: /modeling?stage=fit&family=metal
-    workflow: candidate-response-residual-and-extrapolation
-    fixture: synthetic DP780 reference hardening candidates
+    workflow: ephemeral-candidate-comparison-preview
+    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
-    workflow: reviewed-model-neutral-ir-and-native-card-delivery
-    fixture: synthetic non-production reference model
+    workflow: ephemeral-export-preview-without-reviewed-delivery
+    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
     image: images/current/modeling-export-1366x768.png
     width: 1366
     height: 768
   - id: modeling-export-1440
     route: /modeling?stage=export&family=metal
-    workflow: reviewed-model-neutral-ir-and-native-card-delivery
-    fixture: synthetic non-production reference model
+    workflow: ephemeral-export-preview-without-reviewed-delivery
+    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
     image: images/current/modeling-export-1440x900.png
     width: 1440
     height: 900
   - id: modeling-export-1920
     route: /modeling?stage=export&family=metal
-    workflow: reviewed-model-neutral-ir-and-native-card-delivery
-    fixture: synthetic non-production reference model
+    workflow: ephemeral-export-preview-without-reviewed-delivery
+    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080
   - id: activity-1440
     route: /activity
-    workflow: recent-session-resume-and-review-attention
-    fixture: deterministic demo activity
+    workflow: empty-state-without-browser-local-modeling-session
+    fixture: deterministic demo with no recent browser-local session; DUI-08 pending
     image: images/current/activity-1440x900.png
     width: 1440
     height: 900

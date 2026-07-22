@@ -9,10 +9,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import shutil
+import struct
+import tempfile
+from collections.abc import Callable
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from playwright.sync_api import Browser, Page, sync_playwright
+if TYPE_CHECKING:
+    from playwright.sync_api import Browser, Page
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 CURRENT_CAPTURE_OUTPUTS = (
@@ -47,6 +54,7 @@ UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
     re.IGNORECASE,
 )
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 def _new_page(browser: Browser, base_url: str, width: int, height: int) -> Page:
@@ -183,6 +191,9 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
             page.get_by_role("heading", name=heading, exact=True).wait_for(timeout=30_000)
             if stage == "export":
+                page.get_by_text("Preview only · not committed", exact=True).wait_for(
+                    timeout=30_000
+                )
                 page.locator(".modeling-workspace-dock .neutral-solver-export").wait_for(
                     timeout=30_000
                 )
@@ -207,6 +218,11 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
     page.get_by_role("heading", name="Current workspace activity", exact=True).wait_for(
         timeout=30_000
     )
+    page.get_by_text("Start a Data, Process, Fit, or Export task.", exact=True).wait_for(
+        timeout=30_000
+    )
+    if page.get_by_role("button", name=re.compile(r"^Resume ")).count():
+        raise RuntimeError("Activity capture unexpectedly contains a resumable Modeling session")
     _capture(page, output / "activity-1440x900.png", width, height)
     page.context.close()
 
@@ -217,7 +233,72 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
     page.context.close()
 
 
+def _validate_capture_outputs(output: Path) -> int:
+    actual_outputs = {
+        path.relative_to(output).as_posix() for path in output.rglob("*") if path.is_file()
+    }
+    expected_outputs = set(CURRENT_CAPTURE_OUTPUTS)
+    if actual_outputs != expected_outputs:
+        raise RuntimeError(
+            "current capture output drift: "
+            f"missing={sorted(expected_outputs - actual_outputs)}, "
+            f"unexpected={sorted(actual_outputs - expected_outputs)}"
+        )
+    for name in CURRENT_CAPTURE_OUTPUTS:
+        image = output / name
+        value = image.read_bytes()
+        if (
+            len(value) < 10_000
+            or value[:8] != PNG_SIGNATURE
+            or value[12:16] != b"IHDR"
+        ):
+            raise RuntimeError(f"current capture is not a plausible PNG: {name}")
+        width, height = struct.unpack(">II", value[16:24])
+        expected = re.search(r"-(\d+)x(\d+)\.png$", name)
+        if expected is None or (width, height) != (
+            int(expected.group(1)),
+            int(expected.group(2)),
+        ):
+            raise RuntimeError(
+                f"current capture viewport drift for {name}: {width}x{height}"
+            )
+    return len(actual_outputs)
+
+
+def _replace_capture_directory(staged: Path, target: Path) -> None:
+    backup: Path | None = None
+    if target.exists():
+        backup = Path(
+            tempfile.mkdtemp(prefix=f".{target.name}-previous-", dir=target.parent)
+        )
+        backup.rmdir()
+        os.replace(target, backup)
+    try:
+        os.replace(staged, target)
+    except OSError:
+        if backup is not None and backup.exists() and not target.exists():
+            os.replace(backup, target)
+        raise
+    if backup is not None:
+        shutil.rmtree(backup)
+
+
+def _capture_to_empty_directory(target: Path, producer: Callable[[Path], None]) -> int:
+    target = target.resolve()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(
+        prefix=f".{target.name}-capture-", dir=target.parent
+    ) as temporary:
+        staged = Path(temporary)
+        producer(staged)
+        capture_count = _validate_capture_outputs(staged)
+        _replace_capture_directory(staged, target)
+    return capture_count
+
+
 def main() -> int:
+    from playwright.sync_api import sync_playwright
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-url", default="http://127.0.0.1:5173")
     parser.add_argument(
@@ -226,28 +307,23 @@ def main() -> int:
         default=Path("docs/user-guide/images/current"),
     )
     args = parser.parse_args()
-    args.output.mkdir(parents=True, exist_ok=True)
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True)
-        try:
-            _capture_materials(browser, args.base_url, args.output)
-            _capture_modeling(browser, args.base_url, args.output)
-            _capture_supporting_screens(browser, args.base_url, args.output)
-        finally:
-            browser.close()
-    actual_outputs = {path.name for path in args.output.glob("*.png")}
-    expected_outputs = set(CURRENT_CAPTURE_OUTPUTS)
-    if actual_outputs != expected_outputs:
-        raise RuntimeError(
-            "current capture output drift: "
-            f"missing={sorted(expected_outputs - actual_outputs)}, "
-            f"unexpected={sorted(actual_outputs - expected_outputs)}"
-        )
+
+    def produce(output: Path) -> None:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            try:
+                _capture_materials(browser, args.base_url, output)
+                _capture_modeling(browser, args.base_url, output)
+                _capture_supporting_screens(browser, args.base_url, output)
+            finally:
+                browser.close()
+
+    capture_count = _capture_to_empty_directory(args.output, produce)
     print(
         json.dumps(
             {
                 "output": args.output.as_posix(),
-                "captures": len(actual_outputs),
+                "captures": capture_count,
                 "viewports": [f"{width}x{height}" for width, height in VIEWPORTS],
             },
             ensure_ascii=False,

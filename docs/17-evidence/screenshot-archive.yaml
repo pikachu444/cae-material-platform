@@ -1,5 +1,5 @@
-version: 33
-verified_at: 2026-07-20
+version: 34
+verified_at: 2026-07-23
 source_evidence: reports/t60-clean-demo.md
 captures:
   - id: t60-guided-dashboard
@@ -722,25 +722,89 @@ captures:
     height: 1080
   - id: dui-04-modeling-export-1366
     route: /modeling?stage=export&family=metal
-    workflow: dui-04-reviewed-result-delivery
-    fixture: synthetic non-production reference model
+    workflow: dui-04-export-dock-ephemeral-preview
+    fixture: synthetic in-browser preview; no reviewed delivery claim
     source_evidence: reports/dui-04-modeling-workspace.md
     image: images/ux-redesign-v2/dui-04-modeling-export-1366x768.png
     width: 1366
     height: 768
   - id: dui-04-modeling-export-1440
     route: /modeling?stage=export&family=metal
-    workflow: dui-04-reviewed-result-delivery
-    fixture: synthetic non-production reference model
+    workflow: dui-04-export-dock-ephemeral-preview
+    fixture: synthetic in-browser preview; no reviewed delivery claim
     source_evidence: reports/dui-04-modeling-workspace.md
     image: images/ux-redesign-v2/dui-04-modeling-export-1440x900.png
     width: 1440
     height: 900
   - id: dui-04-modeling-export-1920
     route: /modeling?stage=export&family=metal
-    workflow: dui-04-reviewed-result-delivery
-    fixture: synthetic non-production reference model
+    workflow: dui-04-export-dock-ephemeral-preview
+    fixture: synthetic in-browser preview; no reviewed delivery claim
     source_evidence: reports/dui-04-modeling-workspace.md
     image: images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png
     width: 1920
     height: 1080
+  - id: dui-02-materials-results-1366
+    route: /materials
+    workflow: historical-dui-02-results-workspace
+    fixture: synthetic DP780 Material search results
+    source_evidence: reports/dui-02-materials-workspace.md
+    image: images/desktop-engineering-ui/dui-02/materials-results-1366x768.png
+    width: 1366
+    height: 768
+  - id: dui-02-materials-results-1440
+    route: /materials
+    workflow: historical-dui-02-results-workspace
+    fixture: synthetic DP780 Material search results
+    source_evidence: reports/dui-02-materials-workspace.md
+    image: images/desktop-engineering-ui/dui-02/materials-results-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-02-materials-results-1920
+    route: /materials
+    workflow: historical-dui-02-results-workspace
+    fixture: synthetic DP780 Material search results
+    source_evidence: reports/dui-02-materials-workspace.md
+    image: images/desktop-engineering-ui/dui-02/materials-results-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: t98-activity-baseline-1440
+    route: /activity
+    workflow: historical-activity-baseline-not-dui-08-acceptance
+    fixture: clean Compose baseline without exact resume/attention evidence
+    source_evidence: reports/t98-clean-compose-recapture.md
+    image: images/ux-redesign-v2/activity-1440x900.png
+    width: 1425
+    height: 891
+  - id: t97-final-browse-tree-1366
+    route: /materials
+    workflow: historical-materials-browse-structure
+    fixture: synthetic DP780 searchable governed tree
+    source_evidence: reports/t97-reference-similarity-final.md
+    image: images/ux-redesign-v2/final-browse-tree-1366x768.png
+    width: 1351
+    height: 760
+  - id: t97-final-modeling-fit-1366
+    route: /modeling
+    workflow: historical-persistent-graph-fit-baseline
+    fixture: synthetic DP780 ephemeral candidate preview
+    source_evidence: reports/t97-reference-similarity-final.md
+    image: images/ux-redesign-v2/final-modeling-fit-1366x768.png
+    width: 1351
+    height: 760
+  - id: t97-final-modeling-fit-1440
+    route: /modeling
+    workflow: historical-persistent-graph-fit-baseline
+    fixture: synthetic DP780 ephemeral candidate preview
+    source_evidence: reports/t97-reference-similarity-final.md
+    image: images/ux-redesign-v2/final-modeling-fit-1440x900.png
+    width: 1425
+    height: 891
+  - id: t97-final-modeling-fit-1920
+    route: /modeling
+    workflow: historical-persistent-graph-fit-baseline
+    fixture: synthetic DP780 ephemeral candidate preview
+    source_evidence: reports/t97-reference-similarity-final.md
+    image: images/ux-redesign-v2/final-modeling-fit-1920x1080.png
+    width: 1715
+    height: 1072

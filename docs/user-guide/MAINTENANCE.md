@@ -13,10 +13,13 @@ download 동작을 바꾸는 PR은 코드만으로 완료되지 않는다.
 5. token, confidential data, 개인 계정과 로컬 개인 경로가 이미지에 없는지 검토한다.
 6. 이미지가 단순 장식이 아니라 해당 작업의 입력·결과·warning을 보여 주는지 확인한다.
 
-`make docs-capture`는 실행 중인 deterministic Compose demo에서 현재 대표 화면을
-`docs/user-guide/images/current`에 생성합니다. `make docs-screenshots`는 모든 Markdown 내부
-링크, 문서 상태 분류, 전역 navigation contract, 현재/역사 이미지 분리, current/archive manifest,
-capture-script 출력, 이미지 형식·크기, 고아 파일과 SHA-256 중복을 검증합니다.
+`make docs-capture`는 실행 중인 deterministic Compose demo에서 현재 대표 화면을 빈 sibling 임시
+디렉터리에 생성합니다. 선언된 모든 파일·PNG 형식·viewport 검증이 성공한 뒤에만
+`docs/user-guide/images/current`를 교체하므로, 이전 출력이 누락된 새 캡처를 대신할 수 없습니다.
+`make docs-screenshots`는 모든 Markdown 내부 링크, 문서 상태 분류, 전역 navigation contract,
+현재/역사 이미지 분리, current/archive/구조화 이미지 manifest, capture-script 출력, 이미지
+형식·크기를 검증합니다. 고아 검사는 파일명 문자열이 아니라 해석된 repository-relative 전체 경로로
+수행하며, SHA-256 중복은 manifest에 명시한 1 current ↔ 1 historical 경로 쌍만 허용합니다.
 
 ## 이미지 변경 원칙
 

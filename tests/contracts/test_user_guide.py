@@ -2,7 +2,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cmp.tools.user_guide import _documentation_classes, verify_user_guide
+import pytest
+import yaml
+from cmp.tools.user_guide import (
+    UserGuideContractError,
+    _documentation_classes,
+    _verify_document_links,
+    _verify_image_inventory,
+    verify_user_guide,
+)
+
+_PNG = b"\x89PNG\r\n\x1a\ncontract-test"
 
 
 def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> None:
@@ -20,7 +30,6 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.local_link_count >= 300
     assert report.image_count >= 200
     assert report.orphan_image_count == 0
-    assert report.duplicate_image_group_count == 10
 
 
 def test_superseded_ux_package_is_historical_not_authoritative() -> None:
@@ -32,3 +41,90 @@ def test_superseded_ux_package_is_historical_not_authoritative() -> None:
     assert classes["docs/01-product/desktop-engineering-ui-program-brief.md"] == "authoritative"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
     assert classes["docs/17-evidence/reports/dui-04-modeling-workspace.md"] == "historical"
+
+
+def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
+    root = Path(__file__).parents[2]
+    manifest = yaml.safe_load(
+        (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
+    )
+    captures = {capture["id"]: capture for capture in manifest["captures"]}
+
+    activity = captures["activity-1440"]
+    assert activity["workflow"] == "empty-state-without-browser-local-modeling-session"
+    assert "DUI-08 pending" in activity["fixture"]
+    for capture_id in (
+        "modeling-export-1366",
+        "modeling-export-1440",
+        "modeling-export-1920",
+    ):
+        capture = captures[capture_id]
+        assert capture["workflow"] == "ephemeral-export-preview-without-reviewed-delivery"
+        assert "DUI-06 pending" in capture["fixture"]
+
+
+def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(
+    tmp_path: Path,
+) -> None:
+    current = tmp_path / "docs/user-guide/images/current/shared.png"
+    historical = tmp_path / "docs/17-evidence/images/shared.png"
+    current.parent.mkdir(parents=True)
+    historical.parent.mkdir(parents=True)
+    current.write_bytes(_PNG + b"-current")
+    historical.write_bytes(_PNG + b"-historical")
+    audit = tmp_path / "docs/audit.md"
+    audit.write_text(
+        "![owned](user-guide/images/current/shared.png)\n\n"
+        "Delete candidate: `docs/17-evidence/images/shared.png`\n",
+        encoding="utf-8",
+    )
+
+    _, referenced, _ = _verify_document_links(
+        tmp_path, {"docs/audit.md": "historical"}
+    )
+
+    assert referenced == {"docs/user-guide/images/current/shared.png"}
+    with pytest.raises(
+        UserGuideContractError,
+        match=r"docs/17-evidence/images/shared\.png",
+    ):
+        _verify_image_inventory(tmp_path, referenced, set())
+
+
+def test_duplicate_group_with_multiple_historical_files_is_rejected(
+    tmp_path: Path,
+) -> None:
+    relative_paths = (
+        "docs/user-guide/images/current/current.png",
+        "docs/17-evidence/images/first.png",
+        "docs/17-evidence/images/nested/second.png",
+    )
+    for relative in relative_paths:
+        image = tmp_path / relative
+        image.parent.mkdir(parents=True, exist_ok=True)
+        image.write_bytes(_PNG + b"-same")
+    allowed_pair = frozenset(relative_paths[:2])
+
+    with pytest.raises(UserGuideContractError, match="explicit current/historical pair"):
+        _verify_image_inventory(tmp_path, set(relative_paths), {allowed_pair})
+
+
+def test_exact_explicit_current_historical_duplicate_pair_is_allowed(
+    tmp_path: Path,
+) -> None:
+    relative_paths = (
+        "docs/user-guide/images/current/current.png",
+        "docs/17-evidence/images/historical.png",
+    )
+    for relative in relative_paths:
+        image = tmp_path / relative
+        image.parent.mkdir(parents=True, exist_ok=True)
+        image.write_bytes(_PNG + b"-same")
+
+    result = _verify_image_inventory(
+        tmp_path,
+        set(relative_paths),
+        {frozenset(relative_paths)},
+    )
+
+    assert result == (2, 0, 1)

@@ -6,9 +6,11 @@ import argparse
 import ast
 import fnmatch
 import hashlib
+import json
 import re
 import struct
 import subprocess
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -29,6 +31,13 @@ _REPOSITORY_LITERAL = re.compile(
 _CAPTURE_OUTPUT_LITERAL = re.compile(
     r'["\'](docs/17-evidence/images/[^"\']+\.(?:png|jpg|jpeg))["\']',
     re.IGNORECASE,
+)
+_STRUCTURED_IMAGE_MANIFESTS = (
+    "docs/17-evidence/images/desktop-engineering-ui/dui-01/after-measurements.json",
+    "docs/17-evidence/images/desktop-engineering-ui/dui-01/before-measurements.json",
+)
+_IMAGE_PATH_MANIFESTS = (
+    "docs/17-evidence/images/ux-layout-review/manifest.yaml",
 )
 _STALE_CURRENT_PATTERNS = {
     "retired global navigation": re.compile(
@@ -200,8 +209,9 @@ def _image_dimensions(path: Path) -> tuple[int, int]:
 
 def _verify_document_links(
     project: Path, classes: dict[str, str]
-) -> tuple[set[str], int]:
-    images: set[str] = set()
+) -> tuple[set[str], set[str], int]:
+    current_images: set[str] = set()
+    referenced_images: set[str] = set()
     local_link_count = 0
     for relative_document, status in classes.items():
         document = project / relative_document
@@ -220,6 +230,16 @@ def _verify_document_links(
                 raise UserGuideContractError(
                     f"missing link target in {relative_document}: {target}"
                 )
+            if linked.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+                relative_image = _relative(linked, project)
+                referenced_images.add(relative_image)
+                if status == "current":
+                    if _HISTORICAL_IMAGE.search(relative_image):
+                        raise UserGuideContractError(
+                            "current document uses a historical screenshot: "
+                            f"{relative_document} -> {relative_image}"
+                        )
+                    current_images.add(relative_image)
         if status in {"current", "authoritative"}:
             for literal in _REPOSITORY_LITERAL.findall(content):
                 if any(marker in literal for marker in ("*", "{", "}")):
@@ -232,18 +252,7 @@ def _verify_document_links(
                     raise UserGuideContractError(
                         f"missing repository path in {relative_document}: {literal}"
                     )
-        if status == "current":
-            for match in _MARKDOWN_IMAGE.finditer(content):
-                target = match.group(1).strip().strip("<>")
-                linked = _inside(document.parent / target, project, f"image in {relative_document}")
-                relative_image = _relative(linked, project)
-                if _HISTORICAL_IMAGE.search(relative_image):
-                    raise UserGuideContractError(
-                        "current document uses a historical screenshot: "
-                        f"{relative_document} -> {relative_image}"
-                    )
-                images.add(relative_image)
-    return images, local_link_count
+    return current_images, referenced_images, local_link_count
 
 
 def _verify_readme(project: Path, registered_images: set[str]) -> None:
@@ -286,7 +295,7 @@ def _capture_script_outputs(script: Path) -> set[str]:
     )
 
 
-def _verify_archive(project: Path) -> int:
+def _verify_archive(project: Path) -> tuple[int, set[str]]:
     archive_path = project / "docs" / "17-evidence" / "screenshot-archive.yaml"
     archive = _mapping(
         yaml.safe_load(archive_path.read_text(encoding="utf-8")),
@@ -333,14 +342,15 @@ def _verify_archive(project: Path) -> int:
             width, height = _image_dimensions(image)
             if capture.get("width") != width or capture.get("height") != height:
                 raise UserGuideContractError(f"archived capture viewport drifted: {capture_id}")
-    return len(captures)
+    return len(captures), images
 
 
-def _verify_historical_capture_scripts(project: Path) -> int:
+def _verify_historical_capture_scripts(project: Path) -> tuple[int, set[str]]:
     script_root = project / "docs" / "17-evidence" / "capture-scripts"
     scripts = sorted(script_root.glob("capture*.mjs"))
     if not scripts:
         raise UserGuideContractError("historical capture scripts are missing")
+    images: set[str] = set()
     for script in scripts:
         content = script.read_text(encoding="utf-8")
         output_literals = _CAPTURE_OUTPUT_LITERAL.findall(content)
@@ -355,39 +365,103 @@ def _verify_historical_capture_scripts(project: Path) -> int:
                     "historical capture output is missing: "
                     f"{_relative(script, project)} -> {output}"
                 )
-    return len(scripts)
+            images.add(_relative(image, project))
+    return len(scripts), images
 
 
-def _inventory_text(project: Path) -> str:
-    result = subprocess.run(
-        [
-            "git",
-            "ls-files",
-            "--cached",
-            "--others",
-            "--exclude-standard",
-            "--",
-            "*.json",
-            "*.md",
-            "*.mjs",
-            "*.py",
-            "*.yaml",
-            "*.yml",
-        ],
-        cwd=project,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    content: list[str] = []
-    for relative in result.stdout.splitlines():
-        path = project / relative.strip()
-        if path.is_file():
-            content.append(path.read_text(encoding="utf-8"))
-    return "\n".join(content)
+def _structured_manifest_images(project: Path) -> set[str]:
+    images: set[str] = set()
+
+    def visit(value: object, manifest: Path) -> None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key == "file" and isinstance(item, str):
+                    normalized = item.replace("\\", "/")
+                    marker = normalized.find("docs/")
+                    if marker < 0:
+                        raise UserGuideContractError(
+                            f"image manifest path is not repository-relative: {manifest} -> {item}"
+                        )
+                    relative = normalized[marker:]
+                    image = _inside(project / relative, project, f"image manifest {manifest}")
+                    if not image.is_file():
+                        raise UserGuideContractError(
+                            f"image manifest target is missing: {manifest} -> {relative}"
+                        )
+                    images.add(_relative(image, project))
+                else:
+                    visit(item, manifest)
+        elif isinstance(value, list):
+            for item in value:
+                visit(item, manifest)
+
+    for relative in _STRUCTURED_IMAGE_MANIFESTS:
+        manifest = project / relative
+        visit(json.loads(manifest.read_text(encoding="utf-8")), manifest)
+    for relative in _IMAGE_PATH_MANIFESTS:
+        manifest = project / relative
+        content = _mapping(
+            yaml.safe_load(manifest.read_text(encoding="utf-8")),
+            f"image path manifest {relative}",
+        )
+        for raw_image in _sequence(content.get("images"), f"image path manifest {relative}"):
+            image_ref = _text(raw_image, f"image path manifest {relative} entry")
+            image = _inside(project / image_ref, project, f"image path manifest {relative}")
+            if not image.is_file():
+                raise UserGuideContractError(
+                    f"image path manifest target is missing: {relative} -> {image_ref}"
+                )
+            images.add(_relative(image, project))
+    return images
 
 
-def _verify_image_inventory(project: Path) -> tuple[int, int, int]:
+def _duplicate_allowances(
+    project: Path, manifest: dict[str, Any]
+) -> set[frozenset[str]]:
+    entries = _sequence(manifest.get("allowed_duplicate_pairs", []), "duplicate allowances")
+    allowances: set[frozenset[str]] = set()
+    current_root = project / "docs" / "user-guide" / "images" / "current"
+    historical_root = project / "docs" / "17-evidence" / "images"
+    for ordinal, raw_entry in enumerate(entries, start=1):
+        entry = _mapping(raw_entry, f"duplicate allowance {ordinal}")
+        current_ref = _text(entry.get("current"), f"duplicate allowance {ordinal} current")
+        historical_ref = _text(
+            entry.get("historical"), f"duplicate allowance {ordinal} historical"
+        )
+        current = _relative(
+            _inside(project / current_ref, current_root, f"duplicate allowance {ordinal} current"),
+            project,
+        )
+        historical = _relative(
+            _inside(
+                project / historical_ref,
+                historical_root,
+                f"duplicate allowance {ordinal} historical",
+            ),
+            project,
+        )
+        pair = frozenset((current, historical))
+        if pair in allowances:
+            raise UserGuideContractError(f"duplicate image allowance is repeated: {sorted(pair)}")
+        allowances.add(pair)
+    return allowances
+
+
+def _image_lifecycle(relative: str) -> str:
+    if relative.startswith(_CURRENT_IMAGE_PREFIX):
+        return "current"
+    if relative.startswith("docs/17-evidence/images/"):
+        return "historical"
+    if relative.startswith("docs/00-research/"):
+        return "reference"
+    return "unclassified"
+
+
+def _verify_image_inventory(
+    project: Path,
+    referenced_images: set[str],
+    allowed_duplicate_pairs: set[frozenset[str]],
+) -> tuple[int, int, int]:
     roots = (
         project / "docs" / "00-research",
         project / "docs" / "17-evidence" / "images",
@@ -400,12 +474,12 @@ def _verify_image_inventory(project: Path) -> tuple[int, int, int]:
         for path in root.rglob("*")
         if path.is_file() and path.suffix.lower() in {".png", ".jpg", ".jpeg"}
     )
-    corpus = _inventory_text(project)
-    orphan_images = [path for path in images if path.name not in corpus]
+    inventory_paths = {_relative(path, project) for path in images}
+    orphan_images = sorted(inventory_paths - referenced_images)
     if orphan_images:
         raise UserGuideContractError(
             "unreferenced images require archive rationale or deletion: "
-            f"{[_relative(path, project) for path in orphan_images]}"
+            f"{orphan_images}"
         )
 
     hashes: dict[str, list[Path]] = {}
@@ -422,27 +496,30 @@ def _verify_image_inventory(project: Path) -> tuple[int, int, int]:
         digest = hashlib.sha256(image.read_bytes()).hexdigest()
         hashes.setdefault(digest, []).append(image)
     duplicate_groups = [paths for paths in hashes.values() if len(paths) > 1]
-    invalid_duplicate_groups = [
-        paths
-        for paths in duplicate_groups
-        if len(
-            {
-                (
-                    "current"
-                    if _relative(path, project).startswith(_CURRENT_IMAGE_PREFIX)
-                    else "retained"
-                )
-                for path in paths
-            }
-        )
-        == 1
-    ]
+    actual_allowed_pairs: set[frozenset[str]] = set()
+    invalid_duplicate_groups: list[tuple[list[str], dict[str, int]]] = []
+    for paths in duplicate_groups:
+        relative_paths = sorted(_relative(path, project) for path in paths)
+        lifecycle_counts = dict(Counter(_image_lifecycle(path) for path in relative_paths))
+        pair = frozenset(relative_paths)
+        if (
+            len(relative_paths) == 2
+            and lifecycle_counts == {"historical": 1, "current": 1}
+            and pair in allowed_duplicate_pairs
+        ):
+            actual_allowed_pairs.add(pair)
+            continue
+        invalid_duplicate_groups.append((relative_paths, lifecycle_counts))
     if invalid_duplicate_groups:
-        rendered = [
-            [_relative(path, project) for path in paths] for paths in invalid_duplicate_groups
-        ]
         raise UserGuideContractError(
-            f"duplicate image hashes require one canonical path: {rendered}"
+            "duplicate image hashes require one explicit current/historical pair: "
+            f"{invalid_duplicate_groups}"
+        )
+    stale_allowances = allowed_duplicate_pairs - actual_allowed_pairs
+    if stale_allowances:
+        raise UserGuideContractError(
+            "duplicate image allowances no longer match equal bytes: "
+            f"{[sorted(pair) for pair in stale_allowances]}"
         )
     return len(images), len(orphan_images), len(duplicate_groups)
 
@@ -456,7 +533,9 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         raise UserGuideContractError("no user-guide documents were found")
 
     classes = _documentation_classes(project)
-    current_document_images, local_link_count = _verify_document_links(project, classes)
+    current_document_images, document_images, local_link_count = _verify_document_links(
+        project, classes
+    )
 
     manifest = _mapping(
         yaml.safe_load((guide_root / "screenshot-manifest.yaml").read_text(encoding="utf-8")),
@@ -557,9 +636,23 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         if not guide.is_file() or f"({guide_name})" not in index_source:
             raise UserGuideContractError(f"navigation guide is missing from the index: {label}")
 
-    archived_capture_count = _verify_archive(project)
-    historical_capture_script_count = _verify_historical_capture_scripts(project)
-    image_count, orphan_image_count, duplicate_image_group_count = _verify_image_inventory(project)
+    archived_capture_count, archived_images = _verify_archive(project)
+    historical_capture_script_count, historical_script_images = (
+        _verify_historical_capture_scripts(project)
+    )
+    structured_manifest_images = _structured_manifest_images(project)
+    referenced_images = (
+        document_images
+        | registered_images
+        | archived_images
+        | scripted_images
+        | historical_script_images
+        | structured_manifest_images
+    )
+    allowed_duplicate_pairs = _duplicate_allowances(project, manifest)
+    image_count, orphan_image_count, duplicate_image_group_count = _verify_image_inventory(
+        project, referenced_images, allowed_duplicate_pairs
+    )
 
     return UserGuideReport(
         document_count=len(documents),
