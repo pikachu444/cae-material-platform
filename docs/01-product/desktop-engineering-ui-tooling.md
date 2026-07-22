@@ -4,7 +4,7 @@ Status: authoritative product-design tooling decision
 
 ## Purpose
 
-The frontend must be designed and reviewed as a desktop engineering application, not as a marketing site or generic SaaS dashboard. No single design plugin is authoritative. The workflow uses four coordinated layers.
+The frontend must be designed and reviewed as a desktop engineering application, not as a marketing site or generic SaaS dashboard. No single design plugin is authoritative. The workflow combines repository-owned controls with three external quality helpers.
 
 ## Required reference inputs
 
@@ -33,7 +33,7 @@ Primary uses:
 
 Figma is not the source of domain truth. The repository specifications remain authoritative for data semantics, workflow, links, revision/provenance and solver-card behavior.
 
-Required Figma pages:
+If Figma is used, create these pages:
 
 1. Foundations
 2. Desktop shell
