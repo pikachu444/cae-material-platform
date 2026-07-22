@@ -12,7 +12,7 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 
 ## Paste this request into a new Codex session
 
-> Read this file first. Preserve every existing API and domain contract, then complete only the next approved DUI task. Use the external UI, audit and browser-testing skills; verify the real flow at all three desktop viewports, fix every failed gate, and do not mark the task done before regression and evidence are complete.
+> Read this file first. Verify and record product-owner approval for Draft PR #112 before any production React/CSS work; if it is not recorded, stop and report the blocked gate. If it is recorded, install or verify the documented project-scoped external skills, preserve every existing API and domain contract, and complete only the next backlog DUI slice with real-flow regression and all three desktop viewport checks.
 
 ## Read in order
 
@@ -31,8 +31,9 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 ## Program rule
 
 - Do not begin with a generic visual cleanup, a CSS-only pass or a disconnected mockup.
-- Draft PR #112 owns DUI-01 and requires product-owner acceptance before DUI-02 starts. First check
-  and record that status; do not silently bypass it.
+- `AGENTS.md` requires product-owner approval before production React/CSS changes. Treat Draft PR
+  #112 as unaccepted until the approval is recorded. If absent, stop and report the gate; do not
+  merge #112 or begin DUI-02.
 - After that acceptance, implement the delivery backlog in order. One pull request owns one bounded
   DUI slice.
 - Preserve database, revision/provenance, unit and solver-mapping contracts. Move the facade, not
