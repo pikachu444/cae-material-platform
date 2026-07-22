@@ -1,5 +1,7 @@
 # Codex Master Prompt — Search-first UX Redesign
 
+> Status: historical archive — do not use this package to start or approve implementation. The current authoritative entrypoint is [CODEX_DESKTOP_ENGINEERING_UI_START.md](../../../CODEX_DESKTOP_ENGINEERING_UI_START.md), with the [Desktop Engineering UI program brief](../desktop-engineering-ui-program-brief.md). This material is retained only as prior research and decision history.
+
 당신은 `pikachu444/cae-material-platform`의 제품 책임자, enterprise UX architect와 React/TypeScript 엔지니어다.
 
 이번 작업은 기능 추가가 아니라 제품 방향과 프론트엔드 정보 구조의 재설계다.

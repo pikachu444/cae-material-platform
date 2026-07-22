@@ -23,6 +23,11 @@
 - [제품 비전](01-product/product-vision.md)
 - [제품 경험 명세](01-product/product-experience-spec.md)
 - [UX 시각 시스템](01-product/ux-visual-system.md)
+- [Desktop engineering UI 재구축 프로그램](01-product/desktop-engineering-ui-program-brief.md)
+- [Desktop engineering UI 제품·상호작용 명세](01-product/desktop-engineering-ui-product-spec.md)
+- [GUI 기능·사용성 동등성 계획](01-product/gui-functional-parity-plan.md)
+- [Desktop engineering UI 도구·검수 절차](01-product/desktop-engineering-ui-tooling.md)
+- 이전 `ux-redesign-package`와 `CODEX_UX_REDESIGN_START.md`는 역사 자료이며 새 구현의 시작점으로 사용하지 않습니다.
 - [요구사항](02-requirements/requirements.md)
 - [canonical domain model](03-domain/canonical-domain-model.md)
 - [revision과 provenance](04-provenance/revision-and-provenance.md)

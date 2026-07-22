@@ -1,5 +1,7 @@
 # CAE Material Platform UX Redesign Package
 
+> Status: historical archive — do not use this package to start or approve implementation. The current authoritative entrypoint is [CODEX_DESKTOP_ENGINEERING_UI_START.md](../../../CODEX_DESKTOP_ENGINEERING_UI_START.md), with the [Desktop Engineering UI program brief](../desktop-engineering-ui-program-brief.md). This material is retained only as prior research and decision history.
+
 이 디렉터리는 현재 프론트엔드를 검색 중심 제품으로 재설계하기 위한 목표, 조사 근거, 실행계획, 수용 기준과 Codex 지시문을 포함한다.
 
 핵심 방향은 다음 두 가지다.

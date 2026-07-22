@@ -1,5 +1,7 @@
 # Codex UX Redesign — Start Here
 
+> Status: historical entrypoint — do not begin implementation from this file. Use [CODEX_DESKTOP_ENGINEERING_UI_START.md](CODEX_DESKTOP_ENGINEERING_UI_START.md) and its linked program brief instead. This file is retained only to preserve the former redesign record.
+
 Implementation status (`2026-07-21`): the T-94 design gate and T-95–T-97 live implementation are
 complete. Future changes must preserve the same reference-similarity, full-width, governed Tree and
 JSON/CSV/XLSX-to-card acceptance gates. Final evidence is in
