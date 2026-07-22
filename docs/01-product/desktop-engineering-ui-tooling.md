@@ -117,6 +117,49 @@ Visual comparison must fail on unintended changes to pane proportions, header he
 | Storybook | isolated component states and component visual regression | end-to-end application workflow |
 | Playwright | complete screens, viewport behavior and task flow | detailed component design exploration |
 
-## Decision
 
-The immediate deliverable is the repository-based specification and Codex Skill. Figma MCP is an optional connected design surface, not a prerequisite. Storybook is a planned implementation dependency. Playwright continues to protect complete screens throughout the transition.
+## 5. External open-source skills — mandatory quality loop
+
+The project skill is the workbench-specific fourth layer. Add three external helpers before the first
+new DUI slice. Run these from the repository root; do not use a global installation.
+
+    npx --yes skills@latest add addyosmani/agent-skills --skill frontend-ui-engineering --agent codex --yes
+    npx --yes skills@latest add vercel-labs/agent-skills --skill web-design-guidelines --agent codex --yes
+    npx --yes skills@latest add anthropics/skills --skill webapp-testing --agent codex --yes
+
+| Layer | Responsibility | Boundary |
+| --- | --- | --- |
+| \`frontend-ui-engineering\` | Build production React components, connect state correctly, and apply keyboard/accessibility discipline. | It cannot replace the approved CAE workspace topology with a generic responsive/mobile dashboard. |
+| \`web-design-guidelines\` | Audit implemented UI code for accessibility, interaction, performance and web-interface defects. | Its generic advice is advisory when it conflicts with the desktop-engineering product specification. |
+| \`webapp-testing\` | Drive the real local app, assert workflow state, capture browser evidence and inspect console errors. | A passing automated interaction does not by itself prove reference/workbench quality. |
+| \`desktop-engineering-ui\` | Enforce repository references, desktop CAE grammar, measurements and legacy-CSS migration. | It does not authorize new domain behavior or substitute for the three external checks. |
+
+Run the same loop for every target screen:
+
+    inspect current route and relevant local reference images
+    → implement against existing API/controller/state
+    → run route/domain regression tests
+    → capture and exercise the live app at 1366×768, 1440×900 and 1920×1080
+    → audit with desktop-engineering-ui and web-design-guidelines
+    → verify task flow and browser errors with webapp-testing
+    → fix every hard-gate failure
+    → recapture/retest until every gate passes
+    → update evidence, screenshot manifest and user documentation
+
+Record the external-skill audit results in the visual PR evidence. Do not mark a visual task complete
+because an agent says it looks polished; use the repository visual-acceptance matrix and actual
+screenshots, measurements and interactions.
+
+## 6. Decision
+
+The authoritative decision hierarchy is:
+
+1. repository domain contracts and \`AGENTS.md\`;
+2. the UI program brief and product/interaction specification;
+3. the project \`desktop-engineering-ui\` skill;
+4. the external implementation, audit and browser-testing skills;
+5. optional Figma exploration and planned Storybook workbench.
+
+Figma remains optional. Storybook remains a planned component dependency. Playwright and the external
+browser-testing skill both protect the real application screen and task flow; neither permits a
+mock-only implementation.
