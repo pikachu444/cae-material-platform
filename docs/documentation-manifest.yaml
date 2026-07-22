@@ -14,6 +14,7 @@ rules:
       - "docs/13-delivery/implementation-history.md"
       - "docs/13-delivery/t*.md"
       - "docs/13-delivery/v3-completion-audit.md"
+      - "docs/01-product/ux-redesign-package/**/*.md"
       - "docs/15-demo/**/*.md"
   - status: current
     include:
@@ -38,6 +39,8 @@ rules:
   - status: authoritative
     include:
       - "AGENTS.md"
+    exclude:
+      - "docs/01-product/ux-redesign-package/**/*.md"
       - "CODEX_DESKTOP_ENGINEERING_UI_START.md"
       - ".codex/skills/**/*.md"
       - "adr/**/*.md"
