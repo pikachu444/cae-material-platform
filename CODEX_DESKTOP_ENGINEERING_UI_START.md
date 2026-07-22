@@ -21,12 +21,13 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 3. `docs/01-product/desktop-engineering-ui-product-spec.md`
 4. `docs/01-product/gui-functional-parity-plan.md`
 5. `docs/01-product/desktop-engineering-ui-tooling.md`
-6. `docs/13-delivery/desktop-engineering-ui-backlog.md`
-7. `.codex/skills/desktop-engineering-ui/SKILL.md`
-8. `docs/00-research/ux-reference-gallery/README.md`
-9. `docs/00-research/images/gui-reference/README.md` and every relevant local image it inventories
-10. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
-11. current route code, tests, screenshots and user guides
+6. `docs/13-delivery/backlog.md`
+7. `docs/13-delivery/desktop-engineering-ui-backlog.md`
+8. `.codex/skills/desktop-engineering-ui/SKILL.md`
+9. `docs/00-research/ux-reference-gallery/README.md`
+10. `docs/00-research/images/gui-reference/README.md` and every relevant local image it inventories
+11. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
+12. current route code, tests, screenshots and user guides
 
 ## Program rule
 
