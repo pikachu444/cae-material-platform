@@ -86,16 +86,25 @@ workspace width at 1440.
 
 ## Structural acceptance score
 
-The 16 criteria in `docs/01-product/visual-acceptance-matrix.md` were scored 0–2. No hard gate is 0.
+DUI-01 changes the shared shell, not the complete internal topology assigned to DUI-02 through
+DUI-08. Its acceptance score therefore uses the 11 matrix criteria this slice can implement and
+verify: V-01, V-02, V-03, V-06, V-07, V-09, V-11, V-13, V-14, V-15 and shell-owned V-16. The maximum
+is 22 and the stricter repository gate is 85%. No in-scope hard gate is 0.
 
-| Screen | Score | Partial criteria | Hard-gate result |
-| --- | ---: | --- | --- |
-| Materials Search | 30/32 | V-05 resize deferred to DUI-02; V-09 Search and selected-row action are separate contexts | pass |
-| Browse Tree | 29/32 | V-05 resizing/datasheet adjacency deferred to DUI-02; Tree behavior itself is unchanged | pass |
-| Material Detail | 30/32 | in-workspace navigator/back stack deferred to DUI-02 | pass |
-| Modeling Fit | 29/32 | V-06/V-16 method-internal typography and legacy labels continue in DUI-04 | pass |
-| Activity | 27/32 | work-queue data grid and attention model continue in DUI-08 | pass |
-| Administration | 26/32 | object navigator/property editor and remaining editor classes continue in DUI-07 | pass |
+| Screen | DUI-01 score | Percent | Partial in-scope criterion | Hard-gate result |
+| --- | ---: | ---: | --- | --- |
+| Materials Search | 22/22 | 100% | none | pass |
+| Browse Tree | 22/22 | 100% | none; Tree behavior is unchanged | pass |
+| Material Detail | 22/22 | 100% | none | pass |
+| Modeling Fit | 21/22 | 95.5% | V-06 method-internal labels continue in DUI-04 | pass |
+| Activity | 21/22 | 95.5% | V-07 internal queue hierarchy continues in DUI-08 | pass |
+| Administration | 21/22 | 95.5% | V-09 internal editor command ownership continues in DUI-07 | pass |
+
+This does not claim that the full route program is complete. Applying all 16 criteria today gives
+Materials Search 30/32, Browse Tree 29/32, Material Detail 30/32, Modeling Fit 29/32, Activity 27/32
+and Administration 26/32. Activity and Administration remain below the repository's stricter 85%
+full-screen target and are explicitly open under DUI-08 and DUI-07. Pane resize/datasheet adjacency
+also remains open under DUI-02, and method-internal Modeling typography remains open under DUI-04.
 
 ## Screenshots
 
