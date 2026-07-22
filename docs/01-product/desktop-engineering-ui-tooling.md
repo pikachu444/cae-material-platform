@@ -129,10 +129,10 @@ new DUI slice. Run these from the repository root; do not use a global installat
 
 | Layer | Responsibility | Boundary |
 | --- | --- | --- |
-| \`frontend-ui-engineering\` | Build production React components, connect state correctly, and apply keyboard/accessibility discipline. | It cannot replace the approved CAE workspace topology with a generic responsive/mobile dashboard. |
-| \`web-design-guidelines\` | Audit implemented UI code for accessibility, interaction, performance and web-interface defects. | Its generic advice is advisory when it conflicts with the desktop-engineering product specification. |
-| \`webapp-testing\` | Drive the real local app, assert workflow state, capture browser evidence and inspect console errors. | A passing automated interaction does not by itself prove reference/workbench quality. |
-| \`desktop-engineering-ui\` | Enforce repository references, desktop CAE grammar, measurements and legacy-CSS migration. | It does not authorize new domain behavior or substitute for the three external checks. |
+| `frontend-ui-engineering` | Build production React components, connect state correctly, and apply keyboard/accessibility discipline. | It cannot replace the approved CAE workspace topology with a generic responsive/mobile dashboard. |
+| `web-design-guidelines` | Audit implemented UI code for accessibility, interaction, performance and web-interface defects. | Its generic advice is advisory when it conflicts with the desktop-engineering product specification. |
+| `webapp-testing` | Drive the real local app, assert workflow state, capture browser evidence and inspect console errors. | A passing automated interaction does not by itself prove reference/workbench quality. |
+| `desktop-engineering-ui` | Enforce repository references, desktop CAE grammar, measurements and legacy-CSS migration. | It does not authorize new domain behavior or substitute for the three external checks. |
 
 Run the same loop for every target screen:
 
@@ -154,9 +154,9 @@ screenshots, measurements and interactions.
 
 The authoritative decision hierarchy is:
 
-1. repository domain contracts and \`AGENTS.md\`;
+1. repository domain contracts and `AGENTS.md`;
 2. the UI program brief and product/interaction specification;
-3. the project \`desktop-engineering-ui\` skill;
+3. the project `desktop-engineering-ui` skill;
 4. the external implementation, audit and browser-testing skills;
 5. optional Figma exploration and planned Storybook workbench.
 
