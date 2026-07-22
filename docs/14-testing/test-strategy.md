@@ -750,7 +750,7 @@ published revision. The recorded run used a newly created polymer Material and p
 The browser evidence additionally renders the processed curve, sorted Candidates, residual view,
 promoted IR/card preview, OpenRadioss LAW62 approximation notice, and exact Process/Lot genealogy.
 The complete IDs, digests, commands, expected negative check, and screenshots are in
-`docs/15-demo/user-e2e-evidence-2026-07-16.md`.
+`docs/17-evidence/reports/user-e2e-evidence-2026-07-16.md`.
 
 ## T-47 observability and isolated recovery gate
 

@@ -17,7 +17,6 @@ Run과 card는 항상 정확한 revision ID를 사용합니다. `latest`를 계�
 Material 상세의 Revision history와 Provenance summary에서 이 정보를 확인합니다. Catalog
 genealogy도 화면에 보이는 최신 label이 아니라 선택한 exact revision을 저장합니다.
 
-![Process와 Lot exact-revision genealogy](../15-demo/images/process-lot-genealogy.png)
 
 Process Run split/merge와 Specimen 원재료 연결 절차는
 [Process Run과 Specimen source Lot 연결](06-process-run-genealogy.md)을 따르십시오.

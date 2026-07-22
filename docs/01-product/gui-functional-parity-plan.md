@@ -773,7 +773,7 @@ T-87 수용 상태:
 - relative RMSE를 첫 화면에서 비교하고 fitted parameter/lower/upper와 bound warning을 inspector에서
   검토한다. 선택 이유와 bounded extrapolation option은 Recipe revision에 함께 저장한다.
 - 현재 제품 screenshot과 browser evidence는
-  `docs/15-demo/evidence/t87-metal-fit-extrapolation.md`에 고정한다. Neutral/Card delivery는 T-88이다.
+  `docs/17-evidence/reports/t87-metal-fit-extrapolation.md`에 고정한다. Neutral/Card delivery는 T-88이다.
 
 ### 15.11 Material Modeler — CAE card 생성과 검토
 
@@ -804,7 +804,7 @@ T-88 수용 상태:
 - 생성 후 evidence는 접혀 native line-oriented ASCII viewer와 `.inp`/`.rad` 및 mapping JSON download가
   우선 보인다. evidence와 mapping은 같은 result context에서 다시 펼칠 수 있다.
 - 실제 Docker/PostgreSQL 화면과 native download 증거는
-  `docs/15-demo/evidence/t88-neutral-card-delivery.md`에 고정한다. Polymer/Elastomer 전용 graph/task
+  `docs/17-evidence/reports/t88-neutral-card-delivery.md`에 고정한다. Polymer/Elastomer 전용 graph/task
   동등성은 T-89/T-90 범위다.
 
 ### 15.12 이미지 기반 PR 검토 규칙

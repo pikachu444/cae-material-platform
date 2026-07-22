@@ -22,9 +22,9 @@ Materials 검색 → 결과 선택·비교 → 상세 검토 → CAE card previe
 Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library 저장
 ```
 
-![Search-first Materials 검색과 선택 문맥](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
+![Search-first Materials 검색과 선택 문맥](images/current/materials-search-1440x900.png)
 
-![그래프 중심 Modeling Fit](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
+![그래프 중심 Modeling Fit](images/current/modeling-fit-1440x900.png)
 
 ## 업무별 가이드
 
@@ -55,9 +55,9 @@ Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library
 - full UUID, hash, classification, exact revision, JSON과 provenance graph는 Evidence/Advanced에 둡니다.
 - Table/Attribute/Layout/Subset/Link Type 관리는 role-gated Administration에서 수행합니다.
 
-![Searchable Browse Tree](../15-demo/images/ux-redesign-v2/final-browse-tree-1366x768.png)
+![Searchable Browse Tree](images/current/materials-browse-1440x900.png)
 
-![Material Detail과 native card action](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
+![Material Detail과 native card action](images/current/material-detail-1440x900.png)
 
 ## 현재 제한
 

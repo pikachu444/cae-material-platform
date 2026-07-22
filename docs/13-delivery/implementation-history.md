@@ -40,7 +40,7 @@ Process/Fit/IR/Neutral/Abaqus/OpenRadioss and Material Library discovery.
 The final T-97 evidence records 1366/1440/1920 DOM bounds, every local reference image's applied
 interaction principle, 95–99/100 structural scores, Tree keyboard/search behavior, native card
 downloads, frontend/backend/PostgreSQL regression and an isolated clean Docker seed/verifier. See
-`docs/15-demo/evidence/t97-reference-similarity-final.md`.
+`docs/17-evidence/reports/t97-reference-similarity-final.md`.
 
 ## Product experience correction (T-84)
 
@@ -51,7 +51,7 @@ checkpoint, the page is a long form stack, graph interaction is minimal, and fam
 not yet provide the direct manipulation described by the public Material Modeler tutorials.
 
 The authoritative corrective plan is
-[`docs/01-product/gui-functional-parity-plan.md`](docs/01-product/gui-functional-parity-plan.md).
+[`docs/01-product/gui-functional-parity-plan.md`](../01-product/gui-functional-parity-plan.md).
 T-79~T-81 remain valid **engine-integration evidence**, not accepted product GUI completion. The
 validated branch checkpoints `3b5c11c` and `be3442d` preserve that work while T-84~T-93 replace the
 interaction layer incrementally.
@@ -80,7 +80,7 @@ starts the product-facing rebuild defined by ADR-0034 and the product experience
 | Administrator/User feature grants | T-59 implemented: typed assignments, five explicit feature grants, effective-access/API/UI and legacy-role projection | Production identity integration (outside v3) |
 | Clean guided product demo | T-93 accepts clean-volume migration/seed, cohesive Dashboard/Database/three-family Modeling/Card browser journeys and full regression evidence | Production material/solver qualification (outside reference goal) |
 
-The [product capability map](docs/00-research/product-capability-map.md) is the authoritative status
+The [product capability map](../00-research/product-capability-map.md) is the authoritative status
 matrix. T-49 through T-73 remain valid engineering evidence only for their bounded contracts. They
 must not be read as product-experience completion.
 
@@ -94,7 +94,7 @@ must not be read as product-experience completion.
   semantics and test method instead of Material name/grade heuristics. A compact engineering header
   and collapsed method library move the persistent plot and task inspector into the 1440×900 first
   viewport. Focused Vitest, production build/bundle budgets and a live Docker/PostgreSQL browser
-  interaction passed. Evidence is in `docs/15-demo/evidence/t85-engineering-modeling-shell.md`.
+  interaction passed. Evidence is in `docs/17-evidence/reports/t85-engineering-modeling-shell.md`.
   A later checkpoint added graph range/point selection, explicit Recipe-draft Apply, cancellable
   300 ms previews and exact Datasheet/Test/recent-session restoration. Supplemental content now uses
   progressive disclosure and the live 1440×900 surface keeps curve/step rail, graph and task inspector
@@ -109,7 +109,7 @@ must not be read as product-experience completion.
   proof and hardening ranges; a necking point applied to downstream true/plastic Workup; and a server-calculated
   replicate mean/95% confidence band in the primary plot. Three distinct synthetic DP780 Test JSON revisions
   make this path demonstrable in a clean seed. Evidence is in
-  `docs/15-demo/evidence/t86-metal-prepare-direct-manipulation.md`. T-87 subsequently completed the
+  `docs/17-evidence/reports/t86-metal-prepare-direct-manipulation.md`. T-87 subsequently completed the
   fit/extrapolation comparison surface.
 
 - `T-87` (`completed`): the Metal Fit/Extrapolate stage now compares the four public hardening
@@ -119,7 +119,7 @@ must not be read as product-experience completion.
   selected blend changes through primary/secondary and ratio controls, while the unobserved domain
   is shaded and the selected extension is dashed. Fit range, bounded extension and the required
   engineering selection reason remain deterministic Recipe options. Evidence is in
-  `docs/15-demo/evidence/t87-metal-fit-extrapolation.md`. T-88 subsequently completed cohesive
+  `docs/17-evidence/reports/t87-metal-fit-extrapolation.md`. T-88 subsequently completed cohesive
   Neutral/Card delivery.
 
 - `T-89` (`completed`): Polymer Material Modeling now has separate relaxation and DMA flows.
@@ -128,7 +128,7 @@ must not be read as product-experience completion.
   log-frequency graph. Exact published Recipe/Batch Outputs promote to IR and Neutral JSON and create
   both Abaqus `TIME=PRONY` and acknowledged OpenRadioss `/VISC/LPRONY` cards. The Card task follows the
   selected Test Data revision instead of reopening an unrelated model. Live PostgreSQL/browser proof
-  is in `docs/15-demo/evidence/t89-polymer-viscoelastic-workbench.md`. T-90 subsequently accepted
+  is in `docs/17-evidence/reports/t89-polymer-viscoelastic-workbench.md`. T-90 subsequently accepted
   the Elastomer multi-mode workbench.
 
 - `T-90` (`completed`): Elastomer Fit restores the saved exact Plan, Dataset roles/modes/weights,
@@ -137,7 +137,7 @@ must not be read as product-experience completion.
   calibration modes from an explicit holdout. The current model's ordered Prony overlay is visible,
   and the same session previews Abaqus Ogden+Prony and OpenRadioss LAW62 ASCII. Approximation/ignored
   mapping now requires explicit review before new card generation. Evidence is in
-  `docs/15-demo/evidence/t90-elastomer-multimode-workbench.md`. T-91 now owns Database parity.
+  `docs/17-evidence/reports/t90-elastomer-multimode-workbench.md`. T-91 now owns Database parity.
 
 - `T-91` (`completed`): Material Database now opens on an actual governed demo Datasheet instead of
   an empty center pane. The persistent left pane exposes the realistic Database/Profile/Table/Folder/
@@ -145,7 +145,7 @@ must not be read as product-experience completion.
   middle pane renders configured Layout values and domain-specific Test/Model/Card views; the context
   pane follows forward/reverse links or immutable revision history. Tree disclosure supports arrow,
   Home and End keys, and the last exact revision is restored within the browser session. Live Docker/
-  PostgreSQL screenshots are in `docs/15-demo/evidence/t91-material-database-parity.md`. T-92 now owns
+  PostgreSQL screenshots are in `docs/17-evidence/reports/t91-material-database-parity.md`. T-92 now owns
   search, guided administration and Recipe/Batch polish.
 
 - `T-92` (`completed`): the current family's reviewed published Processing Recipe is restored by
@@ -154,7 +154,7 @@ must not be read as product-experience completion.
   member-level compatibility/output points and summarizes successful attempts while retaining failed-only
   retry. The existing typed search/facet/range/Subset/Layout comparison and guided Table/Attribute/Layout/
   Link Type Administration were re-audited in the live Docker/PostgreSQL product. Evidence is in
-  `docs/15-demo/evidence/t92-search-admin-recipe-batch.md`. T-93 now owns clean product acceptance.
+  `docs/17-evidence/reports/t92-search-admin-recipe-batch.md`. T-93 now owns clean product acceptance.
 
 - `T-93` (`completed for the bounded reference product`): Docker/PostgreSQL/object volumes were
   removed and the complete service was rebuilt, migrated and seeded from zero. The verifier reproduced
@@ -163,7 +163,7 @@ must not be read as product-experience completion.
   Database Datasheet/link projections, Metal, Polymer and Elastomer graphs and their Card tasks. A stale
   session revision discovered during clean acceptance now falls back to a valid newly seeded record.
   Full Python, actual PostgreSQL and frontend regressions passed. Evidence is in
-  `docs/15-demo/evidence/t93-clean-product-acceptance.md`. Reference model status remains explicit;
+  `docs/17-evidence/reports/t93-clean-product-acceptance.md`. Reference model status remains explicit;
   real solver correlation and company material qualification remain outside this acceptance.
 
 - `T-88` (`completed`): **Card** is now a first-class task in the Material Modeling shell rather than
@@ -172,7 +172,7 @@ must not be read as product-experience completion.
   approximation or unsupported generation. After creation the result prioritizes the line-oriented native
   ASCII preview and `.inp`/`.rad` plus mapping JSON downloads while keeping evidence reopenable. Live
   Docker/PostgreSQL journeys generated and downloaded both Abaqus and OpenRadioss cards. Evidence is in
-  `docs/15-demo/evidence/t88-neutral-card-delivery.md`. T-89 now owns the Polymer relaxation/DMA workbench.
+  `docs/17-evidence/reports/t88-neutral-card-delivery.md`. T-89 now owns the Polymer relaxation/DMA workbench.
 
 - `T-81` (`engine integration verified; product UX rejected`): all three Material Modeling tracks now finish in one
   four-state reviewed-delivery panel: exact evidence, canonical Neutral JSON, explicit solver
@@ -183,7 +183,7 @@ must not be read as product-experience completion.
   journeys restored the existing DP780 and polymer Neutral revisions, reproduced an elastomer
   four-family/eight-start fit and promoted its selected Ogden family, and created an acknowledged
   DP780 Abaqus card. The re-entry journey also found and fixed duplicate Neutral promotion in the
-  metal UI. Evidence is in `docs/15-demo/evidence/t81-reviewed-delivery.md`. TypeScript, production
+  metal UI. Evidence is in `docs/17-evidence/reports/t81-reviewed-delivery.md`. TypeScript, production
   build, bundle budgets and all 69 frontend tests pass. This proves the retained delivery engine,
   not Material Modeler-level usability. T-84~T-93 replace and re-accept the product interaction.
 
@@ -194,7 +194,7 @@ must not be read as product-experience completion.
   are one graph-adjacent inspector. Live Docker journeys calculated the four metal hardening
   candidates, polymer log-time/Prony processing and an exact four-curve elastomer Plan with four
   hyperelastic families, eight multistart candidates and fitted/residual diagnostics. Evidence and
-  current screenshots are in `docs/15-demo/evidence/t80-family-modeling-tracks.md`. All 69 frontend
+  current screenshots are in `docs/17-evidence/reports/t80-family-modeling-tracks.md`. All 69 frontend
   tests, 775 default Python tests, 76 isolated PostgreSQL tests and all static/contract/document/
   bundle gates passed. T-81 subsequently connected the reviewed Neutral/Card engine step; its
   product interaction remains subject to T-88~T-90 acceptance.
@@ -207,7 +207,7 @@ must not be read as product-experience completion.
   ephemeral; only the existing explicit server commit creates a revisioned Processing Output. A live
   DP780 Test JSON and published Recipe produced four hardening candidates plus a selected combination
   with no browser console errors. Evidence is recorded in
-  `docs/15-demo/evidence/t79-material-modeling-workspace.md`. The CI command body passed 775 default
+  `docs/17-evidence/reports/t79-material-modeling-workspace.md`. The CI command body passed 775 default
   Python tests, 68 frontend tests, Ruff, mypy, architecture, contract/OpenAPI, user-guide and bundle
   gates; the isolated PostgreSQL marker suite passed all 76 tests. T-80 subsequently connected the
   family engines and Recipe/Batch controls; T-85~T-92 own clone-level interaction acceptance.
@@ -218,7 +218,7 @@ must not be read as product-experience completion.
   only Administrator/User, a user/team name and five readable capabilities; token/API, principal,
   issuer, classification-policy and legacy compatibility vocabulary remain internal. Existing
   resource/action/scope enforcement is retained as the granular extension point. Live Docker
-  screenshots and tests are recorded in `docs/15-demo/evidence/t78-product-administration.md`.
+  screenshots and tests are recorded in `docs/17-evidence/reports/t78-product-administration.md`.
   The complete CI command body passed 775 default Python tests, 68 frontend tests and all static,
   contract, document and bundle gates; all 76 isolated PostgreSQL tests passed separately.
 
@@ -230,7 +230,7 @@ must not be read as product-experience completion.
   revision context. The clean demo creates eight typed Attributes plus the `Material overview`
   Layout without a database migration and repeat seeding keeps the same revision. Live screenshots
   and the explicit decision to implement semantic curve overlay in T-79 are recorded in
-  `docs/15-demo/evidence/t77-material-datasheet-search.md`. The complete CI command body passed 775
+  `docs/17-evidence/reports/t77-material-datasheet-search.md`. The complete CI command body passed 775
   default Python tests, 65 frontend tests and all static/contract/document/bundle gates; all 76
   environment-gated PostgreSQL tests passed separately against the isolated Docker database.
 
@@ -242,7 +242,7 @@ must not be read as product-experience completion.
   Record revision bindings, and a Record Link can append a revision that advances exact endpoint
   pins without rewriting history. Live PostgreSQL seed/reseed retained all 8 Record heads, the
   graph returned 8 nodes and 7 links, and browser evidence is recorded in
-  `docs/15-demo/evidence/t76-material-database-tree.md`. T-77 subsequently completed Layout
+  `docs/17-evidence/reports/t76-material-database-tree.md`. T-77 subsequently completed Layout
   Datasheet, facets and comparison; semantic curve overlay remains T-79. Verification passed the
   official CI command body with 775 Python and
   64 frontend tests plus all static/document/bundle gates; the 76 isolated PostgreSQL tests also
@@ -255,7 +255,7 @@ must not be read as product-experience completion.
   Administration; the Dashboard provides global material search, three task entry points and the
   three realistic synthetic material families from the live catalog. Frontend tests pass 62/62,
   the TypeScript/Vite/bundle build passes, and Docker browser evidence is recorded in
-  `docs/15-demo/evidence/t75-product-session-shell.md`. T-76 subsequently completed the hierarchical
+  `docs/17-evidence/reports/t75-product-session-shell.md`. T-76 subsequently completed the hierarchical
   Contents/Workflow Tree and T-77 subsequently completed Datasheet/search/compare. Graph-centered
   Modeling is now graph-centered through T-79; family-aware controls and final Neutral/Card delivery
   remain T-80 through T-81.
@@ -316,7 +316,7 @@ must not be read as product-experience completion.
   migration 077 card/mapping/term projection stores the new target without a schema change. The
   returning polymer workbench discovers its exact existing Neutral revision, avoiding a duplicate
   promotion. Clean Compose seed/verifier produced and checksum-verified both Abaqus and OpenRadioss
-  cards; current browser evidence is in `docs/15-demo/evidence/t68-openradioss-lprony.md`.
+  cards; current browser evidence is in `docs/17-evidence/reports/t68-openradioss-lprony.md`.
 
 - `T-67`: the reusable common Processing Recipe can now promote an exact saved
   `polymer.prony_fit_compare` Output into a typed one-to-ten-term generalized-Maxwell IR. The server
@@ -347,7 +347,7 @@ must not be read as product-experience completion.
   scoped binding validator inspect cross-module targets without exposing their rows to callers.
   The protected verifier and Playwright download both native cards and the nine-component Bulk ZIP,
   recompute SHA-256 values and validate the archive controls. The current screenshot and walkthrough
-  are recorded under `docs/15-demo` and `docs/user-guide`. Actual solver execution remains excluded.
+  are recorded under `docs/17-evidence` and `docs/user-guide`. Actual solver execution remains excluded.
 
 - `T-64`: one exact Neutral Material revision now drives the shared solver mapping/report/card API
   and connected workbench UI. Metal regenerates Abaqus `*PLASTIC` and OpenRadioss LAW36; polymer
@@ -1342,7 +1342,7 @@ diagnostics. The promoted IR kept the same stable Material Model identity and a 
 The downloaded 418-byte Abaqus card returned HTTP 200 with a filename-bearing attachment header;
 its SHA-256 exactly matched the stored card digest. The card contains `*DENSITY`, `*ELASTIC`, and
 `*VISCOELASTIC`. Browser evidence also rechecked the Ogden--Prony LAW62 preview and exact-revision
-Process/Lot genealogy. See `docs/15-demo/user-e2e-evidence-2026-07-16.md`.
+Process/Lot genealogy. See `docs/17-evidence/reports/user-e2e-evidence-2026-07-16.md`.
 
 ## Current remaining work after the bounded P2 verticals
 

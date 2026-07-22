@@ -29,11 +29,8 @@
 Import Profile을 먼저 확정할 수 있습니다. T-53에서는 이 profile을 일반 Mapping Profile과
 Processing Workbench에 직접 연결합니다.
 
-![CSV/TSV/XLSX metadata와 mapping profile adapter](../15-demo/images/t52-tabular-adapter.png)
 
-![Canonical Test Data 검증과 immutable import](../15-demo/images/t52-canonical-test-data.png)
 
-![현재 exact revision JSON+ZIP 다운로드](../15-demo/images/t52-canonical-test-data-package.png)
 
 ## 저장되는 증거
 

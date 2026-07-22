@@ -192,8 +192,8 @@ docs/01-product/ux-redesign-goal.md
 docs/01-product/ux-information-architecture.md
 docs/01-product/ux-visual-system.md
 docs/00-research/ux-reference-analysis.md
-docs/15-demo/evidence/ux-current-baseline.md
-docs/15-demo/evidence/ux-target-acceptance.md
+docs/17-evidence/reports/ux-current-baseline.md
+docs/17-evidence/reports/ux-target-acceptance.md
 adr/0035-search-first-product-surface.md
 ```
 

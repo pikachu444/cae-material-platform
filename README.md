@@ -9,9 +9,9 @@ solver card를 바로 내려받습니다. 적합한 결과가 없을 때만 시�
 > `reference/non-production` 범위입니다. 승인된 재료값, 생산용 constitutive model 또는 solver
 > qualification을 대신하지 않습니다.
 
-![Materials 검색과 선택 문맥](docs/15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
+![Materials 검색과 선택 문맥](docs/user-guide/images/current/materials-search-1440x900.png)
 
-![그래프 중심 Modeling Fit](docs/15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
+![그래프 중심 Modeling Fit](docs/user-guide/images/current/modeling-fit-1440x900.png)
 
 ## 핵심 사용 흐름
 
@@ -57,7 +57,7 @@ docker compose -f deploy/compose/docker-compose.demo.yml ps --all
 ```
 
 `postgres`와 `api`가 healthy이고 `migrate`, `reference-plugins`, `seed`가 0으로 종료되면
-<http://127.0.0.1:5173>을 엽니다. Demo workspace는 자동으로 준비되며 API URL이나 토큰을 입력하지
+<http://127.0.0.1:5173>을 엽니다. Demo user session은 자동으로 준비되며 API URL이나 토큰을 입력하지
 않습니다. API health는 <http://127.0.0.1:8000/api/v1/health>에서 확인할 수 있습니다.
 
 첫 확인 시나리오:

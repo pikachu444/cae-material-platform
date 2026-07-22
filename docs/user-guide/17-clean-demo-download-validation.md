@@ -38,6 +38,5 @@ ZIP 안의 `manifest.json`, `checksums.sha256`, `README.txt`를 검사합니다.
    선택해 새 Bundle을 만듭니다.
 5. 압축을 푼 뒤 `checksums.sha256`의 각 digest를 확인합니다.
 
-![깨끗한 DP780 흐름의 exact JSON, Neutral card와 Bulk ZIP](../15-demo/images/t65-clean-demo-downloads.png)
 
 실제 Abaqus/OpenRadioss 실행과 결과 비교는 이 검증 범위에 포함되지 않습니다.

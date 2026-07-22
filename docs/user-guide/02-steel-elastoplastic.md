@@ -32,15 +32,12 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
    관측 구간과 외삽 구간을 확인합니다. 외삽 구간은 시험 관측값으로 표시되지 않습니다.
    처리 조건을 반복 사용할 경우 Recipe 새 revision으로 저장·게시하고 다른 시험에 preflight/batch 실행합니다.
 
-   ![Recipe로 재사용할 수 있는 금속 인장 처리 단계](../15-demo/images/t55m-metal-processing-methods.png)
 
    **Stress response / Residual / Tangent modulus**를 차례로 확인하고, observed 영역 이후의 황색
    배경과 점선이 실제 시험값이 아닌지 확인합니다. 상단 RMSE와 오른쪽 parameter/bound evidence를
    비교한 뒤 primary/secondary, blend ratio와 **Selection reason**을 정합니다.
 
-   ![네 hardening 후보와 선택 조합의 제한 외삽](../15-demo/images/t87-metal-fit-candidate-comparison.png)
 
-   ![후보별 predicted-minus-observed residual](../15-demo/images/t87-metal-fit-residual.png)
 9. 여러 반복시험이면 Selection을 만들고 명시적 common-grid alignment를 실행합니다.
 10. 통계 band와 outlier Candidate를 확인합니다. Candidate는 원본 curve를 삭제하지 않습니다.
 11. Material 상세의 **Tensile Dataset → Elastoplastic IR → Solver Card**를 엽니다.
@@ -49,7 +46,6 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
     승격합니다. 이 단계는 curve를 다시 fitting하지 않습니다. Output, source Test Data, Mapping Profile,
     후보 선택과 domain이 새 immutable IR revision에 그대로 고정됩니다.
 
-    ![Exact Processing Output을 중립 탄소성 IR로 승격](../15-demo/images/t55m-output-promotion.png)
 
 13. IR의 origin이 `selected fitted hardening Processing Output`인지, hardening curve point 수와
     characterized/extension strain이 선택한 Output과 일치하는지 확인합니다.
@@ -60,16 +56,13 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
     이 정보가 없는 과거 direct Output은 schema `1.2.0`으로 유지되며 Recipe 재사용을 주장하지
     않습니다.
 
-    ![승격된 101-point hardening IR과 lineage](../15-demo/images/t55m-processed-ir.png)
 
-    ![금속 IR에 고정된 published Recipe와 성공 Batch Attempt](../15-demo/images/t70-metal-recipe-batch-evidence.png)
 
 14. OpenRadioss LAW36 또는 Abaqus isotropic plasticity target을 선택합니다.
 15. mapping report에서 `exact`, `transformed`, `approximated`, `not_applicable` 상태와 bounded
     extrapolation 설명을 확인합니다. report digest를 승인한 뒤 카드를 생성합니다.
 16. card preview를 확인하고 OpenRadioss `.rad` 또는 Abaqus `.inp`를 다운로드합니다.
 
-    ![동일한 IR에서 생성된 OpenRadioss와 Abaqus 카드](../15-demo/images/t55m-processed-solver-cards.png)
 
 ## 성공 확인
 
@@ -105,7 +98,3 @@ ASCII card**로 `.inp`/`.rad`를, **Download mapping report JSON**으로 sidecar
 exact evidence가 접혀 카드가 먼저 보이며 **Review exact evidence and mapping**으로 같은 화면에서
 다시 펼칠 수 있습니다. 이 경로는 exact Neutral revision의 fitted/extrapolated stage를 다시
 fitting하지 않습니다.
-
-![Card task의 exact Neutral과 Abaqus/OpenRadioss 전달 화면](../15-demo/images/t88-abaqus-card-delivery.png)
-
-![동일한 reviewed Neutral에서 생성한 OpenRadioss native ASCII](../15-demo/images/t88-openradioss-card-delivery.png)

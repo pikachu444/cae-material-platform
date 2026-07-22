@@ -18,13 +18,11 @@ canonical Neutral Material JSON/IR revision으로 승격할 수 있습니다. fa
 Abaqus/OpenRadioss mapping/card는 이 Neutral revision을 직접 소비합니다. 기존 Ogden 행의 사람 선택,
 Ogden--Prony IR revision과 두 solver card 경로는 계속 사용할 수 있습니다.
 
-![동일 exact Dataset에서 비교한 네 가지 공개 초탄성 모델과 다중시험 graph](../15-demo/images/t90-elastomer-multimode-workbench.png)
 
 **Response / Residual** 탭에서 measured point, fitted curve와 residual을 전환합니다. 색상은
 시험 mode를, legend의 역할은 calibration/holdout을 구분합니다. `+`, `−`, **Reset**으로 graph
 domain을 검토할 수 있으며 point에 마우스를 올리면 strain과 nominal stress가 표시됩니다.
 
-![선택 family의 exact residual graph](../15-demo/images/t90-elastomer-residual.png)
 
 복구·진단 상황에서만 **Advanced recovery and Neutral JSON interchange**를 열어 exact Run ID나
 기존 Neutral JSON을 지정합니다. 이 영역은 정상 modeling 절차에서는 사용할 필요가 없습니다.
@@ -41,7 +39,6 @@ revision, calibration/holdout 역할, 시험 mode와 curve weight를 폼에 복�
 작업자가 먼저 Plan을 수정했다면 compare-and-swap 검사가 충돌을 반환하므로 **Refresh inputs**로
 current revision을 다시 읽어야 합니다. 별도 Plan을 만들려면 **New Plan**을 누릅니다.
 
-![저장된 초탄성 Calibration Plan을 exact revision으로 재사용하거나 새 revision으로 저장](../15-demo/images/t72-ogden-plan-library.png)
 
 ## 절차
 
@@ -56,9 +53,7 @@ current revision을 다시 읽어야 합니다. 별도 Plan을 만들려면 **Ne
    `approximated` 또는 `ignored` 항목이 있으면 화면의 검토 확인을 해야 생성 버튼이 활성화됩니다.
 7. preview와 `.inp` 또는 `.rad` download를 확인합니다.
 
-![Abaqus Ogden+Prony ASCII preview](../15-demo/images/t90-elastomer-abaqus-card.png)
 
-![OpenRadioss LAW62 ASCII preview](../15-demo/images/t90-elastomer-openradioss-card.png)
 
 ## Multi-test fitting 절차
 
@@ -114,9 +109,7 @@ uv run python scripts/seed_ogden_calibration_demo.py
     자신의 Selection/Run/Candidate/diagnostics evidence만 소유하며 과거 evidence를 복사하거나
     덮어쓰지 않습니다. 과거 IR에서 만든 Card와 Release는 그 concrete revision을 계속 pin합니다.
 
-![검토한 family Candidate를 Neutral Material JSON으로 승격](../15-demo/images/t56-neutral-material-json.png)
 
-![Neutral revision의 mapping 상태 검토와 native solver card preview](../15-demo/images/t57-neutral-solver-card.png)
 
 두 번 이상의 calibration round를 회귀 데이터로 확인하려면 아래 명령을 두 번 실행할 수 있습니다.
 각 실행은 실행 시점의 current IR을 새 baseline으로 pin하고 r2, r3처럼 새 revision을 추가합니다.
@@ -126,19 +119,14 @@ uv run python scripts/seed_ogden_calibration_demo.py --promote
 uv run python scripts/seed_ogden_calibration_demo.py --promote
 ```
 
-![같은 stable identity의 append-only r1-r3 이력](../15-demo/images/t44-ogden-selection-promotion-history.png)
 
-![r3 승격 후에도 유지되는 r1/r2 solver cards](../15-demo/images/t44-prior-solver-cards-stable.png)
 
-![다중시험 Ogden 후보 비교](../15-demo/images/t43-ogden-candidates.png)
 
-![Fitted curve, residual과 solver card 다운로드](../15-demo/images/t43-ogden-diagnostics-and-cards.png)
 
 입력 strain은 engineering strain(무차원), stress는 nominal stress(Pa)로 해석합니다. 현재
 one-term incompressible public reference equation만 지원하며 compression, simple shear,
 compressible/temperature-dependent fit과 실제 solver 검증은 이 범위가 아닙니다.
 
-![OpenRadioss LAW62 preview](../15-demo/images/ogden-openradioss-law62.png)
 
 ## Mapping 해석
 

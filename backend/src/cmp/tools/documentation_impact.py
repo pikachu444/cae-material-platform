@@ -14,7 +14,7 @@ ImpactMode = Literal["staged", "range", "worktree"]
 _GUIDE_PREFIX = "docs/user-guide/"
 _SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
 _NAVIGATION_CONTRACT = "docs/user-guide/navigation-contract.yaml"
-_CURRENT_IMAGE_PREFIX = "docs/15-demo/images/ux-redesign-v2/"
+_CURRENT_IMAGE_PREFIX = "docs/user-guide/images/current/"
 _OPENAPI_CONTRACTS = {
     "contracts/http/openapi.yaml",
     "contracts/http/openapi.baseline.yaml",
@@ -108,7 +108,7 @@ def evaluate_documentation_impact(paths: Iterable[str]) -> DocumentationImpactRe
         if not manifest_changed:
             requirements.append("update docs/user-guide/screenshot-manifest.yaml")
         if not png_changed:
-            requirements.append("add or update a current ux-redesign-v2 PNG")
+            requirements.append("add or update a current user-guide PNG")
 
     app_changed = "apps/web/src/app.tsx" in changed
     if app_changed and _NAVIGATION_CONTRACT not in changed:

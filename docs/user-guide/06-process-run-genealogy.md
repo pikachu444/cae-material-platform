@@ -24,7 +24,6 @@
 서비스는 입력한 원본 단위를 보존하면서 질량은 `kg`, 부피는 `m3`, 개수는 `1`로 정규화합니다.
 평가 basis와 단위 차원이 다르거나 허용오차를 넘으면 저장하지 않습니다.
 
-![Process Run과 exact Lot revision 연결](../15-demo/images/process-run-specimen-source.png)
 
 ## Specimen source 연결
 

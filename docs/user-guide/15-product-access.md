@@ -47,7 +47,6 @@ PostgreSQL은 기존 세부 permission, organization/project 격리, classificat
 - group: `cmp-demo-material-team`
 - role: `Administrator`
 
-![통합 Administration의 제품 역할과 기능 권한 화면](../15-demo/images/t78-users-access.png)
 
 화면 캡처는 Codex 내장 브라우저의 좁은 viewport 증거입니다. 데스크톱에서는 같은 카드와
 assignment form이 여러 열로 배치됩니다.

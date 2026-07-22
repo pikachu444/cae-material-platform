@@ -17,7 +17,6 @@ Task 구현 시 실제 UI, 입력 fixture와 스크린샷으로 교체하며 미
 Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며 API 수정은
 current ETag를 요구한다.
 
-![실제 Docker/PostgreSQL에 연결된 Catalog schema designer](../15-demo/images/t49-configurable-catalog.png)
 
 ## Catalog Record 등록·검색·비교
 
@@ -37,12 +36,10 @@ current ETag를 요구한다.
 왼쪽 facet은 재료군별 건수를 집계하고, 가운데 검색 결과는 각 Record의 current revision을 표시하며,
 오른쪽 datasheet는 Layout에 고정된 typed Attribute를 편집한다.
 
-![Catalog Record 검색, facet 및 Layout 기반 datasheet](../15-demo/images/t50-configurable-catalog-records.png)
 
 DP600의 Young's modulus를 210 GPa에서 205 GPa로 바꾸면 기존 값을 덮어쓰지 않고 revision 2를
 생성한다. 아래 비교는 원본 단위 문자열과 정규화된 Pa 값을 함께 보존한 결과다.
 
-![DP600 exact revision 비교](../15-demo/images/t50-configurable-catalog-revision-compare.png)
 
 file/curve 값은 이미 업로드된 Artifact UUID와 SHA-256을, record-reference 값은 대상 Record와
 정확한 revision UUID를 함께 입력한다. 사용자 친화적 Artifact picker와 link editor는 T-51에서
@@ -67,7 +64,6 @@ Explorer와 함께 확장한다.
 7. **Deactivate**는 링크를 삭제하거나 덮어쓰지 않고 `active=false`인 새 Record Link revision을
    추가한다.
 
-![Database/Profile/Table/Folder/Record Contents Tree와 exact Workflow Tree](../15-demo/images/t76-material-database-tree.png)
 
 8. **Datasheet** 탭을 열면 관리자가 정의한 Layout section과 순서로 typed Attribute가 표시된다.
    number 값은 원본 값/단위와 normalized 값/단위, quantity semantics를 함께 표시한다. 여러 Layout이
@@ -79,15 +75,10 @@ Explorer와 함께 확장한다.
     processed curve overlay와 처리 option preview는 linked Test Data를 연 뒤 Material Modeling
     workspace에서 수행한다.
 
-![Layout section, 원본/정규화 단위와 exact revision을 보존한 DP780 Datasheet](../15-demo/images/t77-material-datasheet.png)
 
-![DP780 검색 결과의 facet과 Layout 기반 두 Record 비교](../15-demo/images/t77-material-search-compare.png)
 
-![Explorer 검색 결과에서 exact Material revision과 전체 Workflow graph 열기](../15-demo/images/t71-explorer-search-workflow.png)
 
-![Catalog tree와 Material workflow exact link](../15-demo/images/t51-catalog-workflow-explorer.png)
 
-![시험 Record에서 Material revision으로 이동하는 역방향 링크](../15-demo/images/t51-reverse-record-link.png)
 
 ## 시험 curve를 그래프 중심 Workbench에서 처리
 
@@ -106,7 +97,6 @@ Explorer와 함께 확장한다.
 7. Export에서 reviewed Processing Output/Material Model IR, Neutral Material, mapping 상태와 native
    card preview/download를 실행한다.
 
-![Compact curve/process tree, shallow settings ribbon and dominant graph](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
 ### 재료군별 Modeling track 사용
 
@@ -114,7 +104,6 @@ Explorer와 함께 확장한다.
 Test Data 선택은 해제되므로, 새 quantity 계약에 맞는 exact revision을 다시 선택해야 한다. 이렇게
 해야 금속 인장 curve가 폴리머 relaxation 또는 엘라스토머 다중 시험 입력으로 조용히 재사용되지 않는다.
 
-![하나의 Modeling 흐름에서 선택하는 금속·폴리머·엘라스토머 track](../15-demo/images/t80-material-family-tracks.png)
 
 - **Metal · Elastoplastic:** E/proof/necking, true-plastic 변환, Voce/Swift/
   Hockett--Sherby/Ghosh 후보와 제한 외삽을 처리한다.
@@ -128,13 +117,11 @@ Batch**를 펼치면 Recipe revision을 저장·게시하거나 exact Dataset ba
 각 track 아래의 Material context는 해당 분류의 Material, State, Property revision을 실제 API에서
 불러오며 **Open full datasheet**로 원본 Material record에 돌아간다.
 
-![공통 Workbench 안에서 실행한 polymer log-time/Prony 처리](../15-demo/images/t80-polymer-modeling-track.png)
 
 엘라스토머 데모는 저장된 exact Plan revision을 불러와 단축·평면·이축 calibration curve와 holdout을
 함께 실행한다. 실행 후 네 model family, 여덟 multistart candidate, fitted/residual plot, rank와
 uncertainty를 비교한 뒤에만 Candidate 선택 또는 Neutral 승격으로 진행한다.
 
-![exact multi-mode Plan과 holdout으로 실행한 elastomer family 비교](../15-demo/images/t90-elastomer-multimode-workbench.png)
 
 ### Interim reviewed-delivery controls
 
@@ -157,7 +144,6 @@ Material and Processing/Candidate evidence.
    mapping report. **Add exact files to a bulk package** opens the package builder with the same
    Material context; **Return to Material datasheet** returns without copying an ID.
 
-![Reviewed Neutral result and explicit Abaqus mapping states](../15-demo/images/t81-reviewed-delivery.png)
 
 ### Open a governed object from the Workflow Explorer
 
@@ -171,7 +157,6 @@ After binding, the node shows the domain type and shortened exact revision. Sele
 the existing Materials, Tests, Datasets, Models, Exports, or Governance workbench while retaining the
 exact object and revision in the URL. Unbound nodes continue to open their configurable datasheet.
 
-![A configurable Material Record pinned to one exact governed Material revision](../15-demo/images/t62-domain-workflow-binding.png)
 
 ### Return to the Workflow Explorer from governed data
 
@@ -185,7 +170,6 @@ The **Forward and reverse links** list is intentionally narrower than the graph:
 directly incident to the currently selected Record revision. This prevents a downstream edge from
 being presented as though it directly connected to the selected Test or Material.
 
-![Test JSON exact revision에서 전체 Material-to-card graph로 역이동](../15-demo/images/t66-reverse-workflow-navigation.png)
 
 ## 목표 따라하기
 

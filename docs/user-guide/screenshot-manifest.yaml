@@ -1,271 +1,171 @@
-version: 41
-verified_at: 2026-07-22
-scope: current-product-baseline
+version: 43
+verified_at: 2026-07-23
+scope: current-main-product-baseline
+source_commit: f89cc50
+capture_script: ../../scripts/capture_current_product.py
+capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "Recaptured from the Docker Compose demo rebuilt from the current DUI-04 branch on 2026-07-22."
-  - "Migration and deterministic reference-plugin seed jobs completed successfully before browser validation."
-  - "Requested browser sizes were 1366x768, 1440x900, and 1920x1080; width and height below are the actual PNG content dimensions after in-app browser chrome and host-window limits."
-  - "All fixtures are synthetic, non-production reference data."
-  - "DUI-01 captures were refreshed after direct comparison with all Granta MI and Material Modeler images in docs/00-research/images/gui-reference."
-  - "DUI-01 uses a 46 px left-aligned application bar, 38 px workspace command bar, and 24 px semantic status bar."
-  - "DUI-02 keeps Search, Browse Tree, results, material datasheet, and exact related Record revisions in one resizable workspace."
-  - "DUI-02 uses one command-bar mode hierarchy; pane visibility is controlled from the dividers without a dedicated toggle row."
-  - "DUI-02 measured pane widths are 232/1106/context-collapsed at 1366, 240/908/264 at 1440, and 272/1332/288 at 1920; screenshots are exact requested viewport sizes."
-  - "Materials result captures require aria-busy=false, 0 Checking rows, all 3 synthetic results, and 0 px horizontal overflow."
-  - "DUI-04 captures wait for exact Test Data, server preview, lazy family engine/source revisions, and resolved exact Catalog/workflow links; aria-busy and Checking, Loading, Calculating, Resolving, preview, mapping, Neutral JSON, and native-card progress placeholders are rejected."
-  - "DUI-04 measured navigator/main widths are 184/1161 at 1366, 192/1227 at 1440, and 208/1691 at 1920; horizontal overflow is 0 px."
-  - "DUI-04 Export keeps the selected model, observed 0.0001–0.1 fit range and persistent graph above a compact 146/183/233 px bottom delivery dock."
-  - "DUI-04 live Activity resume restores the same material/session string, exact DP780 Test Data revision, Fit stage, and two checked curve identities at every target viewport."
+  - "Captured from the live Docker Compose application after PR #112, #114 and #115 were merged."
+  - "The capture script rejects aria-busy, unfinished async status text and horizontal overflow."
+  - "All images use the deterministic synthetic non-production demo fixture."
+  - "These captures document the current baseline only; they are not acceptance evidence for pending DUI-03 or DUI-05 through DUI-09."
+allowed_duplicate_pairs:
+  - current: docs/user-guide/images/current/modeling-process-1366x768.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1366x768.png
+  - current: docs/user-guide/images/current/modeling-process-1440x900.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1440x900.png
+  - current: docs/user-guide/images/current/modeling-process-1920x1080.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1920x1080.png
+  - current: docs/user-guide/images/current/modeling-fit-1366x768.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1366x768.png
+  - current: docs/user-guide/images/current/modeling-fit-1440x900.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png
+  - current: docs/user-guide/images/current/modeling-fit-1920x1080.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1920x1080.png
+  - current: docs/user-guide/images/current/modeling-export-1366x768.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1366x768.png
+  - current: docs/user-guide/images/current/modeling-export-1440x900.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1440x900.png
+  - current: docs/user-guide/images/current/modeling-export-1920x1080.png
+    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png
 captures:
-  - id: dui-04-modeling-data-1366
-    route: /modeling?stage=data&family=metal
-    workflow: exact-input-mapping-and-persistent-source-graph
-    fixture: synthetic DP780 exact Test Data revision
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1366x768.png
-    width: 1366
-    height: 768
-  - id: dui-04-modeling-process-1366
-    route: /modeling?stage=process&family=metal
-    workflow: ordered-process-navigator-settings-and-persistent-preview
-    fixture: synthetic DP780 server processing preview
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1366x768.png
-    width: 1366
-    height: 768
-  - id: dui-04-modeling-fit-1366
-    route: /modeling?stage=fit&family=metal
-    workflow: candidate-response-residual-and-extrapolation
-    fixture: synthetic DP780 reference hardening candidates
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1366x768.png
-    width: 1366
-    height: 768
-  - id: dui-04-modeling-export-1366
-    route: /modeling?stage=export&family=metal
-    workflow: reviewed-result-to-solver-delivery
-    fixture: synthetic non-production reference model
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1366x768.png
-    width: 1366
-    height: 768
-  - id: dui-04-modeling-data-1440
-    route: /modeling?stage=data&family=metal
-    workflow: exact-input-mapping-and-persistent-source-graph
-    fixture: synthetic DP780 exact Test Data revision
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-04-modeling-process-1440
-    route: /modeling?stage=process&family=metal
-    workflow: ordered-process-navigator-settings-and-persistent-preview
-    fixture: synthetic DP780 server processing preview
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-04-modeling-fit-1440
-    route: /modeling?stage=fit&family=metal
-    workflow: candidate-response-residual-and-extrapolation
-    fixture: synthetic DP780 reference hardening candidates
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-04-modeling-export-1440
-    route: /modeling?stage=export&family=metal
-    workflow: reviewed-result-to-solver-delivery
-    fixture: synthetic non-production reference model
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-04-modeling-data-1920
-    route: /modeling?stage=data&family=metal
-    workflow: exact-input-mapping-and-persistent-source-graph
-    fixture: synthetic DP780 exact Test Data revision
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1920x1080.png
-    width: 1920
-    height: 1080
-  - id: dui-04-modeling-process-1920
-    route: /modeling?stage=process&family=metal
-    workflow: ordered-process-navigator-settings-and-persistent-preview
-    fixture: synthetic DP780 server processing preview
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1920x1080.png
-    width: 1920
-    height: 1080
-  - id: dui-04-modeling-fit-1920
-    route: /modeling?stage=fit&family=metal
-    workflow: candidate-response-residual-and-extrapolation
-    fixture: synthetic DP780 reference hardening candidates
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1920x1080.png
-    width: 1920
-    height: 1080
-  - id: dui-04-modeling-export-1920
-    route: /modeling?stage=export&family=metal
-    workflow: reviewed-result-to-solver-delivery
-    fixture: synthetic non-production reference model
-    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png
-    width: 1920
-    height: 1080
-  - id: dui-01-materials-search-1440
-    route: /materials
-    workflow: compact-application-command-status-shell-with-search-results
-    fixture: synthetic DP780 Material library
-    image: ../15-demo/images/ux-redesign-v2/dui-01-materials-search-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-01-browse-tree-1440
-    route: /materials?mode=browse
-    workflow: compact-shell-with-searchable-database-profile-table-folder-record-tree
-    fixture: synthetic DP780 workflow Records
-    image: ../15-demo/images/ux-redesign-v2/dui-01-browse-tree-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-01-material-detail-1440
-    route: /materials/:materialId
-    workflow: compact-record-context-direct-preview-download-and-status
-    fixture: DP780 with Abaqus and OpenRadioss native cards
-    image: ../15-demo/images/ux-redesign-v2/dui-01-material-detail-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-01-modeling-fit-1440
-    route: /modeling
-    workflow: command-driven-fit-stage-persistent-plot-and-session-status
-    fixture: DP780 reference hardening candidates
-    image: ../15-demo/images/ux-redesign-v2/dui-01-modeling-fit-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-01-activity-1440
-    route: /activity
-    workflow: compact-activity-shell-and-work-queue-status
-    fixture: clean deterministic demo activity
-    image: ../15-demo/images/ux-redesign-v2/dui-01-activity-1440x900.png
-    width: 1440
-    height: 900
-  - id: dui-01-administration-1440
-    route: /administration/database
-    workflow: compact-shell-preserving-table-attribute-layout-subset-link-type-administration
-    fixture: configurable Demo Material Records Table
-    image: ../15-demo/images/ux-redesign-v2/dui-01-administration-1440x900.png
-    width: 1440
-    height: 900
   - id: materials-search-1366
     route: /materials
-    workflow: dp780-search-result-selection-and-solver-availability
+    workflow: search-select-and-solver-availability
     fixture: synthetic DP780 Material library
-    image: ../15-demo/images/ux-redesign-v2/final-materials-1366x768.png
+    image: images/current/materials-search-1366x768.png
     width: 1366
     height: 768
   - id: materials-search-1440
     route: /materials
-    workflow: full-width-filter-result-and-selected-material-context
+    workflow: search-select-and-solver-availability
     fixture: synthetic DP780 Material library
-    image: ../15-demo/images/ux-redesign-v2/final-materials-1440x900.png
+    image: images/current/materials-search-1440x900.png
     width: 1440
     height: 900
   - id: materials-search-1920
     route: /materials
-    workflow: wide-workspace-filter-result-and-optional-context
+    workflow: search-select-and-solver-availability
     fixture: synthetic DP780 Material library
-    image: ../15-demo/images/ux-redesign-v2/final-materials-1920x1080.png
+    image: images/current/materials-search-1920x1080.png
     width: 1920
     height: 1080
-  - id: materials-browse-tree-1366
-    route: /materials
+  - id: materials-browse-1440
+    route: /materials?mode=browse
     workflow: searchable-database-profile-table-folder-record-tree
-    fixture: synthetic three-family library and DP780 workflow Records
-    image: ../15-demo/images/ux-redesign-v2/final-browse-tree-1366x768.png
-    width: 1351
-    height: 760
-  - id: material-detail-overview-1440
+    fixture: synthetic DP780 workflow Records
+    image: images/current/materials-browse-1440x900.png
+    width: 1440
+    height: 900
+  - id: material-detail-1440
     route: /materials/:materialId
-    workflow: persistent-navigator-centered-datasheet-related-context-and-direct-card-action
+    workflow: persistent-tree-datasheet-and-direct-card-action
     fixture: DP780 with Abaqus and OpenRadioss native cards
-    image: ../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png
+    image: images/current/material-detail-1440x900.png
     width: 1440
     height: 900
-  - id: materials-exact-record-1440
-    route: /materials/records/:recordId/revisions/:revisionId
-    workflow: exact-immutable-record-values-revisions-and-related-record-navigation
-    fixture: DP780 reference Material State exact revision
-    image: ../15-demo/images/ux-redesign-v2/materials-exact-record-1440x900.png
+  - id: material-cae-cards-1440
+    route: /materials/:materialId/cards
+    workflow: native-card-preview-and-download-actions
+    fixture: DP780 with Abaqus and OpenRadioss native cards
+    image: images/current/material-cae-cards-1440x900.png
     width: 1440
     height: 900
-  - id: material-detail-evidence-1440
-    route: /materials/:materialId/evidence
-    workflow: exact-related-records-workflow-layout-and-provenance-disclosure
-    fixture: DP780 exact linked workflow Records
-    image: ../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png
-    width: 1425
-    height: 891
-  - id: material-detail-cae-cards-1440
-    route: /materials/:materialId/cae-cards
-    workflow: native-solver-card-preview-and-direct-download
-    fixture: DP780 with Abaqus and OpenRadioss native cards
-    image: ../15-demo/images/ux-redesign-v2/material-detail-cae-cards-1440x900.png
-    width: 1425
-    height: 891
   - id: modeling-data-1366
-    route: /modeling
-    workflow: canonical-json-csv-xlsx-and-channel-unit-mapping
-    fixture: synthetic canonical JSON and governed tabular adapters
-    image: ../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png
-    width: 1351
-    height: 760
-  - id: modeling-fit-1366
-    route: /modeling
-    workflow: compact-curve-tree-collapsed-settings-and-dominant-graph
-    fixture: DP780 reference hardening candidates
-    image: ../15-demo/images/ux-redesign-v2/final-modeling-fit-1366x768.png
-    width: 1351
-    height: 760
-  - id: modeling-fit-1440
-    route: /modeling
-    workflow: shallow-settings-ribbon-response-residual-and-extrapolation
-    fixture: DP780 reference hardening candidates
-    image: ../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png
-    width: 1425
-    height: 891
-  - id: modeling-fit-1920
-    route: /modeling
-    workflow: graph-expansion-with-bounded-left-explorer
-    fixture: DP780 reference hardening candidates
-    image: ../15-demo/images/ux-redesign-v2/final-modeling-fit-1920x1080.png
-    width: 1715
-    height: 1072
-  - id: modeling-export-1440
-    route: /modeling
-    workflow: reviewed-ir-mapping-native-card-preview-and-download
-    fixture: DP780 Abaqus and OpenRadioss delivery artifacts
-    image: ../15-demo/images/ux-redesign-v2/modeling-export-1440x900.png
-    width: 1425
-    height: 891
-  - id: governed-tabular-import-1440
-    route: /datasets/import
-    workflow: upload-preview-profile-approval-and-exact-revision-import
-    fixture: synthetic DP780 CSV and XLSX test runs
-    image: ../15-demo/images/ux-redesign-v2/governed-import-1440x900.png
+    route: /modeling?stage=data&family=metal
+    workflow: existing-exact-input-selection-and-source-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
+    image: images/current/modeling-data-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-data-1440
+    route: /modeling?stage=data&family=metal
+    workflow: existing-exact-input-selection-and-source-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
+    image: images/current/modeling-data-1440x900.png
     width: 1440
     height: 900
+  - id: modeling-data-1920
+    route: /modeling?stage=data&family=metal
+    workflow: existing-exact-input-selection-and-source-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
+    image: images/current/modeling-data-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-process-1366
+    route: /modeling?stage=process&family=metal
+    workflow: ephemeral-processing-controls-and-preview
+    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
+    image: images/current/modeling-process-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-process-1440
+    route: /modeling?stage=process&family=metal
+    workflow: ephemeral-processing-controls-and-preview
+    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
+    image: images/current/modeling-process-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-process-1920
+    route: /modeling?stage=process&family=metal
+    workflow: ephemeral-processing-controls-and-preview
+    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
+    image: images/current/modeling-process-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-fit-1366
+    route: /modeling?stage=fit&family=metal
+    workflow: ephemeral-candidate-comparison-preview
+    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
+    image: images/current/modeling-fit-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-fit-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: ephemeral-candidate-comparison-preview
+    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
+    image: images/current/modeling-fit-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-fit-1920
+    route: /modeling?stage=fit&family=metal
+    workflow: ephemeral-candidate-comparison-preview
+    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
+    image: images/current/modeling-fit-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: modeling-export-1366
+    route: /modeling?stage=export&family=metal
+    workflow: ephemeral-export-preview-without-reviewed-delivery
+    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
+    image: images/current/modeling-export-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-export-1440
+    route: /modeling?stage=export&family=metal
+    workflow: ephemeral-export-preview-without-reviewed-delivery
+    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
+    image: images/current/modeling-export-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-export-1920
+    route: /modeling?stage=export&family=metal
+    workflow: ephemeral-export-preview-without-reviewed-delivery
+    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
+    image: images/current/modeling-export-1920x1080.png
+    width: 1920
+    height: 1080
   - id: activity-1440
     route: /activity
-    workflow: recent-modeling-reviews-and-progressive-advanced-jobs
-    fixture: clean deterministic demo activity
-    image: ../15-demo/images/ux-redesign-v2/activity-1440x900.png
-    width: 1425
-    height: 891
-  - id: administration-overview-1440
-    route: /administration
-    workflow: role-gated-administration-task-selection
-    fixture: automatic demo Administrator session
-    image: ../15-demo/images/ux-redesign-v2/administration-overview-1440x900.png
-    width: 1425
-    height: 891
+    workflow: empty-state-without-browser-local-modeling-session
+    fixture: deterministic demo with no recent browser-local session; DUI-08 pending
+    image: images/current/activity-1440x900.png
+    width: 1440
+    height: 900
   - id: administration-database-1440
     route: /administration/database
     workflow: table-attribute-layout-subset-and-link-type-configuration
     fixture: configurable Demo Material Records Table
-    image: ../15-demo/images/ux-redesign-v2/administration-database-1440x900.png
-    width: 1425
-    height: 891
-  - id: administration-layout-datasheet-1440
-    route: /database
-    workflow: configured-layout-projection-to-record-datasheet
-    fixture: clean synthetic DP780 Layout datasheet
-    image: ../15-demo/images/ux-redesign-v2/administration-layout-datasheet-1440x900.png
-    width: 1425
-    height: 891
+    image: images/current/administration-database-1440x900.png
+    width: 1440
+    height: 900

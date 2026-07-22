@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 ROOT = Path(__file__).resolve().parents[3]
 REVIEW = Path(__file__).resolve().parent
 GALLERY = ROOT / "docs/00-research/ux-reference-gallery/images"
-OUTPUT = ROOT / "docs/15-demo/images/ux-layout-review"
+OUTPUT = ROOT / "docs/17-evidence/images/ux-layout-review"
 FONT = ImageFont.load_default()
 COLORS = {
     "navigation": "#7b5ca7",
@@ -99,8 +99,8 @@ def main() -> None:
     board(
         [
             ("Reference: Granta continuous browse + list", GALLERY / "granta-mi-favourites-list.png"),
-            ("Rejected current: Tree is not in the default surface", OUTPUT / "rejected-materials-1440x900.png"),
-            ("Proposed: searchable governed explorer + dominant results", OUTPUT / "materials-1440x900.png"),
+            ("Rejected current: Tree is not in the default surface", OUTPUT / "rejected-materials-1440x900.jpg"),
+            ("Proposed: searchable governed explorer + dominant results", OUTPUT / "materials-1440x900.jpg"),
             ("Measured proposal regions", OUTPUT / "materials-1440x900-mask.png"),
         ],
         OUTPUT / "materials-reference-comparison.png",
@@ -108,8 +108,8 @@ def main() -> None:
     board(
         [
             ("Reference: Material Modeler control band + graph", GALLERY / "material-modeler-curve-fitting.png"),
-            ("Rejected current: 250 + 767 + 340 three columns", OUTPUT / "rejected-modeling-1440x900.png"),
-            ("Proposed: 184 compact tree + 1,216 graph region", OUTPUT / "modeling-1440x900.png"),
+            ("Rejected current: 250 + 767 + 340 three columns", OUTPUT / "rejected-modeling-1440x900.jpg"),
+            ("Proposed: 184 compact tree + 1,216 graph region", OUTPUT / "modeling-1440x900.jpg"),
             ("Measured proposal regions", OUTPUT / "modeling-1440x900-mask.png"),
         ],
         OUTPUT / "modeling-reference-comparison.png",
@@ -118,7 +118,7 @@ def main() -> None:
         [
             ("Reference: focused CAE model delivery", GALLERY / "material-data-center-cae-model.png"),
             ("Reference mask: sequential focused action", OUTPUT / "reference-material-data-center-cae-model-mask.png"),
-            ("Proposed: native preview + one Download", OUTPUT / "card-1440x900.png"),
+            ("Proposed: native preview + one Download", OUTPUT / "card-1440x900.jpg"),
             ("Measured proposal regions", OUTPUT / "card-1440x900-mask.png"),
         ],
         OUTPUT / "card-reference-comparison.png",

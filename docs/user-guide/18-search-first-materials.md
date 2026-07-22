@@ -107,8 +107,10 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   열이 아니므로 그래프 폭을 줄이지 않습니다.
 - `Add method`는 한 줄 도구 메뉴입니다. Recipe와 Batch는 `Advanced · Recipe and Batch`, ordered
   step JSON은 `Advanced Recipe JSON`에서 확인합니다.
-- Export는 reviewed fitting에서 Neutral Material과 solver-native preview/download로 이어집니다.
-  Export를 열었다가 Fit으로 돌아와도 그래프 DOM, 선택 curve와 plot view는 그대로 유지됩니다.
+- 현재 baseline의 Export dock은 브라우저 안에서 선택한 candidate와 기존 Neutral/solver UI의
+  ephemeral preview를 보여 줍니다. 아래 현재 캡처는 reviewed model commit이나 native-card delivery를
+  완료한 증거가 아니며, Fit/Export decision workflow는 DUI-06 pending입니다. Export를 열었다가
+  Fit으로 돌아와도 그래프 DOM, 선택 curve와 plot view는 그대로 유지됩니다.
 - source revision과 Recipe step을 바꾼 뒤에는 command bar의 Undo/Redo로 draft를 되돌릴 수 있습니다.
   브라우저를 닫을 때 미저장 변경이 있으면 이탈 경고가 한 번 표시되며, `New session`은 확인 후
   비수치 UI session 상태만 초기화합니다. Preview는 계속 `Preview only · not committed`로 표시되어
@@ -117,80 +119,57 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   `Reload current`, `Keep local draft as new revision`, `Cancel` 중 하나를 선택해 stale exact-revision
   충돌을 명시적으로 해결합니다.
 
-![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
+## 현재 대표 화면
 
-![DUI-01 compact Materials application and command bars](../15-demo/images/ux-redesign-v2/dui-01-materials-search-1440x900.png)
+아래 이미지는 최신 `main`의 Compose demo에서 현재 캡처 자동화로 생성한 화면입니다. 완료 PR의
+before/after 및 과거 Task 화면은 `docs/17-evidence`에만 보관하며 현재 사용법의 기준으로 사용하지
+않습니다.
 
-![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/final-browse-tree-1366x768.png)
+![Materials 검색과 선택](images/current/materials-search-1440x900.png)
 
-![DUI-01 Browse Tree in the same compact shell](../15-demo/images/ux-redesign-v2/dui-01-browse-tree-1440x900.png)
+![Searchable governed Browse Tree](images/current/materials-browse-1440x900.png)
 
-![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
+![Material Detail과 직접 solver-card action](images/current/material-detail-1440x900.png)
 
-![Exact related Record revision in the Materials workspace](../15-demo/images/ux-redesign-v2/materials-exact-record-1440x900.png)
+![Native CAE Cards](images/current/material-cae-cards-1440x900.png)
 
-![DUI-01 Material Detail command and status context](../15-demo/images/ux-redesign-v2/dui-01-material-detail-1440x900.png)
-
-![Native CAE card preview and direct downloads](../15-demo/images/ux-redesign-v2/material-detail-cae-cards-1440x900.png)
-
-![Related, Workflow, Layout and progressive Evidence](../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png)
-
-![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
-
-![DUI-01 Modeling commands and persistent session status](../15-demo/images/ux-redesign-v2/dui-01-modeling-fit-1440x900.png)
-
-![DUI-04 persistent Modeling Fit workspace](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png)
-
-![Explicit JSON, CSV and XLSX Modeling Data entry](../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png)
-
-![Governed CSV and XLSX import workbench](../15-demo/images/ux-redesign-v2/governed-import-1440x900.png)
-
-![Reviewed IR to native solver-card Export](../15-demo/images/ux-redesign-v2/modeling-export-1440x900.png)
+![Persistent Modeling Fit](images/current/modeling-fit-1440x900.png)
 
 ## Activity에서 진행 상황 확인
 
-`Activity`는 최근 Modeling session과 review를 먼저 보여 줍니다. Recipe lifecycle, Batch preflight,
-mapping report와 장시간 실행의 상세 진단은 같은 화면의 Advanced jobs에서 필요할 때만 펼칩니다.
-최근 Modeling 항목에는 material/session context, 현재 Data·Process·Fit·Export 단계, exact Test Data
-revision과 선택 곡선 수가 함께 표시됩니다. `Resume <stage>`를 누르면 URL 단계와 material family뿐
-아니라 같은 exact revision 및 curve check 상태까지 브라우저 session v2에서 복원합니다.
+현재 캡처는 이 브라우저에 최근 Modeling session이 없는 초기 empty state입니다. 따라서 Activity
+route와 공통 shell의 현재 빈 상태만 증명합니다. exact stage·revision·curve 복원과 review-attention
+queue는 DUI-08 pending이며, 이 이미지나 manifest는 해당 기능의 완료 증거로 사용하지 않습니다.
 
-![Recent modeling and review activity](../15-demo/images/ux-redesign-v2/activity-1440x900.png)
-
-![DUI-01 Activity command and status shell](../15-demo/images/ux-redesign-v2/dui-01-activity-1440x900.png)
+![최근 브라우저 Modeling session이 없는 Activity 초기 상태](images/current/activity-1440x900.png)
 
 관리자는 user menu에서 Administration을 열 수 있습니다. Database design route는 같은 shell 안에서
 Table, Attribute, Layout, Subset과 Link Type 편집 상태를 유지하며, 현재 configuration과 validation
 상태를 status bar에 표시합니다.
 
-![DUI-01 Administration database design shell](../15-demo/images/ux-redesign-v2/dui-01-administration-1440x900.png)
+![Administration Database design](images/current/administration-database-1440x900.png)
 
 ## Desktop viewport evidence
 
 1366 px에서는 optional 상세와 settings를 접어 result/graph 폭을 지키고, 1920 px에서는 중앙 작업면이
 남는 폭을 확장합니다. 모든 panel을 같은 비율로 늘리거나 좁은 중앙 max-width에 가두지 않습니다.
 
-![Materials at 1366](../15-demo/images/ux-redesign-v2/final-materials-1366x768.png)
+![Materials at 1366](images/current/materials-search-1366x768.png)
 
-![Materials at 1920](../15-demo/images/ux-redesign-v2/final-materials-1920x1080.png)
+![Materials at 1920](images/current/materials-search-1920x1080.png)
 
-![Modeling Fit at 1366](../15-demo/images/ux-redesign-v2/final-modeling-fit-1366x768.png)
+### Modeling 단계·해상도 검수 화면
 
-![Modeling Fit at 1920](../15-demo/images/ux-redesign-v2/final-modeling-fit-1920x1080.png)
-
-### DUI-04 단계·해상도 검수 화면
-
-아래 화면은 같은 exact DP780 session에서 Data → Process → Fit → Export를 전환해 각 단계의
-비동기 데이터가 완료된 뒤 캡처했습니다. Data는 source/mapping만, Process는 engineering-to-true
-변환과 necking 경계만, Fit은 candidate/residual/extrapolation만 표시합니다. Export는 선택 모델,
-관측 범위와 외삽 그래프를 유지한 채 같은 작업면의 하단 delivery dock에서 Neutral IR → native
-card 흐름을 이어갑니다. 이 dock은 1366에서도 그래프 비교 높이를 확보하도록 146px까지 작아지고,
-상세 내용만 내부에서 스크롤합니다. Export 캡처는 exact Catalog/workflow 링크가 해소되고
-`Resolving…`을 포함한 모든 진행 상태가 사라진 뒤에만 허용됩니다.
+아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Export를
+전환해 각 단계의 비동기 preview가 끝난 뒤 캡처했습니다. 이 표는 DUI-04에서 완료한 persistent graph와
+stage별 현재 baseline만 보여 주며 DUI-05/06 완료 증거가 아닙니다. Process와 Fit 결과는 commit하지
+않은 ephemeral preview이고, Export도 선택 candidate와 기존 Neutral/solver UI를 표시할 뿐 reviewed
+model 또는 새 native card를 생성하지 않았습니다. Export 캡처는 Catalog/workflow 링크의 현재 해석이
+끝나고 `Resolving…`이 사라진 상태만 확인합니다.
 
 | 단계 | 1366×768 | 1440×900 | 1920×1080 |
 | --- | --- | --- | --- |
-| Data | ![Data 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1366x768.png) | ![Data 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1440x900.png) | ![Data 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1920x1080.png) |
-| Process | ![Process 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1366x768.png) | ![Process 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1440x900.png) | ![Process 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1920x1080.png) |
-| Fit | ![Fit 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1366x768.png) | ![Fit 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png) | ![Fit 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1920x1080.png) |
-| Export | ![Export 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1366x768.png) | ![Export 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1440x900.png) | ![Export 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png) |
+| Data | ![Data 1366](images/current/modeling-data-1366x768.png) | ![Data 1440](images/current/modeling-data-1440x900.png) | ![Data 1920](images/current/modeling-data-1920x1080.png) |
+| Process | ![Process 1366](images/current/modeling-process-1366x768.png) | ![Process 1440](images/current/modeling-process-1440x900.png) | ![Process 1920](images/current/modeling-process-1920x1080.png) |
+| Fit | ![Fit 1366](images/current/modeling-fit-1366x768.png) | ![Fit 1440](images/current/modeling-fit-1440x900.png) | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
+| Export preview | ![Export preview 1366](images/current/modeling-export-1366x768.png) | ![Export preview 1440](images/current/modeling-export-1440x900.png) | ![Export preview 1920](images/current/modeling-export-1920x1080.png) |

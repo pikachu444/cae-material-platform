@@ -12,7 +12,7 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 
 ## Paste this request into a new Codex session
 
-> CODEX_DESKTOP_ENGINEERING_UI_START.md를 먼저 읽어라. PR #112의 제품 책임자 승인이 기록되지 않았으면 구현하지 말고 막힌 이유만 보고하라. 승인됐으면 문서에 적힌 프로젝트 단위 외부 스킬을 설치·확인하고, 기존 API·도메인 계약을 보존한 채 다음 DUI 작업 하나만 구현하라. 실제 흐름·회귀검증·세 가지 데스크톱 해상도 검수를 통과할 때까지 수정하고 증거를 남겨라.
+> CODEX_DESKTOP_ENGINEERING_UI_START.md를 먼저 읽어라. PR #112, #114, #115의 병합 상태와 `docs/13-delivery/desktop-engineering-ui-backlog.md`의 다음 pending DUI를 확인하라. 문서에 적힌 프로젝트 단위 외부 스킬을 설치·확인하고, 기존 API·도메인 계약을 보존한 채 pending DUI 작업 하나만 구현하라. 실제 흐름·회귀검증·세 가지 데스크톱 해상도 검수를 통과할 때까지 수정하고 증거를 남겨라.
 
 ## Read in order
 
@@ -32,9 +32,10 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 ## Program rule
 
 - Do not begin with a generic visual cleanup, a CSS-only pass or a disconnected mockup.
-- `AGENTS.md` requires product-owner approval before production React/CSS changes. Treat Draft PR
-  #112 as unaccepted until the approval is recorded. PR #112 was approved and merged on 2026-07-22;
-  DUI-02 therefore passed this gate. If a later slice lacks its required approval, stop and report it.
+- `AGENTS.md` requires product-owner approval before production React/CSS changes. PR #112/DUI-01,
+  PR #114/DUI-02 and PR #115/DUI-04 were approved and merged on 2026-07-22. DUI-03 and DUI-05~09
+  remain pending; issue #117 owns their execution order. If a later slice lacks its required
+  approval, stop and report it.
 - After that acceptance, implement the delivery backlog in order. One pull request owns one bounded
   DUI slice.
 - Preserve database, revision/provenance, unit and solver-mapping contracts. Move the facade, not

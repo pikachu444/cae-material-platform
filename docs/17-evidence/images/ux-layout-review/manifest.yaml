@@ -1,0 +1,18 @@
+version: 1
+purpose: retained historical layout-review render outputs
+generator: docs/00-research/ux-layout-review/render_comparison.py
+images:
+  - docs/17-evidence/images/ux-layout-review/card-1440x900-mask.png
+  - docs/17-evidence/images/ux-layout-review/card-1440x900.jpg
+  - docs/17-evidence/images/ux-layout-review/card-reference-comparison.png
+  - docs/17-evidence/images/ux-layout-review/detail-1440x900.jpg
+  - docs/17-evidence/images/ux-layout-review/materials-1366x768.jpg
+  - docs/17-evidence/images/ux-layout-review/materials-1440x900-mask.png
+  - docs/17-evidence/images/ux-layout-review/materials-1440x900.jpg
+  - docs/17-evidence/images/ux-layout-review/materials-reference-comparison.png
+  - docs/17-evidence/images/ux-layout-review/modeling-1440x900-mask.png
+  - docs/17-evidence/images/ux-layout-review/modeling-1440x900.jpg
+  - docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png
+  - docs/17-evidence/images/ux-layout-review/reference-material-data-center-cae-model-mask.png
+  - docs/17-evidence/images/ux-layout-review/rejected-materials-1440x900.png
+  - docs/17-evidence/images/ux-layout-review/rejected-modeling-1440x900.png

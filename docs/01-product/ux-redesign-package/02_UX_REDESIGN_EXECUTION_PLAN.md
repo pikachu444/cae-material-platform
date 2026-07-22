@@ -2,7 +2,7 @@
 
 Status (`2026-07-21`): T-94 design gate and T-95–T-97 live implementation are complete. The final
 1366/1440/1920 measurements, reference-image mapping, JSON/CSV/XLSX scenarios, accessibility and
-regression evidence are recorded in `docs/15-demo/evidence/t97-reference-similarity-final.md`.
+regression evidence are recorded in `docs/17-evidence/reports/t97-reference-similarity-final.md`.
 
 ## 1. 실행 원칙
 
@@ -29,8 +29,8 @@ regression evidence are recorded in `docs/15-demo/evidence/t97-reference-similar
 산출물:
 
 ```text
-docs/15-demo/evidence/ux-current-baseline.md
-docs/15-demo/images/ux-baseline/*.png
+docs/17-evidence/reports/ux-current-baseline.md
+docs/17-evidence/images/ux-baseline/*.png
 docs/01-product/ux-route-inventory.md
 docs/01-product/ux-terminology-inventory.md
 docs/01-product/ux-style-audit.md

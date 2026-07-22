@@ -10,7 +10,6 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 연결되는 기술 호환 route입니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
 
-![Material Modeling의 curve/process tree, settings ribbon, engineering graph](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
 
 화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
 결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인
@@ -44,7 +43,6 @@ offset과 검색 구간, **Engineering to true/plastic**은 necking boundary와 
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
 공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.
 
-![두 exact DP780 반복시험, 평균과 95% mean confidence band](../15-demo/images/t86-metal-replicate-statistics.png)
 
 ## 처리 미리보기
 
@@ -100,9 +98,7 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 후보를 비교하고 오른쪽 **Fit evidence**에서 parameter와 lower/upper bound를 펼쳐 봅니다. 후보를
 선택하고 blend ratio를 조정한 뒤 **Selection reason**을 작성해야 검토 근거가 Recipe에 남습니다.
 
-![네 공개 hardening 후보, 선택 blend와 명시적 외삽 domain](../15-demo/images/t87-metal-fit-candidate-comparison.png)
 
-![동일한 후보의 predicted-minus-observed residual](../15-demo/images/t87-metal-fit-residual.png)
 
 ## Neutral Material과 solver card로 전달
 
@@ -117,19 +113,14 @@ solver와 version을 고르면 지원되는 material law가 capability manifest�
 `unsupported`는 생성할 수 없습니다. 생성 후 native ASCII preview와 `.inp`/`.rad`, mapping report
 JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩니다.
 
-![금속 Export task와 exact Neutral evidence](../15-demo/images/t88-abaqus-card-delivery.png)
 
-![OpenRadioss LAW36 native ASCII result](../15-demo/images/t88-openradioss-card-delivery.png)
 
-![금속 인장 처리 단계와 210 GPa Huber 탄성계수 결과](../15-demo/images/t55m-metal-processing-methods.png)
 
 각 method의 option 계약은 서버의 versioned registry에서 읽습니다. 알 수 없는 option, 호환되지
 않는 quantity/unit, 범위 밖 extrapolation, 비유한 수치, 허용되지 않은 결측값은 묵시적으로
 보정하지 않고 실패시킵니다.
 
-![정확한 시험 revision과 재사용 Mapping Profile](../15-demo/images/t53-processing-stage-overlay.png)
 
-![공통 축으로 비교하는 처리 단계 curve overlay](../15-demo/images/t53-processing-curve-overlay.png)
 
 ## 불변 Processing Output 저장
 
@@ -141,7 +132,6 @@ JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩�
 5. 저장된 목록에서 revision 1, stage/point 수, Output SHA-256을 확인합니다.
 6. **Download JSON**으로 `cmp.processing-output` Artifact의 정확한 바이트를 받습니다.
 
-![서버 재계산 후 저장된 immutable Processing Output](../15-demo/images/t53-processing-output-commit.png)
 
 ## 반복시험 정렬과 pointwise 통계
 
@@ -160,7 +150,6 @@ JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩�
 95% mean CI를 명시합니다. 이 결과는 T-53 preview이며, T-54에서 exact Selection과 versioned
 Recipe/Batch 실행 결과로 저장됩니다.
 
-![두 exact 반복시험의 정렬과 pointwise 통계](../15-demo/images/t53-processing-ensemble-statistics.png)
 
 ## Processing Recipe 저장과 게시
 
@@ -177,7 +166,6 @@ Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와
 각 step의 method ID, version, options와 options digest를 순서대로 보존합니다. Batch preflight와
 실행은 이 exact published Recipe revision을 입력으로 사용합니다.
 
-![exact Mapping Profile과 ordered steps를 고정한 Processing Recipe Library](../15-demo/images/t54-processing-recipe-library.png)
 
 ## Batch preflight와 실행
 
@@ -191,7 +179,6 @@ Recipe는 Mapping Profile의 stable identity뿐 아니라 exact revision UUID와
 6. 일부 member가 실패해도 성공한 Output은 유지됩니다. **Retry failed members only**는 실패 member에만
    다음 Attempt를 추가하며 이전 Attempt와 Output을 수정하지 않습니다.
 
-![두 exact Test Data revision의 preflight와 append-only 실행 결과](../15-demo/images/t54-processing-batch-monitor.png)
 
 ## 현재 경계
 

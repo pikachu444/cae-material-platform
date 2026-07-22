@@ -1,0 +1,2642 @@
+[
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 1,
+      "largeButtons": 4,
+      "paragraphs": 1,
+      "primary": 1
+    },
+    "firstData": {
+      "height": 620,
+      "selector": ".materials-workspace",
+      "width": 1335,
+      "x": 8,
+      "y": 131
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "materials-search",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 620,
+      "selector": ".materials-results",
+      "width": 1089,
+      "x": 253,
+      "y": 131
+    },
+    "mainShare": 81.6,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 620,
+        "selector": ".materials-left-pane",
+        "width": 244,
+        "x": 9,
+        "y": 131
+      },
+      ".materials-page-header": {
+        "height": 47,
+        "selector": ".materials-page-header",
+        "width": 1351,
+        "x": 0,
+        "y": 84
+      },
+      ".materials-result-table tbody tr": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 1088,
+        "x": 253,
+        "y": 215.1
+      },
+      ".materials-results": {
+        "height": 620,
+        "selector": ".materials-results",
+        "width": 1089,
+        "x": 253,
+        "y": 131
+      },
+      ".materials-selection": null
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": 1088,
+      "font": "14px",
+      "row": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 1088,
+        "x": 253,
+        "y": 215.1
+      },
+      "scrollWidth": 1088,
+      "visibleHeaders": [
+        "Compare",
+        "Material",
+        "Family",
+        "Source",
+        "Yield",
+        "CAE cards"
+      ]
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "14px"
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 620,
+      "selector": ".materials-workspace",
+      "width": 1335,
+      "x": 8,
+      "y": 131
+    },
+    "wraps": [
+      {
+        "height": 24,
+        "lines": 1.18,
+        "text": "DP780 synthetic demo steelCMP-DEMO-DP780",
+        "title": "DP780 synthetic demo steel · CMP-DEMO-DP780"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/materials-search-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 2,
+      "largeButtons": 4,
+      "paragraphs": 1,
+      "primary": 1
+    },
+    "firstData": {
+      "height": 620,
+      "selector": ".materials-workspace",
+      "width": 1335,
+      "x": 8,
+      "y": 131
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "browse-tree",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 620,
+      "selector": ".materials-results",
+      "width": 1089,
+      "x": 253,
+      "y": 131
+    },
+    "mainShare": 81.6,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": {
+        "height": 26,
+        "selector": ".materials-tree-row",
+        "width": 243,
+        "x": 9,
+        "y": 347
+      },
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 620,
+        "selector": ".materials-left-pane",
+        "width": 244,
+        "x": 9,
+        "y": 131
+      },
+      ".materials-page-header": {
+        "height": 47,
+        "selector": ".materials-page-header",
+        "width": 1351,
+        "x": 0,
+        "y": 84
+      },
+      ".materials-results": {
+        "height": 620,
+        "selector": ".materials-results",
+        "width": 1089,
+        "x": 253,
+        "y": 131
+      },
+      ".materials-selection": null,
+      ".materials-tree-scroll": {
+        "height": 308.4,
+        "selector": ".materials-tree-scroll",
+        "width": 243,
+        "x": 9,
+        "y": 346
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": 1088,
+      "font": "14px",
+      "row": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 1088,
+        "x": 253,
+        "y": 215.1
+      },
+      "scrollWidth": 1088,
+      "visibleHeaders": [
+        "Compare",
+        "Material",
+        "Family",
+        "Source",
+        "Yield",
+        "CAE cards"
+      ]
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "12.5px"
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 620,
+      "selector": ".materials-workspace",
+      "width": 1335,
+      "x": 8,
+      "y": 131
+    },
+    "wraps": [
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Materials Database",
+        "title": "Materials Database"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Engineering Materials",
+        "title": "Engineering Materials"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Demo Material Records",
+        "title": "Demo Material Records"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Material Library",
+        "title": "Material Library"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Models & Cards",
+        "title": "Models & Cards"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Test Data",
+        "title": "Test Data"
+      },
+      {
+        "height": 24,
+        "lines": 1.18,
+        "text": "DP780 synthetic demo steelCMP-DEMO-DP780",
+        "title": "DP780 synthetic demo steel · CMP-DEMO-DP780"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/browse-tree-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 2,
+      "h2": 4,
+      "largeButtons": 9,
+      "paragraphs": 6,
+      "primary": 1
+    },
+    "firstData": {
+      "height": 48.4,
+      "selector": ".material-detail-header",
+      "width": 1335,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "material-detail",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 485.1,
+      "selector": ".material-tab-panel",
+      "width": 1335,
+      "x": 8,
+      "y": 177.4
+    },
+    "mainShare": 100,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".material-detail-header": {
+        "height": 48.4,
+        "selector": ".material-detail-header",
+        "width": 1335,
+        "x": 8,
+        "y": 84
+      },
+      ".material-tab-panel": {
+        "height": 485.1,
+        "selector": ".material-tab-panel",
+        "width": 1335,
+        "x": 8,
+        "y": 177.4
+      },
+      ".overview-property-grid": {
+        "height": 134.6,
+        "selector": ".overview-property-grid",
+        "width": 824.2,
+        "x": 20,
+        "y": 263.7
+      },
+      ".ux-tabs": {
+        "height": 45,
+        "selector": ".ux-tabs",
+        "width": 1335,
+        "x": 8,
+        "y": 132.4
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 578.5,
+      "selector": ".material-detail-shell",
+      "width": 1335,
+      "x": 8,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/material-detail-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 5,
+      "h1": 1,
+      "h2": 4,
+      "largeButtons": 31,
+      "paragraphs": 21,
+      "primary": 3
+    },
+    "firstData": {
+      "height": 41,
+      "selector": ".modeling-context-strip",
+      "width": 1335,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": "[Circular]",
+    "graphShare": 86.2,
+    "label": "modeling-fit",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 962.8,
+      "selector": ".persistent-modeling-plot",
+      "width": 1151,
+      "x": 192,
+      "y": 222.2
+    },
+    "mainShare": 86.2,
+    "navigator": {
+      "curveRow": {
+        "height": 27,
+        "selector": ".modeling-dataset-list > article",
+        "width": 184,
+        "x": 8,
+        "y": 250.2
+      },
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".method-builder-card > .section-heading": {
+        "height": 59.2,
+        "selector": ".method-builder-card > .section-heading",
+        "width": 1335,
+        "x": 8,
+        "y": 163
+      },
+      ".modeling-context-strip": {
+        "height": 41,
+        "selector": ".modeling-context-strip",
+        "width": 1335,
+        "x": 8,
+        "y": 84
+      },
+      ".modeling-dataset-list > article": {
+        "height": 27,
+        "selector": ".modeling-dataset-list > article",
+        "width": 184,
+        "x": 8,
+        "y": 250.2
+      },
+      ".modeling-workspace-rail": {
+        "height": 533,
+        "selector": ".modeling-workspace-rail",
+        "width": 184,
+        "x": 8,
+        "y": 222.2
+      },
+      ".persistent-modeling-plot": {
+        "height": 962.8,
+        "selector": ".persistent-modeling-plot",
+        "width": 1151,
+        "x": 192,
+        "y": 222.2
+      },
+      ".step-option-panel": {
+        "height": 0,
+        "selector": ".step-option-panel",
+        "width": 0,
+        "x": 0,
+        "y": 0
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "statusText": "DP780 synthetic demo steelTest Data r1 · fitLast operation completed0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "12.5px"
+    },
+    "url": "http://127.0.0.1:5173/modeling",
+    "workspace": {
+      "height": 962.8,
+      "selector": ".modeling-graph-workspace",
+      "width": 1335,
+      "x": 8,
+      "y": 222.2
+    },
+    "wraps": [
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 03",
+        "title": "CMP-DEMO-DP780-TEST-JSON-03 · CMP-DEMO-S-JSON-03 · exact revision r1"
+      },
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 02",
+        "title": "CMP-DEMO-DP780-TEST-JSON-02 · CMP-DEMO-S-JSON-02 · exact revision r1"
+      },
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 01",
+        "title": "CMP-DEMO-DP780-TEST-JSON · CMP-DEMO-S-JSON · exact revision r1"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/modeling-fit-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 1,
+      "largeButtons": 6,
+      "paragraphs": 1,
+      "primary": 0
+    },
+    "firstData": {
+      "height": 228.7,
+      "selector": ".activity-content",
+      "width": 1335,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "activity",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 228.7,
+      "selector": ".activity-content",
+      "width": 1335,
+      "x": 8,
+      "y": 84
+    },
+    "mainShare": 100,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".activity-content": {
+        "height": 228.7,
+        "selector": ".activity-content",
+        "width": 1335,
+        "x": 8,
+        "y": 84
+      },
+      ".activity-list": {
+        "height": 113.2,
+        "selector": ".activity-list",
+        "width": 1311,
+        "x": 20,
+        "y": 132
+      },
+      ".activity-list li": {
+        "height": 56.1,
+        "selector": ".activity-list li",
+        "width": 1311,
+        "x": 20,
+        "y": 133
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "statusText": "Current workspace activityCurrent userNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": null,
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/activity",
+    "workspace": {
+      "height": 228.7,
+      "selector": ".activity-shell",
+      "width": 1335,
+      "x": 8,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/activity-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 4,
+      "h1": 1,
+      "h2": 5,
+      "largeButtons": 5,
+      "paragraphs": 14,
+      "primary": 3
+    },
+    "firstData": {
+      "height": 1444.2,
+      "selector": ".administration-content",
+      "width": 1131,
+      "x": 220,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "administration",
+    "legacy": {
+      "contentCard": 3,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 1444.2,
+      "selector": ".administration-content",
+      "width": 1131,
+      "x": 220,
+      "y": 84
+    },
+    "mainShare": 83.7,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 0,
+      "right": 15
+    },
+    "overflowX": 0,
+    "regions": {
+      ".administration-content": {
+        "height": 1444.2,
+        "selector": ".administration-content",
+        "width": 1131,
+        "x": 220,
+        "y": 84
+      },
+      ".administration-navigation": {
+        "height": 1444.2,
+        "selector": ".administration-navigation",
+        "width": 220,
+        "x": 0,
+        "y": 84
+      },
+      ".detail-grid": {
+        "height": 868.8,
+        "selector": ".detail-grid",
+        "width": 1084.6,
+        "x": 243.2,
+        "y": 173
+      },
+      ".product-admin-embedded": {
+        "height": 1396.2,
+        "selector": ".product-admin-embedded",
+        "width": 1084.6,
+        "x": 243.2,
+        "y": 108
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "statusText": "Table · Demo Material Recordsr1 · governed configurationNo active job0 validation errorsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": null,
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/administration/database",
+    "workspace": {
+      "height": 1444.2,
+      "selector": ".administration-workspace",
+      "width": 1351,
+      "x": 0,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/administration-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 2,
+      "largeButtons": 4,
+      "paragraphs": 4,
+      "primary": 2
+    },
+    "firstData": {
+      "height": 752,
+      "selector": ".materials-workspace",
+      "width": 1409,
+      "x": 8,
+      "y": 131
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "materials-search",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 752,
+      "selector": ".materials-results",
+      "width": 879,
+      "x": 257,
+      "y": 131
+    },
+    "mainShare": 62.4,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 752,
+        "selector": ".materials-left-pane",
+        "width": 248,
+        "x": 9,
+        "y": 131
+      },
+      ".materials-page-header": {
+        "height": 47,
+        "selector": ".materials-page-header",
+        "width": 1425,
+        "x": 0,
+        "y": 84
+      },
+      ".materials-result-table tbody tr": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 878,
+        "x": 257,
+        "y": 215.1
+      },
+      ".materials-results": {
+        "height": 752,
+        "selector": ".materials-results",
+        "width": 879,
+        "x": 257,
+        "y": 131
+      },
+      ".materials-selection": {
+        "height": 752,
+        "selector": ".materials-selection",
+        "width": 280,
+        "x": 1136,
+        "y": 131
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": 878,
+      "font": "14px",
+      "row": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 878,
+        "x": 257,
+        "y": 215.1
+      },
+      "scrollWidth": 878,
+      "visibleHeaders": [
+        "Compare",
+        "Material",
+        "Family",
+        "Source",
+        "Yield",
+        "CAE cards"
+      ]
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "14px"
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 752,
+      "selector": ".materials-workspace",
+      "width": 1409,
+      "x": 8,
+      "y": 131
+    },
+    "wraps": [
+      {
+        "height": 24,
+        "lines": 1.18,
+        "text": "DP780 synthetic demo steelCMP-DEMO-DP780",
+        "title": "DP780 synthetic demo steel · CMP-DEMO-DP780"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/materials-search-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 3,
+      "largeButtons": 4,
+      "paragraphs": 4,
+      "primary": 2
+    },
+    "firstData": {
+      "height": 752,
+      "selector": ".materials-workspace",
+      "width": 1409,
+      "x": 8,
+      "y": 131
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "browse-tree",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 752,
+      "selector": ".materials-results",
+      "width": 879,
+      "x": 257,
+      "y": 131
+    },
+    "mainShare": 62.4,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": {
+        "height": 26,
+        "selector": ".materials-tree-row",
+        "width": 247,
+        "x": 9,
+        "y": 347
+      },
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 752,
+        "selector": ".materials-left-pane",
+        "width": 248,
+        "x": 9,
+        "y": 131
+      },
+      ".materials-page-header": {
+        "height": 47,
+        "selector": ".materials-page-header",
+        "width": 1425,
+        "x": 0,
+        "y": 84
+      },
+      ".materials-results": {
+        "height": 752,
+        "selector": ".materials-results",
+        "width": 879,
+        "x": 257,
+        "y": 131
+      },
+      ".materials-selection": {
+        "height": 752,
+        "selector": ".materials-selection",
+        "width": 280,
+        "x": 1136,
+        "y": 131
+      },
+      ".materials-tree-scroll": {
+        "height": 440.4,
+        "selector": ".materials-tree-scroll",
+        "width": 247,
+        "x": 9,
+        "y": 346
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": 878,
+      "font": "14px",
+      "row": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 878,
+        "x": 257,
+        "y": 215.1
+      },
+      "scrollWidth": 878,
+      "visibleHeaders": [
+        "Compare",
+        "Material",
+        "Family",
+        "Source",
+        "Yield",
+        "CAE cards"
+      ]
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "12.5px"
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 752,
+      "selector": ".materials-workspace",
+      "width": 1409,
+      "x": 8,
+      "y": 131
+    },
+    "wraps": [
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Materials Database",
+        "title": "Materials Database"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Engineering Materials",
+        "title": "Engineering Materials"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Demo Material Records",
+        "title": "Demo Material Records"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Material Library",
+        "title": "Material Library"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Models & Cards",
+        "title": "Models & Cards"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Test Data",
+        "title": "Test Data"
+      },
+      {
+        "height": 24,
+        "lines": 1.18,
+        "text": "DP780 synthetic demo steelCMP-DEMO-DP780",
+        "title": "DP780 synthetic demo steel · CMP-DEMO-DP780"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/browse-tree-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 2,
+      "h2": 4,
+      "largeButtons": 9,
+      "paragraphs": 6,
+      "primary": 1
+    },
+    "firstData": {
+      "height": 48.4,
+      "selector": ".material-detail-header",
+      "width": 1409,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "material-detail",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 495.6,
+      "selector": ".material-tab-panel",
+      "width": 1409,
+      "x": 8,
+      "y": 177.4
+    },
+    "mainShare": 100,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".material-detail-header": {
+        "height": 48.4,
+        "selector": ".material-detail-header",
+        "width": 1409,
+        "x": 8,
+        "y": 84
+      },
+      ".material-tab-panel": {
+        "height": 495.6,
+        "selector": ".material-tab-panel",
+        "width": 1409,
+        "x": 8,
+        "y": 177.4
+      },
+      ".overview-property-grid": {
+        "height": 134.6,
+        "selector": ".overview-property-grid",
+        "width": 871.9,
+        "x": 20,
+        "y": 263.7
+      },
+      ".ux-tabs": {
+        "height": 45,
+        "selector": ".ux-tabs",
+        "width": 1409,
+        "x": 8,
+        "y": 132.4
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 589,
+      "selector": ".material-detail-shell",
+      "width": 1409,
+      "x": 8,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/material-detail-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 6,
+      "h1": 1,
+      "h2": 4,
+      "largeButtons": 34,
+      "paragraphs": 28,
+      "primary": 3
+    },
+    "firstData": {
+      "height": 41,
+      "selector": ".modeling-context-strip",
+      "width": 1409,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": "[Circular]",
+    "graphShare": 86.5,
+    "label": "modeling-fit",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 1000.3,
+      "selector": ".persistent-modeling-plot",
+      "width": 1218.9,
+      "x": 198.1,
+      "y": 346.2
+    },
+    "mainShare": 86.5,
+    "navigator": {
+      "curveRow": {
+        "height": 27,
+        "selector": ".modeling-dataset-list > article",
+        "width": 190.1,
+        "x": 8,
+        "y": 250.2
+      },
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".method-builder-card > .section-heading": {
+        "height": 59.2,
+        "selector": ".method-builder-card > .section-heading",
+        "width": 1409,
+        "x": 8,
+        "y": 163
+      },
+      ".modeling-context-strip": {
+        "height": 41,
+        "selector": ".modeling-context-strip",
+        "width": 1409,
+        "x": 8,
+        "y": 84
+      },
+      ".modeling-dataset-list > article": {
+        "height": 27,
+        "selector": ".modeling-dataset-list > article",
+        "width": 190.1,
+        "x": 8,
+        "y": 250.2
+      },
+      ".modeling-workspace-rail": {
+        "height": 665,
+        "selector": ".modeling-workspace-rail",
+        "width": 190.1,
+        "x": 8,
+        "y": 222.2
+      },
+      ".persistent-modeling-plot": {
+        "height": 1000.3,
+        "selector": ".persistent-modeling-plot",
+        "width": 1218.9,
+        "x": 198.1,
+        "y": 346.2
+      },
+      ".step-option-panel": {
+        "height": 124,
+        "selector": ".step-option-panel",
+        "width": 1218.9,
+        "x": 198.1,
+        "y": 222.2
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "statusText": "DP780 synthetic demo steelTest Data r1 · fitLast operation completed0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "12.5px"
+    },
+    "url": "http://127.0.0.1:5173/modeling",
+    "workspace": {
+      "height": 1124.3,
+      "selector": ".modeling-graph-workspace",
+      "width": 1409,
+      "x": 8,
+      "y": 222.2
+    },
+    "wraps": [
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 03",
+        "title": "CMP-DEMO-DP780-TEST-JSON-03 · CMP-DEMO-S-JSON-03 · exact revision r1"
+      },
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 02",
+        "title": "CMP-DEMO-DP780-TEST-JSON-02 · CMP-DEMO-S-JSON-02 · exact revision r1"
+      },
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 01",
+        "title": "CMP-DEMO-DP780-TEST-JSON · CMP-DEMO-S-JSON · exact revision r1"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/modeling-fit-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 1,
+      "largeButtons": 6,
+      "paragraphs": 1,
+      "primary": 0
+    },
+    "firstData": {
+      "height": 228.7,
+      "selector": ".activity-content",
+      "width": 1409,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "activity",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 228.7,
+      "selector": ".activity-content",
+      "width": 1409,
+      "x": 8,
+      "y": 84
+    },
+    "mainShare": 100,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".activity-content": {
+        "height": 228.7,
+        "selector": ".activity-content",
+        "width": 1409,
+        "x": 8,
+        "y": 84
+      },
+      ".activity-list": {
+        "height": 113.2,
+        "selector": ".activity-list",
+        "width": 1385,
+        "x": 20,
+        "y": 132
+      },
+      ".activity-list li": {
+        "height": 56.1,
+        "selector": ".activity-list li",
+        "width": 1385,
+        "x": 20,
+        "y": 133
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "statusText": "Current workspace activityCurrent userNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": null,
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/activity",
+    "workspace": {
+      "height": 228.7,
+      "selector": ".activity-shell",
+      "width": 1409,
+      "x": 8,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/activity-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 4,
+      "h1": 1,
+      "h2": 5,
+      "largeButtons": 5,
+      "paragraphs": 14,
+      "primary": 3
+    },
+    "firstData": {
+      "height": 1444.2,
+      "selector": ".administration-content",
+      "width": 1205,
+      "x": 220,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "administration",
+    "legacy": {
+      "contentCard": 3,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 1444.2,
+      "selector": ".administration-content",
+      "width": 1205,
+      "x": 220,
+      "y": 84
+    },
+    "mainShare": 84.6,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 0,
+      "right": 15
+    },
+    "overflowX": 0,
+    "regions": {
+      ".administration-content": {
+        "height": 1444.2,
+        "selector": ".administration-content",
+        "width": 1205,
+        "x": 220,
+        "y": 84
+      },
+      ".administration-navigation": {
+        "height": 1444.2,
+        "selector": ".administration-navigation",
+        "width": 220,
+        "x": 0,
+        "y": 84
+      },
+      ".detail-grid": {
+        "height": 868.8,
+        "selector": ".detail-grid",
+        "width": 1156.1,
+        "x": 244.5,
+        "y": 173
+      },
+      ".product-admin-embedded": {
+        "height": 1396.2,
+        "selector": ".product-admin-embedded",
+        "width": 1156.1,
+        "x": 244.5,
+        "y": 108
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "statusText": "Table · Demo Material Recordsr1 · governed configurationNo active job0 validation errorsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": null,
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/administration/database",
+    "workspace": {
+      "height": 1444.2,
+      "selector": ".administration-workspace",
+      "width": 1425,
+      "x": 0,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/administration-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 2,
+      "largeButtons": 4,
+      "paragraphs": 4,
+      "primary": 2
+    },
+    "firstData": {
+      "height": 932,
+      "selector": ".materials-workspace",
+      "width": 1889,
+      "x": 8,
+      "y": 131
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "materials-search",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 932,
+      "selector": ".materials-results",
+      "width": 1307,
+      "x": 289,
+      "y": 131
+    },
+    "mainShare": 69.2,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 932,
+        "selector": ".materials-left-pane",
+        "width": 280,
+        "x": 9,
+        "y": 131
+      },
+      ".materials-page-header": {
+        "height": 47,
+        "selector": ".materials-page-header",
+        "width": 1905,
+        "x": 0,
+        "y": 84
+      },
+      ".materials-result-table tbody tr": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 1306,
+        "x": 289,
+        "y": 215.1
+      },
+      ".materials-results": {
+        "height": 932,
+        "selector": ".materials-results",
+        "width": 1307,
+        "x": 289,
+        "y": 131
+      },
+      ".materials-selection": {
+        "height": 932,
+        "selector": ".materials-selection",
+        "width": 300,
+        "x": 1596,
+        "y": 131
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": 1306,
+      "font": "14px",
+      "row": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 1306,
+        "x": 289,
+        "y": 215.1
+      },
+      "scrollWidth": 1306,
+      "visibleHeaders": [
+        "Compare",
+        "Material",
+        "Family",
+        "Source",
+        "Yield",
+        "CAE cards"
+      ]
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "14px"
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 932,
+      "selector": ".materials-workspace",
+      "width": 1889,
+      "x": 8,
+      "y": 131
+    },
+    "wraps": [
+      {
+        "height": 24,
+        "lines": 1.18,
+        "text": "DP780 synthetic demo steelCMP-DEMO-DP780",
+        "title": "DP780 synthetic demo steel · CMP-DEMO-DP780"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/materials-search-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 3,
+      "largeButtons": 4,
+      "paragraphs": 4,
+      "primary": 2
+    },
+    "firstData": {
+      "height": 932,
+      "selector": ".materials-workspace",
+      "width": 1889,
+      "x": 8,
+      "y": 131
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "browse-tree",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 932,
+      "selector": ".materials-results",
+      "width": 1307,
+      "x": 289,
+      "y": 131
+    },
+    "mainShare": 69.2,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": {
+        "height": 26,
+        "selector": ".materials-tree-row",
+        "width": 279,
+        "x": 9,
+        "y": 347
+      },
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 932,
+        "selector": ".materials-left-pane",
+        "width": 280,
+        "x": 9,
+        "y": 131
+      },
+      ".materials-page-header": {
+        "height": 47,
+        "selector": ".materials-page-header",
+        "width": 1905,
+        "x": 0,
+        "y": 84
+      },
+      ".materials-results": {
+        "height": 932,
+        "selector": ".materials-results",
+        "width": 1307,
+        "x": 289,
+        "y": 131
+      },
+      ".materials-selection": {
+        "height": 932,
+        "selector": ".materials-selection",
+        "width": 300,
+        "x": 1596,
+        "y": 131
+      },
+      ".materials-tree-scroll": {
+        "height": 620.4,
+        "selector": ".materials-tree-scroll",
+        "width": 279,
+        "x": 9,
+        "y": 346
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": 1306,
+      "font": "14px",
+      "row": {
+        "height": 34,
+        "selector": ".materials-result-table tbody tr",
+        "width": 1306,
+        "x": 289,
+        "y": 215.1
+      },
+      "scrollWidth": 1306,
+      "visibleHeaders": [
+        "Compare",
+        "Material",
+        "Family",
+        "Source",
+        "Yield",
+        "CAE cards"
+      ]
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "12.5px"
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 932,
+      "selector": ".materials-workspace",
+      "width": 1889,
+      "x": 8,
+      "y": 131
+    },
+    "wraps": [
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Materials Database",
+        "title": "Materials Database"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Engineering Materials",
+        "title": "Engineering Materials"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Demo Material Records",
+        "title": "Demo Material Records"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Material Library",
+        "title": "Material Library"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Models & Cards",
+        "title": "Models & Cards"
+      },
+      {
+        "height": 25,
+        "lines": 1,
+        "text": "Test Data",
+        "title": "Test Data"
+      },
+      {
+        "height": 24,
+        "lines": 1.18,
+        "text": "DP780 synthetic demo steelCMP-DEMO-DP780",
+        "title": "DP780 synthetic demo steel · CMP-DEMO-DP780"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/browse-tree-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 2,
+      "h2": 4,
+      "largeButtons": 9,
+      "paragraphs": 6,
+      "primary": 1
+    },
+    "firstData": {
+      "height": 48.4,
+      "selector": ".material-detail-header",
+      "width": 1889,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "material-detail",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 563.9,
+      "selector": ".material-tab-panel",
+      "width": 1889,
+      "x": 8,
+      "y": 177.4
+    },
+    "mainShare": 100,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".material-detail-header": {
+        "height": 48.4,
+        "selector": ".material-detail-header",
+        "width": 1889,
+        "x": 8,
+        "y": 84
+      },
+      ".material-tab-panel": {
+        "height": 563.9,
+        "selector": ".material-tab-panel",
+        "width": 1889,
+        "x": 8,
+        "y": 177.4
+      },
+      ".overview-property-grid": {
+        "height": 134.6,
+        "selector": ".overview-property-grid",
+        "width": 1181.3,
+        "x": 20,
+        "y": 263.7
+      },
+      ".ux-tabs": {
+        "height": 45,
+        "selector": ".ux-tabs",
+        "width": 1889,
+        "x": 8,
+        "y": 132.4
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "statusText": "DP780 synthetic demo steel · CMP-DEMO-DP780r1 · draftNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "workspace": {
+      "height": 657.3,
+      "selector": ".material-detail-shell",
+      "width": 1889,
+      "x": 8,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/material-detail-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 6,
+      "h1": 1,
+      "h2": 4,
+      "largeButtons": 33,
+      "paragraphs": 28,
+      "primary": 3
+    },
+    "firstData": {
+      "height": 41,
+      "selector": ".modeling-context-strip",
+      "width": 1889,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": "[Circular]",
+    "graphShare": 89.4,
+    "label": "modeling-fit",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 1260.1,
+      "selector": ".persistent-modeling-plot",
+      "width": 1689,
+      "x": 208,
+      "y": 346.2
+    },
+    "mainShare": 89.4,
+    "navigator": {
+      "curveRow": {
+        "height": 27,
+        "selector": ".modeling-dataset-list > article",
+        "width": 200,
+        "x": 8,
+        "y": 250.2
+      },
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".method-builder-card > .section-heading": {
+        "height": 59.2,
+        "selector": ".method-builder-card > .section-heading",
+        "width": 1889,
+        "x": 8,
+        "y": 163
+      },
+      ".modeling-context-strip": {
+        "height": 41,
+        "selector": ".modeling-context-strip",
+        "width": 1889,
+        "x": 8,
+        "y": 84
+      },
+      ".modeling-dataset-list > article": {
+        "height": 27,
+        "selector": ".modeling-dataset-list > article",
+        "width": 200,
+        "x": 8,
+        "y": 250.2
+      },
+      ".modeling-workspace-rail": {
+        "height": 680,
+        "selector": ".modeling-workspace-rail",
+        "width": 200,
+        "x": 8,
+        "y": 222.2
+      },
+      ".persistent-modeling-plot": {
+        "height": 1260.1,
+        "selector": ".persistent-modeling-plot",
+        "width": 1689,
+        "x": 208,
+        "y": 346.2
+      },
+      ".step-option-panel": {
+        "height": 124,
+        "selector": ".step-option-panel",
+        "width": 1689,
+        "x": 208,
+        "y": 222.2
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "statusText": "DP780 synthetic demo steelTest Data r1 · fitLast operation completed0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": "12.5px",
+      "data": "12.5px"
+    },
+    "url": "http://127.0.0.1:5173/modeling",
+    "workspace": {
+      "height": 1384.1,
+      "selector": ".modeling-graph-workspace",
+      "width": 1889,
+      "x": 8,
+      "y": 222.2
+    },
+    "wraps": [
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 03",
+        "title": "CMP-DEMO-DP780-TEST-JSON-03 · CMP-DEMO-S-JSON-03 · exact revision r1"
+      },
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 02",
+        "title": "CMP-DEMO-DP780-TEST-JSON-02 · CMP-DEMO-S-JSON-02 · exact revision r1"
+      },
+      {
+        "height": 18,
+        "lines": 1,
+        "text": "Curve 01",
+        "title": "CMP-DEMO-DP780-TEST-JSON · CMP-DEMO-S-JSON · exact revision r1"
+      }
+    ],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/modeling-fit-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 0,
+      "h1": 1,
+      "h2": 1,
+      "largeButtons": 6,
+      "paragraphs": 1,
+      "primary": 0
+    },
+    "firstData": {
+      "height": 228.7,
+      "selector": ".activity-content",
+      "width": 1889,
+      "x": 8,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "activity",
+    "legacy": {
+      "contentCard": 0,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 228.7,
+      "selector": ".activity-content",
+      "width": 1889,
+      "x": 8,
+      "y": 84
+    },
+    "mainShare": 100,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 8,
+      "right": 23
+    },
+    "overflowX": 0,
+    "regions": {
+      ".activity-content": {
+        "height": 228.7,
+        "selector": ".activity-content",
+        "width": 1889,
+        "x": 8,
+        "y": 84
+      },
+      ".activity-list": {
+        "height": 113.2,
+        "selector": ".activity-list",
+        "width": 1865,
+        "x": 20,
+        "y": 132
+      },
+      ".activity-list li": {
+        "height": 56.1,
+        "selector": ".activity-list li",
+        "width": 1865,
+        "x": 20,
+        "y": 133
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "statusText": "Current workspace activityCurrent userNo active job0 warningsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": null,
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/activity",
+    "workspace": {
+      "height": 228.7,
+      "selector": ".activity-shell",
+      "width": 1889,
+      "x": 8,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/activity-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copy": {
+      "eyebrows": 4,
+      "h1": 1,
+      "h2": 5,
+      "largeButtons": 5,
+      "paragraphs": 14,
+      "primary": 3
+    },
+    "firstData": {
+      "height": 1444.2,
+      "selector": ".administration-content",
+      "width": 1685,
+      "x": 220,
+      "y": 84
+    },
+    "focusRegions": 4,
+    "graph": null,
+    "graphShare": null,
+    "label": "administration",
+    "legacy": {
+      "contentCard": 3,
+      "nestedCards": 0,
+      "pageHeading": 0
+    },
+    "main": {
+      "height": 1444.2,
+      "selector": ".administration-content",
+      "width": 1685,
+      "x": 220,
+      "y": 84
+    },
+    "mainShare": 88.5,
+    "navigator": {
+      "curveRow": null,
+      "treeRow": null,
+      "treeSearch": 0
+    },
+    "outerMargins": {
+      "left": 0,
+      "right": 15
+    },
+    "overflowX": 0,
+    "regions": {
+      ".administration-content": {
+        "height": 1444.2,
+        "selector": ".administration-content",
+        "width": 1685,
+        "x": 220,
+        "y": 84
+      },
+      ".administration-navigation": {
+        "height": 1444.2,
+        "selector": ".administration-navigation",
+        "width": 220,
+        "x": 0,
+        "y": 84
+      },
+      ".detail-grid": {
+        "height": 868.8,
+        "selector": ".detail-grid",
+        "width": 1621,
+        "x": 252,
+        "y": 173
+      },
+      ".product-admin-embedded": {
+        "height": 1396.2,
+        "selector": ".product-admin-embedded",
+        "width": 1621,
+        "x": 252,
+        "y": 108
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "statusText": "Table · Demo Material Recordsr1 · governed configurationNo active job0 validation errorsOnline",
+    "table": {
+      "clientWidth": null,
+      "font": null,
+      "row": null,
+      "scrollWidth": null,
+      "visibleHeaders": []
+    },
+    "typography": {
+      "body": "16px",
+      "command": null,
+      "data": null
+    },
+    "url": "http://127.0.0.1:5173/administration/database",
+    "workspace": {
+      "height": 1444.2,
+      "selector": ".administration-workspace",
+      "width": 1905,
+      "x": 0,
+      "y": 84
+    },
+    "wraps": [],
+    "file": "C:/SourceCodes/cae-material-platform/docs/17-evidence/images/desktop-engineering-ui/dui-01/after/administration-1920x1080.jpg"
+  }
+]

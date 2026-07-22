@@ -85,10 +85,10 @@
 - `apps/web/src/common-processing-workbench.tsx`
 - `apps/web/src/canonical-test-data-workbench.tsx`
 - `apps/web/src/styles.css`
-- `docs/15-demo/evidence/t85-engineering-modeling-shell.md`
-- `docs/15-demo/evidence/t91-material-database-parity.md`
-- `docs/15-demo/evidence/t92-search-admin-recipe-batch.md`
-- `docs/15-demo/evidence/t93-clean-product-acceptance.md`
+- `docs/17-evidence/reports/t85-engineering-modeling-shell.md`
+- `docs/17-evidence/reports/t91-material-database-parity.md`
+- `docs/17-evidence/reports/t92-search-admin-recipe-batch.md`
+- `docs/17-evidence/reports/t93-clean-product-acceptance.md`
 
 ## 4. Source Interpretation Rules
 

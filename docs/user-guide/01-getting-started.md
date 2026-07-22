@@ -25,18 +25,18 @@ docker compose -f deploy/compose/docker-compose.demo.yml up --build
 - Web: <http://127.0.0.1:5173>
 - 최근 작업과 검토 진입은 **Activity**에서 확인합니다.
 
-## Demo workspace 시작
+## Demo user session 시작
 
 1. Web 주소를 엽니다.
 2. **Preparing your workspace…**가 사라질 때까지 기다립니다.
-3. 상단 오른쪽에 **Demo workspace**가 표시되는지 확인합니다.
+3. 상단 오른쪽에 **Demo user**가 표시되는지 확인합니다.
 4. 기본 `/materials` 검색에서 기존 Material을 찾습니다. 적절한 Material/card가 없을 때만
    **Modeling**의 Data로 이동합니다.
 
 Demo session은 `demo` mode에서만 자동으로 준비됩니다. production에서는 같은 자리에 일반
 로그인 화면이 표시되며 사용자는 내부 연결 정보나 인증 문자열을 다루지 않습니다.
 
-![Search-first Materials 기본 화면](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
+![Search-first Materials 기본 화면](images/current/materials-search-1440x900.png)
 
 ## 첫 Material 만들기
 
@@ -52,10 +52,11 @@ Demo session은 `demo` mode에서만 자동으로 준비됩니다. production에
 저장할 때마다 새 immutable revision이 생깁니다. 브라우저 form을 고치는 것이 이미 저장된
 revision을 바꾸지 않습니다.
 
+![Material 상세와 직접 card delivery](images/current/material-detail-1440x900.png)
+
 상단 메뉴와 Material 문맥 탭의 역할, 분류·mapping·다운로드 문제 해결은
 [메뉴와 Material 작업공간 사용법](10-navigation-and-troubleshooting.md)을 참고하십시오.
 
-![Material 상세와 직접 card delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
 
 ## 종료와 데이터 주의
 

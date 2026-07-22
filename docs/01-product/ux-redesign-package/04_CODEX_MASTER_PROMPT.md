@@ -109,7 +109,7 @@ Materials 시안은 자동 반려한다.
 생성할 문서:
 
 ```text
-docs/15-demo/evidence/ux-current-baseline.md
+docs/17-evidence/reports/ux-current-baseline.md
 docs/01-product/ux-route-inventory.md
 docs/01-product/ux-terminology-inventory.md
 docs/01-product/ux-style-audit.md
