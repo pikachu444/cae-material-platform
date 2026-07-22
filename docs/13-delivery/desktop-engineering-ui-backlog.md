@@ -38,7 +38,9 @@ The user enters a compact engineering application rather than a branded web land
 
 ## DUI-02 — Resizable Materials workspace and in-place datasheet — P0
 
-Implementation status: implemented on 2026-07-22. Live flow, responsive measurements, external-skill
+Implementation status: implemented and refined after Draft PR #114 review on 2026-07-22. The
+refinement removes duplicate Search/Browse/Subsets controls, moves pane visibility to the dividers,
+and gates captures on completed async enrichment. Live flow, responsive measurements, external-skill
 audits and reference scoring are recorded in
 `docs/15-demo/evidence/dui-02-materials-workspace.md`.
 

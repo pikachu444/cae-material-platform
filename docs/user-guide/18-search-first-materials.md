@@ -40,10 +40,15 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Profile과 검색 동작을 다시 찾을
 수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
 
-Navigator와 Context의 divider는 포인터 또는 키보드 방향키로 조절합니다. 1366 px에서는 Context를
-기본으로 접고, 1440/1920 px에서는 각각 280/300 px로 엽니다. Navigator는 240–320 px, Context는
-280–420 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에 저장됩니다. 세
-pane은 서로 독립적으로 스크롤합니다.
+Navigator와 Context의 divider는 포인터 또는 키보드 방향키로 조절합니다. 별도의 `Hide filters` /
+`Hide details` 행은 없으며 divider 위의 작은 화살표로 해당 pane만 접거나 다시 엽니다. 1366 px에서는
+Context를 기본으로 접고, 1440/1920 px에서는 각각 264/288 px로 엽니다. Navigator는 220–320 px,
+Context는 260–400 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에
+저장됩니다. 세 pane은 서로 독립적으로 스크롤합니다.
+
+결과 캡처와 자동화는 Material 목록뿐 아니라 각 행의 property·source·CAE card 조회가 끝나
+`aria-busy=false`이고 `Checking…` 행이 0개인 상태에서만 진행합니다. 정렬 상태는 각 sortable
+column의 table header가 `aria-sort`로 알립니다.
 
 검색어, family/source/solver/status/수치 범위, 정렬, Browse/Subsets mode와 선택 Material은
 `/materials` URL에 저장됩니다. Material Detail command bar, 왼쪽 `← Results`, 브라우저 뒤로 가기는

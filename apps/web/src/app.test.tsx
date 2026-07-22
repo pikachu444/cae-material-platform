@@ -135,17 +135,23 @@ describe("Material Catalog workbench", () => {
     expect(screen.getByRole("table", { name: "Material results" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Manufacturer / source" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Validation / release status" })).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: "Browse Tree" }).length).toBeGreaterThanOrEqual(1);
-    fireEvent.click(screen.getByRole("button", { name: "Hide filters" }));
+    expect(screen.getAllByRole("button", { name: "Browse Tree" })).toHaveLength(1);
+    expect(screen.queryByRole("navigation", { name: "Materials navigator" })).toBe(null);
+    const materialHeader = screen.getByRole("columnheader", { name: /Material/ });
+    expect(materialHeader.getAttribute("aria-sort")).toBe("ascending");
+    expect(within(materialHeader).getByRole("button", { name: "Material" }).hasAttribute("aria-sort")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Collapse filters pane" }));
     expect(screen.queryByRole("complementary", { name: "Material filters" })).toBe(null);
-    expect(screen.getByRole("button", { name: "Show filters" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Show details" }));
+    expect(screen.getByRole("button", { name: "Expand filters pane" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
     expect(screen.getByRole("button", { name: "Open material" })).toBeTruthy();
     expect(await screen.findByText("1 cards")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Materials" }).getAttribute("aria-busy")).toBe("false");
+    expect(screen.queryByText("Checking…")).toBe(null);
     expect(screen.getAllByText("OpenRadioss").length).toBeGreaterThanOrEqual(1);
     fireEvent.change(screen.getByRole("textbox", { name: "Search materials" }), { target: { value: "DP780" } });
     fireEvent.submit(screen.getByRole("search"));
-    fireEvent.click(screen.getByRole("button", { name: "Show filters" }));
+    fireEvent.click(screen.getByRole("button", { name: "Expand filters pane" }));
     fireEvent.change(screen.getByRole("combobox", { name: "Material class" }), { target: { value: "metal" } });
     fireEvent.change(screen.getByRole("combobox", { name: "CAE card" }), { target: { value: "OpenRadioss" } });
     await waitFor(() => expect(window.location.search).toContain("q=DP780"));
@@ -222,7 +228,7 @@ describe("Material Catalog workbench", () => {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
     expect(window.location.pathname).toBe("/materials");
-    expect(screen.getAllByRole("button", { name: "Browse Tree" }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole("button", { name: "Browse Tree" })).toHaveLength(1);
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 

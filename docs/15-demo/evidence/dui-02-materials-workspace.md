@@ -36,6 +36,11 @@ input name/autocomplete, an ellipsis placeholder, `aria-busy`, and drag-time tex
 suppression. Button-driven navigation remains the established application-shell command contract;
 no material-domain link was converted to an ungoverned URL.
 
+Draft PR #114 review then removed the repeated Navigator Search/Browse/Subsets tab row. The command
+bar is now the only mode hierarchy, while a query submit is labeled `Find`. The 30 px
+Hide/Show control row was removed; 15×26 px buttons sit on the 5 px pane dividers. Sort state moved
+from the header's inner button to the semantic `th[aria-sort]`.
+
 ## Official reference comparison
 
 Every image in `docs/00-research/images/gui-reference/README.md` and the five curated gallery images
@@ -46,8 +51,15 @@ was opened directly. The closest structural references for this bounded slice we
 - `granta-list-results.png`: dense rows, sortable/resizable columns, restrained result header;
 - `granta-datasheet-embedded.png` and `granta-datasheet-full.png`: result-to-datasheet continuity,
   flat compact property sections, no nested card stack;
-- `granta-record-links-1.png` and `granta-record-links-2.png`: related-record labels and exact record
-  navigation beside the datasheet.
+- `granta-record-links-datasheet.png`, `granta-record-links-explore.png`, and
+  `granta-record-links-edit.png`: related-record labels and exact record navigation beside the
+  datasheet.
+
+The review comparison changed three measurable choices. Like `granta-profile.png`, mode selection is
+owned by one upper control level and the Navigator contains only the selected tool. Like
+`granta-list-results.png`, column headers own sorting and resize affordances, result rows are 32 px,
+and no secondary toolbar separates the query from the grid. Like `granta-datasheet-embedded.png`,
+thin dividers carry compact pane controls and the dominant center grows before either side pane.
 
 Modeler, solver-card preview, and Administration references were reviewed for regression only and
 remain owned by later DUI slices. The resulting topology is
@@ -64,10 +76,13 @@ The rebuilt Docker demo and real synthetic APIs were exercised in the in-app Chr
    `/materials/records/8ee15167-06fb-4a95-bc94-129324ab9ab5/revisions/73321f29-dbea-4a17-b52d-eedc6732a5b7`.
 4. `← Results` restored the DP780 selection. A second run submitted `q=DP780`, opened by keyboard,
    then used browser Back; URL, search box and selected row all restored.
-5. `Resize filters` moved from 248 px to the 320 px limit with the keyboard and remained 319 px
-   after reload. Pointer drag moved Context from 280 px to 305 px. Column separators support the
-   same pointer/Arrow-key contract.
-6. Browser error logs were checked after the final container restart; application interactions and
+5. The command bar changed Search → Browse Tree → Search with exactly one mode control at each step;
+   the active state and URL mode remained synchronized.
+6. Divider controls collapsed Context from 264 px to 0 and expanded it back to 264 px. Pointer and
+   Arrow-key resizing remain available on the same dividers and on column separators.
+7. Every result capture waited for `aria-busy=false`, 3 result rows, 0 `Checking…` rows, and 0 px
+   horizontal overflow.
+8. Browser error logs were checked after the final container restart; application interactions and
    exact-revision navigation completed without a runtime error.
 
 ## Responsive measurements
@@ -76,29 +91,33 @@ The rebuilt Docker demo and real synthetic APIs were exercised in the in-app Chr
 | --- | ---: | ---: | ---: |
 | Application + command bars | 84 px | 84 px | 84 px |
 | Workspace outer margin | 8 px | 8 px | 8 px |
-| Navigator default | 244 px | 248 px | 280 px |
-| Main region | 1,094 px | 884 px | 1,312 px |
-| Context default | collapsed | 280 px | 300 px |
+| Navigator default | 232 px | 240 px | 272 px |
+| Main region | 1,106 px | 908 px | 1,332 px |
+| Context default | collapsed | 264 px | 288 px |
 | Normal pane padding | 8 px | 8 px | 8 px |
-| Result row height | 34 px | 34 px | 34 px |
+| Result row height | 32 px | 32 px | 32 px |
+| Dedicated pane-control row | 0 px | 0 px | 0 px |
+| Mode-control locations | 1 | 1 | 1 |
+| `Checking…` rows at capture | 0 | 0 | 0 |
 | Body/data font | 13–14 px | 13–14 px | 13–14 px |
 | Filled primary commands in result context | 1 | 1 | 1 |
 | Nested persistent cards | 0 | 0 | 0 |
 | Page horizontal overflow | 0 px | 0 px | 0 px |
 
-At 1440, the Material datasheet center is 884 px. Its overview uses a measured 529/300 px split and
-the curve/state subregion collapses to one column, eliminating the overlap found in the first live
-review. Navigator, main content, and Context each retain independent scrolling.
+At 1440, the Material datasheet center is 908 px, 24 px wider than the initial Draft PR capture. At
+1920 the center receives 70.4% of pane content width; Navigator and Context stay compact at 14.4%
+and 15.2%. At 1366 the collapsed Context gives the center 82.7% of pane content width. Navigator,
+main content, and Context each retain independent scrolling.
 
 ## Visual acceptance
 
-The authoritative 16-criterion matrix scored each route from 0–2. Materials Results scored `30/32`
-(`93.75/100`), Material Datasheet `29/32` (`90.63/100`), and exact Record revision `29/32`
-(`90.63/100`). No topology, dominant-area, divider grammar, density, selection, keyboard,
+The authoritative 16-criterion matrix was rerun after the PR review. Materials Results scored
+`31/32` (`96.88/100`), Material Datasheet `30/32` (`93.75/100`), and exact Record revision `30/32`
+(`93.75/100`). No topology, dominant-area, divider grammar, density, selection, keyboard,
 horizontal-overflow, nested-card, or legacy-selector hard gate scored 0.
 
-The two one-point deductions on datasheets are restrained hierarchy/copy opportunities that do not
-change topology. The active Materials route uses none of `page-stack`, `page-heading`, `content-card`,
+The remaining one-point deductions are restrained copy/disclosure opportunities that do not change
+topology. The active Materials route uses none of `page-stack`, `page-heading`, `content-card`,
 `module-material-card`, `hero-actions`, `eyebrow`, `status-badge`, or `count-chip`. Remaining matches
 in `layout.css` are scoped to Modeling, Administration, governed import, Test JSON, or legacy
 Database routes and are outside DUI-02.

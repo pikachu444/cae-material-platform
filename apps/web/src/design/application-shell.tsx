@@ -25,9 +25,14 @@ interface Command {
 
 const STATUS_EVENT = "cmp:workspace-status";
 const COMMAND_EVENT = "cmp:workspace-command";
+const COMMAND_STATE_EVENT = "cmp:workspace-command-state";
 
 export function publishWorkspaceStatus(update: WorkspaceStatusUpdate): void {
   window.dispatchEvent(new CustomEvent<WorkspaceStatusUpdate>(STATUS_EVENT, { detail: update }));
+}
+
+export function publishWorkspaceCommandState(command: string): void {
+  window.dispatchEvent(new CustomEvent(COMMAND_STATE_EVENT, { detail: { command } }));
 }
 
 function workspaceFor(path: string): "materials" | "modeling" | "activity" | "administration" | "other" {
@@ -156,7 +161,11 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
       if (command?.startsWith("modeling:") || command?.startsWith("materials:")) setActiveCommand(command);
     };
     window.addEventListener(COMMAND_EVENT, updateActiveCommand);
-    return () => window.removeEventListener(COMMAND_EVENT, updateActiveCommand);
+    window.addEventListener(COMMAND_STATE_EVENT, updateActiveCommand);
+    return () => {
+      window.removeEventListener(COMMAND_EVENT, updateActiveCommand);
+      window.removeEventListener(COMMAND_STATE_EVENT, updateActiveCommand);
+    };
   }, []);
 
   useEffect(() => {

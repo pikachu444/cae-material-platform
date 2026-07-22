@@ -1,15 +1,17 @@
-version: 38
+version: 39
 verified_at: 2026-07-22
 scope: current-product-baseline
 notes:
-  - "Recaptured from a clean Docker Compose rebuild of the current main baseline on 2026-07-22."
+  - "Recaptured from a clean Docker Compose rebuild of the current DUI-02 Draft PR branch on 2026-07-22."
   - "Migration and deterministic reference-plugin seed jobs completed successfully before browser validation."
   - "Requested browser sizes were 1366x768, 1440x900, and 1920x1080; width and height below are the actual PNG content dimensions after in-app browser chrome and host-window limits."
   - "All fixtures are synthetic, non-production reference data."
   - "DUI-01 captures were refreshed after direct comparison with all Granta MI and Material Modeler images in docs/00-research/images/gui-reference."
   - "DUI-01 uses a 46 px left-aligned application bar, 38 px workspace command bar, and 24 px semantic status bar."
   - "DUI-02 keeps Search, Browse Tree, results, material datasheet, and exact related Record revisions in one resizable workspace."
-  - "DUI-02 measured pane defaults are 244/main/context-collapsed at 1366, 248/884/280 at 1440, and 280/1312/300 at 1920; screenshots are exact requested viewport sizes."
+  - "DUI-02 uses one command-bar mode hierarchy; pane visibility is controlled from the dividers without a dedicated toggle row."
+  - "DUI-02 measured pane widths are 232/1106/context-collapsed at 1366, 240/908/264 at 1440, and 272/1332/288 at 1920; screenshots are exact requested viewport sizes."
+  - "Materials result captures require aria-busy=false, 0 Checking rows, all 3 synthetic results, and 0 px horizontal overflow."
 captures:
   - id: dui-01-materials-search-1440
     route: /materials
