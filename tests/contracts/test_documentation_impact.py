@@ -3,6 +3,8 @@ from __future__ import annotations
 import pytest
 from cmp.tools.documentation_impact import (
     DocumentationImpactError,
+    _parse_name_status,
+    _parse_name_status_entries,
     evaluate_documentation_impact,
 )
 
@@ -67,3 +69,35 @@ def test_openapi_workflow_change_requires_current_guide() -> None:
         }
     )
     assert report.changed_files
+
+
+def test_name_status_collector_keeps_deletion_rename_source_and_type_change() -> None:
+    paths = _parse_name_status(
+        b"D\0apps/web/src/deleted.tsx\0"
+        b"R100\0apps/web/src/renamed.css\0archive/renamed.txt\0"
+        b"T\0apps/web/src/type-changed.css\0"
+    )
+
+    assert paths == {
+        "apps/web/src/deleted.tsx",
+        "apps/web/src/renamed.css",
+        "archive/renamed.txt",
+        "apps/web/src/type-changed.css",
+    }
+    with pytest.raises(DocumentationImpactError, match="visual sources"):
+        evaluate_documentation_impact(paths)
+
+
+def test_deleted_visual_evidence_cannot_satisfy_current_documentation_gate() -> None:
+    entries = _parse_name_status_entries(
+        b"M\0apps/web/src/app.tsx\0"
+        b"M\0docs/user-guide/navigation-contract.yaml\0"
+        b"M\0docs/user-guide/screenshot-manifest.yaml\0"
+        b"D\0docs/user-guide/deleted.md\0"
+        b"D\0docs/user-guide/images/current/deleted.png\0"
+    )
+
+    with pytest.raises(DocumentationImpactError, match="current docs/user-guide"):
+        evaluate_documentation_impact(entries)
+    with pytest.raises(DocumentationImpactError, match="current user-guide PNG"):
+        evaluate_documentation_impact(entries)

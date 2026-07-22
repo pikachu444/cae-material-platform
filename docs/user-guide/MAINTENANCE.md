@@ -34,17 +34,23 @@ download 동작을 바꾸는 PR은 코드만으로 완료되지 않는다.
 
 ## 로컬 강제와 Codex 훅
 
-`.codex/hooks.json`은 Codex의 `git commit`, `git push`, `gh pr create`, `gh pr merge` 직전과 작업
-종료 시 `cmp-check-doc-impact`를 실행합니다. 저장소를 처음 열거나 hook 파일이 바뀌면 `/hooks`에서
-프로젝트 hook의 정확한 내용을 검토하고 trust해야 합니다. 신뢰하지 않은 프로젝트 hook은 실행되지
-않습니다.
+`.codex/hooks.json`은 Codex의 `git commit` 전에 기존 documentation-impact를 실행하고, `git push`,
+`gh pr create`, `gh pr ready`, `gh pr merge` 전에는 하나의 pipeline에서 documentation-impact,
+독립 read-only code review, UI 영향 시 독립 visual review를 순서대로 실행합니다. 작업 종료 시 기존
+worktree documentation-impact 차단도 유지합니다. 저장소를 처음 열거나 hook 파일이 바뀌면
+`/hooks`에서 프로젝트 hook의 정확한 내용을 검토하고 trust해야 합니다. 자세한 cache·실패 계약은
+[독립 pre-publish 리뷰 게이트](../14-testing/codex-pre-publish-review.md)를 참고하십시오.
 
 ```powershell
 make docs-capture
 make docs-screenshots
 make docs-impact
+make install-hooks
+make verify-hooks
+make pre-publish
 ```
 
-일반 Git pre-commit hook은 설치하지 않습니다. 따라서 Codex 밖에서 직접 실행한 Git 명령은 로컬
-hook을 우회할 수 있으며, `scripts/ci.sh`의 `origin/main...HEAD` 검사가 같은 문서 영향 계약을 다시
-확인합니다.
+일반 Git pre-commit hook은 설치하지 않습니다. 대신 versioned `.githooks/pre-push`를 한 번 설치하면
+Codex 밖의 직접 `git push`도 같은 `cmp-pre-publish` 구현을 호출합니다. Installer는 기존 custom
+hook path를 자동으로 덮어쓰지 않습니다. `scripts/ci.sh`의 `origin/main...HEAD` 문서 검사는 별도
+방어선으로 유지합니다.

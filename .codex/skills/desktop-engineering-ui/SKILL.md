@@ -13,7 +13,9 @@ Read before editing:
 5. `docs/00-research/ux-reference-gallery/README.md`
 6. `docs/00-research/images/gui-reference/README.md` and every relevant local image in that manifest
 7. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
-8. current route screenshots in `docs/15-demo/images/ux-redesign-v2/`
+8. current route entries in `docs/user-guide/screenshot-manifest.yaml` and their registered PNGs in
+   `docs/user-guide/images/current/` (historical screenshots under `docs/17-evidence` are not the
+   current product baseline)
 
 ## Objective
 
