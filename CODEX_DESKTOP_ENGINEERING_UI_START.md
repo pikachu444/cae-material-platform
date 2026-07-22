@@ -12,7 +12,7 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 
 ## Paste this request into a new Codex session
 
-> Read this file first. Verify and record product-owner approval for Draft PR #112 before any production React/CSS work; if it is not recorded, stop and report the blocked gate. If it is recorded, install or verify the documented project-scoped external skills, preserve every existing API and domain contract, and complete only the next backlog DUI slice with real-flow regression and all three desktop viewport checks.
+> CODEX_DESKTOP_ENGINEERING_UI_START.md를 먼저 읽어라. PR #112의 제품 책임자 승인이 기록되지 않았으면 구현하지 말고 막힌 이유만 보고하라. 승인됐으면 문서에 적힌 프로젝트 단위 외부 스킬을 설치·확인하고, 기존 API·도메인 계약을 보존한 채 다음 DUI 작업 하나만 구현하라. 실제 흐름·회귀검증·세 가지 데스크톱 해상도 검수를 통과할 때까지 수정하고 증거를 남겨라.
 
 ## Read in order
 
