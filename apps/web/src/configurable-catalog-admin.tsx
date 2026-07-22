@@ -24,6 +24,7 @@ import type {
   ConfigurableTableResponse,
   DataClassification,
 } from "./types";
+import { publishWorkspaceStatus } from "./design/application-shell";
 
 const dataTypes: Array<{ value: ConfigurableAttributeDataType; label: string }> = [
   { value: "number", label: "Number with unit" },
@@ -95,6 +96,16 @@ export function ConfigurableCatalogAdmin({
     () => tables.find((item) => item.table_id === selectedTableId) ?? null,
     [selectedTableId, tables],
   );
+
+  useEffect(() => {
+    publishWorkspaceStatus({
+      selection: selectedTable ? `Table · ${selectedTable.current_revision.content.name}` : "Database design",
+      revision: selectedTable ? `r${selectedTable.current_revision.revision_no} · governed configuration` : `${tables.length} tables`,
+      jobs: loading ? "Loading schema" : saving ? "Saving draft" : notice ? "Last operation completed" : "No active job",
+      warnings: error ? "1 validation or service error" : "0 validation errors",
+      connection: error ? "degraded" : "online",
+    });
+  }, [error, loading, notice, saving, selectedTable, tables.length]);
 
   const loadTables = useCallback(async () => {
     if (!config.accessToken.trim()) {
@@ -350,7 +361,7 @@ export function ConfigurableCatalogAdmin({
             </button>
           </div>
         ) : null}
-      </section> : <header className="page-heading"><div><p className="eyebrow">Database design</p><h1>Tables, Attributes and relationships</h1><p>Configure the Material Database without a software deployment. New values remain typed, unit-aware and revisioned.</p></div>{onNavigate ? <button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Preview database</button> : null}</header>}
+      </section> : <header className="workspace-section-heading"><h2>Tables, Attributes and relationships</h2>{onNavigate ? <button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Preview database</button> : null}</header>}
 
       {error ? <div className="error-banner">{error}</div> : null}
       {notice ? <div className="success-banner">{notice}</div> : null}

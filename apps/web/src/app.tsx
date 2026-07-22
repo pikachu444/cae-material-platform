@@ -14,6 +14,7 @@ import type {
   MaterialResponse,
 } from "./types";
 import type { MaterialTab } from "./material-library";
+import { ApplicationShell, publishWorkspaceStatus } from "./design/application-shell";
 
 const ReferenceTensileWorkflow = lazy(() =>
   import("./reference-tensile-workflow").then((module) => ({
@@ -186,64 +187,6 @@ function blankToNull(value: string): string | null {
   return trimmed ? trimmed : null;
 }
 
-function Header({
-  path,
-  navigate,
-}: {
-  path: string;
-  navigate: Navigate;
-}) {
-  const navigation = [
-    {
-      label: "Materials",
-      target: "/materials",
-      active: path.startsWith("/materials") || path.startsWith("/database") || path.startsWith("/catalog"),
-    },
-    {
-      label: "Modeling",
-      target: "/modeling",
-      active: path.startsWith("/modeling") || path.startsWith("/datasets") || path.startsWith("/models"),
-    },
-    {
-      label: "Activity",
-      target: "/activity",
-      active: path.startsWith("/activity") || path.startsWith("/jobs-reviews") || path.startsWith("/governance") || path.startsWith("/exports"),
-    },
-  ];
-  return (
-    <header className="app-header">
-      <button className="brand" type="button" onClick={() => navigate("/materials")}>
-        <span className="brand-mark">CMP</span>
-        <span>
-          <strong>CAE Material Platform</strong>
-          <small>Materials and solver delivery</small>
-        </span>
-      </button>
-      <nav aria-label="Primary navigation">
-        {navigation.map((item) => (
-          <button
-            key={item.target}
-            className={item.active ? "nav-link active" : "nav-link"}
-            type="button"
-            aria-current={item.active ? "page" : undefined}
-            onClick={() => navigate(item.target)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </nav>
-      <details className="product-user-menu">
-        <summary>Demo workspace</summary>
-        <div>
-          <strong>Workspace settings</strong>
-          <button type="button" onClick={() => navigate("/administration")}>Administration</button>
-          <button type="button" onClick={() => navigate("/database")}>Browse Material Database</button>
-        </div>
-      </details>
-    </header>
-  );
-}
-
 function ProductSessionBoundary({ loading, onRetry }: { loading: boolean; onRetry: () => void }) {
   return (
     <section className="product-session-boundary" aria-live="polite">
@@ -267,6 +210,17 @@ function AdministrationWorkspace({
   onOpenConnection: () => void;
   section: "overview" | "database" | "access";
 }) {
+  useEffect(() => {
+    if (section === "database") return;
+    publishWorkspaceStatus({
+      selection: section === "access" ? "Users and access" : "Administration overview",
+      revision: "Governed configuration",
+      jobs: "No active job",
+      warnings: "0 validation errors",
+      connection: "online",
+    });
+  }, [section]);
+
   return (
     <div className="administration-workspace">
       <aside className="administration-navigation">
@@ -289,9 +243,7 @@ function AdministrationWorkspace({
       </aside>
       <section className="administration-content">
         {section === "overview" ? <>
-          <header className="page-heading">
-            <div><p className="eyebrow">Administration</p><h1>Configure the material workspace</h1><p>Define what information is stored and who can work with it. Infrastructure settings stay out of the product interface.</p></div>
-          </header>
+          <header className="administration-section-heading"><h2>Configure the material workspace</h2></header>
           <section className="administration-task-grid" aria-label="Administration tasks">
             <button type="button" onClick={() => navigate("/administration/database")}><span className="workspace-choice-icon">DB</span><span><small>Material information system</small><strong>Design the database</strong><p>Add Tables, typed Attributes, datasheet Layouts, saved Subsets and exact Record Link Types without a migration.</p></span><em>Configure ›</em></button>
             <button type="button" onClick={() => navigate("/administration/access")}><span className="workspace-choice-icon">US</span><span><small>People and capabilities</small><strong>Manage access</strong><p>Assign Administrator or User and enable only the product features each team needs.</p></span><em>Manage ›</em></button>
@@ -646,7 +598,7 @@ export function App() {
 
   if (sessionStatus !== "ready") {
     return (
-      <div className="app-shell session-shell">
+      <div className="session-shell">
         <main><ProductSessionBoundary loading={sessionStatus === "loading"} onRetry={retrySession} /></main>
       </div>
     );
@@ -742,11 +694,8 @@ export function App() {
   }
 
   return (
-    <div className="app-shell">
-      <Header path={path} navigate={navigate} />
-      <main>
-        <Suspense fallback={<p className="loading-state">Loading workspace…</p>}>{page}</Suspense>
-      </main>
-    </div>
+    <ApplicationShell path={path} navigate={navigate}>
+      <Suspense fallback={<p className="loading-state">Loading workspace…</p>}>{page}</Suspense>
+    </ApplicationShell>
   );
 }

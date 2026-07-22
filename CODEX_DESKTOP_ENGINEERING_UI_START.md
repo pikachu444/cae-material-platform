@@ -10,7 +10,9 @@ This entrypoint governs the next frontend program. It supersedes ad-hoc prompts 
 4. `docs/13-delivery/desktop-engineering-ui-backlog.md`
 5. `.codex/skills/desktop-engineering-ui/SKILL.md`
 6. `docs/00-research/ux-reference-gallery/README.md`
-7. current route code, tests, screenshots and user guides
+7. `docs/00-research/images/gui-reference/README.md` and every local image it inventories
+8. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
+9. current route code, tests, screenshots and user guides
 
 ## Program rule
 
@@ -26,5 +28,10 @@ Each implementation PR must:
 - test keyboard, loading, empty, error and disabled states;
 - identify legacy classes/components removed or still present;
 - update current screenshots and user guidance.
+
+The curated UX gallery is a source-level overview. The official GUI reference manifest and its
+local images are the required screen-level comparison source. Filenames or written descriptions
+alone are not sufficient: open each relevant image and record the applied structure, omissions,
+current-task changes and explicitly deferred backlog work in the PR evidence.
 
 The first implementation task is `DUI-01 — Application shell, command bar and status bar`.

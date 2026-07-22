@@ -7,11 +7,13 @@ Use this skill for any task that changes the CAE Material Platform frontend layo
 Read before editing:
 
 1. `AGENTS.md`
-2. `docs/01-product/desktop-engineering-ui-spec.md`
+2. `docs/01-product/desktop-engineering-ui-product-spec.md`
 3. `docs/01-product/desktop-engineering-ui-tooling.md`
 4. `docs/01-product/visual-acceptance-matrix.md`
 5. `docs/00-research/ux-reference-gallery/README.md`
-6. current route screenshots in `docs/15-demo/images/ux-redesign-v2/`
+6. `docs/00-research/images/gui-reference/README.md` and every relevant local image in that manifest
+7. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
+8. current route screenshots in `docs/15-demo/images/ux-redesign-v2/`
 
 ## Objective
 
@@ -23,6 +25,7 @@ Build a browser-delivered desktop CAE engineering application. Do not produce a 
 
 - open the current route at 1366×768 and 1440×900;
 - inspect relevant reference images directly;
+- compare against the detailed official GUI references, not only the curated gallery descriptions;
 - identify the dominant user task;
 - record current header, pane, padding, font, row, plot and button measurements;
 - identify legacy classes and components used by the route.
@@ -112,6 +115,8 @@ Required for every visual PR:
 - no page-level horizontal overflow;
 - legacy selector report;
 - reference comparison using the visual acceptance matrix;
+- per-screen evidence naming the directly opened reference, applied principle, missing element,
+  current-task correction and reason for every deferral;
 - documentation and screenshot manifest update.
 
 ## Completion language

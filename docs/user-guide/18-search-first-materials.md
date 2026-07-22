@@ -3,14 +3,21 @@
 일반 사용자의 전역 메뉴는 `Materials | Modeling | Activity`입니다. Administration은 권한이
 있는 사용자의 메뉴에서 열며, `/database`와 기존 deep link는 호환 경로로 유지됩니다.
 
+인증 후 화면은 46 px application bar, 38 px workspace command bar, 작업영역, 24 px status bar
+순서로 구성됩니다. command bar는 현재 workspace의 Search/Browse/Subsets, Data/Process/Fit/Export
+같은 작업 명령만 표시합니다. status bar는 선택 Material 또는 Modeling session, exact revision
+문맥, 실행 중 계산, 경고와 연결 상태를 계속 표시합니다. `Ctrl+K`는 Materials 검색으로 이동하고,
+`F6`와 `Shift+F6`는 application bar, command bar, navigator/main/inspector, status bar 사이를
+순환합니다. 사용할 수 없는 명령은 비활성화되며 hover/focus title에 이유가 표시됩니다.
+
 ## 기존 Material과 CAE card 찾기
 
 1. `/materials`에서 이름, grade, code 또는 family를 검색합니다.
 2. family, source, normalized property 범위, solver availability 또는 release 상태를 좁힙니다.
 3. 결과 행을 선택해 핵심 물성과 사용 가능한 solver card를 확인합니다.
 4. Material을 열어 `Overview | Properties | Curves | CAE Cards | Evidence`를 검토합니다.
-5. Header의 `Preview OpenRadioss`로 native ASCII를 확인한 뒤 `Download .rad`를 누릅니다. Preview가
-   필요 없다면 Header에서 바로 다운로드할 수 있습니다.
+5. Material Detail의 `Preview OpenRadioss`로 native ASCII를 확인한 뒤 `Download .rad`를 누릅니다.
+   Preview가 필요 없다면 같은 compact record strip에서 바로 다운로드할 수 있습니다.
 
 Browse Tree는 검색의 대체 수단으로 Database, Profile, Table, Folder, Record 계층을 유지합니다.
 Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 않으며 Browse, Evidence
@@ -19,8 +26,8 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 ### Browse Tree에서 Record 찾기
 
 1. Materials 상단의 `Browse Tree`를 선택합니다.
-2. 왼쪽의 `Filters | Browse | Subsets`에서 `Browse`를 선택하고 Database, Profile, Table을
-   확인합니다.
+2. 왼쪽 Browse navigator에서 Database, Profile, Table을 확인합니다. Search/Browse/Subsets
+   전환은 중복된 panel tab이 아니라 상단 command bar 한 곳에서만 수행합니다.
 3. Folder 앞의 disclosure를 열거나 고정된 `Find in tree`에 이름을 입력합니다. 검색 결과는
    상위 Folder 경로를 유지합니다.
 4. 방향키와 Home/End로 이동하고, Left/Right로 접거나 펼치며, Enter로 Record를 선택합니다.
@@ -32,7 +39,7 @@ Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Prof
 수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
 
 검색어, family/source/solver/status/수치 범위, 정렬, Browse/Subsets mode와 선택 Material은
-`/materials` URL에 저장됩니다. Material Detail의 `← Materials`를 누르면 같은 검색 조건과 선택으로
+`/materials` URL에 저장됩니다. Material Detail command bar의 `Back to results`를 누르면 같은 검색 조건과 선택으로
 돌아옵니다. Browse에서 선택한 exact Record는 현재 browser session에만 보존되며 돌아올 때 실제
 Table과 Folder ancestor를 다시 조회해 펼칩니다.
 
@@ -73,7 +80,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 
 ### Modeling 화면 읽기
 
-- 왼쪽 `Curves`와 `Process`는 26 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
+- 왼쪽 `Curves`와 `Process`는 27 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
   선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
   유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.
@@ -86,15 +93,23 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 
 ![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
 
+![DUI-01 compact Materials application and command bars](../15-demo/images/ux-redesign-v2/dui-01-materials-search-1440x900.png)
+
 ![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/final-browse-tree-1366x768.png)
 
+![DUI-01 Browse Tree in the same compact shell](../15-demo/images/ux-redesign-v2/dui-01-browse-tree-1440x900.png)
+
 ![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
+
+![DUI-01 Material Detail command and status context](../15-demo/images/ux-redesign-v2/dui-01-material-detail-1440x900.png)
 
 ![Native CAE card preview and direct downloads](../15-demo/images/ux-redesign-v2/material-detail-cae-cards-1440x900.png)
 
 ![Related, Workflow, Layout and progressive Evidence](../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png)
 
 ![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
+
+![DUI-01 Modeling commands and persistent session status](../15-demo/images/ux-redesign-v2/dui-01-modeling-fit-1440x900.png)
 
 ![Explicit JSON, CSV and XLSX Modeling Data entry](../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png)
 
@@ -108,6 +123,14 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 mapping report와 장시간 실행의 상세 진단은 같은 화면의 Advanced jobs에서 필요할 때만 펼칩니다.
 
 ![Recent modeling and review activity](../15-demo/images/ux-redesign-v2/activity-1440x900.png)
+
+![DUI-01 Activity command and status shell](../15-demo/images/ux-redesign-v2/dui-01-activity-1440x900.png)
+
+관리자는 user menu에서 Administration을 열 수 있습니다. Database design route는 같은 shell 안에서
+Table, Attribute, Layout, Subset과 Link Type 편집 상태를 유지하며, 현재 configuration과 validation
+상태를 status bar에 표시합니다.
+
+![DUI-01 Administration database design shell](../15-demo/images/ux-redesign-v2/dui-01-administration-1440x900.png)
 
 ## Desktop viewport evidence
 

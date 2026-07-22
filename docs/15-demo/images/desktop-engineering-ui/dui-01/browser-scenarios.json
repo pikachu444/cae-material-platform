@@ -1,0 +1,57 @@
+{
+  "viewport": "1440x900",
+  "checks": {
+    "initialUrl": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "shellHeights": {
+      "app": 46,
+      "command": 38,
+      "status": 24
+    },
+    "ctrlK": {
+      "label": "Search materials",
+      "placeholder": "Search material name, grade, code, or family",
+      "tag": "INPUT"
+    },
+    "f6": [
+      { "label": null, "region": "status", "tag": "FOOTER" },
+      { "label": null, "region": "application", "tag": "HEADER" },
+      { "label": "Materials commands", "region": "commands", "tag": "SECTION" },
+      { "label": "Material filters", "region": "workspace", "tag": "ASIDE" }
+    ],
+    "compareDisabled": true,
+    "compareAriaDisabled": "true",
+    "compareReason": "Select at least two material rows to compare.",
+    "browse": {
+      "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+      "treeSearch": 1,
+      "paneText": "Browse\n1 tables\nDatabase\nMaterials Database\nProfile\nEngineering Materials\nTable\nDemo Material Records\nFind\nExpand a Table or Folder to load its children."
+    },
+    "materialStatus": "DP780 synthetic demo steel · CMP-DEMO-DP780\nr1 · draft\nNo active job\n0 warnings\nOnline",
+    "materialPrimaryActions": {
+      "preview": 2,
+      "download": 1
+    },
+    "materialOverflow": 0,
+    "modelingData": {
+      "heading": "Test data and channel mapping"
+    },
+    "modelingFit": {
+      "activeClass": "workspace-command active",
+      "graphCount": 1,
+      "status": "DP780 synthetic demo steel\nTest Data r1 · fit\nLast operation completed\n0 warnings\nOnline"
+    },
+    "modelingOverflow": 0,
+    "/activity": {
+      "app": 1,
+      "command": 1,
+      "status": 1,
+      "overflow": 0
+    },
+    "/administration/database": {
+      "app": 1,
+      "command": 1,
+      "status": 1,
+      "overflow": 0
+    }
+  }
+}

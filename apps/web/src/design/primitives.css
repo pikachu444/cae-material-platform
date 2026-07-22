@@ -81,8 +81,11 @@
 .ux-select:focus-visible,
 .ux-result-row:focus-visible,
 .ux-disclosure summary:focus-visible,
-.app-header button:focus-visible,
-.app-header summary:focus-visible {
+.application-menu-bar button:focus-visible,
+.application-menu-bar summary:focus-visible,
+.workspace-command-bar:focus-visible,
+.application-workspace:focus-visible,
+.application-status-bar:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--ux-focus) 35%, transparent);
   outline-offset: 2px;
 }
@@ -159,8 +162,18 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ux-page *,
-  .app-header * {
+  .application-shell * {
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
   }
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

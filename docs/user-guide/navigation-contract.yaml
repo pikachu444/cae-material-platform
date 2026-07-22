@@ -1,4 +1,11 @@
-version: 7
+version: 8
+shell:
+  application_bar_px: 46
+  command_bar_px: 38
+  status_bar_px: 24
+  keyboard:
+    command_search: Ctrl+K
+    cycle_regions: F6
 items:
   - label: Materials
     route: /materials

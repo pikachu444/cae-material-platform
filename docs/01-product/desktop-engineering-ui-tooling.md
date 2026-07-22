@@ -6,6 +6,19 @@ Status: authoritative product-design tooling decision
 
 The frontend must be designed and reviewed as a desktop engineering application, not as a marketing site or generic SaaS dashboard. No single design plugin is authoritative. The workflow uses four coordinated layers.
 
+## Required reference inputs
+
+Every visual task must use both repository reference layers:
+
+- `docs/00-research/ux-reference-gallery/README.md` for the curated cross-product principles;
+- `docs/00-research/images/gui-reference/README.md` and the local images it inventories for
+  screen-level Granta MI and Material Modeler comparison.
+
+The relevant implementation interpretation in `docs/01-product/gui-functional-parity-plan.md` must
+also be checked. A filename or README-only review does not satisfy this requirement. Evidence must
+name the images opened and distinguish what the current DUI task changes from what a later backlog
+task owns.
+
 ## 1. Figma MCP — editable design canvas
 
 Use Figma MCP when a connected Figma workspace is available.

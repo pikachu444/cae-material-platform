@@ -12,6 +12,11 @@ The program is complete only when the actual task flows work in the new workspac
 
 ## DUI-01 — Application shell, command bar and status bar — P0
 
+Implementation status: implemented in Draft PR #112 and under formal official-GUI-reference review
+as of 2026-07-22. Browser verification is recorded in
+`docs/15-demo/evidence/dui-01-application-shell.md`; product-owner acceptance is still pending, so
+DUI-01 is not complete and DUI-02 must not begin.
+
 ### User outcome
 
 The user enters a compact engineering application rather than a branded web landing page.

@@ -187,14 +187,14 @@ export function ProductAccessCenter({
 
   return (
     <div className="page-stack">
-      <section className="page-heading">
+      <section className={productMode ? "workspace-section-heading" : "page-heading"}>
         <div>
-          <p className="eyebrow">Users &amp; access</p>
-          <h1>{productMode ? "Choose what each team can do" : "Product roles & feature grants"}</h1>
-          <p>
+          {!productMode ? <p className="eyebrow">Users &amp; access</p> : null}
+          <h2>{productMode ? "Choose what each team can do" : "Product roles & feature grants"}</h2>
+          {!productMode ? <p>
             Assign Administrator or User and enable the product capabilities they need. Detailed
             enforcement stays behind this simple workspace setting.
-          </p>
+          </p> : null}
         </div>
         {summary ? <span className="reference-chip">{summary.product_role}</span> : null}
       </section>
