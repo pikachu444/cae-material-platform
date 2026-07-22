@@ -126,6 +126,9 @@ const MaterialSearchPage = lazy(() =>
 const SearchFirstMaterialDetailPage = lazy(() =>
   import("./material-library").then((module) => ({ default: module.MaterialDetailPage })),
 );
+const ExactRecordDatasheetPage = lazy(() =>
+  import("./material-library").then((module) => ({ default: module.ExactRecordDatasheetPage })),
+);
 const SolverCardPreviewPage = lazy(() =>
   import("./material-library").then((module) => ({ default: module.SolverCardPreviewPage })),
 );
@@ -154,20 +157,21 @@ const materialClasses: MaterialClass[] = [
 ];
 
 function useLocationPath(): [string, Navigate] {
-  const [path, setPath] = useState(() => window.location.pathname || "/");
+  const currentLocation = () => `${window.location.pathname || "/"}${window.location.search}`;
+  const [path, setPath] = useState(currentLocation);
 
   useEffect(() => {
-    const onPopState = () => setPath(window.location.pathname || "/");
+    const onPopState = () => setPath(currentLocation());
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   const navigate: Navigate = (nextPath) => {
-    if (nextPath === window.location.pathname) {
+    if (nextPath === currentLocation()) {
       return;
     }
     window.history.pushState({}, "", nextPath);
-    setPath(window.location.pathname || "/");
+    setPath(currentLocation());
     if (!window.navigator.userAgent.includes("jsdom") && typeof window.scrollTo === "function") {
       window.scrollTo({ top: 0, left: 0 });
     }
@@ -531,7 +535,8 @@ function MaterialCreatePage({
 
 
 export function App() {
-  const [path, navigate] = useLocationPath();
+  const [location, navigate] = useLocationPath();
+  const path = location.split("?")[0] || "/";
   const [config, setConfig] = useState<ApiConfig>(defaultApiConfig);
   const [sessionStatus, setSessionStatus] = useState<"loading" | "ready" | "signed_out">("loading");
   const [sessionAttempt, setSessionAttempt] = useState(0);
@@ -579,6 +584,10 @@ export function App() {
     const match = path.match(/^\/materials\/([^/]+)(?:\/(overview|properties|curves|cards|evidence))?$/);
     return match ? { materialId: match[1], tab: (match[2] ?? "overview") as MaterialTab } : null;
   }, [path]);
+  const exactMaterialRecordRoute = useMemo(() => {
+    const match = path.match(/^\/materials\/records\/([^/]+)\/revisions\/([^/]+)$/);
+    return match ? { recordId: match[1], revisionId: match[2] } : null;
+  }, [path]);
   const solverCardRoute = useMemo(() => {
     const match = path.match(/^\/materials\/([^/]+)\/cards\/([^/]+)$/);
     return match ? { materialId: match[1], cardId: match[2] } : null;
@@ -607,6 +616,8 @@ export function App() {
   let page: React.ReactNode;
   if (solverCardRoute) {
     page = <SolverCardPreviewPage config={config} materialId={solverCardRoute.materialId} cardId={solverCardRoute.cardId} onNavigate={navigate} />;
+  } else if (exactMaterialRecordRoute) {
+    page = <ExactRecordDatasheetPage config={config} recordId={exactMaterialRecordRoute.recordId} revisionId={exactMaterialRecordRoute.revisionId} onNavigate={navigate} />;
   } else if (materialDatabaseRoute) {
     page = (
       <MaterialDatabaseExplorer
@@ -640,7 +651,7 @@ export function App() {
     };
     page = <SearchFirstMaterialDetailPage config={config} materialId={legacyMaterialRoute.materialId} activeTab={legacyTab[legacyMaterialRoute.area]} onNavigate={navigate} />;
   } else if (path === "/materials") {
-    page = <MaterialSearchPage config={config} onNavigate={navigate} />;
+    page = <MaterialSearchPage config={config} onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/catalog/schema") {
     page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="database" />;
   } else if (path === "/catalog/records") {
@@ -690,7 +701,7 @@ export function App() {
   } else if (path === "/administration") {
     page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="overview" />;
   } else {
-    page = <MaterialSearchPage config={config} onNavigate={navigate} />;
+    page = <MaterialSearchPage config={config} onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   }
 
   return (

@@ -33,8 +33,8 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 
 - Do not begin with a generic visual cleanup, a CSS-only pass or a disconnected mockup.
 - `AGENTS.md` requires product-owner approval before production React/CSS changes. Treat Draft PR
-  #112 as unaccepted until the approval is recorded. If absent, stop and report the gate; do not
-  merge #112 or begin DUI-02.
+  #112 as unaccepted until the approval is recorded. PR #112 was approved and merged on 2026-07-22;
+  DUI-02 therefore passed this gate. If a later slice lacks its required approval, stop and report it.
 - After that acceptance, implement the delivery backlog in order. One pull request owns one bounded
   DUI slice.
 - Preserve database, revision/provenance, unit and solver-mapping contracts. Move the facade, not

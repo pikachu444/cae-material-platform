@@ -156,7 +156,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
     setLoadingKey("roots");
     void listCatalogExplorerTables(config).then(async (result) => {
       if (!active) return;
-      const items = result.data.items;
+      const items = Array.isArray(result.data.items) ? result.data.items : [];
       setTables(items);
       const firstTableId = items[0]?.table_id ?? "";
       setSelectedTableId((current) => current || firstTableId);
@@ -168,7 +168,7 @@ export function MaterialsBrowseTree({ config, subsetMode = false, requestedRecor
         ]);
         if (!active) return;
         setChildren((current) => ({ ...current, [branchKey(firstTableId, null)]: childResult.data }));
-        setSubsets(subsetResult.data.items);
+        setSubsets(Array.isArray(subsetResult.data.items) ? subsetResult.data.items : []);
       }
       setError(null);
     }).catch((cause: unknown) => {

@@ -1,4 +1,4 @@
-version: 8
+version: 9
 shell:
   application_bar_px: 46
   command_bar_px: 38
@@ -16,3 +16,21 @@ items:
   - label: Activity
     route: /activity
     guide: 18-search-first-materials.md
+materials_workspace:
+  task: DUI-02
+  routes:
+    results: /materials
+    material_datasheet: /materials/:materialId/:tab?
+    exact_record_revision: /materials/records/:recordId/revisions/:revisionId
+  panes:
+    compact_1366: { navigator_px: 244, context: collapsed, main_min_px: 720 }
+    standard_1440: { navigator_px: 248, context_px: 280, main_min_px: 720 }
+    wide_1920: { navigator_px: 280, context_px: 300, main_min_px: 720 }
+    navigator_range_px: [240, 320]
+    context_range_px: [280, 420]
+    persistence: viewport-class-local-storage
+  interaction:
+    select: single-click
+    open: [Enter, double-click]
+    exact_revision_fallback: forbidden
+    back_restores: [query, filters, sort, navigator_mode, selection, pane_layout]

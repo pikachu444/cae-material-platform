@@ -14,8 +14,10 @@
 
 1. `/materials`에서 이름, grade, code 또는 family를 검색합니다.
 2. family, source, normalized property 범위, solver availability 또는 release 상태를 좁힙니다.
-3. 결과 행을 선택해 핵심 물성과 사용 가능한 solver card를 확인합니다.
-4. Material을 열어 `Overview | Properties | Curves | CAE Cards | Evidence`를 검토합니다.
+3. 결과 행을 한 번 선택해 오른쪽 Context의 핵심 물성과 solver card를 확인합니다. 행에서
+   `Enter`를 누르거나 두 번 클릭하면 엽니다.
+4. Material은 같은 작업영역의 중앙 datasheet에 열립니다. 왼쪽 Navigator는 유지되며
+   `Overview | Properties | Curves | CAE Cards | Evidence`를 검토할 수 있습니다.
 5. Material Detail의 `Preview OpenRadioss`로 native ASCII를 확인한 뒤 `Download .rad`를 누릅니다.
    Preview가 필요 없다면 같은 compact record strip에서 바로 다운로드할 수 있습니다.
 
@@ -38,10 +40,15 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Profile과 검색 동작을 다시 찾을
 수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
 
+Navigator와 Context의 divider는 포인터 또는 키보드 방향키로 조절합니다. 1366 px에서는 Context를
+기본으로 접고, 1440/1920 px에서는 각각 280/300 px로 엽니다. Navigator는 240–320 px, Context는
+280–420 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에 저장됩니다. 세
+pane은 서로 독립적으로 스크롤합니다.
+
 검색어, family/source/solver/status/수치 범위, 정렬, Browse/Subsets mode와 선택 Material은
-`/materials` URL에 저장됩니다. Material Detail command bar의 `Back to results`를 누르면 같은 검색 조건과 선택으로
-돌아옵니다. Browse에서 선택한 exact Record는 현재 browser session에만 보존되며 돌아올 때 실제
-Table과 Folder ancestor를 다시 조회해 펼칩니다.
+`/materials` URL에 저장됩니다. Material Detail command bar, 왼쪽 `← Results`, 브라우저 뒤로 가기는
+같은 검색 조건과 선택으로 돌아옵니다. Browse에서 선택한 exact Record는 현재 browser session에만
+보존되며 돌아올 때 실제 Table과 Folder ancestor를 다시 조회해 펼칩니다.
 
 ### Layout, Related와 Evidence 확인
 
@@ -49,6 +56,9 @@ Table과 Folder ancestor를 다시 조회해 펼칩니다.
   탭에 투영합니다.
 - `Evidence`의 Related Records는 Link Type의 forward/reverse label을 사용하고, Workflow는
   Material에서 native solver card까지의 Record 순서를 표시합니다.
+- Related Record를 선택하면 `/materials/records/:recordId/revisions/:revisionId`의 정확 리비전을
+  중앙 datasheet에 엽니다. 이 화면은 요청한 리비전이 없을 때 head로 대체하지 않고 오류와 Retry를
+  표시하며, 원본 값/단위와 정규화 값/단위·quantity semantics를 함께 보여 줍니다.
 - 추가 Layout은 `Additional Layout datasheets and typed values`에서 선택합니다.
 - full revision ID, aggregate ID, content hash, classification과 change reason은
   `Technical revision and provenance identifiers`를 펼쳐 확인합니다.
@@ -100,6 +110,8 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 ![DUI-01 Browse Tree in the same compact shell](../15-demo/images/ux-redesign-v2/dui-01-browse-tree-1440x900.png)
 
 ![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
+
+![Exact related Record revision in the Materials workspace](../15-demo/images/ux-redesign-v2/materials-exact-record-1440x900.png)
 
 ![DUI-01 Material Detail command and status context](../15-demo/images/ux-redesign-v2/dui-01-material-detail-1440x900.png)
 

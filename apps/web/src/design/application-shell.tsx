@@ -170,9 +170,9 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
       if (event.key !== "F6") return;
       event.preventDefault();
       const workspaceRegions = [
-        document.querySelector<HTMLElement>(".materials-left-pane, .modeling-workspace-rail, .administration-navigation"),
-        document.querySelector<HTMLElement>(".materials-results, .material-tab-panel, .persistent-modeling-plot, .activity-content, .administration-content"),
-        document.querySelector<HTMLElement>(".materials-selection, .step-option-panel"),
+        document.querySelector<HTMLElement>(".navigator-panel, .materials-left-pane, .modeling-workspace-rail, .administration-navigation"),
+        document.querySelector<HTMLElement>(".main-panel, .materials-results, .material-tab-panel, .persistent-modeling-plot, .activity-content, .administration-content"),
+        document.querySelector<HTMLElement>(".context-panel, .materials-selection, .step-option-panel"),
       ];
       const regions = [menuRef.current, commandRef.current, ...workspaceRegions, mainRef.current, statusRef.current]
         .filter((item, index, items): item is HTMLElement => Boolean(item) && items.indexOf(item) === index);

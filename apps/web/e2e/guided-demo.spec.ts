@@ -21,7 +21,7 @@ test("clean demo exposes Search-first material-family journeys and progressive b
 
   await page.goto("/");
   await expect(page).toHaveURL(/\/materials$/);
-  await expect(page.getByRole("heading", { name: "Find material data ready for CAE" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Materials", level: 1 })).toBeVisible();
 
   for (const materialCode of [
     "CMP-DEMO-DP780",
@@ -35,12 +35,30 @@ test("clean demo exposes Search-first material-family journeys and progressive b
     await resultRow.getByRole("button").click();
     await page.getByRole("button", { name: "Open material" }).click();
     await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+$/);
+    await expect(page.getByRole("complementary", { name: "Materials Browse Tree" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "CAE Cards" })).toBeVisible();
     await page.goto("/materials");
   }
 
+  await page.getByRole("textbox", { name: "Search materials" }).fill("CMP-DEMO-DP780");
+  await page.getByRole("search").getByRole("button", { name: "Search", exact: true }).click();
+  const dp780Row = page.getByRole("row").filter({ hasText: "CMP-DEMO-DP780" });
+  await expect(dp780Row).toHaveCount(1);
+  await dp780Row.press("Enter");
+  await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+$/);
+  const relatedRecord = page.locator(".material-related-context .related-record-list button").filter({ hasText: "DP780 reference Material State" });
+  await expect(relatedRecord).toHaveCount(1);
+  await relatedRecord.click();
+  await expect(page).toHaveURL(/\/materials\/records\/[0-9a-f-]+\/revisions\/[0-9a-f-]+$/);
+  await expect(page.getByRole("heading", { name: "DP780 reference Material State", level: 1 })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/materials\/[0-9a-f-]+$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/materials\?q=CMP-DEMO-DP780/);
+  await expect(page.getByRole("textbox", { name: "Search materials" })).toHaveValue("CMP-DEMO-DP780");
+
   await page.goto("/activity");
-  await expect(page.getByRole("heading", { name: "Jobs, reviews, and recent work" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Current workspace activity" })).toBeVisible();
   await page.getByText("Advanced jobs and export packages", { exact: true }).click();
   await page.getByRole("button", { name: "Open export packages" }).click();
   await expect(page).toHaveURL(/\/exports$/);

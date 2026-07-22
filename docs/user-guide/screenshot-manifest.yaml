@@ -1,4 +1,4 @@
-version: 37
+version: 38
 verified_at: 2026-07-22
 scope: current-product-baseline
 notes:
@@ -8,6 +8,8 @@ notes:
   - "All fixtures are synthetic, non-production reference data."
   - "DUI-01 captures were refreshed after direct comparison with all Granta MI and Material Modeler images in docs/00-research/images/gui-reference."
   - "DUI-01 uses a 46 px left-aligned application bar, 38 px workspace command bar, and 24 px semantic status bar."
+  - "DUI-02 keeps Search, Browse Tree, results, material datasheet, and exact related Record revisions in one resizable workspace."
+  - "DUI-02 measured pane defaults are 244/main/context-collapsed at 1366, 248/884/280 at 1440, and 280/1312/300 at 1920; screenshots are exact requested viewport sizes."
 captures:
   - id: dui-01-materials-search-1440
     route: /materials
@@ -56,22 +58,22 @@ captures:
     workflow: dp780-search-result-selection-and-solver-availability
     fixture: synthetic DP780 Material library
     image: ../15-demo/images/ux-redesign-v2/final-materials-1366x768.png
-    width: 1351
-    height: 760
+    width: 1366
+    height: 768
   - id: materials-search-1440
     route: /materials
     workflow: full-width-filter-result-and-selected-material-context
     fixture: synthetic DP780 Material library
     image: ../15-demo/images/ux-redesign-v2/final-materials-1440x900.png
-    width: 1425
-    height: 891
+    width: 1440
+    height: 900
   - id: materials-search-1920
     route: /materials
     workflow: wide-workspace-filter-result-and-optional-context
     fixture: synthetic DP780 Material library
     image: ../15-demo/images/ux-redesign-v2/final-materials-1920x1080.png
-    width: 1715
-    height: 1072
+    width: 1920
+    height: 1080
   - id: materials-browse-tree-1366
     route: /materials
     workflow: searchable-database-profile-table-folder-record-tree
@@ -81,11 +83,18 @@ captures:
     height: 760
   - id: material-detail-overview-1440
     route: /materials/:materialId
-    workflow: properties-curve-conditions-and-direct-card-action
+    workflow: persistent-navigator-centered-datasheet-related-context-and-direct-card-action
     fixture: DP780 with Abaqus and OpenRadioss native cards
     image: ../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png
-    width: 1425
-    height: 891
+    width: 1440
+    height: 900
+  - id: materials-exact-record-1440
+    route: /materials/records/:recordId/revisions/:revisionId
+    workflow: exact-immutable-record-values-revisions-and-related-record-navigation
+    fixture: DP780 reference Material State exact revision
+    image: ../15-demo/images/ux-redesign-v2/materials-exact-record-1440x900.png
+    width: 1440
+    height: 900
   - id: material-detail-evidence-1440
     route: /materials/:materialId/evidence
     workflow: exact-related-records-workflow-layout-and-provenance-disclosure
