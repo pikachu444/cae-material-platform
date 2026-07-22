@@ -18,13 +18,22 @@ processing, immutable revision, Material Model IR and solver-card API contracts 
   confirmation.
 - Stage and family are shareable URL query state. Existing deep links and all existing processing,
   fitting and export calls remain in place.
+- Data exposes only exact Test Data, Mapping Profile, channel summary and import commands. Process
+  owns curve preparation and the necking boundary; Fit alone owns candidate equations, residuals and
+  extrapolation comparison. Export keeps the selected fit, observed range and graph visible while a
+  flat bottom delivery dock exposes Neutral IR and solver-card work.
+- Activity names the exact material/session context, stage, Test Data revision and selected-curve
+  count. `Resume Fit` was exercised in the live browser and restored the same session string, exact
+  document and both selected curve identities.
 
 ## Live flow and measurements
 
 `scripts/capture_dui04_modeling.mjs` obtains the local demo identity, opens an exact DP780 Test Data
 revision, waits for the server preview, switches Data → Process → Fit → Export → Fit through the
-real command bar, and asserts that the before/after graph nodes are identical. Export capture also
-waits for both the lazy family engine and exact source revisions; no loading placeholder is accepted.
+real command bar, and asserts that the before/after graph nodes are identical. It rejects Data if a
+Fit-only candidate control is present, rejects Process if Fit evidence is present, and rejects any
+capture containing `Checking…`, `Loading…` or `Calculating…`. After the captures it opens Activity,
+resumes Fit, and compares the session, exact Test Data and checked curve identities.
 
 | Viewport | Navigator | Main/plot region | Main share of split workspace | Overflow | Graph preserved |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -32,9 +41,11 @@ waits for both the lazy family engine and exact source revisions; no loading pla
 | 1440×900 | 192 px | 1227 px | 86.2% | 0 px | yes |
 | 1920×1080 | 208 px | 1691 px | 88.8% | 0 px | yes |
 
-At 1366 the settings ribbon defaults closed. At 1440 and 1920 it opens above the graph and does not
-reduce graph width. Divider buttons have explicit accessible names and expanded state. The existing
-F6 region cycle continues to cover application, commands, main workspace and status.
+The shallow settings ribbon is open at all three target viewports so each stage purpose is visible.
+The Export overlay dock occupies 40% of the main surface at most (208/261/333 px at the three target
+viewports) and leaves the mounted graph above it. Divider buttons have explicit accessible names and
+expanded state. The existing F6 region cycle continues to cover application, commands, main
+workspace and status.
 
 ## Material Modeler reference comparison
 
@@ -47,25 +58,27 @@ provenance and non-production plugin language instead of copying proprietary dec
 
 | Screen | Structure /20 | Density /20 | Data dominance /20 | Command grammar /20 | Disclosure /20 | Result |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Data | 18 | 18 | 18 | 19 | 18 | 91 |
-| Process | 19 | 19 | 19 | 19 | 18 | 94 |
-| Fit | 19 | 19 | 20 | 19 | 18 | 95 |
-| Export | 18 | 18 | 18 | 19 | 18 | 91 |
+| Data | 18 | 17 | 18 | 18 | 17 | 88 |
+| Process | 18 | 18 | 19 | 18 | 17 | 90 |
+| Fit | 19 | 18 | 20 | 18 | 17 | 92 |
+| Export | 18 | 16 | 17 | 18 | 17 | 86 |
 
 All screens exceed 85/100. Topology, dominant-area, nested-card, graph-width and horizontal-overflow
-hard gates pass. Export retains the established family delivery internals, so its lower data-dominance
-score is a bounded DUI-04 limitation rather than a hidden claim that DUI-06 is complete.
+hard gates pass. Export is deliberately scored lowest: its dock must scroll at 1366 and the fixed
+engineering plot leaves more lateral breathing room at 1920 than the reference. Those are visible,
+bounded limitations rather than a claim of pixel parity or completion of a later delivery task.
 
 ## Captures
 
 The screenshot manifest registers Data, Process, Fit and Export at 1366×768, 1440×900 and
 1920×1080 under `docs/15-demo/images/ux-redesign-v2/dui-04-modeling-*.png`. Every PNG has the exact
-requested viewport dimensions and was captured after asynchronous data completed.
+requested viewport dimensions and was captured after asynchronous data completed. The images show
+four distinct tasks rather than four copies of the same Fit configuration.
 
 ## Regression
 
 - Web production build and bundle budgets: passed.
-- Web unit/integration: 41 files, 102 tests passed.
+- Web unit/integration: 42 files, 103 tests passed.
 - Modeling session v2 migration, navigator/ribbon accessibility and persistent stage plot tests: passed.
 - Live Data → Process → Fit → Export → Fit state continuity and 12 captures: passed.
 - Guided Playwright clean-demo regression: 3 scenarios passed, including exact native-card hashes,

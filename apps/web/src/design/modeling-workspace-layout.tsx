@@ -7,6 +7,7 @@ interface ModelingWorkspaceLayoutProps {
   navigator: ReactNode;
   ribbon: ReactNode;
   plot: ReactNode;
+  dock?: ReactNode;
   ribbonOpen: boolean;
   onRibbonOpenChange: (open: boolean) => void;
 }
@@ -21,6 +22,7 @@ export function ModelingWorkspaceLayout({
   navigator,
   ribbon,
   plot,
+  dock,
   ribbonOpen,
   onRibbonOpenChange,
 }: ModelingWorkspaceLayoutProps) {
@@ -49,11 +51,12 @@ export function ModelingWorkspaceLayout({
   }
 
   const main = (
-    <section className="modeling-main-surface" aria-label="Persistent Modeling graph and task controls">
+    <section className={`modeling-main-surface${dock ? " has-dock" : ""}`} aria-label="Persistent Modeling graph and task controls">
       <section className="modeling-task-ribbon" hidden={!ribbonOpen} aria-label="Current-stage settings">
         {ribbon}
       </section>
       {plot}
+      {dock ? <section className="modeling-workspace-dock" aria-label="Delivery">{dock}</section> : null}
       <button
         className="modeling-ribbon-control"
         type="button"

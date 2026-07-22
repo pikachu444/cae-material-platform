@@ -385,6 +385,8 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("button", { name: "Canonical JSON" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "CSV" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "XLSX" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Verify source & channel mapping" })).toBeTruthy();
+    expect(screen.queryByText("Metal hardening candidates")).toBeNull();
     fireEvent.click(screen.getByRole("tab", { name: /Polymer/ }));
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
       '"profile_key": "polymer-shear-relaxation"',
@@ -412,15 +414,17 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: /Batch/ }));
     expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(2);
-    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update candidates" }));
     expect(await screen.findByText("Preview only · not committed")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByText("Selected blend · fitted domain")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
+    expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
+    expect(screen.queryByText("Fit evidence")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /1rows\.sort_unique/ }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
-    expect(screen.getByText("210.000 GPa")).toBeTruthy();
 
     fireEvent.click(screen.getAllByRole("button", { name: /metal\.elastic_modulus/ })[0]);
     expect(screen.getByRole("button", { name: "Auto robust" }).className).toContain("active");
@@ -429,7 +433,7 @@ describe("Common Processing Workbench", () => {
     const guidedSteps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
     expect(guidedSteps[1].options.method).toBe("manual");
     expect(guidedSteps[1].options.manual_modulus_pa).toBe(205_000_000_000);
-    await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" });
+    await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     fireEvent.click(screen.getAllByRole("button", { name: /metal\.elastic_modulus/ })[0]);
     const elasticPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     Object.defineProperty(elasticPlot, "getBoundingClientRect", {
@@ -445,7 +449,8 @@ describe("Common Processing Workbench", () => {
     expect(appliedSteps[1].options.minimum_strain).not.toBe(0.0002);
     expect(screen.getByText(/Applied the graph range to metal.elastic_modulus/)).toBeTruthy();
 
-    await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" });
+    fireEvent.click(screen.getByRole("button", { name: "Preview processing" }));
+    await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     fireEvent.click(screen.getAllByRole("button", { name: /metal\.necking_candidate/ })[0]);
     const neckingPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     Object.defineProperty(neckingPlot, "getBoundingClientRect", {
@@ -469,9 +474,10 @@ describe("Common Processing Workbench", () => {
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
-    expect(screen.getByRole("heading", { name: "Neutral model to solver-native material card" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Review selected model & deliver solver card" })).toBeTruthy();
     expect(screen.getByText("Exact Neutral and solver delivery fixture")).toBeTruthy();
-    expect(document.querySelector("#modeling-process[hidden] .persistent-modeling-plot")).toBeTruthy();
+    expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
+    expect(screen.getByText("Visible in graph · unobserved")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
   }, 20_000);

@@ -46,7 +46,7 @@ modeling_workspace:
   commands: [new-session, save-draft, undo, redo, data, process, fit, export]
   panes:
     navigator_range_px: [180, 240]
-    compact_1366: { navigator_px: 184, main_px: 1161, settings: collapsed }
+    compact_1366: { navigator_px: 184, main_px: 1161, settings: open }
     standard_1440: { navigator_px: 192, main_px: 1227, settings: open }
     wide_1920: { navigator_px: 208, main_px: 1691, settings: open }
     settings_placement: graph-adjacent-ribbon
@@ -57,4 +57,10 @@ modeling_workspace:
     autosaved_ui: [active-stage, selected-curves, selected-step, selected-preview-stage, plot-view, settings-open]
     numerical_autocommit: forbidden
     preview_label: Preview only · not committed
-  capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, no-horizontal-overflow]
+    activity_resume: [material-session, active-stage, exact-test-data-revision, selected-curve-identities]
+  stage_ownership:
+    data: [exact-test-data, mapping-profile, channel-summary, import]
+    process: [processing-operations, necking-boundary, processed-preview]
+    fit: [candidate-equations, residual, extrapolation]
+    export: [selected-model, observed-fit-range, persistent-graph, bottom-delivery-dock]
+  capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, no-checking-or-loading-state, no-horizontal-overflow]

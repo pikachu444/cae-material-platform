@@ -151,6 +151,9 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 
 `Activity`는 최근 Modeling session과 review를 먼저 보여 줍니다. Recipe lifecycle, Batch preflight,
 mapping report와 장시간 실행의 상세 진단은 같은 화면의 Advanced jobs에서 필요할 때만 펼칩니다.
+최근 Modeling 항목에는 material/session context, 현재 Data·Process·Fit·Export 단계, exact Test Data
+revision과 선택 곡선 수가 함께 표시됩니다. `Resume <stage>`를 누르면 URL 단계와 material family뿐
+아니라 같은 exact revision 및 curve check 상태까지 브라우저 session v2에서 복원합니다.
 
 ![Recent modeling and review activity](../15-demo/images/ux-redesign-v2/activity-1440x900.png)
 
@@ -178,7 +181,10 @@ Table, Attribute, Layout, Subset과 Link Type 편집 상태를 유지하며, 현
 ### DUI-04 단계·해상도 검수 화면
 
 아래 화면은 같은 exact DP780 session에서 Data → Process → Fit → Export를 전환해 각 단계의
-비동기 데이터가 완료된 뒤 캡처했습니다.
+비동기 데이터가 완료된 뒤 캡처했습니다. Data는 source/mapping만, Process는 engineering-to-true
+변환과 necking 경계만, Fit은 candidate/residual/extrapolation만 표시합니다. Export는 선택 모델,
+관측 범위와 외삽 그래프를 유지한 채 같은 작업면의 하단 delivery dock에서 Neutral IR → native
+card 흐름을 이어갑니다.
 
 | 단계 | 1366×768 | 1440×900 | 1920×1080 |
 | --- | --- | --- | --- |

@@ -11,6 +11,7 @@ describe("ModelingWorkspaceLayout", () => {
         navigator={<span>Curve navigator</span>}
         ribbon={<span>Fit settings</span>}
         plot={<span>Persistent plot</span>}
+        dock={<span>Export delivery</span>}
         ribbonOpen
         onRibbonOpenChange={onRibbonOpenChange}
       />,
@@ -21,5 +22,6 @@ describe("ModelingWorkspaceLayout", () => {
     fireEvent.click(screen.getByRole("button", { name: "Hide current-stage settings" }));
     expect(onRibbonOpenChange).toHaveBeenCalledWith(false);
     expect(screen.getByText("Persistent plot")).toBeTruthy();
+    expect(screen.getByText("Export delivery")).toBeTruthy();
   });
 });
