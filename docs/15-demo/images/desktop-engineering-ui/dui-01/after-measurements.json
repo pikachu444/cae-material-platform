@@ -1,0 +1,1508 @@
+[
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 2,
+      "largeButtons": 11,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 45,
+      "selector": ".ux-tabs",
+      "width": 1304.5,
+      "x": 23.2,
+      "y": 136.4
+    },
+    "label": "material-detail",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 1,
+    "regions": {
+      ".material-detail-header": {
+        "height": 52.4,
+        "selector": ".material-detail-header",
+        "width": 1304.5,
+        "x": 23.2,
+        "y": 84
+      },
+      ".material-tab-panel": {
+        "height": 547.5,
+        "selector": ".material-tab-panel",
+        "width": 1304.5,
+        "x": 23.2,
+        "y": 181.4
+      },
+      ".ux-tabs": {
+        "height": 45,
+        "selector": ".ux-tabs",
+        "width": 1304.5,
+        "x": 23.2,
+        "y": 136.4
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/material-detail-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 2,
+      "largeButtons": 11,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 45,
+      "selector": ".ux-tabs",
+      "width": 1377,
+      "x": 24,
+      "y": 136.4
+    },
+    "label": "material-detail",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 1,
+    "regions": {
+      ".material-detail-header": {
+        "height": 52.4,
+        "selector": ".material-detail-header",
+        "width": 1377,
+        "x": 24,
+        "y": 84
+      },
+      ".material-tab-panel": {
+        "height": 559,
+        "selector": ".material-tab-panel",
+        "width": 1377,
+        "x": 24,
+        "y": 181.4
+      },
+      ".ux-tabs": {
+        "height": 45,
+        "selector": ".ux-tabs",
+        "width": 1377,
+        "x": 24,
+        "y": 136.4
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/material-detail-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 2,
+      "largeButtons": 11,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 45,
+      "selector": ".ux-tabs",
+      "width": 1857,
+      "x": 24,
+      "y": 136.4
+    },
+    "label": "material-detail",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 1,
+    "regions": {
+      ".material-detail-header": {
+        "height": 52.4,
+        "selector": ".material-detail-header",
+        "width": 1857,
+        "x": 24,
+        "y": 84
+      },
+      ".material-tab-panel": {
+        "height": 627.2,
+        "selector": ".material-tab-panel",
+        "width": 1857,
+        "x": 24,
+        "y": 181.4
+      },
+      ".ux-tabs": {
+        "height": 45,
+        "selector": ".ux-tabs",
+        "width": 1857,
+        "x": 24,
+        "y": 136.4
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "url": "http://127.0.0.1:5173/materials/0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/material-detail-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 4,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 294.5,
+      "selector": ".activity-content",
+      "width": 1304.5,
+      "x": 23.2,
+      "y": 84
+    },
+    "label": "activity",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 0,
+    "regions": {
+      ".activity-content": {
+        "height": 294.5,
+        "selector": ".activity-content",
+        "width": 1304.5,
+        "x": 23.2,
+        "y": 84
+      },
+      ".activity-list": {
+        "height": 139,
+        "selector": ".activity-list",
+        "width": 1240.5,
+        "x": 55.2,
+        "y": 152
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "url": "http://127.0.0.1:5173/activity",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/activity-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 4,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 294.5,
+      "selector": ".activity-content",
+      "width": 1377,
+      "x": 24,
+      "y": 84
+    },
+    "label": "activity",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 0,
+    "regions": {
+      ".activity-content": {
+        "height": 294.5,
+        "selector": ".activity-content",
+        "width": 1377,
+        "x": 24,
+        "y": 84
+      },
+      ".activity-list": {
+        "height": 139,
+        "selector": ".activity-list",
+        "width": 1313,
+        "x": 56,
+        "y": 152
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "url": "http://127.0.0.1:5173/activity",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/activity-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 4,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 294.5,
+      "selector": ".activity-content",
+      "width": 1857,
+      "x": 24,
+      "y": 84
+    },
+    "label": "activity",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 0,
+    "regions": {
+      ".activity-content": {
+        "height": 294.5,
+        "selector": ".activity-content",
+        "width": 1857,
+        "x": 24,
+        "y": 84
+      },
+      ".activity-list": {
+        "height": 139,
+        "selector": ".activity-list",
+        "width": 1793,
+        "x": 56,
+        "y": 152
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "url": "http://127.0.0.1:5173/activity",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/activity-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 4,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 1456.2,
+      "selector": ".administration-content",
+      "width": 1131,
+      "x": 220,
+      "y": 84
+    },
+    "label": "administration",
+    "legacy": {
+      "content-card": 3,
+      "count-chip": 0,
+      "eyebrow": 4,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 9
+    },
+    "overflowX": 0,
+    "primaryCommands": 3,
+    "regions": {
+      ".administration-content": {
+        "height": 1456.2,
+        "selector": ".administration-content",
+        "width": 1131,
+        "x": 220,
+        "y": 84
+      },
+      ".administration-navigation": {
+        "height": 1456.2,
+        "selector": ".administration-navigation",
+        "width": 220,
+        "x": 0,
+        "y": 84
+      },
+      ".detail-grid": {
+        "height": 868.8,
+        "selector": ".detail-grid",
+        "width": 1084.6,
+        "x": 243.2,
+        "y": 179
+      },
+      ".product-admin-embedded": {
+        "height": 1408.2,
+        "selector": ".product-admin-embedded",
+        "width": 1084.6,
+        "x": 243.2,
+        "y": 108
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "url": "http://127.0.0.1:5173/administration/database",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/administration-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 4,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 1456.2,
+      "selector": ".administration-content",
+      "width": 1205,
+      "x": 220,
+      "y": 84
+    },
+    "label": "administration",
+    "legacy": {
+      "content-card": 3,
+      "count-chip": 0,
+      "eyebrow": 4,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 9
+    },
+    "overflowX": 0,
+    "primaryCommands": 3,
+    "regions": {
+      ".administration-content": {
+        "height": 1456.2,
+        "selector": ".administration-content",
+        "width": 1205,
+        "x": 220,
+        "y": 84
+      },
+      ".administration-navigation": {
+        "height": 1456.2,
+        "selector": ".administration-navigation",
+        "width": 220,
+        "x": 0,
+        "y": 84
+      },
+      ".detail-grid": {
+        "height": 868.8,
+        "selector": ".detail-grid",
+        "width": 1156.1,
+        "x": 244.5,
+        "y": 179
+      },
+      ".product-admin-embedded": {
+        "height": 1408.2,
+        "selector": ".product-admin-embedded",
+        "width": 1156.1,
+        "x": 244.5,
+        "y": 108
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "url": "http://127.0.0.1:5173/administration/database",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/administration-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 4,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 1456.2,
+      "selector": ".administration-content",
+      "width": 1685,
+      "x": 220,
+      "y": 84
+    },
+    "label": "administration",
+    "legacy": {
+      "content-card": 3,
+      "count-chip": 0,
+      "eyebrow": 4,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 9
+    },
+    "overflowX": 0,
+    "primaryCommands": 3,
+    "regions": {
+      ".administration-content": {
+        "height": 1456.2,
+        "selector": ".administration-content",
+        "width": 1685,
+        "x": 220,
+        "y": 84
+      },
+      ".administration-navigation": {
+        "height": 1456.2,
+        "selector": ".administration-navigation",
+        "width": 220,
+        "x": 0,
+        "y": 84
+      },
+      ".detail-grid": {
+        "height": 868.8,
+        "selector": ".detail-grid",
+        "width": 1621,
+        "x": 252,
+        "y": 179
+      },
+      ".product-admin-embedded": {
+        "height": 1408.2,
+        "selector": ".product-admin-embedded",
+        "width": 1621,
+        "x": 252,
+        "y": 108
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "url": "http://127.0.0.1:5173/administration/database",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/administration-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 7,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 611,
+      "selector": ".materials-workspace",
+      "width": 1304.6,
+      "x": 23.2,
+      "y": 135
+    },
+    "label": "materials-search",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 1,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 555,
+        "selector": ".materials-left-pane",
+        "width": 244,
+        "x": 24.2,
+        "y": 135
+      },
+      ".materials-results": {
+        "height": 611,
+        "selector": ".materials-results",
+        "width": 1058.6,
+        "x": 268.2,
+        "y": 135
+      },
+      ".materials-selection": null
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/materials-search-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 7,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 743,
+      "selector": ".materials-workspace",
+      "width": 1376.1,
+      "x": 24.5,
+      "y": 135
+    },
+    "label": "materials-search",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 2,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 687,
+        "selector": ".materials-left-pane",
+        "width": 264,
+        "x": 25.5,
+        "y": 135
+      },
+      ".materials-results": {
+        "height": 743,
+        "selector": ".materials-results",
+        "width": 830.1,
+        "x": 289.5,
+        "y": 135
+      },
+      ".materials-selection": {
+        "height": 743,
+        "selector": ".materials-selection",
+        "width": 280,
+        "x": 1119.5,
+        "y": 135
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/materials-search-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 7,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 923,
+      "selector": ".materials-workspace",
+      "width": 1841,
+      "x": 32,
+      "y": 135
+    },
+    "label": "materials-search",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 2,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 867,
+        "selector": ".materials-left-pane",
+        "width": 280,
+        "x": 33,
+        "y": 135
+      },
+      ".materials-results": {
+        "height": 923,
+        "selector": ".materials-results",
+        "width": 1259,
+        "x": 313,
+        "y": 135
+      },
+      ".materials-selection": {
+        "height": 923,
+        "selector": ".materials-selection",
+        "width": 300,
+        "x": 1572,
+        "y": 135
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/materials-search-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 7,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 611,
+      "selector": ".materials-workspace",
+      "width": 1304.6,
+      "x": 23.2,
+      "y": 135
+    },
+    "label": "browse-tree",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 1,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 555,
+        "selector": ".materials-left-pane",
+        "width": 244,
+        "x": 24.2,
+        "y": 135
+      },
+      ".materials-results": {
+        "height": 611,
+        "selector": ".materials-results",
+        "width": 1058.6,
+        "x": 268.2,
+        "y": 135
+      },
+      ".materials-selection": null,
+      ".materials-tree-scroll": {
+        "height": 210.4,
+        "selector": ".materials-tree-scroll",
+        "width": 243,
+        "x": 24.2,
+        "y": 383
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/browse-tree-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 7,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 743,
+      "selector": ".materials-workspace",
+      "width": 1376.1,
+      "x": 24.5,
+      "y": 135
+    },
+    "label": "browse-tree",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 2,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 687,
+        "selector": ".materials-left-pane",
+        "width": 264,
+        "x": 25.5,
+        "y": 135
+      },
+      ".materials-results": {
+        "height": 743,
+        "selector": ".materials-results",
+        "width": 830.1,
+        "x": 289.5,
+        "y": 135
+      },
+      ".materials-selection": {
+        "height": 743,
+        "selector": ".materials-selection",
+        "width": 280,
+        "x": 1119.5,
+        "y": 135
+      },
+      ".materials-tree-scroll": {
+        "height": 342.4,
+        "selector": ".materials-tree-scroll",
+        "width": 263,
+        "x": 25.5,
+        "y": 383
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/browse-tree-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 7,
+      "paragraphs": 0
+    },
+    "firstData": {
+      "height": 923,
+      "selector": ".materials-workspace",
+      "width": 1841,
+      "x": 32,
+      "y": 135
+    },
+    "label": "browse-tree",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 2,
+    "regions": {
+      ".materials-left-pane": {
+        "height": 867,
+        "selector": ".materials-left-pane",
+        "width": 280,
+        "x": 33,
+        "y": 135
+      },
+      ".materials-results": {
+        "height": 923,
+        "selector": ".materials-results",
+        "width": 1259,
+        "x": 313,
+        "y": 135
+      },
+      ".materials-selection": {
+        "height": 923,
+        "selector": ".materials-selection",
+        "width": 300,
+        "x": 1572,
+        "y": 135
+      },
+      ".materials-tree-scroll": {
+        "height": 522.4,
+        "selector": ".materials-tree-scroll",
+        "width": 279,
+        "x": 33,
+        "y": 383
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/browse-tree-1920x1080.jpg"
+  },
+  {
+    "actual": {
+      "height": 768,
+      "width": 1366
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 6,
+      "paragraphs": 1
+    },
+    "firstData": {
+      "height": 1070.6,
+      "selector": ".modeling-graph-workspace",
+      "width": 1304.6,
+      "x": 23.2,
+      "y": 196.8
+    },
+    "label": "modeling-fit",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 10,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 3,
+    "regions": {
+      ".modeling-context-strip": {
+        "height": 39.8,
+        "selector": ".modeling-context-strip",
+        "width": 1304.6,
+        "x": 23.2,
+        "y": 84
+      },
+      ".modeling-workspace-rail": {
+        "height": 533,
+        "selector": ".modeling-workspace-rail",
+        "width": 180.3,
+        "x": 23.2,
+        "y": 196.8
+      },
+      ".persistent-modeling-plot": {
+        "height": 946.6,
+        "selector": ".persistent-modeling-plot",
+        "width": 1124.3,
+        "x": 203.5,
+        "y": 408.8
+      },
+      ".step-option-panel": {
+        "height": 124,
+        "selector": ".step-option-panel",
+        "width": 1124.3,
+        "x": 203.5,
+        "y": 196.8
+      }
+    },
+    "requested": {
+      "height": 768,
+      "width": 1366
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "url": "http://127.0.0.1:5173/modeling",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/modeling-fit-1366x768.jpg"
+  },
+  {
+    "actual": {
+      "height": 900,
+      "width": 1440
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 6,
+      "paragraphs": 1
+    },
+    "firstData": {
+      "height": 1104.7,
+      "selector": ".modeling-graph-workspace",
+      "width": 1376.1,
+      "x": 24.5,
+      "y": 196.8
+    },
+    "label": "modeling-fit",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 10,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 3,
+    "regions": {
+      ".modeling-context-strip": {
+        "height": 39.8,
+        "selector": ".modeling-context-strip",
+        "width": 1376.1,
+        "x": 24.5,
+        "y": 84
+      },
+      ".modeling-workspace-rail": {
+        "height": 665,
+        "selector": ".modeling-workspace-rail",
+        "width": 190.1,
+        "x": 24.5,
+        "y": 196.8
+      },
+      ".persistent-modeling-plot": {
+        "height": 980.7,
+        "selector": ".persistent-modeling-plot",
+        "width": 1186,
+        "x": 214.5,
+        "y": 408.8
+      },
+      ".step-option-panel": {
+        "height": 124,
+        "selector": ".step-option-panel",
+        "width": 1186,
+        "x": 214.5,
+        "y": 196.8
+      }
+    },
+    "requested": {
+      "height": 900,
+      "width": 1440
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "url": "http://127.0.0.1:5173/modeling",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/modeling-fit-1440x900.jpg"
+  },
+  {
+    "actual": {
+      "height": 1080,
+      "width": 1920
+    },
+    "appBar": {
+      "height": 46,
+      "selector": ".app-header,.application-menu-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "bodyFont": "16px",
+    "commandBar": {
+      "height": 38,
+      "selector": ".workspace-command-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 46
+    },
+    "copyBeforeData": {
+      "h1": 1,
+      "largeButtons": 6,
+      "paragraphs": 1
+    },
+    "firstData": {
+      "height": 1358.3,
+      "selector": ".modeling-graph-workspace",
+      "width": 1841,
+      "x": 32,
+      "y": 196.8
+    },
+    "label": "modeling-fit",
+    "legacy": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 10,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "overflowX": 0,
+    "primaryCommands": 3,
+    "regions": {
+      ".modeling-context-strip": {
+        "height": 39.8,
+        "selector": ".modeling-context-strip",
+        "width": 1841,
+        "x": 32,
+        "y": 84
+      },
+      ".modeling-workspace-rail": {
+        "height": 680,
+        "selector": ".modeling-workspace-rail",
+        "width": 196,
+        "x": 32,
+        "y": 196.8
+      },
+      ".persistent-modeling-plot": {
+        "height": 1234.3,
+        "selector": ".persistent-modeling-plot",
+        "width": 1645,
+        "x": 228,
+        "y": 408.8
+      },
+      ".step-option-panel": {
+        "height": 124,
+        "selector": ".step-option-panel",
+        "width": 1645,
+        "x": 228,
+        "y": 196.8
+      }
+    },
+    "requested": {
+      "height": 1080,
+      "width": 1920
+    },
+    "statusBar": {
+      "height": 24,
+      "selector": ".application-status-bar",
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "url": "http://127.0.0.1:5173/modeling",
+    "file": "C:/SourceCodes/cae-material-platform/docs/15-demo/images/desktop-engineering-ui/dui-01/after/modeling-fit-1920x1080.jpg"
+  }
+]

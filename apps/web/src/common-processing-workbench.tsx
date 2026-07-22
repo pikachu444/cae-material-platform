@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
 import { EngineeringCurvePlot } from "./engineering-curve-plot";
+import { publishWorkspaceStatus } from "./design/application-shell";
 
 import {
   ApiError,
@@ -1534,16 +1535,32 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
+  useEffect(() => {
+    const handleCommand = (event: Event) => {
+      const command = (event as CustomEvent<{ command?: string }>).detail?.command;
+      if (command?.startsWith("modeling:")) openWorkflowTask(command.slice("modeling:".length) as ModelingWorkflowTask);
+    };
+    window.addEventListener("cmp:workspace-command", handleCommand);
+    return () => window.removeEventListener("cmp:workspace-command", handleCommand);
+  }, [modelingTrack, selectedTrackDocument]);
+
+  useEffect(() => {
+    publishWorkspaceStatus({
+      selection: initialSession?.material?.label ?? selectedTrackDocument?.specimen_id ?? selectedTrackDocument?.document_key ?? "Modeling session",
+      revision: selectedTrackDocument ? `Test Data r${selectedTrackDocument.current_revision.revision_no} · ${workflowTask}` : `${workflowTask} · no data selected`,
+      jobs: busy || previewBusy ? "Engineering calculation running" : "No active job",
+      warnings: error ? "1 workspace error" : "0 warnings",
+    });
+  }, [busy, error, initialSession?.material?.label, previewBusy, selectedTrackDocument, workflowTask]);
+
   const elastomerWorkbenchTask = modelingTrack === "elastomer"
     && workflowTask === "fit"
     && familyWorkbench !== undefined;
 
   return (
     <main className="processing-workbench-page">
-      <header className="modeling-app-header">
-        <div className="modeling-session-heading"><p className="eyebrow">Modeling</p><h1>Test curves to material model</h1><p className="modeling-session-context">{[initialSession?.material ? `${initialSession.material.label} r${initialSession.material.revisionNo}` : null, initialSession?.materialState ? `${initialSession.materialState.label} r${initialSession.materialState.revisionNo}` : null, selectedTrackDocument ? `${selectedTrackDocument.specimen_id || selectedTrackDocument.document_key} · r${selectedTrackDocument.current_revision.revision_no}` : null].filter(Boolean).join("  /  ") || "Material  /  exact Test Data  /  live preview"}</p></div>
-        <div className="modeling-session-actions"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Import JSON / CSV / XLSX</button><details className="modeling-header-advanced"><summary>Advanced</summary><button type="button" onClick={() => onNavigate("/database")}>Material Database</button></details></div>
-        <nav className="modeling-flow-nav" aria-label="Material Modeling steps">{(["data", "process", "fit", "export"] as ModelingWorkflowTask[]).map((task) => <button type="button" className={workflowTask === task ? "active" : ""} aria-current={workflowTask === task ? "step" : undefined} key={task} onClick={() => openWorkflowTask(task)}>{task[0].toUpperCase() + task.slice(1)}</button>)}</nav>
+      <header className="modeling-context-strip" aria-label="Modeling context">
+        <p className="modeling-session-context">{[initialSession?.material ? `${initialSession.material.label} r${initialSession.material.revisionNo}` : null, initialSession?.materialState ? `${initialSession.materialState.label} r${initialSession.materialState.revisionNo}` : null, selectedTrackDocument ? `${selectedTrackDocument.specimen_id || selectedTrackDocument.document_key} · r${selectedTrackDocument.current_revision.revision_no}` : null].filter(Boolean).join("  /  ") || "Material  /  exact Test Data  /  live preview"}</p>
         <div className="modeling-track-selector" role="tablist" aria-label="Material modeling family">
           <button type="button" role="tab" aria-selected={modelingTrack === "metal"} className={modelingTrack === "metal" ? "active metal" : "metal"} onClick={() => selectModelingTrack("metal")}><span>Metal</span><strong>Elastoplastic</strong><small>E, proof, necking, hardening</small></button>
           <button type="button" role="tab" aria-selected={modelingTrack === "polymer"} className={modelingTrack === "polymer" ? "active polymer" : "polymer"} onClick={() => selectModelingTrack("polymer")}><span>Polymer</span><strong>Viscoelastic</strong><small>Relaxation or DMA · Prony</small></button>

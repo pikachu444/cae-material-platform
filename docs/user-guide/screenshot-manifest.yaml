@@ -1,4 +1,4 @@
-version: 35
+version: 36
 verified_at: 2026-07-22
 scope: current-product-baseline
 notes:
@@ -6,7 +6,50 @@ notes:
   - "Migration and deterministic reference-plugin seed jobs completed successfully before browser validation."
   - "Requested browser sizes were 1366x768, 1440x900, and 1920x1080; width and height below are the actual PNG content dimensions after in-app browser chrome and host-window limits."
   - "All fixtures are synthetic, non-production reference data."
+  - "DUI-01 captures use the implemented 46 px application bar, 38 px command bar, and 24 px status bar."
 captures:
+  - id: dui-01-materials-search-1440
+    route: /materials
+    workflow: compact-application-command-status-shell-with-search-results
+    fixture: synthetic DP780 Material library
+    image: ../15-demo/images/ux-redesign-v2/dui-01-materials-search-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-01-browse-tree-1440
+    route: /materials?mode=browse
+    workflow: compact-shell-with-searchable-database-profile-table-folder-record-tree
+    fixture: synthetic DP780 workflow Records
+    image: ../15-demo/images/ux-redesign-v2/dui-01-browse-tree-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-01-material-detail-1440
+    route: /materials/:materialId
+    workflow: compact-record-context-direct-preview-download-and-status
+    fixture: DP780 with Abaqus and OpenRadioss native cards
+    image: ../15-demo/images/ux-redesign-v2/dui-01-material-detail-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-01-modeling-fit-1440
+    route: /modeling
+    workflow: command-driven-fit-stage-persistent-plot-and-session-status
+    fixture: DP780 reference hardening candidates
+    image: ../15-demo/images/ux-redesign-v2/dui-01-modeling-fit-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-01-activity-1440
+    route: /activity
+    workflow: compact-activity-commands-and-work-queue-status
+    fixture: clean deterministic demo activity
+    image: ../15-demo/images/ux-redesign-v2/dui-01-activity-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-01-administration-1440
+    route: /administration/database
+    workflow: compact-shell-preserving-table-attribute-layout-subset-link-type-administration
+    fixture: configurable Demo Material Records Table
+    image: ../15-demo/images/ux-redesign-v2/dui-01-administration-1440x900.png
+    width: 1440
+    height: 900
   - id: materials-search-1366
     route: /materials
     workflow: dp780-search-result-selection-and-solver-availability

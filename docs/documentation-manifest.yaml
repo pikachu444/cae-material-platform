@@ -38,6 +38,8 @@ rules:
   - status: authoritative
     include:
       - "AGENTS.md"
+      - "CODEX_DESKTOP_ENGINEERING_UI_START.md"
+      - ".codex/skills/**/*.md"
       - "adr/**/*.md"
       - "docs/01-product/**/*.md"
       - "docs/02-requirements/**/*.md"
@@ -52,6 +54,7 @@ rules:
       - "docs/11-security/**/*.md"
       - "docs/12-roadmap/**/*.md"
       - "docs/13-delivery/backlog.md"
+      - "docs/13-delivery/desktop-engineering-ui-backlog.md"
       - "docs/13-delivery/production-pilot-execution-plan.md"
       - "docs/14-testing/**/*.md"
       - "docs/15-governance/**/*.md"

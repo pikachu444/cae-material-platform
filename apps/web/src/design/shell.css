@@ -1,0 +1,290 @@
+.application-shell {
+  display: grid;
+  grid-template-rows: var(--ux-application-bar-height) var(--ux-command-bar-height) minmax(0, 1fr) var(--ux-status-bar-height);
+  width: 100%;
+  height: 100vh;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--ux-canvas);
+  color: var(--ux-text);
+}
+
+.application-menu-bar {
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) auto minmax(210px, 1fr);
+  align-items: stretch;
+  min-width: 0;
+  height: var(--ux-application-bar-height);
+  padding: 0 8px;
+  border-bottom: 1px solid var(--ux-border-strong);
+  background: #24323f;
+  color: #f7f9fb;
+}
+
+.application-brand,
+.application-nav,
+.workspace-command,
+.application-user-menu button {
+  border: 0;
+  font: inherit;
+}
+
+.application-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 6px 0 2px;
+  background: transparent;
+  color: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.application-mark {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid #9fb4c6;
+  border-radius: 2px;
+  color: #dce8f2;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.application-brand strong {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.application-menu-bar > nav {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.application-nav {
+  min-width: 76px;
+  padding: 0 12px;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #c8d3dc;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.application-nav:hover,
+.application-nav.active {
+  border-bottom-color: #73a9dc;
+  background: #314352;
+  color: #fff;
+}
+
+.application-session {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 10px;
+  min-width: 0;
+  color: #bdcbd6;
+  font-size: 11.5px;
+}
+
+.application-user-menu {
+  position: relative;
+}
+
+.application-user-menu > summary {
+  padding: 5px 7px;
+  color: #eef4f8;
+  cursor: pointer;
+  font-size: 11.5px;
+  list-style: none;
+}
+
+.application-user-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.application-user-menu > div {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  right: 0;
+  display: grid;
+  width: 190px;
+  padding: 4px;
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 3px;
+  background: var(--ux-surface);
+  box-shadow: var(--ux-shadow-overlay);
+}
+
+.application-user-menu button {
+  min-height: 28px;
+  padding: 0 8px;
+  background: transparent;
+  color: var(--ux-text);
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.application-user-menu button:hover {
+  background: var(--ux-accent-soft);
+}
+
+.workspace-command-bar {
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: var(--ux-command-bar-height);
+  padding: 0 8px;
+  border-bottom: 1px solid var(--ux-border);
+  background: #f8fafb;
+}
+
+.workspace-command-bar h1 {
+  flex: 0 0 auto;
+  width: 128px;
+  margin: 0 8px 0 2px;
+  overflow: hidden;
+  color: var(--ux-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-command-group {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.workspace-command {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding: 0 10px;
+  border-right: 1px solid #e1e6ea;
+  background: transparent;
+  color: #273746;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.workspace-command:hover:not(:disabled),
+.workspace-command.active {
+  background: var(--ux-accent-soft);
+  color: var(--ux-accent-hover);
+}
+
+.workspace-command.active::after {
+  position: absolute;
+  right: 8px;
+  bottom: 1px;
+  left: 8px;
+  height: 2px;
+  background: var(--ux-accent);
+  content: "";
+}
+
+.workspace-command:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.application-workspace {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  outline-offset: -2px;
+}
+
+.application-status-bar {
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: var(--ux-status-bar-height);
+  padding: 0 8px;
+  overflow: hidden;
+  border-top: 1px solid var(--ux-border-strong);
+  background: #e7ebef;
+  color: #334250;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.application-status-bar > span {
+  flex: 0 0 auto;
+  max-width: 25%;
+  padding: 0 10px;
+  overflow: hidden;
+  border-right: 1px solid #c5cdd4;
+  text-overflow: ellipsis;
+}
+
+.application-status-bar .status-selection {
+  flex: 1 1 auto;
+  max-width: none;
+  padding-left: 2px;
+}
+
+.application-status-bar .status-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  border-right: 0;
+}
+
+.status-connection i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ux-success);
+}
+
+.status-connection.offline i {
+  background: var(--ux-danger);
+}
+
+@media (max-width: 760px) {
+  .application-menu-bar {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .application-brand strong,
+  .application-session > span,
+  .workspace-command-bar h1 {
+    display: none;
+  }
+
+  .application-menu-bar > nav {
+    justify-self: center;
+  }
+
+  .application-nav {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .application-status-bar > span:not(.status-selection, .status-connection) {
+    display: none;
+  }
+}

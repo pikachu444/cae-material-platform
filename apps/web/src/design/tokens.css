@@ -24,5 +24,8 @@
   --ux-space-5: 24px;
   --ux-space-6: 32px;
   --ux-space-7: 48px;
-  --ux-header-height: 60px;
+  --ux-application-bar-height: 46px;
+  --ux-command-bar-height: 38px;
+  --ux-status-bar-height: 24px;
+  --ux-shell-top-height: calc(var(--ux-application-bar-height) + var(--ux-command-bar-height));
 }

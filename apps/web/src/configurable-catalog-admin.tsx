@@ -350,7 +350,7 @@ export function ConfigurableCatalogAdmin({
             </button>
           </div>
         ) : null}
-      </section> : <header className="page-heading"><div><p className="eyebrow">Database design</p><h1>Tables, Attributes and relationships</h1><p>Configure the Material Database without a software deployment. New values remain typed, unit-aware and revisioned.</p></div>{onNavigate ? <button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Preview database</button> : null}</header>}
+      </section> : <header className="workspace-section-heading"><h2>Tables, Attributes and relationships</h2>{onNavigate ? <button className="button secondary" type="button" onClick={() => onNavigate("/database")}>Preview database</button> : null}</header>}
 
       {error ? <div className="error-banner">{error}</div> : null}
       {notice ? <div className="success-banner">{notice}</div> : null}

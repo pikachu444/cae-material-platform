@@ -249,7 +249,13 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         "navigation contract",
     )
     items = _sequence(navigation.get("items"), "navigation contract items")
-    app_source = (project / "apps" / "web" / "src" / "app.tsx").read_text(encoding="utf-8")
+    navigation_sources = (
+        project / "apps" / "web" / "src" / "app.tsx",
+        project / "apps" / "web" / "src" / "design" / "application-shell.tsx",
+    )
+    app_source = "\n".join(
+        source.read_text(encoding="utf-8") for source in navigation_sources if source.is_file()
+    )
     index_source = (guide_root / "index.md").read_text(encoding="utf-8")
     labels: set[str] = set()
     routes: set[str] = set()
@@ -263,7 +269,7 @@ def verify_user_guide(root: Path) -> UserGuideReport:
         labels.add(label)
         routes.add(route)
         if f'label: "{label}"' not in app_source or f'target: "{route}"' not in app_source:
-            raise UserGuideContractError(f"navigation contract drifted from app.tsx: {label}")
+            raise UserGuideContractError(f"navigation contract drifted from web navigation: {label}")
         guide = _inside(guide_root / guide_name, guide_root, f"navigation guide for {label}")
         if not guide.is_file() or f"({guide_name})" not in index_source:
             raise UserGuideContractError(f"navigation guide is missing from the index: {label}")

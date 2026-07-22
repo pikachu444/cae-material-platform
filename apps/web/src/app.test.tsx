@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./app";
 
@@ -129,13 +129,13 @@ describe("Material Catalog workbench", () => {
     expect((await screen.findAllByText("Demo DP780 Steel")).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("DP780").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/10,000 total/)).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Find material data ready for CAE" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
     expect(screen.getByRole("search")).toBeTruthy();
     expect(screen.getByRole("complementary", { name: "Material filters" })).toBeTruthy();
     expect(screen.getByRole("table", { name: "Material results" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Manufacturer / source" })).toBeTruthy();
     expect(screen.getByRole("combobox", { name: "Validation / release status" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Browse Tree" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Browse Tree" }).length).toBeGreaterThanOrEqual(1);
     fireEvent.click(screen.getByRole("button", { name: "Hide filters" }));
     expect(screen.queryByRole("complementary", { name: "Material filters" })).toBe(null);
     expect(screen.getByRole("button", { name: "Show filters" })).toBeTruthy();
@@ -154,7 +154,7 @@ describe("Material Catalog workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open material" }));
     await waitFor(() => expect(window.location.pathname).toBe(`/materials/${visibleMaterial.material_id}`));
     expect(window.sessionStorage.getItem("cmp.materials.return-path")).toContain(`selected=${visibleMaterial.material_id}`);
-    fireEvent.click(await screen.findByRole("button", { name: "← Materials" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Back to results" }));
     expect(await screen.findByRole("textbox", { name: "Search materials" })).toHaveProperty("value", "DP780");
     expect(window.location.search).toContain("q=DP780");
   });
@@ -213,7 +213,7 @@ describe("Material Catalog workbench", () => {
     const fetchMock = mockProductFetch(() => jsonResponse({ items: [], total_count: 0 }));
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "Find material data ready for CAE" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/v1/demo-identity/token",
       expect.objectContaining({ headers: expect.anything() }),
@@ -222,7 +222,7 @@ describe("Material Catalog workbench", () => {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
     expect(window.location.pathname).toBe("/materials");
-    expect(screen.getByRole("button", { name: "Browse Tree" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Browse Tree" }).length).toBeGreaterThanOrEqual(1);
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
@@ -246,7 +246,7 @@ describe("Material Catalog workbench", () => {
 
     expect(await screen.findByRole("heading", { name: "Test data" })).toBeTruthy();
     expect(await screen.findByRole("button", { name: "Open test workspace" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Materials" }).getAttribute("aria-current")).toBe(null);
+    expect(within(screen.getByRole("navigation", { name: "Primary navigation" })).getByRole("button", { name: "Materials" }).getAttribute("aria-current")).toBe(null);
   });
 
   it("restores the exact Modeling Material State for governed CSV and XLSX import", async () => {

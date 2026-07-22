@@ -1,147 +1,36 @@
-.app-header {
-  position: sticky;
-  z-index: 20;
-  top: 0;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) auto minmax(220px, 1fr);
-  align-items: center;
-  gap: var(--ux-space-5);
-  min-height: var(--ux-header-height);
-  padding: 0 clamp(16px, 1.7vw, 32px);
-  border-bottom: 1px solid var(--ux-border);
-  background: var(--ux-surface);
-  color: var(--ux-text);
-  box-shadow: var(--ux-shadow-none);
-}
-
-.app-shell,
-.app-shell > main {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-}
-
-.app-header .brand-mark {
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--ux-accent);
-  border-radius: var(--ux-radius-control);
-  color: var(--ux-accent);
-  font-size: 12px;
-}
-
-.app-header .brand strong {
-  color: var(--ux-text);
-  font-size: 14px;
-}
-
-.app-header .brand small {
-  color: var(--ux-text-muted);
-  font-size: 12px;
-}
-
-.app-header nav {
-  align-self: stretch;
-  gap: var(--ux-space-5);
-}
-
-.app-header .nav-link {
-  min-height: var(--ux-header-height);
-  padding: 0 var(--ux-space-1);
-  border-radius: 0;
-  border-bottom: 3px solid transparent;
-  color: var(--ux-text-muted);
-  font-size: 14px;
-  font-weight: 650;
-}
-
-.app-header .nav-link:hover,
-.app-header .nav-link.active {
-  border-bottom-color: var(--ux-accent);
-  background: transparent;
-  color: var(--ux-accent);
-}
-
-.product-user-menu {
-  position: relative;
-  justify-self: end;
-  color: var(--ux-text);
-}
-
-.product-user-menu > summary {
-  min-height: 32px;
-  padding: 7px 10px;
-  border: 1px solid var(--ux-border);
-  border-radius: var(--ux-radius-control);
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
-  list-style: none;
-}
-
-.product-user-menu > summary::-webkit-details-marker {
-  display: none;
-}
-
-.product-user-menu > div {
-  position: absolute;
-  right: 0;
-  top: calc(100% + var(--ux-space-2));
-  display: grid;
-  gap: var(--ux-space-2);
-  width: 240px;
-  padding: var(--ux-space-4);
-  border: 1px solid var(--ux-border);
-  border-radius: var(--ux-radius-panel);
-  background: var(--ux-surface);
-  box-shadow: var(--ux-shadow-overlay);
-}
-
-.product-user-menu button {
-  min-height: 34px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ux-accent);
-  font-size: 14px;
-  text-align: left;
-}
-
 .ux-page {
-  min-height: calc(100vh - var(--ux-header-height));
+  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
   background: var(--ux-canvas);
 }
 
-.app-shell > main:has(.ux-page),
-.app-shell > main:has(.processing-workbench-page),
-.app-shell > main:has(.material-database-page),
-.app-shell > main:has(.test-json-page),
-.app-shell > main:has(.administration-workspace) {
+.application-workspace:has(.ux-page),
+.application-workspace:has(.processing-workbench-page),
+.application-workspace:has(.material-database-page),
+.application-workspace:has(.test-json-page),
+.application-workspace:has(.administration-workspace) {
   width: 100%;
   max-width: none;
   margin: 0;
 }
 
-.app-shell > main:has(.ux-page) {
+.application-workspace:has(.ux-page) {
   padding: 0 0 var(--ux-space-6);
 }
 
-.app-shell > main:has(.administration-workspace) {
+.application-workspace:has(.administration-workspace) {
   padding: 0;
 }
 
-.app-shell > main:has(.processing-workbench-page),
-.app-shell > main:has(.material-database-page),
-.app-shell > main:has(.test-json-page) {
+.application-workspace:has(.processing-workbench-page),
+.application-workspace:has(.material-database-page),
+.application-workspace:has(.test-json-page) {
   padding-inline: clamp(16px, 1.7vw, 32px);
 }
 
 .materials-page-header,
 .material-detail-header,
-.card-preview-header,
-.activity-header {
-  padding: var(--ux-space-4) clamp(16px, 1.7vw, 32px);
+.card-preview-header {
+  padding: 6px clamp(16px, 1.7vw, 32px);
   border-bottom: 1px solid var(--ux-border);
   background: var(--ux-surface);
 }
@@ -158,62 +47,26 @@
 .materials-search-form {
   display: flex;
   gap: var(--ux-space-2);
-  width: min(620px, 100%);
+  width: min(720px, 100%);
 }
 
-.materials-page-header h1 {
-  font-size: 20px;
-}
-
-.materials-page-header > div > p:last-child,
 .material-detail-header > div > p:last-child,
 .card-preview-header > div > p:last-child {
   margin-bottom: 0;
   color: var(--ux-text-muted);
 }
 
-.materials-mode-switch {
+.materials-pane-toggles {
   display: flex;
-  gap: var(--ux-space-4);
-  margin-bottom: var(--ux-space-2);
-}
-
-.materials-mode-switch button {
-  min-height: 28px;
-  padding: 0;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.materials-mode-switch button.active {
-  border-bottom-color: var(--ux-accent);
-  color: var(--ux-accent);
-}
-
-.materials-workspace-toolbar {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ux-space-3);
-  margin: 0 clamp(16px, 1.7vw, 32px);
-  padding: var(--ux-space-2) 0;
-}
-
-.materials-workspace-toolbar > span {
-  overflow: hidden;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 0 0 auto;
+  gap: var(--ux-space-2);
 }
 
 .materials-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  min-height: calc(100vh - 213px);
+  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 49px);
   margin: 0 clamp(16px, 1.7vw, 32px);
   border-inline: 1px solid var(--ux-border);
   background: var(--ux-surface);
@@ -765,14 +618,16 @@
 
 .material-detail-header h1,
 .card-preview-header h1 {
-  font-size: 20px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
 }
 
 .material-detail-meta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--ux-space-2) var(--ux-space-4);
-  margin-bottom: var(--ux-space-2);
+  margin: 2px 0 0;
   color: var(--ux-text-muted);
   font-size: 12px;
 }
@@ -919,13 +774,8 @@
 }
 
 /* Search-first Modeling shell: the existing deterministic engines remain mounted beneath four tasks. */
-.app-shell:has(.processing-workbench-page) {
+.application-shell:has(.processing-workbench-page) {
   background: var(--ux-canvas);
-}
-
-.app-shell:has(.processing-workbench-page) .app-header {
-  min-height: var(--ux-header-height);
-  padding-block: 0;
 }
 
 .processing-workbench-page {
@@ -933,7 +783,7 @@
   max-width: none;
   margin: 0;
   gap: var(--ux-space-3);
-  padding: var(--ux-space-3) 0;
+  padding: 0;
   border: 0;
   border-radius: 0;
   background: var(--ux-canvas);
@@ -941,10 +791,12 @@
   font-size: 14px;
 }
 
-.modeling-app-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  padding: var(--ux-space-3) var(--ux-space-4);
+.modeling-context-strip {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  order: -3;
+  padding: 3px var(--ux-space-3);
   border: 0;
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
@@ -953,65 +805,33 @@
   box-shadow: var(--ux-shadow-none);
 }
 
-.modeling-session-heading .eyebrow,
-.modeling-session-heading h1,
-.modeling-session-heading > p:last-child {
-  color: var(--ux-text);
+.administration-section-heading,
+.workspace-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  margin: 0 0 var(--ux-space-3);
+  padding: 0 0 var(--ux-space-2);
+  border-bottom: 1px solid var(--ux-border);
 }
 
-.modeling-session-heading {
-  display: grid;
-  grid-template-columns: auto auto minmax(180px, 1fr);
-  align-items: baseline;
-  gap: 0 var(--ux-space-3);
-  min-width: 0;
-}
-
-.modeling-session-heading .eyebrow,
-.modeling-session-heading > p:last-child {
-  font-size: 12px;
-}
-
-.modeling-session-heading .eyebrow {
+.administration-section-heading h2,
+.workspace-section-heading h2 {
   margin: 0;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.modeling-session-heading h1 {
-  margin: 0;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 650;
 }
 
-.modeling-session-heading > p:last-child {
+.modeling-context-strip .modeling-session-context {
+  flex: 1 1 auto;
   min-width: 0;
   margin: 0;
   overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.modeling-flow-nav {
-  grid-column: 1;
-  grid-row: 2;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: min(640px, 100%);
-}
-
-.modeling-flow-nav button {
-  min-height: 36px;
-  border-color: var(--ux-border);
-  color: var(--ux-text-muted);
-  font-size: 14px;
-}
-
-.modeling-flow-nav button:hover,
-.modeling-flow-nav button.active {
-  border-color: var(--ux-accent);
-  background: var(--ux-accent-soft);
-  color: var(--ux-accent);
 }
 
 .modeling-track-selector button {
@@ -1024,8 +844,7 @@
 
 .modeling-track-selector {
   display: flex;
-  grid-column: 2;
-  grid-row: 2;
+  flex: 0 0 auto;
   justify-content: flex-end;
 }
 
@@ -1057,40 +876,6 @@
 
 .modeling-track-selector button.active {
   box-shadow: inset 3px 0 0 var(--ux-accent);
-}
-
-.modeling-session-actions {
-  align-items: center;
-}
-
-.modeling-header-advanced {
-  position: relative;
-}
-
-.modeling-header-advanced summary {
-  min-height: 32px;
-  padding: 7px 10px;
-  border: 1px solid var(--ux-border);
-  border-radius: var(--ux-radius-control);
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-.modeling-header-advanced button {
-  position: absolute;
-  z-index: 2;
-  right: 0;
-  top: calc(100% + 4px);
-  width: 180px;
-  min-height: 36px;
-  padding: var(--ux-space-2);
-  border: 1px solid var(--ux-border);
-  border-radius: var(--ux-radius-control);
-  background: var(--ux-surface);
-  box-shadow: var(--ux-shadow-overlay);
-  color: var(--ux-accent);
 }
 
 .modeling-data-entry {
@@ -1232,7 +1017,7 @@
 }
 
 .administration-navigation {
-  min-height: calc(100vh - var(--ux-header-height));
+  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height));
   gap: var(--ux-space-5);
   padding: var(--ux-space-5) var(--ux-space-3);
   border-right: 1px solid var(--ux-border);
@@ -1315,7 +1100,7 @@
   grid-template-columns: 34px minmax(0, 1fr) auto;
   gap: var(--ux-space-3);
   min-height: 82px;
-  padding: var(--ux-space-3) 0;
+  padding: 0;
   border: 0;
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
@@ -1385,7 +1170,7 @@
 }
 
 .administration-content .product-admin-embedded > .page-heading {
-  align-items: end;
+  align-items: center;
   margin: 0;
   padding: 0 0 var(--ux-space-4);
   border-bottom: 1px solid var(--ux-border);
@@ -1407,7 +1192,7 @@
 
 .administration-content .product-admin-embedded .detail-grid {
   grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
-  gap: var(--ux-space-5);
+  gap: var(--ux-space-3);
 }
 
 .administration-content .product-admin-embedded .content-card {
@@ -1796,19 +1581,19 @@
   font-size: 12px;
 }
 
-.app-shell main.processing-workbench-page :is(label, legend, small, code),
-.app-shell main.processing-workbench-page :is(.plot-view-switch, .workspace-inspector-tabs, .option-choice-grid, .candidate-check-grid) :is(button, span),
-.app-shell main.processing-workbench-page .modeling-support-drawer summary span,
-.app-shell main.processing-workbench-page .mapping-note {
+.application-shell main.processing-workbench-page :is(label, legend, small, code),
+.application-shell main.processing-workbench-page :is(.plot-view-switch, .workspace-inspector-tabs, .option-choice-grid, .candidate-check-grid) :is(button, span),
+.application-shell main.processing-workbench-page .modeling-support-drawer summary span,
+.application-shell main.processing-workbench-page .mapping-note {
   font-size: 12px;
 }
 
-.app-shell main.processing-workbench-page .step-option-panel :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
-.app-shell main.processing-workbench-page .persistent-modeling-plot :is(.curve-legend button, .curve-band-legend),
-.app-shell main.processing-workbench-page .persistent-modeling-plot :is(.model-diagnostics-details, .candidate-evidence-list) :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
-.app-shell main.processing-workbench-page .stage-diagnostics :is(p, span, strong, b, em, code, summary),
-.app-shell main.processing-workbench-page .modeling-section-actions :is(span, small),
-.app-shell main.processing-workbench-page .stage-chip-rail :is(span, strong, small) {
+.application-shell main.processing-workbench-page .step-option-panel :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
+.application-shell main.processing-workbench-page .persistent-modeling-plot :is(.curve-legend button, .curve-band-legend),
+.application-shell main.processing-workbench-page .persistent-modeling-plot :is(.model-diagnostics-details, .candidate-evidence-list) :is(p, span, strong, b, em, code, summary, output, button, label, legend, small),
+.application-shell main.processing-workbench-page .stage-diagnostics :is(p, span, strong, b, em, code, summary),
+.application-shell main.processing-workbench-page .modeling-section-actions :is(span, small),
+.application-shell main.processing-workbench-page .stage-chip-rail :is(span, strong, small) {
   font-size: 12px;
 }
 
@@ -1816,7 +1601,7 @@
 .processing-workbench-page > .error-banner {
   position: fixed;
   z-index: 30;
-  top: calc(var(--ux-header-height) + var(--ux-space-3));
+  top: calc(var(--ux-shell-top-height) + var(--ux-space-3));
   right: clamp(16px, 1.7vw, 32px);
   width: min(520px, calc(100vw - 32px));
   box-shadow: var(--ux-shadow-overlay);
@@ -2050,29 +1835,16 @@
     position: fixed;
     z-index: 18;
     right: 16px;
-    top: calc(var(--ux-header-height) + 16px);
+    top: calc(var(--ux-shell-top-height) + 16px);
     display: block;
     width: min(340px, calc(100vw - 32px));
-    max-height: calc(100vh - var(--ux-header-height) - 32px);
+    max-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 32px);
     overflow: auto;
     box-shadow: var(--ux-shadow-overlay);
   }
 }
 
 @media (max-width: 760px) {
-  .app-header {
-    grid-template-columns: auto 1fr;
-  }
-
-  .app-header .brand > span:last-child,
-  .product-user-menu {
-    display: none;
-  }
-
-  .app-header nav {
-    justify-self: end;
-  }
-
   .materials-page-header,
   .material-detail-header,
   .card-preview-header {

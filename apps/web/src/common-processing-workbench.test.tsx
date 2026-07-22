@@ -373,19 +373,14 @@ describe("Common Processing Workbench", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Test curves to material model" })).toBeTruthy();
-    const workflow = screen.getByRole("navigation", { name: "Material Modeling steps" });
-    expect(workflow).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Data" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Process" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Fit" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Export" })).toBeTruthy();
+    expect(await screen.findByRole("banner", { name: "Modeling context" })).toBeTruthy();
+    expect(screen.queryByRole("navigation", { name: "Material Modeling steps" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Card" })).toBeNull();
     expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();
     expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Specimen 01/ }).getAttribute("title")).toContain("DP600-TENSILE-01");
     expect(screen.getByRole("button", { name: /settings/ })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Data" }));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
     expect(screen.getByRole("button", { name: "Canonical JSON" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "CSV" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "XLSX" })).toBeTruthy();
@@ -393,18 +388,18 @@ describe("Common Processing Workbench", () => {
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
       '"profile_key": "polymer-shear-relaxation"',
     );
-    fireEvent.click(screen.getByRole("button", { name: "Fit" }));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
     expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
       '"method_id": "polymer.prony_fit_compare"',
     );
-    fireEvent.click(screen.getByRole("button", { name: "Data" }));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
     fireEvent.click(screen.getByRole("tab", { name: /Metal/ }));
     fireEvent.change(screen.getByLabelText("Test Data revision"), {
       target: { value: documentResource.test_data_document_id },
     });
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
     expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Fit" }));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
     expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
       '"method_id": "metal.hardening_fit_extrapolate"',
@@ -471,7 +466,7 @@ describe("Common Processing Workbench", () => {
     const ensembleRequest = fetchMock.mock.calls.find(([input]) => String(input).endsWith("/processing:preview-ensemble"));
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
-    fireEvent.click(screen.getByRole("button", { name: "Export" }));
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
     expect(screen.getByRole("heading", { name: "Neutral model to solver-native material card" })).toBeTruthy();
     expect(screen.getByText("Exact Neutral and solver delivery fixture")).toBeTruthy();
     expect(screen.queryByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeNull();
