@@ -24,13 +24,13 @@
 .application-workspace:has(.processing-workbench-page),
 .application-workspace:has(.material-database-page),
 .application-workspace:has(.test-json-page) {
-  padding-inline: clamp(16px, 1.7vw, 32px);
+  padding-inline: 8px;
 }
 
 .materials-page-header,
 .material-detail-header,
 .card-preview-header {
-  padding: 6px clamp(16px, 1.7vw, 32px);
+  padding: 4px 8px;
   border-bottom: 1px solid var(--ux-border);
   background: var(--ux-surface);
 }
@@ -63,17 +63,21 @@
   gap: var(--ux-space-2);
 }
 
+.materials-page-header {
+  min-height: 40px;
+}
+
 .materials-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 49px);
-  margin: 0 clamp(16px, 1.7vw, 32px);
+  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 40px);
+  margin: 0 8px;
   border-inline: 1px solid var(--ux-border);
   background: var(--ux-surface);
 }
 
 .materials-workspace.filters-visible {
-  grid-template-columns: 264px minmax(0, 1fr);
+  grid-template-columns: 248px minmax(0, 1fr);
 }
 
 .materials-workspace.context-visible {
@@ -81,14 +85,14 @@
 }
 
 .materials-workspace.filters-visible.context-visible {
-  grid-template-columns: 264px minmax(0, 1fr) 280px;
+  grid-template-columns: 248px minmax(0, 1fr) 280px;
 }
 
 .materials-filters,
 .materials-results,
 .materials-selection {
   min-width: 0;
-  padding: var(--ux-space-5);
+  padding: 8px;
 }
 
 .materials-filters,
@@ -99,7 +103,7 @@
 .materials-filters {
   display: grid;
   align-content: start;
-  gap: var(--ux-space-4);
+  gap: 10px;
   background: var(--ux-surface-subtle);
 }
 
@@ -116,11 +120,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ux-space-3);
+  gap: 6px;
+}
+
+.materials-results-header {
+  min-height: 34px;
+  margin-bottom: 4px;
+}
+
+.materials-results-header h2,
+.selection-heading h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.materials-results-header p {
+  margin: 0;
 }
 
 .materials-result-table-wrap {
-  margin: 0 calc(var(--ux-space-5) * -1);
+  margin: 0 -8px;
   overflow-x: auto;
   border-top: 1px solid var(--ux-border);
 }
@@ -134,7 +154,8 @@
 
 .materials-result-table th,
 .materials-result-table td {
-  padding: 9px 12px;
+  height: 34px;
+  padding: 4px 8px;
   overflow: hidden;
   border-bottom: 1px solid var(--ux-border);
   text-align: left;
@@ -180,10 +201,11 @@
 }
 
 .material-result-name {
-  display: grid;
+  display: flex;
+  align-items: baseline;
   width: 100%;
-  min-height: 36px;
-  gap: 2px;
+  min-height: 24px;
+  gap: 0;
   padding: 0;
   overflow: hidden;
   border: 0;
@@ -192,7 +214,7 @@
   text-align: left;
 }
 
-.material-result-name strong,
+.material-result-name span,
 .material-result-name small {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -202,6 +224,14 @@
 .material-result-name small {
   color: var(--ux-text-muted);
   font-size: 12px;
+}
+
+.material-result-name small::before {
+  content: " · ";
+}
+
+.material-result-name span {
+  font-weight: 500;
 }
 
 .material-compare-strip {
@@ -239,35 +269,12 @@
 .materials-left-pane {
   display: flex;
   min-width: 0;
-  height: calc(100vh - 213px);
-  min-height: 500px;
+  height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 40px);
+  min-height: 0;
   flex-direction: column;
   overflow: hidden;
   border-right: 1px solid var(--ux-border);
   background: var(--ux-surface-subtle);
-}
-
-.materials-left-modes {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  min-height: 32px;
-  border-bottom: 1px solid var(--ux-border);
-}
-
-.materials-left-modes button {
-  min-height: 32px;
-  padding: 0;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--ux-text-muted);
-  font-size: 12px;
-}
-
-.materials-left-modes button.active {
-  border-bottom-color: var(--ux-accent);
-  color: var(--ux-accent);
-  font-weight: 650;
 }
 
 .materials-left-pane > .materials-filters {
@@ -547,30 +554,33 @@
 .selection-property-grid,
 .overview-property-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: var(--ux-space-5) 0;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 10px 0;
   border-top: 1px solid var(--ux-border);
-  border-left: 1px solid var(--ux-border);
 }
 
 .selection-property-grid > div,
 .overview-property-grid > div {
-  padding: var(--ux-space-3);
-  border-right: 1px solid var(--ux-border);
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
   border-bottom: 1px solid var(--ux-border);
 }
 
 .selection-property-grid span,
 .overview-property-grid span {
   display: block;
-  margin-bottom: var(--ux-space-1);
+  margin-bottom: 0;
   color: var(--ux-text-muted);
   font-size: 12px;
 }
 
 .selection-property-grid strong,
 .overview-property-grid strong {
-  font-size: 1rem;
+  font-size: 14px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -593,9 +603,9 @@
 .material-detail-shell,
 .card-preview-shell,
 .activity-shell {
-  width: calc(100% - clamp(32px, 3.4vw, 48px));
+  width: calc(100% - 16px);
   max-width: none;
-  margin: 0 clamp(16px, 1.7vw, 24px);
+  margin: 0 8px;
   background: var(--ux-surface);
 }
 
@@ -639,7 +649,7 @@
 .material-tab-panel,
 .card-preview-content,
 .activity-content {
-  padding: var(--ux-space-6);
+  padding: 12px;
 }
 
 .material-action-error {
@@ -769,8 +779,18 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--ux-space-3);
-  padding: var(--ux-space-4) 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--ux-border);
+}
+
+.activity-list li > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.activity-list .ux-button {
+  min-height: 28px;
 }
 
 /* Search-first Modeling shell: the existing deterministic engines remain mounted beneath four tasks. */
@@ -779,10 +799,11 @@
 }
 
 .processing-workbench-page {
+  display: grid;
   width: 100%;
   max-width: none;
   margin: 0;
-  gap: var(--ux-space-3);
+  gap: 6px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -794,7 +815,7 @@
 .modeling-context-strip {
   display: flex;
   align-items: center;
-  min-height: 38px;
+  min-height: 36px;
   order: -3;
   padding: 3px var(--ux-space-3);
   border: 0;
@@ -828,6 +849,18 @@
   min-width: 0;
   margin: 0;
   overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeling-notice-line {
+  min-height: 26px;
+  padding: 4px 8px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface);
   color: var(--ux-text-muted);
   font-size: 12px;
   text-overflow: ellipsis;
@@ -911,6 +944,15 @@
   display: flex;
   gap: var(--ux-space-2);
   flex: 0 0 auto;
+}
+
+.method-builder-card {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .method-builder-card > .section-heading,
@@ -1166,7 +1208,7 @@
 }
 
 .administration-content .product-admin-embedded {
-  gap: var(--ux-space-4);
+  gap: 10px;
 }
 
 .administration-content .product-admin-embedded > .page-heading {
@@ -1267,6 +1309,7 @@
 .administration-content .product-admin-embedded .schema-metrics strong {
   color: var(--ux-text);
   font-size: 14px;
+  overflow: clip;
 }
 
 .administration-content .product-admin-embedded .attribute-card {
@@ -1369,8 +1412,8 @@
 }
 
 .method-builder-card > .section-heading {
-  min-height: 40px;
-  padding: var(--ux-space-2) var(--ux-space-3);
+  min-height: 36px;
+  padding: 4px 8px;
   border: 0;
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
@@ -1426,13 +1469,16 @@
 }
 
 .modeling-graph-workspace {
-  grid-template-columns: clamp(176px, 13.2vw, 196px) minmax(0, 1fr);
+  display: grid;
+  align-items: stretch;
+  grid-template-columns: clamp(184px, 13.2vw, 200px) minmax(0, 1fr);
   grid-template-rows: auto minmax(424px, 1fr);
   gap: 0;
+  min-height: min(680px, calc(100vh - 235px));
 }
 
 .modeling-graph-workspace:not(.inspector-visible) {
-  grid-template-columns: clamp(176px, 13.2vw, 196px) minmax(0, 1fr);
+  grid-template-columns: clamp(184px, 13.2vw, 200px) minmax(0, 1fr);
 }
 
 .modeling-graph-workspace:not(.inspector-visible) .step-option-panel {
@@ -1450,11 +1496,15 @@
 }
 
 .modeling-workspace-rail {
+  display: grid;
+  align-content: start;
   grid-column: 1;
   grid-row: 1 / 3;
   overflow: auto;
   border-width: 1px 0 1px 1px;
   border-radius: 0;
+  padding: 0;
+  gap: 0;
 }
 
 .modeling-graph-workspace.inspector-visible .step-option-panel {
@@ -1467,6 +1517,8 @@
 }
 
 .persistent-modeling-plot {
+  display: flex;
+  flex-direction: column;
   grid-column: 2;
   grid-row: 2;
   width: 100%;
@@ -1474,6 +1526,7 @@
   min-height: min(680px, calc(100vh - 235px));
   border-radius: 0;
   position: relative;
+  padding: 8px;
 }
 
 .persistent-modeling-plot .hardening-analysis-tabs {
@@ -1497,6 +1550,8 @@
 
 .modeling-dataset-list,
 .configured-step-list {
+  display: grid;
+  align-content: start;
   gap: 0;
 }
 
@@ -1509,9 +1564,129 @@
   background: transparent;
 }
 
+.modeling-dataset-list > article {
+  display: grid;
+  align-items: stretch;
+  grid-template-columns: 28px 14px minmax(0, 1fr);
+  min-width: 0;
+}
+
+.modeling-dataset-list > article:hover,
+.modeling-dataset-list > article.active,
+.configured-step-list > button:hover,
+.configured-step-list > button.active {
+  background: var(--ux-accent-soft);
+}
+
 .modeling-dataset-list > article > button {
+  min-width: 0;
   min-height: 26px;
   padding: 3px 6px 3px 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.curve-include-toggle {
+  display: grid;
+  grid-template-columns: 1fr 3px;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 3px 0 5px;
+  cursor: pointer;
+}
+
+.curve-include-toggle input {
+  margin: 0;
+  accent-color: var(--ux-accent);
+}
+
+.curve-include-toggle .dataset-curve-swatch {
+  display: block;
+  background: hsl(calc(174deg + var(--curve-index, 0) * 42deg) 48% 43%);
+  width: 3px;
+  height: 16px;
+  border-radius: 0;
+}
+
+.curve-tree-glyph {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.rail-heading,
+.configured-step-list > .rail-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 6px;
+  border-bottom: 1px solid var(--ux-border);
+  color: var(--ux-text);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.rail-heading p {
+  margin: 0;
+}
+
+.rail-statistics-action {
+  display: grid;
+  gap: 4px;
+  padding: 6px;
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.rail-statistics-action label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.rail-statistics-action input,
+.rail-statistics-action .button {
+  min-height: 28px;
+}
+
+.rail-statistics-action small {
+  text-align: left;
+}
+
+.configured-step-list > button {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 2px;
+  padding: 2px 6px;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.configured-step-list > button > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ux-text-muted);
+}
+
+.configured-step-list > button > span:last-child,
+.modeling-dataset-list > article > button > span {
+  display: grid;
+  min-width: 0;
 }
 
 .modeling-dataset-list > article > button strong,
@@ -1526,12 +1701,57 @@
   display: none;
 }
 
-.modeling-workspace-rail .eyebrow {
+.workspace-caption,
+.step-index {
   margin: 0;
-  font-size: 12.5px;
-  font-weight: 500;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.plot-preview-state {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.plot-view-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.plot-view-switch > button {
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+  color: var(--ux-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.plot-view-switch > button.active {
+  border-color: var(--ux-accent);
+  background: var(--ux-accent);
+  color: #fff;
+}
+
+.plot-view-switch > button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.step-option-panel {
+  overflow: auto;
+  padding: 8px;
+}
+
+.step-option-grid {
+  grid-template-columns: 1fr;
 }
 
 .modeling-graph-workspace.inspector-visible .guided-step-options,
@@ -1545,8 +1765,8 @@
   align-self: end;
 }
 
-.processing-workbench-page button,
-.processing-workbench-page input,
+.processing-workbench-page .button,
+.processing-workbench-page input:not([type="checkbox"]):not([type="radio"]),
 .processing-workbench-page select {
   min-height: 32px;
 }
@@ -1597,7 +1817,6 @@
   font-size: 12px;
 }
 
-.processing-workbench-page > .success-banner,
 .processing-workbench-page > .error-banner {
   position: fixed;
   z-index: 30;

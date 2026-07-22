@@ -12,7 +12,7 @@
 .application-menu-bar {
   z-index: 30;
   display: grid;
-  grid-template-columns: minmax(210px, 1fr) auto minmax(210px, 1fr);
+  grid-template-columns: auto auto minmax(0, 1fr);
   align-items: stretch;
   min-width: 0;
   height: var(--ux-application-bar-height);
@@ -68,6 +68,7 @@
   display: flex;
   align-items: stretch;
   gap: 2px;
+  justify-self: start;
 }
 
 .application-nav {
@@ -260,23 +261,26 @@
   background: var(--ux-success);
 }
 
+.status-connection.degraded i {
+  background: var(--ux-warning);
+}
+
 .status-connection.offline i {
   background: var(--ux-danger);
 }
 
 @media (max-width: 760px) {
   .application-menu-bar {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
   .application-brand strong,
-  .application-session > span,
   .workspace-command-bar h1 {
     display: none;
   }
 
   .application-menu-bar > nav {
-    justify-self: center;
+    justify-self: start;
   }
 
   .application-nav {

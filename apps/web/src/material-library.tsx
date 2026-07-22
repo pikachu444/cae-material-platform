@@ -402,6 +402,7 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
       revision: selected ? `r${selected.current_revision.revision_no} · ${selected.current_revision.lifecycle_state}` : `${totalCount.toLocaleString()} records`,
       jobs: loading ? "Loading materials" : "No active job",
       warnings: error ? "1 workspace error" : "0 warnings",
+      connection: error ? "degraded" : "online",
     });
   }, [error, loading, selected, totalCount]);
 
@@ -486,16 +487,13 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
       </header>
       <div className={`materials-workspace${filtersVisible ? " filters-visible" : ""}${contextVisible ? " context-visible" : ""}`}>
         {filtersVisible ? <aside className="materials-left-pane" aria-label={leftMode === "filters" ? "Material filters" : "Materials Browse Tree"}>
-          <nav className="materials-left-modes" aria-label="Materials navigator mode"><button type="button" className={leftMode === "filters" ? "active" : ""} onClick={() => setLeftMode("filters")}>Filters</button><button type="button" className={leftMode === "browse" ? "active" : ""} onClick={() => setLeftMode("browse")}>Browse</button><button type="button" className={leftMode === "subsets" ? "active" : ""} onClick={() => setLeftMode("subsets")}>Subsets</button></nav>
           {leftMode === "filters" ? <div className="materials-filters">
-          <div><h2>Filters</h2><p className="ux-meta">Facets stay visible while the selected material changes.</p></div>
           <label className="ux-field">Material class<select className="ux-select" value={materialClass} onChange={(event) => setMaterialClass(event.target.value)}><option value="">All classes</option><option value="metal">Metal</option><option value="polymer">Polymer</option><option value="elastomer">Elastomer</option><option value="composite">Composite</option><option value="ceramic">Ceramic</option></select></label>
           <label className="ux-field">Manufacturer / source<select className="ux-select" value={source} onChange={(event) => setSource(event.target.value)}><option value="">Any source</option>{sourceOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
           <label className="ux-field">CAE card<select className="ux-select" value={solver} onChange={(event) => setSolver(event.target.value)}><option value="">Any availability</option><option value="Abaqus">Abaqus available</option><option value="OpenRadioss">OpenRadioss available</option></select></label>
           <label className="ux-field">Validation / release status<select className="ux-select" value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Any status</option><option value="draft">Draft / reference</option></select></label>
           <fieldset className="ux-field"><legend>Yield strength (MPa)</legend><div className="filter-range"><input className="ux-input" aria-label="Minimum yield strength" type="number" value={yieldMin} onChange={(event) => setYieldMin(event.target.value)} placeholder="Min"/><input className="ux-input" aria-label="Maximum yield strength" type="number" value={yieldMax} onChange={(event) => setYieldMax(event.target.value)} placeholder="Max"/></div></fieldset>
           <button className="ux-button tertiary" type="button" onClick={() => { setMaterialClass(""); setSource(""); setSolver(""); setStatus(""); setYieldMin(""); setYieldMax(""); }}>Clear filters</button>
-          <div className="browse-tree-entry"><strong>Browse and saved subsets</strong><p className="ux-meta">Navigate Database → Profile → Table → Folder → Record, or apply a governed saved Subset.</p><button className="ux-button" type="button" onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Open Browse Tree</button></div>
           </div> : <MaterialsBrowseTree config={config} subsetMode={leftMode === "subsets"} requestedRecord={requestedRecord} onSelectRecord={selectBrowseRecord} onOpenRecord={openExactRecord}/>}
         </aside> : null}
         <section className="materials-results" aria-labelledby="material-results-title">
@@ -509,7 +507,8 @@ export function MaterialSearchPage({ config, onNavigate }: Props) {
               const content = material.current_revision.content;
               const itemExperience = experience[material.material_id];
               const property = currentProperty(itemExperience)?.current_revision.content;
-              return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""}><td><input type="checkbox" aria-label={`Compare ${content.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={content.name} onClick={() => setSelectedId(material.material_id)}><strong>{content.name}</strong><small>{content.material_code ?? "No grade code"}</small></button></td><td title={content.material_family ?? content.material_class}>{content.material_family ?? content.material_class}</td><td title={sourceLabel(itemExperience)}>{sourceLabel(itemExperience)}</td><td className="ux-numeric">{formatPressure(property?.yield_stress_pa)}</td><td>{itemExperience ? `${itemExperience.cards.length} cards` : "Checking…"}</td></tr>;
+              const materialIdentity = `${content.name} · ${content.material_code ?? "No grade code"}`;
+              return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""}><td><input type="checkbox" aria-label={`Compare ${content.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={materialIdentity} onClick={() => setSelectedId(material.material_id)}><span>{content.name}</span><small>{content.material_code ?? "No grade code"}</small></button></td><td title={content.material_family ?? content.material_class}>{content.material_family ?? content.material_class}</td><td title={sourceLabel(itemExperience)}>{sourceLabel(itemExperience)}</td><td className="ux-numeric">{formatPressure(property?.yield_stress_pa)}</td><td>{itemExperience ? `${itemExperience.cards.length} cards` : "Checking…"}</td></tr>;
             })}
           </tbody></table></div>
         </section>
@@ -564,6 +563,7 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
       revision: material ? `r${material.current_revision.revision_no} · ${material.current_revision.lifecycle_state}` : "Loading revision",
       jobs: downloadingId ? "Preparing solver card" : "No active job",
       warnings: error || actionError ? "1 workspace error" : "0 warnings",
+      connection: error || actionError ? "degraded" : "online",
     });
   }, [actionError, downloadingId, error, experience]);
 
@@ -672,6 +672,6 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
 }
 
 export function ActivityPage({ onNavigate }: Pick<Props, "onNavigate">) {
-  useEffect(() => publishWorkspaceStatus({ selection: "Current workspace activity", revision: "Current user", jobs: "Jobs ready", warnings: "0 warnings" }), []);
+  useEffect(() => publishWorkspaceStatus({ selection: "Current workspace activity", revision: "Current user", jobs: "No active job", warnings: "0 warnings", connection: "online" }), []);
   return <div className="ux-page"><div className="activity-shell"><div className="activity-content"><h2>Current workspace activity</h2><ul className="activity-list"><li><span><strong>Material modeling sessions</strong><small className="ux-meta">Resume the latest data, process, fit, or export task.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/modeling")}>Open Modeling</button></li><li><span><strong>Reviews and releases</strong><small className="ux-meta">Review governed outputs and release decisions.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/jobs-reviews")}>Open reviews</button></li></ul><details className="ux-disclosure"><summary>Advanced jobs and export packages</summary><p>Inspect batch attempts, technical diagnostics, and checksum-verifiable bulk packages.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details></div></div></div>;
 }

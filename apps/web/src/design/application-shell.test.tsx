@@ -35,6 +35,13 @@ describe("ApplicationShell", () => {
     act(() => window.dispatchEvent(new Event("offline")));
     expect(screen.getByText("Offline")).toBeTruthy();
     act(() => window.dispatchEvent(new Event("online")));
-    expect(screen.getByText("Connected")).toBeTruthy();
+    expect(screen.getByText("Online")).toBeTruthy();
+  });
+
+  it("distinguishes a degraded service from a browser network outage", () => {
+    render(<ApplicationShell path="/materials" navigate={vi.fn()}><p>workspace</p></ApplicationShell>);
+
+    act(() => publishWorkspaceStatus({ connection: "degraded" }));
+    expect(screen.getByText("Service unavailable")).toBeTruthy();
   });
 });

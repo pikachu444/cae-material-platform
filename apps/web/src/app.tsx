@@ -210,12 +210,16 @@ function AdministrationWorkspace({
   onOpenConnection: () => void;
   section: "overview" | "database" | "access";
 }) {
-  useEffect(() => publishWorkspaceStatus({
-    selection: section === "database" ? "Database design" : section === "access" ? "Users and access" : "Administration overview",
-    revision: "Governed configuration",
-    jobs: "No active job",
-    warnings: "0 validation errors",
-  }), [section]);
+  useEffect(() => {
+    if (section === "database") return;
+    publishWorkspaceStatus({
+      selection: section === "access" ? "Users and access" : "Administration overview",
+      revision: "Governed configuration",
+      jobs: "No active job",
+      warnings: "0 validation errors",
+      connection: "online",
+    });
+  }, [section]);
 
   return (
     <div className="administration-workspace">

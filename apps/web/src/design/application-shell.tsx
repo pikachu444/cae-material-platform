@@ -5,7 +5,10 @@ export interface WorkspaceStatusUpdate {
   revision?: string;
   jobs?: string;
   warnings?: string;
+  connection?: "online" | "degraded" | "offline";
 }
+
+type WorkspaceStatus = Required<Omit<WorkspaceStatusUpdate, "connection">>;
 
 interface ApplicationShellProps {
   path: string;
@@ -35,10 +38,10 @@ function workspaceFor(path: string): "materials" | "modeling" | "activity" | "ad
   return "other";
 }
 
-function defaultStatus(path: string): Required<WorkspaceStatusUpdate> {
+function defaultStatus(path: string): WorkspaceStatus {
   const workspace = workspaceFor(path);
   if (workspace === "modeling") return { selection: "Modeling session", revision: "Draft", jobs: "No active job", warnings: "0 warnings" };
-  if (workspace === "activity") return { selection: "Current work queue", revision: "Current user", jobs: "Jobs ready", warnings: "0 warnings" };
+  if (workspace === "activity") return { selection: "Current work queue", revision: "Current user", jobs: "No active job", warnings: "0 warnings" };
   if (workspace === "administration") return { selection: "Administration", revision: "No shell draft", jobs: "No active job", warnings: "0 validation errors" };
   if (workspace === "other") return { selection: "Workspace", revision: "Current context", jobs: "No active job", warnings: "0 warnings" };
   if (/^\/materials\/[^/]+/.test(path)) return { selection: "Material record", revision: "Current revision", jobs: "No active job", warnings: "0 warnings" };
@@ -63,8 +66,6 @@ function focusFirst(selector: string): void {
 function commandsFor(path: string, navigate: (path: string) => void, activeCommand: string): { title: string; commands: Command[] } {
   const material = path.match(/^\/materials\/([^/]+)(?:\/(overview|properties|curves|cards|evidence))?$/);
   if (material) {
-    const materialId = material[1];
-    const activeTab = material[2] ?? "overview";
     return {
       title: "Material Detail",
       commands: [
@@ -72,11 +73,6 @@ function commandsFor(path: string, navigate: (path: string) => void, activeComma
           const stored = window.sessionStorage.getItem("cmp.materials.return-path") ?? "";
           navigate(stored.startsWith("/materials") && !stored.startsWith("//") ? stored : "/materials");
         } },
-        ...(["overview", "properties", "curves", "cards", "evidence"] as const).map((tab) => ({
-          label: tab === "cards" ? "CAE Cards" : `${tab[0].toUpperCase()}${tab.slice(1)}`,
-          active: activeTab === tab,
-          action: () => navigate(tab === "overview" ? `/materials/${materialId}` : `/materials/${materialId}/${tab}`),
-        })),
       ],
     };
   }
@@ -86,36 +82,18 @@ function commandsFor(path: string, navigate: (path: string) => void, activeComma
     return {
       title: "Modeling",
       commands: [
-        { label: "Open data", action: () => navigate("/datasets/test-json") },
         { label: "Data", active: activeCommand === "modeling:data", action: () => emitWorkspaceCommand("modeling:data") },
         { label: "Process", active: activeCommand === "modeling:process", action: () => emitWorkspaceCommand("modeling:process") },
         { label: "Fit", active: activeCommand === "modeling:fit", action: () => emitWorkspaceCommand("modeling:fit") },
         { label: "Export", active: activeCommand === "modeling:export", action: () => emitWorkspaceCommand("modeling:export") },
-        { label: "Undo", disabledReason: "Undo is available after a draft operation changes the session." },
-        { label: "Redo", disabledReason: "Redo is available after an operation has been undone." },
       ],
     };
   }
   if (workspace === "activity") {
-    return {
-      title: "Activity",
-      commands: [
-        { label: "Modeling sessions", action: () => navigate("/modeling") },
-        { label: "Reviews", action: () => navigate("/jobs-reviews") },
-        { label: "Export packages", action: () => navigate("/exports") },
-      ],
-    };
+    return { title: "Activity", commands: [] };
   }
   if (workspace === "administration") {
-    return {
-      title: "Administration",
-      commands: [
-        { label: "Overview", active: path === "/administration", action: () => navigate("/administration") },
-        { label: "Database design", active: path.includes("/database"), action: () => navigate("/administration/database") },
-        { label: "Access", active: path.includes("/access"), action: () => navigate("/administration/access") },
-        { label: "Record datasheet", action: () => navigate("/database") },
-      ],
-    };
+    return { title: "Administration", commands: [] };
   }
   if (workspace === "other") {
     return { title: "Workspace", commands: [{ label: "Materials", action: () => navigate("/materials") }, { label: "Modeling", action: () => navigate("/modeling") }] };
@@ -136,8 +114,9 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
   const workspace = workspaceFor(path);
   const [activeCommand, setActiveCommand] = useState(() => initialActiveCommand(path));
   const commandModel = useMemo(() => commandsFor(path, navigate, activeCommand), [activeCommand, navigate, path]);
-  const [status, setStatus] = useState<Required<WorkspaceStatusUpdate>>(() => defaultStatus(path));
-  const [connected, setConnected] = useState(() => navigator.onLine);
+  const [status, setStatus] = useState<WorkspaceStatus>(() => defaultStatus(path));
+  const [browserOnline, setBrowserOnline] = useState(() => navigator.onLine);
+  const [serviceConnection, setServiceConnection] = useState<NonNullable<WorkspaceStatusUpdate["connection"]>>("online");
   const menuRef = useRef<HTMLElement>(null);
   const commandRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -145,21 +124,24 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
 
   useEffect(() => {
     setStatus(defaultStatus(path));
+    setServiceConnection("online");
     setActiveCommand(initialActiveCommand(path));
   }, [path]);
 
   useEffect(() => {
     const update = (event: Event) => {
       const detail = (event as CustomEvent<WorkspaceStatusUpdate>).detail;
-      setStatus((current) => ({ ...current, ...detail }));
+      const { connection, ...fields } = detail;
+      setStatus((current) => ({ ...current, ...fields }));
+      if (connection) setServiceConnection(connection);
     };
     window.addEventListener(STATUS_EVENT, update);
     return () => window.removeEventListener(STATUS_EVENT, update);
   }, []);
 
   useEffect(() => {
-    const markOnline = () => setConnected(true);
-    const markOffline = () => setConnected(false);
+    const markOnline = () => setBrowserOnline(true);
+    const markOffline = () => setBrowserOnline(false);
     window.addEventListener("online", markOnline);
     window.addEventListener("offline", markOffline);
     return () => {
@@ -210,6 +192,8 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
     { label: "Modeling", target: "/modeling", active: workspace === "modeling" },
     { label: "Activity", target: "/activity", active: workspace === "activity" },
   ];
+  const connection = browserOnline ? serviceConnection : "offline";
+  const connectionLabel = connection === "online" ? "Online" : connection === "degraded" ? "Service unavailable" : "Offline";
 
   return (
     <div className="application-shell">
@@ -222,7 +206,6 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
           {navigation.map((item) => <button key={item.target} className={item.active ? "application-nav active" : "application-nav"} type="button" aria-current={item.active ? "page" : undefined} onClick={() => navigate(item.target)}>{item.label}</button>)}
         </nav>
         <div className="application-session">
-          <span>{commandModel.title}</span>
           <details className="application-user-menu"><summary>Demo user</summary><div><button type="button" onClick={() => navigate("/administration")}>Administration</button><button type="button" onClick={() => navigate("/database")}>Browse database</button></div></details>
         </div>
       </header>
@@ -238,7 +221,7 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
         <span>{status.revision}</span>
         <span>{status.jobs}</span>
         <span>{status.warnings}</span>
-        <span className={connected ? "status-connection" : "status-connection offline"}><i aria-hidden="true" />{connected ? "Connected" : "Offline"}</span>
+        <span className={`status-connection ${connection}`}><i aria-hidden="true" />{connectionLabel}</span>
       </footer>
     </div>
   );
