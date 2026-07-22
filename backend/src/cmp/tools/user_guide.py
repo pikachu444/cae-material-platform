@@ -115,10 +115,19 @@ def _documentation_classes(project: Path) -> dict[str, str]:
             if status not in {"current", "authoritative", "historical", "reference"}:
                 raise UserGuideContractError(f"unsupported documentation status: {status}")
             patterns = _sequence(rule.get("include"), f"documentation rule {ordinal} include")
-            if any(
+            exclude_patterns = _sequence(
+                rule.get("exclude", []),
+                f"documentation rule {ordinal} exclude",
+            )
+            included = any(
                 _glob_matches(path, _text(pattern, "documentation include"))
                 for pattern in patterns
-            ):
+            )
+            excluded = any(
+                _glob_matches(path, _text(pattern, "documentation exclude"))
+                for pattern in exclude_patterns
+            )
+            if included and not excluded:
                 matches.append(status)
         if len(matches) != 1:
             raise UserGuideContractError(
