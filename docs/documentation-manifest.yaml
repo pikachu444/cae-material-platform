@@ -39,8 +39,6 @@ rules:
   - status: authoritative
     include:
       - "AGENTS.md"
-    exclude:
-      - "docs/01-product/ux-redesign-package/**/*.md"
       - "CODEX_DESKTOP_ENGINEERING_UI_START.md"
       - ".codex/skills/**/*.md"
       - "adr/**/*.md"
@@ -77,3 +75,6 @@ rules:
       - "docs/user-guide/15-product-access.md"
       - "docs/user-guide/16-guided-demo.md"
       - "docs/user-guide/17-clean-demo-download-validation.md"
+
+    exclude:
+      - "docs/01-product/ux-redesign-package/**/*.md"
