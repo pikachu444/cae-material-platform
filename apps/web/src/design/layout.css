@@ -1744,8 +1744,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  height: min(32vh, 40%);
-  min-height: 200px;
+  height: min(24vh, 28%);
+  min-height: 144px;
   overflow: auto;
   border-top: 1px solid var(--ux-border-strong);
   background: var(--ux-surface);

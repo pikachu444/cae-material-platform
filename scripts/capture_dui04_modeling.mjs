@@ -20,8 +20,13 @@ async function waitForSettled(page) {
   await page.waitForLoadState("networkidle");
   await page.waitForFunction(() => {
     const text = document.body.innerText;
-    return !["Checking…", "Loading…", "Calculating…", "Loading source revisions…", "Loading the Metal elastoplastic engine…"]
-      .some((label) => text.includes(label));
+    const unfinished = /^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$/i;
+    const hasProgressText = text.split("\n").some((line) => unfinished.test(line.trim()));
+    const hasActiveStatus = [...document.querySelectorAll('[role="status"], .loading-state')]
+      .some((element) => /(?:…|\.\.\.)/.test(element.textContent ?? ""));
+    return !document.querySelector('[aria-busy="true"]')
+      && !hasProgressText
+      && !hasActiveStatus;
   }, undefined, { timeout: 20_000 });
 }
 
@@ -66,6 +71,7 @@ try {
         await page.getByText("Loading the Metal elastoplastic engine…", { exact: true }).waitFor({ state: "detached", timeout: 20_000 });
         await page.getByText("Loading source revisions…", { exact: true }).waitFor({ state: "detached", timeout: 20_000 });
         await page.locator(".modeling-workspace-dock .neutral-solver-export").waitFor({ timeout: 20_000 });
+        await page.locator('.modeling-workspace-dock .domain-workflow-links[data-resolution-state="resolved"]').waitFor({ timeout: 20_000 });
       }
       await plot.waitFor();
       await waitForSettled(page);

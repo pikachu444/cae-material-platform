@@ -97,6 +97,12 @@ describe("DomainWorkflowLinks", () => {
     expect(screen.getByRole("link", { name: /DP780 Abaqus card/ }).getAttribute("href")).toBe(
       "/exports?solver_card_id=66000000-0000-4000-8000-000000000023",
     );
+    expect(
+      screen
+        .getByRole("region", { name: /Neutral Material JSON r1 related governed data/ })
+        .getAttribute("data-resolution-state"),
+    ).toBe("resolved");
+    expect(screen.queryByText("Resolving the exact Catalog node…")).toBeNull();
   });
 
   it("states when the exact revision has not been projected", async () => {
@@ -113,6 +119,11 @@ describe("DomainWorkflowLinks", () => {
       />,
     );
     expect(await screen.findByText(/not yet projected/)).toBeTruthy();
+    expect(
+      screen
+        .getByRole("region", { name: /Test JSON r1 related governed data/ })
+        .getAttribute("data-resolution-state"),
+    ).toBe("unprojected");
     expect(mocks.graph).not.toHaveBeenCalled();
   });
 });

@@ -32,8 +32,11 @@ processing, immutable revision, Material Model IR and solver-card API contracts 
 revision, waits for the server preview, switches Data → Process → Fit → Export → Fit through the
 real command bar, and asserts that the before/after graph nodes are identical. It rejects Data if a
 Fit-only candidate control is present, rejects Process if Fit evidence is present, and rejects any
-capture containing `Checking…`, `Loading…` or `Calculating…`. After the captures it opens Activity,
-resumes Fit, and compares the session, exact Test Data and checked curve identities.
+capture while an `aria-busy` region or `Checking…`, `Loading…`, `Calculating…`, `Resolving…`, preview,
+mapping, Neutral JSON or native-card progress text remains. Export has an additional hard gate on the
+exact Catalog/workflow region's `data-resolution-state="resolved"`; an error or unprojected terminal
+state cannot be photographed as success. After the captures it opens Activity, resumes Fit, and
+compares the session, exact Test Data and checked curve identities.
 
 | Viewport | Navigator | Main/plot region | Main share of split workspace | Overflow | Graph preserved |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -42,10 +45,11 @@ resumes Fit, and compares the session, exact Test Data and checked curve identit
 | 1920×1080 | 208 px | 1691 px | 88.8% | 0 px | yes |
 
 The shallow settings ribbon is open at all three target viewports so each stage purpose is visible.
-The Export overlay dock occupies 40% of the main surface at most (208/261/333 px at the three target
-viewports) and leaves the mounted graph above it. Divider buttons have explicit accessible names and
-expanded state. The existing F6 region cycle continues to cover application, commands, main
-workspace and status.
+The Export overlay dock now occupies 24% of the main surface (146/183/233 px at the three target
+viewports, reduced from 208/261/333 px) and leaves substantially more of the mounted graph visible,
+especially at 1366×768. Its detailed delivery content scrolls inside the dock rather than expanding
+over the graph. Divider buttons have explicit accessible names and expanded state. The existing F6
+region cycle continues to cover application, commands, main workspace and status.
 
 ## Material Modeler reference comparison
 
@@ -64,16 +68,18 @@ provenance and non-production plugin language instead of copying proprietary dec
 | Export | 18 | 16 | 17 | 18 | 17 | 86 |
 
 All screens exceed 85/100. Topology, dominant-area, nested-card, graph-width and horizontal-overflow
-hard gates pass. Export is deliberately scored lowest: its dock must scroll at 1366 and the fixed
-engineering plot leaves more lateral breathing room at 1920 than the reference. Those are visible,
-bounded limitations rather than a claim of pixel parity or completion of a later delivery task.
+hard gates pass. Export is deliberately scored lowest: its compact dock must scroll at 1366 and the
+fixed engineering plot leaves more lateral breathing room at 1920 than the reference. Those are
+visible, bounded limitations rather than a claim of pixel parity or completion of a later delivery
+task. The reduced dock improves graph comparison without inflating the structural score.
 
 ## Captures
 
 The screenshot manifest registers Data, Process, Fit and Export at 1366×768, 1440×900 and
 1920×1080 under `docs/15-demo/images/ux-redesign-v2/dui-04-modeling-*.png`. Every PNG has the exact
-requested viewport dimensions and was captured after asynchronous data completed. The images show
-four distinct tasks rather than four copies of the same Fit configuration.
+requested viewport dimensions and was captured after asynchronous data completed. In all three
+Export images, the exact Catalog/workflow links are rendered and no `Resolving…` placeholder remains.
+The images show four distinct tasks rather than four copies of the same Fit configuration.
 
 ## Regression
 

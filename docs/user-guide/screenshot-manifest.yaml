@@ -1,4 +1,4 @@
-version: 40
+version: 41
 verified_at: 2026-07-22
 scope: current-product-baseline
 notes:
@@ -12,9 +12,9 @@ notes:
   - "DUI-02 uses one command-bar mode hierarchy; pane visibility is controlled from the dividers without a dedicated toggle row."
   - "DUI-02 measured pane widths are 232/1106/context-collapsed at 1366, 240/908/264 at 1440, and 272/1332/288 at 1920; screenshots are exact requested viewport sizes."
   - "Materials result captures require aria-busy=false, 0 Checking rows, all 3 synthetic results, and 0 px horizontal overflow."
-  - "DUI-04 captures wait for exact Test Data, server preview, and the lazy family engine/source revisions; Checking, Loading, and Calculating placeholders are rejected."
+  - "DUI-04 captures wait for exact Test Data, server preview, lazy family engine/source revisions, and resolved exact Catalog/workflow links; aria-busy and Checking, Loading, Calculating, Resolving, preview, mapping, Neutral JSON, and native-card progress placeholders are rejected."
   - "DUI-04 measured navigator/main widths are 184/1161 at 1366, 192/1227 at 1440, and 208/1691 at 1920; horizontal overflow is 0 px."
-  - "DUI-04 Export keeps the selected model, observed 0.0001–0.1 fit range and persistent graph above a 208/261/333 px bottom delivery dock."
+  - "DUI-04 Export keeps the selected model, observed 0.0001–0.1 fit range and persistent graph above a compact 146/183/233 px bottom delivery dock."
   - "DUI-04 live Activity resume restores the same material/session string, exact DP780 Test Data revision, Fit stage, and two checked curve identities at every target viewport."
 captures:
   - id: dui-04-modeling-data-1366

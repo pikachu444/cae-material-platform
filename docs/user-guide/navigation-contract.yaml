@@ -1,4 +1,4 @@
-version: 11
+version: 12
 shell:
   application_bar_px: 46
   command_bar_px: 38
@@ -63,4 +63,4 @@ modeling_workspace:
     process: [processing-operations, necking-boundary, processed-preview]
     fit: [candidate-equations, residual, extrapolation]
     export: [selected-model, observed-fit-range, persistent-graph, bottom-delivery-dock]
-  capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, no-checking-or-loading-state, no-horizontal-overflow]
+  capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, exact-catalog-link-resolved, no-checking-loading-or-resolving-state, no-horizontal-overflow]

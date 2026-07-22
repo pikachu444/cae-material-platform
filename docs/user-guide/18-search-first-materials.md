@@ -184,7 +184,9 @@ Table, Attribute, Layout, Subset과 Link Type 편집 상태를 유지하며, 현
 비동기 데이터가 완료된 뒤 캡처했습니다. Data는 source/mapping만, Process는 engineering-to-true
 변환과 necking 경계만, Fit은 candidate/residual/extrapolation만 표시합니다. Export는 선택 모델,
 관측 범위와 외삽 그래프를 유지한 채 같은 작업면의 하단 delivery dock에서 Neutral IR → native
-card 흐름을 이어갑니다.
+card 흐름을 이어갑니다. 이 dock은 1366에서도 그래프 비교 높이를 확보하도록 146px까지 작아지고,
+상세 내용만 내부에서 스크롤합니다. Export 캡처는 exact Catalog/workflow 링크가 해소되고
+`Resolving…`을 포함한 모든 진행 상태가 사라진 뒤에만 허용됩니다.
 
 | 단계 | 1366×768 | 1440×900 | 1920×1080 |
 | --- | --- | --- | --- |

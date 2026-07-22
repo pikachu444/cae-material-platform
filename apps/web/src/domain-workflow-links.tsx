@@ -55,6 +55,7 @@ export function DomainWorkflowLinks({ config, target, compact = false }: DomainW
   const [graph, setGraph] = useState<CatalogWorkflowGraphResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const resolutionState = loading ? "loading" : error ? "error" : binding ? "resolved" : "unprojected";
 
   useEffect(() => {
     let active = true;
@@ -94,7 +95,12 @@ export function DomainWorkflowLinks({ config, target, compact = false }: DomainW
   }, [config, target.kind, target.objectId, target.revisionId]);
 
   return (
-    <section className={`domain-workflow-links${compact ? " compact" : ""}`} aria-label={`${target.label} related governed data`}>
+    <section
+      className={`domain-workflow-links${compact ? " compact" : ""}`}
+      aria-label={`${target.label} related governed data`}
+      aria-busy={loading}
+      data-resolution-state={resolutionState}
+    >
       <div className="domain-workflow-heading">
         <div>
           <span className="eyebrow">Exact linked data</span>
@@ -102,8 +108,16 @@ export function DomainWorkflowLinks({ config, target, compact = false }: DomainW
         </div>
         {binding ? <a className="button secondary" href={explorerPath(binding)}>Open Workflow Explorer</a> : null}
       </div>
-      {loading ? <p className="muted">Resolving the exact Catalog node…</p> : null}
-      {error ? <p className="inline-error">{error}</p> : null}
+      {loading ? (
+        <p className="muted" role="status" aria-live="polite">
+          Resolving the exact Catalog node…
+        </p>
+      ) : null}
+      {error ? (
+        <p className="inline-error" role="alert">
+          {error}
+        </p>
+      ) : null}
       {!loading && !error && !binding ? (
         <p className="muted">This exact revision is not yet projected into a configurable Workflow Explorer record.</p>
       ) : null}
