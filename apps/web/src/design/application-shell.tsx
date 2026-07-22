@@ -25,9 +25,14 @@ interface Command {
 
 const STATUS_EVENT = "cmp:workspace-status";
 const COMMAND_EVENT = "cmp:workspace-command";
+const COMMAND_STATE_EVENT = "cmp:workspace-command-state";
 
 export function publishWorkspaceStatus(update: WorkspaceStatusUpdate): void {
   window.dispatchEvent(new CustomEvent<WorkspaceStatusUpdate>(STATUS_EVENT, { detail: update }));
+}
+
+export function publishWorkspaceCommandState(command: string): void {
+  window.dispatchEvent(new CustomEvent(COMMAND_STATE_EVENT, { detail: { command } }));
 }
 
 function workspaceFor(path: string): "materials" | "modeling" | "activity" | "administration" | "other" {
@@ -156,7 +161,11 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
       if (command?.startsWith("modeling:") || command?.startsWith("materials:")) setActiveCommand(command);
     };
     window.addEventListener(COMMAND_EVENT, updateActiveCommand);
-    return () => window.removeEventListener(COMMAND_EVENT, updateActiveCommand);
+    window.addEventListener(COMMAND_STATE_EVENT, updateActiveCommand);
+    return () => {
+      window.removeEventListener(COMMAND_EVENT, updateActiveCommand);
+      window.removeEventListener(COMMAND_STATE_EVENT, updateActiveCommand);
+    };
   }, []);
 
   useEffect(() => {
@@ -170,9 +179,9 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
       if (event.key !== "F6") return;
       event.preventDefault();
       const workspaceRegions = [
-        document.querySelector<HTMLElement>(".materials-left-pane, .modeling-workspace-rail, .administration-navigation"),
-        document.querySelector<HTMLElement>(".materials-results, .material-tab-panel, .persistent-modeling-plot, .activity-content, .administration-content"),
-        document.querySelector<HTMLElement>(".materials-selection, .step-option-panel"),
+        document.querySelector<HTMLElement>(".navigator-panel, .materials-left-pane, .modeling-workspace-rail, .administration-navigation"),
+        document.querySelector<HTMLElement>(".main-panel, .materials-results, .material-tab-panel, .persistent-modeling-plot, .activity-content, .administration-content"),
+        document.querySelector<HTMLElement>(".context-panel, .materials-selection, .step-option-panel"),
       ];
       const regions = [menuRef.current, commandRef.current, ...workspaceRegions, mainRef.current, statusRef.current]
         .filter((item, index, items): item is HTMLElement => Boolean(item) && items.indexOf(item) === index);

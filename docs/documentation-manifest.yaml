@@ -7,6 +7,7 @@ policy:
 rules:
   - status: reference
     include:
+      - ".agents/skills/**/*.md"
       - "docs/00-research/**/*.md"
   - status: historical
     include:
