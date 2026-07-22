@@ -26,8 +26,8 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 ### Browse Tree에서 Record 찾기
 
 1. Materials 상단의 `Browse Tree`를 선택합니다.
-2. 왼쪽의 `Filters | Browse | Subsets`에서 `Browse`를 선택하고 Database, Profile, Table을
-   확인합니다.
+2. 왼쪽 Browse navigator에서 Database, Profile, Table을 확인합니다. Search/Browse/Subsets
+   전환은 중복된 panel tab이 아니라 상단 command bar 한 곳에서만 수행합니다.
 3. Folder 앞의 disclosure를 열거나 고정된 `Find in tree`에 이름을 입력합니다. 검색 결과는
    상위 Folder 경로를 유지합니다.
 4. 방향키와 Home/End로 이동하고, Left/Right로 접거나 펼치며, Enter로 Record를 선택합니다.
@@ -80,7 +80,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 
 ### Modeling 화면 읽기
 
-- 왼쪽 `Curves`와 `Process`는 26 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
+- 왼쪽 `Curves`와 `Process`는 27 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
   선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
   유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.

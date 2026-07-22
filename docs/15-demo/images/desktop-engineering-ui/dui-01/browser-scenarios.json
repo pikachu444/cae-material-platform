@@ -10,34 +10,13 @@
     "ctrlK": {
       "label": "Search materials",
       "placeholder": "Search material name, grade, code, or family",
-      "tag": "INPUT",
-      "transportNote": ""
+      "tag": "INPUT"
     },
     "f6": [
-      {
-        "label": null,
-        "region": "status",
-        "tag": "FOOTER",
-        "transportNote": ""
-      },
-      {
-        "label": null,
-        "region": "application",
-        "tag": "HEADER",
-        "transportNote": ""
-      },
-      {
-        "label": "Materials commands",
-        "region": "commands",
-        "tag": "SECTION",
-        "transportNote": ""
-      },
-      {
-        "label": "Material filters",
-        "region": "workspace",
-        "tag": "ASIDE",
-        "transportNote": ""
-      }
+      { "label": null, "region": "status", "tag": "FOOTER" },
+      { "label": null, "region": "application", "tag": "HEADER" },
+      { "label": "Materials commands", "region": "commands", "tag": "SECTION" },
+      { "label": "Material filters", "region": "workspace", "tag": "ASIDE" }
     ],
     "compareDisabled": true,
     "compareAriaDisabled": "true",
@@ -45,18 +24,21 @@
     "browse": {
       "url": "http://127.0.0.1:5173/materials?q=DP780&mode=browse&selected=0e916d48-2ab1-42be-ac23-4ec967b26e76",
       "treeSearch": 1,
-      "paneText": "Filters\nBrowse\nSubsets\nBrowse\n1 tables\nDatabase\nMaterials Database\nProfile\nEngineering Materials\nTable\nDemo Material Records\nFind\nExpand a Table or Folder to lo"
+      "paneText": "Browse\n1 tables\nDatabase\nMaterials Database\nProfile\nEngineering Materials\nTable\nDemo Material Records\nFind\nExpand a Table or Folder to load its children."
     },
-    "materialStatus": "DP780 synthetic demo steel · CMP-DEMO-DP780 r1 · draft No active job 0 warnings Connected",
+    "materialStatus": "DP780 synthetic demo steel · CMP-DEMO-DP780\nr1 · draft\nNo active job\n0 warnings\nOnline",
+    "materialPrimaryActions": {
+      "preview": 2,
+      "download": 1
+    },
     "materialOverflow": 0,
     "modelingData": {
-      "current": null,
       "heading": "Test data and channel mapping"
     },
     "modelingFit": {
-      "current": null,
+      "activeClass": "workspace-command active",
       "graphCount": 1,
-      "status": "DP780 synthetic demo steel Test Data r1 · fit No active job 0 warnings Connected"
+      "status": "DP780 synthetic demo steel\nTest Data r1 · fit\nLast operation completed\n0 warnings\nOnline"
     },
     "modelingOverflow": 0,
     "/activity": {

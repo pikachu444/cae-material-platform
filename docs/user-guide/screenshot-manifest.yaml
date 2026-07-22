@@ -1,4 +1,4 @@
-version: 36
+version: 37
 verified_at: 2026-07-22
 scope: current-product-baseline
 notes:
@@ -6,7 +6,8 @@ notes:
   - "Migration and deterministic reference-plugin seed jobs completed successfully before browser validation."
   - "Requested browser sizes were 1366x768, 1440x900, and 1920x1080; width and height below are the actual PNG content dimensions after in-app browser chrome and host-window limits."
   - "All fixtures are synthetic, non-production reference data."
-  - "DUI-01 captures use the implemented 46 px application bar, 38 px command bar, and 24 px status bar."
+  - "DUI-01 captures were refreshed after direct comparison with all Granta MI and Material Modeler images in docs/00-research/images/gui-reference."
+  - "DUI-01 uses a 46 px left-aligned application bar, 38 px workspace command bar, and 24 px semantic status bar."
 captures:
   - id: dui-01-materials-search-1440
     route: /materials
@@ -38,7 +39,7 @@ captures:
     height: 900
   - id: dui-01-activity-1440
     route: /activity
-    workflow: compact-activity-commands-and-work-queue-status
+    workflow: compact-activity-shell-and-work-queue-status
     fixture: clean deterministic demo activity
     image: ../15-demo/images/ux-redesign-v2/dui-01-activity-1440x900.png
     width: 1440
