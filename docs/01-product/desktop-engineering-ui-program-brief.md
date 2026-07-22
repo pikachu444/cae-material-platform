@@ -169,8 +169,8 @@ The complete installation commands, skill roles, precedence and mandatory audit 
 by [Desktop Engineering UI Tooling](desktop-engineering-ui-tooling.md). Read and apply that section
 before any approved DUI implementation.
 
-The required four layers are the existing project \`desktop-engineering-ui\` skill plus
-\`frontend-ui-engineering\`, \`web-design-guidelines\` and \`webapp-testing\`. The repository
+The required four layers are the existing project `desktop-engineering-ui` skill plus
+`frontend-ui-engineering`, `web-design-guidelines` and `webapp-testing`. The repository
 specification and domain invariants remain authoritative if a generic external recommendation
 conflicts with the desktop workbench contract.
 
