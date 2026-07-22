@@ -5,7 +5,7 @@
 Implementation status (`2026-07-21`): the T-94 design gate and T-95–T-97 live implementation are
 complete. Future changes must preserve the same reference-similarity, full-width, governed Tree and
 JSON/CSV/XLSX-to-card acceptance gates. Final evidence is in
-`docs/15-demo/evidence/t97-reference-similarity-final.md`.
+`docs/17-evidence/reports/t97-reference-similarity-final.md`.
 
 현재 작업 저장소는 `pikachu444/cae-material-platform`이다.
 

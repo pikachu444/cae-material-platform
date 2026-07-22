@@ -28,7 +28,7 @@ def test_visual_source_with_guide_manifest_and_png_is_accepted() -> None:
             "apps/web/src/material-library.tsx",
             "docs/user-guide/18-search-first-materials.md",
             "docs/user-guide/screenshot-manifest.yaml",
-            "docs/15-demo/images/ux-redesign-v2/materials-search-next.png",
+            "docs/user-guide/images/current/materials-search-next.png",
         }
     )
     assert report.visual_files == ("apps/web/src/material-library.tsx",)
@@ -41,7 +41,7 @@ def test_app_route_change_without_navigation_contract_is_rejected() -> None:
                 "apps/web/src/app.tsx",
                 "docs/user-guide/18-search-first-materials.md",
                 "docs/user-guide/screenshot-manifest.yaml",
-                "docs/15-demo/images/ux-redesign-v2/navigation-next.png",
+                "docs/user-guide/images/current/navigation-next.png",
             }
         )
 

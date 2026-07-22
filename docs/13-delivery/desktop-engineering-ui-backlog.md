@@ -1,6 +1,6 @@
 # Desktop Engineering UI Delivery Backlog
 
-Status: proposed execution order for the desktop engineering UI program
+Status: active program; DUI-01, DUI-02 and DUI-04 are merged, while DUI-03 and DUI-05~09 remain pending
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
@@ -13,7 +13,7 @@ The program is complete only when the actual task flows work in the new workspac
 ## DUI-01 — Application shell, command bar and status bar — P0
 
 Implementation status: complete. PR #112 was approved and merged on 2026-07-22. Browser verification
-is recorded in `docs/15-demo/evidence/dui-01-application-shell.md`.
+is recorded in `docs/17-evidence/reports/dui-01-application-shell.md`.
 
 ### User outcome
 
@@ -38,11 +38,11 @@ The user enters a compact engineering application rather than a branded web land
 
 ## DUI-02 — Resizable Materials workspace and in-place datasheet — P0
 
-Implementation status: implemented and refined after Draft PR #114 review on 2026-07-22. The
+Implementation status: complete. PR #114 was approved and merged as `5fe6d63` on 2026-07-22. The
 refinement removes duplicate Search/Browse/Subsets controls, moves pane visibility to the dividers,
 and gates captures on completed async enrichment. Live flow, responsive measurements, external-skill
 audits and reference scoring are recorded in
-`docs/15-demo/evidence/dui-02-materials-workspace.md`.
+`docs/17-evidence/reports/dui-02-materials-workspace.md`.
 
 ### User outcome
 
@@ -95,9 +95,9 @@ A known Material can be assessed and downloaded without navigating through imple
 
 ## DUI-04 — Persistent Modeling session and task inspector — P0
 
-Implementation status: implemented on branch `codex/dui-04-persistent-modeling-workbench` on
-2026-07-22. Live flow, pane measurements, state continuity, reference scoring and captures are
-recorded in `docs/15-demo/evidence/dui-04-modeling-workspace.md`.
+Implementation status: complete. PR #115 was approved and merged as `f89cc50` on 2026-07-22. Live
+flow, pane measurements, state continuity, reference scoring and captures are
+recorded in `docs/17-evidence/reports/dui-04-modeling-workspace.md`.
 
 ### User outcome
 
@@ -251,14 +251,14 @@ Every slice must preserve:
 
 ## Recommended PR order
 
-1. DUI-01 shell/status foundation;
-2. DUI-02 Materials split workspace;
-3. DUI-03 card delivery;
-4. DUI-04 Modeling session shell;
-5. DUI-05 Data/Process;
-6. DUI-06 Fit/Export;
-7. DUI-07 Administration;
-8. DUI-08 Activity;
-9. DUI-09 Storybook and final legacy cleanup.
+1. DUI-01 shell/status foundation — complete in PR #112;
+2. DUI-02 Materials split workspace — complete in PR #114;
+3. DUI-04 Modeling session shell — complete in PR #115 by explicit product-owner ordering;
+4. DUI-03 card delivery — pending;
+5. DUI-05 Data/Process — pending;
+6. DUI-06 Fit/Export — pending;
+7. DUI-07 Administration — pending;
+8. DUI-08 Activity — pending;
+9. DUI-09 Storybook and final legacy cleanup — pending.
 
 Do not merge multiple P0 slices into a single unreviewable frontend rewrite. Each PR must include the actual user task, before/after screenshots and state-continuity evidence.

@@ -68,7 +68,7 @@ Do not choose or imply a production tensile standard, material family, constitut
   `reference` rule in `docs/documentation-manifest.yaml`.
 - A commit that changes non-test `apps/web/**/*.tsx` or `apps/web/**/*.css` must also change all of:
   a current `docs/user-guide/*.md`, `docs/user-guide/screenshot-manifest.yaml`, and a current
-  `docs/15-demo/images/ux-redesign-v2/*.png` captured from the live browser.
+  `docs/user-guide/images/current/*.png` captured from the live browser.
 - A change to `apps/web/src/app.tsx` must additionally update
   `docs/user-guide/navigation-contract.yaml`. A user-visible OpenAPI workflow change must update a
   current user guide.

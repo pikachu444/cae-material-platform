@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-EVIDENCE = ROOT / "docs" / "15-demo" / "images" / "ux-layout-review"
+EVIDENCE = ROOT / "docs" / "17-evidence" / "images" / "ux-layout-review"
 MEASUREMENTS = EVIDENCE / "measurements.json"
 VIEWPORTS = {(1366, 768), (1440, 900), (1920, 1080)}
 SCREENS = {"materials", "detail", "modeling", "export", "card"}

@@ -40,10 +40,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 ## 2. 서비스에 연결하기
 
 1. [Materials](http://127.0.0.1:5173/materials)를 엽니다.
-2. **Demo workspace**가 자동으로 표시되는지 확인합니다.
+2. **Demo user**가 자동으로 표시되는지 확인합니다.
 3. 검색 결과에서 금속·폴리머·엘라스토머 합성 Material을 확인합니다.
 
-![Search-first Materials 작업공간](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
 
 ## 3. Material Database에서 계층과 연결 확인하기
 
@@ -62,13 +61,9 @@ docker compose -f deploy/compose/docker-compose.demo.yml up -d --build
 7. Test Data 노드를 눌러 Modeling을 연 뒤 **Materials로 돌아가기**로 같은 검색과 Browse Tree
    탐색 문맥에 돌아옵니다.
 
-![DP780의 자동 전개 Catalog와 Layout Datasheet](../15-demo/images/t91-material-database-catalog.png)
 
-![같은 Record를 exact revision link로 투영한 Workflow](../15-demo/images/t91-material-database-workflow.png)
 
-![DP780 Material overview Datasheet](../15-demo/images/t77-material-datasheet.png)
 
-![검색 facet과 두 Record Layout 비교](../15-demo/images/t77-material-search-compare.png)
 
 ## 4. 금속 탄소성 경로
 

@@ -84,6 +84,7 @@ download를 포함한다. 다음 기준선은 Process Run·Campaign·Instrument,
 15. [테스트 전략](14-testing/test-strategy.md)
 16. [위험·미결정·의사결정 로그](15-governance/risks-open-questions-decisions.md)
 17. [Codex 구현용 저장소 구조](16-repository/repository-blueprint.md)
+18. [역사적 전달·검증 evidence](17-evidence/documentation-image-audit-2026-07-22.md)
 
 ## 6. Production 승인 게이트
 

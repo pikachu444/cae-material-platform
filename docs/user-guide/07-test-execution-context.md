@@ -26,7 +26,6 @@
    **Capture and bind revisions**를 누릅니다.
 8. 아래 목록에서 Run revision과 Context revision을 확인합니다.
 
-![Test Run exact execution context](../15-demo/images/test-run-context.png)
 
 ## 오류를 해석하는 방법
 

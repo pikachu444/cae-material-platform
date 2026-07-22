@@ -34,7 +34,7 @@ Steel 탄소성, Polymer 선형 점탄성, Elastomer Ogden--Prony가 첫 referen
   shear-relaxation Dataset, processing/statistics/outlier, Voce and Prony calibration, human
   Candidate selection, immutable IR promotion, bounded multi-test Ogden scientific profiles/fitting,
   Abaqus/OpenRadioss cards, review/release/provenance
-- live evidence: `docs/15-demo/user-e2e-evidence-2026-07-16.md`
+- live evidence: `docs/17-evidence/reports/user-e2e-evidence-2026-07-16.md`
 - implemented T-47 product depth: governed S3/Object Lock/SSE-KMS adapter, external signing
   contract, signed REST/webhook/object-storage connectors and rotating worker/receiver token-file
   boundaries. Exact 10,000-Material search, 2-GiB streaming and the bounded five-minute
@@ -77,7 +77,7 @@ API and connected React controls. The CI-equivalent run on 2026-07-16 passed 561
 30 Vitest tests with no skip/failure, plus ruff, mypy over 473 source files, architecture/contracts,
 OpenAPI compatibility and the production Vite build. Live Docker/PostgreSQL browser verification
 created one balanced Process Run and one current-revision Specimen source link; the resulting image
-is `docs/15-demo/images/process-run-specimen-source.png`.
+is `docs/17-evidence/images/process-run-specimen-source.jpg`.
 
 PR 3 implements T-40 with migration 050: governed Campaign/standard conformance, Instrument and
 non-overlapping dated Calibration records, typed execution Condition snapshots and a one-to-one
@@ -87,7 +87,7 @@ cover validity, overlap, immutable revisions and project RLS; the affected user 
 image are maintained with the vertical slice. The Windows CI-equivalent gate passed 568 Python
 tests and 31 Vitest tests without skips/failures/warnings, plus ruff, mypy over 480 source files,
 architecture/contracts, OpenAPI compatibility and the production Vite build. Live Docker browser
-evidence is `docs/15-demo/images/test-run-context.png` with no console warning/error.
+evidence is `docs/17-evidence/images/test-run-context.jpg` with no console warning/error.
 
 PR 4 implements T-41 with migration 051: explicit reusable Import Profile revisions, header-only
 `needs_input` Preview Reports, exact terminal Import Runs and separate raw/normalized governed
@@ -102,7 +102,7 @@ CI-equivalent gate passed 576 Python tests with zero skips/failures, 32 Vitest t
 over 486 source files, architecture/contract/OpenAPI compatibility and the production Vite build;
 the clean npm install reported zero vulnerabilities. Live protected API execution imported nine
 synthetic tensile rows and created distinct raw and normalized revisions. The connected 1440x900
-browser capture is `docs/15-demo/images/governed-tabular-import.png`, with no console warnings or
+browser capture is `docs/17-evidence/images/governed-tabular-import.jpg`, with no console warnings or
 errors.
 
 PR 5 implements T-42 with migration 052: an exact ordered Selection pins normalized relaxation
@@ -113,8 +113,8 @@ The numeric kernel uses the common log-time intersection, piecewise-linear inter
 extrapolation. Live Docker/PostgreSQL execution processed six public synthetic curves across three
 temperatures and the connected browser displayed replicate count, sample bands, outlier status,
 shift factors and master curve. The screenshots are
-`docs/15-demo/images/viscoelastic-master-statistics.png` and
-`docs/15-demo/images/viscoelastic-master-curve.png`. Migration 052 completed a fresh 001--052
+`docs/17-evidence/images/viscoelastic-master-statistics.jpg` and
+`docs/17-evidence/images/viscoelastic-master-curve.jpg`. Migration 052 completed a fresh 001--052
 upgrade and a 052--051--052 round trip on PostgreSQL 16. The CI-equivalent gate passed 585 Python
 tests without skips/failures, 33 Vitest tests, ruff, mypy over 497 source files,
 architecture/contract/OpenAPI compatibility, production Vite build and npm audit with zero

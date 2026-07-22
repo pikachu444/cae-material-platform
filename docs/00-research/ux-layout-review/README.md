@@ -13,7 +13,7 @@ are responsive static prototypes; they do not call product APIs and are not appl
 `region-annotations.json` records the normalized structural regions observed directly in each local
 reference. `similarity-report.md` records browser-measured prototype dimensions, rubric scoring,
 known deviations, and the approval decision. Captures live under
-`docs/15-demo/images/ux-layout-review/`.
+`docs/17-evidence/images/ux-layout-review/`.
 
 Review order:
 

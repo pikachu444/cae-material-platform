@@ -12,15 +12,12 @@ normalized RMSE와 `(g_i, tau_i)` 표를 함께 검토합니다. **Engineer sele
 이유가 새 Recipe revision에 저장됩니다. 공개 generalized-Maxwell 주파수 응답식을 사용하며 숨은
 parameter database나 silent smoothing은 없습니다.
 
-![DMA storage/loss Prony 비교](../15-demo/images/t89-polymer-dma-workbench.png)
 
 **Export**에서는 현재 선택한 시험 revision에서 승격된 Neutral JSON을 자동으로 엽니다. Abaqus는
 `*VISCOELASTIC, TIME=PRONY`를 직접 생성합니다. OpenRadioss는 `/VISC/LPRONY`의 deviatoric-only
 근사와 외부 total-strain `/PROP` 요구를 확인해야 생성 버튼이 활성화됩니다.
 
-![DMA 기반 Abaqus 카드](../15-demo/images/t89-polymer-dma-abaqus-card.png)
 
-![DMA 기반 OpenRadioss 카드](../15-demo/images/t89-polymer-dma-openradioss-card.png)
 
 ## 재사용 가능한 Processing Recipe로 후보 비교
 
@@ -63,15 +60,10 @@ parameter database나 silent smoothing은 없습니다.
 8. **Exports**에서 같은 Material의 Test JSON, Mapping Profile, Processing Recipe, Neutral JSON,
    두 solver mapping report와 native card를 선택해 checksum ZIP으로 내려받습니다.
 
-![검토할 exact Processing Output과 사례별 G0 한계](../15-demo/images/t67-polymer-processing-promotion.png)
 
-![조건부 OpenRadioss LPRONY mapping 확인과 native preview](../15-demo/images/t68-openradioss-lprony.png)
 
-![승격된 3항 IR의 선택 근거와 완화 응답](../15-demo/images/t67-polymer-processing-evidence.png)
 
-![저장된 Recipe revision과 성공한 Batch Attempt evidence](../15-demo/images/t69-polymer-recipe-batch-evidence.png)
 
-![Processing Workbench의 성공한 polymer Batch](../15-demo/images/t69-polymer-recipe-batch-monitor.png)
 
 이 경로는 1~10항 공통 Recipe Output을 새 stable Material Model identity의 revision 1로 만듭니다.
 아래 기존 bounded two-term Candidate 경로는 과거 자료와 별도의 multistart 진단을 위해 유지되며,
@@ -146,17 +138,11 @@ aligned Dataset, pointwise-statistics Dataset, master-curve Dataset과 shift evi
 immutable revision으로 저장됩니다. 온도별 curve가 겹치지 않거나 시험 온도가 누락되면 Run을
 만들지 않습니다.
 
-![점탄성 반복시험 통계와 shift evidence](../15-demo/images/viscoelastic-master-statistics.png)
 
-![Shifted relaxation curve와 master curve](../15-demo/images/viscoelastic-master-curve.png)
 
-![시험 등록과 processing](../15-demo/images/e2e-shear-workflow.png)
 
-![Calibration Candidates](../15-demo/images/e2e-prony-candidates.png)
 
-![Fitted curve와 residual](../15-demo/images/e2e-prony-diagnostics.png)
 
-![Abaqus VISCOELASTIC card](../15-demo/images/e2e-abaqus-card.png)
 
 ## 중요한 제한
 

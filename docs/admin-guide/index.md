@@ -13,7 +13,7 @@
 | Users & access | `/administration/access` | Administrator/User와 기능 권한 |
 | Material Database | `/database` | Folder, Record, exact-revision link 탐색 |
 
-Docker demo는 **Demo workspace** Administrator session을 자동으로 준비합니다. 사용자는 API 주소나
+Docker demo는 **Demo user** Administrator session을 자동으로 준비합니다. 사용자는 API 주소나
 token을 입력하지 않습니다. 운영 환경의 회사 identity directory 연결은 배포 설정이며 일반
 Administration 화면에 issuer, subject 또는 token을 노출하지 않습니다.
 
@@ -92,13 +92,12 @@ Administrator/User와 기능 권한으로 투영하므로 기존 enforcement가 
 호환 정보는 일반 제품 화면에 표시하지 않습니다. 향후 resource/action/scope 단위 권한을 추가해도
 Catalog schema나 사용자 작업 흐름을 다시 만들지 않습니다.
 
-![통합 Administration 개요](../15-demo/images/ux-redesign-v2/administration-overview-1440x900.png)
 
-![평면 행으로 정리한 Table, Attribute, Layout, Subset 및 Link Type 관리](../15-demo/images/ux-redesign-v2/administration-database-1440x900.png)
 
-![새 Attribute revision이 Layout 기반 Record Datasheet에 투영된 결과](../15-demo/images/ux-redesign-v2/administration-layout-datasheet-1440x900.png)
 
 ## 7. 운영 점검
+
+![통합 Administration Database design](../user-guide/images/current/administration-database-1440x900.png)
 
 - 사용자가 예상한 organization/project를 선택했는지 확인합니다.
 - 운영 identity directory에서 사용자/팀 이름 mapping을 확인합니다.

@@ -117,36 +117,21 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   `Reload current`, `Keep local draft as new revision`, `Cancel` 중 하나를 선택해 stale exact-revision
   충돌을 명시적으로 해결합니다.
 
-![Full-width Materials production shell](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
+## 현재 대표 화면
 
-![DUI-01 compact Materials application and command bars](../15-demo/images/ux-redesign-v2/dui-01-materials-search-1440x900.png)
+아래 이미지는 최신 `main`의 Compose demo에서 현재 캡처 자동화로 생성한 화면입니다. 완료 PR의
+before/after 및 과거 Task 화면은 `docs/17-evidence`에만 보관하며 현재 사용법의 기준으로 사용하지
+않습니다.
 
-![Searchable governed Materials Browse Tree](../15-demo/images/ux-redesign-v2/final-browse-tree-1366x768.png)
+![Materials 검색과 선택](images/current/materials-search-1440x900.png)
 
-![DUI-01 Browse Tree in the same compact shell](../15-demo/images/ux-redesign-v2/dui-01-browse-tree-1440x900.png)
+![Searchable governed Browse Tree](images/current/materials-browse-1440x900.png)
 
-![Material Detail with direct OpenRadioss delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
+![Material Detail과 직접 solver-card action](images/current/material-detail-1440x900.png)
 
-![Exact related Record revision in the Materials workspace](../15-demo/images/ux-redesign-v2/materials-exact-record-1440x900.png)
+![Native CAE Cards](images/current/material-cae-cards-1440x900.png)
 
-![DUI-01 Material Detail command and status context](../15-demo/images/ux-redesign-v2/dui-01-material-detail-1440x900.png)
-
-![Native CAE card preview and direct downloads](../15-demo/images/ux-redesign-v2/material-detail-cae-cards-1440x900.png)
-
-![Related, Workflow, Layout and progressive Evidence](../15-demo/images/ux-redesign-v2/material-detail-evidence-1440x900.png)
-
-![Graph-dominant Modeling Fit workspace](../15-demo/images/ux-redesign-v2/final-modeling-fit-1440x900.png)
-
-![DUI-01 Modeling commands and persistent session status](../15-demo/images/ux-redesign-v2/dui-01-modeling-fit-1440x900.png)
-
-![DUI-04 persistent Modeling Fit workspace](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png)
-
-![Explicit JSON, CSV and XLSX Modeling Data entry](../15-demo/images/ux-redesign-v2/modeling-data-1366x768.png)
-
-![Governed CSV and XLSX import workbench](../15-demo/images/ux-redesign-v2/governed-import-1440x900.png)
-
-![Reviewed IR to native solver-card Export](../15-demo/images/ux-redesign-v2/modeling-export-1440x900.png)
-
+![Persistent Modeling Fit](images/current/modeling-fit-1440x900.png)
 ## Activity에서 진행 상황 확인
 
 `Activity`는 최근 Modeling session과 review를 먼저 보여 줍니다. Recipe lifecycle, Batch preflight,
@@ -155,30 +140,24 @@ mapping report와 장시간 실행의 상세 진단은 같은 화면의 Advanced
 revision과 선택 곡선 수가 함께 표시됩니다. `Resume <stage>`를 누르면 URL 단계와 material family뿐
 아니라 같은 exact revision 및 curve check 상태까지 브라우저 session v2에서 복원합니다.
 
-![Recent modeling and review activity](../15-demo/images/ux-redesign-v2/activity-1440x900.png)
-
-![DUI-01 Activity command and status shell](../15-demo/images/ux-redesign-v2/dui-01-activity-1440x900.png)
+![최근 Modeling과 검토 Activity](images/current/activity-1440x900.png)
 
 관리자는 user menu에서 Administration을 열 수 있습니다. Database design route는 같은 shell 안에서
 Table, Attribute, Layout, Subset과 Link Type 편집 상태를 유지하며, 현재 configuration과 validation
 상태를 status bar에 표시합니다.
 
-![DUI-01 Administration database design shell](../15-demo/images/ux-redesign-v2/dui-01-administration-1440x900.png)
+![Administration Database design](images/current/administration-database-1440x900.png)
 
 ## Desktop viewport evidence
 
 1366 px에서는 optional 상세와 settings를 접어 result/graph 폭을 지키고, 1920 px에서는 중앙 작업면이
 남는 폭을 확장합니다. 모든 panel을 같은 비율로 늘리거나 좁은 중앙 max-width에 가두지 않습니다.
 
-![Materials at 1366](../15-demo/images/ux-redesign-v2/final-materials-1366x768.png)
+![Materials at 1366](images/current/materials-search-1366x768.png)
 
-![Materials at 1920](../15-demo/images/ux-redesign-v2/final-materials-1920x1080.png)
+![Materials at 1920](images/current/materials-search-1920x1080.png)
 
-![Modeling Fit at 1366](../15-demo/images/ux-redesign-v2/final-modeling-fit-1366x768.png)
-
-![Modeling Fit at 1920](../15-demo/images/ux-redesign-v2/final-modeling-fit-1920x1080.png)
-
-### DUI-04 단계·해상도 검수 화면
+### Modeling 단계·해상도 검수 화면
 
 아래 화면은 같은 exact DP780 session에서 Data → Process → Fit → Export를 전환해 각 단계의
 비동기 데이터가 완료된 뒤 캡처했습니다. Data는 source/mapping만, Process는 engineering-to-true
@@ -190,7 +169,7 @@ card 흐름을 이어갑니다. 이 dock은 1366에서도 그래프 비교 높�
 
 | 단계 | 1366×768 | 1440×900 | 1920×1080 |
 | --- | --- | --- | --- |
-| Data | ![Data 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1366x768.png) | ![Data 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1440x900.png) | ![Data 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1920x1080.png) |
-| Process | ![Process 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1366x768.png) | ![Process 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1440x900.png) | ![Process 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1920x1080.png) |
-| Fit | ![Fit 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1366x768.png) | ![Fit 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png) | ![Fit 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1920x1080.png) |
-| Export | ![Export 1366](../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1366x768.png) | ![Export 1440](../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1440x900.png) | ![Export 1920](../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png) |
+| Data | ![Data 1366](images/current/modeling-data-1366x768.png) | ![Data 1440](images/current/modeling-data-1440x900.png) | ![Data 1920](images/current/modeling-data-1920x1080.png) |
+| Process | ![Process 1366](images/current/modeling-process-1366x768.png) | ![Process 1440](images/current/modeling-process-1440x900.png) | ![Process 1920](images/current/modeling-process-1920x1080.png) |
+| Fit | ![Fit 1366](images/current/modeling-fit-1366x768.png) | ![Fit 1440](images/current/modeling-fit-1440x900.png) | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
+| Export | ![Export 1366](images/current/modeling-export-1366x768.png) | ![Export 1440](images/current/modeling-export-1440x900.png) | ![Export 1920](images/current/modeling-export-1920x1080.png) |

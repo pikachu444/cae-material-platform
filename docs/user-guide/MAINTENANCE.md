@@ -13,9 +13,10 @@ download 동작을 바꾸는 PR은 코드만으로 완료되지 않는다.
 5. token, confidential data, 개인 계정과 로컬 개인 경로가 이미지에 없는지 검토한다.
 6. 이미지가 단순 장식이 아니라 해당 작업의 입력·결과·warning을 보여 주는지 확인한다.
 
-`make docs-screenshots`는 문서 상태 분류, guide link, 전역 navigation contract, 현재/역사 이미지
-분리, manifest와 PNG 크기·viewport drift를 검증한다. 화면 capture 자체는 deterministic demo
-fixture와 연결된 browser E2E로 수행하고 PR 본문에 token/confidential-data 검토 결과를 기록한다.
+`make docs-capture`는 실행 중인 deterministic Compose demo에서 현재 대표 화면을
+`docs/user-guide/images/current`에 생성합니다. `make docs-screenshots`는 모든 Markdown 내부
+링크, 문서 상태 분류, 전역 navigation contract, 현재/역사 이미지 분리, current/archive manifest,
+capture-script 출력, 이미지 형식·크기, 고아 파일과 SHA-256 중복을 검증합니다.
 
 ## 이미지 변경 원칙
 
@@ -23,7 +24,9 @@ fixture와 연결된 browser E2E로 수행하고 PR 본문에 token/confidential
 - 실제 회사/고객 데이터를 사용하지 않는다.
 - 기능이 제거됐으면 과거 이미지를 최신 가이드에서 재사용하지 않는다.
 - 역사적 E2E 문서의 이미지는 증거이므로 덮어쓰지 않는다. 새 검증일 directory와 문서를 만든다.
-- 현재 화면에서 제외된 manifest 항목은 `docs/15-demo/screenshot-archive.yaml`에 보존한다.
+- 현재 화면에서 제외된 manifest 항목은 `docs/17-evidence/screenshot-archive.yaml`에 보존한다.
+- 과거 Task 보고서·이미지·캡처 스크립트는 `docs/17-evidence`에 두고 현재 가이드에서 직접
+  사용하지 않는다.
 - 문서 분류는 `docs/documentation-manifest.yaml`에 등록하고 누락된 Markdown을 만들지 않는다.
 
 ## 로컬 강제와 Codex 훅
@@ -34,6 +37,7 @@ fixture와 연결된 browser E2E로 수행하고 PR 본문에 token/confidential
 않습니다.
 
 ```powershell
+make docs-capture
 make docs-screenshots
 make docs-impact
 ```

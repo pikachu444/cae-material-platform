@@ -24,9 +24,9 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 6. provenance/full ID는 Evidence, Recipe/Batch/JSON은 Advanced, batch/job/package는 Activity의
    Advanced에서 확인합니다.
 
-![통합 Materials 검색·결과·선택 문맥](../15-demo/images/ux-redesign-v2/final-materials-1440x900.png)
+![통합 Materials 검색·결과·선택 문맥](images/current/materials-search-1440x900.png)
 
-![Material의 5-tab 상세와 직접 card delivery](../15-demo/images/ux-redesign-v2/material-detail-overview-1440x900.png)
+![Material의 5-tab 상세와 직접 card delivery](images/current/material-detail-1440x900.png)
 
 ## 운영 상태
 

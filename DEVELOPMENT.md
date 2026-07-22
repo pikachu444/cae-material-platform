@@ -142,11 +142,14 @@ uv run pytest -m postgresql tests/integration -ra
 
 - 문서 상태는 [documentation manifest](docs/documentation-manifest.yaml)에 등록합니다.
 - 일반 사용자 UI 변경은 현재 가이드, 현재 screenshot manifest와 실제 PNG를 같은 commit에 둡니다.
+- 현재 대표 PNG는 실행 중인 deterministic Compose demo에서 `make docs-capture`로
+  `docs/user-guide/images/current`에 생성합니다.
 - `apps/web/src/app.tsx`의 route/nav를 바꾸면 navigation contract도 갱신합니다.
 - 현재 문서에는 archive screenshot을 사용하지 않습니다.
 - visual acceptance는 1366×768, 1440×900, 가능하면 1920×1080에서 실제 브라우저로 확인합니다.
 
 ```powershell
+make docs-capture
 uv run cmp-check-user-guide --root .
 ```
 

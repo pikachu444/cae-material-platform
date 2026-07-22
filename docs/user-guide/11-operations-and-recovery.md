@@ -15,7 +15,6 @@
 tenant 식별자는 API 응답이나 application log에 넣지 않습니다. 여러 API/worker를 합친 장기 추세는
 OTLP backend가 권위 있는 출처이며 이 화면은 한 API process의 bounded snapshot입니다.
 
-![민감정보를 제외한 API 관측성 화면](../15-demo/images/t47-api-observability.png)
 
 Collector가 받은 trace/metric과 Prometheus 형식 metric은 다음으로 확인합니다.
 
@@ -38,7 +37,6 @@ Material, Catalog p95 182.128 ms, 2 GiB/32-part upload 22.999 MiB/s, peak Python
 67,164,359 bytes입니다. report SHA-256은
 `96d75ca787695ad5848b0b65562554a93f8aa63dd204b82d92e159f723cef481`입니다.
 
-![10,000개 Material을 확인한 기존 운영 규모 검증 화면](../15-demo/images/t47-production-scale-catalog.png)
 
 이 결과는 장시간 soak, API/worker/PostgreSQL/object-storage 중단·복구, object lock/KMS/retention을
 대체하지 않습니다. 장애 주입 중에도 이미 발행되거나 커밋된 revision과 object digest가 바뀌지

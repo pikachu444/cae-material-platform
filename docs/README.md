@@ -41,8 +41,9 @@
 - [backlog](13-delivery/backlog.md)
 - [테스트 전략](14-testing/test-strategy.md)
 - [현재 screenshot manifest](user-guide/screenshot-manifest.yaml)
-- [과거 screenshot archive](15-demo/screenshot-archive.yaml)
+- [과거 screenshot archive](17-evidence/screenshot-archive.yaml)
+- [문서·이미지 정합성 감사](17-evidence/documentation-image-audit-2026-07-22.md)
 - [구현 연대기](13-delivery/implementation-history.md)
 
 현재 문서에서 역사 screenshot 또는 이전 전역 메뉴를 사용하지 않습니다. 과거 동작을 조사할 때는
-historical 문서와 evidence를 명시적으로 열고, 현재 제품 사용법과 혼동하지 마십시오.
+`17-evidence`의 historical 문서와 이미지를 명시적으로 열고, 현재 제품 사용법과 혼동하지 마십시오.

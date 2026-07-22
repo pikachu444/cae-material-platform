@@ -77,10 +77,10 @@ the required product-owner decision.
 
 ## Review images
 
-- [Materials: rejected implementation, Granta/MDC references, proposal](../../15-demo/images/ux-layout-review/materials-reference-comparison.png)
-- [Modeling: rejected implementation, Material Modeler references, proposal](../../15-demo/images/ux-layout-review/modeling-reference-comparison.png)
-- [CAE card: MDC reference and proposal](../../15-demo/images/ux-layout-review/card-reference-comparison.png)
-- [All 1366, 1440 and 1920 captures](../../15-demo/images/ux-layout-review/)
+- [Materials: rejected implementation, Granta/MDC references, proposal](../../17-evidence/images/ux-layout-review/materials-reference-comparison.png)
+- [Modeling: rejected implementation, Material Modeler references, proposal](../../17-evidence/images/ux-layout-review/modeling-reference-comparison.png)
+- [CAE card: MDC reference and proposal](../../17-evidence/images/ux-layout-review/card-reference-comparison.png)
+- [All 1366, 1440 and 1920 captures](../../17-evidence/images/ux-layout-review/)
 
 ## Deviations requiring review
 
@@ -98,5 +98,5 @@ the required product-owner decision.
 ## Approval
 
 - Product-owner decision: **approved** on 2026-07-21 after the compact navigator and Tree-search review
-- Approved screenshots/commit: `40726f6` and `docs/15-demo/images/ux-layout-review/`
+- Approved screenshots/commit: `40726f6` and `docs/17-evidence/images/ux-layout-review/`
 - Production React/CSS implementation: **authorized**, subject to the same hard gates on live screens
