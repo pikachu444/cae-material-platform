@@ -1682,6 +1682,287 @@
   min-height: min(680px, calc(100vh - 235px));
 }
 
+.modeling-split-workspace {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: calc(100vh - 245px) !important;
+  min-height: 520px !important;
+  max-height: calc(100vh - 245px) !important;
+  flex: 0 0 auto !important;
+  overflow: hidden;
+  border-block: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-main-panel,
+.modeling-main-surface {
+  min-width: 0;
+  min-height: 0;
+}
+
+.modeling-main-surface.has-dock {
+  grid-template-rows: auto minmax(360px, 1fr);
+}
+
+.modeling-main-surface {
+  position: relative;
+  display: grid;
+  height: 100%;
+  grid-template-rows: auto minmax(360px, 1fr);
+}
+
+.modeling-task-ribbon {
+  grid-row: 1;
+  max-height: 150px;
+  overflow: auto;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-task-ribbon:has(.export-stage-ribbon) {
+  min-height: 59px;
+}
+
+.modeling-task-ribbon > .step-option-panel {
+  max-height: 150px;
+  border: 0;
+  border-radius: 0;
+}
+
+.modeling-main-surface > .persistent-modeling-plot {
+  grid-column: 1;
+  grid-row: 2;
+  min-height: 0;
+  overflow: hidden;
+  border: 0;
+}
+
+.modeling-workspace-dock {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: min(24vh, 28%);
+  min-height: 144px;
+  overflow: auto;
+  border-top: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+  overscroll-behavior: contain;
+}
+
+.modeling-main-surface.has-dock > .persistent-modeling-plot {
+  min-height: 360px;
+}
+
+.data-stage-ribbon,
+.export-stage-ribbon {
+  display: grid;
+  align-items: end;
+  gap: var(--ux-space-3);
+  min-height: 74px;
+  padding: var(--ux-space-2) var(--ux-space-3);
+}
+
+.data-stage-ribbon {
+  grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr) minmax(190px, .65fr) auto;
+}
+
+.data-stage-ribbon > div,
+.export-stage-ribbon > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.data-stage-ribbon strong,
+.export-stage-ribbon span {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.data-stage-summary span,
+.export-stage-ribbon strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.export-stage-ribbon {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-height: 58px;
+}
+
+.modeling-data-advanced {
+  order: 10;
+}
+
+.modeling-rail-contract {
+  display: grid;
+  gap: 3px;
+  padding: var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.modeling-rail-contract small {
+  color: var(--ux-text-muted);
+}
+
+.modeling-export-dock > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  padding: 4px var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.modeling-export-dock > header :is(p, h2) {
+  margin: 0;
+}
+
+.modeling-export-dock > header h2 {
+  font-size: 14px;
+}
+
+.modeling-export-dock > header > span {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.modeling-export-dock .family-modeling-workbench,
+.modeling-export-dock .family-modeling-panel,
+.modeling-export-dock .reference-elastoplastic-workbench,
+.modeling-export-dock .elastoplastic-workflow-stack,
+.modeling-export-dock .workflow-step {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modeling-export-dock .family-modeling-workbench {
+  padding: 0;
+  border: 0;
+}
+
+.modeling-export-dock .family-modeling-panel {
+  gap: 0;
+}
+
+.modeling-export-dock .family-modeling-heading,
+.modeling-export-dock .family-context-bar {
+  display: none;
+}
+
+.modeling-export-dock .reference-elastoplastic-workbench {
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ux-surface);
+}
+
+.modeling-export-dock .reference-elastoplastic-workbench.embedded .elastoplastic-workflow-stack {
+  display: block;
+}
+
+.modeling-export-dock .reference-elastoplastic-workbench.embedded .workflow-toolbar,
+.modeling-export-dock .reference-elastoplastic-workbench.embedded .workflow-step {
+  margin: 0;
+  padding: var(--ux-space-3);
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-export-dock .reference-elastoplastic-workbench.embedded .embedded-delivery-heading,
+.modeling-export-dock .reference-elastoplastic-workbench.embedded .workflow-toolbar,
+.modeling-export-dock .reference-elastoplastic-workbench.embedded .elastoplastic-workflow-stack > .workflow-step:not(.neutral-solver-export) {
+  display: none;
+}
+
+@media (max-width: 1399px) {
+  .data-stage-ribbon {
+    grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto;
+  }
+
+  .data-stage-summary {
+    display: none !important;
+  }
+}
+
+.modeling-conflict-banner {
+  align-items: center;
+  background: #fff8e6;
+  border-bottom: 1px solid #c89a42;
+  display: flex;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 6px 12px;
+}
+
+.modeling-conflict-banner > div {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.modeling-conflict-banner span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.modeling-pane-divider {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 5px;
+  width: 5px;
+  background: var(--ux-border);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.modeling-pane-divider:hover,
+.modeling-pane-divider:focus-visible {
+  background: var(--ux-accent);
+}
+
+.modeling-pane-divider > button,
+.modeling-ribbon-control {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 2px;
+  background: var(--ux-surface);
+  color: var(--ux-text-muted);
+  cursor: pointer;
+}
+
+.modeling-pane-divider > button {
+  top: 10px;
+  left: -5px;
+  width: 15px;
+  height: 26px;
+  padding: 0;
+}
+
+.modeling-ribbon-control {
+  top: -1px;
+  right: 10px;
+  width: 28px;
+  height: 16px;
+  padding: 0;
+}
+
+.modeling-pane-divider > button:focus-visible,
+.modeling-ribbon-control:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: 2px;
+}
+
 .modeling-graph-workspace:not(.inspector-visible) {
   grid-template-columns: clamp(184px, 13.2vw, 200px) minmax(0, 1fr);
 }
@@ -1914,6 +2195,10 @@
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.method-builder-card > .section-heading .workspace-caption {
+  text-transform: capitalize;
 }
 
 .plot-preview-state {

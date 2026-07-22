@@ -683,13 +683,13 @@ export function App() {
       />
     );
   } else if (path === "/datasets/processing") {
-    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} />;
+    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/datasets") {
     page = <ModuleHubPage area="datasets" config={config} navigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/models") {
     page = <ModuleHubPage area="models" config={config} navigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/modeling") {
-    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} />;
+    page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/activity") {
     page = <ActivityPage onNavigate={navigate} />;
   } else if (path === "/governance" || path === "/jobs-reviews") {

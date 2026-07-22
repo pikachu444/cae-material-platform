@@ -1,8 +1,8 @@
-version: 39
+version: 41
 verified_at: 2026-07-22
 scope: current-product-baseline
 notes:
-  - "Recaptured from a clean Docker Compose rebuild of the current DUI-02 Draft PR branch on 2026-07-22."
+  - "Recaptured from the Docker Compose demo rebuilt from the current DUI-04 branch on 2026-07-22."
   - "Migration and deterministic reference-plugin seed jobs completed successfully before browser validation."
   - "Requested browser sizes were 1366x768, 1440x900, and 1920x1080; width and height below are the actual PNG content dimensions after in-app browser chrome and host-window limits."
   - "All fixtures are synthetic, non-production reference data."
@@ -12,7 +12,95 @@ notes:
   - "DUI-02 uses one command-bar mode hierarchy; pane visibility is controlled from the dividers without a dedicated toggle row."
   - "DUI-02 measured pane widths are 232/1106/context-collapsed at 1366, 240/908/264 at 1440, and 272/1332/288 at 1920; screenshots are exact requested viewport sizes."
   - "Materials result captures require aria-busy=false, 0 Checking rows, all 3 synthetic results, and 0 px horizontal overflow."
+  - "DUI-04 captures wait for exact Test Data, server preview, lazy family engine/source revisions, and resolved exact Catalog/workflow links; aria-busy and Checking, Loading, Calculating, Resolving, preview, mapping, Neutral JSON, and native-card progress placeholders are rejected."
+  - "DUI-04 measured navigator/main widths are 184/1161 at 1366, 192/1227 at 1440, and 208/1691 at 1920; horizontal overflow is 0 px."
+  - "DUI-04 Export keeps the selected model, observed 0.0001–0.1 fit range and persistent graph above a compact 146/183/233 px bottom delivery dock."
+  - "DUI-04 live Activity resume restores the same material/session string, exact DP780 Test Data revision, Fit stage, and two checked curve identities at every target viewport."
 captures:
+  - id: dui-04-modeling-data-1366
+    route: /modeling?stage=data&family=metal
+    workflow: exact-input-mapping-and-persistent-source-graph
+    fixture: synthetic DP780 exact Test Data revision
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1366x768.png
+    width: 1366
+    height: 768
+  - id: dui-04-modeling-process-1366
+    route: /modeling?stage=process&family=metal
+    workflow: ordered-process-navigator-settings-and-persistent-preview
+    fixture: synthetic DP780 server processing preview
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1366x768.png
+    width: 1366
+    height: 768
+  - id: dui-04-modeling-fit-1366
+    route: /modeling?stage=fit&family=metal
+    workflow: candidate-response-residual-and-extrapolation
+    fixture: synthetic DP780 reference hardening candidates
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1366x768.png
+    width: 1366
+    height: 768
+  - id: dui-04-modeling-export-1366
+    route: /modeling?stage=export&family=metal
+    workflow: reviewed-result-to-solver-delivery
+    fixture: synthetic non-production reference model
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1366x768.png
+    width: 1366
+    height: 768
+  - id: dui-04-modeling-data-1440
+    route: /modeling?stage=data&family=metal
+    workflow: exact-input-mapping-and-persistent-source-graph
+    fixture: synthetic DP780 exact Test Data revision
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-04-modeling-process-1440
+    route: /modeling?stage=process&family=metal
+    workflow: ordered-process-navigator-settings-and-persistent-preview
+    fixture: synthetic DP780 server processing preview
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-04-modeling-fit-1440
+    route: /modeling?stage=fit&family=metal
+    workflow: candidate-response-residual-and-extrapolation
+    fixture: synthetic DP780 reference hardening candidates
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-04-modeling-export-1440
+    route: /modeling?stage=export&family=metal
+    workflow: reviewed-result-to-solver-delivery
+    fixture: synthetic non-production reference model
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1440x900.png
+    width: 1440
+    height: 900
+  - id: dui-04-modeling-data-1920
+    route: /modeling?stage=data&family=metal
+    workflow: exact-input-mapping-and-persistent-source-graph
+    fixture: synthetic DP780 exact Test Data revision
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-data-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: dui-04-modeling-process-1920
+    route: /modeling?stage=process&family=metal
+    workflow: ordered-process-navigator-settings-and-persistent-preview
+    fixture: synthetic DP780 server processing preview
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-process-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: dui-04-modeling-fit-1920
+    route: /modeling?stage=fit&family=metal
+    workflow: candidate-response-residual-and-extrapolation
+    fixture: synthetic DP780 reference hardening candidates
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-fit-1920x1080.png
+    width: 1920
+    height: 1080
+  - id: dui-04-modeling-export-1920
+    route: /modeling?stage=export&family=metal
+    workflow: reviewed-result-to-solver-delivery
+    fixture: synthetic non-production reference model
+    image: ../15-demo/images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png
+    width: 1920
+    height: 1080
   - id: dui-01-materials-search-1440
     route: /materials
     workflow: compact-application-command-status-shell-with-search-results

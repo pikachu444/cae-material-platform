@@ -30,6 +30,7 @@ import { MaterialDatasheetProjection } from "./material-datasheet-projection";
 import { publishWorkspaceCommandState, publishWorkspaceStatus } from "./design/application-shell";
 import { ResizableSplitPane } from "./design/resizable-split-pane";
 import { EngineeringColumnResizeHandle } from "./design/engineering-column-resize-handle";
+import { loadModelingSession } from "./modeling-session-context";
 
 export type MaterialTab = "overview" | "properties" | "curves" | "cards" | "evidence";
 
@@ -770,6 +771,9 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
 }
 
 export function ActivityPage({ onNavigate }: Pick<Props, "onNavigate">) {
+  const modelingSession = useMemo(() => loadModelingSession(), []);
   useEffect(() => publishWorkspaceStatus({ selection: "Current workspace activity", revision: "Current user", jobs: "No active job", warnings: "0 warnings", connection: "online" }), []);
-  return <div className="ux-page"><div className="activity-shell"><div className="activity-content"><h2>Current workspace activity</h2><ul className="activity-list"><li><span><strong>Material modeling sessions</strong><small className="ux-meta">Resume the latest data, process, fit, or export task.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/modeling")}>Open Modeling</button></li><li><span><strong>Reviews and releases</strong><small className="ux-meta">Review governed outputs and release decisions.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/jobs-reviews")}>Open reviews</button></li></ul><details className="ux-disclosure"><summary>Advanced jobs and export packages</summary><p>Inspect batch attempts, technical diagnostics, and checksum-verifiable bulk packages.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details></div></div></div>;
+  const resumePath = modelingSession ? `/modeling?stage=${modelingSession.workspace.activeStage}&family=${modelingSession.materialFamily}` : "/modeling";
+  const stageLabel = modelingSession ? `${modelingSession.workspace.activeStage[0].toUpperCase()}${modelingSession.workspace.activeStage.slice(1)}` : null;
+  return <div className="ux-page"><div className="activity-shell"><div className="activity-content"><h2>Current workspace activity</h2><ul className="activity-list"><li data-testid="recent-modeling-session"><span><strong>{modelingSession?.material?.label ?? modelingSession?.objective ?? "Material modeling session"}</strong><small className="ux-meta">{modelingSession ? `${modelingSession.materialFamily} · ${stageLabel} · ${modelingSession.testData ? `${modelingSession.testData.label} r${modelingSession.testData.revisionNo}` : "No exact Test Data"} · ${modelingSession.workspace.selectedDocumentIds.length} selected curves` : "Start a Data, Process, Fit, or Export task."}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(resumePath)}>{modelingSession ? `Resume ${stageLabel}` : "Open Modeling"}</button></li><li><span><strong>Reviews and releases</strong><small className="ux-meta">Review governed outputs and release decisions.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/jobs-reviews")}>Open reviews</button></li></ul><details className="ux-disclosure"><summary>Advanced jobs and export packages</summary><p>Inspect batch attempts, technical diagnostics, and checksum-verifiable bulk packages.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details></div></div></div>;
 }
