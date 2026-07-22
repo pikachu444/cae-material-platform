@@ -3,8 +3,9 @@
 Status: authoritative program brief  
 Date: 2026-07-22  
 Scope: existing CAE Material Platform presentation-layer rebuild  
-Supersedes: the standalone V2 UI ZIP as an implementation source. Its useful conclusions are
-absorbed here and into the linked canonical repository documents.
+Supersedes: the standalone V2 UI ZIP and the legacy `ux-redesign-package` startup prompts as
+implementation sources. Their useful conclusions are absorbed here and into the linked canonical
+repository documents; the legacy package remains historical context only.
 
 ## 1. Goal
 
@@ -127,8 +128,9 @@ delete a route component simply because its markup looks old; first move or prot
 
 Use the backlog in order:
 
-1. DUI-01 application shell: Draft PR #112 is under product-owner review. Do not begin DUI-02 until
-   that acceptance is recorded.
+1. DUI-01 application shell: `AGENTS.md` requires recorded product-owner approval before any
+   production React/CSS work. Draft PR #112 is not that approval. Do not merge it or begin DUI-02
+   until the approval is recorded; this brief does not retroactively waive the gate.
 2. DUI-02 Materials split workspace and in-place datasheet.
 3. DUI-03 contextual card delivery.
 4. DUI-04 persistent Modeling session and task inspector.
@@ -161,39 +163,20 @@ For every visual pull request, record:
 Reference images are planning and review input, not product assets. Do not copy them into shipped UI,
 and do not create new production screens from static mock data.
 
-## 7. External skill workflow and automatic quality loop
+## 7. Skill assurance and automatic quality loop
 
-The project-specific fourth skill already exists as
-[desktop-engineering-ui](../../.codex/skills/desktop-engineering-ui/SKILL.md). Do not create a
-second, overlapping “cae-workbench-ui” skill.
+The complete installation commands, skill roles, precedence and mandatory audit loop are owned only
+by [Desktop Engineering UI Tooling](desktop-engineering-ui-tooling.md). Read and apply that section
+before any approved DUI implementation.
 
-Install the following three open-source helpers in the Codex environment before beginning the first
-new DUI slice. Run from the repository root; omit global installation.
+The required four layers are the existing project \`desktop-engineering-ui\` skill plus
+\`frontend-ui-engineering\`, \`web-design-guidelines\` and \`webapp-testing\`. The repository
+specification and domain invariants remain authoritative if a generic external recommendation
+conflicts with the desktop workbench contract.
 
-    npx --yes skills@latest add addyosmani/agent-skills --skill frontend-ui-engineering --agent codex --yes
-    npx --yes skills@latest add vercel-labs/agent-skills --skill web-design-guidelines --agent codex --yes
-    npx --yes skills@latest add anthropics/skills --skill webapp-testing --agent codex --yes
-
-| Skill | Mandatory use | It does not decide |
-| --- | --- | --- |
-| frontend-ui-engineering | Component structure, state wiring, keyboard/accessibility and production React implementation | Product topology, domain contracts or a mobile-first alternative |
-| web-design-guidelines | Inspect implemented UI for accessibility, interaction and code-level web-interface violations | Whether generic web advice can override the desktop workbench specification |
-| webapp-testing | Drive the real local application, verify interaction/data state, capture browser evidence and inspect console errors | Visual acceptance by screenshot alone |
-| desktop-engineering-ui | Apply the CAE workbench grammar, repository references, route-level measurements and legacy-CSS removal discipline | New domain capability or a substitute for the three external checks |
-
-The mandatory loop for every target screen is:
-
-    inspect current route and local reference images
-    → implement against actual API/controller/state
-    → run domain and route regression tests
-    → capture and interact with the live app at 1366×768, 1440×900 and 1920×1080
-    → run the project skill, web-design-guidelines audit and webapp-testing scenario
-    → correct every hard-gate failure
-    → recapture and rerun until all gates pass
-    → update evidence and user documentation
-
-External skills are quality aids. Repository domain invariants and this program’s desktop-workbench
-rules take precedence whenever a generic recommendation conflicts with them.
+For every screen, the tooling-defined loop is mandatory: inspect the current route and references,
+implement against actual state/API, test the real flow at all three desktop viewports, audit, correct
+every hard-gate failure, then recapture/retest and update evidence.
 
 ## 8. Completion definition
 
@@ -213,6 +196,6 @@ A DUI slice is complete only when all of the following are true:
 
 ## 9. Ready-to-paste Codex request
 
-Use this short request in a new Codex session after checking out the branch that contains this brief:
-
-> Read CODEX_DESKTOP_ENGINEERING_UI_START.md first. Preserve every existing API and domain contract, then complete only the next approved DUI task. Use the external UI, audit and browser-testing skills; verify the real flow at all three desktop viewports, fix every failed gate, and do not mark the task done before regression and evidence are complete.
+The sole current paste prompt is maintained in
+[CODEX_DESKTOP_ENGINEERING_UI_START.md](../../CODEX_DESKTOP_ENGINEERING_UI_START.md). Use that prompt
+unchanged so approval gating and external-skill setup do not drift across documents.
