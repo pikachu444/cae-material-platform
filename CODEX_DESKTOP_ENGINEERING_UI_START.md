@@ -16,16 +16,16 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 
 ## Read in order
 
-1. \`AGENTS.md\`
-2. \`docs/01-product/desktop-engineering-ui-program-brief.md\`
-3. \`docs/01-product/desktop-engineering-ui-product-spec.md\`
-4. \`docs/01-product/gui-functional-parity-plan.md\`
-5. \`docs/01-product/desktop-engineering-ui-tooling.md\`
-6. \`docs/13-delivery/desktop-engineering-ui-backlog.md\`
-7. \`.codex/skills/desktop-engineering-ui/SKILL.md\`
-8. \`docs/00-research/ux-reference-gallery/README.md\`
-9. \`docs/00-research/images/gui-reference/README.md\` and every relevant local image it inventories
-10. the relevant screen section in \`docs/01-product/gui-functional-parity-plan.md\`
+1. `AGENTS.md`
+2. `docs/01-product/desktop-engineering-ui-program-brief.md`
+3. `docs/01-product/desktop-engineering-ui-product-spec.md`
+4. `docs/01-product/gui-functional-parity-plan.md`
+5. `docs/01-product/desktop-engineering-ui-tooling.md`
+6. `docs/13-delivery/desktop-engineering-ui-backlog.md`
+7. `.codex/skills/desktop-engineering-ui/SKILL.md`
+8. `docs/00-research/ux-reference-gallery/README.md`
+9. `docs/00-research/images/gui-reference/README.md` and every relevant local image it inventories
+10. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
 11. current route code, tests, screenshots and user guides
 
 ## Program rule
@@ -38,7 +38,7 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 - Preserve database, revision/provenance, unit and solver-mapping contracts. Move the facade, not
   the scientific/domain behavior.
 - For every slice, use the project desktop-engineering-ui skill plus the three external skills defined
-  in \`desktop-engineering-ui-tooling.md\`.
+  in `desktop-engineering-ui-tooling.md`.
 - A visual task is not complete until it has real API/state proof, task-flow regression tests,
   1366×768/1440×900/1920×1080 captures, keyboard/focus checks, reference comparison, legacy-selector
   disposition and updated current documentation.
