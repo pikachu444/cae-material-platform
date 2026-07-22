@@ -379,7 +379,8 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();
     expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Specimen 01/ }).getAttribute("title")).toContain("DP600-TENSILE-01");
-    expect(screen.getByRole("button", { name: /settings/ })).toBeTruthy();
+    const settingsControl = screen.getByRole("button", { name: /current-stage settings/ });
+    expect(settingsControl).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
     expect(screen.getByRole("button", { name: "Canonical JSON" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "CSV" })).toBeTruthy();
@@ -404,6 +405,7 @@ describe("Common Processing Workbench", () => {
     expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
       '"method_id": "metal.hardening_fit_extrapolate"',
     );
+    if (settingsControl.getAttribute("aria-expanded") === "false") fireEvent.click(settingsControl);
     fireEvent.click(screen.getByText("Advanced · Recipe and Batch"));
     fireEvent.click(screen.getByRole("button", { name: /Recipe/ }));
     expect(screen.getByLabelText("Saved Processing Recipe")).toBeTruthy();
@@ -469,8 +471,8 @@ describe("Common Processing Workbench", () => {
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
     expect(screen.getByRole("heading", { name: "Neutral model to solver-native material card" })).toBeTruthy();
     expect(screen.getByText("Exact Neutral and solver delivery fixture")).toBeTruthy();
-    expect(screen.queryByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeNull();
+    expect(document.querySelector("#modeling-process[hidden] .persistent-modeling-plot")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
-    expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
+    expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
   }, 20_000);
 });

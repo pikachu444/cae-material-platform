@@ -31,6 +31,7 @@ interface Props {
   config: ApiConfig;
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
+  locationSearch?: string;
 }
 
 function errorMessage(cause: unknown): string {
@@ -191,7 +192,7 @@ function FamilyModelingPanel({
   );
 }
 
-export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection }: Props) {
+export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection, locationSearch = "" }: Props) {
   const [initialSession] = useState<ModelingSessionSummary | null>(() => loadModelingSession());
   const [session, setSession] = useState<ModelingSessionSummary | null>(initialSession);
   const [track, setTrack] = useState<ModelingTrack>(session?.materialFamily ?? "metal");
@@ -315,6 +316,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onSessionChange={updateSession}
       familyWorkbench={familyWorkbench}
       familyInspector={familyInspector}
+      locationSearch={locationSearch}
     />
   );
 }

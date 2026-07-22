@@ -1682,6 +1682,121 @@
   min-height: min(680px, calc(100vh - 235px));
 }
 
+.modeling-split-workspace {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: min(680px, calc(100vh - 235px));
+  overflow: hidden;
+  border-block: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-main-panel,
+.modeling-main-surface {
+  min-width: 0;
+  min-height: 0;
+}
+
+.modeling-main-surface {
+  position: relative;
+  display: grid;
+  height: 100%;
+  grid-template-rows: auto minmax(424px, 1fr);
+}
+
+.modeling-task-ribbon {
+  grid-row: 1;
+  max-height: 150px;
+  overflow: auto;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-task-ribbon > .step-option-panel {
+  max-height: 150px;
+  border: 0;
+  border-radius: 0;
+}
+
+.modeling-main-surface > .persistent-modeling-plot {
+  grid-column: 1;
+  grid-row: 2;
+  min-height: 0;
+  border: 0;
+}
+
+.modeling-conflict-banner {
+  align-items: center;
+  background: #fff8e6;
+  border-bottom: 1px solid #c89a42;
+  display: flex;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 6px 12px;
+}
+
+.modeling-conflict-banner > div {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.modeling-conflict-banner span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.modeling-pane-divider {
+  position: relative;
+  z-index: 4;
+  flex: 0 0 5px;
+  width: 5px;
+  background: var(--ux-border);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.modeling-pane-divider:hover,
+.modeling-pane-divider:focus-visible {
+  background: var(--ux-accent);
+}
+
+.modeling-pane-divider > button,
+.modeling-ribbon-control {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ux-border-strong);
+  border-radius: 2px;
+  background: var(--ux-surface);
+  color: var(--ux-text-muted);
+  cursor: pointer;
+}
+
+.modeling-pane-divider > button {
+  top: 10px;
+  left: -5px;
+  width: 15px;
+  height: 26px;
+  padding: 0;
+}
+
+.modeling-ribbon-control {
+  top: -1px;
+  right: 10px;
+  width: 28px;
+  height: 16px;
+  padding: 0;
+}
+
+.modeling-pane-divider > button:focus-visible,
+.modeling-ribbon-control:focus-visible {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: 2px;
+}
+
 .modeling-graph-workspace:not(.inspector-visible) {
   grid-template-columns: clamp(184px, 13.2vw, 200px) minmax(0, 1fr);
 }

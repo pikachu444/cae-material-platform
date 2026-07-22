@@ -87,6 +87,10 @@ function commandsFor(path: string, navigate: (path: string) => void, activeComma
     return {
       title: "Modeling",
       commands: [
+        { label: "New session", action: () => emitWorkspaceCommand("modeling:new") },
+        { label: "Save draft", action: () => emitWorkspaceCommand("modeling:save") },
+        { label: "Undo", action: () => emitWorkspaceCommand("modeling:undo") },
+        { label: "Redo", action: () => emitWorkspaceCommand("modeling:redo") },
         { label: "Data", active: activeCommand === "modeling:data", action: () => emitWorkspaceCommand("modeling:data") },
         { label: "Process", active: activeCommand === "modeling:process", action: () => emitWorkspaceCommand("modeling:process") },
         { label: "Fit", active: activeCommand === "modeling:fit", action: () => emitWorkspaceCommand("modeling:fit") },
@@ -158,7 +162,9 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
   useEffect(() => {
     const updateActiveCommand = (event: Event) => {
       const command = (event as CustomEvent<{ command?: string }>).detail?.command;
-      if (command?.startsWith("modeling:") || command?.startsWith("materials:")) setActiveCommand(command);
+      if (command && (/^modeling:(data|process|fit|export)$/.test(command) || command.startsWith("materials:"))) {
+        setActiveCommand(command);
+      }
     };
     window.addEventListener(COMMAND_EVENT, updateActiveCommand);
     window.addEventListener(COMMAND_STATE_EVENT, updateActiveCommand);
@@ -174,6 +180,16 @@ export function ApplicationShell({ path, navigate, children }: ApplicationShellP
         event.preventDefault();
         const search = document.querySelector<HTMLElement>('[aria-label="Search materials"], [data-command-search]');
         (search ?? commandRef.current)?.focus();
+        return;
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        emitWorkspaceCommand("modeling:save");
+        return;
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        emitWorkspaceCommand(event.shiftKey ? "modeling:redo" : "modeling:undo");
         return;
       }
       if (event.key !== "F6") return;

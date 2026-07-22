@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
 import { EngineeringCurvePlot } from "./engineering-curve-plot";
-import { publishWorkspaceStatus } from "./design/application-shell";
+import { publishWorkspaceCommandState, publishWorkspaceStatus } from "./design/application-shell";
+import { ModelingWorkspaceLayout } from "./design/modeling-workspace-layout";
 
 import {
   ApiError,
@@ -45,7 +46,7 @@ import type {
   GraphSelectionCommand,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
-import type { ModelingSessionSummary } from "./modeling-session-context";
+import { clearModelingSession, type ModelingPlotView, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
 
 interface Props {
   config: ApiConfig;
@@ -56,12 +57,13 @@ interface Props {
   onSessionChange?: (patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => void;
   familyWorkbench?: ReactNode;
   familyInspector?: ReactNode;
+  locationSearch?: string;
 }
 
 export type ModelingTrack = "metal" | "polymer" | "elastomer";
 type WorkspaceInspector = "step" | "recipe" | "batch";
-type PlotView = "pipeline" | "ensemble";
-type ModelingWorkflowTask = "data" | "process" | "fit" | "export";
+type PlotView = ModelingPlotView;
+type ModelingWorkflowTask = ModelingStage;
 
 const DEFAULT_PROFILE: CommonMappingProfileContent = {
   profile_key: "normalized-tensile",
@@ -706,7 +708,10 @@ function curveDisplayName(item: CanonicalTestDataDocumentResponse, index: number
   return `Curve ${String(index + 1).padStart(2, "0")}`;
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench, familyInspector }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench, familyInspector, locationSearch = "" }: Props) {
+  const initialQuery = useMemo(() => new URLSearchParams(locationSearch), [locationSearch]);
+  const queryStage = initialQuery.get("stage");
+  const queryFamily = initialQuery.get("family");
   const [documents, setDocuments] = useState<CanonicalTestDataDocumentResponse[]>([]);
   const [profiles, setProfiles] = useState<CommonMappingProfileResponse[]>([]);
   const [methods, setMethods] = useState<CommonProcessingMethod[]>([]);
@@ -729,28 +734,95 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [recipeDescription, setRecipeDescription] = useState("Reusable explicit processing steps");
   const [recipeReason, setRecipeReason] = useState("Save reusable Processing Recipe");
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
-  const [selectedStage, setSelectedStage] = useState(0);
-  const [selectedStepIndex, setSelectedStepIndex] = useState(0);
-  const [modelingTrack, setModelingTrack] = useState<ModelingTrack>(initialSession?.materialFamily ?? "metal");
+  const [selectedStage, setSelectedStage] = useState(initialSession?.workspace.selectedStageOrdinal ?? 0);
+  const [selectedStepIndex, setSelectedStepIndex] = useState(initialSession?.workspace.selectedStepIndex ?? 0);
+  const [modelingTrack, setModelingTrack] = useState<ModelingTrack>(["metal", "polymer", "elastomer"].includes(String(queryFamily)) ? queryFamily as ModelingTrack : initialSession?.materialFamily ?? "metal");
   const [workspaceInspector, setWorkspaceInspector] = useState<WorkspaceInspector>("step");
-  const [inspectorVisible, setInspectorVisible] = useState(() => typeof window === "undefined" || window.innerWidth >= 1400);
-  const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>([]);
+  const [inspectorVisible, setInspectorVisible] = useState(() => initialSession?.workspace.settingsOpen ?? (typeof window === "undefined" || window.innerWidth >= 1400));
+  const [ensembleDocumentIds, setEnsembleDocumentIds] = useState<string[]>(initialSession?.workspace.selectedDocumentIds ?? []);
   const [batchDocumentIds, setBatchDocumentIds] = useState<string[]>([]);
   const [batchLabel, setBatchLabel] = useState("Published Recipe batch");
   const [batchPreflight, setBatchPreflight] = useState<CommonProcessingBatchPreflight | null>(null);
   const [ensemblePointCount, setEnsemblePointCount] = useState(21);
   const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
-  const [plotView, setPlotView] = useState<PlotView>("pipeline");
-  const [workflowTask, setWorkflowTask] = useState<ModelingWorkflowTask>("fit");
+  const [plotView, setPlotView] = useState<PlotView>(initialSession?.workspace.plotView ?? "pipeline");
+  const [workflowTask, setWorkflowTask] = useState<ModelingWorkflowTask>(["data", "process", "fit", "export"].includes(String(queryStage)) ? queryStage as ModelingWorkflowTask : initialSession?.workspace.activeStage ?? "fit");
   const [busy, setBusy] = useState(false);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [recipeConflict, setRecipeConflict] = useState<{ recipeId: string } | null>(null);
   const autoPreviewKey = useRef("");
   const previewAbortController = useRef<AbortController | null>(null);
   const previewRequestNo = useRef(0);
+  const undoSteps = useRef<string[]>([]);
+  const redoSteps = useRef<string[]>([]);
+  const savedSteps = useRef(stepsText);
+
+  const draftDirty = stepsText !== savedSteps.current;
+
+  function applyDraftSteps(next: string): void {
+    if (next === stepsText) return;
+    undoSteps.current.push(stepsText);
+    if (undoSteps.current.length > 50) undoSteps.current.shift();
+    redoSteps.current = [];
+    setStepsText(next);
+    setPreview(null);
+  }
+
+  function replaceSavedSteps(next: string): void {
+    setStepsText(next);
+    savedSteps.current = next;
+    undoSteps.current = [];
+    redoSteps.current = [];
+    setPreview(null);
+  }
+
+  function undoDraft(): void {
+    const previous = undoSteps.current.pop();
+    if (previous === undefined) return;
+    redoSteps.current.push(stepsText);
+    setStepsText(previous);
+    setPreview(null);
+    setNotice("Restored the previous local Recipe draft state.");
+  }
+
+  function redoDraft(): void {
+    const next = redoSteps.current.pop();
+    if (next === undefined) return;
+    undoSteps.current.push(stepsText);
+    setStepsText(next);
+    setPreview(null);
+    setNotice("Reapplied the next local Recipe draft state.");
+  }
+
+  function resetSession(): void {
+    if (draftDirty && !window.confirm("Discard the unsaved local Recipe draft and start a new Modeling session?")) return;
+    clearModelingSession();
+    const defaults = modelingTrack === "metal" ? METAL_TENSILE_STEPS : modelingTrack === "polymer" ? POLYMER_RELAXATION_STEPS : ELASTOMER_PREPARATION_STEPS;
+    const next = JSON.stringify(defaults, null, 2);
+    setStepsText(next);
+    savedSteps.current = next;
+    undoSteps.current = [];
+    redoSteps.current = [];
+    setSelectedStepIndex(0);
+    setSelectedStage(0);
+    setPlotView("pipeline");
+    setPreview(null);
+    setNotice("Started a new local Modeling session. Server revisions remain unchanged.");
+  }
 
   useEffect(() => () => previewAbortController.current?.abort(), []);
+
+  useEffect(() => {
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!draftDirty) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [draftDirty]);
 
   useEffect(() => {
     void Promise.all([
@@ -800,7 +872,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             && candidate.content.bindings.every((binding) => template.bindings.some((expected) => expected.target_quantity === binding.target_quantity)));
         setSelectedProfileId(compatible?.mapping_profile_id ?? "");
         setProfileText(JSON.stringify(compatible?.content ?? template, null, 2));
-        setStepsText(JSON.stringify(steps, null, 2));
+        replaceSavedSteps(JSON.stringify(steps, null, 2));
         setSelectedStepIndex(steps.length - 1);
       }
       setNotice(`Loaded exact Test Data revision ${item.current_revision.revision_no}.`);
@@ -871,7 +943,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   ): void {
     setSelectedProfileId("");
     setProfileText(JSON.stringify(profile, null, 2));
-    setStepsText(JSON.stringify(steps, null, 2));
+    replaceSavedSteps(JSON.stringify(steps, null, 2));
     setSelectedStepIndex(0);
     setPreview(null);
     setNotice(`Loaded the ${profile.label} template. Confirm channel keys, units, and bounds before saving.`);
@@ -895,6 +967,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
     setSelectedRecipeId("");
     setBatchPreflight(null);
+    onNavigate(`/modeling?stage=${workflowTask}&family=${track}`);
   }
 
   function selectRecipe(id: string): void {
@@ -905,7 +978,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setRecipeKey(item.content.recipe_key);
     setRecipeLabel(item.content.label);
     setRecipeDescription(item.content.description ?? "");
-    setStepsText(JSON.stringify(item.content.steps, null, 2));
+    replaceSavedSteps(JSON.stringify(item.content.steps, null, 2));
     if (item.content.steps.some((step) => step.method_id.startsWith("polymer."))) applyModelingTrack("polymer");
     else if (item.content.steps.some((step) => step.method_id.startsWith("metal."))) applyModelingTrack("metal");
     setSelectedStepIndex(0);
@@ -1070,9 +1143,58 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       const refreshed = await listCommonProcessingRecipes(config);
       setRecipes(refreshed.data.items);
       setSelectedRecipeId(result.data.processing_recipe_id);
+      savedSteps.current = stepsText;
+      undoSteps.current = [];
+      redoSteps.current = [];
       setNotice(`Saved reusable Recipe revision ${result.data.current_revision.revision_no} as draft.`);
     } catch (caught) {
-      setError(caught instanceof SyntaxError ? `Invalid Recipe step JSON: ${caught.message}` : errorMessage(caught));
+      if (caught instanceof ApiError && (caught.status === 409 || caught.status === 412) && selectedRecipeId) {
+        setRecipeConflict({ recipeId: selectedRecipeId });
+        setError(null);
+      } else {
+        setError(caught instanceof SyntaxError ? `Invalid Recipe step JSON: ${caught.message}` : errorMessage(caught));
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resolveRecipeConflict(action: "reload" | "keep-local"): Promise<void> {
+    if (!recipeConflict) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const refreshed = await listCommonProcessingRecipes(config);
+      const current = refreshed.data.items.find((item) => item.processing_recipe_id === recipeConflict.recipeId);
+      if (!current) throw new Error("The conflicted Recipe is no longer available in this project.");
+      setRecipes(refreshed.data.items);
+      if (action === "reload") {
+        setRecipeKey(current.content.recipe_key);
+        setRecipeLabel(current.content.label);
+        setRecipeDescription(current.content.description ?? "");
+        replaceSavedSteps(JSON.stringify(current.content.steps, null, 2));
+        setSelectedStepIndex(0);
+        setRecipeConflict(null);
+        setNotice(`Reloaded current Recipe revision ${current.current_revision.revision_no}; the stale local draft was discarded.`);
+        return;
+      }
+      const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
+      if (!profile) throw new Error("Select the exact Mapping Profile again before preserving the local draft.");
+      const result = await reviseCommonProcessingRecipe(
+        config,
+        current.processing_recipe_id,
+        `"revision:${current.current_revision.revision_no}:sha256:${current.current_revision.content_hash}"`,
+        { content: recipeContent(profile, "draft"), change_reason: recipeReason },
+      );
+      const latest = await listCommonProcessingRecipes(config);
+      setRecipes(latest.data.items);
+      savedSteps.current = stepsText;
+      undoSteps.current = [];
+      redoSteps.current = [];
+      setRecipeConflict(null);
+      setNotice(`Preserved the local draft as Recipe revision ${result.data.current_revision.revision_no}.`);
+    } catch (caught) {
+      setError(errorMessage(caught));
     } finally {
       setBusy(false);
     }
@@ -1110,7 +1232,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     try {
       const steps = JSON.parse(stepsText) as CommonProcessingStep[];
       steps.push({ method_id: method.method_id, method_version: method.version, options: defaultOptions(method.method_id) });
-      setStepsText(JSON.stringify(steps, null, 2));
+      applyDraftSteps(JSON.stringify(steps, null, 2));
       setSelectedStepIndex(steps.length - 1);
       setPreview(null);
       setError(null);
@@ -1129,8 +1251,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       const step = steps[selectedStepIndex];
       if (!step) return;
       steps[selectedStepIndex] = { ...step, options: { ...step.options, ...options } };
-      setStepsText(JSON.stringify(steps, null, 2));
-      setPreview(null);
+      applyDraftSteps(JSON.stringify(steps, null, 2));
     } catch {
       setError("The advanced processing definition is not valid JSON.");
     }
@@ -1140,7 +1261,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     try {
       const steps = JSON.parse(stepsText) as CommonProcessingStep[];
       steps.splice(selectedStepIndex, 1);
-      setStepsText(JSON.stringify(steps, null, 2));
+      applyDraftSteps(JSON.stringify(steps, null, 2));
       setSelectedStepIndex(Math.max(0, selectedStepIndex - 1));
       setPreview(null);
     } catch {
@@ -1418,6 +1539,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   useEffect(() => {
     if (activeStage) onSessionChange?.({ lastStage: activeStage.method_id });
   }, [activeStage, onSessionChange]);
+
+  useEffect(() => {
+    publishWorkspaceCommandState(`modeling:${workflowTask}`);
+    onSessionChange?.({
+      workspace: {
+        activeStage: workflowTask,
+        selectedDocumentIds: ensembleDocumentIds,
+        selectedStepIndex,
+        selectedStageOrdinal: selectedStage,
+        plotView,
+        settingsOpen: inspectorVisible,
+      },
+    });
+  }, [ensembleDocumentIds, inspectorVisible, onSessionChange, plotView, selectedStage, selectedStepIndex, workflowTask]);
   const ensembleStatistic = ensemblePreview?.statistics[0] ?? null;
   const ensembleBounds = useMemo(() => {
     if (!ensemblePreview || !ensembleStatistic) return null;
@@ -1505,7 +1640,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         throw new Error(`${step.method_id} does not accept a point selection.`);
       }
       if (selection.kind === "range") steps[stepIndex] = { ...step, options };
-      setStepsText(JSON.stringify(steps, null, 2));
+      applyDraftSteps(JSON.stringify(steps, null, 2));
       setWorkspaceInspector("step");
       setPreview(null);
       setError(null);
@@ -1517,6 +1652,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   function openWorkflowTask(task: ModelingWorkflowTask): void {
     setWorkflowTask(task);
+    onNavigate(`/modeling?stage=${task}&family=${modelingTrack}`);
     if (task === "export" || task === "data") return;
     const preferredMethod = task === "fit"
       ? modelingTrack === "metal"
@@ -1536,13 +1672,31 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }
 
   useEffect(() => {
+    const params = new URLSearchParams(locationSearch);
+    const stage = params.get("stage");
+    const family = params.get("family");
+    if (["data", "process", "fit", "export"].includes(String(stage)) && stage !== workflowTask) {
+      setWorkflowTask(stage as ModelingWorkflowTask);
+    }
+    if (["metal", "polymer", "elastomer"].includes(String(family)) && family !== modelingTrack) {
+      selectModelingTrack(family as ModelingTrack);
+    }
+  }, [locationSearch]);
+
+  useEffect(() => {
     const handleCommand = (event: Event) => {
       const command = (event as CustomEvent<{ command?: string }>).detail?.command;
-      if (command?.startsWith("modeling:")) openWorkflowTask(command.slice("modeling:".length) as ModelingWorkflowTask);
+      if (!command?.startsWith("modeling:")) return;
+      const action = command.slice("modeling:".length);
+      if (["data", "process", "fit", "export"].includes(action)) openWorkflowTask(action as ModelingWorkflowTask);
+      else if (action === "save") void saveRecipe();
+      else if (action === "undo") undoDraft();
+      else if (action === "redo") redoDraft();
+      else if (action === "new") resetSession();
     };
     window.addEventListener("cmp:workspace-command", handleCommand);
     return () => window.removeEventListener("cmp:workspace-command", handleCommand);
-  }, [modelingTrack, selectedTrackDocument]);
+  });
 
   useEffect(() => {
     publishWorkspaceStatus({
@@ -1569,6 +1723,10 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         </div>
       </header>
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
+      {recipeConflict ? <section className="modeling-conflict-banner" role="alert" aria-label="Stale Recipe revision conflict">
+        <div><strong>The Recipe changed after this draft was opened.</strong><span>Reload the current revision, or preserve these local steps as a new revision.</span></div>
+        <div><button className="button secondary" type="button" disabled={busy} onClick={() => void resolveRecipeConflict("reload")}>Reload current</button><button className="button primary" type="button" disabled={busy} onClick={() => void resolveRecipeConflict("keep-local")}>Keep local draft as new revision</button><button className="text-button" type="button" disabled={busy} onClick={() => setRecipeConflict(null)}>Cancel</button></div>
+      </section> : null}
       {notice ? <div className="modeling-notice-line" role="status" title={notice}>{notice}</div> : null}
 
       {workflowTask === "data" ? <section className="modeling-data-entry" aria-label="Modeling data input">
@@ -1596,19 +1754,19 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       </details> : null}
 
       {elastomerWorkbenchTask ? <section className="modeling-elastomer-workspace" id="modeling-fit" aria-label="Elastomer multi-mode modeling workspace">{familyWorkbench}</section> : null}
-      {(workflowTask === "process" || workflowTask === "fit") && !elastomerWorkbenchTask ? <section className="workbench-card method-builder-card" id="modeling-process">
-        <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Fit" : "Process"}</p><h2>{workflowTask === "fit" ? "Response, residual, and extrapolation" : "Selected curves"}</h2></div><div className="modeling-section-actions"><details className="method-library"><summary>Add method <span>{trackMethods.length}</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details><button className="button secondary" type="button" aria-expanded={inspectorVisible} onClick={() => setInspectorVisible((current) => !current)}>{inspectorVisible ? "Hide settings" : "Show settings"}</button><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div></div>
-        <div className={`modeling-graph-workspace${inspectorVisible ? " inspector-visible" : ""}`}>
-          <aside className="modeling-workspace-rail">
+      {!elastomerWorkbenchTask ? <section className="workbench-card method-builder-card" id="modeling-process" hidden={workflowTask === "export"} aria-hidden={workflowTask === "export"}>
+        <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Fit" : workflowTask === "process" ? "Process" : "Data"}</p><h2>{workflowTask === "fit" ? "Response, residual, and extrapolation" : workflowTask === "process" ? "Selected curves" : "Source curves and channel mapping"}</h2></div><div className="modeling-section-actions"><details className="method-library"><summary>Add method <span>{trackMethods.length}</span></summary><div className="method-registry-strip" aria-label="Available processing methods">{trackMethods.map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details><button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Preview changes"}</button></div></div>
+        <ModelingWorkspaceLayout
+          navigator={<>
             <div className="modeling-dataset-list"><div className="rail-heading"><p>Curves</p><span>{ensembleDocumentIds.length} included</span></div>{trackDocuments.map((item, index) => <article className={selectedDocumentId === item.test_data_document_id ? "active" : ""} key={item.test_data_document_id}><label className="curve-include-toggle" title="Include this exact revision in replicate statistics"><input aria-label={`Include ${item.document_key} in replicate statistics`} type="checkbox" checked={ensembleDocumentIds.includes(item.test_data_document_id)} onChange={() => toggleEnsembleDocument(item.test_data_document_id)}/><span className="dataset-curve-swatch" style={{ "--curve-index": index } as React.CSSProperties}/></label><span className="curve-tree-glyph" aria-hidden="true">└</span><button type="button" title={`${item.document_key} · ${item.specimen_id} · exact revision r${item.current_revision.revision_no}`} onClick={() => { setPlotView("pipeline"); void loadDocument(item.test_data_document_id); }}><span><strong>{curveDisplayName(item, index)}</strong><small>Exact revision r{item.current_revision.revision_no}</small></span></button></article>)}{!trackDocuments.length ? <p className="muted">No Test Data revision declares the quantities required by this material track.</p> : null}<div className="rail-statistics-action"><label>Alignment points<input aria-label="Replicate alignment point count" type="number" min="5" max="1001" value={ensemblePointCount} onChange={(event) => { setEnsemblePointCount(Number(event.target.value)); setEnsemblePreview(null); }}/></label><button className="button secondary" type="button" disabled={busy || ensembleDocumentIds.length < 2} onClick={() => void runEnsemblePreview()}>{busy ? "Calculating…" : "Add mean & band"}</button><small>Intersection only · no extrapolation</small></div></div>
             <div className="configured-step-list"><p className="rail-title">Process</p>{configuredSteps.map((step, index) => { const label = methods.find((method) => method.method_id === step.method_id)?.label ?? step.method_id; return <button type="button" title={`${label} · ${step.method_id} ${step.method_version}`} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{index + 1}</span><span><strong>{label}</strong><small>{step.method_version}</small></span></button>; })}</div>
-          </aside>
-          <article className="persistent-modeling-plot" id="modeling-fit">
+          </>}
+          plot={<article className="persistent-modeling-plot" id="modeling-fit">
             <div className="section-heading"><div><p className="workspace-caption">Curve comparison</p><h2>{plotView === "ensemble" ? "Replicate statistics" : activeStage?.method_id ?? "Load data and preview"}</h2></div><div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={plotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Pipeline</button><button type="button" className={plotView === "ensemble" ? "active" : ""} disabled={!ensemblePreview} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button>{preview || ensemblePreview ? <span className="plot-preview-state">Preview only · not committed</span> : null}</div></div>
             {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} width={chart.width} height={chart.height} onApplySelection={plotView === "pipeline" ? applyGraphSelection : undefined} ensemblePreview={plotView === "ensemble" ? ensemblePreview : null} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you configure processing."}</strong><p>{previewBusy ? "The previous calculation is cancelled when a newer Recipe change is applied." : "Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source."}</p></div>}
             {preview && plotView === "pipeline" ? <div className="stage-chip-rail" aria-label="Preview stage history">{preview.stages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => stage.ordinal > 0 ? focusConfiguredStep(stage.ordinal - 1) : setSelectedStage(0)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : ensemblePreview && plotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
-          </article>
-          <aside className="step-option-panel">
+          </article>}
+          ribbon={<aside className="step-option-panel">
             <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div>
             {selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="step-index">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
@@ -1643,9 +1801,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               <div className="inspector-batch-history">{trackBatches.map((batch) => { const succeeded = batch.attempts.filter((attempt) => attempt.status === "succeeded").length; return <article key={batch.batch_id}><div><strong>{batch.label}</strong><small>{batch.members.length} members · {succeeded}/{batch.attempts.length} attempts succeeded</small><em>{new Date(batch.created_at).toLocaleDateString()}</em></div><span className={`status-chip ${batch.status === "partial" || batch.status === "failed" ? "warning" : ""}`}>{batch.status}</span>{batch.status === "partial" || batch.status === "failed" ? <button className="text-button" type="button" disabled={busy} onClick={() => void retryFailedBatch(batch.batch_id)}>Retry failed</button> : null}</article>; })}{!trackBatches.length ? <p className="muted">No batch has run for this material family yet.</p> : null}</div>
             </div> : null}
             </details>
-          </aside>
-        </div>
-        <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" value={stepsText} onChange={(event) => { setStepsText(event.target.value); setPreview(null); }} spellCheck={false} /></label></details>
+          </aside>}
+          ribbonOpen={inspectorVisible}
+          onRibbonOpenChange={setInspectorVisible}
+        />
+        <details className="advanced-definition"><summary>Advanced Recipe JSON</summary><label>Ordered step JSON<textarea className="pipeline-editor" aria-label="Ordered processing steps" name="ordered-processing-steps" autoComplete="off" value={stepsText} onChange={(event) => applyDraftSteps(event.target.value)} spellCheck={false} /></label></details>
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
       </section> : null}
 

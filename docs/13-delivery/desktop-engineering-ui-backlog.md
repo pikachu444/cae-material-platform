@@ -69,6 +69,9 @@ Search, Browse Tree, results, datasheet and related context operate as one stabl
 
 ## DUI-03 — Contextual solver-card delivery — P0
 
+Implementation status: pending. Product-owner direction on 2026-07-22 selected DUI-04 as the next
+bounded work item; DUI-03 remains a separate future slice and was not folded into DUI-04.
+
 ### User outcome
 
 A known Material can be assessed and downloaded without navigating through implementation objects.
@@ -91,6 +94,10 @@ A known Material can be assessed and downloaded without navigating through imple
 - downloaded artifact and mapping report regressions remain unchanged.
 
 ## DUI-04 — Persistent Modeling session and task inspector — P0
+
+Implementation status: implemented on branch `codex/dui-04-persistent-modeling-workbench` on
+2026-07-22. Live flow, pane measurements, state continuity, reference scoring and captures are
+recorded in `docs/15-demo/evidence/dui-04-modeling-workspace.md`.
 
 ### User outcome
 
