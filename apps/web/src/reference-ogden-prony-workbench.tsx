@@ -231,6 +231,7 @@ export function ReferenceOgdenPronyWorkbench({
               <label>Solver<select value={solver} onChange={(event) => { setSolver(event.target.value as "abaqus" | "openradioss"); setReport(null); setMappingAcknowledged(false); }}><option value="abaqus">Abaqus 2025</option><option value="openradioss">OpenRadioss 2025 LAW62</option></select></label>
               <label>Solver material ID<input type="number" min="1" value={solverMaterialId} onChange={(event) => setSolverMaterialId(event.target.value)} /></label>
               <label>Material name<input value={materialName} pattern="[A-Za-z][A-Za-z0-9_-]{0,79}" onChange={(event) => setMaterialName(event.target.value)} /></label>
+              <div className="delivery-readonly-field"><span>Target tuple</span><strong>{solver} 2025</strong><small>kg·m·s (SI) · exact supported unit system</small></div>
             </div>
             <button className="button secondary" type="button" disabled={busy} onClick={() => void runPreflight()}>Run mapping preflight</button>
           </div>
@@ -263,7 +264,7 @@ export function ReferenceOgdenPronyWorkbench({
       ) : <p className="muted">No Ogden–Prony IR exists for this elastomer State yet.</p>}
 
       {error ? <p className="error-notice" role="alert">{error}</p> : null}
-      {cards.map((card) => <article className="solver-card-item" key={card.solver_card_id}><div><strong>{card.target.solver === "abaqus" ? "Abaqus Ogden" : "OpenRadioss LAW62"}</strong><small>{card.current_revision.content.material_name}</small></div><div className="card-actions"><button className="text-button" type="button" onClick={() => void previewOgdenPronyCard(config, card.solver_card_id).then((result) => setPreview(result.data))}>Preview</button><button className="button secondary" type="button" onClick={() => void download(card).catch((cause: unknown) => setError(errorMessage(cause)))}>Download</button></div></article>)}
+      {cards.map((card) => <article className="solver-card-item" key={card.solver_card_id}><div><strong>{card.target.solver === "abaqus" ? "Abaqus Ogden" : "OpenRadioss LAW62"}</strong><small>{card.current_revision.content.material_name}</small></div><div className="card-actions"><button className="text-button" type="button" onClick={() => void previewOgdenPronyCard(config, card.solver_card_id).then((result) => setPreview(result.data))}>Preview</button><button className="button secondary" type="button" onClick={() => void download(card).catch((cause: unknown) => setError(errorMessage(cause)))}>Download</button>{onNavigate ? <a className="text-button" href={`/materials/${state.material_id}/cards`} onClick={(event) => { event.preventDefault(); onNavigate(`/materials/${state.material_id}/cards`); }}>Open Material CAE Cards</a> : null}</div></article>)}
       {preview ? <pre className="solver-card-preview">{preview}</pre> : null}
     </section>
   );

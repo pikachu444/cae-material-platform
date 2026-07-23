@@ -28,6 +28,7 @@ export interface ModelingSessionSummary {
   testData?: ModelingSessionRecordRef;
   mappingProfile?: ModelingSessionRecordRef;
   recipe?: ModelingSessionRecordRef;
+  processingOutput?: ModelingSessionRecordRef;
   lastStage?: string;
   workspace: ModelingWorkspaceState;
 }
@@ -63,7 +64,7 @@ export function loadModelingSession(): ModelingSessionSummary | null {
       || typeof value.updatedAt !== "string"
       || !["metal", "polymer", "elastomer"].includes(String(value.materialFamily))
       || typeof value.objective !== "string") return null;
-    for (const key of ["material", "materialState", "testData", "mappingProfile", "recipe"] as const) {
+    for (const key of ["material", "materialState", "testData", "mappingProfile", "recipe", "processingOutput"] as const) {
       if (value[key] !== undefined && !isRecordRef(value[key])) return null;
     }
     const workspace = value.version === 2 && isWorkspaceState(value.workspace)
@@ -89,6 +90,7 @@ export function saveModelingSession(
     testData: patch.testData ?? current?.testData,
     mappingProfile: patch.mappingProfile ?? current?.mappingProfile,
     recipe: patch.recipe ?? current?.recipe,
+    processingOutput: patch.processingOutput ?? current?.processingOutput,
     lastStage: patch.lastStage ?? current?.lastStage,
     workspace: patch.workspace ?? current?.workspace ?? DEFAULT_WORKSPACE,
   };

@@ -237,6 +237,10 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
       },
     };
     let promoted = false;
+    let resolveHistoricalCandidates: ((response: Response) => void) | null = null;
+    const historicalCandidates = new Promise<Response>((resolve) => {
+      resolveHistoricalCandidates = resolve;
+    });
     const fetchMock = vi.fn<typeof fetch>((input, init) => {
       const url = String(input);
       if (url.endsWith("/processing-outputs") && !init?.method) {
@@ -320,6 +324,9 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
           links: { self: "/neutral", download: "/neutral/download" },
         }, 201));
       }
+      if (url.includes("/bulk-export-candidates?")) {
+        return historicalCandidates;
+      }
       return Promise.resolve(response({ items: [] }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -348,6 +355,8 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
     ).toBe("/datasets/processing");
     fireEvent.click(screen.getByRole("button", { name: "Create Neutral JSON and solver mapping" }));
     expect(await screen.findByText("Solver target")).toBeTruthy();
+    resolveHistoricalCandidates?.(response({ items: [] }));
+    await waitFor(() => expect(screen.getByText("Solver target")).toBeTruthy());
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining(`/processing-outputs/${outputId}/linear-viscoelastic-models`),
       expect.objectContaining({ method: "POST" }),

@@ -399,6 +399,10 @@ describe("Reference elastoplastic workbench", () => {
         origin: "processing_selected_sample",
       })),
     };
+    let resolveHistoricalCandidates: ((response: Response) => void) | null = null;
+    const historicalCandidates = new Promise<Response>((resolve) => {
+      resolveHistoricalCandidates = resolve;
+    });
     const fetchMock = vi.fn<typeof fetch>((input, init) => {
       const url = String(input);
       const method = init?.method ?? "GET";
@@ -430,6 +434,9 @@ describe("Reference elastoplastic workbench", () => {
       }
       if (url.endsWith(`/tabulated-plasticity-models/${modelId}/solver-cards`)) {
         return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      if (url.includes("/bulk-export-candidates?")) {
+        return historicalCandidates;
       }
       return Promise.resolve(jsonResponse({ items: [] }));
     });
@@ -463,6 +470,10 @@ describe("Reference elastoplastic workbench", () => {
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create Neutral Material JSON" }));
     expect(await screen.findByRole("button", { name: "Download Neutral JSON r1" })).toBeTruthy();
+    resolveHistoricalCandidates?.(jsonResponse({ items: [] }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Download Neutral JSON r1" })).toBeTruthy();
+    });
     expect(screen.getByText("Exact Neutral JSON r1 restored")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Create Neutral Material JSON" })).toBeNull();
     await waitFor(() => {

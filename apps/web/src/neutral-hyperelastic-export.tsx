@@ -273,6 +273,7 @@ export function NeutralSolverExport({
           Material name
           <input value={materialName} onChange={(event) => setMaterialName(event.target.value)} />
         </label>
+        <div className="delivery-readonly-field"><span>Target tuple</span><strong>{solver} 2025</strong><small>kg·m·s (SI) · exact supported unit system</small></div>
         <div className="delivery-readonly-field"><span>Material law</span><strong>{materialLaw}</strong><small>Declared by the exporter capability manifest</small></div>
       </div>
       <label>
@@ -353,6 +354,14 @@ export function NeutralSolverExport({
               <button className="text-button" type="button" onClick={() => onNavigate("/exports")}>
                 Add exact files to a bulk package
               </button>
+            ) : null}
+            {source.material && onNavigate ? (
+              <a className="text-button" href={`/materials/${source.material.id}/cards`} onClick={(event) => {
+                event.preventDefault();
+                onNavigate(`/materials/${source.material!.id}/cards`);
+              }}>
+                Open Material CAE Cards
+              </a>
             ) : null}
             <button className="text-button" type="button" onClick={() => setShowReview((value) => !value)}>
               {showReview ? "Hide evidence and mapping" : "Review exact evidence and mapping"}

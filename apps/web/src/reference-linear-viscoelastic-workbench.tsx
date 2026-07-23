@@ -64,6 +64,7 @@ export function ReferenceLinearViscoelasticWorkbench({
   onNavigate,
   embedded = false,
   preferredSourceDocumentId,
+  preferredProcessingOutputId,
 }: {
   config: ApiConfig;
   state: MaterialStateResponse;
@@ -71,6 +72,7 @@ export function ReferenceLinearViscoelasticWorkbench({
   onNavigate?: (path: string) => void;
   embedded?: boolean;
   preferredSourceDocumentId?: string;
+  preferredProcessingOutputId?: string;
 }) {
   const [models, setModels] = useState<LinearViscoelasticModelResponse[]>([]);
   const [selectedId, setSelectedId] = useState("");
@@ -98,8 +100,16 @@ export function ReferenceLinearViscoelasticWorkbench({
       (model) => model.current_revision.content.processing_promotion_evidence
         ?.source_test_data.id === preferredSourceDocumentId,
     );
+    const outputMatched = result.data.items.find(
+      (model) => model.current_revision.content.processing_promotion_evidence
+        ?.processing_output.id === preferredProcessingOutputId,
+    );
     setSelectedId(
-      preferredId ?? sourceMatched?.material_model_id ?? result.data.items[0]?.material_model_id ?? "",
+      preferredId
+      ?? outputMatched?.material_model_id
+      ?? (preferredProcessingOutputId
+        ? ""
+        : sourceMatched?.material_model_id ?? result.data.items[0]?.material_model_id ?? ""),
     );
   }
 
@@ -113,9 +123,20 @@ export function ReferenceLinearViscoelasticWorkbench({
         ].includes(output.steps.at(-1)?.method_id ?? ""),
       );
       setProcessingOutputs(promotable);
-      setProcessingOutputId(promotable[0]?.processing_output_id ?? "");
+      setProcessingOutputId(
+        promotable.find((output) => output.processing_output_id === preferredProcessingOutputId)
+          ?.processing_output_id
+          ?? promotable[0]?.processing_output_id
+          ?? "",
+      );
     }).catch((cause: unknown) => setError(message(cause)));
-  }, [config.baseUrl, config.accessToken, preferredSourceDocumentId, state.material_state_id]);
+  }, [
+    config.baseUrl,
+    config.accessToken,
+    preferredProcessingOutputId,
+    preferredSourceDocumentId,
+    state.material_state_id,
+  ]);
 
   useEffect(() => {
     setResponse(null);
@@ -151,7 +172,7 @@ export function ReferenceLinearViscoelasticWorkbench({
             && selection.processing_output?.id === evidence.processing_output.id
             && selection.processing_output.revision_id === evidence.processing_output.revision_id;
         });
-        if (active) setNeutralMaterial(exact?.data ?? null);
+        if (active && exact) setNeutralMaterial(exact.data);
       })
       // Discovery is a convenience for returning users. Promotion remains available when the
       // caller cannot read export candidates under its feature grants.

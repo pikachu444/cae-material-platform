@@ -1,7 +1,23 @@
 # Implementation Status
 
-Date: `2026-07-21`
+Date: `2026-07-24`
 Foundation version: `0.32.0`
+
+## DUI-06 Fit and Export decision workflow implemented (2026-07-24)
+
+The bounded `codex/dui-06-fit-export` branch connects the existing synthetic reference Fit and
+solver-delivery contracts. Fit now compares candidate status, error, applicability and warnings in
+one table, retains response/residual/tangent views and requires a selected candidate plus engineering
+reason before appending an immutable Processing Output. The browser session pins that output's exact
+identity and revision.
+
+Export carries the reviewed decision into the existing Processing Output → Material Model IR →
+Neutral Material → mapping preflight → native card chain. Solver, version and SI unit system are
+visible before preflight, unsupported mappings remain blocked, approximation acknowledgement is
+unchanged, and the generated card links to the Material's CAE Cards view. No production equation,
+optimizer, solver policy or threshold was selected. Live acceptance, viewport measurements,
+reference scoring, screenshots and regressions are recorded in
+`docs/17-evidence/reports/dui-06-fit-export-decision.md`.
 
 ## DUI-03 contextual solver-card delivery implemented (2026-07-23)
 

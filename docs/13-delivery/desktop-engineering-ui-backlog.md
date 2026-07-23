@@ -1,7 +1,7 @@
 # Desktop Engineering UI Delivery Backlog
 
-Status: active program; DUI-01~04 are merged; DUI-05 is implemented on its bounded branch pending
-live browser review and merge, while DUI-06~09 remain pending
+Status: active program; DUI-01~05 are merged; DUI-06 is implemented and live-verified on its
+bounded branch pending review/merge, while DUI-07~09 remain pending
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
@@ -70,9 +70,8 @@ Search, Browse Tree, results, datasheet and related context operate as one stabl
 
 ## DUI-03 — Contextual solver-card delivery — P0
 
-Implementation status: implemented and live-verified on
-`codex/dui-03-contextual-solver-card-delivery`, pending review/merge. The bounded implementation and
-reference comparison are recorded in
+Implementation status: complete. PR #122 was merged as `436ad76` on 2026-07-23. The bounded
+implementation and reference comparison are recorded in
 [`dui-03-contextual-solver-card-delivery.md`](../17-evidence/reports/dui-03-contextual-solver-card-delivery.md).
 It reuses existing Solver Card and Neutral Solver Card contracts; no backend, database or OpenAPI
 change is included.
@@ -129,9 +128,9 @@ Data, Process, Fit and Export feel like stages of one engineering session rather
 
 ## DUI-05 — Data intake and processing workflow — P0
 
-Implementation status: implemented on `codex/dui-05-data-intake-processing`; live browser acceptance
-and merge are pending. The bounded change reuses T-41, T-52 and T-54 contracts and adds no production
-test standard, vendor parser, processing algorithm or persistence schema.
+Implementation status: complete. PR #123 was merged as `117551a` on 2026-07-23. The bounded change
+reuses T-41, T-52 and T-54 contracts and adds no production test standard, vendor parser, processing
+algorithm or persistence schema.
 
 ### User outcome
 
@@ -155,6 +154,12 @@ CSV/TSV/XLSX/JSON becomes usable curve data through a clear mapping and preview 
 - original/normalized unit evidence is preserved.
 
 ## DUI-06 — Fit and Export decision workflow — P0
+
+Implementation status: implemented and live-verified on `codex/dui-06-fit-export`, pending
+review/merge. The bounded implementation and measurements are recorded in
+[`dui-06-fit-export-decision.md`](../17-evidence/reports/dui-06-fit-export-decision.md). It reuses
+the existing synthetic Processing Output, Material Model IR, Neutral Material, mapping-report and
+solver-card contracts; it does not select a production material model, solver policy or threshold.
 
 ### User outcome
 
@@ -263,9 +268,9 @@ Every slice must preserve:
 1. DUI-01 shell/status foundation — complete in PR #112;
 2. DUI-02 Materials split workspace — complete in PR #114;
 3. DUI-04 Modeling session shell — complete in PR #115 by explicit product-owner ordering;
-4. DUI-03 card delivery — implemented and live-verified, pending review/merge;
-5. DUI-05 Data/Process — pending;
-6. DUI-06 Fit/Export — pending;
+4. DUI-03 card delivery — complete in PR #122;
+5. DUI-05 Data/Process — complete in PR #123;
+6. DUI-06 Fit/Export — implemented and live-verified, pending review/merge;
 7. DUI-07 Administration — pending;
 8. DUI-08 Activity — pending;
 9. DUI-09 Storybook and final legacy cleanup — pending.

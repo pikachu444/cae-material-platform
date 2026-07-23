@@ -192,6 +192,7 @@ describe("NeutralHyperelasticExport", () => {
     fireEvent.change(screen.getByLabelText("Solver target"), {
       target: { value: "openradioss" },
     });
+    expect(screen.getByText("kg·m·s (SI) · exact supported unit system")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Run mapping preflight" }));
     expect((await screen.findAllByText("approximated")).length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("/VISC/LPRONY")).toBeTruthy();
@@ -210,5 +211,7 @@ describe("NeutralHyperelasticExport", () => {
     expect(screen.getByRole("button", { name: "Download mapping report JSON" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Add exact files to a bulk package" }));
     expect(onNavigate).toHaveBeenCalledWith("/exports");
+    fireEvent.click(screen.getByRole("link", { name: "Open Material CAE Cards" }));
+    expect(onNavigate).toHaveBeenCalledWith("/materials/material-1/cards");
   });
 });
