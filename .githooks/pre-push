@@ -3,5 +3,6 @@ set -eu
 
 repo_root=$(git rev-parse --show-toplevel)
 cd "$repo_root"
+# Automatic publication is deterministic-only. Independent model review is explicit opt-in.
 exec uv run cmp-pre-publish --root "$repo_root" --trigger git-pre-push \
   --remote-name "$1" --remote-location "$2"

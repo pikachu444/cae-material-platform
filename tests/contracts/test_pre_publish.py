@@ -147,6 +147,7 @@ def _run(
     change_revalidator: Any = None,
     publication_target: PublicationTarget | None = None,
     asset_root: Path = _ROOT,
+    independent_reviews: bool = True,
 ) -> str:
     def documentation(_project: Path) -> None:
         if events is not None:
@@ -163,6 +164,7 @@ def _run(
 
     return run_pre_publish_pipeline(
         _ROOT,
+        independent_reviews=independent_reviews,
         runner=reviewer,
         cache_root=tmp_path / "cache",
         asset_root=asset_root,
@@ -174,6 +176,30 @@ def _run(
         emit=lambda _message: None,
         publication_target=publication_target,
     )
+
+
+def test_automatic_pipeline_defaults_to_deterministic_checks_without_reviewer(
+    tmp_path: Path,
+) -> None:
+    events: list[str] = []
+    reviewer = FakeReviewer([PrePublishError("reviewer must not run")], events)
+    change = _change()
+
+    fingerprint = run_pre_publish_pipeline(
+        _ROOT,
+        runner=reviewer,
+        cache_root=tmp_path / "cache",
+        documentation_check=lambda _project: events.append("documentation"),
+        deterministic_check=lambda _project, _change: events.append("deterministic"),
+        change_collector=lambda _project: change,
+        change_revalidator=lambda _project: change,
+        emit=lambda _message: None,
+    )
+
+    assert fingerprint
+    assert events == ["documentation", "deterministic"]
+    assert reviewer.requests == []
+    assert not (tmp_path / "cache").exists()
 
 
 @pytest.mark.parametrize(
@@ -1081,12 +1107,14 @@ def test_hooks_use_one_pre_publish_entry_and_keep_stop_documentation_gate() -> N
 
 def test_codex_hook_routes_ordinary_commit_and_publish_to_one_expected_gate() -> None:
     adapter = runpy.run_path(str(_ROOT / ".codex/hooks/pre_publish_gate.py"))
-    events: list[str] = []
+    events: list[object] = []
     evaluate = adapter["evaluate"]
     evaluate.__globals__["_documentation_reason"] = lambda _project, mode: events.append(mode)
     evaluate.__globals__["resolve_publication_target"] = lambda _project, _command: None
-    evaluate.__globals__["run_pre_publish_pipeline"] = lambda _project, emit, publication_target: (
-        events.append("publish")
+    evaluate.__globals__["run_pre_publish_pipeline"] = (
+        lambda _project, independent_reviews, emit, publication_target: events.append(
+            ("publish", independent_reviews)
+        )
     )
 
     assert (
@@ -1112,7 +1140,7 @@ def test_codex_hook_routes_ordinary_commit_and_publish_to_one_expected_gate() ->
         )
         is None
     )
-    assert events == ["staged", "publish"]
+    assert events == ["staged", ("publish", False)]
     assert "separately" in evaluate(
         {
             "hook_event_name": "PreToolUse",
@@ -1166,8 +1194,8 @@ def test_codex_hook_rechecks_numbered_pr_target_after_review() -> None:
     )
     targets = iter((target, replace(target, head_sha="d" * 40)))
     evaluate.__globals__["resolve_publication_target"] = lambda _project, _command: next(targets)
-    evaluate.__globals__["run_pre_publish_pipeline"] = lambda _project, emit, publication_target: (
-        None
+    evaluate.__globals__["run_pre_publish_pipeline"] = (
+        lambda _project, independent_reviews, emit, publication_target: None
     )
 
     reason = evaluate(
@@ -1202,6 +1230,7 @@ def test_versioned_pre_push_installation_uses_common_gate_with_space_path(
     hook = (repository / ".githooks/pre-push").read_text(encoding="utf-8")
     assert 'uv run cmp-pre-publish --root "$repo_root" --trigger git-pre-push' in hook
     assert '--remote-name "$1" --remote-location "$2"' in hook
+    assert "--independent-review" not in hook
 
 
 def test_hook_installer_does_not_replace_custom_hook_path(tmp_path: Path) -> None:
