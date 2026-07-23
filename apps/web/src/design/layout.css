@@ -795,6 +795,35 @@
   border-bottom: 1px solid var(--ux-border);
 }
 
+.selection-delivery-command {
+  display: grid;
+  gap: var(--ux-space-2);
+}
+
+.selection-delivery-command .ux-button {
+  width: 100%;
+}
+
+.delivery-blocked-command {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  color: var(--ux-danger);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.delivery-action-stack {
+  display: grid;
+  gap: 2px;
+}
+
+.delivery-action-stack small {
+  max-width: 240px;
+  color: var(--ux-danger);
+  font-size: 11px;
+}
+
 .material-detail-shell,
 .card-preview-shell,
 .activity-shell {
@@ -913,7 +942,7 @@
 
 .card-preview-content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: var(--ux-space-5);
 }
 
@@ -933,15 +962,94 @@
 
 .card-preview-actions {
   align-self: start;
-  padding: var(--ux-space-5);
-  border: 1px solid var(--ux-border);
-  border-radius: var(--ux-radius-panel);
-  background: var(--ux-surface-subtle);
+  padding: 0 0 0 var(--ux-space-5);
+  border-left: 1px solid var(--ux-border);
 }
 
 .card-preview-actions .ux-button {
   width: 100%;
   margin-bottom: var(--ux-space-2);
+}
+
+.delivery-card-properties {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: var(--ux-space-1) var(--ux-space-3);
+  margin: 0 0 var(--ux-space-4);
+  padding-block: var(--ux-space-3);
+  border-block: 1px solid var(--ux-border);
+}
+
+.delivery-card-properties dt {
+  color: var(--ux-text-muted);
+}
+
+.delivery-card-properties dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.delivery-mapping-list {
+  margin: 0 0 var(--ux-space-4);
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ux-border);
+}
+
+.delivery-mapping-list li {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: var(--ux-space-3);
+  align-items: start;
+  padding: var(--ux-space-2) 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.delivery-mapping-list li > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.delivery-mapping-list small {
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.mapping-status {
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mapping-status.exact,
+.mapping-status.transformed,
+.mapping-status.not_applicable {
+  color: var(--ux-success);
+}
+
+.mapping-status.approximated,
+.mapping-status.ignored {
+  color: var(--ux-warning);
+}
+
+.mapping-status.unsupported {
+  color: var(--ux-danger);
+}
+
+.delivery-acknowledgement {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--ux-space-2);
+  align-items: start;
+  margin: 0 0 var(--ux-space-3);
+  font-size: 12px;
+}
+
+.delivery-progress-line {
+  color: var(--ux-text-muted);
+  font-size: 12px;
 }
 
 .evidence-grid {
@@ -1021,6 +1129,15 @@
 
 .activity-list .ux-button {
   min-height: 28px;
+}
+
+.activity-delivery-section {
+  margin-bottom: var(--ux-space-5);
+}
+
+.activity-delivery-section h3 {
+  margin-bottom: var(--ux-space-2);
+  font-size: 14px;
 }
 
 /* Search-first Modeling shell: the existing deterministic engines remain mounted beneath four tasks. */
@@ -1205,6 +1322,64 @@
 .cae-card-table th:nth-child(3) { width: 180px; }
 .cae-card-table th:last-child { width: 250px; }
 .cae-card-table td:nth-child(2) { min-width: 260px; }
+
+.neutral-card-creation {
+  margin-top: var(--ux-space-6);
+  padding-top: var(--ux-space-5);
+  border-top: 1px solid var(--ux-border-strong);
+}
+
+.neutral-card-creation > header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ux-space-4);
+  align-items: start;
+  margin-bottom: var(--ux-space-4);
+}
+
+.neutral-card-creation > header h3,
+.neutral-card-creation > header p {
+  margin: 0;
+}
+
+.neutral-card-creation > header p,
+.neutral-card-creation > header > span {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.delivery-property-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: var(--ux-space-3);
+  margin-bottom: var(--ux-space-4);
+}
+
+.delivery-property-grid label,
+.delivery-property-grid > div {
+  display: grid;
+  align-content: start;
+  gap: var(--ux-space-1);
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.delivery-property-grid input,
+.delivery-property-grid select {
+  min-width: 0;
+  min-height: 30px;
+  padding: 4px 7px;
+  border: 1px solid var(--ux-border-strong);
+  background: var(--ux-surface);
+  color: var(--ux-text);
+}
+
+.delivery-property-grid strong {
+  min-height: 30px;
+  padding: 5px 0;
+  color: var(--ux-text);
+  font-size: 13px;
+}
 
 .layout-projection {
   margin-top: var(--ux-space-6);
@@ -2644,5 +2819,15 @@
   .card-preview-content,
   .activity-content {
     padding: var(--ux-space-4);
+  }
+
+  .card-preview-actions {
+    padding: var(--ux-space-4) 0 0;
+    border-top: 1px solid var(--ux-border);
+    border-left: 0;
+  }
+
+  .delivery-property-grid {
+    grid-template-columns: 1fr;
   }
 }

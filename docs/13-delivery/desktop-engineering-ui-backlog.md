@@ -1,6 +1,7 @@
 # Desktop Engineering UI Delivery Backlog
 
-Status: active program; DUI-01, DUI-02 and DUI-04 are merged, while DUI-03 and DUI-05~09 remain pending
+Status: active program; DUI-01, DUI-02 and DUI-04 are merged; DUI-03 is implemented and live-verified
+on its bounded branch pending review/merge, while DUI-05~09 remain pending
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
@@ -69,8 +70,12 @@ Search, Browse Tree, results, datasheet and related context operate as one stabl
 
 ## DUI-03 — Contextual solver-card delivery — P0
 
-Implementation status: pending. Product-owner direction on 2026-07-22 selected DUI-04 as the next
-bounded work item; DUI-03 remains a separate future slice and was not folded into DUI-04.
+Implementation status: implemented and live-verified on
+`codex/dui-03-contextual-solver-card-delivery`, pending review/merge. The bounded implementation and
+reference comparison are recorded in
+[`dui-03-contextual-solver-card-delivery.md`](../17-evidence/reports/dui-03-contextual-solver-card-delivery.md).
+It reuses existing Solver Card and Neutral Solver Card contracts; no backend, database or OpenAPI
+change is included.
 
 ### User outcome
 
@@ -254,7 +259,7 @@ Every slice must preserve:
 1. DUI-01 shell/status foundation — complete in PR #112;
 2. DUI-02 Materials split workspace — complete in PR #114;
 3. DUI-04 Modeling session shell — complete in PR #115 by explicit product-owner ordering;
-4. DUI-03 card delivery — pending;
+4. DUI-03 card delivery — implemented and live-verified, pending review/merge;
 5. DUI-05 Data/Process — pending;
 6. DUI-06 Fit/Export — pending;
 7. DUI-07 Administration — pending;

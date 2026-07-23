@@ -29,6 +29,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "materials-browse-1440x900.png",
     "material-detail-1440x900.png",
     "material-cae-cards-1440x900.png",
+    "solver-card-preview-1366x768.png",
+    "solver-card-preview-1440x900.png",
+    "solver-card-preview-1920x1080.png",
     "modeling-data-1366x768.png",
     "modeling-data-1440x900.png",
     "modeling-data-1920x1080.png",
@@ -106,7 +109,21 @@ def _capture(page: Page, path: Path, width: int, height: int) -> None:
     )
     if overflow != 0:
         raise RuntimeError(f"horizontal overflow is {overflow}px for {path.name}")
-    page.evaluate("window.scrollTo(0, 0)")
+    page.evaluate(
+        """() => {
+            window.scrollTo(0, 0);
+            for (const selector of [
+              ".application-workspace",
+              ".native-card-preview",
+              ".card-preview-actions",
+            ]) {
+              document.querySelectorAll(selector).forEach(element => {
+                element.scrollTop = 0;
+                element.scrollLeft = 0;
+              });
+            }
+        }"""
+    )
     page.screenshot(path=str(path), full_page=False)
     viewport = page.viewport_size
     if viewport != {"width": width, "height": height}:
@@ -158,15 +175,81 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     _capture(page, output / "material-detail-1440x900.png", width, height)
     page.get_by_role("tab", name="CAE Cards", exact=True).click()
     page.get_by_role("heading", name="CAE Cards", exact=True).wait_for(timeout=30_000)
-    primary_downloads = page.locator(
-        '.material-detail-shell button.ux-button.primary:has-text("Download")'
+    primary_delivery_actions = page.locator(
+        ".material-detail-header .card-action-row button.ux-button.primary"
     )
-    if primary_downloads.count() != 1:
+    if (
+        primary_delivery_actions.count() != 1
+        or not re.match(
+            r"^(Download|Preview card|Create card|Start Modeling)",
+            primary_delivery_actions.first.inner_text(),
+        )
+    ):
         raise RuntimeError(
-            "CAE Cards must expose exactly one contextual filled Download command"
+            "CAE Cards must expose exactly one contextual filled delivery command"
         )
     _capture(page, output / "material-cae-cards-1440x900.png", width, height)
     page.context.close()
+
+
+def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> None:
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _open_materials_search(page, base_url)
+        page.locator('table[aria-label="Material results"] tbody tr').filter(
+            has_text="DP780"
+        ).first.dblclick()
+        page.wait_for_url(re.compile(r"/materials/[0-9a-f-]+$"), timeout=30_000)
+        page.get_by_role("tab", name="CAE Cards", exact=True).click()
+        openradioss = page.locator(".cae-card-table tbody tr").filter(
+            has_text="OpenRadioss"
+        ).first
+        openradioss.get_by_role(
+            "button", name=re.compile(r"^Preview(?: card)?$")
+        ).click()
+        page.wait_for_url(
+            re.compile(r"/materials/[0-9a-f-]+/cards/[0-9a-f-]+$"),
+            timeout=30_000,
+        )
+        page.get_by_role("heading", name="Mapping status", exact=True).wait_for(
+            timeout=30_000
+        )
+        download = page.get_by_role("button", name="Download .rad", exact=True)
+        download.wait_for(timeout=30_000)
+        if page.locator(".mapping-status.unsupported").count():
+            raise RuntimeError("exact demo card unexpectedly exposes an unsupported mapping")
+        approximation_count = page.locator(
+            ".mapping-status.approximated, .mapping-status.ignored"
+        ).count()
+        acknowledgement = page.get_by_role("checkbox")
+        if approximation_count:
+            if acknowledgement.count() != 1 or download.is_enabled():
+                raise RuntimeError(
+                    "approximated solver-card delivery must require one adjacent acknowledgement"
+                )
+            acknowledgement.check()
+            if not download.is_enabled():
+                raise RuntimeError(
+                    "reviewed approximation did not enable solver-card delivery"
+                )
+        elif acknowledgement.count() or not download.is_enabled():
+            raise RuntimeError("exact solver-card delivery has a redundant confirmation")
+        _capture(
+            page,
+            output / f"solver-card-preview-{width}x{height}.png",
+            width,
+            height,
+        )
+        if (width, height) == (1440, 900):
+            page.goto(f"{base_url}/activity")
+            page.get_by_role(
+                "heading", name="Recent solver-card delivery", exact=True
+            ).wait_for(timeout=30_000)
+            page.get_by_test_id("recent-solver-card-activity").wait_for(
+                timeout=30_000
+            )
+            _capture(page, output / "activity-1440x900.png", width, height)
+        page.context.close()
 
 
 def _prepare_modeling(page: Page, base_url: str) -> None:
@@ -244,19 +327,6 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
 
 def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
     width, height = 1440, 900
-    page = _new_page(browser, base_url, width, height)
-    page.goto(f"{base_url}/activity")
-    page.get_by_role("heading", name="Current workspace activity", exact=True).wait_for(
-        timeout=30_000
-    )
-    page.get_by_role("status", name="No recent Modeling session").wait_for(
-        timeout=30_000
-    )
-    if page.get_by_role("button", name=re.compile(r"^Resume ")).count():
-        raise RuntimeError("Activity capture unexpectedly contains a resumable Modeling session")
-    _capture(page, output / "activity-1440x900.png", width, height)
-    page.context.close()
-
     page = _new_page(browser, base_url, width, height)
     page.goto(f"{base_url}/administration/database")
     page.get_by_role("navigation", name="Administration areas").wait_for(timeout=30_000)
@@ -344,6 +414,7 @@ def main() -> int:
             browser = playwright.chromium.launch(headless=True)
             try:
                 _capture_materials(browser, args.base_url, output)
+                _capture_solver_delivery(browser, args.base_url, output)
                 _capture_modeling(browser, args.base_url, output)
                 _capture_supporting_screens(browser, args.base_url, output)
             finally:

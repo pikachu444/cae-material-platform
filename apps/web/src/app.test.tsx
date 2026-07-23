@@ -80,6 +80,38 @@ const generatedCardCandidate = {
   label: "Neutral openradioss native card · METAL_REFERENCE",
 };
 
+function neutralSolverCard(cardId: string) {
+  return {
+    solver_card_id: cardId,
+    neutral_material_id: "00000000-0000-4000-8000-000000000030",
+    target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" },
+    current_revision: {
+      id: "00000000-0000-4000-8000-000000000023",
+      revision_no: 1,
+      lifecycle_state: "draft",
+      content: {
+        solver_material_id: 301,
+        material_name: "DP780",
+        card_sha256: "c".repeat(64),
+        mapping_statuses: { density: "exact", elasticity: "transformed" },
+      },
+    },
+  };
+}
+
+function neutralSolverMappingReport() {
+  return {
+    mapping_report_sha256: "d".repeat(64),
+    exportable: true,
+    report: {
+      items: [
+        { name: "density", ir_path: "density", target_representation: "RHO_I", status: "exact", detail: "Mapped without approximation." },
+        { name: "elasticity", ir_path: "elasticity", target_representation: "E, NU", status: "transformed", detail: "Converted to the target unit system." },
+      ],
+    },
+  };
+}
+
 function mockProductFetch(
   handler: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> | Response,
 ) {
@@ -384,6 +416,8 @@ describe("Material Catalog workbench", () => {
       if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) {
         return textResponse("/MAT/LAW36/1\nDP780");
       }
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/mapping-report`)) return jsonResponse(neutralSolverMappingReport());
+      if (url.endsWith(`/neutral-solver-cards/${cardId}`)) return jsonResponse(neutralSolverCard(cardId));
       throw new Error(`Unexpected request: ${url}`);
     });
 
@@ -422,6 +456,8 @@ describe("Material Catalog workbench", () => {
       }
       if (url.includes("/bulk-export-candidates?")) return jsonResponse({ items: [] });
       if (url.endsWith(`/neutral-solver-cards/${cardId}/preview`)) return textResponse("/MAT/LAW36/1\nDP780");
+      if (url.endsWith(`/neutral-solver-cards/${cardId}/mapping-report`)) return jsonResponse(neutralSolverMappingReport());
+      if (url.endsWith(`/neutral-solver-cards/${cardId}`)) return jsonResponse(neutralSolverCard(cardId));
       if (url.endsWith(`/neutral-solver-cards/${cardId}/download`)) return {
         ok: true,
         status: 200,

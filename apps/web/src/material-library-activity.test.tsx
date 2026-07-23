@@ -3,11 +3,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ActivityPage } from "./material-library";
 import { clearModelingSession, saveModelingSession } from "./modeling-session-context";
+import { recordDeliveryActivity } from "./solver-card-delivery";
 
 describe("Activity Modeling resume", () => {
   afterEach(() => {
     cleanup();
     clearModelingSession();
+    window.sessionStorage.clear();
   });
 
   it("resumes the exact stage, family, Test Data revision, and curve selection", () => {
@@ -44,5 +46,26 @@ describe("Activity Modeling resume", () => {
     expect(screen.queryByRole("button", { name: /^Resume / })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Start Modeling" }));
     expect(navigate).toHaveBeenCalledWith("/modeling");
+  });
+
+  it("reopens a Solver Card while retaining its exact revision in recent activity", () => {
+    recordDeliveryActivity({
+      action: "download",
+      materialId: "material-1",
+      materialRevisionId: "material-r2",
+      materialLabel: "DP780",
+      cardId: "card-1",
+      cardRevisionId: "card-r3",
+      cardLabel: "DP780 OpenRadioss native card",
+      solver: "OpenRadioss",
+      extension: ".rad",
+    });
+    const navigate = vi.fn();
+
+    render(<ActivityPage onNavigate={navigate} />);
+
+    expect(screen.getByTestId("recent-solver-card-activity").textContent).toContain("Downloaded · DP780 OpenRadioss native card");
+    fireEvent.click(screen.getByRole("button", { name: "Open card" }));
+    expect(navigate).toHaveBeenCalledWith("/materials/material-1/cards/card-1");
   });
 });

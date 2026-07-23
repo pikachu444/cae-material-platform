@@ -1,16 +1,16 @@
-version: 44
+version: 45
 verified_at: 2026-07-23
 scope: current-main-product-baseline
-source_commit: aa6641e
+source_commit: fe157c9
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "Captured from the live Docker Compose application for the issue #119 pre-publish review baseline."
-  - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, multiple primary CAE Card downloads, and a Modeling drawable below 72% of its workspace."
+  - "Captured from the live Docker Compose application for the bounded DUI-03 solver-card delivery slice."
+  - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
-  - "Activity is the no-session empty state; exact resume and review-attention remain DUI-08 pending."
+  - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
   - "Export is an ephemeral candidate and delivery preview; reviewed-model and native-card delivery remain DUI-06 pending."
-  - "These captures document the current baseline only; they are not acceptance evidence for pending DUI-03 or DUI-05 through DUI-09."
+  - "These captures are DUI-03 acceptance evidence; DUI-05 through DUI-09 remain pending."
 allowed_duplicate_pairs: []
 captures:
   - id: materials-search-1366
@@ -55,6 +55,27 @@ captures:
     image: images/current/material-cae-cards-1440x900.png
     width: 1440
     height: 900
+  - id: solver-card-preview-1366
+    route: /materials/:materialId/cards/:cardId
+    workflow: native-card-and-mapping-review
+    fixture: synthetic DP780 OpenRadioss card with adjacent approximation acknowledgement
+    image: images/current/solver-card-preview-1366x768.png
+    width: 1366
+    height: 768
+  - id: solver-card-preview-1440
+    route: /materials/:materialId/cards/:cardId
+    workflow: native-card-and-mapping-review
+    fixture: synthetic DP780 OpenRadioss card with adjacent approximation acknowledgement
+    image: images/current/solver-card-preview-1440x900.png
+    width: 1440
+    height: 900
+  - id: solver-card-preview-1920
+    route: /materials/:materialId/cards/:cardId
+    workflow: native-card-and-mapping-review
+    fixture: synthetic DP780 OpenRadioss card with adjacent approximation acknowledgement
+    image: images/current/solver-card-preview-1920x1080.png
+    width: 1920
+    height: 1080
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
     workflow: existing-exact-input-selection-and-source-preview
@@ -141,8 +162,8 @@ captures:
     height: 1080
   - id: activity-1440
     route: /activity
-    workflow: empty-state-without-browser-local-modeling-session
-    fixture: deterministic demo with no recent browser-local session; DUI-08 pending
+    workflow: recent-browser-local-solver-card-delivery
+    fixture: DP780 OpenRadioss card preview with exact card revision retained; broader DUI-08 pending
     image: images/current/activity-1440x900.png
     width: 1440
     height: 900
