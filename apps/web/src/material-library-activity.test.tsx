@@ -33,4 +33,16 @@ describe("Activity Modeling resume", () => {
     fireEvent.click(screen.getByRole("button", { name: "Resume Fit" }));
     expect(navigate).toHaveBeenCalledWith("/modeling?stage=fit&family=metal");
   });
+
+  it("states explicitly when this browser has no Modeling session", () => {
+    const navigate = vi.fn();
+
+    render(<ActivityPage onNavigate={navigate} />);
+
+    const empty = screen.getByRole("status", { name: "No recent Modeling session" });
+    expect(empty.textContent).toContain("no local Data, Process, Fit, or Export session");
+    expect(screen.queryByRole("button", { name: /^Resume / })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Start Modeling" }));
+    expect(navigate).toHaveBeenCalledWith("/modeling");
+  });
 });

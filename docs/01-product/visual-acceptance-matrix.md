@@ -12,7 +12,7 @@ Each route is scored from 0 to 2 for every criterion.
 
 A route passes only when:
 
-- total score is at least 26/32;
+- total score is at least 28/32 (87.5%, satisfying the repository-wide 85/100 minimum);
 - no hard-gate criterion scores 0;
 - required screenshots and measurements exist.
 

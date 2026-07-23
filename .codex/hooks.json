@@ -6,10 +6,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run python .codex/hooks/documentation_gate.py",
-            "commandWindows": "uv run python .codex/hooks/documentation_gate.py",
-            "timeout": 30,
-            "statusMessage": "Checking documentation impact"
+            "command": "sh -c 'root=\"$(git rev-parse --show-toplevel)\" && cd \"$root\" && exec uv run python \"$root/.codex/hooks/pre_publish_gate.py\"'",
+            "commandWindows": "powershell -NoProfile -NonInteractive -Command \"$root = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $root; uv run python (Join-Path $root '.codex/hooks/pre_publish_gate.py')\"",
+            "timeout": 2000,
+            "statusMessage": "Checking documentation and independent reviews"
           }
         ]
       }
@@ -19,8 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run python .codex/hooks/documentation_gate.py",
-            "commandWindows": "uv run python .codex/hooks/documentation_gate.py",
+            "command": "sh -c 'root=\"$(git rev-parse --show-toplevel)\" && cd \"$root\" && exec uv run python \"$root/.codex/hooks/documentation_gate.py\"'",
+            "commandWindows": "powershell -NoProfile -NonInteractive -Command \"$root = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $root; uv run python (Join-Path $root '.codex/hooks/documentation_gate.py')\"",
             "timeout": 30,
             "statusMessage": "Checking unfinished visual documentation"
           }

@@ -48,7 +48,7 @@ STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
     "process": "Prepare observed curves",
     "fit": "Compare response, residual & extrapolation",
-    "export": "Review selected model & deliver solver card",
+        "export": "Preview candidate & delivery",
 }
 UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
@@ -158,6 +158,13 @@ def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     _capture(page, output / "material-detail-1440x900.png", width, height)
     page.get_by_role("tab", name="CAE Cards", exact=True).click()
     page.get_by_role("heading", name="CAE Cards", exact=True).wait_for(timeout=30_000)
+    primary_downloads = page.locator(
+        '.material-detail-shell button.ux-button.primary:has-text("Download")'
+    )
+    if primary_downloads.count() != 1:
+        raise RuntimeError(
+            "CAE Cards must expose exactly one contextual filled Download command"
+        )
     _capture(page, output / "material-cae-cards-1440x900.png", width, height)
     page.context.close()
 
@@ -202,6 +209,30 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     '.domain-workflow-links[data-resolution-state="resolved"]'
                 ).wait_for(timeout=30_000)
             plot.wait_for(timeout=30_000)
+            plot_geometry = plot.evaluate(
+                """svg => {
+                    const horizontalAxis = [...svg.querySelectorAll(".chart-axis")]
+                      .find(line => line.getAttribute("x1") !== line.getAttribute("x2"));
+                    if (!horizontalAxis) return { ratio: 0, reason: "horizontal axis missing" };
+                    const axisBounds = horizontalAxis.getBoundingClientRect();
+                    const drawableWidth = axisBounds.width;
+                    const workspace = document.querySelector(".modeling-split-workspace");
+                    const plotBounds = svg.getBoundingClientRect();
+                    const workspaceWidth = workspace?.getBoundingClientRect().width ?? 0;
+                    return {
+                      ratio: workspaceWidth ? drawableWidth / workspaceWidth : 0,
+                      drawableWidth,
+                      plotWidth: plotBounds.width,
+                      workspaceWidth,
+                    };
+                }"""
+            )
+            drawable_ratio = float(plot_geometry["ratio"])
+            if drawable_ratio < 0.72:
+                raise RuntimeError(
+                    f"Modeling plot drawable is only {drawable_ratio:.1%} "
+                    f"of workspace for {stage} at {width}x{height}: {plot_geometry}"
+                )
             _capture(
                 page,
                 output / f"modeling-{stage}-{width}x{height}.png",
@@ -218,7 +249,7 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
     page.get_by_role("heading", name="Current workspace activity", exact=True).wait_for(
         timeout=30_000
     )
-    page.get_by_text("Start a Data, Process, Fit, or Export task.", exact=True).wait_for(
+    page.get_by_role("status", name="No recent Modeling session").wait_for(
         timeout=30_000
     )
     if page.get_by_role("button", name=re.compile(r"^Resume ")).count():

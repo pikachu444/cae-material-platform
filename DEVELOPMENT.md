@@ -13,6 +13,17 @@
 5. visual 작업은 제품 정책, reference 비교, viewport evidence와 screenshot manifest를 같은 변경에
    포함합니다.
 
+Clone 후 versioned local pre-push hook을 설치하고 검증합니다. 기존 custom `core.hooksPath`가 있으면
+installer가 덮어쓰지 않습니다.
+
+```powershell
+uv run python scripts/install_git_hooks.py --root .
+uv run python scripts/install_git_hooks.py --root . --check
+```
+
+Codex project hook은 `/hooks`에서 내용을 확인하고 trust합니다. 자세한 fail-closed reviewer 계약과
+문제 해결은 [독립 pre-publish 리뷰 게이트](docs/14-testing/codex-pre-publish-review.md)를 따릅니다.
+
 Production 시험 표준, 재료 모델, optimizer, solver mapping과 validation threshold의 TBD를 임의로
 결정하지 마십시오. synthetic `reference/non-production` adapter만 사용합니다.
 
@@ -120,7 +131,8 @@ uv run cmp-check-user-guide --root .
 ```
 
 GNU Make 사용 환경에서는 `make lint`, `make typecheck`, `make test`, `make web-build`,
-`make web-test`, `make docs-screenshots`, `make ci`를 사용할 수 있습니다.
+`make web-test`, `make docs-screenshots`, `make install-hooks`, `make verify-hooks`,
+`make pre-publish`, `make ci`를 사용할 수 있습니다.
 
 ## 6. PostgreSQL integration gate
 

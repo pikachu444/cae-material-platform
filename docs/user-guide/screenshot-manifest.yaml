@@ -1,33 +1,17 @@
-version: 43
+version: 44
 verified_at: 2026-07-23
 scope: current-main-product-baseline
-source_commit: f89cc50
+source_commit: aa6641e
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "Captured from the live Docker Compose application after PR #112, #114 and #115 were merged."
-  - "The capture script rejects aria-busy, unfinished async status text and horizontal overflow."
+  - "Captured from the live Docker Compose application for the issue #119 pre-publish review baseline."
+  - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, multiple primary CAE Card downloads, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
+  - "Activity is the no-session empty state; exact resume and review-attention remain DUI-08 pending."
+  - "Export is an ephemeral candidate and delivery preview; reviewed-model and native-card delivery remain DUI-06 pending."
   - "These captures document the current baseline only; they are not acceptance evidence for pending DUI-03 or DUI-05 through DUI-09."
-allowed_duplicate_pairs:
-  - current: docs/user-guide/images/current/modeling-process-1366x768.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1366x768.png
-  - current: docs/user-guide/images/current/modeling-process-1440x900.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1440x900.png
-  - current: docs/user-guide/images/current/modeling-process-1920x1080.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-process-1920x1080.png
-  - current: docs/user-guide/images/current/modeling-fit-1366x768.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1366x768.png
-  - current: docs/user-guide/images/current/modeling-fit-1440x900.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1440x900.png
-  - current: docs/user-guide/images/current/modeling-fit-1920x1080.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-fit-1920x1080.png
-  - current: docs/user-guide/images/current/modeling-export-1366x768.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1366x768.png
-  - current: docs/user-guide/images/current/modeling-export-1440x900.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1440x900.png
-  - current: docs/user-guide/images/current/modeling-export-1920x1080.png
-    historical: docs/17-evidence/images/ux-redesign-v2/dui-04-modeling-export-1920x1080.png
+allowed_duplicate_pairs: []
 captures:
   - id: materials-search-1366
     route: /materials
