@@ -52,7 +52,7 @@ interface PlotModel {
 export type HardeningPlotMode = "response" | "residual" | "derivative";
 export type PronyPlotMode = "response" | "residual";
 
-const PLOT_MARGIN = { left: 64, right: 24, top: 24, bottom: 52 } as const;
+const PLOT_MARGIN = { left: 80, right: 24, top: 24, bottom: 52 } as const;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
 
 export function linearInterpolate(

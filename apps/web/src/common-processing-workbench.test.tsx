@@ -474,7 +474,7 @@ describe("Common Processing Workbench", () => {
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
-    expect(screen.getByRole("heading", { name: "Review selected model & deliver solver card" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Preview candidate & delivery" })).toBeTruthy();
     expect(screen.getByText("Exact Neutral and solver delivery fixture")).toBeTruthy();
     expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
     expect(screen.getByText("Visible in graph · unobserved")).toBeTruthy();

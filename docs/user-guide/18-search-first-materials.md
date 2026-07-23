@@ -69,15 +69,15 @@ column의 table header가 `aria-sort`로 알립니다.
   `Technical revision and provenance identifiers`를 펼쳐 확인합니다.
 - 수량 Attribute는 원본 값/단위와 정규화 값/단위, quantity semantics를 함께 보존합니다.
 
-## 시험 데이터에서 새 card 만들기
+## 시험 데이터에서 card delivery 준비하기
 
 1. Modeling의 Data에서 canonical Test Data JSON, CSV 또는 XLSX를 선택합니다.
 2. JSON schema/channel/quantity semantics/original+normalized unit 또는 CSV/XLSX의 worksheet,
    column/channel/unit mapping을 확인합니다.
 3. Process에서 원본을 보존한 채 crop, smoothing, resample과 반복시험 통계를 검토합니다.
 4. Fit에서 candidate, response, residual과 extrapolation을 비교합니다.
-5. Export에서 Material Model IR, Neutral Material과 solver mapping을 확인하고 native card를
-   생성한 뒤 Material Library에 저장합니다.
+5. Export에서 선택 candidate와 기존 Neutral/solver UI의 ephemeral preview를 확인합니다.
+   reviewed model commit과 새 native card 생성·전달은 DUI-06 pending입니다.
 
 `Import JSON / CSV / XLSX`에서 CSV/XLSX의 `Open governed mapping workbench`를 선택하면
 `/datasets/import`가 최근 Modeling session의 exact Material State를 복원합니다. 여기서 immutable
@@ -86,9 +86,9 @@ Dataset 생성을 완료할 수 있습니다. Canonical adapter로 돌아오면 
 검증·저장해 Process 입력으로 선택합니다. JSON 파일은 server validation에서 schema, channel,
 quantity semantics, original/normalized unit과 missing reason을 먼저 확인합니다.
 
-기존 Neutral/Card가 있어도 Export의 `Create from another reviewed output`으로 방금 commit한
-Processing Output을 선택할 수 있습니다. 이 action은 기존 immutable Neutral을 덮어쓰지 않고 새
-IR/Neutral/Card revision을 추가합니다.
+현재 Export 화면은 `Preview candidate & delivery`, `Ephemeral model preview`,
+`Preview · delivery pending`으로 상태를 명시합니다. 이 화면은 reviewed model이나 새 native card가
+생성됐다는 증거가 아니며, 기존 immutable Neutral/Card를 변경하지 않습니다.
 
 Mapping Profile, Recipe/Batch, full revision, hash와 JSON evidence는 Advanced/Evidence에 남습니다.
 Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요합니다.
@@ -102,6 +102,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
   유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.
+  현재 캡처 자동화는 렌더링된 가로축이 Modeling workspace 폭의 72% 미만이면 실패합니다.
 - 1440 px 이상에서는 current-step settings가 그래프 위의 얕은 ribbon으로 열립니다. 1366 px에서는
   그래프 노출을 위해 기본적으로 닫혀 있으며 `Show settings`로 엽니다. 이 ribbon은 세 번째
   열이 아니므로 그래프 폭을 줄이지 않습니다.
@@ -133,6 +134,9 @@ before/after 및 과거 Task 화면은 `docs/17-evidence`에만 보관하며 현
 
 ![Native CAE Cards](images/current/material-cae-cards-1440x900.png)
 
+CAE Cards에서는 command bar의 현재 형식 다운로드만 filled primary action입니다. 표의 각 형식별
+다운로드는 secondary action이므로 한 화면에서 여러 primary action이 경쟁하지 않습니다.
+
 ![Persistent Modeling Fit](images/current/modeling-fit-1440x900.png)
 
 ## Activity에서 진행 상황 확인
@@ -153,6 +157,8 @@ Table, Attribute, Layout, Subset과 Link Type 편집 상태를 유지하며, 현
 
 1366 px에서는 optional 상세와 settings를 접어 result/graph 폭을 지키고, 1920 px에서는 중앙 작업면이
 남는 폭을 확장합니다. 모든 panel을 같은 비율로 늘리거나 좁은 중앙 max-width에 가두지 않습니다.
+현재 캡처는 가로축 drawable이 전체 Modeling workspace의 약 75% 이상을 차지하며, 캡처 자동화가
+Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합니다.
 
 ![Materials at 1366](images/current/materials-search-1366x768.png)
 
