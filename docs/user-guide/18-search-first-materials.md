@@ -167,8 +167,9 @@ Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합�
 ### Modeling 단계·해상도 검수 화면
 
 아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Export를
-전환해 각 단계의 비동기 preview가 끝난 뒤 캡처했습니다. 이 표는 DUI-04에서 완료한 persistent graph와
-stage별 현재 baseline만 보여 주며 DUI-05/06 완료 증거가 아닙니다. Process와 Fit 결과는 commit하지
+전환해 각 단계의 비동기 preview가 끝난 뒤 캡처했습니다. Data는 Library, Local file,
+Test Data JSON을 한 ribbon에서 고르고 등록 전에 같은 그래프로 확인합니다. Process는 원본과 선택
+단계를 겹쳐 보고 preview와 immutable output commit을 명시적으로 나눕니다. Fit 결과는 commit하지
 않은 ephemeral preview이고, Export도 선택 candidate와 기존 Neutral/solver UI를 표시할 뿐 reviewed
 model 또는 새 native card를 생성하지 않았습니다. Export 캡처는 Catalog/workflow 링크의 현재 해석이
 끝나고 `Resolving…`이 사라진 상태만 확인합니다.

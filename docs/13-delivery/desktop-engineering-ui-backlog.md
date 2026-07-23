@@ -1,7 +1,7 @@
 # Desktop Engineering UI Delivery Backlog
 
-Status: active program; DUI-01, DUI-02 and DUI-04 are merged; DUI-03 is implemented and live-verified
-on its bounded branch pending review/merge, while DUI-05~09 remain pending
+Status: active program; DUI-01~04 are merged; DUI-05 is implemented on its bounded branch pending
+live browser review and merge, while DUI-06~09 remain pending
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
@@ -128,6 +128,10 @@ Data, Process, Fit and Export feel like stages of one engineering session rather
 - JSON editing is unnecessary for the normal upload-to-card path.
 
 ## DUI-05 — Data intake and processing workflow — P0
+
+Implementation status: implemented on `codex/dui-05-data-intake-processing`; live browser acceptance
+and merge are pending. The bounded change reuses T-41, T-52 and T-54 contracts and adds no production
+test standard, vendor parser, processing algorithm or persistence schema.
 
 ### User outcome
 

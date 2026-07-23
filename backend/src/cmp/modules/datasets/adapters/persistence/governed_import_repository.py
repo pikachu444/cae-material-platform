@@ -630,20 +630,21 @@ class SqlAlchemyGovernedImportRepository(GovernedImportRepository):
         }
         with self._session(context, decision) as session:
             session.execute(sa.insert(preview_table).values(**values))
-            session.execute(
-                sa.insert(preview_column_table),
-                [
-                    {
-                        "organization_id": context.organization_id,
-                        "project_id": context.project_id,
-                        "classification": classification.value,
-                        "preview_report_id": preview_id,
-                        "ordinal": ordinal,
-                        "column_name": column,
-                    }
-                    for ordinal, column in enumerate(preview.header_columns)
-                ],
-            )
+            if preview.header_columns:
+                session.execute(
+                    sa.insert(preview_column_table),
+                    [
+                        {
+                            "organization_id": context.organization_id,
+                            "project_id": context.project_id,
+                            "classification": classification.value,
+                            "preview_report_id": preview_id,
+                            "ordinal": ordinal,
+                            "column_name": column,
+                        }
+                        for ordinal, column in enumerate(preview.header_columns)
+                    ],
+                )
 
     def create_run(
         self, *, context: SecurityContext, decision: AuthorizationDecision, run: ImportRun

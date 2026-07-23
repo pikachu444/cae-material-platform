@@ -3783,6 +3783,21 @@ export function createGovernedImportProfile(
   });
 }
 
+export function reviseGovernedImportProfile(
+  config: ApiConfig,
+  profileId: string,
+  input: {
+    expected_current_revision_id: string;
+    content: GovernedImportProfileContent;
+    change_reason: string;
+  },
+): Promise<ApiResult<GovernedImportProfileResponse>> {
+  return request(config, `/import-profiles/${encodeURIComponent(profileId)}/revisions`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function executeGovernedTabularImport(
   config: ApiConfig,
   input: {

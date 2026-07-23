@@ -382,9 +382,10 @@ describe("Common Processing Workbench", () => {
     const settingsControl = screen.getByRole("button", { name: /current-stage settings/ });
     expect(settingsControl).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
-    expect(screen.getByRole("button", { name: "Canonical JSON" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "CSV" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "XLSX" })).toBeTruthy();
+    expect(await screen.findByRole("tablist", { name: "Test data source" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "Library" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "Local file" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "Test Data JSON" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Verify source & channel mapping" })).toBeTruthy();
     expect(screen.queryByText("Metal hardening candidates")).toBeNull();
     fireEvent.click(screen.getByRole("tab", { name: /Polymer/ }));
@@ -421,6 +422,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
     expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Commit reviewed output" })).toBeTruthy();
     expect(screen.queryByText("Fit evidence")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /1rows\.sort_unique/ }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();

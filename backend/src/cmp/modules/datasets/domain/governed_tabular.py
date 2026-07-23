@@ -300,7 +300,14 @@ class TabularPreview:
         _uuid("raw_artifact_id", self.raw_artifact_id)
         if not re.fullmatch(r"[0-9a-f]{64}", self.raw_sha256):
             raise InvalidGovernedImport("raw_sha256 must be lowercase SHA-256")
-        if not 1 <= len(self.header_columns) <= MAX_COLUMNS:
+        is_sheet_discovery = (
+            self.file_format is TabularFileFormat.XLSX
+            and self.selected_sheet_name is None
+            and len(self.sheet_names) > 1
+            and not self.header_columns
+            and not self.sample_rows
+        )
+        if not is_sheet_discovery and not 1 <= len(self.header_columns) <= MAX_COLUMNS:
             raise InvalidGovernedImport("preview must expose 1..512 columns")
         if len(set(self.header_columns)) != len(self.header_columns):
             raise InvalidGovernedImport("header columns must be unique")
@@ -498,7 +505,9 @@ def _column_index(reference: str) -> int:
     return result - 1
 
 
-def _safe_xlsx_rows(value: bytes, sheet_name: str) -> tuple[tuple[str, ...], list[list[str]]]:
+def _safe_xlsx_rows(
+    value: bytes, sheet_name: str | None
+) -> tuple[tuple[str, ...], list[list[str]]]:
     try:
         archive = zipfile.ZipFile(io.BytesIO(value))
     except zipfile.BadZipFile as error:
@@ -541,6 +550,10 @@ def _safe_xlsx_rows(value: bytes, sheet_name: str) -> tuple[tuple[str, ...], lis
         }
         sheets = tuple(workbook.findall(f".//{ns}sheet"))
         sheet_names = tuple(item.attrib.get("name", "") for item in sheets)
+        if sheet_name is None:
+            if len(sheet_names) != 1:
+                return sheet_names, []
+            sheet_name = sheet_names[0]
         if sheet_name not in sheet_names:
             raise InvalidGovernedImport("selected XLSX sheet does not exist")
         sheet = sheets[sheet_names.index(sheet_name)]
@@ -588,7 +601,7 @@ def _rows(
     if len(value) > MAX_SOURCE_BYTES:
         raise InvalidGovernedImport("source exceeds the 16 MiB importer limit")
     if profile.file_format is TabularFileFormat.XLSX:
-        return _safe_xlsx_rows(value, profile.sheet_name or "")
+        return _safe_xlsx_rows(value, profile.sheet_name)
     return (), _decode_delimited(value, profile)
 
 
@@ -605,6 +618,24 @@ def inspect_tabular_source(
     delimiter: str | None,
     decimal_separator: str,
 ) -> TabularPreview:
+    if file_format is TabularFileFormat.XLSX and sheet_name is None:
+        sheet_names, rows = _safe_xlsx_rows(value, None)
+        if not rows:
+            return TabularPreview(
+                raw_asset_id=raw_asset_id,
+                raw_artifact_id=raw_artifact_id,
+                raw_sha256=raw_sha256,
+                file_format=file_format,
+                sheet_names=sheet_names,
+                selected_sheet_name=None,
+                header_row=header_row,
+                encoding=encoding,
+                delimiter=delimiter,
+                decimal_separator=decimal_separator,
+                header_columns=(),
+                sample_rows=(),
+            )
+        sheet_name = sheet_names[0]
     dummy_channels = (
         GovernedChannelMapping(0, "x", QuantityKind.ENGINEERING_STRAIN, "1", AxisRole.INDEPENDENT),
         GovernedChannelMapping(1, "y", QuantityKind.ENGINEERING_STRESS, "Pa", AxisRole.DEPENDENT),

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
 import { EngineeringCurvePlot } from "./engineering-curve-plot";
@@ -44,9 +44,15 @@ import type {
   CommonCurveStage,
   DataClassification,
   GraphSelectionCommand,
+  MaterialResponse,
+  MaterialStateResponse,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { clearModelingSession, type ModelingPlotView, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
+
+const ModelingDataIntake = lazy(() =>
+  import("./modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),
+);
 
 interface Props {
   config: ApiConfig;
@@ -57,6 +63,8 @@ interface Props {
   onSessionChange?: (patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => void;
   familyWorkbench?: ReactNode;
   familyInspector?: ReactNode;
+  material?: MaterialResponse;
+  materialState?: MaterialStateResponse;
   locationSearch?: string;
 }
 
@@ -714,7 +722,7 @@ function curveDisplayName(item: CanonicalTestDataDocumentResponse, index: number
   return `Curve ${String(index + 1).padStart(2, "0")}`;
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench, familyInspector, locationSearch = "" }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench, familyInspector, material, materialState, locationSearch = "" }: Props) {
   const initialQuery = useMemo(() => new URLSearchParams(locationSearch), [locationSearch]);
   const queryStage = initialQuery.get("stage");
   const queryFamily = initialQuery.get("family");
@@ -759,6 +767,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [notice, setNotice] = useState<string | null>(null);
   const [recipeConflict, setRecipeConflict] = useState<{ recipeId: string } | null>(null);
   const autoPreviewKey = useRef("");
+  const intakePreviewActive = useRef(false);
   const previewAbortController = useRef<AbortController | null>(null);
   const previewRequestNo = useRef(0);
   const undoSteps = useRef<string[]>([]);
@@ -853,6 +862,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [config]);
 
   async function loadDocument(id: string): Promise<void> {
+    intakePreviewActive.current = false;
     autoPreviewKey.current = "";
     setSelectedDocumentId(id);
     setPreview(null);
@@ -890,8 +900,40 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
+  function previewIntakeDocument(
+    nextDocument: Record<string, unknown>,
+    nextPreview: CommonProcessingPreview,
+  ): void {
+    intakePreviewActive.current = true;
+    autoPreviewKey.current = "";
+    setSelectedDocumentId("");
+    setDocument(nextDocument);
+    setPreview(nextPreview);
+    setSelectedStage(0);
+    setPlotView("pipeline");
+    setError(null);
+    setNotice("Data source preview completed. Only explicit channel mapping was applied.");
+  }
+
+  function registerIntakeDocument(item: CanonicalTestDataDocumentResponse): void {
+    intakePreviewActive.current = false;
+    setDocuments((current) => [
+      item,
+      ...current.filter((candidate) => candidate.test_data_document_id !== item.test_data_document_id),
+    ]);
+    setSelectedDocumentId(item.test_data_document_id);
+    onSessionChange?.({
+      testData: {
+        id: item.test_data_document_id,
+        revisionId: item.current_revision.id,
+        label: item.document_key,
+        revisionNo: item.current_revision.revision_no,
+      },
+    });
+  }
+
   useEffect(() => {
-    if (selectedDocumentId || !documents.length) return;
+    if (intakePreviewActive.current || selectedDocumentId || !documents.length) return;
     const restored = documents.find((item) => item.test_data_document_id === initialSession?.testData?.id
       && item.current_revision.id === initialSession.testData.revisionId
       && documentMatchesTrack(item, modelingTrack));
@@ -916,7 +958,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }, [busy, document, selectedDocumentId]);
 
   useEffect(() => {
-    if (!document || !selectedProfileId || preview) return;
+    if (intakePreviewActive.current || !document || !selectedProfileId || preview) return;
     const key = `${selectedDocumentId}:${selectedProfileId}:${stepsText}`;
     if (autoPreviewKey.current === key) return;
     const timer = window.setTimeout(() => {
@@ -1463,7 +1505,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   );
   useEffect(() => {
     const exactIds = new Set(trackDocuments.map((item) => item.test_data_document_id));
-    if (!exactIds.has(selectedDocumentId)) {
+    if (!intakePreviewActive.current && !exactIds.has(selectedDocumentId)) {
       setSelectedDocumentId(trackDocuments[0]?.test_data_document_id ?? "");
       setDocument(null);
       setPreview(null);
@@ -1804,18 +1846,23 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} width={chart.width} height={chart.height} onApplySelection={plotView === "pipeline" ? applyGraphSelection : undefined} ensemblePreview={plotView === "ensemble" ? ensemblePreview : null} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you configure processing."}</strong><p>{previewBusy ? "The previous calculation is cancelled when a newer Recipe change is applied." : "Load an exact Test Data revision and choose Preview changes. Server-calculated raw and processed curves will be overlaid without changing the source."}</p></div>}
             {preview && plotView === "pipeline" ? <div className="stage-chip-rail" aria-label={`${workflowTask} stage history`}>{visiblePreviewStages.map((stage) => <button className={selectedStage === stage.ordinal ? "active" : ""} type="button" key={`${stage.ordinal}-${stage.method_id}`} onClick={() => stage.ordinal > 0 ? focusConfiguredStep(stage.ordinal - 1) : setSelectedStage(0)}><span>{stage.ordinal}</span><strong>{stage.method_id}</strong><small>{stage.point_count} points</small></button>)}</div> : ensemblePreview && plotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>}
-          ribbon={workflowTask === "data" ? <aside className="data-stage-ribbon">
-            <div><strong>Exact Test Data</strong><select aria-label="Data-stage Test Data revision" value={selectedDocumentId} onChange={(event) => void loadDocument(event.target.value)}><option value="">Choose a compatible document</option>{trackDocuments.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></div>
-            <div><strong>Channel mapping</strong><select aria-label="Data-stage Mapping Profile" value={selectedProfileId} onChange={(event) => selectProfile(event.target.value)}><option value="">Choose a saved profile</option>{profiles.filter((item) => profileMatchesTrack(item, modelingTrack)).map((item) => <option key={item.mapping_profile_id} value={item.mapping_profile_id}>{item.content.label} · r{item.current_revision.revision_no}</option>)}</select></div>
-            <div className="data-stage-summary"><strong>{selectedTrackDocument ? `${selectedTrackDocument.point_count} points · ${selectedTrackDocument.channels.length} channels` : "Awaiting exact source"}</strong><span>{selectedTrackDocument ? "Original & normalized units retained" : "Select source & mapping before preview"}</span></div>
-            <div className="modeling-format-actions" aria-label="Import Modeling data"><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/test-json")}>Canonical JSON</button><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/import")}>CSV</button><button className="button secondary" type="button" onClick={() => onNavigate("/datasets/import")}>XLSX</button></div>
-          </aside> : workflowTask === "export" ? <aside className="export-stage-ribbon">
+          ribbon={workflowTask === "data" ? <Suspense fallback={<p className="loading-state">Loading data sources…</p>}><ModelingDataIntake
+              config={config}
+              material={material}
+              state={materialState}
+              processingMappingProfileText={profileText}
+              documents={trackDocuments}
+              selectedDocumentId={selectedDocumentId}
+              onSelectDocument={(id) => void loadDocument(id)}
+              onPreviewDocument={previewIntakeDocument}
+              onImported={registerIntakeDocument}
+            /></Suspense> : workflowTask === "export" ? <aside className="export-stage-ribbon">
             <div><span>Candidate preview</span><strong>{String(fitStepEntry?.step.options.primary_family ?? fitStepEntry?.step.options.selected_term_count ?? "Candidate pending review")}</strong></div>
             <div><span>Fit method</span><strong>{methods.find((method) => method.method_id === fitStepEntry?.step.method_id)?.label ?? fitStepEntry?.step.method_id ?? "No fit selected"}</strong></div>
             <div><span>Observed fit range</span><strong>{String(fitStepEntry?.step.options.fit_minimum_strain ?? "auto")} – {String(fitStepEntry?.step.options.fit_maximum_strain ?? "observed limit")}</strong></div>
             <div><span>Extrapolation</span><strong>Visible in graph · unobserved</strong></div>
           </aside> : <aside className={`step-option-panel ${workflowTask}-stage-options`}>
-            <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div>
+            <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><div className="modeling-ribbon-actions">{workflowTask === "process" ? <button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit reviewed output</button> : null}<button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="step-index">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
               <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} />

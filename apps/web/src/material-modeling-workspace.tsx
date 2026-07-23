@@ -302,6 +302,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
     />
   ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, session?.testData?.id, track]);
   const selectedState = detail?.states.find((item) => item.material_state_id === selectedStateId);
+  const selectedMaterial = materials.find((item) => item.material_id === selectedMaterialId);
   const familyInspector = useMemo(() => track === "polymer" && selectedState ? (
     <PolymerTemperatureShiftInspector config={config} state={selectedState} />
   ) : null, [config, selectedState, track]);
@@ -316,6 +317,8 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onSessionChange={updateSession}
       familyWorkbench={familyWorkbench}
       familyInspector={familyInspector}
+      material={selectedMaterial}
+      materialState={selectedState}
       locationSearch={locationSearch}
     />
   );

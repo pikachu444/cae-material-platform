@@ -62,18 +62,31 @@ def _xlsx(
     formula: bool = False,
     absolute_target: bool = False,
     worksheet_target: str | None = None,
+    second_sheet: bool = False,
 ) -> bytes:
-    workbook = """<?xml version="1.0" encoding="UTF-8"?>
+    second_sheet_manifest = '<sheet name="Repeat" sheetId="2" r:id="rId2"/>' if second_sheet else ""
+    workbook = (
+        """<?xml version="1.0" encoding="UTF-8"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
- <sheets><sheet name="Data" sheetId="1" r:id="rId1"/></sheets></workbook>"""
+ <sheets><sheet name="Data" sheetId="1" r:id="rId1"/>"""
+        + second_sheet_manifest
+        + """</sheets></workbook>"""
+    )
     worksheet_target = worksheet_target or (
         "/xl/worksheets/sheet1.xml" if absolute_target else "worksheets/sheet1.xml"
+    )
+    second_relationship = (
+        """<Relationship Id="rId2" Target="worksheets/sheet2.xml"
+  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>"""
+        if second_sheet
+        else ""
     )
     rels = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
  <Relationship Id="rId1" Target="{worksheet_target}"
   Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+ {second_relationship}
 </Relationships>"""
     calculated = "<f>A2*2</f><v>100</v>" if formula else "<v>100</v>"
     sheet = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -88,6 +101,8 @@ def _xlsx(
         archive.writestr("xl/workbook.xml", workbook)
         archive.writestr("xl/_rels/workbook.xml.rels", rels)
         archive.writestr("xl/worksheets/sheet1.xml", sheet)
+        if second_sheet:
+            archive.writestr("xl/worksheets/sheet2.xml", sheet)
     return output.getvalue()
 
 
@@ -152,7 +167,7 @@ def test_force_displacement_requires_pinned_geometry() -> None:
     assert parsed.rows[1] == pytest.approx((0.02, 200_000_000.0))
 
 
-def test_xlsx_requires_explicit_sheet_and_rejects_formulas() -> None:
+def test_xlsx_discovers_a_unique_sheet_and_rejects_formulas() -> None:
     source = _xlsx()
     preview = inspect_tabular_source(
         source,
@@ -167,6 +182,8 @@ def test_xlsx_requires_explicit_sheet_and_rejects_formulas() -> None:
         decimal_separator=".",
     )
     assert preview.sheet_names == ("Data",)
+    assert preview.selected_sheet_name == "Data"
+    assert preview.header_columns == ("strain", "stress")
     assert parse_governed_source(
         source, _axial_profile(file_format=TabularFileFormat.XLSX, sheet_name="Data")
     ).rows[-1] == (0.01, 200_000_000.0)
@@ -186,6 +203,27 @@ def test_xlsx_requires_explicit_sheet_and_rejects_formulas() -> None:
         )
 
 
+def test_xlsx_with_multiple_sheets_returns_discovery_before_reading_rows() -> None:
+    preview = inspect_tabular_source(
+        _xlsx(second_sheet=True),
+        raw_asset_id=RAW_ASSET,
+        raw_artifact_id=RAW_ARTIFACT,
+        raw_sha256=SHA,
+        file_format=TabularFileFormat.XLSX,
+        sheet_name=None,
+        header_row=1,
+        encoding="binary",
+        delimiter=None,
+        decimal_separator=".",
+    )
+
+    assert preview.sheet_names == ("Data", "Repeat")
+    assert preview.selected_sheet_name is None
+    assert preview.header_columns == ()
+    assert preview.sample_rows == ()
+    assert preview.status == "needs_input"
+
+
 def test_xlsx_accepts_an_ooxml_absolute_worksheet_relationship_target() -> None:
     preview = inspect_tabular_source(
         _xlsx(absolute_target=True),
@@ -193,7 +231,7 @@ def test_xlsx_accepts_an_ooxml_absolute_worksheet_relationship_target() -> None:
         raw_artifact_id=RAW_ARTIFACT,
         raw_sha256=SHA,
         file_format=TabularFileFormat.XLSX,
-        sheet_name="Data",
+        sheet_name=None,
         header_row=1,
         encoding="binary",
         delimiter=None,
