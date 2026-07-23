@@ -1,4 +1,4 @@
-"""Fail-closed local pre-publish review gate for Codex and Git pushes."""
+"""Fail-closed deterministic publication gate with opt-in independent reviews."""
 
 from __future__ import annotations
 
@@ -1077,6 +1077,7 @@ def _revalidate_change(
 def run_pre_publish_pipeline(
     project: Path,
     *,
+    independent_reviews: bool = False,
     runner: ReviewerRunner | None = None,
     cache_root: Path | None = None,
     asset_root: Path | None = None,
@@ -1088,18 +1089,40 @@ def run_pre_publish_pipeline(
     emit: Emitter = print,
     publication_target: PublicationTarget | None = None,
 ) -> str:
-    """Run the ordered gate and return its fingerprint only after a complete PASS."""
+    """Run deterministic checks and optional independent reviews.
+
+    Independent model execution is deliberately opt-in. Automatic Git and Codex
+    publication hooks must use the default deterministic-only mode.
+    """
 
     root = _repository_root(project)
     if os.environ.get("CMP_CODEX_REVIEW_ACTIVE") == "1":
         raise PrePublishError("recursive pre-publish review invocation was blocked")
-    emit("pre-publish 1/5: documentation impact")
+    step_total = 5 if independent_reviews else 3
+    emit(f"pre-publish 1/{step_total}: documentation impact")
     documentation_check(root)
-    emit("pre-publish 2/5: committed diff and fingerprint inputs")
+    emit(f"pre-publish 2/{step_total}: committed diff and fingerprint inputs")
     change = change_collector(root)
     _validate_publication_target(change, publication_target)
-    emit("pre-publish 3/5: deterministic repository checks")
+    emit(f"pre-publish 3/{step_total}: deterministic repository checks")
     deterministic_check(root, change)
+    if not independent_reviews:
+        inputs = _fingerprint_inputs(
+            change,
+            {},
+            {"mode": "deterministic-only", "independent_reviews": False},
+            publication_target,
+        )
+        _revalidate_change(
+            root,
+            change,
+            publication_target,
+            change_revalidator or change_collector,
+        )
+        fingerprint = _fingerprint(inputs)
+        emit(f"pre-publish deterministic PASS: {fingerprint}")
+        return fingerprint
+
     assets = (asset_root or root).resolve()
     actual_runner = runner or CodexExecRunner.discover(root)
     code_profile = (
@@ -1422,6 +1445,13 @@ def main() -> int:
     )
     parser.add_argument("--remote-name")
     parser.add_argument("--remote-location")
+    parser.add_argument(
+        "--independent-review",
+        action="store_true",
+        help=(
+            "explicitly opt in to paid Codex code/visual review; automatic hooks never set this"
+        ),
+    )
     args = parser.parse_args()
     try:
         pre_push_input: str | None = None
@@ -1436,6 +1466,7 @@ def main() -> int:
             )
         fingerprint = run_pre_publish_pipeline(
             args.root,
+            independent_reviews=args.independent_review,
             publication_target=publication_target,
         )
         if pre_push_input is not None:

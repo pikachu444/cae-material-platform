@@ -1,4 +1,4 @@
-"""Single Codex PreToolUse gate for documentation and independent publication review."""
+"""Single deterministic Codex PreToolUse publication gate."""
 
 from __future__ import annotations
 
@@ -66,6 +66,7 @@ def evaluate(payload: object, project: Path) -> str | None:
         target = resolve_publication_target(project, command)
         run_pre_publish_pipeline(
             project,
+            independent_reviews=False,
             emit=lambda message: print(message, file=sys.stderr),
             publication_target=target,
         )

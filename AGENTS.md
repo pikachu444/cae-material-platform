@@ -78,10 +78,11 @@ Do not choose or imply a production tensile standard, material family, constitut
   (and 1920x1080 when the layout materially expands), then run `make docs-screenshots` and
   `make docs-impact`.
 - Project Codex hooks in `.codex/hooks.json` block `git commit` when required documentation evidence
-  is missing. Before `git push`, `gh pr create`, `gh pr ready`, and `gh pr merge`, the single
-  pre-publish pipeline runs documentation checks, an independent read-only code review, and, for UI
-  impact, an independent visual review. Review and trust the project hook with `/hooks` after
-  cloning or whenever the hook definition changes.
+  is missing. Before `git push`, `gh pr create`, `gh pr ready`, and `gh pr merge`, the automatic
+  pre-publish pipeline runs deterministic documentation, diff, link, image, and manifest checks.
+  It must never start an LLM reviewer. Independent code/visual review is a separately authorized,
+  explicit opt-in command while GitHub issue #119 remains open. Review and trust the project hook
+  with `/hooks` after cloning or whenever the hook definition changes.
 
 ## Forbidden shortcuts
 
