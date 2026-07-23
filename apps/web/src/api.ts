@@ -1944,6 +1944,13 @@ export function listSolverCards(
   return request(config, `/material-models/${encodeURIComponent(materialModelId)}/solver-cards`);
 }
 
+export function getSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<SolverCardResponse>> {
+  return request(config, `/solver-cards/${encodeURIComponent(solverCardId)}`);
+}
+
 export function createSolverCard(
   config: ApiConfig,
   materialModelId: string,
@@ -2430,6 +2437,26 @@ export function createNeutralHyperelasticSolverCard(
     config,
     `/neutral-materials/${encodeURIComponent(neutralMaterialId)}/solver-cards`,
     { method: "POST", body: JSON.stringify(input) },
+  );
+}
+
+export function getNeutralSolverCard(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<NeutralHyperelasticSolverCardResponse>> {
+  return request(
+    config,
+    `/neutral-solver-cards/${encodeURIComponent(solverCardId)}`,
+  );
+}
+
+export function getNeutralSolverMappingReport(
+  config: ApiConfig,
+  solverCardId: string,
+): Promise<ApiResult<NeutralHyperelasticMappingReport>> {
+  return request(
+    config,
+    `/neutral-solver-cards/${encodeURIComponent(solverCardId)}/mapping-report`,
   );
 }
 

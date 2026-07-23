@@ -3,6 +3,21 @@
 Date: `2026-07-21`
 Foundation version: `0.32.0`
 
+## DUI-03 contextual solver-card delivery implemented (2026-07-23)
+
+GitHub issue #117 now has a bounded Material-to-card delivery slice on
+`codex/dui-03-contextual-solver-card-delivery`. Selected Material context, Material Detail and CAE
+Cards use the exact card mapping report to choose Download, Preview, Create card or Start Modeling.
+Exact/transformed mappings download without confirmation; approximated/ignored states require one
+adjacent acknowledgement; unsupported fields remain named and blocked.
+
+The native ASCII preview is a flat two-pane text/property workspace. Card creation reuses the
+existing exact Neutral Material preflight and synthetic non-production exporters. Preview/download
+activity keeps exact Material and card revision IDs in browser-local Activity. No backend, database,
+worker, OpenAPI or domain schema changed. `FR-IR-005`, `FR-EXP-001`, `FR-EXP-002`,
+`FR-UX-001/003/006/009`, `ADR-004`, `ADR-008` and `ADR-0034` are linked in the evidence report at
+`docs/17-evidence/reports/dui-03-contextual-solver-card-delivery.md`.
+
 ## Search-first reference-layout implementation accepted (2026-07-21)
 
 The T-85~T-93 engine and functional browser evidence remain valid, but their visual acceptance is

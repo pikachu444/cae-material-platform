@@ -2,8 +2,6 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
   ApiError,
-  downloadNeutralHyperelasticMappingReport,
-  downloadNeutralHyperelasticSolverCard,
   getCatalogWorkflowGraph,
   getConfigurableCatalogRecord,
   getMaterialDetail,
@@ -11,7 +9,6 @@ import {
   listConfigurableCatalogAttributes,
   listConfigurableCatalogRecordRevisions,
   listMaterials,
-  previewNeutralHyperelasticSolverCard,
   resolveCatalogDomainRevision,
   type ApiConfig,
 } from "./api";
@@ -21,6 +18,7 @@ import type {
   ConfigurableAttributeResponse,
   ConfigurableLinkEndpoint,
   ConfigurableRecordValue,
+  DomainRevisionBinding,
   MaterialDetail,
   MaterialResponse,
   PropertySetResponse,
@@ -30,7 +28,22 @@ import { MaterialDatasheetProjection } from "./material-datasheet-projection";
 import { publishWorkspaceCommandState, publishWorkspaceStatus } from "./design/application-shell";
 import { ResizableSplitPane } from "./design/resizable-split-pane";
 import { EngineeringColumnResizeHandle } from "./design/engineering-column-resize-handle";
-import { loadModelingSession } from "./modeling-session-context";
+import { loadModelingSession, saveModelingSession } from "./modeling-session-context";
+import {
+  downloadSolverCardArtifact,
+  downloadSolverMappingArtifact,
+  loadDeliveryActivities,
+  loadSolverCardEvidence,
+  previewSolverCardText,
+  recordDeliveryActivity,
+  type SolverCardEvidence,
+  type SolverCardSummary,
+} from "./solver-card-delivery";
+import {
+  MappingStatusList,
+  NeutralCardCreationPanel,
+  SolverCardAction,
+} from "./solver-card-delivery-ui";
 
 export type MaterialTab = "overview" | "properties" | "curves" | "cards" | "evidence";
 
@@ -45,14 +58,6 @@ interface MaterialExperience {
   graph: CatalogWorkflowGraphResponse | null;
   cards: SolverCardSummary[];
   representativeCurve: Array<{ x: number; y: number }>;
-}
-
-interface SolverCardSummary {
-  id: string;
-  revisionId: string;
-  label: string;
-  solver: "Abaqus" | "OpenRadioss" | "Solver";
-  extension: ".inp" | ".rad" | ".txt";
 }
 
 interface BrowseSelection {
@@ -150,10 +155,11 @@ function cardsFromGraph(graph: CatalogWorkflowGraphResponse | null): SolverCardS
   if (!graph) return [];
   return graph.nodes.flatMap((node) => {
     const binding = node.domain_binding;
-    if (binding?.kind !== "neutral_solver_card") return [];
+    if (binding?.kind !== "neutral_solver_card" && binding?.kind !== "solver_card") return [];
     return [{
       id: binding.object_id,
       revisionId: binding.revision_id,
+      kind: binding.kind,
       label: node.name,
       ...solverFor(node.name),
     }];
@@ -177,6 +183,7 @@ async function currentCards(
       merged.set(id, {
         id,
         revisionId,
+        kind: "neutral_solver_card",
         label: candidate.label,
         ...solver,
       });
@@ -237,7 +244,7 @@ async function loadMaterialExperience(config: ApiConfig, material: MaterialRespo
   if (includeCurve && cards.length) {
     const preferred = cards.find((card) => card.solver === "OpenRadioss") ?? cards[0];
     try {
-      const preview = await previewNeutralHyperelasticSolverCard(config, preferred.id);
+      const preview = await previewSolverCardText(config, preferred);
       representativeCurve = curveFromNativeCard(preview.data);
     } catch {
       representativeCurve = [];
@@ -269,6 +276,50 @@ function sourceLabel(experience: MaterialExperience | undefined): string {
 function browsePath(experience: MaterialExperience | undefined): string {
   const root = experience?.graph?.root;
   return root ? `/database/records/${root.record_id}/revisions/${root.record_revision_id}` : "/database";
+}
+
+function neutralMaterialBinding(experience: MaterialExperience | null | undefined): DomainRevisionBinding | null {
+  return experience?.graph?.nodes
+    .map((node) => node.domain_binding)
+    .find((binding): binding is DomainRevisionBinding => binding?.kind === "neutral_material") ?? null;
+}
+
+function deliveryMaterial(material: MaterialResponse) {
+  return {
+    materialId: material.material_id,
+    materialRevisionId: material.current_revision.id,
+    materialLabel: material.current_revision.content.name,
+  };
+}
+
+function modelingFamily(material: MaterialResponse): "metal" | "polymer" | "elastomer" {
+  const family = `${material.current_revision.content.material_class} ${material.current_revision.content.material_family ?? ""}`.toLowerCase();
+  if (family.includes("elastomer") || family.includes("rubber")) return "elastomer";
+  if (family.includes("polymer") || family.includes("plastic")) return "polymer";
+  return "metal";
+}
+
+function startModeling(material: MaterialResponse, onNavigate: (path: string) => void): void {
+  const family = modelingFamily(material);
+  saveModelingSession({
+    materialFamily: family,
+    objective: `Create a simulation-ready card for ${material.current_revision.content.name}`,
+    material: {
+      id: material.material_id,
+      revisionId: material.current_revision.id,
+      revisionNo: material.current_revision.revision_no,
+      label: material.current_revision.content.name,
+    },
+    workspace: {
+      activeStage: "data",
+      selectedDocumentIds: [],
+      selectedStepIndex: 0,
+      selectedStageOrdinal: 0,
+      plotView: "pipeline",
+      settingsOpen: typeof window === "undefined" || window.innerWidth >= 1400,
+    },
+  });
+  onNavigate(`/modeling?stage=data&family=${family}`);
 }
 
 function RepresentativeCurve({ points }: { points: Array<{ x: number; y: number }> }) {
@@ -425,6 +476,10 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   const selected = filtered.find((item) => item.material_id === selectedId);
   const selectedExperience = selected ? experience[selected.material_id] : undefined;
   const selectedProperty = currentProperty(selectedExperience)?.current_revision.content;
+  const selectedPreferredCard = selectedExperience?.cards.find((card) => card.solver === "OpenRadioss")
+    ?? selectedExperience?.cards[0]
+    ?? null;
+  const selectedNeutralMaterial = neutralMaterialBinding(selectedExperience);
 
   useEffect(() => {
     publishWorkspaceStatus({
@@ -527,7 +582,23 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   </section>;
 
   const context = <aside className="materials-selection" aria-live="polite">
-    {selected ? <><div className="selection-heading"><div><p className="ux-kicker">Selected material</p><h2 title={selected.current_revision.content.name}>{selected.current_revision.content.name}</h2></div><span className="ux-meta">{selected.current_revision.content.material_code ?? "No material code"}</span></div><p>{selected.current_revision.content.description ?? "No summary is available."}</p><div className="selection-property-grid"><div><span>Density</span><strong>{formatDensity(selectedProperty?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(selectedProperty?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(selectedProperty?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{selectedProperty?.poisson_ratio ?? "—"}</strong></div></div><dl className="selection-context"><dt>Source</dt><dd>{sourceLabel(selectedExperience)}</dd><dt>Status</dt><dd>{selected.current_revision.lifecycle_state}</dd></dl><h3>CAE card availability</h3><SolverAvailability cards={selectedExperience?.cards ?? []}/><button className="ux-button primary" type="button" onClick={() => openMaterial(selected.material_id)}>Open material</button><button className="ux-button tertiary" type="button" onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Show in Browse Tree</button></> : <div className="ux-empty"><strong>Select a material</strong><p>Key properties and solver-card availability will appear here.</p></div>}
+    {selected ? <>
+      <div className="selection-heading"><div><p className="ux-kicker">Selected material</p><h2 title={selected.current_revision.content.name}>{selected.current_revision.content.name}</h2></div><span className="ux-meta">{selected.current_revision.content.material_code ?? "No material code"}</span></div>
+      <p>{selected.current_revision.content.description ?? "No summary is available."}</p>
+      <div className="selection-property-grid"><div><span>Density</span><strong>{formatDensity(selectedProperty?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(selectedProperty?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(selectedProperty?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{selectedProperty?.poisson_ratio ?? "—"}</strong></div></div>
+      <dl className="selection-context"><dt>Source</dt><dd>{sourceLabel(selectedExperience)}</dd><dt>Status</dt><dd>{selected.current_revision.lifecycle_state}</dd></dl>
+      <h3>CAE card availability</h3>
+      <SolverAvailability cards={selectedExperience?.cards ?? []}/>
+      <div className="selection-delivery-command">
+        {selectedPreferredCard
+          ? <SolverCardAction config={config} card={selectedPreferredCard} material={deliveryMaterial(selected)} onNavigate={onNavigate}/>
+          : selectedNeutralMaterial
+            ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${selected.material_id}/cards`)}>Create card</button>
+            : <button className="ux-button primary" type="button" onClick={() => startModeling(selected, onNavigate)}>Start Modeling</button>}
+        <button className="ux-button" type="button" onClick={() => openMaterial(selected.material_id)}>Open material</button>
+        <button className="ux-button tertiary" type="button" onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Show in Browse Tree</button>
+      </div>
+    </> : <div className="ux-empty"><strong>Select a material</strong><p>Key properties and solver-card availability will appear here.</p></div>}
   </aside>;
 
   return (
@@ -551,17 +622,15 @@ function configurableValueText(value: ConfigurableRecordValue): string {
   return `${value.data_type} artifact · ${value.artifact_sha256.slice(0, 12)}…`;
 }
 
-function CardTable({ materialId, cards, downloadingId, onNavigate, onDownload }: { materialId: string; cards: SolverCardSummary[]; downloadingId: string; onNavigate: (path: string) => void; onDownload: (card: SolverCardSummary) => void }) {
-  if (!cards.length) return <div className="ux-empty"><strong>No native card is available.</strong><p>Open Modeling to process test data, review a model, and create a governed solver card.</p><button className="ux-button primary" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button></div>;
-  return <table className="ux-table cae-card-table"><thead><tr><th>Solver</th><th>Card</th><th>Format</th><th>Delivery</th></tr></thead><tbody>{cards.map((card) => <tr key={card.id}><td><strong>{card.solver}</strong></td><td title={card.label}>{card.label}</td><td>Native ASCII {card.extension}</td><td><div className="card-table-actions"><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${card.id}`)}>Preview</button><button className="ux-button" type="button" disabled={downloadingId === card.id} onClick={() => onDownload(card)}>{downloadingId === card.id ? "Preparing…" : `Download ${card.extension}`}</button></div></td></tr>)}</tbody></table>;
+function CardTable({ config, material, cards, onNavigate }: { config: ApiConfig; material: MaterialResponse; cards: SolverCardSummary[]; onNavigate: (path: string) => void }) {
+  if (!cards.length) return <div className="ux-empty compact"><strong>No native card is available.</strong><p>Create one from the exact Neutral Material below, or continue the selected material in Modeling.</p></div>;
+  return <table className="ux-table cae-card-table"><thead><tr><th>Solver</th><th>Card</th><th>Format</th><th>Delivery</th></tr></thead><tbody>{cards.map((card) => <tr key={card.id}><td><strong>{card.solver}</strong></td><td title={card.label}>{card.label}</td><td>Native ASCII {card.extension}</td><td><div className="card-table-actions"><SolverCardAction config={config} card={card} material={deliveryMaterial(material)} onNavigate={onNavigate} directClassName="ux-button" reviewClassName="ux-button" includePreview/></div></td></tr>)}</tbody></table>;
 }
 
 export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }: Props & { materialId: string; activeTab: MaterialTab }) {
   const [experience, setExperience] = useState<MaterialExperience | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [downloadingId, setDownloadingId] = useState("");
   const [browseSelection, setBrowseSelection] = useState<BrowseSelection | null>(null);
 
   useEffect(() => {
@@ -585,11 +654,11 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
     publishWorkspaceStatus({
       selection: material ? `${material.current_revision.content.name} · ${material.current_revision.content.material_code ?? "No grade"}` : "Material record",
       revision: material ? `r${material.current_revision.revision_no} · ${material.current_revision.lifecycle_state}` : "Loading revision",
-      jobs: downloadingId ? "Preparing solver card" : "No active job",
-      warnings: error || actionError ? "1 workspace error" : "0 warnings",
-      connection: error || actionError ? "degraded" : "online",
+      jobs: "No active job",
+      warnings: error ? "1 workspace error" : "0 warnings",
+      connection: error ? "degraded" : "online",
     });
-  }, [actionError, downloadingId, error, experience]);
+  }, [error, experience]);
 
   if (loading) return <div className="ux-page"><div className="material-detail-shell"><p className="loading-state">Loading material…</p></div></div>;
   if (error || !experience) return <div className="ux-page"><div className="material-detail-shell"><div className="ux-notice error" role="alert">{error ?? "Material not found."}</div><button className="ux-button" type="button" onClick={() => onNavigate(materialsReturnPath())}>Back to Materials</button></div></div>;
@@ -600,6 +669,7 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
   const property = propertySet?.current_revision.content;
   const catalogRoot = experience.graph?.root ?? null;
   const preferredCard = experience.cards.find((card) => card.solver === "OpenRadioss") ?? experience.cards[0] ?? null;
+  const neutralMaterial = neutralMaterialBinding(experience);
   const relatedLinks = (experience.graph?.links ?? []).filter((link) =>
     link.source.record_id === catalogRoot?.record_id || link.target.record_id === catalogRoot?.record_id,
   ).map((link) => {
@@ -614,27 +684,19 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
   const navigator = <aside className="materials-left-pane" aria-label="Materials Browse Tree"><div className="workspace-back-row"><button className="ux-button tertiary" type="button" onClick={() => onNavigate(materialsReturnPath())}>← Results</button><strong>Browse</strong></div><MaterialsBrowseTree config={config} requestedRecord={catalogRoot} onSelectRecord={(record, graph) => setBrowseSelection({ record, graph })} onOpenRecord={(record) => onNavigate(`/materials/records/${record.record_id}/revisions/${record.current_revision.id}`)}/></aside>;
   const context = <aside className="materials-selection material-related-context" aria-label="Related exact records"><p className="ux-kicker">Current revision</p><div className="context-record-title">{content.name}</div><dl className="selection-context"><dt>Revision</dt><dd>r{material.current_revision.revision_no}</dd><dt>Status</dt><dd>{material.current_revision.lifecycle_state}</dd><dt>Related</dt><dd>{relatedLinks.length} records</dd></dl>{browseSelection ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/records/${browseSelection.record.record_id}/revisions/${browseSelection.record.current_revision.id}`)}>Open {browseSelection.record.current_revision.content.name}</button> : null}<h3>Related records</h3><ul className="related-record-list">{relatedLinks.slice(0, 12).map((related) => <li key={related.id}><button type="button" onClick={() => onNavigate(`/materials/records/${related.endpoint.record_id}/revisions/${related.endpoint.record_revision_id}`)}><span>{related.endpoint.name}</span><small>{related.label} · r{related.endpoint.revision_no}</small></button></li>)}</ul></aside>;
 
-  async function downloadCard(card: SolverCardSummary): Promise<void> {
-    setDownloadingId(card.id);
-    setActionError(null);
-    try {
-      const result = await downloadNeutralHyperelasticSolverCard(config, card.id);
-      triggerDownload(result.data.blob, result.data.filename);
-    } catch (cause: unknown) {
-      setActionError(messageFor(cause));
-    } finally {
-      setDownloadingId("");
-    }
+  function acceptCreatedCard(card: SolverCardSummary): void {
+    setExperience((current) => current ? { ...current, cards: [...current.cards, card] } : current);
+    onNavigate(`/materials/${materialId}/cards/${card.id}`);
   }
+
   const datasheet = <div className="material-detail-shell">
-    <header className="material-detail-header"><div><h1>{content.name}</h1><div className="material-detail-meta"><span>{content.material_code ?? "No grade code"}</span><span>{content.material_family ?? content.material_class}</span><span>{sourceLabel(experience)}</span><span>{material.current_revision.lifecycle_state}</span></div></div><div className="card-action-row">{preferredCard ? <><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${preferredCard.id}`)}>Preview {preferredCard.solver}</button><button className="ux-button primary" type="button" disabled={downloadingId === preferredCard.id} onClick={() => void downloadCard(preferredCard)}>{downloadingId === preferredCard.id ? "Preparing…" : `Download ${preferredCard.extension}`}</button></> : <button className="ux-button primary" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button>}</div></header>
+    <header className="material-detail-header"><div><h1>{content.name}</h1><div className="material-detail-meta"><span>{content.material_code ?? "No grade code"}</span><span>{content.material_family ?? content.material_class}</span><span>{sourceLabel(experience)}</span><span>{material.current_revision.lifecycle_state}</span></div></div><div className="card-action-row">{preferredCard ? <SolverCardAction config={config} card={preferredCard} material={deliveryMaterial(material)} onNavigate={onNavigate}/> : neutralMaterial ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>Create card</button> : <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button>}</div></header>
     <nav className="ux-tabs" role="tablist" aria-label="Material detail"><input type="hidden" value={activePath} readOnly />{tabs.map((tab) => <button key={tab.id} className="ux-tab" type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => onNavigate(tab.id === "overview" ? `/materials/${materialId}` : `/materials/${materialId}/${tab.id}`)}>{tab.label}</button>)}</nav>
-    {actionError ? <div className="ux-notice error material-action-error" role="alert">{actionError}</div> : null}
     <section className="material-tab-panel" role="tabpanel">
       {activeTab === "overview" ? <div className="overview-grid"><div><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Engineering summary</p><h2>Key properties</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/properties`)}>All properties</button></div><div className="overview-property-grid"><div><span>Density</span><strong>{formatDensity(property?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(property?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(property?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{property?.poisson_ratio ?? "—"}</strong></div></div></section><div className="overview-data-grid"><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Representative curve</p><h2>Linked material response</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/curves`)}>All curves</button></div><RepresentativeCurve points={experience.representativeCurve}/></section><section className="overview-section"><p className="ux-kicker">Application conditions</p><h2>Material states</h2><dl className="condition-summary"><dt>Temperature</dt><dd>{property?.applicability.temperature_min_k ?? "—"}–{property?.applicability.temperature_max_k ?? "—"} K</dd><dt>Strain rate</dt><dd>{property?.applicability.strain_rate_min_per_s ?? "—"}–{property?.applicability.strain_rate_max_per_s ?? "—"} /s</dd></dl>{experience.detail.states.slice(0, 2).map((state) => <p className="condition-state" key={state.material_state_id}><strong>{state.current_revision.content.name}</strong><span>{state.current_revision.content.manufacturing_route ?? "Route not specified"}</span></p>)}</section></div></div><aside><p className="ux-kicker">CAE delivery</p><h2>Ready solver cards</h2><p>Choose a native format. The primary Download action above uses the preferred available solver.</p><SolverAvailability cards={experience.cards}/><div className="solver-preview-links">{experience.cards.map((card) => <button key={card.id} type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${card.id}`)}>Preview {card.solver} {card.extension}</button>)}</div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(browsePath(experience))}>Related records in Browse Tree</button></aside></div> : null}
       {activeTab === "properties" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Normalized values</p><h2>Engineering properties</h2></div></div>{property ? <table className="ux-table"><thead><tr><th>Property</th><th>Value</th><th>Quantity semantics</th><th>Source</th></tr></thead><tbody><tr><td>Density</td><td>{formatDensity(property.density_kg_per_m3)}</td><td>mass density</td><td>{property.density_source.kind}</td></tr><tr><td>Young’s modulus</td><td>{formatPressure(property.youngs_modulus_pa)}</td><td>elastic modulus</td><td>{property.youngs_modulus_source.kind}</td></tr><tr><td>Poisson ratio</td><td>{property.poisson_ratio}</td><td>dimensionless ratio</td><td>{property.poisson_ratio_source.kind}</td></tr><tr><td>Yield strength</td><td>{formatPressure(property.yield_stress_pa)}</td><td>stress</td><td>{property.yield_stress_source?.kind ?? "—"}</td></tr></tbody></table> : <div className="ux-empty">No typed property set is available.</div>}<p className="ux-meta">Normalized units are shown here. Original unit text and exact source revisions remain preserved in Evidence.</p>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="properties"/> : null}</> : null}
       {activeTab === "curves" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Test and model data</p><h2>Curves</h2><p>Review available workflow data in the persistent Modeling graph.</p></div><button className="ux-button primary" type="button" onClick={() => onNavigate("/modeling")}>Open in Modeling</button></div>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="curves"/> : null}<table className="ux-table"><thead><tr><th>Related data</th><th>Type</th><th>Use</th></tr></thead><tbody>{(experience.graph?.nodes ?? []).filter((node) => ["test_data", "processing_output", "material_model"].includes(node.domain_binding?.kind ?? "")).map((node) => <tr key={node.record_id}><td>{node.name}</td><td>{node.domain_binding?.kind.replaceAll("_", " ")}</td><td>{node.domain_binding?.kind === "test_data" ? "Observed input" : node.domain_binding?.kind === "processing_output" ? "Processed curve" : "Fitted response"}</td></tr>)}</tbody></table></> : null}
-      {activeTab === "cards" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Solver delivery</p><h2>CAE Cards</h2><p>Preview native ASCII content or download the exact immutable artifact directly.</p></div></div><CardTable materialId={materialId} cards={experience.cards} downloadingId={downloadingId} onNavigate={onNavigate} onDownload={(card) => void downloadCard(card)}/></> : null}
+      {activeTab === "cards" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Solver delivery</p><h2>CAE Cards</h2><p>Exact mappings download directly. Approximated or ignored mappings require review; unsupported mappings remain blocked.</p></div></div><CardTable config={config} material={material} cards={experience.cards} onNavigate={onNavigate}/>{neutralMaterial ? <NeutralCardCreationPanel config={config} neutralMaterialId={neutralMaterial.object_id} neutralMaterialRevisionId={neutralMaterial.revision_id} materialName={content.name} materialCode={content.material_code} existingCards={experience.cards} onCreated={acceptCreatedCard}/> : !experience.cards.length ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : null}</> : null}
       {activeTab === "evidence" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Related · Workflow · Evidence</p><h2>Connected material record</h2><p>Follow typed Record links and the material workflow; open technical identifiers only when needed.</p></div><button className="ux-button" type="button" onClick={() => onNavigate(browsePath(experience))}>Open exact Layout datasheet</button></div><div className="evidence-overview"><section><h3>Related Records</h3>{relatedLinks.length ? <table className="ux-table"><thead><tr><th>Relationship</th><th>Record</th><th>Type</th><th>Revision</th></tr></thead><tbody>{relatedLinks.map((related) => <tr key={related.id}><td>{related.label}</td><td title={related.endpoint.name}>{related.endpoint.name}</td><td>{related.endpoint.domain_binding?.kind?.replaceAll("_", " ") ?? "Catalog Record"}</td><td>r{related.endpoint.revision_no}</td></tr>)}</tbody></table> : <p className="ux-meta">No related Records are visible in the current scope.</p>}</section><section><h3>Workflow</h3><table className="ux-table"><thead><tr><th>Record</th><th>Role</th><th>Revision</th></tr></thead><tbody>{(experience.graph?.nodes ?? []).map((node) => <tr key={`${node.record_id}:${node.record_revision_id}`}><td title={node.name}>{node.name}</td><td>{node.domain_binding?.kind?.replaceAll("_", " ") ?? "catalog record"}</td><td>r{node.revision_no}</td></tr>)}</tbody></table></section></div>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="evidence"/> : null}<details className="ux-disclosure"><summary>Technical revision and provenance identifiers</summary><dl className="evidence-grid"><dt>Material ID</dt><dd>{material.material_id}</dd><dt>Aggregate ID</dt><dd>{material.current_revision.aggregate_id}</dd><dt>Full revision ID</dt><dd>{material.current_revision.id}</dd><dt>Content hash</dt><dd>{material.current_revision.content_hash}</dd><dt>Classification</dt><dd>{material.current_revision.classification}</dd><dt>Change reason</dt><dd>{material.current_revision.change_reason}</dd><dt>Recorded by</dt><dd>{material.current_revision.provenance.recorded_by}</dd></dl></details></> : null}
     </section>
   </div>;
@@ -716,21 +778,41 @@ export function ExactRecordDatasheetPage({ config, recordId, revisionId, onNavig
 export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }: Props & { materialId: string; cardId: string }) {
   const [material, setMaterial] = useState<MaterialResponse | null>(null);
   const [card, setCard] = useState<SolverCardSummary | null>(null);
+  const [evidence, setEvidence] = useState<SolverCardEvidence | null>(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    void getMaterialDetail(config, materialId).then((detail) => loadMaterialExperience(config, detail.data.material)).then(async (result) => {
-      const found = result.cards.find((item) => item.id === cardId) ?? null;
-      const previewResult = await previewNeutralHyperelasticSolverCard(config, cardId);
+    setError(null);
+    setAcknowledged(false);
+    void getMaterialDetail(config, materialId)
+      .then((detail) => loadMaterialExperience(config, detail.data.material))
+      .then(async (result) => {
+      const found = result.cards.find((item) => item.id === cardId);
+      if (!found) throw new Error("The requested solver card is not linked to this material revision.");
+      const [previewResult, evidenceResult] = await Promise.all([
+        previewSolverCardText(config, found),
+        loadSolverCardEvidence(config, found),
+      ]);
       if (!active) return;
       setMaterial(result.detail.material);
       setCard(found);
       setPreview(previewResult.data);
+      setEvidence(evidenceResult);
+      recordDeliveryActivity({
+        action: "preview",
+        ...deliveryMaterial(result.detail.material),
+        cardId: found.id,
+        cardRevisionId: found.revisionId,
+        cardLabel: found.label,
+        solver: found.solver,
+        extension: found.extension,
+      });
       setLoading(false);
     }).catch((cause: unknown) => {
       if (!active) return;
@@ -741,11 +823,22 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
   }, [cardId, config, materialId]);
 
   async function downloadCard(): Promise<void> {
+    if (!card || !material || !evidence || evidence.disposition === "blocked") return;
+    if (evidence.disposition === "review" && !acknowledged) return;
     setDownloading(true);
     setError(null);
     try {
-      const result = await downloadNeutralHyperelasticSolverCard(config, cardId);
+      const result = await downloadSolverCardArtifact(config, card);
       triggerDownload(result.data.blob, result.data.filename);
+      recordDeliveryActivity({
+        action: "download",
+        ...deliveryMaterial(material),
+        cardId: card.id,
+        cardRevisionId: card.revisionId,
+        cardLabel: card.label,
+        solver: card.solver,
+        extension: card.extension,
+      });
     } catch (cause: unknown) {
       setError(messageFor(cause));
     } finally {
@@ -754,9 +847,10 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
   }
 
   async function downloadMapping(): Promise<void> {
+    if (!evidence) return;
     try {
-      const result = await downloadNeutralHyperelasticMappingReport(config, cardId);
-      triggerDownload(result.data.blob, result.data.filename);
+      const result = await downloadSolverMappingArtifact(config, evidence);
+      triggerDownload(result.blob, result.filename);
     } catch (cause: unknown) {
       setError(messageFor(cause));
     }
@@ -767,13 +861,42 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
     .filter((line) => !line.startsWith("# CMP material-model-revision") && !line.startsWith("# CMP mapping-report-sha256"))
     .join("\n");
 
-  return <div className="ux-page"><div className="card-preview-shell"><header className="card-preview-header"><div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>← CAE Cards</button><p className="ux-kicker">{card?.solver ?? "Solver card"} · Native ASCII</p><h1>{card?.label ?? material?.current_revision.content.name ?? "Card preview"}</h1><p>Inspect the generated solver syntax before downloading the immutable native artifact.</p></div><button className="ux-button primary" type="button" disabled={loading || downloading || !preview} onClick={() => void downloadCard()}>{downloading ? "Preparing…" : `Download ${card?.extension ?? "card"}`}</button></header>{error ? <div className="ux-notice error" role="alert">{error}</div> : null}<div className="card-preview-content"><pre className="native-card-preview" aria-label="Native solver card preview">{loading ? "Loading native card preview…" : taskPreview}</pre><aside className="card-preview-actions"><p className="ux-kicker">Delivery</p><h2>{card?.solver ?? "Solver"}</h2><p>The downloaded file is the exact released native artifact. Technical provenance headers remain in that file and are disclosed below.</p><button className="ux-button" type="button" onClick={() => onNavigate(`/materials/${materialId}`)}>Return to material</button><details className="ux-disclosure"><summary>Advanced mapping evidence</summary><p className="ux-meta">The mapping report records exact, transformed, approximated, ignored, and unsupported fields. The downloaded native file retains its exact provenance headers.</p><button className="ux-button" type="button" onClick={() => void downloadMapping()}>Download mapping report</button><dl className="evidence-grid"><dt>Card ID</dt><dd>{cardId}</dd><dt>Exact revision</dt><dd>{card?.revisionId ?? "Available in mapping evidence"}</dd></dl></details></aside></div></div></div>;
+  const reviewRequired = evidence?.disposition === "review";
+  const blocked = evidence?.disposition === "blocked";
+  const downloadDisabled = loading || downloading || !preview || !evidence || blocked || (reviewRequired && !acknowledged);
+  const downloadLabel = blocked ? "Download blocked" : downloading ? "Preparing…" : `Download ${card?.extension ?? "card"}`;
+
+  return <div className="ux-page"><div className="card-preview-shell">
+    <header className="card-preview-header">
+      <div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>← CAE Cards</button><p className="ux-kicker">{card?.solver ?? "Solver card"} · Native ASCII</p><h1>{card?.label ?? material?.current_revision.content.name ?? "Card preview"}</h1><p>Inspect the native syntax and mapping states tied to this exact card revision.</p></div>
+      <button className="ux-button primary" type="button" disabled={downloadDisabled} onClick={() => void downloadCard()}>{downloadLabel}</button>
+    </header>
+    {error ? <div className="ux-notice error" role="alert">{error}</div> : null}
+    <div className="card-preview-content">
+      <pre className="native-card-preview" aria-label="Native solver card preview">{loading ? "Loading native card preview…" : taskPreview}</pre>
+      <aside className="card-preview-actions">
+        <p className="ux-kicker">Delivery properties</p>
+        <h2>{card?.solver ?? "Solver"}</h2>
+        {evidence ? <dl className="delivery-card-properties"><dt>Target</dt><dd>{evidence.target.solver} {evidence.target.version}</dd><dt>Unit system</dt><dd>{evidence.target.unit_system.replaceAll("_", " · ")}</dd><dt>Card revision</dt><dd>r{evidence.revisionNo}</dd><dt>Lifecycle</dt><dd>{evidence.lifecycleState}</dd><dt>Material ID</dt><dd>{evidence.solverMaterialId}</dd></dl> : <p className="delivery-progress-line">Loading mapping evidence…</p>}
+        {evidence ? <><h3>Mapping status</h3><MappingStatusList items={evidence.mappingItems}/></> : null}
+        {reviewRequired ? <label className="delivery-acknowledgement"><input name="mapping-delivery-acknowledgement" type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)}/>I reviewed every approximated or ignored mapping state.</label> : null}
+        {blocked ? <p className="ux-notice error" role="alert">Delivery is blocked because this exact revision contains unsupported solver mappings.</p> : null}
+        <button className="ux-button" type="button" onClick={() => onNavigate(`/materials/${materialId}`)}>Return to material</button>
+        <details className="ux-disclosure"><summary>Advanced mapping evidence</summary><p className="ux-meta">The mapping report records exact, transformed, approximated, ignored, and unsupported fields. The native file retains its provenance headers.</p><button className="ux-button" type="button" disabled={!evidence} onClick={() => void downloadMapping()}>Download mapping report</button><dl className="evidence-grid"><dt>Card ID</dt><dd>{cardId}</dd><dt>Exact revision</dt><dd>{card?.revisionId ?? "Loading…"}</dd><dt>Card checksum</dt><dd>{evidence?.cardSha256 ?? "Recorded after generation"}</dd><dt>Mapping checksum</dt><dd>{evidence?.mappingReportSha256 ?? "Loading…"}</dd></dl></details>
+      </aside>
+    </div>
+  </div></div>;
 }
 
 export function ActivityPage({ onNavigate }: Pick<Props, "onNavigate">) {
   const modelingSession = useMemo(() => loadModelingSession(), []);
+  const deliveryActivities = useMemo(() => loadDeliveryActivities(), []);
   useEffect(() => publishWorkspaceStatus({ selection: "Current workspace activity", revision: "Current user", jobs: "No active job", warnings: "0 warnings", connection: "online" }), []);
   const resumePath = modelingSession ? `/modeling?stage=${modelingSession.workspace.activeStage}&family=${modelingSession.materialFamily}` : "/modeling";
   const stageLabel = modelingSession ? `${modelingSession.workspace.activeStage[0].toUpperCase()}${modelingSession.workspace.activeStage.slice(1)}` : null;
-  return <div className="ux-page"><div className="activity-shell"><div className="activity-content"><h2>Current workspace activity</h2>{modelingSession ? <ul className="activity-list"><li data-testid="recent-modeling-session"><span><strong>{modelingSession.material?.label ?? modelingSession.objective ?? "Material modeling session"}</strong><small className="ux-meta">{`${modelingSession.materialFamily} · ${stageLabel} · ${modelingSession.testData ? `${modelingSession.testData.label} r${modelingSession.testData.revisionNo}` : "No exact Test Data"} · ${modelingSession.workspace.selectedDocumentIds.length} selected curves`}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(resumePath)}>{`Resume ${stageLabel}`}</button></li></ul> : <section className="activity-empty-state" role="status" aria-label="No recent Modeling session"><div><strong>No recent Modeling session</strong><p>This browser has no local Data, Process, Fit, or Export session to resume.</p></div><button className="ux-button" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button></section>}<ul className="activity-list activity-destinations"><li><span><strong>Reviews and releases</strong><small className="ux-meta">Open the governed review workspace. Activity attention and queue integration remain pending.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/jobs-reviews")}>Open review workspace</button></li></ul><details className="ux-disclosure"><summary>Advanced jobs and export packages</summary><p>Inspect batch attempts, technical diagnostics, and checksum-verifiable bulk packages.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details></div></div></div>;
+  return <div className="ux-page"><div className="activity-shell"><div className="activity-content"><h2>Current workspace activity</h2>
+    {deliveryActivities.length ? <section className="activity-delivery-section"><h3>Recent solver-card delivery</h3><ul className="activity-list">{deliveryActivities.map((activity) => <li key={`${activity.action}:${activity.cardId}`} data-testid="recent-solver-card-activity"><span><strong>{activity.action === "download" ? "Downloaded" : "Previewed"} · {activity.cardLabel}</strong><small className="ux-meta">{activity.materialLabel} · {activity.solver} {activity.extension} · exact revision retained · {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(activity.occurredAt))}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(`/materials/${activity.materialId}/cards/${activity.cardId}`)}>Open card</button></li>)}</ul></section> : null}
+    {modelingSession ? <ul className="activity-list"><li data-testid="recent-modeling-session"><span><strong>{modelingSession.material?.label ?? modelingSession.objective ?? "Material modeling session"}</strong><small className="ux-meta">{`${modelingSession.materialFamily} · ${stageLabel} · ${modelingSession.testData ? `${modelingSession.testData.label} r${modelingSession.testData.revisionNo}` : "No exact Test Data"} · ${modelingSession.workspace.selectedDocumentIds.length} selected curves`}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(resumePath)}>{`Resume ${stageLabel}`}</button></li></ul> : <section className="activity-empty-state" role="status" aria-label="No recent Modeling session"><div><strong>No recent Modeling session</strong><p>This browser has no local Data, Process, Fit, or Export session to resume.</p></div><button className="ux-button" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button></section>}
+    <ul className="activity-list activity-destinations"><li><span><strong>Reviews and releases</strong><small className="ux-meta">Open the governed review workspace. Activity attention and queue integration remain pending.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/jobs-reviews")}>Open review workspace</button></li></ul><details className="ux-disclosure"><summary>Advanced jobs and export packages</summary><p>Inspect batch attempts, technical diagnostics, and checksum-verifiable bulk packages.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details>
+  </div></div></div>;
 }

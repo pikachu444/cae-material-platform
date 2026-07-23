@@ -35,9 +35,36 @@ Process Run split/merge와 Specimen 원재료 연결 절차는
 ## 현재 다운로드
 
 - 개별 Raw/derived Artifact: short-lived download token 또는 protected content endpoint
-- 개별 Solver Card: card의 Download 버튼
+- 개별 Solver Card: Material 검색 결과나 상세의 문맥별 Preview/Download 버튼
 - Release: 구성요소 digest를 고정한 release manifest
 - Bulk Export Bundle: 사용자가 고정한 exact revision을 묶은 deterministic ZIP
+
+### Material에서 Solver Card 전달
+
+Material 검색 결과에서 항목을 선택하면 우측 Context pane이 현재 exact Material revision과 연결된
+증거에 따라 다음 명령 하나를 제시합니다.
+
+- mapping이 `exact` 또는 의미를 보존한 `transformed` 상태뿐이면 native card를 바로 다운로드합니다.
+- `approximated` 또는 `ignored` 상태가 있으면 Preview를 먼저 열고, 해당 경고 바로 아래에서 검토
+  여부를 확인해야 다운로드할 수 있습니다.
+- `unsupported` 상태가 있으면 차단 필드가 표시되고 생성·다운로드 명령이 비활성화됩니다.
+- exact Neutral Material은 있지만 target card가 없으면 **Create card**를 표시합니다. Solver, 고정
+  reference version/unit system, material ID와 이름을 확인하고 mapping preflight를 통과한 뒤 생성합니다.
+- 연결된 card나 Neutral Material이 없으면 선택한 exact Material revision을 유지한 채
+  **Start Modeling**으로 이동합니다.
+
+CAE Cards tab에는 solver별 native 형식과 전달 명령이 표로 표시됩니다. Preview는 native ASCII와
+solver/version/unit system, card revision, mapping 상태를 나란히 보여 줍니다. UUID, checksum과 전체
+mapping report는 **Advanced mapping evidence**에서만 확인합니다. Preview와 download 이력은 현재
+브라우저의 Activity에 기록되며, Material이나 Solver Card revision 자체를 변경하지 않습니다.
+
+화면 폭에 따라 native text 영역이 확장되고 mapping property sheet는 360 px로 유지됩니다.
+
+![1366×768 Solver Card preview](images/current/solver-card-preview-1366x768.png)
+
+![1440×900 Solver Card preview](images/current/solver-card-preview-1440x900.png)
+
+![1920×1080 Solver Card preview](images/current/solver-card-preview-1920x1080.png)
 
 Bulk Export Bundle은 Release와 다릅니다. Release는 review/approval을 통과한 발행 단위이고,
 Bundle은 선택한 데이터를 전달하기 위한 authorization-scoped archive입니다. Bundle을 만들었다고
