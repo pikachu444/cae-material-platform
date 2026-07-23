@@ -45,9 +45,10 @@ local SHA가 reviewed HEAD인지 리뷰 전후로 확인합니다.
 ## 독립 실행 계약
 
 평상시 수동/pre-push 코드 리뷰는 `gpt-5.6-terra` + `medium`으로 변경 diff와 직접 연결된
-contract/import/caller/test만 확인하며 timeout은 300초입니다. PR create/ready/merge 직전 최종 코드
-리뷰는 `gpt-5.6-sol` + `high`, timeout 900초입니다. 실제 UI 소스 변경이 있을 때만 실행하는 시각
-리뷰는 `gpt-5.6-sol` + `high`, timeout 900초입니다. 모델·reasoning·timeout은 fingerprint에 포함되어
+contract/import/caller/test만 확인하며 timeout은 120초, token 상한은 50,000입니다. PR
+create/ready/merge 직전 최종 코드 리뷰는 `gpt-5.6-sol` + `high`, timeout 300초, token 상한
+50,000입니다. 실제 UI 소스 변경이 있을 때만 실행하는 시각 리뷰는 `gpt-5.6-sol` + `high`,
+timeout 300초, token 상한 40,000입니다. 모델·reasoning·timeout·token 상한은 fingerprint에 포함되어
 동일 변경과 동일 profile의 완전한 PASS만 재사용합니다.
 
 각 reviewer는 새 process에서 다음과 동등한 인자로 실행됩니다.
@@ -64,6 +65,12 @@ codex exec --ephemeral --sandbox read-only \
 
 prompt는 stdin으로 전달합니다. Visual reviewer에는 검토 대상 current PNG, 얻을 수 있는
 `origin/main`의 before PNG와 관련 Granta/Material Modeler reference PNG를 `--image`로 전달합니다.
+Code reviewer에는 `AGENTS.md`, 문서·이미지·test 구현을 제외한 3줄 context의 exact code/contract
+unified diff, 변경 test의 이름과 위치 inventory를 prompt에 직접 포함합니다. Visual reviewer에는
+판정에 필요한 authoritative 문서 전문을 포함합니다. 전체 test 실행은 deterministic 검증이
+담당하고 문서와 이미지는 documentation/visual gate가 담당합니다. 두 reviewer는 이 bounded 입력과
+첨부 이미지만 사용하며 shell/MCP/browser/network 도구를 호출하지 않습니다. Embedded 입력이
+400,000 bytes를 넘으면 변경 분리를 요구하고 publication을 차단합니다.
 내부 process에는 `CMP_CODEX_REVIEW_ACTIVE=1`을 설정하고 project hooks를 꺼 재귀를 이중으로
 차단합니다. reviewer 전후 `git status --porcelain`이 달라지면 PASS JSON이 있어도 실패합니다.
 
@@ -76,7 +83,7 @@ Prompt와 JSON Schema:
 
 허용 verdict는 `PASS`, `NEEDS_CHANGES`뿐입니다. `NEEDS_CHANGES`, timeout, 실행/인증 오류,
 non-zero exit, 결과 파일 누락, invalid JSON, schema 위반과 시각 matrix의 28/32 또는 hard-gate
-불일치는 모두 publish를 차단합니다. 상세 결과와 stdout/stderr는
+불일치, token usage 누락 또는 profile별 token 상한 초과는 모두 publish를 차단합니다. 상세 결과와 stdout/stderr는
 `.cache/codex-review/<fingerprint>/`에 남으며 Git에는 포함되지 않습니다.
 시각 결과의 screen 목록은 검토 대상으로 전달한 current 이미지의 repository-relative 경로와
 manifest viewport에 정확히 1:1로 대응해야 하며, 누락·중복·임의 경로도 schema 오류와 같이 차단합니다.
@@ -137,7 +144,9 @@ Installer는 local `core.hooksPath`가 비어 있거나 이미 `.githooks`일 �
 path를 덮어쓰지 않고 수동 통합을 요구합니다. 경로에 공백이 있어도 versioned shell hook은
 `git rev-parse --show-toplevel` 결과를 인용하여 공통 `cmp-pre-publish`를 호출합니다.
 Pre-push stdin도 공통 구현이 검사합니다. 한 번에 하나의 branch만 허용하며 local SHA가 검토한
-현재 `HEAD`와 다르면 차단합니다. 다른 branch와 tag는 각각 checkout하고 별도 절차로 검토해야 합니다.
+현재 `HEAD`와 다르면 차단합니다. Hook은 실제 origin의 `refs/heads/main`을 다시 조회해 local
+`origin/main`과 일치하는 PublicationTarget을 pipeline 전후에 검증합니다. 다른 branch와 tag는 각각
+checkout하고 별도 절차로 검토해야 합니다.
 
 Codex에서는 `.codex/hooks.json` 변경 후 `/hooks`로 정확한 command를 검토하고 trust합니다.
 수동 확인은 다음과 같습니다.

@@ -31,10 +31,19 @@ _CODE_SCHEMA = "contracts/review/code-review.schema.json"
 _VISUAL_SCHEMA = "contracts/review/visual-review.schema.json"
 _SCREENSHOT_MANIFEST = "docs/user-guide/screenshot-manifest.yaml"
 _CURRENT_IMAGE_PREFIX = "docs/user-guide/images/current/"
-_CACHE_VERSION = 1
-_ROUTINE_CODE_TIMEOUT_SECONDS = 300
-_FINAL_CODE_TIMEOUT_SECONDS = 900
-_VISUAL_TIMEOUT_SECONDS = 900
+_CACHE_VERSION = 2
+_ROUTINE_CODE_TIMEOUT_SECONDS = 120
+_FINAL_CODE_TIMEOUT_SECONDS = 300
+_VISUAL_TIMEOUT_SECONDS = 300
+_ROUTINE_CODE_MAX_TOKENS = 50_000
+_FINAL_CODE_MAX_TOKENS = 50_000
+_VISUAL_MAX_TOKENS = 40_000
+_MAX_EMBEDDED_REVIEW_BYTES = 400_000
+_TOKEN_USAGE = re.compile(r"tokens used\s+([\d,]+)", re.IGNORECASE)
+_TEST_DECLARATION = re.compile(
+    r"^\s*(?:async\s+)?def\s+(test_[A-Za-z0-9_]+)|"
+    r"^\s*(?:it|test)\(\s*[\"'`]([^\"'`]+)"
+)
 
 _SHELL_VALUE = r'(?:"[^\"]*"|\'[^\']*\'|\S+)'
 _GIT_EXECUTABLE = (
@@ -46,7 +55,8 @@ _GH_EXECUTABLE = (
     r"'(?:[^']*[\\/])?gh(?:\.exe)?'|(?:\S*[\\/])?gh(?:\.exe)?)"
 )
 _GIT_FLAG = (
-    rf"(?:(?:-C|-c|--git-dir|--work-tree|--namespace|--config-env)\s+{_SHELL_VALUE}|"
+    rf"(?:(?:-C|-c)(?:{_SHELL_VALUE}|\s+{_SHELL_VALUE})|"
+    rf"(?:--git-dir|--work-tree|--namespace|--config-env)\s+{_SHELL_VALUE}|"
     rf"(?:--git-dir|--work-tree|--namespace|--config-env|--exec-path)={_SHELL_VALUE}|"
     r"-p|-P|--paginate|--no-pager|--no-replace-objects|--bare|--literal-pathspecs|"
     r"--glob-pathspecs|--noglob-pathspecs|--icase-pathspecs|--no-optional-locks|"
@@ -171,6 +181,7 @@ class ReviewProfile:
     model: str
     reasoning_effort: str
     timeout_seconds: int
+    max_tokens: int
 
 
 _ROUTINE_CODE_PROFILE = ReviewProfile(
@@ -178,18 +189,21 @@ _ROUTINE_CODE_PROFILE = ReviewProfile(
     model="gpt-5.6-terra",
     reasoning_effort="medium",
     timeout_seconds=_ROUTINE_CODE_TIMEOUT_SECONDS,
+    max_tokens=_ROUTINE_CODE_MAX_TOKENS,
 )
 _FINAL_CODE_PROFILE = ReviewProfile(
     name="final-code",
     model="gpt-5.6-sol",
     reasoning_effort="high",
     timeout_seconds=_FINAL_CODE_TIMEOUT_SECONDS,
+    max_tokens=_FINAL_CODE_MAX_TOKENS,
 )
 _VISUAL_PROFILE = ReviewProfile(
     name="visual",
     model="gpt-5.6-sol",
     reasoning_effort="high",
     timeout_seconds=_VISUAL_TIMEOUT_SECONDS,
+    max_tokens=_VISUAL_MAX_TOKENS,
 )
 
 
@@ -225,7 +239,7 @@ def classify_command(command: str) -> CommandKind:
 
     commit = bool(_COMMIT.search(command))
     publish = bool(_PUBLISH.search(command))
-    if _NESTED_LAUNCHER.search(command):
+    if _has_nested_shell_context(command):
         commit = commit or bool(_LOOSE_COMMIT.search(command))
         publish = publish or bool(_LOOSE_PUBLISH.search(command))
     if commit and publish:
@@ -235,6 +249,10 @@ def classify_command(command: str) -> CommandKind:
     if commit:
         return "commit"
     return "ordinary"
+
+
+def _has_nested_shell_context(command: str) -> bool:
+    return bool(_NESTED_LAUNCHER.search(command)) or "`" in command
 
 
 def _pr_selector(arguments: str) -> str:
@@ -357,8 +375,9 @@ def _resolve_git_push_target(
     if re.search(r"\b(?:cd|Set-Location|Push-Location)\b", command, re.IGNORECASE):
         raise PrePublishError("directory-changing wrappers are not allowed around git push")
     if re.search(
-        r"(?:^|\s)(?:-C|-c|--git-dir|--work-tree|--namespace|--config-env|--exec-path|--bare)"
-        r"(?:\s|=|$)",
+        r"(?:^|\s)(?:(?:-C|-c)(?:\S*|$)|"
+        r"(?:--git-dir|--work-tree|--namespace|--config-env|--exec-path|--bare)"
+        r"(?:\s|=|$))",
         match.group("cli"),
         re.IGNORECASE,
     ) or re.search(r"\bGIT_[A-Za-z0-9_]*\s*=", command, re.IGNORECASE):
@@ -411,7 +430,7 @@ def resolve_publication_target(
 ) -> PublicationTarget | None:
     """Resolve a ready/merge target so an unrelated local HEAD cannot authorize it."""
 
-    if _NESTED_LAUNCHER.search(command) and _LOOSE_PUBLISH.search(command):
+    if _has_nested_shell_context(command) and _LOOSE_PUBLISH.search(command):
         raise PrePublishError(
             "nested shell/process publication commands are not allowed; run the protected "
             "git or gh command directly"
@@ -848,13 +867,92 @@ def _context(change: ChangeSet) -> dict[str, object]:
     }
 
 
-def _prompt(asset_root: Path, relative: str, change: ChangeSet) -> str:
+def _embedded_review_materials(
+    project: Path,
+    kind: ReviewKind,
+    change: ChangeSet,
+) -> str:
+    if kind == "code":
+        diff = _git_bytes(
+            project,
+            (
+                "diff",
+                "--no-ext-diff",
+                "--no-textconv",
+                "--unified=3",
+                f"{change.base_ref}...HEAD",
+                "--",
+                ".",
+                ":(exclude)**/*.md",
+                ":(exclude)**/*.png",
+                ":(exclude)**/*.jpg",
+                ":(exclude)**/*.jpeg",
+                ":(exclude)tests/**",
+                ":(exclude)**/*.test.ts",
+                ":(exclude)**/*.test.tsx",
+                ":(exclude)**/*.spec.ts",
+                ":(exclude)**/*.spec.tsx",
+            ),
+        ).decode("utf-8", errors="replace")
+        test_inventory: list[str] = []
+        for relative in change.changed_files:
+            path = PurePosixPath(relative)
+            is_test = (
+                relative.startswith("tests/")
+                or ".test." in path.name
+                or ".spec." in path.name
+            )
+            candidate = project / relative
+            if not is_test or not candidate.is_file():
+                continue
+            for line_number, line in enumerate(
+                candidate.read_text(encoding="utf-8").splitlines(),
+                start=1,
+            ):
+                match = _TEST_DECLARATION.match(line)
+                if match is not None:
+                    test_inventory.append(
+                        f"{relative}:{line_number}: {match.group(1) or match.group(2)}"
+                    )
+        materials = (
+            "### AGENTS.md\n\n"
+            + (project / "AGENTS.md").read_text(encoding="utf-8")
+            + "\n\n### Exact unified diff\n\n"
+            + diff
+            + "\n\n### Changed-test inventory\n\n"
+            + ("\n".join(test_inventory) if test_inventory else "(none)")
+        )
+    else:
+        sections = []
+        for relative in _VISUAL_REVIEW_INPUTS:
+            sections.append(
+                f"### {relative}\n\n"
+                + (project / relative).read_text(encoding="utf-8")
+            )
+        materials = "\n\n".join(sections)
+    size = len(materials.encode("utf-8"))
+    if size > _MAX_EMBEDDED_REVIEW_BYTES:
+        raise PrePublishError(
+            f"{kind} review input is {size} bytes; split the change below "
+            f"{_MAX_EMBEDDED_REVIEW_BYTES} bytes before publication"
+        )
+    return materials
+
+
+def _prompt(
+    project: Path,
+    asset_root: Path,
+    relative: str,
+    kind: ReviewKind,
+    change: ChangeSet,
+) -> str:
     source = (asset_root / relative).read_text(encoding="utf-8")
     return (
         source
         + "\n\n## Exact review input\n\n```json\n"
         + json.dumps(_context(change), ensure_ascii=False, indent=2)
-        + "\n```\n"
+        + "\n```\n\n## Embedded authoritative review materials\n\n"
+        + _embedded_review_materials(project, kind, change)
     )
 
 
@@ -901,7 +999,7 @@ def _run_one_review(
         ReviewRequest(
             kind=kind,
             project=project,
-            prompt=_prompt(asset_root, prompt_relative, change),
+            prompt=_prompt(project, asset_root, prompt_relative, kind, change),
             schema_path=asset_root / schema_relative,
             result_path=result_path,
             log_path=log_path,
@@ -1016,6 +1114,7 @@ def run_pre_publish_pipeline(
         "model": code_profile.model,
         "reasoning_effort": code_profile.reasoning_effort,
         "timeout_seconds": code_profile.timeout_seconds,
+        "max_tokens": code_profile.max_tokens,
     }
     if change.requires_visual_review:
         review_settings["visual_profile"] = {
@@ -1023,6 +1122,7 @@ def run_pre_publish_pipeline(
             "model": _VISUAL_PROFILE.model,
             "reasoning_effort": _VISUAL_PROFILE.reasoning_effort,
             "timeout_seconds": _VISUAL_PROFILE.timeout_seconds,
+            "max_tokens": _VISUAL_PROFILE.max_tokens,
         }
     cache_target = publication_target or PublicationTarget(
         action="review",
@@ -1166,6 +1266,7 @@ class CodexExecRunner:
             str(self._executable),
             "exec",
             "--ephemeral",
+            "--ignore-user-config",
             "--sandbox",
             "read-only",
             "-c",
@@ -1230,6 +1331,18 @@ class CodexExecRunner:
             raise PrePublishError(
                 f"{request.kind} review did not create its required result file", request.log_path
             )
+        usage = _TOKEN_USAGE.search(stderr)
+        if usage is None:
+            raise PrePublishError(
+                f"{request.kind} review did not report token usage", request.log_path
+            )
+        token_count = int(usage.group(1).replace(",", ""))
+        if token_count > request.profile.max_tokens:
+            raise PrePublishError(
+                f"{request.kind} review used {token_count} tokens, exceeding the "
+                f"{request.profile.max_tokens} token limit",
+                request.log_path,
+            )
 
 
 def validate_pre_push_input(
@@ -1270,6 +1383,35 @@ def validate_pre_push_input(
         )
 
 
+def pre_push_publication_target(
+    project: Path,
+    value: str,
+    *,
+    remote_name: str | None,
+    remote_location: str | None,
+) -> PublicationTarget:
+    """Bind the hook input to a fresh remote-main publication snapshot."""
+
+    root = _repository_root(project)
+    validate_pre_push_input(
+        root,
+        value,
+        remote_name=remote_name,
+        remote_location=remote_location,
+    )
+    branch = _git_text(root, ("symbolic-ref", "--quiet", "--short", "HEAD"))
+    repository, base_sha, head_sha, hostname = _publication_snapshot(root)
+    return PublicationTarget(
+        action="push",
+        selector=branch,
+        hostname=hostname,
+        repository=repository,
+        head_sha=head_sha,
+        base_sha=base_sha,
+        base_ref="main",
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
@@ -1283,15 +1425,19 @@ def main() -> int:
     args = parser.parse_args()
     try:
         pre_push_input: str | None = None
+        publication_target: PublicationTarget | None = None
         if args.trigger == "git-pre-push":
             pre_push_input = sys.stdin.read()
-            validate_pre_push_input(
+            publication_target = pre_push_publication_target(
                 args.root,
                 pre_push_input,
                 remote_name=args.remote_name,
                 remote_location=args.remote_location,
             )
-        fingerprint = run_pre_publish_pipeline(args.root)
+        fingerprint = run_pre_publish_pipeline(
+            args.root,
+            publication_target=publication_target,
+        )
         if pre_push_input is not None:
             validate_pre_push_input(
                 args.root,

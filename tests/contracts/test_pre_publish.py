@@ -20,8 +20,10 @@ from cmp.tools.pre_publish import (
     _fingerprint,
     _fingerprint_inputs,
     _is_ui_impact,
+    _prompt,
     classify_command,
     collect_change_set,
+    pre_push_publication_target,
     resolve_publication_target,
     run_pre_publish_pipeline,
     validate_pre_push_input,
@@ -194,6 +196,8 @@ def _run(
         ("\tgh pr merge 119", "publish"),
         ("git --no-pager push origin feature", "publish"),
         ('git -c core.quotePath=false -C "C:/repo with spaces" push', "publish"),
+        ("git -C. push origin feature", "publish"),
+        ("git -cfoo.bar=baz push origin feature", "publish"),
         ("gh pr create --draft", "publish"),
         ("gh --repo owner/repository pr create --draft", "publish"),
         ("gh pr --repo=owner/repository merge 119 --squash", "publish"),
@@ -211,6 +215,10 @@ def _run(
         ("cmd /c gh pr ready 119", "publish"),
         ('powershell -Command "gh pr merge 119"', "publish"),
         ("Start-Process gh -ArgumentList 'pr create --base main'", "publish"),
+        ("echo `git push origin feature`", "publish"),
+        ("echo `gh pr create --base main`", "publish"),
+        ("echo `gh pr ready 119`", "publish"),
+        ("echo `gh pr merge 119`", "publish"),
         ("bash -lc 'git commit -m test && git push origin feature'", "commit-and-publish"),
         ("git commit -m test && git push", "commit-and-publish"),
         ("  git commit -m test && git push origin feature", "commit-and-publish"),
@@ -303,6 +311,10 @@ def test_pr_url_and_git_push_must_target_current_checkout(
 
     with pytest.raises(PrePublishError, match="repository-selection"):
         resolve_publication_target(_ROOT, 'git -C "C:/another checkout" push origin feature')
+    with pytest.raises(PrePublishError, match="repository-selection"):
+        resolve_publication_target(_ROOT, "git -C. push origin feature")
+    with pytest.raises(PrePublishError, match="repository-selection"):
+        resolve_publication_target(_ROOT, "git -cfoo.bar=baz push origin feature")
     with pytest.raises(PrePublishError, match="repository-selection"):
         resolve_publication_target(
             _ROOT,
@@ -419,7 +431,8 @@ def test_non_ui_pipeline_orders_documentation_code_and_skip_visual(tmp_path: Pat
     assert events == ["documentation", "diff", "deterministic", "code"]
     assert reviewer.requests[0].profile.model == "gpt-5.6-terra"
     assert reviewer.requests[0].profile.reasoning_effort == "medium"
-    assert reviewer.requests[0].profile.timeout_seconds == 300
+    assert reviewer.requests[0].profile.timeout_seconds == 120
+    assert reviewer.requests[0].profile.max_tokens == 50_000
 
 
 def test_pr_publication_uses_final_sol_high_profile(tmp_path: Path) -> None:
@@ -444,7 +457,8 @@ def test_pr_publication_uses_final_sol_high_profile(tmp_path: Path) -> None:
     assert len(reviewer.requests) == 2
     assert reviewer.requests[1].profile.model == "gpt-5.6-sol"
     assert reviewer.requests[1].profile.reasoning_effort == "high"
-    assert reviewer.requests[1].profile.timeout_seconds == 900
+    assert reviewer.requests[1].profile.timeout_seconds == 300
+    assert reviewer.requests[1].profile.max_tokens == 50_000
 
 
 def test_ui_pipeline_runs_visual_only_after_code_passes(tmp_path: Path) -> None:
@@ -457,7 +471,8 @@ def test_ui_pipeline_runs_visual_only_after_code_passes(tmp_path: Path) -> None:
     assert reviewer.requests[1].images
     assert reviewer.requests[1].profile.model == "gpt-5.6-sol"
     assert reviewer.requests[1].profile.reasoning_effort == "high"
-    assert reviewer.requests[1].profile.timeout_seconds == 900
+    assert reviewer.requests[1].profile.timeout_seconds == 300
+    assert reviewer.requests[1].profile.max_tokens == 40_000
 
 
 def test_code_needs_changes_blocks_visual_and_cache(tmp_path: Path) -> None:
@@ -712,7 +727,7 @@ def test_codex_exec_uses_ephemeral_read_only_no_hooks_and_handles_space_paths(
         captured["command"] = command
         captured["kwargs"] = kwargs
         result.write_text(json.dumps(_code_result()), encoding="utf-8")
-        return subprocess.CompletedProcess(command, 0, "ok", "")
+        return subprocess.CompletedProcess(command, 0, "ok", "tokens used\n1,000")
 
     runner = CodexExecRunner(
         Path("C:/Program Files/OpenAI Codex/codex.exe"),
@@ -735,9 +750,10 @@ def test_codex_exec_uses_ephemeral_read_only_no_hooks_and_handles_space_paths(
         "C:\\Program Files\\OpenAI Codex\\codex.exe",
         "exec",
         "--ephemeral",
+        "--ignore-user-config",
         "--sandbox",
-        "read-only",
     ]
+    assert command[5] == "read-only"
     assert "features.hooks=false" in command
     assert command[command.index("--model") + 1] == "gpt-5.6-terra"
     assert 'model_reasoning_effort="medium"' in command
@@ -745,6 +761,65 @@ def test_codex_exec_uses_ephemeral_read_only_no_hooks_and_handles_space_paths(
     assert captured["kwargs"]["env"]["CMP_CODEX_REVIEW_ACTIVE"] == "1"
     assert captured["kwargs"]["encoding"] == "utf-8"
     assert captured["kwargs"]["errors"] == "replace"
+
+
+def test_review_prompt_embeds_bounded_materials_and_forbids_tool_exploration() -> None:
+    change = replace(
+        _change(),
+        changed_files=(
+            "backend/src/cmp/tools/pre_publish.py",
+            "tests/contracts/test_pre_publish.py",
+        ),
+    )
+    code = _prompt(
+        _ROOT,
+        _ROOT,
+        "docs/14-testing/review-prompts/code-review.md",
+        "code",
+        change,
+    )
+    visual = _prompt(
+        _ROOT,
+        _ROOT,
+        "docs/14-testing/review-prompts/visual-review.md",
+        "visual",
+        _change(visual=True),
+    )
+
+    assert "### AGENTS.md" in code
+    assert "### Exact unified diff" in code
+    assert "### Changed-test inventory" in code
+    assert "test_codex_exec_token_usage_is_fail_closed" in code
+    assert "Do not call shell, MCP, browser, network, or other tools" in code
+    assert "### docs/01-product/visual-acceptance-matrix.md" in visual
+    assert "### docs/user-guide/screenshot-manifest.yaml" in visual
+    assert "Do not call shell, MCP, browser, network, or other tools" in visual
+
+
+def test_codex_exec_token_usage_is_fail_closed(tmp_path: Path) -> None:
+    result = tmp_path / "result.json"
+    request = ReviewRequest(
+        kind="code",
+        project=tmp_path,
+        prompt="review",
+        schema_path=tmp_path / "schema.json",
+        result_path=result,
+        log_path=tmp_path / "review.log",
+    )
+
+    def excessive(command: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        result.write_text(json.dumps(_code_result()), encoding="utf-8")
+        return subprocess.CompletedProcess(command, 0, "", "tokens used\n50,001")
+
+    with pytest.raises(PrePublishError, match="exceeding the 50000 token limit"):
+        CodexExecRunner(Path("codex"), "sha", process_runner=excessive).run(request)
+
+    def missing(command: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        result.write_text(json.dumps(_code_result()), encoding="utf-8")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    with pytest.raises(PrePublishError, match="did not report token usage"):
+        CodexExecRunner(Path("codex"), "sha", process_runner=missing).run(request)
 
 
 def test_windowsapps_discovery_requires_matching_runtime_and_sandbox_helpers(
@@ -877,6 +952,46 @@ def test_local_pre_push_binds_origin_current_branch_and_head(
             remote_name="secondary",
             remote_location="git@github.com:other/repository.git",
         )
+
+
+def test_pre_push_target_binds_fresh_remote_main(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    head = "c" * 40
+    base = "a" * 40
+    values = {
+        ("rev-parse", "--show-toplevel"): str(_ROOT),
+        ("remote", "get-url", "--push", "origin"): "git@github.com:owner/repository.git",
+        ("remote", "get-url", "origin"): "git@github.com:owner/repository.git",
+        ("symbolic-ref", "--quiet", "--short", "HEAD"): "feature",
+        ("rev-parse", "HEAD"): head,
+        ("rev-parse", "--verify", "origin/main"): base,
+        ("rev-parse", "--verify", "HEAD"): head,
+        ("ls-remote", "--exit-code", "origin", "refs/heads/main"): (
+            base + "\trefs/heads/main"
+        ),
+    }
+    monkeypatch.setattr(
+        "cmp.tools.pre_publish._git_text",
+        lambda _project, arguments: values[tuple(arguments)],
+    )
+
+    target = pre_push_publication_target(
+        _ROOT,
+        f"refs/heads/feature {head} refs/heads/feature {'0' * 40}\n",
+        remote_name="origin",
+        remote_location="git@github.com:owner/repository.git",
+    )
+
+    assert target == PublicationTarget(
+        action="push",
+        selector="feature",
+        hostname="github.com",
+        repository="owner/repository",
+        head_sha=head,
+        base_sha=base,
+        base_ref="main",
+    )
 
 
 def test_deleted_current_capture_falls_back_to_manifest_and_keeps_base_image(
@@ -1014,6 +1129,10 @@ def test_codex_hook_routes_ordinary_commit_and_publish_to_one_expected_gate() ->
         "cmd /c gh pr ready 119",
         'powershell -Command "gh pr create --base main"',
         "Start-Process gh -ArgumentList 'pr merge 119'",
+        "echo `git push origin feature`",
+        "echo `gh pr create --base main`",
+        "echo `gh pr ready 119`",
+        "echo `gh pr merge 119`",
     ],
 )
 def test_codex_hook_denies_nested_publication_without_running_pipeline(command: str) -> None:
