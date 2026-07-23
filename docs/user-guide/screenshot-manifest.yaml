@@ -1,16 +1,16 @@
-version: 45
+version: 46
 verified_at: 2026-07-23
 scope: current-main-product-baseline
-source_commit: fe157c9
+source_commit: 436ad76
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "Captured from the live Docker Compose application for the bounded DUI-03 solver-card delivery slice."
+  - "Captured from the live Docker Compose application for the bounded DUI-05 data-intake and processing slice."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
   - "Export is an ephemeral candidate and delivery preview; reviewed-model and native-card delivery remain DUI-06 pending."
-  - "These captures are DUI-03 acceptance evidence; DUI-05 through DUI-09 remain pending."
+  - "Data and Process are DUI-05 acceptance evidence; DUI-06 through DUI-09 remain pending."
 allowed_duplicate_pairs: []
 captures:
   - id: materials-search-1366
@@ -78,43 +78,43 @@ captures:
     height: 1080
   - id: modeling-data-1366
     route: /modeling?stage=data&family=metal
-    workflow: existing-exact-input-selection-and-source-preview
-    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
+    workflow: integrated-library-local-json-and-graph-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 live acceptance
     image: images/current/modeling-data-1366x768.png
     width: 1366
     height: 768
   - id: modeling-data-1440
     route: /modeling?stage=data&family=metal
-    workflow: existing-exact-input-selection-and-source-preview
-    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
+    workflow: integrated-library-local-json-and-graph-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 live acceptance
     image: images/current/modeling-data-1440x900.png
     width: 1440
     height: 900
   - id: modeling-data-1920
     route: /modeling?stage=data&family=metal
-    workflow: existing-exact-input-selection-and-source-preview
-    fixture: synthetic DP780 exact Test Data revision; DUI-05 pending
+    workflow: integrated-library-local-json-and-graph-preview
+    fixture: synthetic DP780 exact Test Data revision; DUI-05 live acceptance
     image: images/current/modeling-data-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-process-1366
     route: /modeling?stage=process&family=metal
-    workflow: ephemeral-processing-controls-and-preview
-    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
+    workflow: source-processed-preview-and-explicit-output-commit
+    fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
   - id: modeling-process-1440
     route: /modeling?stage=process&family=metal
-    workflow: ephemeral-processing-controls-and-preview
-    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
+    workflow: source-processed-preview-and-explicit-output-commit
+    fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
   - id: modeling-process-1920
     route: /modeling?stage=process&family=metal
-    workflow: ephemeral-processing-controls-and-preview
-    fixture: synthetic DP780 preview; no committed Processing Output; DUI-05 pending
+    workflow: source-processed-preview-and-explicit-output-commit
+    fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
