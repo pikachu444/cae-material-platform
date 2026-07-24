@@ -364,12 +364,13 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                             ".modeling-workspace-dock .neutral-solver-export"
                           ) || [...document.querySelectorAll("button")].some(
                             button => button.textContent?.trim() === "Create Neutral Material JSON"
+                              && !button.disabled
                           )""",
                         timeout=30_000,
                     )
                     if not neutral_export.is_visible():
                         try:
-                            create_neutral.click(timeout=5_000)
+                            create_neutral.click(timeout=30_000)
                         except Exception:
                             neutral_export.wait_for(timeout=30_000)
                 neutral_export.wait_for(timeout=30_000)
