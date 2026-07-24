@@ -33,33 +33,45 @@ Material, State, Test Data, Mapping Profile과 Recipe exact revision을 복원�
 
 금속 **Metal elastic modulus** 단계에서는 current-step settings ribbon에서 Auto robust, Linear regression,
 Chord, Secant, Manual slope를 직접 선택합니다. 그래프의 **Select range** 또는 Start/End strain으로
-평가 구간을 정하고, Manual slope에서는 GPa slider로 기울기를 조정합니다. **Offset proof stress**는
-offset과 검색 구간, **Engineering to true/plastic**은 necking boundary와 음의 plastic strain 정책을
-설정합니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
+평가 구간을 정합니다. Manual slope에는 값·unit·engineering reason이 함께 필요하며 GPa/MPa 입력은
+canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking point도 point index와 reason을 요구합니다.
+두 수동 workup은 원값/원 단위·canonical 값/단위·사유를 `workup_overrides`로 Processing Output revision과
+다운로드 Artifact에 함께 고정합니다. **Offset proof stress**는 선택한 offset/search range의 curve-derived
+값만 사용합니다. 직접 manual yield 값은 production yield-definition contract가 승인되기 전까지 제공하지 않습니다.
+**Engineering to true/plastic**은 necking boundary와 음의 plastic strain 정책을 설정합니다. 이 physical
+workup은 Metal elastoplastic Process에만 보이며 Fit, Polymer, Elastomer에는 노출하지 않습니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
 혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
 
-왼쪽 곡선 목록의 checkbox는 반복시험 통계에 포함할 exact revision을 고릅니다. 두 개 이상을
-선택하고 **Add mean & band**를 누르면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
+Process 단계 왼쪽 **Curve / specimen rail**은 **Include in processing/fit**와 **Show on plot**을
+분리합니다. 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
+누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
 공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.
 
 
 ## 처리 미리보기
 
-1. `Modeling → Data`를 열고 canonical JSON, CSV 또는 XLSX 입력을 선택합니다.
-2. **Data input & mapping**에서 문서와 revision을 선택하고 **Load exact JSON**을 누릅니다.
-3. 저장된 Mapping Profile을 선택하거나 **Advanced mapping definition**의 JSON에서 다음 항목을 확인합니다.
+1. `Modeling → Data`를 열고 Library, local CSV/TSV/XLSX 또는 Advanced canonical JSON 입력을 선택합니다.
+2. local file은 **Raw source inspector**에서 sheet/header/decimal, sample table, Raw Asset checksum을 확인합니다.
+3. **Axis and unit mapping decision table**에서 source column, axis/quantity semantics, raw unit, normalized unit과 상태를 확인합니다. 수동 해석은 변경 이유를 함께 기록합니다.
+4. Test Run, specimen, 수행 시각과 편집 provenance를 확인하고 필요하면 secondary preview를 갱신합니다.
+5. **Save dataset**으로 raw source와 mapping을 참조하는 새 Test Data revision을 만듭니다. 이는 review가 아닙니다.
+
+저장 실패 시 file, sheet/header, mapping, provenance와 graph preview를 유지하므로 원인을 고치고
+같은 입력으로 다시 시도할 수 있습니다. mapping 변경은 Process부터 Export까지의 current pointer를
+stale/clear하며 이전 immutable revision은 history에 남습니다.
+
+재사용할 Mapping Profile을 관리할 때만 **Advanced mapping definition**의 JSON에서 다음 항목을 확인합니다.
    - `independent_quantity`
    - source `channel_key`와 계산용 `target_quantity`
    - 허용 normalized unit
    - required 여부와 명시적 scale/offset
    - `reject` 또는 `drop_any` missing-data 정책
-4. 재사용할 매핑이면 **Save new profile**을 누릅니다. 기존 profile을 변경할 때는 변경 사유를
+6. 재사용할 매핑이면 **Save new profile**을 누릅니다. 기존 profile을 변경할 때는 변경 사유를
    입력하고 **Append profile revision**을 눌러 새 revision을 만듭니다. 기존 revision은 덮어쓰지 않습니다.
-5. Process/Fit의 `Add method`와 settings ribbon을 사용합니다. method ID/version JSON이 필요할 때만
+7. Process/Fit의 `Add method`와 settings ribbon을 사용합니다. method ID/version JSON이 필요할 때만
    **Advanced Recipe JSON**의 **Ordered processing steps**를 엽니다.
-6. **Preview changes**를 누릅니다.
-7. Graph 아래 stage history에서 `mapping` 또는 각 method를 선택해 동일한 축의 원본/처리 curve overlay와
+8. Graph 아래 stage history에서 `mapping` 또는 각 method를 선택해 동일한 축의 원본/처리 curve overlay와
    row 수, warning, SHA-256을 확인합니다.
 
 현재 등록된 공통 method는 다음과 같습니다.
@@ -124,11 +136,12 @@ JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩�
 
 ## 불변 Processing Output 저장
 
-1. preview 결과와 저장된 Mapping Profile revision이 일치하는지 확인합니다.
-2. Output label과 변경 사유를 입력합니다.
-3. **Commit immutable output**을 누릅니다.
+1. Process preview 결과와 저장된 Mapping Profile revision이 일치하는지 확인합니다.
+2. current-step settings에서 Processed curve label과 저장 사유를 입력합니다.
+3. **Save processed curves**를 누릅니다. 이것이 Process의 유일한 primary action이고 preview는 secondary입니다.
 4. 서버는 화면의 preview 배열을 저장하지 않고 exact Test Data revision과 exact Mapping Profile
-   revision을 다시 읽어 동일한 ordered steps를 재실행합니다.
+   revision을 다시 읽어 동일한 ordered steps를 재실행합니다. 수동 modulus/necking workup이 있으면
+   typed `workup_overrides`도 원값·정규값·사유와 함께 immutable output에 고정합니다.
 5. 저장된 목록에서 revision 1, stage/point 수, Output SHA-256을 확인합니다.
 6. **Download JSON**으로 `cmp.processing-output` Artifact의 정확한 바이트를 받습니다.
 

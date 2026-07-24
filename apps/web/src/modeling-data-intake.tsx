@@ -102,6 +102,14 @@ function defaultUnit(quantity: GovernedQuantityKind): string {
   return "MPa";
 }
 
+function normalizedUnit(quantity: GovernedQuantityKind): string {
+  if (quantity.includes("strain")) return "1";
+  if (quantity === "time") return "s";
+  if (quantity === "displacement") return "m";
+  if (quantity === "force") return "N";
+  return "Pa";
+}
+
 function editableProfile(value: GovernedImportProfileContent): GovernedImportProfileContent {
   return {
     profile_label: value.profile_label,
@@ -169,6 +177,7 @@ export function ModelingDataIntake({
   const [secondColumn, setSecondColumn] = useState("");
   const [firstUnit, setFirstUnit] = useState("%");
   const [secondUnit, setSecondUnit] = useState("MPa");
+  const [mappingReason, setMappingReason] = useState("");
   const [documentKey, setDocumentKey] = useState("");
   const [maker, setMaker] = useState("");
   const [operator, setOperator] = useState("");
@@ -415,7 +424,7 @@ export function ModelingDataIntake({
         raw_artifact_id: rawArtifactId,
         import_profile_id: approved.import_profile_id,
         import_profile_revision_id: approved.current_revision.id,
-        change_reason: "Register reviewed source and normalized Dataset revisions",
+        change_reason: "Save local source and normalized Test Data revisions",
       });
       if (run.data.status !== "succeeded") {
         throw new ApiError(422, run.data.failure_detail ?? "The governed import did not succeed.");
@@ -428,13 +437,13 @@ export function ModelingDataIntake({
             `"revision:${existing.current_revision.revision_no}:sha256:${existing.current_revision.content_hash}"`,
             {
               document: canonicalPreview.canonical_document,
-              change_reason: "Register reviewed local Test Data source",
+              change_reason: "Save local Test Data source",
             },
           )
         : await importCanonicalTestData(config, {
             classification: selectedRun.current_revision.classification as DataClassification,
             document: canonicalPreview.canonical_document,
-            change_reason: "Register reviewed local Test Data source",
+            change_reason: "Save local Test Data source",
           });
       onImported(imported.data);
       setSource("library");
@@ -489,12 +498,12 @@ export function ModelingDataIntake({
             config,
             existing.test_data_document_id,
             `"revision:${existing.current_revision.revision_no}:sha256:${existing.current_revision.content_hash}"`,
-            { document: jsonPreview.canonical_document, change_reason: "Register reviewed Test Data JSON" },
+            { document: jsonPreview.canonical_document, change_reason: "Save canonical Test Data JSON" },
           )
         : await importCanonicalTestData(config, {
             classification: (state?.current_revision.classification ?? "internal") as DataClassification,
             document: jsonPreview.canonical_document,
-            change_reason: "Register reviewed Test Data JSON",
+            change_reason: "Save canonical Test Data JSON",
           });
       onImported(imported.data);
       setSource("library");
@@ -534,6 +543,11 @@ export function ModelingDataIntake({
           ) : null}
           {tabularPreview?.header_columns.length ? (
             <>
+              <section className="data-source-evidence" aria-label="Raw source inspector">
+                <header><strong>Raw source inspector</strong><span>{tabularPreview.file_format.toUpperCase()} · header row {tabularPreview.header_row} · decimal {tabularPreview.decimal_separator}</span></header>
+                <p>Raw asset <code>{tabularPreview.raw_asset_id}</code> · checksum <code>{tabularPreview.raw_sha256.slice(0, 12)}…</code>. Source bytes stay immutable; conversion is shown before a Test Data revision is saved.</p>
+                <div className="data-raw-table" role="region" aria-label="Raw source table preview"><table><thead><tr>{tabularPreview.header_columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{tabularPreview.sample_rows.slice(0, 4).map((row, rowIndex) => <tr key={rowIndex}>{tabularPreview.header_columns.map((_, columnIndex) => <td key={columnIndex}>{row[columnIndex] ?? ""}</td>)}</tr>)}</tbody></table></div>
+              </section>
               <div className="data-intake-row mapping-context-row">
                 <label>Data name<input name="test-data-name" autoComplete="off" spellCheck={false} value={documentKey} onChange={(event) => setDocumentKey(event.target.value)} /></label>
                 <label>Maker<input name="test-data-maker" autoComplete="off" value={maker} onChange={(event) => setMaker(event.target.value)} /></label>
@@ -545,7 +559,7 @@ export function ModelingDataIntake({
                   <strong>Approved mapping matched</strong>
                   <span>{selectedProfile?.content.profile_label} · r{selectedProfile?.current_revision.revision_no} · {selectedProfile?.content.channels.map((channel) => `${channel.source_column} [${channel.original_unit}]`).join(" / ")}</span>
                   <button className="text-button" type="button" onClick={() => setMappingEditing(true)}>Change mapping</button>
-                  {!canonicalPreview ? <button className="button primary" type="button" disabled={busy} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Preview on graph"}</button> : <button className="button primary" type="button" disabled={busy} onClick={() => void confirmLocal()}>{busy ? "Registering…" : "Register reviewed data"}</button>}
+                  {!canonicalPreview ? <button className="button secondary" type="button" disabled={busy} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Update preview"}</button> : <button className="button primary" type="button" disabled={busy} onClick={() => void confirmLocal()}>{busy ? "Saving…" : "Save dataset"}</button>}
                 </div>
               ) : (
                 <div className="data-intake-attention">
@@ -570,11 +584,13 @@ export function ModelingDataIntake({
                     setFirstUnit(defaultUnit(nextQuantities[0]));
                     setSecondUnit(defaultUnit(nextQuantities[1]));
                   }}>{SCHEMAS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-                  <label>{channelQuantities[0]}<select name="independent-source-column" aria-label="Independent source column" value={firstColumn} onChange={(event) => setFirstColumn(event.target.value)}>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select><select name="independent-original-unit" aria-label="Independent original unit" value={firstUnit} onChange={(event) => setFirstUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[0]].map((unit) => <option key={unit}>{unit}</option>)}</select></label>
-                  <label>{channelQuantities[1]}<select name="dependent-source-column" aria-label="Dependent source column" value={secondColumn} onChange={(event) => setSecondColumn(event.target.value)}>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select><select name="dependent-original-unit" aria-label="Dependent original unit" value={secondUnit} onChange={(event) => setSecondUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[1]].map((unit) => <option key={unit}>{unit}</option>)}</select></label>
-                  {!canonicalPreview ? <button className="button primary" type="button" disabled={busy} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Preview on graph"}</button> : <button className="button primary" type="button" disabled={busy} onClick={() => void confirmLocal()}>{busy ? "Registering…" : "Register reviewed data"}</button>}
+                  <div className="data-mapping-table" role="region" aria-label="Axis and unit mapping decision table"><table><thead><tr><th>Axis</th><th>Source column</th><th>Quantity semantics</th><th>Raw unit</th><th>Normalized unit</th><th>Status</th></tr></thead><tbody><tr><td>Independent</td><td><select name="independent-source-column" aria-label="Independent source column" value={firstColumn} onChange={(event) => setFirstColumn(event.target.value)}>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select></td><td>{channelQuantities[0].replaceAll("_", " ")}</td><td><select name="independent-original-unit" aria-label="Independent original unit" value={firstUnit} onChange={(event) => setFirstUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[0]].map((unit) => <option key={unit}>{unit}</option>)}</select></td><td>{normalizedUnit(channelQuantities[0])}</td><td>Proposed</td></tr><tr><td>Dependent</td><td><select name="dependent-source-column" aria-label="Dependent source column" value={secondColumn} onChange={(event) => setSecondColumn(event.target.value)}>{tabularPreview.header_columns.map((name) => <option key={name}>{name}</option>)}</select></td><td>{channelQuantities[1].replaceAll("_", " ")}</td><td><select name="dependent-original-unit" aria-label="Dependent original unit" value={secondUnit} onChange={(event) => setSecondUnit(event.target.value)}>{UNIT_OPTIONS[channelQuantities[1]].map((unit) => <option key={unit}>{unit}</option>)}</select></td><td>{normalizedUnit(channelQuantities[1])}</td><td>{firstColumn === secondColumn ? "Conflict: choose two columns" : "Proposed"}</td></tr></tbody></table></div>
+                  <label>Mapping change reason<input aria-label="Mapping change reason" value={mappingReason} onChange={(event) => setMappingReason(event.target.value)} placeholder="Why this source meaning and unit are correct" /></label>
+                  <p>Raw units and semantics stay in the mapping revision. The normalized unit and conversion are explicit in the preview; no unit is converted silently.</p>
+                  {!canonicalPreview ? <button className="button secondary" type="button" disabled={busy || !mappingReason.trim() || firstColumn === secondColumn} onClick={() => void previewLocalOnGraph()}>{busy ? "Preparing…" : "Update preview"}</button> : <button className="button primary" type="button" disabled={busy || !mappingReason.trim() || firstColumn === secondColumn} onClick={() => void confirmLocal()}>{busy ? "Saving…" : "Save dataset"}</button>}
                 </div>
               )}
+              <section className="data-provenance-group" aria-label="Test identity and provenance"><strong>Test identity &amp; provenance</strong><span>Test Run {selectedRun?.current_revision.content.run_label ?? "not selected"} · r{selectedRun?.current_revision.revision_no ?? "—"}</span><span>Specimen {selectedRun?.current_revision.content.specimen_id ?? "—"} · performed {selectedRun?.current_revision.content.performed_at ?? "—"}</span><span>Source: governed Test Run metadata; edited maker, operator and laboratory are recorded with this save.</span></section>
             </>
           ) : null}
         </div>
@@ -584,7 +600,7 @@ export function ModelingDataIntake({
         <div className="data-intake-row">
           <label className="compact-file-picker">Canonical JSON<input name="canonical-test-data-json" aria-label="Test Data JSON file" type="file" accept=".json,application/json" onChange={(event) => void chooseJson(event)} /></label>
           <p>{jsonPreview ? `${jsonPreview.point_count} points · ${jsonPreview.channels.length} channels · valid` : "Choose a canonical Test Data JSON file to validate and preview."}</p>
-          {jsonPreview ? <button className="button primary" type="button" disabled={busy} onClick={() => void confirmJson()}>{busy ? "Registering…" : "Register reviewed JSON"}</button> : null}
+          {jsonPreview ? <button className="button primary" type="button" disabled={busy} onClick={() => void confirmJson()}>{busy ? "Saving…" : "Save dataset"}</button> : null}
         </div>
       ) : null}
 

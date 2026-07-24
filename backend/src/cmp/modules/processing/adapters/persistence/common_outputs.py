@@ -19,6 +19,7 @@ from cmp.modules.processing.application.common_outputs import (
     ProcessingOutputNotFound,
     ProcessingOutputRepository,
     ProcessingOutputSnapshot,
+    ProcessingWorkupOverride,
     processing_output_content_canonical,
 )
 from cmp.modules.processing.domain.common_pipeline import ProcessingStep
@@ -84,6 +85,7 @@ revision_table = sa.Table(
     sa.Column("final_point_count", sa.Integer(), nullable=False),
     sa.Column("output_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("output_sha256", sa.CHAR(64), nullable=False),
+    sa.Column("workup_overrides", sa.JSON(), nullable=False),
     schema="processing",
 )
 step_table = sa.Table(
@@ -119,6 +121,17 @@ def _values(value: ProcessingOutputContent) -> dict[str, object]:
         "final_point_count": value.final_point_count,
         "output_artifact_id": value.output_artifact_id,
         "output_sha256": value.output_sha256,
+        "workup_overrides": [
+            {
+                "kind": override.kind,
+                "original_value": override.original_value,
+                "original_unit": override.original_unit,
+                "canonical_value": override.canonical_value,
+                "canonical_unit": override.canonical_unit,
+                "reason": override.reason,
+            }
+            for override in value.workup_overrides
+        ],
     }
 
 
@@ -204,6 +217,17 @@ def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
         final_point_count=int(row["final_point_count"]),
         output_artifact_id=cast(UUID, row["output_artifact_id"]),
         output_sha256=str(row["output_sha256"]),
+        workup_overrides=tuple(
+            ProcessingWorkupOverride(
+                kind=str(override["kind"]),
+                original_value=float(override["original_value"]),
+                original_unit=str(override["original_unit"]),
+                canonical_value=float(override["canonical_value"]),
+                canonical_unit=str(override["canonical_unit"]),
+                reason=str(override["reason"]),
+            )
+            for override in row["workup_overrides"]
+        ),
     )
 
 

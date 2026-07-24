@@ -92,6 +92,7 @@ def test_implemented_tasks_are_the_only_database_migrations() -> None:
         "20260918_083_T89_dma_prony_promotion.py",
         "20260919_084_T89_dma_neutral_selection.py",
         "20260920_085_T89_dma_neutral_source.py",
+        "20260921_086_UXC03_workup_override_provenance.py",
     ]
 
 

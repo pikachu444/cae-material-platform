@@ -193,7 +193,7 @@ describe("Modeling data intake", () => {
       canonicalDocument,
       expect.objectContaining({ execution_mode: "preview" }),
     );
-    fireEvent.click(screen.getByRole("button", { name: "Register reviewed JSON" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save dataset" }));
     await waitFor(() => expect(onImported).toHaveBeenCalledWith(imported));
   });
 });

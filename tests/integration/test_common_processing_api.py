@@ -1,15 +1,114 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
+from uuid import UUID
 
 import httpx
+from cmp.modules.identity_access.application.authorization import database_permissions_for
+from cmp.modules.identity_access.domain.authorization import (
+    AuthorizationDecision,
+    DataClassification,
+    Permission,
+    Role,
+)
+from cmp.modules.identity_access.domain.security import Principal, PrincipalType, SecurityContext
 from cmp.modules.processing.adapters.api.common_pipeline import install_common_processing_api
-from fastapi import FastAPI
+from cmp.modules.processing.application.common_outputs import (
+    CommitProcessingOutput,
+    validate_workup_overrides,
+)
+from fastapi import FastAPI, Request
 
 
 async def _allow() -> object:
     return object()
+
+
+_NOW = datetime(2026, 7, 24, tzinfo=UTC)
+_ORG = UUID("d5400000-0000-4000-8000-000000000001")
+_PROJECT = UUID("d5400000-0000-4000-8000-000000000002")
+_ACTOR = UUID("d5400000-0000-4000-8000-000000000003")
+_CONTEXT = SecurityContext(
+    principal=Principal(_ACTOR, PrincipalType.USER, "Modeler", True),
+    organization_id=_ORG,
+    project_id=_PROJECT,
+    issuer="urn:cmp:test",
+    subject=str(_ACTOR),
+    token_id="output-workup-test",
+    groups=(),
+    scopes=("openid",),
+    request_id=UUID("d5400000-0000-4000-8000-000000000004"),
+    trace_id="00-0000000000000000000000000000d540-000000000000d540-01",
+    authenticated_at=_NOW,
+)
+_DECISION = AuthorizationDecision(
+    principal_id=_ACTOR,
+    organization_id=_ORG,
+    project_id=_PROJECT,
+    permission=Permission.PROCESSING_EXECUTE,
+    roles=(Role.MATERIAL_MODELER,),
+    database_permissions=database_permissions_for(Permission.PROCESSING_EXECUTE),
+    max_classification=DataClassification.INTERNAL,
+    allow_export_controlled=False,
+    request_id=_CONTEXT.request_id,
+    trace_id=_CONTEXT.trace_id,
+    decided_at=_NOW,
+)
+
+
+def _output_scope(request: Request) -> None:
+    request.state.security_context = _CONTEXT
+    request.state.authorization_decision = _DECISION
+
+
+class _ValidatingOutputService:
+    async def commit(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CommitProcessingOutput,
+    ) -> SimpleNamespace:
+        assert context is _CONTEXT and decision is _DECISION
+        validate_workup_overrides(command.steps, command.workup_overrides)
+        override = command.workup_overrides
+        revision = SimpleNamespace(
+            revision_id=UUID("d5400000-0000-4000-8000-000000000011"),
+            aggregate_id=UUID("d5400000-0000-4000-8000-000000000010"),
+            revision_no=1,
+            based_on_revision_id=None,
+            schema_id="urn:cmp:processing:common-output:1.1.0",
+            schema_version="1.1.0",
+            content_hash="a" * 64,
+            created_at=_NOW,
+            created_by=_ACTOR,
+            change_reason=command.change_reason,
+            request_id=_CONTEXT.request_id,
+            trace_id=_CONTEXT.trace_id,
+            scope=SimpleNamespace(
+                organization_id=_ORG,
+                project_id=_PROJECT,
+                classification=DataClassification.INTERNAL.value,
+            ),
+        )
+        content = SimpleNamespace(
+            label=command.label,
+            source_document=command.source_document,
+            source_document_sha256="b" * 64,
+            source_canonical_artifact_sha256="c" * 64,
+            mapping_profile=command.mapping_profile,
+            mapping_profile_sha256="d" * 64,
+            steps=command.steps,
+            independent_quantity="strain.engineering",
+            stage_count=len(command.steps) + 1,
+            final_point_count=3,
+            output_artifact_id=UUID("d5400000-0000-4000-8000-000000000012"),
+            output_sha256="e" * 64,
+            workup_overrides=override,
+        )
+        return SimpleNamespace(id=revision.aggregate_id, current=revision, content=content)
 
 
 def _app() -> FastAPI:
@@ -19,6 +118,18 @@ def _app() -> FastAPI:
         security_dependency=_allow,
         read_dependency=_allow,
         execute_dependency=_allow,
+    )
+    return app
+
+
+def _output_app() -> FastAPI:
+    app = FastAPI()
+    install_common_processing_api(
+        app,
+        output_service=_ValidatingOutputService(),  # type: ignore[arg-type]
+        security_dependency=_output_scope,
+        read_dependency=_output_scope,
+        execute_dependency=_output_scope,
     )
     return app
 
@@ -34,6 +145,13 @@ async def _request(method: str, url: str, *, json_body: object | None = None) ->
         transport=httpx.ASGITransport(app=_app()), base_url="http://test"
     ) as client:
         return await client.request(method, url, json=json_body)
+
+
+async def _output_request(json_body: object) -> httpx.Response:
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=_output_app()), base_url="http://test"
+    ) as client:
+        return await client.post("/api/v1/processing-outputs", json=json_body)
 
 
 def test_method_registry_and_preview_share_the_versioned_contract() -> None:
@@ -165,6 +283,85 @@ def test_preview_rejects_unknown_method_and_hidden_extrapolation() -> None:
     )
     assert extrapolation.status_code == 422
     assert "extrapolate" in extrapolation.text
+
+
+def _manual_output_body() -> dict[str, object]:
+    return {
+        "classification": "internal",
+        "label": "Manual workup evidence",
+        "source_document": {
+            "aggregate_id": "d5400000-0000-4000-8000-000000000020",
+            "revision_id": "d5400000-0000-4000-8000-000000000021",
+        },
+        "mapping_profile": {
+            "aggregate_id": "d5400000-0000-4000-8000-000000000022",
+            "revision_id": "d5400000-0000-4000-8000-000000000023",
+        },
+        "steps": [
+            {
+                "method_id": "metal.elastic_modulus",
+                "method_version": "1.0.0",
+                "options": {"method": "manual", "manual_modulus_pa": 205000000000},
+            },
+            {
+                "method_id": "metal.engineering_to_true_plastic",
+                "method_version": "1.0.0",
+                "options": {"necking_policy": "manual_index", "manual_necking_index": 4},
+            },
+        ],
+        "workup_overrides": [
+            {
+                "kind": "youngs_modulus",
+                "original_value": 205,
+                "original_unit": "GPa",
+                "canonical_value": 205000000000,
+                "canonical_unit": "Pa",
+                "reason": "Reconcile the measured elastic range.",
+            },
+            {
+                "kind": "necking_boundary",
+                "original_value": 4,
+                "original_unit": "observed-point-index",
+                "canonical_value": 4,
+                "canonical_unit": "observed-point-index",
+                "reason": "Selected the observed necking boundary.",
+            },
+        ],
+        "change_reason": "Save manual workup evidence.",
+    }
+
+
+def test_processing_output_api_binds_manual_workup_provenance_to_executed_options() -> None:
+    import asyncio
+
+    valid = asyncio.run(_output_request(_manual_output_body()))
+    assert valid.status_code == 201, valid.text
+    assert [item["kind"] for item in valid.json()["workup_overrides"]] == [
+        "youngs_modulus",
+        "necking_boundary",
+    ]
+
+    duplicate = _manual_output_body()
+    duplicate["workup_overrides"] = [
+        duplicate["workup_overrides"][0],  # type: ignore[index]
+        duplicate["workup_overrides"][0],  # type: ignore[index]
+    ]
+    mismatch = _manual_output_body()
+    mismatch["workup_overrides"][0]["canonical_value"] = 210000000000  # type: ignore[index]
+    unsupported = _manual_output_body()
+    unsupported["steps"][0]["options"]["method"] = "robust_huber"  # type: ignore[index]
+    missing = _manual_output_body()
+    missing["workup_overrides"] = [missing["workup_overrides"][0]]  # type: ignore[index]
+
+    for body, phrase in (
+        (duplicate, "one override per kind"),
+        (mismatch, "must match the executed manual_modulus_pa"),
+        (unsupported, "requires an executed manual modulus step"),
+        (missing, "manual necking boundary"),
+    ):
+        rejected = asyncio.run(_output_request(body))
+        assert rejected.status_code == 422, rejected.text
+        assert phrase in rejected.text
 
 
 def test_ensemble_registry_alignment_and_pointwise_statistics_contract() -> None:

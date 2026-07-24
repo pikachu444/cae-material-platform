@@ -2210,6 +2210,63 @@
   color: var(--ux-danger);
 }
 
+.data-source-evidence,
+.data-provenance-group,
+.data-mapping-table {
+  min-width: 0;
+  border-top: 1px solid var(--ux-border);
+  padding-top: 6px;
+}
+
+.data-source-evidence header,
+.data-provenance-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.data-source-evidence header strong,
+.data-provenance-group strong {
+  color: var(--ux-text);
+}
+
+.data-source-evidence p,
+.data-intake-attention > p {
+  margin: 4px 0;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+}
+
+.data-raw-table,
+.data-mapping-table {
+  overflow-x: auto;
+}
+
+.data-raw-table table,
+.data-mapping-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.data-raw-table th,
+.data-raw-table td,
+.data-mapping-table th,
+.data-mapping-table td {
+  border-bottom: 1px solid var(--ux-border);
+  padding: 3px 5px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-mapping-table select {
+  min-height: 25px;
+  max-width: 132px;
+  font-size: 11px;
+}
+
 .modeling-ribbon-actions {
   display: flex;
   align-items: center;
@@ -2219,6 +2276,20 @@
 .modeling-ribbon-actions .button {
   min-height: 28px;
   padding: 4px 10px;
+  font-size: 12px;
+}
+
+.modeling-ribbon-actions label {
+  display: grid;
+  gap: 2px;
+  color: var(--ux-text-muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.modeling-ribbon-actions input {
+  min-width: 132px;
+  min-height: 28px;
   font-size: 12px;
 }
 
@@ -2725,6 +2796,13 @@
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
   background: transparent;
+}
+
+.rail-statistics-action > summary {
+  cursor: pointer;
+  color: var(--ux-accent);
+  font-size: 12px;
+  font-weight: 650;
 }
 
 .rail-statistics-action label {

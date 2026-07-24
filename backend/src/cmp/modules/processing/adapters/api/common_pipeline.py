@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
@@ -26,6 +26,7 @@ from cmp.modules.processing.application.common_outputs import (
     ExactRevisionPin,
     ProcessingOutputNotFound,
     ProcessingOutputSnapshot,
+    ProcessingWorkupOverride,
 )
 from cmp.modules.processing.application.mapping_profiles import (
     CreateMappingProfile,
@@ -102,9 +103,7 @@ class MappingProfileInput(BaseModel):
     independent_quantity: Text160
     missing_data_policy: MissingDataPolicy
     bindings: Annotated[tuple[ChannelBindingInput, ...], Field(min_length=2, max_length=128)]
-    attribute_bindings: Annotated[
-        tuple[AttributeBindingInput, ...], Field(max_length=128)
-    ] = ()
+    attribute_bindings: Annotated[tuple[AttributeBindingInput, ...], Field(max_length=128)] = ()
 
     def to_domain(self) -> MappingProfileContent:
         return MappingProfileContent(
@@ -304,6 +303,21 @@ class ExactRevisionPinInput(BaseModel):
         return ExactRevisionPin(self.aggregate_id, self.revision_id)
 
 
+class ProcessingWorkupOverrideInput(BaseModel):
+    """Structured manual decision evidence for one executed workup override."""
+
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["youngs_modulus", "necking_boundary"]
+    original_value: float = Field(ge=0)
+    original_unit: Text160
+    canonical_value: float = Field(ge=0)
+    canonical_unit: Text160
+    reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+
+    def to_domain(self) -> ProcessingWorkupOverride:
+        return ProcessingWorkupOverride(**self.model_dump())
+
+
 class CommitProcessingOutputRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     classification: DataClassification
@@ -314,6 +328,7 @@ class CommitProcessingOutputRequest(BaseModel):
         tuple[ProcessingStepInput, ...], Field(min_length=1, max_length=MAX_PIPELINE_STEPS)
     ]
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    workup_overrides: Annotated[tuple[ProcessingWorkupOverrideInput, ...], Field(max_length=2)] = ()
 
 
 class ProcessingOutputResponse(BaseModel):
@@ -332,6 +347,7 @@ class ProcessingOutputResponse(BaseModel):
     final_point_count: int
     output_artifact_id: UUID
     output_sha256: str
+    workup_overrides: tuple[ProcessingWorkupOverrideInput, ...]
 
     @classmethod
     def from_snapshot(cls, value: ProcessingOutputSnapshot) -> ProcessingOutputResponse:
@@ -364,6 +380,17 @@ class ProcessingOutputResponse(BaseModel):
             final_point_count=content.final_point_count,
             output_artifact_id=content.output_artifact_id,
             output_sha256=content.output_sha256,
+            workup_overrides=tuple(
+                ProcessingWorkupOverrideInput(
+                    kind=override.kind,
+                    original_value=override.original_value,
+                    original_unit=override.original_unit,
+                    canonical_value=override.canonical_value,
+                    canonical_unit=override.canonical_unit,
+                    reason=override.reason,
+                )
+                for override in content.workup_overrides
+            ),
         )
 
 
@@ -631,8 +658,7 @@ def install_common_processing_api(
     def list_processing_ensemble_methods() -> MethodRegistryResponse:
         return MethodRegistryResponse(
             items=tuple(
-                MethodDefinitionResponse.from_domain(item)
-                for item in ENSEMBLE_METHOD_REGISTRY
+                MethodDefinitionResponse.from_domain(item) for item in ENSEMBLE_METHOD_REGISTRY
             )
         )
 
@@ -697,6 +723,9 @@ def install_common_processing_api(
                     mapping_profile=body.mapping_profile.to_domain(),
                     steps=tuple(step.to_domain() for step in body.steps),
                     change_reason=body.change_reason,
+                    workup_overrides=tuple(
+                        override.to_domain() for override in body.workup_overrides
+                    ),
                 ),
             )
             return ProcessingOutputResponse.from_snapshot(snapshot)
@@ -735,9 +764,7 @@ def install_common_processing_api(
         if output_service is None:
             raise HTTPException(status_code=503, detail="Processing Output store unavailable")
         try:
-            snapshot, value = await output_service.export(
-                context, decision, output_id
-            )
+            snapshot, value = await output_service.export(context, decision, output_id)
         except ProcessingOutputNotFound as error:
             raise HTTPException(status_code=404, detail=str(error)) from error
         return Response(
