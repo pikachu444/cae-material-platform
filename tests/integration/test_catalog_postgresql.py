@@ -8,7 +8,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from uuid import UUID, uuid4
+from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 import pytest
 import sqlalchemy as sa
@@ -39,6 +39,7 @@ from cmp.modules.artifacts.application.uploads import (
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
 from cmp.modules.catalog.adapters.persistence.repository import (
     SqlAlchemyCatalogRepository,
+    material_table,
     material_lot_revision_table,
     material_revision_table,
     process_run_lot_flow_table,
@@ -2790,3 +2791,76 @@ def test_scientific_profile_revisions_are_typed_historical_and_project_isolated(
                 ),
                 {"revision_id": created.current.record.revision_id},
             )
+
+
+def test_material_query_uses_one_rls_scoped_snapshot_for_ten_thousand_materials(
+    postgres: PostgresHarness,
+) -> None:
+    """Exercise the production repository query, not a mocked response or client fixture."""
+    context = _context()
+    read = _decision(context, Permission.CATALOG_READ)
+    identities: list[dict[str, object]] = []
+    revisions: list[dict[str, object]] = []
+    for index in range(10_000):
+        material_id = uuid5(NAMESPACE_URL, f"uxc01-material-{index}")
+        revision_id = uuid5(NAMESPACE_URL, f"uxc01-material-revision-{index}")
+        material_class = "metal" if index % 2 == 0 else "polymer"
+        identities.append({
+            "id": material_id, "organization_id": ORG, "project_id": PROJECT_A,
+            "current_revision_id": revision_id, "created_at": NOW, "created_by": ACTOR,
+            "updated_at": NOW,
+        })
+        revisions.append({
+            "id": revision_id, "aggregate_id": material_id, "organization_id": ORG,
+            "project_id": PROJECT_A, "revision_no": 1, "content_hash": f"{index:064x}",
+            "created_at": NOW, "created_by": ACTOR, "request_id": uuid5(NAMESPACE_URL, f"uxc01-request-{index}"),
+            "name": f"UXC10K Material {index:05d}", "material_code": f"UXC-{index:05d}",
+            "material_family": material_class, "material_class": material_class,
+        })
+    foreign_id = uuid5(NAMESPACE_URL, "uxc01-other-project")
+    foreign_revision = uuid5(NAMESPACE_URL, "uxc01-other-project-revision")
+    identities.append({"id": foreign_id, "organization_id": ORG, "project_id": PROJECT_B, "current_revision_id": foreign_revision, "created_at": NOW, "created_by": ACTOR, "updated_at": NOW})
+    revisions.append({"id": foreign_revision, "aggregate_id": foreign_id, "organization_id": ORG, "project_id": PROJECT_B, "revision_no": 1, "content_hash": "f" * 64, "created_at": NOW, "created_by": ACTOR, "request_id": uuid5(NAMESPACE_URL, "uxc01-other-request"), "name": "UXC10K Material foreign", "material_code": "UXC-foreign", "material_family": "metal", "material_class": "metal"})
+    with postgres.admin_engine.begin() as connection:
+        connection.execute(sa.insert(material_table), [
+            {**row, "classification": "internal"} for row in identities
+        ])
+        connection.execute(sa.insert(material_revision_table), [
+            {
+                **row, "classification": "internal", "based_on_revision_id": None,
+                "schema_id": "urn:cmp:catalog:material:2.0.0", "schema_version": "2.0.0",
+                "change_reason": "UXC-01 deterministic 10,000-material fixture", "trace_id": TRACE,
+                "description": None,
+            }
+            for row in revisions
+        ])
+
+    first = postgres.service.list_materials(context, read, query="UXC10K Material", limit=50)
+    assert first.total_count == 10_000
+    assert len(first.items) == 50
+    assert [item.current.content.name for item in first.items] == [
+        f"UXC10K Material {index:05d}" for index in range(50)
+    ]
+    assert dict(first.facets) == {MaterialClass.METAL: 5_000, MaterialClass.POLYMER: 5_000}
+    class_page = postgres.service.list_materials(
+        context, read, query="UXC10K Material", sort_by="material_class", limit=50,
+    )
+    assert class_page.total_count == 10_000
+    assert len(class_page.items) == 50
+    assert {item.current.content.material_class for item in class_page.items} == {
+        MaterialClass.METAL
+    }
+    metal_page = postgres.service.list_materials(
+        context, read, query="UXC10K Material", material_class=MaterialClass.METAL,
+        offset=4_950, sort_by="name", limit=50,
+    )
+    assert metal_page.total_count == 5_000
+    assert len(metal_page.items) == 50
+    assert metal_page.items[0].current.content.name == "UXC10K Material 09900"
+    assert dict(metal_page.facets) == {MaterialClass.METAL: 5_000}
+    beyond = postgres.service.list_materials(
+        context, read, query="UXC10K Material", offset=10_000, sort_by="name", limit=50,
+    )
+    assert beyond.items == ()
+    assert beyond.total_count == 10_000
+    assert dict(beyond.facets) == {MaterialClass.METAL: 5_000, MaterialClass.POLYMER: 5_000}

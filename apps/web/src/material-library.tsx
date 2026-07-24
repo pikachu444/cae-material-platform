@@ -80,8 +80,9 @@ interface MaterialsLocationState {
   status: string;
   yieldMin: string;
   yieldMax: string;
-  sortKey: "name" | "family" | "yield" | "cards";
+  sortKey: "name" | "material_class";
   sortDirection: "ascending" | "descending";
+  offset: number;
   leftMode: "filters" | "browse" | "subsets";
   selectedId: string;
 }
@@ -91,14 +92,13 @@ function materialsPath(state: MaterialsLocationState): string {
   if (state.query) params.set("q", state.query);
   if (state.materialClass) params.set("family", state.materialClass);
   if (state.solver) params.set("solver", state.solver);
-  if (state.source) params.set("source", state.source);
-  if (state.status) params.set("status", state.status);
-  if (state.yieldMin) params.set("yieldMin", state.yieldMin);
-  if (state.yieldMax) params.set("yieldMax", state.yieldMax);
+  // Provider/evidence, release/validation, and condition-aware property facets
+  // are intentionally not serialized until a governed server projection exists.
   if (state.sortKey !== "name") params.set("sort", state.sortKey);
   if (state.sortDirection !== "ascending") params.set("direction", state.sortDirection);
   if (state.leftMode !== "filters") params.set("mode", state.leftMode);
   if (state.selectedId) params.set("selected", state.selectedId);
+  if (state.offset) params.set("offset", String(state.offset));
   const search = params.toString();
   return search ? `/materials?${search}` : "/materials";
 }
@@ -108,9 +108,9 @@ function initialNavigatorMode(): "filters" | "browse" | "subsets" {
   return mode === "browse" || mode === "subsets" ? mode : "filters";
 }
 
-function initialSortKey(): "name" | "family" | "yield" | "cards" {
+function initialSortKey(): "name" | "material_class" {
   const key = materialSearchParams().get("sort");
-  return key === "family" || key === "yield" || key === "cards" ? key : "name";
+  return key === "material_class" ? key : "name";
 }
 
 function storedBrowseRecord(): ConfigurableLinkEndpoint | null {
@@ -292,15 +292,17 @@ function deliveryMaterial(material: MaterialResponse) {
   };
 }
 
-function modelingFamily(material: MaterialResponse): "metal" | "polymer" | "elastomer" {
+function modelingFamily(material: MaterialResponse): "metal" | "polymer" | "elastomer" | null {
   const family = `${material.current_revision.content.material_class} ${material.current_revision.content.material_family ?? ""}`.toLowerCase();
   if (family.includes("elastomer") || family.includes("rubber")) return "elastomer";
   if (family.includes("polymer") || family.includes("plastic")) return "polymer";
-  return "metal";
+  if (family.includes("metal")) return "metal";
+  return null;
 }
 
 function startModeling(material: MaterialResponse, onNavigate: (path: string) => void): void {
   const family = modelingFamily(material);
+  if (!family) return;
   saveModelingSession({
     materialFamily: family,
     objective: `Create a simulation-ready card for ${material.current_revision.content.name}`,
@@ -365,7 +367,7 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   const [status, setStatus] = useState(() => materialSearchParams().get("status") ?? "");
   const [yieldMin, setYieldMin] = useState(() => materialSearchParams().get("yieldMin") ?? "");
   const [yieldMax, setYieldMax] = useState(() => materialSearchParams().get("yieldMax") ?? "");
-  const [sortKey, setSortKey] = useState<"name" | "family" | "yield" | "cards">(initialSortKey);
+  const [sortKey, setSortKey] = useState<"name" | "material_class">(initialSortKey);
   const [sortDirection, setSortDirection] = useState<"ascending" | "descending">(() => materialSearchParams().get("direction") === "descending" ? "descending" : "ascending");
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
   const [leftMode, setLeftMode] = useState<"filters" | "browse" | "subsets">(initialNavigatorMode);
@@ -373,12 +375,13 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   const [browseSelection, setBrowseSelection] = useState<BrowseSelection | null>(null);
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [experience, setExperience] = useState<Record<string, MaterialExperience>>({});
+  const [familyFacets, setFamilyFacets] = useState<Array<{ material_class: string; count: number }>>([]);
+  const [offset, setOffset] = useState(() => Number(materialSearchParams().get("offset") ?? "0") || 0);
   const [selectedId, setSelectedId] = useState(() => materialSearchParams().get("selected") ?? "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
-  const [columnWidths, setColumnWidths] = useState({ compare: 68, material: 220, family: 150, source: 170, yield: 110, cards: 110 });
+  const [columnWidths, setColumnWidths] = useState({ compare: 68, material: 250, materialClass: 160, summary: 210, revisionStatus: 110 });
 
   useEffect(() => {
     if (locationSearch === undefined) return;
@@ -393,93 +396,57 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
     setStatus(params.get("status") ?? "");
     setYieldMin(params.get("yieldMin") ?? "");
     setYieldMax(params.get("yieldMax") ?? "");
-    setSortKey(nextSort === "family" || nextSort === "yield" || nextSort === "cards" ? nextSort : "name");
+    setSortKey(nextSort === "material_class" ? nextSort : "name");
     setSortDirection(params.get("direction") === "descending" ? "descending" : "ascending");
     setLeftMode(nextMode === "browse" || nextMode === "subsets" ? nextMode : "filters");
     setSelectedId(params.get("selected") ?? "");
+    setOffset(Number(params.get("offset") ?? "0") || 0);
   }, [locationSearch]);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError(null);
-    void listMaterials(config, query, materialClass || undefined)
-      .then(async (result) => {
+    void listMaterials(config, {
+      query,
+      materialClass: materialClass || undefined,
+      offset,
+      limit: 50,
+      sortBy: sortKey,
+      sortDirection,
+    })
+      .then((result) => {
         if (!active) return;
-        const items = [...result.data.items].sort((a, b) => a.current_revision.content.name.localeCompare(b.current_revision.content.name));
+        const items = result.data.items;
         setMaterials(items);
         setTotalCount(result.data.total_count);
+        setFamilyFacets(result.data.facets.material_classes);
         setSelectedId((current) => items.some((item) => item.material_id === current) ? current : items[0]?.material_id ?? "");
-        const settled = await Promise.allSettled(items.map((item) => loadMaterialExperience(config, item)));
-        if (!active) return;
-        const next: Record<string, MaterialExperience> = {};
-        settled.forEach((resultItem, index) => {
-          if (resultItem.status === "fulfilled") next[items[index].material_id] = resultItem.value;
-        });
-        setExperience(next);
         setLoading(false);
       })
       .catch((cause: unknown) => {
         if (!active) return;
         setMaterials([]);
         setTotalCount(0);
-        setExperience({});
+        setFamilyFacets([]);
         setSelectedId("");
         setLoading(false);
         setError(messageFor(cause));
       });
     return () => { active = false; };
-  }, [config, loadAttempt, materialClass, query]);
+  }, [config, loadAttempt, materialClass, offset, query, sortDirection, sortKey]);
 
   useEffect(() => {
     if (typeof window === "undefined" || window.location.pathname !== "/materials") return;
-    window.history.replaceState(window.history.state, "", materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, leftMode, selectedId }));
-  }, [leftMode, materialClass, query, selectedId, solver, sortDirection, sortKey, source, status, yieldMax, yieldMin]);
+    window.history.replaceState(window.history.state, "", materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, offset, leftMode, selectedId }));
+  }, [leftMode, materialClass, offset, query, selectedId, solver, sortDirection, sortKey, source, status, yieldMax, yieldMin]);
 
   useEffect(() => {
     publishWorkspaceCommandState(`materials:${leftMode === "filters" ? "search" : leftMode}`);
   }, [leftMode]);
 
-  const filtered = useMemo(() => materials.filter((material) => {
-    const itemExperience = experience[material.material_id];
-    const property = currentProperty(itemExperience)?.current_revision.content;
-    const yieldMpa = property?.yield_stress_pa == null ? null : property.yield_stress_pa / 1e6;
-    if (solver && !itemExperience?.cards.some((card) => card.solver === solver)) return false;
-    if (source && sourceLabel(itemExperience) !== source) return false;
-    if (status && material.current_revision.lifecycle_state !== status) return false;
-    if (yieldMin && (yieldMpa === null || yieldMpa < Number(yieldMin))) return false;
-    if (yieldMax && (yieldMpa === null || yieldMpa > Number(yieldMax))) return false;
-    return true;
-  }).sort((left, right) => {
-    const leftExperience = experience[left.material_id];
-    const rightExperience = experience[right.material_id];
-    const leftProperty = currentProperty(leftExperience)?.current_revision.content;
-    const rightProperty = currentProperty(rightExperience)?.current_revision.content;
-    const values: Record<typeof sortKey, [string | number, string | number]> = {
-      name: [left.current_revision.content.name, right.current_revision.content.name],
-      family: [left.current_revision.content.material_family ?? left.current_revision.content.material_class, right.current_revision.content.material_family ?? right.current_revision.content.material_class],
-      yield: [leftProperty?.yield_stress_pa ?? -1, rightProperty?.yield_stress_pa ?? -1],
-      cards: [leftExperience?.cards.length ?? -1, rightExperience?.cards.length ?? -1],
-    };
-    const [leftValue, rightValue] = values[sortKey];
-    const compared = typeof leftValue === "number" && typeof rightValue === "number" ? leftValue - rightValue : String(leftValue).localeCompare(String(rightValue));
-    return sortDirection === "ascending" ? compared : -compared;
-  }), [experience, materials, solver, sortDirection, sortKey, source, status, yieldMax, yieldMin]);
-
-  const sourceOptions = useMemo(() => [...new Set(Object.values(experience).map((item) => sourceLabel(item)))].sort(), [experience]);
-  const comparedMaterials = filtered.filter((material) => compareIds.has(material.material_id));
-
-  useEffect(() => {
-    if (filtered.length && !filtered.some((item) => item.material_id === selectedId)) setSelectedId(filtered[0]!.material_id);
-  }, [filtered, selectedId]);
-
-  const selected = filtered.find((item) => item.material_id === selectedId);
-  const selectedExperience = selected ? experience[selected.material_id] : undefined;
-  const selectedProperty = currentProperty(selectedExperience)?.current_revision.content;
-  const selectedPreferredCard = selectedExperience?.cards.find((card) => card.solver === "OpenRadioss")
-    ?? selectedExperience?.cards[0]
-    ?? null;
-  const selectedNeutralMaterial = neutralMaterialBinding(selectedExperience);
+  const comparedMaterials = materials.filter((material) => compareIds.has(material.material_id));
+  const selected = materials.find((item) => item.material_id === selectedId);
 
   useEffect(() => {
     publishWorkspaceStatus({
@@ -497,18 +464,19 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
       if (command === "materials:search") {
         setLeftMode("filters");
       } else if (command === "materials:browse") {
-        openBrowseTree(selectedExperience?.graph?.root);
+        openBrowseTree(undefined);
       } else if (command === "materials:subsets") {
         setLeftMode("subsets");
       }
     };
     window.addEventListener("cmp:workspace-command", handleCommand);
     return () => window.removeEventListener("cmp:workspace-command", handleCommand);
-  }, [selectedExperience]);
+  }, []);
 
   function submit(event: FormEvent): void {
     event.preventDefault();
     setLeftMode("filters");
+    setOffset(0);
     setQuery(draftQuery.trim());
   }
 
@@ -527,22 +495,24 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
     const materialBinding = graph.root.domain_binding?.kind === "material"
       ? graph.root.domain_binding
       : graph.nodes.find((node) => node.record_id === record.record_id && node.domain_binding?.kind === "material")?.domain_binding;
-    if (materialBinding?.kind === "material" && materials.some((item) => item.material_id === materialBinding.object_id)) {
-      setSelectedId(materialBinding.object_id);
+    if (materialBinding?.kind === "material") {
+      const index = materials.findIndex((item) => item.material_id === materialBinding.object_id);
+      if (index >= 0) setSelectedId(materialBinding.object_id);
     }
   }
 
   function openExactRecord(record: ConfigurableCatalogRecordResponse): void {
-    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, leftMode, selectedId }));
+    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, offset, leftMode, selectedId }));
     onNavigate(`/materials/records/${record.record_id}/revisions/${record.current_revision.id}`);
   }
 
-  function changeSort(next: typeof sortKey): void {
+  function changeSort(next: "name" | "material_class"): void {
     if (next === sortKey) setSortDirection((current) => current === "ascending" ? "descending" : "ascending");
     else {
       setSortKey(next);
       setSortDirection("ascending");
     }
+    setOffset(0);
   }
 
   function toggleCompare(materialId: string): void {
@@ -555,48 +525,44 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   }
 
   function openMaterial(materialId: string): void {
-    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, leftMode, selectedId: materialId }));
+    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, offset, leftMode, selectedId: materialId }));
     onNavigate(`/materials/${materialId}`);
   }
 
   const navigator = <aside className="materials-left-pane" aria-label={leftMode === "filters" ? "Material filters" : "Materials Browse Tree"}>
     {leftMode === "filters" ? <div className="materials-filters">
-      <label className="ux-field">Material class<select className="ux-select" name="material-family" value={materialClass} onChange={(event) => setMaterialClass(event.target.value)}><option value="">All classes</option><option value="metal">Metal</option><option value="polymer">Polymer</option><option value="elastomer">Elastomer</option><option value="composite">Composite</option><option value="ceramic">Ceramic</option></select></label>
-      <label className="ux-field">Manufacturer / source<select className="ux-select" name="material-source" value={source} onChange={(event) => setSource(event.target.value)}><option value="">Any source</option>{sourceOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-      <label className="ux-field">CAE card<select className="ux-select" name="solver-availability" value={solver} onChange={(event) => setSolver(event.target.value)}><option value="">Any availability</option><option value="Abaqus">Abaqus available</option><option value="OpenRadioss">OpenRadioss available</option></select></label>
-      <label className="ux-field">Validation / release status<select className="ux-select" name="release-status" value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Any status</option><option value="draft">Draft / reference</option></select></label>
-      <fieldset className="ux-field"><legend>Yield strength (MPa)</legend><div className="filter-range"><input className="ux-input" aria-label="Minimum yield strength" name="yield-minimum" autoComplete="off" type="number" value={yieldMin} onChange={(event) => setYieldMin(event.target.value)} placeholder="Min…"/><input className="ux-input" aria-label="Maximum yield strength" name="yield-maximum" autoComplete="off" type="number" value={yieldMax} onChange={(event) => setYieldMax(event.target.value)} placeholder="Max…"/></div></fieldset>
-      <button className="ux-button tertiary" type="button" onClick={() => { setMaterialClass(""); setSource(""); setSolver(""); setStatus(""); setYieldMin(""); setYieldMax(""); }}>Clear filters</button>
+      <label className="ux-field">Material class<select className="ux-select" name="material-class" value={materialClass} onChange={(event) => { setMaterialClass(event.target.value); setOffset(0); }}><option value="">All classes</option>{familyFacets.map((facet) => <option key={facet.material_class} value={facet.material_class}>{`${facet.material_class} (${facet.count.toLocaleString()})`}</option>)}</select></label>
+      <div className="material-query-gap" role="status"><strong>Provider</strong><span>Not available in the governed material query.</span></div>
+      <div className="material-query-gap" role="status"><strong>Evidence source</strong><span>Not available in the governed material query.</span></div>
+      <div className="material-query-gap" role="status"><strong>Revision status</strong><span>Shown per revision in results; no release facet is defined.</span></div>
+      <div className="material-query-gap" role="status"><strong>Validation availability</strong><span>Not configured in the material query.</span></div>
+      <p className="ux-meta">Property ranges, including Yield, remain hidden until the server supplies quantity definition, condition, unit, and source revision.</p>
+      <button className="ux-button tertiary" type="button" onClick={() => { setMaterialClass(""); setOffset(0); }}>Clear class</button>
     </div> : <MaterialsBrowseTree config={config} subsetMode={leftMode === "subsets"} requestedRecord={requestedRecord} onSelectRecord={selectBrowseRecord} onOpenRecord={openExactRecord}/>}
   </aside>;
 
   const results = <section className="materials-results" aria-labelledby="material-results-title" aria-busy={loading}>
-    <div className="materials-results-header"><div><h2 id="material-results-title">Materials</h2><p className="ux-meta">{loading ? "Loading…" : `${filtered.length} shown · ${new Intl.NumberFormat().format(totalCount)} total`}</p></div><span className="ux-meta">Enter opens · select up to 3 to compare</span></div>
+    <div className="materials-results-header"><div><h2 id="material-results-title">Materials</h2><p className="ux-meta">{loading ? "Loading…" : `${totalCount ? `${offset + 1}–${Math.min(offset + materials.length, totalCount)} of ` : ""}${new Intl.NumberFormat().format(totalCount)} matches`}</p></div><span className="ux-meta">Server-scoped query · Enter opens · select up to 3 to compare</span></div>
     {error ? <div className="ux-notice error" role="alert">{error}<button className="ux-button tertiary" type="button" onClick={() => setLoadAttempt((current) => current + 1)}>Retry</button></div> : null}
-    {!loading && !error && !filtered.length ? <div className="ux-empty"><strong>No materials match these filters.</strong><p>Clear a filter or try a material grade, code, or family.</p></div> : null}
-    {comparedMaterials.length > 1 ? <div className="material-compare-strip"><div><strong>Comparing {comparedMaterials.length} materials</strong><span className="ux-meta">Key normalized values</span></div>{comparedMaterials.map((material) => { const itemExperience = experience[material.material_id]; const property = currentProperty(itemExperience)?.current_revision.content; return <dl key={material.material_id}><dt>{material.current_revision.content.name}</dt><dd>{formatPressure(property?.yield_stress_pa)}</dd><dd>{formatDensity(property?.density_kg_per_m3)}</dd><dd>{itemExperience?.cards.length ?? 0} cards</dd></dl>; })}<button className="ux-button tertiary" type="button" onClick={() => setCompareIds(new Set())}>Clear comparison</button></div> : null}
+    {!loading && !error && !materials.length ? <div className="ux-empty"><strong>No materials match this server query.</strong><p>Clear the class or try a material grade, code, or family.</p></div> : null}
+    {comparedMaterials.length > 1 ? <div className="material-compare-strip"><div><strong>Comparing {comparedMaterials.length} materials</strong><span className="ux-meta">Open comparison to inspect exact property revisions.</span></div>{comparedMaterials.map((material) => <dl key={material.material_id}><dt>{material.current_revision.content.name}</dt><dd>{material.current_revision.content.material_family ?? material.current_revision.content.material_class}</dd><dd>r{material.current_revision.revision_no}</dd></dl>)}<button className="ux-button tertiary" type="button" onClick={() => setCompareIds(new Set())}>Clear comparison</button></div> : null}
     {browseSelection ? <div className="browse-selection-bar"><span><strong>{browseSelection.record.current_revision.content.name}</strong><small>{browseSelection.graph.root.domain_binding?.kind?.replaceAll("_", " ") ?? "Catalog record"} · exact revision {browseSelection.record.current_revision.revision_no}</small></span><button className="ux-button tertiary" type="button" onClick={() => openExactRecord(browseSelection.record)}>Open datasheet</button></div> : null}
-    <div className="materials-result-table-wrap"><table className="materials-result-table" aria-label="Material results"><colgroup>{Object.entries(columnWidths).map(([key, width]) => <col key={key} style={{ width }} />)}</colgroup><thead><tr><th>Compare<EngineeringColumnResizeHandle label="Compare" width={columnWidths.compare} min={60} max={100} onChange={(width) => setColumnWidths((current) => ({ ...current, compare: width }))}/></th><th aria-sort={sortKey === "name" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("name")}>Material</button><EngineeringColumnResizeHandle label="Material" width={columnWidths.material} min={160} max={360} onChange={(width) => setColumnWidths((current) => ({ ...current, material: width }))}/></th><th aria-sort={sortKey === "family" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("family")}>Family</button><EngineeringColumnResizeHandle label="Family" width={columnWidths.family} min={110} max={260} onChange={(width) => setColumnWidths((current) => ({ ...current, family: width }))}/></th><th>Source<EngineeringColumnResizeHandle label="Source" width={columnWidths.source} min={120} max={320} onChange={(width) => setColumnWidths((current) => ({ ...current, source: width }))}/></th><th aria-sort={sortKey === "yield" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("yield")}>Yield</button><EngineeringColumnResizeHandle label="Yield" width={columnWidths.yield} min={90} max={180} onChange={(width) => setColumnWidths((current) => ({ ...current, yield: width }))}/></th><th aria-sort={sortKey === "cards" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("cards")}>CAE cards</button><EngineeringColumnResizeHandle label="CAE cards" width={columnWidths.cards} min={90} max={180} onChange={(width) => setColumnWidths((current) => ({ ...current, cards: width }))}/></th></tr></thead><tbody>
-      {filtered.map((material) => { const content = material.current_revision.content; const itemExperience = experience[material.material_id]; const property = currentProperty(itemExperience)?.current_revision.content; const materialIdentity = `${content.name} · ${content.material_code ?? "No grade code"}`; return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""} tabIndex={0} aria-selected={selectedId === material.material_id} onClick={() => setSelectedId(material.material_id)} onDoubleClick={() => openMaterial(material.material_id)} onKeyDown={(event) => { if (event.key === "Enter") openMaterial(material.material_id); }}><td><input type="checkbox" aria-label={`Compare ${content.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onClick={(event) => event.stopPropagation()} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={materialIdentity} onClick={() => setSelectedId(material.material_id)}><span>{content.name}</span><small>{content.material_code ?? "No grade code"}</small></button></td><td title={content.material_family ?? content.material_class}>{content.material_family ?? content.material_class}</td><td title={sourceLabel(itemExperience)}>{sourceLabel(itemExperience)}</td><td className="ux-numeric">{formatPressure(property?.yield_stress_pa)}</td><td>{itemExperience ? `${itemExperience.cards.length} cards` : loading ? "Checking…" : "Unavailable"}</td></tr>; })}
+    <div className="materials-result-table-wrap"><table className="materials-result-table" aria-label="Material results"><colgroup>{Object.entries(columnWidths).map(([key, width]) => <col key={key} style={{ width }} />)}</colgroup><thead><tr><th>Compare<EngineeringColumnResizeHandle label="Compare" width={columnWidths.compare} min={60} max={100} onChange={(width) => setColumnWidths((current) => ({ ...current, compare: width }))}/></th><th aria-sort={sortKey === "name" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("name")}>Material</button><EngineeringColumnResizeHandle label="Material" width={columnWidths.material} min={160} max={360} onChange={(width) => setColumnWidths((current) => ({ ...current, material: width }))}/></th><th aria-sort={sortKey === "material_class" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("material_class")}>Material class</button><EngineeringColumnResizeHandle label="Material class" width={columnWidths.materialClass} min={110} max={260} onChange={(width) => setColumnWidths((current) => ({ ...current, materialClass: width }))}/></th><th>Summary<EngineeringColumnResizeHandle label="Summary" width={columnWidths.summary} min={140} max={320} onChange={(width) => setColumnWidths((current) => ({ ...current, summary: width }))}/></th><th>Revision status<EngineeringColumnResizeHandle label="Revision status" width={columnWidths.revisionStatus} min={90} max={160} onChange={(width) => setColumnWidths((current) => ({ ...current, revisionStatus: width }))}/></th></tr></thead><tbody>
+      {materials.map((material) => { const content = material.current_revision.content; const materialIdentity = `${content.name} · ${content.material_code ?? "No grade code"}`; return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""} tabIndex={0} aria-selected={selectedId === material.material_id} onClick={() => setSelectedId(material.material_id)} onDoubleClick={() => openMaterial(material.material_id)} onKeyDown={(event) => { if (event.key === "Enter") openMaterial(material.material_id); }}><td><input type="checkbox" aria-label={`Compare ${content.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onClick={(event) => event.stopPropagation()} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={materialIdentity} onClick={() => setSelectedId(material.material_id)}><span>{content.name}</span><small>{content.material_code ?? "No grade code"}</small></button></td><td title={content.material_class}>{content.material_class}</td><td>{content.description ?? "Not projected"}</td><td>{material.current_revision.lifecycle_state}</td></tr>; })}
     </tbody></table></div>
+    {!loading && totalCount > materials.length ? <nav className="materials-pagination" aria-label="Material result pages"><button className="ux-button tertiary" type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - 50))}>Previous</button><span className="ux-meta">Rows {totalCount ? offset + 1 : 0}–{Math.min(offset + materials.length, totalCount)}</span><button className="ux-button tertiary" type="button" disabled={offset + materials.length >= totalCount} onClick={() => setOffset(offset + 50)}>Next</button></nav> : null}
   </section>;
 
   const context = <aside className="materials-selection" aria-live="polite">
     {selected ? <>
       <div className="selection-heading"><div><p className="ux-kicker">Selected material</p><h2 title={selected.current_revision.content.name}>{selected.current_revision.content.name}</h2></div><span className="ux-meta">{selected.current_revision.content.material_code ?? "No material code"}</span></div>
       <p>{selected.current_revision.content.description ?? "No summary is available."}</p>
-      <div className="selection-property-grid"><div><span>Density</span><strong>{formatDensity(selectedProperty?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(selectedProperty?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(selectedProperty?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{selectedProperty?.poisson_ratio ?? "—"}</strong></div></div>
-      <dl className="selection-context"><dt>Source</dt><dd>{sourceLabel(selectedExperience)}</dd><dt>Status</dt><dd>{selected.current_revision.lifecycle_state}</dd></dl>
-      <h3>CAE card availability</h3>
-      <SolverAvailability cards={selectedExperience?.cards ?? []}/>
+      <dl className="selection-context"><dt>Material class</dt><dd>{selected.current_revision.content.material_class}</dd><dt>Provider</dt><dd>Not projected</dd><dt>Evidence source</dt><dd>Not projected</dd><dt>Revision status</dt><dd>{selected.current_revision.lifecycle_state}</dd><dt>Validation availability</dt><dd>Not configured</dd><dt>Revision</dt><dd>r{selected.current_revision.revision_no}</dd></dl>
+      <p className="ux-meta">Open the exact datasheet for governed properties, conditions, evidence, and card readiness.</p>
       <div className="selection-delivery-command">
-        {selectedPreferredCard
-          ? <SolverCardAction config={config} card={selectedPreferredCard} material={deliveryMaterial(selected)} onNavigate={onNavigate}/>
-          : selectedNeutralMaterial
-            ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${selected.material_id}/cards`)}>Create card</button>
-            : <button className="ux-button primary" type="button" onClick={() => startModeling(selected, onNavigate)}>Start Modeling</button>}
+        {modelingFamily(selected) ? <button className="ux-button primary" type="button" onClick={() => startModeling(selected, onNavigate)}>Start Modeling</button> : <p className="ux-notice" role="status">Modeling is not supported for this family.</p>}
         <button className="ux-button" type="button" onClick={() => openMaterial(selected.material_id)}>Open material</button>
-        <button className="ux-button tertiary" type="button" onClick={() => openBrowseTree(selectedExperience?.graph?.root)}>Show in Browse Tree</button>
+        <button className="ux-button tertiary" type="button" onClick={() => openBrowseTree(undefined)}>Show in Browse Tree</button>
       </div>
     </> : <div className="ux-empty"><strong>Select a material</strong><p>Key properties and solver-card availability will appear here.</p></div>}
   </aside>;
@@ -690,13 +656,13 @@ export function MaterialDetailPage({ config, materialId, activeTab, onNavigate }
   }
 
   const datasheet = <div className="material-detail-shell">
-    <header className="material-detail-header"><div><h1>{content.name}</h1><div className="material-detail-meta"><span>{content.material_code ?? "No grade code"}</span><span>{content.material_family ?? content.material_class}</span><span>{sourceLabel(experience)}</span><span>{material.current_revision.lifecycle_state}</span></div></div><div className="card-action-row">{preferredCard ? <SolverCardAction config={config} card={preferredCard} material={deliveryMaterial(material)} onNavigate={onNavigate}/> : neutralMaterial ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>Create card</button> : <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button>}</div></header>
+    <header className="material-detail-header"><div><h1>{content.name}</h1><div className="material-detail-meta"><span>{content.material_code ?? "No grade code"}</span><span>{content.material_family ?? content.material_class}</span><span>{sourceLabel(experience)}</span><span>{material.current_revision.lifecycle_state}</span></div></div><div className="card-action-row">{preferredCard ? <SolverCardAction config={config} card={preferredCard} material={deliveryMaterial(material)} onNavigate={onNavigate}/> : neutralMaterial ? <button className="ux-button primary" type="button" onClick={() => onNavigate(`/materials/${materialId}/cards`)}>Create card</button> : modelingFamily(material) ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : <p className="ux-notice" role="status">Modeling is not supported for this family.</p>}</div></header>
     <nav className="ux-tabs" role="tablist" aria-label="Material detail"><input type="hidden" value={activePath} readOnly />{tabs.map((tab) => <button key={tab.id} className="ux-tab" type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => onNavigate(tab.id === "overview" ? `/materials/${materialId}` : `/materials/${materialId}/${tab.id}`)}>{tab.label}</button>)}</nav>
     <section className="material-tab-panel" role="tabpanel">
       {activeTab === "overview" ? <div className="overview-grid"><div><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Engineering summary</p><h2>Key properties</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/properties`)}>All properties</button></div><div className="overview-property-grid"><div><span>Density</span><strong>{formatDensity(property?.density_kg_per_m3)}</strong></div><div><span>Young’s modulus</span><strong>{formatPressure(property?.youngs_modulus_pa)}</strong></div><div><span>Yield strength</span><strong>{formatPressure(property?.yield_stress_pa)}</strong></div><div><span>Poisson ratio</span><strong>{property?.poisson_ratio ?? "—"}</strong></div></div></section><div className="overview-data-grid"><section className="overview-section"><div className="detail-section-heading"><div><p className="ux-kicker">Representative curve</p><h2>Linked material response</h2></div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(`/materials/${materialId}/curves`)}>All curves</button></div><RepresentativeCurve points={experience.representativeCurve}/></section><section className="overview-section"><p className="ux-kicker">Application conditions</p><h2>Material states</h2><dl className="condition-summary"><dt>Temperature</dt><dd>{property?.applicability.temperature_min_k ?? "—"}–{property?.applicability.temperature_max_k ?? "—"} K</dd><dt>Strain rate</dt><dd>{property?.applicability.strain_rate_min_per_s ?? "—"}–{property?.applicability.strain_rate_max_per_s ?? "—"} /s</dd></dl>{experience.detail.states.slice(0, 2).map((state) => <p className="condition-state" key={state.material_state_id}><strong>{state.current_revision.content.name}</strong><span>{state.current_revision.content.manufacturing_route ?? "Route not specified"}</span></p>)}</section></div></div><aside><p className="ux-kicker">CAE delivery</p><h2>Ready solver cards</h2><p>Choose a native format. The primary Download action above uses the preferred available solver.</p><SolverAvailability cards={experience.cards}/><div className="solver-preview-links">{experience.cards.map((card) => <button key={card.id} type="button" onClick={() => onNavigate(`/materials/${materialId}/cards/${card.id}`)}>Preview {card.solver} {card.extension}</button>)}</div><button className="ux-button tertiary" type="button" onClick={() => onNavigate(browsePath(experience))}>Related records in Browse Tree</button></aside></div> : null}
       {activeTab === "properties" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Normalized values</p><h2>Engineering properties</h2></div></div>{property ? <table className="ux-table"><thead><tr><th>Property</th><th>Value</th><th>Quantity semantics</th><th>Source</th></tr></thead><tbody><tr><td>Density</td><td>{formatDensity(property.density_kg_per_m3)}</td><td>mass density</td><td>{property.density_source.kind}</td></tr><tr><td>Young’s modulus</td><td>{formatPressure(property.youngs_modulus_pa)}</td><td>elastic modulus</td><td>{property.youngs_modulus_source.kind}</td></tr><tr><td>Poisson ratio</td><td>{property.poisson_ratio}</td><td>dimensionless ratio</td><td>{property.poisson_ratio_source.kind}</td></tr><tr><td>Yield strength</td><td>{formatPressure(property.yield_stress_pa)}</td><td>stress</td><td>{property.yield_stress_source?.kind ?? "—"}</td></tr></tbody></table> : <div className="ux-empty">No typed property set is available.</div>}<p className="ux-meta">Normalized units are shown here. Original unit text and exact source revisions remain preserved in Evidence.</p>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="properties"/> : null}</> : null}
       {activeTab === "curves" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Test and model data</p><h2>Curves</h2><p>Review available workflow data in the persistent Modeling graph.</p></div><button className="ux-button primary" type="button" onClick={() => onNavigate("/modeling")}>Open in Modeling</button></div>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="curves"/> : null}<table className="ux-table"><thead><tr><th>Related data</th><th>Type</th><th>Use</th></tr></thead><tbody>{(experience.graph?.nodes ?? []).filter((node) => ["test_data", "processing_output", "material_model"].includes(node.domain_binding?.kind ?? "")).map((node) => <tr key={node.record_id}><td>{node.name}</td><td>{node.domain_binding?.kind.replaceAll("_", " ")}</td><td>{node.domain_binding?.kind === "test_data" ? "Observed input" : node.domain_binding?.kind === "processing_output" ? "Processed curve" : "Fitted response"}</td></tr>)}</tbody></table></> : null}
-      {activeTab === "cards" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Solver delivery</p><h2>CAE Cards</h2><p>Exact mappings download directly. Approximated or ignored mappings require review; unsupported mappings remain blocked.</p></div></div><CardTable config={config} material={material} cards={experience.cards} onNavigate={onNavigate}/>{neutralMaterial ? <NeutralCardCreationPanel config={config} neutralMaterialId={neutralMaterial.object_id} neutralMaterialRevisionId={neutralMaterial.revision_id} materialName={content.name} materialCode={content.material_code} existingCards={experience.cards} onCreated={acceptCreatedCard}/> : !experience.cards.length ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : null}</> : null}
+      {activeTab === "cards" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Solver delivery</p><h2>CAE Cards</h2><p>Exact mappings download directly. Approximated or ignored mappings require review; unsupported mappings remain blocked.</p></div></div><CardTable config={config} material={material} cards={experience.cards} onNavigate={onNavigate}/>{neutralMaterial ? <NeutralCardCreationPanel config={config} neutralMaterialId={neutralMaterial.object_id} neutralMaterialRevisionId={neutralMaterial.revision_id} materialName={content.name} materialCode={content.material_code} existingCards={experience.cards} onCreated={acceptCreatedCard}/> : !experience.cards.length && modelingFamily(material) ? <button className="ux-button primary" type="button" onClick={() => startModeling(material, onNavigate)}>Start Modeling</button> : null}</> : null}
       {activeTab === "evidence" ? <><div className="detail-section-heading"><div><p className="ux-kicker">Related · Workflow · Evidence</p><h2>Connected material record</h2><p>Follow typed Record links and the material workflow; open technical identifiers only when needed.</p></div><button className="ux-button" type="button" onClick={() => onNavigate(browsePath(experience))}>Open exact Layout datasheet</button></div><div className="evidence-overview"><section><h3>Related Records</h3>{relatedLinks.length ? <table className="ux-table"><thead><tr><th>Relationship</th><th>Record</th><th>Type</th><th>Revision</th></tr></thead><tbody>{relatedLinks.map((related) => <tr key={related.id}><td>{related.label}</td><td title={related.endpoint.name}>{related.endpoint.name}</td><td>{related.endpoint.domain_binding?.kind?.replaceAll("_", " ") ?? "Catalog Record"}</td><td>r{related.endpoint.revision_no}</td></tr>)}</tbody></table> : <p className="ux-meta">No related Records are visible in the current scope.</p>}</section><section><h3>Workflow</h3><table className="ux-table"><thead><tr><th>Record</th><th>Role</th><th>Revision</th></tr></thead><tbody>{(experience.graph?.nodes ?? []).map((node) => <tr key={`${node.record_id}:${node.record_revision_id}`}><td title={node.name}>{node.name}</td><td>{node.domain_binding?.kind?.replaceAll("_", " ") ?? "catalog record"}</td><td>r{node.revision_no}</td></tr>)}</tbody></table></section></div>{catalogRoot ? <MaterialDatasheetProjection config={config} tableId={catalogRoot.table_id} recordId={catalogRoot.record_id} mode="evidence"/> : null}<details className="ux-disclosure"><summary>Technical revision and provenance identifiers</summary><dl className="evidence-grid"><dt>Material ID</dt><dd>{material.material_id}</dd><dt>Aggregate ID</dt><dd>{material.current_revision.aggregate_id}</dd><dt>Full revision ID</dt><dd>{material.current_revision.id}</dd><dt>Content hash</dt><dd>{material.current_revision.content_hash}</dd><dt>Classification</dt><dd>{material.current_revision.classification}</dd><dt>Change reason</dt><dd>{material.current_revision.change_reason}</dd><dt>Recorded by</dt><dd>{material.current_revision.provenance.recorded_by}</dd></dl></details></> : null}
     </section>
   </div>;

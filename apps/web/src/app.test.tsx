@@ -147,7 +147,7 @@ describe("Material Catalog workbench", () => {
   it("renders Material data returned by the real Catalog API contract", async () => {
     mockProductFetch((input) => {
       const url = String(input);
-      if (url.includes("/materials?")) return jsonResponse({ items: [visibleMaterial], total_count: 10_000 });
+      if (url.includes("/materials?")) return jsonResponse({ items: [visibleMaterial], total_count: 10_000, offset: 0, limit: 50, facets: { material_classes: [{ material_class: "metal", count: 10_000 }] } });
       if (url.endsWith(`/materials/${visibleMaterial.material_id}`)) {
         return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
       }
@@ -160,35 +160,40 @@ describe("Material Catalog workbench", () => {
 
     expect((await screen.findAllByText("Demo DP780 Steel")).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("DP780").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/10,000 total/)).toBeTruthy();
+    expect(screen.getByText(/10,000 matches/)).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
     expect(screen.getByRole("search")).toBeTruthy();
     expect(screen.getByRole("complementary", { name: "Material filters" })).toBeTruthy();
     expect(screen.getByRole("table", { name: "Material results" })).toBeTruthy();
-    expect(screen.getByRole("combobox", { name: "Manufacturer / source" })).toBeTruthy();
-    expect(screen.getByRole("combobox", { name: "Validation / release status" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Material class" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: /Material class/ })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: /Revision status/ })).toBeTruthy();
+    expect(screen.queryByRole("columnheader", { name: /Form \/ condition|Release/ })).toBeNull();
+    expect(screen.getByText("Provider")).toBeTruthy();
+    expect(screen.getByText("Evidence source")).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Browse Tree" })).toHaveLength(1);
     expect(screen.queryByRole("navigation", { name: "Materials navigator" })).toBe(null);
-    const materialHeader = screen.getByRole("columnheader", { name: /Material/ });
-    expect(materialHeader.getAttribute("aria-sort")).toBe("ascending");
-    expect(within(materialHeader).getByRole("button", { name: "Material" }).hasAttribute("aria-sort")).toBe(false);
+    const materialHeader = screen.getAllByRole("columnheader").find((header) =>
+      within(header).queryByRole("button", { name: "Material" }),
+    );
+    expect(materialHeader).toBeTruthy();
+    expect(materialHeader?.getAttribute("aria-sort")).toBe("ascending");
+    expect(within(materialHeader!).getByRole("button", { name: "Material" }).hasAttribute("aria-sort")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Material class" }));
+    await waitFor(() => expect(window.location.search).toContain("sort=material_class"));
+    expect(screen.getByRole("columnheader", { name: /Material class/ }).getAttribute("aria-sort")).toBe("ascending");
     fireEvent.click(screen.getByRole("button", { name: "Collapse filters pane" }));
     expect(screen.queryByRole("complementary", { name: "Material filters" })).toBe(null);
     expect(screen.getByRole("button", { name: "Expand filters pane" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
     expect(screen.getByRole("button", { name: "Open material" })).toBeTruthy();
-    expect(await screen.findByText("1 cards")).toBeTruthy();
     expect(screen.getByRole("region", { name: "Materials" }).getAttribute("aria-busy")).toBe("false");
-    expect(screen.queryByText("Checking…")).toBe(null);
-    expect(screen.getAllByText("OpenRadioss").length).toBeGreaterThanOrEqual(1);
     fireEvent.change(screen.getByRole("textbox", { name: "Search materials" }), { target: { value: "DP780" } });
     fireEvent.submit(screen.getByRole("search"));
     fireEvent.click(screen.getByRole("button", { name: "Expand filters pane" }));
     fireEvent.change(screen.getByRole("combobox", { name: "Material class" }), { target: { value: "metal" } });
-    fireEvent.change(screen.getByRole("combobox", { name: "CAE card" }), { target: { value: "OpenRadioss" } });
     await waitFor(() => expect(window.location.search).toContain("q=DP780"));
     expect(window.location.search).toContain("family=metal");
-    expect(window.location.search).toContain("solver=OpenRadioss");
     fireEvent.click(screen.getByRole("button", { name: "Open material" }));
     await waitFor(() => expect(window.location.pathname).toBe(`/materials/${visibleMaterial.material_id}`));
     expect(window.sessionStorage.getItem("cmp.materials.return-path")).toContain(`selected=${visibleMaterial.material_id}`);
@@ -210,7 +215,7 @@ describe("Material Catalog workbench", () => {
     window.history.pushState({}, "", `/materials?selected=${visibleMaterial.material_id}`);
     mockProductFetch((input) => {
       const url = String(input);
-      if (url.includes("/materials?")) return jsonResponse({ items: [alphabeticFirst, visibleMaterial], total_count: 2 });
+      if (url.includes("/materials?")) return jsonResponse({ items: [alphabeticFirst, visibleMaterial], total_count: 2, offset: 0, limit: 50, facets: { material_classes: [] } });
       if (url.endsWith(`/materials/${visibleMaterial.material_id}`)) return jsonResponse({ material: visibleMaterial, states: [], property_sets: [] });
       if (url.endsWith(`/materials/${alphabeticFirst.material_id}`)) return jsonResponse({ material: alphabeticFirst, states: [], property_sets: [] });
       if (url.includes("/catalog/domain-bindings:resolve")) return jsonResponse(null);
@@ -222,6 +227,52 @@ describe("Material Catalog workbench", () => {
 
     expect((await screen.findAllByText("Demo DP780 Steel")).length).toBeGreaterThanOrEqual(1);
     await waitFor(() => expect(window.location.search).toContain(`selected=${visibleMaterial.material_id}`));
+  });
+
+  it("uses one server-scoped request per 10,000-record page without row enrichment", async () => {
+    const pageItems = Array.from({ length: 50 }, (_, index) => ({
+      ...visibleMaterial,
+      material_id: `00000000-0000-4000-8000-${String(index + 100).padStart(12, "0")}`,
+      current_revision: {
+        ...visibleMaterial.current_revision,
+        id: `00000000-0000-4000-8000-${String(index + 200).padStart(12, "0")}`,
+        content: { ...visibleMaterial.current_revision.content, name: `Synthetic material ${index + 1}` },
+      },
+    }));
+    const fetchMock = mockProductFetch((input) => {
+      const url = String(input);
+      if (url.includes("/materials?")) return jsonResponse({ items: pageItems, total_count: 10_000, offset: url.includes("offset=50") ? 50 : 0, limit: 50, facets: { material_classes: [{ material_class: "metal", count: 10_000 }] } });
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    expect(await screen.findByText("Synthetic material 1")).toBeTruthy();
+    expect(screen.queryByText("Yield")).toBeNull();
+    expect(screen.getByText(/10,000 matches/)).toBeTruthy();
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/materials?")).length).toBe(1);
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await waitFor(() => expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/materials?")).length).toBe(2));
+    const materialRequests = fetchMock.mock.calls.filter(([input]) => String(input).includes("/materials?"));
+    expect(String(materialRequests[1]?.[0])).toContain("offset=50");
+    expect(fetchMock.mock.calls.some(([input]) => /\/materials\/[0-9]/.test(String(input)))).toBe(false);
+  });
+
+  it("does not pin an unsupported material family to the metal Modeling workflow", async () => {
+    const composite = {
+      ...visibleMaterial,
+      current_revision: { ...visibleMaterial.current_revision, content: { ...visibleMaterial.current_revision.content, name: "Synthetic composite", material_class: "composite", material_family: "laminate" } },
+    };
+    mockProductFetch((input) => String(input).includes("/materials?")
+      ? jsonResponse({ items: [composite], total_count: 1, offset: 0, limit: 50, facets: { material_classes: [{ material_class: "composite", count: 1 }] } })
+      : jsonResponse({}));
+
+    render(<App />);
+
+    expect(await screen.findByText("Synthetic composite")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
+    expect(screen.queryByRole("button", { name: "Start Modeling" })).toBeNull();
+    expect(screen.getByText("Modeling is not supported for this family.")).toBeTruthy();
   });
 
   it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {

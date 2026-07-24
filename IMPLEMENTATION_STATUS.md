@@ -38,7 +38,10 @@ PR #124/DUI-06 completed the bounded Fit candidate decision → immutable Proces
 Model IR → Neutral Material → mapping preflight → native solver-card delivery chain on 2026-07-24.
 DUI-01~06 are complete. This does not imply that candidate selection, session invalidation, validation,
 review/release policy, or export fallback corrective contracts are complete; those are the pending
-UXC-01~06 workstream. DUI-07 Administration, DUI-08 Activity, and DUI-09 legacy cleanup remain
+UXC-01~06 workstream. UXC-01 has a completed server-scoped Materials Find vertical slice
+(text/material-class/sort/page total and rows; no row enrichment N+1; supported-family exact Modeling pin),
+but its provider/evidence/validation/solver and condition-aware Yield facets remain explicitly
+unavailable until their governed query projections are defined. DUI-07 Administration, DUI-08 Activity, and DUI-09 legacy cleanup remain
 pending. Issue #119 automatic LLM review remains disabled.
 
 ## 핵심 보존 계약

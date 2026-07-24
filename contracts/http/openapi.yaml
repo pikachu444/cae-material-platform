@@ -2279,6 +2279,18 @@ paths:
           in: query
           required: false
           schema: {$ref: "../catalog/catalog-resources.schema.json#/$defs/MaterialClass"}
+        - name: offset
+          in: query
+          required: false
+          schema: {type: integer, minimum: 0, default: 0}
+        - name: sort_by
+          in: query
+          required: false
+          schema: {type: string, enum: [name, material_class], default: name}
+        - name: sort_direction
+          in: query
+          required: false
+          schema: {type: string, enum: [ascending, descending], default: ascending}
         - name: limit
           in: query
           required: false

@@ -892,6 +892,26 @@ class MaterialListResponse(BaseModel):
 
     items: tuple[MaterialResponse, ...]
     total_count: int = Field(ge=0)
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=100)
+    facets: "MaterialFacetsResponse"
+
+
+class MaterialClassFacetResponse(BaseModel):
+    """One typed Material class facet bucket for the governed query."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    material_class: MaterialClass
+    count: int = Field(ge=0)
+
+
+class MaterialFacetsResponse(BaseModel):
+    """Typed contextual facets supported by the current Material projection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    material_classes: tuple[MaterialClassFacetResponse, ...] = ()
 
 
 class MaterialDetailResponse(BaseModel):
@@ -1527,6 +1547,9 @@ def install_catalog_api(
         request: Request,
         q: Annotated[str | None, Query(max_length=200)] = None,
         material_class: MaterialClass | None = None,
+        offset: Annotated[int, Query(ge=0)] = 0,
+        sort_by: Annotated[str, Query(pattern="^(name|material_class)$")] = "name",
+        sort_direction: Annotated[str, Query(pattern="^(ascending|descending)$")] = "ascending",
         limit: Annotated[int, Query(ge=1, le=100)] = 50,
     ) -> MaterialListResponse:
         context, decision = _scope(request)
@@ -1538,6 +1561,9 @@ def install_catalog_api(
                 decision,
                 query=q,
                 material_class=material_class,
+                offset=offset,
+                sort_by=sort_by,
+                sort_direction=sort_direction,
                 limit=limit,
             )
         except (CatalogError, RevisionKernelError, IntegrityError, ValueError) as error:
@@ -1545,6 +1571,14 @@ def install_catalog_api(
         return MaterialListResponse(
             items=tuple(MaterialResponse.from_snapshot(value) for value in result.items),
             total_count=result.total_count,
+            offset=result.offset,
+            limit=result.limit,
+            facets=MaterialFacetsResponse(
+                material_classes=tuple(
+                    MaterialClassFacetResponse(material_class=value, count=count)
+                    for value, count in result.facets
+                )
+            ),
         )
 
     @application.get(

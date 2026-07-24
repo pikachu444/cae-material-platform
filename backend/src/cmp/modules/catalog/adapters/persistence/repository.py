@@ -8,6 +8,7 @@ from typing import Any, Protocol
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 from cmp.modules.catalog.application.service import (
@@ -1100,15 +1101,16 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
         decision: AuthorizationDecision,
         query: str | None,
         material_class: MaterialClass | None,
+        offset: int,
+        sort_by: str,
+        sort_direction: str,
         limit: int,
     ) -> MaterialSearchResult:
-        statement = self._current_material_statement().add_columns(
-            sa.func.count().over().label("search_total_count")
-        )
+        scoped_statement = self._current_material_statement()
         if query is not None:
             escaped = query.replace("!", "!!").replace("%", "!%").replace("_", "!_")
             pattern = f"%{escaped}%"
-            statement = statement.where(
+            scoped_statement = scoped_statement.where(
                 sa.or_(
                     material_revision_table.c.name.ilike(pattern, escape="!"),
                     material_revision_table.c.material_code.ilike(pattern, escape="!"),
@@ -1117,7 +1119,7 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
             )
         if material_class is not None:
             if material_class is MaterialClass.UNCLASSIFIED:
-                statement = statement.where(
+                scoped_statement = scoped_statement.where(
                     sa.or_(
                         material_revision_table.c.material_class.is_(None),
                         material_revision_table.c.material_class
@@ -1125,18 +1127,81 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
                     )
                 )
             else:
-                statement = statement.where(
+                scoped_statement = scoped_statement.where(
                     material_revision_table.c.material_class == material_class.value
                 )
-        statement = statement.order_by(
-            material_revision_table.c.name.asc(), material_table.c.id.asc()
-        ).limit(limit)
+        # One statement, one scoped CTE: rows, total, and facets see the same RLS-filtered
+        # PostgreSQL snapshot even when the requested page is empty or out of range.
+        scoped = scoped_statement.cte("scoped_materials")
+        order_column = (
+            scoped.c.material_class
+            if sort_by == "material_class"
+            else scoped.c.name
+        )
+        order_expression = order_column.desc() if sort_direction == "descending" else order_column.asc()
+        page = (
+            sa.select(scoped)
+            .order_by(order_expression, scoped.c.identity_id.asc())
+            .offset(offset)
+            .limit(limit)
+            .cte("material_page")
+        )
+        facet_counts = (
+            sa.select(
+                scoped.c.material_class.label("material_class"),
+                sa.func.count().label("facet_count"),
+            )
+            .group_by(scoped.c.material_class)
+            .cte("material_facet_counts")
+        )
+        facet_json = sa.select(
+            sa.func.coalesce(
+                sa.func.jsonb_agg(
+                    sa.func.jsonb_build_object(
+                        "material_class", facet_counts.c.material_class,
+                        "facet_count", facet_counts.c.facet_count,
+                    )
+                ),
+                sa.cast("[]", postgresql.JSONB),
+            )
+        ).scalar_subquery()
+        metadata = sa.select(
+            sa.select(sa.func.count()).select_from(scoped).scalar_subquery().label("search_total_count"),
+            facet_json.label("search_facets"),
+        ).cte("material_search_metadata")
+        page_order_column = (
+            page.c.material_class
+            if sort_by == "material_class"
+            else page.c.name
+        )
+        page_order_expression = (
+            page_order_column.desc()
+            if sort_direction == "descending"
+            else page_order_column.asc()
+        )
+        statement = (
+            sa.select(page, metadata.c.search_total_count, metadata.c.search_facets)
+            .select_from(metadata.outerjoin(page, sa.true()))
+            .order_by(page_order_expression, page.c.identity_id.asc())
+        )
         with self._transaction(context, decision) as session:
             rows = session.execute(statement).mappings().all()
-        total_count = int(rows[0]["search_total_count"]) if rows else 0
+        metadata_row = rows[0]
+        total_count = int(metadata_row["search_total_count"])
+        facet_rows = metadata_row["search_facets"]
         return MaterialSearchResult(
-            tuple(self._material_snapshot(row) for row in rows),
+            tuple(self._material_snapshot(row) for row in rows if row["identity_id"] is not None),
             total_count,
+            offset=offset,
+            limit=limit,
+            # Material class is the only contextual facet whose governed semantics are
+            # available on the Material search projection. Provider, evidence source,
+            # validation, solver readiness, and condition-aware properties intentionally
+            # remain absent until their own server projections are defined.
+            facets=tuple(
+                (MaterialClass(row["material_class"] or MaterialClass.UNCLASSIFIED.value), int(row["facet_count"]))
+                for row in facet_rows
+            ),
         )
 
     def get_material(

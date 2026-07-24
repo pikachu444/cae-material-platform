@@ -273,7 +273,11 @@ Every slice must preserve:
 5. DUI-05 Data/Process — complete in PR #123;
 6. DUI-06 Fit/Export — complete in PR #124;
 7. UXC-00 documentation convergence and latest-main baseline — complete only with current captures;
-8. UXC-01 Materials query/facet/result correctness;
+8. UXC-01 Materials query/facet/result correctness — partial vertical slice complete: server-scoped
+   text/class/sort/page rows and total, Material class facet/page metadata, no row enrichment N+1, exact
+   supported-family Modeling pin, and current viewport evidence. Provider/evidence-source,
+   validation/solver readiness and condition-aware property/Yield projections remain blocked by
+   absent governed server contracts;
 9. UXC-02 Modeling session state and stage shell;
 10. UXC-03 Data and Process domain components;
 11. UXC-04 explicit Fit decision and model identity;
@@ -289,5 +293,14 @@ UXC-00 is the documentation-only convergence baseline. UXC-01~06 retain the comp
 surfaces while correcting query truth, session invalidation, explicit engineer decisions, validation/
 review/release, and exact delivery. No UXC task chooses a production material model, solver policy,
 validation threshold, or approval policy without the corresponding domain decision.
+
+### UXC-01 current constraint
+
+The Material query now owns rows, total, sort and pagination in the server response and does not
+filter the first 50 client-side or call detail/graph/card APIs per row. The current Material domain
+does not project provider, evidence source, validation availability, solver readiness, form/condition
+or a condition-aware quantity definition. These remain distinct unavailable states; `Yield` is hidden
+instead of inferred from the first property set. A later UXC-01 follow-up needs the governing query
+projection (definition, condition, unit and source revision) before a metal Yield range can be added.
 
 Do not merge multiple P0 slices into a single unreviewable frontend rewrite. Each PR must include the actual user task, before/after screenshots and state-continuity evidence.

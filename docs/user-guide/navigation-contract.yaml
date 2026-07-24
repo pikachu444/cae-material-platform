@@ -17,7 +17,7 @@ items:
     route: /activity
     guide: 18-search-first-materials.md
 materials_workspace:
-  task: DUI-02
+  task: UXC-01 (server-scoped Find correction on DUI-02 workspace)
   routes:
     results: /materials
     material_datasheet: /materials/:materialId/:tab?
@@ -36,7 +36,13 @@ materials_workspace:
     open: [Enter, double-click]
     exact_revision_fallback: forbidden
     back_restores: [query, filters, sort, navigator_mode, selection, pane_layout]
-    capture_ready: [aria-busy-false, no-checking-rows, three-synthetic-results]
+    capture_ready: [aria-busy-false, server-scoped-total-page-and-material-class-facet, no-row-enrichment-requests]
+  find_query:
+    source_of_truth: server-side
+    fields: [text_query, material_class, sort, offset, limit]
+    same_response: [total_count, page_rows, material_class_facet_counts]
+    unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
+    yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
   task: DUI-04/DUI-05/DUI-06 (complete); UXC-02~06 corrective sequence pending
   route: /modeling

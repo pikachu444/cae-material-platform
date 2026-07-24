@@ -70,10 +70,15 @@ class MaterialSearchResult:
 
     items: tuple[MaterialSnapshot, ...]
     total_count: int
+    offset: int = 0
+    limit: int = 50
+    facets: tuple[tuple[MaterialClass, int], ...] = ()
 
     def __post_init__(self) -> None:
         if self.total_count < len(self.items):
             raise ValueError("Material search total cannot be smaller than its page")
+        if self.offset < 0:
+            raise ValueError("Material search offset cannot be negative")
 
 
 @dataclass(frozen=True, slots=True)
@@ -255,6 +260,9 @@ class CatalogRepository(Protocol):
         decision: AuthorizationDecision,
         query: str | None,
         material_class: MaterialClass | None,
+        offset: int,
+        sort_by: str,
+        sort_direction: str,
         limit: int,
     ) -> MaterialSearchResult: ...
 
@@ -1142,6 +1150,9 @@ class CatalogService:
         *,
         query: str | None = None,
         material_class: MaterialClass | None = None,
+        offset: int = 0,
+        sort_by: str = "name",
+        sort_direction: str = "ascending",
         limit: int = 50,
     ) -> MaterialSearchResult:
         _require_decision(context, decision, Permission.CATALOG_READ)
@@ -1149,11 +1160,20 @@ class CatalogService:
             raise ValueError("material search query must be trimmed and contain 1..200 characters")
         if not 1 <= limit <= 100:
             raise ValueError("material search limit must be between 1 and 100")
+        if offset < 0:
+            raise ValueError("material search offset cannot be negative")
+        if sort_by not in {"name", "material_class"}:
+            raise ValueError("material search sort_by must be name or material_class")
+        if sort_direction not in {"ascending", "descending"}:
+            raise ValueError("material search sort_direction must be ascending or descending")
         return self._repository.list_materials(
             context=context,
             decision=decision,
             query=query,
             material_class=material_class,
+            offset=offset,
+            sort_by=sort_by,
+            sort_direction=sort_direction,
             limit=limit,
         )
 
