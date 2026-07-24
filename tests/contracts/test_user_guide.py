@@ -32,12 +32,12 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     assert report.orphan_image_count == 0
 
 
-def test_superseded_ux_package_is_historical_not_authoritative() -> None:
+def test_incoming_integration_package_is_reference_not_authoritative() -> None:
     root = Path(__file__).parents[2]
 
     classes = _documentation_classes(root)
 
-    assert classes["docs/01-product/ux-redesign-package/04_CODEX_MASTER_PROMPT.md"] == "historical"
+    assert classes["docs/_incoming/2026-07-24-organic-ux-update/04_WORKFLOW_STATE_AND_INVALIDATION_CONTRACT.md"] == "reference"
     assert classes["docs/01-product/desktop-engineering-ui-program-brief.md"] == "authoritative"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
     assert classes["docs/17-evidence/reports/dui-04-modeling-workspace.md"] == "historical"
@@ -49,6 +49,19 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
     )
     captures = {capture["id"]: capture for capture in manifest["captures"]}
+    provenance_ids = [
+        capture_id
+        for provenance in manifest["capture_provenance"]
+        for capture_id in provenance["ids"]
+    ]
+
+    assert manifest["source_commit"] == "mixed-per-capture"
+    assert len(provenance_ids) == len(set(provenance_ids))
+    assert set(provenance_ids) == set(captures)
+    assert {
+        provenance["source_commit"]
+        for provenance in manifest["capture_provenance"]
+    } == {"117551a", "d16d925", "ff8bb1e"}
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "recent-browser-local-solver-card-delivery"
@@ -59,8 +72,8 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         "modeling-export-1920",
     ):
         capture = captures[capture_id]
-        assert capture["workflow"] == "ephemeral-export-preview-without-reviewed-delivery"
-        assert "DUI-06 pending" in capture["fixture"]
+        assert capture["workflow"] == "exact-neutral-mapping-preflight-and-native-card-delivery"
+        assert "DUI-06 acceptance" in capture["fixture"]
 
 
 def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(

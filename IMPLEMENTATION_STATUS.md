@@ -32,6 +32,15 @@ Layout, Subset, exact-revision 양방향 Link Type과 workflow projection은 유
 Production 표준·plugin·solver correlation·validation threshold는 domain approval 전까지 완료로 간주하지
 않습니다.
 
+## Desktop UI delivery status
+
+PR #124/DUI-06 completed the bounded Fit candidate decision → immutable Processing Output → Material
+Model IR → Neutral Material → mapping preflight → native solver-card delivery chain on 2026-07-24.
+DUI-01~06 are complete. This does not imply that candidate selection, session invalidation, validation,
+review/release policy, or export fallback corrective contracts are complete; those are the pending
+UXC-01~06 workstream. DUI-07 Administration, DUI-08 Activity, and DUI-09 legacy cleanup remain
+pending. Issue #119 automatic LLM review remains disabled.
+
 ## 핵심 보존 계약
 
 - raw bytes와 released artifacts immutable

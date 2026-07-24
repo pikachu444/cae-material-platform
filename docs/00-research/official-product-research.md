@@ -1,5 +1,8 @@
 # 공식 제품 자료 조사와 설계 시사점
 
+구조화된 공식 출처와 적용 제한은
+[`product-reference-source-catalog.json`](product-reference-source-catalog.json)에 유지한다.
+
 기준일: `2026-07-16`
 
 ## 1. 조사 원칙

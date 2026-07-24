@@ -1,6 +1,7 @@
 # Reference-derived layout analysis and rejected interpretation
 
-Status: authoritative input for the design approval gate
+Status: reference input for the design approval gate. It records external observations; adopted
+product rules live in the authoritative desktop-engineering specifications and are not implied here.
 
 Every image in `ux-reference-gallery/images` was opened at original resolution. This analysis is
 about layout grammar and interaction, not pixels, color, branding, icons, or inferred internals.
@@ -44,4 +45,4 @@ pane. Production acceptance additionally requires lazy server loading and row vi
 a synthetic 10,000-record hierarchy.
 
 The full scoring method and hard gates are defined in
-[`ux-visual-system.md`](../01-product/ux-visual-system.md).
+[`visual-acceptance-matrix.md`](../01-product/visual-acceptance-matrix.md).

@@ -1,7 +1,7 @@
 # Codex Desktop Engineering UI Start
 
-This is the entrypoint for the existing CAE Material Platform desktop-workbench rebuild. It replaces
-ad-hoc prompts about making the UI “look more like” Granta MI or Material Modeler.
+This is the sole Codex entrypoint for the CAE Material Platform desktop-workbench program. It
+replaces all earlier UX-redesign prompts and packages.
 
 ## Goal
 
@@ -12,30 +12,31 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 
 ## Paste this request into a new Codex session
 
-> CODEX_DESKTOP_ENGINEERING_UI_START.md를 먼저 읽어라. PR #112, #114, #115의 병합 상태와 `docs/13-delivery/desktop-engineering-ui-backlog.md`의 다음 pending DUI를 확인하라. 문서에 적힌 프로젝트 단위 외부 스킬을 설치·확인하고, 기존 API·도메인 계약을 보존한 채 pending DUI 작업 하나만 구현하라. 실제 흐름·회귀검증·세 가지 데스크톱 해상도 검수를 통과할 때까지 수정하고 증거를 남겨라.
+> `CODEX_DESKTOP_ENGINEERING_UI_START.md`를 먼저 읽어라. `docs/13-delivery/desktop-engineering-ui-backlog.md`에서 다음 pending UXC/DUI 작업 하나를 확인하고, 기존 API·도메인 계약을 보존해 구현하라. PR #124/DUI-01~06은 완료됐으므로 다시 구현하지 않는다. 실제 흐름·결정적 회귀검증·1366×768/1440×900/1920×1080 live-browser 검수를 통과하고 current guide, screenshot manifest와 evidence를 갱신할 때까지 작업한다. #119의 자동 LLM review는 활성화하지 않는다.
 
 ## Read in order
 
 1. `AGENTS.md`
-2. `docs/01-product/desktop-engineering-ui-program-brief.md`
-3. `docs/01-product/desktop-engineering-ui-product-spec.md`
-4. `docs/01-product/gui-functional-parity-plan.md`
-5. `docs/01-product/desktop-engineering-ui-tooling.md`
-6. `docs/13-delivery/backlog.md`
-7. `docs/13-delivery/desktop-engineering-ui-backlog.md`
-8. `.codex/skills/desktop-engineering-ui/SKILL.md`
-9. `docs/00-research/ux-reference-gallery/README.md`
-10. `docs/00-research/images/gui-reference/README.md` and every relevant local image it inventories
-11. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
-12. current route code, tests, screenshots and user guides
+2. `docs/01-product/product-vision.md`
+3. `docs/01-product/desktop-engineering-user-flows.md`
+4. `docs/01-product/desktop-engineering-ui-product-spec.md`
+5. `docs/01-product/desktop-engineering-ui-spec.md`
+6. `docs/01-product/visual-acceptance-matrix.md`
+7. `docs/01-product/desktop-engineering-ui-tooling.md`
+8. `docs/13-delivery/backlog.md`
+9. `docs/13-delivery/desktop-engineering-ui-backlog.md`
+10. `.codex/skills/desktop-engineering-ui/SKILL.md`
+11. `docs/00-research/ux-reference-gallery/README.md`
+12. `docs/00-research/images/gui-reference/README.md` and relevant inventoried images
+13. current route code, tests, screenshots and user guides
 
 ## Program rule
 
 - Do not begin with a generic visual cleanup, a CSS-only pass or a disconnected mockup.
-- `AGENTS.md` requires product-owner approval before production React/CSS changes. PR #112/DUI-01,
-  PR #114/DUI-02 and PR #115/DUI-04 were approved and merged on 2026-07-22. DUI-03 and DUI-05~09
-  remain pending; issue #117 owns their execution order. If a later slice lacks its required
-  approval, stop and report it.
+- `AGENTS.md` requires product-owner approval before production React/CSS changes. DUI-01~06,
+  including PR #124/DUI-06, are complete. UXC-01~06 are corrective work before DUI-07~09; do not
+  claim their future workflow states are implemented. If a later slice lacks its required approval,
+  stop and report it.
 - After that acceptance, implement the delivery backlog in order. One pull request owns one bounded
   DUI slice.
 - Preserve database, revision/provenance, unit and solver-mapping contracts. Move the facade, not

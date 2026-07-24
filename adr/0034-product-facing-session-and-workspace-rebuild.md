@@ -16,7 +16,7 @@ Material Modeler workflow.
 1. Keep PostgreSQL, immutable revisions, typed attributes/links, processing methods, Neutral IR and
    exporters as the engineering engine.
 2. Replace the product-facing shell with Material Database and Material Modeling workspaces defined
-   by `docs/01-product/product-experience-spec.md`.
+   by `docs/01-product/desktop-engineering-ui-product-spec.md`.
 3. The web application uses one same-origin product session. Demo deployments obtain and refresh a
    demo session without user configuration; normal deployments use a standard login. The product UI
    does not expose API URLs or bearer tokens. Existing bearer API support may remain for integrations

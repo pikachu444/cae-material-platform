@@ -68,8 +68,9 @@ Fit → Export를 하나의 workbench에서 완료해야 한다.
 
 일반 사용자는 API URL, bearer token, tenant/RLS 또는 object-store 개념을 보지 않는다. demo는
 자동 session으로 시작하고 non-demo는 일반 login만 표시한다. 상세 화면, 완료 증거와 교체 순서는
-[product experience specification](product-experience-spec.md),
-[visual system contract](ux-visual-system.md), ADR-0034를 따른다.
+[desktop engineering user flows](desktop-engineering-user-flows.md),
+[desktop engineering UI product specification](desktop-engineering-ui-product-spec.md),
+[visual acceptance matrix](visual-acceptance-matrix.md), ADR-0034를 따른다.
 
 ## 3. 목표 사용자와 역할
 

@@ -1,17 +1,35 @@
-version: 47
+version: 49
 verified_at: 2026-07-24
 scope: current-main-product-baseline
-source_commit: 117551a
+source_commit: mixed-per-capture
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "Captured from the live Docker Compose application for the bounded DUI-06 Fit and Export decision slice."
+  - "Provenance is per-capture below; this field is intentionally mixed and is not a claim that one SHA produced every PNG."
+  - "After API/web/worker restart and deterministic reseed without volume deletion, the full atomic helper failed reproducibly at Modeling Export: `.domain-workflow-links[data-resolution-state=resolved]` did not become visible within 30 seconds. Its staging directory retained prior Modeling PNGs; no SHA-only relabel occurred."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing reviewed-fit command, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
   - "Fit and Export show the DUI-06 candidate-decision and exact Neutral/mapping/native-card controls; immutable creation is exercised separately in the linked live evidence report."
-  - "DUI-01 through DUI-05 are merged; DUI-06 is implemented and live-verified pending review/merge; DUI-07 through DUI-09 remain pending."
+  - "PR #124 completed DUI-06; DUI-01 through DUI-06 are complete. UXC-01 through UXC-06 are corrective work pending before DUI-07 through DUI-09."
 allowed_duplicate_pairs: []
+capture_provenance:
+  - source_commit: ff8bb1e
+    captured_at: 2026-07-24T11:41:00+09:00
+    command: uv run --with playwright python scripts/capture_current_product.py (Materials and solver-delivery helper paths)
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1440]
+  - source_commit: 117551a
+    captured_at: 2026-07-24T01:14:58+09:00
+    command: prior successful current-product capture recorded for the DUI-05 baseline
+    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920]
+  - source_commit: 117551a
+    captured_at: 2026-07-24T01:15:21+09:00
+    command: prior successful Administration capture retained by UXC-00
+    ids: [administration-database-1440]
+  - source_commit: d16d925
+    captured_at: 2026-07-24T10:06:55+09:00
+    command: successful post-PR-124 Fit and Export current-product capture retained by UXC-00
+    ids: [modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
 captures:
   - id: materials-search-1366
     route: /materials

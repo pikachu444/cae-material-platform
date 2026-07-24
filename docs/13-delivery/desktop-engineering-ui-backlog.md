@@ -1,7 +1,8 @@
 # Desktop Engineering UI Delivery Backlog
 
-Status: active program; DUI-01~05 are merged; DUI-06 is implemented and live-verified on its
-bounded branch pending review/merge, while DUI-07~09 remain pending
+Status: active program; DUI-01~06 are complete, including PR #124/DUI-06 merged on 2026-07-24.
+UXC-01~06 are corrective work required before DUI-07~09, which remain pending. Issue #119 remains
+an explicit opt-in independent-review gate; automatic LLM review remains disabled.
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
@@ -155,8 +156,8 @@ CSV/TSV/XLSX/JSON becomes usable curve data through a clear mapping and preview 
 
 ## DUI-06 — Fit and Export decision workflow — P0
 
-Implementation status: implemented and live-verified on `codex/dui-06-fit-export`, pending
-review/merge. The bounded implementation and measurements are recorded in
+Implementation status: complete. PR #124 merged the bounded implementation on 2026-07-24. The
+implementation and measurements are recorded in
 [`dui-06-fit-export-decision.md`](../17-evidence/reports/dui-06-fit-export-decision.md). It reuses
 the existing synthetic Processing Output, Material Model IR, Neutral Material, mapping-report and
 solver-card contracts; it does not select a production material model, solver policy or threshold.
@@ -270,9 +271,23 @@ Every slice must preserve:
 3. DUI-04 Modeling session shell — complete in PR #115 by explicit product-owner ordering;
 4. DUI-03 card delivery — complete in PR #122;
 5. DUI-05 Data/Process — complete in PR #123;
-6. DUI-06 Fit/Export — implemented and live-verified, pending review/merge;
-7. DUI-07 Administration — pending;
-8. DUI-08 Activity — pending;
-9. DUI-09 Storybook and final legacy cleanup — pending.
+6. DUI-06 Fit/Export — complete in PR #124;
+7. UXC-00 documentation convergence and latest-main baseline — complete only with current captures;
+8. UXC-01 Materials query/facet/result correctness;
+9. UXC-02 Modeling session state and stage shell;
+10. UXC-03 Data and Process domain components;
+11. UXC-04 explicit Fit decision and model identity;
+12. UXC-05 Validate, Review and Release;
+13. UXC-06 exact Export and traceable delivery;
+14. DUI-07 Administration — pending;
+15. DUI-08 Activity — pending;
+16. DUI-09 Storybook and final legacy cleanup — pending.
+
+## UXC corrective sequence
+
+UXC-00 is the documentation-only convergence baseline. UXC-01~06 retain the completed DUI-01~06
+surfaces while correcting query truth, session invalidation, explicit engineer decisions, validation/
+review/release, and exact delivery. No UXC task chooses a production material model, solver policy,
+validation threshold, or approval policy without the corresponding domain decision.
 
 Do not merge multiple P0 slices into a single unreviewable frontend rewrite. Each PR must include the actual user task, before/after screenshots and state-continuity evidence.

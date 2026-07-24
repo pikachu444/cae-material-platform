@@ -2,6 +2,20 @@
 
 Status: authoritative visual review gate
 
+## UXC measurement and state evidence additions
+
+Every target route is measured at 1366×768, 1440×900 and 1920×1080 from a live deterministic demo.
+The screenshot manifest records executable UI source commit, capture command/date, route, fixture and
+viewport; a commit identifier without an actual capture is not capture evidence. The capture settles
+async work, has no page-level horizontal overflow, and shows no unfinished checking/loading/
+calculating/resolving status.
+
+Acceptance also verifies that Materials total/facet/row values share one server-query scope;
+non-metal routes expose no Yield facet; recommendation and selected candidate are distinct; blend
+identity names both laws and ratio; upstream changes mark downstream state stale without removing
+immutable evidence; and Export offers no artifact action without a current exact source. Validated,
+Approved, Released, and Delivered labels require the corresponding audit event.
+
 ## Scoring rule
 
 Each route is scored from 0 to 2 for every criterion.

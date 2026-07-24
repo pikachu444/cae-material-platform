@@ -2,6 +2,47 @@
 
 Status: authoritative implementation specification
 
+## Canonical visible-field contract
+
+This document is the single source for component-level field behavior. Each visible engineering
+component or field must record: `purpose` (the user decision), `placement` (why it is adjacent to
+its evidence), `visible_when` (family, workflow, permission and data state), `source` (including
+revision, unit and condition), `requires`, `invalidates`, `states`, and `error_recovery`. The
+implementation may add `action_output`, validation, and forbidden representations where needed.
+
+Use this contract as follows: Materials search scope, facets and result count share a server-scoped
+query source; a condition-aware Yield control is visible only for compatible metal results. Modeling
+recommendations, explicit engineer selections, saved snapshots, validation, review, release and
+delivery are separate states. An upstream input change clears downstream *current pointers* and
+marks UI state stale, but never rewrites immutable revisions. In a blocked or error state, preserve
+the source, selected curves/candidate and plot context, name the unmet requirement, and offer the
+next safe recovery action. UUIDs, hashes, raw JSON and plugin keys remain Advanced/Evidence fields.
+
+## Canonical component registry
+
+This authoritative annex retains the component-specific contract. Each compact row states
+**purpose/placement**; **visible when, source, requires**; **output, state, invalidates, recovery**.
+`Target` is pending work, not a claim about the current product.
+
+| Components | Contract | Not allowed / status |
+| --- | --- | --- |
+| G-01 navigation; G-02 identity header | Move among Materials/Modeling/Activity in the shell; show human Material/session name, form/condition, version and state from exact context. | Internal module hub, UUID/hash as title, duplicated headings; current. |
+| G-03 primary action; G-04 Evidence | One next task action in header/footer with prerequisite and calculating/blocked/error state; disclose IDs, JSON and checksums only on demand. | Multiple equal primaries, silent disabled action, technical default fields; current. |
+| M-01 scope; M-02 search; M-03 tree | Establish governed scope, find known material, or browse Database→Profile→Table→Folder→Record; exact selection updates workspace. | Fake sole-scope selector, client subset presented as complete, tree as form; search correction is UXC-01 target. |
+| M-04–07 facets/filter/header | Refine the same server query; show condition/unit/source, active restrictions, total/sort/page and loading/empty/error state. | Facet counts/rows/totals from different sources; UXC-01 target. |
+| M-05 Yield | Show only for compatible metal property definition with condition/unit/source. | Yield filter/column for polymer or elastomer; UXC-01 target. |
+| M-08–12 grid/layout/compare/inspector/start | Compare/select/open dense rows; select allowed Layout; pin Material/Test Data into Modeling; preserve selection and result context. | Truncated identity, auto-compare, unpinned latest start, blanking main pane; current. |
+| M-13–18 detail/property/curve/cards/relations | Display identity, Layout value, original/normalized units, curve, target card/mapping and exact relation evidence in purpose tabs. | Long generic accordion, ambiguous Preview/fake Download, hidden mapping; current. |
+| W-01 session; W-02 stage; W-03 context; W-04 action | Establish exact family/input, change Data/Process/Fit/Export without graph remount, retain context strip, and execute one named stage action. | Global output fallback, “reviewed”/“released” labels without event; session correction UXC-02 target. |
+| D-01–07 source/library/file/identity/mapping/plot/save | Choose exact library/local/JSON source, map channel/unit/provenance, validate uncertainty, preview and save Test Data revision. Mapping change invalidates processing onward; retain source mapping for recovery. | Normal JSON editing, hidden conversion, saved data called reviewed; current. |
+| P-01–08 rail/replicate/palette/pipeline/inspector/plot/save | Select curve/replicate, define ordered processing operation/range, preview before/after and commit immutable Processing Output. Operation change invalidates Fit onward; source curve remains recoverable. | Manual curve edit, outlier deletion, implicit smoothing/resample; current. |
+| F-01–07 rail/workflow/model/bounds/range/run/plot | Select compatible processed data, model/bounds/range, run candidate and show response/residual/tangent plus observed/extrapolated domain. Input change invalidates decision onward. | Opaque score or hidden extrapolation; current. |
+| F-08–11 comparison/selection/blend/save | Compare error/status/applicability/warnings; engineer selects one candidate or named two-law ratio blend and reason, then saves decision/snapshot. Recommendation never mutates it. | Auto-selection or blend represented as one law; UXC-04 target. |
+| V-01–04 plan/run/result | **Target:** configure approved reference/plan, run validation and retain immutable result; failure preserves candidate and offers retry/revise plan. | Validated without Validation Run; UXC-05 pending. |
+| R-01–04 package/submit/approve/release | **Target:** package exact lineage, submit, request changes/approve, then release under role/policy; each event is auditable. | Approval/release without policy, permission or event; UXC-05 pending. |
+| E-01–08 prerequisites/pin/lineage/target/preflight/preview/deliver/evidence | Pin current allowed exact model, select solver/version/unit, expose mapping/acknowledgement, preview and deliver immutable lineage artifact. Source/target change invalidates preview/delivery pointer; retain preflight for recovery. | Artifact UI without exact source, silent approximation, preview labelled delivered; UXC-06 target. |
+| A-01–03 queue/item/job | **Target:** show Needs attention/In progress/Recent outcomes, resume exact context and provide job error/retry with Advanced diagnostics. | Placeholder dashboard or generic job history as default; DUI-08 pending. |
+
 ## 1. Product character
 
 The product is a desktop-first CAE material engineering application delivered through a browser. It must visually and behaviorally resemble a professional engineering tool rather than a marketing site, content portal or card-based SaaS dashboard.

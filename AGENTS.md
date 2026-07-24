@@ -43,6 +43,16 @@
   ratios, and explicit product-owner approval before production React/CSS implementation begins.
 - Visual acceptance requires every target screen to score at least 85/100 against the structural
   reference rubric, with no topology, dominant-area, or nested-card hard-gate failure.
+- Every visible engineering component or field has one canonical UI-spec entry that states its
+  `purpose`, `placement`, `visible_when`, `source`, `requires`, `invalidates`, `states`, and
+  `error_recovery`. A field without a user decision or workflow consequence must be redesigned,
+  moved to Advanced/Evidence, or removed; it is not retained merely to look technical.
+- Recommendation, engineer selection, saved result, review, release, and delivered artifact are
+  distinct states. A recommendation never silently becomes the selected candidate, and an upstream
+  change invalidates downstream current pointers without mutating immutable revisions.
+- Materials query totals, facet counts, and rows come from the same server-side scoped query.
+  Condition-aware properties are not exposed as universal facets (for example, Yield is absent for
+  non-metal families).
 
 ## Do not decide TBD domain items
 
