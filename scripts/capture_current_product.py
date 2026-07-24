@@ -343,13 +343,15 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     ".modeling-workspace-dock .neutral-solver-export"
                 )
                 if not neutral_export.count():
-                    promotion_acknowledgement = page.get_by_text(
-                        re.compile(
-                            r"I reviewed the candidate blend and acknowledge its bounded fitted extrapolation"
-                        )
+                    promotion_acknowledgement = page.get_by_role(
+                        "checkbox",
+                        name=re.compile(
+                            r"reviewed the candidate blend and acknowledge its bounded fitted extrapolation",
+                            re.IGNORECASE,
+                        ),
                     )
                     promotion_acknowledgement.wait_for(timeout=30_000)
-                    promotion_acknowledgement.click()
+                    promotion_acknowledgement.check()
                     page.get_by_role(
                         "button", name="Promote fitted output to IR", exact=True
                     ).click()

@@ -7,6 +7,7 @@ capture_command: uv run --with playwright python scripts/capture_current_product
 notes:
   - "All 26 images were replaced atomically by the successful full helper against the bounded UXC-02 worktree. The temporary worktree provenance is replaced with the exact implementation commit before PR publication."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation, and a terminal related-data state; an explicit unprojected Catalog state is evidence, not a silent resolved-link fallback."
+  - "A late exact-model list refresh preserves a just-promoted local IR selection; capture waits for the enabled Neutral action or an already-restored exact Neutral."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."

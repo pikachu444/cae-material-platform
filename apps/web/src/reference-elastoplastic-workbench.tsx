@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ApiError,
@@ -197,6 +197,7 @@ export function ReferenceElastoplasticWorkbench({
   const [preview, setPreview] = useState<string | null>(null);
   const [previewCardId, setPreviewCardId] = useState<string | null>(null);
   const [neutralMaterial, setNeutralMaterial] = useState<NeutralMaterialResponse | null>(null);
+  const preferredProcessingOutputRef = useRef(preferredProcessingOutputId);
   const [switchingProcessingOutput, setSwitchingProcessingOutput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<"model" | "neutral" | "preflight" | "card" | "download" | null>(null);
@@ -231,7 +232,13 @@ export function ReferenceElastoplasticWorkbench({
       ]);
       setDatasets(datasetResult.data.items);
       setProcessingOutputs(outputResult.data.items);
-      setModels(modelResult.data.items);
+      setModels((current) => {
+        const incomingIds = new Set(modelResult.data.items.map((model) => model.material_model_id));
+        return [
+          ...current.filter((model) => !incomingIds.has(model.material_model_id)),
+          ...modelResult.data.items,
+        ];
+      });
       const eligible = datasetResult.data.items.filter((dataset) =>
         ["normalized", "processed"].includes(dataset.current_revision.content.representation),
       );
@@ -255,7 +262,8 @@ export function ReferenceElastoplasticWorkbench({
       );
       setSelectedModelId(
         (current) => preferredModel?.material_model_id
-          || (preferredOutput ? "" : current || modelResult.data.items[0]?.material_model_id || ""),
+          || current
+          || (preferredOutput ? "" : modelResult.data.items[0]?.material_model_id || ""),
       );
     } catch (cause) {
       setError(messageFor(cause));
@@ -269,6 +277,20 @@ export function ReferenceElastoplasticWorkbench({
       void refresh();
     }
   }, [open, refresh]);
+
+  useEffect(() => {
+    if (preferredProcessingOutputRef.current === preferredProcessingOutputId) return;
+    preferredProcessingOutputRef.current = preferredProcessingOutputId;
+    setSelectedProcessingOutputId(preferredProcessingOutputId ?? "");
+    setSelectedModelId((current) => {
+      const selected = models.find((model) => model.material_model_id === current);
+      return selected?.current_revision.content.processing_projection?.output_id
+        === preferredProcessingOutputId
+        ? current
+        : "";
+    });
+    setNeutralMaterial(null);
+  }, [models, preferredProcessingOutputId]);
 
   useEffect(() => {
     setNeutralMaterial(null);

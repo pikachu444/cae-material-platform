@@ -442,7 +442,7 @@ describe("Reference elastoplastic workbench", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    render(
+    const view = render(
       <ReferenceElastoplasticWorkbench
         config={{ baseUrl: "/api/v1", accessToken: "tenant-token" }}
         state={state}
@@ -460,6 +460,22 @@ describe("Reference elastoplastic workbench", () => {
     expect(
       await screen.findByText("Origin: selected fitted hardening Processing Output"),
     ).toBeTruthy();
+    view.rerender(
+      <ReferenceElastoplasticWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "tenant-token" }}
+        state={state}
+        propertySet={propertySet}
+        preferredProcessingOutputId={outputId}
+      />,
+    );
+    await waitFor(() => {
+      const modelListCalls = fetchMock.mock.calls.filter(([url, init]) =>
+        String(url).endsWith(`/material-states/${stateId}/tabulated-plasticity-models`)
+        && (init?.method ?? "GET") === "GET",
+      );
+      expect(modelListCalls.length).toBeGreaterThanOrEqual(2);
+      expect(screen.getByText("Origin: selected fitted hardening Processing Output")).toBeTruthy();
+    });
     expect(await screen.findByText(/Published Recipe revision:/)).toBeTruthy();
     expect(await screen.findByText(/Successful Batch attempt #1/)).toBeTruthy();
     expect(

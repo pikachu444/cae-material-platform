@@ -195,14 +195,12 @@ Test Data JSON을 한 ribbon에서 고르고 등록 전에 같은 그래프로 �
 한 표와 세 그래프 보기로 비교하고 명시적인 선택 결과 저장을 제공합니다. Export는 exact
 Material State에서 Neutral, mapping preflight와 native-card 전달을 한 dock에 연결합니다.
 
-2026-07-24 11:41 KST UXC-00 live Compose recapture는 UI source `ff8bb1e` 기준으로 Materials,
-datasheet/card, solver delivery와 Activity의 등록 viewport를 갱신했습니다. Data/Process와
-Administration PNG는 `117551a` 기준 capture를, Fit/Export PNG는 PR #124 병합 직후
-`d16d925` 기준 capture를 유지합니다. API/web/worker restart와 deterministic reseed 뒤에도 Full
-Modeling capture는 Export route의 exact-lineage resolution이 30초 안에 settled state가 되지 않아
-atomic helper가 이를 보존했습니다. Capture별 source/time/command는
-[`screenshot manifest`](screenshot-manifest.yaml)에 기록하며, 이는 SHA만 바꿔 통과시킨 것이 아니라
-후속 UXC corrective work에서 해결할 live-state blocker입니다.
+UXC-02 live Compose recapture는 New session의 pin-free Data-first 상태와, exact Test Data·Mapping
+Profile·Processing Output을 다시 선택한 Data → Process → Fit → Export 흐름을 분리해 검증합니다.
+Export adapter는 늦게 도착한 model-list refresh가 방금 promotion한 IR 선택을 덮지 않도록 local
+결과와 server 목록을 병합합니다. Catalog projection이 아직 없으면 related-data panel은 이를
+`unprojected` terminal state로 명시하며 resolved link로 위장하지 않습니다. Capture별
+source/time/command는 [`screenshot manifest`](screenshot-manifest.yaml)에 기록합니다.
 
 UXC-01 Materials Search 이미지는 web과 API를 같은 코드 커밋 `a486644`로 재빌드한 뒤
 1366×768, 1440×900, 1920×1080에서 다시 캡처했습니다. 세 viewport 모두 horizontal overflow가
