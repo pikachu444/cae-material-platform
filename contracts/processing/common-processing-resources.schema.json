@@ -307,9 +307,9 @@
       "required": ["kind", "original_value", "original_unit", "canonical_value", "canonical_unit", "reason"],
       "properties": {
         "kind": {"enum": ["youngs_modulus", "necking_boundary"]},
-        "original_value": {"type": "number", "exclusiveMinimum": 0},
+        "original_value": {"type": "number", "minimum": 0},
         "original_unit": {"type": "string", "minLength": 1, "maxLength": 160},
-        "canonical_value": {"type": "number", "exclusiveMinimum": 0},
+        "canonical_value": {"type": "number", "minimum": 0},
         "canonical_unit": {"type": "string", "minLength": 1, "maxLength": 160},
         "reason": {"type": "string", "minLength": 1, "maxLength": 2000}
       }

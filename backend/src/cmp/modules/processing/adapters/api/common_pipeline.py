@@ -308,9 +308,9 @@ class ProcessingWorkupOverrideInput(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
     kind: Literal["youngs_modulus", "necking_boundary"]
-    original_value: float = Field(gt=0)
+    original_value: float = Field(ge=0)
     original_unit: Text160
-    canonical_value: float = Field(gt=0)
+    canonical_value: float = Field(ge=0)
     canonical_unit: Text160
     reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
 

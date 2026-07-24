@@ -13,7 +13,9 @@ def _migration_sql() -> str:
 
     command.upgrade(config, "head", sql=True)
     sql = output.getvalue()
-    return sql[sql.index("20260912_077_t64_export") :]
+    start = sql.index("20260912_077_t64_export")
+    end = sql.index("20260913_078_t65_binding_rls", start)
+    return sql[start:end]
 
 
 def test_t64_projects_three_neutral_families_without_json_eav() -> None:
