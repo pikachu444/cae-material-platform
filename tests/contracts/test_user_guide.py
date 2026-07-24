@@ -55,14 +55,14 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "b781ae2"
+    assert manifest["source_commit"] == "a36ecd7"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {
         provenance["source_commit"]
         for provenance in manifest["capture_provenance"]
-    } == {"b781ae2"}
-    assert "exact implementation commit b781ae2" in manifest["capture_provenance"][0]["command"]
+    } == {"a36ecd7"}
+    assert "exact implementation commit a36ecd7" in manifest["capture_provenance"][0]["command"]
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "recent-browser-local-solver-card-delivery"
