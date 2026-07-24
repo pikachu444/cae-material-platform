@@ -18,12 +18,19 @@ describe("recent Material Modeling session", () => {
     });
     saveModelingSession({
       testData: { id: "test-1", revisionId: "test-r2", label: "DP780 tensile", revisionNo: 2 },
+      processingOutput: {
+        id: "output-1",
+        revisionId: "output-r1",
+        label: "DP780 · Swift reviewed fit",
+        revisionNo: 1,
+      },
     });
 
     expect(loadModelingSession()).toMatchObject({
       materialFamily: "metal",
       material: { revisionId: "material-r1", label: "DP780", revisionNo: 1 },
       testData: { revisionId: "test-r2", label: "DP780 tensile", revisionNo: 2 },
+      processingOutput: { revisionId: "output-r1", label: "DP780 · Swift reviewed fit", revisionNo: 1 },
       version: 2,
       workspace: { activeStage: "fit" },
     });

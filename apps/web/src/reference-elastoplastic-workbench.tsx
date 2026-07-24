@@ -160,9 +160,17 @@ interface Props {
   propertySet: PropertySetResponse;
   onNavigate?: (path: string) => void;
   embedded?: boolean;
+  preferredProcessingOutputId?: string;
 }
 
-export function ReferenceElastoplasticWorkbench({ config, state, propertySet, onNavigate, embedded = false }: Props) {
+export function ReferenceElastoplasticWorkbench({
+  config,
+  state,
+  propertySet,
+  onNavigate,
+  embedded = false,
+  preferredProcessingOutputId,
+}: Props) {
   const [open, setOpen] = useState(embedded);
   const [datasets, setDatasets] = useState<DatasetResponse[]>([]);
   const [processingOutputs, setProcessingOutputs] = useState<CommonProcessingOutputResponse[]>([]);
@@ -231,18 +239,30 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
       const eligibleOutputs = outputResult.data.items.filter(
         (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate",
       );
+      const preferredOutput = eligibleOutputs.find(
+        (output) => output.processing_output_id === preferredProcessingOutputId,
+      );
+      const preferredModel = preferredOutput
+        ? modelResult.data.items.find(
+          (model) => model.current_revision.content.processing_projection?.output_id
+            === preferredOutput.processing_output_id
+          && model.current_revision.content.processing_projection.output_revision_id
+            === preferredOutput.current_revision.id,
+        )
+        : null;
       setSelectedProcessingOutputId(
-        (current) => current || eligibleOutputs[0]?.processing_output_id || "",
+        (current) => preferredOutput?.processing_output_id || current || eligibleOutputs[0]?.processing_output_id || "",
       );
       setSelectedModelId(
-        (current) => current || modelResult.data.items[0]?.material_model_id || "",
+        (current) => preferredModel?.material_model_id
+          || (preferredOutput ? "" : current || modelResult.data.items[0]?.material_model_id || ""),
       );
     } catch (cause) {
       setError(messageFor(cause));
     } finally {
       setLoading(false);
     }
-  }, [config, state.material_state_id]);
+  }, [config, preferredProcessingOutputId, state.material_state_id]);
 
   useEffect(() => {
     if (open) {
@@ -301,7 +321,7 @@ export function ReferenceElastoplasticWorkbench({ config, state, propertySet, on
           && data.document.candidate_selection.processing_output.revision_id
             === evidence.output_revision_id,
         );
-        if (current) setNeutralMaterial(exact?.data ?? null);
+        if (current && exact) setNeutralMaterial(exact.data);
       })
       .catch(() => undefined);
     return () => { current = false; };

@@ -75,9 +75,12 @@ column의 table header가 `aria-sort`로 알립니다.
 2. JSON schema/channel/quantity semantics/original+normalized unit 또는 CSV/XLSX의 worksheet,
    column/channel/unit mapping을 확인합니다.
 3. Process에서 원본을 보존한 채 crop, smoothing, resample과 반복시험 통계를 검토합니다.
-4. Fit에서 candidate, response, residual과 extrapolation을 비교합니다.
-5. Export에서 선택 candidate와 기존 Neutral/solver UI의 ephemeral preview를 확인합니다.
-   reviewed model commit과 새 native card 생성·전달은 DUI-06 pending입니다.
+4. Fit의 한 표에서 candidate별 상태, 오차, 적용 범위와 경고를 비교하고 같은 그래프의
+   response, residual, tangent modulus와 observed/extrapolated 경계를 확인합니다.
+5. 하나의 candidate와 선택 이유를 기록해 immutable Processing Output으로 확정합니다.
+6. Export에서 그 exact output을 Material Model IR과 Neutral Material로 승격하고,
+   solver/version/unit 조합의 mapping preflight를 확인한 뒤 native card를 생성합니다.
+7. `Open Material CAE Cards`에서 생성 결과를 해당 Material의 datasheet로 이어서 확인합니다.
 
 `Import JSON / CSV / XLSX`에서 CSV/XLSX의 `Open governed mapping workbench`를 선택하면
 `/datasets/import`가 최근 Modeling session의 exact Material State를 복원합니다. 여기서 immutable
@@ -86,9 +89,11 @@ Dataset 생성을 완료할 수 있습니다. Canonical adapter로 돌아오면 
 검증·저장해 Process 입력으로 선택합니다. JSON 파일은 server validation에서 schema, channel,
 quantity semantics, original/normalized unit과 missing reason을 먼저 확인합니다.
 
-현재 Export 화면은 `Preview candidate & delivery`, `Ephemeral model preview`,
-`Preview · delivery pending`으로 상태를 명시합니다. 이 화면은 reviewed model이나 새 native card가
-생성됐다는 증거가 아니며, 기존 immutable Neutral/Card를 변경하지 않습니다.
+Fit 그래프의 곡선은 계속 `Preview only · not committed`로 표시됩니다. `Commit reviewed fit`은
+계산된 candidate와 비어 있지 않은 선택 이유가 있을 때만 활성화되며, 원본 preview를 바꾸지 않고
+새 immutable Processing Output을 만듭니다. Export의 `Decision evidence`는 그 exact output의
+identity와 revision을 고정합니다. IR, Neutral Material과 card도 새 레코드로 생성되며 기존
+immutable 결과를 변경하지 않습니다.
 
 Mapping Profile, Recipe/Batch, full revision, hash와 JSON evidence는 Advanced/Evidence에 남습니다.
 Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요합니다.
@@ -108,10 +113,14 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   열이 아니므로 그래프 폭을 줄이지 않습니다.
 - `Add method`는 한 줄 도구 메뉴입니다. Recipe와 Batch는 `Advanced · Recipe and Batch`, ordered
   step JSON은 `Advanced Recipe JSON`에서 확인합니다.
-- 현재 baseline의 Export dock은 브라우저 안에서 선택한 candidate와 기존 Neutral/solver UI의
-  ephemeral preview를 보여 줍니다. 아래 현재 캡처는 reviewed model commit이나 native-card delivery를
-  완료한 증거가 아니며, Fit/Export decision workflow는 DUI-06 pending입니다. Export를 열었다가
-  Fit으로 돌아와도 그래프 DOM, 선택 curve와 plot view는 그대로 유지됩니다.
+- Fit ribbon의 candidate 표는 상태, 오차, 적용 범위와 bound 경고를 같은 행에서 비교합니다.
+  선택한 식의 parameter와 bounds는 disclosure로 열 수 있고, 선택 이유는 수치 preview를 다시
+  계산하지 않는 decision evidence입니다.
+- Export dock은 `Model → mapping preflight → native card` 순서를 보여 줍니다. solver 이름·버전과
+  `kg·m·s (SI)` unit system을 읽은 뒤 preflight를 실행합니다. unsupported 항목은 생성을 막고,
+  approximated/ignored 항목은 바로 옆 확인을 요구합니다. 생성 뒤 native ASCII card와 mapping
+  report를 내려받거나 Material의 CAE Cards로 이동할 수 있습니다.
+- Export를 열었다가 Fit으로 돌아와도 그래프 DOM, 선택 curve와 plot view는 그대로 유지됩니다.
 - source revision과 Recipe step을 바꾼 뒤에는 command bar의 Undo/Redo로 draft를 되돌릴 수 있습니다.
   브라우저를 닫을 때 미저장 변경이 있으면 이탈 경고가 한 번 표시되며, `New session`은 확인 후
   비수치 UI session 상태만 초기화합니다. Preview는 계속 `Preview only · not committed`로 표시되어
@@ -169,14 +178,15 @@ Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합�
 아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Export를
 전환해 각 단계의 비동기 preview가 끝난 뒤 캡처했습니다. Data는 Library, Local file,
 Test Data JSON을 한 ribbon에서 고르고 등록 전에 같은 그래프로 확인합니다. Process는 원본과 선택
-단계를 겹쳐 보고 preview와 immutable output commit을 명시적으로 나눕니다. Fit 결과는 commit하지
-않은 ephemeral preview이고, Export도 선택 candidate와 기존 Neutral/solver UI를 표시할 뿐 reviewed
-model 또는 새 native card를 생성하지 않았습니다. Export 캡처는 Catalog/workflow 링크의 현재 해석이
-끝나고 `Resolving…`이 사라진 상태만 확인합니다.
+단계를 겹쳐 보고 preview와 immutable output commit을 명시적으로 나눕니다. Fit은 네 candidate를
+한 표와 세 그래프 보기로 비교하고 명시적 reviewed-fit commit을 제공합니다. Export는 exact
+Material State에서 Neutral, mapping preflight와 native-card 전달을 한 dock에 연결합니다.
+캡처는 fixture를 변경하지 않으므로 생성 명령을 실행한 결과가 아니라 각 단계의 현재 조작면을
+보여 줍니다. 실제 생성 완료 흐름과 identity/revision 고정은 DUI-06 evidence report에 기록합니다.
 
 | 단계 | 1366×768 | 1440×900 | 1920×1080 |
 | --- | --- | --- | --- |
 | Data | ![Data 1366](images/current/modeling-data-1366x768.png) | ![Data 1440](images/current/modeling-data-1440x900.png) | ![Data 1920](images/current/modeling-data-1920x1080.png) |
 | Process | ![Process 1366](images/current/modeling-process-1366x768.png) | ![Process 1440](images/current/modeling-process-1440x900.png) | ![Process 1920](images/current/modeling-process-1920x1080.png) |
 | Fit | ![Fit 1366](images/current/modeling-fit-1366x768.png) | ![Fit 1440](images/current/modeling-fit-1440x900.png) | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
-| Export preview | ![Export preview 1366](images/current/modeling-export-1366x768.png) | ![Export preview 1440](images/current/modeling-export-1440x900.png) | ![Export preview 1920](images/current/modeling-export-1920x1080.png) |
+| Export | ![Export 1366](images/current/modeling-export-1366x768.png) | ![Export 1440](images/current/modeling-export-1440x900.png) | ![Export 1920](images/current/modeling-export-1920x1080.png) |

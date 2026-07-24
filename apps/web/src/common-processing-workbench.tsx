@@ -53,6 +53,16 @@ import { clearModelingSession, type ModelingPlotView, type ModelingSessionSummar
 const ModelingDataIntake = lazy(() =>
   import("./modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),
 );
+const HardeningCandidateEvidence = lazy(() =>
+  import("./modeling-fit-decision").then((module) => ({
+    default: module.HardeningCandidateEvidence,
+  })),
+);
+const PronyCandidateEvidence = lazy(() =>
+  import("./modeling-fit-decision").then((module) => ({
+    default: module.PronyCandidateEvidence,
+  })),
+);
 
 interface Props {
   config: ApiConfig;
@@ -530,89 +540,6 @@ function defaultOptions(methodId: string): Record<string, unknown> {
   return options[methodId] ?? {};
 }
 
-function displayEngineeringValue(value: number, unit: string): string {
-  if (unit === "Pa") return `${(value / 1e6).toPrecision(5)} MPa`;
-  return `${Number(value.toPrecision(6))} ${unit}`;
-}
-
-function HardeningCandidateEvidence({
-  stage,
-  step,
-  onSelectPrimary,
-}: {
-  stage: CommonCurveStage;
-  step: CommonProcessingStep;
-  onSelectPrimary: (family: string) => void;
-}) {
-  const families = Array.isArray(step.options.families) ? step.options.families.map(String) : [];
-  const primary = String(step.options.primary_family ?? "");
-  const evidence = families.map((family) => {
-    const scalar = new Map(stage.scalar_results.map((item) => [item.key, item]));
-    const rmse = scalar.get(`${family}.rmse_pa`);
-    const relative = scalar.get(`${family}.relative_rmse`);
-    const parameterKeys = stage.scalar_results
-      .map((item) => item.key)
-      .filter((key) => key.startsWith(`${family}.parameter.`) && !key.endsWith(".lower") && !key.endsWith(".initial") && !key.endsWith(".upper"));
-    const parameters = parameterKeys.map((key) => ({
-      name: key.replace(`${family}.parameter.`, ""),
-      value: scalar.get(key),
-      lower: scalar.get(`${key}.lower`),
-      upper: scalar.get(`${key}.upper`),
-    }));
-    const boundWarning = parameters.some(({ value, lower, upper }) => {
-      if (!value || !lower || !upper) return false;
-      const span = upper.value - lower.value;
-      return span > 0 && Math.min(value.value - lower.value, upper.value - value.value) / span < 0.001;
-    });
-    return { family, rmse, relative, parameters, boundWarning };
-  }).sort((left, right) => (left.rmse?.value ?? Number.POSITIVE_INFINITY) - (right.rmse?.value ?? Number.POSITIVE_INFINITY));
-  const best = evidence[0]?.family;
-  return <section className="hardening-candidate-evidence" aria-label="Hardening candidate numerical comparison">
-    <div className="candidate-evidence-heading"><div><p className="eyebrow">Calculated candidates</p><h4>Fit evidence</h4></div><span>{evidence.length} equations</span></div>
-    <div className="candidate-evidence-list">{evidence.map((candidate) => <article className={primary === candidate.family ? "selected" : ""} key={candidate.family}>
-      <button type="button" className="candidate-summary" onClick={() => onSelectPrimary(candidate.family)} aria-label={`Use ${candidate.family} as primary hardening candidate`}>
-        <span className="candidate-rank">{candidate.family === best ? "BEST RMSE" : primary === candidate.family ? "PRIMARY" : "CANDIDATE"}</span>
-        <strong>{candidate.family.replaceAll("_", "-")}</strong>
-        <span><b>{candidate.rmse ? displayEngineeringValue(candidate.rmse.value, candidate.rmse.unit) : "—"}</b><small>{candidate.relative ? `${(candidate.relative.value * 100).toFixed(3)}% relative` : "No objective"}</small></span>
-      </button>
-      <details><summary>{candidate.parameters.length} parameters &amp; bounds {candidate.boundWarning ? <em>BOUND</em> : null}</summary><div className="candidate-parameter-table">{candidate.parameters.map(({ name, value, lower, upper }) => <div key={name}><span>{name.replaceAll("_", " ")}</span><strong>{value ? displayEngineeringValue(value.value, value.unit) : "—"}</strong><small>{lower && upper ? `${displayEngineeringValue(lower.value, lower.unit)} … ${displayEngineeringValue(upper.value, upper.unit)}` : "bounds unavailable"}</small></div>)}</div></details>
-    </article>)}</div>
-    <p className="option-hint">Click a candidate to make it primary. Compare response, residual and tangent modulus in the persistent plot before saving the Recipe.</p>
-  </section>;
-}
-
-function PronyCandidateEvidence({
-  stage,
-  step,
-  onSelect,
-}: {
-  stage: CommonCurveStage;
-  step: CommonProcessingStep;
-  onSelect: (termCount: number) => void;
-}) {
-  const scalar = new Map(stage.scalar_results.map((item) => [item.key, item]));
-  const counts = Array.isArray(step.options.candidate_term_counts)
-    ? step.options.candidate_term_counts.map(Number)
-    : [];
-  const selectedCount = Number(scalar.get("prony_selected_term_count")?.value ?? step.options.selected_term_count ?? 0);
-  const candidates = counts.map((count) => ({
-    count,
-    bic: scalar.get(`prony_${count}_bic`),
-    rmse: scalar.get(`prony_${count}_normalized_rmse`),
-  })).sort((left, right) => (left.bic?.value ?? Number.POSITIVE_INFINITY) - (right.bic?.value ?? Number.POSITIVE_INFINITY));
-  const selectedTerms = Array.from({ length: Math.max(0, selectedCount) }, (_, index) => ({
-    ordinal: index + 1,
-    ratio: scalar.get(`prony_g_ratio_${index + 1}`)?.value,
-    time: scalar.get(`prony_relaxation_time_${index + 1}`)?.value,
-  }));
-  return <section className="prony-candidate-evidence" aria-label="Prony candidate numerical comparison">
-    <div className="candidate-evidence-heading"><div><p className="eyebrow">Calculated candidates</p><h4>Prony evidence</h4></div><span>{candidates.length} fits</span></div>
-    <div className="prony-candidate-strip">{candidates.map((candidate, index) => <button type="button" className={selectedCount === candidate.count ? "selected" : ""} key={candidate.count} onClick={() => onSelect(candidate.count)} aria-label={`Select ${candidate.count}-term Prony candidate`}><span>{index === 0 ? "BEST BIC" : selectedCount === candidate.count ? "SELECTED" : "CANDIDATE"}</span><strong>{candidate.count} term{candidate.count === 1 ? "" : "s"}</strong><small>BIC {candidate.bic?.value.toFixed(2) ?? "—"}</small><b>nRMSE {candidate.rmse ? `${(candidate.rmse.value * 100).toFixed(3)}%` : "—"}</b></button>)}</div>
-    {selectedTerms.length ? <div className="prony-selected-terms" role="table" aria-label="Selected Prony term parameters"><div className="prony-selected-term header" role="row"><span>Term</span><span>gᵢ ratio</span><span>τᵢ (s)</span></div>{selectedTerms.map((term) => <div className="prony-selected-term" role="row" key={term.ordinal}><strong>{term.ordinal}</strong><span>{term.ratio?.toPrecision(5) ?? "—"}</span><span>{term.time?.toPrecision(5) ?? "—"}</span></div>)}</div> : null}
-    <p className="option-hint">Click a fitted candidate to switch to an explicit engineer selection. Compare response and residual before saving the Recipe.</p>
-  </section>;
-}
-
 function xyPoints(
   x: number[],
   y: number[],
@@ -776,13 +703,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   const draftDirty = stepsText !== savedSteps.current;
 
-  function applyDraftSteps(next: string): void {
+  function applyDraftSteps(next: string, invalidatePreview = true): void {
     if (next === stepsText) return;
     undoSteps.current.push(stepsText);
     if (undoSteps.current.length > 50) undoSteps.current.shift();
     redoSteps.current = [];
     setStepsText(next);
-    setPreview(null);
+    if (invalidatePreview) setPreview(null);
   }
 
   function replaceSavedSteps(next: string): void {
@@ -1299,7 +1226,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       const step = steps[selectedStepIndex];
       if (!step) return;
       steps[selectedStepIndex] = { ...step, options: { ...step.options, ...options } };
-      applyDraftSteps(JSON.stringify(steps, null, 2));
+      const decisionTextOnly = Object.keys(options).every((key) => key === "selection_reason");
+      applyDraftSteps(JSON.stringify(steps, null, 2), !decisionTextOnly);
     } catch {
       setError("The advanced processing definition is not valid JSON.");
     }
@@ -1378,27 +1306,31 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     }
   }
 
-  async function commitOutput(): Promise<void> {
+  async function commitOutput(overrides?: {
+    label: string;
+    reason: string;
+    nextTask?: ModelingWorkflowTask;
+  }): Promise<CommonProcessingOutputResponse | null> {
     const source = documents.find((item) => item.test_data_document_id === selectedDocumentId);
     const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
     if (!preview || !source || !profile) {
       setError("Preview an exact Test Data revision with a saved Mapping Profile before commit.");
-      return;
+      return null;
     }
     if (preview.mapping_profile_sha256 !== profile.current_revision.content_hash) {
       setError("The preview differs from the selected exact input/profile. Save changes and preview again.");
-      return;
+      return null;
     }
     if (source.current_revision.classification !== profile.current_revision.classification) {
       setError("Exact Test Data and Mapping Profile revisions must share classification.");
-      return;
+      return null;
     }
     setBusy(true);
     setError(null);
     try {
       const result = await commitCommonProcessingOutput(config, {
         classification: source.current_revision.classification as DataClassification,
-        label: outputLabel,
+        label: overrides?.label ?? outputLabel,
         source_document: {
           aggregate_id: source.test_data_document_id,
           revision_id: source.current_revision.id,
@@ -1408,18 +1340,52 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           revision_id: profile.current_revision.id,
         },
         steps: JSON.parse(stepsText) as CommonProcessingStep[],
-        change_reason: outputReason,
+        change_reason: overrides?.reason ?? outputReason,
       });
       const refreshed = await listCommonProcessingOutputs(config);
       setOutputs(refreshed.data.items);
       setNotice(
         `Committed immutable Processing Output ${result.data.processing_output_id} · ${result.data.output_sha256.slice(0, 12)}…`,
       );
+      onSessionChange?.({ processingOutput: {
+        id: result.data.processing_output_id,
+        revisionId: result.data.current_revision.id,
+        label: result.data.label,
+        revisionNo: result.data.current_revision.revision_no,
+      } });
+      if (overrides?.nextTask) openWorkflowTask(overrides.nextTask);
+      return result.data;
     } catch (caught) {
       setError(caught instanceof SyntaxError ? `Invalid step JSON: ${caught.message}` : errorMessage(caught));
     } finally {
       setBusy(false);
     }
+    return null;
+  }
+
+  async function commitReviewedFit(): Promise<void> {
+    const fitStep = (JSON.parse(stepsText) as CommonProcessingStep[]).find(
+      (step) => isFitMethod(step.method_id),
+    );
+    if (!fitStep) {
+      setError("Add and calculate one fit method before recording a reviewed decision.");
+      return;
+    }
+    const candidate = String(
+      fitStep.options.primary_family
+      ?? fitStep.options.selected_term_count
+      ?? "",
+    ).trim();
+    const reason = String(fitStep.options.selection_reason ?? "").trim();
+    if (!candidate || !reason) {
+      setError("Select one calculated candidate and enter the engineering selection reason before commit.");
+      return;
+    }
+    await commitOutput({
+      label: `${material?.current_revision.content.name ?? modelingTrack} · ${candidate} reviewed fit`,
+      reason,
+      nextTask: "export",
+    });
   }
 
   async function downloadOutput(output: CommonProcessingOutputResponse): Promise<void> {
@@ -1522,6 +1488,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const selectedConfiguredStep = configuredSteps[selectedStepIndex] ?? null;
   const stepEntries = configuredSteps.map((step, index) => ({ step, index }));
   const fitStepEntry = stepEntries.find(({ step }) => isFitMethod(step.method_id));
+  const selectedFitCandidate = String(
+    fitStepEntry?.step.options.primary_family
+    ?? fitStepEntry?.step.options.selected_term_count
+    ?? "",
+  ).trim();
+  const fitSelectionReason = String(fitStepEntry?.step.options.selection_reason ?? "").trim();
+  const fitDecisionReady = Boolean(
+    preview
+    && activeStage
+    && isFitMethod(activeStage.method_id)
+    && activeStage.method_id === fitStepEntry?.step.method_id
+    && selectedFitCandidate
+    && fitSelectionReason,
+  );
   const visibleStepEntries = stepEntries
     .filter(({ step }) => workflowTask === "data"
       ? false
@@ -1857,17 +1837,18 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               onPreviewDocument={previewIntakeDocument}
               onImported={registerIntakeDocument}
             /></Suspense> : workflowTask === "export" ? <aside className="export-stage-ribbon">
-            <div><span>Candidate preview</span><strong>{String(fitStepEntry?.step.options.primary_family ?? fitStepEntry?.step.options.selected_term_count ?? "Candidate pending review")}</strong></div>
+            <div><span>Reviewed candidate</span><strong>{selectedFitCandidate || "Candidate pending review"}</strong></div>
             <div><span>Fit method</span><strong>{methods.find((method) => method.method_id === fitStepEntry?.step.method_id)?.label ?? fitStepEntry?.step.method_id ?? "No fit selected"}</strong></div>
             <div><span>Observed fit range</span><strong>{String(fitStepEntry?.step.options.fit_minimum_strain ?? "auto")} – {String(fitStepEntry?.step.options.fit_maximum_strain ?? "observed limit")}</strong></div>
-            <div><span>Extrapolation</span><strong>Visible in graph · unobserved</strong></div>
+            <div><span>Decision evidence</span><strong>{initialSession?.processingOutput ? `${initialSession.processingOutput.label} · r${initialSession.processingOutput.revisionNo}` : "Commit reviewed fit first"}</strong></div>
+            <div className="export-selection-reason"><span>Selection reason</span><strong>{fitSelectionReason || "Required before commit"}</strong></div>
           </aside> : <aside className={`step-option-panel ${workflowTask}-stage-options`}>
-            <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><div className="modeling-ribbon-actions">{workflowTask === "process" ? <button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit reviewed output</button> : null}<button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
+            <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><div className="modeling-ribbon-actions">{workflowTask === "process" ? <button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit reviewed output</button> : null}{workflowTask === "fit" ? <button className="button primary" type="button" disabled={busy || !fitDecisionReady || !selectedProfileId} onClick={() => void commitReviewedFit()}>Commit reviewed fit</button> : null}<button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="step-index">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
+              {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelectPrimary={(family) => updateStepOption("primary_family", family)} /></Suspense> : null}
+              {(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage?.method_id === selectedConfiguredStep.method_id ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelect={(termCount) => updateStepOptions({ selection_mode: "manual", selected_term_count: termCount })} /></Suspense> : null}
               <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} />
-              {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelectPrimary={(family) => updateStepOption("primary_family", family)} /> : null}
-              {(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage?.method_id === selectedConfiguredStep.method_id ? <PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelect={(termCount) => updateStepOptions({ selection_mode: "manual", selected_term_count: termCount })} /> : null}
               {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}
             </> : <p className="muted">Add or select a processing step.</p>}
             <details className="advanced-workflow-settings">
@@ -1897,7 +1878,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             </div> : null}
             </details>
           </aside>}
-          dock={workflowTask === "export" && familyWorkbench ? <section className="modeling-export-dock" id="modeling-export" aria-label="Solver card delivery preview"><header><div><p className="workspace-caption">Delivery preview</p><h2>Preview · delivery pending</h2></div><span>No reviewed model or new native card</span></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section> : undefined}
+          dock={workflowTask === "export" && familyWorkbench ? <section className="modeling-export-dock" id="modeling-export" aria-label="Solver card delivery"><header><div><p className="workspace-caption">Reviewed delivery</p><h2>Model → mapping preflight → native card</h2></div><span>{materialState ? `${materialState.current_revision.content.name} · exact State r${materialState.current_revision.revision_no}` : "Exact Material State required"}</span></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section> : undefined}
           ribbonOpen={inspectorVisible}
           onRibbonOpenChange={setInspectorVisible}
         />

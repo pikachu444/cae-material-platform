@@ -53,6 +53,7 @@ function FamilyModelingPanel({
   onNavigate,
   onOpenConnection,
   preferredSourceDocumentId,
+  preferredProcessingOutputId,
 }: {
   config: ApiConfig;
   track: ModelingTrack;
@@ -67,6 +68,7 @@ function FamilyModelingPanel({
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
   preferredSourceDocumentId?: string;
+  preferredProcessingOutputId?: string;
 }) {
   const state = detail?.states.find((item) => item.material_state_id === selectedStateId);
   const propertySet = detail?.property_sets.find((item) => item.material_state_id === selectedStateId);
@@ -163,6 +165,7 @@ function FamilyModelingPanel({
               propertySet={propertySet}
               onNavigate={onNavigate}
               embedded
+              preferredProcessingOutputId={preferredProcessingOutputId}
             />
           ) : null}
           {track === "polymer" ? (
@@ -174,6 +177,7 @@ function FamilyModelingPanel({
               onNavigate={onNavigate}
               embedded
               preferredSourceDocumentId={preferredSourceDocumentId}
+              preferredProcessingOutputId={preferredProcessingOutputId}
             />
           ) : null}
           {track === "elastomer" ? (
@@ -299,8 +303,9 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onNavigate={onNavigate}
       onOpenConnection={onOpenConnection}
       preferredSourceDocumentId={session?.testData?.id}
+      preferredProcessingOutputId={session?.processingOutput?.id}
     />
-  ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, session?.testData?.id, track]);
+  ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, session?.processingOutput?.id, session?.testData?.id, track]);
   const selectedState = detail?.states.find((item) => item.material_state_id === selectedStateId);
   const selectedMaterial = materials.find((item) => item.material_id === selectedMaterialId);
   const familyInspector = useMemo(() => track === "polymer" && selectedState ? (

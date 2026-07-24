@@ -1,16 +1,16 @@
-version: 46
-verified_at: 2026-07-23
+version: 47
+verified_at: 2026-07-24
 scope: current-main-product-baseline
-source_commit: 436ad76
+source_commit: 117551a
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "Captured from the live Docker Compose application for the bounded DUI-05 data-intake and processing slice."
-  - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
+  - "Captured from the live Docker Compose application for the bounded DUI-06 Fit and Export decision slice."
+  - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing reviewed-fit command, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
-  - "Export is an ephemeral candidate and delivery preview; reviewed-model and native-card delivery remain DUI-06 pending."
-  - "Data and Process are DUI-05 acceptance evidence; DUI-06 through DUI-09 remain pending."
+  - "Fit and Export show the DUI-06 candidate-decision and exact Neutral/mapping/native-card controls; immutable creation is exercised separately in the linked live evidence report."
+  - "DUI-01 through DUI-05 are merged; DUI-06 is implemented and live-verified pending review/merge; DUI-07 through DUI-09 remain pending."
 allowed_duplicate_pairs: []
 captures:
   - id: materials-search-1366
@@ -120,43 +120,43 @@ captures:
     height: 1080
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
-    workflow: ephemeral-candidate-comparison-preview
-    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
+    workflow: candidate-table-plot-comparison-and-reviewed-decision
+    fixture: synthetic four-family hardening candidates with explicit reviewed-fit command; DUI-06 acceptance
     image: images/current/modeling-fit-1366x768.png
     width: 1366
     height: 768
   - id: modeling-fit-1440
     route: /modeling?stage=fit&family=metal
-    workflow: ephemeral-candidate-comparison-preview
-    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
+    workflow: candidate-table-plot-comparison-and-reviewed-decision
+    fixture: synthetic four-family hardening candidates with explicit reviewed-fit command; DUI-06 acceptance
     image: images/current/modeling-fit-1440x900.png
     width: 1440
     height: 900
   - id: modeling-fit-1920
     route: /modeling?stage=fit&family=metal
-    workflow: ephemeral-candidate-comparison-preview
-    fixture: synthetic in-browser candidates; no reviewed fit decision; DUI-06 pending
+    workflow: candidate-table-plot-comparison-and-reviewed-decision
+    fixture: synthetic four-family hardening candidates with explicit reviewed-fit command; DUI-06 acceptance
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
-    workflow: ephemeral-export-preview-without-reviewed-delivery
-    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
+    workflow: exact-neutral-mapping-preflight-and-native-card-delivery
+    fixture: synthetic DP780 exact Material State with Neutral and solver delivery controls; DUI-06 acceptance
     image: images/current/modeling-export-1366x768.png
     width: 1366
     height: 768
   - id: modeling-export-1440
     route: /modeling?stage=export&family=metal
-    workflow: ephemeral-export-preview-without-reviewed-delivery
-    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
+    workflow: exact-neutral-mapping-preflight-and-native-card-delivery
+    fixture: synthetic DP780 exact Material State with Neutral and solver delivery controls; DUI-06 acceptance
     image: images/current/modeling-export-1440x900.png
     width: 1440
     height: 900
   - id: modeling-export-1920
     route: /modeling?stage=export&family=metal
-    workflow: ephemeral-export-preview-without-reviewed-delivery
-    fixture: synthetic in-browser preview; no reviewed model or native-card delivery; DUI-06 pending
+    workflow: exact-neutral-mapping-preflight-and-native-card-delivery
+    fixture: synthetic DP780 exact Material State with Neutral and solver delivery controls; DUI-06 acceptance
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080

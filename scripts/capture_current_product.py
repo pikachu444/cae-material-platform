@@ -51,7 +51,7 @@ STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
     "process": "Prepare observed curves",
     "fit": "Compare response, residual & extrapolation",
-        "export": "Preview candidate & delivery",
+    "export": "Preview candidate & delivery",
 }
 UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
@@ -280,13 +280,55 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
             ).click()
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
             page.get_by_role("heading", name=heading, exact=True).wait_for(timeout=30_000)
+            if stage == "fit":
+                show_settings = page.get_by_role(
+                    "button", name="Show current-stage settings", exact=True
+                )
+                if show_settings.count():
+                    show_settings.click()
+                _wait_for_settled(page)
+                candidate_table = page.get_by_role(
+                    "table", name="Hardening candidate comparison"
+                )
+                candidate_table.wait_for(timeout=30_000)
+                if (
+                    candidate_table.locator("tbody tr").count() != 4
+                ):
+                    raise RuntimeError(
+                        "Fit must expose the four calculated hardening candidates in one table"
+                    )
+                for column in (
+                    "Decision",
+                    "Candidate",
+                    "Status",
+                    "Error",
+                    "Applicability",
+                    "Warning",
+                ):
+                    if candidate_table.get_by_role(
+                        "columnheader", name=column, exact=True
+                    ).count() != 1:
+                        raise RuntimeError(f"Fit candidate table is missing {column}")
+                if page.get_by_role(
+                    "button", name="Commit reviewed fit", exact=True
+                ).count() != 1:
+                    raise RuntimeError("Fit is missing the explicit reviewed-decision commit")
+                candidate_table.scroll_into_view_if_needed()
             if stage == "export":
                 page.get_by_text("Preview only · not committed", exact=True).wait_for(
                     timeout=30_000
                 )
+                page.get_by_role(
+                    "heading",
+                    name="Model → mapping preflight → native card",
+                    exact=True,
+                ).wait_for(timeout=30_000)
                 page.locator(".modeling-workspace-dock .neutral-solver-export").wait_for(
                     timeout=30_000
                 )
+                page.get_by_text(
+                    "kg·m·s (SI) · exact supported unit system", exact=True
+                ).wait_for(timeout=30_000)
                 page.locator(
                     ".modeling-workspace-dock "
                     '.domain-workflow-links[data-resolution-state="resolved"]'

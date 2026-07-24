@@ -135,11 +135,41 @@ describe("Common Processing Workbench", () => {
   });
 
   it("loads exact Test Data and renders server stage overlays", async () => {
+    const committedOutputs: Array<Record<string, unknown>> = [];
     const fetchMock = vi.fn<typeof fetch>().mockImplementation(async (input, init) => {
       const url = String(input);
       if (url.endsWith("/test-data-documents")) return jsonResponse({ items: [documentResource, replicateResource] });
       if (url.endsWith("/mapping-profiles")) return jsonResponse({ items: [mappingProfileResource] });
-      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: [] });
+      if (url.endsWith("/processing-outputs") && init?.method === "POST") {
+        const output = {
+          processing_output_id: "53000000-0000-4000-8000-000000000030",
+          current_revision: {
+            ...revision,
+            id: "53000000-0000-4000-8000-000000000031",
+            aggregate_id: "53000000-0000-4000-8000-000000000030",
+          },
+          label: "DP600 · swift reviewed fit",
+          source_document: {
+            aggregate_id: documentResource.test_data_document_id,
+            revision_id: revision.id,
+          },
+          mapping_profile: {
+            aggregate_id: mappingProfileResource.mapping_profile_id,
+            revision_id: mappingProfileResource.current_revision.id,
+          },
+          steps: [{
+            method_id: "metal.hardening_fit_extrapolate",
+            method_version: "1.0.0",
+            options: { primary_family: "swift" },
+          }],
+          output_sha256: "9".repeat(64),
+          final_point_count: 3,
+          stage_count: 6,
+        };
+        committedOutputs.splice(0, committedOutputs.length, output);
+        return jsonResponse(output, 201);
+      }
+      if (url.endsWith("/processing-outputs")) return jsonResponse({ items: committedOutputs });
       if (url.endsWith("/common-processing-recipes")) return jsonResponse({ items: [] });
       if (url.endsWith("/common-processing-batches")) return jsonResponse({ items: [] });
       if (url.endsWith("/processing-ensemble-methods")) {
@@ -364,11 +394,13 @@ describe("Common Processing Workbench", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
+    const onSessionChange = vi.fn();
     render(
       <CommonProcessingWorkbench
         config={{ baseUrl: "/api/v1", accessToken: "token" }}
         onNavigate={() => undefined}
         onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
         familyWorkbench={<div>Exact Neutral and solver delivery fixture</div>}
       />,
     );
@@ -420,6 +452,22 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByText("Selected blend · fitted domain")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
+    expect(await screen.findByRole("columnheader", { name: "Applicability" })).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Hardening candidate selection reason"), {
+      target: { value: "Select Swift after comparing response, residual and tangent stability." },
+    });
+    expect((screen.getByRole("button", { name: "Commit reviewed fit" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Commit reviewed fit" }));
+    expect(await screen.findByRole("heading", { name: "Preview candidate & delivery" })).toBeTruthy();
+    expect(screen.getByText("Model → mapping preflight → native card")).toBeTruthy();
+    expect(onSessionChange).toHaveBeenCalledWith({
+      processingOutput: {
+        id: "53000000-0000-4000-8000-000000000030",
+        revisionId: "53000000-0000-4000-8000-000000000031",
+        label: "DP600 · swift reviewed fit",
+        revisionNo: 1,
+      },
+    });
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
     expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Commit reviewed output" })).toBeTruthy();
@@ -479,7 +527,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("heading", { name: "Preview candidate & delivery" })).toBeTruthy();
     expect(screen.getByText("Exact Neutral and solver delivery fixture")).toBeTruthy();
     expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
-    expect(screen.getByText("Visible in graph · unobserved")).toBeTruthy();
+    expect(screen.getByText("Selection reason")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
   }, 20_000);
