@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CommonProcessingWorkbench } from "./common-processing-workbench";
@@ -148,7 +148,7 @@ describe("Common Processing Workbench", () => {
             id: "53000000-0000-4000-8000-000000000031",
             aggregate_id: "53000000-0000-4000-8000-000000000030",
           },
-          label: "DP600 · swift reviewed fit",
+          label: "DP600 · swift selected fit",
           source_document: {
             aggregate_id: documentResource.test_data_document_id,
             revision_id: revision.id,
@@ -395,12 +395,37 @@ describe("Common Processing Workbench", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const onSessionChange = vi.fn();
-    render(
+    const onNewSession = vi.fn();
+    const onNavigate = vi.fn();
+    const materialA = {
+      material_id: "material-a",
+      current_revision: { id: "material-a-r1", revision_no: 1, content: { name: "DP600" } },
+    };
+    const stateA = {
+      material_state_id: "state-a",
+      current_revision: { id: "state-a-r1", revision_no: 1, content: { name: "As received" } },
+    };
+    const sessionA = {
+      version: 3,
+      updatedAt: "2026-07-24T00:00:00Z",
+      materialFamily: "metal",
+      objective: "Create a card",
+      material: { id: "material-a", revisionId: "material-a-r1", label: "DP600", revisionNo: 1 },
+      materialState: { id: "state-a", revisionId: "state-a-r1", label: "As received", revisionNo: 1 },
+      testData: { id: documentResource.test_data_document_id, revisionId: revision.id, label: documentResource.document_key, revisionNo: 1 },
+      mappingProfile: { id: mappingProfileResource.mapping_profile_id, revisionId: mappingProfileResource.current_revision.id, label: mappingProfileResource.content.label, revisionNo: 1 },
+      workspace: { activeStage: "data", selectedDocumentIds: [], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline", settingsOpen: true },
+    };
+    const view = render(
       <CommonProcessingWorkbench
         config={{ baseUrl: "/api/v1", accessToken: "token" }}
-        onNavigate={() => undefined}
+        onNavigate={onNavigate}
         onOpenConnection={() => undefined}
         onSessionChange={onSessionChange}
+        onNewSession={onNewSession}
+        initialSession={sessionA as never}
+        material={materialA as never}
+        materialState={stateA as never}
         familyWorkbench={<div>Exact Neutral and solver delivery fixture</div>}
       />,
     );
@@ -420,6 +445,10 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("tab", { name: "Test Data JSON" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Verify source & channel mapping" })).toBeTruthy();
     expect(screen.queryByText("Metal hardening candidates")).toBeNull();
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:validate" } }));
+    expect(await screen.findByRole("heading", { name: "Validation is not configured" })).toBeTruthy();
+    expect(document.querySelector(".modeling-stage-placeholder")?.textContent).toContain("UXC-05");
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
     fireEvent.click(screen.getByRole("tab", { name: /Polymer/ }));
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(
       '"profile_key": "polymer-shear-relaxation"',
@@ -456,21 +485,22 @@ describe("Common Processing Workbench", () => {
     fireEvent.change(screen.getByLabelText("Hardening candidate selection reason"), {
       target: { value: "Select Swift after comparing response, residual and tangent stability." },
     });
-    expect((screen.getByRole("button", { name: "Commit reviewed fit" }) as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Commit reviewed fit" }));
-    expect(await screen.findByRole("heading", { name: "Preview candidate & delivery" })).toBeTruthy();
-    expect(screen.getByText("Model → mapping preflight → native card")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Save selected fit output" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Save selected fit output" }));
+    expect(await screen.findByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Export is blocked" })).toBeTruthy();
+    expect(screen.getByText(/stale, different-material, or unverified output is never used as a fallback/i)).toBeTruthy();
     expect(onSessionChange).toHaveBeenCalledWith({
       processingOutput: {
         id: "53000000-0000-4000-8000-000000000030",
         revisionId: "53000000-0000-4000-8000-000000000031",
-        label: "DP600 · swift reviewed fit",
+        label: "DP600 · swift selected fit",
         revisionNo: 1,
       },
     });
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
     expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Commit reviewed output" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Save processed curves" })).toBeTruthy();
     expect(screen.queryByText("Fit evidence")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /1rows\.sort_unique/ }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
@@ -524,11 +554,49 @@ describe("Common Processing Workbench", () => {
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
-    expect(screen.getByRole("heading", { name: "Preview candidate & delivery" })).toBeTruthy();
-    expect(screen.getByText("Exact Neutral and solver delivery fixture")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Export is blocked" })).toBeTruthy();
+    expect(screen.queryByText("Exact Neutral and solver delivery fixture")).toBeNull();
     expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
     expect(screen.getByText("Selection reason")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
+    onSessionChange.mockClear();
+    view.rerender(
+      <CommonProcessingWorkbench
+        config={{ baseUrl: "/api/v1", accessToken: "token" }}
+        onNavigate={onNavigate}
+        onOpenConnection={() => undefined}
+        onSessionChange={onSessionChange}
+        onNewSession={onNewSession}
+        initialSession={{
+          ...sessionA,
+          material: { id: "material-b", revisionId: "material-b-r1", label: "DP600 B", revisionNo: 1 },
+          materialState: { id: "state-b", revisionId: "state-b-r1", label: "Aged", revisionNo: 1 },
+          testData: undefined,
+          mappingProfile: undefined,
+          recipe: undefined,
+          processingOutput: undefined,
+        } as never}
+        material={{ ...materialA, material_id: "material-b", current_revision: { ...materialA.current_revision, id: "material-b-r1", content: { name: "DP600 B" } } } as never}
+        materialState={{ ...stateA, material_state_id: "state-b", current_revision: { ...stateA.current_revision, id: "state-b-r1", content: { name: "Aged" } } } as never}
+        familyWorkbench={<div>Exact Neutral and solver delivery fixture</div>}
+      />,
+    );
+    await screen.findByText(/Material context changed\. Choose an exact Test Data revision/i);
+    await waitFor(() => {
+      const repinned = onSessionChange.mock.calls.filter(([patch]) => {
+        const candidate = patch as Record<string, unknown>;
+        return candidate.testData !== undefined
+          || candidate.mappingProfile !== undefined
+          || candidate.recipe !== undefined
+          || candidate.processingOutput !== undefined;
+      });
+      expect(repinned).toEqual([]);
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:new" } }));
+    expect(onNewSession).toHaveBeenCalledWith("metal");
+    expect(onNavigate).toHaveBeenLastCalledWith("/modeling?stage=data&family=metal");
   }, 20_000);
 });

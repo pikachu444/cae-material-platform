@@ -16,7 +16,9 @@ unit/condition, curve inclusion, plot view, candidate and unsaved draft. Say wha
 work was preserved, and provide one safe recovery command: retry, revise input, choose a supported
 target, reload current, keep draft as a new revision, or cancel. Upstream Material/Test Data/mapping/
 processing/fit changes invalidate downstream current pointers in order; they never rewrite immutable
-outputs.
+outputs. The browser session aggregate is v3: its reducer distinguishes an explicit current-pointer
+clear from an omitted field, and a v2 session is migrated safely before resume. New sessions begin
+at Data, never Fit.
 
 The decision-to-delivery flow is: confirm exact data and mapping; preview then commit processing;
 run and compare candidates; explicitly select a law or blend and record the reason; save it; run
@@ -44,12 +46,13 @@ Forbidden labels: `Commit reviewed fit` without review, `Validated` without Vali
 
 | Changed input | Mark stale / clear current pointers | Preserve and recover |
 | --- | --- | --- |
-| Material/State/Test Data revision, mapping, unit or condition | processing, fit, decision, validation/review/release, export | immutable prior revisions and mapping; choose/reload exact input |
-| Operation, curve inclusion, range or recipe | fit onward | source curve/draft; preview or commit new output |
-| Fit model, bounds, range, selected curves or blend ratio | candidates/selection onward | prior run/decision; rerun and explicitly select |
-| Candidate selection/reason or warning acknowledgement | validation/review/release/export | candidate grid/graph; save or submit selected decision |
-| Validation plan/reference/result | review/release/export | candidate/plan; rerun or revise plan |
-| Solver/version/unit or mapping acknowledgement | preview/delivery pointer | pinned model/preflight; select supported target or acknowledge |
+| Material revision, Material State/condition or physical family | clear Test Data through Export; mark prior review/release stale | immutable prior revisions; choose exact context and Test Data again |
+| Test Data or axis/unit mapping | retain new input pin; clear Process through Export; mark review/release stale | immutable prior revisions and mapping; recompute Process/Fit |
+| Operation, curve inclusion, range or recipe | retain source; clear Process output through Export; mark review/release stale | source curve/draft; preview or commit a new output |
+| Fit model, bounds, range or evidence inclusion | clear candidates/selection through Export; mark review/release stale | prior run/decision; rerun and explicitly select |
+| Candidate selection/reason or warning acknowledgement | retain Process/Fit evidence; clear validation/IR/Neutral/export and mark review/release stale | candidate grid/graph; save selected decision |
+| Validation plan/reference/result | clear validation and export; mark review/release stale | candidate/plan; rerun or revise plan |
+| Solver/version/unit or mapping profile target | retain source model; mark target validation stale and require IR/Neutral/export regeneration | pinned model/preflight; select supported target or acknowledge |
 
 ## 1. Purpose
 
@@ -314,8 +317,12 @@ Rules:
 
 ### Acceptance
 
-- Data, Process, Fit and Export retain the same shell and selected session.
+- Data, Process, Fit, Validate, Review / Release and Export retain the same shell and selected session.
 - Graph does not disappear during Process/Fit stage changes.
+- Validate and Review / Release state their blocked policy prerequisite until UXC-05; they do not
+  relabel fit evidence as validation or approval.
+- Export has no global-output fallback. It remains blocked when the current session lacks an exact
+  Material, State, Test Data or Processing Output pin.
 - JSON editing is not required for the normal path.
 - A completed card is searchable from Materials and linked in the workflow.
 

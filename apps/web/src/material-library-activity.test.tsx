@@ -42,7 +42,7 @@ describe("Activity Modeling resume", () => {
     render(<ActivityPage onNavigate={navigate} />);
 
     const empty = screen.getByRole("status", { name: "No recent Modeling session" });
-    expect(empty.textContent).toContain("no local Data, Process, Fit, or Export session");
+    expect(empty.textContent).toContain("no local Data, Process, Fit, Validate, Review/Release, or Export session");
     expect(screen.queryByRole("button", { name: /^Resume / })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Start Modeling" }));
     expect(navigate).toHaveBeenCalledWith("/modeling");

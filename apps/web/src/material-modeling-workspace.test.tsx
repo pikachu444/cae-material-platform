@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { MaterialClass, MaterialDetail, MaterialResponse } from "./types";
+import { clearModelingSession, loadModelingSession } from "./modeling-session-context";
 
 const mocks = vi.hoisted(() => ({
   getMaterialDetail: vi.fn(),
@@ -17,12 +18,15 @@ vi.mock("./api", async (importOriginal) => ({
 vi.mock("./common-processing-workbench", () => ({
   CommonProcessingWorkbench: ({
     onModelingTrackChange,
+    onNewSession,
     familyWorkbench,
   }: {
     onModelingTrackChange: (track: MaterialClass) => void;
+    onNewSession: (track: MaterialClass) => void;
     familyWorkbench: React.ReactNode;
   }) => (
     <main>
+      <button type="button" onClick={() => onNewSession("elastomer")}>New session</button>
       <button type="button" onClick={() => onModelingTrackChange("metal")}>Metal track</button>
       <button type="button" onClick={() => onModelingTrackChange("polymer")}>Polymer track</button>
       <button type="button" onClick={() => onModelingTrackChange("elastomer")}>Elastomer track</button>
@@ -141,10 +145,12 @@ function detailFor(item: MaterialResponse): MaterialDetail {
 describe("Material Modeling Workspace", () => {
   afterEach(() => {
     cleanup();
+    clearModelingSession();
     vi.clearAllMocks();
   });
 
   it("loads the exact Material context and swaps the real family engine with the selected track", async () => {
+    clearModelingSession();
     const materials = new Map<MaterialClass, MaterialResponse>([
       ["metal", material("metal")],
       ["polymer", material("polymer")],
@@ -160,7 +166,7 @@ describe("Material Modeling Workspace", () => {
       return { data: detailFor(item), etag: null };
     });
 
-    render(
+    const view = render(
       <MaterialModelingWorkspace
         config={{ baseUrl: "/api/v1", accessToken: "demo" }}
         onNavigate={() => undefined}
@@ -181,5 +187,26 @@ describe("Material Modeling Workspace", () => {
 
     await waitFor(() => expect(mocks.listMaterials).toHaveBeenCalledTimes(3));
     expect(mocks.listMaterials.mock.calls.map((call) => call[2])).toEqual(["metal", "polymer", "elastomer"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "New session" }));
+    await waitFor(() => {
+      expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("");
+      expect((screen.getByLabelText("Modeling material state") as HTMLSelectElement).value).toBe("");
+    });
+    expect(screen.queryByRole("heading", { name: /engine loaded/ })).toBeNull();
+    expect(loadModelingSession()?.contextSelectionRequired).toBe(true);
+
+    view.unmount();
+    render(
+      <MaterialModelingWorkspace
+        config={{ baseUrl: "/api/v1", accessToken: "demo" }}
+        onNavigate={() => undefined}
+        onOpenConnection={() => undefined}
+      />,
+    );
+    await waitFor(() => {
+      expect((screen.getByLabelText("Modeling material") as HTMLSelectElement).value).toBe("");
+      expect((screen.getByLabelText("Modeling material state") as HTMLSelectElement).value).toBe("");
+    });
   });
 });
