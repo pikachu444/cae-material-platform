@@ -371,8 +371,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                         try:
                             create_neutral.click(timeout=5_000)
                         except Exception:
-                            if not neutral_export.is_visible():
-                                raise
+                            neutral_export.wait_for(timeout=30_000)
                 neutral_export.wait_for(timeout=30_000)
                 page.get_by_text(
                     "kg·m·s (SI) · exact supported unit system", exact=True
