@@ -1,4 +1,4 @@
-version: 49
+version: 50
 verified_at: 2026-07-24
 scope: current-main-product-baseline
 source_commit: mixed-per-capture
@@ -14,10 +14,14 @@ notes:
   - "PR #124 completed DUI-06; DUI-01 through DUI-06 are complete. UXC-01 through UXC-06 are corrective work pending before DUI-07 through DUI-09."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: worktree-on-b816eac
+    captured_at: 2026-07-24T12:41:00+09:00
+    command: uv run --with playwright python - (Materials-only live Chromium capture from the reviewed UXC-01 worktree based on b816eac; replace with the exact code commit after review)
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920]
   - source_commit: ff8bb1e
     captured_at: 2026-07-24T11:41:00+09:00
     command: uv run --with playwright python scripts/capture_current_product.py (Materials and solver-delivery helper paths)
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1440]
+    ids: [materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1440]
   - source_commit: 117551a
     captured_at: 2026-07-24T01:14:58+09:00
     command: prior successful current-product capture recorded for the DUI-05 baseline

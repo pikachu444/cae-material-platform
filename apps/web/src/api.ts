@@ -1009,18 +1009,42 @@ export async function requestLocalDemoAccessToken(
   };
 }
 
+export interface MaterialSearchRequest {
+  query?: string;
+  materialClass?: string;
+  offset?: number;
+  limit?: number;
+  sortBy?: "name" | "material_class";
+  sortDirection?: "ascending" | "descending";
+}
+
+export interface MaterialSearchResponse {
+  items: MaterialResponse[];
+  total_count: number;
+  offset: number;
+  limit: number;
+  facets: {
+    material_classes: Array<{ material_class: string; count: number }>;
+  };
+}
+
 export function listMaterials(
   config: ApiConfig,
-  query: string,
-  materialClass?: string,
-): Promise<ApiResult<{ items: MaterialResponse[]; total_count: number }>> {
-  const search = new URLSearchParams({ limit: "50" });
-  if (query.trim()) {
-    search.set("q", query.trim());
+  requestOrQuery: MaterialSearchRequest | string,
+  legacyMaterialClass?: string,
+): Promise<ApiResult<MaterialSearchResponse>> {
+  const searchRequest = typeof requestOrQuery === "string"
+    ? { query: requestOrQuery, materialClass: legacyMaterialClass }
+    : requestOrQuery;
+  const search = new URLSearchParams({ limit: String(searchRequest.limit ?? 50), offset: String(searchRequest.offset ?? 0) });
+  if (searchRequest.query?.trim()) {
+    search.set("q", searchRequest.query.trim());
   }
-  if (materialClass) {
-    search.set("material_class", materialClass);
+  if (searchRequest.materialClass) {
+    search.set("material_class", searchRequest.materialClass);
   }
+  if (searchRequest.sortBy && searchRequest.sortBy !== "name") search.set("sort_by", searchRequest.sortBy);
+  if (searchRequest.sortDirection && searchRequest.sortDirection !== "ascending") search.set("sort_direction", searchRequest.sortDirection);
   return request(config, `/materials?${search.toString()}`);
 }
 

@@ -34,7 +34,7 @@ describe("Catalog API client", () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe("http://localhost:8000/api/v1/materials?limit=50&q=DP780+steel");
+    expect(url).toBe("http://localhost:8000/api/v1/materials?limit=50&offset=0&q=DP780+steel");
     expect(new Headers(init?.headers).get("authorization")).toBe("Bearer short-lived-token");
     expect(new Headers(init?.headers).get("accept")).toBe("application/json");
   });

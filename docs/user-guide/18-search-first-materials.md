@@ -13,8 +13,11 @@
 ## 기존 Material과 CAE card 찾기
 
 1. `/materials`에서 이름, grade, code 또는 family를 검색합니다.
-2. family, source, normalized property 범위, solver availability 또는 release 상태를 좁힙니다.
-3. 결과 행을 한 번 선택해 오른쪽 Context의 핵심 물성과 solver card를 확인합니다. 행에서
+2. 현재는 server-defined `Material class` facet과 server-side sort/page로 전체 governed catalog를 좁힙니다.
+   Provider, Evidence source, Validation availability, solver readiness와 condition-aware property
+   range는 각각 별도의 server projection이 준비될 때까지 `Not projected` 또는 `Not configured`으로
+   표시하며 서로 합치지 않습니다. Yield는 모든 family에 공통으로 표시하거나 필터하지 않습니다.
+3. 결과 행을 한 번 선택해 오른쪽 Context의 exact revision, family와 workflow 지원 여부를 확인합니다. 행에서
    `Enter`를 누르거나 두 번 클릭하면 엽니다.
 4. Material은 같은 작업영역의 중앙 datasheet에 열립니다. 왼쪽 Navigator는 유지되며
    `Overview | Properties | Curves | CAE Cards | Evidence`를 검토할 수 있습니다.
@@ -46,11 +49,11 @@ Context를 기본으로 접고, 1440/1920 px에서는 각각 264/288 px로 엽�
 Context는 260–400 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에
 저장됩니다. 세 pane은 서로 독립적으로 스크롤합니다.
 
-결과 캡처와 자동화는 Material 목록뿐 아니라 각 행의 property·source·CAE card 조회가 끝나
-`aria-busy=false`이고 `Checking…` 행이 0개인 상태에서만 진행합니다. 정렬 상태는 각 sortable
-column의 table header가 `aria-sort`로 알립니다.
+Find의 total, page rows, Material class facet과 sort는 하나의 server-scoped query 응답에서 옵니다. 각 행의
+detail, graph, card를 미리 조회하지 않으며 exact datasheet는 사용자가 열 때만 조회합니다. 정렬 상태는
+각 sortable column의 table header가 `aria-sort`로 알립니다.
 
-검색어, family/source/solver/status/수치 범위, 정렬, Browse/Subsets mode와 선택 Material은
+검색어, Material class, server sort/page, Browse/Subsets mode와 선택 Material은
 `/materials` URL에 저장됩니다. Material Detail command bar, 왼쪽 `← Results`, 브라우저 뒤로 가기는
 같은 검색 조건과 선택으로 돌아옵니다. Browse에서 선택한 exact Record는 현재 browser session에만
 보존되며 돌아올 때 실제 Table과 Folder ancestor를 다시 조회해 펼칩니다.
