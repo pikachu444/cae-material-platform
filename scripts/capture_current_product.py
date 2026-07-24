@@ -270,6 +270,14 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     if not revision.input_value():
         revision.select_option(index=1)
     page.get_by_text(re.compile(r"Loaded exact Test Data revision")).wait_for(timeout=30_000)
+    advanced_contract = page.locator("details.modeling-data-advanced")
+    if not advanced_contract.get_attribute("open"):
+        advanced_contract.locator(":scope > summary").click()
+    profile = page.get_by_role("combobox", name="Saved Mapping Profile")
+    profile.wait_for(timeout=30_000)
+    if not profile.input_value():
+        profile.select_option(index=1)
+    advanced_contract.locator(":scope > summary").click()
     plot = page.locator(".persistent-modeling-plot svg[role=img]")
     if not plot.is_visible():
         page.get_by_role("button", name="Preview source", exact=True).click()
