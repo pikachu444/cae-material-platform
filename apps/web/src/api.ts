@@ -185,6 +185,7 @@ import type {
   CommonProcessingBatchResponse,
   CommonProcessingRecipeContent,
   CommonProcessingRecipeResponse,
+  CommonProcessingWorkupOverride,
   CommonEnsemblePreview,
   CommonProcessingOutputResponse,
   CommonProcessingPreview,
@@ -641,6 +642,7 @@ export function commitCommonProcessingOutput(
     mapping_profile: { aggregate_id: string; revision_id: string };
     steps: CommonProcessingStep[];
     change_reason: string;
+    workup_overrides?: CommonProcessingWorkupOverride[];
   },
 ): Promise<ApiResult<CommonProcessingOutputResponse>> {
   return request(config, "/processing-outputs", {

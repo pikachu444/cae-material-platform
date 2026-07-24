@@ -33,8 +33,11 @@ Material, State, Test Data, Mapping Profile과 Recipe exact revision을 복원�
 
 금속 **Metal elastic modulus** 단계에서는 current-step settings ribbon에서 Auto robust, Linear regression,
 Chord, Secant, Manual slope를 직접 선택합니다. 그래프의 **Select range** 또는 Start/End strain으로
-평가 구간을 정합니다. Manual slope, yield 또는 necking override에는 값·unit·engineering reason이
-함께 필요합니다. **Offset proof stress**는 기본 `Rp0.2 · derived from curve`와 offset/search range를,
+평가 구간을 정합니다. Manual slope에는 값·unit·engineering reason이 함께 필요하며 GPa/MPa 입력은
+canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking point도 point index와 reason을 요구합니다.
+두 수동 workup은 원값/원 단위·canonical 값/단위·사유를 `workup_overrides`로 Processing Output revision과
+다운로드 Artifact에 함께 고정합니다. **Offset proof stress**는 선택한 offset/search range의 curve-derived
+값만 사용합니다. 직접 manual yield 값은 production yield-definition contract가 승인되기 전까지 제공하지 않습니다.
 **Engineering to true/plastic**은 necking boundary와 음의 plastic strain 정책을 설정합니다. 이 physical
 workup은 Metal elastoplastic Process에만 보이며 Fit, Polymer, Elastomer에는 노출하지 않습니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
 혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
@@ -137,7 +140,8 @@ JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩�
 2. current-step settings에서 Processed curve label과 저장 사유를 입력합니다.
 3. **Save processed curves**를 누릅니다. 이것이 Process의 유일한 primary action이고 preview는 secondary입니다.
 4. 서버는 화면의 preview 배열을 저장하지 않고 exact Test Data revision과 exact Mapping Profile
-   revision을 다시 읽어 동일한 ordered steps를 재실행합니다.
+   revision을 다시 읽어 동일한 ordered steps를 재실행합니다. 수동 modulus/necking workup이 있으면
+   typed `workup_overrides`도 원값·정규값·사유와 함께 immutable output에 고정합니다.
 5. 저장된 목록에서 revision 1, stage/point 수, Output SHA-256을 확인합니다.
 6. **Download JSON**으로 `cmp.processing-output` Artifact의 정확한 바이트를 받습니다.
 

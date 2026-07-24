@@ -115,6 +115,27 @@ describe("Modeling session v3 reducer", () => {
     expect(target.invalidation?.dispositions.neutralModel).toBe("regenerate");
   });
 
+  it("invalidates a recipe-less Process draft and its complete downstream output chain", () => {
+    const withOutputOnly = reduceModelingSession(populatedSession(), {
+      type: "SET_CURRENT",
+      key: "recipe",
+      value: undefined,
+    });
+    const next = reduceModelingSession(withOutputOnly, { type: "CHANGE_PROCESS" });
+
+    expect(next.recipe).toBeUndefined();
+    expect(next.processingOutput).toBeUndefined();
+    expect(next.fitCandidate).toBeUndefined();
+    expect(next.selection).toBeUndefined();
+    expect(next.validation).toBeUndefined();
+    expect(next.materialModelIr).toBeUndefined();
+    expect(next.neutralModel).toBeUndefined();
+    expect(next.exportArtifact).toBeUndefined();
+    expect(next.reviewRelease).toBeUndefined();
+    expect(next.stalePointers?.reviewRelease).toMatchObject({ id: "review" });
+    expect(next.invalidation?.reason).toBe("process");
+  });
+
   it("keeps the new exact Mapping Profile while clearing its downstream working chain", () => {
     const next = reduceModelingSession(populatedSession(), { type: "CHANGE_MAPPING", mappingProfile: ref("next-mapping") });
 

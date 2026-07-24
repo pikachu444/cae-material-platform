@@ -1,7 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { CommonProcessingWorkbench } from "./common-processing-workbench";
+import {
+  CommonProcessingWorkbench,
+  manualModulusDisplayValue,
+  manualModulusPascals,
+} from "./common-processing-workbench";
 
 function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
   return {
@@ -28,6 +32,18 @@ const revision = {
   classification: "internal",
   lifecycle_state: "draft",
 };
+
+describe("manual Young's modulus unit conversion", () => {
+  it("stores GPa input in canonical Pa", () => {
+    expect(manualModulusPascals(205, "GPa")).toBe(205_000_000_000);
+    expect(manualModulusDisplayValue(205_000_000_000, "GPa")).toBe(205);
+  });
+
+  it("stores MPa input in the same canonical Pa", () => {
+    expect(manualModulusPascals(205_000, "MPa")).toBe(205_000_000_000);
+    expect(manualModulusDisplayValue(205_000_000_000, "MPa")).toBe(205_000);
+  });
+});
 
 const documentResource = {
   test_data_document_id: "53000000-0000-4000-8000-000000000002",

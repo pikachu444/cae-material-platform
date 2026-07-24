@@ -4002,6 +4002,16 @@ export interface CommonProcessingOutputResponse {
   final_point_count: number;
   output_artifact_id: string;
   output_sha256: string;
+  workup_overrides: CommonProcessingWorkupOverride[];
+}
+
+export interface CommonProcessingWorkupOverride {
+  kind: "youngs_modulus" | "necking_boundary";
+  original_value: number;
+  original_unit: string;
+  canonical_value: number;
+  canonical_unit: string;
+  reason: string;
 }
 
 export interface CommonPointwiseStatistics {

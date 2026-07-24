@@ -41,6 +41,7 @@ import type {
   CommonProcessingRecipeResponse,
   CommonProcessingPreview,
   CommonProcessingStep,
+  CommonProcessingWorkupOverride,
   CommonCurveStage,
   DataClassification,
   GraphSelectionCommand,
@@ -320,10 +321,26 @@ function numberOption(step: CommonProcessingStep, key: string): number {
   return typeof value === "number" ? value : Number(value ?? 0);
 }
 
+type ModulusDisplayUnit = "GPa" | "MPa";
+
+function modulusPaScale(unit: ModulusDisplayUnit): number {
+  return unit === "GPa" ? 1e9 : 1e6;
+}
+
+function modulusDisplayUnit(value: unknown): ModulusDisplayUnit {
+  return value === "MPa" ? "MPa" : "GPa";
+}
+
+export function manualModulusPascals(value: number, unit: ModulusDisplayUnit): number {
+  return value * modulusPaScale(unit);
+}
+
+export function manualModulusDisplayValue(valuePa: number, unit: ModulusDisplayUnit): number {
+  return valuePa / modulusPaScale(unit);
+}
+
 const UI_ONLY_PROCESS_OPTION_KEYS = new Set([
-  "manual_modulus_unit", "manual_modulus_reason", "yield_definition",
-  "manual_yield_pa", "manual_yield_unit", "manual_yield_reason",
-  "manual_necking_unit", "manual_necking_reason",
+  "manual_modulus_unit", "manual_modulus_reason", "manual_necking_unit", "manual_necking_reason",
 ]);
 
 function serverProcessingSteps(steps: CommonProcessingStep[]): CommonProcessingStep[] {
@@ -331,6 +348,36 @@ function serverProcessingSteps(steps: CommonProcessingStep[]): CommonProcessingS
     ...step,
     options: Object.fromEntries(Object.entries(step.options).filter(([key]) => !UI_ONLY_PROCESS_OPTION_KEYS.has(key))),
   }));
+}
+
+function workupOverridesFromSteps(steps: CommonProcessingStep[]): CommonProcessingWorkupOverride[] {
+  const overrides: CommonProcessingWorkupOverride[] = [];
+  const modulus = steps.find((step) => step.method_id === "metal.elastic_modulus");
+  if (modulus?.options.method === "manual") {
+    const original_unit = modulusDisplayUnit(modulus.options.manual_modulus_unit);
+    const canonical_value = numberOption(modulus, "manual_modulus_pa");
+    overrides.push({
+      kind: "youngs_modulus",
+      original_value: manualModulusDisplayValue(canonical_value, original_unit),
+      original_unit,
+      canonical_value,
+      canonical_unit: "Pa",
+      reason: String(modulus.options.manual_modulus_reason ?? "").trim(),
+    });
+  }
+  const workup = steps.find((step) => step.method_id === "metal.engineering_to_true_plastic");
+  if (workup?.options.necking_policy === "manual_index") {
+    const selectedIndex = numberOption(workup, "manual_necking_index");
+    overrides.push({
+      kind: "necking_boundary",
+      original_value: selectedIndex,
+      original_unit: String(workup.options.manual_necking_unit ?? "observed-point-index"),
+      canonical_value: selectedIndex,
+      canonical_unit: "observed-point-index",
+      reason: String(workup.options.manual_necking_reason ?? "").trim(),
+    });
+  }
+  return overrides;
 }
 
 function GuidedStepOptions({
@@ -396,7 +443,9 @@ function GuidedStepOptions({
   }
   if (step.method_id === "metal.elastic_modulus") {
     const method = String(step.options.method);
-    const modulusGpa = numberOption(step, "manual_modulus_pa") / 1e9;
+    const unit = modulusDisplayUnit(step.options.manual_modulus_unit);
+    const modulusGpa = manualModulusDisplayValue(numberOption(step, "manual_modulus_pa"), "GPa");
+    const manualValue = manualModulusDisplayValue(numberOption(step, "manual_modulus_pa"), unit);
     return <div className="guided-step-options">
       <fieldset className="option-choice-grid"><legend>Evaluation method</legend>{[
         ["robust_huber", "Auto robust"], ["linear_regression", "Linear regression"], ["chord", "Chord"], ["secant", "Secant"], ["manual", "Manual slope"],
@@ -404,15 +453,14 @@ function GuidedStepOptions({
       <div className="guided-range-row"><label>Start strain<input aria-label="Elastic range start" type="number" step="any" value={numberOption(step, "minimum_strain")} onChange={(event) => onChange("minimum_strain", Number(event.target.value))}/></label><label>End strain<input aria-label="Elastic range end" type="number" step="any" value={numberOption(step, "maximum_strain")} onChange={(event) => onChange("maximum_strain", Number(event.target.value))}/></label></div>
       <p className="option-hint">Use <strong>Select range</strong> on the graph to set both limits directly.</p>
       <p className="option-hint">Calculated Young&apos;s modulus is derived from the selected elastic range. A manual value is a physical-workup override, not a Fit parameter.</p>
-      {method === "manual" ? <div className="guided-range-row"><label>Manual Young&apos;s modulus<input aria-label="Manual Young's modulus" type="number" min="0" step="any" value={modulusGpa} onChange={(event) => onChange("manual_modulus_pa", Number(event.target.value) * 1e9)} /></label><label>Unit<select aria-label="Manual Young's modulus unit" value={String(step.options.manual_modulus_unit ?? "GPa")} onChange={(event) => onChange("manual_modulus_unit", event.target.value)}><option>GPa</option><option>MPa</option></select></label><label>Override reason<input aria-label="Manual Young's modulus reason" value={String(step.options.manual_modulus_reason ?? "")} onChange={(event) => onChange("manual_modulus_reason", event.target.value)} /></label></div> : <output>Auto/calculated value preview: {modulusGpa.toFixed(1)} GPa</output>}
+      {method === "manual" ? <div className="guided-range-row"><label>Manual Young&apos;s modulus<input aria-label="Manual Young's modulus" type="number" min="0" step="any" value={manualValue} onChange={(event) => onChange("manual_modulus_pa", manualModulusPascals(Number(event.target.value), unit))} /></label><label>Unit<select aria-label="Manual Young's modulus unit" value={unit} onChange={(event) => onChange("manual_modulus_unit", event.target.value)}><option>GPa</option><option>MPa</option></select></label><label>Override reason<input aria-label="Manual Young's modulus reason" value={String(step.options.manual_modulus_reason ?? "")} onChange={(event) => onChange("manual_modulus_reason", event.target.value)} /></label></div> : <output>Auto/calculated value preview: {modulusGpa.toFixed(1)} GPa</output>}
     </div>;
   }
   if (step.method_id === "metal.proof_stress") {
     return <div className="guided-step-options">
       <label className="slider-option">Proof offset <output>{(numberOption(step, "offset_strain") * 100).toFixed(2)}%</output><input aria-label="Proof stress offset" type="range" min="0.05" max="1" step="0.05" value={numberOption(step, "offset_strain") * 100} onChange={(event) => onChange("offset_strain", Number(event.target.value) / 100)} /></label>
       <div className="guided-range-row"><label>Search start<input type="number" step="any" value={numberOption(step, "search_start")} onChange={(event) => onChange("search_start", Number(event.target.value))}/></label><label>Search end<input type="number" step="any" value={numberOption(step, "search_end")} onChange={(event) => onChange("search_end", Number(event.target.value))}/></label></div>
-      <p><strong>Yield definition:</strong> {String(step.options.yield_definition ?? "Rp0.2 · derived from curve")}</p><p className="option-hint">The offset line and observed intersection update in the live preview. Supplier values are evidence and never silently replace the curve-derived value.</p>
-      <details><summary>Manual yield override</summary><div className="guided-range-row"><label>Value<input aria-label="Manual yield value" type="number" min="0" step="any" value={step.options.manual_yield_pa === null ? "" : numberOption(step, "manual_yield_pa") / 1e6} onChange={(event) => onChange("manual_yield_pa", event.target.value === "" ? null : Number(event.target.value) * 1e6)} /></label><label>Unit<select aria-label="Manual yield unit" value={String(step.options.manual_yield_unit ?? "MPa")} onChange={(event) => onChange("manual_yield_unit", event.target.value)}><option>MPa</option><option>GPa</option></select></label><label>Reason<input aria-label="Manual yield reason" value={String(step.options.manual_yield_reason ?? "")} onChange={(event) => onChange("manual_yield_reason", event.target.value)} /></label></div></details>
+      <p><strong>Yield definition:</strong> curve-derived proof stress at the selected offset.</p><p className="option-hint">The offset line and observed intersection update in the live preview. A direct manual yield value is not supported until a production yield-definition contract is approved; supplier values remain source evidence and never silently replace this curve-derived result.</p>
     </div>;
   }
   if (step.method_id === "metal.necking_candidate") {
@@ -422,7 +470,7 @@ function GuidedStepOptions({
     return <div className="guided-step-options">
       <label>Necking boundary<select value={String(step.options.necking_policy)} onChange={(event) => onChange("necking_policy", event.target.value)}><option value="observed_full_domain">Use full observed domain</option><option value="manual_index">Use selected point</option></select></label>
       <label>Selected point index<input aria-label="Manual necking point index" type="number" min="0" step="1" value={numberOption(step, "manual_necking_index")} onChange={(event) => onChange("manual_necking_index", Number(event.target.value))}/></label>
-      {String(step.options.necking_policy) === "manual_index" ? <div className="guided-range-row"><label>Unit<input aria-label="Manual necking unit" value={String(step.options.manual_necking_unit ?? "strain (1)")} onChange={(event) => onChange("manual_necking_unit", event.target.value)} /></label><label>Override reason<input aria-label="Manual necking reason" value={String(step.options.manual_necking_reason ?? "")} onChange={(event) => onChange("manual_necking_reason", event.target.value)} /></label></div> : null}
+      {String(step.options.necking_policy) === "manual_index" ? <div className="guided-range-row"><label>Unit<output aria-label="Manual necking unit">observed point index</output></label><label>Override reason<input aria-label="Manual necking reason" value={String(step.options.manual_necking_reason ?? "")} onChange={(event) => onChange("manual_necking_reason", event.target.value)} /></label></div> : null}
       <p className="option-hint">Choose <strong>Pick point</strong> on the graph; the nearest observed index is applied here.</p>
       <label>Negative plastic strain<select value={String(step.options.negative_plastic_policy)} onChange={(event) => onChange("negative_plastic_policy", event.target.value)}><option value="drop">Drop pre-yield negatives</option><option value="clip_zero">Clip to zero</option><option value="retain">Retain with warning</option></select></label>
     </div>;
@@ -1373,17 +1421,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   }): Promise<CommonProcessingOutputResponse | null> {
     const draftSteps = JSON.parse(stepsText) as CommonProcessingStep[];
     const modulus = draftSteps.find((step) => step.method_id === "metal.elastic_modulus");
-    const proof = draftSteps.find((step) => step.method_id === "metal.proof_stress");
     const workup = draftSteps.find((step) => step.method_id === "metal.engineering_to_true_plastic");
     if (modulus?.options.method === "manual" && (numberOption(modulus, "manual_modulus_pa") <= 0 || !String(modulus.options.manual_modulus_unit ?? "").trim() || !String(modulus.options.manual_modulus_reason ?? "").trim())) {
       setError("A manual Young's modulus needs its value, unit, and engineering reason before saving processed curves.");
       return null;
     }
-    if (proof?.options.manual_yield_pa !== null && proof?.options.manual_yield_pa !== undefined && (numberOption(proof, "manual_yield_pa") <= 0 || !String(proof.options.manual_yield_unit ?? "").trim() || !String(proof.options.manual_yield_reason ?? "").trim())) {
-      setError("A manual yield override needs its value, unit, and engineering reason before saving processed curves.");
-      return null;
-    }
-    if (workup?.options.necking_policy === "manual_index" && (!String(workup.options.manual_necking_unit ?? "").trim() || !String(workup.options.manual_necking_reason ?? "").trim())) {
+    if (workup?.options.necking_policy === "manual_index" && (numberOption(workup, "manual_necking_index") < 0 || !String(workup.options.manual_necking_reason ?? "").trim())) {
       setError("A manual necking boundary needs its value, unit, and engineering reason before saving processed curves.");
       return null;
     }
@@ -1417,6 +1460,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         },
         steps: serverProcessingSteps(draftSteps),
         change_reason: overrides?.reason ?? outputReason,
+        workup_overrides: workupOverridesFromSteps(draftSteps),
       });
       const refreshed = await listCommonProcessingOutputs(config);
       setOutputs(refreshed.data.items);
@@ -1777,12 +1821,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           const workup = steps[workupIndex];
           steps[workupIndex] = {
             ...workup,
-            options: { ...workup.options, necking_policy: "manual_index", manual_necking_index: nearestIndex },
+            options: { ...workup.options, necking_policy: "manual_index", manual_necking_index: nearestIndex, manual_necking_unit: "observed-point-index" },
           };
           setSelectedStepIndex(workupIndex);
         } else {
           options.necking_policy = "manual_index";
           options.manual_necking_index = nearestIndex;
+          options.manual_necking_unit = "observed-point-index";
           steps[stepIndex] = { ...step, options };
           setSelectedStepIndex(stepIndex);
         }

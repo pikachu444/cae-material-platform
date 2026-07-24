@@ -115,7 +115,7 @@ const DOWNSTREAM_OF_DATA = ALL_POINTERS.filter((key) => key !== "testData");
 const DOWNSTREAM_OF_MAPPING = ALL_POINTERS.filter(
   (key) => key !== "testData" && key !== "mappingProfile",
 );
-const DOWNSTREAM_OF_PROCESS = ["processingOutput", "fitCandidate", "selection", "validation", "materialModelIr", "neutralModel", "exportArtifact"] as const;
+const DOWNSTREAM_OF_PROCESS = ["processingOutput", "fitCandidate", "selection", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
 const DOWNSTREAM_OF_FIT = ["fitCandidate", "selection", "validation", "materialModelIr", "neutralModel", "exportArtifact"] as const;
 
 function now(): string {
@@ -190,8 +190,14 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
       if (sameRef(current.mappingProfile, event.mappingProfile)) return current;
       return withInvalidation({ ...current, mappingProfile: event.mappingProfile }, "mapping-profile", clearEntries(DOWNSTREAM_OF_MAPPING));
     case "CHANGE_PROCESS":
-      if (sameRef(current.recipe, event.recipe)) return current;
-      return withInvalidation({ ...current, recipe: event.recipe }, "process", clearEntries(DOWNSTREAM_OF_PROCESS));
+      // A draft edit has no immutable Recipe ref to compare. It still changes
+      // the executed process and must never leave its old output chain current.
+      if (event.recipe !== undefined && sameRef(current.recipe, event.recipe)) return current;
+      return withInvalidation(
+        event.recipe === undefined ? current : { ...current, recipe: event.recipe },
+        "process",
+        clearEntries(DOWNSTREAM_OF_PROCESS),
+      );
     case "CHANGE_FIT":
       return withInvalidation(current, "fit", clearEntries(DOWNSTREAM_OF_FIT));
     case "SELECT_CANDIDATE":

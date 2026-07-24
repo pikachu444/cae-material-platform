@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Literal, Protocol
 from uuid import UUID, uuid4
 
 from cmp.modules.artifacts.application.content import ArtifactService
@@ -37,8 +37,8 @@ from cmp.shared.domain.revisions import (
 )
 
 PROCESSING_OUTPUT_AGGREGATE_TYPE = "processing.common_output"
-PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.0.0"
-PROCESSING_OUTPUT_SCHEMA_VERSION = "1.0.0"
+PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.1.0"
+PROCESSING_OUTPUT_SCHEMA_VERSION = "1.1.0"
 PROCESSING_OUTPUT_MEDIA_TYPE = "application/vnd.cmp.processing-output+json"
 
 
@@ -50,6 +50,37 @@ class ProcessingOutputNotFound(CommonPipelineError):
 class ExactRevisionPin:
     aggregate_id: UUID
     revision_id: UUID
+
+
+@dataclass(frozen=True, slots=True)
+class ProcessingWorkupOverride:
+    """A manual physical-workup decision that affected an executed output.
+
+    This is deliberately separate from strict method options: the pipeline only
+    receives options it understands, while the immutable output records the
+    engineer-entered quantity, its canonical form, and why it was used.
+    """
+
+    kind: Literal["youngs_modulus", "necking_boundary"]
+    original_value: float
+    original_unit: str
+    canonical_value: float
+    canonical_unit: str
+    reason: str
+
+    def __post_init__(self) -> None:
+        if self.original_value <= 0 or self.canonical_value <= 0:
+            raise CommonPipelineError("workup override values must be positive")
+        if not self.original_unit.strip() or not self.canonical_unit.strip():
+            raise CommonPipelineError("workup overrides require original and canonical units")
+        if not self.reason.strip() or len(self.reason) > 2000:
+            raise CommonPipelineError("workup override reason must contain 1..2000 characters")
+        if self.kind == "youngs_modulus" and self.canonical_unit != "Pa":
+            raise CommonPipelineError("Young's modulus overrides must use canonical Pa")
+        if self.kind == "necking_boundary" and self.canonical_unit != "observed-point-index":
+            raise CommonPipelineError(
+                "necking-boundary overrides must use canonical observed-point-index"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,6 +97,7 @@ class ProcessingOutputContent:
     final_point_count: int
     output_artifact_id: UUID
     output_sha256: str
+    workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.label.strip() or len(self.label) > 200:
@@ -74,6 +106,8 @@ class ProcessingOutputContent:
             raise CommonPipelineError("committed Processing Output requires at least one step")
         if self.stage_count != len(self.steps) + 1 or self.final_point_count < 2:
             raise CommonPipelineError("Processing Output stage or point count is inconsistent")
+        if len({override.kind for override in self.workup_overrides}) != len(self.workup_overrides):
+            raise CommonPipelineError("a Processing Output may contain one override per kind")
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +133,7 @@ class CommitProcessingOutput:
     mapping_profile: ExactRevisionPin
     steps: tuple[ProcessingStep, ...]
     change_reason: str
+    workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
 
 
 class ProcessingOutputRepository(Protocol):
@@ -146,6 +181,17 @@ def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[
         "final_point_count": value.final_point_count,
         "output_artifact_id": str(value.output_artifact_id),
         "output_sha256": value.output_sha256,
+        "workup_overrides": [
+            {
+                "kind": override.kind,
+                "original_value": override.original_value,
+                "original_unit": override.original_unit,
+                "canonical_value": override.canonical_value,
+                "canonical_unit": override.canonical_unit,
+                "reason": override.reason,
+            }
+            for override in value.workup_overrides
+        ],
     }
 
 
@@ -157,6 +203,7 @@ def processing_output_document(
     profile: ExactRevisionPin,
     steps: tuple[ProcessingStep, ...],
     preview: ProcessingPreview,
+    workup_overrides: tuple[ProcessingWorkupOverride, ...] = (),
 ) -> dict[str, object]:
     return {
         "document_type": "cmp.processing-output",
@@ -178,6 +225,17 @@ def processing_output_document(
                 "options": step.options,
             }
             for step in steps
+        ],
+        "workup_overrides": [
+            {
+                "kind": override.kind,
+                "original_value": override.original_value,
+                "original_unit": override.original_unit,
+                "canonical_value": override.canonical_value,
+                "canonical_unit": override.canonical_unit,
+                "reason": override.reason,
+            }
+            for override in workup_overrides
         ],
         "result": processing_preview_canonical(preview),
     }
@@ -269,6 +327,7 @@ class CommonProcessingOutputService:
                 profile=command.mapping_profile,
                 steps=command.steps,
                 preview=preview,
+                workup_overrides=command.workup_overrides,
             )
         )
         artifact = await self._artifacts.finalize_derived_bytes(
@@ -294,6 +353,7 @@ class CommonProcessingOutputService:
             final_point_count=preview.stages[-1].point_count,
             output_artifact_id=artifact.artifact.id,
             output_sha256=artifact.artifact.sha256,
+            workup_overrides=command.workup_overrides,
         )
         record = RevisionService(
             aggregate_type=PROCESSING_OUTPUT_AGGREGATE_TYPE,
