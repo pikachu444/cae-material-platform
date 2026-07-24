@@ -225,6 +225,9 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   const updateSession = useCallback((patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => {
     setSession(saveModelingSession(patch));
   }, []);
+  const applySessionEvent = useCallback((event: Parameters<typeof dispatchModelingSession>[0]) => {
+    setSession(dispatchModelingSession(event));
+  }, []);
   const startNewSession = useCallback((family: ModelingMaterialFamily) => {
     contextGeneration.current += 1;
     contextSelectionEnabled.current = false;
@@ -366,6 +369,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onModelingTrackChange={setTrack}
       initialSession={session}
       onSessionChange={updateSession}
+      onSessionEvent={applySessionEvent}
       onNewSession={startNewSession}
       familyWorkbench={familyWorkbench}
       familyInspector={familyInspector}

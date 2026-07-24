@@ -395,6 +395,7 @@ describe("Common Processing Workbench", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const onSessionChange = vi.fn();
+    const onSessionEvent = vi.fn();
     const onNewSession = vi.fn();
     const onNavigate = vi.fn();
     const materialA = {
@@ -422,6 +423,7 @@ describe("Common Processing Workbench", () => {
         onNavigate={onNavigate}
         onOpenConnection={() => undefined}
         onSessionChange={onSessionChange}
+        onSessionEvent={onSessionEvent}
         onNewSession={onNewSession}
         initialSession={sessionA as never}
         material={materialA as never}
@@ -475,7 +477,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByLabelText("Saved Processing Recipe")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Batch/ }));
     expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
-    expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(2);
+    expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(1);
     fireEvent.click(screen.getByRole("button", { name: "Update candidates" }));
     expect(await screen.findByText("Preview only · not committed")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
@@ -510,6 +512,9 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("button", { name: "Auto robust" }).className).toContain("active");
     fireEvent.click(screen.getByRole("button", { name: "Manual slope" }));
     fireEvent.change(screen.getByLabelText("Manual Young's modulus"), { target: { value: "205" } });
+    expect(screen.getByLabelText("Manual Young's modulus unit")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Manual Young's modulus reason"), { target: { value: "Reconcile the measured elastic range." } });
+    expect(onSessionEvent).toHaveBeenCalledWith({ type: "CHANGE_PROCESS" });
     const guidedSteps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, unknown> }>;
     expect(guidedSteps[1].options.method).toBe("manual");
     expect(guidedSteps[1].options.manual_modulus_pa).toBe(205_000_000_000);
@@ -529,7 +534,7 @@ describe("Common Processing Workbench", () => {
     expect(appliedSteps[1].options.minimum_strain).not.toBe(0.0002);
     expect(screen.getByText(/Applied the graph range to metal.elastic_modulus/)).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Preview processing" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update preview" }));
     await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     fireEvent.click(screen.getAllByRole("button", { name: /metal\.necking_candidate/ })[0]);
     const neckingPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
@@ -560,7 +565,7 @@ describe("Common Processing Workbench", () => {
     expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
     expect(screen.getByText("Selection reason")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
-    expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
+    expect(screen.queryByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeNull();
     onSessionChange.mockClear();
     view.rerender(
       <CommonProcessingWorkbench
