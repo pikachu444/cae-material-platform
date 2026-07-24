@@ -1,11 +1,11 @@
 version: 52
 verified_at: 2026-07-24
 scope: current-main-product-baseline
-source_commit: a36ecd7
+source_commit: 971d5d9
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "All 26 images were replaced atomically after rebuilding the UXC-03 web source from exact implementation commit a36ecd7."
+  - "All 26 images were replaced atomically after rebuilding the UXC-03 web source from exact implementation commit 971d5d9."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation, and a terminal related-data state; an explicit unprojected Catalog state is evidence, not a silent resolved-link fallback."
   - "A late exact-model list refresh preserves a just-promoted local IR selection; capture waits for the enabled Neutral action or an already-restored exact Neutral."
   - "New session increments the parent context generation so in-flight Material/State discovery cannot repin an automatic fallback after the pin-free Data reset."
@@ -16,9 +16,9 @@ notes:
   - "PR #124 completed DUI-06; DUI-01 through DUI-06 are complete. UXC-03 closes Data/Process correction evidence; UXC-04 through UXC-06 remain before DUI-07 through DUI-09."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: a36ecd7
-    captured_at: 2026-07-24T16:23:23+09:00
-    command: uv run --with playwright python scripts/capture_current_product.py (successful atomic capture after rebuilding Compose web from exact implementation commit a36ecd7)
+  - source_commit: 971d5d9
+    captured_at: 2026-07-24T16:47:57+09:00
+    command: uv run --with playwright python scripts/capture_current_product.py (successful atomic capture after rebuilding Compose web from exact implementation commit 971d5d9)
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, activity-1440, administration-database-1440]
 captures:
   - id: materials-search-1366
