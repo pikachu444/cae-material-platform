@@ -1,0 +1,157 @@
+{
+  "schema_version": "2.0",
+  "created_at": "2026-07-24",
+  "integrated_from": "docs/_incoming/2026-07-24-organic-ux-update/09_SOURCE_CATALOG.json",
+  "policy": {
+    "public_official_sources_only": true,
+    "external_fact_is_not_automatically_a_product_requirement": true,
+    "copy_product_ui_or_schema": false,
+    "distinguish_fact_observation_decision": true,
+    "unknown_details_remain_tbd_or_unsupported": true
+  },
+  "sources": [
+    {
+      "id": "granta-mi-product",
+      "product": "Ansys Granta MI",
+      "version": "current page reviewed 2026-07-24",
+      "title": "Ansys Granta MI",
+      "publisher": "Ansys",
+      "url": "https://www.ansys.com/products/materials/granta-mi",
+      "evidence_type": "official_product_page",
+      "supports": ["enterprise governed materials information", "version control and controlled access", "search, comparison, and CAD/CAE/PLM integration"],
+      "limitations": ["Product-page claims do not define this platform's schema or permission policy."]
+    },
+    {
+      "id": "granta-viewer-profile",
+      "product": "Granta MI Viewer",
+      "version": "2026 R1",
+      "title": "Browsing your data",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/MI_Viewer_Help/MI_Viewer/GetStart_Profile.html",
+      "evidence_type": "official_help",
+      "supports": ["profile-controlled table, tree, subset, and search scope", "purpose-specific layout", "record browsing and version visibility"],
+      "limitations": ["Organization-specific profiles can differ."]
+    },
+    {
+      "id": "granta-advanced-search",
+      "product": "Granta MI Viewer",
+      "version": "2026 R1",
+      "title": "Advanced search",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/MI_Viewer_Help/MI_Viewer/Search_AdvancedSearch.html",
+      "evidence_type": "official_help",
+      "supports": ["typed property criteria", "unit-aware thresholds", "ALL and ANY condition groups"],
+      "limitations": ["Product facets remain a product decision."]
+    },
+    {
+      "id": "granta-datasheet",
+      "product": "Granta Materials Gateway",
+      "version": "2026 R1",
+      "title": "View a datasheet",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Materials_Gateway/gw/view_a_datasheet.html",
+      "evidence_type": "official_help",
+      "supports": ["datasheet version context", "purpose-specific layouts", "curve plotting"],
+      "limitations": []
+    },
+    {
+      "id": "granta-material-models",
+      "product": "Granta Materials Gateway",
+      "version": "2026 R1",
+      "title": "Material models",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Materials_Gateway/gw/material_models.html",
+      "evidence_type": "official_help",
+      "supports": ["model definitions", "exporter attributes, units, and transformations", "compatible model types"],
+      "limitations": ["Does not prescribe this platform's Material Model IR."]
+    },
+    {
+      "id": "granta-selector-product",
+      "product": "Ansys Granta Selector",
+      "version": "current page reviewed 2026-07-24",
+      "title": "Ansys Granta Selector",
+      "publisher": "Ansys",
+      "url": "https://www.ansys.com/products/materials/granta-selector",
+      "evidence_type": "official_product_page",
+      "supports": ["material selection", "property constraints", "trade-off exploration"],
+      "limitations": ["Does not justify a decorative selection chart in ordinary material search."]
+    },
+    {
+      "id": "smdc-quick-search",
+      "product": "Simcenter Material Data Center",
+      "version": "2025",
+      "title": "Quick Search",
+      "publisher": "Siemens Simcenter Material Data Center Help",
+      "url": "https://2025.help.altair.com/altairone/topics/materialsdb/material_quicksearch_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["name, type, characteristic, and property suggestions", "property value-range search"],
+      "limitations": ["Labels and availability can vary by deployment and dataset."]
+    },
+    {
+      "id": "smdc-cae-download",
+      "product": "Simcenter Material Data Center",
+      "version": "2025",
+      "title": "CAE Models Download",
+      "publisher": "Siemens Simcenter Material Data Center Help",
+      "url": "https://2025.help.altair.com/altairone/topics/materialsdb/cae_models_download_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["solver and CAE model selection", "condition and unit choices", "card preview and download workflow"],
+      "limitations": ["Supported solvers and versions come from this product's registry."]
+    },
+    {
+      "id": "material-modeler-import",
+      "product": "Altair Material Modeler",
+      "version": "2025",
+      "title": "Import Data",
+      "publisher": "Altair Help",
+      "url": "https://help.altair.com/material_modeler/topics/material_modeler/data_import_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["test-data import", "data interpretation before preparation and fitting"],
+      "limitations": ["Actual parser support is defined by this platform's registry."]
+    },
+    {
+      "id": "material-modeler-prepare",
+      "product": "Altair Material Modeler",
+      "version": "2025",
+      "title": "Prepare Data",
+      "publisher": "Altair Help",
+      "url": "https://help.altair.com/material_modeler/topics/material_modeler/prepare_data_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["Young's modulus", "curve operations", "Rp0.2 and necking", "true stress and plastic strain workup"],
+      "limitations": ["Defaults and thresholds require this platform's domain registry."]
+    },
+    {
+      "id": "material-modeler-curve-fitting",
+      "product": "Altair Material Modeler",
+      "version": "2025",
+      "title": "Curve Fitting",
+      "publisher": "Altair Help",
+      "url": "https://help.altair.com/material_modeler/topics/material_modeler/curve_fitting_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["fit range", "graph and derivative inspection", "comparison and user selection of fits", "law blending"],
+      "limitations": ["Does not justify automatic engineer approval of a lowest-error candidate."]
+    },
+    {
+      "id": "material-modeler-hyperelastic-edit",
+      "product": "Altair Material Modeler Hyperelastic Web",
+      "version": "2025",
+      "title": "Edit Physics Workflow",
+      "publisher": "Altair Help",
+      "url": "https://help.altair.com/material_modeler/hyperelastic/topics/amm_hyperelastic_web/edit_physics_workflow_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["test-curve list", "central plot", "model settings", "Save, Publish, and CAE export distinctions"],
+      "limitations": ["The observed regions are a task relationship, not a layout to copy."]
+    },
+    {
+      "id": "simcenter-material-modeler-2026",
+      "product": "Simcenter Material Modeler",
+      "version": "2026.0 announcement",
+      "title": "Material model calibration for CAE",
+      "publisher": "Siemens",
+      "url": "https://blogs.sw.siemens.com/simcenter/material-model-calibration-for-cae/",
+      "evidence_type": "official_product_announcement",
+      "supports": ["raw test data to simulation-ready card workflow", "curve cleaning and fitting", "provenance integration"],
+      "limitations": ["Marketing-level announcement, not UI or file-format specification."]
+    }
+  ]
+}

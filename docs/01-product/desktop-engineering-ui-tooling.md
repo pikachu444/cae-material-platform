@@ -14,7 +14,7 @@ Every visual task must use both repository reference layers:
 - `docs/00-research/images/gui-reference/README.md` and the local images it inventories for
   screen-level Granta MI and Material Modeler comparison.
 
-The relevant implementation interpretation in `docs/01-product/gui-functional-parity-plan.md` must
+The relevant implementation interpretation in `docs/01-product/desktop-engineering-ui-spec.md` must
 also be checked. A filename or README-only review does not satisfy this requirement. Evidence must
 name the images opened and distinguish what the current DUI task changes from what a later backlog
 task owns.

@@ -12,7 +12,7 @@ Read before editing:
 4. `docs/01-product/visual-acceptance-matrix.md`
 5. `docs/00-research/ux-reference-gallery/README.md`
 6. `docs/00-research/images/gui-reference/README.md` and every relevant local image in that manifest
-7. the relevant screen section in `docs/01-product/gui-functional-parity-plan.md`
+7. the relevant screen section in `docs/01-product/desktop-engineering-ui-spec.md`
 8. current route entries in `docs/user-guide/screenshot-manifest.yaml` and their registered PNGs in
    `docs/user-guide/images/current/` (historical screenshots under `docs/17-evidence` are not the
    current product baseline)

@@ -44,7 +44,7 @@ explorer. Those results do not reproduce the design grammar visible in the direc
 Material Data Center, and Material Modeler references.
 
 The responsive prototypes, structural similarity report, and product-owner approval defined by
-`docs/01-product/ux-visual-system.md` are complete at commit `40726f6`. T-95–T-97 have now applied the
+the current visual acceptance matrix are complete at commit `40726f6`. T-95–T-97 have now applied the
 same topology, dominant-area, density, surface/divider, continuity and primary-action gates to the
 live React application.
 
@@ -82,7 +82,7 @@ checkpoint, the page is a long form stack, graph interaction is minimal, and fam
 not yet provide the direct manipulation described by the public Material Modeler tutorials.
 
 The authoritative corrective plan is
-[`docs/01-product/gui-functional-parity-plan.md`](../01-product/gui-functional-parity-plan.md).
+the current desktop engineering UI backlog.
 T-79~T-81 remain valid **engine-integration evidence**, not accepted product GUI completion. The
 validated branch checkpoints `3b5c11c` and `be3442d` preserve that work while T-84~T-93 replace the
 interaction layer incrementally.

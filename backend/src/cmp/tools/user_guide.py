@@ -124,7 +124,12 @@ def _tracked_markdown(project: Path) -> list[str]:
         capture_output=True,
         text=True,
     )
-    return sorted(line.strip().replace("\\", "/") for line in result.stdout.splitlines() if line)
+    return sorted(
+        path
+        for line in result.stdout.splitlines()
+        if line
+        and (project / (path := line.strip().replace("\\", "/"))).is_file()
+    )
 
 
 def _documentation_classes(project: Path) -> dict[str, str]:

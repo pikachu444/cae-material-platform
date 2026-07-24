@@ -6,6 +6,19 @@
 
 상태: 구현 중인 제품 기준선
 
+## 문서 우선순위와 상태 표기
+
+현재 구현 설명은 `README.md`, `IMPLEMENTATION_STATUS.md`, `docs/user-guide/**`를 따른다.
+제품/UI 규칙은 `product-vision`, `desktop-engineering-user-flows`,
+`desktop-engineering-ui-product-spec`, `desktop-engineering-ui-spec`,
+`visual-acceptance-matrix` 및 desktop UI backlog가 각각 한 책임만 갖는다. 외부 제품에서 확인한
+사실은 `docs/00-research/`의 reference이며 제품 요구사항으로 자동 승격되지 않는다. 완료된
+evidence는 `docs/17-evidence/`와 implementation history에 보존하고 현재 사용법으로 읽지 않는다.
+
+문장 수준 표기는 `FACT-PUBLIC`, `CONFIRMED`, `DECISION`, `TBD`, `OUT-OF-SCOPE`를 사용한다.
+`ASSUMPTION`은 production domain, solver, validation, review policy를 결정하는 근거로 사용하지
+않는다. PR #124/DUI-01~06은 complete이고 UXC-01~06은 corrective workstream으로 pending이다.
+
 ## 1. 이 패키지의 목적
 
 이 패키지는 재료시험 원본의 보존부터 통계 분석, 전처리, 구성방정식 보정, solver-neutral Material Model IR, 솔버 카드 생성, 가상 시편 검증, 검토·승인·발행까지를 하나의 추적 가능한 플랫폼으로 구현하기 위한 기준선이다.

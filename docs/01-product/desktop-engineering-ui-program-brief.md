@@ -65,7 +65,7 @@ Read these documents in this order before changing a visual route:
 1. [AGENTS.md](../../AGENTS.md)
 2. this brief
 3. [Desktop Engineering UI Product and Interaction Specification](desktop-engineering-ui-product-spec.md)
-4. [GUI functional parity plan](gui-functional-parity-plan.md)
+4. [Desktop engineering UI specification](desktop-engineering-ui-spec.md)
 5. [Desktop Engineering UI Tooling](desktop-engineering-ui-tooling.md)
 6. [Desktop Engineering UI Delivery Backlog](../13-delivery/desktop-engineering-ui-backlog.md)
 7. [Project desktop-engineering-ui skill](../../.codex/skills/desktop-engineering-ui/SKILL.md)

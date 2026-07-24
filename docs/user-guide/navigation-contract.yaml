@@ -1,4 +1,4 @@
-version: 12
+version: 13
 shell:
   application_bar_px: 46
   command_bar_px: 38
@@ -38,7 +38,7 @@ materials_workspace:
     back_restores: [query, filters, sort, navigator_mode, selection, pane_layout]
     capture_ready: [aria-busy-false, no-checking-rows, three-synthetic-results]
 modeling_workspace:
-  task: DUI-04
+  task: DUI-04/DUI-05/DUI-06 (complete); UXC-02~06 corrective sequence pending
   route: /modeling
   query:
     stage: [data, process, fit, export]
@@ -63,4 +63,9 @@ modeling_workspace:
     process: [processing-operations, necking-boundary, processed-preview]
     fit: [candidate-equations, residual, extrapolation]
     export: [selected-model, observed-fit-range, persistent-graph, bottom-delivery-dock]
+  current_status:
+    dui_01_to_06: complete
+    pr_124_fit_export: complete
+    uxc_01_to_06: corrective-work-pending
+    dui_07_to_09: pending
   capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, exact-catalog-link-resolved, no-checking-loading-or-resolving-state, no-horizontal-overflow]

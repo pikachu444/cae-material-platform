@@ -2,6 +2,55 @@
 
 Status: authoritative product and interaction specification
 
+## UXC workflow-state and recovery contract
+
+State names describe actual auditable events, not convenient labels. A Modeling session may be
+`new → draft → previewing → committed output → selected candidate → validation run → in review →
+approved → released → delivered`; unavailable policy remains `not run`, `blocked`, or `ready for
+review`, never validated, approved, released, or delivered. Preview is ephemeral; saved inputs and
+processing outputs are immutable revisions. Running a fit produces candidates; selecting a candidate
+or blend with a reason is an explicit engineer decision. A recommendation never becomes a selection.
+
+On an API, job, mapping, or permission error, preserve selected Material/Test Data revision,
+unit/condition, curve inclusion, plot view, candidate and unsaved draft. Say what failed, whether
+work was preserved, and provide one safe recovery command: retry, revise input, choose a supported
+target, reload current, keep draft as a new revision, or cancel. Upstream Material/Test Data/mapping/
+processing/fit changes invalidate downstream current pointers in order; they never rewrite immutable
+outputs.
+
+The decision-to-delivery flow is: confirm exact data and mapping; preview then commit processing;
+run and compare candidates; explicitly select a law or blend and record the reason; save it; run
+validation/review/release only where policy exists; pin the exact allowed source; select solver,
+version and units; resolve mapping blocks; acknowledge approximations; preview, then deliver. Never
+substitute a global or another-session output when the current exact source is absent.
+
+## Exact command vocabulary
+
+| Command | Actual output | Never imply |
+| --- | --- | --- |
+| Preview / Generate preview | ephemeral calculation or card preview | saved, selected, reviewed, released, delivered |
+| Save dataset / Save processed curves | immutable Test Data / Processed Dataset revision | reviewed or validated |
+| Run fit | Fit Run and candidates | engineer selection |
+| Select candidate / Save candidate | Engineer Decision draft / saved snapshot | reviewed or released |
+| Run validation | Validation Run | approval |
+| Submit for review / Request changes / Approve | review queue/change/approval event | release |
+| Release | immutable Released Model under policy | solver artifact |
+| Deliver card | immutable Solver Artifact with lineage | source-model mutation |
+
+Forbidden labels: `Commit reviewed fit` without review, `Validated` without Validation Run,
+`Approved` without approval, `Released` without release, and `Delivered` for preview-only output.
+
+## Downstream invalidation matrix
+
+| Changed input | Mark stale / clear current pointers | Preserve and recover |
+| --- | --- | --- |
+| Material/State/Test Data revision, mapping, unit or condition | processing, fit, decision, validation/review/release, export | immutable prior revisions and mapping; choose/reload exact input |
+| Operation, curve inclusion, range or recipe | fit onward | source curve/draft; preview or commit new output |
+| Fit model, bounds, range, selected curves or blend ratio | candidates/selection onward | prior run/decision; rerun and explicitly select |
+| Candidate selection/reason or warning acknowledgement | validation/review/release/export | candidate grid/graph; save or submit selected decision |
+| Validation plan/reference/result | review/release/export | candidate/plan; rerun or revise plan |
+| Solver/version/unit or mapping acknowledgement | preview/delivery pointer | pinned model/preflight; select supported target or acknowledge |
+
 ## 1. Purpose
 
 This document defines how an engineer actually completes work in the CAE Material Platform. It is not a visual-style guide. The desktop engineering UI specification defines appearance and component grammar; this document defines user intent, workspace state, commands, state transitions, failure recovery and completion evidence.

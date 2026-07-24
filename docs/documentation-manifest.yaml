@@ -9,13 +9,12 @@ rules:
     include:
       - ".agents/skills/**/*.md"
       - "docs/00-research/**/*.md"
+      - "docs/_incoming/2026-07-24-organic-ux-update/**/*.md"
   - status: historical
     include:
-      - "CODEX_UX_REDESIGN_START.md"
       - "docs/13-delivery/implementation-history.md"
       - "docs/13-delivery/t*.md"
       - "docs/13-delivery/v3-completion-audit.md"
-      - "docs/01-product/ux-redesign-package/**/*.md"
       - "docs/17-evidence/**/*.md"
   - status: current
     include:
@@ -57,5 +56,3 @@ rules:
       - "docs/14-testing/**/*.md"
       - "docs/15-governance/**/*.md"
       - "docs/16-repository/**/*.md"
-    exclude:
-      - "docs/01-product/ux-redesign-package/**/*.md"

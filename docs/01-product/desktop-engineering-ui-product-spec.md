@@ -502,3 +502,20 @@ Required viewports: 1366×768, 1440×900 and 1920×1080.
 - whether Material result column customization is included after P0;
 - final shortcut mapping after conflicts with browser defaults are tested;
 - whether a detachable/full-screen graph is required after the core persistent graph workflow is accepted.
+
+## 18. UXC information architecture and interaction corrections
+
+Materials has three deliberately separate intentions inside one navigator: scope/tree browse changes
+the governed result scope, facets refine that scoped server query, and advanced criteria is an
+explicit search task. Result total, rows, pagination and facet counts describe that same query.
+Provider and evidence source are distinct facets. Condition-aware properties carry source, revision,
+condition and unit; Yield is not shown for polymer or elastomer results.
+
+Modeling uses a session context strip (exact Material/Test Data revision, family, condition and stage)
+above one persistent graph. Data owns input mapping; Process owns ordered operations and commit; Fit
+owns candidate comparison and explicit selection; Export owns only an exact allowed source, target,
+preflight, preview and delivery. Validate, Review and Release are policy-dependent future stages, not
+labels grafted onto Fit or Export. A task has one primary action and displays unmet prerequisites by
+blocked commands. Clearing a stale pointer preserves local inputs and graph context rather than
+blanking the workspace; a failed job retains its source/selection and exposes recovery in task and
+Activity.

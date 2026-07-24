@@ -181,6 +181,15 @@ Test Data JSON을 한 ribbon에서 고르고 등록 전에 같은 그래프로 �
 단계를 겹쳐 보고 preview와 immutable output commit을 명시적으로 나눕니다. Fit은 네 candidate를
 한 표와 세 그래프 보기로 비교하고 명시적 reviewed-fit commit을 제공합니다. Export는 exact
 Material State에서 Neutral, mapping preflight와 native-card 전달을 한 dock에 연결합니다.
+
+2026-07-24 11:41 KST UXC-00 live Compose recapture는 UI source `ff8bb1e` 기준으로 Materials,
+datasheet/card, solver delivery와 Activity의 등록 viewport를 갱신했습니다. Data/Process와
+Administration PNG는 `117551a` 기준 capture를, Fit/Export PNG는 PR #124 병합 직후
+`d16d925` 기준 capture를 유지합니다. API/web/worker restart와 deterministic reseed 뒤에도 Full
+Modeling capture는 Export route의 exact-lineage resolution이 30초 안에 settled state가 되지 않아
+atomic helper가 이를 보존했습니다. Capture별 source/time/command는
+[`screenshot manifest`](screenshot-manifest.yaml)에 기록하며, 이는 SHA만 바꿔 통과시킨 것이 아니라
+후속 UXC corrective work에서 해결할 live-state blocker입니다.
 캡처는 fixture를 변경하지 않으므로 생성 명령을 실행한 결과가 아니라 각 단계의 현재 조작면을
 보여 줍니다. 실제 생성 완료 흐름과 identity/revision 고정은 DUI-06 evidence report에 기록합니다.
 

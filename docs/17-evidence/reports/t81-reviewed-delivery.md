@@ -7,7 +7,7 @@ Date: `2026-07-19`
 > **Product status correction:** this evidence proves that exact Neutral, mapping and native-card
 > engines are connected. It does **not** prove a GRANTA/Material Modeler-level GUI. The screenshot is
 > an interim baseline that T-84~T-93 must replace under
-> `docs/01-product/gui-functional-parity-plan.md`.
+> the subsequently superseded GUI functional-parity plan.
 
 `/modeling` now ends every material-family track with the same reviewed-delivery panel. The panel
 does not create a second modeling engine. It reuses the exact candidate, Processing Output,

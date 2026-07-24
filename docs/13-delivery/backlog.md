@@ -1670,7 +1670,7 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 - **상태 (`2026-07-19`):** `implemented and verified`.
 - **범위:** T-73의 bounded engineering evidence는 보존하되 제품 완료 결론을 철회한다.
-  ADR-0034와 `docs/01-product/product-experience-spec.md`를 사용자-facing 단일 기준으로 삼고,
+  ADR-0034와 `docs/01-product/desktop-engineering-ui-product-spec.md`를 사용자-facing 단일 기준으로 삼고,
   engine evidence와 product acceptance를 분리한다.
 - **완료 조건:** README, implementation status, capability map, requirements와 architecture가
   visible API/token, flat Explorer와 disconnected Modeling UI를 완료로 표현하지 않는다.
@@ -1795,14 +1795,14 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 
 #### T-83. Product acceptance audit — `P0`
 
-- **범위:** `product-experience-spec.md`의 모든 explicit requirement를 clean deployment에서 감사한다.
+- **범위:** desktop engineering UI product specification의 모든 explicit requirement를 clean deployment에서 감사한다.
 - **완료 조건:** home에서 시작해 material find → datasheet/test curve → modeling processing/fitting →
   candidate/extrapolation → Recipe reuse → Neutral → two solver cards → linked Material return을 사람이
   이해 가능한 label만으로 완료한다. API/seed/direct-deep-link evidence로 대체하지 않는다.
 - **테스트:** full Playwright journey, downloads, screenshots, manuals, `make ci`와 protected PostgreSQL.
 
 T-82/T-83 are superseded as product-GUI completion tasks by the stricter T-84~T-93 sequence in
-[`gui-functional-parity-plan.md`](../01-product/gui-functional-parity-plan.md). Their demo/manual and
+the desktop engineering UI backlog. Their demo/manual and
 clean-acceptance intent is retained in T-93.
 
 #### T-84. Product status correction and interaction inventory — `P0`
