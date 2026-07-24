@@ -61,7 +61,7 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
     assert {
         provenance["source_commit"]
         for provenance in manifest["capture_provenance"]
-    } == {"117551a", "d16d925", "ff8bb1e", "worktree-on-b816eac"}
+    } == {"117551a", "d16d925", "ff8bb1e", "a486644"}
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "recent-browser-local-solver-card-delivery"

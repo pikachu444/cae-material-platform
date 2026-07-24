@@ -193,6 +193,10 @@ Modeling capture는 Export route의 exact-lineage resolution이 30초 안에 set
 atomic helper가 이를 보존했습니다. Capture별 source/time/command는
 [`screenshot manifest`](screenshot-manifest.yaml)에 기록하며, 이는 SHA만 바꿔 통과시킨 것이 아니라
 후속 UXC corrective work에서 해결할 live-state blocker입니다.
+
+UXC-01 Materials Search 이미지는 web과 API를 같은 코드 커밋 `a486644`로 재빌드한 뒤
+1366×768, 1440×900, 1920×1080에서 다시 캡처했습니다. 세 viewport 모두 horizontal overflow가
+0이었고, Material class facet, server total, Summary와 Revision status의 분리된 의미를 확인했습니다.
 캡처는 fixture를 변경하지 않으므로 생성 명령을 실행한 결과가 아니라 각 단계의 현재 조작면을
 보여 줍니다. 실제 생성 완료 흐름과 identity/revision 고정은 DUI-06 evidence report에 기록합니다.
 
