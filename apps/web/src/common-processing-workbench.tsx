@@ -257,8 +257,6 @@ const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
       minimum_strain: 0.0002,
       maximum_strain: 0.002,
       manual_modulus_pa: 210000000000,
-      manual_modulus_unit: "GPa",
-      manual_modulus_reason: "",
     },
   },
   {
@@ -271,10 +269,6 @@ const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
       offset_strain: 0.002,
       search_start: 0.002,
       search_end: 0.1,
-      yield_definition: "Rp0.2 · derived from curve",
-      manual_yield_pa: null,
-      manual_yield_unit: "MPa",
-      manual_yield_reason: "",
     },
   },
   {
@@ -295,8 +289,6 @@ const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
       youngs_modulus_pa: 210000000000,
       necking_policy: "observed_full_domain",
       manual_necking_index: 1,
-      manual_necking_unit: "strain (1)",
-      manual_necking_reason: "",
       negative_plastic_policy: "drop",
     },
   },
@@ -326,6 +318,19 @@ const PRONY_TERM_COUNTS = [1, 2, 3, 4, 5, 6, 8, 10] as const;
 function numberOption(step: CommonProcessingStep, key: string): number {
   const value = step.options[key];
   return typeof value === "number" ? value : Number(value ?? 0);
+}
+
+const UI_ONLY_PROCESS_OPTION_KEYS = new Set([
+  "manual_modulus_unit", "manual_modulus_reason", "yield_definition",
+  "manual_yield_pa", "manual_yield_unit", "manual_yield_reason",
+  "manual_necking_unit", "manual_necking_reason",
+]);
+
+function serverProcessingSteps(steps: CommonProcessingStep[]): CommonProcessingStep[] {
+  return steps.map((step) => ({
+    ...step,
+    options: Object.fromEntries(Object.entries(step.options).filter(([key]) => !UI_ONLY_PROCESS_OPTION_KEYS.has(key))),
+  }));
 }
 
 function GuidedStepOptions({
@@ -482,8 +487,6 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       minimum_strain: 0.0002,
       maximum_strain: 0.002,
       manual_modulus_pa: 210000000000,
-      manual_modulus_unit: "GPa",
-      manual_modulus_reason: "",
     },
     "metal.proof_stress": {
       strain_quantity: "strain.engineering",
@@ -492,10 +495,6 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       offset_strain: 0.002,
       search_start: 0.002,
       search_end: 0.1,
-      yield_definition: "Rp0.2 · derived from curve",
-      manual_yield_pa: null,
-      manual_yield_unit: "MPa",
-      manual_yield_reason: "",
     },
     "metal.necking_candidate": {
       strain_quantity: "strain.engineering",
@@ -508,8 +507,6 @@ function defaultOptions(methodId: string): Record<string, unknown> {
       youngs_modulus_pa: 210000000000,
       necking_policy: "observed_full_domain",
       manual_necking_index: 1,
-      manual_necking_unit: "strain (1)",
-      manual_necking_reason: "",
       negative_plastic_policy: "drop",
     },
     "metal.hardening_fit_extrapolate": {
@@ -1150,7 +1147,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       mapping_profile_id: profile.mapping_profile_id,
       mapping_profile_revision_id: profile.current_revision.id,
       mapping_profile_sha256: profile.current_revision.content_hash,
-      steps: JSON.parse(stepsText) as CommonProcessingStep[],
+      steps: serverProcessingSteps(JSON.parse(stepsText) as CommonProcessingStep[]),
       lifecycle_state: lifecycleState,
     };
   }
@@ -1349,7 +1346,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       const result = await previewCommonProcessing(config, {
         document,
         mapping_profile: JSON.parse(profileText) as CommonMappingProfileContent,
-        steps: JSON.parse(stepsText) as CommonProcessingStep[],
+        steps: serverProcessingSteps(JSON.parse(stepsText) as CommonProcessingStep[]),
       }, controller.signal);
       if (previewRequestNo.current !== requestNo) return;
       setPreview(result.data);
@@ -1418,7 +1415,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           aggregate_id: profile.mapping_profile_id,
           revision_id: profile.current_revision.id,
         },
-        steps: draftSteps,
+        steps: serverProcessingSteps(draftSteps),
         change_reason: overrides?.reason ?? outputReason,
       });
       const refreshed = await listCommonProcessingOutputs(config);

@@ -279,9 +279,23 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
         profile.select_option(index=1)
     advanced_contract.locator(":scope > summary").click()
     plot = page.locator(".persistent-modeling-plot svg[role=img]")
-    if not plot.is_visible():
-        page.get_by_role("button", name="Preview source", exact=True).click()
+    # Data has no competing stage-header primary action. Compute the same exact source/mapping
+    # preview through Process's secondary action, then return to Data for its evidence capture.
+    page.locator(".workspace-command-bar").get_by_role(
+        "button", name="Process", exact=True
+    ).click()
+    page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
+    page.get_by_role(
+        "button", name="Update preview", exact=True
+    ).click()
     plot.wait_for(timeout=30_000)
+    page.locator(".workspace-command-bar").get_by_role(
+        "button", name="Data", exact=True
+    ).click()
+    page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
+    page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(
+        timeout=30_000
+    )
     _wait_for_settled(page)
 
 
