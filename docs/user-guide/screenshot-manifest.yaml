@@ -1,13 +1,14 @@
 version: 52
 verified_at: 2026-07-24
 scope: current-main-product-baseline
-source_commit: worktree-b6ae7cb-uxc02
+source_commit: worktree-8235944-uxc02-final
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "All 26 images were replaced atomically by the successful full helper against the bounded UXC-02 worktree. The temporary worktree provenance is replaced with the exact implementation commit before PR publication."
+  - "The bounded post-review UXC-02 worktree adds the pin-free New-session remount guard. Exact all-viewport provenance replaces this temporary marker before PR publication."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation, and a terminal related-data state; an explicit unprojected Catalog state is evidence, not a silent resolved-link fallback."
   - "A late exact-model list refresh preserves a just-promoted local IR selection; capture waits for the enabled Neutral action or an already-restored exact Neutral."
+  - "New session increments the parent context generation so in-flight Material/State discovery cannot repin an automatic fallback after the pin-free Data reset."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
@@ -15,9 +16,9 @@ notes:
   - "PR #124 completed DUI-06; DUI-01 through DUI-06 are complete. UXC-01 through UXC-06 are corrective work pending before DUI-07 through DUI-09."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: worktree-b6ae7cb-uxc02
-    captured_at: 2026-07-24T14:42:24+09:00
-    command: uv run --with playwright python scripts/capture_current_product.py (successful atomic worktree capture; exact implementation SHA pending pre-PR evidence commit)
+  - source_commit: worktree-8235944-uxc02-final
+    captured_at: 2026-07-24T15:37:06+09:00
+    command: bounded worktree recapture after command-readiness and pin-free session verification; exact implementation SHA pending pre-PR evidence commit
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, activity-1440, administration-database-1440]
 captures:
   - id: materials-search-1366

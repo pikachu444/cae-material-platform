@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
 import { CommonProcessingWorkbench, type ModelingTrack } from "./common-processing-workbench";
@@ -63,13 +63,15 @@ function FamilyModelingPanel({
   selectedStateId: string;
   loading: boolean;
   error: string | null;
-  onMaterialChange: (materialId: string) => void;
-  onStateChange: (stateId: string) => void;
+  onMaterialChange: (materialId: string, explicit: boolean) => void;
+  onStateChange: (stateId: string, explicit: boolean) => void;
   onNavigate: (path: string) => void;
   onOpenConnection: () => void;
   preferredSourceDocumentId?: string;
   preferredProcessingOutputId?: string;
 }) {
+  const materialSelectionArmed = useRef(false);
+  const stateSelectionArmed = useRef(false);
   const state = detail?.states.find((item) => item.material_state_id === selectedStateId);
   const propertySet = detail?.property_sets.find((item) => item.material_state_id === selectedStateId);
   const familyLabel = track === "metal"
@@ -101,7 +103,12 @@ function FamilyModelingPanel({
             aria-label="Modeling material"
             value={selectedMaterialId}
             disabled={loading || materials.length === 0}
-            onChange={(event) => onMaterialChange(event.target.value)}
+            onPointerDown={() => { materialSelectionArmed.current = true; }}
+            onKeyDown={() => { materialSelectionArmed.current = true; }}
+            onChange={(event) => {
+              onMaterialChange(event.target.value, materialSelectionArmed.current);
+              materialSelectionArmed.current = false;
+            }}
           >
             <option value="">Choose Material context</option>
             {materials.map((item) => (
@@ -117,7 +124,12 @@ function FamilyModelingPanel({
             aria-label="Modeling material state"
             value={selectedStateId}
             disabled={loading || !detail?.states.length}
-            onChange={(event) => onStateChange(event.target.value)}
+            onPointerDown={() => { stateSelectionArmed.current = true; }}
+            onKeyDown={() => { stateSelectionArmed.current = true; }}
+            onChange={(event) => {
+              onStateChange(event.target.value, stateSelectionArmed.current);
+              stateSelectionArmed.current = false;
+            }}
           >
             <option value="">Choose Material State</option>
             {(detail?.states ?? []).map((item) => (
@@ -208,11 +220,18 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   const [selectedStateId, setSelectedStateId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const contextGeneration = useRef(0);
+  const contextSelectionEnabled = useRef(initialSession?.contextSelectionRequired !== true);
   const updateSession = useCallback((patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => {
     setSession(saveModelingSession(patch));
   }, []);
   const startNewSession = useCallback((family: ModelingMaterialFamily) => {
-    setSession(dispatchModelingSession({ type: "NEW_SESSION", materialFamily: family }));
+    contextGeneration.current += 1;
+    contextSelectionEnabled.current = false;
+    const persisted = loadModelingSession();
+    setSession(persisted?.contextSelectionRequired
+      ? persisted
+      : dispatchModelingSession({ type: "NEW_SESSION", materialFamily: family }));
     setSelectedMaterialId("");
     setSelectedStateId("");
     setDetail(null);
@@ -221,6 +240,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
 
   useEffect(() => {
     let active = true;
+    const generation = contextGeneration.current;
     setLoading(true);
     setError(null);
     setDetail(null);
@@ -230,6 +250,11 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
         if (!active) return;
         const items = result.data.items;
         setMaterials(items);
+        if (generation !== contextGeneration.current || !contextSelectionEnabled.current) {
+          setSelectedMaterialId("");
+          setLoading(false);
+          return;
+        }
         const restored = items.find((item) => item.material_id === initialSession?.material?.id
           && item.current_revision.id === initialSession.material.revisionId);
         setSelectedMaterialId(restored?.material_id ?? items[0]?.material_id ?? "");
@@ -251,11 +276,12 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   useEffect(() => {
     if (!selectedMaterialId) return;
     let active = true;
+    const generation = contextGeneration.current;
     setLoading(true);
     setError(null);
     void getMaterialDetail(config, selectedMaterialId)
       .then((result) => {
-        if (!active) return;
+        if (!active || generation !== contextGeneration.current || !contextSelectionEnabled.current) return;
         setDetail(result.data);
         const restored = result.data.states.find((item) => item.material_state_id === initialSession?.materialState?.id
           && item.current_revision.id === initialSession.materialState.revisionId);
@@ -273,6 +299,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   }, [config, initialSession, selectedMaterialId]);
 
   useEffect(() => {
+    if (!contextSelectionEnabled.current) return;
     const material = materials.find((item) => item.material_id === selectedMaterialId);
     if (!material) return;
     updateSession({
@@ -287,6 +314,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   }, [materials, selectedMaterialId, track, updateSession]);
 
   useEffect(() => {
+    if (!contextSelectionEnabled.current) return;
     const state = detail?.states.find((item) => item.material_state_id === selectedStateId);
     if (!state) return;
     updateSession({ materialState: {
@@ -307,14 +335,23 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       selectedStateId={selectedStateId}
       loading={loading}
       error={error}
-      onMaterialChange={setSelectedMaterialId}
-      onStateChange={setSelectedStateId}
+      onMaterialChange={(materialId, explicit) => {
+        if (!explicit && !contextSelectionEnabled.current) return;
+        contextSelectionEnabled.current = true;
+        updateSession({ contextSelectionRequired: false });
+        setSelectedMaterialId(materialId);
+      }}
+      onStateChange={(stateId, explicit) => {
+        if (!explicit && !contextSelectionEnabled.current) return;
+        contextSelectionEnabled.current = true;
+        setSelectedStateId(stateId);
+      }}
       onNavigate={onNavigate}
       onOpenConnection={onOpenConnection}
       preferredSourceDocumentId={session?.testData?.id}
       preferredProcessingOutputId={session?.processingOutput?.id}
     />
-  ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, session?.processingOutput?.id, session?.testData?.id, track]);
+  ), [config, detail, error, loading, materials, onNavigate, onOpenConnection, selectedMaterialId, selectedStateId, session?.processingOutput?.id, session?.testData?.id, track, updateSession]);
   const selectedState = detail?.states.find((item) => item.material_state_id === selectedStateId);
   const selectedMaterial = materials.find((item) => item.material_id === selectedMaterialId);
   const familyInspector = useMemo(() => track === "polymer" && selectedState ? (

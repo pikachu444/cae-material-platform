@@ -48,7 +48,7 @@ import type {
   MaterialStateResponse,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
-import { clearModelingSession, type ModelingMaterialFamily, type ModelingPlotView, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
+import { dispatchModelingSession, type ModelingMaterialFamily, type ModelingPlotView, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
 import { ModelingStageShell } from "./modeling-stage-shell";
 import { hasVerifiedExactExportChain } from "./modeling-export-eligibility";
 
@@ -745,8 +745,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   function resetSession(): void {
     if (draftDirty && !window.confirm("Discard the unsaved local Recipe draft and start a new Modeling session?")) return;
-    if (onNewSession) onNewSession(modelingTrack);
-    else clearModelingSession();
+    dispatchModelingSession({ type: "NEW_SESSION", materialFamily: modelingTrack });
+    onNewSession?.(modelingTrack);
     const defaults = modelingTrack === "metal" ? METAL_TENSILE_STEPS : modelingTrack === "polymer" ? POLYMER_RELAXATION_STEPS : ELASTOMER_PREPARATION_STEPS;
     const next = JSON.stringify(defaults, null, 2);
     setStepsText(next);
@@ -762,18 +762,6 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setSelectedRecipeId("");
     setPlotView("pipeline");
     setPreview(null);
-    if (!onNewSession) onSessionChange?.({
-      materialFamily: modelingTrack,
-      objective: "Create a simulation-ready material card",
-      workspace: {
-        activeStage: "data",
-        selectedDocumentIds: [],
-        selectedStepIndex: 0,
-        selectedStageOrdinal: 0,
-        plotView: "pipeline",
-        settingsOpen: typeof window === "undefined" || window.innerWidth >= 1400,
-      },
-    });
     onNavigate(`/modeling?stage=data&family=${modelingTrack}`);
     setNotice("Started a new local Modeling session. Server revisions remain unchanged.");
   }

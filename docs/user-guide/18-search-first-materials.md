@@ -112,7 +112,8 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   `Data | Process | Fit | Validate | Review / Release | Export` stepper는 같은 세션의 단계를 전환합니다.
   각 단계에는 Complete, Blocked, Warning 또는 Stale와 다음 행동이 표시됩니다. 단계와 material family는
   URL에, 선택 curve·step·plot view·settings 상태는 clear 가능한 Modeling session v3에 저장됩니다.
-  새 session은 항상 Data에서 시작합니다.
+  새 session은 항상 Data에서 시작하며, 진행 중이던 Material/State/Test Data/Mapping/Output
+  pointer나 늦게 도착한 자동 선택 결과를 다시 pin하지 않습니다.
 - 왼쪽 `Curves`와 `Process`는 27 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
   선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가

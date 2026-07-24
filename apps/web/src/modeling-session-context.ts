@@ -55,6 +55,8 @@ export interface ModelingSessionSummary {
   updatedAt: string;
   materialFamily: ModelingMaterialFamily;
   objective: string;
+  /** Explicit New session stays pin-free until the user chooses a Material context. */
+  contextSelectionRequired?: boolean;
   material?: ModelingSessionRecordRef;
   materialState?: ModelingSessionRecordRef;
   testData?: ModelingSessionRecordRef;
@@ -94,6 +96,7 @@ export type ModelingSessionEvent =
 const STORAGE_KEY = "cmp.modeling.recent-session.v3";
 const V2_STORAGE_KEY = "cmp.modeling.recent-session.v2";
 const LEGACY_STORAGE_KEY = "cmp.modeling.recent-session.v1";
+const CONTEXT_SELECTION_REQUIRED_KEY = "cmp.modeling.context-selection-required.v3";
 
 const DEFAULT_WORKSPACE: ModelingWorkspaceState = {
   activeStage: "data",
@@ -170,7 +173,7 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
   const current = session ?? createSession();
   switch (event.type) {
     case "NEW_SESSION":
-      return createSession(event);
+      return { ...createSession(event), contextSelectionRequired: true };
     case "CHANGE_MATERIAL":
       if (sameRef(current.material, event.material)) return current;
       return withInvalidation({ ...current, material: event.material }, "material-revision", clearEntries(ALL_POINTERS));
@@ -228,6 +231,7 @@ function reducePatch(current: ModelingSessionSummary, patch: ModelingSessionPatc
   return {
     ...next,
     objective: patch.objective ?? next.objective,
+    contextSelectionRequired: patch.contextSelectionRequired ?? next.contextSelectionRequired,
     lastStage: patch.lastStage ?? next.lastStage,
     workspace: patch.workspace ?? next.workspace,
     updatedAt: now(),
@@ -238,7 +242,8 @@ function migrate(value: Record<string, unknown>): ModelingSessionSummary | null 
   if (![1, 2, 3].includes(Number(value.version))
     || typeof value.updatedAt !== "string"
     || !["metal", "polymer", "elastomer"].includes(String(value.materialFamily))
-    || typeof value.objective !== "string") return null;
+    || typeof value.objective !== "string"
+    || (value.contextSelectionRequired !== undefined && typeof value.contextSelectionRequired !== "boolean")) return null;
   for (const key of ALL_POINTERS) if (value[key] !== undefined && !isRecordRef(value[key])) return null;
   if (value.stalePointers !== undefined) {
     if (!value.stalePointers || typeof value.stalePointers !== "object") return null;
@@ -279,15 +284,25 @@ export function loadModelingSession(): ModelingSessionSummary | null {
     if (migrated && window.sessionStorage.getItem(STORAGE_KEY) !== raw) {
       window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
     }
-    return migrated;
+    return migrated && window.sessionStorage.getItem(CONTEXT_SELECTION_REQUIRED_KEY) === "1"
+      ? { ...migrated, contextSelectionRequired: true }
+      : migrated;
   } catch {
     return null;
   }
 }
 
 export function dispatchModelingSession(event: ModelingSessionEvent): ModelingSessionSummary {
+  if (typeof window !== "undefined" && event.type === "NEW_SESSION") {
+    window.sessionStorage.setItem(CONTEXT_SELECTION_REQUIRED_KEY, "1");
+  }
   const next = reduceModelingSession(loadModelingSession(), event);
-  if (typeof window !== "undefined") window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  if (typeof window !== "undefined") {
+    if (next.contextSelectionRequired === false) {
+      window.sessionStorage.removeItem(CONTEXT_SELECTION_REQUIRED_KEY);
+    }
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  }
   return next;
 }
 
@@ -302,6 +317,7 @@ export function clearModelingSession(): void {
     window.sessionStorage.removeItem(STORAGE_KEY);
     window.sessionStorage.removeItem(V2_STORAGE_KEY);
     window.sessionStorage.removeItem(LEGACY_STORAGE_KEY);
+    window.sessionStorage.removeItem(CONTEXT_SELECTION_REQUIRED_KEY);
   }
 }
 

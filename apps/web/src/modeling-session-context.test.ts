@@ -32,6 +32,7 @@ describe("Modeling session v3 reducer", () => {
     expect(next.workspace.activeStage).toBe("data");
     expect(next.processingOutput).toBeUndefined();
     expect(next.material).toBeUndefined();
+    expect(next.contextSelectionRequired).toBe(true);
   });
 
   it("persists a new Data session for URL reload/back navigation without parent pins", () => {
@@ -44,14 +45,21 @@ describe("Modeling session v3 reducer", () => {
     });
 
     dispatchModelingSession({ type: "NEW_SESSION", materialFamily: "metal" });
+    saveModelingSession({
+      workspace: { activeStage: "data", selectedDocumentIds: [], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline", settingsOpen: false },
+    });
 
     expect(loadModelingSession()).toMatchObject({
       materialFamily: "metal",
+      contextSelectionRequired: true,
       workspace: { activeStage: "data", selectedDocumentIds: [], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline" },
     });
     expect(loadModelingSession()?.material).toBeUndefined();
     expect(loadModelingSession()?.materialState).toBeUndefined();
     expect(loadModelingSession()?.testData).toBeUndefined();
+
+    saveModelingSession({ contextSelectionRequired: false });
+    expect(loadModelingSession()?.contextSelectionRequired).toBe(false);
   });
 
   it.each([

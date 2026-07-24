@@ -442,8 +442,28 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         page.goto(f"{base_url}/modeling?stage=data&family=metal")
+        page.locator(".workspace-command-bar").get_by_role(
+            "button", name="Data", exact=True
+        ).wait_for(timeout=30_000)
+        page.wait_for_function(
+            """() => document.querySelector(
+              ".workspace-command-bar button.workspace-command.active"
+            )?.textContent?.trim() === "Data" """,
+            timeout=30_000,
+        )
         page.get_by_role("button", name="New session", exact=True).click()
         page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
+        page.wait_for_function(
+            """() => {
+              const raw = sessionStorage.getItem("cmp.modeling.recent-session.v3");
+              if (!raw) return false;
+              const session = JSON.parse(raw);
+              return session.contextSelectionRequired === true
+                && !session.material
+                && !session.materialState;
+            }""",
+            timeout=30_000,
+        )
         shell = page.get_by_role("navigation", name="Modeling workflow stages")
         shell.wait_for(timeout=30_000)
         shell.get_by_role("button").nth(5).wait_for(timeout=30_000)
