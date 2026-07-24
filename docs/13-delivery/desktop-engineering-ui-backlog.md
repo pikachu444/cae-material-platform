@@ -278,7 +278,12 @@ Every slice must preserve:
    supported-family Modeling pin, and current viewport evidence. Provider/evidence-source,
    validation/solver readiness and condition-aware property/Yield projections remain blocked by
    absent governed server contracts;
-9. UXC-02 Modeling session state and stage shell;
+9. UXC-02 Modeling session state and stage shell — complete: v3 clearable reducer/event persistence,
+   v2 migration, exact Material/State/Test Data pins, invalidation dispositions, Data-first new
+   session, resume view state, six-stage status shell, and fail-closed Export prerequisite surface.
+   Validate and Review/Release remain explicit blocked placeholders pending UXC-05; API Processing
+   Output does not expose a Material/State pin, so the normal Export surface does not claim an
+   independent cross-resource provenance proof and blocks absent current session pins;
 10. UXC-03 Data and Process domain components;
 11. UXC-04 explicit Fit decision and model identity;
 12. UXC-05 Validate, Review and Release;
@@ -302,5 +307,15 @@ does not project provider, evidence source, validation availability, solver read
 or a condition-aware quantity definition. These remain distinct unavailable states; `Yield` is hidden
 instead of inferred from the first property set. A later UXC-01 follow-up needs the governing query
 projection (definition, condition, unit and source revision) before a metal Yield range can be added.
+
+### UXC-02 current constraint
+
+The browser-local session reducer can safely clear or mark current pointers stale/regenerate, and
+the common Modeling shell no longer auto-selects a first Test Data revision after a new session or
+Material/State context change. Current Export requires a session-local exact Material, Material State,
+Test Data and Processing Output pin; it never renders a global/legacy output fallback. The existing
+Processing Output API projects exact source Test Data and Mapping Profile but not Material or Material
+State identity. UXC-02 records that gap and does not represent its guard as a completed cross-resource
+provenance validation; UXC-06 needs an API-supported proof before delivery can claim it.
 
 Do not merge multiple P0 slices into a single unreviewable frontend rewrite. Each PR must include the actual user task, before/after screenshots and state-continuity evidence.

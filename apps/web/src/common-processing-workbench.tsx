@@ -48,7 +48,9 @@ import type {
   MaterialStateResponse,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
-import { clearModelingSession, type ModelingPlotView, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
+import { clearModelingSession, type ModelingMaterialFamily, type ModelingPlotView, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
+import { ModelingStageShell } from "./modeling-stage-shell";
+import { hasVerifiedExactExportChain } from "./modeling-export-eligibility";
 
 const ModelingDataIntake = lazy(() =>
   import("./modeling-data-intake").then((module) => ({ default: module.ModelingDataIntake })),
@@ -71,6 +73,7 @@ interface Props {
   onModelingTrackChange?: (track: ModelingTrack) => void;
   initialSession?: ModelingSessionSummary | null;
   onSessionChange?: (patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => void;
+  onNewSession?: (family: ModelingMaterialFamily) => void;
   familyWorkbench?: ReactNode;
   familyInspector?: ReactNode;
   material?: MaterialResponse;
@@ -649,7 +652,7 @@ function curveDisplayName(item: CanonicalTestDataDocumentResponse, index: number
   return `Curve ${String(index + 1).padStart(2, "0")}`;
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, familyWorkbench, familyInspector, material, materialState, locationSearch = "" }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, onNewSession, familyWorkbench, familyInspector, material, materialState, locationSearch = "" }: Props) {
   const initialQuery = useMemo(() => new URLSearchParams(locationSearch), [locationSearch]);
   const queryStage = initialQuery.get("stage");
   const queryFamily = initialQuery.get("family");
@@ -669,7 +672,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [classification, setClassification] = useState<DataClassification>("internal");
   const [changeReason, setChangeReason] = useState("Save reusable channel mapping");
   const [outputLabel, setOutputLabel] = useState("Processed tensile curve");
-  const [outputReason, setOutputReason] = useState("Commit reviewed processing stages");
+  const [outputReason, setOutputReason] = useState("Save selected processing stages");
   const [recipeKey, setRecipeKey] = useState("normalized-tensile-cleanup");
   const [recipeLabel, setRecipeLabel] = useState("Normalized tensile cleanup");
   const [recipeDescription, setRecipeDescription] = useState("Reusable explicit processing steps");
@@ -687,7 +690,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [ensemblePointCount, setEnsemblePointCount] = useState(21);
   const [ensemblePreview, setEnsemblePreview] = useState<CommonEnsemblePreview | null>(null);
   const [plotView, setPlotView] = useState<PlotView>(initialSession?.workspace.plotView ?? "pipeline");
-  const [workflowTask, setWorkflowTask] = useState<ModelingWorkflowTask>(["data", "process", "fit", "export"].includes(String(queryStage)) ? queryStage as ModelingWorkflowTask : initialSession?.workspace.activeStage ?? "fit");
+  const [workflowTask, setWorkflowTask] = useState<ModelingWorkflowTask>(["data", "process", "fit", "validate", "review", "export"].includes(String(queryStage)) ? queryStage as ModelingWorkflowTask : initialSession?.workspace.activeStage ?? "data");
   const [busy, setBusy] = useState(false);
   const [previewBusy, setPreviewBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -695,6 +698,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [recipeConflict, setRecipeConflict] = useState<{ recipeId: string } | null>(null);
   const autoPreviewKey = useRef("");
   const intakePreviewActive = useRef(false);
+  const exactContextKey = useRef<string | null>(null);
+  const contextResetPending = useRef(false);
   const previewAbortController = useRef<AbortController | null>(null);
   const previewRequestNo = useRef(0);
   const undoSteps = useRef<string[]>([]);
@@ -740,7 +745,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
 
   function resetSession(): void {
     if (draftDirty && !window.confirm("Discard the unsaved local Recipe draft and start a new Modeling session?")) return;
-    clearModelingSession();
+    if (onNewSession) onNewSession(modelingTrack);
+    else clearModelingSession();
     const defaults = modelingTrack === "metal" ? METAL_TENSILE_STEPS : modelingTrack === "polymer" ? POLYMER_RELAXATION_STEPS : ELASTOMER_PREPARATION_STEPS;
     const next = JSON.stringify(defaults, null, 2);
     setStepsText(next);
@@ -749,8 +755,26 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     redoSteps.current = [];
     setSelectedStepIndex(0);
     setSelectedStage(0);
+    setWorkflowTask("data");
+    setSelectedDocumentId("");
+    setDocument(null);
+    setSelectedProfileId("");
+    setSelectedRecipeId("");
     setPlotView("pipeline");
     setPreview(null);
+    if (!onNewSession) onSessionChange?.({
+      materialFamily: modelingTrack,
+      objective: "Create a simulation-ready material card",
+      workspace: {
+        activeStage: "data",
+        selectedDocumentIds: [],
+        selectedStepIndex: 0,
+        selectedStageOrdinal: 0,
+        plotView: "pipeline",
+        settingsOpen: typeof window === "undefined" || window.innerWidth >= 1400,
+      },
+    });
+    onNavigate(`/modeling?stage=data&family=${modelingTrack}`);
     setNotice("Started a new local Modeling session. Server revisions remain unchanged.");
   }
 
@@ -864,27 +888,54 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const restored = documents.find((item) => item.test_data_document_id === initialSession?.testData?.id
       && item.current_revision.id === initialSession.testData.revisionId
       && documentMatchesTrack(item, modelingTrack));
-    const compatible = restored ?? documents.find((item) => documentMatchesTrack(item, modelingTrack));
-    if (compatible) setSelectedDocumentId(compatible.test_data_document_id);
+    if (restored) setSelectedDocumentId(restored.test_data_document_id);
   }, [documents, initialSession, modelingTrack, selectedDocumentId]);
 
   useEffect(() => {
+    const nextKey = `${material?.material_id ?? ""}:${material?.current_revision.id ?? ""}:${materialState?.material_state_id ?? ""}:${materialState?.current_revision.id ?? ""}`;
+    if (!material || !materialState) return;
+    if (exactContextKey.current === null) {
+      exactContextKey.current = nextKey;
+      return;
+    }
+    if (exactContextKey.current === nextKey) return;
+    exactContextKey.current = nextKey;
+    contextResetPending.current = true;
+    intakePreviewActive.current = false;
+    autoPreviewKey.current = "";
+    setSelectedDocumentId("");
+    setSelectedProfileId("");
+    setSelectedRecipeId("");
+    setDocument(null);
+    setPreview(null);
+    setNotice("Material context changed. Choose an exact Test Data revision before continuing; previous downstream outputs remain historical only.");
+  }, [material, materialState]);
+
+  useEffect(() => {
+    if (contextResetPending.current && !selectedDocumentId && !selectedProfileId && !selectedRecipeId) {
+      contextResetPending.current = false;
+    }
+  }, [selectedDocumentId, selectedProfileId, selectedRecipeId]);
+
+  useEffect(() => {
+    if (contextResetPending.current) return;
     if (selectedProfileId || !profiles.length) return;
     const exactRestored = profiles.find((item) => item.mapping_profile_id === initialSession?.mappingProfile?.id
       && item.current_revision.id === initialSession.mappingProfile.revisionId
       && profileMatchesTrack(item, modelingTrack));
-    const compatible = exactRestored ?? profiles.find((item) => profileMatchesTrack(item, modelingTrack));
-    if (!compatible) return;
-    setSelectedProfileId(compatible.mapping_profile_id);
-    setProfileText(JSON.stringify(compatible.content, null, 2));
+    if (!exactRestored) return;
+    setSelectedProfileId(exactRestored.mapping_profile_id);
+    setProfileText(JSON.stringify(exactRestored.content, null, 2));
   }, [initialSession, modelingTrack, profiles, selectedProfileId]);
 
   useEffect(() => {
+    if (contextResetPending.current) return;
     if (!selectedDocumentId || document || busy) return;
     void loadDocument(selectedDocumentId);
   }, [busy, document, selectedDocumentId]);
 
   useEffect(() => {
+    if (contextResetPending.current) return;
     if (intakePreviewActive.current || !document || !selectedProfileId || preview) return;
     const key = `${selectedDocumentId}:${selectedProfileId}:${stepsText}`;
     if (autoPreviewKey.current === key) return;
@@ -1294,7 +1345,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       setSelectedStepIndex(Math.max(0, result.data.stages.length - 2));
       setWorkspaceInspector("step");
       setPlotView("pipeline");
-      setNotice("Preview completed. It is ephemeral and cannot be promoted or released.");
+      setNotice("Preview completed. It is ephemeral and is not saved or delivered.");
     } catch (caught) {
       if (caught instanceof Error && caught.name === "AbortError") return;
       setError(caught instanceof SyntaxError ? `Invalid Workbench JSON: ${caught.message}` : errorMessage(caught));
@@ -1363,12 +1414,12 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     return null;
   }
 
-  async function commitReviewedFit(): Promise<void> {
+  async function saveSelectedFitOutput(): Promise<void> {
     const fitStep = (JSON.parse(stepsText) as CommonProcessingStep[]).find(
       (step) => isFitMethod(step.method_id),
     );
     if (!fitStep) {
-      setError("Add and calculate one fit method before recording a reviewed decision.");
+      setError("Add and calculate one fit method before saving a selected output.");
       return;
     }
     const candidate = String(
@@ -1382,7 +1433,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       return;
     }
     await commitOutput({
-      label: `${material?.current_revision.content.name ?? modelingTrack} · ${candidate} reviewed fit`,
+      label: `${material?.current_revision.content.name ?? modelingTrack} · ${candidate} selected fit`,
       reason,
       nextTask: "export",
     });
@@ -1469,10 +1520,21 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const selectedTrackDocument = trackDocuments.find(
     (item) => item.test_data_document_id === selectedDocumentId,
   );
+  const exactSessionOutput = useMemo(() => initialSession?.processingOutput
+    ? outputs.find((output) => output.processing_output_id === initialSession.processingOutput?.id
+      && output.current_revision.id === initialSession.processingOutput.revisionId)
+    : undefined, [initialSession?.processingOutput, outputs]);
+  const verifiedExactExportChain = hasVerifiedExactExportChain({
+    session: initialSession,
+    material,
+    materialState,
+    testData: selectedTrackDocument,
+    output: exactSessionOutput,
+  });
   useEffect(() => {
     const exactIds = new Set(trackDocuments.map((item) => item.test_data_document_id));
-    if (!intakePreviewActive.current && !exactIds.has(selectedDocumentId)) {
-      setSelectedDocumentId(trackDocuments[0]?.test_data_document_id ?? "");
+    if (!intakePreviewActive.current && selectedDocumentId && !exactIds.has(selectedDocumentId)) {
+      setSelectedDocumentId("");
       setDocument(null);
       setPreview(null);
     }
@@ -1514,7 +1576,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       ? ["Prepare observed curves", "Processing operations", "Preview processing"]
       : workflowTask === "fit"
         ? ["Compare response, residual & extrapolation", "Fit candidates", "Update candidates"]
-        : ["Preview candidate & delivery", "Candidate preview", ""];
+        : ["Inspect exact source & solver export", "Exact source preview", ""];
   const visiblePreviewStages = (preview?.stages ?? []).filter((stage) => workflowTask === "data"
     ? stage.ordinal === 0
     : workflowTask === "process"
@@ -1535,11 +1597,11 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     [batches, trackRecipeIds],
   );
   useEffect(() => {
+    if (contextResetPending.current) return;
     if (selectedRecipeId || !trackRecipes.length) return;
     const exact = initialSession?.recipe ? trackRecipes.find((recipe) => recipe.processing_recipe_id === initialSession.recipe?.id
       && recipe.current_revision.id === initialSession.recipe.revisionId) : null;
-    const reviewed = trackRecipes.find((recipe) => recipe.content.lifecycle_state === "published") ?? trackRecipes[0];
-    selectRecipe((exact ?? reviewed).processing_recipe_id);
+    if (exact) selectRecipe(exact.processing_recipe_id);
   }, [initialSession, selectedRecipeId, trackRecipes]);
   const trackMethods = useMemo(() => methods.filter((method) => {
     const family = method.method_id.split(".")[0];
@@ -1548,9 +1610,20 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     return true;
   }), [methods, modelingTrack]);
   const chart = useMemo(() => ({ width: 1750, height: 420 }), []);
+  const sessionContextMatchesLive = Boolean(
+    material
+    && materialState
+    && initialSession?.material?.id === material.material_id
+    && initialSession.material.revisionId === material.current_revision.id
+    && initialSession.materialState?.id === materialState.material_state_id
+    && initialSession.materialState.revisionId === materialState.current_revision.id,
+  );
   useEffect(() => {
     const item = trackDocuments.find((candidate) => candidate.test_data_document_id === selectedDocumentId);
-    if (!item) return;
+    if (contextResetPending.current || !sessionContextMatchesLive || !item) return;
+    if (initialSession?.testData?.id === item.test_data_document_id
+      && initialSession.testData.revisionId === item.current_revision.id
+      && initialSession.materialFamily === modelingTrack) return;
     onSessionChange?.({
       materialFamily: modelingTrack,
       testData: {
@@ -1560,29 +1633,31 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         revisionNo: item.current_revision.revision_no,
       },
     });
-  }, [modelingTrack, onSessionChange, selectedDocumentId, trackDocuments]);
+  }, [initialSession, modelingTrack, onSessionChange, selectedDocumentId, sessionContextMatchesLive, trackDocuments]);
 
   useEffect(() => {
     const profile = profiles.find((item) => item.mapping_profile_id === selectedProfileId);
-    if (!profile) return;
+    if (contextResetPending.current || !sessionContextMatchesLive || !profile || !selectedDocumentId) return;
+    if (initialSession?.mappingProfile?.id === profile.mapping_profile_id
+      && initialSession.mappingProfile.revisionId === profile.current_revision.id) return;
     onSessionChange?.({ mappingProfile: {
       id: profile.mapping_profile_id,
       revisionId: profile.current_revision.id,
       label: profile.content.label,
       revisionNo: profile.current_revision.revision_no,
     } });
-  }, [onSessionChange, profiles, selectedProfileId]);
+  }, [initialSession, onSessionChange, profiles, selectedDocumentId, selectedProfileId, sessionContextMatchesLive]);
 
   useEffect(() => {
     const recipe = recipes.find((item) => item.processing_recipe_id === selectedRecipeId);
-    if (!recipe) return;
+    if (contextResetPending.current || !sessionContextMatchesLive || !recipe || !selectedDocumentId || !selectedProfileId) return;
     onSessionChange?.({ recipe: {
       id: recipe.processing_recipe_id,
       revisionId: recipe.current_revision.id,
       label: recipe.content.label,
       revisionNo: recipe.current_revision.revision_no,
     } });
-  }, [onSessionChange, recipes, selectedRecipeId]);
+  }, [onSessionChange, recipes, selectedDocumentId, selectedProfileId, selectedRecipeId, sessionContextMatchesLive]);
 
   useEffect(() => {
     if (activeStage) onSessionChange?.({ lastStage: activeStage.method_id });
@@ -1739,7 +1814,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     const params = new URLSearchParams(locationSearch);
     const stage = params.get("stage");
     const family = params.get("family");
-    if (["data", "process", "fit", "export"].includes(String(stage)) && stage !== workflowTask) {
+    if (["data", "process", "fit", "validate", "review", "export"].includes(String(stage)) && stage !== workflowTask) {
       setWorkflowTask(stage as ModelingWorkflowTask);
     }
     if (["metal", "polymer", "elastomer"].includes(String(family)) && family !== modelingTrack) {
@@ -1752,7 +1827,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       const command = (event as CustomEvent<{ command?: string }>).detail?.command;
       if (!command?.startsWith("modeling:")) return;
       const action = command.slice("modeling:".length);
-      if (["data", "process", "fit", "export"].includes(action)) openWorkflowTask(action as ModelingWorkflowTask);
+      if (["data", "process", "fit", "validate", "review", "export"].includes(action)) openWorkflowTask(action as ModelingWorkflowTask);
       else if (action === "save") void saveRecipe();
       else if (action === "undo") undoDraft();
       else if (action === "redo") redoDraft();
@@ -1786,6 +1861,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           <button type="button" role="tab" aria-selected={modelingTrack === "elastomer"} className={modelingTrack === "elastomer" ? "active elastomer" : "elastomer"} onClick={() => selectModelingTrack("elastomer")}><span>Elastomer</span><strong>Hyper-viscoelastic</strong><small>Multi-mode, stability, Prony</small></button>
         </div>
       </header>
+      <ModelingStageShell session={initialSession ?? null} activeStage={workflowTask} onStageChange={openWorkflowTask} />
       {error ? <div className="error-banner" role="alert">{error}</div> : null}
       {recipeConflict ? <section className="modeling-conflict-banner" role="alert" aria-label="Stale Recipe revision conflict">
         <div><strong>The Recipe changed after this draft was opened.</strong><span>Reload the current revision, or preserve these local steps as a new revision.</span></div>
@@ -1814,7 +1890,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       </details> : null}
 
       {elastomerWorkbenchTask ? <section className="modeling-elastomer-workspace" id="modeling-fit" aria-label="Elastomer multi-mode modeling workspace">{familyWorkbench}</section> : null}
-      {!elastomerWorkbenchTask ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
+      {workflowTask === "validate" || workflowTask === "review" ? <section className="modeling-stage-placeholder" aria-label={`${workflowTask} prerequisite`}>
+        <h2>{workflowTask === "validate" ? "Validation is not configured" : "Review and release are not configured"}</h2>
+        <p>{workflowTask === "validate"
+          ? "A validation plan, reference, and result record are required before this stage can report a result. Those domain contracts are delivered by UXC-05."
+          : "Review, approval, and release are separate governed events. This session does not infer them from a fit or preview."}</p>
+      </section> : null}
+      {!elastomerWorkbenchTask && workflowTask !== "validate" && workflowTask !== "review" ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
         <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{workflowTask === "process" || workflowTask === "fit" ? <details className="method-library"><summary>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}{workflowTask !== "export" ? <button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : stageAction}</button> : <button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button>}</div></div>
         <ModelingWorkspaceLayout
           navigator={<>
@@ -1837,13 +1919,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
               onPreviewDocument={previewIntakeDocument}
               onImported={registerIntakeDocument}
             /></Suspense> : workflowTask === "export" ? <aside className="export-stage-ribbon">
-            <div><span>Reviewed candidate</span><strong>{selectedFitCandidate || "Candidate pending review"}</strong></div>
+            <div><span>Selected candidate</span><strong>{selectedFitCandidate || "Candidate selection pending"}</strong></div>
             <div><span>Fit method</span><strong>{methods.find((method) => method.method_id === fitStepEntry?.step.method_id)?.label ?? fitStepEntry?.step.method_id ?? "No fit selected"}</strong></div>
             <div><span>Observed fit range</span><strong>{String(fitStepEntry?.step.options.fit_minimum_strain ?? "auto")} – {String(fitStepEntry?.step.options.fit_maximum_strain ?? "observed limit")}</strong></div>
-            <div><span>Decision evidence</span><strong>{initialSession?.processingOutput ? `${initialSession.processingOutput.label} · r${initialSession.processingOutput.revisionNo}` : "Commit reviewed fit first"}</strong></div>
-            <div className="export-selection-reason"><span>Selection reason</span><strong>{fitSelectionReason || "Required before commit"}</strong></div>
+            <div><span>Exact source evidence</span><strong>{initialSession?.processingOutput ? `${initialSession.processingOutput.label} · r${initialSession.processingOutput.revisionNo}` : "Save selected fit output first"}</strong></div>
+            <div className="export-selection-reason"><span>Selection reason</span><strong>{fitSelectionReason || "Required before save"}</strong></div>
           </aside> : <aside className={`step-option-panel ${workflowTask}-stage-options`}>
-            <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><div className="modeling-ribbon-actions">{workflowTask === "process" ? <button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit reviewed output</button> : null}{workflowTask === "fit" ? <button className="button primary" type="button" disabled={busy || !fitDecisionReady || !selectedProfileId} onClick={() => void commitReviewedFit()}>Commit reviewed fit</button> : null}<button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
+            <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><div className="modeling-ribbon-actions">{workflowTask === "process" ? <button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Save processed curves</button> : null}{workflowTask === "fit" ? <button className="button primary" type="button" disabled={busy || !fitDecisionReady || !selectedProfileId} onClick={() => void saveSelectedFitOutput()}>Save selected fit output</button> : null}<button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>
               <div className="section-heading"><div><p className="step-index">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? selectedConfiguredStep.method_id}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
               {selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} onSelectPrimary={(family) => updateStepOption("primary_family", family)} /></Suspense> : null}
@@ -1878,7 +1960,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             </div> : null}
             </details>
           </aside>}
-          dock={workflowTask === "export" && familyWorkbench ? <section className="modeling-export-dock" id="modeling-export" aria-label="Solver card delivery"><header><div><p className="workspace-caption">Reviewed delivery</p><h2>Model → mapping preflight → native card</h2></div><span>{materialState ? `${materialState.current_revision.content.name} · exact State r${materialState.current_revision.revision_no}` : "Exact Material State required"}</span></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section> : undefined}
+          dock={workflowTask === "export" ? (verifiedExactExportChain && familyWorkbench
+            ? <section className="modeling-export-dock" id="modeling-export" aria-label="Solver card delivery"><header><div><p className="workspace-caption">Exact source delivery</p><h2>Exact source → mapping preflight → native card</h2></div><span>{`${initialSession?.material?.label} r${initialSession?.material?.revisionNo} / ${initialSession?.materialState?.label} r${initialSession?.materialState?.revisionNo}`}</span></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section>
+            : <section className="modeling-export-blocked" role="status" aria-label="Export blocked"><h2>Export is blocked</h2><p>Pin matching current Material, Material State, Test Data, Mapping Profile, and Processing Output revisions first. A stale, different-material, or unverified output is never used as a fallback.</p></section>) : undefined}
           ribbonOpen={inspectorVisible}
           onRibbonOpenChange={setInspectorVisible}
         />
@@ -1886,8 +1970,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
         <p className="mapping-note">Methods are deterministic. The common resampler declares <code>extrapolation: reject</code>; unsupported or hidden policies fail before calculation.</p>
       </section> : null}
 
-      <details className="modeling-support-drawer" id="modeling-output"><summary><span><strong>Reviewed outputs</strong><small>{outputs.length} committed immutable processing results</small></span><span>Review</span></summary><section className="workbench-card processing-output-card">
-        <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Commit reviewed result</h2></div><span className="status-chip">{outputs.length} committed</span></div>
+      <details className="modeling-support-drawer" id="modeling-output"><summary><span><strong>Saved outputs</strong><small>{outputs.length} immutable processing results</small></span><span>Outputs</span></summary><section className="workbench-card processing-output-card">
+        <div className="section-heading"><div><p className="eyebrow">5 · immutable output</p><h2>Saved processing result</h2></div><span className="status-chip">{outputs.length} saved</span></div>
         <p className="mapping-note">Commit recomputes the selected exact Test Data and saved Mapping Profile on the server. Preview arrays are never accepted as authoritative output.</p>
         <div className="processing-output-form"><label>Output label<input value={outputLabel} onChange={(event) => setOutputLabel(event.target.value)} /></label><label>Change reason<input value={outputReason} onChange={(event) => setOutputReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Commit immutable output</button></div>
         {outputs.length ? <div className="processing-output-list">{outputs.map((output) => <article key={output.processing_output_id}><div><strong>{output.label}</strong><small>r{output.current_revision.revision_no} · {output.final_point_count} points · {output.stage_count} stages</small><code>{output.output_sha256}</code></div><button className="button secondary" type="button" disabled={busy} onClick={() => void downloadOutput(output)}>Download JSON</button><DomainWorkflowLinks compact config={config} target={{ kind: "processing_output", objectId: output.processing_output_id, revisionId: output.current_revision.id, label: `${output.label} r${output.current_revision.revision_no}` }} /></article>)}</div> : <p className="muted">No committed common Processing Output is visible yet.</p>}

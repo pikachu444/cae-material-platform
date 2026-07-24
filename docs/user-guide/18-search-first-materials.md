@@ -80,10 +80,13 @@ detail, graph, card를 미리 조회하지 않으며 exact datasheet는 사용�
 3. Process에서 원본을 보존한 채 crop, smoothing, resample과 반복시험 통계를 검토합니다.
 4. Fit의 한 표에서 candidate별 상태, 오차, 적용 범위와 경고를 비교하고 같은 그래프의
    response, residual, tangent modulus와 observed/extrapolated 경계를 확인합니다.
-5. 하나의 candidate와 선택 이유를 기록해 immutable Processing Output으로 확정합니다.
-6. Export에서 그 exact output을 Material Model IR과 Neutral Material로 승격하고,
-   solver/version/unit 조합의 mapping preflight를 확인한 뒤 native card를 생성합니다.
-7. `Open Material CAE Cards`에서 생성 결과를 해당 Material의 datasheet로 이어서 확인합니다.
+5. 하나의 candidate를 명시적으로 선택하고 이유를 기록합니다. 추천 결과는 선택을 대신하지 않습니다.
+6. Validate와 Review / Release는 현재 policy/prerequisite 상태를 보여 줍니다. Validation run 또는
+   review/release event가 없으면 완료로 표시하지 않습니다.
+7. Export는 current session의 exact Material, Material State, Test Data, Mapping Profile 및
+   Processing Output revision이 모두 일치할 때만 해당 material family의 delivery adapter를 엽니다.
+   adapter는 다시 서버의 mapping 및 target 검사를 수행합니다. 하나라도 stale·다른 revision·검증되지
+   않은 output이면 안전하게 Blocked로 남고 다른 세션 output을 대신 사용하지 않습니다.
 
 `Import JSON / CSV / XLSX`에서 CSV/XLSX의 `Open governed mapping workbench`를 선택하면
 `/datasets/import`가 최근 Modeling session의 exact Material State를 복원합니다. 여기서 immutable
@@ -92,11 +95,13 @@ Dataset 생성을 완료할 수 있습니다. Canonical adapter로 돌아오면 
 검증·저장해 Process 입력으로 선택합니다. JSON 파일은 server validation에서 schema, channel,
 quantity semantics, original/normalized unit과 missing reason을 먼저 확인합니다.
 
-Fit 그래프의 곡선은 계속 `Preview only · not committed`로 표시됩니다. `Commit reviewed fit`은
-계산된 candidate와 비어 있지 않은 선택 이유가 있을 때만 활성화되며, 원본 preview를 바꾸지 않고
-새 immutable Processing Output을 만듭니다. Export의 `Decision evidence`는 그 exact output의
-identity와 revision을 고정합니다. IR, Neutral Material과 card도 새 레코드로 생성되며 기존
-immutable 결과를 변경하지 않습니다.
+Fit 그래프의 곡선은 계속 `Preview only · not committed`로 표시됩니다. 계산 성공이나 추천은
+선택·검토·승인을 뜻하지 않습니다. 선택과 저장이 가능한 API contract가 없는 상태는 Warning 또는
+Blocked로 남습니다. 선택한 candidate는 **Save selected fit output**으로 immutable Processing Output을
+만듭니다. Export는 current session의 exact Material, State, Test Data와 Processing Output이
+모두 pin되지 않으면 prerequisite만 표시하며 다른 세션이나 전역 output을 대체 사용하지 않습니다.
+모두 exact pin일 때만 family adapter의 mapping preflight와 native card 작업을 계속할 수 있습니다.
+이 경로에서도 server 검사가 실패하면 Export를 완료로 표시하거나 fallback delivery를 만들지 않습니다.
 
 Mapping Profile, Recipe/Batch, full revision, hash와 JSON evidence는 Advanced/Evidence에 남습니다.
 Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요합니다.
@@ -104,8 +109,10 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 ### Modeling 화면 읽기
 
 - 상단 command bar의 `New session | Save draft | Undo | Redo`는 현재 보정 세션에 작용하고,
-  `Data | Process | Fit | Export`는 같은 세션의 단계를 전환합니다. 단계와 material family는 URL에,
-  선택 curve·step·plot view·settings 상태는 브라우저의 Modeling session v2에 저장됩니다.
+  `Data | Process | Fit | Validate | Review / Release | Export` stepper는 같은 세션의 단계를 전환합니다.
+  각 단계에는 Complete, Blocked, Warning 또는 Stale와 다음 행동이 표시됩니다. 단계와 material family는
+  URL에, 선택 curve·step·plot view·settings 상태는 clear 가능한 Modeling session v3에 저장됩니다.
+  새 session은 항상 Data에서 시작합니다.
 - 왼쪽 `Curves`와 `Process`는 27 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
   선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
@@ -119,12 +126,15 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 - Fit ribbon의 candidate 표는 상태, 오차, 적용 범위와 bound 경고를 같은 행에서 비교합니다.
   선택한 식의 parameter와 bounds는 disclosure로 열 수 있고, 선택 이유는 수치 preview를 다시
   계산하지 않는 decision evidence입니다.
-- Export dock은 `Model → mapping preflight → native card` 순서를 보여 줍니다. solver 이름·버전과
+- Export dock은 current exact source가 있을 때만 `Model → mapping preflight → native card` 순서를 보여 줍니다. solver 이름·버전과
   `kg·m·s (SI)` unit system을 읽은 뒤 preflight를 실행합니다. unsupported 항목은 생성을 막고,
   approximated/ignored 항목은 바로 옆 확인을 요구합니다. 생성 뒤 native ASCII card와 mapping
   report를 내려받거나 Material의 CAE Cards로 이동할 수 있습니다.
 - Export를 열었다가 Fit으로 돌아와도 그래프 DOM, 선택 curve와 plot view는 그대로 유지됩니다.
-- source revision과 Recipe step을 바꾼 뒤에는 command bar의 Undo/Redo로 draft를 되돌릴 수 있습니다.
+- Material revision/State/physical family/Test Data가 바뀌면 downstream current pointer는 clear되고,
+  실제로 존재한 Review/Release history만 Stale evidence로 남습니다. history가 없으면 Review/Release는
+  정책 prerequisite의 Blocked 상태입니다. mapping/process/fit/target 변경도 영향 범위를 표시해
+  재계산 또는 재생성을 요구합니다. source revision과 Recipe step을 바꾼 뒤에는 command bar의 Undo/Redo로 draft를 되돌릴 수 있습니다.
   브라우저를 닫을 때 미저장 변경이 있으면 이탈 경고가 한 번 표시되며, `New session`은 확인 후
   비수치 UI session 상태만 초기화합니다. Preview는 계속 `Preview only · not committed`로 표시되어
   immutable Processing Output 또는 reviewed model과 혼동되지 않습니다.
@@ -182,7 +192,7 @@ Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합�
 전환해 각 단계의 비동기 preview가 끝난 뒤 캡처했습니다. Data는 Library, Local file,
 Test Data JSON을 한 ribbon에서 고르고 등록 전에 같은 그래프로 확인합니다. Process는 원본과 선택
 단계를 겹쳐 보고 preview와 immutable output commit을 명시적으로 나눕니다. Fit은 네 candidate를
-한 표와 세 그래프 보기로 비교하고 명시적 reviewed-fit commit을 제공합니다. Export는 exact
+한 표와 세 그래프 보기로 비교하고 명시적인 선택 결과 저장을 제공합니다. Export는 exact
 Material State에서 Neutral, mapping preflight와 native-card 전달을 한 dock에 연결합니다.
 
 2026-07-24 11:41 KST UXC-00 live Compose recapture는 UI source `ff8bb1e` 기준으로 Materials,
@@ -206,3 +216,4 @@ UXC-01 Materials Search 이미지는 web과 API를 같은 코드 커밋 `a486644
 | Process | ![Process 1366](images/current/modeling-process-1366x768.png) | ![Process 1440](images/current/modeling-process-1440x900.png) | ![Process 1920](images/current/modeling-process-1920x1080.png) |
 | Fit | ![Fit 1366](images/current/modeling-fit-1366x768.png) | ![Fit 1440](images/current/modeling-fit-1440x900.png) | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
 | Export | ![Export 1366](images/current/modeling-export-1366x768.png) | ![Export 1440](images/current/modeling-export-1440x900.png) | ![Export 1920](images/current/modeling-export-1920x1080.png) |
+| UXC-02 session shell | ![Session 1366](images/current/modeling-session-1366x768.png) | ![Session 1440](images/current/modeling-session-1440x900.png) | ![Session 1920](images/current/modeling-session-1920x1080.png) |

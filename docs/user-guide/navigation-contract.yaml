@@ -44,12 +44,12 @@ materials_workspace:
     unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
-  task: DUI-04/DUI-05/DUI-06 (complete); UXC-02~06 corrective sequence pending
+  task: DUI-04/DUI-05/DUI-06 (complete); UXC-02 session-state corrective slice complete, UXC-03~06 pending
   route: /modeling
   query:
-    stage: [data, process, fit, export]
+    stage: [data, process, fit, validate, review, export]
     family: [metal, polymer, elastomer]
-  commands: [new-session, save-draft, undo, redo, data, process, fit, export]
+  commands: [new-session, save-draft, undo, redo, data, process, fit, validate, review, export]
   panes:
     navigator_range_px: [180, 240]
     compact_1366: { navigator_px: 184, main_px: 1161, settings: open }
@@ -57,10 +57,13 @@ modeling_workspace:
     wide_1920: { navigator_px: 208, main_px: 1691, settings: open }
     settings_placement: graph-adjacent-ribbon
     permanent_third_column: forbidden
-    persistence: viewport-layout-and-modeling-session-v2
+    persistence: viewport-layout-and-modeling-session-v3-clearable-events
   continuity:
     graph_remount_on_stage_change: forbidden
     autosaved_ui: [active-stage, selected-curves, selected-step, selected-preview-stage, plot-view, settings-open]
+    new_session: [data-first, no-inherited-current-pointers]
+    exact_pins: [material-revision, material-state-revision, test-data-revision]
+    context_change: [clear-downstream-current-pointers, retain-immutable-history-as-stale]
     numerical_autocommit: forbidden
     preview_label: Preview only · not committed
     activity_resume: [material-session, active-stage, exact-test-data-revision, selected-curve-identities]
@@ -68,10 +71,14 @@ modeling_workspace:
     data: [exact-test-data, mapping-profile, channel-summary, import]
     process: [processing-operations, necking-boundary, processed-preview]
     fit: [candidate-equations, residual, extrapolation]
+    validate: [blocked-validation-plan-or-result-prerequisite]
+    review: [blocked-review-release-policy-prerequisite]
     export: [selected-model, observed-fit-range, persistent-graph, bottom-delivery-dock]
   current_status:
     dui_01_to_06: complete
     pr_124_fit_export: complete
-    uxc_01_to_06: corrective-work-pending
+    uxc_01: complete-bounded-server-query-slice
+    uxc_02: complete-v3-session-invalidation-and-stage-shell
+    uxc_03_to_06: corrective-work-pending
     dui_07_to_09: pending
   capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, exact-catalog-link-resolved, no-checking-loading-or-resolving-state, no-horizontal-overflow]

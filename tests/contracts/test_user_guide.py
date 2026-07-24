@@ -21,7 +21,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 23
+    assert report.capture_count == 26
     assert report.archived_capture_count >= 100
     assert report.historical_capture_script_count == 12
     assert report.navigation_count == 3
@@ -55,13 +55,14 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "mixed-per-capture"
+    assert manifest["source_commit"] == "worktree-b6ae7cb-uxc02"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {
         provenance["source_commit"]
         for provenance in manifest["capture_provenance"]
-    } == {"117551a", "d16d925", "ff8bb1e", "a486644"}
+    } == {"worktree-b6ae7cb-uxc02"}
+    assert "exact implementation SHA pending" in manifest["capture_provenance"][0]["command"]
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "recent-browser-local-solver-card-delivery"

@@ -35,6 +35,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-data-1366x768.png",
     "modeling-data-1440x900.png",
     "modeling-data-1920x1080.png",
+    "modeling-session-1366x768.png",
+    "modeling-session-1440x900.png",
+    "modeling-session-1920x1080.png",
     "modeling-process-1366x768.png",
     "modeling-process-1440x900.png",
     "modeling-process-1920x1080.png",
@@ -51,7 +54,7 @@ STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
     "process": "Prepare observed curves",
     "fit": "Compare response, residual & extrapolation",
-    "export": "Preview candidate & delivery",
+    "export": "Inspect exact source & solver export",
 }
 UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
@@ -84,12 +87,17 @@ def _wait_for_settled(page: Page) -> None:
         """() => {
             const unfinished =
               /^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\\b.*(?:…|\\.\\.\\.)$/i;
+            const visible = element => element.getClientRects().length > 0;
             const textPending = document.body.innerText
               .split("\\n")
               .some((line) => unfinished.test(line.trim()));
             const activeStatus = [...document.querySelectorAll('[role="status"], .loading-state')]
-              .some((element) => /(?:…|\\.\\.\\.)/.test(element.textContent ?? ""));
-            return !document.querySelector('[aria-busy="true"]') && !textPending && !activeStatus;
+              .some((element) => visible(element)
+                && (element.textContent ?? "").split("\\n")
+                  .some((line) => unfinished.test(line.trim())));
+            const activeBusy = [...document.querySelectorAll('[aria-busy="true"]')]
+              .some(visible);
+            return !activeBusy && !textPending && !activeStatus;
         }""",
         timeout=30_000,
     )
@@ -310,9 +318,9 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     ).count() != 1:
                         raise RuntimeError(f"Fit candidate table is missing {column}")
                 if page.get_by_role(
-                    "button", name="Commit reviewed fit", exact=True
+                    "button", name="Save selected fit output", exact=True
                 ).count() != 1:
-                    raise RuntimeError("Fit is missing the explicit reviewed-decision commit")
+                    raise RuntimeError("Fit is missing the explicit selected-output save")
                 candidate_table.scroll_into_view_if_needed()
             if stage == "export":
                 page.get_by_text("Preview only · not committed", exact=True).wait_for(
@@ -320,19 +328,60 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 )
                 page.get_by_role(
                     "heading",
-                    name="Model → mapping preflight → native card",
+                    name="Exact source → mapping preflight → native card",
                     exact=True,
                 ).wait_for(timeout=30_000)
-                page.locator(".modeling-workspace-dock .neutral-solver-export").wait_for(
-                    timeout=30_000
+                neutral_export = page.locator(
+                    ".modeling-workspace-dock .neutral-solver-export"
                 )
+                if not neutral_export.count():
+                    promotion_acknowledgement = page.get_by_text(
+                        re.compile(
+                            r"I reviewed the candidate blend and acknowledge its bounded fitted extrapolation"
+                        )
+                    )
+                    promotion_acknowledgement.wait_for(timeout=30_000)
+                    promotion_acknowledgement.click()
+                    page.get_by_role(
+                        "button", name="Promote fitted output to IR", exact=True
+                    ).click()
+                    page.get_by_text(
+                        "2. Inspect immutable IR and hardening Artifact", exact=True
+                    ).wait_for(timeout=30_000)
+                    create_neutral = page.get_by_role(
+                        "button", name="Create Neutral Material JSON", exact=True
+                    )
+                    page.wait_for_function(
+                        """() => document.querySelector(
+                            ".modeling-workspace-dock .neutral-solver-export"
+                          ) || [...document.querySelectorAll("button")].some(
+                            button => button.textContent?.trim() === "Create Neutral Material JSON"
+                          )""",
+                        timeout=30_000,
+                    )
+                    if not neutral_export.is_visible():
+                        try:
+                            create_neutral.click(timeout=5_000)
+                        except Exception:
+                            if not neutral_export.is_visible():
+                                raise
+                neutral_export.wait_for(timeout=30_000)
                 page.get_by_text(
                     "kg·m·s (SI) · exact supported unit system", exact=True
                 ).wait_for(timeout=30_000)
+                workflow_links = page.locator(
+                    ".modeling-workspace-dock .domain-workflow-links"
+                )
                 page.locator(
                     ".modeling-workspace-dock "
-                    '.domain-workflow-links[data-resolution-state="resolved"]'
+                    '.domain-workflow-links[data-resolution-state="resolved"], '
+                    ".modeling-workspace-dock "
+                    '.domain-workflow-links[data-resolution-state="unprojected"]'
                 ).wait_for(timeout=30_000)
+                if workflow_links.get_attribute("data-resolution-state") == "unprojected":
+                    workflow_links.get_by_text(
+                        re.compile(r"not yet projected into a configurable Workflow Explorer record")
+                    ).wait_for(timeout=30_000)
             plot.wait_for(timeout=30_000)
             plot_geometry = plot.evaluate(
                 """svg => {
@@ -364,6 +413,37 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 width,
                 height,
             )
+            if stage == "fit":
+                selection_reason = page.get_by_role(
+                    "textbox", name="Hardening candidate selection reason"
+                )
+                selection_reason.fill(
+                    "Synthetic reference candidate selected for the export preflight."
+                )
+                page.get_by_role(
+                    "button", name="Save selected fit output", exact=True
+                ).click()
+                page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
+        page.context.close()
+
+
+def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Path) -> None:
+    """Capture the pin-free Data-first state separately from the populated Data workflow."""
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        page.goto(f"{base_url}/modeling?stage=data&family=metal")
+        page.get_by_role("button", name="New session", exact=True).click()
+        page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
+        shell = page.get_by_role("navigation", name="Modeling workflow stages")
+        shell.wait_for(timeout=30_000)
+        shell.get_by_role("button").nth(5).wait_for(timeout=30_000)
+        shell_text = shell.inner_text()
+        for stage in ("Data", "Process", "Fit", "Validate", "Review / Release", "Export"):
+            if stage not in shell_text:
+                raise RuntimeError(f"Modeling session shell is missing {stage}")
+        if "Data\nBlocked" not in shell_text or "Export\nBlocked" not in shell_text:
+            raise RuntimeError("A new Modeling session must start pin-free with Data and Export blocked")
+        _capture(page, output / f"modeling-session-{width}x{height}.png", width, height)
         page.context.close()
 
 
@@ -457,6 +537,7 @@ def main() -> int:
             try:
                 _capture_materials(browser, args.base_url, output)
                 _capture_solver_delivery(browser, args.base_url, output)
+                _capture_modeling_session_shell(browser, args.base_url, output)
                 _capture_modeling(browser, args.base_url, output)
                 _capture_supporting_screens(browser, args.base_url, output)
             finally:

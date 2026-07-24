@@ -217,7 +217,7 @@ The delivery sheet shows solver, law, units, revision status and mapping summary
 ### 7.1 Topology
 
 ```text
-┌ Session / Save / Undo / Redo | Data Process Fit Export | target ┐
+┌ Session / Save / Undo / Redo | Data Process Fit Validate Review/Release Export | target ┐
 ├ Curve/process navigator ⇆ Persistent graph ⇆ Task inspector*    ┤
 │ 180–240 px              remaining width    260–360 optional     │
 ├ selection · points · units · preview/committed · warnings/jobs ┤
@@ -225,19 +225,20 @@ The delivery sheet shows solver, law, units, revision status and mapping summary
 * Inspector opens only for the current task and can be docked or closed.
 ```
 
-The graph is persistent across Data, Process, Fit and Export. Stage changes update commands, overlays and the inspector; they do not remount an unrelated page.
+The graph is persistent across Data, Process, Fit and Export. Stage changes update commands, overlays and the inspector; they do not remount an unrelated page. Validate and Review / Release are prerequisite-only states until their governed workflow exists.
 
 ### 7.2 Session lifecycle
 
 States:
 
 ```text
-new → draft → previewing → committed output → reviewed model → exported card
+new (Data) → draft → previewing → committed output → selected candidate → validation run → in review → approved → released → delivered card
 ```
 
 - Sessions autosave non-destructive UI state: selected curves, pane sizes, active stage and draft controls.
 - Numerical outputs are not silently committed by autosave.
-- The status bar distinguishes Preview from Committed and Reviewed.
+- The status bar distinguishes Preview, saved output, explicit selection, and blocked/stale downstream states. It never calls a fit reviewed, validated, approved, released, or delivered without its real event.
+- Session v3 uses explicit context events and clearable current pointers. Material revision/state/family/Test Data changes cannot retain a current downstream output; historical server objects are not deleted.
 - Leaving with uncommitted material changes prompts once, with Save draft / Discard / Stay.
 - Stale exact-revision conflicts must offer Reload current, Keep local draft as new revision, or Cancel.
 

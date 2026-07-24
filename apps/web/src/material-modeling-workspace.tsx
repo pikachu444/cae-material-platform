@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react
 
 import { ApiError, getMaterialDetail, listMaterials, type ApiConfig } from "./api";
 import { CommonProcessingWorkbench, type ModelingTrack } from "./common-processing-workbench";
-import { loadModelingSession, saveModelingSession, type ModelingSessionSummary } from "./modeling-session-context";
+import { dispatchModelingSession, loadModelingSession, saveModelingSession, type ModelingMaterialFamily, type ModelingSessionSummary } from "./modeling-session-context";
 import { PolymerTemperatureShiftInspector } from "./polymer-temperature-shift-inspector";
 import type {
   MaterialDetail,
@@ -103,6 +103,7 @@ function FamilyModelingPanel({
             disabled={loading || materials.length === 0}
             onChange={(event) => onMaterialChange(event.target.value)}
           >
+            <option value="">Choose Material context</option>
             {materials.map((item) => (
               <option key={item.material_id} value={item.material_id}>
                 {item.current_revision.content.name} · r{item.current_revision.revision_no}
@@ -118,6 +119,7 @@ function FamilyModelingPanel({
             disabled={loading || !detail?.states.length}
             onChange={(event) => onStateChange(event.target.value)}
           >
+            <option value="">Choose Material State</option>
             {(detail?.states ?? []).map((item) => (
               <option key={item.material_state_id} value={item.material_state_id}>
                 {item.current_revision.content.name} · r{item.current_revision.revision_no}
@@ -208,6 +210,13 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
   const [error, setError] = useState<string | null>(null);
   const updateSession = useCallback((patch: Partial<Omit<ModelingSessionSummary, "version" | "updatedAt">>) => {
     setSession(saveModelingSession(patch));
+  }, []);
+  const startNewSession = useCallback((family: ModelingMaterialFamily) => {
+    setSession(dispatchModelingSession({ type: "NEW_SESSION", materialFamily: family }));
+    setSelectedMaterialId("");
+    setSelectedStateId("");
+    setDetail(null);
+    setError(null);
   }, []);
 
   useEffect(() => {
@@ -320,6 +329,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       onModelingTrackChange={setTrack}
       initialSession={session}
       onSessionChange={updateSession}
+      onNewSession={startNewSession}
       familyWorkbench={familyWorkbench}
       familyInspector={familyInspector}
       material={selectedMaterial}

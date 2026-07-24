@@ -33,7 +33,7 @@ This authoritative annex retains the component-specific contract. Each compact r
 | M-05 Yield | Show only for compatible metal property definition with condition/unit/source. | Yield filter/column for polymer or elastomer; UXC-01 target. |
 | M-08–12 grid/layout/compare/inspector/start | Compare/select/open dense rows; select allowed Layout; pin Material/Test Data into Modeling; preserve selection and result context. | Truncated identity, auto-compare, unpinned latest start, blanking main pane; current. |
 | M-13–18 detail/property/curve/cards/relations | Display identity, Layout value, original/normalized units, curve, target card/mapping and exact relation evidence in purpose tabs. | Long generic accordion, ambiguous Preview/fake Download, hidden mapping; current. |
-| W-01 session; W-02 stage; W-03 context; W-04 action | Establish exact family/input, change Data/Process/Fit/Export without graph remount, retain context strip, and execute one named stage action. | Global output fallback, “reviewed”/“released” labels without event; session correction UXC-02 target. |
+| W-01 session; W-02 stage; W-03 context; W-04 action | Establish exact family/Material/State/Test Data pins, use the v3 clearable session reducer, and change Data/Process/Fit/Validate/Review-Release/Export without graph remount. The compact stepper reports Complete/Blocked/Warning/Stale with a reason; Validate and Review/Release are blocked-prerequisite placeholders until UXC-05. | Global output fallback, a stale current pointer, Fit as new-session default, “reviewed”/“released” labels without event; UXC-02 current. |
 | D-01–07 source/library/file/identity/mapping/plot/save | Choose exact library/local/JSON source, map channel/unit/provenance, validate uncertainty, preview and save Test Data revision. Mapping change invalidates processing onward; retain source mapping for recovery. | Normal JSON editing, hidden conversion, saved data called reviewed; current. |
 | P-01–08 rail/replicate/palette/pipeline/inspector/plot/save | Select curve/replicate, define ordered processing operation/range, preview before/after and commit immutable Processing Output. Operation change invalidates Fit onward; source curve remains recoverable. | Manual curve edit, outlier deletion, implicit smoothing/resample; current. |
 | F-01–07 rail/workflow/model/bounds/range/run/plot | Select compatible processed data, model/bounds/range, run candidate and show response/residual/tangent plus observed/extrapolated domain. Input change invalidates decision onward. | Opaque score or hidden extrapolation; current. |
@@ -298,17 +298,17 @@ Selecting a relation changes the adjacent context without navigating away. Forwa
 Curve/process navigator 190–260 px | Plot flexible | Optional inspector 280–360 px
 ```
 
-The plot must remain visible through Data, Process, Fit and Export. The right inspector is hidden unless the current task requires it.
+The plot must remain visible through Data, Process, Fit and Export. The right inspector is hidden unless the current task requires it. Validate and Review / Release use a compact prerequisite placeholder rather than a permanent third column.
 
 ### 6.2 Task strip
 
-The four tasks appear as a compact tab strip:
+The six stages appear as a compact stateful strip:
 
 ```text
-Data | Process | Fit | Export
+Data | Process | Fit | Validate | Review / Release | Export
 ```
 
-They are not large buttons or cards.
+They are not large buttons or cards. Every stage shows Complete, Blocked, Warning, or Stale plus a concise reason. New session starts at Data; resume restores the last saved stage and graph-view state.
 
 ### 6.3 Navigator
 
