@@ -8,14 +8,20 @@ Task 구현 시 실제 UI, 입력 fixture와 스크린샷으로 교체하며 미
 
 1. 우측 workspace menu에서 **Administration → Database design**을 연다. `/catalog/schema`는
    같은 Administration 화면으로 연결되는 호환 주소다.
-2. Table stable key와 표시명을 입력하고 **Create Table revision 1**을 선택한다.
-3. 선택한 Table에 typed Attribute를 추가한다. 수치 Attribute는 quantity semantics와 normalized
-   unit을 함께 입력하고, Record reference는 대상 Table을 고정한다.
-4. **Create datasheet Layout**으로 현재 Attribute revision 순서를 저장한다.
-5. **Create All records Subset**으로 record 검색의 시작 Subset을 만든다.
+2. 왼쪽 **Objects**에서 Table, Attribute, Layout, Subset 또는 Link Type을 고른다. 가운데 목록과
+   오른쪽 속성 화면은 같은 선택을 유지한다.
+3. **Current table**을 바꾸면 Attribute, Layout, Subset 목록이 그 Table 기준으로 즉시 바뀐다.
+4. **Add Table** 또는 **Add Attribute**를 누른 뒤, 표시명·참조 key·사용자에게 필요한 입력 안내만
+   작성한다. 수치 Attribute는 무엇을 뜻하는 수치인지와 표준 단위를 함께 입력하고, Record reference는
+   연결할 Table을 고정한다.
+5. **Add layout**은 현재 Attribute 순서로 datasheet Layout을 저장하고, **Add subset**은 현재
+   Table의 기본 저장 보기를 만든다. 현재 서비스가 지원하지 않는 기존 정의 편집·순서 변경·삭제는
+   버튼으로 표시하지 않으며, 기존 revision을 덮어쓰지 않는다.
+6. Link Type에서는 출발/도착 Table, 양방향으로 읽을 문구와 한 항목당 연결 수를 정한다. 저장할 때
+   두 Table의 현재 정의 revision이 함께 고정된다.
 
-Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며 API 수정은
-current ETag를 요구한다.
+Table/Attribute/Layout/Subset은 stable identity와 immutable revision으로 저장되며, 새 정의는 기존
+Record나 과거 revision을 바꾸지 않는다.
 
 
 ## Catalog Record 등록·검색·비교

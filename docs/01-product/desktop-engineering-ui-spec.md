@@ -461,12 +461,31 @@ Administration must resemble a schema/property editor, not a landing page with t
 
 ### 7.2 Editing contracts
 
-- Table selection updates Attribute/Layout/Link lists in context;
+- Table selection updates Attribute/Layout/Subset/Link Type lists in context;
 - Add/Edit/Duplicate/Delete are command-bar actions;
 - Attribute editor is a structured property sheet;
 - Layout editor supports ordered rows and drag/reorder commands;
 - Link Type editor displays source table, target table, direction labels, cardinality and revision binding;
 - preview opens the real datasheet alongside the editor.
+
+### 7.3 Current DUI-07 capability boundary
+
+The current service can add Tables, typed Attributes, default Attribute-order Layouts, the initial
+saved Subset, and Link Types. Therefore the command bar shows only those **Add** commands and
+datasheet preview. Existing definitions are shown as read-only with their purpose and current
+decision-relevant properties; it must not show an Edit, Duplicate, Delete, or reorder command until
+the corresponding live API preserves the immutable revision contract. Attribute fields are conditional
+on the selected type: numeric meaning/unit, discrete choices, and related Table do not occupy the
+normal property sheet unless applicable.
+
+Current visible-field contracts:
+
+| Component | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Object navigator | change the schema object being inspected | 220–280 px left pane | Administrator in Database design | current Table and definition lists | readable Administration scope | changes the list/detail selection only | loading, empty, selected, error | retain Table selection; refresh |
+| Current table | scope Attributes, Layouts and Subsets to one Table | navigator footer | one or more Tables exist | configurable Table API | selected Table | replaces scoped lists and selected detail only | loading, selected, empty, error | restore last valid Table or choose another |
+| Property sheet | inspect a definition or provide values for one supported new definition | flexible right pane | selected object or Add command | immutable definition revision and local draft | Administrator and required fields | unsaved draft affects preview only; save creates a new definition | read-only, draft, saving, saved, blocked, error | preserve draft and field error; close or retry |
+| Link Type direction | make a record relationship understandable before saving | Link Type property sheet | Link Type selected or being added | selected source/target Table revisions | both Tables and direction/cardinality values | saving creates a new Link Type; no existing relation changes | read-only, draft, saving, saved, error | keep entered labels and retry |
 
 ## 8. Activity workspace
 
