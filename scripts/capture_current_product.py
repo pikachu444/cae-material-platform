@@ -84,8 +84,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
     "storybook-foundation-1440x900.png",
+    "storybook-governed-workflow-1440x900.png",
 )
-EXTERNALLY_CAPTURED_OUTPUTS = ("storybook-foundation-1440x900.png",)
+EXTERNALLY_CAPTURED_OUTPUTS = ("storybook-foundation-1440x900.png", "storybook-governed-workflow-1440x900.png")
 STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
     "process": "Prepare observed curves",

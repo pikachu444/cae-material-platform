@@ -63,6 +63,11 @@ status context), `ResizableSplitPane`/`EngineeringColumnResizeHandle`,
 `ModelingWorkspaceLayout`, and `EngineeringCurvePlot`. The remaining primitives below stay in the
 DUI-09 follow-up scope; this foundation does not claim final legacy-CSS cleanup.
 
+DUI-09D extends that real-component inventory with `ModelingStageShell`,
+`MappingStatusList`, and `TargetPreviewResult`. Their stories expose selected, blocked,
+empty, exact, transformed, approximated, unsupported, and acknowledgement-required states without
+creating a review, release, delivery, or production solver decision.
+
 Required stories:
 
 - ApplicationShell
@@ -87,6 +92,7 @@ Run `npm run storybook --workspace @cmp/web` for local inspection and
 must be introduced after the component contracts are accepted and before legacy CSS cleanup is considered complete.
 The local QA evidence queries Storybook's local inventory and captures a real curve-plot iframe with
 `uv run --with playwright python scripts/capture_storybook_foundation.py --base-url http://127.0.0.1:6006`.
+The governed workflow baseline uses the same script with `--scope governed`.
 It is a component-workbench capture, never a normal-user navigation baseline.
 
 ## 4. Playwright — full-screen visual acceptance

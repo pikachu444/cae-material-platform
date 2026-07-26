@@ -10,6 +10,9 @@ import pytest
 _PROJECT_ROOT = Path(__file__).parents[2]
 _SCRIPT = runpy.run_path(str(_PROJECT_ROOT / "scripts/capture_current_product.py"))
 CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS"])
+EXTERNALLY_CAPTURED_OUTPUTS = cast(
+    tuple[str, ...], _SCRIPT["EXTERNALLY_CAPTURED_OUTPUTS"]
+)
 _capture_to_empty_directory = cast(
     Callable[[Path, Callable[[Path], None]], int],
     _SCRIPT["_capture_to_empty_directory"],
@@ -51,9 +54,10 @@ def test_full_capture_preserves_separately_captured_storybook_evidence(
     staged = tmp_path / "staged"
     target.mkdir()
     staged.mkdir()
-    storybook = target / "storybook-foundation-1440x900.png"
-    storybook.write_bytes(b"separately-captured-storybook")
+    for name in EXTERNALLY_CAPTURED_OUTPUTS:
+        (target / name).write_bytes(f"separately-captured:{name}".encode())
 
     _preserve_external_captures(target, staged)
 
-    assert (staged / storybook.name).read_bytes() == storybook.read_bytes()
+    for name in EXTERNALLY_CAPTURED_OUTPUTS:
+        assert (staged / name).read_bytes() == (target / name).read_bytes()
