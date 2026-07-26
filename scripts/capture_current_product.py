@@ -45,6 +45,11 @@ PRODUCT_ACCESS_OUTPUTS = (
     "administration-access-1440x900.png",
 )
 ACTIVITY_OUTPUTS = tuple(f"activity-{width}x{height}.png" for width, height in VIEWPORTS)
+REVIEW_SUBMISSION_OUTPUTS = tuple(
+    f"{screen}-{width}x{height}.png"
+    for screen in ("solver-card-preview", "activity")
+    for width, height in VIEWPORTS
+) + ("material-detail-1440x900.png",)
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
@@ -304,6 +309,16 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
             has_text="DP780"
         ).first.dblclick()
         page.wait_for_url(re.compile(r"/materials/[0-9a-f-]+$"), timeout=30_000)
+        if width == 1440:
+            page.get_by_text(
+                re.compile(r"^(Request review|Waiting for review|Approved|Changes requested)$")
+            ).first.wait_for(timeout=30_000)
+            _capture(
+                page,
+                output / "material-detail-1440x900.png",
+                width,
+                height,
+            )
         page.get_by_role("tab", name="CAE Cards", exact=True).click()
         openradioss = page.locator(".cae-card-table tbody tr").filter(
             has_text="OpenRadioss"
@@ -338,6 +353,14 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
                 )
         elif acknowledgement.count() or not download.is_enabled():
             raise RuntimeError("exact solver-card delivery has a redundant confirmation")
+        review_reason = page.get_by_role("textbox", name="Review request reason", exact=True)
+        if not review_reason.count() and page.get_by_role("button", name="Request review", exact=True).count():
+            page.get_by_role("button", name="Request review", exact=True).click()
+        review_reason = page.get_by_role("textbox", name="Review request reason", exact=True)
+        if review_reason.count():
+            review_reason.fill("Review the synthetic native card mapping before use.")
+            page.get_by_role("button", name="Send request", exact=True).click()
+        page.get_by_role("status").filter(has_text="Waiting for review").wait_for(timeout=30_000)
         _capture(
             page,
             output / f"solver-card-preview-{width}x{height}.png",
@@ -347,6 +370,9 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
         _ensure_activity_review_fixture(page, base_url)
         page.goto(f"{base_url}/activity")
         _wait_for_activity_queue(page)
+        solver_review = page.get_by_role("listitem").filter(has_text="Solver card review").first
+        solver_review.wait_for(timeout=30_000)
+        solver_review.get_by_role("button", name="Review", exact=True).wait_for(timeout=30_000)
         _capture(page, output / f"activity-{width}x{height}.png", width, height)
         page.context.close()
 
@@ -365,7 +391,7 @@ def _wait_for_activity_queue(page: Page) -> None:
     page.get_by_role("heading", name="Activity", exact=True).wait_for(timeout=30_000)
     page.get_by_role("heading", name="Needs attention", exact=True).wait_for(timeout=30_000)
     page.get_by_text("Material data review", exact=True).wait_for(timeout=30_000)
-    page.get_by_role("button", name="Review", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("button", name="Review", exact=True).first.wait_for(timeout=30_000)
 
 
 def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
@@ -1078,6 +1104,11 @@ def main() -> int:
         help="Capture and replace only the three role-aware Activity queue viewports.",
     )
     parser.add_argument(
+        "--only-review-submission",
+        action="store_true",
+        help="Capture Native Solver Card review submission and Activity status at all viewports.",
+    )
+    parser.add_argument(
         "--only-modeling-export",
         action="store_true",
         help="Capture and replace only the three Modeling Export viewports.",
@@ -1111,7 +1142,7 @@ def main() -> int:
             finally:
                 browser.close()
 
-    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session or args.only_product_access or args.only_activity:
+    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session or args.only_product_access or args.only_activity or args.only_review_submission:
         names = (
             CURRENT_CAPTURE_OUTPUTS[:6]
             if args.only_materials
@@ -1125,6 +1156,8 @@ def main() -> int:
             if args.only_modeling_data_session
             else ACTIVITY_OUTPUTS
             if args.only_activity
+            else REVIEW_SUBMISSION_OUTPUTS
+            if args.only_review_submission
             else PRODUCT_ACCESS_OUTPUTS
         )
         args.output.mkdir(parents=True, exist_ok=True)
@@ -1148,6 +1181,8 @@ def main() -> int:
                         if args.only_modeling_data_session
                         else _capture_activity(browser, args.base_url, staged)
                         if args.only_activity
+                        else _capture_solver_delivery(browser, args.base_url, staged)
+                        if args.only_review_submission
                         else _capture_supporting_screens(browser, args.base_url, staged)
                     )
                 finally:

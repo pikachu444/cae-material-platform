@@ -34,6 +34,10 @@ export interface SolverCardEvidence {
   mappingReportDocument: unknown;
   mappingReportSha256: string;
   cardSha256: string | null;
+  reviewRevisionId: string;
+  reviewContentHash: string;
+  reviewClassification: import("./types").DataClassification;
+  reviewAggregateType: "exporting.solver_card" | "exporting.neutral_solver_card";
   solverMaterialId: number;
   materialName: string;
   disposition: DeliveryMappingDisposition;
@@ -89,6 +93,10 @@ export async function loadSolverCardEvidence(
       mappingReportDocument: report,
       mappingReportSha256: report.mapping_report_sha256,
       cardSha256: value.current_revision.content.card_sha256,
+      reviewRevisionId: value.current_revision.id,
+      reviewContentHash: value.current_revision.content_hash,
+      reviewClassification: value.current_revision.classification,
+      reviewAggregateType: "exporting.solver_card",
       solverMaterialId: value.solver_material_id,
       materialName: value.current_revision.content.card_title,
       disposition: report.exportable ? mappingDisposition(report.items) : "blocked",
@@ -113,6 +121,10 @@ export async function loadSolverCardEvidence(
     mappingReportDocument: report.report,
     mappingReportSha256: report.mapping_report_sha256,
     cardSha256: value.current_revision.content.card_sha256,
+    reviewRevisionId: value.current_revision.id,
+    reviewContentHash: value.current_revision.content_hash,
+    reviewClassification: value.current_revision.classification,
+    reviewAggregateType: "exporting.neutral_solver_card",
     solverMaterialId: value.current_revision.content.solver_material_id,
     materialName: value.current_revision.content.material_name,
     disposition: report.exportable ? mappingDisposition(items) : "blocked",

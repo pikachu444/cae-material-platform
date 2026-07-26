@@ -170,9 +170,15 @@ The only **Save fit & continue** action remains in the top action row.
 
 ## Activity에서 진행 상황 확인
 
-현재 캡처는 이 브라우저에 최근 Modeling session이 없는 초기 empty state입니다. 따라서 Activity
-route와 공통 shell의 현재 빈 상태만 증명합니다. exact stage·revision·curve 복원과 review-attention
-queue는 DUI-08 pending이며, 이 이미지나 manifest는 해당 기능의 완료 증거로 사용하지 않습니다.
+Material 상세 또는 Native Solver Card preview에서 **Request review**를 누르고 검토 사유를 적으면,
+현재 화면이 이미 읽어 온 정확한 revision으로 요청됩니다. ID나 hash를 직접 입력할 필요는 없습니다.
+같은 revision에 요청이 있으면 다시 보내지 않고 **Waiting for review**, **Approved**, 또는
+**Changes requested** 상태를 보입니다. 전송 오류는 사유를 유지한 채 **Retry request**로 다시 시도할 수
+있습니다. 승인이나 변경 요청 결정은 Activity의 Reviewer/Administrator만 기록합니다.
+
+현재 Activity 캡처는 실제 pending review request를 사용해 Reviewer/Administrator의 **Review**
+동작과 User의 **In progress** 상태를 검증합니다. 브라우저에 Modeling session이 있으면 exact
+stage·revision·curve 선택으로 복귀하고, 없으면 **Start Modeling** 복구 동작을 표시합니다.
 
 ![최근 브라우저 Modeling session이 없는 Activity 초기 상태](images/current/activity-1440x900.png)
 

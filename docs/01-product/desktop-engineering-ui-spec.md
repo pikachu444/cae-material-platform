@@ -498,6 +498,18 @@ Status | Task | Material | Owner | Updated | Action
 
 Reviews, jobs and releases are tabs or saved views. No dashboard cards or large summary tiles in the normal view.
 
+### 8.1 Review request entry (DUI-08B)
+
+| Component | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Request review | ask for review of the exact Material revision currently displayed | Material detail header action area; reason expands only after the action is chosen | Material detail has loaded a draft current revision with no request; non-draft and requested revisions show status only | `material_id`, current revision id/content hash/classification/lifecycle | successful duplicate check and non-empty human reason | none; a request never changes the Material revision | checking, ready, entering reason, waiting, approved, changes requested, non-draft, sending, error | a failed duplicate check blocks submit and offers Retry status; a failed submit retains reason and offers Retry request |
+| Request review | ask for review of the exact Solver Card revision currently previewed | Native Card Preview header action area; reason expands only after the action is chosen | card evidence has loaded a draft current revision with no request; non-draft and requested revisions show status only | `loadSolverCardEvidence` current revision id/content hash/classification/lifecycle and authoritative aggregate type | successful duplicate check, non-empty human reason and loaded card evidence | none; a request never changes the card or delivery state | checking, ready, entering reason, waiting, approved, changes requested, non-draft, sending, error | a failed duplicate check blocks submit and offers Retry status; a failed submit retains reason and offers Retry request |
+
+Both controls query `aggregate_type + aggregate_id + revision_id` first and do not expose IDs, hashes,
+classification or a decision control in the normal UI. Material uses `catalog.material`; Solver Card uses
+`exporting.solver_card` (or `exporting.neutral_solver_card` for a Neutral card). Approval and
+changes-request controls remain Activity Reviewer/Administrator work.
+
 ## 9. Legacy removal contract
 
 The following visual patterns are prohibited in active product routes:
