@@ -531,7 +531,7 @@ describe("Common Processing Workbench", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Save selected candidate" }));
     expect(await screen.findByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Export is unavailable" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
     expect(screen.getByText("Server provenance proof")).toBeTruthy();
     expect(screen.getByText(/stale, different-material, or unverified output is never used as a fallback/i)).toBeTruthy();
     expect(onSessionChange).toHaveBeenCalledWith({
@@ -619,7 +619,7 @@ describe("Common Processing Workbench", () => {
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
     expect(screen.getByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Export is unavailable" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
     expect(screen.queryByText("Test data")).toBeNull();
     expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();
     expect(screen.queryByRole("button", { name: "Mean & band" })).toBeNull();

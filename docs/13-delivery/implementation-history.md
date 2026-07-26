@@ -3,6 +3,18 @@
 Date: `2026-07-26`
 Foundation version: `0.32.0`
 
+## UXC-06C1 stateless exact target preview implemented (2026-07-26)
+
+Exporting now reads one exact governed Processing Output and its exact Neutral/embedded Material
+Model IR relation through narrow Processing/Modeling application ports under `EXPORT_READ`. Missing,
+restricted, cross-scope, cross-classification, unrelated, or stale relations fail closed without
+distinguishing their source. The preview endpoint produces deterministic mapping/native/preview
+SHA-256 identities and writes no Solver Card, Artifact, receipt, Activity, or session delivery pin.
+
+Normal Modeling exposes only the two declared reference/non-production target tuples after every
+current E-01–04 pin plus session IR/Neutral pin is present. C2 delivery remains unavailable; an
+approximation acknowledgement identity is Evidence-only C2 input, never a C1 acknowledgement.
+
 ## UXC-03B curve/specimen rail density correction implemented (2026-07-26)
 
 Process and Fit now use one compact Test Data tree row per exact specimen revision. Calculation

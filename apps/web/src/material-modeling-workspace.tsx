@@ -375,6 +375,7 @@ export function MaterialModelingWorkspace({ config, onNavigate, onOpenConnection
       familyInspector={familyInspector}
       material={selectedMaterial}
       materialState={selectedState}
+      propertySet={detail?.property_sets.find((item) => item.material_state_id === selectedStateId)}
       locationSearch={locationSearch}
     />
   );

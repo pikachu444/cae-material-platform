@@ -175,6 +175,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
             Permission.ARTIFACT_WRITE,
             Permission.DATASET_READ,
             Permission.STATISTICS_READ,
+            Permission.PROCESSING_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
             Permission.EXPORT_EXECUTE,
@@ -201,6 +202,7 @@ ROLE_PERMISSIONS: Mapping[Role, frozenset[Permission]] = {
             Permission.ARTIFACT_READ,
             Permission.TESTING_READ,
             Permission.DATASET_READ,
+            Permission.PROCESSING_READ,
             Permission.MODELING_READ,
             Permission.EXPORT_READ,
             Permission.VALIDATION_READ,
@@ -356,7 +358,12 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
     # transaction capabilities; their public endpoints still authorize independently.
     Permission.DATASET_READ: frozenset({Permission.ARTIFACT_READ, Permission.TESTING_READ}),
     Permission.DATASET_WRITE: frozenset(
-        {Permission.ARTIFACT_READ, Permission.ARTIFACT_WRITE, Permission.TESTING_READ}
+        {
+            Permission.ARTIFACT_READ,
+            Permission.ARTIFACT_WRITE,
+            Permission.CATALOG_READ,
+            Permission.TESTING_READ,
+        }
     ),
     # Processing previews reconstruct their typed result from immutable output Artifacts and
     # pinned Dataset/Test evidence. These are transaction-local read capabilities only; they do
@@ -428,6 +435,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.CATALOG_READ,
             Permission.DATASET_READ,
             Permission.MODELING_READ,
+            Permission.PROCESSING_READ,
             Permission.TESTING_READ,
         }
     ),
@@ -438,6 +446,7 @@ _DATABASE_PERMISSION_DEPENDENCIES: Mapping[Permission, frozenset[Permission]] = 
             Permission.DATASET_READ,
             Permission.EXPORT_READ,
             Permission.MODELING_READ,
+            Permission.PROCESSING_READ,
             Permission.TESTING_READ,
         }
     ),

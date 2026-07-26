@@ -1,5 +1,6 @@
 import type {
   ExportTarget,
+  TargetPreviewResponse,
   ElastoplasticCardCreatedResponse,
   ElastoplasticCardResponse,
   CompletedUpload,
@@ -2453,6 +2454,25 @@ export function preflightNeutralHyperelasticSolverCard(
     `/neutral-materials/${encodeURIComponent(neutralMaterialId)}/solver-card-preflight`,
     { method: "POST", body: JSON.stringify(input) },
   );
+}
+
+export function createExactTargetPreview(
+  config: ApiConfig,
+  input: {
+    processing_output_id: string;
+    processing_output_revision_id: string;
+    neutral_material_id: string;
+    neutral_material_revision_id: string;
+    target: ExportTarget;
+    solver_material_id: number;
+    material_name: string;
+    expected_mapping_report_sha256?: string;
+  },
+): Promise<ApiResult<TargetPreviewResponse>> {
+  return request(config, "/exporting/target-previews", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 export function createNeutralHyperelasticSolverCard(

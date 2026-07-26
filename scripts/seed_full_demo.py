@@ -647,7 +647,83 @@ def _ensure_catalog_binding(
     }
 
 
-def _ensure_test_json(api: DemoApi) -> dict[str, str]:
+def _ensure_governed_test_data_revision(
+    api: DemoApi,
+    test_data: Mapping[str, Any],
+    governed_source: Mapping[str, object],
+) -> dict[str, Any]:
+    """Advance legacy demo Test Data to a new proof-bearing immutable revision.
+
+    The canonical JSON/artifact bytes remain untouched: governed source is a typed
+    server-side projection on the new revision.  This deliberately leaves an old
+    ungoverned revision available for historical reconstruction.
+    """
+
+    if test_data.get("governed_source") == governed_source:
+        return dict(test_data)
+    document_id = _id(test_data, "test_data_document_id")
+    revision_id = _revision_id(test_data)
+    document = api.get(f"/test-data-documents/{document_id}/revisions/{revision_id}/content")
+    return api.post(
+        f"/test-data-documents/{document_id}/revisions",
+        {
+            "document": document,
+            "governed_source": governed_source,
+            "change_reason": (
+                "Attach exact synthetic Material, State, and Test Run proof without "
+                "altering the prior canonical Test Data revision."
+            ),
+        },
+        headers={"If-Match": _revision_etag(test_data)},
+    )
+
+
+_TENSILE_TEST_DATA_RUN_LABELS = {
+    "CMP-DEMO-DP780-TEST-JSON": "CMP demo tensile replicate 1",
+    "CMP-DEMO-DP780-TEST-JSON-02": "CMP demo tensile replicate 2",
+    "CMP-DEMO-DP780-TEST-JSON-03": "CMP demo tensile replicate 3",
+}
+
+
+def _governed_sources_for_tensile_documents(
+    *,
+    material: Mapping[str, Any],
+    material_state: Mapping[str, Any],
+    test_runs: Sequence[Mapping[str, Any]],
+) -> dict[str, dict[str, object]]:
+    """Pin every canonical tensile document to its own exact synthetic Test Run."""
+
+    shared = {
+        "material": {
+            "aggregate_id": _id(material, "material_id"),
+            "revision_id": _revision_id(material),
+        },
+        "material_state": {
+            "aggregate_id": _id(material_state, "material_state_id"),
+            "revision_id": _revision_id(material_state),
+        },
+    }
+    sources: dict[str, dict[str, object]] = {}
+    for document_key, run_label in _TENSILE_TEST_DATA_RUN_LABELS.items():
+        matches = [item for item in test_runs if _content(item).get("run_label") == run_label]
+        if len(matches) != 1:
+            raise DemoSeedError(
+                f"clean demo requires exactly one Test Run labeled {run_label!r} for {document_key}"
+            )
+        run = matches[0]
+        sources[document_key] = {
+            **shared,
+            "test_run": {
+                "aggregate_id": _id(run, "test_run_id"),
+                "revision_id": _revision_id(run),
+            },
+        }
+    return sources
+
+
+def _ensure_test_json(
+    api: DemoApi, *, governed_sources: Mapping[str, Mapping[str, object]]
+) -> dict[str, str]:
     document_key = "CMP-DEMO-DP780-TEST-JSON"
     existing = next(
         (
@@ -775,6 +851,7 @@ def _ensure_test_json(api: DemoApi) -> dict[str, str]:
             {
                 "classification": "internal",
                 "document": document,
+                "governed_source": governed_sources[document_key],
                 "change_reason": "Import the canonical JSON evidence for the clean demo.",
             },
         )
@@ -826,15 +903,30 @@ def _ensure_test_json(api: DemoApi) -> dict[str, str]:
             {
                 "classification": "internal",
                 "document": replica,
+                "governed_source": governed_sources[replica_key],
                 "change_reason": (
                     "Import a distinct synthetic tensile replicate for mean, scatter, and "
                     "confidence-band demonstration."
                 ),
             },
         )
+    listed_by_key = {
+        str(item.get("document_key")): item for item in _items(api.get("/test-data-documents"))
+    }
+    governed_documents: dict[str, dict[str, Any]] = {}
+    for key, governed_source in governed_sources.items():
+        current = listed_by_key.get(key)
+        if current is None:
+            raise DemoSeedError(f"clean demo canonical Test Data {key} was not listed")
+        governed_documents[key] = _ensure_governed_test_data_revision(
+            api, current, governed_source
+        )
+    primary = governed_documents.get(document_key)
+    if primary is None:
+        raise DemoSeedError("clean demo canonical Test Data was not listed after proof revision")
     return {
-        "test_data_document_id": primary_id,
-        "test_data_document_revision_id": primary_revision_id,
+        "test_data_document_id": _id(primary, "test_data_document_id"),
+        "test_data_document_revision_id": _revision_id(primary),
     }
 
 
@@ -951,6 +1043,10 @@ def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) ->
         )
     recipe_id = _id(recipe, "processing_recipe_id")
     recipe_revision_id = _revision_id(recipe)
+    # Preserve the pre-UXC-06C1 batch and its immutable ungoverned output.  The
+    # interactive workbench creates the new governed output from the current
+    # proof-bearing Test Data revision; demo seeding must not manufacture a
+    # replacement batch or silently choose a new necking policy.
     batch_label = "CMP clean demo canonical JSON batch"
     batch = next(
         (
@@ -975,7 +1071,9 @@ def _ensure_processing_journey(api: DemoApi, *, test_data: Mapping[str, str]) ->
             },
         )
         if preflight.get("compatible") is not True:
-            raise DemoSeedError("clean demo Processing Recipe preflight was not compatible")
+            raise DemoSeedError(
+                f"clean demo Processing Recipe preflight was not compatible: {preflight!r}"
+            )
         batch = api.post(
             "/common-processing-batches",
             {
@@ -2461,22 +2559,32 @@ def seed_full_demo(base_url: str) -> dict[str, str]:
     elastomer_neutral = _ensure_elastomer_neutral_and_cards(
         api, material_id=elastomer_id
     )
-    test_data = _ensure_test_json(api)
+    metal_detail = api.get(f"/materials/{metal_id}")
+    metal_material = metal_detail.get("material")
+    metal_states = metal_detail.get("states")
+    if (
+        not isinstance(metal_material, Mapping)
+        or not isinstance(metal_states, list)
+        or not metal_states
+        or not isinstance(metal_states[0], Mapping)
+    ):
+        raise DemoSeedError("clean demo metal Material has no governed State context")
+    metal_state = metal_states[0]
+    metal_runs = _items(
+        api.get(f"/material-states/{_id(metal_state, 'material_state_id')}/test-runs")
+    )
+    governed_sources = _governed_sources_for_tensile_documents(
+        material=metal_material,
+        material_state=metal_state,
+        test_runs=metal_runs,
+    )
+    test_data = _ensure_test_json(api, governed_sources=governed_sources)
     processing = _ensure_processing_journey(api, test_data=test_data)
     neutral = _ensure_metal_neutral_and_cards(
         api,
         material_id=metal_id,
         processing_batch_id=processing["processing_batch_id"],
     )
-    metal_detail = api.get(f"/materials/{metal_id}")
-    metal_states = metal_detail.get("states")
-    if (
-        not isinstance(metal_states, list)
-        or not metal_states
-        or not isinstance(metal_states[0], Mapping)
-    ):
-        raise DemoSeedError("clean demo metal Material has no workflow State")
-    metal_state = metal_states[0]
     catalog = _ensure_catalog_binding(
         api,
         material=metal,

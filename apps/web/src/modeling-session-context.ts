@@ -93,6 +93,7 @@ export type ModelingSessionEvent =
   | { type: "SELECT_CANDIDATE"; selection?: ModelingSessionRecordRef }
   | { type: "CHANGE_VALIDATION_TARGET" }
   | { type: "CHANGE_TARGET_PROFILE" }
+  | { type: "CHANGE_EXPORT_TARGET" }
   | { type: "SET_CURRENT"; key: ModelingPointerKey; value?: ModelingSessionRecordRef }
   | { type: "PATCH"; patch: ModelingSessionPatch };
 
@@ -233,6 +234,10 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
       return withInvalidation(current, "target-profile", {
         validation: "stale", materialModelIr: "regenerate", neutralModel: "regenerate", exportArtifact: "regenerate",
       });
+    case "CHANGE_EXPORT_TARGET":
+      // A target tuple changes only the ephemeral preview/delivery candidate;
+      // it never invalidates the exact source IR or Neutral revision.
+      return withInvalidation(current, "target-profile", { exportArtifact: "clear" });
     case "SET_CURRENT": {
       const next = { ...current, updatedAt: now(), invalidation: undefined };
       if (event.value) next[event.key] = event.value;

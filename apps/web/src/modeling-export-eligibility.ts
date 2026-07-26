@@ -65,6 +65,11 @@ export function exportPrerequisites({
     && session.selection.id === output.processing_output_id
     && session.selection.revisionId === output.current_revision.id);
   const proof = output?.export_provenance;
+  const sessionPinCurrent = (key: "materialModelIr" | "neutralModel"): boolean => Boolean(
+    session?.[key]
+    && session.invalidation?.dispositions[key] !== "stale"
+    && session.invalidation?.dispositions[key] !== "regenerate",
+  );
   const proofCurrent = Boolean(proof && materialCurrent && stateCurrent && testDataCurrent
     && proof.material.aggregate_id === session?.material?.id
     && proof.material.revision_id === session?.material?.revisionId
@@ -88,9 +93,23 @@ export function exportPrerequisites({
           : "Server proof mismatches the selected exact source context.",
     },
     {
+      label: "Material Model IR",
+      status: session?.materialModelIr ? sessionPinCurrent("materialModelIr") ? "current" : "stale" : "missing",
+      detail: session?.materialModelIr
+        ? "Exact session IR revision is pinned; the server verifies its embedded Neutral relation."
+        : "Choose and save an exact Material Model IR revision before target preview.",
+    },
+    {
+      label: "Neutral representation",
+      status: session?.neutralModel ? sessionPinCurrent("neutralModel") ? "current" : "stale" : "missing",
+      detail: session?.neutralModel
+        ? "Exact session Neutral revision is pinned; no first or latest Neutral revision is used."
+        : "Promote or load an exact Neutral representation before target preview.",
+    },
+    {
       label: "Ephemeral target preview producer",
-      status: "not-supported",
-      detail: "UXC-06C preview producer is unavailable; delivery controls remain absent.",
+      status: "current",
+      detail: "Server-only target preview validates the exact governed output, embedded IR, and Neutral relation. Delivery is unavailable pending UXC-06C2.",
     },
   ];
 }

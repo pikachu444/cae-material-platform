@@ -47,12 +47,14 @@ import type {
   GraphSelectionCommand,
   MaterialResponse,
   MaterialStateResponse,
+  PropertySetResponse,
 } from "./types";
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { dispatchModelingSession, type ModelingMaterialFamily, type ModelingPlotView, type ModelingSessionEvent, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
 import { ModelingStageShell } from "./modeling-stage-shell";
 import { exportPrerequisites } from "./modeling-export-eligibility";
 import { ModelingExportPrerequisites } from "./modeling-export-prerequisites";
+import { ModelingTargetPreview } from "./modeling-target-preview";
 import {
   buildFitDecisionSnapshot,
   fitDecisionIdentityLabel,
@@ -91,6 +93,7 @@ interface Props {
   familyInspector?: ReactNode;
   material?: MaterialResponse;
   materialState?: MaterialStateResponse;
+  propertySet?: PropertySetResponse;
   locationSearch?: string;
 }
 
@@ -737,7 +740,7 @@ function curveDisplayName(item: CanonicalTestDataDocumentResponse): string {
   return item.specimen_id || item.document_key;
 }
 
-export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, onSessionEvent, onNewSession, familyWorkbench, familyInspector, material, materialState, locationSearch = "" }: Props) {
+export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackChange, initialSession, onSessionChange, onSessionEvent, onNewSession, familyWorkbench, familyInspector, material, materialState, propertySet, locationSearch = "" }: Props) {
   const initialQuery = useMemo(() => new URLSearchParams(locationSearch), [locationSearch]);
   const queryStage = initialQuery.get("stage");
   const queryFamily = initialQuery.get("family");
@@ -2079,7 +2082,24 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             </div> : null}
             </details>
           </aside>}
-          dock={workflowTask === "export" ? <ModelingExportPrerequisites prerequisites={exactExportPrerequisites} /> : undefined}
+          dock={workflowTask === "export"
+            ? exactExportPrerequisites.every((item) => item.status === "current")
+              ? <ModelingTargetPreview
+                  config={config}
+                  session={initialSession}
+                  output={exactSessionOutput}
+                  prerequisites={exactExportPrerequisites}
+                  onSessionEvent={onSessionEvent}
+                />
+              : <ModelingExportPrerequisites
+                  config={config}
+                  session={initialSession}
+                  output={exactSessionOutput}
+                  propertySet={propertySet}
+                  prerequisites={exactExportPrerequisites}
+                  onSessionEvent={onSessionEvent}
+                />
+            : undefined}
           ribbonOpen={inspectorVisible}
           onRibbonOpenChange={setInspectorVisible}
         />

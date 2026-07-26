@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:contract:exporting:target-preview-resource:1.0.0",
+  "$defs": {
+    "Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver", "version", "unit_system"],
+      "properties": {
+        "solver": {"type": "string", "minLength": 1, "maxLength": 160},
+        "version": {"type": "string", "minLength": 1, "maxLength": 160},
+        "unit_system": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    },
+    "Request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processing_output_id",
+        "processing_output_revision_id",
+        "neutral_material_id",
+        "neutral_material_revision_id",
+        "target",
+        "solver_material_id",
+        "material_name"
+      ],
+      "properties": {
+        "processing_output_id": {"type": "string", "format": "uuid"},
+        "processing_output_revision_id": {"type": "string", "format": "uuid"},
+        "neutral_material_id": {"type": "string", "format": "uuid"},
+        "neutral_material_revision_id": {"type": "string", "format": "uuid"},
+        "target": {"$ref": "#/$defs/Target"},
+        "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+        "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
+        "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "MappingItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "ir_path", "target_representation", "status", "detail"],
+      "properties": {
+        "name": {"type": "string"},
+        "ir_path": {"type": "string"},
+        "target_representation": {"type": ["string", "null"]},
+        "status": {"type": "string", "enum": ["exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"]},
+        "detail": {"type": "string"}
+      }
+    },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["processing_output_id", "processing_output_revision_id", "processing_output_sha256", "material_id", "material_revision_id", "material_state_id", "material_state_revision_id", "material_model_ir_revision_id", "neutral_material_id", "neutral_material_revision_id"],
+      "properties": {
+        "processing_output_id": {"type": "string", "format": "uuid"},
+        "processing_output_revision_id": {"type": "string", "format": "uuid"},
+        "processing_output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "material_id": {"type": "string", "format": "uuid"},
+        "material_revision_id": {"type": "string", "format": "uuid"},
+        "material_state_id": {"type": "string", "format": "uuid"},
+        "material_state_revision_id": {"type": "string", "format": "uuid"},
+        "material_model_ir_revision_id": {"type": "string", "format": "uuid"},
+        "neutral_material_id": {"type": "string", "format": "uuid"},
+        "neutral_material_revision_id": {"type": "string", "format": "uuid"}
+      }
+    },
+    "ResolvedTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver", "version", "unit_system", "solver_material_id", "material_name"],
+      "properties": {
+        "solver": {"type": "string", "minLength": 1, "maxLength": 160},
+        "version": {"type": "string", "minLength": 1, "maxLength": 160},
+        "unit_system": {"type": "string", "minLength": 1, "maxLength": 160},
+        "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+        "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"}
+      }
+    },
+    "Response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preview_identity", "filename", "native_text", "native_sha256", "mapping_report_sha256", "mapping", "source", "target", "acknowledgement_identity", "non_production", "delivery_status"],
+      "properties": {
+        "preview_identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "filename": {"type": "string", "minLength": 1},
+        "native_text": {"type": "string"},
+        "native_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping": {"type": "object", "required": ["items"], "properties": {"items": {"type": "array", "items": {"$ref": "#/$defs/MappingItem"}}}, "additionalProperties": true},
+        "source": {"$ref": "#/$defs/Source"},
+        "target": {"$ref": "#/$defs/ResolvedTarget"},
+        "acknowledgement_identity": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "non_production": {"type": "boolean", "const": true},
+        "delivery_status": {"type": "string", "const": "unavailable_pending_uxc_06c2"}
+      }
+    },
+    "Problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"type": "string", "const": "urn:cmp:problem:exporting:target-preview"},
+        "title": {"type": "string"},
+        "status": {"type": "integer", "enum": [409, 422, 503]},
+        "detail": {"type": "string"},
+        "code": {"type": "string", "pattern": "^CMP-TARGET-PREVIEW-(409|422|503)$"},
+        "trace_id": {"type": "string"}
+      }
+    }
+  }
+}

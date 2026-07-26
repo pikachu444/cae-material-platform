@@ -166,10 +166,27 @@ Modeling의 **Local file** 경로에서 exact Test Run을 선택하고 저장한
 Artifact 자체에는 proof가 추가되지 않으며, immutable revision content에만 저장됩니다. Omitted proof로 revise하면
 새 revision은 unqualified 상태가 됩니다.
 
-Source proof가 current여도 별도의 ephemeral target preview producer는 아직 `not supported`입니다. 따라서 이
-단계에서는 preview나 delivery event, `exportArtifact` session pin, Activity 기록, Material CAE Card 연결을
-만들지 않습니다. Materials에서 이미 released된 card를 명시적으로 재사용하는 흐름은 별도 기능이며 이 제한의
-fallback이 아닙니다.
+source proof와 current Material Model IR/Neutral pin이 모두 current일 때만 **Reference target**을 직접
+선택해 stateless native preview를 생성할 수 있습니다. 선택지는 capability manifest의 synthetic
+non-production Abaqus/OpenRadioss 2025 kg-m-s tuple뿐이며 production support를 뜻하지 않습니다. Mapping의
+`exact`/`transformed`/`approximated`/`unsupported` 상태와 native text를 함께 검토합니다. target 또는 source를
+바꾸면 preview는 사라지지만 입력값은 재시도를 위해 남습니다.
+
+금속에서 source proof는 current인데 Model IR/Neutral pin만 없으면 같은 Export checklist 아래의
+**Prepare exact metal source**를 사용합니다. 이 action은 선택된 Processing Output revision, current
+Material/State revision과 current Property Set revision만 서버로 보내며, bounded extrapolation acknowledgement와
+promotion reason을 요구합니다. 서버가 반환한 upstream tabulated-plasticity model은 먼저 session에 pin되고,
+이어 Neutral document를 생성합니다. Neutral 생성이 실패해도 model pin과 입력을 유지하므로 **Retry Neutral
+promotion**은 model을 다시 만들지 않습니다. upstream model revision은 Validation에 쓰이는 session pointer이고,
+Neutral document 안의 canonical IR revision과 같은 값으로 바꾸지 않습니다. target preview는 caller가 IR
+revision을 추측해 보내지 않고 exact Neutral revision을 보내며 server가 embedded IR relation을 검증합니다.
+Polymer와 Elastomer에는 이 recovery path가 아직 **Not configured**이며 다른 material family의 model을 대신
+선택하지 않습니다.
+
+이 preview는 card, Artifact, receipt, download, Activity, Material CAE Card link 또는 `exportArtifact`를 만들지
+않습니다. approximation이 있으면 Evidence disclosure의 acknowledgement identity는 **UXC-06C2 delivery 입력**일
+뿐 C1에서 승인·기록되지 않습니다. **Deliver is unavailable — UXC-06C2 atomic delivery receipt pending** 상태가
+계속 표시됩니다. Materials에서 이미 released된 card를 명시적으로 재사용하는 흐름은 별도 기능이며 fallback이 아닙니다.
 
 
 
