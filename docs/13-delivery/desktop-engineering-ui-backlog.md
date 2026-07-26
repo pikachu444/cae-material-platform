@@ -7,6 +7,15 @@ Remaining work includes Materials language/presentation and governed query proje
 failed-job/receipt/release projections, Storybook, and final incoming-package cleanup. Issue #119
 remains an explicit opt-in independent-review gate; automatic LLM review remains disabled.
 
+**DUI-09C bounded foundation (`2026-07-27`):** Storybook 10.5.4 is installed locally for the
+React 19/Vite 8 web workspace with its accessibility addon and deterministic local dev/static-build
+scripts. Isolated stories cover `ApplicationShell` command/status context,
+`ResizableSplitPane`/`EngineeringColumnResizeHandle`, `ModelingWorkspaceLayout`, and
+`EngineeringCurvePlot`, including their supported selected, collapsed, warning/degraded, empty and
+selection states. This is not whole-DUI-09 completion: stories for the remaining primitives,
+component/screen visual regression, and final legacy CSS cleanup remain open. No cloud visual
+service or automatic LLM review was added.
+
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
 ## Program goal

@@ -1,0 +1,58 @@
+/* Storybook-only fixture framing. Product CSS never imports this file. */
+#storybook-root .story-workspace-surface,
+#storybook-root .story-pane,
+#storybook-root .story-plot-placeholder,
+#storybook-root .story-column-resize-demo {
+  box-sizing: border-box;
+  color: var(--ink, #17212b);
+  font: 13px/1.35 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+#storybook-root .story-workspace-surface {
+  min-height: 420px;
+  padding: 16px;
+  background: var(--workspace-background, #edf1f3);
+}
+
+#storybook-root .story-pane {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 100%;
+  padding: 12px;
+  background: var(--panel-background, #fff);
+}
+
+#storybook-root .story-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 12px;
+  background: var(--panel-background, #fff);
+}
+
+#storybook-root .story-plot-placeholder {
+  display: grid;
+  min-height: 420px;
+  place-items: center;
+  border: 1px solid var(--line, #c7d0d6);
+  background-image: linear-gradient(to right, transparent 99%, rgba(92, 108, 119, .16) 100%), linear-gradient(to bottom, transparent 99%, rgba(92, 108, 119, .16) 100%);
+  background-size: 72px 72px;
+}
+
+#storybook-root .story-column-resize-demo {
+  display: flex;
+  width: 440px;
+  min-height: 160px;
+  align-items: stretch;
+  padding: 24px;
+  background: var(--workspace-background, #edf1f3);
+}
+
+#storybook-root .story-column-resize-demo > span:first-child {
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: var(--panel-background, #fff);
+}

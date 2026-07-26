@@ -57,6 +57,18 @@ Solver Card의 현재 화면에서 만들고, 기존 요청의 역할별 결정�
 API process의 metric, trace와 복구 절차는 일반 사용자 전역 메뉴가 아니라 운영 배포의 observability
 도구와 [운영 가이드](11-operations-and-recovery.md)에서 확인합니다.
 
+## 화면 구성요소 확인(개발자)
+
+일반 사용자 경로와 별도로 개발자는 로컬 Storybook에서 shell, pane, Modeling graph 같은 재사용
+구성요소를 실제 컴포넌트 상태로 확인할 수 있습니다. 이는 제품 화면이나 server data를 대체하지
+않으며, 저장된 Material·revision·solver card 상태를 만들지 않습니다. `@cmp/web` workspace에서
+`npm run storybook`으로 열고, 검증에는 `npm run build-storybook`을 사용합니다.
+
+![로컬 Storybook foundation component QA](images/current/storybook-foundation-1440x900.png)
+
+이 화면은 개발자용 component QA 증거이며 `Materials | Modeling | Activity` 일반 사용자 메뉴나
+업무 경로에 포함되지 않습니다.
+
 ## 자주 생기는 문제
 
 ### 오류에 `Support reference`가 표시됨
