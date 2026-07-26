@@ -47,8 +47,8 @@ Data/Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요�
 specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `Tensile tests` 아래에 놓입니다.
 온도·변형률 속도 조건은 서버가 정확한 조건 메타데이터를 제공할 때만 하위 그룹으로 보이며 화면이
 추정하지 않습니다. 시편 행은 들여쓰기로 계층을 표현하며 `└`/`ㄴ` 문자를 제목 앞에 붙이지 않습니다.
-각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
-바꿉니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
+시험 방법 그룹은 실제로 접고 펼칠 수 있는 native disclosure이며 키보드로도 작동합니다. 각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
+바꿉니다. 제목 오른쪽의 짧은 가로 색상 표본은 해당 curve의 plot 색상만 나타내며 제목 앞에 기호처럼 붙지 않습니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
 짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Validate, Review와
 Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
