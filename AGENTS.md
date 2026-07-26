@@ -70,10 +70,12 @@ Do not choose or imply a production tensile standard, material family, constitut
 
 ## Documentation enforcement
 
-- `README.md` is a Korean project entrypoint, not an implementation journal. Keep it at or below
-  200 lines and preserve overview, two core user flows, features, runnable quickstart, structure,
-  verification, and documentation links. Move chronology to
-  `docs/13-delivery/implementation-history.md`.
+- `README.md` is a Korean project entrypoint, not an implementation journal. It must help a
+  prospective Administrator, Reviewer, or User understand their work before internal engineering
+  terms: state the role/task entry points, the two core user flows, a runnable quickstart,
+  current-versus-approved-target status, current screen links, verification, and documentation
+  links. Keep chronology in `docs/13-delivery/implementation-history.md`; do not impose a line
+  count in place of useful guidance.
 - Every tracked Markdown file must match exactly one `current`, `authoritative`, `historical`, or
   `reference` rule in `docs/documentation-manifest.yaml`.
 - A commit that changes non-test `apps/web/**/*.tsx` or `apps/web/**/*.css` must also change all of:

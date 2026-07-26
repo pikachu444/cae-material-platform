@@ -3,6 +3,14 @@
 These images are official public product screenshots retained only as internal design references.
 They are not implementation specifications and must not be copied pixel-for-pixel.
 
+## Retention and source record
+
+This gallery and its local images are permanent internal research evidence. Keep the images and
+their official source pages when the temporary integration package is removed. The complete,
+machine-readable list of public sources, version/retrieval context, supported observations and
+limits is [the product reference source catalog](../product-reference-source-catalog.json). Do not
+mirror full third-party pages: retain their URLs and only the already-recorded local screenshots.
+
 Codex must open every local image before changing the frontend. For each image, identify the
 interaction principle, the information hierarchy to adapt, and the proprietary or brand-specific
 details that must not be copied.
