@@ -51,7 +51,7 @@ describe("EngineeringCurvePlot", () => {
     expect(plotted).toHaveLength(2);
     expect(plotted[0].getAttribute("points")?.split(" ")).toHaveLength(3);
     expect(plotted[1].getAttribute("points")?.split(" ")).toHaveLength(4);
-    expect(screen.getByText("stress.engineering [MPa]")).toBeTruthy();
+    expect(screen.getByText("Engineering stress [MPa]")).toBeTruthy();
   });
 
   it("supports legend visibility and explicit zoom reset controls", () => {
@@ -332,10 +332,10 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("Server result preview · Prony candidate")).toBeTruthy();
     expect(screen.queryByText(/Selected ·/)).toBeNull();
     expect(screen.getByText("time [s] · logarithmic")).toBeTruthy();
-    expect(screen.getByLabelText("Prony candidate BIC and normalized RMSE summary")).toBeTruthy();
+    expect(screen.getByText("Shear relaxation modulus [GPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(4);
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
-    expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
+    expect(screen.getByText("Predicted minus measured [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
   });
 
@@ -447,7 +447,7 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("frequency [Hz] · logarithmic")).toBeTruthy();
     expect(screen.getByLabelText("DMA storage and loss Prony candidate curves")).toBeTruthy();
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
-    expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
+    expect(screen.getByText("Predicted minus measured [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line").length).toBeGreaterThanOrEqual(2);
   });
 });

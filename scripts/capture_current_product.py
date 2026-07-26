@@ -30,6 +30,16 @@ MODELING_PROCESS_FIT_OUTPUTS = tuple(
     for stage in ("process", "fit")
     for width, height in VIEWPORTS
 )
+MODELING_CONSISTENCY_OUTPUTS = tuple(
+    f"modeling-{stage}-{width}x{height}.png"
+    for stage in ("data", "process", "fit", "export", "session")
+    for width, height in VIEWPORTS
+)
+MODELING_DATA_SESSION_OUTPUTS = tuple(
+    f"modeling-{stage}-{width}x{height}.png"
+    for stage in ("data", "session")
+    for width, height in VIEWPORTS
+)
 PRODUCT_ACCESS_OUTPUTS = (
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
@@ -350,7 +360,7 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     revision.wait_for(timeout=30_000)
     if not revision.input_value():
         revision.select_option(index=1)
-    page.get_by_text(re.compile(r"Loaded exact Test Data revision")).wait_for(timeout=30_000)
+    page.get_by_text(re.compile(r"Loaded saved dataset revision")).wait_for(timeout=30_000)
     advanced_contract = page.locator("details.modeling-data-advanced")
     if not advanced_contract.get_attribute("open"):
         advanced_contract.locator(":scope > summary").click()
@@ -700,16 +710,24 @@ def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dic
           const svgBox = svg?.getBoundingClientRect();
           const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])];
           const xAxisLabel = axisLabels.at(-2)?.getBoundingClientRect();
-          return { svgHeight: svgBox?.height ?? 0, svgBottom: svgBox?.bottom ?? 0,
+          return { svgHeight: svgBox?.height ?? 0, svgWidth: svgBox?.width ?? 0, svgBottom: svgBox?.bottom ?? 0,
             drawableRatio: workspace && axis ? axis.width / workspace.width : 0,
             railWidth: rail?.width ?? 0, ribbonHeight: ribbon?.height ?? 0,
             plotBottom: plot?.bottom ?? 0, xAxisLabelBottom: xAxisLabel?.bottom ?? 0,
             legendBottom: legend?.bottom ?? 0, viewportHeight: window.innerHeight };
         }"""
     )
-    minimum = 330 if height == 768 else 430
+    if stage == "data":
+        # Data keeps a slightly taller source-selection ribbon than Process/Fit.
+        # Preserve a large graph without treating a single-digit pixel
+        # difference at the 900px viewport as a structural failure.
+        minimum = 300 if height == 768 else 420
+    else:
+        minimum = 330 if height == 768 else 430
     if measurement["svgHeight"] < minimum or measurement["drawableRatio"] < 0.72:
         raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
+    if width == 1440 and measurement["svgWidth"] < 1050:
+        raise RuntimeError(f"{stage} 1440 graph-width gate failed: {measurement}")
     if (measurement["svgBottom"] > measurement["plotBottom"] + 2.5
             or measurement["xAxisLabelBottom"] > measurement["plotBottom"] + 1):
         raise RuntimeError(f"{stage} axis is clipped at {width}x{height}: {measurement}")
@@ -764,6 +782,82 @@ def _capture_modeling_process_fit(browser: Browser, base_url: str, output: Path)
     return measurements
 
 
+def _assert_modeling_normal_shell(page: Page) -> None:
+    shell = page.get_by_role("navigation", name="Modeling workflow stages")
+    buttons = shell.get_by_role("button")
+    if buttons.count() != 4 or buttons.all_inner_texts() != ["Data", "Process", "Fit", "Export"]:
+        raise RuntimeError("normal Modeling shell must visibly contain only Data, Process, Fit and Export")
+    if shell.get_by_text(re.compile(r"Validate|Review")).count():
+        raise RuntimeError("Validate/Review must not appear in the normal Modeling stage strip")
+
+
+def _capture_modeling_consistency(browser: Browser, base_url: str, output: Path) -> list[dict[str, float]]:
+    measurements: list[dict[str, float]] = []
+    _capture_modeling_session_shell(browser, base_url, output)
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _prepare_modeling(page, base_url)
+        _assert_modeling_normal_shell(page)
+        rail = page.locator(".modeling-workspace-rail")
+        rail.get_by_text("Curves", exact=True).wait_for(timeout=30_000)
+        if page.get_by_text("Hide", exact=True).count() or page.get_by_role("button", name="Mean & band", exact=True).count():
+            raise RuntimeError("Data must use icon-only visibility and omit Mean & band before an ensemble preview")
+        if rail.get_by_role("checkbox").count() < 1 or rail.locator(".curve-visibility-toggle").count() < 1:
+            raise RuntimeError("Data must retain compact curve inclusion and visibility controls")
+        if rail.locator(".curve-tree-group").count() < 1 or rail.locator(".curve-group-row").count() < 1:
+            raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
+        rail_box = rail.bounding_box()
+        if rail_box is None or not 180 <= rail_box["width"] <= 210:
+            raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
+        _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
+        measurements.append({"stage": "data", "viewport": f"{width}x{height}", **_measure_process_fit(page, "data", width, height)})
+        for stage in ("process", "fit", "export"):
+            page.locator(".workspace-command-bar").get_by_role("button", name=stage.title(), exact=True).click()
+            page.locator(".modeling-work-title strong").get_by_text(STAGE_HEADINGS[stage], exact=True).wait_for(timeout=30_000)
+            _assert_modeling_normal_shell(page)
+            if stage in ("process", "fit"):
+                stage_rail = page.locator(".modeling-workspace-rail")
+                stage_rail_box = stage_rail.bounding_box()
+                if stage_rail_box is None or not 180 <= stage_rail_box["width"] <= 210:
+                    raise RuntimeError(f"{stage} compact curve rail width drifted: {stage_rail_box}")
+                if page.get_by_role("button", name="Mean & band", exact=True).count():
+                    raise RuntimeError(f"{stage} must omit Mean & band before a real ensemble preview")
+            elif page.locator(".modeling-workspace-rail").count():
+                raise RuntimeError("Export must remain graph-only without a curve rail")
+            if stage == "fit":
+                page.get_by_role("button", name="Preview changes", exact=True).click()
+            if stage == "export":
+                _save_exact_fit_selection(page)
+                _prepare_exact_target_preview(page)
+            _capture(page, output / f"modeling-{stage}-{width}x{height}.png", width, height)
+            measurements.append({"stage": stage, "viewport": f"{width}x{height}", **_measure_process_fit(page, stage, width, height)})
+        page.context.close()
+    return measurements
+
+
+def _capture_modeling_data_session(browser: Browser, base_url: str, output: Path) -> list[dict[str, float]]:
+    """Refresh the Data and new-session evidence after user-facing copy changes."""
+    measurements: list[dict[str, float]] = []
+    _capture_modeling_session_shell(browser, base_url, output)
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _prepare_modeling(page, base_url)
+        _assert_modeling_normal_shell(page)
+        rail = page.locator(".modeling-workspace-rail")
+        rail.get_by_text("Curves", exact=True).wait_for(timeout=30_000)
+        rail_box = rail.bounding_box()
+        if rail_box is None or not 180 <= rail_box["width"] <= 210:
+            raise RuntimeError(f"Data compact curve rail width drifted: {rail_box}")
+        if page.get_by_text("Hide", exact=True).count() or page.get_by_role("button", name="Mean & band", exact=True).count():
+            raise RuntimeError("Data must use icon-only visibility and omit Mean & band before an ensemble preview")
+        if rail.locator(".curve-tree-group").count() < 1 or rail.locator(".curve-group-row").count() < 1:
+            raise RuntimeError("Data must group specimen rows under a real test-method tree parent")
+        _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
+        measurements.append({"stage": "data", "viewport": f"{width}x{height}", **_measure_process_fit(page, "data", width, height)})
+        page.context.close()
+    return measurements
+
+
 def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Path) -> None:
     """Capture the pin-free Data-first state separately from the populated Data workflow."""
     for width, height in VIEWPORTS:
@@ -793,15 +887,13 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
         )
         shell = page.get_by_role("navigation", name="Modeling workflow stages")
         shell.wait_for(timeout=30_000)
-        shell.get_by_role("button").nth(3).wait_for(timeout=30_000)
-        shell_text = shell.inner_text()
-        for stage in ("Data", "Process", "Fit", "Export"):
-            if stage not in shell_text:
-                raise RuntimeError(f"Modeling session shell is missing {stage}")
-        if "Data" not in shell_text or "Export" not in shell_text:
-            raise RuntimeError(
-                "A new Modeling session must start pin-free with Data and Export blocked"
-            )
+        shell_buttons = shell.get_by_role("button")
+        shell_buttons.nth(3).wait_for(timeout=30_000)
+        if shell_buttons.count() != 4 or shell_buttons.all_inner_texts() != ["Data", "Process", "Fit", "Export"]:
+            raise RuntimeError("new-session shell must visibly contain exactly four normal stages")
+        retired_terms = page.get_by_text(re.compile(r"exact Test Data|Advanced data contract"))
+        if any(retired_terms.nth(index).is_visible() for index in range(retired_terms.count())):
+            raise RuntimeError("new-session shell exposed retired implementation terminology")
         _capture(page, output / f"modeling-session-{width}x{height}.png", width, height)
         page.context.close()
 
@@ -929,6 +1021,16 @@ def main() -> int:
         action="store_true",
         help="Capture and replace only the six Modeling Process/Fit viewports.",
     )
+    parser.add_argument(
+        "--only-modeling-consistency",
+        action="store_true",
+        help="Capture all 15 current Modeling Data/Process/Fit/Export/session screens with consistency gates.",
+    )
+    parser.add_argument(
+        "--only-modeling-data-session",
+        action="store_true",
+        help="Capture the six current Modeling Data/session screens with the same consistency gates.",
+    )
     args = parser.parse_args()
 
     def produce(output: Path) -> None:
@@ -943,7 +1045,7 @@ def main() -> int:
             finally:
                 browser.close()
 
-    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_product_access:
+    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session or args.only_product_access:
         names = (
             CURRENT_CAPTURE_OUTPUTS[:6]
             if args.only_materials
@@ -951,6 +1053,10 @@ def main() -> int:
             if args.only_modeling_export
             else MODELING_PROCESS_FIT_OUTPUTS
             if args.only_modeling_process_fit
+            else MODELING_CONSISTENCY_OUTPUTS
+            if args.only_modeling_consistency
+            else MODELING_DATA_SESSION_OUTPUTS
+            if args.only_modeling_data_session
             else PRODUCT_ACCESS_OUTPUTS
         )
         args.output.mkdir(parents=True, exist_ok=True)
@@ -968,6 +1074,10 @@ def main() -> int:
                         if args.only_modeling_export
                         else _capture_modeling_process_fit(browser, args.base_url, staged)
                         if args.only_modeling_process_fit
+                        else _capture_modeling_consistency(browser, args.base_url, staged)
+                        if args.only_modeling_consistency
+                        else _capture_modeling_data_session(browser, args.base_url, staged)
+                        if args.only_modeling_data_session
                         else _capture_supporting_screens(browser, args.base_url, staged)
                     )
                 finally:
@@ -996,7 +1106,7 @@ def main() -> int:
         capture_count = _capture_to_empty_directory(args.output, produce)
     result = {"output": args.output.as_posix(), "captures": capture_count,
         "viewports": [f"{width}x{height}" for width, height in VIEWPORTS]}
-    if args.only_modeling_process_fit: result["measurements"] = measurements
+    if args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session: result["measurements"] = measurements
     print(json.dumps(result, ensure_ascii=False))
     return 0
 

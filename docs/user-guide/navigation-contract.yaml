@@ -60,7 +60,7 @@ modeling_workspace:
     wide_1920: { navigator_px: 208, main_px: 1691, settings: shallow-band }
     settings_placement: graph-adjacent-ribbon
     permanent_third_column: forbidden
-    curve_specimen_rail_visible_when: [process, fit]
+    curve_specimen_rail_visible_when: [data, process, fit]
     export_curve_specimen_rail: absent
     persistence: viewport-layout-and-modeling-session-v3-clearable-events
   continuity:
@@ -70,7 +70,7 @@ modeling_workspace:
     exact_pins: [material-revision, material-state-revision, test-data-revision]
     context_change: [clear-downstream-current-pointers, retain-immutable-history-as-stale]
     numerical_autocommit: forbidden
-    preview_label: Preview only · not committed
+    preview_label: Preview — not saved
     activity_resume: [material-session, active-stage, exact-test-data-revision, selected-curve-identities, candidate-revision, validation-result, solver-card-revision]
   stage_ownership:
     data: [exact-test-data, mapping-profile, channel-summary, import]

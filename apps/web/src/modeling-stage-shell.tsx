@@ -79,7 +79,7 @@ export function ModelingStageShell({
         title={state.reason}
       >
         <span className="modeling-stage-number">{index + 1}</span>
-        <span><strong>{stage.label}</strong><small>{stageStatusLabel(stage.id, state.status)}</small></span>
+        <strong>{stage.label}</strong>
       </button>;
     })}
   </nav>;

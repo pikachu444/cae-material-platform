@@ -43,11 +43,14 @@ canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking po
 workup은 Metal elastoplastic Process에만 보이며 Fit, Polymer, Elastomer에는 노출하지 않습니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
 혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
 
-Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤에 specimen별 26 px tree 행을
-표시합니다. 각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
+Data/Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤 시험 방법 그룹과
+specimen별 26 px tree 행을 표시합니다. 예를 들어 tensile 문서는 `Tensile tests` 아래에 놓입니다.
+온도·변형률 속도 조건은 서버가 정확한 조건 메타데이터를 제공할 때만 하위 그룹으로 보이며 화면이
+추정하지 않습니다. 시편 행은 들여쓰기로 계층을 표현하며 `└`/`ㄴ` 문자를 제목 앞에 붙이지 않습니다.
+각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
 바꿉니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
-짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Data, Validate, Review와
-Export에는 표시하지 않습니다. 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
+짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Validate, Review와
+Export에는 표시하지 않습니다. Process에서 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
 공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.
@@ -90,10 +93,10 @@ holdout-independence, verdict가 나타납니다. plan만 있으면 `Not run`이
 `fit evidence only`로 남습니다. 브라우저 session은 Plan과 Result의 exact ID를 서로 다른 pointer로
 보존하고 다시 열 때 각각 조회하므로 Result가 Plan을 덮어쓰거나 `Not configured`로 되돌아가지 않습니다.
 
-**Review**는 제출, 수정 요청, 승인 상태를 Fit 결과와 구분합니다. 현재 일반 Modeling 화면에는 이
-검토함 연결이 아직 구성되지 않았으므로 해당 단계가 이를 명시하고, Fit 또는 Validate 완료를 승인으로
-표시하지 않습니다. 다음 역할 작업에서 사용자의 업로드·solver card 검토 요청과 Reviewer의
-승인/수정 요청을 Activity 검토함에 연결합니다.
+**Review**는 제출, 수정 요청, 승인 상태를 Fit 결과와 구분합니다. Validate와 Review는 일반
+`Data | Process | Fit | Export` 단계가 아니라 Advanced의 governed contract입니다. Fit 또는
+Validate 완료를 승인으로 표시하지 않습니다. Activity review queue는 DUI-08에서 아직 pending이므로
+사용자 업로드·solver card 검토 요청의 Activity 연결은 현재 제공하지 않습니다.
 
 현재 등록된 공통 method는 다음과 같습니다.
 

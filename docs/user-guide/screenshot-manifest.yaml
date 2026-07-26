@@ -1,7 +1,7 @@
-version: 58
-verified_at: 2026-07-26
-scope: uxc-06c2-exact-target-preflight-and-atomic-delivery
-source_commit: fa213ca
+version: 59
+verified_at: 2026-07-27
+scope: uxc-03-modeling-data-export-consistency
+source_commit: working-tree-uxc03-modeling-data-export-consistency
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
@@ -15,13 +15,18 @@ notes:
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
-  - "Process and Fit use a compact Curves tree: specimen/revision identity, inclusion checkbox and icon-only plot visibility remain independent; Export has no permanent curve rail."
+  - "Data, Process and Fit use the same compact Curves tree: canonical test method is a real parent group above specimen/revision rows, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail."
+  - "The normal stage strip visibly contains only Data, Process, Fit and Export. Its readiness details remain in hover/focus labels; Validate and Review are Advanced/Activity governed contracts. Mean & band is absent until an ensemble preview exists."
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
   - "UXC-00G adds the implemented User, Reviewer, and Administrator task presets. The current access screen deliberately shows readable included work instead of editable feature-grant checkboxes."
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-uxc03-modeling-data-export-consistency
+    captured_at: 2026-07-27T00:33:00+09:00
+    command: targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; captures Data/Process/Fit/Export and Data-first session shell, asserts four normal stages only, a real test-method parent above indented specimen rows with no printed branch glyph, icon-only visibility, no premature Mean & band, no horizontal overflow, drawable graph >=72%, 1440 drawable >=1050px, and unclipped axes/legend
+    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
   - source_commit: working-tree-uxc01-materials-workspace
     captured_at: 2026-07-26T23:36:00+09:00
     command: targeted live Playwright Materials capture at 1366x768, 1440x900 and 1920x1080; verifies Browse default, server query result selection, no horizontal overflow, and divider drag followed by double-click reset to each viewport default before capture
