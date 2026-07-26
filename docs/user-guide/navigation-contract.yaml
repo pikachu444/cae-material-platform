@@ -1,4 +1,4 @@
-version: 16
+version: 17
 shell:
   application_bar_px: 46
   command_bar_px: 38
@@ -15,7 +15,7 @@ items:
     guide: 18-search-first-materials.md
   - label: Activity
     route: /activity
-    guide: 18-search-first-materials.md
+    guide: 10-navigation-and-troubleshooting.md
 materials_workspace:
   task: UXC-01 (server-scoped Find correction on DUI-02 workspace)
   routes:
@@ -46,7 +46,7 @@ materials_workspace:
     unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
-  task: DUI-04/DUI-05/DUI-06 and UXC-02~06 delivery work complete; normal path correction is Data/Process/Fit/Export; Reviewer product-role migration is complete and Activity queue remains pending
+  task: DUI-04/DUI-05/DUI-06 and UXC-02~06 delivery work complete; normal path correction is Data/Process/Fit/Export; Reviewer product-role migration and DUI-08A Activity review queue are complete
   route: /modeling
   query:
     normal_stage: [data, process, fit, export]
@@ -85,7 +85,26 @@ modeling_workspace:
     uxc_02: complete-v3-session-invalidation-and-stage-shell
     uxc_03_to_06: complete-bounded
     uxc_06: exact-source-provenance-complete; historical-and-json-only-proof-null; ephemeral-preview-delivery-receipt-required
-    reviewer_role_access: pending
+    reviewer_role_access: complete
     materials_presentation_and_query_projections: pending
-    dui_07_to_09: pending
+    dui_07: complete
+    dui_08a_activity_review_queue: complete; request-entry-job-and-release-projections-pending
+    dui_08b_to_09: pending
   capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, exact-catalog-link-resolved, no-checking-loading-or-resolving-state, no-horizontal-overflow]
+
+activity_workspace:
+  task: DUI-08A role-aware review queue
+  route: /activity
+  sections: [needs-attention, in-progress, recent-outcomes]
+  source: [authenticated-principal, effective-product-access, immutable-review-request-list, browser-local-modeling-session, browser-local-solver-card-history]
+  role_visibility:
+    user: [pending-review-in-progress, no-decision-controls]
+    reviewer: [pending-review-needs-attention, row-review-action]
+    administrator: [pending-review-needs-attention, row-review-action]
+  decision:
+    requires: [existing-review-request, expected-manifest-sha256, non-empty-reason]
+    result: returned-immutable-review-request-replaces-one-row
+    release_or_publish: unavailable-in-this-queue
+  recovery: [compact-loading-rows, refresh, retry, keep-entered-reason-on-decision-error]
+  advanced_only: [request-id, revision-id, manifest-sha256, unavailable-display-name-limitation]
+  captures: [activity-1366, activity-1440, activity-1920]

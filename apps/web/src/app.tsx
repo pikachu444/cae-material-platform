@@ -706,7 +706,7 @@ export function App() {
   } else if (path === "/modeling") {
     page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/activity") {
-    page = <ActivityPage onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
+    page = <ActivityPage config={config} onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/governance" || path === "/jobs-reviews") {
     page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/access" || path === "/administration/access") {

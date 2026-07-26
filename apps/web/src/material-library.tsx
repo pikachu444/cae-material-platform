@@ -1,15 +1,19 @@
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ApiError,
   getCatalogWorkflowGraph,
   getConfigurableCatalogRecord,
+  getAuthenticatedPrincipal,
+  getEffectiveProductAccess,
   getMaterialDetail,
   listBulkExportCandidates,
   listConfigurableCatalogAttributes,
   listConfigurableCatalogRecordRevisions,
   listMaterials,
+  listReviewRequests,
   resolveCatalogDomainRevision,
+  createReviewDecision,
   type ApiConfig,
 } from "./api";
 import type {
@@ -21,7 +25,9 @@ import type {
   DomainRevisionBinding,
   MaterialDetail,
   MaterialResponse,
+  ProductRole,
   PropertySetResponse,
+  ReviewRequestResponse,
 } from "./types";
 import { MaterialsBrowseTree } from "./materials-browse-tree";
 import { MaterialDatasheetProjection } from "./material-datasheet-projection";
@@ -822,11 +828,22 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
 }
 
 export function ActivityPage({
+  config,
   onNavigate,
   locationSearch = "",
-}: Pick<Props, "onNavigate"> & { locationSearch?: string }) {
+}: Pick<Props, "config" | "onNavigate"> & { locationSearch?: string }) {
   const modelingSession = useMemo(() => loadModelingSession(), []);
   const deliveryActivities = useMemo(() => loadDeliveryActivities(), []);
+  const [role, setRole] = useState<ProductRole | null>(null);
+  const [principalId, setPrincipalId] = useState<string | null>(null);
+  const [reviewRequests, setReviewRequests] = useState<ReviewRequestResponse[]>([]);
+  const [loadingQueue, setLoadingQueue] = useState(true);
+  const [queueError, setQueueError] = useState<string | null>(null);
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [decisionReason, setDecisionReason] = useState("");
+  const [decisionError, setDecisionError] = useState<string | null>(null);
+  const [decidingId, setDecidingId] = useState<string | null>(null);
+  const requestSequence = useRef(0);
   const governedContext = useMemo(() => {
     const query = new URLSearchParams(locationSearch);
     return [
@@ -836,12 +853,122 @@ export function ActivityPage({
     ].filter((entry): entry is [string, string, string | null] => Boolean(entry[1]));
   }, [locationSearch]);
   useEffect(() => publishWorkspaceStatus({ selection: "Current workspace activity", revision: "Current user", jobs: "No active job", warnings: "0 warnings", connection: "online" }), []);
+
+  async function loadQueue(): Promise<void> {
+    const sequence = ++requestSequence.current;
+    setLoadingQueue(true);
+    setQueueError(null);
+    try {
+      const [accessResult, principalResult, requestsResult] = await Promise.all([
+        getEffectiveProductAccess(config),
+        getAuthenticatedPrincipal(config),
+        listReviewRequests(config, { limit: 50 }),
+      ]);
+      if (sequence !== requestSequence.current) return;
+      setRole(accessResult.data.product_role);
+      setPrincipalId(principalResult.data.principal_id);
+      setReviewRequests(requestsResult.data.items);
+    } catch (cause) {
+      if (sequence !== requestSequence.current) return;
+      setQueueError(messageFor(cause));
+    } finally {
+      if (sequence === requestSequence.current) setLoadingQueue(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadQueue();
+    return () => { requestSequence.current += 1; };
+  }, [config.baseUrl, config.accessToken]);
+
+  async function decide(request: ReviewRequestResponse, decision: "approved" | "changes_requested"): Promise<void> {
+    const reason = decisionReason.trim();
+    if (!reason) {
+      setDecisionError("Add a reason before recording this review decision.");
+      return;
+    }
+    setDecidingId(request.review_request_id);
+    setDecisionError(null);
+    try {
+      const result = await createReviewDecision(config, request.review_request_id, {
+        expected_manifest_sha256: request.manifest_sha256,
+        decision,
+        reason,
+      });
+      setReviewRequests((items) => items.map((item) => item.review_request_id === result.data.review_request_id ? result.data : item));
+      setReviewingId(null);
+      setDecisionReason("");
+    } catch (cause) {
+      setDecisionError(messageFor(cause));
+    } finally {
+      setDecidingId(null);
+    }
+  }
+
   const resumePath = modelingSession ? `/modeling?stage=${modelingSession.workspace.activeStage}&family=${modelingSession.materialFamily}` : "/modeling";
   const stageLabel = modelingSession ? `${modelingSession.workspace.activeStage[0].toUpperCase()}${modelingSession.workspace.activeStage.slice(1)}` : null;
-  return <div className="ux-page"><div className="activity-shell"><div className="activity-content"><h2>Current workspace activity</h2>
-    {governedContext.length ? <section className="activity-delivery-section" aria-label="Exact Modeling governance context"><h3>Exact validation and review context</h3><dl className="evidence-grid">{governedContext.map(([label, id, revisionId]) => <div key={label}><dt>{label}</dt><dd>{id}{revisionId ? ` · revision ${revisionId}` : ""}</dd></div>)}</dl><button className="ux-button primary" type="button" onClick={() => onNavigate(`/modeling?stage=validate&family=${modelingSession?.materialFamily ?? "metal"}`)}>Resume Validate</button></section> : null}
-    {deliveryActivities.length ? <section className="activity-delivery-section"><h3>Recent solver-card delivery</h3><ul className="activity-list">{deliveryActivities.map((activity) => <li key={`${activity.action}:${activity.cardId}`} data-testid="recent-solver-card-activity"><span><strong>{activity.action === "download" ? "Downloaded" : "Previewed"} · {activity.cardLabel}</strong><small className="ux-meta">{activity.materialLabel} · {activity.solver} {activity.extension} · exact revision retained · {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(activity.occurredAt))}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(`/materials/${activity.materialId}/cards/${activity.cardId}`)}>Open card</button></li>)}</ul></section> : null}
-    {modelingSession ? <ul className="activity-list"><li data-testid="recent-modeling-session"><span><strong>{modelingSession.material?.label ?? modelingSession.objective ?? "Material modeling session"}</strong><small className="ux-meta">{`${modelingSession.materialFamily} · ${stageLabel} · ${modelingSession.testData ? `${modelingSession.testData.label} r${modelingSession.testData.revisionNo}` : "No exact Test Data"} · ${modelingSession.workspace.selectedDocumentIds.length} selected curves`}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(resumePath)}>{`Resume ${stageLabel}`}</button></li></ul> : <section className="activity-empty-state" role="status" aria-label="No recent Modeling session"><div><strong>No recent Modeling session</strong><p>This browser has no local Data, Process, Fit, Validate, Review/Release, or Export session to resume.</p></div><button className="ux-button" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button></section>}
-    <ul className="activity-list activity-destinations"><li><span><strong>Reviews and releases</strong><small className="ux-meta">Open the governed review workspace. Activity attention and queue integration remain pending.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/jobs-reviews")}>Open review workspace</button></li></ul><details className="ux-disclosure"><summary>Advanced jobs and export packages</summary><p>Inspect batch attempts, technical diagnostics, and checksum-verifiable bulk packages.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details>
+  const canDecide = role === "reviewer" || role === "administrator";
+  const visibleRequests = canDecide
+    ? reviewRequests
+    : reviewRequests.filter((request) => request.requested_by === principalId);
+  const pendingRequests = visibleRequests.filter((request) => request.decision === null);
+  const decidedRequests = visibleRequests.filter((request) => request.decision !== null);
+  const needsAttention = canDecide ? pendingRequests : [];
+  const inProgress = canDecide ? [] : pendingRequests;
+
+  return <div className="ux-page"><div className="activity-shell"><div className="activity-content">
+    <header className="activity-heading"><div><h1>Activity</h1><p>Resume your work, review submitted material data, and find completed outcomes.</p></div><button className="ux-button tertiary" type="button" onClick={() => void loadQueue()} disabled={loadingQueue}>{loadingQueue ? "Refreshing…" : "Refresh"}</button></header>
+    {queueError ? <div className="activity-queue-error" role="alert"><span>{queueError}</span><button className="ux-button" type="button" onClick={() => void loadQueue()}>Retry</button></div> : null}
+    <ActivityQueueSection title="Needs attention" description={canDecide ? "Submitted work waiting for your review." : "No review actions are assigned to this role."} loading={loadingQueue} emptyMessage="Nothing needs your attention." items={needsAttention} action={canDecide ? (request) => <ReviewAction request={request} reviewing={reviewingId === request.review_request_id} deciding={decidingId === request.review_request_id} reason={decisionReason} error={reviewingId === request.review_request_id ? decisionError : null} onOpen={() => { setReviewingId(request.review_request_id); setDecisionReason(""); setDecisionError(null); }} onCancel={() => { setReviewingId(null); setDecisionReason(""); setDecisionError(null); }} onReasonChange={setDecisionReason} onDecide={(decision) => void decide(request, decision)} /> : undefined} />
+    <section className="activity-section" aria-labelledby="activity-in-progress"><div className="activity-section-heading"><h2 id="activity-in-progress">In progress</h2><p>Work you can resume and review requests still awaiting a decision.</p></div>
+      {modelingSession ? <ul className="activity-list"><li data-testid="recent-modeling-session"><span><strong>{modelingSession.material?.label ?? modelingSession.objective ?? "Material modeling session"}</strong><small className="ux-meta">{`${modelingSession.materialFamily} · ${stageLabel} · ${modelingSession.testData ? `${modelingSession.testData.label} r${modelingSession.testData.revisionNo}` : "No exact Test Data"} · ${modelingSession.workspace.selectedDocumentIds.length} selected curves`}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(resumePath)}>{`Resume ${stageLabel}`}</button></li></ul> : null}
+      {!loadingQueue && inProgress.length ? <ActivityRows items={inProgress} /> : null}
+      {!modelingSession && !loadingQueue && !inProgress.length ? <section className="activity-empty-state" role="status" aria-label="No work in progress"><div><strong>No work in progress</strong><p>Start a Modeling session or submit an available item for review from its workspace.</p></div><button className="ux-button" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button></section> : null}
+      {loadingQueue && !modelingSession ? <ActivityQueueLoading /> : null}
+    </section>
+    <section className="activity-section" aria-labelledby="activity-outcomes"><div className="activity-section-heading"><h2 id="activity-outcomes">Recent outcomes</h2><p>Completed review decisions and solver cards opened in this browser.</p></div>
+      {!loadingQueue && decidedRequests.length ? <ActivityRows items={decidedRequests} /> : null}
+      {deliveryActivities.length ? <ul className="activity-list">{deliveryActivities.map((activity) => <li key={`${activity.action}:${activity.cardId}`} data-testid="recent-solver-card-activity"><span><strong>{activity.action === "download" ? "Downloaded solver card" : "Previewed solver card"} · {activity.cardLabel}</strong><small className="ux-meta">{activity.materialLabel} · {activity.solver} {activity.extension} · {formatActivityTime(activity.occurredAt)}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(`/materials/${activity.materialId}/cards/${activity.cardId}`)}>Open card</button></li>)}</ul> : null}
+      {!loadingQueue && !decidedRequests.length && !deliveryActivities.length ? <p className="activity-empty-line" role="status">No recent outcomes yet.</p> : null}
+      {loadingQueue ? <ActivityQueueLoading /> : null}
+    </section>
+    {governedContext.length ? <section className="activity-context-line" aria-label="Modeling review context"><span>A modeling review or validation context is available.</span><button className="ux-button" type="button" onClick={() => onNavigate(`/modeling?stage=validate&family=${modelingSession?.materialFamily ?? "metal"}`)}>Resume validation</button><details className="ux-disclosure"><summary>Advanced context</summary><dl className="evidence-grid">{governedContext.map(([label, id, revisionId]) => <div key={label}><dt>{label}</dt><dd>{id}{revisionId ? ` · revision ${revisionId}` : ""}</dd></div>)}</dl></details></section> : null}
+    <details className="ux-disclosure activity-advanced"><summary>Advanced activity evidence</summary><p>Review requests currently expose immutable revision evidence, but this API does not provide display names for the submitted item or people. Those identifiers remain here until the work projection supplies readable names.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details>
   </div></div></div>;
+}
+
+function reviewTaskLabel(aggregateType: string): string {
+  const normalized = aggregateType.toLowerCase();
+  if (normalized.includes("solver") || normalized.includes("card")) return "Solver card review";
+  if (normalized.includes("test") || normalized.includes("dataset")) return "Test data review";
+  return "Material data review";
+}
+
+function reviewStatus(request: ReviewRequestResponse): string {
+  if (request.decision?.decision === "approved") return "Approved";
+  if (request.decision?.decision === "changes_requested") return "Changes requested";
+  return request.lifecycle_state === "changes_requested" ? "Changes requested" : "Waiting for review";
+}
+
+function formatActivityTime(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Time unavailable" : new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
+function ActivityQueueLoading() {
+  return <div className="activity-queue-loading" aria-busy="true" aria-label="Loading activity queue"><span /><span /><span /></div>;
+}
+
+function ActivityRows({ items, action }: { items: ReviewRequestResponse[]; action?: (request: ReviewRequestResponse) => ReactNode }) {
+  return <ul className="activity-list activity-review-list">{items.map((request) => <li key={request.review_request_id}><span><strong>{reviewTaskLabel(request.aggregate_type)}</strong><small className="ux-meta">{reviewStatus(request)} · {request.reason || "No request reason was provided."} · {formatActivityTime(request.decision?.decided_at ?? request.requested_at)}</small></span>{action ? action(request) : <span className="activity-row-state">{reviewStatus(request)}</span>}</li>)}</ul>;
+}
+
+function ActivityQueueSection({ title, description, loading, emptyMessage, items, action }: { title: string; description: string; loading: boolean; emptyMessage: string; items: ReviewRequestResponse[]; action?: (request: ReviewRequestResponse) => ReactNode }) {
+  const headingId = `activity-${title.toLowerCase().replaceAll(" ", "-")}`;
+  return <section className="activity-section" aria-labelledby={headingId}><div className="activity-section-heading"><h2 id={headingId}>{title}</h2><p>{description}</p></div>{loading ? <ActivityQueueLoading /> : items.length ? <ActivityRows items={items} action={action} /> : <p className="activity-empty-line" role="status">{emptyMessage}</p>}</section>;
+}
+
+function ReviewAction({ request, reviewing, deciding, reason, error, onOpen, onCancel, onReasonChange, onDecide }: { request: ReviewRequestResponse; reviewing: boolean; deciding: boolean; reason: string; error: string | null; onOpen: () => void; onCancel: () => void; onReasonChange: (value: string) => void; onDecide: (decision: "approved" | "changes_requested") => void }) {
+  if (!reviewing) return <button className="ux-button primary" type="button" onClick={onOpen}>Review</button>;
+  return <form className="activity-review-form" onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); onDecide("approved"); }}><label>Review reason<textarea value={reason} onChange={(event) => onReasonChange(event.target.value)} placeholder="Explain the approval or requested change" required disabled={deciding} /></label>{error ? <p role="alert">{error}</p> : null}<div><button className="ux-button primary" type="submit" disabled={deciding}>{deciding ? "Saving…" : "Approve"}</button><button className="ux-button" type="button" disabled={deciding} onClick={() => onDecide("changes_requested")}>Request changes</button><button className="ux-button tertiary" type="button" disabled={deciding} onClick={onCancel}>Cancel</button></div></form>;
 }

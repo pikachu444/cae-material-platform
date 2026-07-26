@@ -44,6 +44,7 @@ PRODUCT_ACCESS_OUTPUTS = (
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
 )
+ACTIVITY_OUTPUTS = tuple(f"activity-{width}x{height}.png" for width, height in VIEWPORTS)
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
@@ -69,7 +70,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-export-1366x768.png",
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
+    "activity-1366x768.png",
     "activity-1440x900.png",
+    "activity-1920x1080.png",
     "administration-database-1366x768.png",
     "administration-database-1440x900.png",
     "administration-database-1920x1080.png",
@@ -341,16 +344,67 @@ def _capture_solver_delivery(browser: Browser, base_url: str, output: Path) -> N
             width,
             height,
         )
-        if (width, height) == (1440, 900):
-            page.goto(f"{base_url}/activity")
-            page.get_by_role(
-                "heading", name="Recent solver-card delivery", exact=True
-            ).wait_for(timeout=30_000)
-            page.get_by_test_id("recent-solver-card-activity").wait_for(
-                timeout=30_000
-            )
-            _capture(page, output / "activity-1440x900.png", width, height)
+        _ensure_activity_review_fixture(page, base_url)
+        page.goto(f"{base_url}/activity")
+        _wait_for_activity_queue(page)
+        _capture(page, output / f"activity-{width}x{height}.png", width, height)
         page.context.close()
+
+
+def _capture_activity(browser: Browser, base_url: str, output: Path) -> None:
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _ensure_activity_review_fixture(page, base_url)
+        page.goto(f"{base_url}/activity")
+        _wait_for_activity_queue(page)
+        _capture(page, output / f"activity-{width}x{height}.png", width, height)
+        page.context.close()
+
+
+def _wait_for_activity_queue(page: Page) -> None:
+    page.get_by_role("heading", name="Activity", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("heading", name="Needs attention", exact=True).wait_for(timeout=30_000)
+    page.get_by_text("Material data review", exact=True).wait_for(timeout=30_000)
+    page.get_by_role("button", name="Review", exact=True).wait_for(timeout=30_000)
+
+
+def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
+    """Create one real pending synthetic Material review only when the demo has none."""
+    outcome = page.evaluate(
+        """async ({ baseUrl }) => {
+          const config = JSON.parse(localStorage.getItem("cmp.material-platform.api-config") || "{}");
+          const headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${config.accessToken}`,
+          };
+          const reviews = await fetch(`${baseUrl}/api/v1/review-requests?limit=50`, { headers });
+          if (!reviews.ok) throw new Error(`cannot list review requests: ${reviews.status}`);
+          if ((await reviews.json()).items.length) return "reused";
+          const materials = await fetch(`${baseUrl}/api/v1/materials?limit=10&offset=0`, { headers });
+          if (!materials.ok) throw new Error(`cannot list synthetic materials: ${materials.status}`);
+          const material = (await materials.json()).items.find(item => item.current_revision?.lifecycle_state === "draft");
+          if (!material) return "empty";
+          const revision = material.current_revision;
+          const created = await fetch(`${baseUrl}/api/v1/review-requests`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              classification: revision.classification,
+              aggregate_type: "catalog.material",
+              aggregate_id: material.material_id,
+              revision_id: revision.id,
+              manifest_sha256: revision.content_hash,
+              reason: "Review synthetic material data for the Activity queue",
+            }),
+          });
+          if (!created.ok) throw new Error(`cannot create Activity review fixture: ${created.status}`);
+          return "created";
+        }""",
+        {"baseUrl": base_url},
+    )
+    if outcome not in {"created", "reused"}:
+        raise RuntimeError(f"unexpected Activity fixture result: {outcome}")
 
 
 def _prepare_modeling(page: Page, base_url: str) -> None:
@@ -1019,6 +1073,11 @@ def main() -> int:
         help="Capture and replace only the two Product Access role-preset viewports.",
     )
     parser.add_argument(
+        "--only-activity",
+        action="store_true",
+        help="Capture and replace only the three role-aware Activity queue viewports.",
+    )
+    parser.add_argument(
         "--only-modeling-export",
         action="store_true",
         help="Capture and replace only the three Modeling Export viewports.",
@@ -1052,7 +1111,7 @@ def main() -> int:
             finally:
                 browser.close()
 
-    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session or args.only_product_access:
+    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session or args.only_product_access or args.only_activity:
         names = (
             CURRENT_CAPTURE_OUTPUTS[:6]
             if args.only_materials
@@ -1064,6 +1123,8 @@ def main() -> int:
             if args.only_modeling_consistency
             else MODELING_DATA_SESSION_OUTPUTS
             if args.only_modeling_data_session
+            else ACTIVITY_OUTPUTS
+            if args.only_activity
             else PRODUCT_ACCESS_OUTPUTS
         )
         args.output.mkdir(parents=True, exist_ok=True)
@@ -1085,6 +1146,8 @@ def main() -> int:
                         if args.only_modeling_consistency
                         else _capture_modeling_data_session(browser, args.base_url, staged)
                         if args.only_modeling_data_session
+                        else _capture_activity(browser, args.base_url, staged)
+                        if args.only_activity
                         else _capture_supporting_screens(browser, args.base_url, staged)
                     )
                 finally:

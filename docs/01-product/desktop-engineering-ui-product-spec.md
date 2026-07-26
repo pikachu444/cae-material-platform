@@ -333,12 +333,21 @@ The preflight summary uses user language first and technical mapping details sec
 
 ## 8. Activity workspace
 
-Default view:
+Default view is one compact queue, not a dashboard:
 
-- recent Modeling sessions;
-- items awaiting user review;
-- failed or blocked jobs requiring action;
-- recent downloads/releases.
+```text
+Needs attention | In progress | Recent outcomes
+```
+
+- **Needs attention** contains pending review requests only for Reviewer and Administrator, with one
+  row-level Review command.
+- **In progress** contains the browser-local Modeling session and a User's own pending review
+  requests. A User cannot approve or request changes here.
+- **Recent outcomes** contains returned immutable review decisions and browser-local solver-card
+  preview/download history.
+- The review API currently supplies immutable request/revision data but not readable submitted-item
+  or actor names. The normal row therefore states task type, request reason, state and time; exact
+  identifiers remain in Advanced evidence until a readable projection exists.
 
 Advanced disclosure:
 
@@ -347,7 +356,10 @@ Advanced disclosure:
 - bulk packages;
 - low-level attempts and diagnostics.
 
-Selecting an item returns to the exact workspace context instead of a generic dashboard.
+Selecting an item returns to the exact workspace context instead of a generic dashboard. A Review
+action requires a non-empty reason and calls the existing decision API with the request's manifest;
+the returned immutable request replaces that row. Request entry, job monitoring and release
+projection are follow-up work, not synthetic queue rows.
 
 ## 9. Administration workspace
 
