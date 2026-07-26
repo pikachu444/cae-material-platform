@@ -44,7 +44,7 @@ materials_workspace:
     unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
-  task: DUI-04/DUI-05/DUI-06 and UXC-02~05 complete; UXC-06 pending
+  task: DUI-04/DUI-05/DUI-06 and UXC-02~05 complete; UXC-06 fail-closed prerequisite slice complete, delivery API blocked
   route: /modeling
   query:
     stage: [data, process, fit, validate, review, export]
@@ -73,13 +73,13 @@ modeling_workspace:
     fit: [candidate-equations, residual, extrapolation]
     validate: [candidate-compatible-adapter, exact-plan, distinct-run-result, explicit-not-supported]
     review: [separate-submit-request-changes-approve-release, explicit-not-configured]
-    export: [selected-model, observed-fit-range, persistent-graph, bottom-delivery-dock]
+    export: [exact-source-checklist, required-lineage, persistent-graph, bottom-delivery-dock]
   current_status:
     dui_01_to_06: complete
     pr_124_fit_export: complete
     uxc_01: complete-bounded-server-query-slice
     uxc_02: complete-v3-session-invalidation-and-stage-shell
     uxc_03_to_05: complete
-    uxc_06: corrective-work-pending
+    uxc_06: fail-closed-prerequisites-complete; server-proven-material-state-lineage-and-ephemeral-preview-required
     dui_07_to_09: pending
   capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, exact-catalog-link-resolved, no-checking-loading-or-resolving-state, no-horizontal-overflow]

@@ -145,18 +145,18 @@ Material Model IR이나 Neutral Material로 승격할 수 없습니다.
 
 
 
-## Neutral Material과 solver card로 전달
+## Export의 현재 exact-source 경계
 
-Fit 검토가 끝나면 상단 **Export** task를 누릅니다. graph가 있던 작업 영역이 exact
-Material/State → reviewed Processing Output/IR → Neutral Material JSON → mapping → native card 흐름으로
-바뀝니다. 페이지 아래의 별도 exporter를 찾거나 UUID를 복사하지 않습니다. **Back to Fit**을 누르면
-같은 session과 Recipe draft를 유지한 채 후보 비교로 돌아갑니다.
+Fit 검토 뒤 상단 **Export** task를 열면 current Material, Material State, Test Data, Mapping Profile,
+Processing Output pin과 `Processing Output → Material Model IR → Neutral → target preflight → native card`
+lineage를 먼저 확인합니다. source가 없거나 다른 revision이면 artifact, adapter, Preview, Deliver control은
+전혀 표시되지 않습니다. **Back to Fit**은 같은 session과 Recipe draft를 유지합니다.
 
-solver와 version을 고르면 지원되는 material law가 capability manifest에서 표시됩니다. preflight의
-모든 field는 `exact`, `transformed`, `approximated`, `ignored`, `unsupported`, `not_applicable` 중 하나를
-가져야 합니다. `approximated`는 acknowledgement 전에는 card 생성 버튼이 비활성이고,
-`unsupported`는 생성할 수 없습니다. 생성 후 native ASCII preview와 `.inp`/`.rad`, mapping report
-JSON download가 먼저 보이며 exact evidence는 필요할 때 다시 펼칩니다.
+현재 Processing Output API는 exact Test Data와 Mapping Profile은 증명하지만 Material/State pin을 server-side로
+project하지 않습니다. 따라서 browser session의 비교는 안내용일 뿐 delivery proof가 아니며 Normal Modeling
+Export는 `Server provenance proof · not supported`로 fail closed합니다. 이 상태에서는 preview나 delivery event,
+`exportArtifact` session pin, Activity 기록, Material CAE Card 연결을 만들지 않습니다. Materials에서 이미 released된
+card를 명시적으로 재사용하는 흐름은 별도 기능이며 이 제한의 fallback이 아닙니다.
 
 
 

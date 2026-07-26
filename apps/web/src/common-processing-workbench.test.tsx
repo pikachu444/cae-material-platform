@@ -531,7 +531,8 @@ describe("Common Processing Workbench", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Save selected candidate" }));
     expect(await screen.findByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Export is blocked" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Export is unavailable" })).toBeTruthy();
+    expect(screen.getByText("Server provenance proof")).toBeTruthy();
     expect(screen.getByText(/stale, different-material, or unverified output is never used as a fallback/i)).toBeTruthy();
     expect(onSessionChange).toHaveBeenCalledWith({
       processingOutput: {
@@ -603,7 +604,7 @@ describe("Common Processing Workbench", () => {
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
     expect(screen.getByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Export is blocked" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Export is unavailable" })).toBeTruthy();
     expect(screen.queryByText("Exact Neutral and solver delivery fixture")).toBeNull();
     expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
     expect(screen.getByText("Selection reason")).toBeTruthy();
