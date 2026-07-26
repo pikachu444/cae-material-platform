@@ -17,8 +17,9 @@ range, metric, parameter and bound validation. The exact selected identity and r
 descriptive provenance through the existing synthetic reference model/Neutral paths. Export
 eligibility requires the session's exact selected output and the typed snapshot; upstream changes
 invalidate downstream current pointers without mutating immutable revisions. Current live evidence
-covers 26 screenshots at 1366×768, 1440×900 and 1920×1080. Final completion remains gated on bounded
-reviewer sign-off, CI and PR merge.
+covers 26 screenshots at 1366×768, 1440×900 and 1920×1080. The bounded reviewer found and verified
+fixes for curve identity, saved-current invalidation, preview reselection and parameter completeness;
+final completion remains gated on CI and PR merge.
 
 ## DUI-06 Fit and Export decision workflow implemented (2026-07-24)
 
