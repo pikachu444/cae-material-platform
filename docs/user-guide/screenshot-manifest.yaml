@@ -6,7 +6,7 @@ capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
   - "The current set contains 29 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
-  - "Fit capture asserts save is disabled before explicit selection, four single-law rows plus the exact calculated preview-blend row, Preview-to-Selected graph identity, parameter/bound evidence, reason completion, and the exact selected-output save path."
+  - "Fit capture asserts Preview changes, a closed Candidate parameters disclosure, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation, and a terminal related-data state; an explicit unprojected Catalog state is evidence, not a silent resolved-link fallback."
@@ -15,7 +15,7 @@ notes:
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
-  - "Process and Fit use a compact Test data tree: exact specimen/revision identity, inclusion checkbox and icon-only plot visibility remain independent; Export has no permanent curve rail."
+  - "Process and Fit use a compact Curves tree: specimen/revision identity, inclusion checkbox and icon-only plot visibility remain independent; Export has no permanent curve rail."
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
 allowed_duplicate_pairs: []
@@ -109,21 +109,21 @@ captures:
     height: 768
   - id: modeling-session-1366
     route: /modeling?stage=data&family=metal
-    workflow: UXC-02 Data-first session shell with exact-context prerequisites and six-stage state reasons
+    workflow: UXC-04B Data-first session shell with compact four-stage normal work path
     fixture: synthetic DP780 Modeling context; no stale output fallback asserted
     image: images/current/modeling-session-1366x768.png
     width: 1366
     height: 768
   - id: modeling-session-1440
     route: /modeling?stage=data&family=metal
-    workflow: UXC-02 Data-first session shell with exact-context prerequisites and six-stage state reasons
+    workflow: UXC-04B Data-first session shell with compact four-stage normal work path
     fixture: synthetic DP780 Modeling context; no stale output fallback asserted
     image: images/current/modeling-session-1440x900.png
     width: 1440
     height: 900
   - id: modeling-session-1920
     route: /modeling?stage=data&family=metal
-    workflow: UXC-02 Data-first session shell with exact-context prerequisites and six-stage state reasons
+    workflow: UXC-04B Data-first session shell with compact four-stage normal work path
     fixture: synthetic DP780 Modeling context; no stale output fallback asserted
     image: images/current/modeling-session-1920x1080.png
     width: 1920

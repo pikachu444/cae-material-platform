@@ -4,12 +4,20 @@ const stages: Array<{ id: ModelingStage; label: string }> = [
   { id: "data", label: "Data" },
   { id: "process", label: "Process" },
   { id: "fit", label: "Fit" },
-  { id: "validate", label: "Validate" },
-  { id: "review", label: "Review / Release" },
   { id: "export", label: "Export" },
 ];
 
 type StageStatus = "Complete" | "Blocked" | "Warning" | "Stale";
+
+function stageStatusLabel(stage: ModelingStage, status: StageStatus): string {
+  if (status === "Stale") return "Needs update";
+  if (stage === "data") return status === "Complete" ? "Test data ready" : "Add test data";
+  if (stage === "process") return status === "Complete" ? "Processed curves ready" : "Prepare test curves";
+  if (stage === "fit") return status === "Complete" ? "Model selected" : "Choose a model";
+  if (stage === "validate") return "Run validation";
+  if (stage === "review") return "Submit for review";
+  return status === "Complete" ? "Card ready" : "Ready to create card";
+}
 
 function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStage): { status: StageStatus; reason: string } {
   const invalidation = session?.invalidation;
@@ -66,11 +74,12 @@ export function ModelingStageShell({
         type="button"
         className={activeStage === stage.id ? "active" : ""}
         aria-current={activeStage === stage.id ? "step" : undefined}
+        aria-label={`${stage.label} · ${stageStatusLabel(stage.id, state.status)} · ${state.reason}`}
         onClick={() => onStageChange(stage.id)}
         title={state.reason}
       >
         <span className="modeling-stage-number">{index + 1}</span>
-        <span><strong>{stage.label}</strong><small>{state.status} · {state.reason}</small></span>
+        <span><strong>{stage.label}</strong><small>{stageStatusLabel(stage.id, state.status)}</small></span>
       </button>;
     })}
   </nav>;

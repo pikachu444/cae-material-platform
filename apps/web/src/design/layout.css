@@ -1170,17 +1170,47 @@
 }
 
 .processing-workbench-page {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  height: 100%;
+  min-height: 0;
   max-width: none;
   margin: 0;
-  gap: 6px;
+  gap: 0;
+  overflow: hidden;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: var(--ux-canvas);
   color: var(--ux-text);
   font-size: 14px;
+}
+
+.processing-workbench-page > :is(.modeling-context-strip, .modeling-stage-shell, .modeling-notice-line) {
+  flex: 0 0 auto;
+}
+
+.processing-workbench-page > .method-builder-card {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.processing-workbench-page > .method-builder-card > .section-heading {
+  min-height: 38px;
+  flex: 0 0 38px;
+}
+
+.processing-workbench-page > .method-builder-card > .section-heading .workspace-caption {
+  display: none;
+}
+
+.processing-workbench-page > .method-builder-card > :is(.advanced-definition, .mapping-note),
+.processing-workbench-page > .method-builder-card ~ .modeling-support-drawer {
+  display: none;
 }
 
 .modeling-context-strip {
@@ -1215,17 +1245,6 @@
   font-weight: 650;
 }
 
-.modeling-context-strip .modeling-session-context {
-  flex: 1 1 auto;
-  min-width: 0;
-  margin: 0;
-  overflow: hidden;
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .modeling-notice-line {
   min-height: 26px;
   padding: 4px 8px;
@@ -1250,7 +1269,7 @@
   display: flex;
   min-width: 0;
   gap: 6px;
-  padding: 6px 8px;
+  padding: 4px 8px;
   border: 0;
   border-right: 1px solid var(--ux-border);
   border-radius: 0;
@@ -1274,6 +1293,24 @@
 .modeling-stage-shell small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .modeling-stage-shell strong { font-size: 12px; font-weight: 650; }
 .modeling-stage-shell small { margin-top: 1px; font-size: 11px; }
+
+/* UXC-04B: approved lower-reference topology. */
+.modeling-context-strip { min-height: 38px; }
+.modeling-work-title { display: flex; min-width: 0; align-items: baseline; gap: 8px; }
+.modeling-work-title strong { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.modeling-work-title span { min-width: 0; overflow: hidden; color: var(--ux-text-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.modeling-context-actions { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+.modeling-context-actions .button { min-height: 26px; padding: 3px 9px; font-size: 11px; }
+.modeling-advanced-menu { position: relative; }
+.modeling-advanced-menu > summary { min-height: 26px; padding: 5px 9px; border: 1px solid var(--ux-border); color: var(--ux-text); font-size: 11px; cursor: pointer; list-style: none; }
+.modeling-advanced-menu > summary::-webkit-details-marker { display: none; }
+.modeling-advanced-menu > div { position: absolute; z-index: 20; right: 0; top: calc(100% + 2px); display: grid; min-width: 208px; padding: 4px; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); box-shadow: var(--ux-shadow-float); }
+.modeling-advanced-menu button { padding: 6px 8px; border: 0; background: transparent; color: var(--ux-text); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.modeling-advanced-menu button:hover, .modeling-advanced-menu button[aria-selected="true"] { background: var(--ux-accent-soft); }
+.modeling-stage-shell { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.modeling-stage-shell button { align-items: center; justify-content: center; gap: 4px; min-height: 27px; padding: 3px 8px; }
+.modeling-stage-shell .modeling-stage-number { display: none; }
+.modeling-stage-shell small { display: none; }
 
 .modeling-stage-placeholder,
 .modeling-export-blocked {
@@ -1384,50 +1421,6 @@
   .modeling-stage-shell { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .modeling-stage-shell button:nth-child(3) { border-right: 0; }
   .modeling-stage-shell button:nth-child(-n + 3) { border-bottom: 1px solid var(--ux-border); }
-}
-
-.modeling-track-selector button {
-  min-height: 34px;
-  border-color: var(--ux-border);
-  border-radius: var(--ux-radius-control);
-  background: var(--ux-surface-subtle);
-  color: var(--ux-text-muted);
-}
-
-.modeling-track-selector {
-  display: flex;
-  flex: 0 0 auto;
-  justify-content: flex-end;
-}
-
-.modeling-track-selector button {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 8px;
-}
-
-.modeling-track-selector button span,
-.modeling-track-selector button strong {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.modeling-track-selector button small {
-  display: none;
-}
-
-.modeling-track-selector button:hover,
-.modeling-track-selector button.active {
-  border-color: var(--ux-accent);
-  background: var(--ux-accent-soft);
-  color: var(--ux-accent);
-}
-
-.modeling-track-selector button.active {
-  box-shadow: inset 3px 0 0 var(--ux-accent);
 }
 
 .modeling-data-entry {
@@ -2058,10 +2051,10 @@
   display: flex;
   width: 100%;
   min-width: 0;
-  height: calc(100vh - 245px) !important;
-  min-height: 520px !important;
-  max-height: calc(100vh - 245px) !important;
-  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  flex: 1 1 auto !important;
   overflow: hidden;
   border-block: 1px solid var(--ux-border);
   background: var(--ux-surface);
@@ -2091,7 +2084,7 @@
 
 .modeling-task-ribbon {
   grid-row: 1;
-  max-height: 150px;
+  max-height: 104px;
   overflow: auto;
   border-bottom: 1px solid var(--ux-border);
   background: var(--ux-surface);
@@ -2107,19 +2100,63 @@
 }
 
 .modeling-task-ribbon > .step-option-panel {
-  max-height: 150px;
+  max-height: 104px;
   border: 0;
   border-radius: 0;
 }
 
 .modeling-task-ribbon > .step-option-panel.fit-stage-options {
-  max-height: 236px;
+  max-height: 104px;
+}
+
+.modeling-task-ribbon:has(.fit-stage-options) {
+  max-height: 104px;
+  overflow: hidden;
 }
 
 .fit-stage-options > .section-heading,
-.fit-stage-options .candidate-evidence-heading {
+.fit-stage-options .candidate-evidence-heading,
+.fit-stage-options > .workspace-inspector-heading {
   display: none;
 }
+
+.modeling-task-ribbon > .step-option-panel > :is(.workspace-inspector-heading, .section-heading) {
+  display: none;
+}
+
+.fit-stage-options .candidate-check-grid {
+  position: relative;
+  height: 68px;
+  grid-template-columns: repeat(2, minmax(82px, 1fr));
+  gap: 6px;
+  padding-left: 145px;
+}
+
+.fit-stage-options .candidate-check-grid legend {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+.fit-stage-options .candidate-check-grid label {
+  min-height: 21px;
+  padding: 4px 8px;
+}
+
+/* Fit controls remain one shallow, graph-adjacent band; detailed evidence is on demand. */
+.fit-stage-options { position: relative; display: grid; align-items: end; gap: 6px; padding: 5px 8px; }
+.fit-stage-options > .guided-step-options { display: grid; grid-template-columns: minmax(250px, 1.2fr) minmax(150px, .72fr) minmax(170px, .8fr) minmax(145px, .68fr) minmax(170px, .8fr); align-items: end; gap: 5px 8px; }
+.fit-stage-options .guided-range-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.fit-stage-options .guided-range-row label { display: grid; gap: 2px; min-width: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
+.fit-stage-options input, .fit-stage-options select { min-width: 0; min-height: 26px; font-size: 11px; }
+.fit-stage-options .option-hint { display: none; }
+.fit-stage-options .slider-option { display: grid; gap: 2px; min-width: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
+.stage-process > .section-heading, .stage-fit > .section-heading { display: none; }
+.fit-evidence-disclosure { position: absolute; right: 8px; bottom: 2px; }
+.fit-evidence-disclosure > summary { color: var(--ux-text-muted); font-size: 11px; cursor: pointer; }
+.fit-evidence-disclosure[open] { z-index: 15; inset: 0; overflow: auto; padding: 10px; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); }
 
 .modeling-main-surface > .persistent-modeling-plot {
   grid-column: 1;
@@ -2739,10 +2776,12 @@
 }
 
 .persistent-modeling-plot {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   grid-column: 2;
   grid-row: 2;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px 8px;
   width: 100%;
   min-width: 0;
   min-height: min(680px, calc(100vh - 235px));
@@ -2751,53 +2790,115 @@
   padding: 8px;
 }
 
+.persistent-modeling-plot > .section-heading {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 30px;
+  margin: 0;
+}
+
+.persistent-modeling-plot > .section-heading > div:first-child {
+  display: none;
+}
+
+.persistent-modeling-plot > .modeling-plot-toolbar {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 30px;
+  margin: 0;
+  flex-wrap: nowrap;
+}
+
+.persistent-modeling-plot > .hardening-analysis-tabs {
+  grid-column: 3;
+  grid-row: 1;
+}
+
 .persistent-modeling-plot .processing-curve.interactive {
-  flex: 0 0 420px;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: stretch;
   width: 100%;
-  height: 420px;
+  height: 100%;
   min-height: 0;
 }
 
+.persistent-modeling-plot > .curve-legend {
+  position: absolute;
+  z-index: 2;
+  right: 16px;
+  bottom: 18px;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 4px 6px;
+  background: color-mix(in srgb, var(--ux-surface) 90%, transparent);
+}
+
+.persistent-modeling-plot > .curve-legend.interactive {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: auto;
+  max-width: 230px;
+  gap: 1px;
+}
+
+.persistent-modeling-plot > .curve-legend.interactive button {
+  min-height: 16px;
+  justify-content: start;
+  padding: 1px 3px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.persistent-modeling-plot > :is(.stage-diagnostics, .model-diagnostics-details, .digest-line) {
+  display: none;
+}
+
 .persistent-modeling-plot .processing-curve .chart-tick {
-  font-size: 17px;
+  font-size: 12px;
 }
 
 .persistent-modeling-plot .processing-curve .chart-axis-label {
-  font-size: 18px;
+  font-size: 12px;
 }
 
 @media (max-height: 800px) {
   .persistent-modeling-plot .processing-curve.interactive {
-    flex-basis: 260px;
-    height: 260px;
+    height: 100%;
+    min-height: 0;
   }
 
-  .persistent-modeling-plot .processing-curve .chart-tick {
-    font-size: 18px;
+  .persistent-modeling-plot > .curve-legend {
+    bottom: 18px;
   }
 
-  .persistent-modeling-plot .processing-curve .chart-axis-label {
-    font-size: 19px;
-  }
+  .persistent-modeling-plot .processing-curve .chart-tick,
+  .persistent-modeling-plot .processing-curve .chart-axis-label { font-size: 12px; }
 }
 
 .persistent-modeling-plot .hardening-analysis-tabs {
-  position: absolute;
-  z-index: 3;
-  top: 84px;
-  right: var(--ux-space-3);
-  left: var(--ux-space-3);
+  position: static;
   margin: 0;
-  background: color-mix(in srgb, var(--ux-surface) 92%, transparent);
+  background: var(--ux-surface);
 }
 
-.persistent-modeling-plot .hardening-metric-strip:not(.prony-metric-strip) {
-  position: absolute;
-  z-index: 3;
-  top: 126px;
-  right: var(--ux-space-3);
-  left: var(--ux-space-3);
-  margin: 0;
+.persistent-modeling-plot .modeling-plot-toolbar button,
+.persistent-modeling-plot .hardening-analysis-tabs button {
+  padding-block: 4px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1500px) {
+  .persistent-modeling-plot .hardening-analysis-tabs > span {
+    display: none;
+  }
+
+  .persistent-modeling-plot .modeling-plot-toolbar > span {
+    display: none;
+  }
 }
 
 .modeling-dataset-list,
@@ -2805,6 +2906,30 @@
   display: grid;
   align-content: start;
   gap: 0;
+}
+
+.curve-filter {
+  display: block;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.curve-filter input {
+  width: 100%;
+  min-height: 26px;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .modeling-dataset-list > article,

@@ -98,7 +98,7 @@ quantity semantics, original/normalized unit과 missing reason을 먼저 확인�
 Fit 그래프의 곡선은 계속 `Preview only · not committed`로 표시됩니다. 계산 성공이나 추천은
 선택·검토·승인을 뜻하지 않습니다. 선택과 저장이 가능한 API contract가 없는 상태는 Warning 또는
 Blocked로 남습니다. 추천과 선택은 별도 상태이며, 행을 명시적으로 고르고 이유와 필요한 경고
-확인을 마친 candidate만 **Save selected candidate**로 immutable Processing Output을 만듭니다.
+확인을 마친 candidate만 상단의 **Save fit & continue**로 immutable Processing Output을 만듭니다.
 금속 blend는 두 law·ratio·두 parameter set을, 폴리머는 server가 실제 산출한 term-count identity를
 그대로 저장합니다. Export는 current session의 exact Material, State, Test Data와 Processing Output이
 모두 pin되지 않으면 prerequisite만 표시하며 다른 세션이나 전역 output을 대체 사용하지 않습니다.
@@ -111,18 +111,18 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 ### Modeling 화면 읽기
 
 - 상단 command bar의 `New session | Save draft | Undo | Redo`는 현재 보정 세션에 작용하고,
-  `Data | Process | Fit | Validate | Review / Release | Export` stepper는 같은 세션의 단계를 전환합니다.
-  각 단계에는 Complete, Blocked, Warning 또는 Stale와 다음 행동이 표시됩니다. 단계와 material family는
+  `Data | Process | Fit | Export` stepper는 같은 세션의 일반 작업 단계를 전환합니다. Validate와 Review는 Advanced 또는 Activity에서 엽니다.
+  단계 이름만 간결하게 보이며, 준비 상태와 다음 행동은 hover/focus 설명과 접근성 레이블로 확인합니다. 단계와 material family는
   URL에, 선택 curve·step·plot view·settings 상태는 clear 가능한 Modeling session v3에 저장됩니다.
   새 session은 항상 Data에서 시작하며, 진행 중이던 Material/State/Test Data/Mapping/Output
   pointer나 늦게 도착한 자동 선택 결과를 다시 pin하지 않습니다.
-- 왼쪽 `Curves`와 `Process`는 27 px 일반 문자열 행입니다. `Curve 01` 같은 짧은 이름을
+- 왼쪽 `Curves`와 `Process`는 27 px 일반 문자열 행입니다. specimen 이름과 revision을
   선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
   유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.
   현재 캡처 자동화는 렌더링된 가로축이 Modeling workspace 폭의 72% 미만이면 실패합니다.
-- 1440 px 이상에서는 current-step settings가 그래프 위의 얕은 ribbon으로 열립니다. 1366 px에서는
-  그래프 노출을 위해 기본적으로 닫혀 있으며 `Show settings`로 엽니다. 이 ribbon은 세 번째
+- 1366 px 이상에서는 current-step settings가 그래프 위의 104 px 이하 얕은 ribbon으로 열립니다.
+  오른쪽 접기 버튼으로 필요할 때 숨길 수 있습니다. 이 ribbon은 세 번째
   열이 아니므로 그래프 폭을 줄이지 않습니다.
 - `Add method`는 한 줄 도구 메뉴입니다. Recipe와 Batch는 `Advanced · Recipe and Batch`, ordered
   step JSON은 `Advanced Recipe JSON`에서 확인합니다.
@@ -164,6 +164,11 @@ CAE Cards에서는 command bar의 현재 형식 다운로드만 filled primary a
 다운로드는 secondary action이므로 한 화면에서 여러 primary action이 경쟁하지 않습니다.
 
 ![Persistent Modeling Fit](images/current/modeling-fit-1440x900.png)
+
+Fit keeps the curve rail and response graph visible while model/range/extrapolation inputs stay in the
+shallow task band. **Candidate parameters** separates the server recommendation
+from the engineer's explicit selection; it contains comparison metrics and reason/warning acknowledgement.
+The only **Save fit & continue** action remains in the top action row.
 
 ## Activity에서 진행 상황 확인
 

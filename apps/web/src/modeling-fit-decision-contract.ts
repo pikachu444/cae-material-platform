@@ -5,7 +5,7 @@ export type FitDecisionMode = "single" | "blend";
 /**
  * A local, explicit engineering choice. Recipe options are fit-run intent only;
  * this record is deliberately not derived from them. The immutable snapshot is
- * created only by Save selected candidate.
+ * created only by the explicit Save fit & continue action.
  */
 export interface FitDecisionSelection {
   candidateKey: string;

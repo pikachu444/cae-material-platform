@@ -25,6 +25,11 @@ VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
 MODELING_EXPORT_OUTPUTS = tuple(
     f"modeling-export-{width}x{height}.png" for width, height in VIEWPORTS
 )
+MODELING_PROCESS_FIT_OUTPUTS = tuple(
+    f"modeling-{stage}-{width}x{height}.png"
+    for stage in ("process", "fit")
+    for width, height in VIEWPORTS
+)
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
@@ -59,7 +64,7 @@ CURRENT_CAPTURE_OUTPUTS = (
 STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
     "process": "Prepare observed curves",
-    "fit": "Compare response, residual & extrapolation",
+    "fit": "Fit material response",
     "export": "Review & deliver solver card",
 }
 UNFINISHED = re.compile(
@@ -132,9 +137,14 @@ def _capture(
         raise RuntimeError(f"horizontal overflow is {overflow}px for {path.name}")
     page.evaluate(
         """() => {
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
             window.scrollTo(0, 0);
             for (const selector of [
               ".application-workspace",
+              ".modeling-task-ribbon",
+              ".step-option-panel",
               ".native-card-preview",
               ".card-preview-actions",
             ]) {
@@ -301,7 +311,7 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     ).click()
     page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
     page.get_by_role(
-        "button", name="Update preview", exact=True
+        "button", name="Preview changes", exact=True
     ).click()
     plot.wait_for(timeout=30_000)
     page.locator(".workspace-command-bar").get_by_role(
@@ -319,14 +329,16 @@ def _save_exact_fit_selection(page: Page) -> None:
         "button", name="Fit", exact=True
     ).click()
     page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
-    page.get_by_role("heading", name=STAGE_HEADINGS["fit"], exact=True).wait_for(
-        timeout=30_000
-    )
+    page.locator(".modeling-work-title strong").get_by_text(
+        STAGE_HEADINGS["fit"], exact=True
+    ).wait_for(timeout=30_000)
     show_settings = page.get_by_role(
         "button", name="Show current-stage settings", exact=True
     )
     if show_settings.count():
         show_settings.click()
+    disclosure = page.locator("details.fit-evidence-disclosure")
+    disclosure.locator(":scope > summary").click()
     candidate_table = page.get_by_role(
         "table", name="Hardening candidate comparison"
     )
@@ -343,15 +355,16 @@ def _save_exact_fit_selection(page: Page) -> None:
     if warning_acknowledgement.count():
         warning_acknowledgement.check()
     save_candidate = page.get_by_role(
-        "button", name="Save selected candidate", exact=True
+        "button", name="Save fit & continue", exact=True
     )
     page.wait_for_function(
         """() => [...document.querySelectorAll("button")].some(
-            button => button.textContent?.trim() === "Save selected candidate"
+            button => button.textContent?.trim() === "Save fit & continue"
               && !button.disabled
         )""",
         timeout=30_000,
     )
+    disclosure.locator(":scope > summary").click()
     save_candidate.click()
     page.wait_for_function(
         """() => [...document.querySelectorAll("h1, h2, h3")].some(
@@ -496,7 +509,9 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 "button", name=stage.title(), exact=True
             ).click()
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
-            page.get_by_role("heading", name=heading, exact=True).wait_for(timeout=30_000)
+            page.locator(".modeling-work-title strong").get_by_text(
+                heading, exact=True
+            ).wait_for(timeout=30_000)
             if stage == "fit":
                 show_settings = page.get_by_role(
                     "button", name="Show current-stage settings", exact=True
@@ -504,6 +519,8 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 if show_settings.count():
                     show_settings.click()
                 _wait_for_settled(page)
+                disclosure = page.locator("details.fit-evidence-disclosure")
+                disclosure.locator(":scope > summary").click()
                 candidate_table = page.get_by_role(
                     "table", name="Hardening candidate comparison"
                 )
@@ -531,10 +548,10 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     ).count() != 1:
                         raise RuntimeError(f"Fit candidate table is missing {column}")
                 save_candidate = page.get_by_role(
-                    "button", name="Save selected candidate", exact=True
+                    "button", name="Save fit & continue", exact=True
                 )
                 if save_candidate.count() != 1:
-                    raise RuntimeError("Fit is missing the explicit selected-output save")
+                    raise RuntimeError("Fit is missing its sole top-row save action")
                 if not save_candidate.is_disabled():
                     raise RuntimeError(
                         "Fit save must remain disabled before an explicit row selection"
@@ -569,7 +586,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     raise RuntimeError(
                         "Fit save did not become ready after selection evidence was completed"
                     )
-                parameter_table.scroll_into_view_if_needed()
+                disclosure.locator(":scope > summary").click()
             if stage == "export":
                 _prepare_exact_target_preview(page)
             plot.wait_for(timeout=30_000)
@@ -606,10 +623,89 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
             )
             if stage == "fit":
                 page.get_by_role(
-                    "button", name="Save selected candidate", exact=True
+                    "button", name="Save fit & continue", exact=True
                 ).click()
                 page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
         page.context.close()
+
+
+def _measure_process_fit(page: Page, stage: str, width: int, height: int) -> dict[str, float]:
+    measurement = page.evaluate(
+        """() => {
+          const box = selector => document.querySelector(selector)?.getBoundingClientRect();
+          const svg = document.querySelector('.persistent-modeling-plot svg[role=img]');
+          const axis = [...(svg?.querySelectorAll('.chart-axis') ?? [])]
+            .find(line => line.getAttribute('x1') !== line.getAttribute('x2'))?.getBoundingClientRect();
+          const workspace = box('.modeling-split-workspace');
+          const rail = box('.modeling-workspace-rail');
+          const ribbon = box('.modeling-task-ribbon');
+          const plot = box('.persistent-modeling-plot');
+          const legend = box('.curve-legend');
+          const svgBox = svg?.getBoundingClientRect();
+          const axisLabels = [...(svg?.querySelectorAll('.chart-axis-label') ?? [])];
+          const xAxisLabel = axisLabels.at(-2)?.getBoundingClientRect();
+          return { svgHeight: svgBox?.height ?? 0, svgBottom: svgBox?.bottom ?? 0,
+            drawableRatio: workspace && axis ? axis.width / workspace.width : 0,
+            railWidth: rail?.width ?? 0, ribbonHeight: ribbon?.height ?? 0,
+            plotBottom: plot?.bottom ?? 0, xAxisLabelBottom: xAxisLabel?.bottom ?? 0,
+            legendBottom: legend?.bottom ?? 0, viewportHeight: window.innerHeight };
+        }"""
+    )
+    minimum = 330 if height == 768 else 430
+    if measurement["svgHeight"] < minimum or measurement["drawableRatio"] < 0.72:
+        raise RuntimeError(f"{stage} geometry gate failed at {width}x{height}: {measurement}")
+    if (measurement["svgBottom"] > measurement["plotBottom"] + 2.5
+            or measurement["xAxisLabelBottom"] > measurement["plotBottom"] + 1):
+        raise RuntimeError(f"{stage} axis is clipped at {width}x{height}: {measurement}")
+    if measurement["legendBottom"] > measurement["viewportHeight"]:
+        raise RuntimeError(f"{stage} legend is clipped at {width}x{height}: {measurement}")
+    return measurement
+
+
+def _capture_modeling_process_fit(browser: Browser, base_url: str, output: Path) -> list[dict[str, float]]:
+    measurements: list[dict[str, float]] = []
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _prepare_modeling(page, base_url)
+        page.locator('.workspace-command-bar').get_by_role('button', name='Process', exact=True).click()
+        page.locator('.modeling-work-title strong').get_by_text(
+            STAGE_HEADINGS['process'], exact=True
+        ).wait_for(timeout=30_000)
+        if page.locator('.modeling-stage-number:visible').count():
+            raise RuntimeError('Process/Fit capture received the retired numbered stage strip')
+        if page.locator('.stage-process > .section-heading:visible').count():
+            raise RuntimeError('Process capture received the retired duplicate workspace heading')
+        page.locator('.modeling-workspace-rail .rail-heading').get_by_text(
+            'Curves', exact=True
+        ).wait_for(timeout=30_000)
+        _capture(page, output / f'modeling-process-{width}x{height}.png', width, height)
+        measurements.append({'stage': 'process', 'viewport': f'{width}x{height}', **_measure_process_fit(page, 'process', width, height)})
+
+        page.locator('.workspace-command-bar').get_by_role('button', name='Fit', exact=True).click()
+        page.locator('.modeling-work-title strong').get_by_text(
+            STAGE_HEADINGS['fit'], exact=True
+        ).wait_for(timeout=30_000)
+        page.get_by_role('button', name='Preview changes', exact=True).click()
+        disclosure = page.locator('details.fit-evidence-disclosure')
+        disclosure.locator(':scope > summary').click()
+        table = page.get_by_role('table', name='Hardening candidate comparison')
+        table.wait_for(timeout=30_000)
+        if page.get_by_role('button', name='Save fit & continue', exact=True).count() != 1:
+            raise RuntimeError('Fit must expose one top-row Save fit & continue action')
+        table.get_by_role('button', name=re.compile(r'^Select .+ candidate$')).first.click()
+        page.get_by_role('textbox', name='Candidate selection reason').fill('Best agreement over the measured strain range.')
+        acknowledgement = page.get_by_role('checkbox', name='Acknowledge selected candidate warning')
+        if acknowledgement.count(): acknowledgement.check()
+        if page.get_by_role('button', name='Save fit & continue', exact=True).is_disabled():
+            raise RuntimeError('Fit selection did not enable the top-row save action')
+        disclosure.locator(':scope > summary').click()
+        _capture(page, output / f'modeling-fit-{width}x{height}.png', width, height)
+        measurements.append({
+            'stage': 'fit', 'viewport': f'{width}x{height}',
+            **_measure_process_fit(page, 'fit', width, height),
+        })
+        page.context.close()
+    return measurements
 
 
 def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Path) -> None:
@@ -641,12 +737,12 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
         )
         shell = page.get_by_role("navigation", name="Modeling workflow stages")
         shell.wait_for(timeout=30_000)
-        shell.get_by_role("button").nth(5).wait_for(timeout=30_000)
+        shell.get_by_role("button").nth(3).wait_for(timeout=30_000)
         shell_text = shell.inner_text()
-        for stage in ("Data", "Process", "Fit", "Validate", "Review / Release", "Export"):
+        for stage in ("Data", "Process", "Fit", "Export"):
             if stage not in shell_text:
                 raise RuntimeError(f"Modeling session shell is missing {stage}")
-        if "Data\nBlocked" not in shell_text or "Export\nBlocked" not in shell_text:
+        if "Data" not in shell_text or "Export" not in shell_text:
             raise RuntimeError(
                 "A new Modeling session must start pin-free with Data and Export blocked"
             )
@@ -764,6 +860,11 @@ def main() -> int:
         action="store_true",
         help="Capture and replace only the three Modeling Export viewports.",
     )
+    parser.add_argument(
+        "--only-modeling-process-fit",
+        action="store_true",
+        help="Capture and replace only the six Modeling Process/Fit viewports.",
+    )
     args = parser.parse_args()
 
     def produce(output: Path) -> None:
@@ -779,50 +880,44 @@ def main() -> int:
             finally:
                 browser.close()
 
-    if args.only_modeling_export:
+    if args.only_modeling_export or args.only_modeling_process_fit:
+        names = MODELING_EXPORT_OUTPUTS if args.only_modeling_export else MODELING_PROCESS_FIT_OUTPUTS
         args.output.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(
-            prefix=".modeling-export-capture-", dir=args.output.parent
+            prefix=".modeling-stage-capture-", dir=args.output.parent
         ) as temporary:
             staged = Path(temporary)
             with sync_playwright() as playwright:
                 browser = playwright.chromium.launch(headless=True)
                 try:
-                    _capture_modeling_export_only(
-                        browser, args.base_url, staged
-                    )
+                    measurements = (_capture_modeling_export_only(browser, args.base_url, staged)
+                        if args.only_modeling_export else _capture_modeling_process_fit(browser, args.base_url, staged))
                 finally:
                     browser.close()
             actual_outputs = {
                 path.name for path in staged.iterdir() if path.is_file()
             }
-            if actual_outputs != set(MODELING_EXPORT_OUTPUTS):
+            if actual_outputs != set(names):
                 raise RuntimeError(
-                    "targeted Export capture output drift: "
+                    "targeted Modeling capture output drift: "
                     f"actual={sorted(actual_outputs)}"
                 )
-            for name in MODELING_EXPORT_OUTPUTS:
+            for name in names:
                 image = staged / name
                 value = image.read_bytes()
                 if len(value) < 10_000 or value[:8] != PNG_SIGNATURE:
                     raise RuntimeError(
-                        f"targeted Export capture is not a plausible PNG: {name}"
+                        f"targeted Modeling capture is not a plausible PNG: {name}"
                     )
-            for name in MODELING_EXPORT_OUTPUTS:
+            for name in names:
                 os.replace(staged / name, args.output / name)
-        capture_count = len(MODELING_EXPORT_OUTPUTS)
+        capture_count = len(names)
     else:
         capture_count = _capture_to_empty_directory(args.output, produce)
-    print(
-        json.dumps(
-            {
-                "output": args.output.as_posix(),
-                "captures": capture_count,
-                "viewports": [f"{width}x{height}" for width, height in VIEWPORTS],
-            },
-            ensure_ascii=False,
-        )
-    )
+    result = {"output": args.output.as_posix(), "captures": capture_count,
+        "viewports": [f"{width}x{height}" for width, height in VIEWPORTS]}
+    if args.only_modeling_process_fit: result["measurements"] = measurements
+    print(json.dumps(result, ensure_ascii=False))
     return 0
 
 

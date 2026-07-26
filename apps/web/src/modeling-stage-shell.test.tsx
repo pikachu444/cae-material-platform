@@ -22,11 +22,11 @@ describe("ModelingStageShell", () => {
     const change = vi.fn();
     render(<ModelingStageShell session={session} activeStage="process" onStageChange={change} />);
 
-    expect(screen.getByRole("button", { name: /Data.*Complete.*Exact Test Data/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Fit.*Warning.*decision is not yet pinned/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Validate.*Blocked.*candidate-compatible validation adapter/i })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /Review \/ Release/ }));
-    expect(change).toHaveBeenCalledWith("review");
+    expect(screen.getByRole("button", { name: /Data.*Test data ready.*Exact Test Data/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Fit.*Choose a model.*decision is not yet pinned/i })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Validate|Review/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Export/ }));
+    expect(change).toHaveBeenCalledWith("export");
   });
 
   it("blocks Fit without a current Processing Output and warns only when that source exists", () => {
@@ -34,17 +34,17 @@ describe("ModelingStageShell", () => {
     const withoutProcessed = { ...session, processingOutput: undefined };
     const { rerender } = render(<ModelingStageShell session={withoutProcessed} activeStage="fit" onStageChange={change} />);
 
-    expect(screen.getByRole("button", { name: /Fit.*Blocked.*Save current processed curves/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Fit.*Choose a model.*Save current processed curves/i })).toBeTruthy();
     rerender(<ModelingStageShell session={session} activeStage="fit" onStageChange={change} />);
-    expect(screen.getByRole("button", { name: /Fit.*Warning.*decision is not yet pinned/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Fit.*Choose a model.*decision is not yet pinned/i })).toBeTruthy();
   });
 
   it("warns for a pinned exact Export source and completes only for a delivered artifact", () => {
     const change = vi.fn();
     const { rerender } = render(<ModelingStageShell session={session} activeStage="export" onStageChange={change} />);
 
-    expect(screen.getByRole("button", { name: /Export.*Warning.*Exact session source pinned/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Export.*Ready to create card.*Exact session source pinned/i })).toBeTruthy();
     rerender(<ModelingStageShell session={{ ...session, exportArtifact: { id: "artifact", revisionId: "artifact-r1", label: "Abaqus card", revisionNo: 1 } }} activeStage="export" onStageChange={change} />);
-    expect(screen.getByRole("button", { name: /Export.*Complete.*Delivered artifact r1/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Export.*Card ready.*Delivered artifact r1/i })).toBeTruthy();
   });
 });
