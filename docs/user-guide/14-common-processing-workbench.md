@@ -42,8 +42,11 @@ canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking po
 workup은 Metal elastoplastic Process에만 보이며 Fit, Polymer, Elastomer에는 노출하지 않습니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
 혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
 
-Process 단계 왼쪽 **Curve / specimen rail**은 **Include in processing/fit**와 **Show on plot**을
-분리합니다. 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
+Process/Fit 단계 왼쪽 **Test data** rail은 `N curves · N included` 요약 뒤에 specimen별 26 px tree 행을
+표시합니다. 각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
+바꿉니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
+짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Data, Validate, Review / Release와
+Export에는 표시하지 않습니다. 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
 공통 전처리만 적용되며, hardening이나 Prony 같은 모델 fitting 단계는 반복 실행하지 않습니다.

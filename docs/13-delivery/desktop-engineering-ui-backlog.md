@@ -284,7 +284,7 @@ Every slice must preserve:
    Validate and Review/Release remain explicit blocked placeholders pending UXC-05; API Processing
    Output does not expose a Material/State pin, so the normal Export surface does not claim an
    independent cross-resource provenance proof and blocks absent current session pins;
-10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence, Process curve rail, contextual workup, deterministic tests and current viewport evidence;
+10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence and contextual workup; the bounded UXC-03B correction replaces the generic two-line curve rail with compact exact-specimen rows in Process/Fit and removes the prohibited permanent Export rail and Mean/band controls;
 11. UXC-04 explicit Fit decision and model identity — implemented in the UXC-04 branch: null-by-default selection, separate recommendation and engineer selection, typed immutable Fit Decision, single/blend identity, actual server Prony term identity and exact downstream provenance. Final status requires current captures, reviewer sign-off and PR merge;
 12. UXC-05 Validate, Review and Release — current: normal Modeling can pin existing synthetic
     reference validation inputs and run/evaluate the supported non-production OpenRadioss path only

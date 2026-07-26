@@ -2073,6 +2073,11 @@
   min-height: 0;
 }
 
+.modeling-split-workspace-no-navigator .modeling-main-surface {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
 .modeling-main-surface.has-dock {
   grid-template-rows: auto minmax(360px, 1fr);
 }
@@ -2822,8 +2827,8 @@
 
 .modeling-dataset-list > article {
   display: grid;
-  align-items: stretch;
-  grid-template-columns: 28px 14px minmax(0, 1fr);
+  align-items: center;
+  grid-template-columns: 25px 10px 3px minmax(0, 1fr) 26px;
   min-width: 0;
 }
 
@@ -2834,7 +2839,7 @@
   background: var(--ux-accent-soft);
 }
 
-.modeling-dataset-list > article > button {
+.curve-row-label {
   min-width: 0;
   min-height: 26px;
   padding: 3px 6px 3px 2px;
@@ -2847,10 +2852,9 @@
 
 .curve-include-toggle {
   display: grid;
-  grid-template-columns: 1fr 3px;
-  align-items: center;
+  place-items: center;
   min-height: 26px;
-  padding: 0 3px 0 5px;
+  padding: 0;
   cursor: pointer;
 }
 
@@ -2859,7 +2863,7 @@
   accent-color: var(--ux-accent);
 }
 
-.curve-include-toggle .dataset-curve-swatch {
+.dataset-curve-swatch {
   display: block;
   background: hsl(calc(174deg + var(--curve-index, 0) * 42deg) 48% 43%);
   width: 3px;
@@ -2871,6 +2875,39 @@
   color: var(--ux-text-muted);
   font-size: 12px;
   line-height: 1;
+}
+
+.curve-visibility-toggle {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ux-text-muted);
+  cursor: pointer;
+}
+
+.curve-visibility-toggle svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.curve-visibility-toggle[aria-pressed="true"] {
+  color: var(--ux-accent);
+}
+
+.curve-row-label:focus-visible,
+.curve-visibility-toggle:focus-visible,
+.curve-include-toggle:focus-within {
+  outline: 2px solid var(--ux-focus);
+  outline-offset: -2px;
 }
 
 .rail-heading,
@@ -2947,21 +2984,44 @@
 }
 
 .configured-step-list > button > span:last-child,
-.modeling-dataset-list > article > button > span {
+.curve-row-label > span {
   display: grid;
   min-width: 0;
 }
 
-.modeling-dataset-list > article > button strong,
+.curve-row-label > span {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.curve-row-label strong,
 .configured-step-list > button strong {
   font-size: 12.5px;
   font-weight: 500;
   line-height: 18px;
 }
 
-.modeling-dataset-list > article > button small,
+.curve-row-label small,
 .configured-step-list > button small {
   display: none;
+}
+
+.curve-row-label strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.curve-row-label small {
+  display: inline;
+  flex: 0 0 auto;
+  margin-left: 0;
+  color: var(--ux-text-muted);
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .workspace-caption,

@@ -24,4 +24,20 @@ describe("ModelingWorkspaceLayout", () => {
     expect(screen.getByText("Persistent plot")).toBeTruthy();
     expect(screen.getByText("Export delivery")).toBeTruthy();
   });
+
+  it("reclaims the navigator region when a task does not supply one", () => {
+    const { container } = render(
+      <ModelingWorkspaceLayout
+        ribbon={<span>Export evidence</span>}
+        plot={<span>Persistent export plot</span>}
+        ribbonOpen={false}
+        onRibbonOpenChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Persistent export plot")).toBeTruthy();
+    expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();
+    expect(document.querySelector(".modeling-workspace-rail")).toBeNull();
+    expect(container.querySelector(".modeling-split-workspace-no-navigator .modeling-main-surface")).toBeTruthy();
+  });
 });
