@@ -560,6 +560,11 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("Curves")).toBeTruthy();
     expect(screen.getByText("2 curves · 2 included")).toBeTruthy();
     expect(screen.getByRole("region", { name: "Tensile tests" })).toBeTruthy();
+    expect(screen.queryByText("▾")).toBeNull();
+    expect(document.querySelector(".curve-group-row > span")).toBeNull();
+    const curveKey = document.querySelector(".dataset-curve-swatch");
+    expect(curveKey).toBeTruthy();
+    expect(curveKey?.className).toBe("dataset-curve-swatch");
     const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1");
     expect(curveRow.getAttribute("title")).toContain("DP600-TENSILE-01");
     const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });
