@@ -1287,6 +1287,99 @@
 .modeling-stage-placeholder p,
 .modeling-export-blocked p { max-width: 760px; margin: 0; color: var(--ux-text-muted); }
 
+.modeling-governance-stage {
+  display: grid;
+  gap: var(--ux-space-4);
+  min-height: 320px;
+  padding: var(--ux-space-4);
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface);
+}
+
+.modeling-governance-stage > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--ux-space-3);
+}
+
+.modeling-governance-stage h2,
+.modeling-governance-stage h3 { margin: 0; }
+.modeling-governance-stage h2 { font-size: 16px; }
+.modeling-governance-stage h3 { font-size: 14px; }
+.modeling-governance-stage > .muted { max-width: 800px; margin: 0; }
+
+.modeling-governance-ledger {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block: 1px solid var(--ux-border);
+}
+
+.modeling-governance-ledger li {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: var(--ux-space-3);
+  border-right: 1px solid var(--ux-border);
+}
+.modeling-governance-ledger li:last-child { border-right: 0; }
+.modeling-governance-ledger strong { font-size: 12px; }
+.modeling-governance-ledger span,
+.modeling-governance-stage small,
+.state-detail { color: var(--ux-text-muted); font-size: 12px; line-height: 1.4; }
+
+.modeling-governance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ux-space-4);
+}
+
+.modeling-governance-grid > section,
+.modeling-governance-review-block {
+  display: grid;
+  align-content: start;
+  gap: var(--ux-space-3);
+  min-width: 0;
+  padding: var(--ux-space-3);
+}
+.modeling-governance-grid > section + section { border-left: 1px solid var(--ux-border); }
+
+.modeling-governance-grid p,
+.modeling-governance-review-block p,
+.modeling-governance-block { margin: 0; color: var(--ux-text-muted); font-size: 13px; line-height: 1.45; }
+.modeling-governance-grid label { display: grid; gap: 4px; color: var(--ux-text-muted); font-size: 12px; }
+.modeling-governance-grid select { width: 100%; }
+.modeling-governance-review-block {
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--ux-border);
+}
+.modeling-governance-commands,
+.modeling-governance-links { display: flex; flex-wrap: wrap; gap: var(--ux-space-2); align-items: center; }
+
+@media (max-width: 1100px) {
+  .modeling-governance-ledger { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .modeling-governance-ledger li:nth-child(3) { border-right: 0; }
+  .modeling-governance-ledger li:nth-child(-n + 3) { border-bottom: 1px solid var(--ux-border); }
+}
+
+@media (max-width: 700px) {
+  .modeling-governance-stage > header,
+  .modeling-governance-grid,
+  .modeling-governance-ledger,
+  .modeling-governance-review-block { display: grid; grid-template-columns: 1fr; }
+  .modeling-governance-grid > section + section {
+    border-top: 1px solid var(--ux-border);
+    border-left: 0;
+  }
+  .modeling-governance-ledger li { border-right: 0; border-bottom: 1px solid var(--ux-border); }
+  .modeling-governance-ledger li:last-child { border-bottom: 0; }
+  .modeling-governance-commands,
+  .modeling-governance-links { display: grid; grid-template-columns: 1fr; }
+}
+
 @media (max-width: 900px) {
   .modeling-stage-shell { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .modeling-stage-shell button:nth-child(3) { border-right: 0; }

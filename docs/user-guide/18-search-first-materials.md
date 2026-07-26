@@ -192,11 +192,13 @@ Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합�
 
 ### Modeling 단계·해상도 검수 화면
 
-아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Export를
+아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Validate → Export를
 전환해 각 단계의 비동기 preview가 끝난 뒤 캡처했습니다. Data는 Library, Local file,
 Test Data JSON을 한 ribbon에서 고르고 등록 전에 같은 그래프로 확인합니다. Process는 원본과 선택
 단계를 겹쳐 보고 preview와 immutable output commit을 명시적으로 나눕니다. Fit은 네 candidate를
-한 표와 세 그래프 보기로 비교하고 명시적인 선택 결과 저장을 제공합니다. Export는 exact
+한 표와 세 그래프 보기로 비교하고 명시적인 선택 결과 저장을 제공합니다. Validate는 candidate-compatible
+adapter와 immutable review package가 없을 때 `Not supported`/`Not configured`로 닫히며 Fit을
+검증이나 승인으로 바꾸지 않습니다. Export는 exact
 Material State에서 Neutral, mapping preflight와 native-card 전달을 한 dock에 연결합니다.
 
 UXC-02 live Compose recapture는 New session의 pin-free Data-first 상태와, exact Test Data·Mapping
@@ -217,5 +219,6 @@ UXC-01 Materials Search 이미지는 web과 API를 같은 코드 커밋 `a486644
 | Data | ![Data 1366](images/current/modeling-data-1366x768.png) | ![Data 1440](images/current/modeling-data-1440x900.png) | ![Data 1920](images/current/modeling-data-1920x1080.png) |
 | Process | ![Process 1366](images/current/modeling-process-1366x768.png) | ![Process 1440](images/current/modeling-process-1440x900.png) | ![Process 1920](images/current/modeling-process-1920x1080.png) |
 | Fit | ![Fit 1366](images/current/modeling-fit-1366x768.png) | ![Fit 1440](images/current/modeling-fit-1440x900.png) | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
+| Validate / Review | ![Validate 1366](images/current/modeling-validation-1366x768.png) | ![Validate 1440](images/current/modeling-validation-1440x900.png) | ![Validate 1920](images/current/modeling-validation-1920x1080.png) |
 | Export | ![Export 1366](images/current/modeling-export-1366x768.png) | ![Export 1440](images/current/modeling-export-1440x900.png) | ![Export 1920](images/current/modeling-export-1920x1080.png) |
 | UXC-02 session shell | ![Session 1366](images/current/modeling-session-1366x768.png) | ![Session 1440](images/current/modeling-session-1440x900.png) | ![Session 1920](images/current/modeling-session-1920x1080.png) |

@@ -5,7 +5,7 @@
 서버가 반환한 각 처리 단계의 수치와 진단을 비교합니다.
 
 일반 사용자는 전역 **Modeling**(`/modeling`)에서 이 엔진을 사용합니다. 이 화면은
-`Data | Process | Fit | Export`, compact curve/process tree, 얕은 current-step settings ribbon과
+`Data | Process | Fit | Validate | Review / Release | Export`, compact curve/process tree, 얕은 current-step settings ribbon과
 Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같은 통합 Modeling 화면으로
 연결되는 기술 호환 route입니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
@@ -73,6 +73,27 @@ stale/clear하며 이전 immutable revision은 history에 남습니다.
    **Advanced Recipe JSON**의 **Ordered processing steps**를 엽니다.
 8. Graph 아래 stage history에서 `mapping` 또는 각 method를 선택해 동일한 축의 원본/처리 curve overlay와
    row 수, warning, SHA-256을 확인합니다.
+
+## Validate와 Review / Release
+
+**Validate**는 Fit 점수의 별칭이 아닙니다. Metal synthetic reference 경로에서도 현재
+selection ID와 server Material Model의 calibration-candidate evidence가 같고, session에 pin된 IR/Card의
+ID와 revision이 정확히 일치할 때만 Template과 Dataset Selection을 골라
+**Create pinned validation plan**을 누를 수 있습니다. 화면은 같은 Material State의 다른 model,
+목록 첫 항목이나 `latest`를 대신 선택하지 않습니다. common Processing Output 후보처럼 현재
+validation adapter가 없는 경우에는 `Not supported`를 표시합니다. 지원되는 exact reference chain에서는
+**Submit validation job**, **Collect and evaluate result**를 실행하면 별도 Validation Run/Result,
+holdout-independence, verdict가 나타납니다. plan만 있으면 `Not run`이며 원본 Fit metric은 계속
+`fit evidence only`로 남습니다. 브라우저 session은 Plan과 Result의 exact ID를 서로 다른 pointer로
+보존하고 다시 열 때 각각 조회하므로 Result가 Plan을 덮어쓰거나 `Not configured`로 되돌아가지 않습니다.
+
+**Review / Release**의 Submit, Request changes, Approve, Release는 서로 다른 상태입니다. 현재
+일반 Modeling path에는 immutable candidate-package digest producer와 release-policy input이 없으므로
+이 네 명령은 `Not configured` 또는 `Not run`으로 명시적으로 비활성화됩니다. 이 상태에서 UUID나
+SHA-256을 수동 입력하거나 Fit/Validation 결과를 승인으로 바꾸지 않습니다. **Open Activity context**는
+선택 candidate, validation result, solver card의 exact context를 전달하며, governed reference harness는
+관리/참조용으로만 사용합니다. Activity와 governance 화면은 이 query를 실제로 읽어 exact ID/revision을
+Evidence로 표시하고 현재 Validate 단계로 돌아가는 경로를 제공합니다.
 
 현재 등록된 공통 method는 다음과 같습니다.
 

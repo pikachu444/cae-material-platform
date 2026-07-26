@@ -68,4 +68,19 @@ describe("Activity Modeling resume", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open card" }));
     expect(navigate).toHaveBeenCalledWith("/materials/material-1/cards/card-1");
   });
+
+  it("reads exact validation context from the Modeling deep link", () => {
+    const navigate = vi.fn();
+    render(<ActivityPage
+      onNavigate={navigate}
+      locationSearch="?candidate_id=candidate-1&candidate_revision_id=candidate-r2&validation_result_id=result-3&solver_card_id=card-4&solver_card_revision_id=card-r5"
+    />);
+
+    const context = screen.getByRole("region", { name: "Exact Modeling governance context" });
+    expect(context.textContent).toContain("candidate-1 · revision candidate-r2");
+    expect(context.textContent).toContain("result-3");
+    expect(context.textContent).toContain("card-4 · revision card-r5");
+    fireEvent.click(screen.getByRole("button", { name: "Resume Validate" }));
+    expect(navigate).toHaveBeenCalledWith("/modeling?stage=validate&family=metal");
+  });
 });

@@ -319,8 +319,15 @@ Rules:
 
 - Data, Process, Fit, Validate, Review / Release and Export retain the same shell and selected session.
 - Graph does not disappear during Process/Fit stage changes.
-- Validate and Review / Release state their blocked policy prerequisite until UXC-05; they do not
-  relabel fit evidence as validation or approval.
+- Validate pins only engineer-selected exact synthetic reference artifacts after the current
+  selection, model calibration evidence and session IR/card revisions match. It records a separate
+  Validation Plan/Run/Result and labels an unrun plan `Not run`. A current candidate without a
+  compatible adapter (including the common Processing Output path today) says `Not supported`;
+  the UI never substitutes another model from the same State. Unavailable policy/package capability
+  says `Not configured`.
+- Review / Release shows Submit, Request changes, Approve and Release as separate states. It does
+  not enable a manual-ID normal path or invent an immutable package digest; until that producer and
+  release-policy input exist, the commands remain explicitly unavailable and retain exact Activity context.
 - Export has no global-output fallback. It remains blocked when the current session lacks an exact
   Material, State, Test Data or Processing Output pin.
 - JSON editing is not required for the normal path.
