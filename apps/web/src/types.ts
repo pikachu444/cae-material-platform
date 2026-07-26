@@ -4003,6 +4003,39 @@ export interface CommonProcessingOutputResponse {
   output_artifact_id: string;
   output_sha256: string;
   workup_overrides: CommonProcessingWorkupOverride[];
+  fit_decision: CommonProcessingFitDecision | null;
+}
+
+export interface CommonProcessingFitDecisionParameter {
+  name: string;
+  value: number;
+  unit: string;
+  lower: number | null;
+  upper: number | null;
+}
+
+export interface CommonProcessingFitDecisionParameterSet {
+  law: string;
+  parameters: CommonProcessingFitDecisionParameter[];
+}
+
+export interface CommonProcessingFitDecision {
+  candidate_key: string;
+  mode: "single" | "blend";
+  primary_law: string;
+  secondary_law: string | null;
+  primary_weight: number | null;
+  parameter_sets: CommonProcessingFitDecisionParameterSet[];
+  fit_minimum: number;
+  fit_maximum: number;
+  extrapolation_maximum: number | null;
+  extrapolation_policy: string;
+  metric_definition: string;
+  metric_value: number;
+  requested_term_policy: string | null;
+  actual_term_count: number | null;
+  selection_reason: string;
+  warning_acknowledged: boolean;
 }
 
 export interface CommonProcessingWorkupOverride {

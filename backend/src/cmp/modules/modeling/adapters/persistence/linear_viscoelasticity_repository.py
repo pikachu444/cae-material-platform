@@ -22,6 +22,9 @@ from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticRepository,
 )
 from cmp.modules.modeling.application.service import MATERIAL_MODEL_AGGREGATE_TYPE, RevisionSnapshot
+from cmp.modules.modeling.domain.fit_decision_evidence import (
+    fit_decision_evidence_from_canonical,
+)
 from cmp.modules.modeling.domain.reference_linear_viscoelasticity import (
     REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID,
     BulkRelaxationStatus,
@@ -93,6 +96,7 @@ linear_viscoelastic_processing_evidence_table = sa.Table(
     sa.Column("catalog_instantaneous_shear_modulus_pa", sa.Double(), nullable=False),
     sa.Column("instantaneous_modulus_relative_mismatch", sa.Double(), nullable=False),
     sa.Column("acknowledged_maximum_relative_mismatch", sa.Double(), nullable=False),
+    sa.Column("fit_decision_evidence", sa.JSON(), nullable=True),
     sa.Column("processing_recipe_id", sa.Uuid(), nullable=True),
     sa.Column("processing_recipe_revision_id", sa.Uuid(), nullable=True),
     sa.Column("processing_recipe_sha256", sa.CHAR(64), nullable=True),
@@ -252,6 +256,9 @@ def _write_terms(
                 ),
                 acknowledged_maximum_relative_mismatch=(
                     evidence.acknowledged_maximum_relative_mismatch
+                ),
+                fit_decision_evidence=(
+                    evidence.fit_decision.canonical() if evidence.fit_decision else None
                 ),
                 processing_recipe_id=(
                     evidence.recipe_batch.recipe_id if evidence.recipe_batch else None
@@ -535,6 +542,9 @@ class SqlAlchemyLinearViscoelasticRepository(LinearViscoelasticRepository):
             ),
             acknowledged_maximum_relative_mismatch=float(
                 value["acknowledged_maximum_relative_mismatch"]
+            ),
+            fit_decision=fit_decision_evidence_from_canonical(
+                value["fit_decision_evidence"]
             ),
             recipe_batch=(
                 ReferenceRecipeBatchEvidence(

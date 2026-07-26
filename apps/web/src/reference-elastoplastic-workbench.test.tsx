@@ -351,6 +351,37 @@ describe("Reference elastoplastic workbench", () => {
       final_point_count: 21,
       output_artifact_id: "a1000000-0000-4000-8000-000000000036",
       output_sha256: "4".repeat(64),
+      fit_decision: {
+        candidate_key: "swift+voce",
+        mode: "blend",
+        primary_law: "swift",
+        secondary_law: "voce",
+        primary_weight: 0.5,
+        parameter_sets: [
+          {
+            law: "swift",
+            parameters: [
+              { name: "strength_coefficient", value: 500_000_000, unit: "Pa", lower: 0, upper: 1_000_000_000 },
+            ],
+          },
+          {
+            law: "voce",
+            parameters: [
+              { name: "saturation_stress", value: 600_000_000, unit: "Pa", lower: 0, upper: 1_000_000_000 },
+            ],
+          },
+        ],
+        fit_minimum: 0.0001,
+        fit_maximum: 0.2,
+        extrapolation_maximum: 0.5,
+        extrapolation_policy: "bounded",
+        metric_definition: "relative_rmse",
+        metric_value: 0.012,
+        requested_term_policy: null,
+        actual_term_count: null,
+        selection_reason: "Reviewed the selected Swift and Voce blend.",
+        warning_acknowledged: true,
+      },
     };
     const processedModel = modelFixture();
     Object.assign(processedModel.current_revision.content, {
@@ -486,7 +517,10 @@ describe("Reference elastoplastic workbench", () => {
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create Neutral Material JSON" }));
     expect(await screen.findByRole("button", { name: "Download Neutral JSON r1" })).toBeTruthy();
-    resolveHistoricalCandidates?.(jsonResponse({ items: [] }));
+    const releaseHistoricalCandidates = resolveHistoricalCandidates as
+      | ((response: Response) => void)
+      | null;
+    releaseHistoricalCandidates?.(jsonResponse({ items: [] }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Download Neutral JSON r1" })).toBeTruthy();
     });

@@ -189,8 +189,13 @@
           "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]}
         },
         "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
-        "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
-        "primary_weight": {"type": "number", "minimum": 0, "maximum": 1},
+        "secondary_family": {
+          "type": ["string", "null"],
+          "enum": ["voce", "swift", "hockett_sherby", "ghosh", null]
+        },
+        "primary_weight": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "fit_decision": {"$ref": "../processing/common-processing-resources.schema.json#/$defs/FitDecision"},
+        "fit_decision_digest": {"$ref": "#/$defs/Sha256"},
         "warnings": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
       }
     },
@@ -218,6 +223,8 @@
         "catalog_instantaneous_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
         "instantaneous_modulus_relative_mismatch": {"type": "number", "minimum": 0},
         "acknowledged_maximum_relative_mismatch": {"type": "number", "minimum": 0, "maximum": 1},
+        "fit_decision": {"$ref": "../processing/common-processing-resources.schema.json#/$defs/FitDecision"},
+        "fit_decision_digest": {"$ref": "#/$defs/Sha256"},
         "warnings": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 160}}
       }
     },
@@ -378,8 +385,13 @@
       "properties": {
         "candidate_families": {"type": "array", "minItems": 2, "maxItems": 4, "uniqueItems": true, "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]}},
         "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
-        "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
-        "primary_weight": {"type": "number", "minimum": 0, "maximum": 1}
+        "secondary_family": {
+          "type": ["string", "null"],
+          "enum": ["voce", "swift", "hockett_sherby", "ghosh", null]
+        },
+        "primary_weight": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "fit_decision": {"$ref": "../processing/common-processing-resources.schema.json#/$defs/FitDecision"},
+        "fit_decision_digest": {"$ref": "#/$defs/Sha256"}
       }
     },
     "PaParameter": {
@@ -405,6 +417,8 @@
           "type": "object", "additionalProperties": false, "required": ["value", "unit"],
           "properties": {"value": {"type": "number", "exclusiveMinimum": 0}, "unit": {"const": "K"}}
         },
+        "fit_decision": {"$ref": "../processing/common-processing-resources.schema.json#/$defs/FitDecision"},
+        "fit_decision_digest": {"$ref": "#/$defs/Sha256"},
         "maturity": {"const": "reference"},
         "non_production": {"const": true}
       }

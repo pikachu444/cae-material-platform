@@ -104,11 +104,23 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 `secondary_family`, `primary_weight`가 선택 조합을 완전히 정의합니다. 결과의 **Scalar results**에는
 후보별 RMSE와 parameter lower/initial/fitted/upper가 표시되므로 숨은 초기값이나 경계가 없습니다.
 
-**Stress response**에서 observed plastic workup과 네 candidate, 선택 blend를 비교합니다. **Residual**은
+**Stress response**에서 observed plastic workup, 네 single-law candidate, 현재 계산된 preview blend를 비교합니다. 선택 전 graph는
+`Preview blend`로 표시되며 engineer selection으로 오해할 수 없습니다. **Residual**은
 선택 fit domain에서 `predicted - observed`를, **Tangent modulus**는 후보별 수치 미분을 보여줍니다.
 황색 배경과 점선의 `EXTRAPOLATED · UNOBSERVED` 영역은 시험 관측값이 아닙니다. 상단 RMSE strip에서
-후보를 비교하고 오른쪽 **Fit evidence**에서 parameter와 lower/upper bound를 펼쳐 봅니다. 후보를
-선택하고 blend ratio를 조정한 뒤 **Selection reason**을 작성해야 검토 근거가 Recipe에 남습니다.
+후보를 비교하고 **Fit evidence**에서 parameter와 lower/upper bound를 펼쳐 봅니다. 추천 표시는
+계산 결과일 뿐 선택이 아닙니다. 반드시 candidate 행의 **Select candidate**를 누른 뒤
+**Selection reason**을 작성하고, 해당 행에 경고가 있을 때만 acknowledgement를 선택합니다.
+**Update candidates**가 새 계산에 성공하면 이전 행 선택과 reason은 자동으로 해제됩니다. 이미 저장한
+Fit Output을 current로 가리키던 pointer도 새 행을 고르는 순간 해제되므로, 다시 선택·저장하기 전에는
+이전 output이 Export fallback으로 사용되지 않습니다.
+금속 blend는 candidate table의 **Calculated preview blend** 행에서만 명시적으로 선택합니다. preview 설정에서
+두 law 또는 ratio를 바꿨다면 먼저 **Update candidates**로 다시 계산해야 하며, 선택 이후에는 두 law 이름,
+ratio, 두 parameter set을 하나의 decision identity로 보존합니다. single-law 행을 선택하면 graph도 그 law를
+`Selected`로 표시하며 계산된 blend를 선택으로 가장하지 않습니다.
+폴리머는 요청한 term policy가 아니라 server가 실제 산출한 term-count 행만 선택할 수 있습니다.
+**Save selected candidate**는 이 decision을 immutable Processing Output에 저장하며, 저장 전에는
+Material Model IR이나 Neutral Material로 승격할 수 없습니다.
 
 
 

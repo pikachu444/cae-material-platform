@@ -7,6 +7,17 @@ export default defineConfig(({ mode }) => {
   const apiTarget = environment.VITE_CMP_API_TARGET ?? "http://127.0.0.1:8000";
   return {
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.endsWith("/engineering-curve-plot.tsx")) {
+              return "engineering-curve-plot";
+            }
+          },
+        },
+      },
+    },
     server: {
       proxy: {
         "/api": {

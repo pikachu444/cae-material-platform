@@ -22,6 +22,10 @@ from cmp.modules.identity_access.domain.authorization import (
     Permission,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.modeling.application.fit_decision_evidence import (
+    modeling_fit_decision_evidence,
+    selected_hardening_quantity,
+)
 from cmp.modules.modeling.application.service import (
     MATERIAL_MODEL_AGGREGATE_TYPE,
     MaterialModelService,
@@ -383,6 +387,11 @@ class TabulatedPlasticityModelService:
         output, output_bytes = await self._processing_outputs.export_exact(
             context, decision, command.processing_output_id, command.processing_output_revision_id
         )
+        fit_decision = output.content.fit_decision
+        if fit_decision is None or fit_decision.mode not in {"single", "blend"}:
+            raise TabulatedPlasticityConflict(
+                "Processing Output requires an explicit saved fit decision"
+            )
         if output.current.scope.classification != properties.classification.value:
             raise TabulatedPlasticityConflict("Processing Output and Property Set scopes differ")
         try:
@@ -398,7 +407,7 @@ class TabulatedPlasticityModelService:
                 raise KeyError("final method")
             series = {item["quantity"]: item for item in stage["series"]}
             strains = series["strain.true_plastic"]
-            stresses = series["stress.hardening.selected"]
+            stresses = series[selected_hardening_quantity(fit_decision)]
             if strains["unit"] != "1" or stresses["unit"] != "Pa":
                 raise KeyError("units")
             points = tuple(
@@ -409,14 +418,17 @@ class TabulatedPlasticityModelService:
             )
             if len(points) != output.content.final_point_count:
                 raise KeyError("point count")
-            options = step.options
-            families = tuple(str(item) for item in options["families"])
-            fit_minimum = float(options["fit_minimum_strain"])
-            fit_maximum = float(options["fit_maximum_strain"])
-            extension_maximum = float(options["extrapolation_maximum_strain"])
-            primary = str(options["primary_family"])
-            secondary = str(options["secondary_family"])
-            weight = float(options["primary_weight"])
+            families = tuple(str(item) for item in step.options["families"])
+            fit_minimum = fit_decision.fit_minimum
+            fit_maximum = fit_decision.fit_maximum
+            extension_maximum = fit_decision.extrapolation_maximum
+            primary = fit_decision.primary_law
+            secondary = fit_decision.secondary_law
+            weight = fit_decision.primary_weight
+            if extension_maximum is None or (
+                fit_decision.mode == "blend" and (secondary is None or weight is None)
+            ):
+                raise KeyError("saved fit decision")
         except (KeyError, TypeError, ValueError) as error:
             raise TabulatedPlasticityConflict(
                 "Processing Output does not retain the required selected hardening contract"
@@ -487,6 +499,7 @@ class TabulatedPlasticityModelService:
             applicable_strain_rate_min_per_s=source.applicable_strain_rate_min_per_s,
             applicable_strain_rate_max_per_s=source.applicable_strain_rate_max_per_s,
             applicability_note=source.applicability_note,
+            fit_decision=modeling_fit_decision_evidence(fit_decision),
             recipe_batch=(
                 ReferenceProcessedRecipeBatchEvidence(
                     recipe_id=execution_origin.recipe_id,

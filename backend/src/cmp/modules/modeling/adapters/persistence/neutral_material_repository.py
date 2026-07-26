@@ -133,6 +133,7 @@ neutral_material_revision_table = sa.Table(
     sa.Column("primary_family", sa.String(64), nullable=True),
     sa.Column("secondary_family", sa.String(64), nullable=True),
     sa.Column("primary_weight", sa.Double(), nullable=True),
+    sa.Column("fit_decision_evidence", sa.JSON(), nullable=True),
     sa.Column("prony_selection_mode", sa.String(32), nullable=True),
     sa.Column("prony_selected_term_count", sa.Integer(), nullable=True),
     sa.Column("prony_normalized_rmse", sa.Double(), nullable=True),
@@ -263,6 +264,15 @@ def _content_values(content: NeutralMaterialRevisionContent) -> dict[str, Any]:
         "maturity": material_ir.maturity.value,
         "non_production": material_ir.non_production,
         "model_family": material_ir.family.value,
+        "fit_decision_evidence": (
+            selection.fit_decision.canonical()
+            if isinstance(
+                selection,
+                (NeutralProcessingSelection, NeutralPronyProcessingSelection),
+            )
+            and selection.fit_decision is not None
+            else None
+        ),
     }
     if isinstance(selection, NeutralCandidateSelection):
         values.update(

@@ -670,6 +670,7 @@ def test_metal_processing_output_is_split_into_observed_and_extrapolated_evidenc
         value,
         dataset_revision_id=IDS[4],
         characterized_maximum=0.2,
+        selected_quantity="stress.hardening.selected",
     )
 
     assert tuple(item.stage for item in curves) == (
@@ -680,6 +681,46 @@ def test_metal_processing_output_is_split_into_observed_and_extrapolated_evidenc
     )
     assert curves[2].x == (0.0, 0.1, 0.2)
     assert curves[3].x == (0.3,)
+
+
+def test_metal_single_law_decision_uses_its_curve_instead_of_preview_blend() -> None:
+    stages = [
+        {
+            "series": [
+                {"quantity": "strain.engineering", "values": [0.0, 0.1, 0.2]},
+                {"quantity": "stress.engineering", "values": [0.0, 400e6, 500e6]},
+            ]
+        },
+        {
+            "series": [
+                {"quantity": "strain.true_plastic", "values": [0.0, 0.08, 0.16]},
+                {"quantity": "stress.true", "values": [350e6, 480e6, 600e6]},
+            ]
+        },
+        {
+            "series": [
+                {"quantity": "strain.true_plastic", "values": [0.0, 0.1, 0.2, 0.3]},
+                {
+                    "quantity": "stress.hardening.swift",
+                    "values": [350e6, 540e6, 680e6, 760e6],
+                },
+                {
+                    "quantity": "stress.hardening.selected",
+                    "values": [350e6, 520e6, 650e6, 720e6],
+                },
+            ]
+        },
+    ]
+
+    curves = _metal_curves(
+        json.dumps({"result": {"stages": stages}}).encode(),
+        dataset_revision_id=IDS[4],
+        characterized_maximum=0.2,
+        selected_quantity="stress.hardening.swift",
+    )
+
+    assert curves[2].y == (350e6, 540e6, 680e6)
+    assert curves[3].y == (760e6,)
 
 
 @pytest.mark.parametrize("family", tuple(HyperelasticFamily))

@@ -96,9 +96,14 @@
           "items": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]}
         },
         "primary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
-        "secondary_family": {"enum": ["voce", "swift", "hockett_sherby", "ghosh"]},
-        "primary_weight": {"type": "number", "minimum": 0, "maximum": 1},
-        "fit_minimum_true_plastic_strain": {"type": "number", "minimum": 0}
+        "secondary_family": {
+          "type": ["string", "null"],
+          "enum": ["voce", "swift", "hockett_sherby", "ghosh", null]
+        },
+        "primary_weight": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "fit_minimum_true_plastic_strain": {"type": "number", "minimum": 0},
+        "fit_decision": {"$ref": "../processing/common-processing-resources.schema.json#/$defs/FitDecision"},
+        "fit_decision_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
       },
       "required": [
         "output_id", "output_revision_id", "output_sha256", "source_test_data_id",

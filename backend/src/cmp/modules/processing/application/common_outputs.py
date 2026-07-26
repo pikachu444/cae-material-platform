@@ -21,8 +21,10 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.mapping_profiles import MappingProfileService
 from cmp.modules.processing.domain.common_pipeline import (
     CommonPipelineError,
+    CurveStage,
     ProcessingPreview,
     ProcessingStep,
+    ScalarResult,
     preview_pipeline,
     processing_preview_canonical,
 )
@@ -37,10 +39,24 @@ from cmp.shared.domain.revisions import (
     canonical_json_bytes,
 )
 
+__all__ = ["CommonPipelineError"]
+
 PROCESSING_OUTPUT_AGGREGATE_TYPE = "processing.common_output"
-PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.1.0"
-PROCESSING_OUTPUT_SCHEMA_VERSION = "1.1.0"
+PROCESSING_OUTPUT_SCHEMA_ID = "urn:cmp:processing:common-output:1.2.0"
+PROCESSING_OUTPUT_SCHEMA_VERSION = "1.2.0"
 PROCESSING_OUTPUT_MEDIA_TYPE = "application/vnd.cmp.processing-output+json"
+
+
+def _bounded_trimmed_text(name: str, value: str, limit: int = 160) -> None:
+    if (
+        not value
+        or value != value.strip()
+        or len(value) > limit
+        or "\x00" in value
+    ):
+        raise CommonPipelineError(
+            f"{name} must be trimmed and contain 1..{limit} characters"
+        )
 
 
 class ProcessingOutputNotFound(CommonPipelineError):
@@ -89,6 +105,125 @@ class ProcessingWorkupOverride:
             )
 
 
+@dataclass(frozen=True, slots=True)
+class FitDecisionParameter:
+    name: str
+    value: float
+    unit: str
+    lower: float | None = None
+    upper: float | None = None
+
+    def __post_init__(self) -> None:
+        _bounded_trimmed_text("fit-decision parameter name", self.name)
+        _bounded_trimmed_text("fit-decision parameter unit", self.unit)
+        if not math.isfinite(self.value):
+            raise CommonPipelineError("fit-decision parameter values must be finite")
+        if self.lower is not None and (not math.isfinite(self.lower) or self.lower > self.value):
+            raise CommonPipelineError("fit-decision parameter lower bound is invalid")
+        if self.upper is not None and (not math.isfinite(self.upper) or self.upper < self.value):
+            raise CommonPipelineError("fit-decision parameter upper bound is invalid")
+
+
+@dataclass(frozen=True, slots=True)
+class FitDecisionParameterSet:
+    law: str
+    parameters: tuple[FitDecisionParameter, ...]
+
+    def __post_init__(self) -> None:
+        _bounded_trimmed_text("fit-decision parameter-set law", self.law)
+        if not self.parameters:
+            raise CommonPipelineError("fit-decision parameter sets require a law and parameters")
+        if len({parameter.name for parameter in self.parameters}) != len(self.parameters):
+            raise CommonPipelineError("fit-decision parameter names must be unique per law")
+
+
+@dataclass(frozen=True, slots=True)
+class FitDecisionSnapshot:
+    """Immutable, human-selected fit identity; never a recipe default or recommendation."""
+
+    candidate_key: str
+    mode: Literal["single", "blend"]
+    primary_law: str
+    secondary_law: str | None
+    primary_weight: float | None
+    parameter_sets: tuple[FitDecisionParameterSet, ...]
+    fit_minimum: float
+    fit_maximum: float
+    extrapolation_maximum: float | None
+    extrapolation_policy: str
+    metric_definition: str
+    metric_value: float
+    requested_term_policy: str | None
+    actual_term_count: int | None
+    selection_reason: str
+    warning_acknowledged: bool
+
+    def __post_init__(self) -> None:
+        _bounded_trimmed_text("fit-decision candidate key", self.candidate_key)
+        _bounded_trimmed_text("fit-decision primary law", self.primary_law)
+        _bounded_trimmed_text(
+            "fit-decision extrapolation policy", self.extrapolation_policy
+        )
+        _bounded_trimmed_text("fit-decision metric definition", self.metric_definition)
+        if self.secondary_law is not None:
+            _bounded_trimmed_text("fit-decision secondary law", self.secondary_law)
+        if self.requested_term_policy is not None:
+            _bounded_trimmed_text(
+                "fit-decision requested term policy", self.requested_term_policy
+            )
+        if (
+            not all(
+                math.isfinite(value)
+                for value in (self.fit_minimum, self.fit_maximum, self.metric_value)
+            )
+            or self.fit_minimum >= self.fit_maximum
+        ):
+            raise CommonPipelineError("fit-decision fit range or metric is invalid")
+        if self.extrapolation_maximum is not None and (
+            not math.isfinite(self.extrapolation_maximum)
+            or self.extrapolation_maximum < self.fit_maximum
+        ):
+            raise CommonPipelineError("fit-decision extrapolation maximum is invalid")
+        _bounded_trimmed_text(
+            "fit-decision selection reason", self.selection_reason, 2000
+        )
+        if self.mode == "single":
+            if (
+                self.secondary_law is not None
+                or self.primary_weight is not None
+                or len(self.parameter_sets) != 1
+            ):
+                raise CommonPipelineError(
+                    "single-law fit decision must have one parameter set and no blend fields"
+                )
+        else:
+            if (
+                not self.secondary_law
+                or self.secondary_law == self.primary_law
+                or self.primary_weight is None
+                or not 0 < self.primary_weight < 1
+                or len(self.parameter_sets) != 2
+            ):
+                raise CommonPipelineError(
+                    "blend fit decision requires distinct laws, ratio, and both parameter sets"
+                )
+        expected_laws = (
+            (self.primary_law,)
+            if self.mode == "single"
+            else (self.primary_law, str(self.secondary_law))
+        )
+        if tuple(item.law for item in self.parameter_sets) != expected_laws:
+            raise CommonPipelineError(
+                "fit-decision parameter sets must follow the selected law identity"
+            )
+        if self.actual_term_count is not None and (
+            not 1 <= self.actual_term_count <= 10 or self.mode != "single"
+        ):
+            raise CommonPipelineError(
+                "actual polymer term count requires a single-law fit decision"
+            )
+
+
 def validate_workup_overrides(
     steps: tuple[ProcessingStep, ...],
     overrides: tuple[ProcessingWorkupOverride, ...],
@@ -125,6 +260,209 @@ def validate_workup_overrides(
         manual_necking[0] if manual_necking else None,
         by_kind.get("necking_boundary"),
     )
+
+
+_FIT_METHODS = {
+    "metal.hardening_fit_extrapolate",
+    "polymer.prony_fit_compare",
+    "polymer.dma_prony_fit_compare",
+}
+
+
+def validate_fit_decision(
+    steps: tuple[ProcessingStep, ...],
+    preview: ProcessingPreview,
+    decision: FitDecisionSnapshot | None,
+) -> None:
+    """Bind a saved decision to the just-recomputed candidate stage, never UI labels."""
+
+    matches = [
+        (ordinal, step)
+        for ordinal, step in enumerate(steps, start=1)
+        if step.method_id in _FIT_METHODS
+    ]
+    if not matches:
+        if decision is not None:
+            raise CommonPipelineError("fit decision is only allowed when committing a fit step")
+        return
+    if len(matches) != 1:
+        raise CommonPipelineError("a Processing Output may commit exactly one fit step")
+    if decision is None:
+        raise CommonPipelineError(
+            "a Processing Output with a fit step requires an explicit fit decision"
+        )
+    ordinal, step = matches[0]
+    stage = preview.stages[ordinal]
+    scalar = {item.key: item for item in stage.scalar_results}
+    if step.method_id == "metal.hardening_fit_extrapolate":
+        _validate_metal_fit_decision(step, scalar, decision)
+    else:
+        _validate_polymer_fit_decision(
+            step, stage, preview.independent_quantity, decision
+        )
+
+
+def _same_fit_value(actual: float, expected: float, label: str) -> None:
+    if not math.isclose(actual, expected, rel_tol=1e-10, abs_tol=1e-10):
+        raise CommonPipelineError(f"fit decision {label} differs from recomputed fit evidence")
+
+
+def _option_number(step: ProcessingStep, key: str) -> float:
+    value = step.options.get(key)
+    return _finite_number(value, key)
+
+
+def _validate_metal_fit_decision(
+    step: ProcessingStep, scalar: dict[str, ScalarResult], decision: FitDecisionSnapshot
+) -> None:
+    families = tuple(str(item) for item in step.options.get("families", []))
+    primary = str(step.options.get("primary_family", ""))
+    secondary = str(step.options.get("secondary_family", ""))
+    weight = _option_number(step, "primary_weight")
+    if decision.primary_law not in families:
+        raise CommonPipelineError("fit decision primary law is not a recomputed candidate")
+    if decision.mode == "single":
+        if decision.candidate_key != decision.primary_law:
+            raise CommonPipelineError("single-law fit decision key must identify its selected law")
+        laws: tuple[str, ...] = (decision.primary_law,)
+    else:
+        if decision.primary_law != primary or decision.secondary_law != secondary:
+            raise CommonPipelineError("blend decision laws differ from the executed fit")
+        if decision.candidate_key != f"{primary}+{secondary}":
+            raise CommonPipelineError("blend decision key must identify both selected laws")
+        if decision.primary_weight is None:
+            raise CommonPipelineError("blend decision requires a primary ratio")
+        _same_fit_value(decision.primary_weight, weight, "blend ratio")
+        laws = (primary, secondary)
+    _same_fit_value(decision.fit_minimum, _option_number(step, "fit_minimum_strain"), "minimum")
+    _same_fit_value(decision.fit_maximum, _option_number(step, "fit_maximum_strain"), "maximum")
+    if decision.extrapolation_maximum is None:
+        raise CommonPipelineError("metal fit decision requires an extrapolation maximum")
+    _same_fit_value(
+        float(decision.extrapolation_maximum),
+        _option_number(step, "extrapolation_maximum_strain"),
+        "extrapolation maximum",
+    )
+    if decision.extrapolation_policy != "bounded":
+        raise CommonPipelineError("metal fit decision extrapolation policy must be bounded")
+    if len(decision.parameter_sets) != len(laws):
+        raise CommonPipelineError("fit decision parameter sets do not match selected metal laws")
+    for parameter_set, law in zip(decision.parameter_sets, laws, strict=True):
+        if parameter_set.law != law:
+            raise CommonPipelineError("fit decision parameter-set law differs from selected law")
+        expected_parameter_names = {
+            key.removeprefix(f"{law}.parameter.")
+            for key in scalar
+            if key.startswith(f"{law}.parameter.")
+            and not key.endswith((".lower", ".upper", ".initial"))
+        }
+        supplied_parameter_names = {parameter.name for parameter in parameter_set.parameters}
+        if supplied_parameter_names != expected_parameter_names:
+            raise CommonPipelineError(
+                "fit decision parameter set is incomplete or contains unknown parameters"
+            )
+        for parameter in parameter_set.parameters:
+            item = scalar.get(f"{law}.parameter.{parameter.name}")
+            lower = scalar.get(f"{law}.parameter.{parameter.name}.lower")
+            upper = scalar.get(f"{law}.parameter.{parameter.name}.upper")
+            if not item or not lower or not upper:
+                raise CommonPipelineError(
+                    "fit decision parameter is not present in recomputed evidence"
+                )
+            if parameter.lower is None or parameter.upper is None:
+                raise CommonPipelineError("metal fit decision parameters require recomputed bounds")
+            _same_fit_value(parameter.value, item.value, parameter.name)
+            _same_fit_value(float(parameter.lower), lower.value, parameter.name)
+            _same_fit_value(float(parameter.upper), upper.value, parameter.name)
+    metric = scalar.get(f"{decision.primary_law}.relative_rmse")
+    if not metric or decision.metric_definition != "relative_rmse":
+        raise CommonPipelineError(
+            "fit decision metric definition is not the recomputed metal objective"
+        )
+    _same_fit_value(decision.metric_value, metric.value, "metric")
+
+
+def _validate_polymer_fit_decision(
+    step: ProcessingStep,
+    stage: CurveStage,
+    independent_quantity: str,
+    decision: FitDecisionSnapshot,
+) -> None:
+    scalar = {item.key: item for item in stage.scalar_results}
+    actual = scalar.get("prony_selected_term_count")
+    if not actual:
+        raise CommonPipelineError(
+            "recomputed polymer fit did not produce an actual selected term count"
+        )
+    if not float(actual.value).is_integer():
+        raise CommonPipelineError(
+            "recomputed polymer fit produced a non-integer selected term count"
+        )
+    actual_count = int(actual.value)
+    if decision.mode != "single" or decision.primary_law != "generalized_maxwell":
+        raise CommonPipelineError(
+            "polymer fit decision must identify one generalized-Maxwell result"
+        )
+    if (
+        decision.actual_term_count != actual_count
+        or decision.candidate_key != f"prony:{actual_count}"
+    ):
+        raise CommonPipelineError(
+            "polymer decision must use the server-selected term result identity"
+        )
+    if decision.requested_term_policy != str(step.options.get("selection_mode")):
+        raise CommonPipelineError(
+            "polymer requested term policy differs from executed input intent"
+        )
+    if (
+        decision.extrapolation_policy != "observed_only"
+        or decision.extrapolation_maximum is not None
+    ):
+        raise CommonPipelineError("polymer decision must retain the observed-only range policy")
+    independent = next(
+        (item for item in stage.series if item.quantity == independent_quantity),
+        None,
+    )
+    if independent is None or len(independent.values) < 2:
+        raise CommonPipelineError(
+            "polymer decision requires the recomputed observed independent range"
+        )
+    _same_fit_value(decision.fit_minimum, min(independent.values), "minimum")
+    _same_fit_value(decision.fit_maximum, max(independent.values), "maximum")
+    expected_parameter_keys = (
+        "prony_equilibrium_modulus",
+        *(
+            key
+            for ordinal in range(1, actual_count + 1)
+            for key in (
+                f"prony_g_ratio_{ordinal}",
+                f"prony_relaxation_time_{ordinal}",
+            )
+        ),
+    )
+    parameter_set = decision.parameter_sets[0]
+    supplied = {parameter.name: parameter for parameter in parameter_set.parameters}
+    if set(supplied) != set(expected_parameter_keys):
+        raise CommonPipelineError(
+            "polymer decision parameters differ from the actual server result"
+        )
+    for key in expected_parameter_keys:
+        evidence = scalar.get(key)
+        parameter = supplied[key]
+        if (
+            evidence is None
+            or parameter.unit != evidence.unit
+            or parameter.lower is not None
+            or parameter.upper is not None
+        ):
+            raise CommonPipelineError(
+                "polymer decision parameter units or bounds differ from recomputed evidence"
+            )
+        _same_fit_value(parameter.value, evidence.value, key)
+    metric = scalar.get(f"prony_{actual_count}_normalized_rmse")
+    if not metric or decision.metric_definition != "normalized_rmse":
+        raise CommonPipelineError("polymer decision metric differs from the actual server result")
+    _same_fit_value(decision.metric_value, metric.value, "metric")
 
 
 def _validate_youngs_modulus_override(
@@ -214,6 +552,7 @@ class ProcessingOutputContent:
     output_artifact_id: UUID
     output_sha256: str
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
+    fit_decision: FitDecisionSnapshot | None = None
 
     def __post_init__(self) -> None:
         if not self.label.strip() or len(self.label) > 200:
@@ -250,6 +589,7 @@ class CommitProcessingOutput:
     steps: tuple[ProcessingStep, ...]
     change_reason: str
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
+    fit_decision: FitDecisionSnapshot | None = None
 
 
 class ProcessingOutputRepository(Protocol):
@@ -308,6 +648,45 @@ def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[
             }
             for override in value.workup_overrides
         ],
+        "fit_decision": fit_decision_canonical(value.fit_decision),
+    }
+
+
+def fit_decision_canonical(value: FitDecisionSnapshot | None) -> dict[str, object] | None:
+    if value is None:
+        return None
+    return {
+        "candidate_key": value.candidate_key,
+        "mode": value.mode,
+        "primary_law": value.primary_law,
+        "secondary_law": value.secondary_law,
+        "primary_weight": value.primary_weight,
+        "parameter_sets": [
+            {
+                "law": parameter_set.law,
+                "parameters": [
+                    {
+                        "name": parameter.name,
+                        "value": parameter.value,
+                        "unit": parameter.unit,
+                        "lower": parameter.lower,
+                        "upper": parameter.upper,
+                    }
+                    for parameter in parameter_set.parameters
+                ],
+            }
+            for parameter_set in value.parameter_sets
+        ],
+        "fit_minimum": value.fit_minimum,
+        "fit_maximum": value.fit_maximum,
+        "extrapolation_maximum": value.extrapolation_maximum,
+        "extrapolation_policy": value.extrapolation_policy,
+        "metric_definition": value.metric_definition,
+        "metric_value": value.metric_value,
+        "requested_term_policy": value.requested_term_policy,
+        "actual_term_count": value.actual_term_count,
+        "selection_reason": value.selection_reason,
+        "warning_acknowledged": value.warning_acknowledged,
     }
 
 
@@ -320,6 +699,7 @@ def processing_output_document(
     steps: tuple[ProcessingStep, ...],
     preview: ProcessingPreview,
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = (),
+    fit_decision: FitDecisionSnapshot | None = None,
 ) -> dict[str, object]:
     return {
         "document_type": "cmp.processing-output",
@@ -353,6 +733,7 @@ def processing_output_document(
             }
             for override in workup_overrides
         ],
+        "fit_decision": fit_decision_canonical(fit_decision),
         "result": processing_preview_canonical(preview),
     }
 
@@ -418,6 +799,7 @@ class CommonProcessingOutputService:
             )
         document = parse_canonical_test_data(json.loads(source_bytes))
         preview = preview_pipeline(document, profile_snapshot.content, command.steps)
+        validate_fit_decision(command.steps, preview, command.fit_decision)
         if preview.mapping_profile_sha256 != profile_snapshot.content.digest:
             raise CommonPipelineError("Mapping Profile digest pin differs from executed profile")
         return ProcessingOutputPreflight(
@@ -445,6 +827,7 @@ class CommonProcessingOutputService:
                 steps=command.steps,
                 preview=preview,
                 workup_overrides=command.workup_overrides,
+                fit_decision=command.fit_decision,
             )
         )
         artifact = await self._artifacts.finalize_derived_bytes(
@@ -471,6 +854,7 @@ class CommonProcessingOutputService:
             output_artifact_id=artifact.artifact.id,
             output_sha256=artifact.artifact.sha256,
             workup_overrides=command.workup_overrides,
+            fit_decision=command.fit_decision,
         )
         record = RevisionService(
             aggregate_type=PROCESSING_OUTPUT_AGGREGATE_TYPE,

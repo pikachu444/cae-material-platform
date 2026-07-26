@@ -87,6 +87,7 @@ export type ModelingSessionEvent =
   | { type: "CHANGE_MAPPING"; mappingProfile?: ModelingSessionRecordRef }
   | { type: "CHANGE_PROCESS"; recipe?: ModelingSessionRecordRef }
   | { type: "CHANGE_FIT" }
+  | { type: "CHANGE_SELECTION" }
   | { type: "SELECT_CANDIDATE"; selection?: ModelingSessionRecordRef }
   | { type: "CHANGE_VALIDATION_TARGET" }
   | { type: "CHANGE_TARGET_PROFILE" }
@@ -116,7 +117,7 @@ const DOWNSTREAM_OF_MAPPING = ALL_POINTERS.filter(
   (key) => key !== "testData" && key !== "mappingProfile",
 );
 const DOWNSTREAM_OF_PROCESS = ["processingOutput", "fitCandidate", "selection", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
-const DOWNSTREAM_OF_FIT = ["fitCandidate", "selection", "validation", "materialModelIr", "neutralModel", "exportArtifact"] as const;
+const DOWNSTREAM_OF_FIT = ["fitCandidate", "selection", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
 
 function now(): string {
   return new Date().toISOString();
@@ -200,6 +201,24 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
       );
     case "CHANGE_FIT":
       return withInvalidation(current, "fit", clearEntries(DOWNSTREAM_OF_FIT));
+    case "CHANGE_SELECTION": {
+      const keys: ModelingPointerKey[] = [
+        "selection",
+        "validation",
+        "reviewRelease",
+        "materialModelIr",
+        "neutralModel",
+        "exportArtifact",
+      ];
+      if (sameRef(current.selection, current.processingOutput)) {
+        keys.unshift("processingOutput");
+      }
+      return withInvalidation(
+        current,
+        "selection",
+        clearEntries(keys),
+      );
+    }
     case "SELECT_CANDIDATE":
       if (sameRef(current.selection, event.selection)) return current;
       return withInvalidation({ ...current, selection: event.selection }, "selection", clearEntries(["validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"]));

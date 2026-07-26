@@ -6,6 +6,7 @@ import math
 from dataclasses import dataclass
 from uuid import UUID
 
+from cmp.modules.modeling.domain.fit_decision_evidence import FitDecisionEvidence
 from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import (
     REFERENCE_HARDENING_CURVE_SCHEMA,
 )
@@ -141,8 +142,8 @@ class ReferenceProcessedTabulatedPlasticityContent:
     mapping_profile_revision_id: UUID
     candidate_families: tuple[str, ...]
     primary_family: str
-    secondary_family: str
-    primary_weight: float
+    secondary_family: str | None
+    primary_weight: float | None
     fit_minimum_true_plastic_strain: float
     characterized_max_true_plastic_strain: float
     extension_max_true_plastic_strain: float
@@ -159,6 +160,7 @@ class ReferenceProcessedTabulatedPlasticityContent:
     applicable_strain_rate_min_per_s: float | None = None
     applicable_strain_rate_max_per_s: float | None = None
     applicability_note: str | None = None
+    fit_decision: FitDecisionEvidence | None = None
     recipe_batch: ReferenceProcessedRecipeBatchEvidence | None = None
     reference_temperature_k: float = 293.15
     model_family_id: str = REFERENCE_PROCESSED_TABULATED_PLASTICITY_FAMILY_ID
@@ -195,13 +197,23 @@ class ReferenceProcessedTabulatedPlasticityContent:
             or not set(self.candidate_families) <= SUPPORTED_HARDENING_FAMILIES
         ):
             raise InvalidProcessedProjection("candidate_families must be 2..4 unique supported IDs")
+        if self.primary_family not in self.candidate_families:
+            raise InvalidProcessedProjection("selected primary family must be a declared candidate")
         if (
-            self.primary_family not in self.candidate_families
-            or self.secondary_family not in self.candidate_families
+            self.secondary_family is not None
+            and self.secondary_family not in self.candidate_families
         ):
-            raise InvalidProcessedProjection("selected families must be declared candidates")
-        if not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1:
+            raise InvalidProcessedProjection(
+                "selected secondary family must be a declared candidate"
+            )
+        if self.primary_weight is not None and (
+            not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1
+        ):
             raise InvalidProcessedProjection("primary_weight must be in [0,1]")
+        if (self.secondary_family is None) != (self.primary_weight is None):
+            raise InvalidProcessedProjection(
+                "secondary family and primary weight must both be present only for a blend"
+            )
         if not (
             0
             <= self.fit_minimum_true_plastic_strain
@@ -225,6 +237,28 @@ class ReferenceProcessedTabulatedPlasticityContent:
             raise InvalidProcessedProjection(
                 "bounded fitted extrapolation requires acknowledgement"
             )
+        if self.fit_decision is not None:
+            decision_laws = tuple(item.law for item in self.fit_decision.parameter_sets)
+            if (
+                self.fit_decision.mode not in {"single", "blend"}
+                or self.fit_decision.primary_law != self.primary_family
+                or self.fit_decision.secondary_law != self.secondary_family
+                or self.fit_decision.primary_weight != self.primary_weight
+                or decision_laws
+                != (
+                    (self.primary_family,)
+                    if self.fit_decision.mode == "single"
+                    else (self.primary_family, str(self.secondary_family))
+                )
+                or self.fit_decision.fit_minimum != self.fit_minimum_true_plastic_strain
+                or self.fit_decision.fit_maximum
+                != self.characterized_max_true_plastic_strain
+                or self.fit_decision.extrapolation_maximum
+                != self.extension_max_true_plastic_strain
+            ):
+                raise InvalidProcessedProjection(
+                    "processed projection fit evidence must match its selected hardening identity"
+                )
         expected_schema_version = (
             REFERENCE_RECIPE_PROCESSED_TABULATED_PLASTICITY_SCHEMA_VERSION
             if self.recipe_batch is not None
@@ -278,6 +312,18 @@ class ReferenceProcessedTabulatedPlasticityContent:
 def reference_processed_tabulated_plasticity_canonical(
     value: ReferenceProcessedTabulatedPlasticityContent,
 ) -> dict[str, object]:
+    selection: dict[str, object] = {
+        "candidate_families": list(value.candidate_families),
+        "primary_family": value.primary_family,
+        "secondary_family": value.secondary_family,
+        "primary_weight": value.primary_weight,
+        "fit_minimum_true_plastic_strain": value.fit_minimum_true_plastic_strain,
+        "fit_maximum_true_plastic_strain": value.characterized_max_true_plastic_strain,
+        "extrapolation_maximum_true_plastic_strain": value.extension_max_true_plastic_strain,
+    }
+    if value.fit_decision is not None:
+        selection["fit_decision"] = value.fit_decision.canonical()
+        selection["fit_decision_digest"] = value.fit_decision.digest
     canonical: dict[str, object] = {
         "model_family_id": value.model_family_id,
         "model_schema_version": value.model_schema_version,
@@ -300,15 +346,7 @@ def reference_processed_tabulated_plasticity_canonical(
             "mapping_profile_id": str(value.mapping_profile_id),
             "mapping_profile_revision_id": str(value.mapping_profile_revision_id),
         },
-        "selection": {
-            "candidate_families": list(value.candidate_families),
-            "primary_family": value.primary_family,
-            "secondary_family": value.secondary_family,
-            "primary_weight": value.primary_weight,
-            "fit_minimum_true_plastic_strain": value.fit_minimum_true_plastic_strain,
-            "fit_maximum_true_plastic_strain": value.characterized_max_true_plastic_strain,
-            "extrapolation_maximum_true_plastic_strain": value.extension_max_true_plastic_strain,
-        },
+        "selection": selection,
         "parameters": {
             "density_kg_per_m3": value.density_kg_per_m3,
             "youngs_modulus_pa": value.youngs_modulus_pa,

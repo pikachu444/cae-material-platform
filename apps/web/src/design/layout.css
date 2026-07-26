@@ -2425,12 +2425,22 @@
   border-top: 1px solid var(--ux-border);
 }
 
-.selected-candidate-parameters > summary {
+.selected-parameter-inspector {
+  margin: var(--ux-space-2) 0;
+  border-top: 1px solid var(--ux-border);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.selected-parameter-inspector > summary {
   padding: var(--ux-space-2) 0;
   color: var(--ux-text-muted);
   cursor: pointer;
   font-size: 11px;
   font-weight: 750;
+}
+
+.selected-parameter-inspector .fit-candidate-table {
+  margin-bottom: var(--ux-space-2);
 }
 
 .modeling-data-advanced {

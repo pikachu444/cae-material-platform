@@ -97,8 +97,10 @@ quantity semantics, original/normalized unit과 missing reason을 먼저 확인�
 
 Fit 그래프의 곡선은 계속 `Preview only · not committed`로 표시됩니다. 계산 성공이나 추천은
 선택·검토·승인을 뜻하지 않습니다. 선택과 저장이 가능한 API contract가 없는 상태는 Warning 또는
-Blocked로 남습니다. 선택한 candidate는 **Save selected fit output**으로 immutable Processing Output을
-만듭니다. Export는 current session의 exact Material, State, Test Data와 Processing Output이
+Blocked로 남습니다. 추천과 선택은 별도 상태이며, 행을 명시적으로 고르고 이유와 필요한 경고
+확인을 마친 candidate만 **Save selected candidate**로 immutable Processing Output을 만듭니다.
+금속 blend는 두 law·ratio·두 parameter set을, 폴리머는 server가 실제 산출한 term-count identity를
+그대로 저장합니다. Export는 current session의 exact Material, State, Test Data와 Processing Output이
 모두 pin되지 않으면 prerequisite만 표시하며 다른 세션이나 전역 output을 대체 사용하지 않습니다.
 모두 exact pin일 때만 family adapter의 mapping preflight와 native card 작업을 계속할 수 있습니다.
 이 경로에서도 server 검사가 실패하면 Export를 완료로 표시하거나 fallback delivery를 만들지 않습니다.
@@ -126,7 +128,8 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   step JSON은 `Advanced Recipe JSON`에서 확인합니다.
 - Fit ribbon의 candidate 표는 상태, 오차, 적용 범위와 bound 경고를 같은 행에서 비교합니다.
   선택한 식의 parameter와 bounds는 disclosure로 열 수 있고, 선택 이유는 수치 preview를 다시
-  계산하지 않는 decision evidence입니다.
+  계산하지 않는 decision evidence입니다. 추천 변경은 선택을 바꾸지 않으며, reason만 입력해도
+  선택된 것으로 처리하지 않습니다.
 - Export dock은 current exact source가 있을 때만 `Model → mapping preflight → native card` 순서를 보여 줍니다. solver 이름·버전과
   `kg·m·s (SI)` unit system을 읽은 뒤 preflight를 실행합니다. unsupported 항목은 생성을 막고,
   approximated/ignored 항목은 바로 옆 확인을 요구합니다. 생성 뒤 native ASCII card와 mapping

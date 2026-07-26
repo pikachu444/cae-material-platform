@@ -1,24 +1,27 @@
-version: 52
-verified_at: 2026-07-24
-scope: current-main-product-baseline
-source_commit: 971d5d9
+version: 53
+verified_at: 2026-07-26
+scope: uxc-04-fit-decision-working-baseline
+source_commit: uxc04-implementation-worktree
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "All 26 images were replaced atomically after rebuilding the UXC-03 web source from exact implementation commit 971d5d9."
+  - "All 26 images were replaced atomically from the UXC-04 implementation worktree after rebuilding the deterministic Compose demo."
+  - "Fit capture asserts save is disabled before explicit selection, four single-law rows plus the exact calculated preview-blend row, Preview-to-Selected graph identity, parameter/bound evidence, reason completion, and the exact selected-output save path."
+  - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
+  - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation, and a terminal related-data state; an explicit unprojected Catalog state is evidence, not a silent resolved-link fallback."
   - "A late exact-model list refresh preserves a just-promoted local IR selection; capture waits for the enabled Neutral action or an already-restored exact Neutral."
   - "New session increments the parent context generation so in-flight Material/State discovery cannot repin an automatic fallback after the pin-free Data reset."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
-  - "Fit and Export show the DUI-06 candidate-decision and exact Neutral/mapping/native-card controls; immutable creation is exercised separately in the linked live evidence report."
-  - "PR #124 completed DUI-06; DUI-01 through DUI-06 are complete. UXC-03 closes Data/Process correction evidence; UXC-04 through UXC-06 remain before DUI-07 through DUI-09."
+  - "Fit and Export show the UXC-04 typed decision snapshot and exact Neutral/mapping/native-card controls; immutable creation is exercised separately in the linked live evidence report."
+  - "PR #124 completed DUI-06; DUI-01 through DUI-06 are preserved. UXC-04 evidence is current in this branch; reviewer sign-off and merge remain before UXC-05."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: 971d5d9
-    captured_at: 2026-07-24T16:47:57+09:00
-    command: uv run --with playwright python scripts/capture_current_product.py (successful atomic capture after rebuilding Compose web from exact implementation commit 971d5d9)
+  - source_commit: uxc04-implementation-worktree
+    captured_at: 2026-07-26T09:39:04+09:00
+    command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5174 (successful atomic capture against rebuilt UXC-04 Compose source)
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920, activity-1440, administration-database-1440]
 captures:
   - id: materials-search-1366
@@ -149,22 +152,22 @@ captures:
     height: 1080
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
-    workflow: candidate-table-plot-comparison-and-selected-output-save
-    fixture: synthetic four-family hardening candidates with explicit selected-output save; DUI-06 acceptance
+    workflow: explicit-row-decision-identity-parameter-bounds-and-selected-output-save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04 acceptance
     image: images/current/modeling-fit-1366x768.png
     width: 1366
     height: 768
   - id: modeling-fit-1440
     route: /modeling?stage=fit&family=metal
-    workflow: candidate-table-plot-comparison-and-selected-output-save
-    fixture: synthetic four-family hardening candidates with explicit selected-output save; DUI-06 acceptance
+    workflow: explicit-row-decision-identity-parameter-bounds-and-selected-output-save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04 acceptance
     image: images/current/modeling-fit-1440x900.png
     width: 1440
     height: 900
   - id: modeling-fit-1920
     route: /modeling?stage=fit&family=metal
-    workflow: candidate-table-plot-comparison-and-selected-output-save
-    fixture: synthetic four-family hardening candidates with explicit selected-output save; DUI-06 acceptance
+    workflow: explicit-row-decision-identity-parameter-bounds-and-selected-output-save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04 acceptance
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080

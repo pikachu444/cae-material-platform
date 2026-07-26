@@ -208,17 +208,88 @@ describe("EngineeringCurvePlot", () => {
     const hardeningStep = {
       method_id: "metal.hardening_fit_extrapolate",
       method_version: "1.0.0",
-      options: { stress_quantity: "stress.true", fit_minimum_strain: 0, fit_maximum_strain: 0.1 },
+      options: {
+        stress_quantity: "stress.true",
+        fit_minimum_strain: 0,
+        fit_maximum_strain: 0.1,
+        primary_family: "swift",
+        secondary_family: "voce",
+        primary_weight: 0.6,
+      },
     };
     const { container } = render(<EngineeringCurvePlot preview={hardeningPreview} activeStage={hardening} baseStage={baseStage} activeStep={hardeningStep} width={760} height={420} />);
 
     expect(screen.getByText("Observed plastic workup")).toBeTruthy();
+    expect(screen.getByText("Preview blend · swift + voce · fitted domain")).toBeTruthy();
     expect(container.querySelector(".extrapolation-region")).toBeTruthy();
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
     expect(screen.getByText("predicted - observed [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
     fireEvent.click(screen.getByRole("tab", { name: "Tangent modulus" }));
     expect(container.querySelectorAll(".chart-axis-label")[1]?.textContent).toMatch(/d\(stress\) \/ d\(plastic strain\) \[(M|G)Pa\]/);
+  });
+
+  it("uses the explicit engineer fit identity instead of labeling the preview blend as selected", () => {
+    const observed: CommonCurveStage = {
+      ordinal: 1,
+      method_id: "metal.engineering_to_true_plastic",
+      method_version: "1.0.0",
+      point_count: 3,
+      series: [
+        { quantity: "strain.true_plastic", unit: "1", values: [0, 0.05, 0.1] },
+        { quantity: "stress.true", unit: "Pa", values: [3e8, 4e8, 5e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    const hardening: CommonCurveStage = {
+      ordinal: 2,
+      method_id: "metal.hardening_fit_extrapolate",
+      method_version: "1.0.0",
+      point_count: 4,
+      series: [
+        { quantity: "strain.true_plastic", unit: "1", values: [0, 0.05, 0.1, 0.2] },
+        { quantity: "stress.hardening.swift", unit: "Pa", values: [3.1e8, 4.1e8, 5.1e8, 6e8] },
+        { quantity: "stress.hardening.voce", unit: "Pa", values: [3e8, 4e8, 5e8, 5.7e8] },
+        { quantity: "stress.hardening.selected", unit: "Pa", values: [3.06e8, 4.06e8, 5.06e8, 5.88e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    const hardeningPreview = { ...preview, independent_quantity: "strain.true_plastic", stages: [baseStage, observed, hardening] };
+    const hardeningStep = {
+      method_id: "metal.hardening_fit_extrapolate",
+      method_version: "1.0.0",
+      options: {
+        stress_quantity: "stress.true",
+        fit_minimum_strain: 0,
+        fit_maximum_strain: 0.1,
+        primary_family: "swift",
+        secondary_family: "voce",
+        primary_weight: 0.6,
+      },
+    };
+    render(<EngineeringCurvePlot
+      preview={hardeningPreview}
+      activeStage={hardening}
+      baseStage={baseStage}
+      activeStep={hardeningStep}
+      fitSelection={{
+        candidateKey: "swift",
+        displayLabel: "swift",
+        mode: "single",
+        primaryLaw: "swift",
+        reason: "",
+        warningAcknowledged: false,
+        fitRange: "0–0.1 measured",
+      }}
+      width={760}
+      height={420}
+    />);
+
+    expect(screen.getByText("Selected · swift · fitted domain")).toBeTruthy();
+    expect(screen.queryByText(/Selected blend/)).toBeNull();
+    expect(screen.getByText(/explicit engineer selection/)).toBeTruthy();
   });
 
   it("compares measured Prony relaxation and residuals on a logarithmic time axis", () => {
@@ -258,12 +329,64 @@ describe("EngineeringCurvePlot", () => {
     const { container } = render(<EngineeringCurvePlot preview={pronyPreview} activeStage={prony} baseStage={observed} activeStep={{ method_id: "polymer.prony_fit_compare", method_version: "1.0.0", options: { modulus_quantity: "modulus.shear.relaxation" } }} width={760} height={420} />);
 
     expect(screen.getByText("Measured relaxation")).toBeTruthy();
+    expect(screen.getByText("Server result preview · Prony candidate")).toBeTruthy();
+    expect(screen.queryByText(/Selected ·/)).toBeNull();
     expect(screen.getByText("time [s] · logarithmic")).toBeTruthy();
     expect(screen.getByLabelText("Prony candidate BIC and normalized RMSE summary")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(4);
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
     expect(screen.getByText("predicted - measured [MPa]")).toBeTruthy();
     expect(container.querySelectorAll("polyline.curve-line")).toHaveLength(3);
+  });
+
+  it("labels the actual Prony result as selected only after the engineer chooses its row", () => {
+    const observed: CommonCurveStage = {
+      ordinal: 1,
+      method_id: "polymer.log_time_resample",
+      method_version: "1.0.0",
+      point_count: 3,
+      series: [
+        { quantity: "time", unit: "s", values: [0.1, 1, 10] },
+        { quantity: "modulus.shear.relaxation", unit: "Pa", values: [1e9, 8e8, 6e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    const fitted: CommonCurveStage = {
+      ordinal: 2,
+      method_id: "polymer.prony_fit_compare",
+      method_version: "1.0.0",
+      point_count: 3,
+      series: [
+        { quantity: "time", unit: "s", values: [0.1, 1, 10] },
+        { quantity: "modulus.prony.candidate_2_term", unit: "Pa", values: [1e9, 8e8, 6e8] },
+        { quantity: "modulus.prony.selected", unit: "Pa", values: [1e9, 8e8, 6e8] },
+      ],
+      diagnostics: [],
+      scalar_results: [],
+    };
+    render(<EngineeringCurvePlot
+      preview={{ ...preview, independent_quantity: "time", stages: [baseStage, observed, fitted] }}
+      activeStage={fitted}
+      baseStage={observed}
+      activeStep={{ method_id: "polymer.prony_fit_compare", method_version: "1.0.0", options: { modulus_quantity: "modulus.shear.relaxation" } }}
+      fitSelection={{
+        candidateKey: "prony:2",
+        displayLabel: "2-term Prony",
+        mode: "single",
+        primaryLaw: "generalized_maxwell",
+        actualTermCount: 2,
+        requestedTermPolicy: "automatic_bic",
+        reason: "",
+        warningAcknowledged: false,
+        fitRange: "Measured time grid",
+      }}
+      width={760}
+      height={420}
+    />);
+
+    expect(screen.getByText("Selected · 2-term Generalized Maxwell")).toBeTruthy();
+    expect(screen.getByText(/explicit engineer selection/)).toBeTruthy();
   });
 
   it("compares measured and fitted DMA storage/loss responses on log frequency", () => {
@@ -319,6 +442,8 @@ describe("EngineeringCurvePlot", () => {
 
     expect(screen.getByText("Measured storage modulus")).toBeTruthy();
     expect(screen.getByText("Measured loss modulus")).toBeTruthy();
+    expect(screen.getByText("Server result preview · storage modulus")).toBeTruthy();
+    expect(screen.getByText("Server result preview · loss modulus")).toBeTruthy();
     expect(screen.getByText("frequency [Hz] · logarithmic")).toBeTruthy();
     expect(screen.getByLabelText("DMA storage and loss Prony candidate curves")).toBeTruthy();
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));

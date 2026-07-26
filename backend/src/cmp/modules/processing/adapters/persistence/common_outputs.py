@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from contextlib import contextmanager
-from typing import Any, Protocol, cast
+from typing import Any, Literal, Protocol, cast
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -15,6 +15,9 @@ from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.common_outputs import (
     PROCESSING_OUTPUT_AGGREGATE_TYPE,
     ExactRevisionPin,
+    FitDecisionParameter,
+    FitDecisionParameterSet,
+    FitDecisionSnapshot,
     ProcessingOutputContent,
     ProcessingOutputNotFound,
     ProcessingOutputRepository,
@@ -86,6 +89,7 @@ revision_table = sa.Table(
     sa.Column("output_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("output_sha256", sa.CHAR(64), nullable=False),
     sa.Column("workup_overrides", sa.JSON(), nullable=False),
+    sa.Column("fit_decision", sa.JSON(), nullable=True),
     schema="processing",
 )
 step_table = sa.Table(
@@ -132,6 +136,41 @@ def _values(value: ProcessingOutputContent) -> dict[str, object]:
             }
             for override in value.workup_overrides
         ],
+        "fit_decision": None
+        if value.fit_decision is None
+        else {
+            "candidate_key": value.fit_decision.candidate_key,
+            "mode": value.fit_decision.mode,
+            "primary_law": value.fit_decision.primary_law,
+            "secondary_law": value.fit_decision.secondary_law,
+            "primary_weight": value.fit_decision.primary_weight,
+            "parameter_sets": [
+                {
+                    "law": item.law,
+                    "parameters": [
+                        {
+                            "name": parameter.name,
+                            "value": parameter.value,
+                            "unit": parameter.unit,
+                            "lower": parameter.lower,
+                            "upper": parameter.upper,
+                        }
+                        for parameter in item.parameters
+                    ],
+                }
+                for item in value.fit_decision.parameter_sets
+            ],
+            "fit_minimum": value.fit_decision.fit_minimum,
+            "fit_maximum": value.fit_decision.fit_maximum,
+            "extrapolation_maximum": value.fit_decision.extrapolation_maximum,
+            "extrapolation_policy": value.fit_decision.extrapolation_policy,
+            "metric_definition": value.fit_decision.metric_definition,
+            "metric_value": value.fit_decision.metric_value,
+            "requested_term_policy": value.fit_decision.requested_term_policy,
+            "actual_term_count": value.fit_decision.actual_term_count,
+            "selection_reason": value.fit_decision.selection_reason,
+            "warning_acknowledged": value.fit_decision.warning_acknowledged,
+        },
     }
 
 
@@ -219,7 +258,10 @@ def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
         output_sha256=str(row["output_sha256"]),
         workup_overrides=tuple(
             ProcessingWorkupOverride(
-                kind=str(override["kind"]),
+                kind=cast(
+                    Literal["youngs_modulus", "necking_boundary"],
+                    str(override["kind"]),
+                ),
                 original_value=float(override["original_value"]),
                 original_unit=str(override["original_unit"]),
                 canonical_value=float(override["canonical_value"]),
@@ -228,6 +270,47 @@ def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
             )
             for override in row["workup_overrides"]
         ),
+        fit_decision=_fit_decision(row["fit_decision"]),
+    )
+
+
+def _fit_decision(value: Any) -> FitDecisionSnapshot | None:
+    if value is None:
+        return None
+    return FitDecisionSnapshot(
+        candidate_key=str(value["candidate_key"]),
+        mode=cast(Literal["single", "blend"], str(value["mode"])),
+        primary_law=str(value["primary_law"]),
+        secondary_law=value["secondary_law"],
+        primary_weight=value["primary_weight"],
+        parameter_sets=tuple(
+            FitDecisionParameterSet(
+                law=str(item["law"]),
+                parameters=tuple(
+                    FitDecisionParameter(
+                        name=str(parameter["name"]),
+                        value=float(parameter["value"]),
+                        unit=str(parameter["unit"]),
+                        lower=None if parameter["lower"] is None else float(parameter["lower"]),
+                        upper=None if parameter["upper"] is None else float(parameter["upper"]),
+                    )
+                    for parameter in item["parameters"]
+                ),
+            )
+            for item in value["parameter_sets"]
+        ),
+        fit_minimum=float(value["fit_minimum"]),
+        fit_maximum=float(value["fit_maximum"]),
+        extrapolation_maximum=None
+        if value["extrapolation_maximum"] is None
+        else float(value["extrapolation_maximum"]),
+        extrapolation_policy=str(value["extrapolation_policy"]),
+        metric_definition=str(value["metric_definition"]),
+        metric_value=float(value["metric_value"]),
+        requested_term_policy=value["requested_term_policy"],
+        actual_term_count=value["actual_term_count"],
+        selection_reason=str(value["selection_reason"]),
+        warning_acknowledged=bool(value["warning_acknowledged"]),
     )
 
 

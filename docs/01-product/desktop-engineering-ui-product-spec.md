@@ -298,9 +298,19 @@ Flow:
 2. run candidates;
 3. compare response/residual;
 4. inspect parameters/bounds in the optional inspector;
-5. select candidate and record reason;
-6. acknowledge extrapolation domain;
-7. create/revise Material Model IR.
+5. explicitly select a recomputed candidate and record reason;
+6. acknowledge only warnings that apply to that selected row;
+7. save the typed decision snapshot as an immutable Processing Output;
+8. promote the exact decision to a Material Model IR.
+
+The calculated recommendation and engineer selection are separate states. A changed recommendation
+does not select a row or mutate an existing selection. Metal can retain a named single law or a
+two-law ratio blend with both parameter sets. The exact calculated preview blend is a distinct
+selectable row; changing either law or ratio requires recalculation before it can be selected.
+Until then the graph says `Preview blend`, and after row selection it shows the same explicit
+single/blend identity as the decision evidence. Polymer selection is the actual server-produced
+term-count result, not the requested policy. A save is disabled until a row is selected, its reason
+is present and any row warning is acknowledged.
 
 ### 7.6 Export stage
 

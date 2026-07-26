@@ -104,6 +104,31 @@ describe("Modeling session v3 reducer", () => {
     expect(selection.selection).toMatchObject({ id: "new-selection" });
     expect(selection.validation).toBeUndefined();
 
+    const draftSelection = reduceModelingSession(populatedSession(), { type: "CHANGE_SELECTION" });
+    expect(draftSelection.selection).toBeUndefined();
+    expect(draftSelection.processingOutput).toMatchObject({ id: "processed" });
+    expect(draftSelection.validation).toBeUndefined();
+    expect(draftSelection.reviewRelease).toBeUndefined();
+    expect(draftSelection.materialModelIr).toBeUndefined();
+    expect(draftSelection.neutralModel).toBeUndefined();
+    expect(draftSelection.exportArtifact).toBeUndefined();
+    expect(draftSelection.invalidation?.reason).toBe("selection");
+    expect(draftSelection.invalidation?.dispositions.materialModelIr).toBe("clear");
+    expect(draftSelection.invalidation?.dispositions.reviewRelease).toBe("stale");
+    expect(draftSelection.stalePointers?.reviewRelease).toMatchObject({ id: "review" });
+
+    const savedFit = reduceModelingSession(populatedSession(), {
+      type: "PATCH",
+      patch: {
+        processingOutput: ref("saved-fit"),
+        selection: ref("saved-fit"),
+      },
+    });
+    const changedSavedFit = reduceModelingSession(savedFit, { type: "CHANGE_SELECTION" });
+    expect(changedSavedFit.processingOutput).toBeUndefined();
+    expect(changedSavedFit.selection).toBeUndefined();
+    expect(changedSavedFit.invalidation?.dispositions.processingOutput).toBe("clear");
+
     const validation = reduceModelingSession(populatedSession(), { type: "CHANGE_VALIDATION_TARGET" });
     expect(validation.processingOutput).toMatchObject({ id: "processed" });
     expect(validation.validation).toBeUndefined();
