@@ -24,12 +24,13 @@ Materials projection/presentation gaps, DUI-07~09와 incoming package final dele
 
 - Current-status documents describe only Administrator/User; the approved three-role product target
   is User, Reviewer, Administrator, with Reviewer pending implementation.
-- The only approved Modeling target is the **lower proposal** in
+- The historical 2026-07-21 Modeling target was the **lower proposal** in
   `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`: 184–210 px tree,
   shallow graph-adjacent band and dominant plot. The normal path is `Data | Process | Fit | Export`.
 - Materials, Administration and Activity targets are contracts, not claims about the current routes.
-  The next design-only PR must create responsive prototypes and obtain explicit product-owner approval
-  before React/CSS work.
+  UXC-00D has responsive static prototypes and evidence, and the product owner approved the whole
+  four-screen proposal on 2026-07-26 for React/CSS work. The approval does not claim that the
+  current routes have already changed.
 
 ## 1. 이 패키지의 목적
 

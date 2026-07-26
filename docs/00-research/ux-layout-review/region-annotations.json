@@ -1,7 +1,11 @@
 {
-  "method": "Normalized role rectangles compare topology and area, not pixels or brand styling.",
+  "method": "Normalized role rectangles compare topology and area, not pixels or brand styling. Each reference resolves to the permanent UX Reference Gallery image, its gallery README entry, and supporting official-source catalog record(s).",
   "references": {
     "granta-mi-favourites-list.png": {
+      "local_path": "docs/00-research/ux-reference-gallery/images/granta-mi-favourites-list.png",
+      "gallery_readme": "docs/00-research/ux-reference-gallery/README.md",
+      "source_catalog": "docs/00-research/product-reference-source-catalog.json",
+      "source_ids": ["granta-mi-product"],
       "source_size": [1400, 776],
       "regions": [
         { "role": "navigation", "rect": [0.0, 0.0, 0.038, 1.0] },
@@ -12,6 +16,10 @@
       "dominant_role": "result-datasheet"
     },
     "material-data-center-search-detail.png": {
+      "local_path": "docs/00-research/ux-reference-gallery/images/material-data-center-search-detail.png",
+      "gallery_readme": "docs/00-research/ux-reference-gallery/README.md",
+      "source_catalog": "docs/00-research/product-reference-source-catalog.json",
+      "source_ids": ["smdc-quick-search"],
       "source_size": [1280, 637],
       "regions": [
         { "role": "explorer-filter", "rect": [0.0, 0.04, 0.168, 0.895] },
@@ -22,6 +30,10 @@
       "dominant_role": "result-datasheet plus selected context"
     },
     "material-data-center-cae-model.png": {
+      "local_path": "docs/00-research/ux-reference-gallery/images/material-data-center-cae-model.png",
+      "gallery_readme": "docs/00-research/ux-reference-gallery/README.md",
+      "source_catalog": "docs/00-research/product-reference-source-catalog.json",
+      "source_ids": ["smdc-cae-download"],
       "source_size": [536, 274],
       "regions": [
         { "role": "result-datasheet", "rect": [0.0, 0.0, 1.0, 1.0] },
@@ -31,6 +43,10 @@
       "dominant_role": "focused card delivery"
     },
     "material-modeler-curve-fitting.png": {
+      "local_path": "docs/00-research/ux-reference-gallery/images/material-modeler-curve-fitting.png",
+      "gallery_readme": "docs/00-research/ux-reference-gallery/README.md",
+      "source_catalog": "docs/00-research/product-reference-source-catalog.json",
+      "source_ids": ["material-modeler-curve-fitting"],
       "source_size": [792, 440],
       "regions": [
         { "role": "settings", "rect": [0.0, 0.0, 1.0, 0.318] },
@@ -40,6 +56,10 @@
       "dominant_role": "graph"
     },
     "material-modeler-hyperelastic-fitting.jpg": {
+      "local_path": "docs/00-research/ux-reference-gallery/images/material-modeler-hyperelastic-fitting.jpg",
+      "gallery_readme": "docs/00-research/ux-reference-gallery/README.md",
+      "source_catalog": "docs/00-research/product-reference-source-catalog.json",
+      "source_ids": ["material-modeler-hyperelastic-edit"],
       "source_size": [1299, 772],
       "regions": [
         { "role": "settings", "rect": [0.012, 0.148, 0.272, 0.77] },
@@ -63,7 +83,17 @@
     "modeling": {
       "references": ["material-modeler-curve-fitting.png", "material-modeler-hyperelastic-fitting.jpg"],
       "required_topology": ["curve-tree left of graph", "settings above graph", "no persistent third column"],
-      "hard_gates": ["graph at least 70 percent workspace width", "curve names readable", "key settings visible"]
+      "hard_gates": ["184-210px curve tree", "96-112px settings band at 1440", "graph at least 72 percent workspace width", "separate include and plot visibility controls", "no persistent third column"]
+    },
+    "activity": {
+      "references": ["granta-mi-favourites-list.png"],
+      "required_topology": ["normal navigation above saved views", "attention queue as dominant data grid"],
+      "hard_gates": ["no KPI tiles", "row-specific next action", "one primary action"]
+    },
+    "administration": {
+      "references": ["material-data-center-search-detail.png"],
+      "required_topology": ["object navigator left of object list", "property editor and live preview at right"],
+      "hard_gates": ["Table Attribute Layout Subset Link Type in context", "plain property sheets", "no task-card landing"]
     },
     "card": {
       "references": ["material-data-center-cae-model.png"],
