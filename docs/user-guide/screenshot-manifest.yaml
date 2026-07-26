@@ -1,11 +1,11 @@
-version: 55
+version: 56
 verified_at: 2026-07-26
-scope: uxc-06c1-exact-target-preflight-and-stateless-native-preview
-source_commit: 47a8d52
+scope: uxc-06c2-exact-target-preflight-and-atomic-delivery
+source_commit: fa213ca
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "The current set contains 29 deterministic Compose captures; UXC-06C1 replaced the three Export viewports after a live migration, governed source recovery, and rebuilt API/web."
+  - "The current set contains 29 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
   - "Fit capture asserts save is disabled before explicit selection, four single-law rows plus the exact calculated preview-blend row, Preview-to-Selected graph identity, parameter/bound evidence, reason completion, and the exact selected-output save path."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -16,13 +16,13 @@ notes:
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
   - "Process and Fit use a compact Test data tree: exact specimen/revision identity, inclusion checkbox and icon-only plot visibility remain independent; Export has no permanent curve rail."
-  - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping and native text without a delivery control."
-  - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 is stateless: it creates no card, artifact, receipt, download, or Activity entry; atomic delivery remains UXC-06C2."
+  - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
+  - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
 allowed_duplicate_pairs: []
 capture_provenance:
   - source_commit: 47a8d52
     captured_at: 2026-07-26T15:34:56+09:00
-    command: targeted live Playwright UXC-06C1 Export capture at 1366x768, 1440x900 and 1920x1080; saves an exact Fit output, recovers exact model and Neutral revisions, generates the server-proven mapping/native preview, asserts no Deliver action or legacy curve rail, and focuses the captured viewport on the mapping result
+    command: targeted live Playwright UXC-06C2 Export capture at 1366x768, 1440x900 and 1920x1080; saves an exact Fit output, recovers exact model and Neutral revisions, generates the server-proven preview, acknowledges only when required, delivers exactly one immutable card/receipt, verifies the receipt link and no legacy curve rail, and keeps the selected-model graph visible above compact delivery evidence
     ids: [modeling-export-1366, modeling-export-1440, modeling-export-1920]
   - source_commit: e7752dc
     captured_at: 2026-07-26T12:13:54+09:00
@@ -207,22 +207,22 @@ captures:
     height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c1-exact-target-preflight-and-stateless-native-preview
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview; Deliver is unavailable pending UXC-06C2
+    workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview, required acknowledgement and one immutable card/receipt; Activity receipt projection Not configured
     image: images/current/modeling-export-1366x768.png
     width: 1366
     height: 768
   - id: modeling-export-1440
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c1-exact-target-preflight-and-stateless-native-preview
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview; Deliver is unavailable pending UXC-06C2
+    workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview, required acknowledgement and one immutable card/receipt; Activity receipt projection Not configured
     image: images/current/modeling-export-1440x900.png
     width: 1440
     height: 900
   - id: modeling-export-1920
     route: /modeling?stage=export&family=metal
-    workflow: uxc-06c1-exact-target-preflight-and-stateless-native-preview
-    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview; Deliver is unavailable pending UXC-06C2
+    workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery
+    fixture: synthetic DP780 session with exact governed Output, model and Neutral revisions; Abaqus 2025 kg-m-s reference preview, required acknowledgement and one immutable card/receipt; Activity receipt projection Not configured
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080

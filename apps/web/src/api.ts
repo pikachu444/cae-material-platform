@@ -1,6 +1,7 @@
 import type {
   ExportTarget,
   TargetPreviewResponse,
+  TargetDeliveryResponse,
   ElastoplasticCardCreatedResponse,
   ElastoplasticCardResponse,
   CompletedUpload,
@@ -2472,6 +2473,26 @@ export function createExactTargetPreview(
   return request(config, "/exporting/target-previews", {
     method: "POST",
     body: JSON.stringify(input),
+  });
+}
+
+export function deliverExactTargetPreview(
+  config: ApiConfig,
+  input: {
+    processing_output_id: string;
+    processing_output_revision_id: string;
+    neutral_material_id: string;
+    neutral_material_revision_id: string;
+    target: ExportTarget;
+    solver_material_id: number;
+    material_name: string;
+    preview_identity: string;
+    expected_mapping_report_sha256: string;
+    acknowledgement_identity?: string;
+  },
+): Promise<ApiResult<TargetDeliveryResponse>> {
+  return request(config, "/exporting/target-deliveries", {
+    method: "POST", body: JSON.stringify(input),
   });
 }
 

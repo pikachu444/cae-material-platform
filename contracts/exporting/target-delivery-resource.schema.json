@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cmp:contract:exporting:target-delivery-resource:1.0.0",
+  "$defs": {
+    "Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["solver", "version", "unit_system"],
+      "properties": {
+        "solver": {"type": "string", "minLength": 1, "maxLength": 160},
+        "version": {"type": "string", "minLength": 1, "maxLength": 160},
+        "unit_system": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    },
+    "Request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processing_output_id",
+        "processing_output_revision_id",
+        "neutral_material_id",
+        "neutral_material_revision_id",
+        "target",
+        "solver_material_id",
+        "material_name",
+        "preview_identity",
+        "expected_mapping_report_sha256"
+      ],
+      "properties": {
+        "processing_output_id": {"type": "string", "format": "uuid"},
+        "processing_output_revision_id": {"type": "string", "format": "uuid"},
+        "neutral_material_id": {"type": "string", "format": "uuid"},
+        "neutral_material_revision_id": {"type": "string", "format": "uuid"},
+        "target": {"$ref": "#/$defs/Target"},
+        "solver_material_id": {"type": "integer", "minimum": 1, "maximum": 9999999999},
+        "material_name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
+        "preview_identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "expected_mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "acknowledgement_identity": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "Response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "delivery_status",
+        "receipt_id",
+        "delivery_identity",
+        "solver_card_id",
+        "solver_card_revision_id",
+        "filename",
+        "native_sha256",
+        "mapping_report_sha256",
+        "mapping_statuses",
+        "source",
+        "target",
+        "occurred_at",
+        "recorded_by",
+        "links"
+      ],
+      "properties": {
+        "delivery_status": {"type": "string", "const": "delivered"},
+        "receipt_id": {"type": "string", "format": "uuid"},
+        "delivery_identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "solver_card_id": {"type": "string", "format": "uuid"},
+        "solver_card_revision_id": {"type": "string", "format": "uuid"},
+        "filename": {"type": "string", "minLength": 1, "maxLength": 255},
+        "native_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "mapping_statuses": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["exact", "transformed", "approximated", "ignored", "unsupported", "not_applicable"]
+          }
+        },
+        "source": {"$ref": "target-preview-resource.schema.json#/$defs/Source"},
+        "target": {"$ref": "target-preview-resource.schema.json#/$defs/ResolvedTarget"},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "recorded_by": {"type": "string", "format": "uuid"},
+        "links": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["solver_card", "preview", "download", "receipt"],
+          "properties": {
+            "solver_card": {"type": "string"},
+            "preview": {"type": "string"},
+            "download": {"type": "string"},
+            "receipt": {"type": "string"}
+          }
+        }
+      }
+    },
+    "Problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "status", "detail", "code", "trace_id"],
+      "properties": {
+        "type": {"type": "string", "const": "urn:cmp:problem:exporting:target-delivery"},
+        "title": {"type": "string"},
+        "status": {"type": "integer", "enum": [404, 409, 422, 503]},
+        "detail": {"type": "string"},
+        "code": {"type": "string", "pattern": "^CMP-TARGET-DELIVERY-(404|409|422|503)$"},
+        "trace_id": {"type": "string"}
+      }
+    }
+  }
+}

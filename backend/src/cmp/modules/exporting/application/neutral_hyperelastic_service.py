@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 from uuid import UUID, uuid4
@@ -27,7 +27,7 @@ from cmp.shared.application.revisions import (
     RevisionService,
     RevisionStore,
 )
-from cmp.shared.domain.revisions import TenantScope
+from cmp.shared.domain.revisions import RevisionCreated, TenantScope
 
 NEUTRAL_SOLVER_CARD_AGGREGATE_TYPE = "exporting.neutral_solver_card"
 NEUTRAL_SOLVER_CARD_SCHEMA_ID = "urn:cmp:exporting:neutral-hyperelastic-card:1.0.0"
@@ -45,6 +45,7 @@ class CreateNeutralHyperelasticSolverCard:
     solver_material_id: int
     material_name: str
     change_reason: str
+    expected_card_sha256: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,7 +60,11 @@ class NeutralHyperelasticSolverCardSnapshot:
 
 class NeutralHyperelasticExportingRepository(Protocol):
     def solver_card_store(
-        self, *, context: SecurityContext, decision: AuthorizationDecision
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        additional_hooks: Sequence[Callable[[object, RevisionCreated], None]] = (),
     ) -> RevisionStore[NeutralCardContent]: ...
 
     def get_solver_card(
@@ -141,6 +146,7 @@ class NeutralHyperelasticSolverCardService:
         context: SecurityContext,
         decision: AuthorizationDecision,
         command: CreateNeutralHyperelasticSolverCard,
+        additional_hooks: Sequence[Callable[[object, RevisionCreated], None]] = (),
     ) -> tuple[NeutralHyperelasticSolverCardSnapshot, NeutralMappingReport]:
         _require(context, decision, Permission.EXPORT_EXECUTE)
         source = await self._neutral_materials.get_neutral_material_revision_for_export(
@@ -158,12 +164,21 @@ class NeutralHyperelasticSolverCardService:
             solver_material_id=command.solver_material_id,
             material_name=command.material_name,
         )
+        if (
+            command.expected_card_sha256 is not None
+            and content.card_sha256 != command.expected_card_sha256
+        ):
+            raise NeutralHyperelasticSolverCardConflict(
+                "generated card differs from the approved target preview"
+            )
         aggregate_id = self._id_factory()
         if aggregate_id.int == 0:
             raise RuntimeError("solver-card id_factory returned a zero UUID")
         record = RevisionService(
             aggregate_type=NEUTRAL_SOLVER_CARD_AGGREGATE_TYPE,
-            store=self._repository.solver_card_store(context=context, decision=decision),
+            store=self._repository.solver_card_store(
+                context=context, decision=decision, additional_hooks=additional_hooks
+            ),
         ).create(
             CreateRevisionedAggregate(
                 aggregate_id=aggregate_id,

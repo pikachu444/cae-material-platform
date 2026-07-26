@@ -292,9 +292,10 @@ Every slice must preserve:
     candidates without that adapter are explicitly `Not supported`. Review
     package production and release-policy input remain explicit `Not configured`; Submit, Request changes,
     Approve and Release are separately represented and never infer a state from Fit or Validation;
-13. UXC-06 exact Export and traceable delivery — UXC-06A fail-closed prerequisites and UXC-06B
-    governed exact-source projection complete; persistent delivery remains blocked on the
-    pre-delivery-preview/receipt contract below;
+13. UXC-06 exact Export and traceable delivery — complete through UXC-06C2: fail-closed
+    prerequisites, governed exact-source projection, stateless target preview, and atomic immutable
+    Solver Card/receipt/outbox delivery are current. Activity receipt projection remains explicitly
+    `Not configured`;
 14. DUI-07 Administration — pending;
 15. DUI-08 Activity — pending;
 16. DUI-09 Storybook and final legacy cleanup — pending.
@@ -340,9 +341,11 @@ content. Common Processing Output copies it from the exact source revision. Hist
 rows remain `null`, readable and blocked without backfill. Changing or omitting the source creates a
 new unqualified revision rather than mutating history.
 
-The remaining UXC-06C constraint is target delivery. Existing card `/preview` resources read
-already-persisted immutable cards and are not an ephemeral pre-delivery producer. Until a separate
-target preview, Deliver command and immutable receipt exist, `exportArtifact`, Activity delivery and
-Material CAE Card links are not written from Normal Modeling.
+UXC-06C separates the pre-delivery producer from existing immutable-card `/preview` resources.
+UXC-06C1 resolves a server-proven ephemeral target preview without persistence. UXC-06C2 repeats
+that exact proof, binds any required acknowledgement identity, and writes one immutable Solver Card,
+delivery receipt, and outbox event in one transaction. An exact retry returns the original receipt;
+Materials reuses the canonical card API. Activity receipt projection remains `Not configured`, so
+Normal Modeling does not claim an Activity-delivered state or link.
 
 Do not merge multiple P0 slices into a single unreviewable frontend rewrite. Each PR must include the actual user task, before/after screenshots and state-continuity evidence.

@@ -2000,6 +2000,7 @@ dd {
 .modeling-export-lineage li.missing { color: #923b2b; }
 .modeling-export-lineage li.stale { color: #923b2b; text-decoration: line-through; }
 .modeling-target-preview { display: grid; gap: .75rem; max-width: 76rem; padding: .75rem; border-top: 1px solid var(--line); }
+.modeling-target-preview.delivered { align-items: center; gap: .65rem; grid-template-columns: max-content max-content minmax(0, 1fr); max-width: none; padding: .4rem .75rem; }
 .modeling-target-preview > header { display: flex; align-items: start; justify-content: space-between; gap: .75rem; }
 .modeling-target-preview h2, .modeling-target-preview h3, .modeling-target-preview p { margin: 0; }
 .target-preview-controls { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(8rem, .5fr) minmax(12rem, 1fr) max-content; gap: .65rem; align-items: end; }
@@ -2012,6 +2013,15 @@ dd {
 .target-preview-result li { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .5rem; }
 .target-preview-result small { display: block; color: var(--muted); margin-top: .15rem; }
 .target-preview-result pre { margin: 0; max-height: 25rem; overflow: auto; white-space: pre; font-size: .78rem; }
+.target-preview-evidence > summary { color: var(--accent-strong); font-size: .8rem; font-weight: 650; cursor: pointer; }
+.modeling-target-preview.delivered .target-preview-evidence[open] { grid-column: 1 / -1; }
+.target-change-button { justify-self: start; }
+.target-delivery-action { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .65rem; align-items: center; }
+.modeling-target-preview.delivered .target-delivery-action { grid-template-columns: 1fr; }
+.modeling-target-preview.delivered .target-delivery-action .ux-notice { padding: .45rem .65rem; }
+.target-delivery-action .delivery-acknowledgement { grid-column: 1 / -1; display: flex; gap: .45rem; align-items: center; }
+.target-delivery-action .delivery-acknowledgement input { flex: 0 0 auto; width: auto; min-width: 0; margin: 0; }
+.target-delivery-action .ux-notice { min-width: 0; }
 @media (max-width: 820px) { .target-preview-controls, .target-preview-result { grid-template-columns: 1fr; } .target-preview-result > section + section { border-left: 0; border-top: 1px solid var(--line); } }
 
 .mapping-status.approximated,

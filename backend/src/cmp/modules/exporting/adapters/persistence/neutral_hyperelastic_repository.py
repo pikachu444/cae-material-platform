@@ -365,12 +365,16 @@ class SqlAlchemyNeutralHyperelasticExportingRepository(NeutralHyperelasticExport
             yield session
 
     def solver_card_store(
-        self, *, context: SecurityContext, decision: AuthorizationDecision
+        self,
+        *,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        additional_hooks: Sequence[SqlRevisionHook] = (),
     ) -> RevisionStore[NeutralCardContent]:
         return SqlAlchemyRevisionStore(
             session_factory=self._sessions,
             tables=_TABLES,
-            hooks=self._hooks,
+            hooks=(*self._hooks, *additional_hooks),
             session_binder=lambda session: self._bind(session, context, decision),
         )
 

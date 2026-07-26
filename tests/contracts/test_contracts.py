@@ -1436,3 +1436,34 @@ def test_target_preview_contract_matches_runtime_operation_and_typed_lineage() -
         "unavailable_pending_uxc_06c2",
     ):
         assert required in serialized
+
+
+def test_target_delivery_contract_matches_atomic_runtime_and_receipt_evidence() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    collection = "/api/v1/exporting/target-deliveries"
+    member = "/api/v1/exporting/target-deliveries/{receipt_id}"
+
+    assert source["paths"][collection]["post"]["operationId"] == "deliverExactTargetPreview"
+    assert runtime["paths"][collection]["post"]["operationId"] == "deliverExactTargetPreview"
+    assert runtime["paths"][collection]["post"]["security"] == [{"BearerAuth": []}]
+    assert source["paths"][member]["get"]["operationId"] == "getTargetDeliveryReceipt"
+    assert runtime["paths"][member]["get"]["operationId"] == "getTargetDeliveryReceipt"
+    assert runtime["paths"][member]["get"]["security"] == [{"BearerAuth": []}]
+
+    schema = json.loads(
+        (PROJECT_ROOT / "contracts/exporting/target-delivery-resource.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    serialized = json.dumps(schema)
+    for required in (
+        "delivery_identity",
+        "solver_card_revision_id",
+        "native_sha256",
+        "mapping_report_sha256",
+        "mapping_statuses",
+        "recorded_by",
+        "receipt",
+    ):
+        assert required in serialized

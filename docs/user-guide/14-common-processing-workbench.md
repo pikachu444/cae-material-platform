@@ -152,7 +152,8 @@ Material Model IR이나 Neutral Material로 승격할 수 없습니다.
 
 Fit 검토 뒤 상단 **Export** task를 열면 current Material, Material State, Test Data, Mapping Profile,
 Processing Output pin과 `Processing Output → Material Model IR → Neutral → target preflight → native card`
-lineage를 먼저 확인합니다. source가 없거나 다른 revision이면 artifact, adapter, Preview, Deliver control은
+lineage를 먼저 확인합니다. 선택 model graph의 축은 internal quantity key 대신 사람이 읽는 물성명과
+unit(예: `True plastic strain [1]`, `Hardening stress [MPa]`)으로 표시됩니다. source가 없거나 다른 revision이면 artifact, adapter, Preview, Deliver control은
 전혀 표시되지 않습니다. **Back to Fit**은 같은 session과 Recipe draft를 유지합니다.
 
 Modeling의 **Local file** 경로에서 exact Test Run을 선택하고 저장한 새 Test Data revision은 서버가
@@ -185,8 +186,18 @@ Polymer와 Elastomer에는 이 recovery path가 아직 **Not configured**이며 
 
 이 preview는 card, Artifact, receipt, download, Activity, Material CAE Card link 또는 `exportArtifact`를 만들지
 않습니다. approximation이 있으면 Evidence disclosure의 acknowledgement identity는 **UXC-06C2 delivery 입력**일
-뿐 C1에서 승인·기록되지 않습니다. **Deliver is unavailable — UXC-06C2 atomic delivery receipt pending** 상태가
-계속 표시됩니다. Materials에서 이미 released된 card를 명시적으로 재사용하는 흐름은 별도 기능이며 fallback이 아닙니다.
+뿐 C1에서 승인·기록되지 않습니다.
+
+**Deliver native card**는 current preview와 정확히 같은 source/target/mapping identity를 다시 검증합니다.
+경고 mapping이면 해당 acknowledgement identity를 명시적으로 확인해야 하며, exact mapping에는 acknowledgement를
+제출할 수 없습니다. 성공하면 immutable Solver Card와 filename/checksum·exact revision chain·mapping digest·actor·timestamp를
+포함한 immutable Exporting receipt/outbox event가 하나의 transaction에서 함께 기록됩니다. Materials CAE Cards는 기존
+canonical card API로 delivered card를 재사용합니다. 같은 preview identity로 다시 요청하면 새 card를 만들지 않고 기존
+receipt를 반환합니다. 성공 영역에는 `Solver card delivered`, filename, 전달 시각, card/receipt 링크만 표시합니다.
+receipt UUID, checksum, source chain과 mapping 상태는 receipt 또는 **Preview & mapping evidence**에서 확인하며,
+구성되지 않은 Activity projection 같은 내부 구조 용어는 일반 경로에 노출하지 않습니다. 현재 Activity 연결이 없으므로
+Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 변경, 실패 또는 재시도는 기존 immutable delivery를
+수정하지 않고 current preview/delivery pointer만 지웁니다.
 
 
 

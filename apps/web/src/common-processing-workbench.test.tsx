@@ -508,7 +508,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(1);
     fireEvent.click(screen.getByRole("button", { name: "Update candidates" }));
-    expect(await screen.findByText("Preview only · not committed")).toBeTruthy();
+    expect(await screen.findByText("Preview — not saved")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByText("Preview blend · swift + voce · fitted domain")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
@@ -530,7 +530,7 @@ describe("Common Processing Workbench", () => {
       target: { value: "Re-select Swift after the successful candidate recomputation." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save selected candidate" }));
-    expect(await screen.findByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
     expect(screen.getByText("Server provenance proof")).toBeTruthy();
     expect(screen.getByText(/stale, different-material, or unverified output is never used as a fallback/i)).toBeTruthy();
@@ -618,16 +618,23 @@ describe("Common Processing Workbench", () => {
     const ensembleBody = JSON.parse(String(ensembleRequest?.[1]?.body)) as { preprocessing_steps: Array<{ method_id: string }> };
     expect(ensembleBody.preprocessing_steps.map((step) => step.method_id)).toEqual(["rows.sort_unique"]);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
-    expect(screen.getByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
     expect(screen.queryByText("Test data")).toBeNull();
     expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();
     expect(screen.queryByRole("button", { name: "Mean & band" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Replicate statistics" })).toBeNull();
     expect(document.querySelector(".persistent-modeling-plot")).toBeTruthy();
+    const exportGraph = await screen.findByRole("img", { name: "Test data and selected model response" });
+    expect(exportGraph.textContent).toContain("True plastic strain [1]");
+    expect(exportGraph.textContent).toContain("Hardening stress [MPa]");
+    expect(exportGraph.textContent).not.toContain("strain.true_plastic");
+    expect(exportGraph.textContent).not.toContain("stress.hardening");
+    expect(screen.queryByRole("tab", { name: "Stress response" })).toBeNull();
+    expect(screen.queryByText("Calculation notes")).toBeNull();
     expect(screen.queryByText("Exact Neutral and solver delivery fixture")).toBeNull();
     expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
-    expect(screen.getByText("Selection reason")).toBeTruthy();
+    expect(screen.getByText("Saved source revision")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Back to Fit" }));
     expect(screen.queryByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeNull();
     onSessionChange.mockClear();

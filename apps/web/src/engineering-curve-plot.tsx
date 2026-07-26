@@ -58,9 +58,24 @@ export type PronyPlotMode = "response" | "residual";
 
 const PLOT_MARGIN = { left: 80, right: 24, top: 24, bottom: 52 } as const;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
+const QUANTITY_LABELS: Record<string, string> = {
+  "strain.true_plastic": "True plastic strain",
+  "stress.hardening": "Hardening stress",
+  "stress.true": "True stress",
+  "stress.engineering": "Engineering stress",
+  "modulus.shear.relaxation": "Shear relaxation modulus",
+  "modulus.shear.dynamic": "Dynamic shear modulus",
+  "predicted - measured": "Predicted minus measured",
+  response: "Response",
+};
 
 function modelLabel(value: string): string {
   return value.replaceAll("_", "-");
+}
+
+function quantityLabel(quantity: string): string {
+  return QUANTITY_LABELS[quantity]
+    ?? quantity.split(".").map((part) => part.replaceAll("_", " ")).join(" ");
 }
 
 export function linearInterpolate(
@@ -556,6 +571,7 @@ export function EngineeringCurvePlot({
   ensemblePreview,
   activeStep,
   fitSelection,
+  selectedModelOnly = false,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
@@ -566,6 +582,7 @@ export function EngineeringCurvePlot({
   ensemblePreview?: CommonEnsemblePreview | null;
   activeStep?: CommonProcessingStep;
   fitSelection?: FitDecisionSelection | null;
+  selectedModelOnly?: boolean;
 }) {
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
@@ -600,7 +617,10 @@ export function EngineeringCurvePlot({
     () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode, fitSelection),
     [activeStage, activeStep, baseStage, ensemblePreview, fitSelection, hardeningMode, preview, pronyMode],
   );
-  const validSeries = model.series.filter(
+  const visibleModelSeries = selectedModelOnly
+    ? model.series.filter((item) => !item.className.includes("candidate"))
+    : model.series;
+  const validSeries = visibleModelSeries.filter(
     (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length
       && (model.xScale !== "log10" || item.xValues.every((value) => value > 0)),
   );
@@ -744,20 +764,20 @@ export function EngineeringCurvePlot({
         </div>
         <span>{selection?.kind === "range" ? `Selected ${axisNumber(selection.minimum)} – ${axisNumber(selection.maximum)} ${selection.x_unit}` : selection?.kind === "point" ? `Selected ${axisNumber(selection.x)} ${selection.x_unit} · ${axisNumber(selection.y / yScale.divisor)} ${yScale.label}` : cursor ? `${axisNumber(fromPlotX(cursor.x))} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span>
       </div>
-      {isHardening ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
+      {isHardening && !selectedModelOnly ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
         {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Stress response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
         <span>{hardeningMode === "response" ? `Observed evidence + candidates + ${fitSelection ? "explicit engineer selection" : "calculated preview blend"}` : hardeningMode === "residual" ? "Predicted minus observed over the selected fit domain" : "Numerical slope; inspect stability into extrapolation"}</span>
       </div> : null}
-      {isProny ? <div className="hardening-analysis-tabs prony-analysis-tabs" role="tablist" aria-label="Prony comparison view">
+      {isProny && !selectedModelOnly ? <div className="hardening-analysis-tabs prony-analysis-tabs" role="tablist" aria-label="Prony comparison view">
         {(["response", "residual"] as PronyPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={pronyMode === mode} className={pronyMode === mode ? "active" : ""} key={mode} onClick={() => setPronyMode(mode)}>{mode === "response" ? isDmaProny ? "Storage & loss" : "Relaxation response" : "Residual"}</button>)}
         <span>{pronyMode === "response" ? isDmaProny ? `Measured storage/loss + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : `Measured modulus + every fitted term count + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
       </div> : null}
-      {hardeningMetrics.length ? <div className="hardening-metric-strip" aria-label="Hardening candidate relative RMSE summary">{hardeningMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.family}><span>{index === 0 ? "BEST" : "RMSE"}</span><strong>{metric.family.replaceAll("_", "-")}</strong><b>{(metric.value * 100).toFixed(3)}%</b></article>)}</div> : null}
-      {pronyMetrics.length ? <div className="hardening-metric-strip prony-metric-strip" aria-label="Prony candidate BIC and normalized RMSE summary">{pronyMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.count}><span>{index === 0 ? "BEST BIC" : "CANDIDATE"}</span><strong>{metric.count} term{metric.count === 1 ? "" : "s"}</strong><b>{metric.bic.toFixed(2)}</b><small>{metric.rmse == null ? "nRMSE —" : `nRMSE ${(metric.rmse * 100).toFixed(3)}%`}</small></article>)}</div> : null}
+      {hardeningMetrics.length && !selectedModelOnly ? <div className="hardening-metric-strip" aria-label="Hardening candidate relative RMSE summary">{hardeningMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.family}><span>{index === 0 ? "BEST" : "RMSE"}</span><strong>{metric.family.replaceAll("_", "-")}</strong><b>{(metric.value * 100).toFixed(3)}%</b></article>)}</div> : null}
+      {pronyMetrics.length && !selectedModelOnly ? <div className="hardening-metric-strip prony-metric-strip" aria-label="Prony candidate BIC and normalized RMSE summary">{pronyMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.count}><span>{index === 0 ? "BEST BIC" : "CANDIDATE"}</span><strong>{metric.count} term{metric.count === 1 ? "" : "s"}</strong><b>{metric.bic.toFixed(2)}</b><small>{metric.rmse == null ? "nRMSE —" : `nRMSE ${(metric.rmse * 100).toFixed(3)}%`}</small></article>)}</div> : null}
       <svg
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
-        aria-label={ensemblePreview ? "Aligned replicate curves with pointwise mean and confidence interval" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
+        aria-label={selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with pointwise mean and confidence interval" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
         viewBox={`0 0 ${width} ${height}`}
         onDoubleClick={() => setViewBounds(null)}
         onPointerDown={(event) => {
@@ -796,15 +816,15 @@ export function EngineeringCurvePlot({
         {selection?.kind === "range" ? <rect className="graph-range-selection" x={PLOT_MARGIN.left + ((toPlotX(selection.minimum) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(1, ((toPlotX(selection.maximum) - toPlotX(selection.minimum)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /> : null}
         {selection?.kind === "point" ? <><line className="graph-point-selection" x1={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} /><circle className="graph-point-marker" cx={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5" /></> : null}
         {cursor ? <><line x1={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((cursor.x - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} className="chart-crosshair"/><line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom - ((cursor.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} className="chart-crosshair"/></> : null}
-        <text x={(PLOT_MARGIN.left + width - PLOT_MARGIN.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{model.xQuantity} [{model.xUnit}]{model.xScale === "log10" ? " · logarithmic" : ""}</text>
-        <text transform={`translate(15 ${(PLOT_MARGIN.top + height - PLOT_MARGIN.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{model.yQuantity} [{yScale.label}]</text>
+        <text x={(PLOT_MARGIN.left + width - PLOT_MARGIN.right) / 2} y={height - 8} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.xQuantity)} [{model.xUnit}]{model.xScale === "log10" ? " · logarithmic" : ""}</text>
+        <text transform={`translate(15 ${(PLOT_MARGIN.top + height - PLOT_MARGIN.bottom) / 2}) rotate(-90)`} textAnchor="middle" className="chart-axis-label">{quantityLabel(model.yQuantity)} [{yScale.label}]</text>
       </svg>
       <div className="curve-legend interactive" aria-label="Curve visibility">
         {validSeries.map((series) => <button type="button" className={hiddenSeries.includes(series.id) ? "hidden" : ""} key={series.id} onClick={() => setHiddenSeries((current) => current.includes(series.id) ? current.filter((item) => item !== series.id) : [...current, series.id])} aria-pressed={!hiddenSeries.includes(series.id)}><i style={{ background: series.color }} />{series.label}</button>)}
         {model.band ? <span className="curve-band-legend"><i />{model.band.label}</span> : null}
       </div>
-      {(ensemblePreview?.diagnostics ?? activeStage.diagnostics).length ? <details className="stage-diagnostics"><summary>{ensemblePreview ? "Alignment and statistics notes" : "Calculation notes"} <span>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).length}</span></summary>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).map((item) => <p key={item}>{item}</p>)}</details> : null}
-      {!ensemblePreview && (activeStage.scalar_results ?? []).length ? <details className="model-diagnostics-details"><summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary><div className="metal-scalar-grid" aria-label="Processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div></details> : null}
+      {!selectedModelOnly && (ensemblePreview?.diagnostics ?? activeStage.diagnostics).length ? <details className="stage-diagnostics"><summary>{ensemblePreview ? "Alignment and statistics notes" : "Calculation notes"} <span>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).length}</span></summary>{(ensemblePreview?.diagnostics ?? activeStage.diagnostics).map((item) => <p key={item}>{item}</p>)}</details> : null}
+      {!selectedModelOnly && !ensemblePreview && (activeStage.scalar_results ?? []).length ? <details className="model-diagnostics-details"><summary>Parameters and numerical evidence ({activeStage.scalar_results?.length})</summary><div className="metal-scalar-grid" aria-label="Processing scalar results">{(activeStage.scalar_results ?? []).map((item) => <article key={item.key}><span>{item.key.replaceAll("_", " ").replaceAll(".", " ")}</span><strong>{item.unit === "Pa" ? `${(item.value / 1e9).toPrecision(6)} GPa` : item.value.toPrecision(7)}</strong><small>{item.quantity_semantics} · {item.unit}</small></article>)}</div></details> : null}
       <p className="digest-line diagnostics-only"><span>Mapping SHA-256</span><code>{preview.mapping_profile_sha256}</code></p>
     </>
   );

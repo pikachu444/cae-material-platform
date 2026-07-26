@@ -8210,6 +8210,66 @@ paths:
           content:
             application/json:
               schema: {$ref: "../exporting/target-preview-resource.schema.json#/$defs/Problem"}
+  /api/v1/exporting/target-deliveries:
+    post:
+      operationId: deliverExactTargetPreview
+      tags: [exporting]
+      summary: Atomically persist the exact approved native preview, immutable card revision, receipt, and outbox event.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Request"}
+      responses:
+        "200":
+          description: Immutable delivery receipt; an exact retry returns the original receipt without creating another card.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Export execute is not authorized.}
+        "409":
+          description: Preview identity, mapping acknowledgement, or persisted evidence is stale or conflicting.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Problem"}
+        "422":
+          description: The request payload or declared target is malformed.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Problem"}
+        "503":
+          description: Atomic delivery persistence is not configured.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Problem"}
+  /api/v1/exporting/target-deliveries/{receipt_id}:
+    get:
+      operationId: getTargetDeliveryReceipt
+      tags: [exporting]
+      summary: Read the immutable evidence receipt for one exact native-card delivery.
+      security: [{BearerAuth: []}]
+      parameters:
+        - {name: receipt_id, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200":
+          description: The exact persisted delivery evidence and stable card links.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "404":
+          description: Receipt is absent or outside the authorized tenant scope.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Problem"}
+        "503":
+          description: Delivery receipt persistence is not configured.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-delivery-resource.schema.json#/$defs/Problem"}
   /api/v1/neutral-materials/{neutral_material_id}/solver-card-preflight:
     post:
       operationId: preflightNeutralHyperelasticSolverCard
