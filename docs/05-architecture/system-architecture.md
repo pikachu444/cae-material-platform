@@ -297,6 +297,23 @@ an OpenRadioss `/MAT/LAW1` + `/VISC/LPRONY` fragment. The latter report exposes 
 `/PROP I_smstr=10/12` prerequisite and deviatoric-only nearly-incompressible interpretation as
 acknowledged approximations. It never mutates the IR, invents bulk terms, or converts it to LAW62.
 
+### 7.3 Governed Test Data source verification boundary
+
+Datasets owns Canonical Test Data revisions but does not import Catalog or Testing persistence.
+At API composition time a narrow `GovernedTestDataSourceVerifier` is injected. Its adapter calls
+the existing Catalog and Testing application services to validate one exact
+Test Run→Specimen→Material State→Material chain under the same authorization decision,
+tenant/project and classification. Both the State and the Material revision are independently
+resolved; a matching ID stored on State is not accepted as proof of an absent or unreadable
+Material revision. The Datasets service then stores the verified projection in immutable Test Data
+revision content.
+
+Processing reads only the exact Canonical Test Data revision selected by the command and copies that
+projection into the immutable Common Processing Output. Null historical rows remain readable after
+the nullable migration; there is no data backfill and no `latest` lookup. This boundary implements
+`FR-DAT-005/007` source lineage without giving a module direct access to another module's tables.
+Target preview and delivery remain separate Exporting application contracts.
+
 ## 8. Plugin 및 solver 실행 plane
 
 ### 8.1 개발 환경

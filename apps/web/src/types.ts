@@ -3819,6 +3819,7 @@ export interface CanonicalTestDataDocumentResponse {
   normalized_artifact_id: string;
   normalized_sha256: string;
   channels: CanonicalTestDataChannelPreview[];
+  governed_source: CommonExportProvenance | null;
 }
 
 export interface CommonChannelBinding {
@@ -4004,6 +4005,13 @@ export interface CommonProcessingOutputResponse {
   output_sha256: string;
   workup_overrides: CommonProcessingWorkupOverride[];
   fit_decision: CommonProcessingFitDecision | null;
+  export_provenance: CommonExportProvenance | null;
+}
+
+export interface CommonExportProvenance {
+  material: CommonExactRevisionPin;
+  material_state: CommonExactRevisionPin;
+  test_run: CommonExactRevisionPin;
 }
 
 export interface CommonProcessingFitDecisionParameter {

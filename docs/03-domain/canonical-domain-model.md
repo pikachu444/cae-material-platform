@@ -102,6 +102,7 @@ revision을 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 �
 | Instrument | `instrument` | `instrument_revision` | serial/asset identity와 calibration history 분리 |
 | Raw Asset | content identity | `raw_asset` + ingestion event | raw bytes immutable, SHA-256 필수 |
 | Import Mapping | `import_mapping` | `import_mapping_revision` | source column→semantic/unit mapping 고정 |
+| Canonical Test Data | `test_data_document` | `test_data_document_revision` | canonical/normalized Artifact를 고정하고, 검증된 경우 exact Material·State·Test Run source를 revision content에 함께 고정 |
 | Dataset | `dataset` | `dataset_revision` | revision은 immutable artifact manifest 참조 |
 | Selection | `selection` | `selection_revision` + members | 계산 input membership 고정 |
 
@@ -111,6 +112,7 @@ revision을 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 �
 | --- | --- | --- | --- |
 | Processing Recipe | `processing_recipe` | `processing_recipe_revision` | ordered steps와 plugin schema digest 고정 |
 | Processing Run | `processing_run` | plan snapshot, attempts, result refs | input revision head-follow 금지 |
+| Common Processing Output | `common_processing_output` | `common_processing_output_revision` | exact Test Data/Profile와 source proof projection을 immutable content 및 Artifact에 고정 |
 | Statistical Plan/Run | `statistical_plan`, `statistical_run` | grouping, methods, outputs | replicate unit와 assumptions 필수 |
 | QC Observation | immutable observation | rule, evidence, severity | input을 수정하지 않음 |
 | Outlier Assessment | append-only decision | scope, decision, reason, actor | candidate와 사람 판정 분리 |
@@ -137,6 +139,20 @@ revision을 가리킬 수 있으며, Workflow Explorer는 이 관계를 읽기 �
 | Review Request / Review Decision | 검토 snapshot과 append-only 판정 |
 | Audit Event | security/business change의 append-only 기록 |
 | Provenance Entity/Activity/Agent/Relations | 데이터 생성·사용·책임 관계 |
+
+### 3.4.1 Canonical Test Data의 governed source 경계
+
+로컬 파일을 Modeling의 exact Test Run 문맥에서 저장할 때만 application adapter가
+`Test Run revision → Specimen revision → Material State revision → Material revision`을
+Catalog/Testing service를 통해 검증한다. 성공한 세 exact pin은 Canonical Test Data revision
+content의 `governed_source`가 된다. Canonical Test Data JSON 과학 artifact에는 이 UI/업무
+문맥을 주입하지 않으므로 기존 exchange schema와 bytes는 변하지 않는다.
+
+직접 등록한 JSON과 과거 revision의 `governed_source`는 `null`이다. 이를 current Material이나
+이름/grade 비교로 추론하거나 backfill하지 않는다. Common Processing Output은 입력한 exact
+Test Data revision의 이 값을 `export_provenance`로 그대로 복사한다. 이후 head 변경은 과거
+revision을 수정하지 않고 새 Test Data/Output revision과 downstream current-pointer 무효화로
+표현한다.
 
 ### 3.5 Configurable catalog와 reusable execution
 

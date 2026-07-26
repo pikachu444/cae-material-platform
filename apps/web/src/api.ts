@@ -183,6 +183,7 @@ import type {
   CommonProcessingMethod,
   CommonProcessingBatchPreflight,
   CommonProcessingBatchResponse,
+  CommonExportProvenance,
   CommonProcessingRecipeContent,
   CommonProcessingRecipeResponse,
   CommonProcessingFitDecision,
@@ -393,6 +394,7 @@ export function importCanonicalTestData(
     classification: DataClassification;
     document: Record<string, unknown>;
     change_reason: string;
+    governed_source?: CommonExportProvenance;
   },
 ): Promise<ApiResult<CanonicalTestDataDocumentResponse>> {
   return request(config, "/test-data-documents", {
@@ -411,7 +413,11 @@ export function reviseCanonicalTestData(
   config: ApiConfig,
   documentId: string,
   etag: string,
-  input: { document: Record<string, unknown>; change_reason: string },
+  input: {
+    document: Record<string, unknown>;
+    change_reason: string;
+    governed_source?: CommonExportProvenance;
+  },
 ): Promise<ApiResult<CanonicalTestDataDocumentResponse>> {
   return request(config, `/test-data-documents/${encodeURIComponent(documentId)}/revisions`, {
     method: "POST",

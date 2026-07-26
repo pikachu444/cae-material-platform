@@ -3,6 +3,21 @@
 Date: `2026-07-26`
 Foundation version: `0.32.0`
 
+## UXC-06B exact Export source provenance implemented (2026-07-26)
+
+Governed local-file Test Data registration now carries exact Material, Material State and Test Run
+revision references. The server validates the complete Test Run→Specimen→State→Material relation
+through narrow Catalog/Testing application-service calls under the same authorization and
+classification boundary. The verified projection is part of immutable Canonical Test Data revision
+content and its hash, while the canonical scientific JSON Artifact remains byte-compatible.
+
+Common Processing Output preflight copies that projection only from the exact Test Data revision
+into immutable Output content, API response and Artifact. Nullable migration columns preserve
+historical and JSON-only revisions as explicit missing proof without inference or backfill. Export
+reports matching proof as current and mismatches as stale, but still reports the independent
+ephemeral target-preview producer as not supported. Preview, Deliver, receipt, Activity and Material
+CAE Card writes remain UXC-06C scope.
+
 ## UXC-05 governed validation boundary implemented (2026-07-26)
 
 Normal Modeling now has a session-bound validation surface for the existing synthetic reference

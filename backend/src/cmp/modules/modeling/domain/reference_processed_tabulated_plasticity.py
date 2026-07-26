@@ -198,7 +198,9 @@ class ReferenceProcessedTabulatedPlasticityContent:
         ):
             raise InvalidProcessedProjection("candidate_families must be 2..4 unique supported IDs")
         if self.primary_family not in self.candidate_families:
-            raise InvalidProcessedProjection("selected primary family must be a declared candidate")
+            raise InvalidProcessedProjection(
+                "selected families must be declared processing candidates"
+            )
         if (
             self.secondary_family is not None
             and self.secondary_family not in self.candidate_families

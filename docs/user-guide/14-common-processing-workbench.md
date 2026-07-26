@@ -152,11 +152,21 @@ Processing Output pin과 `Processing Output → Material Model IR → Neutral �
 lineage를 먼저 확인합니다. source가 없거나 다른 revision이면 artifact, adapter, Preview, Deliver control은
 전혀 표시되지 않습니다. **Back to Fit**은 같은 session과 Recipe draft를 유지합니다.
 
-현재 Processing Output API는 exact Test Data와 Mapping Profile은 증명하지만 Material/State pin을 server-side로
-project하지 않습니다. 따라서 browser session의 비교는 안내용일 뿐 delivery proof가 아니며 Normal Modeling
-Export는 `Server provenance proof · not supported`로 fail closed합니다. 이 상태에서는 preview나 delivery event,
-`exportArtifact` session pin, Activity 기록, Material CAE Card 연결을 만들지 않습니다. Materials에서 이미 released된
-card를 명시적으로 재사용하는 흐름은 별도 기능이며 이 제한의 fallback이 아닙니다.
+Modeling의 **Local file** 경로에서 exact Test Run을 선택하고 저장한 새 Test Data revision은 서버가
+`Test Run → Specimen → Material State → Material` exact revision 관계를 검증합니다. 이후 그 Test Data로
+저장한 Processing Output은 `export_provenance`에 같은 Material/State/Test Run pin을 보존합니다. Export
+체크리스트는 이 서버 proof와 현재 session의 exact Material/State/Test Data를 비교해 `current` 또는 `stale`을
+표시합니다.
+
+직접 등록한 Test Data JSON과 과거 revision은 이 proof가 없으므로 `Server provenance proof · missing`입니다.
+현재 session의 이름이나 ID가 우연히 같아도 추론하거나 backfill하지 않습니다. Canonical Test Data JSON
+Artifact 자체에는 proof가 추가되지 않으며, immutable revision content에만 저장됩니다. Omitted proof로 revise하면
+새 revision은 unqualified 상태가 됩니다.
+
+Source proof가 current여도 별도의 ephemeral target preview producer는 아직 `not supported`입니다. 따라서 이
+단계에서는 preview나 delivery event, `exportArtifact` session pin, Activity 기록, Material CAE Card 연결을
+만들지 않습니다. Materials에서 이미 released된 card를 명시적으로 재사용하는 흐름은 별도 기능이며 이 제한의
+fallback이 아닙니다.
 
 
 

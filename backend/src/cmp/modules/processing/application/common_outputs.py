@@ -10,7 +10,10 @@ from typing import Literal, Protocol
 from uuid import UUID, uuid4
 
 from cmp.modules.artifacts.application.content import ArtifactService
-from cmp.modules.datasets.application.canonical_test_data import CanonicalTestDataService
+from cmp.modules.datasets.application.canonical_test_data import (
+    CanonicalTestDataService,
+    GovernedTestDataSource,
+)
 from cmp.modules.datasets.domain.canonical_test_data import parse_canonical_test_data
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -553,6 +556,7 @@ class ProcessingOutputContent:
     output_sha256: str
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = ()
     fit_decision: FitDecisionSnapshot | None = None
+    export_provenance: GovernedTestDataSource | None = None
 
     def __post_init__(self) -> None:
         if not self.label.strip() or len(self.label) > 200:
@@ -578,6 +582,7 @@ class ProcessingOutputPreflight:
     source_canonical_artifact_sha256: str
     mapping_profile_sha256: str
     preview: ProcessingPreview
+    export_provenance: GovernedTestDataSource | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -649,6 +654,7 @@ def processing_output_content_canonical(value: ProcessingOutputContent) -> dict[
             for override in value.workup_overrides
         ],
         "fit_decision": fit_decision_canonical(value.fit_decision),
+        "export_provenance": _export_provenance_canonical(value.export_provenance),
     }
 
 
@@ -690,6 +696,25 @@ def fit_decision_canonical(value: FitDecisionSnapshot | None) -> dict[str, objec
     }
 
 
+def _export_provenance_canonical(value: GovernedTestDataSource | None) -> dict[str, object] | None:
+    if value is None:
+        return None
+    return {
+        "material": {
+            "aggregate_id": str(value.material.aggregate_id),
+            "revision_id": str(value.material.revision_id),
+        },
+        "material_state": {
+            "aggregate_id": str(value.material_state.aggregate_id),
+            "revision_id": str(value.material_state.revision_id),
+        },
+        "test_run": {
+            "aggregate_id": str(value.test_run.aggregate_id),
+            "revision_id": str(value.test_run.revision_id),
+        },
+    }
+
+
 def processing_output_document(
     *,
     output_id: UUID,
@@ -700,6 +725,7 @@ def processing_output_document(
     preview: ProcessingPreview,
     workup_overrides: tuple[ProcessingWorkupOverride, ...] = (),
     fit_decision: FitDecisionSnapshot | None = None,
+    export_provenance: GovernedTestDataSource | None = None,
 ) -> dict[str, object]:
     return {
         "document_type": "cmp.processing-output",
@@ -734,6 +760,7 @@ def processing_output_document(
             for override in workup_overrides
         ],
         "fit_decision": fit_decision_canonical(fit_decision),
+        "export_provenance": _export_provenance_canonical(export_provenance),
         "result": processing_preview_canonical(preview),
     }
 
@@ -807,6 +834,7 @@ class CommonProcessingOutputService:
             source_canonical_artifact_sha256=source_snapshot.content.canonical_sha256,
             mapping_profile_sha256=preview.mapping_profile_sha256,
             preview=preview,
+            export_provenance=source_snapshot.content.governed_source,
         )
 
     async def commit(
@@ -828,6 +856,7 @@ class CommonProcessingOutputService:
                 preview=preview,
                 workup_overrides=command.workup_overrides,
                 fit_decision=command.fit_decision,
+                export_provenance=resolved.export_provenance,
             )
         )
         artifact = await self._artifacts.finalize_derived_bytes(
@@ -855,6 +884,7 @@ class CommonProcessingOutputService:
             output_sha256=artifact.artifact.sha256,
             workup_overrides=command.workup_overrides,
             fit_decision=command.fit_decision,
+            export_provenance=resolved.export_provenance,
         )
         record = RevisionService(
             aggregate_type=PROCESSING_OUTPUT_AGGREGATE_TYPE,

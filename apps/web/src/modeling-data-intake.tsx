@@ -19,6 +19,7 @@ import {
 import type {
   CanonicalTestDataDocumentResponse,
   CanonicalTestDataPreviewResponse,
+  CommonExportProvenance,
   CommonMappingProfileContent,
   CommonProcessingPreview,
   DataClassification,
@@ -145,6 +146,27 @@ export function profileMatchesPreview(
     && content.delimiter === preview.delimiter
     && content.decimal_separator === preview.decimal_separator
     && content.channels.every((channel) => preview.header_columns.includes(channel.source_column));
+}
+
+export function governedSourceFor(
+  material: MaterialResponse,
+  state: MaterialStateResponse,
+  run: TestRunResponse,
+): CommonExportProvenance {
+  return {
+    material: {
+      aggregate_id: material.material_id,
+      revision_id: material.current_revision.id,
+    },
+    material_state: {
+      aggregate_id: state.material_state_id,
+      revision_id: state.current_revision.id,
+    },
+    test_run: {
+      aggregate_id: run.test_run_id,
+      revision_id: run.current_revision.id,
+    },
+  };
 }
 
 export function ModelingDataIntake({
@@ -397,7 +419,11 @@ export function ModelingDataIntake({
 
   async function confirmLocal(): Promise<void> {
     const profile = currentProfile();
-    if (!selectedRun || !profile || !canonicalPreview || !rawAssetId || !rawArtifactId) return;
+    if (!material || !state || !selectedRun || !profile || !canonicalPreview || !rawAssetId || !rawArtifactId) {
+      setError("Choose an exact Material, Material State, and Test Run before saving local Test Data.");
+      return;
+    }
+    const governedSource = governedSourceFor(material, state, selectedRun);
     setBusy(true);
     setError("");
     try {
@@ -438,12 +464,14 @@ export function ModelingDataIntake({
             {
               document: canonicalPreview.canonical_document,
               change_reason: "Save local Test Data source",
+              governed_source: governedSource,
             },
           )
         : await importCanonicalTestData(config, {
             classification: selectedRun.current_revision.classification as DataClassification,
             document: canonicalPreview.canonical_document,
             change_reason: "Save local Test Data source",
+            governed_source: governedSource,
           });
       onImported(imported.data);
       setSource("library");

@@ -1,7 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ModelingDataIntake, profileMatchesPreview } from "./modeling-data-intake";
+import {
+  ModelingDataIntake,
+  governedSourceFor,
+  profileMatchesPreview,
+} from "./modeling-data-intake";
 import type { GovernedImportPreview, GovernedImportProfileResponse } from "./types";
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -83,6 +87,47 @@ describe("Modeling data intake", () => {
       { ...profile, content: { ...profile.content, sheet_name: "Repeat" } },
       preview,
     )).toBe(false);
+  });
+
+  it("builds governed local-file proof from exact Material, State, and Test Run revisions", () => {
+    const proof = governedSourceFor(
+      {
+        material_id: "53000000-0000-4000-8000-000000000040",
+        current_revision: {
+          ...revision,
+          id: "53000000-0000-4000-8000-000000000041",
+        },
+      } as never,
+      {
+        material_state_id: "53000000-0000-4000-8000-000000000042",
+        current_revision: {
+          ...revision,
+          id: "53000000-0000-4000-8000-000000000043",
+        },
+      } as never,
+      {
+        test_run_id: "53000000-0000-4000-8000-000000000044",
+        current_revision: {
+          ...revision,
+          id: "53000000-0000-4000-8000-000000000045",
+        },
+      } as never,
+    );
+
+    expect(proof).toEqual({
+      material: {
+        aggregate_id: "53000000-0000-4000-8000-000000000040",
+        revision_id: "53000000-0000-4000-8000-000000000041",
+      },
+      material_state: {
+        aggregate_id: "53000000-0000-4000-8000-000000000042",
+        revision_id: "53000000-0000-4000-8000-000000000043",
+      },
+      test_run: {
+        aggregate_id: "53000000-0000-4000-8000-000000000044",
+        revision_id: "53000000-0000-4000-8000-000000000045",
+      },
+    });
   });
 
   it("validates JSON on the graph before explicit registration", async () => {
@@ -195,5 +240,10 @@ describe("Modeling data intake", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "Save dataset" }));
     await waitFor(() => expect(onImported).toHaveBeenCalledWith(imported));
+    const registration = fetchMock.mock.calls.find(([input, init]) =>
+      String(input).endsWith("/test-data-documents") && init?.method === "POST");
+    expect(registration).toBeTruthy();
+    const registrationBody = JSON.parse(String(registration?.[1]?.body)) as Record<string, unknown>;
+    expect(registrationBody).not.toHaveProperty("governed_source");
   });
 });

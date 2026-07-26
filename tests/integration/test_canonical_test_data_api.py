@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import zipfile
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
@@ -18,7 +19,9 @@ from cmp.modules.datasets.adapters.api.canonical_test_data import (
 )
 from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
+    ExactRevisionRef,
     ExactTestDataRevisionRef,
+    GovernedTestDataSource,
     ImportCanonicalTestData,
     ReviseCanonicalTestData,
     canonical_json_bytes,
@@ -31,6 +34,9 @@ from cmp.modules.datasets.application.canonical_test_data import (
 )
 from cmp.modules.datasets.application.canonical_test_data import (
     TestDataDocumentSnapshot as DocumentSnapshot,
+)
+from cmp.modules.datasets.application.canonical_test_data import (
+    test_data_content_canonical as canonical_test_data_content,
 )
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -52,6 +58,12 @@ REVISION = UUID("de000000-0000-4000-8000-000000000005")
 REVISION_TWO = UUID("de000000-0000-4000-8000-000000000008")
 CANONICAL_ARTIFACT = UUID("de000000-0000-4000-8000-000000000006")
 PARQUET_ARTIFACT = UUID("de000000-0000-4000-8000-000000000007")
+MATERIAL = UUID("de000000-0000-4000-8000-000000000009")
+MATERIAL_REVISION = UUID("de000000-0000-4000-8000-000000000010")
+STATE = UUID("de000000-0000-4000-8000-000000000011")
+STATE_REVISION = UUID("de000000-0000-4000-8000-000000000012")
+TEST_RUN = UUID("de000000-0000-4000-8000-000000000013")
+TEST_RUN_REVISION = UUID("de000000-0000-4000-8000-000000000014")
 
 
 def _context() -> SecurityContext:
@@ -127,6 +139,7 @@ class _Service:
             normalized_artifact_id=PARQUET_ARTIFACT,
             normalized_sha256="b" * 64,
             point_count=document.point_count,
+            governed_source=command.governed_source,
         )
         record = RevisionRecord(
             REVISION,
@@ -194,7 +207,11 @@ class _Service:
             CONTEXT.request_id,
             CONTEXT.trace_id,
         )
-        self.snapshot = DocumentSnapshot(DOCUMENT, record, self.snapshot.content)
+        self.snapshot = DocumentSnapshot(
+            DOCUMENT,
+            record,
+            replace(self.snapshot.content, governed_source=command.governed_source),
+        )
         return self.snapshot
 
     async def export_package(
@@ -378,6 +395,60 @@ async def test_import_list_and_exact_revision_export_round_trip() -> None:
     assert exported.status_code == 200
     assert exported.headers["content-disposition"].endswith('"DP600-TENSILE-01.json"')
     assert json.loads(exported.content) == _fixture()
+
+
+@pytest.mark.anyio
+async def test_import_returns_exact_server_governed_source_without_changing_artifact_json() -> None:
+    service = _Service()
+    payload = {
+        "material": {
+            "aggregate_id": str(MATERIAL),
+            "revision_id": str(MATERIAL_REVISION),
+        },
+        "material_state": {
+            "aggregate_id": str(STATE),
+            "revision_id": str(STATE_REVISION),
+        },
+        "test_run": {
+            "aggregate_id": str(TEST_RUN),
+            "revision_id": str(TEST_RUN_REVISION),
+        },
+    }
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=_app(service)), base_url="http://test"
+    ) as client:
+        imported = await client.post(
+            "/api/v1/test-data-documents",
+            json={
+                "classification": "internal",
+                "document": _fixture(),
+                "change_reason": "Register exact governed source",
+                "governed_source": payload,
+            },
+        )
+        exported = await client.get(
+            f"/api/v1/test-data-documents/{DOCUMENT}/revisions/{REVISION}/content"
+        )
+
+    assert imported.status_code == 201
+    assert imported.json()["governed_source"] == payload
+    assert exported.status_code == 200
+    assert "governed_source" not in json.loads(exported.content)
+
+    assert service.snapshot is not None
+    governed = GovernedTestDataSource(
+        material=ExactRevisionRef(MATERIAL, MATERIAL_REVISION),
+        material_state=ExactRevisionRef(STATE, STATE_REVISION),
+        test_run=ExactRevisionRef(TEST_RUN, TEST_RUN_REVISION),
+    )
+    qualified = canonical_test_data_content(
+        replace(service.snapshot.content, governed_source=governed)
+    )
+    unqualified = canonical_test_data_content(
+        replace(service.snapshot.content, governed_source=None)
+    )
+    assert qualified["governed_source"] == payload
+    assert qualified != unqualified
 
 
 @pytest.mark.anyio
