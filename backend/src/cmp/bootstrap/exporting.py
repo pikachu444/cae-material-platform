@@ -27,6 +27,9 @@ from cmp.modules.exporting.adapters.persistence.ogden_prony_repository import (
     SqlAlchemyOgdenPronyExportingRepository,
 )
 from cmp.modules.exporting.adapters.persistence.repository import SqlAlchemyExportingRepository
+from cmp.modules.exporting.adapters.persistence.target_delivery_receipts import (
+    SqlTargetDeliveryReceiptRecorder,
+)
 from cmp.modules.exporting.application.bulk_export import BulkExportPolicy, BulkExportService
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
@@ -39,6 +42,7 @@ from cmp.modules.exporting.application.neutral_hyperelastic_service import (
 )
 from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
 from cmp.modules.exporting.application.service import SolverCardService
+from cmp.modules.exporting.application.target_delivery import DeliveryReceiptRecorder
 from cmp.modules.modeling.application.linear_viscoelasticity import (
     LinearViscoelasticModelService,
 )
@@ -198,4 +202,18 @@ def build_neutral_hyperelastic_solver_card_service(
             ),
         ),
         neutral_materials=neutral_materials,
+    )
+
+
+def build_target_delivery_receipt_recorder(
+    identity: IdentityServices,
+) -> DeliveryReceiptRecorder | None:
+    """Compose the read/write receipt adapter over the same tenant RLS context."""
+
+    if identity.engine is None or identity.rls_context is None:
+        return None
+    sessions = sessionmaker(identity.engine, class_=Session, expire_on_commit=False)
+    return SqlTargetDeliveryReceiptRecorder(
+        session_factory=sessions,
+        rls_context=identity.rls_context,
     )

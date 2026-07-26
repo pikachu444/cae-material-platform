@@ -3,6 +3,17 @@
 Date: `2026-07-26`
 Foundation version: `0.32.0`
 
+## UXC-06C2 atomic target delivery implemented (2026-07-26)
+
+The existing stateless target preview and immutable Neutral Solver Card store are now bound by an
+exact identity delivery command. A current preview/mapping digest is required; an acknowledgement
+identity is accepted only for warning mappings. The card revision and immutable Exporting delivery
+receipt/outbox event are written in the same transaction, so a failed receipt cannot leave a card
+and a failed card cannot leave a receipt. The receipt pins filename, native checksum, Processing
+Output→Material/State→Neutral/embedded IR revisions, target, mapping digest/statuses, actor and time.
+Materials CAE Card reuse remains the canonical existing card API. Activity receipt projection has no
+authoritative producer and is explicitly `Not configured`; this slice does not claim Activity Delivered.
+
 ## UXC-06C1 stateless exact target preview implemented (2026-07-26)
 
 Exporting now reads one exact governed Processing Output and its exact Neutral/embedded Material
@@ -11,9 +22,9 @@ restricted, cross-scope, cross-classification, unrelated, or stale relations fai
 distinguishing their source. The preview endpoint produces deterministic mapping/native/preview
 SHA-256 identities and writes no Solver Card, Artifact, receipt, Activity, or session delivery pin.
 
-Normal Modeling exposes only the two declared reference/non-production target tuples after every
-current E-01–04 pin plus session IR/Neutral pin is present. C2 delivery remains unavailable; an
-approximation acknowledgement identity is Evidence-only C2 input, never a C1 acknowledgement.
+At C1 completion, Normal Modeling exposed only the two declared reference/non-production target
+tuples after every current E-01–04 pin plus session IR/Neutral pin was present. C1 did not deliver;
+an approximation acknowledgement identity was only a future C2 input, never a C1 acknowledgement.
 
 ## UXC-03B curve/specimen rail density correction implemented (2026-07-26)
 

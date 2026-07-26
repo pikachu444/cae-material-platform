@@ -621,6 +621,24 @@ export interface TargetPreviewResponse {
   delivery_status: "unavailable_pending_uxc_06c2";
 }
 
+/** UXC-06C2 immutable card plus transactional outbox receipt. */
+export interface TargetDeliveryResponse {
+  delivery_status: "delivered";
+  receipt_id: string;
+  delivery_identity: string;
+  solver_card_id: string;
+  solver_card_revision_id: string;
+  filename: string;
+  native_sha256: string;
+  mapping_report_sha256: string;
+  mapping_statuses: string[];
+  source: TargetPreviewResponse["source"];
+  target: TargetPreviewResponse["target"];
+  occurred_at: string;
+  recorded_by: string;
+  links: Record<string, string>;
+}
+
 export type MappingStatus =
   | "exact"
   | "transformed"

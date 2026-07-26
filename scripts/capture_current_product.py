@@ -60,7 +60,7 @@ STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
     "process": "Prepare observed curves",
     "fit": "Compare response, residual & extrapolation",
-    "export": "Inspect exact source & solver export",
+    "export": "Review & deliver solver card",
 }
 UNFINISHED = re.compile(
     r"^(Checking|Loading|Calculating|Resolving|Updating|Preparing|Creating)\b.*(?:…|\.\.\.)$",
@@ -335,7 +335,7 @@ def _save_exact_fit_selection(page: Page) -> None:
         "button", name=re.compile(r"^Select .+ candidate$")
     ).first.click()
     page.get_by_role("textbox", name="Candidate selection reason").fill(
-        "Synthetic reference candidate selected for the export preflight."
+        "Best agreement over the measured strain range."
     )
     warning_acknowledgement = page.get_by_role(
         "checkbox", name="Acknowledge selected candidate warning"
@@ -356,7 +356,7 @@ def _save_exact_fit_selection(page: Page) -> None:
     page.wait_for_function(
         """() => [...document.querySelectorAll("h1, h2, h3")].some(
             heading => heading.textContent?.trim() ===
-              "Inspect exact source & solver export"
+              "Review & deliver solver card"
         ) || document.querySelector(".error-banner")""",
         timeout=30_000,
     )
@@ -371,7 +371,9 @@ def _prepare_exact_target_preview(page: Page) -> None:
     page.get_by_role(
         "heading", name=STAGE_HEADINGS["export"], exact=True
     ).wait_for(timeout=30_000)
-    target_heading = page.get_by_role("heading", name="Native preview", exact=True)
+    target_heading = page.get_by_role(
+        "heading", name="Choose delivery target", exact=True
+    )
     if not target_heading.count():
         page.get_by_role(
             "heading", name="Prepare exact metal source", exact=True
@@ -389,7 +391,7 @@ def _prepare_exact_target_preview(page: Page) -> None:
         ).click()
         page.wait_for_function(
             """() => [...document.querySelectorAll("h1, h2, h3")].some(
-                heading => heading.textContent?.trim() === "Native preview"
+                heading => heading.textContent?.trim() === "Choose delivery target"
             ) || document.querySelector('[role="alert"]')""",
             timeout=30_000,
         )
@@ -423,10 +425,42 @@ def _prepare_exact_target_preview(page: Page) -> None:
     page.get_by_role("region", name="Native preview", exact=True).locator(
         "pre"
     ).wait_for(timeout=30_000)
-    if page.get_by_role("button", name=re.compile(r"^Deliver\b")).count():
+    deliver = page.get_by_role("button", name="Deliver native card", exact=True)
+    deliver.wait_for(timeout=30_000)
+    acknowledgement = page.get_by_role(
+        "checkbox", name="Acknowledge mapped approximations", exact=True
+    )
+    acknowledgement.wait_for(timeout=30_000)
+    acknowledgement.check()
+    page.wait_for_function(
+        """() => ![...document.querySelectorAll("button")].some(
+          button => button.textContent?.trim() === "Deliver native card" && button.disabled
+        )""",
+        timeout=30_000,
+    )
+    if deliver.is_disabled():
+        raise RuntimeError("UXC-06C2 Deliver must be enabled after its exact acknowledgement")
+    deliver.click()
+    page.wait_for_function(
+        """() => document.querySelector('[role="alert"]')
+          || [...document.querySelectorAll('[role="status"]')].some(
+            element => element.textContent?.includes("Solver card delivered")
+          )""",
+        timeout=30_000,
+    )
+    delivery_error = page.get_by_role("alert")
+    if delivery_error.count():
         raise RuntimeError(
-            "UXC-06C1 preview must not expose a delivery action before UXC-06C2"
+            f"UXC-06C2 delivery failed: {delivery_error.inner_text().strip()}"
         )
+    delivery_status = page.get_by_role("status").filter(has_text="Solver card delivered")
+    delivery_status.wait_for(timeout=30_000)
+    if delivery_status.get_by_role("link", name="Receipt").count() != 1:
+        raise RuntimeError("delivered solver card must expose its immutable receipt link")
+    if page.get_by_role("button", name=re.compile(r"^Deliver\b")).count():
+        raise RuntimeError("completed C2 delivery must not retain an active Deliver action")
+    if page.get_by_role("button", name="Change solver target", exact=True).count() != 1:
+        raise RuntimeError("completed delivery must offer an explicit target-change action")
     if page.locator(".modeling-curve-tree, .neutral-solver-export").count():
         raise RuntimeError(
             "Export must not restore the curve rail or legacy Neutral export surface"
@@ -447,7 +481,7 @@ def _capture_modeling_export_only(
             output / f"modeling-export-{width}x{height}.png",
             width,
             height,
-            focus_selector='[aria-label="Target mapping preflight"]',
+            focus_selector=".modeling-target-preview .ux-notice.success",
         )
         page.context.close()
 
@@ -524,7 +558,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     "textbox", name="Candidate selection reason"
                 )
                 selection_reason.fill(
-                    "Synthetic reference candidate selected for the export preflight."
+                    "Best agreement over the measured strain range."
                 )
                 warning_acknowledgement = page.get_by_role(
                     "checkbox", name="Acknowledge selected candidate warning"
@@ -568,11 +602,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 output / f"modeling-{stage}-{width}x{height}.png",
                 width,
                 height,
-                focus_selector=(
-                    '[aria-label="Target mapping preflight"]'
-                    if stage == "export"
-                    else None
-                ),
+                focus_selector=None,
             )
             if stage == "fit":
                 page.get_by_role(

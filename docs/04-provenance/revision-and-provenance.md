@@ -36,7 +36,12 @@ revision을 읽어 같은 proof를 immutable Output content와 `cmp.processing-o
 browser session pin으로 대체하지 않는다. 이 projection은 source eligibility만 증명하고,
 ephemeral target preview나 delivered Solver Card event를 만들지는 않는다. UXC-06C1 preview는 이
 immutable projection을 read-only로 검증해 deterministic text/digest만 반환한다. 이는 Entity/Activity를
-생성하지 않으며 C2 receipt와 delivered Solver Card event를 대신하지 않는다.
+생성하지 않으며 C2 receipt와 delivered Solver Card event를 대신하지 않는다. UXC-06C2는 같은
+Exporting revision transaction에서 immutable Solver Card revision, immutable delivery receipt와
+outbox event를 함께 기록한다. receipt에는 filename/checksum, Output→Material/State→Neutral/embedded
+IR exact revision chain, target/mapping digest, actor와 timestamp가 고정된다. Materials CAE Card는
+기존 canonical card API를 재사용한다. Activity receipt projection에는 권위 producer가 없으므로
+`Not configured`이며 Delivered Activity 상태를 주장하지 않는다.
 
 ## 2. W3C PROV의 선택적 적용
 

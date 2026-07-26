@@ -31,6 +31,7 @@ from cmp.bootstrap.exporting import (
     build_neutral_hyperelastic_solver_card_service,
     build_ogden_prony_solver_card_service,
     build_solver_card_service,
+    build_target_delivery_receipt_recorder,
 )
 from cmp.bootstrap.jobs import build_job_service
 from cmp.bootstrap.modeling import (
@@ -114,6 +115,7 @@ from cmp.modules.exporting.adapters.api.ogden_prony_solver_cards import (
     install_ogden_prony_solver_card_api,
 )
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
+from cmp.modules.exporting.adapters.api.target_delivery import install_target_delivery_api
 from cmp.modules.exporting.adapters.api.target_preview import install_target_preview_api
 from cmp.modules.exporting.adapters.integration.target_preview_source import (
     TargetPreviewSourceAdapter,
@@ -130,6 +132,7 @@ from cmp.modules.exporting.application.neutral_hyperelastic_service import (
 )
 from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
 from cmp.modules.exporting.application.service import SolverCardService
+from cmp.modules.exporting.application.target_delivery import TargetDeliveryService
 from cmp.modules.exporting.application.target_preview import TargetPreviewService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
@@ -1098,6 +1101,31 @@ def create_app(
         security_dependency=security_dependency,
         read_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.EXPORT_READ
+        ),
+    )
+    target_delivery_receipts = build_target_delivery_receipt_recorder(services)
+    target_delivery_service = (
+        TargetDeliveryService(
+            previews=target_preview_service,
+            cards=resolved_neutral_hyperelastic_solver_cards,
+            receipts=target_delivery_receipts,
+        )
+        if (
+            target_preview_service is not None
+            and resolved_neutral_hyperelastic_solver_cards is not None
+            and target_delivery_receipts is not None
+        )
+        else None
+    )
+    install_target_delivery_api(
+        application,
+        service=target_delivery_service,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
+        ),
+        execute_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_EXECUTE
         ),
     )
     resolved_bulk_exports = bulk_export_service or build_bulk_export_service(

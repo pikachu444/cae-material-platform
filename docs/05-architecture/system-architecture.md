@@ -314,8 +314,11 @@ the nullable migration; there is no data backfill and no `latest` lookup. This b
 `FR-DAT-005/007` source lineage without giving a module direct access to another module's tables.
 Target preview and delivery remain separate Exporting application contracts. UXC-06C1 composes a
 read-only Exporting resolver from narrow Processing Output and Neutral Material application ports;
-it validates the exact Output→IR→Neutral relation and returns no persistence port. C2 alone may
-compose card/artifact/receipt/activity writes.
+it validates the exact Output→IR→Neutral relation and returns no persistence port. UXC-06C2 composes
+the existing immutable Neutral Solver Card revision store with an Exporting receipt/outbox hook in one
+database transaction: failure commits neither card nor receipt/outbox row. It reuses the existing
+Materials CAE Card API for delivered-card access. No canonical Activity receipt projection producer
+exists, so the UI returns `Not configured` rather than fabricating an Activity Delivered state.
 
 ## 8. Plugin 및 solver 실행 plane
 

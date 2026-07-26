@@ -132,6 +132,31 @@ class TargetPreviewService:
         command: CreateTargetPreview,
     ) -> TargetPreview:
         _require_read(context, decision)
+        return await self._preview(context, decision, command)
+
+    async def preview_for_delivery(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateTargetPreview,
+    ) -> TargetPreview:
+        if (
+            decision.permission is not Permission.EXPORT_EXECUTE
+            or decision.principal_id != context.principal.id
+            or decision.organization_id != context.organization_id
+            or decision.project_id != context.project_id
+            or decision.request_id != context.request_id
+            or decision.trace_id != context.trace_id
+        ):
+            raise TargetPreviewConflict("authorization does not match target-delivery request")
+        return await self._preview(context, decision, command)
+
+    async def _preview(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        command: CreateTargetPreview,
+    ) -> TargetPreview:
         source = await self._resolver.resolve_for_target_preview(
             context=context,
             decision=decision,
