@@ -16,6 +16,12 @@ selection states. This is not whole-DUI-09 completion: stories for the remaining
 component/screen visual regression, and final legacy CSS cleanup remain open. No cloud visual
 service or automatic LLM review was added.
 
+**DUI-09D governed component stories (`2026-07-27`):** the existing workbench now renders the real
+four-stage `ModelingStageShell`, solver `MappingStatusList`, and server-response
+`TargetPreviewResult` in selected/blocked and exact/transformed/approximated/unsupported
+states. Synthetic story data never records an approval, release, delivery, or production solver
+choice. Tree, data-grid, property-sheet, inspector and final legacy route/CSS work remain open.
+
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
 ## Program goal

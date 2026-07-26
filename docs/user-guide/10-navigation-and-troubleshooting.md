@@ -69,6 +69,12 @@ API process의 metric, trace와 복구 절차는 일반 사용자 전역 메뉴�
 이 화면은 개발자용 component QA 증거이며 `Materials | Modeling | Activity` 일반 사용자 메뉴나
 업무 경로에 포함되지 않습니다.
 
+단계 선택·차단 상태와 solver mapping 결과는 같은 workbench에서 실제 컴포넌트로 확인합니다.
+아래 기준 화면은 exact/transformed/approximated/unsupported를 동시에 보여 주되 승인이나 배포를
+기록하지 않습니다.
+
+![로컬 Storybook governed workflow component QA](images/current/storybook-governed-workflow-1440x900.png)
+
 ## 자주 생기는 문제
 
 ### 오류에 `Support reference`가 표시됨

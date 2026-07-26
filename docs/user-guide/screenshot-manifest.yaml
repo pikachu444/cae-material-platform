@@ -1,10 +1,11 @@
-version: 64
+version: 65
 verified_at: 2026-07-27
-scope: dui-09c-storybook-foundation
-source_commit: working-tree-dui09c-storybook-foundation
+scope: dui-09d-governed-component-stories
+source_commit: working-tree-dui09d-governed-component-stories
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
+  - "DUI-09D adds real Modeling stage, target-mapping, and native-preview component states to local Storybook; the synthetic stories never create an approval, release, delivery, or production solver decision."
   - "DUI-09C adds local-only Storybook component tooling and stories; it does not change a production route, CSS, API, fixture, or domain state. Its current capture is a local developer/component-QA workbench, not normal-user navigation."
   - "The current set contains 32 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
   - "Fit capture asserts Preview changes, a closed Candidate parameters disclosure, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
@@ -27,6 +28,10 @@ notes:
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-dui09d-governed-component-stories
+    captured_at: 2026-07-27T03:18:14+09:00
+    command: local Storybook index.json inventory verification plus Playwright iframe capture at 1440x900 with --scope governed; verifies real ModelingStageShell, MappingStatusList and TargetPreviewResult stories, all four mapping states, visible preflight semantics and no canvas overflow without product APIs or domain writes
+    ids: [storybook-governed-workflow-1440]
   - source_commit: working-tree-dui09c-storybook-foundation
     captured_at: 2026-07-27T03:01:47+09:00
     command: local Storybook index.json inventory verification plus Playwright iframe capture at 1440x900 of the real EngineeringCurvePlot default story; verifies all four DUI-09C foundation groups, a visible SVG plot, and no canvas horizontal overflow without product fixtures, APIs, manager chrome, or cloud service
@@ -72,6 +77,13 @@ capture_provenance:
     command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5174 (successful atomic capture of implementation commit 8ce8b89 bytes before provenance-only follow-up)
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, activity-1440, administration-database-1440]
 captures:
+  - id: storybook-governed-workflow-1440
+    route: /iframe.html?id=governed-workflowcomponents--target-preview-mixed-mapping-states&viewMode=story
+    workflow: developer-governed-workflow-component-qa
+    fixture: isolated synthetic non-production component props; no approval, release, delivery or product API
+    image: images/current/storybook-governed-workflow-1440x900.png
+    width: 1440
+    height: 900
   - id: storybook-foundation-1440
     route: /iframe.html?id=foundation-engineeringcurveplot--default&viewMode=story
     workflow: developer-component-qa-foundation
