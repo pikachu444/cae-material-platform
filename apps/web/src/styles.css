@@ -1971,6 +1971,35 @@ dd {
   background: #fffbe8;
 }
 
+.mapping-status.current {
+  border-color: #9fc6b1;
+  color: #276b49;
+  background: #f1f8f3;
+}
+
+.mapping-status.missing,
+.mapping-status.stale,
+.mapping-status.not-supported {
+  border-color: #e6b3a8;
+  color: #923b2b;
+  background: #fff2ee;
+}
+
+.modeling-export-blocked { display: grid; gap: .75rem; max-width: 54rem; padding: .75rem; border: 1px solid var(--line); background: var(--surface); }
+.modeling-export-blocked > header { display: flex; align-items: start; justify-content: space-between; gap: .75rem; }
+.modeling-export-blocked h2 { margin: 0; }
+.modeling-export-blocked p { margin: 0; max-width: 70ch; }
+.modeling-export-prerequisite-list { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.modeling-export-prerequisite-list li { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .55rem; align-items: start; }
+.modeling-export-prerequisite-list small { display: block; margin-top: .1rem; color: var(--muted); }
+.modeling-export-lineage { display: grid; gap: .35rem; padding-top: .65rem; border-top: 1px solid var(--line); }
+.modeling-export-lineage ol { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.modeling-export-lineage li { color: var(--muted); font-size: .75rem; }
+.modeling-export-lineage li:not(:last-child)::after { content: "→"; margin-left: .4rem; color: var(--muted); }
+.modeling-export-lineage li.current { color: #276b49; }
+.modeling-export-lineage li.missing { color: #923b2b; }
+.modeling-export-lineage li.stale { color: #923b2b; text-decoration: line-through; }
+
 .mapping-status.approximated,
 .mapping-status.ignored,
 .mapping-status.unsupported {

@@ -292,7 +292,8 @@ Every slice must preserve:
     candidates without that adapter are explicitly `Not supported`. Review
     package production and release-policy input remain explicit `Not configured`; Submit, Request changes,
     Approve and Release are separately represented and never infer a state from Fit or Validation;
-13. UXC-06 exact Export and traceable delivery;
+13. UXC-06 exact Export and traceable delivery — fail-closed prerequisite slice complete; persistent
+    delivery remains blocked on the governed provenance and pre-delivery-preview API contract below;
 14. DUI-07 Administration — pending;
 15. DUI-08 Activity — pending;
 16. DUI-09 Storybook and final legacy cleanup — pending.
@@ -322,5 +323,23 @@ Test Data and Processing Output pin; it never renders a global/legacy output fal
 Processing Output API projects exact source Test Data and Mapping Profile but not Material or Material
 State identity. UXC-02 records that gap and does not represent its guard as a completed cross-resource
 provenance validation; UXC-06 needs an API-supported proof before delivery can claim it.
+
+### UXC-06 current constraint
+
+Normal Modeling Export now renders the exact-source checklist and required
+`Processing Output → Material Model IR → Neutral → target preflight → native card` lineage, but it
+does not render native artifact, adapter, Preview, or Deliver controls while the required server
+proof is absent. The browser may compare current session pins for recovery guidance only; this is
+not provenance authorization. Existing Materials CAE Card reuse remains a separate released-card
+route.
+
+The current Processing Output contract cannot prove that its exact Test Data belongs to the selected
+Material and Material State: it stores Test Data and Mapping Profile pins only. The existing card
+`/preview` resources read already-persisted immutable cards, so they are not a pre-delivery preview
+producer. Completing persistent Normal Modeling delivery requires a contracts-first server addition
+that either stores/verifies Material and Material State revision pins from governed Test Run/import
+provenance, plus an ephemeral target preview, or defines an equivalent governed verifier. That is a
+cross-domain provenance design decision, not a client-side identity default. Until it exists,
+`exportArtifact`, Activity delivery, and Material CAE Card links are not written from this route.
 
 Do not merge multiple P0 slices into a single unreviewable frontend rewrite. Each PR must include the actual user task, before/after screenshots and state-continuity evidence.

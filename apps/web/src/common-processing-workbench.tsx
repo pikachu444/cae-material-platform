@@ -51,7 +51,8 @@ import type {
 import { DomainWorkflowLinks } from "./domain-workflow-links";
 import { dispatchModelingSession, type ModelingMaterialFamily, type ModelingPlotView, type ModelingSessionEvent, type ModelingSessionSummary, type ModelingStage } from "./modeling-session-context";
 import { ModelingStageShell } from "./modeling-stage-shell";
-import { hasVerifiedExactExportChain } from "./modeling-export-eligibility";
+import { exportPrerequisites } from "./modeling-export-eligibility";
+import { ModelingExportPrerequisites } from "./modeling-export-prerequisites";
 import {
   buildFitDecisionSnapshot,
   fitDecisionIdentityLabel,
@@ -1634,7 +1635,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     ? outputs.find((output) => output.processing_output_id === initialSession.processingOutput?.id
       && output.current_revision.id === initialSession.processingOutput.revisionId)
     : undefined, [initialSession?.processingOutput, outputs]);
-  const verifiedExactExportChain = hasVerifiedExactExportChain({
+  const exactExportPrerequisites = exportPrerequisites({
     session: initialSession,
     material,
     materialState,
@@ -2073,9 +2074,7 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             </div> : null}
             </details>
           </aside>}
-          dock={workflowTask === "export" ? (verifiedExactExportChain && familyWorkbench
-            ? <section className="modeling-export-dock" id="modeling-export" aria-label="Solver card delivery"><header><div><p className="workspace-caption">Exact source delivery</p><h2>Exact source → mapping preflight → native card</h2></div><span>{`${initialSession?.material?.label} r${initialSession?.material?.revisionNo} / ${initialSession?.materialState?.label} r${initialSession?.materialState?.revisionNo}`}</span></header><section className="family-modeling-workbench" aria-label="Selected material family modeling">{familyWorkbench}</section></section>
-            : <section className="modeling-export-blocked" role="status" aria-label="Export blocked"><h2>Export is blocked</h2><p>Pin matching current Material, Material State, Test Data, Mapping Profile, and Processing Output revisions first. A stale, different-material, or unverified output is never used as a fallback.</p></section>) : undefined}
+          dock={workflowTask === "export" ? <ModelingExportPrerequisites prerequisites={exactExportPrerequisites} /> : undefined}
           ribbonOpen={inspectorVisible}
           onRibbonOpenChange={setInspectorVisible}
         />

@@ -194,22 +194,22 @@ captures:
     height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
-    workflow: exact-neutral-mapping-preflight-and-native-card-delivery
-    fixture: synthetic DP780 exact Material State with Neutral and solver delivery controls; DUI-06 acceptance
+    workflow: fail-closed-exact-export-prerequisites-and-server-provenance-gap
+    fixture: synthetic DP780 session; Processing Output has exact Test Data/Mapping pins but no server Material/State proof
     image: images/current/modeling-export-1366x768.png
     width: 1366
     height: 768
   - id: modeling-export-1440
     route: /modeling?stage=export&family=metal
-    workflow: exact-neutral-mapping-preflight-and-native-card-delivery
-    fixture: synthetic DP780 exact Material State with Neutral and solver delivery controls; DUI-06 acceptance
+    workflow: fail-closed-exact-export-prerequisites-and-server-provenance-gap
+    fixture: synthetic DP780 session; Processing Output has exact Test Data/Mapping pins but no server Material/State proof
     image: images/current/modeling-export-1440x900.png
     width: 1440
     height: 900
   - id: modeling-export-1920
     route: /modeling?stage=export&family=metal
-    workflow: exact-neutral-mapping-preflight-and-native-card-delivery
-    fixture: synthetic DP780 exact Material State with Neutral and solver delivery controls; DUI-06 acceptance
+    workflow: fail-closed-exact-export-prerequisites-and-server-provenance-gap
+    fixture: synthetic DP780 session; Processing Output has exact Test Data/Mapping pins but no server Material/State proof
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080

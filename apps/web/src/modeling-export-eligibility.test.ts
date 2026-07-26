@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { hasVerifiedExactExportChain } from "./modeling-export-eligibility";
+import { exportPrerequisites } from "./modeling-export-eligibility";
 import type { ModelingSessionSummary } from "./modeling-session-context";
 
 const session: ModelingSessionSummary = {
@@ -26,37 +26,36 @@ const output = {
 };
 
 describe("verified exact Export chain", () => {
-  it("permits the family adapter only for matching exact current pins", () => {
-    expect(hasVerifiedExactExportChain({
+  it("keeps the exact source checklist visible while reporting the API proof gap", () => {
+    const prerequisites = exportPrerequisites({
       session,
       material: material as never,
       materialState: materialState as never,
       testData: testData as never,
       output: output as never,
-    })).toBe(true);
+    });
+    expect(prerequisites.map((item) => [item.label, item.status])).toContainEqual(["Processing Output", "current"]);
+    expect(prerequisites).toContainEqual(expect.objectContaining({
+      label: "Server provenance proof",
+      status: "not-supported",
+    }));
   });
 
-  it("fails closed for a stale or different-material output", () => {
-    expect(hasVerifiedExactExportChain({
+  it("marks present but mismatched source pins stale instead of current", () => {
+    const prerequisites = exportPrerequisites({
       session,
       material: { ...material, current_revision: { id: "material-r2" } } as never,
       materialState: materialState as never,
       testData: testData as never,
-      output: output as never,
-    })).toBe(false);
-    expect(hasVerifiedExactExportChain({
-      session,
-      material: material as never,
-      materialState: materialState as never,
-      testData: testData as never,
-      output: { ...output, source_document: { aggregate_id: "other-test", revision_id: "test-r1" } } as never,
-    })).toBe(false);
-    expect(hasVerifiedExactExportChain({
-      session: { ...session, mappingProfile: undefined },
-      material: material as never,
-      materialState: materialState as never,
-      testData: testData as never,
-      output: output as never,
-    })).toBe(false);
+      output: {
+        ...output,
+        source_document: { aggregate_id: "other-test", revision_id: "test-r1" },
+        mapping_profile: { aggregate_id: "other-mapping", revision_id: "mapping-r1" },
+      } as never,
+    });
+
+    expect(prerequisites).toContainEqual(expect.objectContaining({ label: "Material", status: "stale" }));
+    expect(prerequisites).toContainEqual(expect.objectContaining({ label: "Test Data", status: "stale" }));
+    expect(prerequisites).toContainEqual(expect.objectContaining({ label: "Mapping Profile", status: "stale" }));
   });
 });

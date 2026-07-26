@@ -11,9 +11,10 @@ describe("solver-card delivery policy", () => {
     window.sessionStorage.clear();
   });
 
-  it("downloads exact and transformed mappings directly, reviews approximations, and blocks unsupported fields", () => {
+  it("classifies every delivery mapping state without silently downgrading it", () => {
     expect(mappingDisposition([{ status: "exact" }, { status: "transformed" }])).toBe("direct");
     expect(mappingDisposition([{ status: "exact" }, { status: "approximated" }])).toBe("review");
+    expect(mappingDisposition([{ status: "ignored" }])).toBe("review");
     expect(mappingDisposition([{ status: "ignored" }, { status: "unsupported" }])).toBe("blocked");
   });
 
