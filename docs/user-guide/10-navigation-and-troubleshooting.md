@@ -7,7 +7,7 @@ Material State의 exact revision 문맥을 공유합니다.
 | --- | --- |
 | **Materials** | 검색·필터·비교, Browse Tree, 5-tab datasheet와 직접 solver card download |
 | **Modeling** | Data, Process, Fit, Export와 Advanced Recipe/Batch/JSON |
-| **Activity** | 최근 Modeling, 검토·release, 고급 Job/export package 진입 |
+| **Activity** | 재개할 Modeling, 검토 대기 항목, 최근 검토·solver card 결과 |
 
 **Administration**은 우측 workspace menu의 role-gated 항목입니다. Table/Attribute/Layout/Subset/
 Link Type과 사용자 기능 권한을 관리합니다. `/database`, `/catalog/*`, `/datasets/*`의 기존 deep
@@ -21,18 +21,34 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 3. 카드가 있으면 Header 또는 CAE Cards에서 native preview/download를 실행합니다.
 4. 카드가 없을 때 **Modeling → Data**에서 JSON/CSV/XLSX와 channel/unit을 고정합니다.
 5. Process와 Fit의 같은 graph에서 처리·후보·residual·extrapolation을 검토하고 Export로 이동합니다.
-6. provenance/full ID는 Evidence, Recipe/Batch/JSON은 Advanced, batch/job/package는 Activity의
+6. 검토 요청은 **Activity**에서 상태와 요청 사유를 확인합니다. Reviewer와 Administrator는
+   행의 **Review**에서 사유를 남기고 승인하거나 변경을 요청합니다. 일반 사용자는 자신의
+   요청이 결정되기 전까지 **In progress**에서 확인합니다.
+7. provenance/full ID는 Evidence, Recipe/Batch/JSON은 Advanced, batch/job/package는 Activity의
    Advanced에서 확인합니다.
 
 ![통합 Materials 검색·결과·선택 문맥](images/current/materials-search-1440x900.png)
 
 ![Material의 5-tab 상세와 직접 card delivery](images/current/material-detail-1440x900.png)
 
+![Activity 검토·재개·결과 작업 큐](images/current/activity-1440x900.png)
+
+1366×768과 1920×1080에서도 같은 행 우선 구조를 유지합니다.
+
+![1366px Activity 작업 큐](images/current/activity-1366x768.png)
+
+![1920px Activity 작업 큐](images/current/activity-1920x1080.png)
+
 ## 운영 상태
 
-최근 Modeling, review/release와 고급 job/bundle 진입은 **Activity**에서 확인합니다. API process의
-metric, trace와 복구 절차는 일반 사용자 전역 메뉴가 아니라 운영 배포의 observability 도구와
-[운영 가이드](11-operations-and-recovery.md)에서 확인합니다.
+**Activity**는 `Needs attention | In progress | Recent outcomes`의 짧은 작업 큐입니다. 같은
+review 요청을 여러 번 만들지 않으며, 승인·변경 요청 결과는 서버가 돌려준 해당 immutable 요청으로
+갱신됩니다. 현재 review API는 제출 항목과 사람의 표시 이름을 제공하지 않으므로, 일반 화면에는
+업무 종류와 요청 사유만 보이고 정확한 식별자는 Advanced evidence에 남습니다. 사용자가 새 자료
+업로드나 solver card 검토를 요청하는 진입 화면은 다음 작업에서 해당 객체와 함께 추가됩니다.
+
+API process의 metric, trace와 복구 절차는 일반 사용자 전역 메뉴가 아니라 운영 배포의 observability
+도구와 [운영 가이드](11-operations-and-recovery.md)에서 확인합니다.
 
 ## 자주 생기는 문제
 

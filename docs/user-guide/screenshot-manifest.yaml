@@ -1,7 +1,7 @@
-version: 59
+version: 60
 verified_at: 2026-07-27
-scope: uxc-03-modeling-data-export-consistency
-source_commit: working-tree-uxc03-modeling-data-export-consistency
+scope: dui-08a-activity-review-queue
+source_commit: working-tree-dui08-activity-review-queue
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
@@ -14,7 +14,8 @@ notes:
   - "New session increments the parent context generation so in-flight Material/State discovery cannot repin an automatic fallback after the pin-free Data reset."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
-  - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
+  - "Activity is a compact Needs attention | In progress | Recent outcomes queue. Reviewer and Administrator can open one submitted review row, enter a reason, and record an existing API decision; User sees pending requests in progress without decision controls."
+  - "The deterministic capture reuses an existing review request. Only when the synthetic demo has none does it create one real review request for a draft synthetic Material; it never creates a duplicate or records a decision. The current review API does not expose readable submitted-item or actor names, so the normal queue uses task labels and request reason while exact identifiers stay in Advanced evidence."
   - "Data, Process and Fit use the same compact Curves tree: canonical test method is a real parent group above specimen/revision rows, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail."
   - "The normal stage strip visibly contains only Data, Process, Fit and Export. Its readiness details remain in hover/focus labels; Validate and Review are Advanced/Activity governed contracts. Mean & band is absent until an ensemble preview exists."
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
@@ -23,6 +24,10 @@ notes:
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-dui08-activity-review-queue
+    captured_at: 2026-07-27T01:30:00+09:00
+    command: targeted live Playwright Activity capture at 1366x768, 1440x900 and 1920x1080; reuses one real review request or creates one pending synthetic Material review only when the demo is empty, then verifies the compact queue, no horizontal overflow, and settled API state
+    ids: [activity-1366, activity-1440, activity-1920]
   - source_commit: working-tree-dui07-administration-schema-editor
     captured_at: 2026-07-27T01:00:00+09:00
     command: targeted live Playwright Administration capture at 1366x768, 1440x900 and 1920x1080; verifies the object navigator, table-scoped selector and no horizontal overflow
@@ -220,13 +225,27 @@ captures:
     image: images/current/modeling-export-1920x1080.png
     width: 1920
     height: 1080
+  - id: activity-1366
+    route: /activity
+    workflow: role-aware-review-queue-with-resume-and-outcomes
+    fixture: deterministic demo review queue; reuses one existing request or creates one real pending review for a draft synthetic Material when empty, without deciding it
+    image: images/current/activity-1366x768.png
+    width: 1366
+    height: 768
   - id: activity-1440
     route: /activity
-    workflow: recent-browser-local-solver-card-delivery
-    fixture: current pending-redesign evidence only; broader DUI-08 review/action queue pending
+    workflow: role-aware-review-queue-with-resume-and-outcomes
+    fixture: deterministic demo review queue; reuses one existing request or creates one real pending review for a draft synthetic Material when empty, without deciding it
     image: images/current/activity-1440x900.png
     width: 1440
     height: 900
+  - id: activity-1920
+    route: /activity
+    workflow: role-aware-review-queue-with-resume-and-outcomes
+    fixture: deterministic demo review queue; reuses one existing request or creates one real pending review for a draft synthetic Material when empty, without deciding it
+    image: images/current/activity-1920x1080.png
+    width: 1920
+    height: 1080
   - id: administration-database-1366
     route: /administration/database
     workflow: three-pane-table-scoped-schema-property-editor

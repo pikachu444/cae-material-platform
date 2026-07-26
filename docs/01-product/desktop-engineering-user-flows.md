@@ -87,7 +87,8 @@ Recipe, Batch, exact revision identifiers, mapping profiles and audit detail sup
 
 A role changes default commands and access. It must not produce a different visual product shell.
 Current implementation exposes User, Reviewer, and Administrator task presets. Internal RBAC/RLS
-continues to enforce organization/project authorization; the Activity queue redesign remains pending.
+continues to enforce organization/project authorization; the Activity review queue is implemented,
+while request-entry, job and release projections remain separate work.
 
 ## 4. Shared workspace behavior
 
@@ -346,8 +347,13 @@ Users can leave a long operation and return without hunting through technical jo
 - Items requiring review or acknowledgement
 - Recently generated cards and packages
 
-Each row shows human-readable Material, task, state, owner, updated time and next action. This is
-the DUI-08 target; the current Activity route is pending this review/action-queue redesign.
+Activity is organized as `Needs attention | In progress | Recent outcomes`. A User's pending review
+request remains In progress; a Reviewer or Administrator receives a row-specific Review action and
+must give a reason before approving or requesting changes. Browser-local Modeling resume and card
+history remain in the appropriate sections. The current review API lacks display names for submitted
+items and people, so the normal row uses a human task label, request reason, state and time while
+identifiers stay under Advanced evidence. Request entry, job monitoring and release projection are
+follow-up slices rather than placeholder rows.
 
 ### Progressive advanced view
 

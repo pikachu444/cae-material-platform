@@ -195,6 +195,7 @@ import type {
   CommonProcessingPreview,
   CommonProcessingStep,
   GrantProductAccessInput,
+  AuthenticatedPrincipal,
   ProductAccessAssignment,
   ProductAccessSummary,
 } from "./types";
@@ -213,6 +214,12 @@ export function getEffectiveProductAccess(
   config: ApiConfig,
 ): Promise<ApiResult<ProductAccessSummary>> {
   return request(config, "/product-access/me");
+}
+
+export function getAuthenticatedPrincipal(
+  config: ApiConfig,
+): Promise<ApiResult<AuthenticatedPrincipal>> {
+  return request(config, "/me");
 }
 
 export function listProductAccessAssignments(
