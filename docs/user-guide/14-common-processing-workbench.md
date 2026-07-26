@@ -5,7 +5,7 @@
 서버가 반환한 각 처리 단계의 수치와 진단을 비교합니다.
 
 일반 사용자는 전역 **Modeling**(`/modeling`)에서 이 엔진을 사용합니다. 이 화면은
-`Data | Process | Fit | Validate | Review / Release | Export`, compact curve/process tree, 얕은 current-step settings ribbon과
+`Data | Process | Fit | Export`, compact curve/process tree, 얕은 current-step settings ribbon과
 Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같은 통합 Modeling 화면으로
 연결되는 기술 호환 route입니다. 재료군을 바꾸면
 기존 Test Data 선택이 해제되므로 새 track과 호환되는 exact revision을 명시적으로 다시 고릅니다.
@@ -13,7 +13,8 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 
 화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
 결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인
-오른쪽 열은 없습니다. 1366 px에서는 graph를 우선해 ribbon이 기본 닫히며 `Show settings`로 엽니다. 일반 작업에서는 API
+오른쪽 열은 없습니다. 1366 px에서도 설정은 한두 줄의 얕은 band 안에 있고 graph 축·눈금·범례가 첫 화면에
+모두 보입니다. 일반 작업에서는 API
 주소나 토큰, tenant, UUID를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
@@ -42,10 +43,10 @@ canonical Pa로 변환해 실제 계산에 사용합니다. 선택한 necking po
 workup은 Metal elastoplastic Process에만 보이며 Fit, Polymer, Elastomer에는 노출하지 않습니다. **Metal hardening candidates**에서는 Voce/Swift/Hockett-Sherby/Ghosh, primary/secondary,
 혼합비와 외삽 strain을 직접 바꿉니다. 모든 조작은 Recipe draft와 서버 preview에 반영됩니다.
 
-Process/Fit 단계 왼쪽 **Test data** rail은 `N curves · N included` 요약 뒤에 specimen별 26 px tree 행을
+Process/Fit 단계 왼쪽 **Curves** rail은 `N curves · N included` 요약 뒤에 specimen별 26 px tree 행을
 표시합니다. 각 행의 checkbox는 **Include in processing/fit**이고, 끝의 눈 아이콘은 **Show on plot**만
 바꿉니다. 따라서 line을 숨겨도 fitting 포함 여부는 바뀌지 않습니다. 행에는 specimen 이름과 exact revision을
-짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Data, Validate, Review / Release와
+짧게 표시하고 전체 document identity는 hover에서 확인합니다. 이 rail은 Data, Validate, Review와
 Export에는 표시하지 않습니다. 호환되는 포함 curve가 두 개 이상일 때만 **Replicate analysis**를 열고 **Preview mean & band**를
 누를 수 있습니다. 그러면 가운데 plot이 **Mean & band** 보기로 전환되어 개별 curve,
 pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산에는 `rows.*`와 `curve.*`
@@ -72,12 +73,11 @@ stale/clear하며 이전 immutable revision은 history에 남습니다.
    - `reject` 또는 `drop_any` missing-data 정책
 6. 재사용할 매핑이면 **Save new profile**을 누릅니다. 기존 profile을 변경할 때는 변경 사유를
    입력하고 **Append profile revision**을 눌러 새 revision을 만듭니다. 기존 revision은 덮어쓰지 않습니다.
-7. Process/Fit의 `Add method`와 settings ribbon을 사용합니다. method ID/version JSON이 필요할 때만
-   **Advanced Recipe JSON**의 **Ordered processing steps**를 엽니다.
-8. Graph 아래 stage history에서 `mapping` 또는 각 method를 선택해 동일한 축의 원본/처리 curve overlay와
-   row 수, warning, SHA-256을 확인합니다.
+7. Process/Fit의 **Add operation**, **Add fit method**와 얕은 settings band를 사용합니다.
+8. 처리 결과와 모델 후보는 같은 graph에서 비교합니다. 계산 식별자와 상세 수치 기록은 일반 graph를
+   밀어내지 않고 Advanced/Evidence에서만 확인합니다.
 
-## Validate와 Review / Release
+## Validate와 Review
 
 **Validate**는 Fit 점수의 별칭이 아닙니다. Metal synthetic reference 경로에서도 현재
 selection ID와 server Material Model의 calibration-candidate evidence가 같고, session에 pin된 IR/Card의
@@ -90,13 +90,10 @@ holdout-independence, verdict가 나타납니다. plan만 있으면 `Not run`이
 `fit evidence only`로 남습니다. 브라우저 session은 Plan과 Result의 exact ID를 서로 다른 pointer로
 보존하고 다시 열 때 각각 조회하므로 Result가 Plan을 덮어쓰거나 `Not configured`로 되돌아가지 않습니다.
 
-**Review / Release**의 Submit, Request changes, Approve, Release는 서로 다른 상태입니다. 현재
-일반 Modeling path에는 immutable candidate-package digest producer와 release-policy input이 없으므로
-이 네 명령은 `Not configured` 또는 `Not run`으로 명시적으로 비활성화됩니다. 이 상태에서 UUID나
-SHA-256을 수동 입력하거나 Fit/Validation 결과를 승인으로 바꾸지 않습니다. **Open Activity context**는
-선택 candidate, validation result, solver card의 exact context를 전달하며, governed reference harness는
-관리/참조용으로만 사용합니다. Activity와 governance 화면은 이 query를 실제로 읽어 exact ID/revision을
-Evidence로 표시하고 현재 Validate 단계로 돌아가는 경로를 제공합니다.
+**Review**는 제출, 수정 요청, 승인 상태를 Fit 결과와 구분합니다. 현재 일반 Modeling 화면에는 이
+검토함 연결이 아직 구성되지 않았으므로 해당 단계가 이를 명시하고, Fit 또는 Validate 완료를 승인으로
+표시하지 않습니다. 다음 역할 작업에서 사용자의 업로드·solver card 검토 요청과 Reviewer의
+승인/수정 요청을 Activity 검토함에 연결합니다.
 
 현재 등록된 공통 method는 다음과 같습니다.
 
@@ -128,22 +125,23 @@ Hardening 단계는 Voce, Swift, Hockett–Sherby, Ghosh 중 2~4개를 같은 �
 `secondary_family`, `primary_weight`가 선택 조합을 완전히 정의합니다. 결과의 **Scalar results**에는
 후보별 RMSE와 parameter lower/initial/fitted/upper가 표시되므로 숨은 초기값이나 경계가 없습니다.
 
-**Stress response**에서 observed plastic workup, 네 single-law candidate, 현재 계산된 preview blend를 비교합니다. 선택 전 graph는
-`Preview blend`로 표시되며 engineer selection으로 오해할 수 없습니다. **Residual**은
+**Stress response**에서 observed plastic workup, single-law candidate와 현재 선택을 비교합니다.
+**Residual**은
 선택 fit domain에서 `predicted - observed`를, **Tangent modulus**는 후보별 수치 미분을 보여줍니다.
-황색 배경과 점선의 `EXTRAPOLATED · UNOBSERVED` 영역은 시험 관측값이 아닙니다. 상단 RMSE strip에서
-후보를 비교하고 **Fit evidence**에서 parameter와 lower/upper bound를 펼쳐 봅니다. 추천 표시는
-계산 결과일 뿐 선택이 아닙니다. 반드시 candidate 행의 **Select candidate**를 누른 뒤
-**Selection reason**을 작성하고, 해당 행에 경고가 있을 때만 acknowledgement를 선택합니다.
-**Update candidates**가 새 계산에 성공하면 이전 행 선택과 reason은 자동으로 해제됩니다. 이미 저장한
+황색 배경과 점선의 `EXTRAPOLATED · UNOBSERVED` 영역은 시험 관측값이 아닙니다. 후보 비교 표와
+파라미터는 **Candidate parameters**를 열어 확인합니다. 추천 표시는 계산 결과일 뿐
+선택이 아닙니다. 반드시 candidate 행의 **Select candidate**를 누른 뒤 **Selection reason**을
+작성하고, 해당 행에 경고가 있을 때만 acknowledgement를 선택합니다.
+**Preview changes**가 새 계산에 성공하면 이전 행 선택과 reason은 자동으로 해제됩니다. 이미 저장한
 Fit Output을 current로 가리키던 pointer도 새 행을 고르는 순간 해제되므로, 다시 선택·저장하기 전에는
 이전 output이 Export fallback으로 사용되지 않습니다.
 금속 blend는 candidate table의 **Calculated preview blend** 행에서만 명시적으로 선택합니다. preview 설정에서
-두 law 또는 ratio를 바꿨다면 먼저 **Update candidates**로 다시 계산해야 하며, 선택 이후에는 두 law 이름,
+두 law 또는 ratio를 바꿨다면 먼저 **Preview changes**로 다시 계산해야 하며, 선택 이후에는 두 law 이름,
 ratio, 두 parameter set을 하나의 decision identity로 보존합니다. single-law 행을 선택하면 graph도 그 law를
 `Selected`로 표시하며 계산된 blend를 선택으로 가장하지 않습니다.
 폴리머는 요청한 term policy가 아니라 server가 실제 산출한 term-count 행만 선택할 수 있습니다.
-**Save selected candidate**는 이 decision을 immutable Processing Output에 저장하며, 저장 전에는
+**Save fit & continue**는 상단 action row에 한 번만 나타나며 이 decision을 immutable Processing
+Output에 저장합니다. 저장 전에는
 Material Model IR이나 Neutral Material로 승격할 수 없습니다.
 
 
@@ -224,9 +222,8 @@ Activity에 Delivered 상태나 링크를 만들지 않습니다. source/target 
 
 1. 동일 조건에서 얻은 각 반복시험을 별도 Test Data identity로 등록합니다. 한 문서의 평균값으로
    합치거나 원본 curve를 삭제하지 않습니다.
-2. 왼쪽 **Datasets & curves**에서 비교할 exact revision을 checkbox로 두 개 이상 선택합니다.
-3. 공통 grid point 수를 입력하고 **Add mean & band**를 누릅니다. 상세 통계 drawer에서는 같은
-   계산을 **Align and calculate**로 다시 실행할 수 있습니다.
+2. 왼쪽 **Curves**에서 비교할 revision을 checkbox로 두 개 이상 선택합니다.
+3. **Replicate analysis**를 열어 공통 grid point 수를 입력하고 **Preview mean & band**를 누릅니다.
 4. 서버는 각 문서에 같은 Mapping Profile과 ordered preprocessing steps를 적용합니다.
 5. 모든 curve에서 실제로 관측된 x-domain의 교집합만 사용해 선형 보간합니다. 교집합 밖
    extrapolation은 허용하지 않습니다.

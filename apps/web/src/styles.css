@@ -3665,7 +3665,7 @@ summary {
 .hardening-metric-strip b { color: #244e53; font: 700 .63rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .chart-axis { stroke: #89a0a4; stroke-width: 1; }
 .chart-grid { stroke: #dbe5e4; stroke-width: 1; }
-.chart-tick, .chart-axis-label { fill: #466064; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; }
+.chart-tick, .chart-axis-label { fill: #466064; font-family: var(--body-font); font-size: 12px; }
 .chart-axis-label { font-size: 12px; font-weight: 700; }
 .chart-crosshair { pointer-events: none; stroke: #406c70; stroke-dasharray: 3 3; stroke-width: 1; }
 .graph-range-selection { fill: rgba(13, 148, 136, .16); pointer-events: none; stroke: #0f766e; stroke-dasharray: 5 3; stroke-width: 1.4; }
@@ -3773,7 +3773,7 @@ summary {
 .batch-member-list > div { border-top: 1px solid var(--line); padding-top: .55rem; }
 .batch-run-list > article { display: grid; gap: .65rem; }
 @media (max-width: 1100px) { .modeling-graph-workspace { grid-template-columns: minmax(200px, .6fr) minmax(360px, 1.4fr); } .step-option-panel { grid-column: 1 / -1; } .persistent-modeling-plot { position: static; } }
-@media (max-width: 900px) { .processing-setup-grid, .processing-result-grid, .modeling-graph-workspace { grid-template-columns: 1fr; } .step-option-panel { grid-column: auto; } .profile-save-row, .processing-output-form, .ensemble-controls, .recipe-library-grid { grid-template-columns: 1fr; } .modeling-track-selector { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .processing-setup-grid, .processing-result-grid, .modeling-graph-workspace { grid-template-columns: 1fr; } .step-option-panel { grid-column: auto; } .profile-save-row, .processing-output-form, .ensemble-controls, .recipe-library-grid { grid-template-columns: 1fr; } }
 @media (max-width: 820px) { .batch-builder-grid { grid-template-columns: 1fr; } .batch-preflight article, .batch-summary, .batch-member-list > div { align-items: flex-start; flex-direction: column; } .batch-summary code, .batch-member-list code { margin-left: 0; } }
 
 .stage-diagnostics {
@@ -3820,7 +3820,6 @@ summary {
 @media (max-width: 1180px) {
   .modeling-graph-workspace { grid-template-columns: 210px minmax(430px, 1fr); }
   .step-option-panel { grid-column: 1 / -1; max-height: none; }
-  .modeling-track-selector { grid-column: 1 / -1; grid-row: 3; justify-content: flex-start; }
 }
 
 /* Product-facing shell: authentication and infrastructure stay behind the workspace boundary. */

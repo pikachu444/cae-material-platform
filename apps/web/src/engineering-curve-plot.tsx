@@ -597,22 +597,6 @@ export function EngineeringCurvePlot({
   const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
     || activeStage.method_id === "polymer.dma_prony_fit_compare");
   const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
-  const hardeningMetrics = isHardening
-    ? activeStage.scalar_results
-      .filter((item) => item.key.endsWith(".relative_rmse"))
-      .map((item) => ({ family: item.key.replace(".relative_rmse", ""), value: item.value }))
-      .sort((left, right) => left.value - right.value)
-    : [];
-  const pronyMetrics = isProny
-    ? activeStage.scalar_results
-      .filter((item) => /^prony_\d+_bic$/.test(item.key))
-      .map((item) => {
-        const count = Number(item.key.match(/^prony_(\d+)_bic$/)?.[1]);
-        const rmse = activeStage.scalar_results.find((candidate) => candidate.key === `prony_${count}_normalized_rmse`)?.value;
-        return { count, bic: item.value, rmse };
-      })
-      .sort((left, right) => left.bic - right.bic)
-    : [];
   const model = useMemo(
     () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode, fitSelection),
     [activeStage, activeStep, baseStage, ensemblePreview, fitSelection, hardeningMode, preview, pronyMode],
@@ -772,8 +756,6 @@ export function EngineeringCurvePlot({
         {(["response", "residual"] as PronyPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={pronyMode === mode} className={pronyMode === mode ? "active" : ""} key={mode} onClick={() => setPronyMode(mode)}>{mode === "response" ? isDmaProny ? "Storage & loss" : "Relaxation response" : "Residual"}</button>)}
         <span>{pronyMode === "response" ? isDmaProny ? `Measured storage/loss + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : `Measured modulus + every fitted term count + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
       </div> : null}
-      {hardeningMetrics.length && !selectedModelOnly ? <div className="hardening-metric-strip" aria-label="Hardening candidate relative RMSE summary">{hardeningMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.family}><span>{index === 0 ? "BEST" : "RMSE"}</span><strong>{metric.family.replaceAll("_", "-")}</strong><b>{(metric.value * 100).toFixed(3)}%</b></article>)}</div> : null}
-      {pronyMetrics.length && !selectedModelOnly ? <div className="hardening-metric-strip prony-metric-strip" aria-label="Prony candidate BIC and normalized RMSE summary">{pronyMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.count}><span>{index === 0 ? "BEST BIC" : "CANDIDATE"}</span><strong>{metric.count} term{metric.count === 1 ? "" : "s"}</strong><b>{metric.bic.toFixed(2)}</b><small>{metric.rmse == null ? "nRMSE —" : `nRMSE ${(metric.rmse * 100).toFixed(3)}%`}</small></article>)}</div> : null}
       <svg
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"

@@ -507,29 +507,41 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: /Batch/ }));
     expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(1);
-    fireEvent.click(screen.getByRole("button", { name: "Update candidates" }));
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     expect(await screen.findByText("Preview — not saved")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByText("Preview blend · swift + voce · fitted domain")).toBeTruthy();
+    expect(screen.getByText("Candidate parameters")).toBeTruthy();
+    fireEvent.click(screen.getByText("Candidate parameters"));
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
     expect(await screen.findByRole("columnheader", { name: "Recommendation" })).toBeTruthy();
-    expect((screen.getByRole("button", { name: "Save selected candidate" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getAllByRole("button", { name: "Save fit & continue" })).toHaveLength(1);
+    expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByText("Reference hardening projection")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
     expect(screen.getByText("Selected · swift · fitted domain")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
       target: { value: "Select Swift after comparing response, residual and tangent stability." },
     });
-    expect((screen.getByRole("button", { name: "Save selected candidate" }) as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Update candidates" }));
+    expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
+    expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByLabelText("Candidate selection reason")).toBeNull();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" }));
+    fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
+    fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
+      target: { value: "Re-select Swift after changing input scope." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await waitFor(() => {
-      expect((screen.getByRole("button", { name: "Save selected candidate" }) as HTMLButtonElement).disabled).toBe(true);
+      expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
       expect(screen.queryByLabelText("Candidate selection reason")).toBeNull();
     });
     fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
     fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
       target: { value: "Re-select Swift after the successful candidate recomputation." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Save selected candidate" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save fit & continue" }));
     expect(await screen.findByRole("heading", { name: "Review & deliver solver card" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Exact target preview is gated" })).toBeTruthy();
     expect(screen.getByText("Server provenance proof")).toBeTruthy();
@@ -545,9 +557,9 @@ describe("Common Processing Workbench", () => {
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
     expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Save processed curves" })).toBeTruthy();
-    expect(screen.getByText("Test data")).toBeTruthy();
+    expect(screen.getByText("Curves")).toBeTruthy();
     expect(screen.getByText("2 curves · 2 included")).toBeTruthy();
-    const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · exact revision r1");
+    const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1");
     expect(curveRow.getAttribute("title")).toContain("DP600-TENSILE-01");
     const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });
     const plotVisibility = screen.getByRole("button", { name: "Hide Specimen 01 on plot" });
@@ -562,7 +574,7 @@ describe("Common Processing Workbench", () => {
     expect((includeSpecimen as HTMLInputElement).checked).toBe(true);
     expect(screen.queryByText("Fit evidence")).toBeNull();
     fireEvent.click(screen.getByRole("button", {
-      name: /1Sort and resolve duplicate x values3 points/,
+      name: /1Sort and resolve duplicate x values1\.0\.0/,
     }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
@@ -591,9 +603,7 @@ describe("Common Processing Workbench", () => {
     const appliedSteps = JSON.parse((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value) as Array<{ method_id: string; options: Record<string, number> }>;
     expect(appliedSteps[1].method_id).toBe("metal.elastic_modulus");
     expect(appliedSteps[1].options.minimum_strain).not.toBe(0.0002);
-    expect(screen.getByText(/Applied the graph range to metal.elastic_modulus/)).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Update preview" }));
+    fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     fireEvent.click(screen.getByRole("button", { name: /4Necking candidate1\.0\.0/ }));
     const neckingPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
@@ -608,7 +618,6 @@ describe("Common Processing Workbench", () => {
     expect(neckingSteps[4].method_id).toBe("metal.engineering_to_true_plastic");
     expect(neckingSteps[4].options.necking_policy).toBe("manual_index");
     expect(Number(neckingSteps[4].options.manual_necking_index)).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/Applied the graph point to the downstream plastic Workup/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Align and calculate" }));
     expect(await screen.findByRole("img", { name: "Aligned replicate curves with pointwise mean and confidence interval" })).toBeTruthy();
@@ -659,7 +668,6 @@ describe("Common Processing Workbench", () => {
         familyWorkbench={<div>Exact Neutral and solver delivery fixture</div>}
       />,
     );
-    await screen.findByText(/Material context changed\. Choose an exact Test Data revision/i);
     await waitFor(() => {
       const repinned = onSessionChange.mock.calls.filter(([patch]) => {
         const candidate = patch as Record<string, unknown>;

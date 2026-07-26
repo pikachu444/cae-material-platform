@@ -784,27 +784,3 @@ captures:
     image: images/ux-redesign-v2/final-browse-tree-1366x768.png
     width: 1351
     height: 760
-  - id: t97-final-modeling-fit-1366
-    route: /modeling
-    workflow: historical-persistent-graph-fit-baseline
-    fixture: synthetic DP780 ephemeral candidate preview
-    source_evidence: reports/t97-reference-similarity-final.md
-    image: images/ux-redesign-v2/final-modeling-fit-1366x768.png
-    width: 1351
-    height: 760
-  - id: t97-final-modeling-fit-1440
-    route: /modeling
-    workflow: historical-persistent-graph-fit-baseline
-    fixture: synthetic DP780 ephemeral candidate preview
-    source_evidence: reports/t97-reference-similarity-final.md
-    image: images/ux-redesign-v2/final-modeling-fit-1440x900.png
-    width: 1425
-    height: 891
-  - id: t97-final-modeling-fit-1920
-    route: /modeling
-    workflow: historical-persistent-graph-fit-baseline
-    fixture: synthetic DP780 ephemeral candidate preview
-    source_evidence: reports/t97-reference-similarity-final.md
-    image: images/ux-redesign-v2/final-modeling-fit-1920x1080.png
-    width: 1715
-    height: 1072
