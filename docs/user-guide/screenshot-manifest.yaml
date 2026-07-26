@@ -1,7 +1,7 @@
 version: 55
 verified_at: 2026-07-26
 scope: uxc-06c1-exact-target-preflight-and-stateless-native-preview
-source_commit: WORKTREE
+source_commit: 47a8d52
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
@@ -20,7 +20,7 @@ notes:
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 is stateless: it creates no card, artifact, receipt, download, or Activity entry; atomic delivery remains UXC-06C2."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: WORKTREE
+  - source_commit: 47a8d52
     captured_at: 2026-07-26T15:34:56+09:00
     command: targeted live Playwright UXC-06C1 Export capture at 1366x768, 1440x900 and 1920x1080; saves an exact Fit output, recovers exact model and Neutral revisions, generates the server-proven mapping/native preview, asserts no Deliver action or legacy curve rail, and focuses the captured viewport on the mapping result
     ids: [modeling-export-1366, modeling-export-1440, modeling-export-1920]

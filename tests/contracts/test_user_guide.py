@@ -62,7 +62,7 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
     ]
 
     uxc03b_source = "e7752dc"
-    uxc06c1_source = "WORKTREE"
+    uxc06c1_source = "47a8d52"
     assert manifest["source_commit"] == uxc06c1_source
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
