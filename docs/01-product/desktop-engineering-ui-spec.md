@@ -210,24 +210,24 @@ Rules:
 At 1440 px:
 
 ```text
-Navigator 260 px | Result grid flexible | Inspector 300 px
+Navigator 264 px | Result grid 856 px | Inspector 280 px
 ```
 
 At 1366 px:
 
 ```text
-Navigator 240 px | Result grid flexible | Inspector collapsed
+Navigator 244 px | Result grid dominant | Inspector collapsed
 ```
 
 At 1920 px:
 
 ```text
-Navigator 280 px | Result grid flexible | Inspector 340 px
+Navigator 280 px | Result grid 1292 px | Inspector 300 px
 ```
 
 Navigator and inspector are resizable. Minimum and maximum widths:
 
-- navigator: 210–380 px;
+- navigator: 200–360 px;
 - inspector: 260–480 px.
 
 ### 4.2 Navigator
@@ -235,10 +235,12 @@ Navigator and inspector are resizable. Minimum and maximum widths:
 Tabbed modes:
 
 ```text
-Search | Browse | Subsets
+Browse | Filters | Subsets
 ```
 
-Search mode contains filters without introductory prose.
+The navigator owns the mode control. Plain `/materials` opens Browse; a Find preserves the current
+mode. Filters contains only facets present in the same server query, without availability
+explanations for unavailable projections.
 
 Browse mode contains:
 
@@ -259,11 +261,11 @@ Default columns:
 
 - Material/Grade
 - Family
-- Source/Manufacturer
-- State/Condition summary
-- Yield or family-specific key property
-- CAE Cards
+- Description
 - Status
+
+Compare remains a local row-selection feature. Provider/source, validation, card readiness and
+condition-aware properties are absent until the server-scoped response provides them.
 
 Behavior:
 
@@ -273,22 +275,26 @@ Behavior:
 - row height 32–36 px;
 - single click selects;
 - double click opens datasheet;
-- context menu supports Open, Compare, Show in Tree and Download Card;
+- row checkboxes support local comparison without a duplicate global command;
 - column chooser stores user preference.
 
-No explanatory banner is displayed above the grid. Search state and result count appear in the command/status bars.
+No explanatory banner is displayed above the grid. Search state stays in the query bar and the
+server result count stays with the result grid.
 
 ### 4.4 Inspector
 
 The selected-material inspector contains:
 
 - identity and grade;
-- 4–6 key properties;
-- application condition summary;
-- card availability;
-- primary command: Open Datasheet or Download preferred card.
+- description when supplied by the same Material result;
+- Family and user-facing Status;
+- primary command: Open Datasheet.
 
-Descriptions are capped at two lines. Related technical data is not expanded by default.
+Key properties, condition summary, card availability and a preferred-card command appear here only
+after the same server-scoped query projects their quantity/condition semantics, unit, source revision
+and readiness state. Until then they are absent rather than rendered as `Not projected`, inferred by
+client enrichment or replaced by a Modeling command. The datasheet remains the governed place to
+inspect those details and start a supported downstream task.
 
 ## 5. Material Datasheet workspace
 

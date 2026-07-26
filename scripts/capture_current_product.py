@@ -171,7 +171,7 @@ def _open_materials_search(page: Page, base_url: str) -> None:
     search = page.get_by_role("textbox", name="Search materials")
     search.wait_for(timeout=30_000)
     search.fill("DP780")
-    page.get_by_role("button", name="Find", exact=True).click()
+    page.locator(".materials-search-form").get_by_role("button", name="Find", exact=True).click()
     rows = page.locator('table[aria-label="Material results"] tbody tr')
     rows.filter(has_text="DP780").first.wait_for(timeout=30_000)
     _wait_for_settled(page)
@@ -183,21 +183,74 @@ def _open_materials_search(page: Page, base_url: str) -> None:
     page.get_by_text("Selected material", exact=True).wait_for(timeout=30_000)
 
 
+def _assert_material_pane_reset(page: Page, width: int) -> None:
+    expected_navigator = 244 if width <= 1390 else 264 if width < 1600 else 280
+    navigator = page.locator(".navigator-panel")
+    navigator_separator = page.get_by_role("separator", name="Resize navigator")
+    before = navigator.bounding_box()
+    separator = navigator_separator.bounding_box()
+    if before is None or separator is None:
+        raise RuntimeError("Materials navigator divider is unavailable for reset verification")
+    page.mouse.move(separator["x"] + 2, separator["y"] + 80)
+    page.mouse.down()
+    page.mouse.move(separator["x"] + 42, separator["y"] + 80)
+    page.mouse.up()
+    page.wait_for_timeout(100)
+    dragged = navigator.bounding_box()
+    if dragged is None or abs(dragged["width"] - before["width"]) < 10:
+        raise RuntimeError("Materials navigator divider did not resize before reset verification")
+    navigator_separator.dblclick()
+    page.wait_for_timeout(100)
+    reset = navigator.bounding_box()
+    if reset is None or abs(reset["width"] - expected_navigator) > 4:
+        raise RuntimeError(
+            f"Materials navigator reset drift at {width}px: expected {expected_navigator}px, got {reset and reset['width']}px"
+        )
+
+    if width <= 1390:
+        return
+    expected_context = 280 if width < 1600 else 300
+    context = page.locator(".context-panel")
+    context_separator = page.get_by_role("separator", name="Resize details")
+    context_before = context.bounding_box()
+    context_divider = context_separator.bounding_box()
+    if context_before is None or context_divider is None:
+        raise RuntimeError("Materials context divider is unavailable for reset verification")
+    page.mouse.move(context_divider["x"] + 2, context_divider["y"] + 80)
+    page.mouse.down()
+    page.mouse.move(context_divider["x"] - 42, context_divider["y"] + 80)
+    page.mouse.up()
+    page.wait_for_timeout(100)
+    context_dragged = context.bounding_box()
+    if context_dragged is None or abs(context_dragged["width"] - context_before["width"]) < 10:
+        raise RuntimeError("Materials context divider did not resize before reset verification")
+    context_separator.dblclick()
+    page.wait_for_timeout(100)
+    context_reset = context.bounding_box()
+    if context_reset is None or abs(context_reset["width"] - expected_context) > 4:
+        raise RuntimeError(
+            f"Materials context reset drift at {width}px: expected {expected_context}px, got {context_reset and context_reset['width']}px"
+        )
+
+
 def _capture_materials(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         _open_materials_search(page, base_url)
+        _assert_material_pane_reset(page, width)
         _capture(page, output / f"materials-search-{width}x{height}.png", width, height)
         page.context.close()
 
     width, height = 1440, 900
     page = _new_page(browser, base_url, width, height)
     _open_materials_search(page, base_url)
-    page.locator(".workspace-command-bar").get_by_role(
-        "button", name="Browse Tree", exact=True
-    ).click()
-    page.get_by_role("complementary", name="Materials Browse Tree").wait_for(timeout=30_000)
-    page.get_by_role("textbox", name="Find in tree").wait_for(timeout=30_000)
+    page.get_by_role("button", name="Browse", exact=True).click()
+    page.get_by_role("complementary", name="Materials navigator").wait_for(timeout=30_000)
+    tree_find = page.get_by_role("textbox", name="Find in tree")
+    tree_find.wait_for(timeout=30_000)
+    tree_find.fill("Material Library")
+    page.get_by_test_id("navigator").get_by_role("button", name="Find", exact=True).click()
+    page.get_by_text("Material Library", exact=True).wait_for(timeout=30_000)
     _capture(page, output / "materials-browse-1440x900.png", width, height)
     page.context.close()
 
@@ -857,6 +910,11 @@ def main() -> int:
         default=Path("docs/user-guide/images/current"),
     )
     parser.add_argument(
+        "--only-materials",
+        action="store_true",
+        help="Capture and replace only the six Materials workspace captures.",
+    )
+    parser.add_argument(
         "--only-product-access",
         action="store_true",
         help="Capture and replace only the two Product Access role-preset viewports.",
@@ -885,9 +943,11 @@ def main() -> int:
             finally:
                 browser.close()
 
-    if args.only_modeling_export or args.only_modeling_process_fit or args.only_product_access:
+    if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_product_access:
         names = (
-            MODELING_EXPORT_OUTPUTS
+            CURRENT_CAPTURE_OUTPUTS[:6]
+            if args.only_materials
+            else MODELING_EXPORT_OUTPUTS
             if args.only_modeling_export
             else MODELING_PROCESS_FIT_OUTPUTS
             if args.only_modeling_process_fit
@@ -902,7 +962,9 @@ def main() -> int:
                 browser = playwright.chromium.launch(headless=True)
                 try:
                     measurements = (
-                        _capture_modeling_export_only(browser, args.base_url, staged)
+                        _capture_materials(browser, args.base_url, staged)
+                        if args.only_materials
+                        else _capture_modeling_export_only(browser, args.base_url, staged)
                         if args.only_modeling_export
                         else _capture_modeling_process_fit(browser, args.base_url, staged)
                         if args.only_modeling_process_fit
@@ -917,7 +979,7 @@ def main() -> int:
                 actual_outputs = {name for name in actual_outputs if name in names}
             if actual_outputs != set(names):
                 raise RuntimeError(
-                    "targeted Modeling capture output drift: "
+                    "targeted capture output drift: "
                     f"actual={sorted(actual_outputs)}"
                 )
             for name in names:

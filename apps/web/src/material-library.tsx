@@ -75,11 +75,6 @@ function materialSearchParams(): URLSearchParams {
 interface MaterialsLocationState {
   query: string;
   materialClass: string;
-  solver: string;
-  source: string;
-  status: string;
-  yieldMin: string;
-  yieldMax: string;
   sortKey: "name" | "material_class";
   sortDirection: "ascending" | "descending";
   offset: number;
@@ -91,12 +86,9 @@ function materialsPath(state: MaterialsLocationState): string {
   const params = new URLSearchParams();
   if (state.query) params.set("q", state.query);
   if (state.materialClass) params.set("family", state.materialClass);
-  if (state.solver) params.set("solver", state.solver);
-  // Provider/evidence, release/validation, and condition-aware property facets
-  // are intentionally not serialized until a governed server projection exists.
   if (state.sortKey !== "name") params.set("sort", state.sortKey);
   if (state.sortDirection !== "ascending") params.set("direction", state.sortDirection);
-  if (state.leftMode !== "filters") params.set("mode", state.leftMode);
+  if (state.leftMode !== "browse") params.set("mode", state.leftMode);
   if (state.selectedId) params.set("selected", state.selectedId);
   if (state.offset) params.set("offset", String(state.offset));
   const search = params.toString();
@@ -105,7 +97,7 @@ function materialsPath(state: MaterialsLocationState): string {
 
 function initialNavigatorMode(): "filters" | "browse" | "subsets" {
   const mode = materialSearchParams().get("mode");
-  return mode === "browse" || mode === "subsets" ? mode : "filters";
+  return mode === "filters" || mode === "subsets" ? mode : "browse";
 }
 
 function initialSortKey(): "name" | "material_class" {
@@ -267,6 +259,10 @@ function formatDensity(value: number | undefined): string {
   return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value)} kg/m³`;
 }
 
+function lifecycleLabel(state: string): string {
+  return state ? `${state.slice(0, 1).toUpperCase()}${state.slice(1).replaceAll("_", " ")}` : "—";
+}
+
 function sourceLabel(experience: MaterialExperience | undefined): string {
   const property = currentProperty(experience)?.current_revision.content;
   const source = property?.yield_stress_source ?? property?.youngs_modulus_source ?? property?.density_source;
@@ -362,11 +358,6 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   const [draftQuery, setDraftQuery] = useState(() => materialSearchParams().get("q") ?? "");
   const [query, setQuery] = useState(() => materialSearchParams().get("q") ?? "");
   const [materialClass, setMaterialClass] = useState(() => materialSearchParams().get("family") ?? "");
-  const [solver, setSolver] = useState(() => materialSearchParams().get("solver") ?? "");
-  const [source, setSource] = useState(() => materialSearchParams().get("source") ?? "");
-  const [status, setStatus] = useState(() => materialSearchParams().get("status") ?? "");
-  const [yieldMin, setYieldMin] = useState(() => materialSearchParams().get("yieldMin") ?? "");
-  const [yieldMax, setYieldMax] = useState(() => materialSearchParams().get("yieldMax") ?? "");
   const [sortKey, setSortKey] = useState<"name" | "material_class">(initialSortKey);
   const [sortDirection, setSortDirection] = useState<"ascending" | "descending">(() => materialSearchParams().get("direction") === "descending" ? "descending" : "ascending");
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
@@ -391,14 +382,9 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
     setDraftQuery(params.get("q") ?? "");
     setQuery(params.get("q") ?? "");
     setMaterialClass(params.get("family") ?? "");
-    setSolver(params.get("solver") ?? "");
-    setSource(params.get("source") ?? "");
-    setStatus(params.get("status") ?? "");
-    setYieldMin(params.get("yieldMin") ?? "");
-    setYieldMax(params.get("yieldMax") ?? "");
     setSortKey(nextSort === "material_class" ? nextSort : "name");
     setSortDirection(params.get("direction") === "descending" ? "descending" : "ascending");
-    setLeftMode(nextMode === "browse" || nextMode === "subsets" ? nextMode : "filters");
+    setLeftMode(nextMode === "filters" || nextMode === "subsets" ? nextMode : "browse");
     setSelectedId(params.get("selected") ?? "");
     setOffset(Number(params.get("offset") ?? "0") || 0);
   }, [locationSearch]);
@@ -438,8 +424,8 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
 
   useEffect(() => {
     if (typeof window === "undefined" || window.location.pathname !== "/materials") return;
-    window.history.replaceState(window.history.state, "", materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, offset, leftMode, selectedId }));
-  }, [leftMode, materialClass, offset, query, selectedId, solver, sortDirection, sortKey, source, status, yieldMax, yieldMin]);
+    window.history.replaceState(window.history.state, "", materialsPath({ query, materialClass, sortKey, sortDirection, offset, leftMode, selectedId }));
+  }, [leftMode, materialClass, offset, query, selectedId, sortDirection, sortKey]);
 
   useEffect(() => {
     publishWorkspaceCommandState(`materials:${leftMode === "filters" ? "search" : leftMode}`);
@@ -458,24 +444,8 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
     });
   }, [error, loading, selected, totalCount]);
 
-  useEffect(() => {
-    const handleCommand = (event: Event) => {
-      const command = (event as CustomEvent<{ command?: string }>).detail?.command;
-      if (command === "materials:search") {
-        setLeftMode("filters");
-      } else if (command === "materials:browse") {
-        openBrowseTree(undefined);
-      } else if (command === "materials:subsets") {
-        setLeftMode("subsets");
-      }
-    };
-    window.addEventListener("cmp:workspace-command", handleCommand);
-    return () => window.removeEventListener("cmp:workspace-command", handleCommand);
-  }, []);
-
   function submit(event: FormEvent): void {
     event.preventDefault();
-    setLeftMode("filters");
     setOffset(0);
     setQuery(draftQuery.trim());
   }
@@ -502,7 +472,7 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   }
 
   function openExactRecord(record: ConfigurableCatalogRecordResponse): void {
-    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, offset, leftMode, selectedId }));
+    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, sortKey, sortDirection, offset, leftMode, selectedId }));
     onNavigate(`/materials/records/${record.record_id}/revisions/${record.current_revision.id}`);
   }
 
@@ -525,30 +495,30 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
   }
 
   function openMaterial(materialId: string): void {
-    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, solver, source, status, yieldMin, yieldMax, sortKey, sortDirection, offset, leftMode, selectedId: materialId }));
+    window.sessionStorage.setItem(MATERIALS_RETURN_KEY, materialsPath({ query, materialClass, sortKey, sortDirection, offset, leftMode, selectedId: materialId }));
     onNavigate(`/materials/${materialId}`);
   }
 
-  const navigator = <aside className="materials-left-pane" aria-label={leftMode === "filters" ? "Material filters" : "Materials Browse Tree"}>
+  const navigator = <aside className="materials-left-pane" aria-label="Materials navigator">
+    <nav className="materials-navigator-modes" aria-label="Materials navigator modes">
+      <button type="button" className={leftMode === "browse" ? "active" : ""} aria-current={leftMode === "browse" ? "page" : undefined} onClick={() => openBrowseTree(undefined)}>Browse</button>
+      <button type="button" className={leftMode === "filters" ? "active" : ""} aria-current={leftMode === "filters" ? "page" : undefined} onClick={() => setLeftMode("filters")}>Filters</button>
+      <button type="button" className={leftMode === "subsets" ? "active" : ""} aria-current={leftMode === "subsets" ? "page" : undefined} onClick={() => setLeftMode("subsets")}>Subsets</button>
+    </nav>
     {leftMode === "filters" ? <div className="materials-filters">
       <label className="ux-field">Material class<select className="ux-select" name="material-class" value={materialClass} onChange={(event) => { setMaterialClass(event.target.value); setOffset(0); }}><option value="">All classes</option>{familyFacets.map((facet) => <option key={facet.material_class} value={facet.material_class}>{`${facet.material_class} (${facet.count.toLocaleString()})`}</option>)}</select></label>
-      <div className="material-query-gap" role="status"><strong>Provider</strong><span>Not available in the governed material query.</span></div>
-      <div className="material-query-gap" role="status"><strong>Evidence source</strong><span>Not available in the governed material query.</span></div>
-      <div className="material-query-gap" role="status"><strong>Revision status</strong><span>Shown per revision in results; no release facet is defined.</span></div>
-      <div className="material-query-gap" role="status"><strong>Validation availability</strong><span>Not configured in the material query.</span></div>
-      <p className="ux-meta">Property ranges, including Yield, remain hidden until the server supplies quantity definition, condition, unit, and source revision.</p>
       <button className="ux-button tertiary" type="button" onClick={() => { setMaterialClass(""); setOffset(0); }}>Clear class</button>
     </div> : <MaterialsBrowseTree config={config} subsetMode={leftMode === "subsets"} requestedRecord={requestedRecord} onSelectRecord={selectBrowseRecord} onOpenRecord={openExactRecord}/>}
   </aside>;
 
   const results = <section className="materials-results" aria-labelledby="material-results-title" aria-busy={loading}>
-    <div className="materials-results-header"><div><h2 id="material-results-title">Materials</h2><p className="ux-meta">{loading ? "Loading…" : `${totalCount ? `${offset + 1}–${Math.min(offset + materials.length, totalCount)} of ` : ""}${new Intl.NumberFormat().format(totalCount)} matches`}</p></div><span className="ux-meta">Server-scoped query · Enter opens · select up to 3 to compare</span></div>
+    <div className="materials-results-header"><div><h2 id="material-results-title">Materials</h2><p className="ux-meta">{loading ? "Loading…" : `${totalCount ? `${offset + 1}–${Math.min(offset + materials.length, totalCount)} of ` : ""}${new Intl.NumberFormat().format(totalCount)} matches`}</p></div><span className="ux-meta">Enter opens · select up to 3 to compare</span></div>
     {error ? <div className="ux-notice error" role="alert">{error}<button className="ux-button tertiary" type="button" onClick={() => setLoadAttempt((current) => current + 1)}>Retry</button></div> : null}
     {!loading && !error && !materials.length ? <div className="ux-empty"><strong>No materials match this server query.</strong><p>Clear the class or try a material grade, code, or family.</p></div> : null}
-    {comparedMaterials.length > 1 ? <div className="material-compare-strip"><div><strong>Comparing {comparedMaterials.length} materials</strong><span className="ux-meta">Open comparison to inspect exact property revisions.</span></div>{comparedMaterials.map((material) => <dl key={material.material_id}><dt>{material.current_revision.content.name}</dt><dd>{material.current_revision.content.material_family ?? material.current_revision.content.material_class}</dd><dd>r{material.current_revision.revision_no}</dd></dl>)}<button className="ux-button tertiary" type="button" onClick={() => setCompareIds(new Set())}>Clear comparison</button></div> : null}
+    {comparedMaterials.length > 1 ? <div className="material-compare-strip"><div><strong>Comparing {comparedMaterials.length} materials</strong><span className="ux-meta">Selected materials remain available while you inspect results.</span></div>{comparedMaterials.map((material) => <dl key={material.material_id}><dt>{material.current_revision.content.name}</dt><dd>{material.current_revision.content.material_family ?? material.current_revision.content.material_class}</dd><dd>r{material.current_revision.revision_no}</dd></dl>)}<button className="ux-button tertiary" type="button" onClick={() => setCompareIds(new Set())}>Clear comparison</button></div> : null}
     {browseSelection ? <div className="browse-selection-bar"><span><strong>{browseSelection.record.current_revision.content.name}</strong><small>{browseSelection.graph.root.domain_binding?.kind?.replaceAll("_", " ") ?? "Catalog record"} · exact revision {browseSelection.record.current_revision.revision_no}</small></span><button className="ux-button tertiary" type="button" onClick={() => openExactRecord(browseSelection.record)}>Open datasheet</button></div> : null}
-    <div className="materials-result-table-wrap"><table className="materials-result-table" aria-label="Material results"><colgroup>{Object.entries(columnWidths).map(([key, width]) => <col key={key} style={{ width }} />)}</colgroup><thead><tr><th>Compare<EngineeringColumnResizeHandle label="Compare" width={columnWidths.compare} min={60} max={100} onChange={(width) => setColumnWidths((current) => ({ ...current, compare: width }))}/></th><th aria-sort={sortKey === "name" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("name")}>Material</button><EngineeringColumnResizeHandle label="Material" width={columnWidths.material} min={160} max={360} onChange={(width) => setColumnWidths((current) => ({ ...current, material: width }))}/></th><th aria-sort={sortKey === "material_class" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("material_class")}>Material class</button><EngineeringColumnResizeHandle label="Material class" width={columnWidths.materialClass} min={110} max={260} onChange={(width) => setColumnWidths((current) => ({ ...current, materialClass: width }))}/></th><th>Summary<EngineeringColumnResizeHandle label="Summary" width={columnWidths.summary} min={140} max={320} onChange={(width) => setColumnWidths((current) => ({ ...current, summary: width }))}/></th><th>Revision status<EngineeringColumnResizeHandle label="Revision status" width={columnWidths.revisionStatus} min={90} max={160} onChange={(width) => setColumnWidths((current) => ({ ...current, revisionStatus: width }))}/></th></tr></thead><tbody>
-      {materials.map((material) => { const content = material.current_revision.content; const materialIdentity = `${content.name} · ${content.material_code ?? "No grade code"}`; return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""} tabIndex={0} aria-selected={selectedId === material.material_id} onClick={() => setSelectedId(material.material_id)} onDoubleClick={() => openMaterial(material.material_id)} onKeyDown={(event) => { if (event.key === "Enter") openMaterial(material.material_id); }}><td><input type="checkbox" aria-label={`Compare ${content.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onClick={(event) => event.stopPropagation()} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={materialIdentity} onClick={() => setSelectedId(material.material_id)}><span>{content.name}</span><small>{content.material_code ?? "No grade code"}</small></button></td><td title={content.material_class}>{content.material_class}</td><td>{content.description ?? "Not projected"}</td><td>{material.current_revision.lifecycle_state}</td></tr>; })}
+    <div className="materials-result-table-wrap"><table className="materials-result-table" aria-label="Material results"><colgroup>{Object.entries(columnWidths).map(([key, width]) => <col key={key} style={{ width }} />)}</colgroup><thead><tr><th>Compare<EngineeringColumnResizeHandle label="Compare" width={columnWidths.compare} min={60} max={100} onChange={(width) => setColumnWidths((current) => ({ ...current, compare: width }))}/></th><th aria-sort={sortKey === "name" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("name")}>Material / grade</button><EngineeringColumnResizeHandle label="Material or grade" width={columnWidths.material} min={180} max={420} onChange={(width) => setColumnWidths((current) => ({ ...current, material: width }))}/></th><th aria-sort={sortKey === "material_class" ? sortDirection : undefined}><button type="button" onClick={() => changeSort("material_class")}>Family</button><EngineeringColumnResizeHandle label="Family" width={columnWidths.materialClass} min={120} max={280} onChange={(width) => setColumnWidths((current) => ({ ...current, materialClass: width }))}/></th><th>Description<EngineeringColumnResizeHandle label="Description" width={columnWidths.summary} min={160} max={420} onChange={(width) => setColumnWidths((current) => ({ ...current, summary: width }))}/></th><th>Status<EngineeringColumnResizeHandle label="Status" width={columnWidths.revisionStatus} min={90} max={180} onChange={(width) => setColumnWidths((current) => ({ ...current, revisionStatus: width }))}/></th></tr></thead><tbody>
+      {materials.map((material) => { const content = material.current_revision.content; const materialIdentity = `${content.name} · ${content.material_code ?? "No grade code"}`; return <tr key={material.material_id} className={selectedId === material.material_id ? "selected" : ""} tabIndex={0} aria-selected={selectedId === material.material_id} onClick={() => setSelectedId(material.material_id)} onDoubleClick={() => openMaterial(material.material_id)} onKeyDown={(event) => { if (event.key === "Enter") openMaterial(material.material_id); }}><td><input type="checkbox" aria-label={`Compare ${content.name}`} checked={compareIds.has(material.material_id)} disabled={!compareIds.has(material.material_id) && compareIds.size >= 3} onClick={(event) => event.stopPropagation()} onChange={() => toggleCompare(material.material_id)}/></td><td><button className="material-result-name" type="button" aria-current={selectedId === material.material_id ? "true" : undefined} title={materialIdentity} onClick={() => setSelectedId(material.material_id)}><span>{content.name}</span><small>{content.material_code ?? "No grade code"}</small></button></td><td title={content.material_class}>{content.material_class}</td><td>{content.description ?? "—"}</td><td>{lifecycleLabel(material.current_revision.lifecycle_state)}</td></tr>; })}
     </tbody></table></div>
     {!loading && totalCount > materials.length ? <nav className="materials-pagination" aria-label="Material result pages"><button className="ux-button tertiary" type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - 50))}>Previous</button><span className="ux-meta">Rows {totalCount ? offset + 1 : 0}–{Math.min(offset + materials.length, totalCount)}</span><button className="ux-button tertiary" type="button" disabled={offset + materials.length >= totalCount} onClick={() => setOffset(offset + 50)}>Next</button></nav> : null}
   </section>;
@@ -557,14 +527,11 @@ export function MaterialSearchPage({ config, onNavigate, locationSearch }: Props
     {selected ? <>
       <div className="selection-heading"><div><p className="ux-kicker">Selected material</p><h2 title={selected.current_revision.content.name}>{selected.current_revision.content.name}</h2></div><span className="ux-meta">{selected.current_revision.content.material_code ?? "No material code"}</span></div>
       <p>{selected.current_revision.content.description ?? "No summary is available."}</p>
-      <dl className="selection-context"><dt>Material class</dt><dd>{selected.current_revision.content.material_class}</dd><dt>Provider</dt><dd>Not projected</dd><dt>Evidence source</dt><dd>Not projected</dd><dt>Revision status</dt><dd>{selected.current_revision.lifecycle_state}</dd><dt>Validation availability</dt><dd>Not configured</dd><dt>Revision</dt><dd>r{selected.current_revision.revision_no}</dd></dl>
-      <p className="ux-meta">Open the exact datasheet for governed properties, conditions, evidence, and card readiness.</p>
+      <dl className="selection-context"><dt>Family</dt><dd>{selected.current_revision.content.material_class}</dd><dt>Status</dt><dd>{lifecycleLabel(selected.current_revision.lifecycle_state)}</dd></dl>
       <div className="selection-delivery-command">
-        {modelingFamily(selected) ? <button className="ux-button primary" type="button" onClick={() => startModeling(selected, onNavigate)}>Start Modeling</button> : <p className="ux-notice" role="status">Modeling is not supported for this family.</p>}
-        <button className="ux-button" type="button" onClick={() => openMaterial(selected.material_id)}>Open material</button>
-        <button className="ux-button tertiary" type="button" onClick={() => openBrowseTree(undefined)}>Show in Browse Tree</button>
+        <button className="ux-button primary" type="button" onClick={() => openMaterial(selected.material_id)}>Open datasheet</button>
       </div>
-    </> : <div className="ux-empty"><strong>Select a material</strong><p>Key properties and solver-card availability will appear here.</p></div>}
+    </> : <div className="ux-empty"><strong>Select a material</strong><p>Choose a row to open its material record.</p></div>}
   </aside>;
 
   return (

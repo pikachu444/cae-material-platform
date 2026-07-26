@@ -59,7 +59,6 @@ function emitWorkspaceCommand(command: string): void {
 
 function initialActiveCommand(path: string): string {
   if (workspaceFor(path) === "modeling") return "modeling:fit";
-  if (workspaceFor(path) === "materials" && path === "/materials") return `materials:${new URLSearchParams(window.location.search).get("mode") ?? "search"}`;
   return "";
 }
 
@@ -109,13 +108,7 @@ function commandsFor(path: string, navigate: (path: string) => void, activeComma
   }
   return {
     title: "Materials",
-    commands: [
-      { label: "Search", active: activeCommand === "materials:search", action: () => { emitWorkspaceCommand("materials:search"); focusFirst('[aria-label="Search materials"]'); } },
-      { label: "Browse Tree", active: activeCommand === "materials:browse", action: () => emitWorkspaceCommand("materials:browse") },
-      { label: "Subsets", active: activeCommand === "materials:subsets", action: () => emitWorkspaceCommand("materials:subsets") },
-      { label: "Compare", disabledReason: "Select at least two material rows to compare." },
-      { label: "New material", action: () => navigate("/materials/new") },
-    ],
+    commands: [],
   };
 }
 
