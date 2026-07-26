@@ -1410,3 +1410,29 @@ def test_operations_observability_contract_is_redacted_and_low_cardinality() -> 
     serialized = json.dumps(runtime["components"]["schemas"]["OperationalSnapshotResponse"])
     for forbidden in ("url", "query", "header", "body", "token", "organization_id"):
         assert forbidden not in serialized
+
+
+def test_target_preview_contract_matches_runtime_operation_and_typed_lineage() -> None:
+    source = load_yaml(PROJECT_ROOT / "contracts/http/openapi.yaml")
+    runtime = app.openapi()
+    path = "/api/v1/exporting/target-previews"
+
+    assert source["paths"][path]["post"]["operationId"] == "createExactTargetPreview"
+    assert runtime["paths"][path]["post"]["operationId"] == "createExactTargetPreview"
+    assert runtime["paths"][path]["post"]["security"] == [{"BearerAuth": []}]
+
+    schema = json.loads(
+        (PROJECT_ROOT / "contracts/exporting/target-preview-resource.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    serialized = json.dumps(schema)
+    for required in (
+        "processing_output_sha256",
+        "material_model_ir_revision_id",
+        "neutral_material_revision_id",
+        "solver_material_id",
+        "acknowledgement_identity",
+        "unavailable_pending_uxc_06c2",
+    ):
+        assert required in serialized

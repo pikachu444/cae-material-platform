@@ -11,6 +11,8 @@ const session: ModelingSessionSummary = {
   mappingProfile: { id: "mapping", revisionId: "mapping-r1", label: "Tensile mapping", revisionNo: 1 },
   processingOutput: { id: "output", revisionId: "output-r1", label: "Selected fit", revisionNo: 1 },
   selection: { id: "output", revisionId: "output-r1", label: "Selected fit", revisionNo: 1 },
+  materialModelIr: { id: "model", revisionId: "model-r1", label: "Reference IR", revisionNo: 1 },
+  neutralModel: { id: "neutral", revisionId: "neutral-r1", label: "Neutral JSON", revisionNo: 1 },
   workspace: { activeStage: "export", selectedDocumentIds: [], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline", settingsOpen: false },
 };
 
@@ -46,8 +48,27 @@ describe("verified exact Export chain", () => {
     }));
     expect(prerequisites).toContainEqual(expect.objectContaining({
       label: "Ephemeral target preview producer",
-      status: "not-supported",
+      status: "current",
     }));
+  });
+
+  it("keeps a newly current IR and Neutral pin usable when historical stale evidence remains", () => {
+    const prerequisites = exportPrerequisites({
+      session: {
+        ...session,
+        stalePointers: {
+          materialModelIr: { id: "old-model", revisionId: "old-model-r1", label: "Old", revisionNo: 1 },
+          neutralModel: { id: "old-neutral", revisionId: "old-neutral-r1", label: "Old", revisionNo: 1 },
+        },
+      },
+      material: material as never,
+      materialState: materialState as never,
+      testData: testData as never,
+      output: output as never,
+    });
+
+    expect(prerequisites).toContainEqual(expect.objectContaining({ label: "Material Model IR", status: "current" }));
+    expect(prerequisites).toContainEqual(expect.objectContaining({ label: "Neutral representation", status: "current" }));
   });
 
   it("marks present but mismatched source pins and server proof stale", () => {

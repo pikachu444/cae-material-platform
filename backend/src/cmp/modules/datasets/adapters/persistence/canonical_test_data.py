@@ -103,7 +103,9 @@ document_revision_table = sa.Table(
     sa.Column("normalized_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("normalized_sha256", sa.CHAR(64), nullable=False),
     sa.Column("point_count", sa.Integer(), nullable=False),
-    sa.Column("governed_source", sa.JSON(), nullable=True),
+    # PostgreSQL's nullable JSONB check accepts SQL NULL or an object, never JSON null.
+    # Keep absent governed proof as SQL NULL rather than serializing Python None to JSON null.
+    sa.Column("governed_source", sa.JSON(none_as_null=True), nullable=True),
     schema="datasets",
 )
 condition_table = sa.Table(

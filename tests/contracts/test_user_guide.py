@@ -62,7 +62,8 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
     ]
 
     uxc03b_source = "e7752dc"
-    assert manifest["source_commit"] == uxc03b_source
+    uxc06c1_source = "47a8d52"
+    assert manifest["source_commit"] == uxc06c1_source
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {
@@ -72,6 +73,7 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         "8ce8b89",
         "1ee4f2a",
         uxc03b_source,
+        uxc06c1_source,
     }
     uxc03b_commands = [
         provenance["command"]
@@ -83,8 +85,9 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for command in uxc03b_commands
     )
     assert any(
-        "targeted live Playwright Export capture" in command
-        for command in uxc03b_commands
+        "targeted live Playwright UXC-06C1 Export capture" in provenance["command"]
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == uxc06c1_source
     )
 
     activity = captures["activity-1440"]
@@ -98,9 +101,9 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         capture = captures[capture_id]
         assert (
             capture["workflow"]
-            == "exact-export-server-proof-state-and-independent-ephemeral-preview-gap"
+            == "uxc-06c1-exact-target-preflight-and-stateless-native-preview"
         )
-        assert "target preview producer is unsupported" in capture["fixture"]
+        assert "Deliver is unavailable pending UXC-06C2" in capture["fixture"]
 
 
 def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(

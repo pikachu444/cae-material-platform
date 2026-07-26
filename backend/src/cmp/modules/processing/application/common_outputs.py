@@ -945,3 +945,23 @@ class CommonProcessingOutputService:
         if snapshot.current.revision_id != output_revision_id:
             raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
         return snapshot, value
+
+    def get_output_revision_for_export(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        output_id: UUID,
+        output_revision_id: UUID,
+    ) -> ProcessingOutputSnapshot:
+        """Expose one scoped exact output to Exporting without artifact bytes."""
+        if decision.permission not in {Permission.EXPORT_READ, Permission.EXPORT_EXECUTE}:
+            raise CommonPipelineError(
+                "Export permission is required for Processing Output provenance"
+            )
+        _require(context, decision, decision.permission)
+        snapshot = self._repository.get_output(
+            context=context, decision=decision, output_id=output_id
+        )
+        if snapshot.current.revision_id != output_revision_id:
+            raise ProcessingOutputNotFound("exact Processing Output revision is not visible")
+        return snapshot

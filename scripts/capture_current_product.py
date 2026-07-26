@@ -22,6 +22,9 @@ if TYPE_CHECKING:
     from playwright.sync_api import Browser, Page
 
 VIEWPORTS = ((1366, 768), (1440, 900), (1920, 1080))
+MODELING_EXPORT_OUTPUTS = tuple(
+    f"modeling-export-{width}x{height}.png" for width, height in VIEWPORTS
+)
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
@@ -113,7 +116,14 @@ def _wait_for_settled(page: Page) -> None:
         raise RuntimeError(f"unfinished UI state remains: {pending_lines}")
 
 
-def _capture(page: Page, path: Path, width: int, height: int) -> None:
+def _capture(
+    page: Page,
+    path: Path,
+    width: int,
+    height: int,
+    *,
+    focus_selector: str | None = None,
+) -> None:
     _wait_for_settled(page)
     overflow = page.evaluate(
         "document.documentElement.scrollWidth - document.documentElement.clientWidth"
@@ -135,6 +145,8 @@ def _capture(page: Page, path: Path, width: int, height: int) -> None:
             }
         }"""
     )
+    if focus_selector is not None:
+        page.locator(focus_selector).scroll_into_view_if_needed()
     page.screenshot(path=str(path), full_page=False)
     viewport = page.viewport_size
     if viewport != {"width": width, "height": height}:
@@ -302,6 +314,144 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     _wait_for_settled(page)
 
 
+def _save_exact_fit_selection(page: Page) -> None:
+    page.locator(".workspace-command-bar").get_by_role(
+        "button", name="Fit", exact=True
+    ).click()
+    page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
+    page.get_by_role("heading", name=STAGE_HEADINGS["fit"], exact=True).wait_for(
+        timeout=30_000
+    )
+    show_settings = page.get_by_role(
+        "button", name="Show current-stage settings", exact=True
+    )
+    if show_settings.count():
+        show_settings.click()
+    candidate_table = page.get_by_role(
+        "table", name="Hardening candidate comparison"
+    )
+    candidate_table.wait_for(timeout=30_000)
+    candidate_table.get_by_role(
+        "button", name=re.compile(r"^Select .+ candidate$")
+    ).first.click()
+    page.get_by_role("textbox", name="Candidate selection reason").fill(
+        "Synthetic reference candidate selected for the export preflight."
+    )
+    warning_acknowledgement = page.get_by_role(
+        "checkbox", name="Acknowledge selected candidate warning"
+    )
+    if warning_acknowledgement.count():
+        warning_acknowledgement.check()
+    save_candidate = page.get_by_role(
+        "button", name="Save selected candidate", exact=True
+    )
+    page.wait_for_function(
+        """() => [...document.querySelectorAll("button")].some(
+            button => button.textContent?.trim() === "Save selected candidate"
+              && !button.disabled
+        )""",
+        timeout=30_000,
+    )
+    save_candidate.click()
+    page.wait_for_function(
+        """() => [...document.querySelectorAll("h1, h2, h3")].some(
+            heading => heading.textContent?.trim() ===
+              "Inspect exact source & solver export"
+        ) || document.querySelector(".error-banner")""",
+        timeout=30_000,
+    )
+    error_banner = page.locator(".error-banner")
+    if error_banner.count():
+        raise RuntimeError(
+            f"Fit selected-output save failed: {error_banner.inner_text().strip()}"
+        )
+
+
+def _prepare_exact_target_preview(page: Page) -> None:
+    page.get_by_role(
+        "heading", name=STAGE_HEADINGS["export"], exact=True
+    ).wait_for(timeout=30_000)
+    target_heading = page.get_by_role("heading", name="Native preview", exact=True)
+    if not target_heading.count():
+        page.get_by_role(
+            "heading", name="Prepare exact metal source", exact=True
+        ).wait_for(timeout=30_000)
+        page.get_by_role(
+            "checkbox",
+            name="I acknowledge the selected bounded extrapolation for this reference model.",
+            exact=True,
+        ).check()
+        page.get_by_role("textbox", name="Metal promotion reason").fill(
+            "Prepare the exact selected output for synthetic non-production target preview."
+        )
+        page.get_by_role(
+            "button", name="Prepare exact model and Neutral", exact=True
+        ).click()
+        page.wait_for_function(
+            """() => [...document.querySelectorAll("h1, h2, h3")].some(
+                heading => heading.textContent?.trim() === "Native preview"
+            ) || document.querySelector('[role="alert"]')""",
+            timeout=30_000,
+        )
+        recovery_error = page.get_by_role("alert")
+        if recovery_error.count():
+            raise RuntimeError(
+                f"Exact model/Neutral recovery failed: "
+                f"{recovery_error.inner_text().strip()}"
+            )
+        target_heading.wait_for(timeout=30_000)
+
+    page.get_by_role("combobox", name="Solver target").select_option("abaqus")
+    page.get_by_role("textbox", name="Native material name").fill(
+        "DP780_C1_REFERENCE"
+    )
+    page.get_by_role("button", name="Generate preview", exact=True).click()
+    page.wait_for_function(
+        """() => document.querySelector(
+            '[aria-label="Target mapping preflight"]'
+        ) || document.querySelector('[role="alert"]')""",
+        timeout=30_000,
+    )
+    preview_error = page.get_by_role("alert")
+    if preview_error.count():
+        raise RuntimeError(
+            f"Exact target preview failed: {preview_error.inner_text().strip()}"
+        )
+    page.get_by_role(
+        "region", name="Target mapping preflight", exact=True
+    ).wait_for(timeout=30_000)
+    page.get_by_role("region", name="Native preview", exact=True).locator(
+        "pre"
+    ).wait_for(timeout=30_000)
+    if page.get_by_role("button", name=re.compile(r"^Deliver\b")).count():
+        raise RuntimeError(
+            "UXC-06C1 preview must not expose a delivery action before UXC-06C2"
+        )
+    if page.locator(".modeling-curve-tree, .neutral-solver-export").count():
+        raise RuntimeError(
+            "Export must not restore the curve rail or legacy Neutral export surface"
+        )
+    _wait_for_settled(page)
+
+
+def _capture_modeling_export_only(
+    browser: Browser, base_url: str, output: Path
+) -> None:
+    for width, height in VIEWPORTS:
+        page = _new_page(browser, base_url, width, height)
+        _prepare_modeling(page, base_url)
+        _save_exact_fit_selection(page)
+        _prepare_exact_target_preview(page)
+        _capture(
+            page,
+            output / f"modeling-export-{width}x{height}.png",
+            width,
+            height,
+            focus_selector='[aria-label="Target mapping preflight"]',
+        )
+        page.context.close()
+
+
 def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
@@ -387,70 +537,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     )
                 parameter_table.scroll_into_view_if_needed()
             if stage == "export":
-                page.get_by_text("Preview only · not committed", exact=True).wait_for(
-                    timeout=30_000
-                )
-                page.get_by_role(
-                    "heading",
-                    name="Exact source → mapping preflight → native card",
-                    exact=True,
-                ).wait_for(timeout=30_000)
-                neutral_export = page.locator(
-                    ".modeling-workspace-dock .neutral-solver-export"
-                )
-                if not neutral_export.count():
-                    promotion_acknowledgement = page.get_by_role(
-                        "checkbox",
-                        name=re.compile(
-                            r"reviewed the candidate blend and acknowledge "
-                            r"its bounded fitted extrapolation",
-                            re.IGNORECASE,
-                        ),
-                    )
-                    promotion_acknowledgement.wait_for(timeout=30_000)
-                    promotion_acknowledgement.check()
-                    page.get_by_role(
-                        "button", name="Promote fitted output to IR", exact=True
-                    ).click()
-                    page.get_by_text(
-                        "2. Inspect immutable IR and hardening Artifact", exact=True
-                    ).wait_for(timeout=30_000)
-                    create_neutral = page.get_by_role(
-                        "button", name="Create Neutral Material JSON", exact=True
-                    )
-                    page.wait_for_function(
-                        """() => document.querySelector(
-                            ".modeling-workspace-dock .neutral-solver-export"
-                          ) || [...document.querySelectorAll("button")].some(
-                            button => button.textContent?.trim() === "Create Neutral Material JSON"
-                              && !button.disabled
-                          )""",
-                        timeout=30_000,
-                    )
-                    if not neutral_export.is_visible():
-                        try:
-                            create_neutral.click(timeout=30_000)
-                        except Exception:
-                            neutral_export.wait_for(timeout=30_000)
-                neutral_export.wait_for(timeout=30_000)
-                page.get_by_text(
-                    "kg·m·s (SI) · exact supported unit system", exact=True
-                ).wait_for(timeout=30_000)
-                workflow_links = page.locator(
-                    ".modeling-workspace-dock .domain-workflow-links"
-                )
-                page.locator(
-                    ".modeling-workspace-dock "
-                    '.domain-workflow-links[data-resolution-state="resolved"], '
-                    ".modeling-workspace-dock "
-                    '.domain-workflow-links[data-resolution-state="unprojected"]'
-                ).wait_for(timeout=30_000)
-                if workflow_links.get_attribute("data-resolution-state") == "unprojected":
-                    workflow_links.get_by_text(
-                        re.compile(
-                            r"not yet projected into a configurable Workflow Explorer record"
-                        )
-                    ).wait_for(timeout=30_000)
+                _prepare_exact_target_preview(page)
             plot.wait_for(timeout=30_000)
             plot_geometry = plot.evaluate(
                 """svg => {
@@ -481,6 +568,11 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 output / f"modeling-{stage}-{width}x{height}.png",
                 width,
                 height,
+                focus_selector=(
+                    '[aria-label="Target mapping preflight"]'
+                    if stage == "export"
+                    else None
+                ),
             )
             if stage == "fit":
                 page.get_by_role(
@@ -637,6 +729,11 @@ def main() -> int:
         type=Path,
         default=Path("docs/user-guide/images/current"),
     )
+    parser.add_argument(
+        "--only-modeling-export",
+        action="store_true",
+        help="Capture and replace only the three Modeling Export viewports.",
+    )
     args = parser.parse_args()
 
     def produce(output: Path) -> None:
@@ -652,7 +749,40 @@ def main() -> int:
             finally:
                 browser.close()
 
-    capture_count = _capture_to_empty_directory(args.output, produce)
+    if args.only_modeling_export:
+        args.output.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(
+            prefix=".modeling-export-capture-", dir=args.output.parent
+        ) as temporary:
+            staged = Path(temporary)
+            with sync_playwright() as playwright:
+                browser = playwright.chromium.launch(headless=True)
+                try:
+                    _capture_modeling_export_only(
+                        browser, args.base_url, staged
+                    )
+                finally:
+                    browser.close()
+            actual_outputs = {
+                path.name for path in staged.iterdir() if path.is_file()
+            }
+            if actual_outputs != set(MODELING_EXPORT_OUTPUTS):
+                raise RuntimeError(
+                    "targeted Export capture output drift: "
+                    f"actual={sorted(actual_outputs)}"
+                )
+            for name in MODELING_EXPORT_OUTPUTS:
+                image = staged / name
+                value = image.read_bytes()
+                if len(value) < 10_000 or value[:8] != PNG_SIGNATURE:
+                    raise RuntimeError(
+                        f"targeted Export capture is not a plausible PNG: {name}"
+                    )
+            for name in MODELING_EXPORT_OUTPUTS:
+                os.replace(staged / name, args.output / name)
+        capture_count = len(MODELING_EXPORT_OUTPUTS)
+    else:
+        capture_count = _capture_to_empty_directory(args.output, produce)
     print(
         json.dumps(
             {

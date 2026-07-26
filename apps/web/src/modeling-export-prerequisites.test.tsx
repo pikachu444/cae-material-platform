@@ -10,7 +10,7 @@ describe("ModelingExportPrerequisites", () => {
       { label: "Server provenance proof", status: "not-supported", detail: "API contract unavailable" },
     ]} />);
 
-    expect(screen.getByRole("status", { name: "Export prerequisites" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Export prerequisites" })).toBeTruthy();
     expect(screen.getByText("Server provenance proof")).toBeTruthy();
     expect(screen.getByText("Required lineage")).toBeTruthy();
     expect(screen.queryByRole("button", { name: /preview|deliver|create/i })).toBeNull();

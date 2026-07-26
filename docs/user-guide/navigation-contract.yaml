@@ -44,7 +44,7 @@ materials_workspace:
     unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
-  task: DUI-04/DUI-05/DUI-06 and UXC-02~05 complete; UXC-06A/B exact-source proof complete, target preview/delivery pending
+  task: DUI-04/DUI-05/DUI-06 and UXC-02~05 complete; UXC-06A/B proof and UXC-06C1 stateless target preview complete; C2 delivery/receipt pending
   route: /modeling
   query:
     stage: [data, process, fit, validate, review, export]

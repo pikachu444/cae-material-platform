@@ -312,7 +312,10 @@ Processing reads only the exact Canonical Test Data revision selected by the com
 projection into the immutable Common Processing Output. Null historical rows remain readable after
 the nullable migration; there is no data backfill and no `latest` lookup. This boundary implements
 `FR-DAT-005/007` source lineage without giving a module direct access to another module's tables.
-Target preview and delivery remain separate Exporting application contracts.
+Target preview and delivery remain separate Exporting application contracts. UXC-06C1 composes a
+read-only Exporting resolver from narrow Processing Output and Neutral Material application ports;
+it validates the exact Output→IR→Neutral relation and returns no persistence port. C2 alone may
+compose card/artifact/receipt/activity writes.
 
 ## 8. Plugin 및 solver 실행 plane
 

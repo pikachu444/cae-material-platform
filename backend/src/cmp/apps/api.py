@@ -114,6 +114,10 @@ from cmp.modules.exporting.adapters.api.ogden_prony_solver_cards import (
     install_ogden_prony_solver_card_api,
 )
 from cmp.modules.exporting.adapters.api.solver_cards import install_solver_card_api
+from cmp.modules.exporting.adapters.api.target_preview import install_target_preview_api
+from cmp.modules.exporting.adapters.integration.target_preview_source import (
+    TargetPreviewSourceAdapter,
+)
 from cmp.modules.exporting.application.bulk_export import BulkExportService
 from cmp.modules.exporting.application.elastoplastic_service import (
     ElastoplasticSolverCardService,
@@ -126,6 +130,7 @@ from cmp.modules.exporting.application.neutral_hyperelastic_service import (
 )
 from cmp.modules.exporting.application.ogden_prony_service import OgdenPronySolverCardService
 from cmp.modules.exporting.application.service import SolverCardService
+from cmp.modules.exporting.application.target_preview import TargetPreviewService
 from cmp.modules.identity_access.adapters.api.authorization import (
     RequestAuthorizationDependency,
 )
@@ -1075,6 +1080,24 @@ def create_app(
         ),
         execute_dependency=RequestAuthorizationDependency(
             services.authorization, Permission.EXPORT_EXECUTE
+        ),
+    )
+    target_preview_service = (
+        TargetPreviewService(
+            resolver=TargetPreviewSourceAdapter(
+                outputs=resolved_common_outputs,
+                neutral_materials=resolved_neutral_material,
+            )
+        )
+        if resolved_common_outputs is not None and resolved_neutral_material is not None
+        else None
+    )
+    install_target_preview_api(
+        application,
+        service=target_preview_service,
+        security_dependency=security_dependency,
+        read_dependency=RequestAuthorizationDependency(
+            services.authorization, Permission.EXPORT_READ
         ),
     )
     resolved_bulk_exports = bulk_export_service or build_bulk_export_service(

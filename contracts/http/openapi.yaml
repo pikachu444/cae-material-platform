@@ -8176,6 +8176,40 @@ paths:
               schema: {$ref: "../exporting/neutral-hyperelastic-resources.schema.json#/$defs/NeutralCapabilityManifest"}
         "401": {description: Authentication required.}
         "403": {description: Export read is not authorized.}
+  /api/v1/exporting/target-previews:
+    post:
+      operationId: createExactTargetPreview
+      tags: [exporting]
+      summary: Create a stateless native preview from one server-proven exact output, IR, and Neutral chain.
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "../exporting/target-preview-resource.schema.json#/$defs/Request"}
+      responses:
+        "200":
+          description: Ephemeral non-production native text and exact mapping report; no card, artifact, receipt, or Activity row is created.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-preview-resource.schema.json#/$defs/Response"}
+        "401": {description: Authentication required.}
+        "403": {description: Export read is not authorized.}
+        "409":
+          description: The exact source relation, target acknowledgement, or declared target is unavailable.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-preview-resource.schema.json#/$defs/Problem"}
+        "422":
+          description: The request payload is malformed.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-preview-resource.schema.json#/$defs/Problem"}
+        "503":
+          description: The read-only source resolver is not configured.
+          content:
+            application/json:
+              schema: {$ref: "../exporting/target-preview-resource.schema.json#/$defs/Problem"}
   /api/v1/neutral-materials/{neutral_material_id}/solver-card-preflight:
     post:
       operationId: preflightNeutralHyperelasticSolverCard

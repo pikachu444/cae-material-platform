@@ -331,6 +331,7 @@ def test_write_decision_expands_only_required_read_and_governance_permissions() 
         "artifact.read",
         "artifact.write",
         "audit.append",
+        "catalog.read",
         "dataset.read",
         "dataset.write",
         "events.publish",
@@ -364,6 +365,15 @@ def test_cross_module_execution_decision_contains_only_explicit_dependencies() -
         "validation.execute",
         "validation.read",
     )
+
+
+def test_export_read_decision_can_resolve_exact_processing_sources() -> None:
+    decision = _service(_binding(Role.CAE_ANALYST)).authorize(
+        _context(), Permission.EXPORT_READ
+    )
+
+    assert "processing.read" in decision.database_permissions
+    assert "processing.write" not in decision.database_permissions
 
 
 def test_job_runner_receives_only_internal_dispatch_and_consumer_capabilities() -> None:
