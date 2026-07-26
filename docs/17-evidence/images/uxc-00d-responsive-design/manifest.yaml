@@ -1,0 +1,8 @@
+version: 1
+purpose: UXC-00D responsive design proposal approved by product owner on 2026-07-26
+approval_status: approved
+approval_date: 2026-07-26
+generator: docs/00-research/ux-layout-review/capture_uxc00d.py
+viewports: [1366x768, 1440x900, 1920x1080]
+screens: [materials, modeling, activity, administration]
+images: 14

@@ -1,6 +1,46 @@
 # Responsive prototype and reference similarity report
 
-Status: approved by the product owner on 2026-07-21
+Status: historical 2026-07-21 approval retained; UXC-00D responsive proposal approved by the product owner on 2026-07-26
+
+## UXC-00D measured proposal
+
+These are the approved proposal measurements captured from Chromium. They supersede the older
+five-screen measurements for the UXC-00D production-design decision; they do not rewrite the
+historical 2026-07-21 evidence.
+
+| Screen / viewport | Navigator or tree | Dominant data/graph | Optional context | Key density gate |
+| --- | ---: | ---: | ---: | --- |
+| Materials 1366×768 | 244 | 1,082 | closed | 38 px result row |
+| Materials 1440×900 | 264 | 856 | 280 | results wider than context |
+| Materials 1920×1080 | 280 | 1,292 | 300 | no horizontal overflow |
+| Modeling 1366×768 | 196 | 1,130 graph region / 1,112 SVG | none | 104 px control band; 83.9% graph-width share |
+| Modeling 1440×900 | 184 | 1,216 graph region / 1,198 SVG | none | 104 px control band; 85.6% graph-width share |
+| Modeling 1920×1080 | 196 | 1,676 graph region / 1,658 SVG | none | 104 px control band; 88.6% graph-width share |
+| Activity 1366×768 | none | 1,326 queue | none | 42 px row; one selected item |
+| Activity 1440×900 | none | 1,400 queue | none | 42 px row; row-specific next action |
+| Activity 1920×1080 | none | 1,872 queue | none | no KPI tiles |
+| Administration 1366×768 | 204 object types | 470 object list | 652 editor/preview | three-part topology |
+| Administration 1440×900 | 204 object types | 501 object list | 695 editor/preview | 30–34 px rows |
+| Administration 1920×1080 | 204 object types | 698 object list | 970 editor/preview | no task-card landing |
+
+The Modeling curve rows expose separate include-in-analysis checkboxes and icon-only plot visibility
+commands. `Select fit range`, `Pick point`, and the closed `Candidate parameters` disclosure all fit
+inside the 104 px band at every captured viewport. Activity is a compact selected-row queue; it does
+not stretch a handful of rows to fill the page. Its role preview is explicitly `Reviewer (target)`
+and shows `Request changes`, `Approve`, and `Publish` separately from User request actions; this is
+proposal evidence and does not claim the pending Reviewer role is implemented.
+
+### UXC-00D proposal rubric
+
+| Screen | Topology /25 | Dominant area /25 | Density /15 | Surface /15 | Continuity /10 | Action/disclosure /10 | Total | Hard gates |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Materials | 25 | 24 | 14 | 15 | 10 | 9 | **97** | pass |
+| Modeling Fit | 25 | 25 | 14 | 15 | 10 | 9 | **98** | pass |
+| Activity | 25 | 25 | 14 | 15 | 8 | 9 | **96** | pass |
+| Administration | 25 | 24 | 14 | 15 | 9 | 9 | **96** | pass |
+
+These are structural proposal scores. Product-owner approval for this four-screen proposal is
+recorded below; the scores do not claim that the production routes are already implemented.
 
 ## Reference-to-prototype mapping
 
@@ -100,3 +140,12 @@ the required product-owner decision.
 - Product-owner decision: **approved** on 2026-07-21 after the compact navigator and Tree-search review
 - Approved screenshots/commit: `40726f6` and `docs/17-evidence/images/ux-layout-review/`
 - Production React/CSS implementation: **authorized**, subject to the same hard gates on live screens
+
+## UXC-00D disposition
+
+The 2026-07-21 decision above remains historical evidence for the earlier five-screen review. The
+Materials, Modeling, Activity and Administration proposal captured in
+`docs/17-evidence/images/uxc-00d-responsive-design/` was explicitly **approved by the product
+owner on 2026-07-26**. It authorizes production React/CSS implementation of the role-aware Activity
+queue, Administration three-part workspace, and lower Modeling dimensions, subject to the same
+live-screen hard gates. It does not mark any production route as already complete.

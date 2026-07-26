@@ -7,13 +7,16 @@ are responsive static prototypes; they do not call product APIs and are not appl
   dense results, selected context
 - [`detail.html`](detail.html): Layout-style Material datasheet and direct CAE action
 - [`modeling.html`](modeling.html): 26 px plain-text curve/process tree, settings ribbon, dominant Fit graph
+- [`activity.html`](activity.html): role-aware attention queue with saved views and row-specific actions
+- [`administration.html`](administration.html): object navigator, object list, property editor and live preview
 - [`export.html`](export.html): reviewed graph continuity into solver mapping/export
 - [`card.html`](card.html): focused native preview and one Download action
 
 `region-annotations.json` records the normalized structural regions observed directly in each local
 reference. `similarity-report.md` records browser-measured prototype dimensions, rubric scoring,
-known deviations, and the approval decision. Captures live under
-`docs/17-evidence/images/ux-layout-review/`.
+known deviations, and the approval decision. Historical captures live under
+`docs/17-evidence/images/ux-layout-review/`; the product-owner-approved UXC-00D four-screen
+proposal lives under `docs/17-evidence/images/uxc-00d-responsive-design/`.
 
 Review order:
 
@@ -22,4 +25,5 @@ Review order:
 3. Compare region topology, dominant-area proportion, density, surface grammar, selection continuity,
    action position, and progressive disclosure.
 4. Reject any hard-gate failure even if the total score is 85 or higher.
-5. Production implementation begins only after an explicit product-owner approval is recorded.
+5. UXC-00D was explicitly approved by the product owner on 2026-07-26. Production React/CSS work
+   may begin against these hard gates; the static pages remain proposal evidence, not current routes.

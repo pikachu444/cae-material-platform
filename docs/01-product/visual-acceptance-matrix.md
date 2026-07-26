@@ -159,7 +159,7 @@ Additional checks:
 
 ## Reference and approval disposition
 
-The approved Modeling target is the **lower proposal** in
+The historical 2026-07-21 Modeling target was the **lower proposal** in
 `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`. Materials references:
 `docs/00-research/images/gui-reference/granta-profile.png`,
 `docs/00-research/images/gui-reference/granta-list-results.png`, and
@@ -172,9 +172,11 @@ The approved Modeling target is the **lower proposal** in
 `modeler-necking-point.png`, `modeler-fit-extrapolation.png`, `modeler-create-cae-card.png`, and
 `modeler-cae-card-details.png` in `docs/00-research/images/gui-reference/README.md`, plus the
 approved lower comparison above.
-The next design-only PR must create responsive prototypes, record region ratios, and receive explicit
-product-owner approval before any production React/CSS implementation. Current Activity and
-Administration captures are pending-redesign evidence, not target approval.
+UXC-00D records a revised four-screen responsive proposal in
+`docs/17-evidence/images/uxc-00d-responsive-design/`. The product owner explicitly approved this
+proposal, including the lower Modeling layout, on 2026-07-26 for production React/CSS implementation.
+The historical approval remains separate evidence only; approval does not itself mark a live route
+as complete.
 
 ## Required measurement report
 

@@ -79,3 +79,14 @@ if (tree && treeFind && treeNext && treeStatus && treeClear) {
     }
   });
 }
+
+document.querySelectorAll(".plot-toggle").forEach((button) => {
+  button.addEventListener("click", () => {
+    const isVisible = button.classList.toggle("active");
+    const curve = button.closest(".model-tree-row")?.querySelector("span");
+    const name = curve?.textContent?.trim() || "curve";
+    button.textContent = isVisible ? "◉" : "○";
+    button.title = isVisible ? "Hide from plot" : "Show on plot";
+    button.setAttribute("aria-label", `${isVisible ? "Hide" : "Show"} ${name} ${isVisible ? "from" : "on"} plot`);
+  });
+});
