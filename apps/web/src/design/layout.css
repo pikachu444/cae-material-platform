@@ -3194,7 +3194,7 @@
   border: 0;
 }
 
-.curve-tree-group > article,
+.curve-tree-group > details > article,
 .configured-step-list > button {
   min-height: 26px;
   border: 0;
@@ -3203,16 +3203,16 @@
   background: transparent;
 }
 
-.curve-tree-group > article {
+.curve-tree-group > details > article {
   display: grid;
   align-items: center;
-  grid-template-columns: 25px 12px minmax(0, 1fr) 26px;
+  grid-template-columns: 25px minmax(0, 1fr) 28px 26px;
   min-width: 0;
   padding-left: 9px;
 }
 
-.curve-tree-group > article:hover,
-.curve-tree-group > article.active,
+.curve-tree-group > details > article:hover,
+.curve-tree-group > details > article.active,
 .configured-step-list > button:hover,
 .configured-step-list > button.active {
   background: var(--ux-accent-soft);
@@ -3223,16 +3223,40 @@
   min-width: 0;
 }
 
+.curve-tree-group > details {
+  min-width: 0;
+}
+
 .curve-group-row {
   display: grid;
   align-items: center;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
   min-height: 25px;
   padding: 2px 7px;
   border-bottom: 1px solid var(--ux-border);
   background: var(--ux-surface-subtle);
   color: var(--ux-text);
   font-size: 11.5px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.curve-group-row::-webkit-details-marker {
+  display: none;
+}
+
+.curve-group-row::before {
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid var(--ux-text-muted);
+  border-bottom: 1.5px solid var(--ux-text-muted);
+  content: "";
+  transform: rotate(-45deg);
+  transform-origin: center;
+}
+
+.curve-tree-group > details[open] > .curve-group-row::before {
+  transform: rotate(45deg);
 }
 
 .curve-group-row > strong {
@@ -3274,9 +3298,9 @@
 .dataset-curve-swatch {
   display: block;
   background: hsl(calc(174deg + var(--curve-index, 0) * 42deg) 48% 43%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 20px;
+  height: 3px;
+  margin-inline: 4px;
 }
 
 .curve-visibility-toggle {

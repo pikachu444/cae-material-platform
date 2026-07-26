@@ -22,6 +22,13 @@ four-stage `ModelingStageShell`, solver `MappingStatusList`, and server-response
 states. Synthetic story data never records an approval, release, delivery, or production solver
 choice. Tree, data-grid, property-sheet, inspector and final legacy route/CSS work remain open.
 
+**DUI-09E curve-tree clarity (`2026-07-27`):** Data, Process and Fit use a real collapsible test
+group instead of printed branch characters. Each compact curve row reads from left to right as
+calculation-inclusion checkbox, curve/revision title, horizontal plot-color sample and local
+plot-visibility control. The two controls retain their separate state and invalidation contracts.
+Live Data evidence covers 1366×768, 1440×900 and 1920×1080 with a 184–208 px rail and the graph
+remaining the dominant work area.
+
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
 ## Program goal
