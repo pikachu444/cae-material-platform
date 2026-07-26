@@ -4,7 +4,7 @@ import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-re
 import { desktopViewportClass, type DesktopViewportClass } from "./resizable-split-pane";
 
 interface ModelingWorkspaceLayoutProps {
-  navigator: ReactNode;
+  navigator?: ReactNode;
   ribbon: ReactNode;
   plot: ReactNode;
   dock?: ReactNode;
@@ -68,6 +68,17 @@ export function ModelingWorkspaceLayout({
       </button>
     </section>
   );
+
+  // Export is an evidence/preflight task, not a curve-selection task.  Omitting
+  // the navigator must reclaim its width instead of leaving an empty resizable
+  // panel and divider behind.
+  if (!navigator) {
+    return (
+      <div className={`modeling-split-workspace modeling-split-workspace-no-navigator viewport-${viewport}`} data-viewport-class={viewport}>
+        {main}
+      </div>
+    );
+  }
 
   if (typeof ResizeObserver === "undefined") {
     return (

@@ -1,7 +1,7 @@
 version: 54
 verified_at: 2026-07-26
-scope: uxc-06b-exact-source-provenance
-source_commit: 3693e39
+scope: uxc-03b-curve-rail-density-and-uxc-06b-exact-source-provenance
+source_commit: "1fb635e + uncommitted UXC-03B remediation working tree"
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
@@ -15,22 +15,27 @@ notes:
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity shows browser-local Solver Card preview/download history; broader review-attention and queue integration remain DUI-08 pending."
+  - "Process and Fit use a compact Test data tree: exact specimen/revision identity, inclusion checkbox and icon-only plot visibility remain independent; Export has no permanent curve rail."
   - "Fit retains the UXC-04 typed decision snapshot. Export shows historical missing source proof separately from the unsupported ephemeral preview producer and never exposes delivery controls."
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06B adds source proof only; preview, Deliver and receipt remain UXC-06C."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: "1fb635e + uncommitted UXC-03B remediation working tree"
+    captured_at: 2026-07-26T12:22:00+09:00
+    command: targeted live Playwright Export capture at 1366x768, 1440x900 and 1920x1080; asserts no Mean & band control or replicate-statistics view and keeps the persistent Export graph
+    ids: [modeling-export-1366, modeling-export-1440, modeling-export-1920]
+  - source_commit: "1fb635e + uncommitted UXC-03B working tree"
+    captured_at: 2026-07-26T12:13:54+09:00
+    command: targeted live Playwright Process/Fit/Export capture at 1366x768, 1440x900 and 1920x1080 against rebuilt deterministic Compose demo; each screen asserts no page-level horizontal overflow, and Export asserts no navigator or navigator divider
+    ids: [modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920]
   - source_commit: 8ce8b89
     captured_at: 2026-07-26T09:39:04+09:00
     command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5174 (successful atomic capture of implementation commit 8ce8b89 bytes before provenance-only follow-up)
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, activity-1440, administration-database-1440]
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, activity-1440, administration-database-1440]
   - source_commit: 1ee4f2a
     captured_at: 2026-07-26T10:26:00+09:00
     command: targeted Playwright UXC-05 validation capture after deterministic Compose rebuild
     ids: [modeling-validation-1366, modeling-validation-1440, modeling-validation-1920]
-  - source_commit: 3693e39
-    captured_at: 2026-07-26T11:25:00+09:00
-    command: targeted Playwright UXC-06B Export capture after live migration and deterministic Compose rebuild; exact implementation commit 3693e39
-    ids: [modeling-export-1366, modeling-export-1440, modeling-export-1920]
 captures:
   - id: materials-search-1366
     route: /materials

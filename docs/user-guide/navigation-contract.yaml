@@ -57,6 +57,8 @@ modeling_workspace:
     wide_1920: { navigator_px: 208, main_px: 1691, settings: open }
     settings_placement: graph-adjacent-ribbon
     permanent_third_column: forbidden
+    curve_specimen_rail_visible_when: [process, fit]
+    export_curve_specimen_rail: absent
     persistence: viewport-layout-and-modeling-session-v3-clearable-events
   continuity:
     graph_remount_on_stage_change: forbidden

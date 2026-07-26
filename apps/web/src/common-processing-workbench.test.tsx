@@ -461,7 +461,7 @@ describe("Common Processing Workbench", () => {
       { name: "Hardening candidate and selected extrapolation curves" },
       { timeout: 5000 },
     )).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Specimen 01/ }).getAttribute("title")).toContain("DP600-TENSILE-01");
+    expect(screen.queryByText("Test data")).toBeNull();
     const settingsControl = screen.getByRole("button", { name: /current-stage settings/ });
     expect(settingsControl).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
@@ -545,6 +545,21 @@ describe("Common Processing Workbench", () => {
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:process" } }));
     expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Save processed curves" })).toBeTruthy();
+    expect(screen.getByText("Test data")).toBeTruthy();
+    expect(screen.getByText("2 curves · 2 included")).toBeTruthy();
+    const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · exact revision r1");
+    expect(curveRow.getAttribute("title")).toContain("DP600-TENSILE-01");
+    const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });
+    const plotVisibility = screen.getByRole("button", { name: "Hide Specimen 01 on plot" });
+    expect(plotVisibility.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByText(/^Hide$/)).toBeNull();
+    fireEvent.click(plotVisibility);
+    expect(screen.getByRole("button", { name: "Show Specimen 01 on plot" }).getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(includeSpecimen);
+    expect((includeSpecimen as HTMLInputElement).checked).toBe(false);
+    expect(onSessionEvent).toHaveBeenCalledWith({ type: "CHANGE_SELECTION" });
+    fireEvent.click(includeSpecimen);
+    expect((includeSpecimen as HTMLInputElement).checked).toBe(true);
     expect(screen.queryByText("Fit evidence")).toBeNull();
     fireEvent.click(screen.getByRole("button", {
       name: /1Sort and resolve duplicate x values3 points/,
@@ -605,6 +620,11 @@ describe("Common Processing Workbench", () => {
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:export" } }));
     expect(screen.getByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Export is unavailable" })).toBeTruthy();
+    expect(screen.queryByText("Test data")).toBeNull();
+    expect(screen.queryByLabelText("Resize curve and process navigator")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Mean & band" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Replicate statistics" })).toBeNull();
+    expect(document.querySelector(".persistent-modeling-plot")).toBeTruthy();
     expect(screen.queryByText("Exact Neutral and solver delivery fixture")).toBeNull();
     expect(document.querySelector("#modeling-process:not([hidden]) .persistent-modeling-plot")).toBeTruthy();
     expect(screen.getByText("Selection reason")).toBeTruthy();

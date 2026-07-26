@@ -61,16 +61,30 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "3693e39"
+    pending_uxc03b_source = "1fb635e + uncommitted UXC-03B working tree"
+    pending_uxc03b_remediation = (
+        "1fb635e + uncommitted UXC-03B remediation working tree"
+    )
+    assert manifest["source_commit"] == pending_uxc03b_remediation
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {
         provenance["source_commit"]
         for provenance in manifest["capture_provenance"]
-    } == {"8ce8b89", "1ee4f2a", "3693e39"}
-    assert "exact implementation commit 3693e39" in manifest[
-        "capture_provenance"
-    ][-1]["command"]
+    } == {
+        "8ce8b89",
+        "1ee4f2a",
+        pending_uxc03b_source,
+        pending_uxc03b_remediation,
+    }
+    uxc03b_provenance = next(
+        provenance
+        for provenance in manifest["capture_provenance"]
+        if provenance["source_commit"] == pending_uxc03b_source
+    )
+    assert "targeted live Playwright Process/Fit/Export capture" in uxc03b_provenance[
+        "command"
+    ]
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "recent-browser-local-solver-card-delivery"

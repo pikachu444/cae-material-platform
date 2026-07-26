@@ -3,6 +3,19 @@
 Date: `2026-07-26`
 Foundation version: `0.32.0`
 
+## UXC-03B curve/specimen rail density correction implemented (2026-07-26)
+
+Process and Fit now use one compact Test Data tree row per exact specimen revision. Calculation
+inclusion remains an explicit checkbox that dispatches `CHANGE_SELECTION`; browser-local plot
+visibility uses a separate accessible eye control and does not invalidate immutable or downstream
+state. The generic `Curve NN` fallback and repeated visible `Hide`/`Show` row are removed.
+
+Data, Validate and Review/Release do not expose the editable rail. Export removes the navigator and
+divider entirely, reclaims the graph/evidence width, fail-closes any persisted replicate view to the
+pipeline response, and exposes neither alignment nor Mean & band controls. Current Process, Fit and
+Export evidence covers 1366×768, 1440×900 and 1920×1080. Full web tests, build/type/bundle gates,
+documentation gates and one bounded independent re-review pass.
+
 ## UXC-06B exact Export source provenance implemented (2026-07-26)
 
 Governed local-file Test Data registration now carries exact Material, Material State and Test Run
