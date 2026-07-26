@@ -323,6 +323,43 @@ describe("Material Catalog workbench", () => {
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 
+  it("routes the legacy review deep link to the compact Activity queue without raw review inputs", async () => {
+    window.history.pushState({}, "", "/jobs-reviews?candidate_id=candidate-1");
+    const pendingReview = {
+      review_request_id: "review-legacy-route-1",
+      classification: "internal",
+      aggregate_type: "catalog.material",
+      aggregate_id: "material-1",
+      revision_id: "material-r1",
+      manifest_sha256: "a".repeat(64),
+      required_role: "domain_reviewer",
+      requested_by: "user-1",
+      requested_at: "2026-07-27T00:00:00Z",
+      reason: "Review the synthetic material data",
+      lifecycle_state: "review",
+      decision: null,
+      links: {},
+    };
+    const fetchMock = mockProductFetch((input) => {
+      const url = String(input);
+      if (url.endsWith("/product-access/me")) return jsonResponse({ product_role: "reviewer", feature_grants: ["model_approval"], legacy_compatible: false });
+      if (url.endsWith("/me")) return jsonResponse({ principal_id: "reviewer-1", principal_type: "user", display_name: "Reviewer", organization_id: "organization-1", project_id: "project-1", groups: [], scopes: [], request_id: "request-1", trace_id: "trace-1" });
+      if (url.includes("/review-requests?")) return jsonResponse({ items: [pendingReview] });
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "Activity", level: 1 })).toBeTruthy();
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/review-requests?"))).toBe(true));
+    expect(screen.getByRole("heading", { name: "Needs attention" })).toBeTruthy();
+    expect(await screen.findByText("Material data review")).toBeTruthy();
+    expect(screen.getByText(/Review the synthetic material data/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Review" })).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/Aggregate type|Aggregate ID|Revision ID|Manifest SHA-256|Record decision/);
+    expect(screen.queryByRole("heading", { name: "Evidence, Review & Release" })).toBeNull();
+  });
+
   it("opens task-oriented Administration without infrastructure or policy vocabulary", async () => {
     window.history.pushState({}, "", "/administration");
     mockProductFetch(() => jsonResponse({}));

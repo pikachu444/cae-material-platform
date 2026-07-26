@@ -51,9 +51,6 @@ const ReferenceValidationWorkbench = lazy(() =>
     default: module.ReferenceValidationWorkbench,
   })),
 );
-const ReviewWorkbench = lazy(() =>
-  import("./review-workbench").then((module) => ({ default: module.ReviewWorkbench })),
-);
 const ReleaseWorkbench = lazy(() =>
   import("./release-workbench").then((module) => ({ default: module.ReleaseWorkbench })),
 );
@@ -411,7 +408,6 @@ function ModuleHubPage({
       {area === "governance" ? (
         <>
           <OperationsDashboard config={config} />
-          <ReviewWorkbench config={config} />
           <ReleaseWorkbench config={config} />
           <GovernanceEvidenceWorkbench config={config} />
         </>
@@ -705,9 +701,9 @@ export function App() {
     page = <ModuleHubPage area="models" config={config} navigate={navigate} onOpenConnection={retrySession} />;
   } else if (path === "/modeling") {
     page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
-  } else if (path === "/activity") {
+  } else if (path === "/activity" || path === "/jobs-reviews") {
     page = <ActivityPage config={config} onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
-  } else if (path === "/governance" || path === "/jobs-reviews") {
+  } else if (path === "/governance") {
     page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/access" || path === "/administration/access") {
     page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="access" />;

@@ -42,3 +42,13 @@ remain follow-up work until their real source and lifecycle are connected.
 
 The current guide, navigation contract, product policy, UI component contract, user flow, capture
 script, and all three current Activity screenshots are updated in this same change.
+
+## DUI-09A legacy review-workbench cleanup
+
+`/jobs-reviews` now renders this same Activity queue, including the real role/access/principal and
+review-request loading path. The retired raw review workspace, its focused test, and only its private CSS
+selectors were removed. The shared release review-list styles remain because ReleaseWorkbench still
+uses them. `/governance` retains Operations, Release and Governance Evidence as Advanced operational
+surfaces; no review API, domain contract, or backend capability was removed. The deep-link regression
+asserts the compact Activity heading and queue request, while proving the retired Aggregate type/ID,
+Revision ID, Manifest SHA-256, and Record decision controls are absent.

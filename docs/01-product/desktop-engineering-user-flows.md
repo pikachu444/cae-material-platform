@@ -87,8 +87,9 @@ Recipe, Batch, exact revision identifiers, mapping profiles and audit detail sup
 
 A role changes default commands and access. It must not produce a different visual product shell.
 Current implementation exposes User, Reviewer, and Administrator task presets. Internal RBAC/RLS
-continues to enforce organization/project authorization; the Activity review queue is implemented,
-while request-entry, job and release projections remain separate work.
+continues to enforce organization/project authorization. The Activity review queue and exact Material/
+Solver Card request entry are implemented; only failed-job recovery, server delivery receipt, and
+release projections remain separate work.
 
 ## 4. Shared workspace behavior
 
@@ -353,7 +354,8 @@ must give a reason before approving or requesting changes. Browser-local Modelin
 history remain in the appropriate sections. The current review API lacks display names for submitted
 items and people, so the normal row uses a human task label, request reason, state and time while
 identifiers stay under Advanced evidence. Request entry, job monitoring and release projection are
-follow-up slices rather than placeholder rows.
+not placeholder rows: exact Material and Solver Card request entry is implemented, while job
+monitoring and release projection remain follow-up slices.
 
 ### Progressive advanced view
 

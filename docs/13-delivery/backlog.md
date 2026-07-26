@@ -2030,3 +2030,16 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 - **범위:** live DOM region measurements, side-by-side reference masks, scenarios A–E (including
   canonical JSON, CSV, and XLSX input), accessibility,
   clean demo/backend regression, screenshot manifest, and only then obsolete route/component/CSS removal.
+
+#### DUI-09A. Legacy review workbench cleanup — `P1`
+
+- **상태 (`2026-07-27`):** `complete`. `/jobs-reviews` compatibility deep link now renders the
+  canonical Activity queue. The raw aggregate/revision/hash review workspace, its dedicated test and
+  private selectors were removed after inbound-reference checks. `/governance` retains only the
+  Advanced Operations, Release and Governance Evidence surfaces.
+- **보존:** immutable review request/decision API and domain contracts, Activity's role-gated existing
+  request decision flow, ApplicationShell Activity selection, ReleaseWorkbench's shared review-list
+  selectors, and all backend governance capabilities.
+- **검증:** route regression proves real Activity queue loading and absence of raw legacy inputs;
+  rebuilt deterministic Activity captures cover 1366×768, 1440×900 and 1920×1080 without fabricating
+  a decision or release.
