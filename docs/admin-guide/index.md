@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | Administration overview | `/administration` | 관리자 작업 선택과 제품 권한 원칙 |
 | Database design | `/administration/database` | Table, Attribute, Layout, Subset, Link Type |
-| Users & access | `/administration/access` | 현재 Administrator/User와 기능 권한 (Reviewer는 pending) |
+| Users & access | `/administration/access` | User/Reviewer/Administrator 업무 역할과 assignment 관리 |
 | Material Database | `/database` | Folder, Record, exact-revision link 탐색 |
 
 Docker demo는 **Demo user** Administrator session을 자동으로 준비합니다. 사용자는 API 주소나
@@ -61,24 +61,19 @@ Record link의 양 끝은 항상 exact Record revision입니다. `latest` 별칭
 Deactivate를 사용합니다. 사용자는 Related records 패널과 Workflow Explorer에서 링크를 따라
 시험, Dataset, Processing Run, Neutral IR, Solver Card로 이동할 수 있습니다.
 
-## 5. 제품 역할 목표와 현재 Administrator/User
+## 5. 제품 역할과 업무 preset
 
-[Users & access](http://127.0.0.1:5173/administration/access)는 현재 내부 역할 이름 대신 다음 두 역할만 표시합니다.
+[Users & access](http://127.0.0.1:5173/administration/access)는 내부 역할 이름이나 기능
+체크박스 대신 세 가지 업무 역할을 표시합니다.
 
-- `Administrator`: 사용자 관리와 다섯 제품 기능을 모두 사용
-- `User`: 지정된 기능만 사용
+- `User`: 재료 검색·조회·다운로드, 업로드·검토 요청, 처리·보정과 Solver Card 요청
+- `Reviewer`: User 업무와 재료·Solver Card 변경 요청, 승인, publish
+- `Administrator`: 모든 접근·편집·구성·검토·승인과 역할 관리
 
-제품 목표는 User(검색·조회·다운로드, 검토 요청, 처리/fitting), Reviewer(User 작업 + material/card
-변경 요청·승인·publish), Administrator(모든 접근·편집·구성·검토·승인)입니다. Reviewer UI와
-access migration은 아직 구현되지 않았습니다.
-
-User에게 부여할 수 있는 기능은 다음과 같습니다.
-
-1. Schema configuration
-2. Catalog editing
-3. Processing & calibration
-4. Model approval
-5. Solver Card export
+새 역할을 부여하면 역할에 맞는 작업 묶음이 함께 적용됩니다. User에는 Processing &
+calibration과 Solver Card export가, Reviewer에는 여기에 Model approval이 추가됩니다.
+Administrator에는 Schema configuration과 Catalog editing을 포함한 모든 제품 작업이
+적용됩니다. 일반 관리 화면에서는 이 내부 기능을 개별적으로 조합하지 않습니다.
 
 제품 화면에서는 사용자 또는 팀 이름만 선택합니다. identity-provider issuer, principal UUID,
 project/organization scope와 classification enforcement는 배포 identity directory 및 내부 정책
@@ -92,7 +87,7 @@ assignment를 추가합니다. 부여·회수 이력은 남으며 일반 User가
 ## 6. 내부 확장성과 기존 역할 호환성
 
 T-59 이전의 상세 role binding은 제거하지 않습니다. 서버가 기존 role들의 permission 합계를
-Administrator/User와 기능 권한으로 투영하므로 기존 enforcement가 계속 동작합니다. 이 내부
+User/Reviewer/Administrator와 기능 권한으로 투영하므로 기존 enforcement가 계속 동작합니다. 이 내부
 호환 정보는 일반 제품 화면에 표시하지 않습니다. 향후 resource/action/scope 단위 권한을 추가해도
 Catalog schema나 사용자 작업 흐름을 다시 만들지 않습니다.
 

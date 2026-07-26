@@ -1,4 +1,4 @@
-"""T-59 Administrator/User and feature-grant HTTP resources."""
+"""T-59 task-preset product-access HTTP resources."""
 
 from __future__ import annotations
 
@@ -27,6 +27,7 @@ from cmp.modules.identity_access.domain.authorization import (
     ProductAccessSummary,
     ProductRole,
     RoleBindingConflict,
+    product_role_preset,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 from fastapi import Depends, FastAPI, Request, Response, status
@@ -221,11 +222,9 @@ def install_product_access_api(
         if service is None:
             raise _unavailable(request)
         context = _context(request)
-        grants = (
-            tuple(sorted(FeatureGrant, key=str))
-            if payload.product_role is ProductRole.ADMINISTRATOR
-            else tuple(sorted(payload.feature_grants, key=str))
-        )
+        # Preserve the compatible field in the wire contract, but normal product
+        # assignments are role presets rather than a five-checkbox policy editor.
+        grants = product_role_preset(payload.product_role)
         try:
             assignment = service.grant(
                 context,

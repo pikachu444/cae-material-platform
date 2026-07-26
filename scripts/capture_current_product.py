@@ -30,6 +30,10 @@ MODELING_PROCESS_FIT_OUTPUTS = tuple(
     for stage in ("process", "fit")
     for width, height in VIEWPORTS
 )
+PRODUCT_ACCESS_OUTPUTS = (
+    "administration-access-1366x768.png",
+    "administration-access-1440x900.png",
+)
 CURRENT_CAPTURE_OUTPUTS = (
     "materials-search-1366x768.png",
     "materials-search-1440x900.png",
@@ -57,6 +61,8 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-export-1920x1080.png",
     "activity-1440x900.png",
     "administration-database-1440x900.png",
+    "administration-access-1366x768.png",
+    "administration-access-1440x900.png",
 )
 STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
@@ -755,6 +761,27 @@ def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -
     _capture(page, output / "administration-database-1440x900.png", width, height)
     page.context.close()
 
+    for width, height in ((1366, 768), (1440, 900)):
+        page = _new_page(browser, base_url, width, height)
+        page.goto(f"{base_url}/administration/access")
+        page.get_by_role("heading", name="Choose what each team can do", exact=True).wait_for(
+            timeout=30_000
+        )
+        page.get_by_role("combobox", name="Role", exact=True).select_option("reviewer")
+        included_tasks = page.get_by_text("Included tasks:", exact=False)
+        included_tasks.wait_for(timeout=30_000)
+        included_tasks.scroll_into_view_if_needed()
+        if page.get_by_role("group", name="Feature grants").count():
+            raise RuntimeError("product access must use task presets, not feature checkboxes")
+        _capture(
+            page,
+            output / f"administration-access-{width}x{height}.png",
+            width,
+            height,
+            focus_selector="#role-task-summary",
+        )
+        page.context.close()
+
 
 def _validate_capture_outputs(output: Path) -> int:
     actual_outputs = {
@@ -830,6 +857,11 @@ def main() -> int:
         default=Path("docs/user-guide/images/current"),
     )
     parser.add_argument(
+        "--only-product-access",
+        action="store_true",
+        help="Capture and replace only the two Product Access role-preset viewports.",
+    )
+    parser.add_argument(
         "--only-modeling-export",
         action="store_true",
         help="Capture and replace only the three Modeling Export viewports.",
@@ -853,8 +885,14 @@ def main() -> int:
             finally:
                 browser.close()
 
-    if args.only_modeling_export or args.only_modeling_process_fit:
-        names = MODELING_EXPORT_OUTPUTS if args.only_modeling_export else MODELING_PROCESS_FIT_OUTPUTS
+    if args.only_modeling_export or args.only_modeling_process_fit or args.only_product_access:
+        names = (
+            MODELING_EXPORT_OUTPUTS
+            if args.only_modeling_export
+            else MODELING_PROCESS_FIT_OUTPUTS
+            if args.only_modeling_process_fit
+            else PRODUCT_ACCESS_OUTPUTS
+        )
         args.output.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(
             prefix=".modeling-stage-capture-", dir=args.output.parent
@@ -863,13 +901,20 @@ def main() -> int:
             with sync_playwright() as playwright:
                 browser = playwright.chromium.launch(headless=True)
                 try:
-                    measurements = (_capture_modeling_export_only(browser, args.base_url, staged)
-                        if args.only_modeling_export else _capture_modeling_process_fit(browser, args.base_url, staged))
+                    measurements = (
+                        _capture_modeling_export_only(browser, args.base_url, staged)
+                        if args.only_modeling_export
+                        else _capture_modeling_process_fit(browser, args.base_url, staged)
+                        if args.only_modeling_process_fit
+                        else _capture_supporting_screens(browser, args.base_url, staged)
+                    )
                 finally:
                     browser.close()
             actual_outputs = {
                 path.name for path in staged.iterdir() if path.is_file()
             }
+            if args.only_product_access:
+                actual_outputs = {name for name in actual_outputs if name in names}
             if actual_outputs != set(names):
                 raise RuntimeError(
                     "targeted Modeling capture output drift: "

@@ -103,6 +103,7 @@ class ProductRole(StrEnum):
     """Small product-facing role vocabulary exposed to normal administrators."""
 
     ADMINISTRATOR = "administrator"
+    REVIEWER = "reviewer"
     USER = "user"
 
 
@@ -114,6 +115,36 @@ class FeatureGrant(StrEnum):
     PROCESSING_CALIBRATION = "processing_calibration"
     MODEL_APPROVAL = "model_approval"
     SOLVER_CARD_EXPORT = "solver_card_export"
+
+
+PRODUCT_ROLE_PRESETS: dict[ProductRole, tuple[FeatureGrant, ...]] = {
+    ProductRole.ADMINISTRATOR: tuple(sorted(FeatureGrant, key=str)),
+    ProductRole.REVIEWER: tuple(
+        sorted(
+            (
+                FeatureGrant.PROCESSING_CALIBRATION,
+                FeatureGrant.MODEL_APPROVAL,
+                FeatureGrant.SOLVER_CARD_EXPORT,
+            ),
+            key=str,
+        )
+    ),
+    ProductRole.USER: tuple(
+        sorted(
+            (
+                FeatureGrant.PROCESSING_CALIBRATION,
+                FeatureGrant.SOLVER_CARD_EXPORT,
+            ),
+            key=str,
+        )
+    ),
+}
+
+
+def product_role_preset(product_role: ProductRole) -> tuple[FeatureGrant, ...]:
+    """Return the normal product-facing task preset for a newly granted role."""
+
+    return PRODUCT_ROLE_PRESETS[product_role]
 
 
 def _aware(name: str, value: datetime) -> None:
@@ -207,7 +238,7 @@ class RoleBinding:
 
 @dataclass(frozen=True, slots=True)
 class ProductAccessAssignment:
-    """Append-only Administrator/User assignment with explicit typed feature grants."""
+    """Append-only product assignment; legacy User feature combinations remain readable."""
 
     id: UUID
     organization_id: UUID
@@ -228,10 +259,12 @@ class ProductAccessAssignment:
             raise ValueError("project UUID must be non-zero when present")
         if tuple(sorted(set(self.feature_grants), key=str)) != self.feature_grants:
             raise ValueError("feature grants must be sorted and unique")
-        if self.product_role is ProductRole.ADMINISTRATOR and set(self.feature_grants) != set(
-            FeatureGrant
+        if self.product_role in {ProductRole.ADMINISTRATOR, ProductRole.REVIEWER} and (
+            self.feature_grants != product_role_preset(self.product_role)
         ):
-            raise ValueError("Administrator assignments must contain every product feature grant")
+            raise ValueError(
+                f"{self.product_role.value} assignments must contain their fixed product preset"
+            )
         if self.max_classification is DataClassification.EXPORT_CONTROLLED:
             raise ValueError("use allow_export_controlled for the export compartment")
         _aware("valid_from", self.valid_from)

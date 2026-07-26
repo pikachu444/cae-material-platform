@@ -44,7 +44,7 @@ materials_workspace:
     unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
-  task: DUI-04/DUI-05/DUI-06 and UXC-02~06 delivery work complete; normal path correction is Data/Process/Fit/Export; Reviewer migration and Activity queue remain pending
+  task: DUI-04/DUI-05/DUI-06 and UXC-02~06 delivery work complete; normal path correction is Data/Process/Fit/Export; Reviewer product-role migration is complete and Activity queue remains pending
   route: /modeling
   query:
     normal_stage: [data, process, fit, export]

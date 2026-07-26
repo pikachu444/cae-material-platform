@@ -10,7 +10,7 @@ paths:
     get:
       operationId: getEffectiveProductAccess
       tags: [identity]
-      summary: Return the effective Administrator/User role and product feature grants.
+      summary: Return the effective Administrator, Reviewer, or User role and product task grants.
       security: [{BearerAuth: []}]
       responses:
         "200":
@@ -37,7 +37,7 @@ paths:
     post:
       operationId: grantProductAccess
       tags: [identity]
-      summary: Append an Administrator/User assignment with explicit product feature grants.
+      summary: Append an Administrator, Reviewer, or User assignment using its fixed task preset.
       security: [{BearerAuth: []}]
       requestBody:
         required: true

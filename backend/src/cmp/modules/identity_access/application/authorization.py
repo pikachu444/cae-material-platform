@@ -20,6 +20,7 @@ from cmp.modules.identity_access.domain.authorization import (
     ProductRole,
     Role,
     RoleBinding,
+    product_role_preset,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
 
@@ -655,11 +656,16 @@ class AuthorizationService:
         administrator = any(
             item.product_role is ProductRole.ADMINISTRATOR for item in product
         ) or bool(legacy_roles & {Role.ORG_ADMIN, Role.PLATFORM_ADMIN})
+        reviewer = any(item.product_role is ProductRole.REVIEWER for item in product)
         if administrator:
             grants.update(FeatureGrant)
         return ProductAccessSummary(
             product_role=(
-                ProductRole.ADMINISTRATOR if administrator else ProductRole.USER
+                ProductRole.ADMINISTRATOR
+                if administrator
+                else ProductRole.REVIEWER
+                if reviewer
+                else ProductRole.USER
             ),
             feature_grants=tuple(sorted(grants, key=str)),
             legacy_compatible=bool(legacy),
@@ -772,10 +778,6 @@ class GrantProductAccess:
         _reason("grant_reason", self.grant_reason)
         if tuple(sorted(set(self.feature_grants), key=str)) != self.feature_grants:
             raise ValueError("feature_grants must be sorted and unique")
-        if self.product_role is ProductRole.ADMINISTRATOR and set(
-            self.feature_grants
-        ) != set(FeatureGrant):
-            raise ValueError("Administrator must receive every feature grant")
 
 
 @dataclass(frozen=True, slots=True)
@@ -833,7 +835,9 @@ class ProductAccessAdministrationService:
             project_id=command.project_id,
             subject=command.subject,
             product_role=command.product_role,
-            feature_grants=command.feature_grants,
+            # New grants are task presets. Existing append-only User rows with custom
+            # grants remain readable/effective through the repository projection.
+            feature_grants=product_role_preset(command.product_role),
             max_classification=command.max_classification,
             allow_export_controlled=command.allow_export_controlled,
             valid_from=valid_from,

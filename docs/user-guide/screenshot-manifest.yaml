@@ -1,4 +1,4 @@
-version: 56
+version: 57
 verified_at: 2026-07-26
 scope: uxc-06c2-exact-target-preflight-and-atomic-delivery
 source_commit: fa213ca
@@ -18,8 +18,13 @@ notes:
   - "Process and Fit use a compact Curves tree: specimen/revision identity, inclusion checkbox and icon-only plot visibility remain independent; Export has no permanent curve rail."
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
+  - "UXC-00G adds the implemented User, Reviewer, and Administrator task presets. The current access screen deliberately shows readable included work instead of editable feature-grant checkboxes."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-uxc00g
+    captured_at: 2026-07-26T23:10:00+09:00
+    command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
+    ids: [administration-access-1366, administration-access-1440]
   - source_commit: 47a8d52
     captured_at: 2026-07-26T15:34:56+09:00
     command: targeted live Playwright UXC-06C2 Export capture at 1366x768, 1440x900 and 1920x1080; saves an exact Fit output, recovers exact model and Neutral revisions, generates the server-proven preview, acknowledges only when required, delivers exactly one immutable card/receipt, verifies the receipt link and no legacy curve rail, and keeps the selected-model graph visible above compact delivery evidence
@@ -213,5 +218,19 @@ captures:
     workflow: table-attribute-layout-subset-and-link-type-configuration
     fixture: current pending-redesign evidence only; DUI-07 object tree/list/property editor target pending
     image: images/current/administration-database-1440x900.png
+    width: 1440
+    height: 900
+  - id: administration-access-1366
+    route: /administration/access
+    workflow: user-reviewer-administrator-task-preset-assignment
+    fixture: deterministic demo Administrator viewing the Reviewer preset; technical feature checkbox editing is absent
+    image: images/current/administration-access-1366x768.png
+    width: 1366
+    height: 768
+  - id: administration-access-1440
+    route: /administration/access
+    workflow: user-reviewer-administrator-task-preset-assignment
+    fixture: deterministic demo Administrator viewing the Reviewer preset; technical feature checkbox editing is absent
+    image: images/current/administration-access-1440x900.png
     width: 1440
     height: 900

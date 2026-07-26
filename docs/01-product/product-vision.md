@@ -77,10 +77,10 @@ Fit → Export를 하나의 workbench에서 완료해야 한다.
 | 역할 | 주 책임 | 생성/판정하는 항목 |
 | --- | --- | --- |
 | User | 재료 검색·조회·다운로드, upload review 요청, 처리·fitting·card review 요청 | 사용자 작업과 요청 상태 |
-| Reviewer (target; pending) | User 작업 + material/card 검토, 변경 요청, 승인·publish | review decision, requested change, published download |
+| Reviewer | User 작업 + material/card 검토, 변경 요청, 승인·publish | review decision, requested change, published download |
 | Administrator | 모든 접근·편집·구성·검토·승인 | access/configuration and governed actions |
 
-현재 구현은 Administrator/User만 화면에 노출하며 Reviewer는 pending이다. detailed domain and
+현재 구현은 User/Reviewer/Administrator task preset을 화면에 노출한다. detailed domain and
 internal responsibilities (시험, data stewardship, analysis, modeler, CAE, plugin, platform, audit)는
 product-facing role names가 아니라 내부 권한·업무 책임으로 유지한다. 이후에는 material review와
 solver-card review를 별도 specialization으로 나눌 수 있다. Internal RBAC/RLS와 organization/project

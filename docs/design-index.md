@@ -22,8 +22,8 @@ Materials projection/presentation gaps, DUI-07~09와 incoming package final dele
 
 ## UXC-00R authority and approval rule
 
-- Current-status documents describe only Administrator/User; the approved three-role product target
-  is User, Reviewer, Administrator, with Reviewer pending implementation.
+- Current-status documents describe the implemented User, Reviewer, and Administrator task presets.
+  The later Activity and Administration work still connects those presets to their dedicated workspaces.
 - The historical 2026-07-21 Modeling target was the **lower proposal** in
   `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`: 184–210 px tree,
   shallow graph-adjacent band and dominant plot. The normal path is `Data | Process | Fit | Export`.

@@ -417,8 +417,8 @@ Download is the task-primary command. Mapping warnings remain visible. Detailed 
 
 ## 6.7 Canonical component contracts (UXC-00R target)
 
-These are target contracts; they do not claim the pending Administration/Activity redesign or Reviewer
-role is implemented.
+These are target contracts for the pending Administration and Activity redesign. The separate
+Reviewer product-role migration is implemented, but the role-aware Activity queue remains pending.
 
 | Component | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -430,8 +430,8 @@ role is implemented.
 Role target: **User** searches/views/downloads, requests upload review, processes/fits and requests
 card review; **Reviewer** additionally reviews material/card data, requests changes, approves and
 publishes downloads; **Administrator** has all access/edit/configure/review/approve actions. Current
-implementation exposes Administrator/User only; Reviewer is pending. Internal RBAC/RLS remains
-extensible and is not a normal-user vocabulary.
+implementation exposes User, Reviewer, and Administrator task presets. Internal RBAC/RLS remains
+extensible and is not a normal-user vocabulary; Activity and Administration redesign work remains separate.
 
 ## 7. Administration workspace
 

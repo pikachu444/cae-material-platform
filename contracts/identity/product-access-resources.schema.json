@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:cmp:schema:identity:product-access-resources:1.0.0",
   "$defs": {
-    "ProductRole": {"enum": ["administrator", "user"]},
+    "ProductRole": {"enum": ["administrator", "reviewer", "user"]},
     "FeatureGrant": {
       "enum": [
         "schema_configuration",

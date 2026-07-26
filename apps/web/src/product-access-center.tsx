@@ -44,6 +44,24 @@ const features: Array<{ value: FeatureGrant; label: string; detail: string }> = 
   },
 ];
 
+const rolePresets: Record<ProductRole, { label: string; tasks: string; grants: FeatureGrant[] }> = {
+  user: {
+    label: "User",
+    tasks: "Find, view, download, request review, and process or fit material data.",
+    grants: ["processing_calibration", "solver_card_export"],
+  },
+  reviewer: {
+    label: "Reviewer",
+    tasks: "Do User work and request changes, approve, or publish material and Solver Card reviews.",
+    grants: ["processing_calibration", "model_approval", "solver_card_export"],
+  },
+  administrator: {
+    label: "Administrator",
+    tasks: "Configure the workspace and manage all material, review, publication, and access work.",
+    grants: features.map((feature) => feature.value),
+  },
+};
+
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     return error.message;
@@ -81,11 +99,6 @@ export function ProductAccessCenter({
   const [groupIssuer, setGroupIssuer] = useState("urn:cmp:demo-identity");
   const [groupName, setGroupName] = useState("material-users");
   const [productRole, setProductRole] = useState<ProductRole>("user");
-  const [selectedFeatures, setSelectedFeatures] = useState<FeatureGrant[]>([
-    "catalog_edit",
-    "processing_calibration",
-    "solver_card_export",
-  ]);
   const [classification, setClassification] = useState<Exclude<DataClassification, "export_controlled">>(
     "confidential",
   );
@@ -118,14 +131,6 @@ export function ProductAccessCenter({
     void load();
   }, [load]);
 
-  function toggleFeature(feature: FeatureGrant): void {
-    setSelectedFeatures((current) =>
-      current.includes(feature)
-        ? current.filter((item) => item !== feature)
-        : [...current, feature],
-    );
-  }
-
   async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setSaving(true);
@@ -138,7 +143,7 @@ export function ProductAccessCenter({
         group_issuer: subjectType === "group" ? groupIssuer.trim() : null,
         group_name: subjectType === "group" ? groupName.trim() : null,
         product_role: productRole,
-        feature_grants: productRole === "administrator" ? [] : selectedFeatures,
+        feature_grants: rolePresets[productRole].grants,
         max_classification: classification,
         allow_export_controlled: false,
         organization_wide: organizationWide,
@@ -192,8 +197,8 @@ export function ProductAccessCenter({
           {!productMode ? <p className="eyebrow">Users &amp; access</p> : null}
           <h2>{productMode ? "Choose what each team can do" : "Product roles & feature grants"}</h2>
           {!productMode ? <p>
-            Assign Administrator or User and enable the product capabilities they need. Detailed
-            enforcement stays behind this simple workspace setting.
+            Assign a task-based User, Reviewer, or Administrator role. Detailed enforcement stays
+            behind this workspace setting.
           </p> : null}
         </div>
         {summary ? <span className="reference-chip">{summary.product_role}</span> : null}
@@ -208,7 +213,7 @@ export function ProductAccessCenter({
           <div className="section-heading">
             <div>
               <p className="eyebrow">My access</p>
-              <h2>{summary.product_role === "administrator" ? "Administrator" : "User"}</h2>
+              <h2>{rolePresets[summary.product_role].label}</h2>
             </div>
             {!productMode && summary.legacy_compatible ? <span className="revision-chip">legacy compatible</span> : null}
           </div>
@@ -247,12 +252,18 @@ export function ProductAccessCenter({
                 </label> : null}
                 <label>
                   Role
-                  <select value={productRole} onChange={(event) => setProductRole(event.target.value as ProductRole)}>
+                  <select aria-describedby="role-task-summary" value={productRole} onChange={(event) => setProductRole(event.target.value as ProductRole)}>
                     <option value="user">User</option>
+                    <option value="reviewer">Reviewer</option>
                     <option value="administrator">Administrator</option>
                   </select>
                 </label>
               </div>
+              <section className="form-help" id="role-task-summary" aria-live="polite">
+                <strong>{rolePresets[productRole].label}</strong>
+                <p>{rolePresets[productRole].tasks}</p>
+                <small>Included tasks: {rolePresets[productRole].grants.map(featureLabel).join(" · ")}</small>
+              </section>
               {productMode ? (
                 <label>
                   User or team name
@@ -290,22 +301,6 @@ export function ProductAccessCenter({
                   Organization-wide assignment
                 </label>
               </div> : null}
-              <fieldset disabled={productRole === "administrator"}>
-                <legend>Feature grants</legend>
-                <div className="metrics-grid">
-                  {features.map((feature) => (
-                    <label className="metric-card checkbox-label" key={feature.value}>
-                      <input
-                        type="checkbox"
-                        checked={productRole === "administrator" || selectedFeatures.includes(feature.value)}
-                        onChange={() => toggleFeature(feature.value)}
-                      />
-                      <span>{feature.label}</span>
-                      <small>{feature.detail}</small>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
               {!productMode ? <label>
                 Reason
                 <input value={reason} onChange={(event) => setReason(event.target.value)} required />
@@ -327,12 +322,12 @@ export function ProductAccessCenter({
             <div className="material-list">
               {assignments.map((assignment) => (
                 <article className="material-row" key={assignment.assignment_id}>
-                  <span className="material-monogram">{assignment.product_role === "administrator" ? "AD" : "US"}</span>
+                  <span className="material-monogram">{assignment.product_role === "administrator" ? "AD" : assignment.product_role === "reviewer" ? "RV" : "US"}</span>
                   <span className="material-row-main">
                     <strong>{productMode && assignment.subject_type === "group" ? assignment.group_name : subjectLabel(assignment)}</strong>
                     <small>{assignment.feature_grants.map(featureLabel).join(" · ") || "Read-only user"}</small>
                   </span>
-                  <span className="revision-chip">{assignment.product_role === "administrator" ? "Administrator" : "User"}</span>
+                  <span className="revision-chip">{rolePresets[assignment.product_role].label}</span>
                   {assignment.revoked_at ? (
                     <span className="mapping-status ignored">revoked</span>
                   ) : (
