@@ -1,11 +1,11 @@
-version: 60
+version: 61
 verified_at: 2026-07-27
-scope: dui-08a-activity-review-queue
-source_commit: working-tree-dui08-activity-review-queue
+scope: dui-08b-exact-review-submission
+source_commit: working-tree-dui08b-review-submission
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "The current set contains 26 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
+  - "The current set contains 32 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
   - "Fit capture asserts Preview changes, a closed Candidate parameters disclosure, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -16,6 +16,7 @@ notes:
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity is a compact Needs attention | In progress | Recent outcomes queue. Reviewer and Administrator can open one submitted review row, enter a reason, and record an existing API decision; User sees pending requests in progress without decision controls."
   - "The deterministic capture reuses an existing review request. Only when the synthetic demo has none does it create one real review request for a draft synthetic Material; it never creates a duplicate or records a decision. The current review API does not expose readable submitted-item or actor names, so the normal queue uses task labels and request reason while exact identifiers stay in Advanced evidence."
+  - "DUI-08B submits or reuses one real review request for the exact draft OpenRadioss card revision already loaded by Native Card Preview. The normal header then shows Waiting for review, and Activity shows the corresponding Solver card review row; no decision or release is fabricated."
   - "Data, Process and Fit use the same compact Curves tree: canonical test method is a real parent group above specimen/revision rows, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail."
   - "The normal stage strip visibly contains only Data, Process, Fit and Export. Its readiness details remain in hover/focus labels; Validate and Review are Advanced/Activity governed contracts. Mean & band is absent until an ensemble preview exists."
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
@@ -24,6 +25,10 @@ notes:
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-dui08b-review-submission
+    captured_at: 2026-07-27T02:07:00+09:00
+    command: targeted live Playwright review-submission capture at 1366x768, 1440x900 and 1920x1080; submits or reuses the exact draft OpenRadioss card review, verifies Waiting for review in Native Card Preview and the corresponding Reviewer action in Activity, and rejects horizontal overflow or unsettled state
+    ids: [material-detail-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1366, activity-1440, activity-1920]
   - source_commit: working-tree-dui08-activity-review-queue
     captured_at: 2026-07-27T01:30:00+09:00
     command: targeted live Playwright Activity capture at 1366x768, 1440x900 and 1920x1080; reuses one real review request or creates one pending synthetic Material review only when the demo is empty, then verifies the compact queue, no horizontal overflow, and settled API state
@@ -87,8 +92,8 @@ captures:
     height: 900
   - id: material-detail-1440
     route: /materials/:materialId
-    workflow: persistent-tree-datasheet-and-direct-card-action
-    fixture: DP780 with Abaqus and OpenRadioss native cards
+    workflow: persistent-tree-datasheet-direct-card-action-and-exact-review-status
+    fixture: draft synthetic DP780 exact Material revision with native cards and duplicate-safe review action/status
     image: images/current/material-detail-1440x900.png
     width: 1440
     height: 900
@@ -101,22 +106,22 @@ captures:
     height: 900
   - id: solver-card-preview-1366
     route: /materials/:materialId/cards/:cardId
-    workflow: native-card-and-mapping-review
-    fixture: synthetic DP780 OpenRadioss card with adjacent approximation acknowledgement
+    workflow: native-card-mapping-and-exact-review-submission
+    fixture: synthetic draft DP780 OpenRadioss card with adjacent approximation acknowledgement and one real pending exact-revision review request
     image: images/current/solver-card-preview-1366x768.png
     width: 1366
     height: 768
   - id: solver-card-preview-1440
     route: /materials/:materialId/cards/:cardId
-    workflow: native-card-and-mapping-review
-    fixture: synthetic DP780 OpenRadioss card with adjacent approximation acknowledgement
+    workflow: native-card-mapping-and-exact-review-submission
+    fixture: synthetic draft DP780 OpenRadioss card with adjacent approximation acknowledgement and one real pending exact-revision review request
     image: images/current/solver-card-preview-1440x900.png
     width: 1440
     height: 900
   - id: solver-card-preview-1920
     route: /materials/:materialId/cards/:cardId
-    workflow: native-card-and-mapping-review
-    fixture: synthetic DP780 OpenRadioss card with adjacent approximation acknowledgement
+    workflow: native-card-mapping-and-exact-review-submission
+    fixture: synthetic draft DP780 OpenRadioss card with adjacent approximation acknowledgement and one real pending exact-revision review request
     image: images/current/solver-card-preview-1920x1080.png
     width: 1920
     height: 1080
@@ -228,21 +233,21 @@ captures:
   - id: activity-1366
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes
-    fixture: deterministic demo review queue; reuses one existing request or creates one real pending review for a draft synthetic Material when empty, without deciding it
+    fixture: deterministic demo review queue with real pending exact-revision Material and Solver Card requests, without deciding or releasing either item
     image: images/current/activity-1366x768.png
     width: 1366
     height: 768
   - id: activity-1440
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes
-    fixture: deterministic demo review queue; reuses one existing request or creates one real pending review for a draft synthetic Material when empty, without deciding it
+    fixture: deterministic demo review queue with real pending exact-revision Material and Solver Card requests, without deciding or releasing either item
     image: images/current/activity-1440x900.png
     width: 1440
     height: 900
   - id: activity-1920
     route: /activity
     workflow: role-aware-review-queue-with-resume-and-outcomes
-    fixture: deterministic demo review queue; reuses one existing request or creates one real pending review for a draft synthetic Material when empty, without deciding it
+    fixture: deterministic demo review queue with real pending exact-revision Material and Solver Card requests, without deciding or releasing either item
     image: images/current/activity-1920x1080.png
     width: 1920
     height: 1080

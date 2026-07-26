@@ -211,6 +211,11 @@ Administrators configure schema and links through compact data tools rather than
 
 ## DUI-08 — Activity resume and job attention model — P1
 
+Implementation status: DUI-08A and DUI-08B are implemented: all product roles can submit a
+reason-required, duplicate-safe exact-revision review request from Material Detail and Native Solver
+Card Preview; Activity continues to own reviewer/administrator decisions. Job attention/resume scope
+for failed jobs, delivery receipts, and server-side session projections remains follow-up work.
+
 ### User outcome
 
 Activity answers “what needs my attention?” and resumes the exact working context.
@@ -309,15 +314,18 @@ blocked rather than receiving an inferred cross-resource claim;
     prerequisites, governed exact-source projection, stateless target preview, and atomic immutable
     Solver Card/receipt/outbox delivery are current. Activity receipt projection remains explicitly
     `Not configured`;
-14. DUI-07 Administration — pending;
-15. DUI-08 Activity — pending;
+14. DUI-07 Administration — complete in PR #143;
+15. DUI-08 Activity — review queue complete in PR #144; exact Material/Solver Card request entry is
+    the current DUI-08B slice, while failed-job recovery and server receipt projection remain;
 16. DUI-09 Storybook and final legacy cleanup — pending.
 
 ## UXC corrective sequence
 
 UXC-00R is the documentation-only authority-correction baseline. It leaves Reviewer product-role/access
 migration, Materials language/presentation correction and query projection gaps, DUI-07 Administration,
-DUI-08 Activity review queue, DUI-09 legacy cleanup, and final incoming-package deletion pending.
+DUI-09 legacy cleanup and final incoming-package deletion remain pending. DUI-08 still has bounded
+failed-job recovery and server receipt projection follow-ups; its review queue and exact request
+entry are implemented.
 UXC-01~06 retain the completed DUI-01~06
 surfaces while correcting query truth, session invalidation, explicit engineer decisions, validation/
 review/release, and exact delivery. No UXC task chooses a production material model, solver policy,

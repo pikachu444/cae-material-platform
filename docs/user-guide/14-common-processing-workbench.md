@@ -95,8 +95,9 @@ holdout-independence, verdict가 나타납니다. plan만 있으면 `Not run`이
 
 **Review**는 제출, 수정 요청, 승인 상태를 Fit 결과와 구분합니다. Validate와 Review는 일반
 `Data | Process | Fit | Export` 단계가 아니라 Advanced의 governed contract입니다. Fit 또는
-Validate 완료를 승인으로 표시하지 않습니다. Activity review queue는 DUI-08에서 아직 pending이므로
-사용자 업로드·solver card 검토 요청의 Activity 연결은 현재 제공하지 않습니다.
+Validate 완료를 승인으로 표시하지 않습니다. Material과 Solver Card의 exact revision에서 요청한
+review는 Activity에서 Reviewer/Administrator가 별도로 승인하거나 변경을 요청합니다. failed job
+복구와 server receipt projection은 아직 Activity에 연결되지 않았습니다.
 
 현재 등록된 공통 method는 다음과 같습니다.
 

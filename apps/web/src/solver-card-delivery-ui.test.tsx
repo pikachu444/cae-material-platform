@@ -29,6 +29,9 @@ function responseFor(status: "exact" | "approximated" | "unsupported", exportabl
       target: { solver: "openradioss", version: "2025", unit_system: "kg_m_s" },
       solver_material_id: 301,
       current_revision: {
+        id: card.revisionId,
+        content_hash: "c".repeat(64),
+        classification: "internal",
         revision_no: 1,
         lifecycle_state: "draft",
         content: { card_title: "DP780", card_sha256: "a".repeat(64) },

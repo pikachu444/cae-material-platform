@@ -36,7 +36,7 @@ The application has four modes. These are workspaces, not separate mini-products
 | --- | --- | --- |
 | Materials | Search, browse, compare and download | navigator, selected Record, result state |
 | Modeling | Convert test data into a selected model/card | session, curves, active stage, selected output |
-| Activity | Target: resume/review action queue; current route is pending redesign | current user, item context |
+| Activity | Current compact resume/review action queue; job recovery and release projections remain follow-up | current user, item context |
 | Administration | Target: configure database/access through object tools; current route is pending redesign | selected schema object, draft changes |
 
 ## 4. Global desktop shell

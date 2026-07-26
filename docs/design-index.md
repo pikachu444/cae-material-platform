@@ -18,19 +18,20 @@ evidence는 `docs/17-evidence/`와 implementation history에 보존하고 현재
 문장 수준 표기는 `FACT-PUBLIC`, `CONFIRMED`, `DECISION`, `TBD`, `OUT-OF-SCOPE`를 사용한다.
 `ASSUMPTION`은 production domain, solver, validation, review policy를 결정하는 근거로 사용하지
 않는다. PR #124/DUI-01~06은 complete이다. UXC-00R는 문서 권위 정정이며, Reviewer access migration,
-Materials projection/presentation gaps, DUI-07~09와 incoming package final deletion은 pending이다.
+Materials projection gaps, DUI-08의 failed-job/receipt follow-up, DUI-09 legacy cleanup과 incoming
+package final deletion은 pending이다. DUI-07 Administration과 DUI-08 review queue는 current이다.
 
 ## UXC-00R authority and approval rule
 
 - Current-status documents describe the implemented User, Reviewer, and Administrator task presets.
-  The later Activity and Administration work still connects those presets to their dedicated workspaces.
+  Administration and Activity connect those presets to their dedicated workspaces; failed-job and
+  server-receipt projections remain follow-up work.
 - The historical 2026-07-21 Modeling target was the **lower proposal** in
   `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`: 184–210 px tree,
   shallow graph-adjacent band and dominant plot. The normal path is `Data | Process | Fit | Export`.
-- Materials, Administration and Activity targets are contracts, not claims about the current routes.
-  UXC-00D has responsive static prototypes and evidence, and the product owner approved the whole
-  four-screen proposal on 2026-07-26 for React/CSS work. The approval does not claim that the
-  current routes have already changed.
+- Materials, Administration and Activity current routes implement the approved workspace topology.
+  UXC-00D preserves the responsive static prototypes and the product-owner approval from 2026-07-26
+  as reference evidence, not as a substitute for current live captures.
 
 ## 1. 이 패키지의 목적
 
