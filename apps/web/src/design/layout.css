@@ -1783,202 +1783,281 @@
   font-weight: 650;
 }
 
-.administration-content .product-admin-embedded {
-  gap: 10px;
-}
-
-.administration-content .product-admin-embedded > .page-heading {
-  align-items: center;
-  margin: 0;
-  padding: 0 0 var(--ux-space-4);
-  border-bottom: 1px solid var(--ux-border);
-}
-
-.administration-content .product-admin-embedded > .page-heading h1 {
-  margin: 2px 0;
-  font-family: inherit;
-  font-size: 20px;
-  font-weight: 650;
-  line-height: 1.25;
-}
-
-.administration-content .product-admin-embedded > .page-heading p {
-  max-width: 820px;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.administration-content .product-admin-embedded .detail-grid {
-  grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
-  gap: var(--ux-space-3);
-}
-
-.administration-content .product-admin-embedded .content-card {
+.catalog-schema-editor {
   min-width: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
 }
 
-.administration-content .product-admin-embedded .section-heading {
-  margin-bottom: var(--ux-space-3);
-  padding-bottom: var(--ux-space-3);
-  border-bottom: 1px solid var(--ux-border);
-}
-
-.administration-content .product-admin-embedded .section-heading h2,
-.administration-content .product-admin-embedded .form-stack h3 {
-  margin: 2px 0;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.administration-content .product-admin-embedded .eyebrow {
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.administration-content .product-admin-embedded .schema-table-list,
-.administration-content .product-admin-embedded .attribute-list {
-  gap: 0;
-  margin-bottom: var(--ux-space-4);
-  border-top: 1px solid var(--ux-border);
-}
-
-.administration-content .product-admin-embedded .schema-table-row {
-  min-height: 48px;
-  padding: 7px var(--ux-space-2);
-  border: 0;
-  border-bottom: 1px solid var(--ux-border);
-  border-radius: 0;
-  background: transparent;
-}
-
-.administration-content .product-admin-embedded .schema-table-row.active {
-  border-color: var(--ux-border);
-  background: var(--ux-selection);
-  box-shadow: inset 3px 0 0 var(--ux-accent);
-}
-
-.administration-content .product-admin-embedded .schema-metrics {
+.schema-editor-header {
   display: flex;
-  gap: var(--ux-space-5);
-  margin-bottom: var(--ux-space-3);
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--ux-space-4);
+  min-height: 54px;
   padding: 0 0 var(--ux-space-3);
   border-bottom: 1px solid var(--ux-border);
 }
 
-.administration-content .product-admin-embedded .schema-metrics span {
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
+.schema-editor-header h2,
+.schema-object-list h3,
+.schema-property-editor h3 {
+  margin: 0;
+  color: var(--ux-text);
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.schema-editor-header p,
+.schema-property-editor p {
+  margin: 3px 0 0;
+  color: var(--ux-text-muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.schema-command-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 6px;
+}
+
+.schema-editor-grid {
+  display: grid;
+  grid-template-columns: clamp(220px, 18vw, 260px) clamp(280px, 27vw, 380px) minmax(0, 1fr);
+  min-height: calc(100vh - var(--ux-shell-top-height) - var(--ux-status-bar-height) - 90px);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.schema-object-navigator,
+.schema-object-list,
+.schema-property-editor {
+  min-width: 0;
+  padding: var(--ux-space-3);
+  border-right: 1px solid var(--ux-border);
+}
+
+.schema-object-navigator {
+  background: var(--ux-surface-subtle);
+}
+
+.schema-object-navigator > p {
+  margin: 0 0 6px;
   color: var(--ux-text-muted);
   font-size: 12px;
+  font-weight: 650;
 }
 
-.administration-content .product-admin-embedded .schema-metrics strong {
-  color: var(--ux-text);
-  font-size: 14px;
-  overflow: clip;
-}
-
-.administration-content .product-admin-embedded .attribute-card {
+.schema-object-navigator > button {
+  display: flex;
   align-items: center;
-  min-height: 52px;
-  gap: 2px var(--ux-space-3);
-  grid-template-columns: minmax(180px, 1fr) auto minmax(200px, .8fr);
-  padding: 6px var(--ux-space-2);
+  justify-content: space-between;
+  width: 100%;
+  min-height: 32px;
+  padding: 5px 8px;
   border: 0;
   border-bottom: 1px solid var(--ux-border);
   border-radius: 0;
   background: transparent;
+  color: var(--ux-text);
+  font-size: 12.5px;
+  text-align: left;
 }
 
-.administration-content .product-admin-embedded .attribute-card strong {
-  font-size: 13px;
-  font-weight: 600;
+.schema-object-navigator > button.active {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
 }
 
-.administration-content .product-admin-embedded .attribute-card small,
-.administration-content .product-admin-embedded .attribute-card p,
-.administration-content .product-admin-embedded .attribute-card .status-badge {
-  font-size: 12px;
-}
-
-.administration-content .product-admin-embedded .attribute-card p {
-  grid-column: 3;
+.schema-object-navigator > button small,
+.schema-object-list header span,
+.property-sheet header span {
   color: var(--ux-text-muted);
-}
-
-.administration-content .product-admin-embedded .attribute-card .status-badge,
-.administration-content .product-admin-embedded .revision-chip {
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--ux-text-muted);
+  font-size: 11.5px;
   font-weight: 500;
 }
 
-.administration-content .product-admin-embedded .form-stack {
-  gap: var(--ux-space-3);
-  margin-top: var(--ux-space-4);
-  padding-top: var(--ux-space-4);
+.schema-table-context {
+  display: grid;
+  gap: 6px;
+  margin-top: var(--ux-space-5);
+  padding-top: var(--ux-space-3);
   border-top: 1px solid var(--ux-border);
 }
 
-.administration-content .product-admin-embedded .form-grid {
-  gap: var(--ux-space-3);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.administration-content .product-admin-embedded .attribute-description-field {
-  grid-column: span 2;
-}
-
-.administration-content .product-admin-embedded label {
+.schema-table-context label,
+.property-fields label {
   color: var(--ux-text-muted);
   font-size: 12px;
   font-weight: 600;
 }
 
-.administration-content .product-admin-embedded input,
-.administration-content .product-admin-embedded select,
-.administration-content .product-admin-embedded textarea {
+.schema-table-context select,
+.property-fields input,
+.property-fields select,
+.property-fields textarea {
+  width: 100%;
   min-height: 34px;
+  box-sizing: border-box;
   padding: 6px 8px;
   border-radius: var(--ux-radius-control);
+  font: inherit;
   font-size: 13px;
 }
 
-.administration-content .product-admin-embedded .button {
-  min-height: 34px;
-  padding: 6px 12px;
-  border-radius: var(--ux-radius-control);
+.schema-table-context p {
+  margin: 0;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.schema-object-list {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.schema-object-list header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+  padding: 0 var(--ux-space-3) 7px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.schema-list-rows > button {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-height: 50px;
+  padding: 7px var(--ux-space-3);
+  border: 0;
+  border-bottom: 1px solid var(--ux-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ux-text);
+  text-align: left;
+}
+
+.schema-list-rows > button.active {
+  background: var(--ux-selection);
+  box-shadow: inset 3px 0 0 var(--ux-accent);
+}
+
+.schema-list-rows strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.schema-list-rows small {
+  overflow: hidden;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schema-list-rows .muted {
+  padding: var(--ux-space-3);
   font-size: 12.5px;
 }
 
-.administration-content .product-admin-embedded .link-type-administration {
+.schema-property-editor {
+  border-right: 0;
+  background: var(--ux-surface);
+}
+
+.property-sheet {
+  max-width: 760px;
+}
+
+.property-sheet > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+  padding-bottom: var(--ux-space-3);
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.property-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ux-space-3);
   margin-top: var(--ux-space-4);
-  padding-top: var(--ux-space-5);
+}
+
+.property-fields label {
+  display: grid;
+  gap: 5px;
+}
+
+.property-fields .wide {
+  grid-column: 1 / -1;
+}
+
+.property-fields .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-top: 21px;
+}
+
+.property-fields .checkbox-label input {
+  width: auto;
+  min-height: 0;
+}
+
+.property-sheet footer {
+  display: flex;
+  justify-content: end;
+  margin-top: var(--ux-space-4);
+  padding-top: var(--ux-space-3);
   border-top: 1px solid var(--ux-border);
 }
 
-.administration-content .product-admin-embedded .link-type-admin-grid {
-  gap: var(--ux-space-5);
-  grid-template-columns: minmax(300px, .75fr) minmax(520px, 1.25fr);
+.property-sheet dl {
+  margin: var(--ux-space-4) 0 0;
 }
 
-@media (max-width: 1100px) {
-  .administration-content .product-admin-embedded .detail-grid,
-  .administration-content .product-admin-embedded .link-type-admin-grid {
-    grid-template-columns: minmax(0, 1fr);
+.property-sheet dl > div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: var(--ux-space-3);
+  min-height: 34px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.property-sheet dt,
+.property-sheet dd {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.property-sheet dt {
+  color: var(--ux-text-muted);
+  font-weight: 600;
+}
+
+.editor-limit {
+  margin-top: var(--ux-space-5) !important;
+  padding-top: var(--ux-space-3);
+  border-top: 1px solid var(--ux-border);
+}
+
+.property-sheet.empty {
+  padding-top: var(--ux-space-4);
+}
+
+@media (max-width: 900px) {
+  .schema-editor-grid {
+    grid-template-columns: minmax(200px, 250px) minmax(0, 1fr);
+  }
+
+  .schema-property-editor {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--ux-border);
   }
 }
 

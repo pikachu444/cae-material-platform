@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ApiError,
@@ -66,6 +66,7 @@ export function ConfigurableCatalogAdmin({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const definitionRequestId = useRef(0);
 
   const [tableKey, setTableKey] = useState("materials");
   const [tableName, setTableName] = useState("Materials");
@@ -91,6 +92,10 @@ export function ConfigurableCatalogAdmin({
   const [reverseLabel, setReverseLabel] = useState("tests material");
   const [sourceCardinality, setSourceCardinality] = useState<ConfigurableLinkCardinality>("many");
   const [targetCardinality, setTargetCardinality] = useState<ConfigurableLinkCardinality>("many");
+  const [objectKind, setObjectKind] = useState<"tables" | "attributes" | "layouts" | "subsets" | "links">("tables");
+  const [createMode, setCreateMode] = useState<"none" | "table" | "attribute" | "link">("none");
+  const [selectedAttributeId, setSelectedAttributeId] = useState("");
+  const [selectedLinkTypeId, setSelectedLinkTypeId] = useState("");
 
   const selectedTable = useMemo(
     () => tables.find((item) => item.table_id === selectedTableId) ?? null,
@@ -135,6 +140,7 @@ export function ConfigurableCatalogAdmin({
   }, [config]);
 
   const loadDefinition = useCallback(async () => {
+    const requestId = ++definitionRequestId.current;
     if (!selectedTableId || !config.accessToken.trim()) {
       setAttributes([]);
       setLayouts([]);
@@ -149,13 +155,20 @@ export function ConfigurableCatalogAdmin({
         listConfigurableCatalogLayouts(config, selectedTableId),
         listConfigurableCatalogSubsets(config, selectedTableId),
       ]);
+      if (requestId !== definitionRequestId.current) {
+        return;
+      }
       setAttributes(attributeResult.data.items);
       setLayouts(layoutResult.data.items);
       setSubsets(subsetResult.data.items);
     } catch (caught) {
-      setError(message(caught));
+      if (requestId === definitionRequestId.current) {
+        setError(message(caught));
+      }
     } finally {
-      setLoading(false);
+      if (requestId === definitionRequestId.current) {
+        setLoading(false);
+      }
     }
   }, [config, selectedTableId]);
 
@@ -165,6 +178,9 @@ export function ConfigurableCatalogAdmin({
 
   useEffect(() => {
     void loadDefinition();
+    return () => {
+      definitionRequestId.current += 1;
+    };
   }, [loadDefinition]);
 
   async function createTable(event: React.FormEvent<HTMLFormElement>) {
@@ -334,8 +350,75 @@ export function ConfigurableCatalogAdmin({
     );
   }
 
+  const selectedAttribute = attributes.find((item) => item.attribute_definition_id === selectedAttributeId) ?? null;
+  const selectedLinkType = linkTypes.find((item) => item.link_type_id === selectedLinkTypeId) ?? null;
+  const scopedLinkTypes = linkTypes.filter((item) =>
+    item.current_revision.content.source_table_id === selectedTableId
+    || item.current_revision.content.target_table_id === selectedTableId,
+  );
+
+  if (productMode) {
+    const objectRows = objectKind === "tables" ? tables : objectKind === "attributes" ? attributes : objectKind === "layouts" ? layouts : objectKind === "subsets" ? subsets : scopedLinkTypes;
+    const objectLabel = objectKind === "tables" ? "Tables" : objectKind === "attributes" ? "Attributes" : objectKind === "layouts" ? "Layouts" : objectKind === "subsets" ? "Subsets" : "Link Types";
+    const openCreate = () => setCreateMode(objectKind === "tables" ? "table" : objectKind === "attributes" ? "attribute" : objectKind === "links" ? "link" : "none");
+    return (
+      <section className="catalog-schema-editor" aria-label="Database design">
+        <header className="schema-editor-header">
+          <div><h2>Database design</h2><p>Choose an object, then review its definition or add a new revisioned definition.</p></div>
+          <div className="schema-command-bar" aria-label="Database design commands">
+            <button className="button secondary" type="button" onClick={() => void loadTables()}>Refresh</button>
+            <button className="button secondary" type="button" onClick={() => onNavigate?.("/database")}>Preview datasheet</button>
+            {objectKind === "layouts" ? <button className="button primary" type="button" disabled={saving || !attributes.length} onClick={() => void createDefaultLayout()}>Add layout</button> : null}
+            {objectKind === "subsets" ? <button className="button primary" type="button" disabled={saving || !selectedTable} onClick={() => void createAllRecordsSubset()}>Add subset</button> : null}
+            {objectKind !== "layouts" && objectKind !== "subsets" ? <button className="button primary" type="button" disabled={saving || (objectKind === "attributes" && !selectedTable)} onClick={openCreate}>Add {objectKind === "links" ? "Link Type" : objectKind === "tables" ? "Table" : "Attribute"}</button> : null}
+          </div>
+        </header>
+        {error ? <div className="error-banner" role="alert">{error}</div> : null}
+        {notice ? <div className="success-banner" role="status">{notice}</div> : null}
+        <div className="schema-editor-grid">
+          <nav className="schema-object-navigator" aria-label="Database objects">
+            <p>Objects</p>
+            {(["tables", "attributes", "layouts", "subsets", "links"] as const).map((kind) => {
+              const count = kind === "tables" ? tables.length : kind === "attributes" ? attributes.length : kind === "layouts" ? layouts.length : kind === "subsets" ? subsets.length : scopedLinkTypes.length;
+              const label = kind === "links" ? "Link Types" : kind[0]!.toUpperCase() + kind.slice(1);
+              return <button aria-label={label} className={objectKind === kind ? "active" : ""} type="button" key={kind} onClick={() => { setObjectKind(kind); setCreateMode("none"); }}><span>{label}</span><small>{count}</small></button>;
+            })}
+            {tables.length ? <div className="schema-table-context">
+              <label htmlFor="schema-table-context">Current table</label>
+              <select id="schema-table-context" value={selectedTableId} onChange={(event) => { setSelectedTableId(event.target.value); setCreateMode("none"); }}>
+                {tables.map((table) => <option key={table.table_id} value={table.table_id}>{table.current_revision.content.name}</option>)}
+              </select>
+              <p>Attributes, layouts and subsets follow this table.</p>
+            </div> : <div className="schema-table-context" role="status"><strong>No tables yet</strong><p>Add a Table before defining its Attributes, Layouts or Subsets.</p></div>}
+          </nav>
+          <section className="schema-object-list" aria-label={`${objectLabel} list`}>
+            <header><h3>{objectLabel}</h3><span>{loading ? "Loading…" : `${objectRows.length} shown`}</span></header>
+            <div className="schema-list-rows">
+              {objectKind === "tables" ? tables.map((item) => <button className={selectedTableId === item.table_id ? "active" : ""} type="button" key={item.table_id} onClick={() => { setSelectedTableId(item.table_id); setCreateMode("none"); }}><strong>{item.current_revision.content.name}</strong><small>{item.current_revision.content.description || "No description"}</small></button>) : null}
+              {objectKind === "attributes" ? attributes.map((item) => <button className={selectedAttributeId === item.attribute_definition_id ? "active" : ""} type="button" key={item.attribute_definition_id} onClick={() => { setSelectedAttributeId(item.attribute_definition_id); setCreateMode("none"); }}><strong>{item.current_revision.content.name}</strong><small>{dataTypes.find((type) => type.value === item.current_revision.content.data_type)?.label}</small></button>) : null}
+              {objectKind === "layouts" ? layouts.map((item) => <button type="button" key={item.layout_id}><strong>{item.name}</strong><small>{item.items.length} displayed fields</small></button>) : null}
+              {objectKind === "subsets" ? subsets.map((item) => <button type="button" key={item.subset_id}><strong>{item.name}</strong><small>{item.description || "Saved starting view"}</small></button>) : null}
+              {objectKind === "links" ? scopedLinkTypes.map((item) => <button className={selectedLinkTypeId === item.link_type_id ? "active" : ""} type="button" key={item.link_type_id} onClick={() => { setSelectedLinkTypeId(item.link_type_id); setCreateMode("none"); }}><strong>{item.current_revision.content.name}</strong><small>{item.current_revision.content.forward_label}</small></button>) : null}
+              {!loading && !objectRows.length ? <p className="muted">No {objectLabel.toLowerCase()} are available for this selection.</p> : null}
+            </div>
+          </section>
+          <section className="schema-property-editor" aria-label="Object properties">
+            {createMode === "table" ? <form className="property-sheet" onSubmit={(event) => void createTable(event)}><header><h3>New table</h3><button className="text-button" type="button" onClick={() => setCreateMode("none")}>Close</button></header><p>Tables create a stable place for related records. The saved definition is a new revision.</p><div className="property-fields"><label>Display name<input value={tableName} onChange={(event) => setTableName(event.target.value)} required /></label><label>Reference key<input value={tableKey} onChange={(event) => setTableKey(event.target.value)} required /></label><label>Access level<select value={classification} onChange={(event) => setClassification(event.target.value as DataClassification)}><option value="internal">Internal team</option><option value="confidential">Confidential team</option><option value="restricted">Restricted team</option></select></label><label className="wide">Description<textarea value={tableDescription} onChange={(event) => setTableDescription(event.target.value)} /></label></div><footer><button className="button primary" type="submit" disabled={saving}>Save new Table</button></footer></form> : null}
+            {createMode === "attribute" ? <form className="property-sheet" onSubmit={(event) => void createAttribute(event)}><header><h3>New attribute for {selectedTable?.current_revision.content.name}</h3><button className="text-button" type="button" onClick={() => setCreateMode("none")}>Close</button></header><p>Only add information that helps someone enter, find or assess a record.</p><div className="property-fields"><label>Display name<input value={attributeName} onChange={(event) => setAttributeName(event.target.value)} required /></label><label>Reference key<input value={attributeKey} onChange={(event) => setAttributeKey(event.target.value)} required /></label><label>Value type<select value={attributeType} onChange={(event) => setAttributeType(event.target.value as ConfigurableAttributeDataType)}>{dataTypes.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label><label className="checkbox-label"><input type="checkbox" checked={required} onChange={(event) => setRequired(event.target.checked)} />Required when creating a record</label><label className="wide">Help for people entering this value<input value={attributeHelpText} onChange={(event) => setAttributeHelpText(event.target.value)} /></label>{attributeType === "number" ? <><label>What the number means<input value={quantitySemantics} onChange={(event) => setQuantitySemantics(event.target.value)} placeholder="for example, density.mass" /></label><label>Standard unit<input value={normalizedUnit} onChange={(event) => setNormalizedUnit(event.target.value)} placeholder="for example, kg/m³" /></label></> : null}{attributeType === "discrete" ? <label className="wide">Allowed choices<input value={allowedValues} onChange={(event) => setAllowedValues(event.target.value)} placeholder="Separate choices with commas" required /></label> : null}{attributeType === "record_reference" ? <label>Related table<select value={referenceTableId} onChange={(event) => setReferenceTableId(event.target.value)} required><option value="">Choose a table</option>{tables.map((table) => <option key={table.table_id} value={table.table_id}>{table.current_revision.content.name}</option>)}</select></label> : null}</div><footer><button className="button primary" type="submit" disabled={saving}>Save new Attribute</button></footer></form> : null}
+            {createMode === "link" ? <form className="property-sheet" onSubmit={(event) => void createLinkType(event)}><header><h3>New Link Type</h3><button className="text-button" type="button" onClick={() => setCreateMode("none")}>Close</button></header><p>Describe the relationship people see between two record types. Both endpoints are saved against their current revisions.</p><div className="property-fields"><label>Display name<input value={linkName} onChange={(event) => setLinkName(event.target.value)} required /></label><label>Reference key<input value={linkKey} onChange={(event) => setLinkKey(event.target.value)} required /></label><label>From table<select value={sourceTableId} onChange={(event) => setSourceTableId(event.target.value)}>{tables.map((table) => <option key={table.table_id} value={table.table_id}>{table.current_revision.content.name}</option>)}</select></label><label>To table<select value={targetTableId} onChange={(event) => setTargetTableId(event.target.value)}>{tables.map((table) => <option key={table.table_id} value={table.table_id}>{table.current_revision.content.name}</option>)}</select></label><label>Forward wording<input value={forwardLabel} onChange={(event) => setForwardLabel(event.target.value)} required /></label><label>Reverse wording<input value={reverseLabel} onChange={(event) => setReverseLabel(event.target.value)} required /></label><label>From each record<select value={sourceCardinality} onChange={(event) => setSourceCardinality(event.target.value as ConfigurableLinkCardinality)}><option value="one">links to one</option><option value="many">links to many</option></select></label><label>To each record<select value={targetCardinality} onChange={(event) => setTargetCardinality(event.target.value as ConfigurableLinkCardinality)}><option value="one">is linked from one</option><option value="many">is linked from many</option></select></label></div><footer><button className="button primary" type="submit" disabled={saving || !tables.length}>Save new Link Type</button></footer></form> : null}
+            {createMode === "none" && objectKind === "tables" && selectedTable ? <div className="property-sheet read-only"><header><h3>{selectedTable.current_revision.content.name}</h3><span>Current definition</span></header><dl><div><dt>Purpose</dt><dd>{selectedTable.current_revision.content.description || "No description provided."}</dd></div><div><dt>Attributes</dt><dd>{attributes.length} available for this table</dd></div><div><dt>Layouts</dt><dd>{layouts.length} saved datasheet views</dd></div><div><dt>Subsets</dt><dd>{subsets.length} saved starting views</dd></div></dl><p className="editor-limit">Editing an existing definition is not available in this workspace yet. Use Add to create a new governed definition; existing records are not overwritten.</p></div> : null}
+            {createMode === "none" && objectKind === "attributes" ? (selectedAttribute ? <div className="property-sheet read-only"><header><h3>{selectedAttribute.current_revision.content.name}</h3><span>{dataTypes.find((type) => type.value === selectedAttribute.current_revision.content.data_type)?.label}</span></header><dl><div><dt>Used for</dt><dd>{selectedAttribute.current_revision.content.help_text || "No entry guidance provided."}</dd></div><div><dt>Required</dt><dd>{selectedAttribute.current_revision.content.required ? "Yes, when creating a record" : "No"}</dd></div>{selectedAttribute.current_revision.content.quantity_semantics ? <div><dt>Quantity</dt><dd>{selectedAttribute.current_revision.content.quantity_semantics} {selectedAttribute.current_revision.content.normalized_unit ? `· ${selectedAttribute.current_revision.content.normalized_unit}` : ""}</dd></div> : null}</dl><p className="editor-limit">This definition is read-only here. Add a new Attribute when a new record decision is needed.</p></div> : <div className="property-sheet empty"><h3>Select an Attribute</h3><p>Its purpose and entry guidance appear here.</p></div>) : null}
+            {createMode === "none" && objectKind === "layouts" ? <div className="property-sheet read-only"><header><h3>{selectedTable?.current_revision.content.name} datasheets</h3><span>{layouts.length} saved</span></header><p>Layouts use the current table’s Attribute revisions. Add layout saves the displayed Attribute order; reordering is not available in this workspace yet.</p></div> : null}
+            {createMode === "none" && objectKind === "subsets" ? <div className="property-sheet read-only"><header><h3>{selectedTable?.current_revision.content.name} saved views</h3><span>{subsets.length} saved</span></header><p>Saved views retain a table search starting point. Add subset creates the unfiltered starting view supported by the current service.</p></div> : null}
+            {createMode === "none" && objectKind === "links" ? (selectedLinkType ? <div className="property-sheet read-only"><header><h3>{selectedLinkType.current_revision.content.name}</h3><span>Current definition</span></header><dl><div><dt>Direction</dt><dd>{selectedLinkType.current_revision.content.forward_label} / {selectedLinkType.current_revision.content.reverse_label}</dd></div><div><dt>Relationship</dt><dd>{selectedLinkType.current_revision.content.source_cardinality} to {selectedLinkType.current_revision.content.target_cardinality}</dd></div><div><dt>Revision binding</dt><dd>Source and target definitions are fixed when this Link Type is saved.</dd></div></dl><p className="editor-limit">Existing Link Types are read-only here. Add a Link Type to create a new relationship definition.</p></div> : <div className="property-sheet empty"><h3>Select a Link Type</h3><p>Its direction and relationship rules appear here.</p></div>) : null}
+          </section>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className={productMode ? "catalog-schema-workbench product-admin-embedded" : "catalog-schema-workbench"}>
+    <div className="catalog-schema-workbench">
       {!productMode ? <section className="hero-card compact-hero">
         <p className="eyebrow">T-49 · Configurable Material Information System</p>
         <h1>Catalog schema designer</h1>

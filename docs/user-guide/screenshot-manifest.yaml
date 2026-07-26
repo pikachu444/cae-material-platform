@@ -23,6 +23,10 @@ notes:
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-dui07-administration-schema-editor
+    captured_at: 2026-07-27T01:00:00+09:00
+    command: targeted live Playwright Administration capture at 1366x768, 1440x900 and 1920x1080; verifies the object navigator, table-scoped selector and no horizontal overflow
+    ids: [administration-database-1366, administration-database-1440, administration-database-1920]
   - source_commit: working-tree-uxc03-modeling-data-export-consistency
     captured_at: 2026-07-27T00:33:00+09:00
     command: targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; captures Data/Process/Fit/Export and Data-first session shell, asserts four normal stages only, a real test-method parent above indented specimen rows with no printed branch glyph, icon-only visibility, no premature Mean & band, no horizontal overflow, drawable graph >=72%, 1440 drawable >=1050px, and unclipped axes/legend
@@ -223,13 +227,27 @@ captures:
     image: images/current/activity-1440x900.png
     width: 1440
     height: 900
+  - id: administration-database-1366
+    route: /administration/database
+    workflow: three-pane-table-scoped-schema-property-editor
+    fixture: deterministic demo Administrator; Table context scopes Attributes, Layouts and Subsets while Link Types retain their source/target definition
+    image: images/current/administration-database-1366x768.png
+    width: 1366
+    height: 768
   - id: administration-database-1440
     route: /administration/database
-    workflow: table-attribute-layout-subset-and-link-type-configuration
-    fixture: current pending-redesign evidence only; DUI-07 object tree/list/property editor target pending
+    workflow: three-pane-table-scoped-schema-property-editor
+    fixture: deterministic demo Administrator; Table context scopes Attributes, Layouts and Subsets while Link Types retain their source/target definition
     image: images/current/administration-database-1440x900.png
     width: 1440
     height: 900
+  - id: administration-database-1920
+    route: /administration/database
+    workflow: three-pane-table-scoped-schema-property-editor
+    fixture: deterministic demo Administrator; Table context scopes Attributes, Layouts and Subsets while Link Types retain their source/target definition
+    image: images/current/administration-database-1920x1080.png
+    width: 1920
+    height: 1080
   - id: administration-access-1366
     route: /administration/access
     workflow: user-reviewer-administrator-task-preset-assignment

@@ -70,7 +70,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
     "activity-1440x900.png",
+    "administration-database-1366x768.png",
     "administration-database-1440x900.png",
+    "administration-database-1920x1080.png",
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
 )
@@ -899,12 +901,17 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
 
 
 def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
-    width, height = 1440, 900
-    page = _new_page(browser, base_url, width, height)
-    page.goto(f"{base_url}/administration/database")
-    page.get_by_role("navigation", name="Administration areas").wait_for(timeout=30_000)
-    _capture(page, output / "administration-database-1440x900.png", width, height)
-    page.context.close()
+    for width, height in ((1366, 768), (1440, 900), (1920, 1080)):
+        page = _new_page(browser, base_url, width, height)
+        page.goto(f"{base_url}/administration/database")
+        page.get_by_role("navigation", name="Administration areas").wait_for(timeout=30_000)
+        page.get_by_role("heading", name="Database design", exact=True).wait_for(timeout=30_000)
+        page.get_by_role("navigation", name="Database objects").wait_for(timeout=30_000)
+        page.get_by_role("combobox", name="Current table", exact=True).wait_for(timeout=30_000)
+        if page.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth"):
+            raise RuntimeError(f"Administration has horizontal overflow at {width}x{height}")
+        _capture(page, output / f"administration-database-{width}x{height}.png", width, height)
+        page.context.close()
 
     for width, height in ((1366, 768), (1440, 900)):
         page = _new_page(browser, base_url, width, height)

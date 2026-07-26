@@ -176,11 +176,17 @@ queue는 DUI-08 pending이며, 이 이미지나 manifest는 해당 기능의 완
 
 ![최근 브라우저 Modeling session이 없는 Activity 초기 상태](images/current/activity-1440x900.png)
 
-관리자는 user menu에서 Administration을 열 수 있습니다. Database design route는 같은 shell 안에서
-Table, Attribute, Layout, Subset과 Link Type 편집 상태를 유지하며, 현재 configuration과 validation
-상태를 status bar에 표시합니다.
+관리자는 user menu에서 Administration을 열 수 있습니다. Database design은 왼쪽 객체 탐색기,
+가운데 목록, 오른쪽 속성 편집기를 한 화면에 유지합니다. Current table을 바꾸면 Attribute, Layout,
+Subset과 Link Type 목록이 해당 Table 문맥으로 바뀌며, Link Type은 출발/도착 Table과 방향 문구를 읽기 쉬운
+형태로 보여 줍니다. 현재 서비스가 지원하지 않는 기존 정의 수정·삭제는 가짜 버튼으로 노출하지
+않습니다.
 
 ![Administration Database design](images/current/administration-database-1440x900.png)
+
+같은 3열 편집 구조는 [1366×768 화면](images/current/administration-database-1366x768.png)과
+[1920×1080 화면](images/current/administration-database-1920x1080.png)에서도 가로 스크롤 없이
+유지됩니다.
 
 ## Desktop viewport evidence
 

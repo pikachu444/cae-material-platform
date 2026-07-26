@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -24,6 +24,46 @@ const table = {
     content: { key: "materials", name: "Materials", description: null },
   },
 };
+
+const secondTable = {
+  ...table,
+  table_id: "20000000-0000-4000-8000-000000000001",
+  current_revision: {
+    ...table.current_revision,
+    id: "20000000-0000-4000-8000-000000000002",
+    aggregate_id: "20000000-0000-4000-8000-000000000001",
+    content: { key: "test_data", name: "Test Data", description: null },
+  },
+};
+
+function attributeFor(sourceTable: typeof table, name: string, idPrefix: string) {
+  return {
+    attribute_definition_id: `${idPrefix}0000-0000-4000-8000-000000000006`,
+    table_id: sourceTable.table_id,
+    current_revision: {
+      ...sourceTable.current_revision,
+      id: `${idPrefix}0000-0000-4000-8000-000000000007`,
+      aggregate_id: `${idPrefix}0000-0000-4000-8000-000000000006`,
+      content: {
+        table_revision_id: sourceTable.current_revision.id,
+        key: name.toLowerCase().replaceAll(" ", "_"),
+        name,
+        data_type: "text" as const,
+        required: false,
+        quantity_semantics: null,
+        normalized_unit: null,
+        minimum_number: null,
+        maximum_number: null,
+        minimum_length: null,
+        maximum_length: null,
+        pattern: null,
+        allowed_values: [],
+        reference_table_id: null,
+        help_text: null,
+      },
+    },
+  };
+}
 
 const mocks = vi.hoisted(() => ({
   listTables: vi.fn(),
@@ -146,7 +186,7 @@ describe("ConfigurableCatalogAdmin", () => {
     );
   });
 
-  it("creates an exact-revision Link Type from the task-oriented database designer", async () => {
+  it("keeps table-scoped objects in a three-pane editor and creates an exact-revision Link Type", async () => {
     const user = userEvent.setup();
     render(
       <ConfigurableCatalogAdmin
@@ -156,8 +196,12 @@ describe("ConfigurableCatalogAdmin", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Tables, Attributes and relationships" })).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "Create Link Type revision 1" }));
+    expect(await screen.findByRole("heading", { name: "Database design" })).toBeTruthy();
+    expect(screen.getByLabelText("Database objects")).toBeTruthy();
+    expect((screen.getByLabelText("Current table") as HTMLSelectElement).value).toBe(table.table_id);
+    await user.click(screen.getByRole("button", { name: "Link Types" }));
+    await user.click(screen.getByRole("button", { name: "Add Link Type" }));
+    await user.click(screen.getByRole("button", { name: "Save new Link Type" }));
 
     await waitFor(() => expect(mocks.createLinkType).toHaveBeenCalledOnce());
     expect(mocks.createLinkType).toHaveBeenCalledWith(
@@ -171,5 +215,59 @@ describe("ConfigurableCatalogAdmin", () => {
         }),
       }),
     );
+  });
+
+  it("keeps the newest Table definitions when an older request resolves late", async () => {
+    const user = userEvent.setup();
+    let resolveFirstTable!: (value: { data: { items: ReturnType<typeof attributeFor>[] }; etag: null }) => void;
+    const firstTableRequest = new Promise<{ data: { items: ReturnType<typeof attributeFor>[] }; etag: null }>((resolve) => {
+      resolveFirstTable = resolve;
+    });
+    const firstAttribute = attributeFor(table, "Material family", "31");
+    const secondAttribute = attributeFor(secondTable, "Test method", "32");
+    mocks.listTables.mockResolvedValue({ data: { items: [table, secondTable] }, etag: null });
+    mocks.listAttributes.mockImplementation((_config, tableId: string) =>
+      tableId === table.table_id
+        ? firstTableRequest
+        : Promise.resolve({ data: { items: [secondAttribute] }, etag: null }),
+    );
+
+    render(
+      <ConfigurableCatalogAdmin
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+        productMode
+      />,
+    );
+
+    const tableSelector = await screen.findByLabelText("Current table");
+    await waitFor(() => expect(mocks.listAttributes).toHaveBeenCalledWith(expect.anything(), table.table_id));
+    await user.selectOptions(tableSelector, secondTable.table_id);
+    await user.click(screen.getByRole("button", { name: "Attributes" }));
+    expect(await screen.findByText("Test method")).toBeTruthy();
+
+    await act(async () => {
+      resolveFirstTable({ data: { items: [firstAttribute] }, etag: null });
+      await firstTableRequest;
+    });
+
+    expect(screen.getByText("Test method")).toBeTruthy();
+    expect(screen.queryByText("Material family")).toBeNull();
+  });
+
+  it("shows an actionable empty state instead of an empty Current table selector", async () => {
+    mocks.listTables.mockResolvedValue({ data: { items: [] }, etag: null });
+
+    render(
+      <ConfigurableCatalogAdmin
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+        productMode
+      />,
+    );
+
+    expect(await screen.findByText("No tables yet")).toBeTruthy();
+    expect(screen.queryByLabelText("Current table")).toBeNull();
+    expect((screen.getByRole("button", { name: "Add Table" }) as HTMLButtonElement).disabled).toBe(false);
   });
 });

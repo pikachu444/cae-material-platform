@@ -3880,8 +3880,6 @@ summary {
 .administration-task-grid em { color: var(--accent); font-style: normal; grid-column: 2; }
 .administration-principle { background: #e9f2ef; border-left: 4px solid var(--accent); margin-top: 1.25rem; padding: 1.4rem; }
 .administration-principle h2 { margin: .3rem 0; }
-.product-admin-embedded .detail-grid { grid-template-columns: minmax(270px, .85fr) minmax(420px, 1.4fr); }
-.product-admin-embedded .schema-table-row { grid-template-columns: 1fr; }
 .link-type-administration { margin-top: 1rem; }
 .link-type-admin-grid { display: grid; gap: 1.5rem; grid-template-columns: minmax(260px, .8fr) minmax(420px, 1.2fr); }
 .product-access-form > label > small { color: var(--muted); display: block; font-weight: 400; margin-top: .3rem; }
@@ -3893,7 +3891,7 @@ summary {
   .product-user-badge { display: none; }
   .administration-workspace { grid-template-columns: 1fr; }
   .administration-navigation { min-height: 0; }
-  .administration-task-grid, .link-type-admin-grid, .product-admin-embedded .detail-grid { grid-template-columns: 1fr; }
+  .administration-task-grid, .link-type-admin-grid { grid-template-columns: 1fr; }
 }
 
 /* T-76 product Material Database: persistent GRANTA-style contents and linked-record workspace. */
