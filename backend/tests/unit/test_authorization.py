@@ -24,6 +24,7 @@ from cmp.modules.identity_access.domain.authorization import (
     ProductRole,
     Role,
     RoleBinding,
+    product_role_preset,
 )
 from cmp.modules.identity_access.domain.security import (
     Principal,
@@ -114,8 +115,8 @@ def _product_assignment(
     subject: BindingSubject | None = None,
 ) -> ProductAccessAssignment:
     effective_grants = tuple(sorted(set(grants), key=str))
-    if role is ProductRole.ADMINISTRATOR:
-        effective_grants = tuple(sorted(FeatureGrant, key=str))
+    if role in {ProductRole.ADMINISTRATOR, ProductRole.REVIEWER}:
+        effective_grants = product_role_preset(role)
     return ProductAccessAssignment(
         id=uuid4(),
         organization_id=ORG,
@@ -164,6 +165,55 @@ def test_administrator_has_all_features_and_identity_management() -> None:
     assert set(summary.feature_grants) == set(FeatureGrant)
     assert not summary.legacy_compatible
     assert Role.ORG_ADMIN in decision.roles
+
+
+def test_reviewer_has_the_fixed_review_preset_without_access_administration() -> None:
+    assignment = _product_assignment(ProductRole.REVIEWER)
+    service = AuthorizationService(
+        bindings=_Bindings(),
+        product_assignments=_ProductAssignments(assignment),
+        clock=lambda: NOW,
+    )
+
+    summary = service.effective_product_access(_context())
+    review = service.authorize(_context(), Permission.REVIEW_DECIDE)
+    export = service.authorize(_context(), Permission.EXPORT_EXECUTE)
+
+    assert summary.product_role is ProductRole.REVIEWER
+    assert summary.feature_grants == product_role_preset(ProductRole.REVIEWER)
+    assert Role.DOMAIN_REVIEWER in review.roles
+    assert Role.CAE_ANALYST in export.roles
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        service.authorize(_context(), Permission.IDENTITY_MANAGE)
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        service.authorize(_context(), Permission.CATALOG_WRITE)
+
+
+def test_effective_product_role_precedence_does_not_promote_legacy_features() -> None:
+    legacy_model_approval = _product_assignment(ProductRole.USER, FeatureGrant.MODEL_APPROVAL)
+    reviewer = _product_assignment(ProductRole.REVIEWER)
+    administrator = _product_assignment(ProductRole.ADMINISTRATOR)
+
+    assert AuthorizationService(
+        bindings=_Bindings(), product_assignments=_ProductAssignments(legacy_model_approval), clock=lambda: NOW
+    ).effective_product_access(_context()).product_role is ProductRole.USER
+    assert AuthorizationService(
+        bindings=_Bindings(), product_assignments=_ProductAssignments(reviewer), clock=lambda: NOW
+    ).effective_product_access(_context()).product_role is ProductRole.REVIEWER
+    assert AuthorizationService(
+        bindings=_Bindings(), product_assignments=_ProductAssignments(reviewer, administrator), clock=lambda: NOW
+    ).effective_product_access(_context()).product_role is ProductRole.ADMINISTRATOR
+
+
+def test_reviewer_assignment_cannot_weaken_or_expand_its_preset() -> None:
+    with pytest.raises(ValueError, match="fixed product preset"):
+        ProductAccessAssignment(
+            id=uuid4(), organization_id=ORG, project_id=PROJECT,
+            subject=BindingSubject.for_principal(PRINCIPAL), product_role=ProductRole.REVIEWER,
+            feature_grants=(FeatureGrant.MODEL_APPROVAL,),
+            max_classification=DataClassification.RESTRICTED, allow_export_controlled=False,
+            valid_from=NOW - timedelta(days=1),
+        )
 
 
 def test_legacy_role_bindings_project_to_the_simple_product_vocabulary() -> None:

@@ -61,7 +61,7 @@ describe("ProductAccessCenter", () => {
     });
   });
 
-  it("shows the simple product vocabulary and creates a feature assignment", async () => {
+  it("shows the simple product vocabulary and creates a User task preset", async () => {
     const user = userEvent.setup();
     render(
       <ProductAccessCenter
@@ -71,8 +71,8 @@ describe("ProductAccessCenter", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "Administrator" })).toBeTruthy();
-    expect(screen.getAllByText("Schema configuration")).toHaveLength(2);
-    expect(screen.getAllByText("Solver Card export")).toHaveLength(2);
+    expect(screen.getAllByText("Schema configuration")).toHaveLength(1);
+    expect(screen.getAllByText("Solver Card export")).toHaveLength(1);
     await user.click(screen.getByRole("button", { name: "Create assignment" }));
 
     await waitFor(() => expect(mocks.grant).toHaveBeenCalledOnce());
@@ -81,7 +81,34 @@ describe("ProductAccessCenter", () => {
       expect.objectContaining({
         product_role: "user",
         group_name: "material-users",
-        feature_grants: ["catalog_edit", "processing_calibration", "solver_card_export"],
+        feature_grants: ["processing_calibration", "solver_card_export"],
+      }),
+    );
+  });
+
+  it("changes to the Reviewer preset without exposing technical feature checkboxes", async () => {
+    const user = userEvent.setup();
+    render(
+      <ProductAccessCenter
+        config={{ baseUrl: "/api/v1", accessToken: "administrator-token" }}
+        onOpenConnection={() => undefined}
+        productMode
+      />,
+    );
+
+    await screen.findByRole("heading", { name: "Choose what each team can do" });
+    await user.selectOptions(screen.getByLabelText("Role"), "reviewer");
+    expect(screen.getByText(/request changes, approve, or publish/i)).toBeTruthy();
+    expect(screen.getByText(/Included tasks:.*Model approval/i)).toBeTruthy();
+    expect(screen.queryByRole("group", { name: "Feature grants" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Create assignment" }));
+
+    await waitFor(() => expect(mocks.grant).toHaveBeenCalledOnce());
+    expect(mocks.grant).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        product_role: "reviewer",
+        feature_grants: ["processing_calibration", "model_approval", "solver_card_export"],
       }),
     );
   });

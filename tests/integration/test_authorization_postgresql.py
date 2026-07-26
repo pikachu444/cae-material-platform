@@ -359,7 +359,17 @@ def postgres() -> Iterator[PostgresHarness]:
             app_engine.dispose()
         with admin_engine.begin() as connection:
             connection.exec_driver_sql("DROP SCHEMA IF EXISTS authorization_fixture CASCADE")
-        command.downgrade(_alembic_config(database_url), "base")
+            reviewer_rows = connection.execute(
+                sa.text(
+                    "SELECT count(*) FROM identity.product_access_assignment "
+                    "WHERE product_role = 'reviewer'"
+                )
+            ).scalar_one()
+        # Migration 090 deliberately rejects a lossy downgrade once immutable
+        # Reviewer history exists. The isolated database is dropped below, so
+        # do not mutate that history only to exercise the generic teardown.
+        if reviewer_rows == 0:
+            command.downgrade(_alembic_config(database_url), "base")
         admin_engine.dispose()
         with cluster_engine.connect() as connection:
             connection.execute(
@@ -376,6 +386,7 @@ def postgres() -> Iterator[PostgresHarness]:
 
 def _context(
     *,
+    principal_id: UUID = PRINCIPAL_A,
     organization_id: UUID = ORG_A,
     project_id: UUID = PROJECT_A,
     groups: tuple[str, ...] = (),
@@ -383,7 +394,7 @@ def _context(
     token_id: str | None = None,
 ) -> SecurityContext:
     return SecurityContext(
-        principal=Principal(PRINCIPAL_A, PrincipalType.USER, "Authorization User", True),
+        principal=Principal(principal_id, PrincipalType.USER, "Authorization User", True),
         organization_id=organization_id,
         project_id=project_id,
         issuer=ISSUER,
@@ -745,7 +756,7 @@ def test_role_binding_grant_fields_are_immutable_and_revocation_is_one_way(
     assert getattr(second_error.value.orig, "sqlstate", None) == "55000"
 
 
-def test_product_feature_grant_is_enforced_and_project_scoped_under_rls(
+def test_reviewer_preset_is_enforced_and_project_scoped_under_rls(
     postgres: PostgresHarness,
 ) -> None:
     sessions = sessionmaker(postgres.app_engine, class_=Session, expire_on_commit=False)
@@ -772,27 +783,32 @@ def test_product_feature_grant_is_enforced_and_project_scoped_under_rls(
         GrantProductAccess(
             organization_id=ORG_A,
             project_id=PROJECT_A,
-            subject=BindingSubject.for_group(ISSUER, "limited-modelers"),
-            product_role=ProductRole.USER,
-            feature_grants=(FeatureGrant.PROCESSING_CALIBRATION,),
+            subject=BindingSubject.for_group(ISSUER, "reviewers"),
+            product_role=ProductRole.REVIEWER,
+            feature_grants=(),
             max_classification=DataClassification.CONFIDENTIAL,
             allow_export_controlled=False,
-            grant_reason="bounded modeling assignment",
+            grant_reason="bounded review assignment",
         ),
     )
-    modeler = _context(groups=("limited-modelers",))
+    modeler = _context(principal_id=PRINCIPAL_B, groups=("reviewers",))
 
     decision = authorization.authorize(modeler, Permission.CALIBRATION_EXECUTE)
 
-    assert assignment.feature_grants == (FeatureGrant.PROCESSING_CALIBRATION,)
+    assert assignment.feature_grants == (
+        FeatureGrant.MODEL_APPROVAL,
+        FeatureGrant.PROCESSING_CALIBRATION,
+        FeatureGrant.SOLVER_CARD_EXPORT,
+    )
     assert decision.max_classification is DataClassification.CONFIDENTIAL
-    with pytest.raises(AuthorizationDenied, match="permission_denied"):
-        authorization.authorize(modeler, Permission.EXPORT_EXECUTE)
+    assert authorization.authorize(modeler, Permission.REVIEW_DECIDE).permission is Permission.REVIEW_DECIDE
     with pytest.raises(AuthorizationDenied, match="permission_denied"):
         authorization.authorize(
-            _context(project_id=PROJECT_B, groups=("limited-modelers",)),
+            _context(project_id=PROJECT_B, groups=("reviewers",)),
             Permission.CALIBRATION_EXECUTE,
         )
+    with pytest.raises(AuthorizationDenied, match="permission_denied"):
+        authorization.authorize(modeler, Permission.IDENTITY_MANAGE)
 
     with postgres.app_engine.connect() as connection:
         without_context = connection.execute(

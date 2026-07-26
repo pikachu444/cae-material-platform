@@ -158,7 +158,7 @@ def _request(
     return asyncio.run(send())
 
 
-def test_administrator_assigns_user_features_and_user_receives_only_selected_grant() -> None:
+def test_administrator_assigns_task_presets_and_reviewer_receives_review_access() -> None:
     idp = DevelopmentTestIdp()
     assignments = _Assignments()
     admin_binding = RoleBinding(
@@ -206,7 +206,7 @@ def test_administrator_assigns_user_features_and_user_receives_only_selected_gra
             "group_issuer": idp.issuer,
             "group_name": "modelers",
             "product_role": "user",
-            "feature_grants": ["processing_calibration"],
+            "feature_grants": ["catalog_edit"],
             "max_classification": "confidential",
             "allow_export_controlled": False,
             "organization_wide": False,
@@ -221,6 +221,28 @@ def test_administrator_assigns_user_features_and_user_receives_only_selected_gra
         groups=("modelers",),
     )
     user_summary = _request(app, modeler_token, "GET", "/api/v1/product-access/me")
+    reviewer_created = _request(
+        app,
+        admin_token,
+        "POST",
+        "/api/v1/product-access/assignments",
+        {
+            "subject_type": "group",
+            "group_issuer": idp.issuer,
+            "group_name": "reviewers",
+            "product_role": "reviewer",
+            "feature_grants": [],
+            "max_classification": "confidential",
+            "allow_export_controlled": False,
+            "organization_wide": False,
+            "grant_reason": "Assign review and publication work.",
+        },
+    )
+    reviewer_token = idp.issue_user_token(
+        subject="reviewer", organization_id=ORG, project_id=PROJECT,
+        display_name="Reviewer", groups=("reviewers",),
+    )
+    reviewer_summary = _request(app, reviewer_token, "GET", "/api/v1/product-access/me")
 
     assert admin_summary.status_code == 200
     assert admin_summary.json()["product_role"] == ProductRole.ADMINISTRATOR
@@ -228,13 +250,18 @@ def test_administrator_assigns_user_features_and_user_receives_only_selected_gra
         grant.value for grant in FeatureGrant
     }
     assert created.status_code == 201
-    assert created.json()["feature_grants"] == ["processing_calibration"]
+    assert created.json()["feature_grants"] == ["processing_calibration", "solver_card_export"]
     assert user_summary.status_code == 200
     assert user_summary.json() == {
         "product_role": "user",
-        "feature_grants": ["processing_calibration"],
+        "feature_grants": ["processing_calibration", "solver_card_export"],
         "legacy_compatible": False,
     }
+    assert reviewer_created.status_code == 201
+    assert reviewer_created.json()["feature_grants"] == [
+        "model_approval", "processing_calibration", "solver_card_export"
+    ]
+    assert reviewer_summary.json()["product_role"] == "reviewer"
 
 
 def test_user_without_identity_management_cannot_list_or_create_assignments() -> None:

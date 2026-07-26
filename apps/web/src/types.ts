@@ -4,7 +4,7 @@ export type DataClassification =
   | "restricted"
   | "export_controlled";
 
-export type ProductRole = "administrator" | "user";
+export type ProductRole = "administrator" | "reviewer" | "user";
 
 export type FeatureGrant =
   | "schema_configuration"

@@ -1446,17 +1446,19 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 - **완료 조건:** manifest/checksum이 모든 exact source와 representation을 검증한다.
 - **테스트:** deterministic ZIP, omission/tamper/path negative와 large external worker assembly.
 
-#### T-59. Administrator/User feature grants — `P1`
+#### T-59. Product role task presets — `P1`
 
-- **범위:** 제품 역할 두 개와 schema, catalog, processing/calibration, approval, export grants.
+  - **범위:** User, Reviewer, Administrator 제품 역할과 schema, catalog, processing/calibration, approval, export grants.
   기존 permission/RLS는 호환 enforcement로 유지한다.
 - **완료 조건:** 작업 중심 권한 UI/API와 tenant 격리 regression이 통과한다.
 - **테스트:** grant matrix positive/negative, legacy-token compatibility와 cross-scope RLS.
-- **구현 증거 (`2026-07-18`):** Migration 074의 typed assignment와 append/revoke guard,
+  - **구현 증거 (`2026-07-18`, `2026-07-26`):** Migration 074의 typed assignment와 append/revoke guard,
   product-to-internal permission projection, legacy role 호환 projection, effective/grant/list/revoke
   API 및 `/access` 관리자 화면을 연결했다. Docker/PostgreSQL demo group은 Administrator와 다섯
-  grant를 실제 API에서 확인했다. 일반 User의 관리 API 403과 기능별 positive/negative 회귀를
-  자동화했다.
+    grant를 실제 API에서 확인했다. Migration 090은 append-only history를 변경하지 않고 Reviewer
+    role과 고정 processing/calibration·approval·export preset을 추가했으며, role precedence와
+    PostgreSQL downgrade safety를 검증한다. 일반 User의 관리 API 403과 기능별 positive/negative 회귀를
+    자동화했다.
 
 #### T-60. End-to-end demo, manuals and screenshot gate — `P0`
 
@@ -1724,15 +1726,15 @@ API/calculation, connected UI, automated test, guide/screenshot을 모두 갖춰
 #### T-78. Product Administration and extensible access — `P1`
 
 - **상태 (`2026-07-19`):** `implemented and verified`.
-- **범위:** Administrator/User, 기능 토글, Database/Profile/Table/Attribute/Layout/Subset/Link Type
+  - **범위:** User/Reviewer/Administrator task presets, Database/Profile/Table/Attribute/Layout/Subset/Link Type
   관리를 하나의 task-oriented Administration에 통합한다. 내부 granular enforcement는 유지한다.
 - **완료 조건:** 일반 권한 설정은 policy vocabulary 없이 가능하고, future resource/action/scope
   grant가 schema rewrite 없이 추가될 extension point가 contract test로 고정된다.
 - **테스트:** product `/administration`은 Overview/Database design/Users & access를 하나의 좌측 작업
   구조로 제공한다. database 화면은 clean demo의 8 typed Attributes/Layout/Subset/Link Type을 읽고
   exact Table revision을 사용하는 새 Link Type을 만들 수 있다. access 화면은 token/API/principal/
-  issuer/classification policy vocabulary를 숨기고 Administrator/User와 다섯 product capability만
-  표시한다. 화면 증거는 `docs/17-evidence/reports/t78-product-administration.md`에 있다.
+    issuer/classification policy vocabulary를 숨기고 User/Reviewer/Administrator 작업만
+    표시한다. 화면 증거는 `docs/17-evidence/reports/t78-product-administration.md`에 있다.
 
 #### T-79. Graph-centered Material Modeling shell and data preparation — `P0`
 

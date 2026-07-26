@@ -82,12 +82,12 @@ Recipe, Batch, exact revision identifiers, mapping profiles and audit detail sup
 | Role | Default landing | Primary jobs |
 | --- | --- | --- |
 | User | Materials | search/view/download; request upload review; process, fit and request card review |
-| Reviewer (target; pending) | Activity | all User work plus material/card review, change request, approval and publish |
+| Reviewer | Activity | all User work plus material/card review, change request, approval and publish |
 | Administrator | Materials, with Administration in the application menu | all access/edit/configure/review/approve work |
 
 A role changes default commands and access. It must not produce a different visual product shell.
-Current implementation exposes Administrator/User only; Reviewer is a product target pending access
-migration. Internal RBAC/RLS continues to enforce organization/project authorization.
+Current implementation exposes User, Reviewer, and Administrator task presets. Internal RBAC/RLS
+continues to enforce organization/project authorization; the Activity queue redesign remains pending.
 
 ## 4. Shared workspace behavior
 
