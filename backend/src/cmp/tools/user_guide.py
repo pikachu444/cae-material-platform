@@ -47,12 +47,41 @@ _STALE_CURRENT_PATTERNS = {
     "retired T-46 screenshot": re.compile(r"t46-[^)\s]+\.png", re.IGNORECASE),
 }
 _README_HEADINGS = (
+    "## 이 플랫폼에서 하는 일",
+    "## 역할별로 할 수 있는 일",
     "## 핵심 사용 흐름",
-    "## 주요 기능",
+    "## 지금 가능한 일과 다음 화면",
     "## 5분 로컬 실행",
-    "## 구조",
     "## 개발과 검증",
     "## 문서",
+)
+_PERMANENT_REFERENCE_SOURCE_IDS = frozenset(
+    {
+        "granta-mi-product",
+        "granta-viewer-profile",
+        "granta-advanced-search",
+        "granta-datasheet",
+        "granta-material-models",
+        "granta-selector-product",
+        "granta-gateway-filters",
+        "granta-one-mi-custom-search",
+        "granta-tabular-data",
+        "granta-model-parameters",
+        "granta-simulation-records",
+        "granta-read-edit",
+        "granta-selector-stages",
+        "smdc-quick-search",
+        "smdc-cae-download",
+        "smdc-filters",
+        "smdc-compare",
+        "smdc-review",
+        "smdc-version-control",
+        "material-modeler-import",
+        "material-modeler-prepare",
+        "material-modeler-curve-fitting",
+        "material-modeler-hyperelastic-edit",
+        "simcenter-material-modeler-2026",
+    }
 )
 
 
@@ -262,11 +291,22 @@ def _verify_document_links(
 
 def _verify_readme(project: Path, registered_images: set[str]) -> None:
     readme = (project / "README.md").read_text(encoding="utf-8")
-    if len(readme.splitlines()) > 200:
-        raise UserGuideContractError("README.md must remain at or below 200 lines")
     for heading in _README_HEADINGS:
         if heading not in readme:
             raise UserGuideContractError(f"README.md is missing required section: {heading}")
+    for role in ("일반 사용자", "Reviewer", "Administrator"):
+        if role not in readme:
+            raise UserGuideContractError(f"README.md is missing the role/task entry: {role}")
+    for workflow in (
+        "재료 검색 → 결과 비교 → 재료 상세 → 솔버 카드 → 미리보기/다운로드",
+        "모델링 Data → Process → Fit → Export → 재료 라이브러리 저장",
+    ):
+        if workflow not in readme:
+            raise UserGuideContractError(f"README.md is missing the core workflow: {workflow}")
+    if "현재 화면" not in readme or "승인된 구현 목표" not in readme:
+        raise UserGuideContractError(
+            "README.md must distinguish current screens from approved implementation targets"
+        )
     if "docker compose -f deploy/compose/docker-compose.demo.yml up --build -d" not in readme:
         raise UserGuideContractError("README.md is missing the runnable Compose quickstart")
     readme_images = {
@@ -275,6 +315,42 @@ def _verify_readme(project: Path, registered_images: set[str]) -> None:
     }
     if len(readme_images & registered_images) < 2:
         raise UserGuideContractError("README.md must show at least two current registered screens")
+
+
+def _verify_permanent_reference_catalog(project: Path) -> None:
+    catalog_path = project / "docs/00-research/product-reference-source-catalog.json"
+    catalog = _mapping(json.loads(catalog_path.read_text(encoding="utf-8")), "reference source catalog")
+    sources = _sequence(catalog.get("sources"), "reference source catalog sources")
+    source_ids: set[str] = set()
+    for ordinal, raw_source in enumerate(sources, start=1):
+        source = _mapping(raw_source, f"reference source {ordinal}")
+        source_id = _text(source.get("id"), f"reference source {ordinal} id")
+        if source_id in source_ids:
+            raise UserGuideContractError(f"duplicate permanent reference source id: {source_id}")
+        source_ids.add(source_id)
+        for field in ("product", "version", "title", "publisher", "url", "evidence_type"):
+            _text(source.get(field), f"reference source {source_id} {field}")
+        if not _text(source.get("url"), f"reference source {source_id} url").startswith("https://"):
+            raise UserGuideContractError(f"reference source URL must use https: {source_id}")
+        _sequence(source.get("supports"), f"reference source {source_id} supports")
+        _sequence(source.get("limitations"), f"reference source {source_id} limitations")
+    if not _PERMANENT_REFERENCE_SOURCE_IDS <= source_ids:
+        missing = sorted(_PERMANENT_REFERENCE_SOURCE_IDS - source_ids)
+        raise UserGuideContractError(
+            f"permanent reference source IDs drifted; missing={missing}"
+        )
+    for relative_root, minimum_images in (
+        ("docs/00-research/ux-reference-gallery/images", 5),
+        ("docs/00-research/images/gui-reference", 20),
+    ):
+        image_root = project / relative_root
+        if not image_root.is_dir():
+            raise UserGuideContractError(f"permanent reference image root is missing: {relative_root}")
+        images = [path for path in image_root.iterdir() if path.suffix.lower() in {".png", ".jpg", ".jpeg"}]
+        if len(images) < minimum_images:
+            raise UserGuideContractError(
+                f"permanent reference image root is incomplete: {relative_root}"
+            )
 
 
 def _capture_script_outputs(script: Path) -> set[str]:
@@ -608,6 +684,7 @@ def verify_user_guide(root: Path) -> UserGuideReport:
             f"{sorted(unused_registration)}"
         )
     _verify_readme(project, registered_images)
+    _verify_permanent_reference_catalog(project)
 
     navigation = _mapping(
         yaml.safe_load((guide_root / "navigation-contract.yaml").read_text(encoding="utf-8")),

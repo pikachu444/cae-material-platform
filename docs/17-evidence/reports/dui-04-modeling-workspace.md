@@ -54,7 +54,7 @@ region cycle continues to cover application, commands, main workspace and status
 
 ## Material Modeler reference comparison
 
-All seven local Material Modeler screens in `docs/00-research/images/gui-reference/material-modeler`
+All seven local Material Modeler screens in `docs/00-research/images/gui-reference/`
 were compared directly: start data, automatic/manual Young's modulus, necking point, fit/extrapolation,
 CAE-card creation and card details. The implementation follows their compact staged workflow,
 left process/curve ownership, persistent plot, inline engineering controls, observed/extrapolated

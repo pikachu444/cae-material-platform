@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -47,6 +48,27 @@ def test_incoming_integration_package_is_reference_not_authoritative() -> None:
     assert classes["docs/01-product/desktop-engineering-ui-program-brief.md"] == "authoritative"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
     assert classes["docs/17-evidence/reports/dui-04-modeling-workspace.md"] == "historical"
+
+
+def test_permanent_reference_catalog_and_image_roots_are_retained() -> None:
+    root = Path(__file__).parents[2]
+    catalog = json.loads(
+        (root / "docs/00-research/product-reference-source-catalog.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    source_ids = {source["id"] for source in catalog["sources"]}
+
+    assert len(source_ids) >= 24
+    assert {
+        "granta-gateway-filters",
+        "granta-read-edit",
+        "smdc-review",
+        "material-modeler-curve-fitting",
+    } <= source_ids
+    assert all(source["url"].startswith("https://") for source in catalog["sources"])
+    assert len(list((root / "docs/00-research/ux-reference-gallery/images").glob("*"))) >= 5
+    assert len(list((root / "docs/00-research/images/gui-reference").glob("*.png"))) >= 20
 
 
 def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:

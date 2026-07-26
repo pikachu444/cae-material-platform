@@ -143,6 +143,127 @@
       "limitations": ["The observed regions are a task relationship, not a layout to copy."]
     },
     {
+      "id": "granta-gateway-filters",
+      "product": "Granta Materials Gateway",
+      "version": "2026 R1",
+      "title": "Advanced search using filters",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Materials_Gateway/gw/advanced_search_using_filters.html",
+      "evidence_type": "official_help",
+      "supports": ["filter panel", "favorites and folder filters", "property filters", "list, scatter, and curve result views", "saved searches"],
+      "limitations": ["Does not justify exposing every property as a default filter in this platform."]
+    },
+    {
+      "id": "granta-one-mi-custom-search",
+      "product": "Granta One MI",
+      "version": "2025 R2",
+      "title": "Custom searches",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Granta_MI/one_mi/custom_searches.html",
+      "evidence_type": "official_help",
+      "supports": ["property criteria groups", "scoped reusable searches", "save and share behavior"],
+      "limitations": ["Advanced criteria should be a deliberate task, not a permanently expanded default rail."]
+    },
+    {
+      "id": "granta-tabular-data",
+      "product": "Granta MI Viewer",
+      "version": "2026 R1",
+      "title": "Viewing tabular data",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/MI_Viewer_Help/MI_Viewer/Datasheet_tabulardata.html",
+      "evidence_type": "official_help",
+      "supports": ["local and linked table rows", "navigation to linked records", "full, summary, and hidden disclosure states"],
+      "limitations": []
+    },
+    {
+      "id": "granta-model-parameters",
+      "product": "Granta Materials Gateway",
+      "version": "2026 R1",
+      "title": "Specify parameter values",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Materials_Gateway/gw/specify_parameter_values.html",
+      "evidence_type": "official_help",
+      "supports": ["default, recommended, and manually entered parameter values", "missing-data summary", "multiple imports with different parameter values"],
+      "limitations": ["Does not justify exposing exporter-only parameters before a target model is selected."]
+    },
+    {
+      "id": "granta-simulation-records",
+      "product": "Granta Materials Gateway",
+      "version": "2026 R1",
+      "title": "Simulation records and models",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/Materials_Gateway/gw/simulation_records_and_models.html",
+      "evidence_type": "official_help",
+      "supports": ["basic material records linked to specialized CAE simulation records", "bidirectional related-record navigation"],
+      "limitations": ["Public conceptual relationships are not an internal database schema."]
+    },
+    {
+      "id": "granta-read-edit",
+      "product": "Granta MI Viewer",
+      "version": "2026 R1",
+      "title": "Read and edit modes",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/Granta/v261/en/MI_Viewer_Help/MI_Viewer/GetStart_Read_Edit.html",
+      "evidence_type": "official_help",
+      "supports": ["separation of read and edit behavior", "privileged version, release, withdraw, and reinstate actions"],
+      "limitations": ["Role and approval policy must come from this product's organization contract."]
+    },
+    {
+      "id": "granta-selector-stages",
+      "product": "Ansys Granta Selector",
+      "version": "2026 R1",
+      "title": "Selection stages",
+      "publisher": "Ansys Help",
+      "url": "https://ansyshelp.ansys.com/public/account/secured?returnurl=%2FViews%2FSecured%2FGranta%2Fv261%2Fen%2FSelector%2Fsel_edu%2Fselection_stages_about.html",
+      "evidence_type": "official_help",
+      "supports": ["Tree, Limit, and Chart selection stages", "progressive candidate elimination"],
+      "limitations": ["Access may require an Ansys account."]
+    },
+    {
+      "id": "smdc-filters",
+      "product": "Simcenter Material Data Center",
+      "version": "2025",
+      "title": "Filter Materials",
+      "publisher": "Siemens Simcenter Material Data Center Help (hosted on Altair One)",
+      "url": "https://2025.help.altair.com/altairone/topics/materialsdb/materials_filter_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["left-side facets including Type, Producer, Provider, and Software"],
+      "limitations": ["Observed facets do not imply that this platform should hardcode the same categories."]
+    },
+    {
+      "id": "smdc-compare",
+      "product": "Simcenter Material Data Center",
+      "version": "2025",
+      "title": "Compare Materials",
+      "publisher": "Siemens Simcenter Material Data Center Help (hosted on Altair One)",
+      "url": "https://2025.help.altair.com/altairone/topics/materialsdb/materials_compare_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["side-by-side comparison of material properties and plots", "multi-material comparison workflow"],
+      "limitations": ["The target platform must preserve condition, source, and unit semantics in its own comparison model."]
+    },
+    {
+      "id": "smdc-review",
+      "product": "Simcenter Material Data Center",
+      "version": "2025",
+      "title": "Material data review",
+      "publisher": "Siemens Simcenter Material Data Center Help (hosted on Altair One)",
+      "url": "https://2025.help.altair.com/altairone/topics/materialsdb/material_data_review_r.htm",
+      "evidence_type": "official_help",
+      "supports": ["separate data review workflow", "review state distinct from data editing"],
+      "limitations": ["This platform's review roles and required validation policy remain product decisions."]
+    },
+    {
+      "id": "smdc-version-control",
+      "product": "Simcenter Material Data Center",
+      "version": "2025",
+      "title": "Version Control",
+      "publisher": "Siemens Simcenter Material Data Center Help (hosted on Altair One)",
+      "url": "https://2025.help.altair.com/altairone/topics/materialsdb/version_control_dataedit_t.htm",
+      "evidence_type": "official_help",
+      "supports": ["versioned material data edits", "rollback represented through version history"],
+      "limitations": []
+    },
+    {
       "id": "simcenter-material-modeler-2026",
       "product": "Simcenter Material Modeler",
       "version": "2026.0 announcement",

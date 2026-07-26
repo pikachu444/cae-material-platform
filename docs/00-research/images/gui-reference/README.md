@@ -5,6 +5,12 @@ Captured: `2026-07-19`
 Purpose: product planning and acceptance reference only. These images remain copyrighted by their
 respective publishers and are not application assets.
 
+This directory is permanent internal research evidence. Its official page URLs and the limits on
+what may be inferred from them are retained in the
+[product reference source catalog](../../product-reference-source-catalog.json). Keep these local
+screens and the catalog after the temporary incoming package is removed; do not mirror or publish
+the full source pages.
+
 ## Ansys Granta MI
 
 | Local file | Official source page |

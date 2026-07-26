@@ -1,54 +1,80 @@
 # CAE Material Platform
 
-시험 원본부터 재료 모델, CAE solver card까지 exact revision과 provenance를 유지하며 관리하는
-재료 정보·모델링 플랫폼입니다. 일반 사용자는 기존 Material을 먼저 검색하고 검토한 뒤 native
-solver card를 바로 내려받습니다. 적합한 결과가 없을 때만 시험 데이터를 Modeling으로 가져와
-처리·fitting·export합니다.
+재료를 찾고, 시험 데이터를 검토해 모델을 맞추고, 사용할 수 있는 솔버 카드를 받는 작업을 한
+곳에서 이어 가는 엔지니어링 플랫폼입니다. 일반 화면에서는 재료명, 물성, 곡선, 작업 상태처럼
+업무에 필요한 정보만 보입니다. 상세 식별값과 계산 근거는 필요할 때 Evidence와 Advanced에서
+확인합니다.
 
-> 현재 저장소의 수치 모델, fixture와 solver mapping은 공개식 기반의
-> `reference/non-production` 범위입니다. 승인된 재료값, 생산용 constitutive model 또는 solver
-> qualification을 대신하지 않습니다.
+> 저장소의 예제 데이터와 수치 모델은 `reference/non-production` 범위입니다. 실제 승인 재료값,
+> 생산용 재료 모델 또는 특정 솔버의 사용 승인을 대신하지 않습니다.
 
-![Materials 검색과 선택 문맥](docs/user-guide/images/current/materials-search-1440x900.png)
+![현재 Materials 검색 화면](docs/user-guide/images/current/materials-search-1440x900.png)
 
-![그래프 중심 Modeling Fit](docs/user-guide/images/current/modeling-fit-1440x900.png)
+![현재 Modeling Fit 화면](docs/user-guide/images/current/modeling-fit-1440x900.png)
+
+## 이 플랫폼에서 하는 일
+
+- **재료 찾기와 비교**: Database → Profile → Table → Folder → Record 구조를 따라가거나 검색으로
+  재료를 찾고, 물성·곡선·관련 카드를 비교합니다.
+- **시험 데이터로 모델 만들기**: 시험 데이터를 불러와 필요한 처리를 확인하고, 후보 모델을 그래프에서
+  비교한 뒤 선택한 결과를 카드 생성 단계로 전달합니다.
+- **검토와 배포**: 요청된 재료 데이터와 솔버 카드를 검토·승인하고, 승인된 결과만 사용자가 내려받게
+  합니다. 이 역할별 검토 화면은 아래의 승인된 구현 목표에 따라 순차적으로 연결 중입니다.
+
+## 역할별로 할 수 있는 일
+
+| 역할 | 주 업무 |
+| --- | --- |
+| **일반 사용자** | 재료 검색·조회·비교, 승인된 카드 다운로드, 시험 데이터 업로드 요청, 통계와 모델 맞춤, 카드 생성 요청 |
+| **Reviewer** | 일반 사용자 업무와 함께 재료 데이터·솔버 카드의 변경 요청, 승인, 게시. 현재 역할 전환과 검토 큐는 구현 예정입니다. |
+| **Administrator** | 데이터베이스 구조와 속성 관리, 자료 편집, 권한 관리, 검토·게시. 현재 관리 기능은 제공되며 3단 관리 화면은 구현 예정입니다. |
 
 ## 핵심 사용 흐름
 
 ### 기존 Material에서 solver card 받기
 
-`Materials 검색 → 결과 비교 → Material 상세 → CAE Cards → preview/download`
+`재료 검색 → 결과 비교 → 재료 상세 → 솔버 카드 → 미리보기/다운로드`
 
-- 이름·grade, family, 제조사/source, 수치 범위, solver와 release 상태로 검색합니다.
-- Browse Tree에서 `Database → Profile → Table → Folder → Record` 계층을 탐색합니다.
-- 상세의 `Overview | Properties | Curves | CAE Cards | Evidence`에서 Layout 기반 데이터를 봅니다.
-- 선택한 Material 문맥을 유지한 채 Abaqus `.inp` 또는 OpenRadioss `.rad`를 미리 보고 받습니다.
+1. `/materials`에서 이름 또는 grade로 검색하거나 Browse Tree를 엽니다.
+2. 결과와 상세에서 물성, 곡선, 관련 재료를 확인합니다.
+3. **CAE Cards**에서 사용할 카드를 미리 본 뒤 내려받습니다.
+4. 카드가 아직 없으면 선택한 재료 문맥을 유지한 채 Modeling으로 이동합니다.
 
 ### 시험 데이터에서 새 card 만들기
 
-`Modeling Data → Process → Fit → Export → Material Library 저장`
+`모델링 Data → Process → Fit → Export → 재료 라이브러리 저장`
 
-- Canonical Test Data JSON 또는 승인형 CSV/TSV/XLSX 입력을 사용합니다.
-- channel, quantity semantics와 원본/정규화 단위를 명시적으로 확인합니다.
-- graph-centered workbench에서 처리 단계, 후보 응답, residual과 extrapolation을 검토합니다.
-- Material Model IR을 거쳐 mapping 상태를 확인한 뒤 native card와 Neutral Material JSON을 받습니다.
+1. JSON 또는 CSV/TSV/XLSX 시험 데이터를 등록합니다.
+2. Process에서 처리 결과와 곡선을 확인합니다.
+3. Fit에서 후보 응답을 그래프 위에서 비교하고 사용할 결과를 명시적으로 선택합니다.
+4. Export에서 카드 미리보기와 전달 준비 상태를 확인합니다.
 
-## 주요 기능
+## 지금 가능한 일과 다음 화면
 
-- 검색, typed facet/range, saved Subset, 다중 Record·revision 비교
-- Database/Profile/Table/Folder/Record Tree와 keyboard 탐색
-- migration 없는 Table, Attribute, Layout, Subset, Link Type 관리
-- text, integer, scalar, boolean, date/time, quantity, table, curve, file, Record reference
-- exact-revision 양방향 Record link와 Material-to-card workflow
-- immutable raw/released artifact, stable identity/revision 분리, derived-data provenance
-- CSV/TSV/XLSX 및 versioned Canonical Test Data JSON import/export
-- explicit processing, fitting candidate·residual 비교, Material Model IR 승격
-- exact/transformed/approximated/unsupported solver mapping과 native card preview/download
-- role-gated Administration, Activity, audit·release·bundle 고급 흐름 (Activity review queue와 Administration 재설계는 예정)
+### 현재 화면
+
+현재 `/materials`는 재료 검색, Browse Tree, 상세, 곡선과 CAE card 미리보기·다운로드를 제공합니다.
+`/modeling`은 Data, Process, Fit, Export의 시험 데이터 처리와 그래프 중심 모델 맞춤 흐름을
+제공합니다. 현재 Activity는 최근 작업과 다운로드 이력을 보여 주며, Administration은 기존 관리
+기능을 제공합니다.
+
+### 승인된 구현 목표
+
+2026-07-26에 승인된 다음 화면 구조를 실제 제품에 순차 적용합니다. 이는 **현재 화면**의 주장이나
+대체 캡처가 아니라, 구현 시 지켜야 할 디자인·사용성 기준입니다.
+
+- Materials는 탐색 트리, 넓은 결과표, 선택한 재료 상세가 한 작업 공간에서 이어집니다.
+- Modeling은 조절 가능한 작은 곡선 목록과 얕은 제어 영역을 두고, 그래프를 가장 크게 유지합니다.
+- Activity는 사용자 요청과 Reviewer 승인 작업을 역할별로 보여 줍니다.
+- Administration은 객체 탐색기, 목록, 속성 편집기를 연결합니다.
+
+승인 근거와 반응형 비교 이미지는 [UX 설계 인덱스](docs/design-index.md)에서, 공개 제품 참고자료와
+이미지 출처는 [영구 참고자료 카탈로그](docs/00-research/product-reference-source-catalog.json)에서
+확인할 수 있습니다. 외부 제품의 화면·브랜드·내부 구조를 복사하지 않습니다.
 
 ## 5분 로컬 실행
 
-필수 도구는 Git, Docker Desktop(Compose 포함)입니다. 저장소 루트에서 실행합니다.
+필수 도구는 Git과 Docker Desktop(Compose 포함)입니다. 저장소 루트에서 실행합니다.
 
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml config --quiet
@@ -57,57 +83,20 @@ docker compose -f deploy/compose/docker-compose.demo.yml ps --all
 ```
 
 `postgres`와 `api`가 healthy이고 `migrate`, `reference-plugins`, `seed`가 0으로 종료되면
-<http://127.0.0.1:5173>을 엽니다. Demo user session은 자동으로 준비되며 API URL이나 토큰을 입력하지
-않습니다. API health는 <http://127.0.0.1:8000/api/v1/health>에서 확인할 수 있습니다.
+<http://127.0.0.1:5173>을 엽니다. Demo session은 자동으로 준비되며 별도 API 주소나 토큰 입력은
+필요하지 않습니다. 상태는 <http://127.0.0.1:8000/api/v1/health>에서 확인합니다.
 
-첫 확인 시나리오:
+처음에는 `DP780`을 검색해 재료 상세와 CAE Card를 살펴본 뒤, 필요한 경우 **Modeling → Data**에서
+시험 데이터를 등록해 보십시오.
 
-1. `/materials`에서 `DP780`을 검색합니다.
-2. 결과를 선택해 주요 물성과 대표 curve를 확인합니다.
-3. **CAE Cards**에서 OpenRadioss native text를 미리 봅니다.
-4. `.rad`를 내려받습니다.
-5. **Browse Tree**를 열어 같은 Record의 Related/Workflow/Evidence를 확인합니다.
-6. 카드가 없을 때만 **Modeling → Data**로 이동해 JSON 또는 CSV/XLSX를 등록합니다.
-
-종료는 다음 명령을 사용합니다. `-v`는 synthetic demo volume을 영구 삭제하므로 필요한 경우에만
+종료는 다음 명령을 사용합니다. `-v`는 synthetic demo volume을 삭제하므로 필요한 경우에만
 사용하십시오.
 
 ```powershell
 docker compose -f deploy/compose/docker-compose.demo.yml down
 ```
 
-Windows/WSL 설치와 장애 진단은 [Compose 실행 가이드](deploy/compose/README.md)를 참고하십시오.
-
-## 전역 화면
-
-| 화면 | 역할 |
-| --- | --- |
-| `Materials` | 검색·필터·비교, Browse Tree, 5영역 datasheet, 직접 card 다운로드 |
-| `Modeling` | Data, Process, Fit, Export와 Advanced Recipe/Batch/JSON |
-| `Activity` | 최근 browser-local Modeling session·card preview/download 이력과 기존 technical review workspace link; 실제 검토·조치 queue는 예정 |
-| `Administration` | 현재 관리 기능; 목표 object tree·list·property editor 재설계는 예정 |
-
-기존 `/database`, `/catalog/*`, `/datasets/*` route는 deep-link 호환을 위해 남아 있지만 일반 사용자의
-주 메뉴는 아닙니다. UUID, hash, full revision, classification, Mapping Profile JSON과 provenance graph는
-Evidence, Advanced 또는 Administration에서 확인합니다.
-
-## 구조
-
-```text
-apps/web            React/Vite engineering workbench
-apps/api            protected HTTP application
-backend/src/cmp     domain, service, adapters, workers and tools
-contracts           OpenAPI, event, JSON and IR contracts
-plugins             isolated reference/production plugin boundaries
-deploy              local Compose and deployment assets
-docs                product, domain, architecture, guides and evidence
-tests               unit, contract, integration, migration and security tests
-```
-
-핵심 경계는 PostgreSQL의 tenant/RLS·immutable revision 모델, content-addressed artifact storage,
-durable jobs, isolated plugins, Material Model IR입니다. 자세한 설계는
-[시스템 아키텍처](docs/05-architecture/system-architecture.md)와
-[canonical domain model](docs/03-domain/canonical-domain-model.md)을 참고하십시오.
+Windows/WSL 설치와 문제 해결은 [Compose 실행 가이드](deploy/compose/README.md)를 참고하십시오.
 
 ## 개발과 검증
 
@@ -122,21 +111,21 @@ npm run test:web
 uv run cmp-check-user-guide --root .
 ```
 
-전체 명령과 PostgreSQL gate는 [개발 가이드](DEVELOPMENT.md), 테스트 범위는
-[테스트 전략](docs/14-testing/test-strategy.md)을 따릅니다. 구현을 변경하기 전 [AGENTS.md](AGENTS.md)와
-해당 backlog Task를 먼저 읽으십시오.
+전체 명령은 [개발 가이드](DEVELOPMENT.md), 사용자 화면 확인 방법은
+[사용자 가이드](docs/user-guide/index.md)를 따릅니다. 개발 변경 전에는 [AGENTS.md](AGENTS.md)와
+해당 backlog Task를 읽으십시오. 작업 이력은
+[implementation history](docs/13-delivery/implementation-history.md)에 보관합니다.
 
 ## 문서
 
-- [문서 포털과 상태 분류](docs/README.md)
 - [사용자 가이드](docs/user-guide/index.md)
 - [관리자 가이드](docs/admin-guide/index.md)
+- [제품 방향과 UX 기준](docs/01-product/product-vision.md)
+- [UX 설계 인덱스](docs/design-index.md)
+- [공식 제품 참고자료와 이미지 출처](docs/00-research/product-reference-source-catalog.json)
 - [요구사항](docs/02-requirements/requirements.md)
-- [revision과 provenance](docs/04-provenance/revision-and-provenance.md)
-- [API·event·job 계약](docs/08-contracts/api-events-jobs.md)
-- [security·tenancy·audit](docs/11-security/security-tenancy-audit.md)
 - [현재 구현 상태](IMPLEMENTATION_STATUS.md)
 - [backlog](docs/13-delivery/backlog.md)
 
-이 저장소는 private 개발 저장소입니다. 실제 기밀 시험 데이터, production credential 또는 승인되지
-않은 solver 자료를 commit하지 마십시오.
+이 저장소는 private 개발 저장소입니다. 실제 기밀 시험 데이터, production credential 또는
+승인되지 않은 solver 자료를 commit하지 마십시오.

@@ -49,7 +49,7 @@ confirmation, multiple filled Material Detail delivery commands and any horizont
 ## Direct reference comparison
 
 The implementation was compared directly with
-`docs/00-research/images/gui-reference/material-modeler/modeler-create-cae-card.png`,
+`docs/00-research/images/gui-reference/modeler-create-cae-card.png`,
 `modeler-cae-card-details.png`, and the selected-Material/datasheet references already registered by
 DUI-02. It follows their compact target properties, dominant native card text, ordinary property
 rows, preview-before-delivery progression and one local command hierarchy. Product-specific
