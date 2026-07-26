@@ -79,10 +79,10 @@ This authoritative annex retains the component-specific contract. Each compact r
 
 | ID / component or field | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `V-01` selected candidate / Fit metric ledger | Keep a saved candidate and its fit metric visibly distinct from validation. | Top ledger of Validate and Review / Release, adjacent to governed state. | Any Modeling Validate or Review / Release stage. | Exact session Processing Output and selection refs; server Fit evidence. | Explicit saved candidate. | Candidate/process/material context change clears validation and all downstream current pointers. | not configured, fit-evidence-only, stale. | Preserve immutable candidate history and return to Fit to make a new selection. |
+| `V-01` selected candidate / Fit metric ledger | Keep a saved candidate and its fit metric visibly distinct from validation. | Top ledger of the governed Advanced or Activity surface, adjacent to governed state. | A governed validation, review, or release action is opened from Advanced or Activity. | Exact session Processing Output and selection refs; server Fit evidence. | Explicit saved candidate. | Candidate/process/material context change clears validation and all downstream current pointers. | not configured, fit-evidence-only, stale. | Preserve immutable candidate history and return to Fit to make a new selection. |
 | `V-02` pinned validation inputs | Select Template and Dataset Selection revisions for one non-production OpenRadioss plan without substituting a model/card from another candidate. | Compact Validate control area under the ledger. | Metal session whose selection ID matches the server model's calibration-candidate evidence and whose IR/card refs match exact revisions. | Existing API list responses, model calibration evidence and session exact refs; no default item. | Saved candidate; exact candidate-linked Material Model IR and Solver Card; explicit Template and Dataset Selection choices. | New plan dispatches `CHANGE_VALIDATION_TARGET`; later source change clears validation/review/release pointers. | blocked, ready, pinning, pinned, not supported, error. | Retain each selected artifact and name the unavailable adapter/service/input; retry after correction. Never substitute another model from the same State. |
 | `V-03` validation job and result | Submit and evaluate a supported reference runner, then expose the result verdict and holdout-independence separately from fit. | Beside the pinned plan rather than in Fit or Export. | A pinned reference plan exists. | Separate exact `validationPlan` and `validation` result session refs plus immutable plan/run/result API records. | Pinned plan; supported reference runner. | Changing validation target clears current plan/result and stales review; no historical run is mutated. | not run, queued, running, passed, failed, not evaluated, not supported. | Restore both plan and result by exact IDs after remount; keep run evidence and collect, evaluate, retry or revise the plan as the returned state allows. |
-| `R-01` review/release command ledger | State Submit, Request changes, Approve and Release independently and prevent any inferred governance event. | Below validation ledger in the shared governed stage. | Validate or Review / Release stage. | Session stale state and authoritative review-package/release-policy capability. | Immutable candidate package for Submit; submitted request for decision; passed result and approved package for Release. | Source change stales review and clears release current pointer without changing immutable history. | not configured, not run, in review, changes requested, approved, released, stale. | Link exact available context to Activity/governed harness; do not fabricate digest, policy or fallback command. |
+| `R-01` review/release command ledger | State Submit, Request changes, Approve and Release independently and prevent any inferred governance event. | Below the validation ledger in a governed Advanced or Activity surface. | A review or release action is opened from Advanced or Activity. | Session stale state and authoritative review-package/release-policy capability. | Immutable candidate package for Submit; submitted request for decision; passed result and approved package for Release. | Source change stales review and clears release current pointer without changing immutable history. | not configured, not run, in review, changes requested, approved, released, stale. | Link exact available context to Activity/governed harness; do not fabricate digest, policy or fallback command. |
 
 ## 1. Product character
 
@@ -382,9 +382,10 @@ Plot requirements:
 - cursor coordinates and selected point/range appear in status bar;
 - toolbar supports Zoom, Pan, Fit view, Select range and Export image.
 
-### 6.5 Current-task inspector
+### 6.5 Current-task control band
 
-Only current-task controls are shown.
+Only current-task controls are shown in the shallow graph-adjacent band or an on-demand disclosure;
+there is no permanent inspector column.
 
 Process examples:
 
@@ -413,6 +414,24 @@ Solver/law/unit/mapping options 300–360 px | Native card preview flexible
 ```
 
 Download is the task-primary command. Mapping warnings remain visible. Detailed mapping JSON and revision IDs are under Advanced Evidence.
+
+## 6.7 Canonical component contracts (UXC-00R target)
+
+These are target contracts; they do not claim the pending Administration/Activity redesign or Reviewer
+role is implemented.
+
+| Component | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Materials explorer/result/datasheet | find, compare and assess a material without leaving context | continuous Tree/filter → dominant results/datasheet → optional context | Materials | one scoped Material query plus selected record | permitted scope | query/selection changes replace only current view | loading, empty, selected, unavailable, error | retain query/selection; retry or broaden search |
+| Administration object tools | configure schema and preview its user effect | object tree → list/grid → property editor/live record preview | Administrator | revisioned catalog definitions | Administrator permission and valid draft | draft edits invalidate preview only | clean, dirty, validating, blocked, saved, error | keep draft; expose field error; reload or save new revision |
+| Activity action queue | resume work or decide a review action | compact queue with row-specific action | User items; Reviewer review items; Administrator all items | action/review/job projection | readable exact context | source changes mark item stale, never erase history | attention, blocked, in-review, changes-requested, complete, error | open exact context, retry or request changes |
+| Role-gated command | expose only the action a role may take | command bar, selected row, or governed action disclosure | role and object state permit action | service authorization plus database enforcement | User/Reviewer/Administrator grant and state prerequisites | action input changes mark downstream pointers stale | hidden, available, disabled-with-reason, running, denied | preserve context; explain prerequisite or request review/access |
+
+Role target: **User** searches/views/downloads, requests upload review, processes/fits and requests
+card review; **Reviewer** additionally reviews material/card data, requests changes, approves and
+publishes downloads; **Administrator** has all access/edit/configure/review/approve actions. Current
+implementation exposes Administrator/User only; Reviewer is pending. Internal RBAC/RLS remains
+extensible and is not a normal-user vocabulary.
 
 ## 7. Administration workspace
 

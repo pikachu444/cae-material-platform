@@ -1,14 +1,15 @@
-# Administrator/User 및 기능 권한 사용법
+# 제품 역할 및 접근 상태
 
-서비스 화면에는 복잡한 내부 역할 대신 `Administrator`와 `User`만 표시됩니다. 실제 API와
-PostgreSQL은 기존 세부 permission, organization/project 격리, classification 정책을 그대로
-적용합니다. 따라서 화면을 단순화해도 데이터 경계가 느슨해지지 않습니다.
+제품 목표 역할은 `User`, `Reviewer`, `Administrator`입니다. 현재 화면은 `Administrator`와 `User`
+만 제공하며, `Reviewer`는 향후 접근 migration에서 추가됩니다. User는 재료를 찾고 보고 내려받고,
+업로드 검토·처리·fitting·card 검토를 요청합니다. Reviewer는 User 작업에 더해 material/card를 검토하고
+변경 요청·승인·다운로드 publish를 수행합니다. Administrator는 모든 접근·편집·구성·검토·승인을 수행합니다.
 
 ## 내 권한 확인
 
 1. Docker demo를 실행하고 [Administration → Users & access](http://127.0.0.1:5173/administration/access)를 엽니다.
 2. demo에서는 workspace가 자동으로 준비됩니다. 일반 배포에서는 관리자 계정으로 로그인합니다.
-3. **My access**에서 제품 역할과 다음 다섯 기능의 상태를 확인합니다.
+3. **My access**에서 현재 제품 역할과 다음 기능의 상태를 확인합니다.
 
 | 기능 권한 | 허용되는 제품 작업 |
 | --- | --- |
@@ -18,10 +19,10 @@ PostgreSQL은 기존 세부 permission, organization/project 격리, classificat
 | Model approval | review 결정과 release 발행 |
 | Solver Card export | mapping preflight, native card, bulk package 생성 |
 
-기존 상세 role binding과 resource/action/scope enforcement는 서버 내부에서 같은 제품 권한으로
-안전하게 투영되지만 일반 화면에는 이 정책 용어를 표시하지 않습니다.
+제품에서 부여된 역할과 기능에 따라 사용할 수 있는 화면과 동작이 달라집니다. 사용할 수 없는
+기능은 표시되지 않거나, 검토 요청 또는 관리자 문의 방법을 안내합니다.
 
-## User 권한 부여
+## 현재 User 권한 부여
 
 이 작업은 Administrator만 할 수 있습니다.
 
@@ -29,11 +30,11 @@ PostgreSQL은 기존 세부 permission, organization/project 격리, classificat
 2. 제품 역할을 `User`로 선택합니다.
 3. 허용할 기능만 체크합니다. 예를 들어 solver card만 내려받을 사용자는 **Solver Card
    export**만 선택할 수 있습니다.
-4. **Create assignment**를 누릅니다. 운영 identity directory와 scope/classification 정책은 내부
-   배포 설정에서 적용되며 이 일반 제품 form에는 노출되지 않습니다.
+4. **Create assignment**를 누릅니다. 사용자는 새로 부여된 역할에서 허용된 기능만 볼 수 있습니다.
 
-부여하지 않은 기능의 API는 403으로 거부됩니다. 화면에서 버튼을 숨기는 것만으로 권한을
-구현하지 않으며, 서버의 permission 판정과 PostgreSQL RLS가 함께 적용됩니다.
+Reviewer를 현재 화면에서 선택할 수 있다고 가정하지 마십시오. 기능을 쓸 수 없으면 화면은 다음
+행동(검토 요청 또는 관리자 문의)을 안내해야 하며, 기존 작업 문맥은 유지합니다. 허용되지 않은
+동작은 화면에서 사용할 수 없으며 실행할 수도 없습니다.
 
 ## Administrator와 권한 회수
 

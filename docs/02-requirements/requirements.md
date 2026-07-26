@@ -217,7 +217,8 @@
 | `FR-ACC-002` | schema 관리, catalog 편집, processing/calibration, model 승인과 card export를 feature grant로 제어해야 한다. | grant별 positive/negative API·UI test가 통과한다. |
 | `FR-ACC-003` | 기존 세부 permission과 RLS는 feature grant의 내부 enforcement로 유지해야 한다. | 기존 token과 tenant isolation regression이 유지된다. |
 | `FR-ACC-004` | 권한 설명은 작업 중심이어야 하며 보안 foundation을 제품 핵심 흐름보다 앞세우지 않아야 한다. | README와 UI가 가능한 작업과 필요한 grant를 먼저 설명한다. |
-| `FR-ACC-005` | 초기 관리자 UI는 Administrator/User와 기능 토글만 표시하되 내부 권한 모델은 resource/action/scope 확장이 가능해야 한다. | 사용자가 policy vocabulary를 입력하지 않아도 기본 권한을 관리하고, 새 세부 scope를 schema rewrite 없이 추가할 수 있다. |
+| `FR-ACC-005` | 제품 역할 UI는 User, Reviewer, Administrator 작업 preset을 제공하되 내부 enforcement는 resource/action/scope 확장이 가능해야 한다. | 사용자가 policy vocabulary를 입력하지 않아도 역할별 작업을 관리하고, 새 세부 scope를 schema rewrite 없이 추가할 수 있다. |
+| `FR-ACC-006` | 제품 역할 목표는 User, Reviewer, Administrator로 제공해야 한다. User는 검색·조회·다운로드와 upload/review request, processing/fitting/card request를 수행하고, Reviewer는 이를 포함해 material/card 변경 요청·승인·publish를 수행하며, Administrator는 모든 접근·편집·구성·검토·승인을 수행한다. | 현재 Administrator/User 구현은 Reviewer가 pending임을 명시하며, 이후 migration은 service와 PostgreSQL authorization을 함께 검증한다. |
 | `FR-UX-001` | GUI 변경 Task는 task-oriented user/admin guide와 deterministic screenshot을 함께 갱신해야 한다. | guide manifest가 stale/missing capture를 차단한다. |
 | `FR-UX-002` | Dashboard에서 Catalog 탐색, 시험 처리와 card 생성 시작점을 제공해야 한다. | E2E가 각 시작점에서 실제 workbench까지 이동한다. |
 | `FR-UX-003` | API error를 domain action과 해결 방법으로 표시해야 한다. | 사용자가 trace ID와 수정 가능한 입력을 확인한다. |
@@ -227,6 +228,8 @@
 | `FR-UX-007` | Material Modeling은 plot을 유지한 채 Import → Map → Prepare → Fit → Extrapolate → Card 단계를 한 workbench에서 완료해야 한다. | 사용자가 module route와 UUID를 복사하지 않고 raw/processed/fitted/extrapolated overlay와 option panel을 조작한다. |
 | `FR-UX-008` | Dashboard는 global material search, browse-by-family, recent/favorite records, modeling sessions, jobs/reviews와 create/import action을 제공해야 한다. | module inventory, connection setup 또는 infrastructure status가 primary content에 나타나지 않는다. |
 | `FR-UX-009` | 제품 capability 완료는 clean browser journey로 검증해야 하며 DB/API/UI checkbox만으로 완료 처리할 수 없다. | home에서 시작한 Playwright가 재료 탐색부터 Recipe, Neutral과 두 solver card download 및 linked datasheet 복귀까지 수행한다. |
+| `FR-UX-010` | Materials, Administration, Activity 및 role-gated command의 visible component는 purpose, placement, visible_when, source, requires, invalidates, states, error_recovery를 단일 UI-spec에 가져야 한다. | UI-spec contract review가 workflow consequence 없는 field와 normal-path technical jargon을 제거·Advanced/Evidence 이동·재설계 중 하나로 판정한다. |
+| `FR-UX-011` | production React/CSS 전 major workspace redesign은 exact local reference comparison, responsive prototype, measured region ratios 및 product-owner approval을 선행해야 한다. | visual Task evidence에 참조 파일명, prototype viewport와 명시적 승인 기록이 모두 있다. |
 
 ## 3. 비기능 요구사항
 

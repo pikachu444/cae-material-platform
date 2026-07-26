@@ -21,7 +21,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 29
+    assert report.capture_count == 26
     assert report.archived_capture_count >= 100
     assert report.historical_capture_script_count == 12
     assert report.navigation_count == 3
@@ -62,8 +62,8 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
     ]
 
     uxc03b_source = "e7752dc"
-    uxc06c1_source = "47a8d52"
-    assert manifest["source_commit"] == uxc06c1_source
+    uxc06c2_source = "47a8d52"
+    assert manifest["source_commit"] == "fa213ca"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {
@@ -71,9 +71,8 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for provenance in manifest["capture_provenance"]
     } == {
         "8ce8b89",
-        "1ee4f2a",
         uxc03b_source,
-        uxc06c1_source,
+        uxc06c2_source,
     }
     uxc03b_commands = [
         provenance["command"]
@@ -85,14 +84,14 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for command in uxc03b_commands
     )
     assert any(
-        "targeted live Playwright UXC-06C1 Export capture" in provenance["command"]
+        "targeted live Playwright UXC-06C2 Export capture" in provenance["command"]
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == uxc06c1_source
+        if provenance["source_commit"] == uxc06c2_source
     )
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "recent-browser-local-solver-card-delivery"
-    assert "DUI-08 pending" in activity["fixture"]
+    assert "DUI-08 review/action queue pending" in activity["fixture"]
     for capture_id in (
         "modeling-export-1366",
         "modeling-export-1440",
@@ -101,9 +100,9 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         capture = captures[capture_id]
         assert (
             capture["workflow"]
-            == "uxc-06c1-exact-target-preflight-and-stateless-native-preview"
+            == "uxc-06c2-exact-target-preflight-and-atomic-delivery"
         )
-        assert "Deliver is unavailable pending UXC-06C2" in capture["fixture"]
+        assert "one immutable card/receipt" in capture["fixture"]
 
 
 def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(

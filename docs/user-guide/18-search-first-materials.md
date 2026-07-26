@@ -13,11 +13,10 @@
 ## 기존 Material과 CAE card 찾기
 
 1. `/materials`에서 이름, grade, code 또는 family를 검색합니다.
-2. 현재는 server-defined `Material class` facet과 server-side sort/page로 전체 governed catalog를 좁힙니다.
-   Provider, Evidence source, Validation availability, solver readiness와 condition-aware property
-   range는 각각 별도의 server projection이 준비될 때까지 `Not projected` 또는 `Not configured`으로
-   표시하며 서로 합치지 않습니다. Yield는 모든 family에 공통으로 표시하거나 필터하지 않습니다.
-3. 결과 행을 한 번 선택해 오른쪽 Context의 exact revision, family와 workflow 지원 여부를 확인합니다. 행에서
+2. 현재는 `Material class`, 정렬과 페이지를 사용해 결과를 좁힙니다. 공급자, 근거, 검증 가능 여부,
+   solver 준비 상태와 조건별 범위는 신뢰할 수 있는 정보가 준비될 때까지 사용할 수 없습니다. Yield는
+   모든 재료에 공통으로 표시하거나 필터하지 않습니다.
+3. 결과 행을 한 번 선택해 오른쪽 Context의 재료 계열과 다음 작업 가능 여부를 확인합니다. 행에서
    `Enter`를 누르거나 두 번 클릭하면 엽니다.
 4. Material은 같은 작업영역의 중앙 datasheet에 열립니다. 왼쪽 Navigator는 유지되며
    `Overview | Properties | Curves | CAE Cards | Evidence`를 검토할 수 있습니다.
@@ -49,8 +48,8 @@ Context를 기본으로 접고, 1440/1920 px에서는 각각 264/288 px로 엽�
 Context는 260–400 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에
 저장됩니다. 세 pane은 서로 독립적으로 스크롤합니다.
 
-Find의 total, page rows, Material class facet과 sort는 하나의 server-scoped query 응답에서 옵니다. 각 행의
-detail, graph, card를 미리 조회하지 않으며 exact datasheet는 사용자가 열 때만 조회합니다. 정렬 상태는
+Find의 전체 수, 현재 행, Material class 필터와 정렬은 서로 같은 결과를 보여 줍니다. 각 행의
+상세, graph, card는 사용자가 열 때 확인합니다. 정렬 상태는
 각 sortable column의 table header가 `aria-sort`로 알립니다.
 
 검색어, Material class, server sort/page, Browse/Subsets mode와 선택 Material은
@@ -81,12 +80,9 @@ detail, graph, card를 미리 조회하지 않으며 exact datasheet는 사용�
 4. Fit의 한 표에서 candidate별 상태, 오차, 적용 범위와 경고를 비교하고 같은 그래프의
    response, residual, tangent modulus와 observed/extrapolated 경계를 확인합니다.
 5. 하나의 candidate를 명시적으로 선택하고 이유를 기록합니다. 추천 결과는 선택을 대신하지 않습니다.
-6. Validate와 Review / Release는 현재 policy/prerequisite 상태를 보여 줍니다. Validation run 또는
-   review/release event가 없으면 완료로 표시하지 않습니다.
-7. Export는 current session의 exact Material, Material State, Test Data, Mapping Profile 및
-   Processing Output revision이 모두 일치할 때만 해당 material family의 delivery adapter를 엽니다.
-   adapter는 다시 서버의 mapping 및 target 검사를 수행합니다. 하나라도 stale·다른 revision·검증되지
-   않은 output이면 안전하게 Blocked로 남고 다른 세션 output을 대신 사용하지 않습니다.
+6. Export는 현재 작업에서 선택하고 저장한 재료, 상태, 시험 데이터 및 모델 결과가 서로 맞을 때만
+   해당 재료군의 전달 옵션을 엽니다. 내보내기 전에 필요한 값과 대상 조건을 다시 확인합니다. 하나라도
+   최신이 아니거나 현재 작업과 맞지 않으면 **Blocked**로 남으며, 다른 작업의 결과로 대신 내보내지 않습니다.
 
 `Import JSON / CSV / XLSX`에서 CSV/XLSX의 `Open governed mapping workbench`를 선택하면
 `/datasets/import`가 최근 Modeling session의 exact Material State를 복원합니다. 여기서 immutable
@@ -111,7 +107,8 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
 ### Modeling 화면 읽기
 
 - 상단 command bar의 `New session | Save draft | Undo | Redo`는 현재 보정 세션에 작용하고,
-  `Data | Process | Fit | Export` stepper는 같은 세션의 일반 작업 단계를 전환합니다. Validate와 Review는 Advanced 또는 Activity에서 엽니다.
+  `Data | Process | Fit | Export` stepper는 같은 세션의 일반 작업 단계를 전환합니다. 검증과
+  review/release는 Advanced 또는 (향후) Activity queue의 별도 작업입니다.
   단계 이름만 간결하게 보이며, 준비 상태와 다음 행동은 hover/focus 설명과 접근성 레이블로 확인합니다. 단계와 material family는
   URL에, 선택 curve·step·plot view·settings 상태는 clear 가능한 Modeling session v3에 저장됩니다.
   새 session은 항상 Data에서 시작하며, 진행 중이던 Material/State/Test Data/Mapping/Output
@@ -130,7 +127,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   선택한 식의 parameter와 bounds는 disclosure로 열 수 있고, 선택 이유는 수치 preview를 다시
   계산하지 않는 decision evidence입니다. 추천 변경은 선택을 바꾸지 않으며, reason만 입력해도
   선택된 것으로 처리하지 않습니다.
-- Export dock은 current exact source가 있을 때만 `Model → mapping preflight → native card` 순서를 보여 줍니다. solver 이름·버전과
+- Export dock은 저장한 현재 source/model이 확인될 때만 `Model → mapping preflight → native card` 순서를 보여 줍니다. solver 이름·버전과
   `kg·m·s (SI)` unit system을 읽은 뒤 preflight를 실행합니다. unsupported 항목은 생성을 막고,
   approximated/ignored 항목은 바로 옆 확인을 요구합니다. 생성 뒤 native ASCII card와 mapping
   report를 내려받거나 Material의 CAE Cards로 이동할 수 있습니다.
@@ -141,7 +138,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   재계산 또는 재생성을 요구합니다. source revision과 Recipe step을 바꾼 뒤에는 command bar의 Undo/Redo로 draft를 되돌릴 수 있습니다.
   브라우저를 닫을 때 미저장 변경이 있으면 이탈 경고가 한 번 표시되며, `New session`은 확인 후
   비수치 UI session 상태만 초기화합니다. Preview는 계속 `Preview only · not committed`로 표시되어
-  immutable Processing Output 또는 reviewed model과 혼동되지 않습니다.
+  저장한 처리 결과 또는 선택·저장한 모델과 혼동되지 않습니다.
 - 저장 시 다른 사용자가 같은 Recipe head를 먼저 갱신했다면 조용히 덮어쓰지 않습니다. 화면의
   `Reload current`, `Keep local draft as new revision`, `Cancel` 중 하나를 선택해 stale exact-revision
   충돌을 명시적으로 해결합니다.
@@ -197,14 +194,13 @@ Data/Process/Fit/Export의 세 viewport 모두에서 72% hard gate를 적용합�
 
 ### Modeling 단계·해상도 검수 화면
 
-아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Validate → Export를
+아래 화면은 같은 exact DP780 입력을 선택한 브라우저 session에서 Data → Process → Fit → Export를
 전환해 각 단계의 비동기 preview가 끝난 뒤 캡처했습니다. Data는 Library, Local file,
 Test Data JSON을 한 ribbon에서 고르고 등록 전에 같은 그래프로 확인합니다. Process는 원본과 선택
 단계를 겹쳐 보고 preview와 immutable output commit을 명시적으로 나눕니다. Fit은 네 candidate를
-한 표와 세 그래프 보기로 비교하고 명시적인 선택 결과 저장을 제공합니다. Validate는 candidate-compatible
-adapter와 immutable review package가 없을 때 `Not supported`/`Not configured`로 닫히며 Fit을
-검증이나 승인으로 바꾸지 않습니다. Export는 exact
-Material State에서 Neutral, mapping preflight와 native-card 전달을 한 dock에 연결합니다.
+한 표와 세 그래프 보기로 비교하고 명시적인 선택 결과 저장을 제공합니다. 검증과 review/release는
+일반 단계가 아니라 Advanced/Activity의 별도 작업입니다. Export는 저장한 source/model을 확인한 뒤
+Neutral, mapping preflight와 native-card 전달을 한 dock에 연결합니다.
 
 UXC-02 live Compose recapture는 New session의 pin-free Data-first 상태와, exact Test Data·Mapping
 Profile·Processing Output을 다시 선택한 Data → Process → Fit → Export 흐름을 분리해 검증합니다.
@@ -224,6 +220,5 @@ UXC-01 Materials Search 이미지는 web과 API를 같은 코드 커밋 `a486644
 | Data | ![Data 1366](images/current/modeling-data-1366x768.png) | ![Data 1440](images/current/modeling-data-1440x900.png) | ![Data 1920](images/current/modeling-data-1920x1080.png) |
 | Process | ![Process 1366](images/current/modeling-process-1366x768.png) | ![Process 1440](images/current/modeling-process-1440x900.png) | ![Process 1920](images/current/modeling-process-1920x1080.png) |
 | Fit | ![Fit 1366](images/current/modeling-fit-1366x768.png) | ![Fit 1440](images/current/modeling-fit-1440x900.png) | ![Fit 1920](images/current/modeling-fit-1920x1080.png) |
-| Validate / Review | ![Validate 1366](images/current/modeling-validation-1366x768.png) | ![Validate 1440](images/current/modeling-validation-1440x900.png) | ![Validate 1920](images/current/modeling-validation-1920x1080.png) |
 | Export | ![Export 1366](images/current/modeling-export-1366x768.png) | ![Export 1440](images/current/modeling-export-1440x900.png) | ![Export 1920](images/current/modeling-export-1920x1080.png) |
 | UXC-02 session shell | ![Session 1366](images/current/modeling-session-1366x768.png) | ![Session 1440](images/current/modeling-session-1440x900.png) | ![Session 1920](images/current/modeling-session-1920x1080.png) |

@@ -52,9 +52,6 @@ CURRENT_CAPTURE_OUTPUTS = (
     "modeling-fit-1366x768.png",
     "modeling-fit-1440x900.png",
     "modeling-fit-1920x1080.png",
-    "modeling-validation-1366x768.png",
-    "modeling-validation-1440x900.png",
-    "modeling-validation-1920x1080.png",
     "modeling-export-1366x768.png",
     "modeling-export-1440x900.png",
     "modeling-export-1920x1080.png",
@@ -750,29 +747,6 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
         page.context.close()
 
 
-def _capture_modeling_validation(browser: Browser, base_url: str, output: Path) -> None:
-    """Capture the fail-closed governed stage without manufacturing validation/review evidence."""
-    for width, height in VIEWPORTS:
-        page = _new_page(browser, base_url, width, height)
-        page.goto(f"{base_url}/modeling?stage=validate&family=metal")
-        page.get_by_role(
-            "heading", name="Validation, review and release", exact=True
-        ).wait_for(timeout=30_000)
-        page.get_by_text("Not configured — save an explicit candidate first", exact=True).wait_for(
-            timeout=30_000
-        )
-        for command in (
-            "Submit · Not configured",
-            "Request changes · Not run",
-            "Approve · Not run",
-            "Release · Not configured",
-        ):
-            if not page.get_by_role("button", name=command, exact=True).is_disabled():
-                raise RuntimeError(f"governed command must be fail-closed: {command}")
-        _capture(page, output / f"modeling-validation-{width}x{height}.png", width, height)
-        page.context.close()
-
-
 def _capture_supporting_screens(browser: Browser, base_url: str, output: Path) -> None:
     width, height = 1440, 900
     page = _new_page(browser, base_url, width, height)
@@ -875,7 +849,6 @@ def main() -> int:
                 _capture_solver_delivery(browser, args.base_url, output)
                 _capture_modeling_session_shell(browser, args.base_url, output)
                 _capture_modeling(browser, args.base_url, output)
-                _capture_modeling_validation(browser, args.base_url, output)
                 _capture_supporting_screens(browser, args.base_url, output)
             finally:
                 browser.close()

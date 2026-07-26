@@ -76,17 +76,15 @@ Fit → Export를 하나의 workbench에서 완료해야 한다.
 
 | 역할 | 주 책임 | 생성/판정하는 항목 |
 | --- | --- | --- |
-| Test Engineer | 시험 계획·시편·조건·장비·원본 등록 | Campaign, Specimen, Test Run, Raw Asset, 시험 QC |
-| Lab Data Steward | 메타데이터·단위·식별자 품질 관리 | Dataset mapping, metadata correction revision, data-quality issue |
-| Statistical Analyst | 반복시험 산포·outlier candidate·불확도 분석 | Statistical Analysis Run, QC Observation, outlier recommendation |
-| Material Modeler | 전처리 recipe, 구성모델 선택, calibration | Processed Dataset, Calibration Run, Material Model IR revision |
-| CAE Analyst | 대상 solver mapping, card 생성, virtual specimen 검증 | Solver Card, Validation Plan/Run, mapping acceptance |
-| Domain Reviewer | 통계·구성모델·검증 근거 기술 검토 | Review decision, requested change |
-| Release Approver | 조직 정책에 따른 최종 발행 승인 | Released Material Model Package |
-| Material Data Consumer | 승인된 재료모델 검색·사용 | 다운로드·사용 기록; 데이터 변경 권한 없음 |
-| Plugin Maintainer | 시험·모델·solver 확장 구현·서명 | Plugin Package, manifest, compatibility evidence |
-| Platform Administrator | 사용자·정책·runner·보관·운영 관리 | Identity mapping, policy, runner registration |
-| Auditor | 전체 이력과 승인 근거 열람 | read-only audit/provenance report |
+| User | 재료 검색·조회·다운로드, upload review 요청, 처리·fitting·card review 요청 | 사용자 작업과 요청 상태 |
+| Reviewer (target; pending) | User 작업 + material/card 검토, 변경 요청, 승인·publish | review decision, requested change, published download |
+| Administrator | 모든 접근·편집·구성·검토·승인 | access/configuration and governed actions |
+
+현재 구현은 Administrator/User만 화면에 노출하며 Reviewer는 pending이다. detailed domain and
+internal responsibilities (시험, data stewardship, analysis, modeler, CAE, plugin, platform, audit)는
+product-facing role names가 아니라 내부 권한·업무 책임으로 유지한다. 이후에는 material review와
+solver-card review를 별도 specialization으로 나눌 수 있다. Internal RBAC/RLS와 organization/project
+enforcement는 그 migration 전후에도 유지한다.
 
 한 사용자가 여러 역할을 가질 수 있지만 production release에서는 작성자와 최종 승인자의 분리를 기본 정책으로 권고한다.
 
