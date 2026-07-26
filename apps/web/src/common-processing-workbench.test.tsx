@@ -490,7 +490,7 @@ describe("Common Processing Workbench", () => {
       target: { value: documentResource.test_data_document_id },
     });
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
-    expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();
+    expect(await screen.findByText(/Loaded saved dataset revision 1/)).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
     expect(await screen.findByRole(
       "img",
@@ -559,6 +559,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("button", { name: "Save processed curves" })).toBeTruthy();
     expect(screen.getByText("Curves")).toBeTruthy();
     expect(screen.getByText("2 curves · 2 included")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Tensile tests" })).toBeTruthy();
     const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1");
     expect(curveRow.getAttribute("title")).toContain("DP600-TENSILE-01");
     const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });

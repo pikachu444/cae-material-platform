@@ -8,7 +8,7 @@
 - 일반 사용자 메뉴: `Materials | Modeling | Activity`
 - 기본 route: `/materials`
 - Material Detail: `Overview | Properties | Curves | CAE Cards | Evidence`
-- Modeling: `Data | Process | Fit | Export`; validation과 review/release는 Advanced/Activity의 별도 governed action이며 normal stage가 아니다.
+- Modeling: `Data | Process | Fit | Export`; validation과 review/release는 Advanced의 별도 governed action이며 normal stage가 아니다. Activity review queue는 pending이다.
 - Administration: role-gated Table/Attribute/Layout/Subset/Link Type 및 접근 관리
 - legacy `/database`, `/catalog/*`, `/datasets/*`: deep-link compatibility
 
@@ -20,7 +20,7 @@ Layout, Subset, exact-revision 양방향 Link Type과 workflow projection은 유
 | 영역 | 현재 범위 |
 | --- | --- |
 | Materials | Browse 기본의 연속 explorer/result/datasheet workspace, server-scoped Material class 검색·result table, Browse Tree, 선택 문맥, 5영역 detail, direct card preview/download |
-| Modeling | 184–210 px curve/process tree, shallow graph-adjacent control band, persistent dominant graph, Data/Process/Fit/Export; validation/review/release normal UI는 미구현 |
+| Modeling | Data/Process/Fit의 184–210 px method→specimen Curves tree, Process/Fit process tree, shallow graph-adjacent control band, persistent dominant graph, Data/Process/Fit/Export; validation/review/release는 Advanced governed action, Activity review queue는 pending |
 | Catalog | configurable Table/Attribute/Layout/Subset, Folder/Record tree, typed search·compare, exact Record links |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic packages |
 | Engineering | public-equation reference metal/polymer/elastomer processing·fitting, IR promotion, mapping evidence |
@@ -39,7 +39,7 @@ Model IR → Neutral Material → mapping preflight → native solver-card deliv
 DUI-01~06 are complete. UXC-02 now provides a v3 clearable session reducer, Data-first reset,
 exact Material/State/Test Data session pins, downstream clear/stale/regenerate state and resumable
 plot state. The normal shell is exactly `Data | Process | Fit | Export`; validation and review/release
-are distinct governed Advanced/Activity actions, not implemented normal-stage destinations. Export has no
+are distinct governed Advanced actions, not implemented normal-stage destinations; the Activity review queue remains pending. Export has no
 current-session fallback. UXC-06B now carries server-verified Material/State/Test Run proof from a
 qualified local-file Test Data revision into its Processing Output; historical and JSON-only rows keep
 that proof null and remain blocked rather than inferred. UXC-01 has a completed server-scoped Materials Find vertical slice

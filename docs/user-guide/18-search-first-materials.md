@@ -92,7 +92,7 @@ Dataset 생성을 완료할 수 있습니다. Canonical adapter로 돌아오면 
 검증·저장해 Process 입력으로 선택합니다. JSON 파일은 server validation에서 schema, channel,
 quantity semantics, original/normalized unit과 missing reason을 먼저 확인합니다.
 
-Fit 그래프의 곡선은 계속 `Preview only · not committed`로 표시됩니다. 계산 성공이나 추천은
+Fit 그래프의 곡선은 계속 `Preview — not saved`로 표시됩니다. 계산 성공이나 추천은
 선택·검토·승인을 뜻하지 않습니다. 선택과 저장이 가능한 API contract가 없는 상태는 Warning 또는
 Blocked로 남습니다. 추천과 선택은 별도 상태이며, 행을 명시적으로 고르고 이유와 필요한 경고
 확인을 마친 candidate만 상단의 **Save fit & continue**로 immutable Processing Output을 만듭니다.
@@ -114,7 +114,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   URL에, 선택 curve·step·plot view·settings 상태는 clear 가능한 Modeling session v3에 저장됩니다.
   새 session은 항상 Data에서 시작하며, 진행 중이던 Material/State/Test Data/Mapping/Output
   pointer나 늦게 도착한 자동 선택 결과를 다시 pin하지 않습니다.
-- 왼쪽 `Curves`와 `Process`는 27 px 일반 문자열 행입니다. specimen 이름과 revision을
+- Data/Process/Fit의 왼쪽 `Curves`와 Process/Fit의 `Process`는 27 px 일반 문자열 행입니다. specimen 이름과 revision을
   선택하고, 원본 document key와 exact revision은 hover/focus title에서 확인합니다.
 - 가운데 그래프가 주 작업면입니다. Process와 Fit을 전환해도 선택 curve와 server preview가
   유지되며 response, residual, tangent 또는 extrapolation 보기를 같은 그래프에서 바꿉니다.
@@ -138,7 +138,7 @@ Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요�
   정책 prerequisite의 Blocked 상태입니다. mapping/process/fit/target 변경도 영향 범위를 표시해
   재계산 또는 재생성을 요구합니다. source revision과 Recipe step을 바꾼 뒤에는 command bar의 Undo/Redo로 draft를 되돌릴 수 있습니다.
   브라우저를 닫을 때 미저장 변경이 있으면 이탈 경고가 한 번 표시되며, `New session`은 확인 후
-  비수치 UI session 상태만 초기화합니다. Preview는 계속 `Preview only · not committed`로 표시되어
+  비수치 UI session 상태만 초기화합니다. Preview는 계속 `Preview — not saved`로 표시되어
   저장한 처리 결과 또는 선택·저장한 모델과 혼동되지 않습니다.
 - 저장 시 다른 사용자가 같은 Recipe head를 먼저 갱신했다면 조용히 덮어쓰지 않습니다. 화면의
   `Reload current`, `Keep local draft as new revision`, `Cancel` 중 하나를 선택해 stale exact-revision

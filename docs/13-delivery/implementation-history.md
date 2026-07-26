@@ -49,11 +49,22 @@ inclusion remains an explicit checkbox that dispatches `CHANGE_SELECTION`; brows
 visibility uses a separate accessible eye control and does not invalidate immutable or downstream
 state. The generic `Curve NN` fallback and repeated visible `Hide`/`Show` row are removed.
 
-Data, Validate and Review/Release do not expose the editable rail. Export removes the navigator and
-divider entirely, reclaims the graph/evidence width, fail-closes any persisted replicate view to the
-pipeline response, and exposes neither alignment nor Mean & band controls. Current Process, Fit and
-Export evidence covers 1366×768, 1440×900 and 1920×1080. Full web tests, build/type/bundle gates,
-documentation gates and one bounded independent re-review pass.
+This historical UXC-03B statement is superseded by UXC-03C below.
+
+## UXC-03C Modeling stage and curve-tree consistency implemented (2026-07-27)
+
+Normal Modeling now exposes exactly `Data | Process | Fit | Export`. Data, Process and Fit share the
+184–210 px Curves rail. Canonical test method is a real parent above indented specimen/revision rows;
+the earlier printed `└` branch character is removed. Calculation inclusion remains independent from
+the icon-only browser plot visibility control. `Mean & band` is absent until a real ensemble preview
+exists. Export removes the navigator and reclaims the graph width.
+
+The Data-first empty state and normal notices use saved-dataset and curve language rather than
+implementation terms such as exact-source/data-contract. Current Data, Process, Fit, Export and
+new-session evidence covers 1366×768, 1440×900 and 1920×1080. The focused 21-test suite, production
+build/bundle check, user-guide and documentation-impact gates passed. The full web run passed 166 of
+167 tests; its unrelated Materials async render timeout passed all 14 tests when isolated. One fresh
+read-only reviewer returned PASS with no P0/P1/P2 finding.
 
 ## UXC-06B exact Export source provenance implemented (2026-07-26)
 

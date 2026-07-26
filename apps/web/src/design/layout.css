@@ -1273,7 +1273,7 @@
 
 .modeling-stage-shell {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   min-width: 0;
   border-bottom: 1px solid var(--ux-border);
   background: var(--ux-surface);
@@ -1297,16 +1297,10 @@
 .modeling-stage-shell button.active { background: var(--ux-accent-soft); color: var(--ux-text); }
 .modeling-stage-shell button.active { box-shadow: inset 0 -2px 0 var(--ux-accent); }
 .modeling-stage-shell .modeling-stage-number {
-  flex: 0 0 auto;
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
+  display: none;
 }
-.modeling-stage-shell button > span:last-child { min-width: 0; flex: 1 1 auto; }
-.modeling-stage-shell strong,
-.modeling-stage-shell small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.modeling-stage-shell strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .modeling-stage-shell strong { font-size: 12px; font-weight: 650; }
-.modeling-stage-shell small { margin-top: 1px; font-size: 11px; }
 
 /* UXC-04B: approved lower-reference topology. */
 .modeling-context-strip { min-height: 38px; }
@@ -1323,8 +1317,6 @@
 .modeling-advanced-menu button:hover, .modeling-advanced-menu button[aria-selected="true"] { background: var(--ux-accent-soft); }
 .modeling-stage-shell { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .modeling-stage-shell button { align-items: center; justify-content: center; gap: 4px; min-height: 27px; padding: 3px 8px; }
-.modeling-stage-shell .modeling-stage-number { display: none; }
-.modeling-stage-shell small { display: none; }
 
 .modeling-stage-placeholder,
 .modeling-export-blocked {
@@ -2587,6 +2579,15 @@
   order: 10;
 }
 
+.modeling-data-advanced > summary {
+  min-height: 30px;
+  padding: 4px 10px;
+}
+
+.modeling-data-advanced > summary > span:first-child {
+  display: block;
+}
+
 .modeling-rail-contract {
   display: grid;
   gap: 3px;
@@ -2946,7 +2947,7 @@
   border: 0;
 }
 
-.modeling-dataset-list > article,
+.curve-tree-group > article,
 .configured-step-list > button {
   min-height: 26px;
   border: 0;
@@ -2955,18 +2956,52 @@
   background: transparent;
 }
 
-.modeling-dataset-list > article {
+.curve-tree-group > article {
   display: grid;
   align-items: center;
-  grid-template-columns: 25px 10px 3px minmax(0, 1fr) 26px;
+  grid-template-columns: 25px 3px minmax(0, 1fr) 26px;
   min-width: 0;
+  padding-left: 9px;
 }
 
-.modeling-dataset-list > article:hover,
-.modeling-dataset-list > article.active,
+.curve-tree-group > article:hover,
+.curve-tree-group > article.active,
 .configured-step-list > button:hover,
 .configured-step-list > button.active {
   background: var(--ux-accent-soft);
+}
+
+.curve-tree-group {
+  display: grid;
+  min-width: 0;
+}
+
+.curve-group-row {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  min-height: 25px;
+  padding: 2px 7px;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+  color: var(--ux-text);
+  font-size: 11.5px;
+}
+
+.curve-group-row > span {
+  color: var(--ux-text-muted);
+}
+
+.curve-group-row > strong {
+  overflow: hidden;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.curve-group-row > small {
+  color: var(--ux-text-muted);
+  font-size: 10.5px;
 }
 
 .curve-row-label {
@@ -2999,12 +3034,6 @@
   width: 3px;
   height: 16px;
   border-radius: 0;
-}
-
-.curve-tree-glyph {
-  color: var(--ux-text-muted);
-  font-size: 12px;
-  line-height: 1;
 }
 
 .curve-visibility-toggle {

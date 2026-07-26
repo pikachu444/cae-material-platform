@@ -554,8 +554,8 @@ export function ModelingDataIntake({
 
       {source === "library" ? (
         <div className="data-intake-row">
-          <label>Exact Test Data<select name="library-test-data-revision" aria-label="Data-stage Test Data revision" value={selectedDocumentId} onChange={(event) => onSelectDocument(event.target.value)}><option value="">Choose a compatible document</option>{documents.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
-          <p>{documents.length ? `${documents.length} revision-pinned sources available` : "No Test Data is registered yet."}</p>
+          <label>Test data source<select name="library-test-data-revision" aria-label="Data-stage Test Data revision" value={selectedDocumentId} onChange={(event) => onSelectDocument(event.target.value)}><option value="">Choose a saved dataset</option>{documents.map((item) => <option key={item.test_data_document_id} value={item.test_data_document_id}>{item.document_key} · r{item.current_revision.revision_no}</option>)}</select></label>
+          <p>{documents.length ? `${documents.length} saved datasets available` : "No test data is registered yet."}</p>
         </div>
       ) : null}
 

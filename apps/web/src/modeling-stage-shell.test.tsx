@@ -25,6 +25,9 @@ describe("ModelingStageShell", () => {
     expect(screen.getByRole("button", { name: /Data.*Test data ready.*Exact Test Data/i })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Fit.*Choose a model.*decision is not yet pinned/i })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Validate|Review/ })).toBeNull();
+    expect(screen.getAllByRole("button")).toHaveLength(4);
+    expect(screen.queryByText("Test data ready")).toBeNull();
+    expect(screen.queryByText("Choose a model")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Export/ }));
     expect(change).toHaveBeenCalledWith("export");
   });
