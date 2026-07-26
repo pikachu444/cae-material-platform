@@ -91,7 +91,9 @@ Explorer와 함께 확장한다.
 1. 전역 **Modeling**을 선택한다. 상단의 `Data | Process | Fit | Export`가 일반 작업 경로다.
 2. Data에서 Canonical JSON, CSV 또는 XLSX를 선택하고 **Test Data revision**과 channel/unit
    Mapping Profile을 확인한다. 원시 JSON은 Advanced mapping definition에서만 연다.
-3. Process에서 왼쪽 `Curves`와 `Process`의 일반 문자열 행을 선택한다. `Add method`로 ordered
+3. Process에서 왼쪽 `Curves`의 실제 test method 그룹과 specimen/revision 행, `Process`의 일반 문자열
+   행을 선택한다. 각 curve 행의 원형 색 키는 그래프 선을 구분할 뿐이며, inclusion checkbox와 눈 아이콘은
+   각각 계산 포함 여부와 브라우저 로컬 plot visibility를 독립적으로 바꾼다. `Add method`로 ordered
    step을 추가하고 current-step settings ribbon에서 crop/smoothing/resample/statistics option을
    바꾼다. 1366 px에서는 `Show settings`로 ribbon을 연다.
 4. **Preview changes**를 누른다. 오른쪽에 별도 inspector 열을 만들지 않고, 같은 큰 graph가 실제
