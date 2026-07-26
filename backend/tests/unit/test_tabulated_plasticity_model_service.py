@@ -77,6 +77,9 @@ from cmp.modules.processing.application.common_batches import (
 from cmp.modules.processing.application.common_outputs import (
     CommonProcessingOutputService,
     ExactRevisionPin,
+    FitDecisionParameter,
+    FitDecisionParameterSet,
+    FitDecisionSnapshot,
     ProcessingOutputContent,
     ProcessingOutputSnapshot,
 )
@@ -333,6 +336,33 @@ class _ProcessingOutputs:
             final_point_count=21,
             output_artifact_id=UUID("e4000000-0000-4000-8000-000000000036"),
             output_sha256=digest,
+            fit_decision=FitDecisionSnapshot(
+                candidate_key="swift+voce",
+                mode="blend",
+                primary_law="swift",
+                secondary_law="voce",
+                primary_weight=0.5,
+                parameter_sets=(
+                    FitDecisionParameterSet(
+                        "swift",
+                        (FitDecisionParameter("K", 500_000_000.0, "Pa"),),
+                    ),
+                    FitDecisionParameterSet(
+                        "voce",
+                        (FitDecisionParameter("Q", 300_000_000.0, "Pa"),),
+                    ),
+                ),
+                fit_minimum=0.0001,
+                fit_maximum=0.1,
+                extrapolation_maximum=0.5,
+                extrapolation_policy="bounded",
+                metric_definition="relative_rmse",
+                metric_value=0.01,
+                requested_term_policy=None,
+                actual_term_count=None,
+                selection_reason="Select the tested bounded blend.",
+                warning_acknowledged=True,
+            ),
         )
         record = RevisionRecord(
             revision_id=PROCESSING_OUTPUT_REVISION,

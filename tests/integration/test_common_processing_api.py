@@ -7,6 +7,10 @@ from types import SimpleNamespace
 from uuid import UUID
 
 import httpx
+from cmp.modules.datasets.application.canonical_test_data import (
+    ExactRevisionRef,
+    GovernedTestDataSource,
+)
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
     AuthorizationDecision,
@@ -107,6 +111,20 @@ class _ValidatingOutputService:
             output_artifact_id=UUID("d5400000-0000-4000-8000-000000000012"),
             output_sha256="e" * 64,
             workup_overrides=override,
+            export_provenance=GovernedTestDataSource(
+                material=ExactRevisionRef(
+                    UUID("d5400000-0000-4000-8000-000000000030"),
+                    UUID("d5400000-0000-4000-8000-000000000031"),
+                ),
+                material_state=ExactRevisionRef(
+                    UUID("d5400000-0000-4000-8000-000000000032"),
+                    UUID("d5400000-0000-4000-8000-000000000033"),
+                ),
+                test_run=ExactRevisionRef(
+                    UUID("d5400000-0000-4000-8000-000000000034"),
+                    UUID("d5400000-0000-4000-8000-000000000035"),
+                ),
+            ),
         )
         return SimpleNamespace(id=revision.aggregate_id, current=revision, content=content)
 
@@ -340,6 +358,20 @@ def test_processing_output_api_binds_manual_workup_provenance_to_executed_option
         "youngs_modulus",
         "necking_boundary",
     ]
+    assert valid.json()["export_provenance"] == {
+        "material": {
+            "aggregate_id": "d5400000-0000-4000-8000-000000000030",
+            "revision_id": "d5400000-0000-4000-8000-000000000031",
+        },
+        "material_state": {
+            "aggregate_id": "d5400000-0000-4000-8000-000000000032",
+            "revision_id": "d5400000-0000-4000-8000-000000000033",
+        },
+        "test_run": {
+            "aggregate_id": "d5400000-0000-4000-8000-000000000034",
+            "revision_id": "d5400000-0000-4000-8000-000000000035",
+        },
+    }
 
     duplicate = _manual_output_body()
     duplicate["workup_overrides"] = [

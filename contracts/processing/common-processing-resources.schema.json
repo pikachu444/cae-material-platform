@@ -283,7 +283,7 @@
     "ProcessingOutputResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "workup_overrides", "fit_decision"],
+      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "workup_overrides", "fit_decision", "export_provenance"],
       "properties": {
         "processing_output_id": {"type": "string", "format": "uuid"},
         "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
@@ -300,7 +300,17 @@
         "output_artifact_id": {"type": "string", "format": "uuid"},
         "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}},
-        "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]}
+        "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]},
+        "export_provenance": {"anyOf": [{"$ref": "#/$defs/ExportProvenance"}, {"type": "null"}]}
+      }
+    },
+    "ExportProvenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["material", "material_state", "test_run"],
+      "properties": {
+        "material": {"$ref": "#/$defs/ExactRevisionPin"},
+        "material_state": {"$ref": "#/$defs/ExactRevisionPin"},
+        "test_run": {"$ref": "#/$defs/ExactRevisionPin"}
       }
     },
     "ProcessingWorkupOverride": {

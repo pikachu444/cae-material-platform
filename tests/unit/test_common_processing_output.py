@@ -9,6 +9,10 @@ from typing import Any, cast
 from uuid import UUID
 
 import pytest
+from cmp.modules.datasets.application.canonical_test_data import (
+    ExactRevisionRef,
+    GovernedTestDataSource,
+)
 from cmp.modules.datasets.domain.canonical_test_data import parse_canonical_test_data
 from cmp.modules.identity_access.application.authorization import database_permissions_for
 from cmp.modules.identity_access.domain.authorization import (
@@ -72,6 +76,21 @@ _DECISION = AuthorizationDecision(
     request_id=_CONTEXT.request_id,
     trace_id=_CONTEXT.trace_id,
     decided_at=_CONTEXT.authenticated_at,
+)
+
+_EXPORT_PROVENANCE = GovernedTestDataSource(
+    material=ExactRevisionRef(
+        UUID("d5400000-0000-4000-8000-000000000111"),
+        UUID("d5400000-0000-4000-8000-000000000112"),
+    ),
+    material_state=ExactRevisionRef(
+        UUID("d5400000-0000-4000-8000-000000000113"),
+        UUID("d5400000-0000-4000-8000-000000000114"),
+    ),
+    test_run=ExactRevisionRef(
+        UUID("d5400000-0000-4000-8000-000000000115"),
+        UUID("d5400000-0000-4000-8000-000000000116"),
+    ),
 )
 
 
@@ -385,6 +404,7 @@ def test_committed_output_document_contains_exact_pins_steps_and_every_stage() -
         ),
         steps=steps,
         preview=preview,
+        export_provenance=_EXPORT_PROVENANCE,
     )
     encoded = canonical_json_bytes(value)
     decoded = json.loads(encoded)
@@ -404,6 +424,84 @@ def test_committed_output_document_contains_exact_pins_steps_and_every_stage() -
         "rows.sort_unique",
     ]
     assert decoded["result"]["source_document_sha256"] == document.digest
+    assert decoded["export_provenance"] == {
+        "material": {
+            "aggregate_id": str(_EXPORT_PROVENANCE.material.aggregate_id),
+            "revision_id": str(_EXPORT_PROVENANCE.material.revision_id),
+        },
+        "material_state": {
+            "aggregate_id": str(_EXPORT_PROVENANCE.material_state.aggregate_id),
+            "revision_id": str(_EXPORT_PROVENANCE.material_state.revision_id),
+        },
+        "test_run": {
+            "aggregate_id": str(_EXPORT_PROVENANCE.test_run.aggregate_id),
+            "revision_id": str(_EXPORT_PROVENANCE.test_run.revision_id),
+        },
+    }
+
+
+def test_preflight_projects_proof_only_from_the_exact_test_data_revision() -> None:
+    import asyncio
+
+    source_bytes = Path("contracts/examples/positive/canonical-test-data.json").read_bytes()
+    profile = MappingProfileContent(
+        profile_key="tensile",
+        label="Tensile mapping",
+        independent_quantity="strain.engineering",
+        missing_data_policy=MissingDataPolicy.DROP_ANY,
+        bindings=(
+            ChannelBinding("engineering_strain", "strain.engineering", ("1",)),
+            ChannelBinding("engineering_stress", "stress.engineering", ("Pa",)),
+        ),
+    )
+
+    class Source:
+        async def export_document(self, *args: object) -> object:
+            del args
+            return (
+                SimpleNamespace(
+                    current=SimpleNamespace(
+                        scope=SimpleNamespace(classification="internal")
+                    ),
+                    content=SimpleNamespace(
+                        canonical_sha256="c" * 64,
+                        governed_source=_EXPORT_PROVENANCE,
+                    ),
+                ),
+                source_bytes,
+            )
+
+    class Profiles:
+        def get_profile_revision(self, *args: object) -> object:
+            del args
+            return SimpleNamespace(
+                current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
+                content=profile,
+            )
+
+    service = CommonProcessingOutputService(
+        repository=cast(Any, _NoCallPort()),
+        test_data=cast(Any, Source()),
+        profiles=cast(Any, Profiles()),
+        artifacts=cast(Any, _NoCallPort()),
+    )
+    command = CommitProcessingOutput(
+        classification=DataClassification.INTERNAL,
+        label="Exact provenance preflight",
+        source_document=ExactRevisionPin(
+            UUID("d5400000-0000-4000-8000-000000000105"),
+            UUID("d5400000-0000-4000-8000-000000000106"),
+        ),
+        mapping_profile=ExactRevisionPin(
+            UUID("d5400000-0000-4000-8000-000000000107"),
+            UUID("d5400000-0000-4000-8000-000000000108"),
+        ),
+        steps=(ProcessingStep("rows.sort_unique", "1.0.0", {"duplicate_policy": "reject"}),),
+        change_reason="Project exact source proof without inference.",
+    )
+
+    resolved = asyncio.run(service.preflight(_CONTEXT, _DECISION, command))
+    assert resolved.export_provenance == _EXPORT_PROVENANCE
 
 
 def test_committed_output_document_preserves_structured_manual_workup_evidence() -> None:

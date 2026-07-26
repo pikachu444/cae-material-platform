@@ -1417,6 +1417,23 @@ class CatalogService:
             revision_id=material_state_revision_id,
         )
 
+    def get_material_revision_for_provenance(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        material_id: UUID,
+        material_revision_id: UUID,
+    ) -> RevisionSnapshot[MaterialContent]:
+        """Resolve one exact Material revision for an authorized lineage proof."""
+
+        _require_capability(context, decision, Permission.CATALOG_READ)
+        return self._repository.get_material_revision(
+            context=context,
+            decision=decision,
+            material_id=material_id,
+            revision_id=material_revision_id,
+        )
+
     def list_material_revisions(
         self,
         context: SecurityContext,

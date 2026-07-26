@@ -64,6 +64,12 @@ export function exportPrerequisites({
   const selectionCurrent = Boolean(session?.selection && output
     && session.selection.id === output.processing_output_id
     && session.selection.revisionId === output.current_revision.id);
+  const proof = output?.export_provenance;
+  const proofCurrent = Boolean(proof && materialCurrent && stateCurrent && testDataCurrent
+    && proof.material.aggregate_id === session?.material?.id
+    && proof.material.revision_id === session?.material?.revisionId
+    && proof.material_state.aggregate_id === session?.materialState?.id
+    && proof.material_state.revision_id === session?.materialState?.revisionId);
 
   return [
     pin(Boolean(session?.material && material), materialCurrent, "Material", "Current session Material revision", "Loaded Material differs from the session revision"),
@@ -74,8 +80,17 @@ export function exportPrerequisites({
     pin(Boolean(session?.selection && output), selectionCurrent, "Engineer selection", "Saved engineer decision pins the current Processing Output", "Engineer decision pins a different Processing Output revision"),
     {
       label: "Server provenance proof",
+      status: !proof ? "missing" : proofCurrent ? "current" : "stale",
+      detail: !proof
+        ? "Historical output has no governed source proof and is never inferred."
+        : proofCurrent
+          ? "Server-verified Test Run, Material State, and Material revisions match."
+          : "Server proof mismatches the selected exact source context.",
+    },
+    {
+      label: "Ephemeral target preview producer",
       status: "not-supported",
-      detail: "Processing Output does not yet expose governed Material and Material State pins. Delivery is unavailable rather than inferred in the browser.",
+      detail: "UXC-06C preview producer is unavailable; delivery controls remain absent.",
     },
   ];
 }

@@ -15,6 +15,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.modules.datasets.application.canonical_test_data import (
     TEST_DATA_DOCUMENT_AGGREGATE_TYPE,
     CanonicalTestDataRepository,
+    ExactRevisionRef,
+    GovernedTestDataSource,
     TestDataChannelSummary,
     TestDataDocumentContent,
     TestDataDocumentSnapshot,
@@ -101,6 +103,7 @@ document_revision_table = sa.Table(
     sa.Column("normalized_artifact_id", sa.Uuid(), nullable=False),
     sa.Column("normalized_sha256", sa.CHAR(64), nullable=False),
     sa.Column("point_count", sa.Integer(), nullable=False),
+    sa.Column("governed_source", sa.JSON(), nullable=True),
     schema="datasets",
 )
 condition_table = sa.Table(
@@ -165,6 +168,24 @@ def _content_values(value: TestDataDocumentContent) -> dict[str, object]:
         "normalized_artifact_id": value.normalized_artifact_id,
         "normalized_sha256": value.normalized_sha256,
         "point_count": value.point_count,
+        "governed_source": (
+            None
+            if value.governed_source is None
+            else {
+                "material": {
+                    "aggregate_id": str(value.governed_source.material.aggregate_id),
+                    "revision_id": str(value.governed_source.material.revision_id),
+                },
+                "material_state": {
+                    "aggregate_id": str(value.governed_source.material_state.aggregate_id),
+                    "revision_id": str(value.governed_source.material_state.revision_id),
+                },
+                "test_run": {
+                    "aggregate_id": str(value.governed_source.test_run.aggregate_id),
+                    "revision_id": str(value.governed_source.test_run.revision_id),
+                },
+            }
+        ),
     }
 
 
@@ -254,6 +275,7 @@ def _content(
     conditions: Sequence[Any],
     channels: Sequence[Any],
 ) -> TestDataDocumentContent:
+    governed = row["governed_source"]
     return TestDataDocumentContent(
         document_key=str(row["document_key"]),
         material=TestMaterialMetadata(
@@ -306,6 +328,24 @@ def _content(
         normalized_artifact_id=cast(UUID, row["normalized_artifact_id"]),
         normalized_sha256=str(row["normalized_sha256"]),
         point_count=int(row["point_count"]),
+        governed_source=(
+            None
+            if governed is None
+            else GovernedTestDataSource(
+                material=ExactRevisionRef(
+                    UUID(str(governed["material"]["aggregate_id"])),
+                    UUID(str(governed["material"]["revision_id"])),
+                ),
+                material_state=ExactRevisionRef(
+                    UUID(str(governed["material_state"]["aggregate_id"])),
+                    UUID(str(governed["material_state"]["revision_id"])),
+                ),
+                test_run=ExactRevisionRef(
+                    UUID(str(governed["test_run"]["aggregate_id"])),
+                    UUID(str(governed["test_run"]["revision_id"])),
+                ),
+            )
+        ),
     )
 
 

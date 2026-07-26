@@ -84,6 +84,35 @@ class TestDataDocumentContent:
     normalized_artifact_id: UUID
     normalized_sha256: str
     point_count: int
+    governed_source: GovernedTestDataSource | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ExactRevisionRef:
+    aggregate_id: UUID
+    revision_id: UUID
+
+    def __post_init__(self) -> None:
+        if self.aggregate_id.int == 0 or self.revision_id.int == 0:
+            raise GovernedImportConflict("governed source revision pins must be non-zero")
+
+
+@dataclass(frozen=True, slots=True)
+class GovernedTestDataSource:
+    """Server-verified, exact context for Export-eligible Test Data only."""
+
+    material: ExactRevisionRef
+    material_state: ExactRevisionRef
+    test_run: ExactRevisionRef
+
+
+class GovernedTestDataSourceVerifier(Protocol):
+    def verify(
+        self,
+        context: SecurityContext,
+        decision: AuthorizationDecision,
+        source: GovernedTestDataSource,
+    ) -> None: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +127,7 @@ class ImportCanonicalTestData:
     classification: DataClassification
     document: CanonicalTestDataDocument
     change_reason: str
+    governed_source: GovernedTestDataSource | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,6 +135,7 @@ class ReviseCanonicalTestData:
     expected_current_revision_id: UUID
     document: CanonicalTestDataDocument
     change_reason: str
+    governed_source: GovernedTestDataSource | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -172,10 +203,7 @@ def test_data_content_canonical(value: TestDataDocumentContent) -> dict[str, obj
             for item in value.conditions
         ],
         "channels": [
-            {
-                key: getattr(item, key)
-                for key in TestDataChannelSummary.__dataclass_fields__
-            }
+            {key: getattr(item, key) for key in TestDataChannelSummary.__dataclass_fields__}
             for item in value.channels
         ],
         "source": {
@@ -188,6 +216,22 @@ def test_data_content_canonical(value: TestDataDocumentContent) -> dict[str, obj
         "normalized_artifact_id": str(value.normalized_artifact_id),
         "normalized_sha256": value.normalized_sha256,
         "point_count": value.point_count,
+        "governed_source": None
+        if value.governed_source is None
+        else {
+            "material": {
+                "aggregate_id": str(value.governed_source.material.aggregate_id),
+                "revision_id": str(value.governed_source.material.revision_id),
+            },
+            "material_state": {
+                "aggregate_id": str(value.governed_source.material_state.aggregate_id),
+                "revision_id": str(value.governed_source.material_state.revision_id),
+            },
+            "test_run": {
+                "aggregate_id": str(value.governed_source.test_run.aggregate_id),
+                "revision_id": str(value.governed_source.test_run.revision_id),
+            },
+        },
     }
 
 
@@ -248,10 +292,12 @@ class CanonicalTestDataService:
         *,
         repository: CanonicalTestDataRepository,
         artifacts: ArtifactService,
+        governed_source_verifier: GovernedTestDataSourceVerifier | None = None,
         id_factory: Callable[[], UUID] = uuid4,
     ) -> None:
         self._repository = repository
         self._artifacts = artifacts
+        self._governed_source_verifier = governed_source_verifier
         self._id = id_factory
 
     async def import_document(
@@ -267,6 +313,7 @@ class CanonicalTestDataService:
             decision,
             classification=command.classification,
             document=document,
+            governed_source=command.governed_source,
         )
         document_id = self._id()
         record = RevisionService(
@@ -312,6 +359,7 @@ class CanonicalTestDataService:
             decision,
             classification=classification,
             document=command.document,
+            governed_source=command.governed_source,
         )
         record = RevisionService(
             aggregate_type=TEST_DATA_DOCUMENT_AGGREGATE_TYPE,
@@ -340,7 +388,14 @@ class CanonicalTestDataService:
         *,
         classification: DataClassification,
         document: CanonicalTestDataDocument,
+        governed_source: GovernedTestDataSource | None,
     ) -> TestDataDocumentContent:
+        if governed_source is not None:
+            if self._governed_source_verifier is None:
+                raise GovernedImportConflict(
+                    "governed Test Data source verification is unavailable"
+                )
+            self._governed_source_verifier.verify(context, decision, governed_source)
         canonical_bytes = canonical_json_bytes(document)
         canonical_artifact = await self._artifacts.finalize_derived_bytes(
             context,
@@ -376,6 +431,7 @@ class CanonicalTestDataService:
             normalized_artifact_id=normalized_artifact.artifact.id,
             normalized_sha256=normalized_artifact.artifact.sha256,
             point_count=document.point_count,
+            governed_source=governed_source,
         )
 
     @staticmethod

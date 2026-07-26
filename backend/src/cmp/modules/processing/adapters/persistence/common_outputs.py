@@ -10,6 +10,10 @@ from uuid import UUID
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, sessionmaker
 
+from cmp.modules.datasets.application.canonical_test_data import (
+    ExactRevisionRef,
+    GovernedTestDataSource,
+)
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision
 from cmp.modules.identity_access.domain.security import SecurityContext
 from cmp.modules.processing.application.common_outputs import (
@@ -90,6 +94,7 @@ revision_table = sa.Table(
     sa.Column("output_sha256", sa.CHAR(64), nullable=False),
     sa.Column("workup_overrides", sa.JSON(), nullable=False),
     sa.Column("fit_decision", sa.JSON(), nullable=True),
+    sa.Column("export_provenance", sa.JSON(), nullable=True),
     schema="processing",
 )
 step_table = sa.Table(
@@ -171,6 +176,22 @@ def _values(value: ProcessingOutputContent) -> dict[str, object]:
             "selection_reason": value.fit_decision.selection_reason,
             "warning_acknowledged": value.fit_decision.warning_acknowledged,
         },
+        "export_provenance": None
+        if value.export_provenance is None
+        else {
+            "material": {
+                "aggregate_id": str(value.export_provenance.material.aggregate_id),
+                "revision_id": str(value.export_provenance.material.revision_id),
+            },
+            "material_state": {
+                "aggregate_id": str(value.export_provenance.material_state.aggregate_id),
+                "revision_id": str(value.export_provenance.material_state.revision_id),
+            },
+            "test_run": {
+                "aggregate_id": str(value.export_provenance.test_run.aggregate_id),
+                "revision_id": str(value.export_provenance.test_run.revision_id),
+            },
+        },
     }
 
 
@@ -230,6 +251,7 @@ def _record(row: Any) -> RevisionRecord:
 
 
 def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
+    provenance = row["export_provenance"]
     return ProcessingOutputContent(
         label=str(row["label"]),
         source_document=ExactRevisionPin(
@@ -271,6 +293,22 @@ def _content(row: Any, steps: Sequence[Any]) -> ProcessingOutputContent:
             for override in row["workup_overrides"]
         ),
         fit_decision=_fit_decision(row["fit_decision"]),
+        export_provenance=None
+        if provenance is None
+        else GovernedTestDataSource(
+            material=ExactRevisionRef(
+                UUID(str(provenance["material"]["aggregate_id"])),
+                UUID(str(provenance["material"]["revision_id"])),
+            ),
+            material_state=ExactRevisionRef(
+                UUID(str(provenance["material_state"]["aggregate_id"])),
+                UUID(str(provenance["material_state"]["revision_id"])),
+            ),
+            test_run=ExactRevisionRef(
+                UUID(str(provenance["test_run"]["aggregate_id"])),
+                UUID(str(provenance["test_run"]["revision_id"])),
+            ),
+        ),
     )
 
 

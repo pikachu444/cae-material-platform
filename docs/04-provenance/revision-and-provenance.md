@@ -20,6 +20,22 @@ authoritative relation이다. Modeling은 Output head나 Recipe head를 추측�
 Recipe 없이 직접 commit된 과거 Output은 덮어쓰지 않으며 `processing_recipe=not_applicable`로
 남는다. Recipe 기반 Output만 Neutral JSON에서 `processing_recipe=exact_revision`을 주장할 수 있다.
 
+### 1.2 Canonical Test Data에서 Export까지의 exact source projection
+
+`governed_source`는 클라이언트가 선언한 이름 일치가 아니라 application service가 확인한
+세 exact revision pin이다. 좁은 integration adapter가 Test Run의 exact revision을 읽고 그
+Run이 고정한 Specimen revision, Specimen이 고정한 Material/Material State revision, State가
+고정한 Material revision을 각각 authorized application-service read로 해석하고
+classification/scope 일치를 모두 확인한다. Datasets core는 Catalog/Testing persistence를
+직접 읽지 않는다.
+
+검증된 pin은 Canonical Test Data revision content hash에 포함되지만 canonical Test Data JSON
+Artifact bytes에는 포함되지 않는다. Common Processing Output preflight는 exact Test Data
+revision을 읽어 같은 proof를 immutable Output content와 `cmp.processing-output` Artifact에
+복사한다. 과거/JSON-only source의 `null`은 의미 있는 “증명 없음” 상태이며 backfill하거나
+browser session pin으로 대체하지 않는다. 이 projection은 source eligibility만 증명하고,
+ephemeral target preview나 delivered Solver Card event를 만들지는 않는다.
+
 ## 2. W3C PROV의 선택적 적용
 
 W3C PROV-DM은 provenance를 domain-agnostic한 Entity, Activity, Agent와 관계로 정의한다. 이 설계는 그 의미론을 따르되 RDF/OWL 저장이나 graph DB를 요구하지 않는다. [W3C PROV-DM](https://www.w3.org/TR/prov-dm/)

@@ -21,7 +21,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 26
+    assert report.capture_count == 29
     assert report.archived_capture_count >= 100
     assert report.historical_capture_script_count == 12
     assert report.navigation_count == 3
@@ -37,7 +37,13 @@ def test_incoming_integration_package_is_reference_not_authoritative() -> None:
 
     classes = _documentation_classes(root)
 
-    assert classes["docs/_incoming/2026-07-24-organic-ux-update/04_WORKFLOW_STATE_AND_INVALIDATION_CONTRACT.md"] == "reference"
+    assert (
+        classes[
+            "docs/_incoming/2026-07-24-organic-ux-update/"
+            "04_WORKFLOW_STATE_AND_INVALIDATION_CONTRACT.md"
+        ]
+        == "reference"
+    )
     assert classes["docs/01-product/desktop-engineering-ui-program-brief.md"] == "authoritative"
     assert classes["docs/user-guide/02-steel-elastoplastic.md"] == "current"
     assert classes["docs/17-evidence/reports/dui-04-modeling-workspace.md"] == "historical"
@@ -55,14 +61,16 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "971d5d9"
+    assert manifest["source_commit"] == "f498b02"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {
         provenance["source_commit"]
         for provenance in manifest["capture_provenance"]
-    } == {"971d5d9"}
-    assert "exact implementation commit 971d5d9" in manifest["capture_provenance"][0]["command"]
+    } == {"8ce8b89", "1ee4f2a", "f498b02"}
+    assert "exact implementation commit will be recorded" in manifest[
+        "capture_provenance"
+    ][-1]["command"]
 
     activity = captures["activity-1440"]
     assert activity["workflow"] == "recent-browser-local-solver-card-delivery"
@@ -73,8 +81,11 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         "modeling-export-1920",
     ):
         capture = captures[capture_id]
-        assert capture["workflow"] == "exact-neutral-mapping-preflight-and-native-card-delivery"
-        assert "DUI-06 acceptance" in capture["fixture"]
+        assert (
+            capture["workflow"]
+            == "exact-export-server-proof-state-and-independent-ephemeral-preview-gap"
+        )
+        assert "target preview producer is unsupported" in capture["fixture"]
 
 
 def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(

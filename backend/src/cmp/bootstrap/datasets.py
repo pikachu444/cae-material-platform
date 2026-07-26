@@ -12,6 +12,10 @@ from sqlalchemy.orm import Session, sessionmaker
 from cmp.bootstrap.security import IdentityServices
 from cmp.modules.artifacts.application.content import ArtifactService
 from cmp.modules.audit.adapters.persistence.repository import SqlAlchemyRevisionAuditHook
+from cmp.modules.catalog.application.service import CatalogService
+from cmp.modules.datasets.adapters.integration.governed_test_data_source import (
+    CatalogTestingGovernedTestDataSourceVerifier,
+)
 from cmp.modules.datasets.adapters.persistence.canonical_test_data import (
     SqlAlchemyCanonicalTestDataRepository,
 )
@@ -954,6 +958,8 @@ def build_governed_import_service(
 def build_canonical_test_data_service(
     identity: IdentityServices,
     artifacts: ArtifactService | None,
+    catalog: CatalogService | None = None,
+    testing: TestingService | None = None,
 ) -> CanonicalTestDataService | None:
     """Compose canonical JSON import/export with immutable Artifacts and revision hooks."""
 
@@ -971,6 +977,11 @@ def build_canonical_test_data_service(
             ),
         ),
         artifacts=artifacts,
+        governed_source_verifier=(
+            None
+            if catalog is None or testing is None
+            else CatalogTestingGovernedTestDataSourceVerifier(catalog=catalog, testing=testing)
+        ),
     )
 
 

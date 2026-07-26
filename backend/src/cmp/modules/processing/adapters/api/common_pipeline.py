@@ -400,6 +400,15 @@ class CommitProcessingOutputRequest(BaseModel):
     fit_decision: FitDecisionInput | None = None
 
 
+class ExportProvenanceResponse(BaseModel):
+    """Typed server proof copied from the exact Canonical Test Data revision."""
+
+    model_config = ConfigDict(extra="forbid")
+    material: ExactRevisionPinInput
+    material_state: ExactRevisionPinInput
+    test_run: ExactRevisionPinInput
+
+
 class ProcessingOutputResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     processing_output_id: UUID
@@ -418,6 +427,7 @@ class ProcessingOutputResponse(BaseModel):
     output_sha256: str
     workup_overrides: tuple[ProcessingWorkupOverrideInput, ...]
     fit_decision: FitDecisionInput | None
+    export_provenance: ExportProvenanceResponse | None
 
     @classmethod
     def from_snapshot(cls, value: ProcessingOutputSnapshot) -> ProcessingOutputResponse:
@@ -496,6 +506,22 @@ class ProcessingOutputResponse(BaseModel):
                 actual_term_count=fit_decision.actual_term_count,
                 selection_reason=fit_decision.selection_reason,
                 warning_acknowledged=fit_decision.warning_acknowledged,
+            ),
+            export_provenance=None
+            if content.export_provenance is None
+            else ExportProvenanceResponse(
+                material=ExactRevisionPinInput(
+                    aggregate_id=content.export_provenance.material.aggregate_id,
+                    revision_id=content.export_provenance.material.revision_id,
+                ),
+                material_state=ExactRevisionPinInput(
+                    aggregate_id=content.export_provenance.material_state.aggregate_id,
+                    revision_id=content.export_provenance.material_state.revision_id,
+                ),
+                test_run=ExactRevisionPinInput(
+                    aggregate_id=content.export_provenance.test_run.aggregate_id,
+                    revision_id=content.export_provenance.test_run.revision_id,
+                ),
             ),
         )
 

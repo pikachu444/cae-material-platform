@@ -563,12 +563,12 @@ def _safe_xlsx_rows(
         relationship_target = PurePosixPath(target)
         if "\\" in target or ".." in relationship_target.parts:
             raise InvalidGovernedImport("selected XLSX worksheet relationship is unsafe")
-        target_path = (
+        target_path_value = (
             PurePosixPath(*relationship_target.parts[1:])
             if relationship_target.is_absolute()
             else PurePosixPath("xl") / relationship_target
         )
-        target_path = str(target_path)
+        target_path = target_path_value.as_posix()
         if target_path not in names:
             raise InvalidGovernedImport("selected XLSX worksheet payload is missing")
         shared: tuple[str, ...] = ()

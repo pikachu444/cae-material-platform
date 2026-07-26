@@ -21,6 +21,23 @@
         "missing_count": {"type": "integer", "minimum": 0}
       }
     },
+    "ExactRevision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["aggregate_id", "revision_id"],
+      "properties": {
+        "aggregate_id": {"type": "string", "format": "uuid"},
+        "revision_id": {"type": "string", "format": "uuid"}
+      }
+    },
+    "GovernedSource": {
+      "type": "object", "additionalProperties": false,
+      "required": ["material", "material_state", "test_run"],
+      "properties": {
+        "material": {"$ref": "#/$defs/ExactRevision"},
+        "material_state": {"$ref": "#/$defs/ExactRevision"},
+        "test_run": {"$ref": "#/$defs/ExactRevision"}
+      }
+    },
     "PreviewResponse": {
       "type": "object",
       "additionalProperties": false,
@@ -49,7 +66,8 @@
       "properties": {
         "classification": {"$ref": "#/$defs/Classification"},
         "document": {"$ref": "canonical-test-data.schema.json"},
-        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "governed_source": {"anyOf": [{"$ref": "#/$defs/GovernedSource"}, {"type": "null"}]}
       }
     },
     "TabularConvertRequest": {
@@ -73,13 +91,14 @@
       "required": ["document", "change_reason"],
       "properties": {
         "document": {"$ref": "canonical-test-data.schema.json"},
-        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+        "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "governed_source": {"anyOf": [{"$ref": "#/$defs/GovernedSource"}, {"type": "null"}]}
       }
     },
     "DocumentResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["test_data_document_id", "current_revision", "document_key", "material_maker", "material_grade", "lot_batch", "test_date", "operator", "laboratory", "method", "specimen_id", "point_count", "canonical_artifact_id", "canonical_sha256", "normalized_artifact_id", "normalized_sha256", "channels"],
+      "required": ["test_data_document_id", "current_revision", "document_key", "material_maker", "material_grade", "lot_batch", "test_date", "operator", "laboratory", "method", "specimen_id", "point_count", "canonical_artifact_id", "canonical_sha256", "normalized_artifact_id", "normalized_sha256", "channels", "governed_source"],
       "properties": {
         "test_data_document_id": {"type": "string", "format": "uuid"},
         "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
@@ -97,7 +116,8 @@
         "canonical_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "normalized_artifact_id": {"type": "string", "format": "uuid"},
         "normalized_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "channels": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ChannelPreview"}}
+        "channels": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ChannelPreview"}},
+        "governed_source": {"anyOf": [{"$ref": "#/$defs/GovernedSource"}, {"type": "null"}]}
       }
     },
     "DocumentListResponse": {

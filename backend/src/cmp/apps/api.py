@@ -538,7 +538,9 @@ def create_app(
             services.authorization, Permission.DATASET_WRITE
         ),
     )
-    resolved_canonical_test_data = build_canonical_test_data_service(services, resolved_artifacts)
+    resolved_canonical_test_data = build_canonical_test_data_service(
+        services, resolved_artifacts, resolved_catalog, resolved_testing
+    )
     install_canonical_test_data_api(
         application,
         service=resolved_canonical_test_data,

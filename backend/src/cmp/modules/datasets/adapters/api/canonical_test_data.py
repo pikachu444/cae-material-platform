@@ -24,7 +24,9 @@ from cmp.modules.datasets.application.canonical_tabular_adapter import (
 )
 from cmp.modules.datasets.application.canonical_test_data import (
     CanonicalTestDataService,
+    ExactRevisionRef,
     ExactTestDataRevisionRef,
+    GovernedTestDataSource,
     ImportCanonicalTestData,
     ReviseCanonicalTestData,
     TestDataDocumentSnapshot,
@@ -251,11 +253,35 @@ class CanonicalTestDataPreviewResponse(BaseModel):
         )
 
 
+class ExactRevisionInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    aggregate_id: UUID
+    revision_id: UUID
+
+    def to_domain(self) -> ExactRevisionRef:
+        return ExactRevisionRef(self.aggregate_id, self.revision_id)
+
+
+class GovernedSourceInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    material: ExactRevisionInput
+    material_state: ExactRevisionInput
+    test_run: ExactRevisionInput
+
+    def to_domain(self) -> GovernedTestDataSource:
+        return GovernedTestDataSource(
+            material=self.material.to_domain(),
+            material_state=self.material_state.to_domain(),
+            test_run=self.test_run.to_domain(),
+        )
+
+
 class CanonicalTestDataImportRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     classification: DataClassification
     document: CanonicalTestDataInput
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    governed_source: GovernedSourceInput | None = None
 
 
 class CanonicalTabularConvertRequest(BaseModel):
@@ -283,6 +309,7 @@ class CanonicalTestDataReviseRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     document: CanonicalTestDataInput
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    governed_source: GovernedSourceInput | None = None
 
 
 class CanonicalTestDataDocumentResponse(BaseModel):
@@ -304,6 +331,7 @@ class CanonicalTestDataDocumentResponse(BaseModel):
     normalized_artifact_id: UUID
     normalized_sha256: str
     channels: tuple[ChannelPreview, ...]
+    governed_source: GovernedSourceInput | None
 
     @classmethod
     def from_snapshot(
@@ -339,6 +367,22 @@ class CanonicalTestDataDocumentResponse(BaseModel):
                     missing_count=item.missing_count,
                 )
                 for item in content.channels
+            ),
+            governed_source=None
+            if content.governed_source is None
+            else GovernedSourceInput(
+                material=ExactRevisionInput(
+                    aggregate_id=content.governed_source.material.aggregate_id,
+                    revision_id=content.governed_source.material.revision_id,
+                ),
+                material_state=ExactRevisionInput(
+                    aggregate_id=content.governed_source.material_state.aggregate_id,
+                    revision_id=content.governed_source.material_state.revision_id,
+                ),
+                test_run=ExactRevisionInput(
+                    aggregate_id=content.governed_source.test_run.aggregate_id,
+                    revision_id=content.governed_source.test_run.revision_id,
+                ),
             ),
         )
 
@@ -444,6 +488,9 @@ def install_canonical_test_data_api(
                     classification=body.classification,
                     document=body.document.to_domain(),
                     change_reason=body.change_reason,
+                    governed_source=None
+                    if body.governed_source is None
+                    else body.governed_source.to_domain(),
                 ),
             )
         except (GovernedImportConflict, AggregateAlreadyExists, IntegrityError) as error:
@@ -501,6 +548,9 @@ def install_canonical_test_data_api(
                     expected_current_revision_id=expected,
                     document=body.document.to_domain(),
                     change_reason=body.change_reason,
+                    governed_source=None
+                    if body.governed_source is None
+                    else body.governed_source.to_domain(),
                 ),
             )
         except InvalidRevisionETag as error:
