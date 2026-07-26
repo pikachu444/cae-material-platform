@@ -286,7 +286,12 @@ Every slice must preserve:
    independent cross-resource provenance proof and blocks absent current session pins;
 10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence, Process curve rail, contextual workup, deterministic tests and current viewport evidence;
 11. UXC-04 explicit Fit decision and model identity — implemented in the UXC-04 branch: null-by-default selection, separate recommendation and engineer selection, typed immutable Fit Decision, single/blend identity, actual server Prony term identity and exact downstream provenance. Final status requires current captures, reviewer sign-off and PR merge;
-12. UXC-05 Validate, Review and Release;
+12. UXC-05 Validate, Review and Release — current: normal Modeling can pin existing synthetic
+    reference validation inputs and run/evaluate the supported non-production OpenRadioss path only
+    when selection evidence plus session IR/Card exact revisions match. Common Processing Output
+    candidates without that adapter are explicitly `Not supported`. Review
+    package production and release-policy input remain explicit `Not configured`; Submit, Request changes,
+    Approve and Release are separately represented and never infer a state from Fit or Validation;
 13. UXC-06 exact Export and traceable delivery;
 14. DUI-07 Administration — pending;
 15. DUI-08 Activity — pending;

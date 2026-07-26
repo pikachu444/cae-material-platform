@@ -308,17 +308,28 @@ function ModuleHubPage({
   config,
   navigate,
   onOpenConnection,
+  locationSearch = "",
 }: {
   area: ModuleArea;
   config: ApiConfig;
   navigate: Navigate;
   onOpenConnection: () => void;
+  locationSearch?: string;
 }) {
   const [materials, setMaterials] = useState<MaterialResponse[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const copy = moduleHubContent[area];
+  const governedContext = useMemo(() => {
+    if (area !== "governance") return [];
+    const query = new URLSearchParams(locationSearch);
+    return [
+      ["Candidate", query.get("candidate_id"), query.get("candidate_revision_id")],
+      ["Validation result", query.get("validation_result_id"), null],
+      ["Solver Card", query.get("solver_card_id"), query.get("solver_card_revision_id")],
+    ].filter((entry): entry is [string, string, string | null] => Boolean(entry[1]));
+  }, [area, locationSearch]);
 
   useEffect(() => {
     if (!config.accessToken.trim()) {
@@ -359,6 +370,10 @@ function ModuleHubPage({
           <div className="hero-actions"><button className="button secondary" type="button" onClick={() => navigate("/datasets/test-json")}>Import Test Data JSON</button><button className="button primary" type="button" onClick={() => navigate("/datasets/processing")}>Open Processing Workbench</button></div>
         ) : null}
       </section>
+      {governedContext.length ? <section className="content-card" aria-label="Exact Modeling governance context">
+        <div className="section-heading"><div><p className="eyebrow">Exact Modeling context</p><h2>Governed objects from the current session</h2></div><button className="button secondary" type="button" onClick={() => navigate("/modeling?stage=review")}>Return to Review / Release</button></div>
+        <dl className="evidence-grid">{governedContext.map(([label, id, revisionId]) => <div key={label}><dt>{label}</dt><dd>{id}{revisionId ? ` · revision ${revisionId}` : ""}</dd></div>)}</dl>
+      </section> : null}
       <section className="content-card">
         <div className="section-heading">
           <div>
@@ -691,9 +706,9 @@ export function App() {
   } else if (path === "/modeling") {
     page = <MaterialModelingWorkspace config={config} onNavigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/activity") {
-    page = <ActivityPage onNavigate={navigate} />;
+    page = <ActivityPage onNavigate={navigate} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/governance" || path === "/jobs-reviews") {
-    page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={retrySession} />;
+    page = <ModuleHubPage area="governance" config={config} navigate={navigate} onOpenConnection={retrySession} locationSearch={location.includes("?") ? location.slice(location.indexOf("?")) : ""} />;
   } else if (path === "/access" || path === "/administration/access") {
     page = <AdministrationWorkspace config={config} navigate={navigate} onOpenConnection={retrySession} section="access" />;
   } else if (path === "/administration/database") {

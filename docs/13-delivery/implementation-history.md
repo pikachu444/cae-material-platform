@@ -3,6 +3,22 @@
 Date: `2026-07-26`
 Foundation version: `0.32.0`
 
+## UXC-05 governed validation boundary implemented (2026-07-26)
+
+Normal Modeling now has a session-bound validation surface for the existing synthetic reference
+contracts. The current selection must match server calibration-candidate evidence and the session-pinned
+Material Model IR and OpenRadioss Solver Card revisions before a user can select exact Template and
+Dataset Selection revisions and create one Validation Plan. A same-State model is never substituted;
+common Processing Output candidates without a compatible adapter are explicitly `Not supported`. Fit
+evidence remains visibly separate from the returned Validation Result. The workbench has no
+latest/first-item fallback and preserves invalidation history when inputs change.
+
+The repository does not yet expose an immutable candidate-package producer or complete release-policy
+input for this session. Therefore Submit, Request changes, Approve and Release are distinct, explicit
+`Not configured`/`Not run` states rather than fabricated SHA-256 values or a manual-ID normal path.
+Exact candidate/result/card context can be sent to Activity and the governed reference harness. This is
+a bounded policy boundary, not approval or release completion.
+
 ## UXC-04 explicit Fit decision and model identity implemented (2026-07-26)
 
 The bounded `agent/uxc-04-fit-decision-identity` branch separates a calculated recommendation,

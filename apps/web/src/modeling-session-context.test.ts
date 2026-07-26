@@ -16,7 +16,7 @@ function populatedSession() {
   let session = reduceModelingSession(null, { type: "PATCH", patch: {
     material: ref("material"), materialState: ref("state"), testData: ref("test-data"),
     mappingProfile: ref("mapping"), recipe: ref("recipe"), processingOutput: ref("processed"),
-    fitCandidate: ref("fit"), selection: ref("selection"), validation: ref("validation"),
+    fitCandidate: ref("fit"), selection: ref("selection"), validationPlan: ref("validation-plan"), validation: ref("validation"),
     reviewRelease: ref("review"), materialModelIr: ref("ir"), neutralModel: ref("neutral"), exportArtifact: ref("export"),
   } });
   return session;
@@ -73,6 +73,7 @@ describe("Modeling session v3 reducer", () => {
     expect(next.processingOutput).toBeUndefined();
     expect(next.fitCandidate).toBeUndefined();
     expect(next.selection).toBeUndefined();
+    expect(next.validationPlan).toBeUndefined();
     expect(next.validation).toBeUndefined();
     expect(next.materialModelIr).toBeUndefined();
     expect(next.neutralModel).toBeUndefined();
@@ -102,11 +103,13 @@ describe("Modeling session v3 reducer", () => {
     const selection = reduceModelingSession(populatedSession(), { type: "SELECT_CANDIDATE", selection: ref("new-selection") });
     expect(selection.processingOutput).toMatchObject({ id: "processed" });
     expect(selection.selection).toMatchObject({ id: "new-selection" });
+    expect(selection.validationPlan).toBeUndefined();
     expect(selection.validation).toBeUndefined();
 
     const draftSelection = reduceModelingSession(populatedSession(), { type: "CHANGE_SELECTION" });
     expect(draftSelection.selection).toBeUndefined();
     expect(draftSelection.processingOutput).toMatchObject({ id: "processed" });
+    expect(draftSelection.validationPlan).toBeUndefined();
     expect(draftSelection.validation).toBeUndefined();
     expect(draftSelection.reviewRelease).toBeUndefined();
     expect(draftSelection.materialModelIr).toBeUndefined();
@@ -131,6 +134,7 @@ describe("Modeling session v3 reducer", () => {
 
     const validation = reduceModelingSession(populatedSession(), { type: "CHANGE_VALIDATION_TARGET" });
     expect(validation.processingOutput).toMatchObject({ id: "processed" });
+    expect(validation.validationPlan).toBeUndefined();
     expect(validation.validation).toBeUndefined();
     expect(validation.exportArtifact).toBeUndefined();
 
@@ -152,6 +156,7 @@ describe("Modeling session v3 reducer", () => {
     expect(next.processingOutput).toBeUndefined();
     expect(next.fitCandidate).toBeUndefined();
     expect(next.selection).toBeUndefined();
+    expect(next.validationPlan).toBeUndefined();
     expect(next.validation).toBeUndefined();
     expect(next.materialModelIr).toBeUndefined();
     expect(next.neutralModel).toBeUndefined();
@@ -170,6 +175,7 @@ describe("Modeling session v3 reducer", () => {
     expect(next.processingOutput).toBeUndefined();
     expect(next.fitCandidate).toBeUndefined();
     expect(next.selection).toBeUndefined();
+    expect(next.validationPlan).toBeUndefined();
     expect(next.validation).toBeUndefined();
     expect(next.materialModelIr).toBeUndefined();
     expect(next.neutralModel).toBeUndefined();

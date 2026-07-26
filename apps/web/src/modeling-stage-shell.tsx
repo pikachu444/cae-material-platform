@@ -34,10 +34,12 @@ function stageStatus(session: ModelingSessionSummary | null, stage: ModelingStag
       : { status: "Warning", reason: "Candidate decision is not yet pinned" };
   if (stage === "validate") return hasStale(["validation"])
     ? { status: "Stale", reason: "Validation must be run again" }
-    : { status: "Blocked", reason: "Validation plan and policy are not configured (UXC-05)" };
+    : session?.validation
+      ? { status: "Warning", reason: `Pinned validation record · ${session.validation.label}; inspect the result state` }
+      : { status: "Blocked", reason: "A candidate-compatible validation adapter, pinned plan and result are required" };
   if (stage === "review") return hasStale(["reviewRelease"])
     ? { status: "Stale", reason: "Source changed; a new review is required" }
-    : { status: "Blocked", reason: "Review and release policy are not configured (UXC-05)" };
+    : { status: "Blocked", reason: "Review package and release policy are not configured for this session" };
   return session?.exportArtifact
     ? { status: "Complete", reason: `Delivered artifact r${session.exportArtifact.revisionNo} pinned` }
     : hasStale(["exportArtifact"]) || invalidation?.dispositions.exportArtifact === "regenerate"

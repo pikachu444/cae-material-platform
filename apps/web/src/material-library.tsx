@@ -854,13 +854,25 @@ export function SolverCardPreviewPage({ config, materialId, cardId, onNavigate }
   </div></div>;
 }
 
-export function ActivityPage({ onNavigate }: Pick<Props, "onNavigate">) {
+export function ActivityPage({
+  onNavigate,
+  locationSearch = "",
+}: Pick<Props, "onNavigate"> & { locationSearch?: string }) {
   const modelingSession = useMemo(() => loadModelingSession(), []);
   const deliveryActivities = useMemo(() => loadDeliveryActivities(), []);
+  const governedContext = useMemo(() => {
+    const query = new URLSearchParams(locationSearch);
+    return [
+      ["Candidate", query.get("candidate_id"), query.get("candidate_revision_id")],
+      ["Validation result", query.get("validation_result_id"), null],
+      ["Solver Card", query.get("solver_card_id"), query.get("solver_card_revision_id")],
+    ].filter((entry): entry is [string, string, string | null] => Boolean(entry[1]));
+  }, [locationSearch]);
   useEffect(() => publishWorkspaceStatus({ selection: "Current workspace activity", revision: "Current user", jobs: "No active job", warnings: "0 warnings", connection: "online" }), []);
   const resumePath = modelingSession ? `/modeling?stage=${modelingSession.workspace.activeStage}&family=${modelingSession.materialFamily}` : "/modeling";
   const stageLabel = modelingSession ? `${modelingSession.workspace.activeStage[0].toUpperCase()}${modelingSession.workspace.activeStage.slice(1)}` : null;
   return <div className="ux-page"><div className="activity-shell"><div className="activity-content"><h2>Current workspace activity</h2>
+    {governedContext.length ? <section className="activity-delivery-section" aria-label="Exact Modeling governance context"><h3>Exact validation and review context</h3><dl className="evidence-grid">{governedContext.map(([label, id, revisionId]) => <div key={label}><dt>{label}</dt><dd>{id}{revisionId ? ` · revision ${revisionId}` : ""}</dd></div>)}</dl><button className="ux-button primary" type="button" onClick={() => onNavigate(`/modeling?stage=validate&family=${modelingSession?.materialFamily ?? "metal"}`)}>Resume Validate</button></section> : null}
     {deliveryActivities.length ? <section className="activity-delivery-section"><h3>Recent solver-card delivery</h3><ul className="activity-list">{deliveryActivities.map((activity) => <li key={`${activity.action}:${activity.cardId}`} data-testid="recent-solver-card-activity"><span><strong>{activity.action === "download" ? "Downloaded" : "Previewed"} · {activity.cardLabel}</strong><small className="ux-meta">{activity.materialLabel} · {activity.solver} {activity.extension} · exact revision retained · {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(activity.occurredAt))}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(`/materials/${activity.materialId}/cards/${activity.cardId}`)}>Open card</button></li>)}</ul></section> : null}
     {modelingSession ? <ul className="activity-list"><li data-testid="recent-modeling-session"><span><strong>{modelingSession.material?.label ?? modelingSession.objective ?? "Material modeling session"}</strong><small className="ux-meta">{`${modelingSession.materialFamily} · ${stageLabel} · ${modelingSession.testData ? `${modelingSession.testData.label} r${modelingSession.testData.revisionNo}` : "No exact Test Data"} · ${modelingSession.workspace.selectedDocumentIds.length} selected curves`}</small></span><button className="ux-button" type="button" onClick={() => onNavigate(resumePath)}>{`Resume ${stageLabel}`}</button></li></ul> : <section className="activity-empty-state" role="status" aria-label="No recent Modeling session"><div><strong>No recent Modeling session</strong><p>This browser has no local Data, Process, Fit, Validate, Review/Release, or Export session to resume.</p></div><button className="ux-button" type="button" onClick={() => onNavigate("/modeling")}>Start Modeling</button></section>}
     <ul className="activity-list activity-destinations"><li><span><strong>Reviews and releases</strong><small className="ux-meta">Open the governed review workspace. Activity attention and queue integration remain pending.</small></span><button className="ux-button" type="button" onClick={() => onNavigate("/jobs-reviews")}>Open review workspace</button></li></ul><details className="ux-disclosure"><summary>Advanced jobs and export packages</summary><p>Inspect batch attempts, technical diagnostics, and checksum-verifiable bulk packages.</p><button className="ux-button" type="button" onClick={() => onNavigate("/exports")}>Open export packages</button></details>

@@ -225,7 +225,7 @@ The delivery sheet shows solver, law, units, revision status and mapping summary
 * Inspector opens only for the current task and can be docked or closed.
 ```
 
-The graph is persistent across Data, Process, Fit and Export. Stage changes update commands, overlays and the inspector; they do not remount an unrelated page. Validate and Review / Release are prerequisite-only states until their governed workflow exists.
+The graph is persistent across Data, Process, Fit and Export. Stage changes update commands, overlays and the inspector; they do not remount an unrelated page. Validate can pin and run existing synthetic reference artifacts only when their calibration-candidate evidence and session IR/card revisions exactly match the current selection; otherwise it reports `Not supported` and never substitutes another model from the same Material State. It never relabels a Fit metric as a result. Review / Release shows the separate Submit, Request changes, Approve and Release states, and stays `Not configured` when the immutable candidate-package producer or release policy is absent.
 
 ### 7.2 Session lifecycle
 
@@ -524,9 +524,9 @@ condition and unit; Yield is not shown for polymer or elastomer results.
 
 Modeling uses a session context strip (exact Material/Test Data revision, family, condition and stage)
 above one persistent graph. Data owns input mapping; Process owns ordered operations and commit; Fit
-owns candidate comparison and explicit selection; Export owns only an exact allowed source, target,
-preflight, preview and delivery. Validate, Review and Release are policy-dependent future stages, not
-labels grafted onto Fit or Export. A task has one primary action and displays unmet prerequisites by
+owns candidate comparison and explicit selection; Validate owns the pinned non-production reference plan/run/result;
+Export owns only an exact allowed source, target, preflight, preview and delivery. Review and Release remain
+policy-dependent states, not labels grafted onto Fit, Validate or Export. A task has one primary action and displays unmet prerequisites by
 blocked commands. Clearing a stale pointer preserves local inputs and graph context rather than
 blanking the workspace; a failed job retains its source/selection and exposes recovery in task and
 Activity.

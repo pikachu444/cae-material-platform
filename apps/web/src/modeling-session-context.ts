@@ -25,6 +25,7 @@ export type ModelingPointerKey =
   | "processingOutput"
   | "fitCandidate"
   | "selection"
+  | "validationPlan"
   | "validation"
   | "reviewRelease"
   | "materialModelIr"
@@ -65,6 +66,7 @@ export interface ModelingSessionSummary {
   processingOutput?: ModelingSessionRecordRef;
   fitCandidate?: ModelingSessionRecordRef;
   selection?: ModelingSessionRecordRef;
+  validationPlan?: ModelingSessionRecordRef;
   validation?: ModelingSessionRecordRef;
   reviewRelease?: ModelingSessionRecordRef;
   materialModelIr?: ModelingSessionRecordRef;
@@ -110,14 +112,14 @@ const DEFAULT_WORKSPACE: ModelingWorkspaceState = {
 
 const ALL_POINTERS: ModelingPointerKey[] = [
   "testData", "mappingProfile", "recipe", "processingOutput", "fitCandidate", "selection",
-  "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact",
+  "validationPlan", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact",
 ];
 const DOWNSTREAM_OF_DATA = ALL_POINTERS.filter((key) => key !== "testData");
 const DOWNSTREAM_OF_MAPPING = ALL_POINTERS.filter(
   (key) => key !== "testData" && key !== "mappingProfile",
 );
-const DOWNSTREAM_OF_PROCESS = ["processingOutput", "fitCandidate", "selection", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
-const DOWNSTREAM_OF_FIT = ["fitCandidate", "selection", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
+const DOWNSTREAM_OF_PROCESS = ["processingOutput", "fitCandidate", "selection", "validationPlan", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
+const DOWNSTREAM_OF_FIT = ["fitCandidate", "selection", "validationPlan", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"] as const;
 
 function now(): string {
   return new Date().toISOString();
@@ -204,6 +206,7 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
     case "CHANGE_SELECTION": {
       const keys: ModelingPointerKey[] = [
         "selection",
+        "validationPlan",
         "validation",
         "reviewRelease",
         "materialModelIr",
@@ -221,10 +224,10 @@ export function reduceModelingSession(session: ModelingSessionSummary | null, ev
     }
     case "SELECT_CANDIDATE":
       if (sameRef(current.selection, event.selection)) return current;
-      return withInvalidation({ ...current, selection: event.selection }, "selection", clearEntries(["validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"]));
+      return withInvalidation({ ...current, selection: event.selection }, "selection", clearEntries(["validationPlan", "validation", "reviewRelease", "materialModelIr", "neutralModel", "exportArtifact"]));
     case "CHANGE_VALIDATION_TARGET":
       return withInvalidation(current, "validation-target", {
-        validation: "clear", reviewRelease: "stale", exportArtifact: "clear",
+        validationPlan: "clear", validation: "clear", reviewRelease: "stale", exportArtifact: "clear",
       });
     case "CHANGE_TARGET_PROFILE":
       return withInvalidation(current, "target-profile", {

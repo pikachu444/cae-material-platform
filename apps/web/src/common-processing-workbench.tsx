@@ -71,6 +71,11 @@ const PronyCandidateEvidence = lazy(() =>
     default: module.PronyCandidateEvidence,
   })),
 );
+const ModelingValidationStage = lazy(() =>
+  import("./modeling-validation-stage").then((module) => ({
+    default: module.ModelingValidationStage,
+  })),
+);
 
 interface Props {
   config: ApiConfig;
@@ -1995,12 +2000,15 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       </details> : null}
 
       {elastomerWorkbenchTask ? <section className="modeling-elastomer-workspace" id="modeling-fit" aria-label="Elastomer multi-mode modeling workspace">{familyWorkbench}</section> : null}
-      {workflowTask === "validate" || workflowTask === "review" ? <section className="modeling-stage-placeholder" aria-label={`${workflowTask} prerequisite`}>
-        <h2>{workflowTask === "validate" ? "Validation is not configured" : "Review and release are not configured"}</h2>
-        <p>{workflowTask === "validate"
-          ? "A validation plan, reference, and result record are required before this stage can report a result. Those domain contracts are delivered by UXC-05."
-          : "Review, approval, and release are separate governed events. This session does not infer them from a fit or preview."}</p>
-      </section> : null}
+      {workflowTask === "validate" || workflowTask === "review" ? <Suspense fallback={<p className="loading-state">Loading governed evidence…</p>}><ModelingValidationStage
+        config={config}
+        materialState={materialState}
+        session={initialSession}
+        family={modelingTrack}
+        onSessionChange={onSessionChange}
+        onSessionEvent={onSessionEvent}
+        onNavigate={onNavigate}
+      /></Suspense> : null}
       {!elastomerWorkbenchTask && workflowTask !== "validate" && workflowTask !== "review" ? <section className={`workbench-card method-builder-card stage-${workflowTask}`} id="modeling-process">
         <div className="section-heading"><div><p className="workspace-caption">{workflowTask}</p><h2>{stageTitle}</h2></div><div className="modeling-section-actions">{workflowTask === "process" || workflowTask === "fit" ? <details className="method-library"><summary>{workflowTask === "fit" ? "Add fit method" : "Add operation"} <span>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).length}</span></summary><div className="method-registry-strip" aria-label={workflowTask === "fit" ? "Available fitting methods" : "Available processing operations"}>{trackMethods.filter((method) => workflowTask === "fit" ? isFitMethod(method.method_id) : !isFitMethod(method.method_id)).map((method) => <button type="button" className="method-pill" key={method.method_id} onClick={() => addMethod(method)} title={method.description}><strong>+ {method.label}</strong><small>{method.version}</small></button>)}</div></details> : null}{workflowTask === "process" ? <button className="button secondary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : "Update preview"}</button> : workflowTask !== "data" && workflowTask !== "export" ? <button className="button primary" type="button" disabled={busy || previewBusy} onClick={() => void runPreview()}>{previewBusy ? "Updating preview…" : stageAction}</button> : workflowTask === "export" ? <button className="button secondary" type="button" onClick={() => openWorkflowTask("fit")}>Back to Fit</button> : null}</div></div>
         <ModelingWorkspaceLayout

@@ -171,6 +171,27 @@ captures:
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080
+  - id: modeling-validation-1366
+    route: /modeling?stage=validate&family=metal
+    workflow: UXC-05 exact-validation-prerequisites-and-fail-closed-review-release-commands
+    fixture: synthetic reference artifacts; no candidate package or release-policy producer
+    image: images/current/modeling-validation-1366x768.png
+    width: 1366
+    height: 768
+  - id: modeling-validation-1440
+    route: /modeling?stage=validate&family=metal
+    workflow: UXC-05 exact-validation-prerequisites-and-fail-closed-review-release-commands
+    fixture: synthetic reference artifacts; no candidate package or release-policy producer
+    image: images/current/modeling-validation-1440x900.png
+    width: 1440
+    height: 900
+  - id: modeling-validation-1920
+    route: /modeling?stage=validate&family=metal
+    workflow: UXC-05 exact-validation-prerequisites-and-fail-closed-review-release-commands
+    fixture: synthetic reference artifacts; no candidate package or release-policy producer
+    image: images/current/modeling-validation-1920x1080.png
+    width: 1920
+    height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
     workflow: exact-neutral-mapping-preflight-and-native-card-delivery

@@ -472,8 +472,9 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("heading", { name: "Verify source & channel mapping" })).toBeTruthy();
     expect(screen.queryByText("Metal hardening candidates")).toBeNull();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:validate" } }));
-    expect(await screen.findByRole("heading", { name: "Validation is not configured" })).toBeTruthy();
-    expect(document.querySelector(".modeling-stage-placeholder")?.textContent).toContain("UXC-05");
+    expect(await screen.findByRole("heading", { name: "Validation, review and release" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Submit · Not configured" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "Release · Not configured" }).hasAttribute("disabled")).toBe(true);
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:data" } }));
     fireEvent.click(screen.getByRole("tab", { name: /Polymer/ }));
     expect((screen.getByLabelText("Mapping Profile JSON") as HTMLTextAreaElement).value).toContain(

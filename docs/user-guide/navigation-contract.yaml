@@ -1,4 +1,4 @@
-version: 13
+version: 14
 shell:
   application_bar_px: 46
   command_bar_px: 38
@@ -44,7 +44,7 @@ materials_workspace:
     unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
-  task: DUI-04/DUI-05/DUI-06 (complete); UXC-02 session-state corrective slice complete, UXC-03~06 pending
+  task: DUI-04/DUI-05/DUI-06 and UXC-02~05 complete; UXC-06 pending
   route: /modeling
   query:
     stage: [data, process, fit, validate, review, export]
@@ -66,19 +66,20 @@ modeling_workspace:
     context_change: [clear-downstream-current-pointers, retain-immutable-history-as-stale]
     numerical_autocommit: forbidden
     preview_label: Preview only · not committed
-    activity_resume: [material-session, active-stage, exact-test-data-revision, selected-curve-identities]
+    activity_resume: [material-session, active-stage, exact-test-data-revision, selected-curve-identities, candidate-revision, validation-result, solver-card-revision]
   stage_ownership:
     data: [exact-test-data, mapping-profile, channel-summary, import]
     process: [processing-operations, necking-boundary, processed-preview]
     fit: [candidate-equations, residual, extrapolation]
-    validate: [blocked-validation-plan-or-result-prerequisite]
-    review: [blocked-review-release-policy-prerequisite]
+    validate: [candidate-compatible-adapter, exact-plan, distinct-run-result, explicit-not-supported]
+    review: [separate-submit-request-changes-approve-release, explicit-not-configured]
     export: [selected-model, observed-fit-range, persistent-graph, bottom-delivery-dock]
   current_status:
     dui_01_to_06: complete
     pr_124_fit_export: complete
     uxc_01: complete-bounded-server-query-slice
     uxc_02: complete-v3-session-invalidation-and-stage-shell
-    uxc_03_to_06: corrective-work-pending
+    uxc_03_to_05: complete
+    uxc_06: corrective-work-pending
     dui_07_to_09: pending
   capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, exact-catalog-link-resolved, no-checking-loading-or-resolving-state, no-horizontal-overflow]

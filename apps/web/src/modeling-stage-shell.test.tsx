@@ -24,7 +24,7 @@ describe("ModelingStageShell", () => {
 
     expect(screen.getByRole("button", { name: /Data.*Complete.*Exact Test Data/i })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Fit.*Warning.*decision is not yet pinned/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Validate.*Blocked.*not configured/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Validate.*Blocked.*candidate-compatible validation adapter/i })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Review \/ Release/ }));
     expect(change).toHaveBeenCalledWith("review");
   });
