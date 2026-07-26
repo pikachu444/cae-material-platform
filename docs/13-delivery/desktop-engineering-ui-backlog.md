@@ -284,8 +284,8 @@ Every slice must preserve:
    Validate and Review/Release remain explicit blocked placeholders pending UXC-05; API Processing
    Output does not expose a Material/State pin, so the normal Export surface does not claim an
    independent cross-resource provenance proof and blocks absent current session pins;
-10. UXC-03 Data and Process domain components — raw source/mapping/provenance evidence, Process curve rail and contextual workup are implemented in the UXC-03 branch. Final status requires the linked live-browser capture, screenshot manifest and PR merge;
-11. UXC-04 explicit Fit decision and model identity;
+10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence, Process curve rail, contextual workup, deterministic tests and current viewport evidence;
+11. UXC-04 explicit Fit decision and model identity — implemented in the UXC-04 branch: null-by-default selection, separate recommendation and engineer selection, typed immutable Fit Decision, single/blend identity, actual server Prony term identity and exact downstream provenance. Final status requires current captures, reviewer sign-off and PR merge;
 12. UXC-05 Validate, Review and Release;
 13. UXC-06 exact Export and traceable delivery;
 14. DUI-07 Administration — pending;

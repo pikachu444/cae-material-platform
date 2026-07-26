@@ -1,7 +1,25 @@
 # Implementation Status
 
-Date: `2026-07-24`
+Date: `2026-07-26`
 Foundation version: `0.32.0`
+
+## UXC-04 explicit Fit decision and model identity implemented (2026-07-26)
+
+The bounded `agent/uxc-04-fit-decision-identity` branch separates a calculated recommendation,
+explicit engineer selection, immutable saved result and downstream model/export evidence. Selection
+starts null. Metal exposes four calculated single-law rows plus the exact calculated preview blend;
+changing preview laws or ratio requires recalculation, and the graph says `Preview` until an
+engineer explicitly selects a row. Polymer permits only the actual server-produced term identity and
+measured range, with no requested-policy or `0..1` fallback.
+
+The Processing Output stores a typed Fit Decision snapshot after server recomputation and identity,
+range, metric, parameter and bound validation. The exact selected identity and reason then project as
+descriptive provenance through the existing synthetic reference model/Neutral paths. Export
+eligibility requires the session's exact selected output and the typed snapshot; upstream changes
+invalidate downstream current pointers without mutating immutable revisions. Current live evidence
+covers 26 screenshots at 1366×768, 1440×900 and 1920×1080. The bounded reviewer found and verified
+fixes for curve identity, saved-current invalidation, preview reselection and parameter completeness;
+final completion remains gated on CI and PR merge.
 
 ## DUI-06 Fit and Export decision workflow implemented (2026-07-24)
 

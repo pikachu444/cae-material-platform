@@ -276,13 +276,14 @@
           "items": {"$ref": "#/$defs/ProcessingStep"}
         },
         "change_reason": {"type": "string", "minLength": 1, "maxLength": 2000},
-        "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}}
+        "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}},
+        "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]}
       }
     },
     "ProcessingOutputResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "workup_overrides"],
+      "required": ["processing_output_id", "current_revision", "label", "source_document", "source_document_sha256", "source_canonical_artifact_sha256", "mapping_profile", "mapping_profile_sha256", "steps", "independent_quantity", "stage_count", "final_point_count", "output_artifact_id", "output_sha256", "workup_overrides", "fit_decision"],
       "properties": {
         "processing_output_id": {"type": "string", "format": "uuid"},
         "current_revision": {"$ref": "../revisions/revision-metadata.schema.json"},
@@ -298,7 +299,8 @@
         "final_point_count": {"type": "integer", "minimum": 2, "maximum": 100000},
         "output_artifact_id": {"type": "string", "format": "uuid"},
         "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}}
+        "workup_overrides": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/ProcessingWorkupOverride"}},
+        "fit_decision": {"anyOf": [{"$ref": "#/$defs/FitDecision"}, {"type": "null"}]}
       }
     },
     "ProcessingWorkupOverride": {
@@ -312,6 +314,33 @@
         "canonical_value": {"type": "number", "minimum": 0},
         "canonical_unit": {"type": "string", "minLength": 1, "maxLength": 160},
         "reason": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "FitDecisionParameter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "value", "unit", "lower", "upper"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 160},
+        "value": {"type": "number"}, "unit": {"type": "string", "minLength": 1, "maxLength": 160},
+        "lower": {"type": ["number", "null"]}, "upper": {"type": ["number", "null"]}
+      }
+    },
+    "FitDecisionParameterSet": {
+      "type": "object", "additionalProperties": false,
+      "required": ["law", "parameters"],
+      "properties": {"law": {"type": "string", "minLength": 1, "maxLength": 160}, "parameters": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/FitDecisionParameter"}}}
+    },
+    "FitDecision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidate_key", "mode", "primary_law", "secondary_law", "primary_weight", "parameter_sets", "fit_minimum", "fit_maximum", "extrapolation_maximum", "extrapolation_policy", "metric_definition", "metric_value", "requested_term_policy", "actual_term_count", "selection_reason", "warning_acknowledged"],
+      "properties": {
+        "candidate_key": {"type": "string", "minLength": 1, "maxLength": 160}, "mode": {"enum": ["single", "blend"]}, "primary_law": {"type": "string", "minLength": 1, "maxLength": 160},
+        "secondary_law": {"type": ["string", "null"], "minLength": 1, "maxLength": 160}, "primary_weight": {"type": ["number", "null"]},
+        "parameter_sets": {"type": "array", "minItems": 1, "maxItems": 2, "items": {"$ref": "#/$defs/FitDecisionParameterSet"}},
+        "fit_minimum": {"type": "number"}, "fit_maximum": {"type": "number"}, "extrapolation_maximum": {"type": ["number", "null"]},
+        "extrapolation_policy": {"type": "string", "minLength": 1, "maxLength": 160}, "metric_definition": {"type": "string", "minLength": 1, "maxLength": 160}, "metric_value": {"type": "number"},
+        "requested_term_policy": {"type": ["string", "null"], "minLength": 1, "maxLength": 160}, "actual_term_count": {"type": ["integer", "null"], "minimum": 1, "maximum": 10},
+        "selection_reason": {"type": "string", "minLength": 1, "maxLength": 2000}, "warning_acknowledged": {"type": "boolean"}
       }
     },
     "ProcessingOutputListResponse": {

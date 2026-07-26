@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any, cast
 from uuid import UUID
 
 import pytest
@@ -20,15 +23,23 @@ from cmp.modules.processing.application.common_outputs import (
     CommonPipelineError,
     CommonProcessingOutputService,
     ExactRevisionPin,
+    FitDecisionParameter,
+    FitDecisionParameterSet,
+    FitDecisionSnapshot,
     ProcessingWorkupOverride,
     processing_output_document,
+    validate_fit_decision,
     validate_workup_overrides,
 )
 from cmp.modules.processing.domain.common_pipeline import (
     ChannelBinding,
+    CurveStage,
     MappingProfileContent,
     MissingDataPolicy,
+    ProcessingPreview,
     ProcessingStep,
+    QuantitySeries,
+    ScalarResult,
     preview_pipeline,
 )
 from cmp.shared.domain.revisions import canonical_json_bytes
@@ -62,6 +73,260 @@ _DECISION = AuthorizationDecision(
     trace_id=_CONTEXT.trace_id,
     decided_at=_CONTEXT.authenticated_at,
 )
+
+
+def test_fit_decision_snapshot_preserves_single_and_blend_identity() -> None:
+    single = FitDecisionSnapshot(
+        candidate_key="swift",
+        mode="single",
+        primary_law="swift",
+        secondary_law=None,
+        primary_weight=None,
+        parameter_sets=(
+            FitDecisionParameterSet("swift", (FitDecisionParameter("K", 500e6, "Pa"),)),
+        ),
+        fit_minimum=0.01,
+        fit_maximum=0.12,
+        extrapolation_maximum=0.2,
+        extrapolation_policy="bounded",
+        metric_definition="relative RMSE",
+        metric_value=0.012,
+        requested_term_policy=None,
+        actual_term_count=None,
+        selection_reason="Stable observed response.",
+        warning_acknowledged=False,
+    )
+    assert single.mode == "single"
+    assert single.parameter_sets[0].law == "swift"
+
+    with pytest.raises(CommonPipelineError, match="blend fit decision"):
+        FitDecisionSnapshot(
+            candidate_key="swift+voce",
+            mode="blend",
+            primary_law="swift",
+            secondary_law="voce",
+            primary_weight=0.5,
+            parameter_sets=(
+                FitDecisionParameterSet("swift", (FitDecisionParameter("K", 500e6, "Pa"),)),
+            ),
+            fit_minimum=0.01,
+            fit_maximum=0.12,
+            extrapolation_maximum=0.2,
+            extrapolation_policy="bounded",
+            metric_definition="relative RMSE",
+            metric_value=0.012,
+            requested_term_policy=None,
+            actual_term_count=None,
+            selection_reason="Need both laws.",
+            warning_acknowledged=True,
+        )
+    with pytest.raises(CommonPipelineError, match="must be trimmed"):
+        replace(single, selection_reason=" Stable observed response. ")
+
+
+def test_fit_preflight_rejects_missing_or_mismatched_decision_before_persistence() -> None:
+    step = ProcessingStep(
+        "metal.hardening_fit_extrapolate",
+        "1.0.0",
+        {
+            "families": ["swift"],
+            "primary_family": "swift",
+            "secondary_family": "swift",
+            "primary_weight": 0.5,
+            "fit_minimum_strain": 0.01,
+            "fit_maximum_strain": 0.12,
+            "extrapolation_maximum_strain": 0.2,
+        },
+    )
+    preview = ProcessingPreview(
+        "a" * 64,
+        "b" * 64,
+        "strain.plastic",
+        (
+            CurveStage(
+                0,
+                "mapping",
+                "1.0.0",
+                2,
+                (
+                    QuantitySeries("strain.plastic", "1", (0.0, 0.1)),
+                    QuantitySeries("stress", "Pa", (1.0, 2.0)),
+                ),
+                (),
+                (),
+            ),
+            CurveStage(
+                1,
+                step.method_id,
+                step.method_version,
+                2,
+                (
+                    QuantitySeries("strain.plastic", "1", (0.0, 0.1)),
+                    QuantitySeries("stress", "Pa", (1.0, 2.0)),
+                ),
+                (),
+                (ScalarResult("swift.relative_rmse", "statistics.relative_rmse", 0.01, "1"),),
+            ),
+        ),
+    )
+    with pytest.raises(CommonPipelineError, match="requires an explicit fit decision"):
+        validate_fit_decision((step,), preview, None)
+
+
+def test_fit_preflight_binds_metal_selection_to_recomputed_scalar_evidence() -> None:
+    step = ProcessingStep(
+        "metal.hardening_fit_extrapolate",
+        "1.0.0",
+        {
+            "families": ["swift"],
+            "primary_family": "swift",
+            "secondary_family": "swift",
+            "primary_weight": 0.5,
+            "fit_minimum_strain": 0.01,
+            "fit_maximum_strain": 0.12,
+            "extrapolation_maximum_strain": 0.2,
+        },
+    )
+    scalars = (
+        ScalarResult("swift.relative_rmse", "statistics.relative_rmse", 0.01, "1"),
+        ScalarResult("swift.parameter.K", "model.parameter.K", 500e6, "Pa"),
+        ScalarResult("swift.parameter.K.lower", "model.parameter.bound.lower.K", 1.0, "Pa"),
+        ScalarResult("swift.parameter.K.upper", "model.parameter.bound.upper.K", 1e9, "Pa"),
+        ScalarResult("swift.parameter.epsilon_0", "model.parameter.epsilon_0", 0.002, "1"),
+        ScalarResult(
+            "swift.parameter.epsilon_0.lower",
+            "model.parameter.bound.lower.epsilon_0",
+            1e-8,
+            "1",
+        ),
+        ScalarResult(
+            "swift.parameter.epsilon_0.upper",
+            "model.parameter.bound.upper.epsilon_0",
+            1.0,
+            "1",
+        ),
+    )
+    stage = CurveStage(1, step.method_id, step.method_version, 2, (), (), scalars)
+    preview = ProcessingPreview("a" * 64, "b" * 64, "strain.plastic", (stage, stage))
+    decision = FitDecisionSnapshot(
+        candidate_key="swift",
+        mode="single",
+        primary_law="swift",
+        secondary_law=None,
+        primary_weight=None,
+        parameter_sets=(
+            FitDecisionParameterSet(
+                "swift",
+                (
+                    FitDecisionParameter("K", 500e6, "Pa", 1.0, 1e9),
+                    FitDecisionParameter("epsilon_0", 0.002, "1", 1e-8, 1.0),
+                ),
+            ),
+        ),
+        fit_minimum=0.01,
+        fit_maximum=0.12,
+        extrapolation_maximum=0.2,
+        extrapolation_policy="bounded",
+        metric_definition="relative_rmse",
+        metric_value=0.01,
+        requested_term_policy=None,
+        actual_term_count=None,
+        selection_reason="Stable response.",
+        warning_acknowledged=False,
+    )
+    validate_fit_decision((step,), preview, decision)
+    with pytest.raises(CommonPipelineError, match="differs from recomputed"):
+        validate_fit_decision((step,), preview, replace(decision, metric_value=0.02))
+    with pytest.raises(CommonPipelineError, match="incomplete"):
+        validate_fit_decision(
+            (step,),
+            preview,
+            replace(
+                decision,
+                parameter_sets=(
+                    FitDecisionParameterSet(
+                        "swift",
+                        (FitDecisionParameter("K", 500e6, "Pa", 1.0, 1e9),),
+                    ),
+                ),
+            ),
+        )
+
+
+def test_fit_preflight_binds_polymer_range_and_parameters_to_actual_server_result() -> None:
+    step = ProcessingStep(
+        "polymer.prony_fit_compare",
+        "1.0.0",
+        {
+            "selection_mode": "automatic_bic",
+            "candidate_term_counts": [1, 2],
+            "selection_reason": "Compare actual server candidates.",
+        },
+    )
+    scalars = (
+        ScalarResult("prony_selected_term_count", "model.prony.term_count", 2, "1"),
+        ScalarResult("prony_2_normalized_rmse", "statistics.normalized_rmse", 0.012, "1"),
+        ScalarResult("prony_equilibrium_modulus", "modulus.shear.equilibrium", 1e6, "Pa"),
+        ScalarResult("prony_g_ratio_1", "model.prony.shear_ratio", 0.2, "1"),
+        ScalarResult("prony_relaxation_time_1", "time.relaxation", 0.1, "s"),
+        ScalarResult("prony_g_ratio_2", "model.prony.shear_ratio", 0.3, "1"),
+        ScalarResult("prony_relaxation_time_2", "time.relaxation", 10, "s"),
+    )
+    stage = CurveStage(
+        1,
+        step.method_id,
+        step.method_version,
+        3,
+        (QuantitySeries("time", "s", (0.1, 1, 10)),),
+        (),
+        scalars,
+    )
+    preview = ProcessingPreview("a" * 64, "b" * 64, "time", (stage, stage))
+    parameters = tuple(
+        FitDecisionParameter(item.key, item.value, item.unit)
+        for item in scalars
+        if item.key == "prony_equilibrium_modulus"
+        or item.key.startswith("prony_g_ratio_")
+        or item.key.startswith("prony_relaxation_time_")
+    )
+    decision = FitDecisionSnapshot(
+        candidate_key="prony:2",
+        mode="single",
+        primary_law="generalized_maxwell",
+        secondary_law=None,
+        primary_weight=None,
+        parameter_sets=(FitDecisionParameterSet("generalized_maxwell", parameters),),
+        fit_minimum=0.1,
+        fit_maximum=10,
+        extrapolation_maximum=None,
+        extrapolation_policy="observed_only",
+        metric_definition="normalized_rmse",
+        metric_value=0.012,
+        requested_term_policy="automatic_bic",
+        actual_term_count=2,
+        selection_reason="Select the actual two-term server result.",
+        warning_acknowledged=False,
+    )
+    validate_fit_decision((step,), preview, decision)
+
+    with pytest.raises(CommonPipelineError, match="differs from recomputed"):
+        validate_fit_decision((step,), preview, replace(decision, fit_minimum=0.2))
+
+    forged_parameters = (
+        replace(parameters[0], value=2e6),
+        *parameters[1:],
+    )
+    with pytest.raises(CommonPipelineError, match="differs from recomputed"):
+        validate_fit_decision(
+            (step,),
+            preview,
+            replace(
+                decision,
+                parameter_sets=(
+                    FitDecisionParameterSet("generalized_maxwell", forged_parameters),
+                ),
+            ),
+        )
 
 
 class _NoCallPort:
@@ -293,6 +558,85 @@ def test_workup_override_rejections_are_bound_to_executed_steps(
 ) -> None:
     with pytest.raises(Exception, match=message):
         validate_workup_overrides(steps, overrides)
+
+
+def test_preflight_rejects_decision_on_nonfit_before_artifact_or_revision() -> None:
+    import asyncio
+
+    source_bytes = Path("contracts/examples/positive/canonical-test-data.json").read_bytes()
+    profile = MappingProfileContent(
+        profile_key="tensile",
+        label="Tensile mapping",
+        independent_quantity="strain.engineering",
+        missing_data_policy=MissingDataPolicy.DROP_ANY,
+        bindings=(
+            ChannelBinding("engineering_strain", "strain.engineering", ("1",)),
+            ChannelBinding("engineering_stress", "stress.engineering", ("Pa",)),
+        ),
+    )
+
+    class Source:
+        async def export_document(self, *args: object) -> object:
+            return SimpleNamespace(
+                current=SimpleNamespace(
+                    scope=SimpleNamespace(classification="internal"),
+                    content=SimpleNamespace(canonical_sha256="c" * 64),
+                )
+            ), source_bytes
+
+    class Profiles:
+        def get_profile_revision(self, *args: object) -> object:
+            return SimpleNamespace(
+                current=SimpleNamespace(scope=SimpleNamespace(classification="internal")),
+                content=profile,
+            )
+
+    artifacts = _NoCallPort()
+    repository = _NoCallPort()
+    service = CommonProcessingOutputService(
+        repository=cast(Any, repository),
+        test_data=cast(Any, Source()),
+        profiles=cast(Any, Profiles()),
+        artifacts=cast(Any, artifacts),
+    )
+    decision = FitDecisionSnapshot(
+        candidate_key="swift",
+        mode="single",
+        primary_law="swift",
+        secondary_law=None,
+        primary_weight=None,
+        parameter_sets=(
+            FitDecisionParameterSet("swift", (FitDecisionParameter("K", 500e6, "Pa"),)),
+        ),
+        fit_minimum=0.01,
+        fit_maximum=0.12,
+        extrapolation_maximum=0.2,
+        extrapolation_policy="bounded",
+        metric_definition="relative_rmse",
+        metric_value=0.01,
+        requested_term_policy=None,
+        actual_term_count=None,
+        selection_reason="This must not attach to a processing-only output.",
+        warning_acknowledged=False,
+    )
+    command = CommitProcessingOutput(
+        classification=DataClassification.INTERNAL,
+        label="Invalid fit decision",
+        source_document=ExactRevisionPin(
+            UUID("d5400000-0000-4000-8000-000000000105"),
+            UUID("d5400000-0000-4000-8000-000000000106"),
+        ),
+        mapping_profile=ExactRevisionPin(
+            UUID("d5400000-0000-4000-8000-000000000107"),
+            UUID("d5400000-0000-4000-8000-000000000108"),
+        ),
+        steps=(ProcessingStep("rows.sort_unique", "1.0.0", {"duplicate_policy": "reject"}),),
+        change_reason="Reject an arbitrary decision",
+        fit_decision=decision,
+    )
+    with pytest.raises(CommonPipelineError, match="only allowed when committing a fit step"):
+        asyncio.run(service.commit(_CONTEXT, _DECISION, command))
+    assert artifacts.calls == repository.calls == 0
 
 
 def test_preflight_rejects_missing_manual_workup_evidence_before_artifact_or_revision() -> None:

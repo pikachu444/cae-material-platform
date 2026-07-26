@@ -120,7 +120,9 @@ export function ReferenceLinearViscoelasticWorkbench({
         (output) => [
           "polymer.prony_fit_compare",
           "polymer.dma_prony_fit_compare",
-        ].includes(output.steps.at(-1)?.method_id ?? ""),
+        ].includes(output.steps.at(-1)?.method_id ?? "")
+          && output.fit_decision?.primary_law === "generalized_maxwell"
+          && typeof output.fit_decision?.actual_term_count === "number",
       );
       setProcessingOutputs(promotable);
       setProcessingOutputId(

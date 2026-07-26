@@ -344,6 +344,10 @@ describe("Common Processing Workbench", () => {
                   value: 0.012,
                   unit: "1",
                 },
+                { key: "swift.relative_rmse", quantity_semantics: "statistics.relative_rmse", value: 0.01, unit: "1" },
+                { key: "swift.parameter.K", quantity_semantics: "model.parameter.K", value: 5e8, unit: "Pa" },
+                { key: "swift.parameter.K.lower", quantity_semantics: "model.parameter.bound.lower.K", value: 1, unit: "Pa" },
+                { key: "swift.parameter.K.upper", quantity_semantics: "model.parameter.bound.upper.K", value: 1e9, unit: "Pa" },
               ],
             },
           ],
@@ -452,7 +456,11 @@ describe("Common Processing Workbench", () => {
     expect(screen.queryByRole("navigation", { name: "Material Modeling steps" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Card" })).toBeNull();
     expect(screen.getByRole("tablist", { name: "Material modeling family" })).toBeTruthy();
-    expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
+    expect(await screen.findByRole(
+      "img",
+      { name: "Hardening candidate and selected extrapolation curves" },
+      { timeout: 5000 },
+    )).toBeTruthy();
     expect(screen.getByRole("button", { name: /Specimen 01/ }).getAttribute("title")).toContain("DP600-TENSILE-01");
     const settingsControl = screen.getByRole("button", { name: /current-stage settings/ });
     expect(settingsControl).toBeTruthy();
@@ -483,7 +491,11 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Load exact JSON" }));
     expect(await screen.findByText(/Loaded exact Test Data revision 1/)).toBeTruthy();
     fireEvent(window, new CustomEvent("cmp:workspace-command", { detail: { command: "modeling:fit" } }));
-    expect(await screen.findByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
+    expect(await screen.findByRole(
+      "img",
+      { name: "Hardening candidate and selected extrapolation curves" },
+      { timeout: 5000 },
+    )).toBeTruthy();
     expect((screen.getByLabelText("Ordered processing steps") as HTMLTextAreaElement).value).toContain(
       '"method_id": "metal.hardening_fit_extrapolate"',
     );
@@ -497,14 +509,26 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Update candidates" }));
     expect(await screen.findByText("Preview only · not committed")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
-    expect(screen.getByText("Selected blend · fitted domain")).toBeTruthy();
+    expect(screen.getByText("Preview blend · swift + voce · fitted domain")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
-    expect(await screen.findByRole("columnheader", { name: "Applicability" })).toBeTruthy();
-    fireEvent.change(screen.getByLabelText("Hardening candidate selection reason"), {
+    expect(await screen.findByRole("columnheader", { name: "Recommendation" })).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Save selected candidate" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
+    expect(screen.getByText("Selected · swift · fitted domain")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
       target: { value: "Select Swift after comparing response, residual and tangent stability." },
     });
-    expect((screen.getByRole("button", { name: "Save selected fit output" }) as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Save selected fit output" }));
+    expect((screen.getByRole("button", { name: "Save selected candidate" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Update candidates" }));
+    await waitFor(() => {
+      expect((screen.getByRole("button", { name: "Save selected candidate" }) as HTMLButtonElement).disabled).toBe(true);
+      expect(screen.queryByLabelText("Candidate selection reason")).toBeNull();
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
+    fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
+      target: { value: "Re-select Swift after the successful candidate recomputation." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save selected candidate" }));
     expect(await screen.findByRole("heading", { name: "Inspect exact source & solver export" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Export is blocked" })).toBeTruthy();
     expect(screen.getByText(/stale, different-material, or unverified output is never used as a fallback/i)).toBeTruthy();
@@ -520,11 +544,13 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByRole("heading", { name: "Prepare observed curves" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Save processed curves" })).toBeTruthy();
     expect(screen.queryByText("Fit evidence")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: /1rows\.sort_unique/ }));
+    fireEvent.click(screen.getByRole("button", {
+      name: /1Sort and resolve duplicate x values3 points/,
+    }));
     expect(screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" })).toBeTruthy();
     expect(screen.getByText("input rows sorted by independent quantity")).toBeTruthy();
 
-    fireEvent.click(screen.getAllByRole("button", { name: /metal\.elastic_modulus/ })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /2Young's modulus1\.0\.0/ }));
     expect(screen.getByRole("button", { name: "Auto robust" }).className).toContain("active");
     fireEvent.click(screen.getByRole("button", { name: "Manual slope" }));
     fireEvent.change(screen.getByLabelText("Manual Young's modulus"), { target: { value: "205" } });
@@ -535,7 +561,7 @@ describe("Common Processing Workbench", () => {
     expect(guidedSteps[1].options.method).toBe("manual");
     expect(guidedSteps[1].options.manual_modulus_pa).toBe(205_000_000_000);
     await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
-    fireEvent.click(screen.getAllByRole("button", { name: /metal\.elastic_modulus/ })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /2Young's modulus1\.0\.0/ }));
     const elasticPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     Object.defineProperty(elasticPlot, "getBoundingClientRect", {
       value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),
@@ -552,7 +578,7 @@ describe("Common Processing Workbench", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Update preview" }));
     await screen.findByRole("img", { name: "Mapped and selected processing stage curve overlay" });
-    fireEvent.click(screen.getAllByRole("button", { name: /metal\.necking_candidate/ })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /4Necking candidate1\.0\.0/ }));
     const neckingPlot = screen.getByRole("img", { name: "Mapped and selected processing stage curve overlay" });
     Object.defineProperty(neckingPlot, "getBoundingClientRect", {
       value: () => ({ left: 0, top: 0, right: 760, bottom: 420, width: 760, height: 420, x: 0, y: 0, toJSON: () => ({}) }),

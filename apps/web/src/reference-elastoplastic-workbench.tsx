@@ -213,7 +213,8 @@ export function ReferenceElastoplasticWorkbench({
   const eligibleProcessingOutputs = useMemo(
     () =>
       processingOutputs.filter(
-        (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate",
+        (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate"
+          && output.fit_decision?.mode !== undefined,
       ),
     [processingOutputs],
   );
@@ -244,7 +245,8 @@ export function ReferenceElastoplasticWorkbench({
       );
       setSelectedDatasetRevisionId((current) => current || eligible[0]?.current_revision.id || "");
       const eligibleOutputs = outputResult.data.items.filter(
-        (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate",
+        (output) => output.steps.at(-1)?.method_id === "metal.hardening_fit_extrapolate"
+          && output.fit_decision?.mode !== undefined,
       );
       const preferredOutput = eligibleOutputs.find(
         (output) => output.processing_output_id === preferredProcessingOutputId,

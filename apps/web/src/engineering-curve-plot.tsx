@@ -13,6 +13,10 @@ import type {
   CommonProcessingStep,
   GraphSelectionCommand,
 } from "./types";
+import {
+  fitDecisionIdentityLabel,
+  type FitDecisionSelection,
+} from "./modeling-fit-decision-contract";
 
 export interface PlotBounds {
   xMin: number;
@@ -54,6 +58,10 @@ export type PronyPlotMode = "response" | "residual";
 
 const PLOT_MARGIN = { left: 80, right: 24, top: 24, bottom: 52 } as const;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
+
+function modelLabel(value: string): string {
+  return value.replaceAll("_", "-");
+}
 
 export function linearInterpolate(
   xValues: number[],
@@ -168,6 +176,7 @@ function seriesForStage(
   activeStep?: CommonProcessingStep,
   hardeningMode: HardeningPlotMode = "response",
   pronyMode: PronyPlotMode = "response",
+  fitSelection?: FitDecisionSelection | null,
 ): PlotModel {
   const hardening = activeStage.method_id === "metal.hardening_fit_extrapolate";
   const prony = activeStage.method_id === "polymer.prony_fit_compare"
@@ -184,7 +193,7 @@ function seriesForStage(
     const candidates = activeStage.series.filter(
       (item) => item.quantity.startsWith("stress.hardening.") && item.quantity !== "stress.hardening.selected",
     );
-    const selected = activeStage.series.find((item) => item.quantity === "stress.hardening.selected");
+    const previewBlend = activeStage.series.find((item) => item.quantity === "stress.hardening.selected");
     const fitMinimum = Number(activeStep?.options.fit_minimum_strain ?? 0);
     const fitMaximum = Number(activeStep?.options.fit_maximum_strain ?? activeX?.values.at(-1) ?? 0);
     const previousStage = preview.stages.find((item) => item.ordinal === activeStage.ordinal - 1);
@@ -200,11 +209,18 @@ function seriesForStage(
       color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
       className: "hardening-candidate",
     }));
-    const selectedSeries: PlotSeries | null = selected ? {
-      id: selected.quantity,
-      label: "Selected blend",
+    const explicitSingle = fitSelection?.mode === "single"
+      ? candidates.find((item) => item.quantity === `stress.hardening.${fitSelection.primaryLaw}`)
+      : null;
+    const decisionSeries = explicitSingle ?? previewBlend;
+    const decisionLabel = fitSelection
+      ? `Selected · ${fitDecisionIdentityLabel(fitSelection)}`
+      : `Preview blend · ${modelLabel(String(activeStep?.options.primary_family ?? "primary"))} + ${modelLabel(String(activeStep?.options.secondary_family ?? "secondary"))}`;
+    const selectedSeries: PlotSeries | null = decisionSeries ? {
+      id: `fit.decision.${fitSelection?.candidateKey ?? "preview"}`,
+      label: decisionLabel,
       xValues: activeX?.values ?? [],
-      yValues: selected.values,
+      yValues: decisionSeries.values,
       color: "#111827",
       className: "hardening-selected",
     } : null;
@@ -214,7 +230,7 @@ function seriesForStage(
     const selectedObserved = selectedSeries ? {
       ...selectedSeries,
       id: `${selectedSeries.id}.observed`,
-      label: "Selected blend · fitted domain",
+      label: `${decisionLabel} · fitted domain`,
       xValues: [
         ...selectedSeries.xValues.filter((value) => value < fitMaximum),
         ...(selectedBoundaryValue !== null ? [fitMaximum] : []),
@@ -228,7 +244,7 @@ function seriesForStage(
     const selectedExtrapolated = selectedSeries ? {
       ...selectedSeries,
       id: `${selectedSeries.id}.extrapolated`,
-      label: "Selected blend · extrapolated",
+      label: `${decisionLabel} · extrapolated`,
       xValues: [
         ...(selectedBoundaryValue !== null ? [fitMaximum] : []),
         ...selectedSeries.xValues.filter((value) => value > fitMaximum),
@@ -254,7 +270,7 @@ function seriesForStage(
         xQuantity,
         xUnit: activeX?.unit ?? "1",
         yQuantity: "predicted - observed",
-        yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
+        yUnit: decisionSeries?.unit ?? candidates[0]?.unit ?? "Pa",
         series: comparison,
       };
     }
@@ -264,7 +280,7 @@ function seriesForStage(
         xQuantity,
         xUnit: activeX?.unit ?? "1",
         yQuantity: "d(stress) / d(plastic strain)",
-        yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
+        yUnit: decisionSeries?.unit ?? candidates[0]?.unit ?? "Pa",
         series: [...candidateSeries, ...(selectedSeries ? [selectedSeries] : [])].map((item) => ({
           ...item,
           ...derivativeValues(item.xValues, item.yValues),
@@ -278,7 +294,7 @@ function seriesForStage(
       xQuantity,
       xUnit: activeX?.unit ?? "1",
       yQuantity: "stress.hardening",
-      yUnit: selected?.unit ?? candidates[0]?.unit ?? "Pa",
+      yUnit: decisionSeries?.unit ?? candidates[0]?.unit ?? "Pa",
       series: [
         ...(observedX.length === observedY.length ? [{
           id: "hardening-observed",
@@ -315,7 +331,7 @@ function seriesForStage(
       }));
       const selectedSeries: PlotSeries[] = selected.map((item, index) => ({
         id: item.quantity,
-        label: item.quantity.startsWith("modulus.storage") ? "Selected storage modulus" : "Selected loss modulus",
+        label: `${fitSelection ? `Selected · ${fitDecisionIdentityLabel(fitSelection)}` : "Server result preview"} · ${item.quantity.startsWith("modulus.storage") ? "storage modulus" : "loss modulus"}`,
         xValues: activeX?.values ?? [],
         yValues: item.values,
         color: index === 0 ? "#111827" : "#7c3aed",
@@ -371,7 +387,9 @@ function seriesForStage(
     }));
     const selectedSeries: PlotSeries | null = selected ? {
       id: selected.quantity,
-      label: "Selected Prony candidate",
+      label: fitSelection
+        ? `Selected · ${fitDecisionIdentityLabel(fitSelection)}`
+        : "Server result preview · Prony candidate",
       xValues: activeX?.values ?? [],
       yValues: selected.values,
       color: "#111827",
@@ -537,6 +555,7 @@ export function EngineeringCurvePlot({
   onApplySelection,
   ensemblePreview,
   activeStep,
+  fitSelection,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
@@ -546,6 +565,7 @@ export function EngineeringCurvePlot({
   onApplySelection?: (selection: GraphSelectionCommand) => void;
   ensemblePreview?: CommonEnsemblePreview | null;
   activeStep?: CommonProcessingStep;
+  fitSelection?: FitDecisionSelection | null;
 }) {
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
@@ -577,8 +597,8 @@ export function EngineeringCurvePlot({
       .sort((left, right) => left.bic - right.bic)
     : [];
   const model = useMemo(
-    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode),
-    [activeStage, activeStep, baseStage, ensemblePreview, hardeningMode, preview, pronyMode],
+    () => ensemblePreview ? seriesForEnsemble(ensemblePreview) : seriesForStage(preview, activeStage, baseStage, activeStep, hardeningMode, pronyMode, fitSelection),
+    [activeStage, activeStep, baseStage, ensemblePreview, fitSelection, hardeningMode, preview, pronyMode],
   );
   const validSeries = model.series.filter(
     (item) => item.xValues.length >= 2 && item.xValues.length === item.yValues.length
@@ -726,11 +746,11 @@ export function EngineeringCurvePlot({
       </div>
       {isHardening ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
         {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Stress response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
-        <span>{hardeningMode === "response" ? "Observed evidence + candidates + selected blend" : hardeningMode === "residual" ? "Predicted minus observed over the selected fit domain" : "Numerical slope; inspect stability into extrapolation"}</span>
+        <span>{hardeningMode === "response" ? `Observed evidence + candidates + ${fitSelection ? "explicit engineer selection" : "calculated preview blend"}` : hardeningMode === "residual" ? "Predicted minus observed over the selected fit domain" : "Numerical slope; inspect stability into extrapolation"}</span>
       </div> : null}
       {isProny ? <div className="hardening-analysis-tabs prony-analysis-tabs" role="tablist" aria-label="Prony comparison view">
         {(["response", "residual"] as PronyPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={pronyMode === mode} className={pronyMode === mode ? "active" : ""} key={mode} onClick={() => setPronyMode(mode)}>{mode === "response" ? isDmaProny ? "Storage & loss" : "Relaxation response" : "Residual"}</button>)}
-        <span>{pronyMode === "response" ? isDmaProny ? "Measured and fitted storage/loss modulus with one shared Prony set" : "Measured modulus + every fitted term count + selected candidate" : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
+        <span>{pronyMode === "response" ? isDmaProny ? `Measured storage/loss + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : `Measured modulus + every fitted term count + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
       </div> : null}
       {hardeningMetrics.length ? <div className="hardening-metric-strip" aria-label="Hardening candidate relative RMSE summary">{hardeningMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.family}><span>{index === 0 ? "BEST" : "RMSE"}</span><strong>{metric.family.replaceAll("_", "-")}</strong><b>{(metric.value * 100).toFixed(3)}%</b></article>)}</div> : null}
       {pronyMetrics.length ? <div className="hardening-metric-strip prony-metric-strip" aria-label="Prony candidate BIC and normalized RMSE summary">{pronyMetrics.map((metric, index) => <article className={index === 0 ? "best" : ""} key={metric.count}><span>{index === 0 ? "BEST BIC" : "CANDIDATE"}</span><strong>{metric.count} term{metric.count === 1 ? "" : "s"}</strong><b>{metric.bic.toFixed(2)}</b><small>{metric.rmse == null ? "nRMSE —" : `nRMSE ${(metric.rmse * 100).toFixed(3)}%`}</small></article>)}</div> : null}

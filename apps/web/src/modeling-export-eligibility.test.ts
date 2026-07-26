@@ -10,6 +10,7 @@ const session: ModelingSessionSummary = {
   testData: { id: "test", revisionId: "test-r1", label: "Tensile", revisionNo: 1 },
   mappingProfile: { id: "mapping", revisionId: "mapping-r1", label: "Tensile mapping", revisionNo: 1 },
   processingOutput: { id: "output", revisionId: "output-r1", label: "Selected fit", revisionNo: 1 },
+  selection: { id: "output", revisionId: "output-r1", label: "Selected fit", revisionNo: 1 },
   workspace: { activeStage: "export", selectedDocumentIds: [], selectedStepIndex: 0, selectedStageOrdinal: 0, plotView: "pipeline", settingsOpen: false },
 };
 
@@ -21,6 +22,7 @@ const output = {
   current_revision: { id: "output-r1" },
   source_document: { aggregate_id: "test", revision_id: "test-r1" },
   mapping_profile: { aggregate_id: "mapping", revision_id: "mapping-r1" },
+  fit_decision: { candidate_key: "swift" },
 };
 
 describe("verified exact Export chain", () => {

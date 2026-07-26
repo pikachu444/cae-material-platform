@@ -17,6 +17,10 @@ from itertools import pairwise
 from typing import Any, cast
 from uuid import UUID
 
+from cmp.modules.modeling.domain.fit_decision_evidence import (
+    FitDecisionEvidence,
+    fit_decision_evidence_from_canonical,
+)
 from cmp.modules.modeling.domain.hyperelastic_families import HyperelasticFamily
 
 NEUTRAL_MATERIAL_DOCUMENT_TYPE = "cmp.neutral-material"
@@ -414,8 +418,9 @@ class NeutralProcessingSelection:
     selected_series: str
     candidate_families: tuple[str, ...]
     primary_family: str
-    secondary_family: str
-    primary_weight: float
+    secondary_family: str | None
+    primary_weight: float | None
+    fit_decision: FitDecisionEvidence | None = None
     warnings: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
@@ -426,20 +431,34 @@ class NeutralProcessingSelection:
             self.candidate_families
         ):
             raise InvalidNeutralMaterial("processing candidate families must be 2..4 unique IDs")
-        if (
-            self.primary_family not in self.candidate_families
-            or self.secondary_family not in self.candidate_families
+        if self.primary_family not in self.candidate_families or (
+            self.secondary_family is not None
+            and self.secondary_family not in self.candidate_families
         ):
             raise InvalidNeutralMaterial("processing selected families must be candidates")
-        if not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1:
+        if self.primary_weight is not None and (
+            not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1
+        ):
             raise InvalidNeutralMaterial("processing primary_weight must be within [0,1]")
+        if (self.secondary_family is None) != (self.primary_weight is None):
+            raise InvalidNeutralMaterial(
+                "processing secondary family and weight must both be present only for a blend"
+            )
+        if self.fit_decision is not None and (
+            self.fit_decision.primary_law != self.primary_family
+            or self.fit_decision.secondary_law != self.secondary_family
+            or self.fit_decision.primary_weight != self.primary_weight
+        ):
+            raise InvalidNeutralMaterial(
+                "processing fit evidence must match the Neutral selection"
+            )
         if len(self.warnings) > 64 or any(
             not value or value != value.strip() for value in self.warnings
         ):
             raise InvalidNeutralMaterial("processing warnings must be trimmed and bounded")
 
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "kind": "processing_output_selection",
             "processing_output": self.processing_output.canonical(),
             "processing_output_sha256": self.processing_output_sha256,
@@ -451,6 +470,10 @@ class NeutralProcessingSelection:
             "primary_weight": self.primary_weight,
             "warnings": list(self.warnings),
         }
+        if self.fit_decision is not None:
+            result["fit_decision"] = self.fit_decision.canonical()
+            result["fit_decision_digest"] = self.fit_decision.digest
+        return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -467,6 +490,7 @@ class NeutralPronyProcessingSelection:
     catalog_instantaneous_shear_modulus_pa: float
     instantaneous_modulus_relative_mismatch: float
     acknowledged_maximum_relative_mismatch: float
+    fit_decision: FitDecisionEvidence | None = None
     warnings: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
@@ -506,13 +530,23 @@ class NeutralPronyProcessingSelection:
             self.acknowledged_maximum_relative_mismatch
         ):
             raise InvalidNeutralMaterial("Prony modulus mismatch exceeds the acknowledged maximum")
+        if self.fit_decision is not None and (
+            self.fit_decision.primary_law != "generalized_maxwell"
+            or self.fit_decision.actual_term_count != self.selected_term_count
+            or self.fit_decision.requested_term_policy != self.selection_mode
+            or self.fit_decision.metric_definition != "normalized_rmse"
+            or self.fit_decision.metric_value != self.normalized_rmse
+        ):
+            raise InvalidNeutralMaterial(
+                "Prony fit evidence must match the Neutral selection"
+            )
         if len(self.warnings) > 64 or any(
             not value or value != value.strip() for value in self.warnings
         ):
             raise InvalidNeutralMaterial("Prony processing warnings must be trimmed and bounded")
 
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "kind": "prony_processing_output_selection",
             "processing_output": self.processing_output.canonical(),
             "processing_output_sha256": self.processing_output_sha256,
@@ -530,6 +564,10 @@ class NeutralPronyProcessingSelection:
             "acknowledged_maximum_relative_mismatch": (self.acknowledged_maximum_relative_mismatch),
             "warnings": list(self.warnings),
         }
+        if self.fit_decision is not None:
+            result["fit_decision"] = self.fit_decision.canonical()
+            result["fit_decision_digest"] = self.fit_decision.digest
+        return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -590,12 +628,13 @@ class NeutralElastoplasticIR:
     hardening_curve: NeutralArtifactReference
     candidate_families: tuple[str, ...]
     primary_family: str
-    secondary_family: str
-    primary_weight: float
+    secondary_family: str | None
+    primary_weight: float | None
     characterized_max_true_plastic_strain: float
     extension_max_true_plastic_strain: float
     extrapolation_policy: str
     approximation_acknowledged: bool
+    fit_decision: FitDecisionEvidence | None = None
     maturity: ModelMaturity = ModelMaturity.REFERENCE
     non_production: bool = True
 
@@ -615,13 +654,25 @@ class NeutralElastoplasticIR:
             self.candidate_families
         ):
             raise InvalidNeutralMaterial("metal candidate families must contain 2..4 unique IDs")
-        if (
-            self.primary_family not in self.candidate_families
-            or self.secondary_family not in self.candidate_families
+        if self.primary_family not in self.candidate_families or (
+            self.secondary_family is not None
+            and self.secondary_family not in self.candidate_families
         ):
             raise InvalidNeutralMaterial("selected hardening families must be candidates")
-        if not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1:
+        if self.primary_weight is not None and (
+            not math.isfinite(self.primary_weight) or not 0 <= self.primary_weight <= 1
+        ):
             raise InvalidNeutralMaterial("hardening primary_weight must be within [0,1]")
+        if (self.secondary_family is None) != (self.primary_weight is None):
+            raise InvalidNeutralMaterial(
+                "hardening secondary family and weight must both be present only for a blend"
+            )
+        if self.fit_decision is not None and (
+            self.fit_decision.primary_law != self.primary_family
+            or self.fit_decision.secondary_law != self.secondary_family
+            or self.fit_decision.primary_weight != self.primary_weight
+        ):
+            raise InvalidNeutralMaterial("fit evidence must match the hardening IR selection")
         if not (
             0 < self.characterized_max_true_plastic_strain < self.extension_max_true_plastic_strain
         ):
@@ -636,6 +687,15 @@ class NeutralElastoplasticIR:
         return NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY
 
     def canonical(self) -> dict[str, object]:
+        selection: dict[str, object] = {
+            "candidate_families": list(self.candidate_families),
+            "primary_family": self.primary_family,
+            "secondary_family": self.secondary_family,
+            "primary_weight": self.primary_weight,
+        }
+        if self.fit_decision is not None:
+            selection["fit_decision"] = self.fit_decision.canonical()
+            selection["fit_decision_digest"] = self.fit_decision.digest
         return {
             "model": self.model.canonical(),
             "model_family": self.family.value,
@@ -653,12 +713,7 @@ class NeutralElastoplasticIR:
                     },
                 },
                 "hardening_curve": self.hardening_curve.canonical(),
-                "selection": {
-                    "candidate_families": list(self.candidate_families),
-                    "primary_family": self.primary_family,
-                    "secondary_family": self.secondary_family,
-                    "primary_weight": self.primary_weight,
-                },
+                "selection": selection,
                 "domain": {
                     "characterized_maximum_true_plastic_strain": (
                         self.characterized_max_true_plastic_strain
@@ -689,6 +744,7 @@ class NeutralLinearViscoelasticIR:
     bulk_relaxation_status: str
     terms: tuple[NeutralPronyTerm, ...]
     reference_temperature_k: float
+    fit_decision: FitDecisionEvidence | None = None
     maturity: ModelMaturity = ModelMaturity.REFERENCE
     non_production: bool = True
 
@@ -713,13 +769,20 @@ class NeutralLinearViscoelasticIR:
             raise InvalidNeutralMaterial(
                 "T-63 polymer output must remain a non-production reference"
             )
+        if self.fit_decision is not None and (
+            self.fit_decision.primary_law != "generalized_maxwell"
+            or self.fit_decision.actual_term_count != len(self.terms)
+        ):
+            raise InvalidNeutralMaterial(
+                "fit evidence must match the generalized-Maxwell IR terms"
+            )
 
     @property
     def family(self) -> NeutralModelFamily:
         return NeutralModelFamily.GENERALIZED_MAXWELL
 
     def canonical(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "model": self.model.canonical(),
             "model_family": self.family.value,
             "schema_id": self.schema_id,
@@ -740,6 +803,10 @@ class NeutralLinearViscoelasticIR:
             "maturity": self.maturity.value,
             "non_production": self.non_production,
         }
+        if self.fit_decision is not None:
+            result["fit_decision"] = self.fit_decision.canonical()
+            result["fit_decision_digest"] = self.fit_decision.digest
+        return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -808,6 +875,12 @@ class NeutralMaterialDocument:
         if family is NeutralModelFamily.ISOTROPIC_TABULATED_PLASTICITY:
             if not isinstance(self.selection, NeutralProcessingSelection):
                 raise InvalidNeutralMaterial("metal Neutral IR requires a Processing selection")
+            if not isinstance(self.material_model_ir, NeutralElastoplasticIR):
+                raise InvalidNeutralMaterial("metal family requires an elastoplastic IR")
+            if self.selection.fit_decision != self.material_model_ir.fit_decision:
+                raise InvalidNeutralMaterial(
+                    "metal Neutral selection and IR must retain the same fit evidence"
+                )
         elif family is NeutralModelFamily.GENERALIZED_MAXWELL:
             if not isinstance(
                 self.selection,
@@ -815,6 +888,16 @@ class NeutralMaterialDocument:
             ):
                 raise InvalidNeutralMaterial(
                     "generalized Maxwell Neutral IR requires Candidate or Processing selection"
+                )
+            if (
+                isinstance(self.selection, NeutralPronyProcessingSelection)
+                and (
+                    not isinstance(self.material_model_ir, NeutralLinearViscoelasticIR)
+                    or self.selection.fit_decision != self.material_model_ir.fit_decision
+                )
+            ):
+                raise InvalidNeutralMaterial(
+                    "polymer Neutral selection and IR must retain the same fit evidence"
                 )
         elif not isinstance(self.selection, NeutralCandidateSelection):
             raise InvalidNeutralMaterial(
@@ -1030,8 +1113,13 @@ def _selection(
             selected_series=str(value["selected_series"]),
             candidate_families=tuple(str(item) for item in value["candidate_families"]),
             primary_family=str(value["primary_family"]),
-            secondary_family=str(value["secondary_family"]),
-            primary_weight=float(value["primary_weight"]),
+            secondary_family=(
+                None if value["secondary_family"] is None else str(value["secondary_family"])
+            ),
+            primary_weight=(
+                None if value["primary_weight"] is None else float(value["primary_weight"])
+            ),
+            fit_decision=fit_decision_evidence_from_canonical(value.get("fit_decision")),
             warnings=tuple(str(item) for item in value["warnings"]),
         )
     if value.get("kind") == "prony_processing_output_selection":
@@ -1056,6 +1144,7 @@ def _selection(
             acknowledged_maximum_relative_mismatch=float(
                 value["acknowledged_maximum_relative_mismatch"]
             ),
+            fit_decision=fit_decision_evidence_from_canonical(value.get("fit_decision")),
             warnings=tuple(str(item) for item in value["warnings"]),
         )
     return NeutralCandidateSelection(
@@ -1129,8 +1218,14 @@ def _material_ir(
             hardening_curve=_artifact(constitutive["hardening_curve"]),
             candidate_families=tuple(str(item) for item in selection["candidate_families"]),
             primary_family=str(selection["primary_family"]),
-            secondary_family=str(selection["secondary_family"]),
-            primary_weight=float(selection["primary_weight"]),
+            secondary_family=(
+                None
+                if selection["secondary_family"] is None
+                else str(selection["secondary_family"])
+            ),
+            primary_weight=(
+                None if selection["primary_weight"] is None else float(selection["primary_weight"])
+            ),
             characterized_max_true_plastic_strain=float(
                 domain["characterized_maximum_true_plastic_strain"]
             ),
@@ -1139,6 +1234,9 @@ def _material_ir(
             ),
             extrapolation_policy=str(extrapolation["policy"]),
             approximation_acknowledged=bool(extrapolation["approximation_acknowledged"]),
+            fit_decision=fit_decision_evidence_from_canonical(
+                selection.get("fit_decision")
+            ),
             maturity=maturity,
             non_production=non_production,
         )
@@ -1154,6 +1252,7 @@ def _material_ir(
         bulk_relaxation_status=str(constitutive["bulk_relaxation_status"]),
         terms=_prony_terms(constitutive["prony_terms"]),
         reference_temperature_k=float(value["reference_temperature"]["value"]),
+        fit_decision=fit_decision_evidence_from_canonical(value.get("fit_decision")),
         maturity=maturity,
         non_production=non_production,
     )

@@ -24,6 +24,9 @@ from cmp.modules.processing.application.common_outputs import (
     CommitProcessingOutput,
     CommonProcessingOutputService,
     ExactRevisionPin,
+    FitDecisionParameter,
+    FitDecisionParameterSet,
+    FitDecisionSnapshot,
     ProcessingOutputNotFound,
     ProcessingOutputSnapshot,
     ProcessingWorkupOverride,
@@ -318,6 +321,71 @@ class ProcessingWorkupOverrideInput(BaseModel):
         return ProcessingWorkupOverride(**self.model_dump())
 
 
+class FitDecisionParameterInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: Text160
+    value: float
+    unit: Text160
+    lower: float | None = None
+    upper: float | None = None
+
+    def to_domain(self) -> FitDecisionParameter:
+        return FitDecisionParameter(**self.model_dump())
+
+
+class FitDecisionParameterSetInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    law: Text160
+    parameters: Annotated[tuple[FitDecisionParameterInput, ...], Field(min_length=1, max_length=32)]
+
+    def to_domain(self) -> FitDecisionParameterSet:
+        return FitDecisionParameterSet(
+            self.law, tuple(parameter.to_domain() for parameter in self.parameters)
+        )
+
+
+class FitDecisionInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    candidate_key: Text160
+    mode: Literal["single", "blend"]
+    primary_law: Text160
+    secondary_law: Text160 | None = None
+    primary_weight: float | None = None
+    parameter_sets: Annotated[
+        tuple[FitDecisionParameterSetInput, ...], Field(min_length=1, max_length=2)
+    ]
+    fit_minimum: float
+    fit_maximum: float
+    extrapolation_maximum: float | None = None
+    extrapolation_policy: Text160
+    metric_definition: Text160
+    metric_value: float
+    requested_term_policy: Text160 | None = None
+    actual_term_count: int | None = Field(default=None, ge=1, le=10)
+    selection_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    warning_acknowledged: bool
+
+    def to_domain(self) -> FitDecisionSnapshot:
+        return FitDecisionSnapshot(
+            candidate_key=self.candidate_key,
+            mode=self.mode,
+            primary_law=self.primary_law,
+            secondary_law=self.secondary_law,
+            primary_weight=self.primary_weight,
+            parameter_sets=tuple(item.to_domain() for item in self.parameter_sets),
+            fit_minimum=self.fit_minimum,
+            fit_maximum=self.fit_maximum,
+            extrapolation_maximum=self.extrapolation_maximum,
+            extrapolation_policy=self.extrapolation_policy,
+            metric_definition=self.metric_definition,
+            metric_value=self.metric_value,
+            requested_term_policy=self.requested_term_policy,
+            actual_term_count=self.actual_term_count,
+            selection_reason=self.selection_reason,
+            warning_acknowledged=self.warning_acknowledged,
+        )
+
+
 class CommitProcessingOutputRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     classification: DataClassification
@@ -329,6 +397,7 @@ class CommitProcessingOutputRequest(BaseModel):
     ]
     change_reason: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
     workup_overrides: Annotated[tuple[ProcessingWorkupOverrideInput, ...], Field(max_length=2)] = ()
+    fit_decision: FitDecisionInput | None = None
 
 
 class ProcessingOutputResponse(BaseModel):
@@ -348,10 +417,12 @@ class ProcessingOutputResponse(BaseModel):
     output_artifact_id: UUID
     output_sha256: str
     workup_overrides: tuple[ProcessingWorkupOverrideInput, ...]
+    fit_decision: FitDecisionInput | None
 
     @classmethod
     def from_snapshot(cls, value: ProcessingOutputSnapshot) -> ProcessingOutputResponse:
         content = value.content
+        fit_decision = getattr(content, "fit_decision", None)
         return cls(
             processing_output_id=value.id,
             current_revision=RevisionMetadataResponse.from_record(value.current, "published"),
@@ -390,6 +461,41 @@ class ProcessingOutputResponse(BaseModel):
                     reason=override.reason,
                 )
                 for override in content.workup_overrides
+            ),
+            fit_decision=None
+            if fit_decision is None
+            else FitDecisionInput(
+                candidate_key=fit_decision.candidate_key,
+                mode=fit_decision.mode,
+                primary_law=fit_decision.primary_law,
+                secondary_law=fit_decision.secondary_law,
+                primary_weight=fit_decision.primary_weight,
+                parameter_sets=tuple(
+                    FitDecisionParameterSetInput(
+                        law=item.law,
+                        parameters=tuple(
+                            FitDecisionParameterInput(
+                                name=parameter.name,
+                                value=parameter.value,
+                                unit=parameter.unit,
+                                lower=parameter.lower,
+                                upper=parameter.upper,
+                            )
+                            for parameter in item.parameters
+                        ),
+                    )
+                    for item in fit_decision.parameter_sets
+                ),
+                fit_minimum=fit_decision.fit_minimum,
+                fit_maximum=fit_decision.fit_maximum,
+                extrapolation_maximum=fit_decision.extrapolation_maximum,
+                extrapolation_policy=fit_decision.extrapolation_policy,
+                metric_definition=fit_decision.metric_definition,
+                metric_value=fit_decision.metric_value,
+                requested_term_policy=fit_decision.requested_term_policy,
+                actual_term_count=fit_decision.actual_term_count,
+                selection_reason=fit_decision.selection_reason,
+                warning_acknowledged=fit_decision.warning_acknowledged,
             ),
         )
 
@@ -726,6 +832,7 @@ def install_common_processing_api(
                     workup_overrides=tuple(
                         override.to_domain() for override in body.workup_overrides
                     ),
+                    fit_decision=body.fit_decision.to_domain() if body.fit_decision else None,
                 ),
             )
             return ProcessingOutputResponse.from_snapshot(snapshot)

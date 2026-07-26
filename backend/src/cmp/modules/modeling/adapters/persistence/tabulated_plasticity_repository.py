@@ -22,6 +22,9 @@ from cmp.modules.modeling.application.tabulated_plasticity import (
     TabulatedPlasticityModelSnapshot,
     TabulatedPlasticityRepository,
 )
+from cmp.modules.modeling.domain.fit_decision_evidence import (
+    fit_decision_evidence_from_canonical,
+)
 from cmp.modules.modeling.domain.reference_isotropic_tabulated_plasticity import (
     REFERENCE_TABULATED_PLASTICITY_FAMILY_ID,
     ReferenceIsotropicTabulatedPlasticityContent,
@@ -118,8 +121,16 @@ def _content(row: Any) -> TabulatedPlasticityContent:
             ),
             candidate_families=tuple(row["hardening_candidate_families"]),
             primary_family=str(row["hardening_primary_family"]),
-            secondary_family=str(row["hardening_secondary_family"]),
-            primary_weight=float(row["hardening_primary_weight"]),
+            secondary_family=(
+                None
+                if row["hardening_secondary_family"] is None
+                else str(row["hardening_secondary_family"])
+            ),
+            primary_weight=(
+                None
+                if row["hardening_primary_weight"] is None
+                else float(row["hardening_primary_weight"])
+            ),
             fit_minimum_true_plastic_strain=float(row["hardening_fit_minimum_strain"]),
             characterized_max_true_plastic_strain=float(
                 row["characterized_max_true_plastic_strain"]
@@ -140,6 +151,9 @@ def _content(row: Any) -> TabulatedPlasticityContent:
             applicable_strain_rate_min_per_s=row["applicable_strain_rate_min_per_s"],
             applicable_strain_rate_max_per_s=row["applicable_strain_rate_max_per_s"],
             applicability_note=row["applicability_note"],
+            fit_decision=fit_decision_evidence_from_canonical(
+                row["fit_decision_evidence"]
+            ),
             reference_temperature_k=float(row["reference_temperature_k"]),
             model_family_id=str(row["model_family_id"]),
             model_schema_version=str(row["schema_version"]),
@@ -381,6 +395,12 @@ def _content_values(content: TabulatedPlasticityContent) -> dict[str, Any]:
         "hardening_secondary_family": getattr(content, "secondary_family", None),
         "hardening_primary_weight": getattr(content, "primary_weight", None),
         "hardening_fit_minimum_strain": getattr(content, "fit_minimum_true_plastic_strain", None),
+        "fit_decision_evidence": (
+            content.fit_decision.canonical()
+            if isinstance(content, ReferenceProcessedTabulatedPlasticityContent)
+            and content.fit_decision is not None
+            else None
+        ),
         "non_production": True,
     }
     return values
@@ -493,6 +513,7 @@ def _content_columns(table: sa.Table) -> tuple[Any, ...]:
         table.c.hardening_secondary_family,
         table.c.hardening_primary_weight,
         table.c.hardening_fit_minimum_strain,
+        table.c.fit_decision_evidence,
         table.c.non_production,
     )
 

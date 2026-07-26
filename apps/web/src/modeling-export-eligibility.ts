@@ -23,7 +23,7 @@ export function hasVerifiedExactExportChain({
   testData: CanonicalTestDataDocumentResponse | undefined;
   output: CommonProcessingOutputResponse | undefined;
 }): boolean {
-  if (!session?.material || !session.materialState || !session.testData || !session.mappingProfile || !session.processingOutput || !material || !materialState || !testData || !output) return false;
+  if (!session?.material || !session.materialState || !session.testData || !session.mappingProfile || !session.processingOutput || !session.selection || !material || !materialState || !testData || !output || !output.fit_decision) return false;
   const materialMatches = material.material_id === session.material.id
     && material.current_revision.id === session.material.revisionId;
   const stateMatches = materialState.material_state_id === session.materialState.id
@@ -36,5 +36,7 @@ export function hasVerifiedExactExportChain({
     && output.source_document.revision_id === session.testData.revisionId;
   const mappingMatches = output.mapping_profile.aggregate_id === session.mappingProfile.id
     && output.mapping_profile.revision_id === session.mappingProfile.revisionId;
-  return materialMatches && stateMatches && testDataMatches && outputMatches && mappingMatches;
+  const selectionMatches = session.selection.id === output.processing_output_id
+    && session.selection.revisionId === output.current_revision.id;
+  return materialMatches && stateMatches && testDataMatches && outputMatches && mappingMatches && selectionMatches;
 }

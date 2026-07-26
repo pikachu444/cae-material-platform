@@ -10,6 +10,8 @@ from enum import StrEnum
 from itertools import pairwise
 from uuid import UUID
 
+from cmp.modules.modeling.domain.fit_decision_evidence import FitDecisionEvidence
+
 REFERENCE_LINEAR_VISCOELASTIC_FAMILY_ID = (
     "urn:cmp:reference:isotropic-linear-viscoelastic-prony:1.0.0"
 )
@@ -153,6 +155,7 @@ class ReferencePronyProcessingEvidence:
     catalog_instantaneous_shear_modulus_pa: float
     instantaneous_modulus_relative_mismatch: float
     acknowledged_maximum_relative_mismatch: float
+    fit_decision: FitDecisionEvidence | None = None
     recipe_batch: ReferenceRecipeBatchEvidence | None = None
 
     def __post_init__(self) -> None:
@@ -188,6 +191,18 @@ class ReferencePronyProcessingEvidence:
                 raise InvalidLinearViscoelasticModel(f"{name} must be finite and non-negative")
         if not math.isfinite(self.bic):
             raise InvalidLinearViscoelasticModel("bic must be finite")
+        if self.fit_decision is not None and (
+            self.fit_decision.mode != "single"
+            or self.fit_decision.primary_law != "generalized_maxwell"
+            or self.fit_decision.actual_term_count != self.selected_term_count
+            or self.fit_decision.requested_term_policy != self.selection_mode
+            or self.fit_decision.metric_definition != "normalized_rmse"
+            or self.fit_decision.metric_value != self.normalized_rmse
+            or self.fit_decision.extrapolation_policy != "observed_only"
+        ):
+            raise InvalidLinearViscoelasticModel(
+                "processing fit evidence must match the selected generalized-Maxwell result"
+            )
         _finite_positive(
             "fitted_instantaneous_shear_modulus_pa",
             self.fitted_instantaneous_shear_modulus_pa,
@@ -460,5 +475,8 @@ def reference_linear_viscoelastic_canonical(
                 "batch_attempt_id": str(origin.batch_attempt_id),
                 "batch_attempt_no": origin.batch_attempt_no,
             }
+        if processing_evidence.fit_decision is not None:
+            processing_result["fit_decision"] = processing_evidence.fit_decision.canonical()
+            processing_result["fit_decision_digest"] = processing_evidence.fit_decision.digest
         result["processing_promotion_evidence"] = processing_result
     return result

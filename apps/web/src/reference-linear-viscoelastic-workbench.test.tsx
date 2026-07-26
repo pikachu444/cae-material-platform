@@ -267,6 +267,33 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
             final_point_count: 3,
             output_artifact_id: actor,
             output_sha256: "d".repeat(64),
+            fit_decision: {
+              candidate_key: "prony:2",
+              mode: "single",
+              primary_law: "generalized_maxwell",
+              secondary_law: null,
+              primary_weight: null,
+              parameter_sets: [{
+                law: "generalized_maxwell",
+                parameters: [
+                  { name: "equilibrium_modulus", value: 1_000_000, unit: "Pa", lower: 0, upper: null },
+                  { name: "g_ratio_1", value: 0.2, unit: "1", lower: 0, upper: 1 },
+                  { name: "relaxation_time_1", value: 0.1, unit: "s", lower: 0, upper: null },
+                  { name: "g_ratio_2", value: 0.3, unit: "1", lower: 0, upper: 1 },
+                  { name: "relaxation_time_2", value: 10, unit: "s", lower: 0, upper: null },
+                ],
+              }],
+              fit_minimum: 0.1,
+              fit_maximum: 10,
+              extrapolation_maximum: null,
+              extrapolation_policy: "observed_only",
+              metric_definition: "normalized_rmse",
+              metric_value: 0.012,
+              requested_term_policy: "automatic_bic",
+              actual_term_count: 2,
+              selection_reason: "Reviewed the exact automatic BIC result.",
+              warning_acknowledged: false,
+            },
           }],
         }));
       }
@@ -355,7 +382,10 @@ describe("ReferenceLinearViscoelasticWorkbench", () => {
     ).toBe("/datasets/processing");
     fireEvent.click(screen.getByRole("button", { name: "Create Neutral JSON and solver mapping" }));
     expect(await screen.findByText("Solver target")).toBeTruthy();
-    resolveHistoricalCandidates?.(response({ items: [] }));
+    const releaseHistoricalCandidates = resolveHistoricalCandidates as
+      | ((response: Response) => void)
+      | null;
+    releaseHistoricalCandidates?.(response({ items: [] }));
     await waitFor(() => expect(screen.getByText("Solver target")).toBeTruthy());
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining(`/processing-outputs/${outputId}/linear-viscoelastic-models`),

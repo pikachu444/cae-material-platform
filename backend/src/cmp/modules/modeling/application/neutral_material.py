@@ -19,6 +19,10 @@ from cmp.modules.identity_access.domain.authorization import (
     Permission,
 )
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.modeling.application.fit_decision_evidence import (
+    modeling_fit_decision_evidence,
+    selected_hardening_quantity,
+)
 from cmp.modules.modeling.application.linear_viscoelasticity import LinearViscoelasticModelService
 from cmp.modules.modeling.application.ogden_calibration import (
     ReferenceOgdenCalibrationService,
@@ -272,6 +276,7 @@ def _metal_curves(
     *,
     dataset_revision_id: UUID,
     characterized_maximum: float,
+    selected_quantity: str,
 ) -> tuple[NeutralCurve, ...]:
     try:
         document = json.loads(value)
@@ -283,7 +288,7 @@ def _metal_curves(
     engineering_x, engineering_y = _stage_series(stages, "strain.engineering", "stress.engineering")
     plastic_x, plastic_y = _stage_series(stages, "strain.true_plastic", "stress.true", reverse=True)
     fitted_x, fitted_y = _stage_series(
-        stages, "strain.true_plastic", "stress.hardening.selected", reverse=True
+        stages, "strain.true_plastic", selected_quantity, reverse=True
     )
     observed = tuple(
         (x, y) for x, y in zip(fitted_x, fitted_y, strict=True) if x <= characterized_maximum
@@ -688,6 +693,22 @@ class NeutralMaterialService:
             raise NeutralMaterialConflict(
                 "metal IR no longer resolves to its exact Processing/Profile/Test evidence"
             )
+        output_fit_decision = output.content.fit_decision
+        if (
+            (output_fit_decision is None) != (content.fit_decision is None)
+            or (
+                output_fit_decision is not None
+                and modeling_fit_decision_evidence(output_fit_decision)
+                != content.fit_decision
+            )
+        ):
+            raise NeutralMaterialConflict(
+                "metal IR fit evidence no longer matches the exact Processing Output"
+            )
+        if output_fit_decision is None:
+            raise NeutralMaterialConflict(
+                "metal Neutral promotion requires an explicit saved fit decision"
+            )
         source, _source_bytes = await self._test_data.export_document(
             context,
             decision,
@@ -753,6 +774,7 @@ class NeutralMaterialService:
                 output_bytes,
                 dataset_revision_id=content.source_test_data_revision_id,
                 characterized_maximum=content.characterized_max_true_plastic_strain,
+                selected_quantity=selected_hardening_quantity(output_fit_decision),
             ),
             selection=NeutralProcessingSelection(
                 processing_output=RevisionReference(
@@ -765,6 +787,7 @@ class NeutralMaterialService:
                 primary_family=content.primary_family,
                 secondary_family=content.secondary_family,
                 primary_weight=content.primary_weight,
+                fit_decision=content.fit_decision,
                 warnings=("post-necking extension is an acknowledged approximation",),
             ),
             material_model_ir=NeutralElastoplasticIR(
@@ -792,6 +815,7 @@ class NeutralMaterialService:
                 extension_max_true_plastic_strain=(content.extension_max_true_plastic_strain),
                 extrapolation_policy=REFERENCE_PROCESSED_EXTRAPOLATION_POLICY,
                 approximation_acknowledged=(content.post_necking_approximation_acknowledged),
+                fit_decision=content.fit_decision,
             ),
             applicable_strain_min=content.fit_minimum_true_plastic_strain,
             applicable_strain_max=content.extension_max_true_plastic_strain,
@@ -837,6 +861,18 @@ class NeutralMaterialService:
                 processing_evidence.processing_output_id,
                 processing_evidence.processing_output_revision_id,
             )
+            output_fit_decision = output.content.fit_decision
+            if (
+                (output_fit_decision is None) != (processing_evidence.fit_decision is None)
+                or (
+                    output_fit_decision is not None
+                    and modeling_fit_decision_evidence(output_fit_decision)
+                    != processing_evidence.fit_decision
+                )
+            ):
+                raise NeutralMaterialConflict(
+                    "polymer model fit evidence no longer matches the exact Processing Output"
+                )
             source, _ = await self._test_data.export_document(
                 context,
                 decision,
@@ -1054,6 +1090,7 @@ class NeutralMaterialService:
                     acknowledged_maximum_relative_mismatch=(
                         processing_evidence.acknowledged_maximum_relative_mismatch
                     ),
+                    fit_decision=processing_evidence.fit_decision,
                     warnings=(mismatch_warning,),
                 ),
                 material_model_ir=NeutralLinearViscoelasticIR(
@@ -1075,6 +1112,7 @@ class NeutralMaterialService:
                         for ordinal, term in enumerate(content.terms, 1)
                     ),
                     reference_temperature_k=content.reference_temperature_k,
+                    fit_decision=processing_evidence.fit_decision,
                 ),
                 applicable_strain_min=None,
                 applicable_strain_max=None,

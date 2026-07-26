@@ -11,6 +11,9 @@ from uuid import UUID, uuid4
 
 from cmp.modules.identity_access.domain.authorization import AuthorizationDecision, Permission
 from cmp.modules.identity_access.domain.security import SecurityContext
+from cmp.modules.modeling.application.fit_decision_evidence import (
+    modeling_fit_decision_evidence,
+)
 from cmp.modules.modeling.application.service import (
     MATERIAL_MODEL_AGGREGATE_TYPE,
     MaterialModelService,
@@ -291,6 +294,15 @@ class LinearViscoelasticModelService:
             command.processing_output_id,
             command.processing_output_revision_id,
         )
+        fit_decision = output.content.fit_decision
+        if (
+            fit_decision is None
+            or fit_decision.primary_law != "generalized_maxwell"
+            or fit_decision.actual_term_count is None
+        ):
+            raise LinearViscoelasticConflict(
+                "Processing Output requires an explicit saved generalized-Maxwell fit decision"
+            )
         if output.current.scope.classification != properties.classification.value:
             raise LinearViscoelasticConflict("Processing Output and Property Set scopes differ")
         try:
@@ -332,6 +344,11 @@ class LinearViscoelasticModelService:
             selected_count = int(selected_count_value)
             if selected_count_value != selected_count or not 1 <= selected_count <= 10:
                 raise ValueError("selected term count")
+            if (
+                selected_count != fit_decision.actual_term_count
+                or fit_decision.candidate_key != f"prony:{selected_count}"
+            ):
+                raise ValueError("saved selected term identity")
             terms = tuple(
                 PronyTerm(
                     g_ratio=float(scalars[f"prony_g_ratio_{ordinal}"]["value"]),
@@ -380,6 +397,7 @@ class LinearViscoelasticModelService:
             catalog_instantaneous_shear_modulus_pa=catalog_instantaneous,
             instantaneous_modulus_relative_mismatch=relative_mismatch,
             acknowledged_maximum_relative_mismatch=(command.acknowledged_maximum_relative_mismatch),
+            fit_decision=modeling_fit_decision_evidence(fit_decision),
             recipe_batch=(
                 ReferenceRecipeBatchEvidence(
                     recipe_id=execution_origin.recipe_id,

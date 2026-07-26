@@ -321,29 +321,68 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     "table", name="Hardening candidate comparison"
                 )
                 candidate_table.wait_for(timeout=30_000)
-                if (
-                    candidate_table.locator("tbody tr").count() != 4
-                ):
+                if candidate_table.locator("tbody tr").count() != 5:
                     raise RuntimeError(
-                        "Fit must expose the four calculated hardening candidates in one table"
+                        "Fit must expose four calculated single-law candidates "
+                        "and the exact calculated preview blend"
                     )
+                page.get_by_text(
+                    re.compile(r"^Preview blend · .+ · fitted domain$")
+                ).wait_for(timeout=30_000)
                 for column in (
                     "Decision",
-                    "Candidate",
-                    "Status",
-                    "Error",
-                    "Applicability",
+                    "Model / law",
+                    "Recommendation",
+                    "Metric",
+                    "Fit / extrapolation range",
+                    "Stability",
+                    "Compatibility",
                     "Warning",
                 ):
                     if candidate_table.get_by_role(
                         "columnheader", name=column, exact=True
                     ).count() != 1:
                         raise RuntimeError(f"Fit candidate table is missing {column}")
-                if page.get_by_role(
-                    "button", name="Save selected fit output", exact=True
-                ).count() != 1:
+                save_candidate = page.get_by_role(
+                    "button", name="Save selected candidate", exact=True
+                )
+                if save_candidate.count() != 1:
                     raise RuntimeError("Fit is missing the explicit selected-output save")
-                candidate_table.scroll_into_view_if_needed()
+                if not save_candidate.is_disabled():
+                    raise RuntimeError(
+                        "Fit save must remain disabled before an explicit row selection"
+                    )
+                select_candidate = candidate_table.get_by_role(
+                    "button", name=re.compile(r"^Select .+ candidate$")
+                ).first
+                select_candidate.click()
+                page.get_by_text(
+                    re.compile(r"^Selected · .+ · fitted domain$")
+                ).wait_for(timeout=30_000)
+                parameter_table = page.get_by_role(
+                    "table", name="Selected candidate parameters and bounds"
+                )
+                parameter_table.wait_for(timeout=30_000)
+                if parameter_table.locator("tbody tr").count() < 1:
+                    raise RuntimeError(
+                        "Selected Fit candidate must expose parameter and bound evidence"
+                    )
+                selection_reason = page.get_by_role(
+                    "textbox", name="Candidate selection reason"
+                )
+                selection_reason.fill(
+                    "Synthetic reference candidate selected for the export preflight."
+                )
+                warning_acknowledgement = page.get_by_role(
+                    "checkbox", name="Acknowledge selected candidate warning"
+                )
+                if warning_acknowledgement.count():
+                    warning_acknowledgement.check()
+                if save_candidate.is_disabled():
+                    raise RuntimeError(
+                        "Fit save did not become ready after selection evidence was completed"
+                    )
+                parameter_table.scroll_into_view_if_needed()
             if stage == "export":
                 page.get_by_text("Preview only · not committed", exact=True).wait_for(
                     timeout=30_000
@@ -360,7 +399,8 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                     promotion_acknowledgement = page.get_by_role(
                         "checkbox",
                         name=re.compile(
-                            r"reviewed the candidate blend and acknowledge its bounded fitted extrapolation",
+                            r"reviewed the candidate blend and acknowledge "
+                            r"its bounded fitted extrapolation",
                             re.IGNORECASE,
                         ),
                     )
@@ -404,7 +444,9 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 ).wait_for(timeout=30_000)
                 if workflow_links.get_attribute("data-resolution-state") == "unprojected":
                     workflow_links.get_by_text(
-                        re.compile(r"not yet projected into a configurable Workflow Explorer record")
+                        re.compile(
+                            r"not yet projected into a configurable Workflow Explorer record"
+                        )
                     ).wait_for(timeout=30_000)
             plot.wait_for(timeout=30_000)
             plot_geometry = plot.evaluate(
@@ -438,14 +480,8 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
                 height,
             )
             if stage == "fit":
-                selection_reason = page.get_by_role(
-                    "textbox", name="Hardening candidate selection reason"
-                )
-                selection_reason.fill(
-                    "Synthetic reference candidate selected for the export preflight."
-                )
                 page.get_by_role(
-                    "button", name="Save selected fit output", exact=True
+                    "button", name="Save selected candidate", exact=True
                 ).click()
                 page.wait_for_url(re.compile(r"stage=export"), timeout=30_000)
         page.context.close()
@@ -486,7 +522,9 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
             if stage not in shell_text:
                 raise RuntimeError(f"Modeling session shell is missing {stage}")
         if "Data\nBlocked" not in shell_text or "Export\nBlocked" not in shell_text:
-            raise RuntimeError("A new Modeling session must start pin-free with Data and Export blocked")
+            raise RuntimeError(
+                "A new Modeling session must start pin-free with Data and Export blocked"
+            )
         _capture(page, output / f"modeling-session-{width}x{height}.png", width, height)
         page.context.close()
 

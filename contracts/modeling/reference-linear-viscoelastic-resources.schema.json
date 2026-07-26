@@ -84,7 +84,9 @@
             "fitted_instantaneous_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
             "catalog_instantaneous_shear_modulus_pa": {"type": "number", "exclusiveMinimum": 0},
             "instantaneous_modulus_relative_mismatch": {"type": "number", "minimum": 0},
-            "acknowledged_maximum_relative_mismatch": {"type": "number", "minimum": 0, "maximum": 1}
+            "acknowledged_maximum_relative_mismatch": {"type": "number", "minimum": 0, "maximum": 1},
+            "fit_decision": {"$ref": "../processing/common-processing-resources.schema.json#/$defs/FitDecision"},
+            "fit_decision_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
           }
         }
       }
