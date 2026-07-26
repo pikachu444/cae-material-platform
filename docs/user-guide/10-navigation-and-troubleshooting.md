@@ -45,7 +45,14 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 review 요청을 여러 번 만들지 않으며, 승인·변경 요청 결과는 서버가 돌려준 해당 immutable 요청으로
 갱신됩니다. 현재 review API는 제출 항목과 사람의 표시 이름을 제공하지 않으므로, 일반 화면에는
 업무 종류와 요청 사유만 보이고 정확한 식별자는 Advanced evidence에 남습니다. 사용자가 새 자료
-업로드나 solver card 검토를 요청하는 진입 화면은 다음 작업에서 해당 객체와 함께 추가됩니다.
+또는 solver card 검토를 요청하는 진입점은 각각 Material 상세와 Native Card Preview에 있습니다.
+두 화면은 이미 열어 둔 정확한 revision을 사용하므로 사용자가 식별자나 hash를 직접 입력할 필요가
+없습니다.
+
+기존 `/jobs-reviews` 링크는 같은 Activity 큐를 엽니다. 이 경로에서는 Aggregate type/ID, revision
+ID, manifest hash를 직접 입력하거나 독립적으로 결정을 기록하지 않습니다. 요청은 Material 또는
+Solver Card의 현재 화면에서 만들고, 기존 요청의 역할별 결정은 Activity에서 처리합니다. `/governance`
+는 일반 검토 진입점이 아니며 Operations, Release, Governance Evidence의 고급 운영 화면을 유지합니다.
 
 API process의 metric, trace와 복구 절차는 일반 사용자 전역 메뉴가 아니라 운영 배포의 observability
 도구와 [운영 가이드](11-operations-and-recovery.md)에서 확인합니다.

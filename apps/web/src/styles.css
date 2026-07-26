@@ -852,16 +852,6 @@ select:focus {
   line-height: 1.45;
 }
 
-.review-workbench {
-  display: grid;
-  gap: 1rem;
-}
-
-.review-workbench > .muted {
-  max-width: 850px;
-  margin: 0;
-}
-
 .release-workbench {
   display: grid;
   gap: 1rem;
@@ -925,15 +915,6 @@ select:focus {
   background: #a33e3a;
 }
 
-.review-request-card {
-  display: grid;
-  gap: 0.85rem;
-  padding: 1rem;
-  border: 1px solid #c8dedd;
-  border-radius: 10px;
-  background: #f7fcfb;
-}
-
 .revision-chip.review,
 .revision-chip.changes_requested,
 .revision-chip.approved {
@@ -946,11 +927,6 @@ select:focus {
   color: #21635f;
   border-color: #b8d9d3;
   background: #eef8f6;
-}
-
-.review-decision-form {
-  padding-top: 0.5rem;
-  border-top: 1px solid #d8e6e4;
 }
 
 .review-list {

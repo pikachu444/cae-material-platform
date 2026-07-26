@@ -423,9 +423,11 @@ Download is the task-primary command. Mapping warnings remain visible. Detailed 
 
 ## 6.7 Canonical component contracts (UXC-00R target)
 
-These are target contracts for the Administration redesign and the remaining Activity projections.
-Reviewer product-role migration and the role-aware review queue are implemented; request-entry,
-job and release projections remain separate work.
+These contracts cover the current Administration and Activity surfaces plus their remaining
+projections. The three-pane Administration workspace (PR #143), Reviewer product-role access,
+role-aware Activity queue (DUI-08A), exact Material/Solver Card request entry (DUI-08B), and
+legacy review-workbench cleanup (DUI-09A) are implemented. Only failed-job recovery, server delivery
+receipt, and release projections remain separate work.
 
 | Component | purpose | placement | visible_when | source | requires | invalidates | states | error_recovery |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -438,7 +440,8 @@ Role target: **User** searches/views/downloads, requests upload review, processe
 card review; **Reviewer** additionally reviews material/card data, requests changes, approves and
 publishes downloads; **Administrator** has all access/edit/configure/review/approve actions. Current
 implementation exposes User, Reviewer, and Administrator task presets. Internal RBAC/RLS remains
-extensible and is not a normal-user vocabulary; Activity and Administration redesign work remains separate.
+extensible and is not a normal-user vocabulary; future failed-job, receipt, and release projections
+remain separate from the implemented Activity and Administration workspaces.
 
 ## 7. Administration workspace
 
@@ -525,6 +528,11 @@ The following visual patterns are prohibited in active product routes:
 - large primary buttons for secondary navigation.
 
 Existing legacy routes may retain compatibility redirects but must render canonical workspaces.
+
+`/jobs-reviews` is one such compatibility route: it renders the Activity action queue and does not
+render a raw aggregate/revision/hash request form or standalone decision control. `/governance`
+remains an Advanced operations route for Operations, Release and Governance Evidence; it is not a
+second review-entry workspace.
 
 ## 10. Acceptance gates
 

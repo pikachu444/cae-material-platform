@@ -1,9 +1,11 @@
 # Desktop Engineering UI Delivery Backlog
 
 Status: active program; DUI-01~06 are complete, including PR #124/DUI-06 merged on 2026-07-24.
-UXC-00R is the documentation-authority correction. Remaining work is Reviewer access migration,
-Materials language/presentation and governed query projections, then DUI-07~09. Issue #119 remains
-an explicit opt-in independent-review gate; automatic LLM review remains disabled.
+UXC-00R is the documentation-authority correction. Reviewer access, DUI-07 Administration,
+DUI-08 review queue and exact request entry, and DUI-09A legacy review cleanup are complete.
+Remaining work includes Materials language/presentation and governed query projections,
+failed-job/receipt/release projections, Storybook, and final incoming-package cleanup. Issue #119
+remains an explicit opt-in independent-review gate; automatic LLM review remains disabled.
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
@@ -291,7 +293,8 @@ Every slice must preserve:
    v2 migration, exact Material/State/Test Data pins, invalidation dispositions, Data-first new
    session, resume view state, and fail-closed Export prerequisite surface. UXC-04B subsequently
    corrected the normal visible shell to `Data | Process | Fit | Export`; Validate and
-Review/Release remain distinct governed Advanced/Activity paths pending their complete producer
+Review/Release remain distinct governed Advanced/Activity paths; request entry and review decisions
+are implemented, while server delivery-receipt and release projections retain their separate producer
 contracts. The original UXC-02 boundary was that Processing Output exposed no Material/State pin.
 UXC-06B resolves it for qualified local-file rows by carrying server-verified Material/State/Test Run
 proof from Test Data into Processing Output; historical and JSON-only rows retain null proof and stay
@@ -315,17 +318,17 @@ blocked rather than receiving an inferred cross-resource claim;
     Solver Card/receipt/outbox delivery are current. Activity receipt projection remains explicitly
     `Not configured`;
 14. DUI-07 Administration — complete in PR #143;
-15. DUI-08 Activity — review queue complete in PR #144; exact Material/Solver Card request entry is
-    the current DUI-08B slice, while failed-job recovery and server receipt projection remain;
-16. DUI-09 Storybook and final legacy cleanup — pending.
+15. DUI-08 Activity — review queue complete in PR #144 and exact Material/Solver Card request entry
+    complete in DUI-08B; only failed-job recovery and server receipt projection remain;
+16. DUI-09A legacy review workbench cleanup — complete; the remaining Storybook/final incoming-package
+    cleanup is separate.
 
 ## UXC corrective sequence
 
-UXC-00R is the documentation-only authority-correction baseline. It leaves Reviewer product-role/access
-migration, Materials language/presentation correction and query projection gaps, DUI-07 Administration,
-DUI-09 legacy cleanup and final incoming-package deletion remain pending. DUI-08 still has bounded
-failed-job recovery and server receipt projection follow-ups; its review queue and exact request
-entry are implemented.
+UXC-00R is the documentation-only authority-correction baseline. Reviewer product-role/access,
+DUI-07 Administration (PR #143), DUI-08 review queue/request entry, and DUI-09A legacy cleanup are
+implemented. Materials language/presentation and query projection gaps, final incoming-package
+deletion, failed-job recovery, and server receipt projection remain pending.
 UXC-01~06 retain the completed DUI-01~06
 surfaces while correcting query truth, session invalidation, explicit engineer decisions, validation/
 review/release, and exact delivery. No UXC task chooses a production material model, solver policy,

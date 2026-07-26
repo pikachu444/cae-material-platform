@@ -46,7 +46,7 @@ materials_workspace:
     unavailable_until_governed_projection: [provider, evidence_source, validation_availability, solver_readiness, condition_aware_property_ranges]
     yield: hidden-until-metal-condition-definition-unit-source-revision-projection
 modeling_workspace:
-  task: DUI-04/DUI-05/DUI-06 and UXC-02~06 delivery work complete; normal path correction is Data/Process/Fit/Export; Reviewer product-role migration and DUI-08A Activity review queue are complete
+  task: DUI-04/DUI-05/DUI-06 and UXC-02~06 delivery work complete; normal path correction is Data/Process/Fit/Export; Reviewer product-role access, DUI-08A Activity queue, DUI-08B exact request entry, and DUI-09A legacy cleanup are complete
   route: /modeling
   query:
     normal_stage: [data, process, fit, export]
@@ -88,13 +88,15 @@ modeling_workspace:
     reviewer_role_access: complete
     materials_presentation_and_query_projections: pending
     dui_07: complete
-    dui_08a_activity_review_queue: complete; request-entry-job-and-release-projections-pending
-    dui_08b_to_09: pending
+    dui_08a_activity_review_queue: complete
+    dui_08b: complete-exact-material-and-solver-card-request-entry
+    dui_09a: complete-legacy-review-workbench-removed
   capture_ready: [exact-test-data-loaded, server-preview-rendered, family-engine-loaded, exact-catalog-link-resolved, no-checking-loading-or-resolving-state, no-horizontal-overflow]
 
 activity_workspace:
-  task: DUI-08A role-aware review queue
+  task: DUI-08A role-aware review queue; DUI-09A legacy deep-link replacement
   route: /activity
+  compatible_routes: [/jobs-reviews]
   sections: [needs-attention, in-progress, recent-outcomes]
   source: [authenticated-principal, effective-product-access, immutable-review-request-list, browser-local-modeling-session, browser-local-solver-card-history]
   role_visibility:
@@ -108,3 +110,7 @@ activity_workspace:
   recovery: [compact-loading-rows, refresh, retry, keep-entered-reason-on-decision-error]
   advanced_only: [request-id, revision-id, manifest-sha256, unavailable-display-name-limitation]
   captures: [activity-1366, activity-1440, activity-1920]
+  legacy_removal:
+    removed: [raw-aggregate-type-input, raw-aggregate-id-input, raw-revision-id-input, raw-manifest-sha256-input, standalone-record-decision]
+    governance_remains: [operations-dashboard, release-workbench, governance-evidence-workbench]
+  pending_projections: [failed-job-recovery, server-delivery-receipt, release]

@@ -1,7 +1,7 @@
-version: 61
+version: 62
 verified_at: 2026-07-27
-scope: dui-08b-exact-review-submission
-source_commit: working-tree-dui08b-review-submission
+scope: dui-09a-legacy-review-workbench-cleanup
+source_commit: working-tree-dui09a-legacy-cleanup
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
@@ -15,6 +15,7 @@ notes:
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
   - "All images use the deterministic synthetic non-production demo fixture."
   - "Activity is a compact Needs attention | In progress | Recent outcomes queue. Reviewer and Administrator can open one submitted review row, enter a reason, and record an existing API decision; User sees pending requests in progress without decision controls."
+  - "The legacy /jobs-reviews deep link renders the same Activity queue; the retired raw aggregate/revision/hash request form and standalone decision control are absent. /governance remains an Advanced Operations, Release and Governance Evidence route."
   - "The deterministic capture reuses an existing review request. Only when the synthetic demo has none does it create one real review request for a draft synthetic Material; it never creates a duplicate or records a decision. The current review API does not expose readable submitted-item or actor names, so the normal queue uses task labels and request reason while exact identifiers stay in Advanced evidence."
   - "DUI-08B submits or reuses one real review request for the exact draft OpenRadioss card revision already loaded by Native Card Preview. The normal header then shows Waiting for review, and Activity shows the corresponding Solver card review row; no decision or release is fabricated."
   - "Data, Process and Fit use the same compact Curves tree: canonical test method is a real parent group above specimen/revision rows, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail."
@@ -25,6 +26,10 @@ notes:
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-dui09a-legacy-cleanup
+    captured_at: 2026-07-27T02:24:28+09:00
+    command: targeted rebuilt live Playwright Activity capture at 1366x768, 1440x900 and 1920x1080; reuses the deterministic existing-review-request path, verifies the compact queue and no horizontal overflow, and does not create a decision or release
+    ids: [activity-1366, activity-1440, activity-1920]
   - source_commit: working-tree-dui08b-review-submission
     captured_at: 2026-07-27T02:07:00+09:00
     command: targeted live Playwright review-submission capture at 1366x768, 1440x900 and 1920x1080; submits or reuses the exact draft OpenRadioss card review, verifies Waiting for review in Native Card Preview and the corresponding Reviewer action in Activity, and rejects horizontal overflow or unsettled state
