@@ -4,16 +4,18 @@ import { describe, expect, it, vi } from "vitest";
 import { ApplicationShell, publishWorkspaceCommandState, publishWorkspaceStatus } from "./application-shell";
 
 describe("ApplicationShell", () => {
-  it("keeps global navigation, workspace commands, and current status in separate compact regions", () => {
+  it("keeps global navigation and status separate while Materials modes stay local to the workspace", () => {
     render(<ApplicationShell path="/materials" navigate={vi.fn()}><input aria-label="Search materials" /></ApplicationShell>);
 
     expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Materials commands" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Compare" }).getAttribute("title")).toMatch(/two material rows/i);
-    expect(screen.getByRole("button", { name: "Compare" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.queryByRole("button", { name: "Compare" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Browse Tree" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Subsets" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "New material" })).toBeNull();
 
     act(() => publishWorkspaceCommandState("materials:browse"));
-    expect(screen.getByRole("button", { name: "Browse Tree" }).className).toContain("active");
+    expect(screen.queryByRole("button", { name: "Browse Tree" })).toBeNull();
 
     act(() => publishWorkspaceStatus({ selection: "DP780", revision: "r4 · released", jobs: "1 job running", warnings: "1 warning" }));
     expect(screen.getByRole("status").textContent).toContain("DP780");

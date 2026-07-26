@@ -1962,6 +1962,11 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
 
 #### T-95. Continuous Materials explorer and datasheet — `P0`
 
+- **2026-07-26 remediation:** The historical 2026-07-21 completion evidence remains preserved, but
+  later presentation drift is corrected by UXC-01: `/materials` now defaults to local Browse,
+  Find preserves navigator mode, unsupported query/context projections are absent, and the current
+  viewport captures replace prior current-state claims. See `implementation-history.md`.
+
 - **상태 (`2026-07-21`):** `complete`. Full-width shell,
   three-item product navigation, the continuous governed Browse Tree, five-tab Material Detail,
   Layout projection, typed Related/Workflow tables, and direct native card preview/download are
@@ -2000,6 +2005,10 @@ Materials의 비통합 Tree와 Modeling의 permanent 3열/743 px graph를 visual
   source/revision in the title. See `docs/17-evidence/reports/t96-modeling-graph-workspace.md`.
 
 #### T-97. Reference-similarity acceptance and legacy cleanup — `P0`
+
+- **2026-07-26 current-state correction:** The 2026-07-21 measurements are historical only. UXC-01
+  recaptured the Materials workspace at 1366×768, 1440×900 and 1920×1080 after correcting the
+  duplicate global commands, navigator default, unprojected normal-view copy and pane reset.
 
 - **상태 (`2026-07-21`):** `complete`. Administration uses the same compact divider/list grammar and
   keeps Table, Attribute, Layout, Subset, Link Type and access engines. Materials Search/Browse,

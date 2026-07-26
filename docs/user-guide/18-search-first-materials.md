@@ -4,15 +4,15 @@
 있는 사용자의 메뉴에서 열며, `/database`와 기존 deep link는 호환 경로로 유지됩니다.
 
 인증 후 화면은 46 px application bar, 38 px workspace command bar, 작업영역, 24 px status bar
-순서로 구성됩니다. command bar는 현재 workspace의 Search/Browse/Subsets, Data/Process/Fit/Export
-같은 작업 명령만 표시합니다. status bar는 선택 Material 또는 Modeling session, exact revision
+순서로 구성됩니다. Materials의 Browse/Filters/Subsets 전환은 왼쪽 Navigator에서, Modeling의
+Data/Process/Fit/Export 같은 작업 명령은 command bar에서 수행합니다. status bar는 선택 Material 또는 Modeling session, exact revision
 문맥, 실행 중 계산, 경고와 연결 상태를 계속 표시합니다. `Ctrl+K`는 Materials 검색으로 이동하고,
 `F6`와 `Shift+F6`는 application bar, command bar, navigator/main/inspector, status bar 사이를
 순환합니다. 사용할 수 없는 명령은 비활성화되며 hover/focus title에 이유가 표시됩니다.
 
 ## 기존 Material과 CAE card 찾기
 
-1. `/materials`에서 이름, grade, code 또는 family를 검색합니다.
+1. `/materials`는 Browse Navigator로 시작합니다. 이름, grade, code 또는 family를 검색해도 현재 Navigator mode는 바뀌지 않습니다.
 2. 현재는 `Material class`, 정렬과 페이지를 사용해 결과를 좁힙니다. 공급자, 근거, 검증 가능 여부,
    solver 준비 상태와 조건별 범위는 신뢰할 수 있는 정보가 준비될 때까지 사용할 수 없습니다. Yield는
    모든 재료에 공통으로 표시하거나 필터하지 않습니다.
@@ -29,9 +29,9 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 
 ### Browse Tree에서 Record 찾기
 
-1. Materials 상단의 `Browse Tree`를 선택합니다.
-2. 왼쪽 Browse navigator에서 Database, Profile, Table을 확인합니다. Search/Browse/Subsets
-   전환은 중복된 panel tab이 아니라 상단 command bar 한 곳에서만 수행합니다.
+1. 왼쪽 Navigator의 `Browse`를 선택합니다.
+2. 왼쪽 Browse navigator에서 Database, Profile, Table을 확인합니다. `Browse | Filters | Subsets`
+   전환은 Navigator 한 곳에서만 수행합니다.
 3. Folder 앞의 disclosure를 열거나 고정된 `Find in tree`에 이름을 입력합니다. 검색 결과는
    상위 Folder 경로를 유지합니다.
 4. 방향키와 Home/End로 이동하고, Left/Right로 접거나 펼치며, Enter로 Record를 선택합니다.
@@ -42,10 +42,11 @@ Table, Attribute, Layout, Subset, Link Type과 exact revision은 삭제되지 �
 Tree는 자체 스크롤을 사용하므로 깊은 계층에서도 Database/Profile과 검색 동작을 다시 찾을
 수 있습니다. 긴 이름은 한 줄로 유지되고 hover/focus의 전체 이름으로 확인합니다.
 
-Navigator와 Context의 divider는 포인터 또는 키보드 방향키로 조절합니다. 별도의 `Hide filters` /
+Navigator와 Context의 divider는 포인터 또는 키보드 방향키로 조절하고, divider를 두 번 누르면
+현재 viewport 기본 폭으로 돌아갑니다. 별도의 `Hide filters` /
 `Hide details` 행은 없으며 divider 위의 작은 화살표로 해당 pane만 접거나 다시 엽니다. 1366 px에서는
-Context를 기본으로 접고, 1440/1920 px에서는 각각 264/288 px로 엽니다. Navigator는 220–320 px,
-Context는 260–400 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에
+Context를 기본으로 접고, 1440/1920 px에서는 각각 280/300 px로 엽니다. Navigator는 200–360 px,
+Context는 260–480 px 범위에서 조절되며 viewport 구간별 크기와 접힘 상태가 이 브라우저에
 저장됩니다. 세 pane은 서로 독립적으로 스크롤합니다.
 
 Find의 전체 수, 현재 행, Material class 필터와 정렬은 서로 같은 결과를 보여 줍니다. 각 행의
@@ -209,9 +210,9 @@ Export adapter는 늦게 도착한 model-list refresh가 방금 promotion한 IR 
 `unprojected` terminal state로 명시하며 resolved link로 위장하지 않습니다. Capture별
 source/time/command는 [`screenshot manifest`](screenshot-manifest.yaml)에 기록합니다.
 
-UXC-01 Materials Search 이미지는 web과 API를 같은 코드 커밋 `a486644`로 재빌드한 뒤
+UXC-01 Materials Search 이미지는 web과 API를 같은 코드로 재빌드한 뒤
 1366×768, 1440×900, 1920×1080에서 다시 캡처했습니다. 세 viewport 모두 horizontal overflow가
-0이었고, Material class facet, server total, Summary와 Revision status의 분리된 의미를 확인했습니다.
+0이었고, Browse 기본 mode, server total과 Material class facet, 그리고 사용자용 결과 열을 확인했습니다.
 캡처는 fixture를 변경하지 않으므로 생성 명령을 실행한 결과가 아니라 각 단계의 현재 조작면을
 보여 줍니다. 실제 생성 완료 흐름과 identity/revision 고정은 DUI-06 evidence report에 기록합니다.
 

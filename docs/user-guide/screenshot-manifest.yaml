@@ -1,4 +1,4 @@
-version: 57
+version: 58
 verified_at: 2026-07-26
 scope: uxc-06c2-exact-target-preflight-and-atomic-delivery
 source_commit: fa213ca
@@ -19,8 +19,13 @@ notes:
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
   - "UXC-00G adds the implemented User, Reviewer, and Administrator task presets. The current access screen deliberately shows readable included work instead of editable feature-grant checkboxes."
+  - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-uxc01-materials-workspace
+    captured_at: 2026-07-26T23:36:00+09:00
+    command: targeted live Playwright Materials capture at 1366x768, 1440x900 and 1920x1080; verifies Browse default, server query result selection, no horizontal overflow, and divider drag followed by double-click reset to each viewport default before capture
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440]
   - source_commit: working-tree-uxc00g
     captured_at: 2026-07-26T23:10:00+09:00
     command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
@@ -40,21 +45,21 @@ capture_provenance:
 captures:
   - id: materials-search-1366
     route: /materials
-    workflow: search-select-and-solver-availability
+    workflow: browse-default-search-select-and-open-datasheet
     fixture: synthetic DP780 Material library
     image: images/current/materials-search-1366x768.png
     width: 1366
     height: 768
   - id: materials-search-1440
     route: /materials
-    workflow: search-select-and-solver-availability
+    workflow: browse-default-search-select-and-open-datasheet
     fixture: synthetic DP780 Material library
     image: images/current/materials-search-1440x900.png
     width: 1440
     height: 900
   - id: materials-search-1920
     route: /materials
-    workflow: search-select-and-solver-availability
+    workflow: browse-default-search-select-and-open-datasheet
     fixture: synthetic DP780 Material library
     image: images/current/materials-search-1920x1080.png
     width: 1920

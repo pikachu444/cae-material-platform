@@ -19,7 +19,7 @@ Layout, Subset, exact-revision 양방향 Link Type과 workflow projection은 유
 
 | 영역 | 현재 범위 |
 | --- | --- |
-| Materials | full-width 검색·facet·result table, Browse Tree, 선택 문맥, 5영역 detail, direct card preview/download |
+| Materials | Browse 기본의 연속 explorer/result/datasheet workspace, server-scoped Material class 검색·result table, Browse Tree, 선택 문맥, 5영역 detail, direct card preview/download |
 | Modeling | 184–210 px curve/process tree, shallow graph-adjacent control band, persistent dominant graph, Data/Process/Fit/Export; validation/review/release normal UI는 미구현 |
 | Catalog | configurable Table/Attribute/Layout/Subset, Folder/Record tree, typed search·compare, exact Record links |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic packages |
@@ -43,10 +43,10 @@ are distinct governed Advanced/Activity actions, not implemented normal-stage de
 current-session fallback. UXC-06B now carries server-verified Material/State/Test Run proof from a
 qualified local-file Test Data revision into its Processing Output; historical and JSON-only rows keep
 that proof null and remain blocked rather than inferred. UXC-01 has a completed server-scoped Materials Find vertical slice
-(text/material-class/sort/page total and rows; no row enrichment N+1; supported-family exact Modeling pin),
-but its provider/evidence/validation/solver and condition-aware Yield facets remain explicitly
-unavailable until their governed query projections are defined. Reviewer product role/access migration, Materials language/presentation correction and query
-projection gaps, DUI-07 Administration, DUI-08 Activity review queue, DUI-09 legacy cleanup, and
+(text/material-class/sort/page total and rows; no row enrichment N+1). Materials uses local
+Browse/Filters/Subsets modes, and the compact result/context surface omits provider/evidence/validation/solver,
+condition-aware Yield and Modeling-start projections until their governed query projections are defined. The remaining
+governed query projection gaps, DUI-07 Administration, DUI-08 Activity review queue, DUI-09 legacy cleanup, and
 final incoming-package deletion remain. Issue #119 automatic LLM review remains disabled.
 
 ## 핵심 보존 계약

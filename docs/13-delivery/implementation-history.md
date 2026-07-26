@@ -3,6 +3,22 @@
 Date: `2026-07-26`
 Foundation version: `0.32.0`
 
+## UXC-01 Materials workspace remediation implemented (2026-07-26)
+
+The current Materials workspace now opens Browse at plain `/materials`; its local `Browse | Filters |
+Subsets` control persists through URL/back/refresh and a Find never changes the selected mode. The
+global shell no longer presents duplicate or non-actionable Materials commands. Filters contains only
+the server-backed Material class facet. The result grid uses Material/grade, Family, Description and
+Status, retains local row comparison, and the compact context offers only the supported Open datasheet
+action without unprojected provider/evidence/validation/readiness or Modeling-start claims.
+
+The split layout persists as v5 by viewport class, defaults to 244/result-dominant/collapsed at
+1366, 264/856/280 at 1440, and 280/1292/300 at 1920, and supports divider double-click reset in
+addition to keyboard resizing/collapse. A targeted deterministic Compose capture at all three
+viewports verified no horizontal overflow and divider drag/reset before writing the current images.
+This corrects the later drift from the historical T-95/T-97 acceptance capture; those reports remain
+historical evidence rather than a claim about the current surface.
+
 ## UXC-06C2 atomic target delivery implemented (2026-07-26)
 
 The existing stateless target preview and immutable Neutral Solver Card store are now bound by an

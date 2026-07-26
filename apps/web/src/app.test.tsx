@@ -162,39 +162,42 @@ describe("Material Catalog workbench", () => {
     expect(screen.getAllByText("DP780").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/10,000 matches/)).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Materials", level: 1 })).toBeTruthy();
-    expect(screen.getByRole("search")).toBeTruthy();
-    expect(screen.getByRole("complementary", { name: "Material filters" })).toBeTruthy();
+    expect(screen.getAllByRole("search")).toHaveLength(2);
+    expect(screen.getByRole("complementary", { name: "Materials navigator" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Browse" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("textbox", { name: "Search materials" })).toBeTruthy();
+    expect(screen.getByRole("textbox", { name: "Find in tree" })).toBeTruthy();
     expect(screen.getByRole("table", { name: "Material results" })).toBeTruthy();
-    expect(screen.getByRole("combobox", { name: "Material class" })).toBeTruthy();
-    expect(screen.getByRole("columnheader", { name: /Material class/ })).toBeTruthy();
-    expect(screen.getByRole("columnheader", { name: /Revision status/ })).toBeTruthy();
+    expect(screen.queryByRole("combobox", { name: "Material class" })).toBeNull();
+    expect(screen.getByRole("columnheader", { name: /Family/ })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: /Status/ })).toBeTruthy();
     expect(screen.queryByRole("columnheader", { name: /Form \/ condition|Release/ })).toBeNull();
-    expect(screen.getByText("Provider")).toBeTruthy();
-    expect(screen.getByText("Evidence source")).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: "Browse Tree" })).toHaveLength(1);
-    expect(screen.queryByRole("navigation", { name: "Materials navigator" })).toBe(null);
+    expect(screen.queryByText("Provider")).toBeNull();
+    expect(screen.queryByText("Evidence source")).toBeNull();
+    expect(screen.getByRole("navigation", { name: "Materials navigator modes" })).toBeTruthy();
     const materialHeader = screen.getAllByRole("columnheader").find((header) =>
-      within(header).queryByRole("button", { name: "Material" }),
+      within(header).queryByRole("button", { name: "Material / grade" }),
     );
     expect(materialHeader).toBeTruthy();
     expect(materialHeader?.getAttribute("aria-sort")).toBe("ascending");
-    expect(within(materialHeader!).getByRole("button", { name: "Material" }).hasAttribute("aria-sort")).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Material class" }));
+    expect(within(materialHeader!).getByRole("button", { name: "Material / grade" }).hasAttribute("aria-sort")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Family" }));
     await waitFor(() => expect(window.location.search).toContain("sort=material_class"));
-    expect(screen.getByRole("columnheader", { name: /Material class/ }).getAttribute("aria-sort")).toBe("ascending");
-    fireEvent.click(screen.getByRole("button", { name: "Collapse filters pane" }));
-    expect(screen.queryByRole("complementary", { name: "Material filters" })).toBe(null);
-    expect(screen.getByRole("button", { name: "Expand filters pane" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: /Family/ }).getAttribute("aria-sort")).toBe("ascending");
+    fireEvent.click(screen.getByRole("button", { name: "Collapse navigator pane" }));
+    expect(screen.queryByRole("complementary", { name: "Materials navigator" })).toBe(null);
+    expect(screen.getByRole("button", { name: "Expand navigator pane" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Expand navigator pane" }));
     fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
-    expect(screen.getByRole("button", { name: "Open material" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Open datasheet" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Materials" }).getAttribute("aria-busy")).toBe("false");
     fireEvent.change(screen.getByRole("textbox", { name: "Search materials" }), { target: { value: "DP780" } });
-    fireEvent.submit(screen.getByRole("search"));
-    fireEvent.click(screen.getByRole("button", { name: "Expand filters pane" }));
+    fireEvent.submit(screen.getByRole("textbox", { name: "Search materials" }).closest("form")!);
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
     fireEvent.change(screen.getByRole("combobox", { name: "Material class" }), { target: { value: "metal" } });
     await waitFor(() => expect(window.location.search).toContain("q=DP780"));
     expect(window.location.search).toContain("family=metal");
-    fireEvent.click(screen.getByRole("button", { name: "Open material" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open datasheet" }));
     await waitFor(() => expect(window.location.pathname).toBe(`/materials/${visibleMaterial.material_id}`));
     expect(window.sessionStorage.getItem("cmp.materials.return-path")).toContain(`selected=${visibleMaterial.material_id}`);
     fireEvent.click(await screen.findByRole("button", { name: "Back to results" }));
@@ -272,7 +275,8 @@ describe("Material Catalog workbench", () => {
     expect(await screen.findByText("Synthetic composite")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Expand details pane" }));
     expect(screen.queryByRole("button", { name: "Start Modeling" })).toBeNull();
-    expect(screen.getByText("Modeling is not supported for this family.")).toBeTruthy();
+    expect(screen.queryByText("Modeling is not supported for this family.")).toBeNull();
+    expect(screen.getByRole("button", { name: "Open datasheet" })).toBeTruthy();
   });
 
   it("shows an actionable problem code and trace ID without exposing the bearer token", async () => {
@@ -289,10 +293,13 @@ describe("Material Catalog workbench", () => {
 
     render(<App />);
 
-    const alert = await screen.findByRole("alert");
-    expect(alert.textContent).toContain("Reload the Material");
-    expect(alert.textContent).toContain("CMP-REVISION-409");
-    expect(alert.textContent).toContain(
+    const alerts = await screen.findAllByRole("alert");
+    const alert = alerts.find((candidate) => candidate.textContent?.includes("CMP-REVISION-409"));
+    expect(alert).toBeTruthy();
+    const alertText = alert?.textContent ?? "";
+    expect(alertText).toContain("Reload the Material");
+    expect(alertText).toContain("CMP-REVISION-409");
+    expect(alertText).toContain(
       "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
     );
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
@@ -311,7 +318,8 @@ describe("Material Catalog workbench", () => {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
     expect(window.location.pathname).toBe("/materials");
-    expect(screen.getAllByRole("button", { name: "Browse Tree" })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Browse" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("textbox", { name: "Find in tree" })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/bearer|API base|tenant|RLS/i);
   });
 

@@ -1,4 +1,4 @@
-version: 15
+version: 16
 shell:
   application_bar_px: 46
   command_bar_px: 38
@@ -23,15 +23,17 @@ materials_workspace:
     material_datasheet: /materials/:materialId/:tab?
     exact_record_revision: /materials/records/:recordId/revisions/:revisionId
   panes:
-    compact_1366: { navigator_px: 232, context: collapsed, main_px: 1106, main_min_px: 720 }
-    standard_1440: { navigator_px: 240, context_px: 264, main_px: 908, main_min_px: 720 }
-    wide_1920: { navigator_px: 272, context_px: 288, main_px: 1332, main_min_px: 720 }
-    navigator_range_px: [220, 320]
-    context_range_px: [260, 400]
-    persistence: viewport-class-local-storage
+    compact_1366: { navigator_px: 244, context: collapsed, main_px: 1102, main_min_px: 720 }
+    standard_1440: { navigator_px: 264, context_px: 280, main_px: 856, main_min_px: 720 }
+    wide_1920: { navigator_px: 280, context_px: 300, main_px: 1292, main_min_px: 720 }
+    navigator_range_px: [200, 360]
+    context_range_px: [260, 480]
+    persistence: viewport-class-local-storage-v5
   interaction:
-    navigator_mode_control: command-bar-only
-    pane_visibility_control: divider-button
+    navigator_mode_control: local-navigator
+    navigator_default: browse
+    search_preserves_navigator_mode: true
+    pane_visibility_control: divider-button-and-double-click-reset
     select: single-click
     open: [Enter, double-click]
     exact_revision_fallback: forbidden

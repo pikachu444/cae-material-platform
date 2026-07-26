@@ -18,10 +18,10 @@ export function desktopViewportClass(width: number): DesktopViewportClass {
   return "standard";
 }
 
-const defaults: Record<DesktopViewportClass, { navigator: number; main: number; context: number }> = {
-  compact: { navigator: 232, main: 1118, context: 0 },
-  standard: { navigator: 240, main: 920, context: 264 },
-  wide: { navigator: 272, main: 1344, context: 288 },
+export const materialsPaneDefaults: Record<DesktopViewportClass, { navigator: number; main: number; context: number }> = {
+  compact: { navigator: 244, main: 1102, context: 0 },
+  standard: { navigator: 264, main: 856, context: 280 },
+  wide: { navigator: 280, main: 1292, context: 300 },
 };
 
 export function ResizableSplitPane({
@@ -40,7 +40,7 @@ export function ResizableSplitPane({
   const [navigatorOpen, setNavigatorOpen] = useState(true);
   const [contextOpen, setContextOpen] = useState(viewport !== "compact");
   const persistence = useDefaultLayout({
-    id: `${id}-v4-${viewport}`,
+    id: `${id}-v5-${viewport}`,
     panelIds: ["navigator", "main", "context"],
     storage: typeof window === "undefined" ? undefined : window.localStorage,
   });
@@ -84,16 +84,33 @@ export function ResizableSplitPane({
     }
   }
 
+  function resetNavigator(): void {
+    navigatorRef.current?.resize(materialsPaneDefaults[viewport].navigator);
+    setNavigatorOpen(true);
+  }
+
+  function resetContext(): void {
+    const panel = contextRef.current;
+    if (!panel) return;
+    if (materialsPaneDefaults[viewport].context === 0) {
+      panel.collapse();
+      setContextOpen(false);
+      return;
+    }
+    panel.resize(materialsPaneDefaults[viewport].context);
+    setContextOpen(true);
+  }
+
   if (typeof ResizeObserver === "undefined") {
     return (
       <div className={`resizable-workspace viewport-${viewport}`} data-viewport-class={viewport}>
         <div className="materials-workspace resizable-workspace-fallback">
           {navigatorOpen ? <div className="materials-workspace-panel navigator-panel">{navigator}</div> : null}
-          <div className="materials-resize-handle" role="separator" aria-label={`Resize ${navigatorLabel}`}>
+          <div className="materials-resize-handle" role="separator" aria-label={`Resize ${navigatorLabel}`} onDoubleClick={resetNavigator} title={`Double-click to reset ${navigatorLabel} width`}>
             <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onClick={() => setNavigatorOpen((current) => !current)}><span aria-hidden="true">{navigatorOpen ? "‹" : "›"}</span></button>
           </div>
           <div className="materials-workspace-panel main-panel">{main}</div>
-          <div className="materials-resize-handle" role="separator" aria-label={`Resize ${contextLabel}`}>
+          <div className="materials-resize-handle" role="separator" aria-label={`Resize ${contextLabel}`} onDoubleClick={resetContext} title={`Double-click to reset ${contextLabel} width`}>
             <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onClick={() => setContextOpen((current) => !current)}><span aria-hidden="true">{contextOpen ? "›" : "‹"}</span></button>
           </div>
           {contextOpen ? <div className="materials-workspace-panel context-panel">{context}</div> : null}
@@ -105,8 +122,8 @@ export function ResizableSplitPane({
   return (
     <div className={`resizable-workspace viewport-${viewport}`} data-viewport-class={viewport}>
       <Group
-        key={`${id}-v4-${viewport}`}
-        id={`${id}-v4-${viewport}`}
+        key={`${id}-v5-${viewport}`}
+        id={`${id}-v5-${viewport}`}
         className="materials-workspace"
         style={{ width: "calc(100% - 16px)", height: "100%" }}
         orientation="horizontal"
@@ -117,9 +134,9 @@ export function ResizableSplitPane({
           id="navigator"
           panelRef={navigatorRef}
           className="materials-workspace-panel navigator-panel"
-          defaultSize={defaults[viewport].navigator}
-          minSize={220}
-          maxSize={320}
+          defaultSize={materialsPaneDefaults[viewport].navigator}
+          minSize={200}
+          maxSize={360}
           collapsedSize={0}
           collapsible
           groupResizeBehavior="preserve-pixel-size"
@@ -127,22 +144,22 @@ export function ResizableSplitPane({
         >
           {navigator}
         </Panel>
-        <Separator className="materials-resize-handle" aria-label={`Resize ${navigatorLabel}`}>
+        <Separator className="materials-resize-handle" aria-label={`Resize ${navigatorLabel}`} onDoubleClick={resetNavigator} title={`Double-click to reset ${navigatorLabel} width`}>
           <button className="pane-divider-control" type="button" aria-label={`${navigatorOpen ? "Collapse" : "Expand"} ${navigatorLabel} pane`} aria-expanded={navigatorOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleNavigator(); }}><span aria-hidden="true">{navigatorOpen ? "‹" : "›"}</span></button>
         </Separator>
         <Panel id="main" className="materials-workspace-panel main-panel" minSize={720}>
           {main}
         </Panel>
-        <Separator className="materials-resize-handle" aria-label={`Resize ${contextLabel}`}>
+        <Separator className="materials-resize-handle" aria-label={`Resize ${contextLabel}`} onDoubleClick={resetContext} title={`Double-click to reset ${contextLabel} width`}>
           <button className="pane-divider-control" type="button" aria-label={`${contextOpen ? "Collapse" : "Expand"} ${contextLabel} pane`} aria-expanded={contextOpen} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); toggleContext(); }}><span aria-hidden="true">{contextOpen ? "›" : "‹"}</span></button>
         </Separator>
         <Panel
           id="context"
           panelRef={contextRef}
           className="materials-workspace-panel context-panel"
-          defaultSize={defaults[viewport].context}
+          defaultSize={materialsPaneDefaults[viewport].context}
           minSize={260}
-          maxSize={400}
+          maxSize={480}
           collapsedSize={0}
           collapsible
           groupResizeBehavior="preserve-pixel-size"
