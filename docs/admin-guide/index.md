@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | Administration overview | `/administration` | 관리자 작업 선택과 제품 권한 원칙 |
 | Database design | `/administration/database` | Table, Attribute, Layout, Subset, Link Type |
-| Users & access | `/administration/access` | Administrator/User와 기능 권한 |
+| Users & access | `/administration/access` | 현재 Administrator/User와 기능 권한 (Reviewer는 pending) |
 | Material Database | `/database` | Folder, Record, exact-revision link 탐색 |
 
 Docker demo는 **Demo user** Administrator session을 자동으로 준비합니다. 사용자는 API 주소나
@@ -61,12 +61,16 @@ Record link의 양 끝은 항상 exact Record revision입니다. `latest` 별칭
 Deactivate를 사용합니다. 사용자는 Related records 패널과 Workflow Explorer에서 링크를 따라
 시험, Dataset, Processing Run, Neutral IR, Solver Card로 이동할 수 있습니다.
 
-## 5. Administrator/User 권한
+## 5. 제품 역할 목표와 현재 Administrator/User
 
-[Users & access](http://127.0.0.1:5173/administration/access)는 내부 역할 이름 대신 다음 두 역할만 표시합니다.
+[Users & access](http://127.0.0.1:5173/administration/access)는 현재 내부 역할 이름 대신 다음 두 역할만 표시합니다.
 
 - `Administrator`: 사용자 관리와 다섯 제품 기능을 모두 사용
 - `User`: 지정된 기능만 사용
+
+제품 목표는 User(검색·조회·다운로드, 검토 요청, 처리/fitting), Reviewer(User 작업 + material/card
+변경 요청·승인·publish), Administrator(모든 접근·편집·구성·검토·승인)입니다. Reviewer UI와
+access migration은 아직 구현되지 않았습니다.
 
 User에게 부여할 수 있는 기능은 다음과 같습니다.
 

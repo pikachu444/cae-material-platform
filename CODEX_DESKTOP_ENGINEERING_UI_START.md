@@ -33,10 +33,12 @@ and Material-Modeler-style calibration workflows without encountering a generic 
 ## Program rule
 
 - Do not begin with a generic visual cleanup, a CSS-only pass or a disconnected mockup.
-- `AGENTS.md` requires product-owner approval before production React/CSS changes. DUI-01~06,
-  including PR #124/DUI-06, are complete. UXC-01~06 are corrective work before DUI-07~09; do not
-  claim their future workflow states are implemented. If a later slice lacks its required approval,
-  stop and report it.
+- `AGENTS.md` requires a reference comparison, responsive prototype, measured region ratios and
+  explicit product-owner approval before production React/CSS changes. DUI-01~06, including PR
+  #124/DUI-06, are complete. UXC-00R is the documentation authority correction; remaining work is
+  Reviewer access migration, Materials query/presentation gaps, DUI-07, DUI-08 and DUI-09. Do not
+  claim future workflow states are implemented. If a later visual slice lacks its approval, stop and
+  report it.
 - After that acceptance, implement the delivery backlog in order. One pull request owns one bounded
   DUI slice.
 - Preserve database, revision/provenance, unit and solver-mapping contracts. Move the facade, not

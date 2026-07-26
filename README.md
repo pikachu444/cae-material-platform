@@ -44,7 +44,7 @@ solver card를 바로 내려받습니다. 적합한 결과가 없을 때만 시�
 - CSV/TSV/XLSX 및 versioned Canonical Test Data JSON import/export
 - explicit processing, fitting candidate·residual 비교, Material Model IR 승격
 - exact/transformed/approximated/unsupported solver mapping과 native card preview/download
-- role-gated Administration, Activity, audit·release·bundle 고급 흐름
+- role-gated Administration, Activity, audit·release·bundle 고급 흐름 (Activity review queue와 Administration 재설계는 예정)
 
 ## 5분 로컬 실행
 
@@ -84,8 +84,8 @@ Windows/WSL 설치와 장애 진단은 [Compose 실행 가이드](deploy/compose
 | --- | --- |
 | `Materials` | 검색·필터·비교, Browse Tree, 5영역 datasheet, 직접 card 다운로드 |
 | `Modeling` | Data, Process, Fit, Export와 Advanced Recipe/Batch/JSON |
-| `Activity` | 최근 작업, 검토·release, 고급 job/bundle 진입 |
-| `Administration` | role-gated Table/Attribute/Layout/Subset/Link Type 및 접근 관리 |
+| `Activity` | 최근 browser-local Modeling session·card preview/download 이력과 기존 technical review workspace link; 실제 검토·조치 queue는 예정 |
+| `Administration` | 현재 관리 기능; 목표 object tree·list·property editor 재설계는 예정 |
 
 기존 `/database`, `/catalog/*`, `/datasets/*` route는 deep-link 호환을 위해 남아 있지만 일반 사용자의
 주 메뉴는 아닙니다. UUID, hash, full revision, classification, Mapping Profile JSON과 provenance graph는

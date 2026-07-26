@@ -5,7 +5,7 @@ source_commit: fa213ca
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
-  - "The current set contains 29 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
+  - "The current set contains 26 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
   - "Fit capture asserts Preview changes, a closed Candidate parameters disclosure, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
@@ -32,10 +32,6 @@ capture_provenance:
     captured_at: 2026-07-26T09:39:04+09:00
     command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5174 (successful atomic capture of implementation commit 8ce8b89 bytes before provenance-only follow-up)
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, activity-1440, administration-database-1440]
-  - source_commit: 1ee4f2a
-    captured_at: 2026-07-26T10:26:00+09:00
-    command: targeted Playwright UXC-05 validation capture after deterministic Compose rebuild
-    ids: [modeling-validation-1366, modeling-validation-1440, modeling-validation-1920]
 captures:
   - id: materials-search-1366
     route: /materials
@@ -184,27 +180,6 @@ captures:
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080
-  - id: modeling-validation-1366
-    route: /modeling?stage=validate&family=metal
-    workflow: UXC-05 exact-validation-prerequisites-and-fail-closed-review-release-commands
-    fixture: synthetic reference artifacts; no candidate package or release-policy producer
-    image: images/current/modeling-validation-1366x768.png
-    width: 1366
-    height: 768
-  - id: modeling-validation-1440
-    route: /modeling?stage=validate&family=metal
-    workflow: UXC-05 exact-validation-prerequisites-and-fail-closed-review-release-commands
-    fixture: synthetic reference artifacts; no candidate package or release-policy producer
-    image: images/current/modeling-validation-1440x900.png
-    width: 1440
-    height: 900
-  - id: modeling-validation-1920
-    route: /modeling?stage=validate&family=metal
-    workflow: UXC-05 exact-validation-prerequisites-and-fail-closed-review-release-commands
-    fixture: synthetic reference artifacts; no candidate package or release-policy producer
-    image: images/current/modeling-validation-1920x1080.png
-    width: 1920
-    height: 1080
   - id: modeling-export-1366
     route: /modeling?stage=export&family=metal
     workflow: uxc-06c2-exact-target-preflight-and-atomic-delivery
@@ -229,14 +204,14 @@ captures:
   - id: activity-1440
     route: /activity
     workflow: recent-browser-local-solver-card-delivery
-    fixture: DP780 OpenRadioss card preview with exact card revision retained; broader DUI-08 pending
+    fixture: current pending-redesign evidence only; broader DUI-08 review/action queue pending
     image: images/current/activity-1440x900.png
     width: 1440
     height: 900
   - id: administration-database-1440
     route: /administration/database
     workflow: table-attribute-layout-subset-and-link-type-configuration
-    fixture: configurable Demo Material Records Table
+    fixture: current pending-redesign evidence only; DUI-07 object tree/list/property editor target pending
     image: images/current/administration-database-1440x900.png
     width: 1440
     height: 900

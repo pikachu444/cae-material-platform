@@ -784,3 +784,27 @@ captures:
     image: images/ux-redesign-v2/final-browse-tree-1366x768.png
     width: 1351
     height: 760
+  - id: uxc-00r-retired-modeling-validation-1366
+    route: /modeling?stage=validate&family=metal
+    workflow: retired-six-stage-normal-modeling-visual
+    fixture: synthetic reference artifacts
+    source_evidence: reports/uxc-00r-authority-audit.md
+    image: images/uxc-00r-retired-modeling-validation/modeling-validation-1366x768.png
+    width: 1366
+    height: 768
+  - id: uxc-00r-retired-modeling-validation-1440
+    route: /modeling?stage=validate&family=metal
+    workflow: retired-six-stage-normal-modeling-visual
+    fixture: synthetic reference artifacts
+    source_evidence: reports/uxc-00r-authority-audit.md
+    image: images/uxc-00r-retired-modeling-validation/modeling-validation-1440x900.png
+    width: 1440
+    height: 900
+  - id: uxc-00r-retired-modeling-validation-1920
+    route: /modeling?stage=validate&family=metal
+    workflow: retired-six-stage-normal-modeling-visual
+    fixture: synthetic reference artifacts
+    source_evidence: reports/uxc-00r-authority-audit.md
+    image: images/uxc-00r-retired-modeling-validation/modeling-validation-1920x1080.png
+    width: 1920
+    height: 1080

@@ -17,7 +17,19 @@ evidence는 `docs/17-evidence/`와 implementation history에 보존하고 현재
 
 문장 수준 표기는 `FACT-PUBLIC`, `CONFIRMED`, `DECISION`, `TBD`, `OUT-OF-SCOPE`를 사용한다.
 `ASSUMPTION`은 production domain, solver, validation, review policy를 결정하는 근거로 사용하지
-않는다. PR #124/DUI-01~06은 complete이고 UXC-01~06은 corrective workstream으로 pending이다.
+않는다. PR #124/DUI-01~06은 complete이다. UXC-00R는 문서 권위 정정이며, Reviewer access migration,
+Materials projection/presentation gaps, DUI-07~09와 incoming package final deletion은 pending이다.
+
+## UXC-00R authority and approval rule
+
+- Current-status documents describe only Administrator/User; the approved three-role product target
+  is User, Reviewer, Administrator, with Reviewer pending implementation.
+- The only approved Modeling target is the **lower proposal** in
+  `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`: 184–210 px tree,
+  shallow graph-adjacent band and dominant plot. The normal path is `Data | Process | Fit | Export`.
+- Materials, Administration and Activity targets are contracts, not claims about the current routes.
+  The next design-only PR must create responsive prototypes and obtain explicit product-owner approval
+  before React/CSS work.
 
 ## 1. 이 패키지의 목적
 

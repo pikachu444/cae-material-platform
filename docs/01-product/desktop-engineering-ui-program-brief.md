@@ -18,8 +18,9 @@ and Altair Material Modeler:
 
 - Materials work is a high-density explorer: find or browse, inspect, compare, then preview or
   download a valid solver card.
-- Modeling work is a continuous calibration studio: select data, prepare it, fit and validate a
-  model, then generate and review a solver card without losing the active graph or session.
+- Modeling work is a continuous calibration studio: select data, prepare it, fit, then generate a
+  solver card without losing the active graph or session. Validation and review/release are distinct
+  governed Advanced/Activity actions, not normal-stage tiles.
 - The result must look and behave like a Windows engineering program delivered in a browser, not a
   landing page, mobile layout, content portal or card-heavy SaaS dashboard.
 
@@ -102,7 +103,7 @@ mixed into one visual list.
 - Materials single-click updates context in place; Enter/double-click opens the datasheet in the
   center region while the navigator remains available. Back/forward restores the prior context.
 - Modeling keeps one plot mounted throughout Data, Process, Fit and Export. Stage changes alter
-  commands, overlays and an optional task inspector; they must not discard the selected curves or
+  commands, overlays and a shallow graph-adjacent control band; they must not discard the selected curves or
   graph state.
 - Panes divide by alignment and 1 px splitters before background, radius, border or shadow. Persist
   pane sizes and collapsed state where the backlog requires it.
@@ -128,12 +129,11 @@ delete a route component simply because its markup looks old; first move or prot
 
 Use the backlog in order:
 
-1. DUI-01 application shell: `AGENTS.md` requires recorded product-owner approval before any
-   production React/CSS work. Draft PR #112 is not that approval. Do not merge it or begin DUI-02
-   until the approval is recorded; this brief does not retroactively waive the gate.
+1. Future major workspace redesign: `AGENTS.md` requires reference comparison, responsive prototype,
+   measured region ratios and recorded product-owner approval before any production React/CSS work.
 2. DUI-02 Materials split workspace and in-place datasheet.
 3. DUI-03 contextual card delivery.
-4. DUI-04 persistent Modeling session and task inspector.
+4. DUI-04 persistent Modeling session and graph-adjacent control band.
 5. DUI-05 data intake and processing.
 6. DUI-06 fit and export decision workflow.
 7. DUI-07 Administration object navigator/property editor.

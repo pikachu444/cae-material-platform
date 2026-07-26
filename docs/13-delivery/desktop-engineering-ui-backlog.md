@@ -1,7 +1,8 @@
 # Desktop Engineering UI Delivery Backlog
 
 Status: active program; DUI-01~06 are complete, including PR #124/DUI-06 merged on 2026-07-24.
-UXC-01~06 are corrective work required before DUI-07~09, which remain pending. Issue #119 remains
+UXC-00R is the documentation-authority correction. Remaining work is Reviewer access migration,
+Materials language/presentation and governed query projections, then DUI-07~09. Issue #119 remains
 an explicit opt-in independent-review gate; automatic LLM review remains disabled.
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
@@ -98,7 +99,7 @@ A known Material can be assessed and downloaded without navigating through imple
 - missing-card states never show an inactive or misleading Download command;
 - downloaded artifact and mapping report regressions remain unchanged.
 
-## DUI-04 — Persistent Modeling session and task inspector — P0
+## DUI-04 — Persistent Modeling session and control band — P0
 
 Implementation status: complete. PR #115 was approved and merged as `f89cc50` on 2026-07-22. Live
 flow, pane measurements, state continuity, reference scoring and captures are
@@ -111,7 +112,7 @@ Data, Process, Fit and Export feel like stages of one engineering session rather
 ### Scope
 
 - persistent graph and curve/process navigator;
-- optional docked Task Inspector;
+- shallow graph-adjacent current-step control band and on-demand parameter disclosure;
 - resizable panes with graph minimum width protection;
 - draft/preview/committed/reviewed/exported session states;
 - autosave non-numerical UI state;
@@ -122,7 +123,7 @@ Data, Process, Fit and Export feel like stages of one engineering session rather
 ### Acceptance
 
 - stage switch does not remount the graph or lose selected curves/view;
-- 1440 px Fit graph remains at least 70% of workspace width with Inspector open where possible;
+- tree remains 184–210 px, graph is dominant, and no permanent third inspector column exists;
 - Preview and Committed output cannot be confused;
 - interrupted session resumes from Activity with selected stage/curves/candidate;
 - JSON editing is unnecessary for the normal upload-to-card path.
@@ -272,7 +273,10 @@ Every slice must preserve:
 4. DUI-03 card delivery — complete in PR #122;
 5. DUI-05 Data/Process — complete in PR #123;
 6. DUI-06 Fit/Export — complete in PR #124;
-7. UXC-00 documentation convergence and latest-main baseline — complete only with current captures;
+7. UXC-00R documentation authority correction — current bounded documentation slice: records the
+   three-role target without claiming Reviewer implementation, retires the six-stage current guide
+   capture to historical evidence, and preserves PR #124/DUI-01~06 behavior. It is not a visual
+   approval or implementation claim;
 8. UXC-01 Materials query/facet/result correctness — partial vertical slice complete: server-scoped
    text/class/sort/page rows and total, Material class facet/page metadata, no row enrichment N+1, exact
    supported-family Modeling pin, and current viewport evidence. Provider/evidence-source,
@@ -282,10 +286,11 @@ Every slice must preserve:
    v2 migration, exact Material/State/Test Data pins, invalidation dispositions, Data-first new
    session, resume view state, and fail-closed Export prerequisite surface. UXC-04B subsequently
    corrected the normal visible shell to `Data | Process | Fit | Export`; Validate and
-   Review/Release remain distinct governed Advanced/Activity paths pending their complete producer
-   contracts. API Processing
-   Output does not expose a Material/State pin, so the normal Export surface does not claim an
-   independent cross-resource provenance proof and blocks absent current session pins;
+Review/Release remain distinct governed Advanced/Activity paths pending their complete producer
+contracts. The original UXC-02 boundary was that Processing Output exposed no Material/State pin.
+UXC-06B resolves it for qualified local-file rows by carrying server-verified Material/State/Test Run
+proof from Test Data into Processing Output; historical and JSON-only rows retain null proof and stay
+blocked rather than receiving an inferred cross-resource claim;
 10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence and contextual workup; the bounded UXC-03B correction replaces the generic two-line curve rail with compact exact-specimen rows in Process/Fit and removes the prohibited permanent Export rail and Mean/band controls;
 11. UXC-04 explicit Fit decision and model identity — implemented with null-by-default selection,
     separate recommendation and engineer selection, typed immutable Fit Decision, single/blend
@@ -310,7 +315,10 @@ Every slice must preserve:
 
 ## UXC corrective sequence
 
-UXC-00 is the documentation-only convergence baseline. UXC-01~06 retain the completed DUI-01~06
+UXC-00R is the documentation-only authority-correction baseline. It leaves Reviewer product-role/access
+migration, Materials language/presentation correction and query projection gaps, DUI-07 Administration,
+DUI-08 Activity review queue, DUI-09 legacy cleanup, and final incoming-package deletion pending.
+UXC-01~06 retain the completed DUI-01~06
 surfaces while correcting query truth, session invalidation, explicit engineer decisions, validation/
 review/release, and exact delivery. No UXC task chooses a production material model, solver policy,
 validation threshold, or approval policy without the corresponding domain decision.
@@ -324,15 +332,16 @@ or a condition-aware quantity definition. These remain distinct unavailable stat
 instead of inferred from the first property set. A later UXC-01 follow-up needs the governing query
 projection (definition, condition, unit and source revision) before a metal Yield range can be added.
 
-### UXC-02 current constraint
+### UXC-02 original boundary and UXC-06B resolution
 
 The browser-local session reducer can safely clear or mark current pointers stale/regenerate, and
 the common Modeling shell no longer auto-selects a first Test Data revision after a new session or
 Material/State context change. Current Export requires a session-local exact Material, Material State,
 Test Data and Processing Output pin; it never renders a global/legacy output fallback. The existing
-Processing Output API projects exact source Test Data and Mapping Profile but not Material or Material
-State identity. UXC-02 records that gap and does not represent its guard as a completed cross-resource
-provenance validation; UXC-06 needs an API-supported proof before delivery can claim it.
+Processing Output originally projected exact source Test Data and Mapping Profile but not Material or
+Material State identity. UXC-06B now resolves that boundary for qualified local-file saves: the server
+verifies Test Run → Specimen → State → Material and preserves the proof in Test Data and Processing
+Output. Historical and JSON-only rows remain null and blocked; they are never backfilled or inferred.
 
 ### UXC-06 current constraint
 

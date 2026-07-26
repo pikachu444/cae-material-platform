@@ -42,7 +42,7 @@ Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library
 | Tree, Layout, comparison, workflow | [Configurable catalog](12-configurable-catalog-and-modeling.md) |
 | Canonical Test Data JSON | [JSON 등록](13-canonical-test-data-json.md) |
 | Processing Recipe·Batch·workbench | [Common processing](14-common-processing-workbench.md) |
-| Administrator/User 기능 권한 | [Product access](15-product-access.md) |
+| 제품 역할과 접근 상태 | [Product access](15-product-access.md) |
 | 세 재료 계열 통합 demo | [Guided demo](16-guided-demo.md) |
 | clean demo와 다운로드 검증 | [Clean demo validation](17-clean-demo-download-validation.md) |
 
@@ -54,6 +54,7 @@ Modeling Data(JSON/CSV/XLSX) → Process → Fit → Export → Material Library
 - Modeling은 compact curve/process explorer와 넓은 graph를 유지하고 설정은 ribbon/drawer로 엽니다.
 - full UUID, hash, classification, exact revision, JSON과 provenance graph는 Evidence/Advanced에 둡니다.
 - Table/Attribute/Layout/Subset/Link Type 관리는 role-gated Administration에서 수행합니다.
+- Reviewer 역할과 Activity 검토 queue, Administration 작업영역 재설계는 아직 준비 중입니다.
 
 ![Searchable Browse Tree](images/current/materials-browse-1440x900.png)
 

@@ -8,7 +8,7 @@
 - 일반 사용자 메뉴: `Materials | Modeling | Activity`
 - 기본 route: `/materials`
 - Material Detail: `Overview | Properties | Curves | CAE Cards | Evidence`
-- Modeling: `Data | Process | Fit | Validate | Review / Release | Export` (the latter two are truthful prerequisite states pending UXC-05)
+- Modeling: `Data | Process | Fit | Export`; validation과 review/release는 Advanced/Activity의 별도 governed action이며 normal stage가 아니다.
 - Administration: role-gated Table/Attribute/Layout/Subset/Link Type 및 접근 관리
 - legacy `/database`, `/catalog/*`, `/datasets/*`: deep-link compatibility
 
@@ -20,7 +20,7 @@ Layout, Subset, exact-revision 양방향 Link Type과 workflow projection은 유
 | 영역 | 현재 범위 |
 | --- | --- |
 | Materials | full-width 검색·facet·result table, Browse Tree, 선택 문맥, 5영역 detail, direct card preview/download |
-| Modeling | compact curve/process explorer, persistent dominant graph, shallow settings ribbon, Data/Process/Fit/Validate/Review-Release/Export |
+| Modeling | 184–210 px curve/process tree, shallow graph-adjacent control band, persistent dominant graph, Data/Process/Fit/Export; validation/review/release normal UI는 미구현 |
 | Catalog | configurable Table/Attribute/Layout/Subset, Folder/Record tree, typed search·compare, exact Record links |
 | Exchange | CSV/TSV/XLSX governed import, versioned Test Data JSON, Neutral Material JSON, deterministic packages |
 | Engineering | public-equation reference metal/polymer/elastomer processing·fitting, IR promotion, mapping evidence |
@@ -37,15 +37,17 @@ Production 표준·plugin·solver correlation·validation threshold는 domain ap
 PR #124/DUI-06 completed the bounded Fit candidate decision → immutable Processing Output → Material
 Model IR → Neutral Material → mapping preflight → native solver-card delivery chain on 2026-07-24.
 DUI-01~06 are complete. UXC-02 now provides a v3 clearable session reducer, Data-first reset,
-exact Material/State/Test Data session pins, downstream clear/stale/regenerate state, resumable stage/
-plot state, and a six-stage shell. Validate and Review/Release remain blocked prerequisites pending
-UXC-05. Export has no current-session fallback, but the Processing Output API still lacks a Material/
-State identity projection, so it is blocked without current session pins rather than presented as a
-complete cross-resource provenance validation. UXC-01 has a completed server-scoped Materials Find vertical slice
+exact Material/State/Test Data session pins, downstream clear/stale/regenerate state and resumable
+plot state. The normal shell is exactly `Data | Process | Fit | Export`; validation and review/release
+are distinct governed Advanced/Activity actions, not implemented normal-stage destinations. Export has no
+current-session fallback. UXC-06B now carries server-verified Material/State/Test Run proof from a
+qualified local-file Test Data revision into its Processing Output; historical and JSON-only rows keep
+that proof null and remain blocked rather than inferred. UXC-01 has a completed server-scoped Materials Find vertical slice
 (text/material-class/sort/page total and rows; no row enrichment N+1; supported-family exact Modeling pin),
 but its provider/evidence/validation/solver and condition-aware Yield facets remain explicitly
-unavailable until their governed query projections are defined. DUI-07 Administration, DUI-08 Activity, and DUI-09 legacy cleanup remain
-pending. Issue #119 automatic LLM review remains disabled.
+unavailable until their governed query projections are defined. Reviewer product role/access migration, Materials language/presentation correction and query
+projection gaps, DUI-07 Administration, DUI-08 Activity review queue, DUI-09 legacy cleanup, and
+final incoming-package deletion remain. Issue #119 automatic LLM review remains disabled.
 
 ## 핵심 보존 계약
 

@@ -81,13 +81,13 @@ Recipe, Batch, exact revision identifiers, mapping profiles and audit detail sup
 
 | Role | Default landing | Primary jobs |
 | --- | --- | --- |
-| Material Data Consumer / CAE Analyst | Materials | search, inspect, compare, preview and download cards |
-| Material Modeler | Modeling or last active session | import, process, fit, export and save |
-| Test Engineer / Data Steward | Modeling Data | upload, mapping, unit confirmation and data quality correction |
-| Reviewer / Approver | Activity | review evidence, requested changes and release readiness |
-| Administrator | Materials, with Administration in the application menu | Table, Attribute, Layout, Subset, Link Type and access configuration |
+| User | Materials | search/view/download; request upload review; process, fit and request card review |
+| Reviewer (target; pending) | Activity | all User work plus material/card review, change request, approval and publish |
+| Administrator | Materials, with Administration in the application menu | all access/edit/configure/review/approve work |
 
 A role changes default commands and access. It must not produce a different visual product shell.
+Current implementation exposes Administrator/User only; Reviewer is a product target pending access
+migration. Internal RBAC/RLS continues to enforce organization/project authorization.
 
 ## 4. Shared workspace behavior
 
@@ -296,7 +296,7 @@ Rules:
 3. Observed curves, candidate responses, residuals and extrapolation boundary share the persistent plot.
 4. Candidate table shows fit metric, parameter summary, bounds, stability and applicability.
 5. Selecting a candidate updates plot and property inspector without changing workspace topology.
-6. User records selection reason and promotes the reviewed result to Material Model IR/Neutral Material.
+6. User records a selection reason and promotes the selected, saved result to Material Model IR/Neutral Material.
 
 Rules:
 
@@ -306,7 +306,7 @@ Rules:
 
 ### Stage 4: Export
 
-1. Reviewed model is pinned.
+1. The selected, saved model is pinned.
 2. User chooses solver/law/unit system.
 3. Preflight reports mapping states.
 4. User resolves required values and approximation acknowledgement.
@@ -317,7 +317,7 @@ Rules:
 
 ### Acceptance
 
-- Data, Process, Fit, Validate, Review / Release and Export retain the same shell and selected session.
+- Data, Process, Fit and Export retain the same shell and selected session.
 - Graph does not disappear during Process/Fit stage changes.
 - Validate pins only engineer-selected exact synthetic reference artifacts after the current
   selection, model calibration evidence and session IR/card revisions match. It records a separate
@@ -339,14 +339,15 @@ Rules:
 
 Users can leave a long operation and return without hunting through technical job tables.
 
-### Activity primary view
+### Activity target primary view
 
 - Recent Modeling sessions
 - Running/failed processing or fitting jobs
 - Items requiring review or acknowledgement
 - Recently generated cards and packages
 
-Each row shows human-readable Material, task, state, owner, updated time and next action.
+Each row shows human-readable Material, task, state, owner, updated time and next action. This is
+the DUI-08 target; the current Activity route is pending this review/action-queue redesign.
 
 ### Progressive advanced view
 
@@ -488,7 +489,7 @@ Every primary flow must specify and test:
 | Search result selection feedback | visible within 150 ms after local response data is available |
 | Return from Material Detail | restores exact query/filter/sort/selection |
 | Browse Tree record selection | updates context without full route reload |
-| Missing card from reviewed model | enters Export directly with compatible model pinned |
+| Missing card from selected, saved model | enters Export directly with compatible model pinned |
 | File import | ambiguous fields only require intervention |
 | Process/Fit stage change | graph and selected curves remain mounted |
 | Completed Export | card visible in Material Detail and Browse workflow |

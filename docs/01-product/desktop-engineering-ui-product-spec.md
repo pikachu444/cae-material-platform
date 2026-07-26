@@ -35,9 +35,9 @@ The application has four modes. These are workspaces, not separate mini-products
 | Mode | Primary user job | Persistent context |
 | --- | --- | --- |
 | Materials | Search, browse, compare and download | navigator, selected Record, result state |
-| Modeling | Convert test data into a reviewed model/card | session, curves, active stage, selected output |
-| Activity | Resume work, reviews and long-running jobs | current user, recent sessions, job state |
-| Administration | Configure database and access | selected Table/schema object, draft changes |
+| Modeling | Convert test data into a selected model/card | session, curves, active stage, selected output |
+| Activity | Target: resume/review action queue; current route is pending redesign | current user, item context |
+| Administration | Target: configure database/access through object tools; current route is pending redesign | selected schema object, draft changes |
 
 ## 4. Global desktop shell
 
@@ -217,22 +217,25 @@ The delivery sheet shows solver, law, units, revision status and mapping summary
 ### 7.1 Topology
 
 ```text
-┌ Session / Save / Undo / Redo | Data Process Fit Validate Review/Release Export | target ┐
-├ Curve/process navigator ⇆ Persistent graph ⇆ Task inspector*    ┤
-│ 180–240 px              remaining width    260–360 optional     │
+┌ Session / Save / Undo / Redo | Data | Process | Fit | Export | Advanced ┐
+├ Curve/process navigator ⇆ Persistent graph                           ┤
+│ 184–210 px              remaining width; shallow graph-adjacent band │
 ├ selection · points · units · preview/committed · warnings/jobs ┤
 
-* Inspector opens only for the current task and can be docked or closed.
 ```
 
-The graph is persistent across Data, Process, Fit and Export. Stage changes update commands, overlays and the inspector; they do not remount an unrelated page. Validate can pin and run existing synthetic reference artifacts only when their calibration-candidate evidence and session IR/card revisions exactly match the current selection; otherwise it reports `Not supported` and never substitutes another model from the same Material State. It never relabels a Fit metric as a result. Review / Release shows the separate Submit, Request changes, Approve and Release states, and stays `Not configured` when the immutable candidate-package producer or release policy is absent.
+The graph is persistent across Data, Process, Fit and Export. Stage changes update commands and
+overlays; they do not remount an unrelated page. Candidate parameters appear on demand in a drawer or
+disclosure, never a permanent third column. Validation and review/release remain distinct governed
+Advanced or Activity actions and are not normal-stage tiles. The approved visual reference is the
+lower proposal in `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`.
 
 ### 7.2 Session lifecycle
 
-States:
+Normal-path states:
 
 ```text
-new (Data) → draft → previewing → committed output → selected candidate → validation run → in review → approved → released → delivered card
+new (Data) → draft/preview → saved processing result → calculated candidates → explicit saved fit decision → model/card preparation → card preview → delivered card
 ```
 
 - Sessions autosave non-destructive UI state: selected curves, pane sizes, active stage and draft controls.
@@ -241,6 +244,8 @@ new (Data) → draft → previewing → committed output → selected candidate 
 - Session v3 uses explicit context events and clearable current pointers. Material revision/state/family/Test Data changes cannot retain a current downstream output; historical server objects are not deleted.
 - Leaving with uncommitted material changes prompts once, with Save draft / Discard / Stay.
 - Stale exact-revision conflicts must offer Reload current, Keep local draft as new revision, or Cancel.
+- Validation, review and release follow a separate governance branch and require their own real events;
+  they do not rename a normal-path state.
 
 ### 7.3 Data stage
 
@@ -297,7 +302,7 @@ Flow:
 1. select observed/processed dataset;
 2. run candidates;
 3. compare response/residual;
-4. inspect parameters/bounds in the optional inspector;
+4. inspect parameters/bounds on demand;
 5. explicitly select a recomputed candidate and record reason;
 6. acknowledge only warnings that apply to that selected row;
 7. save the typed decision snapshot as an immutable Processing Output;
@@ -316,7 +321,7 @@ is present and any row warning is acknowledged.
 
 Flow:
 
-1. selected reviewed model is pinned;
+1. selected, saved model is pinned;
 2. choose target solver/version/unit system;
 3. preflight mapping states;
 4. resolve required missing values;

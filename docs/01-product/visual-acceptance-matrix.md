@@ -103,14 +103,15 @@ Additional checks:
 Required topology:
 
 ```text
-Curve navigator | Persistent plot | optional task inspector
+184–210 px curve/process tree | Persistent dominant plot with shallow graph-adjacent band
 ```
 
 Additional checks:
 
 - plot remains mounted through task changes;
 - actual plot width is at least 72% of workspace at 1440 px;
-- curve rows are 24–26 px;
+- curve rows separate inclusion checkbox from icon-only plot visibility;
+- curve tree is 184–210 px and controls do not create a permanent third column;
 - task controls are property rows, not cards;
 - response/residual/extrapolation state is visible in the plot;
 - cursor/selection state appears in status bar.
@@ -155,6 +156,25 @@ Additional checks:
 - no KPI tile dashboard;
 - reviews/jobs/releases use tabs or saved views;
 - task action is row-specific.
+
+## Reference and approval disposition
+
+The approved Modeling target is the **lower proposal** in
+`docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`. Materials references:
+`docs/00-research/images/gui-reference/granta-profile.png`,
+`docs/00-research/images/gui-reference/granta-list-results.png`, and
+`docs/00-research/images/gui-reference/granta-datasheet-embedded.png`. Administration references:
+`docs/00-research/images/gui-reference/granta-admin-schema-tool.png`,
+`docs/00-research/images/gui-reference/granta-functional-edit.png`,
+`docs/00-research/images/gui-reference/granta-admin-layout.png`, and
+`docs/00-research/images/gui-reference/granta-record-links-datasheet.png`. Modeling references:
+`modeler-start-data.png`, `modeler-youngs-auto.png`, `modeler-youngs-manual.png`,
+`modeler-necking-point.png`, `modeler-fit-extrapolation.png`, `modeler-create-cae-card.png`, and
+`modeler-cae-card-details.png` in `docs/00-research/images/gui-reference/README.md`, plus the
+approved lower comparison above.
+The next design-only PR must create responsive prototypes, record region ratios, and receive explicit
+product-owner approval before any production React/CSS implementation. Current Activity and
+Administration captures are pending-redesign evidence, not target approval.
 
 ## Required measurement report
 
