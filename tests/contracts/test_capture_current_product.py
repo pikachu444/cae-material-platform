@@ -14,6 +14,10 @@ _capture_to_empty_directory = cast(
     Callable[[Path, Callable[[Path], None]], int],
     _SCRIPT["_capture_to_empty_directory"],
 )
+_preserve_external_captures = cast(
+    Callable[[Path, Path], None],
+    _SCRIPT["_preserve_external_captures"],
+)
 
 
 def test_incomplete_capture_cannot_reuse_files_from_previous_output(
@@ -38,3 +42,18 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
         for name in CURRENT_CAPTURE_OUTPUTS
     )
     assert not list(target.parent.glob(".current-capture-*"))
+
+
+def test_full_capture_preserves_separately_captured_storybook_evidence(
+    tmp_path: Path,
+) -> None:
+    target = tmp_path / "current"
+    staged = tmp_path / "staged"
+    target.mkdir()
+    staged.mkdir()
+    storybook = target / "storybook-foundation-1440x900.png"
+    storybook.write_bytes(b"separately-captured-storybook")
+
+    _preserve_external_captures(target, staged)
+
+    assert (staged / storybook.name).read_bytes() == storybook.read_bytes()

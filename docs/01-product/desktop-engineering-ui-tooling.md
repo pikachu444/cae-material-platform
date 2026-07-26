@@ -54,7 +54,14 @@ The Skill does not replace `AGENTS.md`. `AGENTS.md` owns repository-wide enginee
 
 ## 3. Storybook — component specification
 
-Storybook is the target component workbench. It is not currently installed.
+Storybook is the component workbench. The bounded DUI-09C foundation uses Storybook 10.5.4 with
+the React-Vite adapter and the built-in accessibility addon. It is local-only: it has no Chromatic
+or cloud publishing integration and does not participate in the production Vite bundle.
+
+The foundation currently covers the safely isolated `ApplicationShell` (including command and
+status context), `ResizableSplitPane`/`EngineeringColumnResizeHandle`,
+`ModelingWorkspaceLayout`, and `EngineeringCurvePlot`. The remaining primitives below stay in the
+DUI-09 follow-up scope; this foundation does not claim final legacy-CSS cleanup.
 
 Required stories:
 
@@ -75,7 +82,12 @@ Required stories:
 
 Every primitive must provide compact, normal and constrained-width stories where relevant. Visual states include default, hover, focus, selected, disabled, loading, warning and error.
 
-Storybook must be introduced after the component contracts are accepted and before legacy CSS cleanup is considered complete.
+Run `npm run storybook --workspace @cmp/web` for local inspection and
+`npm run build-storybook --workspace @cmp/web` for a deterministic static smoke build. Storybook
+must be introduced after the component contracts are accepted and before legacy CSS cleanup is considered complete.
+The local QA evidence queries Storybook's local inventory and captures a real curve-plot iframe with
+`uv run --with playwright python scripts/capture_storybook_foundation.py --base-url http://127.0.0.1:6006`.
+It is a component-workbench capture, never a normal-user navigation baseline.
 
 ## 4. Playwright — full-screen visual acceptance
 

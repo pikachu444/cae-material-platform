@@ -83,7 +83,9 @@ CURRENT_CAPTURE_OUTPUTS = (
     "administration-database-1920x1080.png",
     "administration-access-1366x768.png",
     "administration-access-1440x900.png",
+    "storybook-foundation-1440x900.png",
 )
+EXTERNALLY_CAPTURED_OUTPUTS = ("storybook-foundation-1440x900.png",)
 STAGE_HEADINGS = {
     "data": "Verify source & channel mapping",
     "process": "Prepare observed curves",
@@ -1078,6 +1080,18 @@ def _capture_to_empty_directory(target: Path, producer: Callable[[Path], None]) 
     return capture_count
 
 
+def _preserve_external_captures(target: Path, staged: Path) -> None:
+    """Carry separately captured component-QA evidence into the atomic replacement."""
+    for name in EXTERNALLY_CAPTURED_OUTPUTS:
+        source = target / name
+        if not source.is_file():
+            raise RuntimeError(
+                f"external current capture is missing: {name}; "
+                "run scripts/capture_storybook_foundation.py first"
+            )
+        shutil.copy2(source, staged / name)
+
+
 def main() -> int:
     from playwright.sync_api import sync_playwright
 
@@ -1141,6 +1155,7 @@ def main() -> int:
                 _capture_supporting_screens(browser, args.base_url, output)
             finally:
                 browser.close()
+        _preserve_external_captures(args.output.resolve(), output)
 
     if args.only_materials or args.only_modeling_export or args.only_modeling_process_fit or args.only_modeling_consistency or args.only_modeling_data_session or args.only_product_access or args.only_activity or args.only_review_submission:
         names = (
