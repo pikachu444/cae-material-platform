@@ -1,11 +1,19 @@
 # Desktop Engineering UI Rebuild Program Brief
 
-Status: authoritative program brief  
-Date: 2026-07-22  
+Status: authoritative program brief; execution handoff is `AGENTS.md`
+Date: 2026-07-28
 Scope: existing CAE Material Platform presentation-layer rebuild  
 Supersedes: the standalone V2 UI ZIP and the legacy `ux-redesign-package` startup prompts as
 implementation sources. Their useful conclusions are absorbed here and into the linked canonical
 repository documents; the legacy package remains historical context only.
+
+## Current delivery boundary
+
+`main@55cfa62` (PR #156) is the current visual baseline. PR #125–#156 are merged bounded scope;
+they are not a queue to reimplement. The next product-level order is #157 demo, #158 Fit, #159
+Materials, #160 Governance/Activity, #161 DUI-09, then #162 UXC-99. The incoming package remains
+temporary reference until #162 completes absorption and an inbound-link audit. See `AGENTS.md` for
+the mandatory one-writer, deterministic-gate, fresh-reviewer execution rule.
 
 ## 1. Goal
 
@@ -79,9 +87,12 @@ setTimeout interactions must not enter production code.
 
 ## 4. Locked workbench grammar
 
-The current approved DUI-01 baseline is a 46 px application bar, 38 px workspace command bar and
-24 px semantic status bar. Treat those as the current baseline; do not replace them with competing
-token sets from old mockups.
+The 46 px application bar, 38 px workspace command bar, and 24 px semantic status bar are historical
+DUI-01 evidence, not current authority. The shared product header is 44–48 px. Workspace controls and
+status appear only where the actual workspace and user task require them: Modeling uses compact
+context/stage controls with a shallow graph-adjacent ribbon, and no permanent generic command/status
+bands may consume graph space. Materials, Activity, and Administration must not gain generic bands
+that their current route does not render.
 
 | Workspace | Primary reference grammar | Required topology | Explicitly not allowed |
 | --- | --- | --- | --- |
@@ -194,8 +205,8 @@ A DUI slice is complete only when all of the following are true:
 - The pull request says what user task changed, what reference grammar was applied, what was verified,
   and what remains intentionally deferred.
 
-## 9. Ready-to-paste Codex request
+## 9. Session start
 
-The sole current paste prompt is maintained in
-[CODEX_DESKTOP_ENGINEERING_UI_START.md](../../CODEX_DESKTOP_ENGINEERING_UI_START.md). Use that prompt
-unchanged so approval gating and external-skill setup do not drift across documents.
+[AGENTS.md](../../AGENTS.md) is the single current execution handoff. It owns baseline, issue order,
+approval references, and execution gates. [CODEX_DESKTOP_ENGINEERING_UI_START.md](../../CODEX_DESKTOP_ENGINEERING_UI_START.md)
+is a short compatibility pointer only; do not treat it as an independent paste prompt.

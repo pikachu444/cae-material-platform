@@ -68,8 +68,8 @@ Find의 전체 수, 현재 행, Material class 필터와 정렬은 서로 같은
   중앙 datasheet에 엽니다. 이 화면은 요청한 리비전이 없을 때 head로 대체하지 않고 오류와 Retry를
   표시하며, 원본 값/단위와 정규화 값/단위·quantity semantics를 함께 보여 줍니다.
 - 추가 Layout은 `Additional Layout datasheets and typed values`에서 선택합니다.
-- full revision ID, aggregate ID, content hash, classification과 change reason은
-  `Technical revision and provenance identifiers`를 펼쳐 확인합니다.
+- 상세 이력, 분류와 변경 사유는 Evidence의 `Technical revision and provenance identifiers`를
+  펼쳐 확인합니다.
 - 수량 Attribute는 원본 값/단위와 정규화 값/단위, quantity semantics를 함께 보존합니다.
 
 ## 시험 데이터에서 card delivery 준비하기
@@ -93,7 +93,7 @@ Dataset 생성을 완료할 수 있습니다. Canonical adapter로 돌아오면 
 quantity semantics, original/normalized unit과 missing reason을 먼저 확인합니다.
 
 Fit 그래프의 곡선은 계속 `Preview — not saved`로 표시됩니다. 계산 성공이나 추천은
-선택·검토·승인을 뜻하지 않습니다. 선택과 저장이 가능한 API contract가 없는 상태는 Warning 또는
+선택·검토·승인을 뜻하지 않습니다. 선택·저장 조건이 충족되지 않은 상태는 Warning 또는
 Blocked로 남습니다. 추천과 선택은 별도 상태이며, 행을 명시적으로 고르고 이유와 필요한 경고
 확인을 마친 candidate만 상단의 **Save fit & continue**로 immutable Processing Output을 만듭니다.
 금속 blend는 두 law·ratio·두 parameter set을, 폴리머는 server가 실제 산출한 term-count identity를
@@ -102,7 +102,7 @@ Blocked로 남습니다. 추천과 선택은 별도 상태이며, 행을 명시�
 모두 exact pin일 때만 family adapter의 mapping preflight와 native card 작업을 계속할 수 있습니다.
 이 경로에서도 server 검사가 실패하면 Export를 완료로 표시하거나 fallback delivery를 만들지 않습니다.
 
-Mapping Profile, Recipe/Batch, full revision, hash와 JSON evidence는 Advanced/Evidence에 남습니다.
+처리 설정, 일괄 실행, 전체 식별값과 JSON 근거는 Advanced/Evidence에 남습니다.
 Unsupported mapping은 차단되고 approximation은 명시적 확인이 필요합니다.
 
 ### Modeling 화면 읽기

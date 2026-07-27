@@ -37,27 +37,28 @@ The application has four modes. These are workspaces, not separate mini-products
 | Materials | Search, browse, compare and download | navigator, selected Record, result state |
 | Modeling | Convert test data into a selected model/card | session, curves, active stage, selected output |
 | Activity | Current compact resume/review action queue; job recovery and release projections remain follow-up | current user, item context |
-| Administration | Target: configure database/access through object tools; current route is pending redesign | selected schema object, draft changes |
+| Administration | Current: PR #143의 3-pane object navigator/list/property editor로 database/access를 관리; 남은 product-level refinement는 #160/#161에서 별도 검토 | selected schema object, draft changes |
 
 ## 4. Global desktop shell
 
 ### 4.1 Regions
 
 ```text
-┌ Menu / workspace tabs / global commands ───────────────────────────────┐
-├ Workspace command bar ─────────────────────────────────────────────────┤
+┌ Menu / workspace tabs (44–48 px) ──────────────────────────────────────┐
+├ workspace-specific content and controls                                 ┤
 │                                                                         │
 │                         active workspace                                │
 │                                                                         │
-├ Status bar: selection · revision state · jobs · warnings · connectivity ┤
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 4.2 Dimensions
 
 - Global application bar: 44–48 px.
-- Workspace command bar: 36–40 px.
-- Status bar: 22–26 px.
+- Workspace controls are workspace-specific. Materials, Activity, and Administration do not claim a
+  permanent generic command/status band when their current route does not render one.
+- Modeling uses compact context/stage controls and a graph-adjacent shallow ribbon; generic command
+  or status bars must not consume persistent graph space.
 - No marketing hero or product subtitle inside an authenticated workspace.
 - Outer workspace margin: 0–8 px.
 - Persistent pane padding: 8–12 px.

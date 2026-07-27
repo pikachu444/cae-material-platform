@@ -29,8 +29,8 @@
 4. `03_COMPONENT_RATIONALE_SPEC.md`와 `04_WORKFLOW_STATE_AND_INVALIDATION_CONTRACT.md`를 기존 제품·UI 명세의 단일 원본으로 흡수한다.
 5. `05_CODE_DISPOSITION_AND_REFACTOR_PLAN.md`의 삭제 게이트를 통과한 코드만 삭제한다.
 6. 작업을 작은 검증 가능한 PR로 나누고 `06_DELIVERY_PLAN_AND_ACCEPTANCE.md`의 회귀 시나리오를 실행한다.
-7. 저장소 통합이 끝나면 이 폴더를 가리키는 참조가 남지 않았는지 확인한
-   뒤 `docs/_incoming/2026-07-24-organic-ux-update/` 전체를 삭제한다.
+7. **#162에서만**, 저장소 통합이 끝나고 이 폴더를 가리키는 참조가 0인지 확인한 뒤
+   `docs/_incoming/2026-07-24-organic-ux-update/` 전체를 삭제한다. 그 전에는 삭제하지 않는다.
 
 ## 읽기 순서
 

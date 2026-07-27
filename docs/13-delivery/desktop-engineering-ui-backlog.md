@@ -1,11 +1,15 @@
 # Desktop Engineering UI Delivery Backlog
 
-Status: active program; DUI-01~06 are complete, including PR #124/DUI-06 merged on 2026-07-24.
-UXC-00R is the documentation-authority correction. Reviewer access, DUI-07 Administration,
-DUI-08 review queue and exact request entry, and DUI-09A legacy review cleanup are complete.
-Remaining work includes Materials language/presentation and governed query projections,
-failed-job/receipt/release projections, Storybook, and final incoming-package cleanup. Issue #119
-remains an explicit opt-in independent-review gate; automatic LLM review remains disabled.
+Status: `main@55cfa62` (PR #156) is the active baseline. DUI-01~09A and the PR #125~156 bounded
+slices are **merged scope**, not a request to reopen completed functionality. Product-level remaining
+work proceeds as [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) →
+[#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) →
+[#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) →
+[#160 Governance/Activity](https://github.com/pikachu444/cae-material-platform/issues/160) →
+[#161 DUI-09](https://github.com/pikachu444/cae-material-platform/issues/161) →
+[#162 UXC-99](https://github.com/pikachu444/cae-material-platform/issues/162). #157 owns the clean
+full-seed failure; #162 alone can delete the temporary incoming package after absorption and an
+inbound-link audit. #119 remains an explicit opt-in independent-review gate; automatic LLM review is disabled.
 
 **DUI-09C bounded foundation (`2026-07-27`):** Storybook 10.5.4 is installed locally for the
 React 19/Vite 8 web workspace with its accessibility addon and deterministic local dev/static-build
@@ -315,7 +319,7 @@ Every slice must preserve:
 4. DUI-03 card delivery — complete in PR #122;
 5. DUI-05 Data/Process — complete in PR #123;
 6. DUI-06 Fit/Export — complete in PR #124;
-7. UXC-00R documentation authority correction — current bounded documentation slice: records the
+7. UXC-00R documentation authority correction — merged documentation slice: records the
    three-role target without claiming Reviewer implementation, retires the six-stage current guide
    capture to historical evidence, and preserves PR #124/DUI-01~06 behavior. It is not a visual
    approval or implementation claim;
@@ -357,15 +361,19 @@ blocked rather than receiving an inferred cross-resource claim;
 14. DUI-07 Administration — complete in PR #143;
 15. DUI-08 Activity — review queue complete in PR #144 and exact Material/Solver Card request entry
     complete in DUI-08B; only failed-job recovery and server receipt projection remain;
-16. DUI-09A legacy review workbench cleanup — complete; the remaining Storybook/final incoming-package
-    cleanup is separate.
+16. DUI-09A legacy review workbench cleanup — complete. PR #148/#149 merged the Storybook foundation
+    and governed states; PR #150/#151 merged curve-tree clarity and evidence; PR #152–#156 merged the
+    Fit baseline. Remaining component states, visual regression, and legacy cleanup belong to #161;
+    incoming-package absorption/deletion belongs to #162.
 
 ## UXC corrective sequence
 
 UXC-00R is the documentation-only authority-correction baseline. Reviewer product-role/access,
 DUI-07 Administration (PR #143), DUI-08 review queue/request entry, and DUI-09A legacy cleanup are
-implemented. Materials language/presentation and query projection gaps, final incoming-package
-deletion, failed-job recovery, and server receipt projection remain pending.
+implemented. PR #148/#149 Storybook foundation/governed states, PR #150/#151 curve-tree/evidence, and
+PR #152–#156 Fit baseline are merged. Remaining component states, visual regression, and legacy CSS
+cleanup belong to #161; incoming-package deletion belongs only to #162. Failed-job recovery, server
+receipt, and release projection remain #160 work.
 UXC-01~06 retain the completed DUI-01~06
 surfaces while correcting query truth, session invalidation, explicit engineer decisions, validation/
 review/release, and exact delivery. No UXC task chooses a production material model, solver policy,

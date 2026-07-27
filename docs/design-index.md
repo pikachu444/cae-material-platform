@@ -17,9 +17,9 @@ evidence는 `docs/17-evidence/`와 implementation history에 보존하고 현재
 
 문장 수준 표기는 `FACT-PUBLIC`, `CONFIRMED`, `DECISION`, `TBD`, `OUT-OF-SCOPE`를 사용한다.
 `ASSUMPTION`은 production domain, solver, validation, review policy를 결정하는 근거로 사용하지
-않는다. PR #124/DUI-01~06은 complete이다. UXC-00R는 문서 권위 정정이며, Reviewer access migration,
-Materials projection gaps, DUI-08의 failed-job/receipt follow-up, DUI-09 legacy cleanup과 incoming
-package final deletion은 pending이다. DUI-07 Administration과 DUI-08 review queue는 current이다.
+않는다. PR #125~#156은 merged scope이며 `main@55cfa62` (PR #156)가 current baseline이다. 다음
+product-level work는 #157 demo, #158 Fit, #159 Materials, #160 Governance/Activity, #161 DUI-09,
+#162 UXC-99 순서다. incoming package는 #162의 absorption 및 zero-inbound audit 전에는 삭제하지 않는다.
 
 ## UXC-00R authority and approval rule
 

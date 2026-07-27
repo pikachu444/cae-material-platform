@@ -87,6 +87,11 @@ docker compose -f deploy/compose/docker-compose.demo.yml ps --all
 <http://127.0.0.1:5173>을 엽니다. Demo session은 자동으로 준비되며 별도 API 주소나 토큰 입력은
 필요하지 않습니다. 상태는 <http://127.0.0.1:8000/api/v1/health>에서 확인합니다.
 
+현재 기준선에서는 기존 demo volume의 화면 확인은 가능하지만, **새 volume에서 전체 seed를 끝까지
+재현하는 실패**가 [#157](https://github.com/pikachu444/cae-material-platform/issues/157)에 남아 있습니다.
+위 명령이 `seed` 단계에서 멈추면 화면 기능이 없다고 단정하지 말고 해당 issue의 재현·수정 절차를
+따르십시오.
+
 처음에는 `DP780`을 검색해 재료 상세와 CAE Card를 살펴본 뒤, 필요한 경우 **Modeling → Data**에서
 시험 데이터를 등록해 보십시오.
 
