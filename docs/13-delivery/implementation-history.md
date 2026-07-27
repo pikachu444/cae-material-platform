@@ -272,6 +272,13 @@ must not be read as product-experience completion.
   hard gates; measurements and the replacement Fit scores are in
   `docs/17-evidence/reports/uxc04c-fit-reference-restoration.md`.
 
+- `UXC-04D` (`completed`): direct comparison found that UXC-04C still let the control ribbon touch
+  the graph header and retained the wrong visible step topology. The accepted correction presents
+  the four-row metal rail and Step 4 heading from the approved proposal, keeps one ordered control
+  row plus a dedicated Candidate parameters row, and separates the minimal graph header with a
+  visible divider. The six configured operations, calculations and downstream invalidation remain
+  unchanged. Three live desktop viewports and independent visual review pass.
+
 - `T-89` (`completed`): Polymer Material Modeling now has separate relaxation and DMA flows.
   Relaxation supplies log-time Prony comparison and WLF/Arrhenius master-curve evidence; DMA jointly
   fits measured storage/loss modulus with one Prony set and presents response/residual/BIC/terms on a

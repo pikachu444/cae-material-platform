@@ -508,14 +508,16 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByLabelText("Processing Batch label")).toBeTruthy();
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(1);
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
-    expect(await screen.findByText("Preview — not saved")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
     expect(screen.getByText("Preview Swift/Voce blend · fit")).toBeTruthy();
-    expect(screen.getByText("Process · 6 steps")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Young's modulus/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /True plastic workup/ })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Hardening candidates/ })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /Step 6 · Hardening candidates/ })).toBeTruthy();
+    expect(screen.getByText("Process · 4 steps")).toBeTruthy();
+    const fitRail = document.querySelector(".configured-step-list");
+    expect(fitRail?.querySelectorAll("button")).toHaveLength(4);
+    expect(screen.getByRole("button", { name: /Sort duplicate x/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /True\/plastic conversion/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Necking boundary/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Hardening fit/ })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Step 4 · Hardening fit and extrapolation/ })).toBeTruthy();
     expect(screen.getByText("Candidate equations")).toBeTruthy();
     expect(screen.getByText("Fit domain")).toBeTruthy();
     expect(screen.getByText("Selected blend")).toBeTruthy();
@@ -524,6 +526,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("Graph interaction")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
     expect(screen.getByLabelText("Output points").closest("details")?.open).toBe(false);
+    expect(screen.getByLabelText("Secondary hardening law").closest("details")).toBe(screen.getByLabelText("Output points").closest("details"));
     expect(screen.getByText("Stress response · observed evidence and hardening candidates")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Select range" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Select fit range" }));
@@ -531,6 +534,7 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("Candidate parameters")).toBeTruthy();
     fireEvent.click(screen.getByText("Candidate parameters"));
     expect(screen.getByLabelText("Output points").closest("details")?.open).toBe(true);
+    expect(screen.getByLabelText("Secondary hardening law")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
     expect(await screen.findByRole("columnheader", { name: "Recommendation" })).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Save fit & continue" })).toHaveLength(1);

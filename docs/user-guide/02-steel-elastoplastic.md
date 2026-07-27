@@ -34,10 +34,13 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
 
 
    Fit rail에서 실제 처리와 hardening fit 단계를 확인합니다. 얕은 설정 영역에서 Candidate equations,
-   Fit domain, Selected blend, Primary contribution, Extrapolation 및 Graph interaction을 조정하고
+   한 줄 Fit 설정 띠에서 Candidate equations, Fit domain(Start/End), Selected blend(Primary),
+   Primary contribution, Extrapolation(Target strain) 및 Graph interaction을 조정하고
    **Stress response / Residual / Tangent modulus**를 차례로 확인합니다. observed 영역 이후의 황색
    배경과 점선이 실제 시험값이 아닌지 확인합니다. Output points와 후보 parameter/bound evidence는
-   **Candidate parameters**를 열어 확인한 뒤 primary/secondary, blend ratio와 **Selection reason**을 정합니다.
+   그래프 바로 위의 분리된 **Candidate parameters** 행을 열어 secondary blend law, Output points,
+   parameter/bound evidence를 확인한 뒤 primary/secondary, blend ratio와
+   **Selection reason**을 정합니다.
 
 
 9. 여러 반복시험이면 Selection을 만들고 명시적 common-grid alignment를 실행합니다.

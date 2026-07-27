@@ -8,7 +8,7 @@ notes:
   - "DUI-09D adds real Modeling stage, target-mapping, and native-preview component states to local Storybook; the synthetic stories never create an approval, release, delivery, or production solver decision."
   - "DUI-09C adds local-only Storybook component tooling and stories; it does not change a production route, CSS, API, fixture, or domain state. Its current capture is a local developer/component-QA workbench, not normal-user navigation."
   - "The current set contains 32 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
-  - "Fit capture asserts Preview changes, a closed Candidate parameters disclosure, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
+  - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, one ordered control row, a closed Candidate parameters row above a visible graph divider, a separate minimal graph header, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
   - "Polymer candidate evidence exposes the actual server-produced term identity and measured range only; missing result evidence is never replaced by a fallback."
   - "Modeling Export exercises selected-output save, exact IR promotion, Neutral creation, and a terminal related-data state; an explicit unprojected Catalog state is evidence, not a silent resolved-link fallback."
