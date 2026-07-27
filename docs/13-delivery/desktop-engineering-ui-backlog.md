@@ -319,8 +319,9 @@ Every slice must preserve:
    absent governed server contracts;
 9. UXC-02 Modeling session state and stage shell — complete: v3 clearable reducer/event persistence,
    v2 migration, exact Material/State/Test Data pins, invalidation dispositions, Data-first new
-   session, resume view state, and fail-closed Export prerequisite surface. UXC-04B subsequently
-   corrected the normal visible shell to `Data | Process | Fit | Export`; Validate and
+   session, resume view state, and fail-closed Export prerequisite surface. UXC-04B corrected the
+   normal visible shell to `Data | Process | Fit | Export`, and UXC-04C/PR #152 restored the approved
+   complete process/fit sequence plus dominant responsive graph; Validate and
 Review/Release remain distinct governed Advanced/Activity paths; request entry and review decisions
 are implemented, while server delivery-receipt and release projections retain their separate producer
 contracts. The original UXC-02 boundary was that Processing Output exposed no Material/State pin.
@@ -330,11 +331,12 @@ blocked rather than receiving an inferred cross-resource claim;
 10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence and contextual workup; the bounded UXC-03B correction replaces the generic two-line curve rail with compact exact-specimen rows in Process/Fit and removes the prohibited permanent Export rail and Mean/band controls;
 11. UXC-04 explicit Fit decision and model identity — implemented with null-by-default selection,
     separate recommendation and engineer selection, typed immutable Fit Decision, single/blend
-    identity, actual server Prony term identity and exact downstream provenance. UXC-04B corrects
-    the visible Process/Fit workspace to the approved Material Modeler-style control-band-plus-graph
-    reference: compact curve tree, four normal stages, one shallow control band, dominant graph,
-    on-demand `Candidate parameters`, and no persistent decision dock or third column. Final status
-    requires the current six viewport captures, reviewer sign-off and PR merge;
+    identity, actual server Prony term identity and exact downstream provenance. UXC-04C is complete
+    in PR #152 and supersedes UXC-04B's withdrawn Fit acceptance: compact curve tree, full configured
+    sequence, four normal stages, one shallow control band, dominant responsive graph, on-demand
+    `Candidate parameters`, and no persistent decision dock or third column. Current 1366×768,
+    1440×900 and 1920×1080 Data/Process/Fit evidence, deterministic gates and independent reviewer
+    sign-off pass;
 12. UXC-05 Validate, Review and Release — current: normal Modeling can pin existing synthetic
     reference validation inputs and run/evaluate the supported non-production OpenRadioss path only
     when selection evidence plus session IR/Card exact revisions match. Common Processing Output
