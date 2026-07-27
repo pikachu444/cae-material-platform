@@ -96,7 +96,7 @@ linear_viscoelastic_processing_evidence_table = sa.Table(
     sa.Column("catalog_instantaneous_shear_modulus_pa", sa.Double(), nullable=False),
     sa.Column("instantaneous_modulus_relative_mismatch", sa.Double(), nullable=False),
     sa.Column("acknowledged_maximum_relative_mismatch", sa.Double(), nullable=False),
-    sa.Column("fit_decision_evidence", sa.JSON(), nullable=True),
+    sa.Column("fit_decision_evidence", sa.JSON(none_as_null=True), nullable=True),
     sa.Column("processing_recipe_id", sa.Uuid(), nullable=True),
     sa.Column("processing_recipe_revision_id", sa.Uuid(), nullable=True),
     sa.Column("processing_recipe_sha256", sa.CHAR(64), nullable=True),

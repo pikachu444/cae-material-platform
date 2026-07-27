@@ -173,7 +173,7 @@ material_model_revision_table = sa.Table(
     sa.Column("hardening_secondary_family", sa.String(32), nullable=True),
     sa.Column("hardening_primary_weight", sa.Double(), nullable=True),
     sa.Column("hardening_fit_minimum_strain", sa.Double(), nullable=True),
-    sa.Column("fit_decision_evidence", sa.JSON(), nullable=True),
+    sa.Column("fit_decision_evidence", sa.JSON(none_as_null=True), nullable=True),
     sa.Column("non_production", sa.Boolean(), nullable=False),
     schema="modeling",
 )

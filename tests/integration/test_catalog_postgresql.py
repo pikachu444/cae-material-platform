@@ -2864,3 +2864,9 @@ def test_material_query_uses_one_rls_scoped_snapshot_for_ten_thousand_materials(
     assert beyond.items == ()
     assert beyond.total_count == 10_000
     assert dict(beyond.facets) == {MaterialClass.METAL: 5_000, MaterialClass.POLYMER: 5_000}
+    empty = postgres.service.list_materials(
+        context, read, query="no matching UXC10K material", limit=50,
+    )
+    assert empty.items == ()
+    assert empty.total_count == 0
+    assert empty.facets == ()
