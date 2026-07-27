@@ -1162,7 +1162,7 @@ class SqlAlchemyCatalogRepository(CatalogRepository):
                         "facet_count", facet_counts.c.facet_count,
                     )
                 ),
-                sa.cast("[]", postgresql.JSONB),
+                sa.literal([], type_=postgresql.JSONB),
             )
         ).scalar_subquery()
         metadata = sa.select(

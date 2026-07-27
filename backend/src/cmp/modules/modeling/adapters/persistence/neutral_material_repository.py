@@ -133,7 +133,7 @@ neutral_material_revision_table = sa.Table(
     sa.Column("primary_family", sa.String(64), nullable=True),
     sa.Column("secondary_family", sa.String(64), nullable=True),
     sa.Column("primary_weight", sa.Double(), nullable=True),
-    sa.Column("fit_decision_evidence", sa.JSON(), nullable=True),
+    sa.Column("fit_decision_evidence", sa.JSON(none_as_null=True), nullable=True),
     sa.Column("prony_selection_mode", sa.String(32), nullable=True),
     sa.Column("prony_selected_term_count", sa.Integer(), nullable=True),
     sa.Column("prony_normalized_rmse", sa.Double(), nullable=True),
