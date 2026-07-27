@@ -751,7 +751,7 @@ def _ensure_test_json(
                 "equipment_maker": "Demo Instruments",
                 "equipment_model": "UTM-01",
             },
-            "specimen": {"specimen_id": "CMP-DEMO-S-JSON", "description": "sheet coupon"},
+            "specimen": {"specimen_id": "Specimen 01", "description": "sheet coupon"},
             "conditions": [
                 {
                     "key": "temperature",
@@ -872,7 +872,7 @@ def _ensure_test_json(
             material["lot_batch"] = f"CMP-DEMO-LOT-{ordinal:03d}"
         specimen = replica.get("specimen")
         if isinstance(specimen, dict):
-            specimen["specimen_id"] = f"CMP-DEMO-S-JSON-{ordinal:02d}"
+            specimen["specimen_id"] = f"Specimen {ordinal:02d}"
         test = replica.get("test")
         if isinstance(test, dict):
             test["operator"] = f"Demo Operator {ordinal}"

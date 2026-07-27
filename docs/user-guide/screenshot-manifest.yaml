@@ -1,10 +1,11 @@
-version: 65
+version: 66
 verified_at: 2026-07-27
-scope: dui-09d-governed-component-stories
-source_commit: working-tree-dui09d-governed-component-stories
+scope: uxc-04e-fit-prototype-transplant
+source_commit: working-tree-uxc04e-fit-prototype-transplant
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
+  - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
   - "DUI-09D adds real Modeling stage, target-mapping, and native-preview component states to local Storybook; the synthetic stories never create an approval, release, delivery, or production solver decision."
   - "DUI-09C adds local-only Storybook component tooling and stories; it does not change a production route, CSS, API, fixture, or domain state. Its current capture is a local developer/component-QA workbench, not normal-user navigation."
   - "The current set contains 32 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
@@ -28,6 +29,10 @@ notes:
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
+  - source_commit: working-tree-uxc04e-fit-prototype-transplant
+    captured_at: 2026-07-28T00:40:24+09:00
+    command: rebuilt local web image, then targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, 104px Fit ribbon, 184/192/208px rail, truthful specimen labels from the fixture, selected Swift/Voce blend graph evidence, drawable graph >=76%, unclipped axes and legend, and no page-level horizontal overflow or ribbon/graph collision
+    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
   - source_commit: working-tree-dui09d-governed-component-stories
     captured_at: 2026-07-27T03:18:14+09:00
     command: local Storybook index.json inventory verification plus Playwright iframe capture at 1440x900 with --scope governed; verifies real ModelingStageShell, MappingStatusList and TargetPreviewResult stories, all four mapping states, visible preflight semantics and no canvas overflow without product APIs or domain writes
@@ -42,40 +47,20 @@ capture_provenance:
     ids: [activity-1366, activity-1440, activity-1920]
   - source_commit: working-tree-dui08b-review-submission
     captured_at: 2026-07-27T02:07:00+09:00
-    command: targeted live Playwright review-submission capture at 1366x768, 1440x900 and 1920x1080; submits or reuses the exact draft OpenRadioss card review, verifies Waiting for review in Native Card Preview and the corresponding Reviewer action in Activity, and rejects horizontal overflow or unsettled state
-    ids: [material-detail-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, activity-1366, activity-1440, activity-1920]
-  - source_commit: working-tree-dui08-activity-review-queue
-    captured_at: 2026-07-27T01:30:00+09:00
-    command: targeted live Playwright Activity capture at 1366x768, 1440x900 and 1920x1080; reuses one real review request or creates one pending synthetic Material review only when the demo is empty, then verifies the compact queue, no horizontal overflow, and settled API state
-    ids: [activity-1366, activity-1440, activity-1920]
+    command: targeted live Playwright review-submission capture at 1366x768, 1440x900 and 1920x1080; submits or reuses the exact draft OpenRadioss card review, verifies Waiting for review in Native Card Preview and rejects horizontal overflow or unsettled state
+    ids: [material-detail-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920]
   - source_commit: working-tree-dui07-administration-schema-editor
     captured_at: 2026-07-27T01:00:00+09:00
     command: targeted live Playwright Administration capture at 1366x768, 1440x900 and 1920x1080; verifies the object navigator, table-scoped selector and no horizontal overflow
     ids: [administration-database-1366, administration-database-1440, administration-database-1920]
-  - source_commit: working-tree-uxc03-modeling-data-export-consistency
-    captured_at: 2026-07-27T00:33:00+09:00
-    command: targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; captures Data/Process/Fit/Export and Data-first session shell, asserts four normal stages only, a real test-method parent above indented specimen rows with no printed branch glyph, icon-only visibility, no premature Mean & band, no horizontal overflow, drawable graph >=72%, 1440 drawable >=1050px, and unclipped axes/legend
-    ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
   - source_commit: working-tree-uxc01-materials-workspace
     captured_at: 2026-07-26T23:36:00+09:00
     command: targeted live Playwright Materials capture at 1366x768, 1440x900 and 1920x1080; verifies Browse default, server query result selection, no horizontal overflow, and divider drag followed by double-click reset to each viewport default before capture
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440]
+    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-cae-cards-1440]
   - source_commit: working-tree-uxc00g
     captured_at: 2026-07-26T23:10:00+09:00
     command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
     ids: [administration-access-1366, administration-access-1440]
-  - source_commit: 47a8d52
-    captured_at: 2026-07-26T15:34:56+09:00
-    command: targeted live Playwright UXC-06C2 Export capture at 1366x768, 1440x900 and 1920x1080; saves an exact Fit output, recovers exact model and Neutral revisions, generates the server-proven preview, acknowledges only when required, delivers exactly one immutable card/receipt, verifies the receipt link and no legacy curve rail, and keeps the selected-model graph visible above compact delivery evidence
-    ids: [modeling-export-1366, modeling-export-1440, modeling-export-1920]
-  - source_commit: e7752dc
-    captured_at: 2026-07-26T12:13:54+09:00
-    command: targeted live Playwright Process/Fit/Export capture at 1366x768, 1440x900 and 1920x1080 against rebuilt deterministic Compose demo; each screen asserts no page-level horizontal overflow, and Export asserts no navigator or navigator divider
-    ids: [modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920]
-  - source_commit: 8ce8b89
-    captured_at: 2026-07-26T09:39:04+09:00
-    command: uv run --with playwright python scripts/capture_current_product.py --base-url http://127.0.0.1:5174 (successful atomic capture of implementation commit 8ce8b89 bytes before provenance-only follow-up)
-    ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-detail-1440, material-cae-cards-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920, modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, activity-1440, administration-database-1440]
 captures:
   - id: storybook-governed-workflow-1440
     route: /iframe.html?id=governed-workflowcomponents--target-preview-mixed-mapping-states&viewMode=story
@@ -219,22 +204,22 @@ captures:
     height: 1080
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
-    workflow: UXC-04C configured rail, shallow fit controls, graph response and explicit-row decision save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04C live acceptance
+    workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04E live acceptance
     image: images/current/modeling-fit-1366x768.png
     width: 1366
     height: 768
   - id: modeling-fit-1440
     route: /modeling?stage=fit&family=metal
-    workflow: UXC-04C configured rail, shallow fit controls, graph response and explicit-row decision save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04C live acceptance
+    workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04E live acceptance
     image: images/current/modeling-fit-1440x900.png
     width: 1440
     height: 900
   - id: modeling-fit-1920
     route: /modeling?stage=fit&family=metal
-    workflow: UXC-04C configured rail, shallow fit controls, graph response and explicit-row decision save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04C live acceptance
+    workflow: UXC-04E approved prototype topology, compact fit controls, graph response and explicit decision save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04E live acceptance
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080

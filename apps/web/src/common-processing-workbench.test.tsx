@@ -509,9 +509,9 @@ describe("Common Processing Workbench", () => {
     expect((await screen.findAllByText("DP600-TENSILE-01 · r1")).length).toBeGreaterThanOrEqual(1);
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
-    expect(screen.getByText("Preview Swift/Voce blend · fit")).toBeTruthy();
-    expect(screen.getByText("Process · 4 steps")).toBeTruthy();
+    expect(screen.getByText("Preview Swift/Voce blend")).toBeTruthy();
     const fitRail = document.querySelector(".configured-step-list");
+    expect(fitRail?.querySelector(".rail-title")?.textContent).toContain("Process");
     expect(fitRail?.querySelectorAll("button")).toHaveLength(4);
     expect(screen.getByRole("button", { name: /Sort duplicate x/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /True\/plastic conversion/ })).toBeTruthy();
@@ -525,23 +525,21 @@ describe("Common Processing Workbench", () => {
     expect(screen.getByText("Extrapolation")).toBeTruthy();
     expect(screen.getByText("Graph interaction")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
-    expect(screen.getByLabelText("Output points").closest("details")?.open).toBe(false);
-    expect(screen.getByLabelText("Secondary hardening law").closest("details")).toBe(screen.getByLabelText("Output points").closest("details"));
+    expect(screen.getByLabelText("Output points").closest("fieldset")).toBeTruthy();
+    expect(screen.getByLabelText("Secondary hardening law").closest("fieldset")?.className).toContain("selected-blend-group");
     expect(screen.getByText("Stress response · observed evidence and hardening candidates")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Select range" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Select fit range" }));
     expect(screen.getByRole("button", { name: "Select fit range" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByText("Candidate parameters")).toBeTruthy();
     fireEvent.click(screen.getByText("Candidate parameters"));
-    expect(screen.getByLabelText("Output points").closest("details")?.open).toBe(true);
-    expect(screen.getByLabelText("Secondary hardening law")).toBeTruthy();
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
     expect(await screen.findByRole("columnheader", { name: "Recommendation" })).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Save fit & continue" })).toHaveLength(1);
     expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.queryByText("Reference hardening projection")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
-    expect(screen.getByText("Selected · swift · fit")).toBeTruthy();
+    expect(screen.getAllByText("Selected · swift").length).toBeGreaterThan(0);
     fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
       target: { value: "Select Swift after comparing response, residual and tangent stability." },
     });
@@ -596,8 +594,14 @@ describe("Common Processing Workbench", () => {
     expect(curveKey?.className).toBe("dataset-curve-swatch");
     expect(curveKey?.getAttribute("role")).toBe("img");
     expect(curveKey?.getAttribute("aria-label")).toBe("Plot color for Specimen 01");
-    expect(curveKey?.previousElementSibling?.className).toBe("curve-row-label");
-    expect(curveKey?.nextElementSibling?.className).toBe("curve-visibility-toggle");
+    expect(curveKey?.previousElementSibling?.className).toBe("curve-include-toggle");
+    expect(curveKey?.nextElementSibling?.className).toBe("curve-row-label");
+    expect(Array.from(curveKey?.parentElement?.children ?? []).map((child) => child.className)).toEqual([
+      "curve-include-toggle",
+      "dataset-curve-swatch",
+      "curve-row-label",
+      "curve-visibility-toggle",
+    ]);
     const curveRow = screen.getByTitle("DP600-TENSILE-01 · S-1 · revision r1");
     expect(curveRow.getAttribute("title")).toContain("DP600-TENSILE-01");
     const includeSpecimen = screen.getByRole("checkbox", { name: "Include Specimen 01 in processing and fit" });
