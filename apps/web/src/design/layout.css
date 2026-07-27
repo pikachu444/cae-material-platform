@@ -2409,7 +2409,75 @@
 .stage-process > .section-heading, .stage-fit > .section-heading { display: none; }
 .fit-evidence-disclosure { position: absolute; right: 8px; bottom: 2px; }
 .fit-evidence-disclosure > summary { color: var(--ux-text-muted); font-size: 11px; cursor: pointer; }
+.fit-evidence-disclosure:not([open]) { height: 16px; }
 .fit-evidence-disclosure[open] { z-index: 15; inset: 0; overflow: auto; padding: 10px; border: 1px solid var(--ux-border-strong); background: var(--ux-surface); }
+
+/* UXC-04C: the approved Fit reference is a single shallow, labelled control band. */
+.fit-stage-options { padding: 4px 8px; }
+.modeling-task-ribbon > .fit-stage-options > .section-heading { display: flex; align-items: center; justify-content: space-between; min-height: 22px; }
+.fit-stage-options > .section-heading h3 { margin: 0; font-size: 12px; font-weight: 650; }
+.fit-stage-options > .section-heading .fit-step-impact { margin: 1px 0 0; color: var(--ux-text-muted); font-size: 10px; }
+.fit-stage-options > .guided-step-options { grid-template-columns: minmax(210px, 1.4fr) minmax(120px, .75fr) minmax(150px, .9fr) minmax(120px, .7fr) minmax(120px, .7fr) minmax(160px, .9fr); gap: 4px 7px; }
+.fit-stage-options .fit-control-group { display: grid; min-width: 0; min-height: 50px; margin: 0; padding: 2px 4px 4px; border: 0; border-left: 1px solid var(--ux-border); }
+.fit-stage-options .fit-control-group:first-child { border-left: 0; }
+.fit-stage-options .fit-control-group legend { padding: 0; color: var(--ux-text-muted); font-size: 10px; font-weight: 650; }
+.fit-stage-options .candidate-check-grid { position: static; height: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 5px; padding-left: 4px; }
+.fit-stage-options .candidate-check-grid legend { position: static; transform: none; }
+.fit-stage-options .candidate-check-grid label { min-height: 18px; padding: 1px 2px; font-size: 10px; }
+.fit-stage-options .fit-control-group > label { display: grid; gap: 2px; color: var(--ux-text-muted); font-size: 10px; }
+.fit-stage-options .graph-interaction-group > div { display: flex; flex-wrap: wrap; gap: 3px; align-content: start; }
+.fit-stage-options .graph-interaction-group button { min-height: 21px; padding: 2px 5px; font-size: 10px; }
+.fit-output-points { display: grid; max-width: 180px; gap: 3px; margin: 8px 0; color: var(--ux-text-muted); font-size: 11px; }
+
+/* Override the general workbench form sizing: every Fit control must remain visible in the 104 px band. */
+.application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+  height: 52px;
+  align-items: start;
+}
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  min-height: 50px;
+  align-content: start;
+}
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid label {
+  display: flex;
+  align-items: center;
+  min-height: 16px;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 10px;
+  line-height: 1.1;
+}
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  min-height: 13px;
+  flex: 0 0 13px;
+  margin: 0;
+}
+.application-shell main.processing-workbench-page .fit-stage-options :is(input:not([type="checkbox"]):not([type="range"]), select) {
+  height: 24px;
+  min-height: 24px;
+  padding-block: 2px;
+  font-size: 11px;
+}
+.application-shell main.processing-workbench-page .fit-stage-options :is(label, legend, output, button) {
+  font-size: 10px;
+}
+.application-shell main.processing-workbench-page .fit-stage-options input[type="range"] {
+  min-height: 18px;
+}
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group > div {
+  flex-wrap: nowrap;
+}
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group button {
+  height: 20px;
+  min-height: 20px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
 
 .modeling-main-surface > .persistent-modeling-plot {
   grid-column: 1;
@@ -3060,7 +3128,7 @@
 }
 
 .persistent-modeling-plot > .section-heading > div:first-child {
-  display: none;
+  display: block;
 }
 
 .persistent-modeling-plot > .modeling-plot-toolbar {
@@ -3146,6 +3214,18 @@
   margin: 0;
   background: var(--ux-surface);
 }
+
+/* The plot consumes its grid cell. Fixed minimums created a blank band at desktop heights. */
+.modeling-main-surface { grid-template-rows: minmax(0, auto) minmax(0, 1fr); }
+.persistent-modeling-plot { min-height: 0; height: 100%; grid-template-columns: minmax(260px, 1fr) auto auto; grid-template-rows: auto minmax(0, 1fr); }
+.persistent-modeling-plot > .section-heading { display: flex; align-items: center; min-width: 0; }
+.persistent-modeling-plot > .section-heading .workspace-caption { margin: 0; color: var(--ux-text); font-size: 12px; font-weight: 650; white-space: nowrap; }
+.persistent-modeling-plot > .section-heading h2 { display: none; }
+.persistent-modeling-plot > .modeling-plot-toolbar { grid-column: 2; }
+.persistent-modeling-plot > .hardening-analysis-tabs { grid-column: 3; }
+.persistent-modeling-plot > .modeling-plot-toolbar > div:first-child { display: flex; align-items: center; }
+.persistent-modeling-plot > .modeling-plot-toolbar > div:first-child button[aria-label="Zoom out"],
+.persistent-modeling-plot > .modeling-plot-toolbar > div:first-child button[aria-label="Zoom in"] { display: none; }
 
 .persistent-modeling-plot .modeling-plot-toolbar button,
 .persistent-modeling-plot .hardening-analysis-tabs button {

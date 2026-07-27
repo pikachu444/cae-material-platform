@@ -1,9 +1,15 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type React from "react";
 
-import { EngineeringCurvePlot } from "./engineering-curve-plot";
+import {
+  EngineeringCurvePlot,
+  type PlotInteractionCommand,
+  type PlotInteractionMode,
+  type PlotInteractionState,
+} from "./engineering-curve-plot";
 import { publishWorkspaceCommandState, publishWorkspaceStatus } from "./design/application-shell";
 import { ModelingWorkspaceLayout } from "./design/modeling-workspace-layout";
+const HardeningFitOptions = lazy(() => import("./fit-hardening-options").then((module) => ({ default: module.HardeningFitOptions })));
 
 import {
   ApiError,
@@ -325,7 +331,6 @@ const METAL_TENSILE_STEPS: CommonProcessingStep[] = [
   },
 ];
 
-const HARDENING_FAMILIES = ["voce", "swift", "hockett_sherby", "ghosh"] as const;
 const PRONY_TERM_COUNTS = [1, 2, 3, 4, 5, 6, 8, 10] as const;
 
 function numberOption(step: CommonProcessingStep, key: string): number {
@@ -395,9 +400,15 @@ function workupOverridesFromSteps(steps: CommonProcessingStep[]): CommonProcessi
 function GuidedStepOptions({
   step,
   onChange,
+  graphInteraction,
+  onGraphModeChange,
+  onApplyGraphSelection,
 }: {
   step: CommonProcessingStep;
   onChange: (option: string, value: unknown) => void;
+  graphInteraction?: { mode: PlotInteractionMode; canApply: boolean; available: boolean };
+  onGraphModeChange?: (mode: PlotInteractionMode) => void;
+  onApplyGraphSelection?: () => void;
 }) {
   if (step.method_id === "rows.sort_unique") {
     const policy = String(step.options.duplicate_policy);
@@ -488,17 +499,7 @@ function GuidedStepOptions({
     </div>;
   }
   if (step.method_id === "metal.hardening_fit_extrapolate") {
-    const families = Array.isArray(step.options.families) ? step.options.families.map(String) : [];
-    const toggleFamily = (family: string) => onChange("families", families.includes(family) ? families.filter((item) => item !== family) : [...families, family]);
-    return <div className="guided-step-options">
-      <fieldset className="candidate-check-grid"><legend>Candidate equations</legend>{HARDENING_FAMILIES.map((family) => <label key={family}><input type="checkbox" checked={families.includes(family)} onChange={() => toggleFamily(family)} />{family.replace("_", "-")}</label>)}</fieldset>
-      <div className="guided-range-row"><label>Fit start<input type="number" step="any" value={numberOption(step, "fit_minimum_strain")} onChange={(event) => onChange("fit_minimum_strain", Number(event.target.value))}/></label><label>Fit end<input type="number" step="any" value={numberOption(step, "fit_maximum_strain")} onChange={(event) => onChange("fit_maximum_strain", Number(event.target.value))}/></label></div>
-      <p className="option-hint">Select the observed fitting domain directly on the graph.</p>
-      <div className="guided-range-row"><label>Preview primary law<select aria-label="Preview primary hardening law" value={String(step.options.primary_family)} onChange={(event) => onChange("primary_family", event.target.value)}>{HARDENING_FAMILIES.map((family) => <option key={family} value={family}>{family}</option>)}</select></label><label>Preview secondary law<select aria-label="Preview secondary hardening law" value={String(step.options.secondary_family)} onChange={(event) => onChange("secondary_family", event.target.value)}>{HARDENING_FAMILIES.map((family) => <option key={family} value={family}>{family}</option>)}</select></label></div>
-      <label className="slider-option">Preview primary contribution <output>{Math.round(numberOption(step, "primary_weight") * 100)}%</output><input aria-label="Preview primary hardening contribution" type="range" min="0" max="1" step="0.01" value={numberOption(step, "primary_weight")} onChange={(event) => onChange("primary_weight", Number(event.target.value))}/></label>
-      <div className="guided-range-row"><label>Extrapolate to strain<input type="number" min="0" max="5" step="0.01" value={numberOption(step, "extrapolation_maximum_strain")} onChange={(event) => onChange("extrapolation_maximum_strain", Number(event.target.value))}/></label><label>Output points<input type="number" min="21" max="501" step="1" value={numberOption(step, "output_point_count")} onChange={(event) => onChange("output_point_count", Number(event.target.value))}/></label></div>
-      <p className="option-hint">These are run inputs for a preview only. Select a calculated row below the graph to create the engineer decision; Recipe defaults never select or save a candidate.</p>
-    </div>;
+    return <Suspense fallback={<p className="loading-state">Loading Fit controls…</p>}><HardeningFitOptions step={step} onChange={onChange} graphInteraction={graphInteraction ?? { mode: "pan", canApply: false, available: false }} onGraphModeChange={onGraphModeChange ?? (() => undefined)} onApplyGraphSelection={onApplyGraphSelection ?? (() => undefined)} /></Suspense>;
   }
   if (step.method_id === "polymer.log_time_resample") {
     return <div className="guided-step-options polymer-step-options">
@@ -780,6 +781,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
   const [preview, setPreview] = useState<CommonProcessingPreview | null>(null);
   // Selection is a working engineer decision, intentionally independent of Recipe intent.
   const [fitSelection, setFitSelection] = useState<FitDecisionSelection | null>(null);
+  const [fitPlotCommand, setFitPlotCommand] = useState<PlotInteractionCommand | null>(null);
+  const [fitPlotInteraction, setFitPlotInteraction] = useState<PlotInteractionState>({ mode: "pan", hasSelection: false });
   const [selectedStage, setSelectedStage] = useState(initialSession?.workspace.selectedStageOrdinal ?? 0);
   const [selectedStepIndex, setSelectedStepIndex] = useState(initialSession?.workspace.selectedStepIndex ?? 0);
   const [modelingTrack, setModelingTrack] = useState<ModelingTrack>(["metal", "polymer", "elastomer"].includes(String(queryFamily)) ? queryFamily as ModelingTrack : initialSession?.materialFamily ?? "metal");
@@ -1712,13 +1715,13 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
       ? false
       : workflowTask === "process"
         ? !isFitMethod(step.method_id)
-        : isFitMethod(step.method_id));
+        : true);
   const [stageTitle, stageRail, stageAction] = workflowTask === "data"
     ? ["Verify source & channel mapping", "Data sources", "Preview source"]
     : workflowTask === "process"
       ? ["Prepare observed curves", "Processing operations", "Preview processing"]
       : workflowTask === "fit"
-        ? ["Fit material response", "Fit candidates", "Run fit"]
+      ? ["Fit material response", `Process · ${stepEntries.length} steps`, "Run fit"]
         : ["Review & deliver solver card", "Saved source", ""];
   const trackRecipes = useMemo(() => recipes.filter((recipe) => {
     const methodIds = recipe.content.steps.map((step) => step.method_id);
@@ -1836,6 +1839,21 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
     setWorkspaceInspector("step");
     const stage = preview?.stages.find((item) => item.ordinal === index + 1);
     if (stage) setSelectedStage(stage.ordinal);
+  }
+
+  function requestFitPlotMode(mode: PlotInteractionMode): void {
+    setFitPlotCommand((current) => ({
+      action: "set-mode",
+      mode,
+      requestId: (current?.requestId ?? 0) + 1,
+    }));
+  }
+
+  function applyFitPlotSelection(): void {
+    setFitPlotCommand((current) => ({
+      action: "apply",
+      requestId: (current?.requestId ?? 0) + 1,
+    }));
   }
 
   function applyGraphSelection(selection: GraphSelectionCommand): void {
@@ -2053,8 +2071,8 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
             {workflowTask === "process" || workflowTask === "fit" ? <div className="configured-step-list"><p className="rail-title">{stageRail}</p>{visibleStepEntries.map(({ step, index }) => { const label = methods.find((method) => method.method_id === step.method_id)?.label ?? methodDisplayName(step.method_id); return <button type="button" title={`${label} · version ${step.method_version}`} className={selectedStepIndex === index ? "active" : ""} key={`${index}:${step.method_id}`} onClick={() => focusConfiguredStep(index)}><span>{index + 1}</span><span><strong>{label}</strong><small>{step.method_version}</small></span></button>; })}</div> : null}
           </> : null}
           plot={<article className="persistent-modeling-plot" id="modeling-fit">
-            <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "data" ? "Source preview" : workflowTask === "process" ? "Prepare test curves" : workflowTask === "fit" ? "Fit material response" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></div>{workflowTask !== "export" ? <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{preview || ensemblePreview ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
-            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : "Choose a saved dataset, then select Preview changes. The graph will compare the original and processed curves without changing the saved data."}</p></div>}
+            <div className="section-heading"><div><p className="workspace-caption">{workflowTask === "fit" ? "Stress response · observed evidence and hardening candidates" : workflowTask === "data" ? "Source preview" : workflowTask === "process" ? "Prepare test curves" : "Selected model response"}</p><h2>{activePlotView === "ensemble" ? "Replicate statistics" : workflowTask === "export" ? "Test data & selected model" : activeStage ? methods.find((method) => method.method_id === activeStage.method_id)?.label ?? methodDisplayName(activeStage.method_id) : "Load data and preview"}</h2></div>{workflowTask !== "export" ? workflowTask === "fit" ? preview ? <span className="plot-preview-state">Preview — not saved</span> : null : <div className="plot-view-switch" role="group" aria-label="Curve plot view"><button type="button" className={activePlotView === "pipeline" ? "active" : ""} disabled={!preview} onClick={() => setPlotView("pipeline")}>Response</button>{ensemblePreview ? <button type="button" className={activePlotView === "ensemble" ? "active" : ""} onClick={() => setPlotView("ensemble")}>Mean &amp; band</button> : null}{preview || ensemblePreview ? <span className="plot-preview-state">Preview — not saved</span> : null}</div> : preview ? <span className="plot-preview-state">Current saved fit</span> : null}</div>
+            {preview && activeStage && baseStage ? <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} activeStep={activeConfiguredStep} fitSelection={fitSelection} selectedModelOnly={workflowTask === "export"} width={chart.width} height={chart.height} onApplySelection={activePlotView === "pipeline" && workflowTask !== "export" ? applyGraphSelection : undefined} ensemblePreview={activePlotView === "ensemble" ? ensemblePreview : null} interactionCommand={workflowTask === "fit" ? fitPlotCommand : null} onInteractionStateChange={workflowTask === "fit" ? setFitPlotInteraction : undefined} /> : <div className="modeling-plot-empty"><strong>{previewBusy ? "Updating the engineering preview…" : "The graph stays here while you prepare the curves."}</strong><p>{previewBusy ? "A newer processing change replaces the previous preview request." : "Choose a saved dataset, then select Preview changes. The graph will compare the original and processed curves without changing the saved data."}</p></div>}
             {ensemblePreview && activePlotView === "ensemble" ? <div className="statistics-grid compact-statistics"><article><span>Included curves</span><strong>{ensemblePreview.members.length}</strong></article><article><span>Common points</span><strong>{ensemblePreview.grid.length}</strong></article><article><span>Domain policy</span><strong>Intersection</strong></article></div> : null}
           </article>}
           ribbon={workflowTask === "data" ? <Suspense fallback={<p className="loading-state">Loading data sources…</p>}><ModelingDataIntake
@@ -2075,9 +2093,9 @@ export function CommonProcessingWorkbench({ config, onNavigate, onModelingTrackC
           </aside> : <aside className={`step-option-panel ${workflowTask}-stage-options`}>
             <div className="workspace-inspector-heading"><p><strong>Current-step settings</strong><span>{workflowTask === "fit" ? " · fit and extrapolation" : " · processing"}</span></p><div className="modeling-ribbon-actions">{workflowTask === "process" ? <><label>Processed curve label<input aria-label="Processed curve label" value={outputLabel} onChange={(event) => setOutputLabel(event.target.value)} /></label><label>Save reason<input aria-label="Processed curve save reason" value={outputReason} onChange={(event) => setOutputReason(event.target.value)} /></label><button className="button primary" type="button" disabled={busy || !preview || !selectedProfileId || !outputLabel.trim() || !outputReason.trim()} onClick={() => void commitOutput()}>Save processed curves</button></> : null}<button className="text-button" type="button" onClick={() => setInspectorVisible(false)}>Close</button></div></div>
             {selectedConfiguredStep ? <>
-              <div className="section-heading"><div><p className="step-index">Step {selectedStepIndex + 1}</p><h3>{methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? methodDisplayName(selectedConfiguredStep.method_id)}</h3></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove</button></div>
-              <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} />
-              {workflowTask === "fit" ? <details className="fit-evidence-disclosure"><summary>Candidate parameters</summary>{selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}{(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage?.method_id === selectedConfiguredStep.method_id ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}</details> : null}
+              <div className="section-heading"><div><h3>Step {selectedStepIndex + 1} · {methods.find((method) => method.method_id === selectedConfiguredStep.method_id)?.label ?? methodDisplayName(selectedConfiguredStep.method_id)}</h3><p className="fit-step-impact">All controls affect the persistent preview below</p></div><button className="text-button" type="button" onClick={removeSelectedStep}>Remove step</button></div>
+              <GuidedStepOptions step={selectedConfiguredStep} onChange={updateStepOption} graphInteraction={{ mode: fitPlotInteraction.mode, canApply: fitPlotInteraction.hasSelection, available: workflowTask === "fit" && activePlotView === "pipeline" && Boolean(preview && activeStage && activeStage.method_id === selectedConfiguredStep.method_id) }} onGraphModeChange={requestFitPlotMode} onApplyGraphSelection={applyFitPlotSelection} />
+              {workflowTask === "fit" ? <details className="fit-evidence-disclosure"><summary>Candidate parameters</summary>{selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" ? <label className="fit-output-points">Output points<input aria-label="Output points" type="number" min="21" max="501" step="1" value={numberOption(selectedConfiguredStep, "output_point_count")} onChange={(event) => updateStepOption("output_point_count", Number(event.target.value))}/></label> : null}{selectedConfiguredStep.method_id === "metal.hardening_fit_extrapolate" && activeStage?.method_id === "metal.hardening_fit_extrapolate" ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><HardeningCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}{(selectedConfiguredStep.method_id === "polymer.prony_fit_compare" || selectedConfiguredStep.method_id === "polymer.dma_prony_fit_compare") && activeStage?.method_id === selectedConfiguredStep.method_id ? <Suspense fallback={<p className="loading-state">Loading fit evidence…</p>}><PronyCandidateEvidence stage={activeStage} step={selectedConfiguredStep} selection={fitSelection} onSelect={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} onChangeSelection={(selection) => { setFitSelection(selection); onSessionEvent?.({ type: "CHANGE_SELECTION" }); }} /></Suspense> : null}</details> : null}
               {modelingTrack === "polymer" && selectedConfiguredStep.method_id === "polymer.prony_fit_compare" ? familyInspector : null}
             </> : <p className="muted">Add or select a processing step.</p>}
             <details className="advanced-workflow-settings">

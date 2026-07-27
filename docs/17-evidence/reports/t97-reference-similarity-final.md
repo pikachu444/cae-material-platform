@@ -5,7 +5,7 @@ Date: 2026-07-21
 This report records the approved T-94 design policy against the T-95–T-97 implementation. Its
 2026-07-21 Materials and Administration evidence remains valid, but its Modeling Fit measurement,
 score and screenshots were withdrawn on 2026-07-26 and replaced by
-`uxc04b-modeling-fit-layout-correction.md`. It
+`uxc04c-fit-reference-restoration.md`. It
 does not use color, logo, icon or pixel similarity as evidence. The comparison uses region order,
 dominant data/graph proportion, row and type density, divider/surface grammar, selected-object
 continuity, solver-card action placement and progressive disclosure.
@@ -135,7 +135,7 @@ increase plus a real 264 px Tree/filter navigator.
 ### Modeling (historical measurement withdrawn)
 
 The following 2026-07-21 measurements describe the superseded screen and must not be used as current
-acceptance. See `uxc04b-modeling-fit-layout-correction.md` for the current measured Process/Fit
+acceptance. See `uxc04c-fit-reference-restoration.md` for the current measured Process/Fit
 topology and screenshots.
 
 | Browser viewport | Client / workspace | Outer margin | Curve/process rail | Graph region | Actual graph SVG | SVG/workspace |
@@ -168,12 +168,12 @@ axes and mapping controls. No page-level horizontal overflow was present at any 
 | Materials Search | 25 | 24 | 14 | 15 | 10 | 9 | **97** | pass |
 | Browse Tree + results | 25 | 25 | 15 | 15 | 10 | 9 | **99** | pass |
 | Material Detail / CAE Card | 25 | 23 | 14 | 15 | 10 | 10 | **97** | pass |
-| Modeling Fit | — | — | — | — | — | — | **withdrawn** | superseded by UXC-04B |
+| Modeling Fit | — | — | — | — | — | — | **withdrawn** | superseded by UXC-04C |
 | Modeling Export / Card | 24 | 24 | 14 | 15 | 10 | 10 | **97** | pass |
 | Administration | 24 | 23 | 14 | 15 | 10 | 9 | **95** | pass |
 
-All retained T-97 scores exceed 85/100. Current Modeling Process/Fit score 98/100 with the topology,
-dominant-area and nested-card hard gates is recorded in `uxc04b-modeling-fit-layout-correction.md`.
+All retained T-97 scores exceed 85/100. Current Modeling Fit scores and the topology, dominant-area
+and nested-card hard gates are recorded in `uxc04c-fit-reference-restoration.md`.
 
 ## Browser scenarios and task path
 
@@ -261,7 +261,7 @@ acceptance input, not an omitted documentation-only format.
 - `docs/17-evidence/images/ux-redesign-v2/final-browse-tree-1366x768.png`
 - Current Modeling Process/Fit evidence is maintained in
   `docs/user-guide/images/current/` and indexed by
-  `docs/17-evidence/reports/uxc04b-modeling-fit-layout-correction.md`.
+  `docs/17-evidence/reports/uxc04c-fit-reference-restoration.md`.
 
 ## Verification
 
