@@ -436,6 +436,10 @@ def _ensure_activity_review_fixture(page: Page, base_url: str) -> None:
         raise RuntimeError(f"unexpected Activity fixture result: {outcome}")
 
 
+def _open_modeling_stage(page: Page, stage: str) -> None:
+    page.locator(".modeling-stage-shell").get_by_text(stage.title(), exact=True).click()
+
+
 def _prepare_modeling(page: Page, base_url: str) -> None:
     page.goto(f"{base_url}/modeling?stage=data&family=metal")
     page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(
@@ -457,17 +461,13 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
     plot = page.locator(".persistent-modeling-plot svg[role=img]")
     # Data has no competing stage-header primary action. Compute the same exact source/mapping
     # preview through Process's secondary action, then return to Data for its evidence capture.
-    page.locator(".workspace-command-bar").get_by_role(
-        "button", name="Process", exact=True
-    ).click()
+    _open_modeling_stage(page, "process")
     page.wait_for_url(re.compile(r"stage=process"), timeout=30_000)
     page.get_by_role(
         "button", name="Preview changes", exact=True
     ).click()
     plot.wait_for(timeout=30_000)
-    page.locator(".workspace-command-bar").get_by_role(
-        "button", name="Data", exact=True
-    ).click()
+    _open_modeling_stage(page, "data")
     page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
     page.get_by_role("heading", name=STAGE_HEADINGS["data"], exact=True).wait_for(
         timeout=30_000
@@ -476,9 +476,7 @@ def _prepare_modeling(page: Page, base_url: str) -> None:
 
 
 def _save_exact_fit_selection(page: Page) -> None:
-    page.locator(".workspace-command-bar").get_by_role(
-        "button", name="Fit", exact=True
-    ).click()
+    _open_modeling_stage(page, "fit")
     page.wait_for_url(re.compile(r"stage=fit"), timeout=30_000)
     page.locator(".modeling-work-title strong").get_by_text(
         STAGE_HEADINGS["fit"], exact=True
@@ -496,7 +494,7 @@ def _save_exact_fit_selection(page: Page) -> None:
     candidate_table.wait_for(timeout=30_000)
     candidate_table.get_by_role(
         "button", name=re.compile(r"^Select .+ candidate$")
-    ).first.click()
+    ).last.click()
     page.get_by_role("textbox", name="Candidate selection reason").fill(
         "Best agreement over the measured strain range."
     )
@@ -656,9 +654,7 @@ def _capture_modeling(browser: Browser, base_url: str, output: Path) -> None:
         _prepare_modeling(page, base_url)
         plot = page.locator(".persistent-modeling-plot svg[role=img]")
         for stage, heading in STAGE_HEADINGS.items():
-            page.locator(".workspace-command-bar").get_by_role(
-                "button", name=stage.title(), exact=True
-            ).click()
+            _open_modeling_stage(page, stage)
             page.wait_for_url(re.compile(rf"stage={stage}"), timeout=30_000)
             page.locator(".modeling-work-title strong").get_by_text(
                 heading, exact=True
@@ -826,7 +822,7 @@ def _capture_modeling_process_fit(browser: Browser, base_url: str, output: Path)
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         _prepare_modeling(page, base_url)
-        page.locator('.workspace-command-bar').get_by_role('button', name='Process', exact=True).click()
+        _open_modeling_stage(page, "process")
         page.locator('.modeling-work-title strong').get_by_text(
             STAGE_HEADINGS['process'], exact=True
         ).wait_for(timeout=30_000)
@@ -840,7 +836,7 @@ def _capture_modeling_process_fit(browser: Browser, base_url: str, output: Path)
         _capture(page, output / f'modeling-process-{width}x{height}.png', width, height)
         measurements.append({'stage': 'process', 'viewport': f'{width}x{height}', **_measure_process_fit(page, 'process', width, height)})
 
-        page.locator('.workspace-command-bar').get_by_role('button', name='Fit', exact=True).click()
+        _open_modeling_stage(page, "fit")
         page.locator('.modeling-work-title strong').get_by_text(
             STAGE_HEADINGS['fit'], exact=True
         ).wait_for(timeout=30_000)
@@ -851,7 +847,7 @@ def _capture_modeling_process_fit(browser: Browser, base_url: str, output: Path)
         table.wait_for(timeout=30_000)
         if page.get_by_role('button', name='Save fit & continue', exact=True).count() != 1:
             raise RuntimeError('Fit must expose one top-row Save fit & continue action')
-        table.get_by_role('button', name=re.compile(r'^Select .+ candidate$')).first.click()
+        table.get_by_role('button', name=re.compile(r'^Select .+ candidate$')).last.click()
         page.get_by_role('textbox', name='Candidate selection reason').fill('Best agreement over the measured strain range.')
         acknowledgement = page.get_by_role('checkbox', name='Acknowledge selected candidate warning')
         if acknowledgement.count(): acknowledgement.check()
@@ -897,7 +893,7 @@ def _capture_modeling_consistency(browser: Browser, base_url: str, output: Path)
         _capture(page, output / f"modeling-data-{width}x{height}.png", width, height)
         measurements.append({"stage": "data", "viewport": f"{width}x{height}", **_measure_process_fit(page, "data", width, height)})
         for stage in ("process", "fit", "export"):
-            page.locator(".workspace-command-bar").get_by_role("button", name=stage.title(), exact=True).click()
+            _open_modeling_stage(page, stage)
             page.locator(".modeling-work-title strong").get_by_text(STAGE_HEADINGS[stage], exact=True).wait_for(timeout=30_000)
             _assert_modeling_normal_shell(page)
             if stage in ("process", "fit"):
@@ -948,16 +944,18 @@ def _capture_modeling_session_shell(browser: Browser, base_url: str, output: Pat
     for width, height in VIEWPORTS:
         page = _new_page(browser, base_url, width, height)
         page.goto(f"{base_url}/modeling?stage=data&family=metal")
-        page.locator(".workspace-command-bar").get_by_role(
-            "button", name="Data", exact=True
-        ).wait_for(timeout=30_000)
+        page.locator(".modeling-stage-shell button").filter(has_text="Data").wait_for(timeout=30_000)
         page.wait_for_function(
             """() => document.querySelector(
-              ".workspace-command-bar button.workspace-command.active"
+              ".modeling-stage-shell button.active strong"
             )?.textContent?.trim() === "Data" """,
             timeout=30_000,
         )
-        page.get_by_role("button", name="New session", exact=True).click()
+        page.evaluate(
+            """() => window.dispatchEvent(new CustomEvent(
+              "cmp:workspace-command", { detail: { command: "modeling:new" } }
+            ))"""
+        )
         page.wait_for_url(re.compile(r"stage=data"), timeout=30_000)
         page.wait_for_function(
             """() => {

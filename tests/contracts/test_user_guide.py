@@ -22,7 +22,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 28
+    assert report.capture_count == 34
     assert report.archived_capture_count >= 100
     assert report.historical_capture_script_count == 12
     assert report.navigation_count == 3
@@ -71,7 +71,7 @@ def test_permanent_reference_catalog_and_image_roots_are_retained() -> None:
     assert len(list((root / "docs/00-research/images/gui-reference").glob("*.png"))) >= 20
 
 
-def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
+def test_current_manifest_has_one_current_provenance_record_per_capture() -> None:
     root = Path(__file__).parents[2]
     manifest = yaml.safe_load(
         (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
@@ -83,38 +83,35 @@ def test_current_manifest_does_not_claim_pending_dui_acceptance() -> None:
         for capture_id in provenance["ids"]
     ]
 
-    uxc03b_source = "e7752dc"
-    uxc06c2_source = "47a8d52"
-    assert manifest["source_commit"] == "fa213ca"
+    assert manifest["source_commit"] == "working-tree-uxc04e-fit-prototype-transplant"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
     assert {
         provenance["source_commit"]
         for provenance in manifest["capture_provenance"]
     } == {
-        "8ce8b89",
-        uxc03b_source,
-        uxc06c2_source,
+        "working-tree-uxc04e-fit-prototype-transplant",
+        "working-tree-dui09d-governed-component-stories",
+        "working-tree-dui09c-storybook-foundation",
+        "working-tree-dui09a-legacy-cleanup",
+        "working-tree-dui08b-review-submission",
+        "working-tree-dui07-administration-schema-editor",
+        "working-tree-uxc01-materials-workspace",
         "working-tree-uxc00g",
     }
-    uxc03b_commands = [
+    uxc04e_commands = [
         provenance["command"]
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == uxc03b_source
+        if provenance["source_commit"] == "working-tree-uxc04e-fit-prototype-transplant"
     ]
     assert any(
-        "targeted live Playwright Process/Fit/Export capture" in command
-        for command in uxc03b_commands
-    )
-    assert any(
-        "targeted live Playwright UXC-06C2 Export capture" in provenance["command"]
-        for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == uxc06c2_source
+        "targeted live Playwright Modeling consistency capture" in command
+        for command in uxc04e_commands
     )
 
     activity = captures["activity-1440"]
-    assert activity["workflow"] == "recent-browser-local-solver-card-delivery"
-    assert "DUI-08 review/action queue pending" in activity["fixture"]
+    assert activity["workflow"] == "role-aware-review-queue-with-resume-and-outcomes"
+    assert "real pending exact-revision Material and Solver Card requests" in activity["fixture"]
     for capture_id in ("administration-access-1366", "administration-access-1440"):
         capture = captures[capture_id]
         assert capture["workflow"] == "user-reviewer-administrator-task-preset-assignment"

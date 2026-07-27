@@ -33,13 +33,13 @@ strain과 engineering stress 의미 및 원래 단위를 명시해야 합니다.
    처리 조건을 반복 사용할 경우 Recipe 새 revision으로 저장·게시하고 다른 시험에 preflight/batch 실행합니다.
 
 
-   Fit rail에서 실제 처리와 hardening fit 단계를 확인합니다. 얕은 설정 영역에서 Candidate equations,
-   한 줄 Fit 설정 띠에서 Candidate equations, Fit domain(Start/End), Selected blend(Primary),
-   Primary contribution, Extrapolation(Target strain) 및 Graph interaction을 조정하고
+   Fit rail에서 실제 처리와 hardening fit 단계를 확인합니다. 한 줄 Fit 설정 띠에서 Candidate equations,
+   Fit domain(Start/End), Selected blend(Primary/Secondary), Primary contribution와 Review metric,
+   Extrapolation(Target strain/Output points) 및 Graph interaction을 조정하고
    **Stress response / Residual / Tangent modulus**를 차례로 확인합니다. observed 영역 이후의 황색
-   배경과 점선이 실제 시험값이 아닌지 확인합니다. Output points와 후보 parameter/bound evidence는
-   그래프 바로 위의 분리된 **Candidate parameters** 행을 열어 secondary blend law, Output points,
-   parameter/bound evidence를 확인한 뒤 primary/secondary, blend ratio와
+   배경과 점선이 실제 시험값이 아닌지 확인합니다. 후보 비교와 parameter/bound evidence는
+   그래프 바로 위의 분리된 **Candidate parameters**를 열어 확인합니다. Secondary blend law와
+   Output points는 Fit 설정 띠에서 조정한 뒤 primary/secondary, blend ratio와
    **Selection reason**을 정합니다.
 
 

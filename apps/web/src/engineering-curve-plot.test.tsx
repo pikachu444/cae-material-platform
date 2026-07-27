@@ -245,7 +245,8 @@ describe("EngineeringCurvePlot", () => {
     const { container } = render(<EngineeringCurvePlot preview={hardeningPreview} activeStage={hardening} baseStage={baseStage} activeStep={hardeningStep} width={760} height={420} />);
 
     expect(screen.getByText("Observed plastic workup")).toBeTruthy();
-    expect(screen.getByText("Preview Swift/Voce blend · fit")).toBeTruthy();
+    expect(screen.getByText("Preview Swift/Voce blend")).toBeTruthy();
+    expect(screen.getByText("Shaded: extrapolated/unobserved")).toBeTruthy();
     expect(container.querySelector(".extrapolation-region")).toBeTruthy();
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
     expect(screen.getByText("predicted - observed [MPa]")).toBeTruthy();
@@ -312,7 +313,7 @@ describe("EngineeringCurvePlot", () => {
       height={420}
     />);
 
-    expect(screen.getByText("Selected · swift · fit")).toBeTruthy();
+    expect(screen.getByText("Selected · swift")).toBeTruthy();
     expect(screen.queryByText(/Selected blend/)).toBeNull();
     expect(screen.queryByText(/explicit engineer selection/)).toBeNull();
   });

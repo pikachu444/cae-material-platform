@@ -1486,6 +1486,21 @@
 .modeling-stage-shell { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .modeling-stage-shell button { align-items: center; justify-content: center; gap: 4px; min-height: 27px; padding: 3px 8px; }
 
+.application-shell:has(.processing-workbench-page) .modeling-context-strip {
+  min-height: 50px;
+  flex-basis: 50px;
+  padding-inline: 10px;
+}
+
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell {
+  min-height: 34px;
+  flex-basis: 34px;
+}
+
+.application-shell:has(.processing-workbench-page) .modeling-stage-shell button {
+  min-height: 34px;
+}
+
 .modeling-stage-placeholder,
 .modeling-export-blocked {
   min-height: 180px;
@@ -3299,7 +3314,8 @@
 .curve-tree-group > details > article {
   display: grid;
   align-items: center;
-  grid-template-columns: 25px minmax(0, 1fr) 28px 26px;
+  grid-template-columns: 25px 4px minmax(0, 1fr) 26px;
+  column-gap: 5px;
   min-width: 0;
   padding-left: 9px;
 }
@@ -3391,9 +3407,9 @@
 .dataset-curve-swatch {
   display: block;
   background: hsl(calc(174deg + var(--curve-index, 0) * 42deg) 48% 43%);
-  width: 20px;
-  height: 3px;
-  margin-inline: 4px;
+  width: 3px;
+  height: 17px;
+  margin: 0;
 }
 
 .curve-visibility-toggle {
@@ -3662,6 +3678,100 @@
 .application-shell main.processing-workbench-page .stage-chip-rail :is(span, strong, small) {
   font-size: 12px;
 }
+
+/* UXC-04E: production Fit uses the approved modeling.html/review.css workspace
+   topology.  Keep the persistent graph below this exact 31px + 72px ribbon. */
+.application-shell main.processing-workbench-page .modeling-task-ribbon:has(.fit-stage-options) {
+  min-height: 104px;
+  max-height: 104px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ux-border);
+  background: var(--ux-surface-subtle);
+}
+
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .step-option-panel.fit-stage-options {
+  display: grid;
+  grid-template-rows: 31px 72px;
+  min-height: 103px;
+  max-height: 103px;
+  gap: 0;
+  padding: 0;
+  background: var(--ux-surface-subtle);
+}
+
+.application-shell main.processing-workbench-page .modeling-task-ribbon > .fit-stage-options > .section-heading {
+  display: flex;
+  min-height: 31px;
+  padding: 0 9px;
+  border-bottom: 1px solid var(--ux-border);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options > .section-heading h3 {
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options > .section-heading .fit-step-impact,
+.application-shell main.processing-workbench-page .fit-heading-actions .text-button {
+  font-size: 11px;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options > .guided-step-options {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.1fr 1.1fr 1.25fr;
+  min-width: 900px;
+  height: 72px;
+  gap: 0;
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group {
+  min-height: 72px;
+  height: 72px;
+  padding: 5px 8px;
+  border-left: 0;
+  border-right: 1px solid var(--ux-border);
+}
+
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group:last-child { border-right: 0; }
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group legend { margin: 0 0 6px; font-size: 11px; }
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid { gap: 5px 8px; padding: 0; }
+.application-shell main.processing-workbench-page .fit-stage-options .candidate-check-grid label { min-height: 13px; font-size: 11px; }
+.application-shell main.processing-workbench-page .fit-stage-options .fit-control-group > label { gap: 3px; font-size: 10.5px; }
+.application-shell main.processing-workbench-page .fit-stage-options :is(input:not([type="checkbox"]):not([type="range"]), select) { height: 26px; min-height: 26px; font-size: 11.5px; }
+.application-shell main.processing-workbench-page .fit-stage-options .selected-blend-group,
+.application-shell main.processing-workbench-page .fit-stage-options .extrapolation-group { display: grid; grid-template-columns: 1fr 1fr; column-gap: 6px; align-content: start; }
+.application-shell main.processing-workbench-page .fit-stage-options .selected-blend-group legend,
+.application-shell main.processing-workbench-page .fit-stage-options .extrapolation-group legend { grid-column: 1 / -1; }
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option > span { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 5px; }
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group .slider-option input { width: 100%; }
+.application-shell main.processing-workbench-page .fit-stage-options .contribution-group select:disabled { opacity: 1; color: var(--ux-text); background: var(--ux-surface); }
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 4px; width: 100%; }
+.application-shell main.processing-workbench-page .fit-stage-options .graph-interaction-group button { width: 100%; min-width: 0; height: 26px; min-height: 22px; font-size: 11px; }
+.application-shell main.processing-workbench-page .fit-stage-options > .fit-evidence-disclosure:not([open]) { position: absolute; right: 8px; bottom: 1px; z-index: 2; height: 17px; }
+
+.application-shell main.processing-workbench-page .persistent-modeling-plot { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-rows: 31px minmax(0, 1fr); padding: 6px 9px 8px; }
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading { min-height: 31px; border-bottom: 1px solid var(--ux-border); }
+.application-shell main.processing-workbench-page .persistent-modeling-plot > .section-heading .workspace-caption { font-size: 14px; font-weight: 600; }
+.application-shell main.processing-workbench-page .persistent-modeling-plot .hardening-analysis-tabs { align-self: center; }
+.application-shell main.processing-workbench-page .persistent-modeling-plot .hardening-analysis-tabs button { min-height: 25px; font-size: 11px; }
+
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .rail-heading,
+.application-shell main.processing-workbench-page .approved-fit-process-tree > .rail-title { min-height: 29px; padding: 0 8px; color: #4f6068; font-size: 11.5px; font-weight: 650; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-filter { padding: 3px 7px 5px; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-filter input { height: 25px; min-height: 25px; font-size: 11.5px; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-group-row { grid-template-columns: 13px minmax(0, 1fr) auto; min-height: 26px; padding-left: 8px; border-bottom: 0; background: transparent; font-size: 12.5px; font-weight: 500; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-tree-group > details > article { grid-template-columns: 13px 4px minmax(0, 1fr) 18px; gap: 5px; min-height: 26px; padding-left: 21px; border-bottom: 0; font-size: 12.5px; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .dataset-curve-swatch { width: 3px; height: 17px; margin: 0; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .mean-confidence-swatch { background: #7d8d94; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-row-label { min-height: 26px; padding: 2px 0; font-size: 12.5px; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-row-label small { display: none; }
+.application-shell main.processing-workbench-page .approved-fit-curve-tree .curve-visibility-toggle { width: 18px; height: 20px; font-size: 14px; }
+.application-shell main.processing-workbench-page .approved-fit-process-tree { display: grid; grid-template-rows: auto repeat(4, 26px) minmax(0, 1fr) auto; min-height: 0; }
+.application-shell main.processing-workbench-page .approved-fit-process-tree > .rail-title > span { color: var(--ux-text-muted); font-size: 11.5px; font-weight: 400; }
+.application-shell main.processing-workbench-page .approved-fit-process-tree > button { min-height: 26px; padding: 2px 7px 2px 10px; border-bottom: 0; font-size: 12px; }
+.application-shell main.processing-workbench-page .approved-fit-process-tree > button > span:first-child { width: 18px; height: 18px; font-size: 10.5px; }
+.application-shell main.processing-workbench-page .approved-fit-process-tree > button strong { font-size: 12px; font-weight: 400; }
+.application-shell main.processing-workbench-page .approved-fit-process-tree .curve-tree-foot { align-self: end; padding: 7px 8px; border-top: 1px solid var(--ux-border); color: var(--ux-text-muted); font-size: 10.5px; }
 
 .processing-workbench-page > .error-banner {
   position: fixed;

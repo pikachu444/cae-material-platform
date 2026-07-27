@@ -56,12 +56,94 @@
   letter-spacing: 0.04em;
 }
 
-.application-brand strong {
+.application-brand-copy {
+  display: block;
+  min-width: 0;
+  text-align: left;
+}
+
+.application-brand-copy strong {
+  display: block;
   overflow: hidden;
   font-size: 12.5px;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.application-brand-copy small { display: none; }
+
+.application-shell:has(.processing-workbench-page) {
+  grid-template-rows: 48px minmax(0, 1fr);
+}
+
+.application-shell:has(.processing-workbench-page) .application-menu-bar {
+  grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
+  height: 48px;
+  padding: 0 20px;
+  border-bottom-color: var(--ux-border);
+  background: var(--ux-surface);
+  color: var(--ux-text);
+}
+
+.application-shell:has(.processing-workbench-page) .application-brand {
+  gap: 9px;
+  padding: 0;
+}
+
+.application-shell:has(.processing-workbench-page) .application-mark {
+  width: 28px;
+  height: 28px;
+  border-color: var(--ux-accent);
+  border-radius: 0;
+  color: var(--ux-accent);
+  font-size: 10px;
+}
+
+.application-shell:has(.processing-workbench-page) .application-brand-copy strong {
+  color: var(--ux-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.application-shell:has(.processing-workbench-page) .application-brand-copy small {
+  display: block;
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.application-shell:has(.processing-workbench-page) .application-menu-bar > nav {
+  gap: 28px;
+  justify-self: center;
+}
+
+.application-shell:has(.processing-workbench-page) .application-nav {
+  min-width: 0;
+  padding: 0;
+  border-bottom-width: 3px;
+  color: var(--ux-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.application-shell:has(.processing-workbench-page) .application-nav:hover,
+.application-shell:has(.processing-workbench-page) .application-nav.active {
+  border-bottom-color: var(--ux-accent);
+  background: transparent;
+  color: var(--ux-accent);
+}
+
+.application-shell:has(.processing-workbench-page) .application-session {
+  color: var(--ux-text-muted);
+}
+
+.application-shell:has(.processing-workbench-page) .application-user-menu > summary {
+  color: var(--ux-text-muted);
+  font-size: 12px;
+}
+
+.application-shell:has(.processing-workbench-page) > :is(.workspace-command-bar, .application-status-bar) {
+  display: none;
 }
 
 .application-menu-bar > nav {
