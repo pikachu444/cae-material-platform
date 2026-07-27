@@ -510,16 +510,34 @@ describe("Common Processing Workbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Preview changes" }));
     expect(await screen.findByText("Preview — not saved")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Hardening candidate and selected extrapolation curves" })).toBeTruthy();
-    expect(screen.getByText("Preview blend · swift + voce · fitted domain")).toBeTruthy();
+    expect(screen.getByText("Preview Swift/Voce blend · fit")).toBeTruthy();
+    expect(screen.getByText("Process · 6 steps")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Young's modulus/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /True plastic workup/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Hardening candidates/ })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Step 6 · Hardening candidates/ })).toBeTruthy();
+    expect(screen.getByText("Candidate equations")).toBeTruthy();
+    expect(screen.getByText("Fit domain")).toBeTruthy();
+    expect(screen.getByText("Selected blend")).toBeTruthy();
+    expect(screen.getByText("Primary contribution")).toBeTruthy();
+    expect(screen.getByText("Extrapolation")).toBeTruthy();
+    expect(screen.getByText("Graph interaction")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
+    expect(screen.getByLabelText("Output points").closest("details")?.open).toBe(false);
+    expect(screen.getByText("Stress response · observed evidence and hardening candidates")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Select range" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Select fit range" }));
+    expect(screen.getByRole("button", { name: "Select fit range" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByText("Candidate parameters")).toBeTruthy();
     fireEvent.click(screen.getByText("Candidate parameters"));
+    expect(screen.getByLabelText("Output points").closest("details")?.open).toBe(true);
     expect(screen.getByText("voce relative rmse")).toBeTruthy();
     expect(await screen.findByRole("columnheader", { name: "Recommendation" })).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Save fit & continue" })).toHaveLength(1);
     expect((screen.getByRole("button", { name: "Save fit & continue" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.queryByText("Reference hardening projection")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Select swift candidate/i }));
-    expect(screen.getByText("Selected · swift · fitted domain")).toBeTruthy();
+    expect(screen.getByText("Selected · swift · fit")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Candidate selection reason"), {
       target: { value: "Select Swift after comparing response, residual and tangent stability." },
     });

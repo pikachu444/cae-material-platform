@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { derivativeValues, EngineeringCurvePlot, linearInterpolate, paddedPlotBounds, plotPoints, residualValues } from "./engineering-curve-plot";
@@ -40,7 +40,10 @@ const preview: CommonProcessingPreview = {
 };
 
 describe("EngineeringCurvePlot", () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   it("keeps source and processed series on their own sampling grids", () => {
     const { container } = render(
@@ -67,6 +70,27 @@ describe("EngineeringCurvePlot", () => {
     expect(screen.getByText("Wheel to zoom · drag to pan")).toBeTruthy();
   });
 
+  it("updates the SVG coordinate system when its rendered container is resized", () => {
+    let callback: ResizeObserverCallback | undefined;
+    class ResizeObserverMock {
+      constructor(next: ResizeObserverCallback) { callback = next; }
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+    const { container } = render(
+      <EngineeringCurvePlot preview={preview} activeStage={activeStage} baseStage={baseStage} width={760} height={420} />,
+    );
+    const plot = container.querySelector("svg");
+    expect(plot?.getAttribute("viewBox")).toBe("0 0 760 420");
+    act(() => {
+      callback?.([{ contentRect: { width: 920, height: 310 } } as ResizeObserverEntry], {} as ResizeObserver);
+    });
+    expect(plot?.getAttribute("viewBox")).toBe("0 0 920 310");
+  });
+
+
   it("keeps graph range selection ephemeral until the user applies it", () => {
     const onApplySelection = vi.fn();
     render(
@@ -88,6 +112,7 @@ describe("EngineeringCurvePlot", () => {
       x_quantity: "strain.engineering",
       x_unit: "1",
     }));
+    expect(screen.getByRole("button", { name: "Pan" }).getAttribute("aria-pressed")).toBe("true");
   });
 
   it("renders every replicate, the pointwise mean, and the confidence band in the primary plot", () => {
@@ -220,7 +245,7 @@ describe("EngineeringCurvePlot", () => {
     const { container } = render(<EngineeringCurvePlot preview={hardeningPreview} activeStage={hardening} baseStage={baseStage} activeStep={hardeningStep} width={760} height={420} />);
 
     expect(screen.getByText("Observed plastic workup")).toBeTruthy();
-    expect(screen.getByText("Preview blend · swift + voce · fitted domain")).toBeTruthy();
+    expect(screen.getByText("Preview Swift/Voce blend · fit")).toBeTruthy();
     expect(container.querySelector(".extrapolation-region")).toBeTruthy();
     fireEvent.click(screen.getByRole("tab", { name: "Residual" }));
     expect(screen.getByText("predicted - observed [MPa]")).toBeTruthy();
@@ -287,7 +312,7 @@ describe("EngineeringCurvePlot", () => {
       height={420}
     />);
 
-    expect(screen.getByText("Selected · swift · fitted domain")).toBeTruthy();
+    expect(screen.getByText("Selected · swift · fit")).toBeTruthy();
     expect(screen.queryByText(/Selected blend/)).toBeNull();
     expect(screen.getByText(/explicit engineer selection/)).toBeTruthy();
   });

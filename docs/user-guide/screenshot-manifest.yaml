@@ -163,21 +163,21 @@ captures:
     height: 768
   - id: modeling-session-1366
     route: /modeling?stage=data&family=metal
-    workflow: UXC-04B Data-first session shell with compact four-stage normal work path
+    workflow: UXC-04C Data-first session shell with compact four-stage normal work path
     fixture: synthetic DP780 Modeling context; no stale output fallback asserted
     image: images/current/modeling-session-1366x768.png
     width: 1366
     height: 768
   - id: modeling-session-1440
     route: /modeling?stage=data&family=metal
-    workflow: UXC-04B Data-first session shell with compact four-stage normal work path
+    workflow: UXC-04C Data-first session shell with compact four-stage normal work path
     fixture: synthetic DP780 Modeling context; no stale output fallback asserted
     image: images/current/modeling-session-1440x900.png
     width: 1440
     height: 900
   - id: modeling-session-1920
     route: /modeling?stage=data&family=metal
-    workflow: UXC-04B Data-first session shell with compact four-stage normal work path
+    workflow: UXC-04C Data-first session shell with compact four-stage normal work path
     fixture: synthetic DP780 Modeling context; no stale output fallback asserted
     image: images/current/modeling-session-1920x1080.png
     width: 1920
@@ -198,43 +198,43 @@ captures:
     height: 1080
   - id: modeling-process-1366
     route: /modeling?stage=process&family=metal
-    workflow: source-processed-preview-and-explicit-output-commit
+    workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1366x768.png
     width: 1366
     height: 768
   - id: modeling-process-1440
     route: /modeling?stage=process&family=metal
-    workflow: source-processed-preview-and-explicit-output-commit
+    workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1440x900.png
     width: 1440
     height: 900
   - id: modeling-process-1920
     route: /modeling?stage=process&family=metal
-    workflow: source-processed-preview-and-explicit-output-commit
+    workflow: UXC-04C shared rail/plot sizing; source-processed-preview-and-explicit-output-commit
     fixture: synthetic DP780 preview with explicit immutable output command; DUI-05 live acceptance
     image: images/current/modeling-process-1920x1080.png
     width: 1920
     height: 1080
   - id: modeling-fit-1366
     route: /modeling?stage=fit&family=metal
-    workflow: explicit-row-decision-identity-parameter-bounds-and-selected-output-save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04 acceptance
+    workflow: UXC-04C configured rail, shallow fit controls, graph response and explicit-row decision save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04C live acceptance
     image: images/current/modeling-fit-1366x768.png
     width: 1366
     height: 768
   - id: modeling-fit-1440
     route: /modeling?stage=fit&family=metal
-    workflow: explicit-row-decision-identity-parameter-bounds-and-selected-output-save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04 acceptance
+    workflow: UXC-04C configured rail, shallow fit controls, graph response and explicit-row decision save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04C live acceptance
     image: images/current/modeling-fit-1440x900.png
     width: 1440
     height: 900
   - id: modeling-fit-1920
     route: /modeling?stage=fit&family=metal
-    workflow: explicit-row-decision-identity-parameter-bounds-and-selected-output-save
-    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04 acceptance
+    workflow: UXC-04C configured rail, shallow fit controls, graph response and explicit-row decision save
+    fixture: synthetic four single-law candidates plus exact calculated blend; UXC-04C live acceptance
     image: images/current/modeling-fit-1920x1080.png
     width: 1920
     height: 1080

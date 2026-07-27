@@ -1,4 +1,4 @@
-# UXC-04B Modeling Process/Fit layout correction
+# UXC-04B Modeling Process/Fit layout correction — superseded current-state acceptance
 
 Date: 2026-07-26
 
@@ -34,7 +34,19 @@ historical and valid.
 - The compact stepper is `Data | Process | Fit | Export`; Validate/Review remain reachable through
   Advanced and Activity without occupying the normal modeling path.
 
-## Verification record
+## Withdrawal
+
+The UXC-04B current Fit acceptance is withdrawn. The current implementation no longer meets the
+approved lower proposal: it substitutes a one-row Fit-candidate rail for the configured sequence,
+does not expose the active fit step in the shallow heading, duplicates graph range/point actions,
+and can leave unused plot height. The permanent approved lower proposal and the official reference
+remain authoritative and are not replaced by this withdrawal.
+
+UXC-04C is the completed corrective acceptance slice. Its live captures and replacement structural
+scores are authoritative; the measurements and **98** Fit score below remain historical UXC-04B
+evidence only, not a current claim.
+
+## Historical verification record
 
 - Focused frontend tests: 2 files, 6 tests passed.
 - TypeScript/Vite build and bundle budget passed; the largest Modeling chunk was 118.91 kB.
@@ -55,15 +67,15 @@ The capture rejects document-level horizontal overflow, a clipped SVG or x-axis 
 legend, less than 72% drawable graph width, and a non-compact rail. The final screenshots keep the
 model-evidence disclosure closed, so the graph stays dominant.
 
-## Corrected structural-reference score
+## Historical structural-reference score
 
 | Screen | Topology /25 | Dominant area /25 | Density /15 | Surface /15 | Continuity /10 | Action/disclosure /10 | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Modeling Process | 25 | 25 | 14 | 14 | 10 | 10 | **98** |
 | Modeling Fit | 25 | 25 | 14 | 14 | 10 | 10 | **98** |
 
-Both current screens pass the topology, dominant-area and nested-card hard gates against the approved
-lower proposal and the official Material Modeler control-band-plus-graph references.
+These historical captures were once scored against the lower proposal. They do not establish current
+Fit acceptance after the issues recorded above.
 
 Current evidence:
 

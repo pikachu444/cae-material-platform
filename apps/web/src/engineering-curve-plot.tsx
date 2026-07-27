@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
   type WheelEvent as ReactWheelEvent,
@@ -55,6 +56,16 @@ interface PlotModel {
 
 export type HardeningPlotMode = "response" | "residual" | "derivative";
 export type PronyPlotMode = "response" | "residual";
+export type PlotInteractionMode = "pan" | "range" | "point";
+export interface PlotInteractionCommand {
+  action: "set-mode" | "apply";
+  mode?: PlotInteractionMode;
+  requestId: number;
+}
+export interface PlotInteractionState {
+  mode: PlotInteractionMode;
+  hasSelection: boolean;
+}
 
 const PLOT_MARGIN = { left: 80, right: 24, top: 24, bottom: 52 } as const;
 const CANDIDATE_COLORS = ["#64748b", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
@@ -70,7 +81,12 @@ const QUANTITY_LABELS: Record<string, string> = {
 };
 
 function modelLabel(value: string): string {
-  return value.replaceAll("_", "-");
+  return {
+    voce: "Voce",
+    swift: "Swift",
+    hockett_sherby: "Hockett–Sherby",
+    ghosh: "Ghosh",
+  }[value] ?? value.replaceAll("_", "-");
 }
 
 function quantityLabel(quantity: string): string {
@@ -218,7 +234,7 @@ function seriesForStage(
     const observedY = observedYSeries?.values ?? [];
     const candidateSeries: PlotSeries[] = candidates.map((item, index) => ({
       id: item.quantity,
-      label: item.quantity.replace("stress.hardening.", "").replaceAll("_", "-"),
+      label: modelLabel(item.quantity.replace("stress.hardening.", "")),
       xValues: activeX?.values ?? [],
       yValues: item.values,
       color: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length],
@@ -230,7 +246,7 @@ function seriesForStage(
     const decisionSeries = explicitSingle ?? previewBlend;
     const decisionLabel = fitSelection
       ? `Selected · ${fitDecisionIdentityLabel(fitSelection)}`
-      : `Preview blend · ${modelLabel(String(activeStep?.options.primary_family ?? "primary"))} + ${modelLabel(String(activeStep?.options.secondary_family ?? "secondary"))}`;
+      : `Preview ${modelLabel(String(activeStep?.options.primary_family ?? "primary"))}/${modelLabel(String(activeStep?.options.secondary_family ?? "secondary"))} blend`;
     const selectedSeries: PlotSeries | null = decisionSeries ? {
       id: `fit.decision.${fitSelection?.candidateKey ?? "preview"}`,
       label: decisionLabel,
@@ -245,7 +261,7 @@ function seriesForStage(
     const selectedObserved = selectedSeries ? {
       ...selectedSeries,
       id: `${selectedSeries.id}.observed`,
-      label: `${decisionLabel} · fitted domain`,
+      label: `${decisionLabel} · fit`,
       xValues: [
         ...selectedSeries.xValues.filter((value) => value < fitMaximum),
         ...(selectedBoundaryValue !== null ? [fitMaximum] : []),
@@ -565,13 +581,15 @@ export function EngineeringCurvePlot({
   preview,
   activeStage,
   baseStage,
-  width,
-  height,
+  width: fallbackWidth,
+  height: fallbackHeight,
   onApplySelection,
   ensemblePreview,
   activeStep,
   fitSelection,
   selectedModelOnly = false,
+  interactionCommand,
+  onInteractionStateChange,
 }: {
   preview: CommonProcessingPreview;
   activeStage: CommonCurveStage;
@@ -583,17 +601,22 @@ export function EngineeringCurvePlot({
   activeStep?: CommonProcessingStep;
   fitSelection?: FitDecisionSelection | null;
   selectedModelOnly?: boolean;
+  interactionCommand?: PlotInteractionCommand | null;
+  onInteractionStateChange?: (state: PlotInteractionState) => void;
 }) {
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const [viewBounds, setViewBounds] = useState<PlotBounds | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
   const [drag, setDrag] = useState<{ clientX: number; clientY: number; bounds: PlotBounds } | null>(null);
-  const [interactionMode, setInteractionMode] = useState<"pan" | "range" | "point">("pan");
+  const [interactionMode, setInteractionMode] = useState<PlotInteractionMode>("pan");
   const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
   const [selection, setSelection] = useState<GraphSelectionCommand | null>(null);
   const [hardeningMode, setHardeningMode] = useState<HardeningPlotMode>("response");
   const [pronyMode, setPronyMode] = useState<PronyPlotMode>("response");
+  const [renderedSize, setRenderedSize] = useState<{ width: number; height: number } | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const isHardening = !ensemblePreview && activeStage.method_id === "metal.hardening_fit_extrapolate";
+  const hideInteractionControls = isHardening;
   const isProny = !ensemblePreview && (activeStage.method_id === "polymer.prony_fit_compare"
     || activeStage.method_id === "polymer.dma_prony_fit_compare");
   const isDmaProny = activeStage.method_id === "polymer.dma_prony_fit_compare";
@@ -630,6 +653,11 @@ export function EngineeringCurvePlot({
     ? { ...paddedDataBounds, yMin: Math.max(0, paddedDataBounds.yMin) }
     : paddedDataBounds;
   const bounds = viewBounds ?? dataBounds;
+  const effectiveWidth = renderedSize?.width ?? fallbackWidth;
+  const effectiveHeight = renderedSize?.height ?? fallbackHeight;
+  // Keep every geometric calculation on the same responsive coordinate system as the SVG viewBox.
+  const width = effectiveWidth;
+  const height = effectiveHeight;
   const yScale = displayScale(model.yUnit, validSeries.flatMap((item) => item.yValues));
   const xTicks = model.xScale === "log10"
     ? Array.from(
@@ -668,6 +696,50 @@ export function EngineeringCurvePlot({
     if (ensemblePreview) setInteractionMode("pan");
   }, [activeStage.method_id, activeStage.ordinal, ensemblePreview]);
 
+  useEffect(() => {
+    const target = svgRef.current;
+    if (!target) return undefined;
+    const update = (nextWidth: number, nextHeight: number) => {
+      if (!Number.isFinite(nextWidth) || !Number.isFinite(nextHeight) || nextWidth <= 0 || nextHeight <= 0) return;
+      setRenderedSize((current) => current && Math.abs(current.width - nextWidth) < 1 && Math.abs(current.height - nextHeight) < 1
+        ? current
+        : { width: nextWidth, height: nextHeight });
+    };
+    const rectangle = target.getBoundingClientRect();
+    update(rectangle.width, rectangle.height);
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) update(entry.contentRect.width, entry.contentRect.height);
+    });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    onInteractionStateChange?.({ mode: interactionMode, hasSelection: Boolean(selection) });
+  }, [interactionMode, onInteractionStateChange, selection]);
+
+  function applySelection(): void {
+    if (!selection || !onApplySelection) return;
+    onApplySelection(selection);
+    setSelection(null);
+    setSelectionStart(null);
+    setInteractionMode("pan");
+  }
+
+  useEffect(() => {
+    if (!hideInteractionControls || !interactionCommand) return;
+    if (interactionCommand.action === "set-mode" && interactionCommand.mode) {
+      setInteractionMode(interactionCommand.mode);
+      if (interactionCommand.mode === "pan") {
+        setSelection(null);
+        setSelectionStart(null);
+      }
+    }
+    if (interactionCommand.action === "apply") applySelection();
+  }, [hideInteractionControls, interactionCommand]);
+
   function zoom(factor: number, center = cursor): void {
     const centerX = center?.x ?? (bounds.xMin + bounds.xMax) / 2;
     const centerY = center?.y ?? (bounds.yMin + bounds.yMax) / 2;
@@ -681,11 +753,11 @@ export function EngineeringCurvePlot({
 
   function pointerCoordinates(event: ReactPointerEvent<SVGSVGElement>): { x: number; y: number } {
     const rectangle = event.currentTarget.getBoundingClientRect();
-    const px = Math.min(width - PLOT_MARGIN.right, Math.max(PLOT_MARGIN.left, ((event.clientX - rectangle.left) / rectangle.width) * width));
-    const py = Math.min(height - PLOT_MARGIN.bottom, Math.max(PLOT_MARGIN.top, ((event.clientY - rectangle.top) / rectangle.height) * height));
+    const px = Math.min(effectiveWidth - PLOT_MARGIN.right, Math.max(PLOT_MARGIN.left, ((event.clientX - rectangle.left) / rectangle.width) * effectiveWidth));
+    const py = Math.min(effectiveHeight - PLOT_MARGIN.bottom, Math.max(PLOT_MARGIN.top, ((event.clientY - rectangle.top) / rectangle.height) * effectiveHeight));
     return {
-      x: bounds.xMin + ((px - PLOT_MARGIN.left) / (width - PLOT_MARGIN.left - PLOT_MARGIN.right)) * (bounds.xMax - bounds.xMin),
-      y: bounds.yMax - ((py - PLOT_MARGIN.top) / (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)) * (bounds.yMax - bounds.yMin),
+      x: bounds.xMin + ((px - PLOT_MARGIN.left) / (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right)) * (bounds.xMax - bounds.xMin),
+      y: bounds.yMax - ((py - PLOT_MARGIN.top) / (effectiveHeight - PLOT_MARGIN.top - PLOT_MARGIN.bottom)) * (bounds.yMax - bounds.yMin),
     };
   }
 
@@ -739,17 +811,17 @@ export function EngineeringCurvePlot({
           <button type="button" aria-label="Zoom in" onClick={() => zoom(0.8)}>+</button>
           <button type="button" onClick={() => setViewBounds(null)}>Reset view</button>
         </div>
-        <div className="plot-interaction-modes" role="group" aria-label="Graph selection mode">
+        {!hideInteractionControls ? <div className="plot-interaction-modes" role="group" aria-label="Graph selection mode">
           <button type="button" className={interactionMode === "pan" ? "active" : ""} aria-pressed={interactionMode === "pan"} onClick={() => setInteractionMode("pan")}>Pan</button>
           <button type="button" disabled={!onApplySelection} className={interactionMode === "range" ? "active" : ""} aria-pressed={interactionMode === "range"} onClick={() => setInteractionMode("range")}>Select range</button>
           <button type="button" disabled={!onApplySelection} className={interactionMode === "point" ? "active" : ""} aria-pressed={interactionMode === "point"} onClick={() => setInteractionMode("point")}>Pick point</button>
-          <button type="button" disabled={!selection || !onApplySelection} onClick={() => selection && onApplySelection?.(selection)}>Apply selection</button>
+          <button type="button" disabled={!selection || !onApplySelection} onClick={applySelection}>Apply selection</button>
           {selection ? <button type="button" onClick={() => setSelection(null)}>Clear</button> : null}
-        </div>
+        </div> : null}
         <span>{selection?.kind === "range" ? `Selected ${axisNumber(selection.minimum)} – ${axisNumber(selection.maximum)} ${selection.x_unit}` : selection?.kind === "point" ? `Selected ${axisNumber(selection.x)} ${selection.x_unit} · ${axisNumber(selection.y / yScale.divisor)} ${yScale.label}` : cursor ? `${axisNumber(fromPlotX(cursor.x))} ${model.xUnit} · ${axisNumber(cursor.y / yScale.divisor)} ${yScale.label}` : interactionMode === "pan" ? "Wheel to zoom · drag to pan" : interactionMode === "range" ? "Drag across the x-domain, then apply" : "Click one engineering point, then apply"}</span>
       </div>
       {isHardening && !selectedModelOnly ? <div className="hardening-analysis-tabs" role="tablist" aria-label="Hardening comparison view">
-        {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Stress response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
+        {(["response", "residual", "derivative"] as HardeningPlotMode[]).map((mode) => <button type="button" role="tab" aria-selected={hardeningMode === mode} className={hardeningMode === mode ? "active" : ""} key={mode} onClick={() => setHardeningMode(mode)}>{mode === "response" ? "Response" : mode === "residual" ? "Residual" : "Tangent modulus"}</button>)}
         <span>{hardeningMode === "response" ? `Observed evidence + candidates + ${fitSelection ? "explicit engineer selection" : "calculated preview blend"}` : hardeningMode === "residual" ? "Predicted minus observed over the selected fit domain" : "Numerical slope; inspect stability into extrapolation"}</span>
       </div> : null}
       {isProny && !selectedModelOnly ? <div className="hardening-analysis-tabs prony-analysis-tabs" role="tablist" aria-label="Prony comparison view">
@@ -757,10 +829,11 @@ export function EngineeringCurvePlot({
         <span>{pronyMode === "response" ? isDmaProny ? `Measured storage/loss + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : `Measured modulus + every fitted term count + ${fitSelection ? "explicit engineer selection" : "server result preview"}` : isDmaProny ? "Joint storage/loss residual on the observed log-frequency grid" : "Predicted minus measured modulus on the observed log-time grid"}</span>
       </div> : null}
       <svg
+        ref={svgRef}
         className={`processing-curve interactive interaction-${interactionMode} ${drag ? "is-panning" : ""}`}
         role="img"
         aria-label={selectedModelOnly ? "Test data and selected model response" : ensemblePreview ? "Aligned replicate curves with pointwise mean and confidence interval" : activeStage.method_id === "metal.hardening_fit_extrapolate" ? "Hardening candidate and selected extrapolation curves" : activeStage.method_id === "polymer.dma_prony_fit_compare" ? "DMA storage and loss Prony candidate curves" : activeStage.method_id === "polymer.prony_fit_compare" ? "Prony candidate and selected relaxation curves" : "Mapped and selected processing stage curve overlay"}
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${effectiveWidth} ${effectiveHeight}`}
         onDoubleClick={() => setViewBounds(null)}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
@@ -782,18 +855,18 @@ export function EngineeringCurvePlot({
         onWheel={onWheel}
       >
         {xTicks.map((tick) => {
-          const px = PLOT_MARGIN.left + ((tick - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right);
-          return <g key={`x-${tick}`}><line x1={px} y1={PLOT_MARGIN.top} x2={px} y2={height - PLOT_MARGIN.bottom} className="chart-grid"/><text x={px} y={height - 32} textAnchor="middle" className="chart-tick">{axisNumber(fromPlotX(tick))}</text></g>;
+          const px = PLOT_MARGIN.left + ((tick - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right);
+          return <g key={`x-${tick}`}><line x1={px} y1={PLOT_MARGIN.top} x2={px} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-grid"/><text x={px} y={effectiveHeight - 32} textAnchor="middle" className="chart-tick">{axisNumber(fromPlotX(tick))}</text></g>;
         })}
         {yTicks.map((tick) => {
-          const py = height - PLOT_MARGIN.bottom - ((tick - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom);
-          return <g key={`y-${tick}`}><line x1={PLOT_MARGIN.left} y1={py} x2={width - PLOT_MARGIN.right} y2={py} className="chart-grid"/><text x={PLOT_MARGIN.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(tick / yScale.divisor)}</text></g>;
+          const py = effectiveHeight - PLOT_MARGIN.bottom - ((tick - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (effectiveHeight - PLOT_MARGIN.top - PLOT_MARGIN.bottom);
+          return <g key={`y-${tick}`}><line x1={PLOT_MARGIN.left} y1={py} x2={effectiveWidth - PLOT_MARGIN.right} y2={py} className="chart-grid"/><text x={PLOT_MARGIN.left - 8} y={py + 4} textAnchor="end" className="chart-tick">{axisNumber(tick / yScale.divisor)}</text></g>;
         })}
-        {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax ? <g className="extrapolation-region"><rect x={PLOT_MARGIN.left + ((Math.max(extrapolationPlotStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(0, ((bounds.xMax - Math.max(extrapolationPlotStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom}/><line x1={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><text x={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 7} y={PLOT_MARGIN.top + 14}>EXTRAPOLATED · UNOBSERVED</text></g> : null}
-        <line x1={PLOT_MARGIN.left} y1={height - PLOT_MARGIN.bottom} x2={width - PLOT_MARGIN.right} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
-        <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={height - PLOT_MARGIN.bottom} className="chart-axis" />
-        {plottedBand && plottedBand.xValues.length >= 2 ? <polygon points={bandPolygon(plottedBand, width, height, bounds)} className="ensemble-confidence-band" /> : null}
-        {plottedSeries.map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, width, height, bounds)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />)}
+        {extrapolationPlotStart !== undefined && extrapolationPlotStart < bounds.xMax ? <g className="extrapolation-region"><rect x={PLOT_MARGIN.left + ((Math.max(extrapolationPlotStart, bounds.xMin) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(0, ((bounds.xMax - Math.max(extrapolationPlotStart, bounds.xMin)) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={effectiveHeight - PLOT_MARGIN.top - PLOT_MARGIN.bottom}/><line x1={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={effectiveHeight - PLOT_MARGIN.bottom}/><text x={PLOT_MARGIN.left + ((extrapolationPlotStart - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (effectiveWidth - PLOT_MARGIN.left - PLOT_MARGIN.right) + 7} y={PLOT_MARGIN.top + 14}>EXTRAPOLATED · UNOBSERVED</text></g> : null}
+        <line x1={PLOT_MARGIN.left} y1={effectiveHeight - PLOT_MARGIN.bottom} x2={effectiveWidth - PLOT_MARGIN.right} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-axis" />
+        <line x1={PLOT_MARGIN.left} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left} y2={effectiveHeight - PLOT_MARGIN.bottom} className="chart-axis" />
+        {plottedBand && plottedBand.xValues.length >= 2 ? <polygon points={bandPolygon(plottedBand, effectiveWidth, effectiveHeight, bounds)} className="ensemble-confidence-band" /> : null}
+        {plottedSeries.map((series) => hiddenSeries.includes(series.id) ? null : <polyline key={series.id} points={plotPoints(series.xValues, series.yValues, effectiveWidth, effectiveHeight, bounds)} className={`curve-line ${series.className}`} style={{ stroke: series.color }} />)}
         {marker ? <g className="engineering-result-marker"><line x1={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom}/><circle cx={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5"/><text x={PLOT_MARGIN.left + ((toPlotX(marker.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right) + 8} y={Math.max(PLOT_MARGIN.top + 12, height - PLOT_MARGIN.bottom - ((marker.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom) - 8)}>{marker.label}</text></g> : null}
         {selection?.kind === "range" ? <rect className="graph-range-selection" x={PLOT_MARGIN.left + ((toPlotX(selection.minimum) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y={PLOT_MARGIN.top} width={Math.max(1, ((toPlotX(selection.maximum) - toPlotX(selection.minimum)) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right))} height={height - PLOT_MARGIN.top - PLOT_MARGIN.bottom} /> : null}
         {selection?.kind === "point" ? <><line className="graph-point-selection" x1={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y1={PLOT_MARGIN.top} x2={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} y2={height - PLOT_MARGIN.bottom} /><circle className="graph-point-marker" cx={PLOT_MARGIN.left + ((toPlotX(selection.x) - bounds.xMin) / (bounds.xMax - bounds.xMin || 1)) * (width - PLOT_MARGIN.left - PLOT_MARGIN.right)} cy={height - PLOT_MARGIN.bottom - ((selection.y - bounds.yMin) / (bounds.yMax - bounds.yMin || 1)) * (height - PLOT_MARGIN.top - PLOT_MARGIN.bottom)} r="5" /></> : null}

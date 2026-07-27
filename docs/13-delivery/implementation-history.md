@@ -265,6 +265,13 @@ must not be read as product-experience completion.
   `docs/17-evidence/reports/t87-metal-fit-extrapolation.md`. T-88 subsequently completed cohesive
   Neutral/Card delivery.
 
+- `UXC-04C` (`completed`): UXC-04B's Fit 98/100 acceptance was withdrawn after comparison with the
+  permanent approved lower proposal. The correction restores the complete configured sequence and
+  active fit step in the Fit rail, a labelled shallow control band, a single graph-action surface and
+  responsive plot occupancy. Fresh Data/Process/Fit captures at all three desktop viewports pass the
+  hard gates; measurements and the replacement Fit scores are in
+  `docs/17-evidence/reports/uxc04c-fit-reference-restoration.md`.
+
 - `T-89` (`completed`): Polymer Material Modeling now has separate relaxation and DMA flows.
   Relaxation supplies log-time Prony comparison and WLF/Arrhenius master-curve evidence; DMA jointly
   fits measured storage/loss modulus with one Prony set and presents response/residual/BIC/terms on a

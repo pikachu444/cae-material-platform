@@ -29,6 +29,12 @@ plot-visibility control. The two controls retain their separate state and invali
 Live Data, Process and Fit evidence covers 1366×768, 1440×900 and 1920×1080 with a 184–208 px rail
 and the graph remaining the dominant work area.
 
+**UXC-04C Fit reference restoration (`completed 2026-07-27`):** UXC-04B's Fit 98/100 assertion was
+withdrawn. The approved lower reference remains permanent. The completed correction restores the
+full configured sequence in the Fit rail, the active hardening step and labelled shallow controls,
+one graph-action surface and a responsive non-blank SVG. Fresh Data/Process/Fit evidence covers
+1366×768, 1440×900 and 1920×1080; the accepted Fit scores are recorded in the UXC-04C report.
+
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
 ## Program goal
