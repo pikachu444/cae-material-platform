@@ -6,8 +6,8 @@ Material State의 exact revision 문맥을 공유합니다.
 | 상단 메뉴 | 주 작업 |
 | --- | --- |
 | **Materials** | 검색·필터·비교, Browse Tree, 5-tab datasheet와 직접 solver card download |
-| **Modeling** | Data, Process, Fit, Export와 Advanced Recipe/Batch/JSON |
-| **Activity** | 재개할 Modeling, 검토 대기 항목, 최근 검토·solver card 결과 |
+| **Modeling** | 시험 데이터 선택, 처리 결과 확인, 모델 비교·선택, 카드 전달 준비 |
+| **Activity** | 재개할 작업, 검토 요청, 최근 결과 |
 
 **Administration**은 우측 workspace menu의 role-gated 항목입니다. Table/Attribute/Layout/Subset/
 Link Type과 사용자 기능 권한을 관리합니다. `/database`, `/catalog/*`, `/datasets/*`의 기존 deep
@@ -24,8 +24,7 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 6. 검토 요청은 **Activity**에서 상태와 요청 사유를 확인합니다. Reviewer와 Administrator는
    행의 **Review**에서 사유를 남기고 승인하거나 변경을 요청합니다. 일반 사용자는 자신의
    요청이 결정되기 전까지 **In progress**에서 확인합니다.
-7. provenance/full ID는 Evidence, Recipe/Batch/JSON은 Advanced, batch/job/package는 Activity의
-   Advanced에서 확인합니다.
+7. 상세 이력과 식별 정보는 Evidence에서, 재사용 처리 설정과 일괄 실행은 Advanced에서 확인합니다.
 
 ![통합 Materials 검색·결과·선택 문맥](images/current/materials-search-1440x900.png)
 
@@ -42,9 +41,8 @@ link는 보존하지만 일반 사용자의 전역 메뉴에는 나타나지 않
 ## 운영 상태
 
 **Activity**는 `Needs attention | In progress | Recent outcomes`의 짧은 작업 큐입니다. 같은
-review 요청을 여러 번 만들지 않으며, 승인·변경 요청 결과는 서버가 돌려준 해당 immutable 요청으로
-갱신됩니다. 현재 review API는 제출 항목과 사람의 표시 이름을 제공하지 않으므로, 일반 화면에는
-업무 종류와 요청 사유만 보이고 정확한 식별자는 Advanced evidence에 남습니다. 사용자가 새 자료
+review 요청을 여러 번 만들지 않으며, 승인·변경 요청 결과는 해당 요청의 상태로 갱신됩니다. 일반
+화면에는 업무 종류와 요청 사유가 보이고 정확한 식별자는 Evidence에 남습니다. 사용자가 새 자료
 또는 solver card 검토를 요청하는 진입점은 각각 Material 상세와 Native Card Preview에 있습니다.
 두 화면은 이미 열어 둔 정확한 revision을 사용하므로 사용자가 식별자나 hash를 직접 입력할 필요가
 없습니다.
@@ -54,10 +52,10 @@ ID, manifest hash를 직접 입력하거나 독립적으로 결정을 기록하�
 Solver Card의 현재 화면에서 만들고, 기존 요청의 역할별 결정은 Activity에서 처리합니다. `/governance`
 는 일반 검토 진입점이 아니며 Operations, Release, Governance Evidence의 고급 운영 화면을 유지합니다.
 
-API process의 metric, trace와 복구 절차는 일반 사용자 전역 메뉴가 아니라 운영 배포의 observability
-도구와 [운영 가이드](11-operations-and-recovery.md)에서 확인합니다.
+서비스 상태와 복구 절차는 일반 사용자 메뉴가 아니라 운영 담당자의
+[운영 가이드](11-operations-and-recovery.md)에서 확인합니다.
 
-## 화면 구성요소 확인(개발자)
+## 개발자용 구성요소 확인
 
 일반 사용자 경로와 별도로 개발자는 로컬 Storybook에서 shell, pane, Modeling graph 같은 재사용
 구성요소를 실제 컴포넌트 상태로 확인할 수 있습니다. 이는 제품 화면이나 server data를 대체하지
@@ -66,8 +64,9 @@ API process의 metric, trace와 복구 절차는 일반 사용자 전역 메뉴�
 
 ![로컬 Storybook foundation component QA](images/current/storybook-foundation-1440x900.png)
 
-이 화면은 개발자용 component QA 증거이며 `Materials | Modeling | Activity` 일반 사용자 메뉴나
-업무 경로에 포함되지 않습니다.
+이 화면은 개발자용 component-QA 증거이며 `Materials | Modeling | Activity`의 현재 제품 화면이나
+업무 경로에 포함되지 않습니다. 이 PNG의 current-image 파일 위치와 manifest 분류 정리는 #161에서
+수행합니다.
 
 단계 선택·차단 상태와 solver mapping 결과는 같은 workbench에서 실제 컴포넌트로 확인합니다.
 아래 기준 화면은 exact/transformed/approximated/unsupported를 동시에 보여 주되 승인이나 배포를

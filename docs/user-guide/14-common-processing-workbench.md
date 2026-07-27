@@ -1,6 +1,6 @@
-# Mapping Profile과 공통 Processing Workbench 사용하기
+# 시험 데이터 처리와 모델 비교하기
 
-이 화면은 특정 시험·재료모델·solver에 종속되지 않은 채널 매핑과 커브 전처리를 제공합니다.
+이 화면은 시험 데이터를 선택하고 처리 결과와 모델 후보를 비교하는 작업을 제공합니다.
 입력은 저장된 `cmp.test-data`의 정확한 revision이며, 브라우저에서 계산한 임시 값이 아니라
 서버가 반환한 각 처리 단계의 수치와 진단을 비교합니다.
 
@@ -14,8 +14,7 @@ Metal/Polymer/Elastomer track을 제공합니다. `/datasets/processing`은 같�
 화면 왼쪽은 현재 재료군과 호환되는 시험 curve 및 Process 단계이고 나머지 폭은 실제 서버 계산
 결과를 표시하는 engineering graph입니다. 선택 단계 설정은 graph 위 ribbon에 있고 영구적인
 오른쪽 열은 없습니다. 1366 px에서도 설정은 한두 줄의 얕은 band 안에 있고 graph 축·눈금·범례가 첫 화면에
-모두 보입니다. 일반 작업에서는 API
-주소나 토큰, tenant, UUID를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
+모두 보입니다. 일반 작업에서는 내부 주소, 토큰 또는 식별자를 입력하지 않습니다. 범례를 눌러 series를 숨기거나 표시하고, plot을
 드래그해 이동하며 wheel 또는 `Zoom in/out`으로 확대하고 `Reset`으로 전체 범위로 돌아갑니다.
 
 그래프에서 처리 범위를 지정하려면 Recipe 단계(예: **Metal elastic modulus**)를 먼저 고르고
@@ -68,7 +67,7 @@ pointwise mean과 95% mean confidence band를 함께 표시합니다. 이 계산
 같은 입력으로 다시 시도할 수 있습니다. mapping 변경은 Process부터 Export까지의 current pointer를
 stale/clear하며 이전 immutable revision은 history에 남습니다.
 
-재사용할 Mapping Profile을 관리할 때만 **Advanced mapping definition**의 JSON에서 다음 항목을 확인합니다.
+재사용할 처리 설정을 관리할 때만 **Advanced mapping definition**의 JSON에서 다음 항목을 확인합니다.
    - `independent_quantity`
    - source `channel_key`와 계산용 `target_quantity`
    - 허용 normalized unit
