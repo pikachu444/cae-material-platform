@@ -35,6 +35,13 @@ full configured sequence in the Fit rail, the active hardening step and labelled
 one graph-action surface and a responsive non-blank SVG. Fresh Data/Process/Fit evidence covers
 1366×768, 1440×900 and 1920×1080; the accepted Fit scores are recorded in the UXC-04C report.
 
+**UXC-04D approved Fit topology correction (`completed 2026-07-27`):** the previous 104 px ribbon
+allowed its inputs and Candidate parameters trigger to touch the graph header and did not reproduce
+the approved four-row/Step-4 proposal. UXC-04D now uses a 124 px three-row ribbon with a visible
+divider, a separate minimal graph header, four user-facing metal steps and current live evidence at
+all three desktop viewports. The six configured operations and all backend/state contracts remain
+executed and unchanged.
+
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
 ## Program goal
@@ -331,12 +338,12 @@ blocked rather than receiving an inferred cross-resource claim;
 10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence and contextual workup; the bounded UXC-03B correction replaces the generic two-line curve rail with compact exact-specimen rows in Process/Fit and removes the prohibited permanent Export rail and Mean/band controls;
 11. UXC-04 explicit Fit decision and model identity — implemented with null-by-default selection,
     separate recommendation and engineer selection, typed immutable Fit Decision, single/blend
-    identity, actual server Prony term identity and exact downstream provenance. UXC-04C is complete
-    in PR #152 and supersedes UXC-04B's withdrawn Fit acceptance: compact curve tree, full configured
-    sequence, four normal stages, one shallow control band, dominant responsive graph, on-demand
-    `Candidate parameters`, and no persistent decision dock or third column. Current 1366×768,
-    1440×900 and 1920×1080 Data/Process/Fit evidence, deterministic gates and independent reviewer
-    sign-off pass;
+    identity, actual server Prony term identity and exact downstream provenance. UXC-04D supersedes
+    the UXC-04C presentation: compact curve tree, four user-facing metal steps backed by the unchanged
+    six-operation execution sequence, four normal stages, one three-row control ribbon, a distinct
+    graph header, dominant responsive graph, on-demand `Candidate parameters`, and no persistent
+    decision dock or third column. Current 1366×768, 1440×900 and 1920×1080 Data/Process/Fit evidence,
+    deterministic gates and independent reviewer sign-off pass;
 12. UXC-05 Validate, Review and Release — current: normal Modeling can pin existing synthetic
     reference validation inputs and run/evaluate the supported non-production OpenRadioss path only
     when selection evidence plus session IR/Card exact revisions match. Common Processing Output

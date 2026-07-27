@@ -314,7 +314,7 @@ describe("EngineeringCurvePlot", () => {
 
     expect(screen.getByText("Selected · swift · fit")).toBeTruthy();
     expect(screen.queryByText(/Selected blend/)).toBeNull();
-    expect(screen.getByText(/explicit engineer selection/)).toBeTruthy();
+    expect(screen.queryByText(/explicit engineer selection/)).toBeNull();
   });
 
   it("compares measured Prony relaxation and residuals on a logarithmic time axis", () => {
