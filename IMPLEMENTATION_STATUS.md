@@ -80,7 +80,7 @@ performance, security와 product-pilot gate는 [개발 가이드](DEVELOPMENT.md
 
 ## 남은 범위
 
-PR #125~#164는 merged scope이며 재구현 대상이 아닙니다. 다음 product-level 순서는
+PR #125~#165는 merged scope이며 재구현 대상이 아닙니다. 다음 product-level 순서는
 [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) →
 [#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) →
 [#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) →
