@@ -3,12 +3,12 @@
 일반 사용자의 전역 메뉴는 `Materials | Modeling | Activity`입니다. Administration은 권한이
 있는 사용자의 메뉴에서 열며, `/database`와 기존 deep link는 호환 경로로 유지됩니다.
 
-인증 후 화면은 46 px application bar, 38 px workspace command bar, 작업영역, 24 px status bar
-순서로 구성됩니다. Materials의 Browse/Filters/Subsets 전환은 왼쪽 Navigator에서, Modeling의
-Data/Process/Fit/Export 같은 작업 명령은 command bar에서 수행합니다. status bar는 선택 Material 또는 Modeling session, exact revision
-문맥, 실행 중 계산, 경고와 연결 상태를 계속 표시합니다. `Ctrl+K`는 Materials 검색으로 이동하고,
-`F6`와 `Shift+F6`는 application bar, command bar, navigator/main/inspector, status bar 사이를
-순환합니다. 사용할 수 없는 명령은 비활성화되며 hover/focus title에 이유가 표시됩니다.
+현재 제품 shell은 공통 44–48 px header와 workspace별 제어 영역으로 구성됩니다. Materials의
+Browse/Filters/Subsets 전환은 왼쪽 Navigator에서 수행합니다. Modeling은 compact context/stage와
+graph-adjacent의 얕은 ribbon에 현재 단계의 제어를 두며, 별도의 범용 command/status band를
+지속적으로 렌더하지 않습니다. Modeling graph는 별도 compact header 아래에서 작업영역의 대부분을
+유지합니다. `Ctrl+K`는 Materials 검색으로 이동합니다. 사용할 수 없는 명령은 비활성화되며
+hover/focus title에 이유가 표시됩니다.
 
 ## 기존 Material과 CAE card 찾기
 

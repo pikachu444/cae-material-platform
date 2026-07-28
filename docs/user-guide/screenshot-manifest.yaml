@@ -1,13 +1,11 @@
-version: 66
-verified_at: 2026-07-27
-scope: uxc-04e-fit-prototype-transplant
-source_commit: working-tree-uxc04e-fit-prototype-transplant
+version: 67
+verified_at: 2026-07-28
+scope: uxc-04e-approved-fit-baseline
+source_commit: 55cfa62
 capture_script: ../../scripts/capture_current_product.py
 capture_command: uv run --with playwright python scripts/capture_current_product.py
 notes:
   - "UXC-04E directly ports the approved modeling.html/review.css Fit topology: white 48 px product header, compact title/stage rows, 184–208 px curve/process rail, exact 31 px heading plus 72 px six-group ribbon, graph-adjacent Candidate parameters disclosure, separate compact graph header, dominant plot, and compact decision-relevant legend. The retired command/status bars do not consume Modeling graph space."
-  - "DUI-09D adds real Modeling stage, target-mapping, and native-preview component states to local Storybook; the synthetic stories never create an approval, release, delivery, or production solver decision."
-  - "DUI-09C adds local-only Storybook component tooling and stories; it does not change a production route, CSS, API, fixture, or domain state. Its current capture is a local developer/component-QA workbench, not normal-user navigation."
   - "The current set contains 32 deterministic Compose captures; UXC-06C2 replaced the three Export viewports after a live migration, governed source recovery, atomic receipt/outbox delivery, and rebuilt API/web."
   - "Fit capture asserts the four-row grouped metal rail, one-line Step 4 Fit heading, one ordered control row, a closed Candidate parameters row above a visible graph divider, a separate minimal graph header, one top-row Save fit & continue action, explicit selection before save, and persistent graph identity."
   - "Recommendation, engineer selection, saved result, downstream model evidence, and export eligibility remain separate states; a recommendation never mutates selection."
@@ -16,12 +14,12 @@ notes:
   - "A late exact-model list refresh preserves a just-promoted local IR selection; capture waits for the enabled Neutral action or an already-restored exact Neutral."
   - "New session increments the parent context generation so in-flight Material/State discovery cannot repin an automatic fallback after the pin-free Data reset."
   - "The capture script rejects aria-busy, unfinished async status text, horizontal overflow, incomplete Fit candidate columns, a missing selected-fit output save, multiple primary CAE Card downloads, unacknowledged approximations, unsupported demo mappings, and a Modeling drawable below 72% of its workspace."
-  - "All product-route images use the deterministic synthetic non-production demo fixture. The Storybook foundation image is isolated component-QA evidence and uses no product fixture or API."
+  - "All current images are deterministic synthetic non-production product-route captures. Storybook component-QA evidence is historical and is not part of this manifest or current-image directory."
   - "Activity is a compact Needs attention | In progress | Recent outcomes queue. Reviewer and Administrator can open one submitted review row, enter a reason, and record an existing API decision; User sees pending requests in progress without decision controls."
   - "The legacy /jobs-reviews deep link renders the same Activity queue; the retired raw aggregate/revision/hash request form and standalone decision control are absent. /governance remains an Advanced Operations, Release and Governance Evidence route."
   - "The deterministic capture reuses an existing review request. Only when the synthetic demo has none does it create one real review request for a draft synthetic Material; it never creates a duplicate or records a decision. The current review API does not expose readable submitted-item or actor names, so the normal queue uses task labels and request reason while exact identifiers stay in Advanced evidence."
   - "DUI-08B submits or reuses one real review request for the exact draft OpenRadioss card revision already loaded by Native Card Preview. The normal header then shows Waiting for review, and Activity shows the corresponding Solver card review row; no decision or release is fabricated."
-  - "Data, Process and Fit use the same compact Curves tree: the canonical test-method group is a real native disclosure above specimen/revision rows, a short horizontal plot-color legend sample is separate from the checkbox and title, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail."
+  - "Data, Process and Fit use the same compact Curves tree: the canonical test-method group is a real native disclosure above specimen/revision rows, a 3×17 px vertical plot-color swatch is placed between the inclusion checkbox and flexible label, inclusion checkbox and icon-only plot visibility remain independent, and Export has no permanent curve rail."
   - "The normal stage strip visibly contains only Data, Process, Fit and Export. Its readiness details remain in hover/focus labels; Validate and Review are Advanced/Activity governed contracts. Mean & band is absent until an ensemble preview exists."
   - "Fit retains the UXC-04 typed decision snapshot. Export recovers an exact governed Output→Material Model IR→Neutral chain, then displays the server-proven target mapping/native text and explicitly delivers one immutable card/receipt."
   - "PR #124 and DUI-01 through DUI-06 remain preserved. UXC-06C1 remains stateless; UXC-06C2 writes one immutable Solver Card and Exporting receipt/outbox event atomically. Materials CAE Card reuse remains canonical; Activity receipt projection is Not configured."
@@ -29,53 +27,31 @@ notes:
   - "UXC-01 remediation keeps Browse as the plain /materials default, moves Browse/Filters/Subsets into the local navigator, preserves that mode during Find, and removes unprojected query/context fields."
 allowed_duplicate_pairs: []
 capture_provenance:
-  - source_commit: working-tree-uxc04e-fit-prototype-transplant
+  - source_commit: 55cfa62
     captured_at: 2026-07-28T00:40:24+09:00
     command: rebuilt local web image, then targeted live Playwright Modeling consistency capture at 1366x768, 1440x900 and 1920x1080; verifies the approved white 48px Modeling shell, compact title/stage rows, 104px Fit ribbon, 184/192/208px rail, truthful specimen labels from the fixture, selected Swift/Voce blend graph evidence, drawable graph >=76%, unclipped axes and legend, and no page-level horizontal overflow or ribbon/graph collision
     ids: [modeling-data-1366, modeling-data-1440, modeling-data-1920, modeling-session-1366, modeling-session-1440, modeling-session-1920, modeling-process-1366, modeling-process-1440, modeling-process-1920, modeling-fit-1366, modeling-fit-1440, modeling-fit-1920, modeling-export-1366, modeling-export-1440, modeling-export-1920]
-  - source_commit: working-tree-dui09d-governed-component-stories
-    captured_at: 2026-07-27T03:18:14+09:00
-    command: local Storybook index.json inventory verification plus Playwright iframe capture at 1440x900 with --scope governed; verifies real ModelingStageShell, MappingStatusList and TargetPreviewResult stories, all four mapping states, visible preflight semantics and no canvas overflow without product APIs or domain writes
-    ids: [storybook-governed-workflow-1440]
-  - source_commit: working-tree-dui09c-storybook-foundation
-    captured_at: 2026-07-27T03:01:47+09:00
-    command: local Storybook index.json inventory verification plus Playwright iframe capture at 1440x900 of the real EngineeringCurvePlot default story; verifies all four DUI-09C foundation groups, a visible SVG plot, and no canvas horizontal overflow without product fixtures, APIs, manager chrome, or cloud service
-    ids: [storybook-foundation-1440]
-  - source_commit: working-tree-dui09a-legacy-cleanup
+  - source_commit: e4dd176
     captured_at: 2026-07-27T02:24:28+09:00
     command: targeted rebuilt live Playwright Activity capture at 1366x768, 1440x900 and 1920x1080; reuses the deterministic existing-review-request path, verifies the compact queue and no horizontal overflow, and does not create a decision or release
     ids: [activity-1366, activity-1440, activity-1920]
-  - source_commit: working-tree-dui08b-review-submission
+  - source_commit: a0136b4
     captured_at: 2026-07-27T02:07:00+09:00
     command: targeted live Playwright review-submission capture at 1366x768, 1440x900 and 1920x1080; submits or reuses the exact draft OpenRadioss card review, verifies Waiting for review in Native Card Preview and rejects horizontal overflow or unsettled state
     ids: [material-detail-1440, solver-card-preview-1366, solver-card-preview-1440, solver-card-preview-1920]
-  - source_commit: working-tree-dui07-administration-schema-editor
+  - source_commit: 65eddb0
     captured_at: 2026-07-27T01:00:00+09:00
     command: targeted live Playwright Administration capture at 1366x768, 1440x900 and 1920x1080; verifies the object navigator, table-scoped selector and no horizontal overflow
     ids: [administration-database-1366, administration-database-1440, administration-database-1920]
-  - source_commit: working-tree-uxc01-materials-workspace
+  - source_commit: b566a04
     captured_at: 2026-07-26T23:36:00+09:00
     command: targeted live Playwright Materials capture at 1366x768, 1440x900 and 1920x1080; verifies Browse default, server query result selection, no horizontal overflow, and divider drag followed by double-click reset to each viewport default before capture
     ids: [materials-search-1366, materials-search-1440, materials-search-1920, materials-browse-1440, material-cae-cards-1440]
-  - source_commit: working-tree-uxc00g
+  - source_commit: 3bfc0d7
     captured_at: 2026-07-26T23:10:00+09:00
     command: targeted live Playwright Product Access capture at 1366x768 and 1440x900; selects the Reviewer preset, verifies readable included tasks and rejects the retired technical feature-checkbox editor
     ids: [administration-access-1366, administration-access-1440]
 captures:
-  - id: storybook-governed-workflow-1440
-    route: /iframe.html?id=governed-workflowcomponents--target-preview-mixed-mapping-states&viewMode=story
-    workflow: developer-governed-workflow-component-qa
-    fixture: isolated synthetic non-production component props; no approval, release, delivery or product API
-    image: images/current/storybook-governed-workflow-1440x900.png
-    width: 1440
-    height: 900
-  - id: storybook-foundation-1440
-    route: /iframe.html?id=foundation-engineeringcurveplot--default&viewMode=story
-    workflow: developer-component-qa-foundation
-    fixture: isolated real component story; no product API or domain fixture
-    image: images/current/storybook-foundation-1440x900.png
-    width: 1440
-    height: 900
   - id: materials-search-1366
     route: /materials
     workflow: browse-default-search-select-and-open-datasheet

@@ -31,6 +31,9 @@ download 동작을 바꾸는 PR은 코드만으로 완료되지 않는다.
 - 과거 Task 보고서·이미지·캡처 스크립트는 `docs/17-evidence`에 두고 현재 가이드에서 직접
   사용하지 않는다.
 - 문서 분류는 `docs/documentation-manifest.yaml`에 등록하고 누락된 Markdown을 만들지 않는다.
+- `docs/user-guide/images/current/`에는 manifest에 선언한 제품 route 캡처만 둔다. Storybook 등
+  component-QA PNG는 `docs/17-evidence/images/dui-09-component-qa/`의 historical evidence로
+  보관하고 current 사용자 가이드나 current manifest에 연결하지 않는다.
 
 ## 로컬 강제와 Codex 훅
 

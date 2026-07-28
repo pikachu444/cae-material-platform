@@ -1,11 +1,9 @@
-version: 17
+version: 18
 shell:
-  application_bar_px: 46
-  command_bar_px: 38
-  status_bar_px: 24
+  product_header_px: [44, 48]
+  generic_command_status_bands: absent
   keyboard:
     command_search: Ctrl+K
-    cycle_regions: F6
 items:
   - label: Materials
     route: /materials
@@ -59,6 +57,8 @@ modeling_workspace:
     standard_1440: { navigator_px: 192, main_px: 1227, settings: shallow-band }
     wide_1920: { navigator_px: 208, main_px: 1691, settings: shallow-band }
     settings_placement: graph-adjacent-ribbon
+    ribbon_px: { heading: 31, controls: 72, total: 104 }
+    graph_header: separate-compact
     permanent_third_column: forbidden
     curve_specimen_rail_visible_when: [data, process, fit]
     export_curve_specimen_rail: absent

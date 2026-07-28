@@ -5,9 +5,6 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-
-
 FOUNDATION_STORY_PATH = "/iframe.html?id=foundation-engineeringcurveplot--default&viewMode=story"
 GOVERNED_STORY_PATH = "/iframe.html?id=governed-workflowcomponents--target-preview-mixed-mapping-states&viewMode=story"
 FOUNDATION_GROUPS = (
@@ -23,9 +20,21 @@ GOVERNED_STORIES = (
     "governed-workflowcomponents--mapping-empty",
     "governed-workflowcomponents--target-preview-mixed-mapping-states",
 )
+HISTORICAL_OUTPUT_DIRECTORY = Path("docs/17-evidence/images/dui-09-component-qa")
+
+
+def default_output_path(scope: str) -> Path:
+    filename = (
+        "storybook-foundation-1440x900.png"
+        if scope == "foundation"
+        else "storybook-governed-workflow-1440x900.png"
+    )
+    return HISTORICAL_OUTPUT_DIRECTORY / filename
 
 
 def main() -> None:
+    from playwright.sync_api import sync_playwright
+
     parser = argparse.ArgumentParser(description="Capture local Storybook component QA evidence.")
     parser.add_argument("--base-url", default="http://127.0.0.1:6006")
     parser.add_argument("--scope", choices=("foundation", "governed"), default="foundation")
@@ -34,15 +43,10 @@ def main() -> None:
         type=Path,
     )
     args = parser.parse_args()
-    default_output = (
-        "storybook-foundation-1440x900.png"
-        if args.scope == "foundation"
-        else "storybook-governed-workflow-1440x900.png"
-    )
     output = (
         args.output
         if args.output is not None
-        else Path("docs/user-guide/images/current") / default_output
+        else default_output_path(args.scope)
     ).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
 

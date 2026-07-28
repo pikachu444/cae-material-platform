@@ -432,7 +432,8 @@ Minimum keyboard contract:
 - `Space`: toggle comparison/include selection;
 - `Esc`: close inspector/disclosure or return one workspace level;
 - arrow keys/Home/End: Tree and grid navigation;
-- `F6`: cycle navigator, main region, inspector and status areas.
+- The former `F6` navigator/main/inspector/status cycle was a DUI-01 shell contract. It is not a
+  current requirement where the product route has no persistent generic status area.
 
 Context menus are optional accelerators; every command must also have a keyboard-accessible non-context-menu path.
 

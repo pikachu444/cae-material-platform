@@ -22,7 +22,7 @@ def test_user_guide_navigation_links_and_screenshot_evidence_are_current() -> No
     report = verify_user_guide(root)
 
     assert report.document_count >= 10
-    assert report.capture_count == 34
+    assert report.capture_count == 32
     assert report.archived_capture_count >= 100
     assert report.historical_capture_script_count == 12
     assert report.navigation_count == 3
@@ -83,26 +83,21 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
         for capture_id in provenance["ids"]
     ]
 
-    assert manifest["source_commit"] == "working-tree-uxc04e-fit-prototype-transplant"
+    assert manifest["source_commit"] == "55cfa62"
     assert len(provenance_ids) == len(set(provenance_ids))
     assert set(provenance_ids) == set(captures)
-    assert {
-        provenance["source_commit"]
-        for provenance in manifest["capture_provenance"]
-    } == {
-        "working-tree-uxc04e-fit-prototype-transplant",
-        "working-tree-dui09d-governed-component-stories",
-        "working-tree-dui09c-storybook-foundation",
-        "working-tree-dui09a-legacy-cleanup",
-        "working-tree-dui08b-review-submission",
-        "working-tree-dui07-administration-schema-editor",
-        "working-tree-uxc01-materials-workspace",
-        "working-tree-uxc00g",
+    assert {provenance["source_commit"] for provenance in manifest["capture_provenance"]} == {
+        "55cfa62",
+        "e4dd176",
+        "a0136b4",
+        "65eddb0",
+        "b566a04",
+        "3bfc0d7",
     }
     uxc04e_commands = [
         provenance["command"]
         for provenance in manifest["capture_provenance"]
-        if provenance["source_commit"] == "working-tree-uxc04e-fit-prototype-transplant"
+        if provenance["source_commit"] == "55cfa62"
     ]
     assert any(
         "targeted live Playwright Modeling consistency capture" in command
@@ -127,6 +122,30 @@ def test_current_manifest_has_one_current_provenance_record_per_capture() -> Non
             == "uxc-06c2-exact-target-preflight-and-atomic-delivery"
         )
         assert "one immutable card/receipt" in capture["fixture"]
+
+
+def test_current_images_are_product_routes_and_storybook_evidence_is_historical() -> None:
+    root = Path(__file__).parents[2]
+    manifest = yaml.safe_load(
+        (root / "docs/user-guide/screenshot-manifest.yaml").read_text(encoding="utf-8")
+    )
+    current_images = root / "docs/user-guide/images/current"
+    historical_images = root / "docs/17-evidence/images/dui-09-component-qa"
+    historical_report = root / "docs/17-evidence/reports/dui-09-component-qa.md"
+
+    assert len(manifest["captures"]) == 32
+    assert all(not capture["route"].startswith("/iframe.html") for capture in manifest["captures"])
+    assert not list(current_images.glob("storybook-*.png"))
+    assert len(list(current_images.glob("*.png"))) == 32
+    assert {
+        path.name for path in historical_images.glob("storybook-*.png")
+    } == {
+        "storybook-foundation-1440x900.png",
+        "storybook-governed-workflow-1440x900.png",
+    }
+    report_text = historical_report.read_text(encoding="utf-8")
+    assert "storybook-foundation-1440x900.png" in report_text
+    assert "storybook-governed-workflow-1440x900.png" in report_text
 
 
 def test_orphan_detection_uses_resolved_paths_not_filenames_or_audit_text(

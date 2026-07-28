@@ -28,8 +28,9 @@ choice. Tree, data-grid, property-sheet, inspector and final legacy route/CSS wo
 
 **DUI-09E curve-tree clarity (`2026-07-27`):** Data, Process and Fit use a real collapsible test
 group instead of printed branch characters. Each compact curve row reads from left to right as
-calculation-inclusion checkbox, curve/revision title, horizontal plot-color sample and local
-plot-visibility control. The two controls retain their separate state and invalidation contracts.
+calculation-inclusion checkbox, vertical plot-color swatch, flexible curve/revision label and
+local icon-only plot-visibility control. The two controls retain their separate state and
+invalidation contracts.
 Live Data, Process and Fit evidence covers 1366×768, 1440×900 and 1920×1080 with a 184–208 px rail
 and the graph remaining the dominant work area.
 
@@ -39,12 +40,15 @@ full configured sequence in the Fit rail, the active hardening step and labelled
 one graph-action surface and a responsive non-blank SVG. Fresh Data/Process/Fit evidence covers
 1366×768, 1440×900 and 1920×1080; the accepted Fit scores are recorded in the UXC-04C report.
 
-**UXC-04D approved Fit topology correction (`completed 2026-07-27`):** the previous 104 px ribbon
-allowed its inputs and Candidate parameters trigger to touch the graph header and did not reproduce
-the approved four-row/Step-4 proposal. UXC-04D now uses a 124 px three-row ribbon with a visible
-divider, a separate minimal graph header, four user-facing metal steps and current live evidence at
-all three desktop viewports. The six configured operations and all backend/state contracts remain
-executed and unchanged.
+**UXC-04D approved Fit topology correction (`completed intermediate, 2026-07-27`):** this was a
+completed intermediate correction. Its 124 px three-row ribbon and four-row/Step-4 wording are
+historical evidence, not a current implementation target.
+
+**UXC-04E / PR #156 final current baseline:** current Modeling uses the 48 px product header,
+184–208 px curve/process rail, 31+72=104 px ribbon, a separate graph header and a dominant graph;
+the baseline has 15 live Modeling captures. Subsequent work must use this PR #156 baseline, never
+UXC-04D, as the current target. The six configured operations and all backend/state contracts remain
+unchanged.
 
 Authoritative interaction contract: `docs/01-product/desktop-engineering-ui-product-spec.md`
 
@@ -56,8 +60,9 @@ The program is complete only when the actual task flows work in the new workspac
 
 ## DUI-01 — Application shell, command bar and status bar — P0
 
-Implementation status: complete. PR #112 was approved and merged on 2026-07-22. Browser verification
-is recorded in `docs/17-evidence/reports/dui-01-application-shell.md`.
+Implementation status: completed historical slice. PR #112 was approved and merged on 2026-07-22.
+Browser verification is recorded in `docs/17-evidence/reports/dui-01-application-shell.md`; its
+generic command/status shell and F6 cycle are not the current PR #156 Modeling target.
 
 ### User outcome
 
@@ -342,11 +347,11 @@ blocked rather than receiving an inferred cross-resource claim;
 10. UXC-03 Data and Process domain components — complete in PR #128 with raw source/mapping/provenance evidence and contextual workup; the bounded UXC-03B correction replaces the generic two-line curve rail with compact exact-specimen rows in Process/Fit and removes the prohibited permanent Export rail and Mean/band controls;
 11. UXC-04 explicit Fit decision and model identity — implemented with null-by-default selection,
     separate recommendation and engineer selection, typed immutable Fit Decision, single/blend
-    identity, actual server Prony term identity and exact downstream provenance. UXC-04D supersedes
-    the UXC-04C presentation: compact curve tree, four user-facing metal steps backed by the unchanged
-    six-operation execution sequence, four normal stages, one three-row control ribbon, a distinct
+    identity, actual server Prony term identity and exact downstream provenance. UXC-04D is completed
+    historical intermediate evidence only. The current UXC-04E/PR #156 baseline has a compact curve
+    tree, four normal stages, a 48 px header, 184–208 px rail, 31+72=104 px shallow ribbon, distinct
     graph header, dominant responsive graph, on-demand `Candidate parameters`, and no persistent
-    decision dock or third column. Current 1366×768, 1440×900 and 1920×1080 Data/Process/Fit evidence,
+    decision dock or third column. Its 15 live Modeling captures at 1366×768, 1440×900 and 1920×1080,
     deterministic gates and independent reviewer sign-off pass;
 12. UXC-05 Validate, Review and Release — current: normal Modeling can pin existing synthetic
     reference validation inputs and run/evaluate the supported non-production OpenRadioss path only
