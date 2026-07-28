@@ -87,9 +87,11 @@ Do not choose or imply a production tensile standard, material family, constitut
 - Before spawning an implementer, the main Sol agent must inspect the exact issue, approved HTML/CSS
   and images, current components, and preserved state/data contracts, then author and deliver that
   detailed implementer packet itself. It must not delegate requirement interpretation or packet
-  creation to the implementer. After implementation and deterministic gates, the main Sol agent
-  prepares the bounded reviewer packet and directly compares the resulting images before requesting
-  product-owner confirmation.
+  creation to the implementer. Before spawning, persist the packet in the GitHub issue or a current
+  task evidence document and give the implementer that exact URL/path, so a fresh or compacted session
+  can reopen the authoritative instructions instead of relying on chat memory. After implementation
+  and deterministic gates, the main Sol agent prepares the bounded reviewer packet in the PR/evidence,
+  and directly compares the resulting images before requesting product-owner confirmation.
 - For visual work, use `.agents/skills/desktop-engineering-ui`, `frontend-ui-engineering`,
   `web-design-guidelines`, and `webapp-testing`; the first directs reference-to-React execution and
   the remaining three respectively implement, audit and exercise the live workspace.
@@ -102,6 +104,12 @@ Do not choose or imply a production tensile standard, material family, constitut
   current-versus-approved-target status, current screen links, verification, and documentation
   links. Keep chronology in `docs/13-delivery/implementation-history.md`; do not impose a line
   count in place of useful guidance.
+- A change to `README.md`, `docs/README.md`, or a current `docs/user-guide/*.md` first corrects
+  audience, structure, facts, and terminology, then uses the `korean-humanizer` skill for a restrained
+  prose pass. Preserve commands, code blocks, links, numbers, proper nouns, API/schema identifiers,
+  role/state/invalidation contracts, and the document's technical register. Do not apply this pass to
+  historical/reference documents unless the task explicitly changes their prose; always rerun the
+  deterministic documentation checks afterward.
 - Every tracked Markdown file must match exactly one `current`, `authoritative`, `historical`, or
   `reference` rule in `docs/documentation-manifest.yaml`.
 - A commit that changes non-test `apps/web/**/*.tsx` or `apps/web/**/*.css` must also change all of:
