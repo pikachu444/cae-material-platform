@@ -1,6 +1,7 @@
 # 구현 상태
 
-기준 commit: `main@55cfa62` (PR #156). 세부 구현 연대기는
+승인된 제품/시각 구현 기준선: `55cfa62` (PR #156)입니다. repository 작업 시작점은 항상
+`git pull --ff-only origin main`으로 얻는 최신 `main`입니다. 세부 구현 연대기는
 [implementation history](docs/13-delivery/implementation-history.md)에 보존합니다.
 
 ## 제품 기준선
@@ -79,7 +80,7 @@ performance, security와 product-pilot gate는 [개발 가이드](DEVELOPMENT.md
 
 ## 남은 범위
 
-PR #125~#156은 merged scope이며 재구현 대상이 아닙니다. 다음 product-level 순서는
+PR #125~#164는 merged scope이며 재구현 대상이 아닙니다. 다음 product-level 순서는
 [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) →
 [#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) →
 [#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) →

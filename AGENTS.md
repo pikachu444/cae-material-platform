@@ -2,10 +2,10 @@
 
 ## Current execution handoff
 
-- **Baseline:** `main@55cfa62` (PR #156). PR #125–#156 are merged scope; do not reopen or reimplement them.
+- **Approved product/visual baseline:** `55cfa62` (PR #156). The repository starting point is always the latest `main` obtained with `git pull --ff-only origin main`. PR #125–#164 are merged scope; do not reopen or reimplement them.
 - **Product language:** User works with **test data**, a **selected model**, a **review request**, and a **solver card**. Reviewer handles requests; Administrator manages catalog structure, access, and governed operations. UUIDs, hashes, Mapping Profile, Recipe/Batch, provenance, and checksums belong in Evidence, Advanced, or Administration.
 - **Order:** [#117](https://github.com/pikachu444/cae-material-platform/issues/117) is meta; [#119](https://github.com/pikachu444/cae-material-platform/issues/119) keeps automatic LLM review disabled. Then do [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) → [#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) → [#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) → [#160 Governance/Activity](https://github.com/pikachu444/cae-material-platform/issues/160) → [#161 DUI-09](https://github.com/pikachu444/cae-material-platform/issues/161) → [#162 UXC-99](https://github.com/pikachu444/cae-material-platform/issues/162). For each: latest `main` → one implementer/writer → deterministic gates → fresh independent reviewer → PR/merge; at most one correction and re-review.
-- **Visual authority:** `docs/00-research/ux-layout-review/modeling.html`, `docs/00-research/ux-layout-review/review.css`, and `docs/17-evidence/images/uxc-00d-responsive-design/modeling-1440x900.png`. PR #156 is current baseline; do not reinterpret it into a topology redesign.
+- **Visual authority:** `docs/00-research/ux-layout-review/modeling.html`, `docs/00-research/ux-layout-review/review.css`, and `docs/17-evidence/images/uxc-00d-responsive-design/modeling-1440x900.png`. PR #156 remains the approved product/visual baseline; do not reinterpret it into a topology redesign.
 - **Incoming package:** `docs/_incoming/2026-07-24-organic-ux-update/` is temporary reference, not authority. Do not delete it before #162 absorbs the remaining content and audits inbound links to zero.
 
 ## Read first
