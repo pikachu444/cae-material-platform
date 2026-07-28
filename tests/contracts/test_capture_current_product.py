@@ -10,16 +10,15 @@ import pytest
 _PROJECT_ROOT = Path(__file__).parents[2]
 _SCRIPT = runpy.run_path(str(_PROJECT_ROOT / "scripts/capture_current_product.py"))
 CURRENT_CAPTURE_OUTPUTS = cast(tuple[str, ...], _SCRIPT["CURRENT_CAPTURE_OUTPUTS"])
-EXTERNALLY_CAPTURED_OUTPUTS = cast(
-    tuple[str, ...], _SCRIPT["EXTERNALLY_CAPTURED_OUTPUTS"]
-)
 _capture_to_empty_directory = cast(
     Callable[[Path, Callable[[Path], None]], int],
     _SCRIPT["_capture_to_empty_directory"],
 )
-_preserve_external_captures = cast(
-    Callable[[Path, Path], None],
-    _SCRIPT["_preserve_external_captures"],
+_storybook_script = runpy.run_path(
+    str(_PROJECT_ROOT / "scripts/capture_storybook_foundation.py")
+)
+default_storybook_output_path = cast(
+    Callable[[str], Path], _storybook_script["default_output_path"]
 )
 
 
@@ -47,17 +46,23 @@ def test_incomplete_capture_cannot_reuse_files_from_previous_output(
     assert not list(target.parent.glob(".current-capture-*"))
 
 
-def test_full_capture_preserves_separately_captured_storybook_evidence(
-    tmp_path: Path,
-) -> None:
-    target = tmp_path / "current"
-    staged = tmp_path / "staged"
-    target.mkdir()
-    staged.mkdir()
-    for name in EXTERNALLY_CAPTURED_OUTPUTS:
-        (target / name).write_bytes(f"separately-captured:{name}".encode())
+def test_current_capture_contract_contains_product_routes_only() -> None:
+    assert len(CURRENT_CAPTURE_OUTPUTS) == 32
+    assert all(not name.startswith("storybook-") for name in CURRENT_CAPTURE_OUTPUTS)
 
-    _preserve_external_captures(target, staged)
 
-    for name in EXTERNALLY_CAPTURED_OUTPUTS:
-        assert (staged / name).read_bytes() == (target / name).read_bytes()
+def test_storybook_default_captures_are_historical_evidence() -> None:
+    expected = {
+        "foundation": Path(
+            "docs/17-evidence/images/dui-09-component-qa/"
+            "storybook-foundation-1440x900.png"
+        ),
+        "governed": Path(
+            "docs/17-evidence/images/dui-09-component-qa/"
+            "storybook-governed-workflow-1440x900.png"
+        ),
+    }
+
+    for scope, path in expected.items():
+        assert default_storybook_output_path(scope) == path
+        assert "docs/user-guide/images/current" not in path.as_posix()

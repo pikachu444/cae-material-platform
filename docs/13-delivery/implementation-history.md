@@ -1,5 +1,13 @@
 # Implementation Status
 
+## Current evidence correction (2026-07-28)
+
+The PR #156 (`55cfa62`) current evidence contract now contains only 32 deterministic product-route
+captures. The two Storybook component-QA images moved to historical DUI-09 evidence, and current
+user-guide, manifest, capture-script and contract wording no longer treat them as normal-user routes.
+The completed UXC-04D 124 px ribbon is explicitly historical intermediate evidence; UXC-04E/PR #156
+is the current 48 px header, 184–208 px rail, 31+72=104 px ribbon and dominant-graph baseline.
+
 Date: `2026-07-26`
 Foundation version: `0.32.0`
 

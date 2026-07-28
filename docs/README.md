@@ -19,8 +19,9 @@
 - 관리자: [관리자 가이드](admin-guide/index.md)
 
 새 구현 세션은 [AGENTS.md](../AGENTS.md)의 Current execution handoff를 먼저 읽습니다. 기준은
-`main@55cfa62` (PR #156)입니다. Storybook PNG는 component-QA evidence이며 current product route
-화면이 아닙니다. 그 분류와 manifest의 변경은 #161에서 다루며, 이 문서만으로 capture를 바꾸지 않습니다.
+`main@55cfa62` (PR #156)입니다. Storybook PNG는 current product route 화면이 아니라
+`docs/17-evidence/images/dui-09-component-qa/`에 보관하는 historical component-QA evidence입니다.
+현재 사용자 가이드의 캡처 manifest와 `images/current/`은 제품 route만 다룹니다.
 
 ## 제품과 설계
 
