@@ -1,8 +1,10 @@
 # Desktop Engineering UI Delivery Backlog
 
 Status: `55cfa62` (PR #156) is the approved product/visual implementation baseline. DUI-01~09A and the
-PR #125~165 bounded slices are **merged scope**, not a request to reopen completed functionality. Each
+PR #125~166 and every later PR already present on current `main` are **merged scope**, not a request
+to reopen completed functionality. Each
 task starts from the latest `main` with `git pull --ff-only origin main`. Product-level remaining work proceeds as
+[#167 service reference freeze](https://github.com/pikachu444/cae-material-platform/issues/167) →
 [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) →
 [#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) →
 [#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) →
@@ -11,6 +13,41 @@ task starts from the latest `main` with `git pull --ff-only origin main`. Produc
 [#162 UXC-99](https://github.com/pikachu444/cae-material-platform/issues/162). #157 owns the clean
 full-seed failure; #162 alone can delete the temporary incoming package after absorption and an
 inbound-link audit. #119 remains an explicit opt-in independent-review gate; automatic LLM review is disabled.
+
+## #167 — Complete service reference freeze — P0
+
+### User outcome
+
+Every later visual slice has an approved, inspectable implementation target for the whole user task,
+not an attractive but disconnected HTML mockup.
+
+### Scope and required delivery
+
+- create the complete static HTML/CSS and rendered-image reference set for Materials search/tree/detail/card;
+  Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery; and Administration
+  database/table/attribute/layout/subset/link/access edit/publish;
+- capture every target at 1366×768, 1440×900 and 1920×1080 and include relevant long, empty, loading,
+  blocked and error states;
+- register each image's source/image path, hash, viewport, date and approval status; the main agent opens
+  and evaluates every image and the product owner approves every target;
+- define the static-region → production React component/state/backend-contract mapping, preserving all
+  existing product/domain behavior; static HTML/CSS and approved images become visual authority, not
+  inspiration;
+- write concrete downstream implementation packets (assets/screens/components, user task, preserved
+  behavior/data/state, mapping, forbidden shortcuts, captures/tests) and reviewer packets (acceptance,
+  approved references, diff, direct capture/comparison paths, interaction/test results).
+
+### Acceptance and handoff
+
+- no production visual work begins without the exact approved target assets/screens/states;
+- each target passes the structural rubric: full task flow, topology, information priority, readability,
+  dominant graph/table/tree, control-result continuity and no overlap/clipping/overflow; pixel-perfect
+  copying is not required and measurements are safety rails;
+- every later visual PR supplies reference/current side-by-side live captures for main-agent evaluation
+  and product-owner confirmation before merge;
+- one implementer completes work, deterministic gates run, then a fresh read-only reviewer evaluates
+  the packet; allow at most one correction/re-review and do not repeat the failed local CSS approach;
+- #119 remains unchanged: no automatic LLM review.
 
 **DUI-09C bounded foundation (`2026-07-27`):** Storybook 10.5.4 is installed locally for the
 React 19/Vite 8 web workspace with its accessibility addon and deterministic local dev/static-build

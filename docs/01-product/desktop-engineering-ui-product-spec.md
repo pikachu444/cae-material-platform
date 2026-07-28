@@ -470,13 +470,37 @@ Required production primitives:
 
 These primitives must use one token system and must not depend on legacy `content-card`, `hero`, `module-material-card` or chip-heavy layout classes.
 
-## 14. Tooling and implementation approach
+## 14. Reference-to-production contract
+
+Issue #167 freezes the complete service reference set before any production visual change. It covers
+Materials search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery;
+and Administration database/table/attribute/layout/subset/link/access edit/publish, at 1366×768,
+1440×900 and 1920×1080. Each affected workflow also has the relevant long, empty, loading, blocked
+and error state. A reference entry records its static HTML/CSS source, rendered image path and hash,
+viewport, date, status, main-agent evaluation and product-owner approval.
+
+Static HTML/CSS plus an approved rendered image are the implementation source and visual authority.
+React ports their workspace regions and CSS faithfully while connecting the existing component,
+state and backend contracts. It does not invent a replacement topology or add incremental route-level
+CSS overrides. This does not require pixel-perfect copying or arbitrary number tuning. Review the
+whole task flow, region topology, information priority, readable density, graph/table/tree dominance,
+control-result continuity and absence of overlap, clipping and overflow; measurements prevent unsafe
+regressions rather than becoming the design objective.
+
+No visual implementation starts until the main agent has opened/evaluated every target image and the
+product owner has approved it. Every visual PR supplies registered reference/current side-by-side live
+captures to the main agent and product owner before merge. On a failure, make one evidence-backed
+correction and re-review; do not retry the same local CSS approach.
+
+## 15. Tooling and implementation approach
 
 - Repository specifications are the source of product and domain truth.
 - Figma MCP, when connected, is used to review editable layouts and component states.
 - Storybook is used for isolated primitive states before legacy CSS cleanup is accepted.
 - Playwright is the executable authority for complete workflows and viewport behavior.
-- The project Codex Skill `.codex/skills/desktop-engineering-ui/SKILL.md` is mandatory for frontend layout/CSS tasks.
+- The mandatory visual-work skills are `.agents/skills/desktop-engineering-ui`,
+  `.agents/skills/frontend-ui-engineering`, `.agents/skills/web-design-guidelines`, and
+  `.agents/skills/webapp-testing`.
 
 Recommended dependency policy:
 
@@ -485,7 +509,7 @@ Recommended dependency policy:
 - introduce a grid library only if current table/virtualization requirements cannot be met with the existing implementation and bundle budget;
 - do not introduce a general-purpose UI kit that forces marketing/SaaS visual defaults.
 
-## 15. Acceptance metrics
+## 16. Acceptance metrics
 
 ### Workflow
 
@@ -518,7 +542,7 @@ Required Playwright scenarios:
 
 Required viewports: 1366×768, 1440×900 and 1920×1080.
 
-## 16. Non-goals
+## 17. Non-goals
 
 - pixel-copying Granta MI or Material Modeler;
 - changing numerical algorithms or domain persistence to obtain a visual effect;
@@ -526,14 +550,14 @@ Required viewports: 1366×768, 1440×900 and 1920×1080.
 - adding new material models or solvers as part of this UI program;
 - turning every desktop command into an icon without a label or accessible name.
 
-## 17. Open decisions
+## 18. Open decisions
 
 - whether the resizable pane implementation uses `react-resizable-panels` or an internal accessible primitive;
 - whether Material result column customization is included after P0;
 - final shortcut mapping after conflicts with browser defaults are tested;
 - whether a detachable/full-screen graph is required after the core persistent graph workflow is accepted.
 
-## 18. UXC information architecture and interaction corrections
+## 19. UXC information architecture and interaction corrections
 
 Materials has three deliberately separate intentions inside one navigator: scope/tree browse changes
 the governed result scope, facets refine that scoped server query, and advanced criteria is an

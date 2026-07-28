@@ -49,8 +49,8 @@ that proof null and remain blocked rather than inferred. UXC-01 has a completed 
 (text/material-class/sort/page total and rows; no row enrichment N+1). Materials uses local
 Browse/Filters/Subsets modes, and the compact result/context surface omits provider/evidence/validation/solver,
 condition-aware Yield and Modeling-start projections until their governed query projections are defined. The remaining
-governed query projection gaps and final product-level verification remain. The linked #157–#162
-sequence below owns those follow-ups; Issue #119 automatic LLM review remains disabled.
+governed query projection gaps and final product-level verification remain. The linked #167,
+then #157–#162 sequence below owns those follow-ups; Issue #119 automatic LLM review remains disabled.
 
 ## 핵심 보존 계약
 
@@ -80,7 +80,9 @@ performance, security와 product-pilot gate는 [개발 가이드](DEVELOPMENT.md
 
 ## 남은 범위
 
-PR #125~#165는 merged scope이며 재구현 대상이 아닙니다. 다음 product-level 순서는
+PR #125~#166과 이후 최신 `main`에 이미 병합된 PR은 재구현 대상이 아닙니다. 다음
+product-level 순서는
+[#167 service reference freeze](https://github.com/pikachu444/cae-material-platform/issues/167) →
 [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) →
 [#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) →
 [#159 Materials](https://github.com/pikachu444/cae-material-platform/issues/159) →
