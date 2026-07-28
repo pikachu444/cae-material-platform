@@ -1,7 +1,7 @@
 # Desktop Engineering UI Delivery Backlog
 
 Status: `55cfa62` (PR #156) is the approved product/visual implementation baseline. DUI-01~09A and the
-PR #125~164 bounded slices are **merged scope**, not a request to reopen completed functionality. Each
+PR #125~165 bounded slices are **merged scope**, not a request to reopen completed functionality. Each
 task starts from the latest `main` with `git pull --ff-only origin main`. Product-level remaining work proceeds as
 [#157 demo](https://github.com/pikachu444/cae-material-platform/issues/157) →
 [#158 Fit](https://github.com/pikachu444/cae-material-platform/issues/158) →

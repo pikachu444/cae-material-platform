@@ -17,7 +17,7 @@ evidence는 `docs/17-evidence/`와 implementation history에 보존하고 현재
 
 문장 수준 표기는 `FACT-PUBLIC`, `CONFIRMED`, `DECISION`, `TBD`, `OUT-OF-SCOPE`를 사용한다.
 `ASSUMPTION`은 production domain, solver, validation, review policy를 결정하는 근거로 사용하지
-않는다. PR #125~#164는 merged scope이며 재구현하지 않는다. `55cfa62` (PR #156)는 승인된 제품/시각
+않는다. PR #125~#165는 merged scope이며 재구현하지 않는다. `55cfa62` (PR #156)는 승인된 제품/시각
 구현 기준선이다. repository 작업 시작점은 항상 `git pull --ff-only origin main`으로 얻는 최신 `main`이다.
 다음 product-level work는 #157 demo, #158 Fit, #159 Materials, #160 Governance/Activity, #161 DUI-09,
 #162 UXC-99 순서다. incoming package는 #162의 absorption 및 zero-inbound audit 전에는 삭제하지 않는다.
