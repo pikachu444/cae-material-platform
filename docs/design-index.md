@@ -17,10 +17,14 @@ evidence는 `docs/17-evidence/`와 implementation history에 보존하고 현재
 
 문장 수준 표기는 `FACT-PUBLIC`, `CONFIRMED`, `DECISION`, `TBD`, `OUT-OF-SCOPE`를 사용한다.
 `ASSUMPTION`은 production domain, solver, validation, review policy를 결정하는 근거로 사용하지
-않는다. PR #125~#165는 merged scope이며 재구현하지 않는다. `55cfa62` (PR #156)는 승인된 제품/시각
+않는다. PR #125~#166과 이후 최신 `main`에 이미 병합된 PR은 재구현하지 않는다.
+`55cfa62` (PR #156)는 승인된 제품/시각
 구현 기준선이다. repository 작업 시작점은 항상 `git pull --ff-only origin main`으로 얻는 최신 `main`이다.
-다음 product-level work는 #157 demo, #158 Fit, #159 Materials, #160 Governance/Activity, #161 DUI-09,
-#162 UXC-99 순서다. incoming package는 #162의 absorption 및 zero-inbound audit 전에는 삭제하지 않는다.
+다음 product-level work는 #167 service reference freeze, #157 demo, #158 Fit, #159 Materials, #160
+Governance/Activity, #161 DUI-09, #162 UXC-99 순서다. #167은 전체 서비스의 static HTML/CSS와 이미지
+레퍼런스를 화면·상태·viewport별로 동결하고 main agent와 product owner가 모두 열람·승인한 뒤에만 React/CSS
+구현을 허용한다. 승인된 레퍼런스는 영감이 아니라 구조/CSS 이식의 기준이며, 현재 캡처와 나란히 검수한다.
+incoming package는 #162의 absorption 및 zero-inbound audit 전에는 삭제하지 않는다.
 
 ## UXC-00R authority and approval rule
 

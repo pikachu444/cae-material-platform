@@ -1,0 +1,6 @@
+interface:
+  display_name: "Desktop Engineering UI"
+  short_description: "Port approved engineering UI references faithfully"
+  default_prompt: "Use $desktop-engineering-ui to prepare and verify a reference-faithful engineering workspace change."
+policy:
+  allow_implicit_invocation: true

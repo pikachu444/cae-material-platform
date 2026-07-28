@@ -2,6 +2,22 @@
 
 Status: authoritative visual review gate
 
+## Reference registration and review gate
+
+Before production React/CSS work, #167 registers an approved static HTML/CSS and rendered image for
+every target screen/state. The register records direct source/image paths, image hash, viewport, date,
+status, main-agent evaluation and product-owner approval. Required coverage is Materials
+search/tree/detail/card; Modeling Data/Process/Fit/Export; Activity user/reviewer/recovery; and
+Administration database/table/attribute/layout/subset/link/access edit/publish, at 1366×768,
+1440×900 and 1920×1080 plus relevant long, empty, loading, blocked and error states.
+
+References are implementation authority, not vague inspiration: port their region structure and CSS
+faithfully while preserving backend/state/domain contracts. Each later visual PR gives the main agent
+and product owner direct reference/current side-by-side live captures, the interaction/test result and
+this rubric. Evaluate full-screen task flow, topology, information priority, readability, dominant
+tree/table/graph region, control-result continuity, overlap, clipping and overflow. Pixel-perfect
+copying and arbitrary fine-number tuning are not acceptance goals; measurements are safety rails.
+
 ## UXC measurement and state evidence additions
 
 Every target route is measured at 1366×768, 1440×900 and 1920×1080 from a live deterministic demo.
@@ -172,11 +188,11 @@ The historical 2026-07-21 Modeling target was the **lower proposal** in
 `modeler-necking-point.png`, `modeler-fit-extrapolation.png`, `modeler-create-cae-card.png`, and
 `modeler-cae-card-details.png` in `docs/00-research/images/gui-reference/README.md`, plus the
 approved lower comparison above.
-UXC-00D records a revised four-screen responsive proposal in
-`docs/17-evidence/images/uxc-00d-responsive-design/`. The product owner explicitly approved this
-proposal, including the lower Modeling layout, on 2026-07-26 for production React/CSS implementation.
-The historical approval remains separate evidence only; approval does not itself mark a live route
-as complete.
+UXC-00D records a historically approved four-screen responsive proposal in
+`docs/17-evidence/images/uxc-00d-responsive-design/`; it is evidence, not a complete service
+reference register. #167 supplies the complete approved target set and supersedes any implication that
+the historical four-screen approval alone authorizes later route work. Historical approval never
+marks a live route as complete.
 
 ## Required measurement report
 

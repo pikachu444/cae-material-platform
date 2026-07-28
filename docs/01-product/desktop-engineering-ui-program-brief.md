@@ -10,8 +10,9 @@ repository documents; the legacy package remains historical context only.
 ## Current delivery boundary
 
 `55cfa62` (PR #156) is the approved product/visual implementation baseline. Start every task from the
-latest `main` with `git pull --ff-only origin main`. PR #125–#165 are merged bounded scope; they are not
-a queue to reimplement. The next product-level order is #157 demo, #158 Fit, #159 Materials, #160
+latest `main` with `git pull --ff-only origin main`. PR #125–#166 and every later PR already present
+on current `main` are merged bounded scope; they are not a queue to reimplement. The next
+product-level order is #167 service reference freeze, #157 demo, #158 Fit, #159 Materials, #160
 Governance/Activity, #161 DUI-09, then #162 UXC-99. The incoming package remains temporary reference
 until #162 completes absorption and an inbound-link audit. See `AGENTS.md` for the mandatory one-writer,
 deterministic-gate, fresh-reviewer execution rule.
@@ -78,7 +79,7 @@ Read these documents in this order before changing a visual route:
 4. [Desktop engineering UI specification](desktop-engineering-ui-spec.md)
 5. [Desktop Engineering UI Tooling](desktop-engineering-ui-tooling.md)
 6. [Desktop Engineering UI Delivery Backlog](../13-delivery/desktop-engineering-ui-backlog.md)
-7. [Project desktop-engineering-ui skill](../../.codex/skills/desktop-engineering-ui/SKILL.md)
+7. [Project desktop-engineering-ui skill](../../.agents/skills/desktop-engineering-ui/SKILL.md)
 8. [Official GUI image manifest](../00-research/images/gui-reference/README.md), every image relevant
    to the screen, and current product screenshots/evidence.
 

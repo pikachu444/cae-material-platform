@@ -46,7 +46,7 @@ If Figma is used, create these pages:
 
 ## 2. Codex project Skill — implementation discipline
 
-The repository contains `.codex/skills/desktop-engineering-ui/SKILL.md`.
+The repository contains the auto-discovered `.agents/skills/desktop-engineering-ui/SKILL.md`.
 
 The Skill must be applied to every frontend task that changes layout, typography, navigation, components or CSS. It converts the product specification into repeatable implementation rules and prevents regression to card-heavy SaaS layouts.
 
