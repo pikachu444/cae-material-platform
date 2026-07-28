@@ -18,8 +18,9 @@
 - 사용자: [사용자 가이드](user-guide/index.md)
 - 관리자: [관리자 가이드](admin-guide/index.md)
 
-새 구현 세션은 [AGENTS.md](../AGENTS.md)의 Current execution handoff를 먼저 읽습니다. 기준은
-`main@55cfa62` (PR #156)입니다. Storybook PNG는 current product route 화면이 아니라
+새 구현 세션은 [AGENTS.md](../AGENTS.md)의 Current execution handoff를 먼저 읽고 항상 `git pull --ff-only
+origin main`으로 얻는 최신 `main`에서 시작합니다. 승인된 제품/시각 구현 기준선은 `55cfa62` (PR #156)입니다.
+Storybook PNG는 current product route 화면이 아니라
 `docs/17-evidence/images/dui-09-component-qa/`에 보관하는 historical component-QA evidence입니다.
 현재 사용자 가이드의 캡처 manifest와 `images/current/`은 제품 route만 다룹니다.
 
