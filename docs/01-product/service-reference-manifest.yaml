@@ -1251,3 +1251,260 @@ references:
       evidence: >-
         Conversation approval after the output-unit-system capability correction and final
         six-image MOD-EXPORT handoff.
+  - id: administration-database-normal-1366x768
+    screen: administration-database
+    state: normal
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: &administration_schema_core_sources
+      html: docs/00-research/ux-service-reference/administration-schema-core.html
+      css: docs/00-research/ux-service-reference/administration-schema-core.css
+      javascript: docs/00-research/ux-service-reference/administration-schema-core.js
+      capture: docs/00-research/ux-service-reference/capture_administration_schema_core_wave05.py
+      validation: docs/00-research/ux-service-reference/validate_administration_schema_core_wave05.py
+    image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: e0c2951b04d473c3d6b7e133c815446a22810037e7cfe1ae0b6664d9e0af07d6
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after deterministic validation and original-resolution
+        review of all eleven approval images. The compact three-pane schema workspace keeps object
+        families, the selected object list and its property editor continuous, readable and free of
+        the redundant fourth setup column.
+    product_owner_approval:
+      status: absent
+  - id: administration-database-normal-1440x900
+    screen: administration-database
+    state: normal
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: 901f13632255d95added7455eb539ff78c9e8cefaa115f9aaa23b043af088ea9
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. Flat dividers and dense
+        rows carry the hierarchy without nested cards, while the selected Table definition and its
+        next edit/preview actions remain the visual and workflow consequence.
+    product_owner_approval:
+      status: absent
+  - id: administration-database-normal-1920x1080
+    screen: administration-database
+    state: normal
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-database-normal-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: b54ac84e90ea3dac980e8f7c0bc71fd10687d4777cffa11106ad519fac99e1f6
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. The wide viewport keeps
+        stable navigator and list widths rather than stretching labels into sparse technical prose;
+        the editor remains dominant and all task controls stay aligned in the compact command row.
+    product_owner_approval:
+      status: absent
+  - id: administration-table-edit-draft-1366x768
+    screen: administration-table-edit
+    state: draft
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: e95e21879f7877d4054a263005df835da8fb86a2d487e8375ccc463e751c758e
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. The compact Table form
+        distinguishes stable identity from editable definition, requires a change reason and makes
+        the immutable new-revision consequence explicit without exposing hashes or ETags.
+    product_owner_approval:
+      status: absent
+  - id: administration-table-edit-draft-1440x900
+    screen: administration-table-edit
+    state: draft
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: 91edbc0bc8913832ee5f48f495e38d570a725407baaf76fa5bcb278b7d17c34f
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. Labels, inputs, help
+        text and revision actions form one restrained editing rhythm; selection context remains
+        mounted in the two left panes and Advanced holds exact technical identifiers.
+    product_owner_approval:
+      status: absent
+  - id: administration-table-edit-draft-1920x1080
+    screen: administration-table-edit
+    state: draft
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-table-edit-draft-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: c8102c5e056a9848e7788aae183864fa65e774fad830eb96da62aad9a3cc46c3
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. The bounded form avoids
+        overlong controls at the wide viewport, preserves the same three-pane topology and leaves
+        deliberate working space without weakening field-to-action continuity.
+    product_owner_approval:
+      status: absent
+  - id: administration-attribute-edit-draft-1366x768
+    screen: administration-attribute-edit
+    state: draft
+    viewport:
+      width: 1366
+      height: 768
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1366x768.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: e037e9b409bd3a16bafa4e4287454c2a3a2372a06b6d92c47fd8b5fd80ab47b7
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. Number semantics,
+        normalized unit, optional range, entry guidance and requiredness remain legible in one local
+        editor scroll region, with the selected Attribute and Table scope continuously visible.
+    product_owner_approval:
+      status: absent
+  - id: administration-attribute-edit-draft-1440x900
+    screen: administration-attribute-edit
+    state: draft
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1440x900.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: e0f2ee98460f5ef5d5669aa37f26391763e3fc09085a314d85b2448dc3f02d11
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. The typed Attribute
+        editor uses compact row alignment and quiet helper text rather than technical badges or
+        card stacking, while Save new revision has one clear governed consequence.
+    product_owner_approval:
+      status: absent
+  - id: administration-attribute-edit-draft-1920x1080
+    screen: administration-attribute-edit
+    state: draft
+    viewport:
+      width: 1920
+      height: 1080
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-edit-draft-1920x1080.measurements.json
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: 228757c2613d8dc552ec10db510780bb0ed0bae45a400c2122d0e0035117de32
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. The wide screen keeps a
+        disciplined 760 px editor measure and dense 12–13 px schema text, so engineering semantics
+        remain scan-friendly instead of expanding into a sparse dashboard.
+    product_owner_approval:
+      status: absent
+  - id: administration-edit-stale-conflict-1440x900
+    screen: administration-edit
+    state: stale-conflict
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.measurements.json
+    responsive_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-edit-stale-conflict-1920x1080.png
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: 7a6befe06cf47a5eacbbe552658258d88e87336c57957832908a45b9a58b9d9e
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. The focused conflict
+        region preserves the local draft and offers reload, keep-as-new-revision and cancel without
+        mutating history or replacing the surrounding selection and form with a dead-end page.
+    product_owner_approval:
+      status: absent
+  - id: administration-attribute-long-invalid-1440x900
+    screen: administration-attribute-edit
+    state: long-invalid
+    viewport:
+      width: 1440
+      height: 900
+      device_scale_factor: 1
+    sources: *administration_schema_core_sources
+    image: docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
+    measurements: docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.measurements.json
+    responsive_evidence:
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1366x768.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1440x900.png
+      - docs/17-evidence/images/issue-167-service-reference/administration-attribute-long-invalid-1920x1080.png
+    family_state_evidence: docs/00-research/ux-service-reference/administration-schema-core-wave05.staging.json
+    image_sha256: ec0c979d5479db58785e19048ee96baa528e59c0ac8b9c89321e84bdd10714c7
+    date: 2026-07-29
+    status: pending
+    main_agent_evaluation:
+      status: accepted
+      notes: >-
+        Accepted by the active main agent after original-resolution review. Long stored identities
+        remain available without covering the reserved pane rail, invalid fields are adjacent to
+        their recovery text, Save is truthfully disabled and only the editor scrolls while the
+        application shell, selected Attribute and status remain fixed.
+    product_owner_approval:
+      status: absent

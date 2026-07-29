@@ -4410,3 +4410,49 @@ references and their existing SHA-256 values:
 All six manifest entries are now `approved` with an individual product-owner lifecycle record.
 The authoritative progress is 32/72 approved with 40 images remaining. This approval unlocks no
 production React/CSS work; it only completes the MOD-EXPORT reference-family gate.
+
+## 46. WAVE-05 ADM-SCHEMA-CORE main-agent acceptance
+
+Date: 2026-07-29
+
+The configured Luna Max implementer completed the independent ADM-SCHEMA-CORE bundle under the
+main-agent-authored packet. The active `/root` main agent reran its eleven-target, eighteen-state,
+three-viewport, interaction and accessibility validator, the finite inventory validator and
+`git diff --check`, then opened all eleven approval images at original resolution.
+
+The main-agent qualitative gate accepts the current candidates:
+
+- Database, Table edit and Attribute edit use one continuous three-pane desktop workspace:
+  `Schema objects | Object list | Property editor`;
+- the former redundant persistent setup/sidebar is absent, so the workspace never becomes four
+  columns;
+- 12–13 px schema and metadata text, dense rows, flat dividers and restrained state color keep the
+  Administration workspace consistent with the approved Materials explorer without copying its
+  domain-specific tree;
+- Table and Attribute forms distinguish stable identity from editable definition and make
+  `Save new revision` the governed consequence; hashes and ETags remain in Advanced/Evidence;
+- the stale-conflict state preserves the local draft and gives reload, keep-as-new-revision and
+  cancel as explicit recovery paths;
+- the long-invalid Attribute keeps the application shell and selection fixed while the editor uses
+  local scrolling, adjacent error text and a truthfully disabled Save action;
+- all three normal viewports preserve the same topology without page overflow, overlap, clipped
+  controls, nested cards or a permanent fourth inspector.
+
+Current approval candidates:
+
+| Pending reference | SHA-256 |
+| --- | --- |
+| `administration-database-normal-1366x768.png` | `e0c2951b04d473c3d6b7e133c815446a22810037e7cfe1ae0b6664d9e0af07d6` |
+| `administration-database-normal-1440x900.png` | `901f13632255d95added7455eb539ff78c9e8cefaa115f9aaa23b043af088ea9` |
+| `administration-database-normal-1920x1080.png` | `b54ac84e90ea3dac980e8f7c0bc71fd10687d4777cffa11106ad519fac99e1f6` |
+| `administration-table-edit-draft-1366x768.png` | `e95e21879f7877d4054a263005df835da8fb86a2d487e8375ccc463e751c758e` |
+| `administration-table-edit-draft-1440x900.png` | `91edbc0bc8913832ee5f48f495e38d570a725407baaf76fa5bcb278b7d17c34f` |
+| `administration-table-edit-draft-1920x1080.png` | `c8102c5e056a9848e7788aae183864fa65e774fad830eb96da62aad9a3cc46c3` |
+| `administration-attribute-edit-draft-1366x768.png` | `e037e9b409bd3a16bafa4e4287454c2a3a2372a06b6d92c47fd8b5fd80ab47b7` |
+| `administration-attribute-edit-draft-1440x900.png` | `e0f2ee98460f5ef5d5669aa37f26391763e3fc09085a314d85b2448dc3f02d11` |
+| `administration-attribute-edit-draft-1920x1080.png` | `228757c2613d8dc552ec10db510780bb0ed0bae45a400c2122d0e0035117de32` |
+| `administration-edit-stale-conflict-1440x900.png` | `7a6befe06cf47a5eacbbe552658258d88e87336c57957832908a45b9a58b9d9e` |
+| `administration-attribute-long-invalid-1440x900.png` | `ec0c979d5479db58785e19048ee96baa528e59c0ac8b9c89321e84bdd10714c7` |
+
+The candidates remain `pending` with product-owner approval `absent`. A bounded reviewer packet and
+one fresh read-only Terra High review are still required before product-owner handoff.

@@ -2,7 +2,7 @@
   "family": "ADM-SCHEMA-CORE",
   "wave": "WAVE-05",
   "status": "pending",
-  "capture_date": "2026-07-30",
+  "capture_date": "2026-07-29",
   "static": {
     "html": "docs/00-research/ux-service-reference/administration-schema-core.html",
     "css": "docs/00-research/ux-service-reference/administration-schema-core.css",
