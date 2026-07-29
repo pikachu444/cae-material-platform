@@ -4389,3 +4389,24 @@ product-owner-authorized direct main-agent correction.
 The six references remain `pending`, main-agent evaluation is `accepted`, and product-owner approval
 is `absent`. No later reference, production React/CSS, commit, push, PR or merge starts before the
 product owner responds.
+
+## 45. WAVE-04 MOD-EXPORT product-owner approval
+
+Date: 2026-07-29
+
+The product owner explicitly approved the MOD-EXPORT result after the capability-backed
+`Output unit system` correction. The approval applies independently to these six registered
+references and their existing SHA-256 values:
+
+| Approved reference | SHA-256 |
+| --- | --- |
+| `modeling-export-normal-1366x768.png` | `235b25e7bdd8668b341316c9c0b7e48c64c55f3098c1bb2208b6c23161cec770` |
+| `modeling-export-normal-1440x900.png` | `38e6e300d7aa1258bf4523b0d768920df42653956a9e1659aabf9232bdd2d0b0` |
+| `modeling-export-normal-1920x1080.png` | `363516b847e3298ed85ca7c7c06e1bef564fbaddca93ff17baba1cc8bd2d7a85` |
+| `modeling-export-source-blocked-1440x900.png` | `2b406f84eb8180d994a87766da021b1e09c3e7b0869907d02bc9614bc5c6320f` |
+| `modeling-export-approximation-blocked-1440x900.png` | `04a85b17f8eb6490aaf0edfe2cb3c898336329bfa33b40a66ee7c41c3215dbc9` |
+| `modeling-export-delivered-1440x900.png` | `4979f4d070e17d0703052efcb2e0152d0858043467bc549e091b25204effc1cc` |
+
+All six manifest entries are now `approved` with an individual product-owner lifecycle record.
+The authoritative progress is 32/72 approved with 40 images remaining. This approval unlocks no
+production React/CSS work; it only completes the MOD-EXPORT reference-family gate.
