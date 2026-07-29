@@ -4486,3 +4486,29 @@ required containment correction changes only the long-invalid approval candidate
 The full ADM validator, inventory validator, focused user-guide tests, Ruff, JavaScript syntax,
 structured image registration and `git diff --check` must pass again before the fresh reviewer is
 started. Product-owner approval remains absent.
+
+## 48. WAVE-05 ADM-SCHEMA-CORE independent review and final internal gate
+
+Date: 2026-07-29
+
+A new read-only configured Terra High reviewer independently opened all eleven approval images and
+all 54 evidence-only images at original resolution. After the reviewer packet's environment command
+was corrected from `uv run python` to the repository's Playwright-enabled `python`, the ADM
+validator, finite inventory, Ruff, JavaScript syntax and `git diff --check` all passed.
+
+The reviewer returned `approve`, V-01 through V-16 at 2/2 each for 32/32, with no hard-gate failure,
+actionable finding or residual concern. Applicable qualitative checklist results passed for local
+list overflow and long-content scroll/containment; Materials/Modeling/Export-only checks were
+recorded not applicable. The reviewer explicitly confirmed:
+
+- all typed Attribute states keep selection, title, name, reference, value type, typed fields and
+  guidance semantically aligned;
+- the long Attribute name ellipsizes inside Name without crossing Definition or Rev;
+- all three viewports retain one flat three-pane workspace with no fourth inspector, nested-card
+  composition, page overflow or clipped control;
+- stale-conflict recovery preserves the local draft and exposes the three intended choices.
+
+After the reviewer disposition, the main `/root` agent reopened all eleven approval images at
+original resolution and repeated the product/UX gate. It accepts the complete ADM-SCHEMA-CORE
+bundle for product-owner review. All eleven manifest entries remain individually `pending` with
+product-owner approval `absent`; no dependent Administration bundle is authorized until approval.
