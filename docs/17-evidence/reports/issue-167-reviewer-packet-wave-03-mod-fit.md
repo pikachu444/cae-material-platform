@@ -1,6 +1,6 @@
 # Issue #167 reviewer packet — WAVE-03 / MOD-FIT
 
-Date: 2026-07-29  
+Date: 2026-07-29
 Review mode: fresh, independent, read-only
 
 ## Issue acceptance boundary

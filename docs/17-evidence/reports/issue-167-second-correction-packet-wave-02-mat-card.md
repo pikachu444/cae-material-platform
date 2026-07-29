@@ -1,7 +1,7 @@
 # Issue #167 second-correction packet — WAVE-02 / MAT-CARD
 
-Date: 2026-07-29  
-Writer role: fresh configured Terra High correction writer  
+Date: 2026-07-29
+Writer role: fresh configured Terra High correction writer
 Authority: product owner explicitly authorized a second correction and re-review on 2026-07-29
 
 ## Bounded objective

@@ -10,4 +10,3 @@ second writing agent. Preserve unrelated worktree changes. Implement the smalles
 run the packet's deterministic gates, and return changed paths, command results, and residual risks.
 Do not commit, push, open or merge a pull request, write to GitHub, or request product-owner approval.
 """
-

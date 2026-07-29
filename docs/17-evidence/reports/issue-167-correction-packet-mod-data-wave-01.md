@@ -1,7 +1,7 @@
 # Issue #167 correction packet — WAVE-01 / MOD-DATA
 
-Date: 2026-07-29  
-Correction role: configured `correction_terra_high`, one and only correction for this family  
+Date: 2026-07-29
+Correction role: configured `correction_terra_high`, one and only correction for this family
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Why this correction is authorized

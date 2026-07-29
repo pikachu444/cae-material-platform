@@ -1,9 +1,9 @@
 # Issue #167 product-owner rework packet — WAVE-04 / MOD-EXPORT
 
-Date: 2026-07-29  
-Author: active `/root` primary agent  
-Configured main-agent source: `.codex/config.toml` (`gpt-5.6-sol`, `xhigh`)  
-Writer: one configured `implementer_luna_max` only  
+Date: 2026-07-29
+Author: active `/root` primary agent
+Configured main-agent source: `.codex/config.toml` (`gpt-5.6-sol`, `xhigh`)
+Writer: one configured `implementer_luna_max` only
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## 1. Why this is a replacement candidate

@@ -1,7 +1,7 @@
 # Issue #167 re-reviewer packet — WAVE-01 / MOD-DATA
 
-Date: 2026-07-29  
-Review mode: fresh, independent, read-only  
+Date: 2026-07-29
+Review mode: fresh, independent, read-only
 Review boundary: the sole authorized MOD-DATA correction
 
 ## Issue acceptance

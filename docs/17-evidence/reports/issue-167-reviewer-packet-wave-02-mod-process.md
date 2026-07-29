@@ -1,6 +1,6 @@
 # Issue #167 reviewer packet — WAVE-02 / MOD-PROCESS
 
-Date: 2026-07-29  
+Date: 2026-07-29
 Review mode: fresh, independent, read-only
 
 ## Issue acceptance boundary

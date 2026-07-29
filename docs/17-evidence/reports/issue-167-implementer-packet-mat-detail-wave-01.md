@@ -1,7 +1,7 @@
 # Issue #167 implementer packet — WAVE-01 / MAT-DETAIL
 
-Date: 2026-07-29  
-Writer role: configured `implementer_luna_max`, exactly one writer for this family  
+Date: 2026-07-29
+Writer role: configured `implementer_luna_max`, exactly one writer for this family
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Bounded outcome

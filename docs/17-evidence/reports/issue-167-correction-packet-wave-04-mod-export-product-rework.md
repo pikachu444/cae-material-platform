@@ -1,8 +1,8 @@
 # Issue #167 — MOD-EXPORT product rework correction packet
 
-Date: 2026-07-29  
-Status: sole correction authorized after the Luna Max result failed deterministic and main-agent gates  
-Writer: one fresh configured Terra High correction agent  
+Date: 2026-07-29
+Status: sole correction authorized after the Luna Max result failed deterministic and main-agent gates
+Writer: one fresh configured Terra High correction agent
 Authority: `AGENTS.md`, the current product/UI specifications, the visual acceptance matrix, and
 `issue-167-product-owner-rework-packet-wave-04-mod-export.md`
 

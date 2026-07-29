@@ -1,7 +1,7 @@
 # Issue #167 — MOD-EXPORT product rework fresh reviewer packet
 
-Date: 2026-07-29  
-Role: fresh configured Terra High reviewer, read-only  
+Date: 2026-07-29
+Role: fresh configured Terra High reviewer, read-only
 Disposition required: `approve` or `changes_requested`
 
 ## 1. Acceptance authority

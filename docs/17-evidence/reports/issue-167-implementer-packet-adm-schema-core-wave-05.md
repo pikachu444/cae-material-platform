@@ -1,7 +1,7 @@
 # Issue #167 implementer packet — WAVE-05 ADM-SCHEMA-CORE
 
-Date: 2026-07-29  
-Status: ready for one configured implementer  
+Date: 2026-07-29
+Status: ready for one configured implementer
 Issue: https://github.com/pikachu444/cae-material-platform/issues/167
 
 ## 1. Bounded assignment

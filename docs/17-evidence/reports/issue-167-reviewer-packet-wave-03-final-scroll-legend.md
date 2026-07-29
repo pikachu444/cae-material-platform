@@ -1,7 +1,7 @@
 # #167 WAVE-03 final scroll/legend reviewer packet
 
-Date: 2026-07-29  
-Reviewer role: fresh configured Terra High, read-only  
+Date: 2026-07-29
+Reviewer role: fresh configured Terra High, read-only
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## Acceptance scope

@@ -1,7 +1,7 @@
 # #167 WAVE-03 MAT-EXP exceptional-state implementer packet
 
-Date: 2026-07-29  
-Author: main Sol High agent  
+Date: 2026-07-29
+Author: main Sol High agent
 Issue: <https://github.com/pikachu444/cae-material-platform/issues/167>
 
 ## 1. Bounded assignment

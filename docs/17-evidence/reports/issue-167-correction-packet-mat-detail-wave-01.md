@@ -1,7 +1,7 @@
 # Issue #167 sole correction packet — WAVE-01 / MAT-DETAIL
 
-Date: 2026-07-29  
-Correction role: configured fresh `correction_terra_high`  
+Date: 2026-07-29
+Correction role: configured fresh `correction_terra_high`
 Parent packet:
 `docs/17-evidence/reports/issue-167-implementer-packet-mat-detail-wave-01.md`
 
