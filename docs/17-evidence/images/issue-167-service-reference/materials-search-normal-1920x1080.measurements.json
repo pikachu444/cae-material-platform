@@ -1,0 +1,416 @@
+{
+  "capture_date": "2026-07-28",
+  "console_errors": [],
+  "context_content": {
+    "open_datasheet": true,
+    "selected_summary": true
+  },
+  "context_state": "visible",
+  "divider_visual_widths": [
+    1,
+    1
+  ],
+  "image_sha256": "b92757e5f80cbcd020f73d54af65cd700112497a76e40f412cfc0a60988ef191",
+  "interactions": {
+    "result_enter": true,
+    "search_shortcut": true,
+    "tree_keyboard": true
+  },
+  "nested_persistent_card_count": 0,
+  "overflow": {
+    "bodyHorizontal": 0,
+    "bodyVertical": 0,
+    "documentHorizontal": 0,
+    "documentVertical": 0
+  },
+  "page_errors": [],
+  "primary_command_count": 1,
+  "regions": {
+    "application_bar": {
+      "height": 46,
+      "width": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "command_bar": {
+      "height": 38,
+      "width": 1904,
+      "x": 8,
+      "y": 46
+    },
+    "context_divider": {
+      "height": 932,
+      "width": 5,
+      "x": 1607,
+      "y": 124
+    },
+    "navigator": {
+      "height": 932,
+      "width": 280,
+      "x": 8,
+      "y": 124
+    },
+    "navigator_divider": {
+      "height": 932,
+      "width": 5,
+      "x": 288,
+      "y": 124
+    },
+    "results": {
+      "height": 932,
+      "width": 1314,
+      "x": 293,
+      "y": 124
+    },
+    "search_band": {
+      "height": 40,
+      "width": 1904,
+      "x": 8,
+      "y": 84
+    },
+    "selected_context": {
+      "height": 932,
+      "width": 300,
+      "x": 1612,
+      "y": 124
+    },
+    "status_bar": {
+      "height": 24,
+      "width": 1920,
+      "x": 0,
+      "y": 1056
+    },
+    "workspace": {
+      "height": 932,
+      "width": 1904,
+      "x": 8,
+      "y": 124
+    }
+  },
+  "row_density": {
+    "results": {
+      "count": 6,
+      "maximum": 36,
+      "minimum": 36
+    },
+    "tree": {
+      "count": 7,
+      "maximum": 25,
+      "minimum": 25
+    }
+  },
+  "selected_result_rows": 1,
+  "selected_tree_rows": 1,
+  "splitter_evidence": {
+    "context_arrow_left": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 308
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 280
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 288,
+        "horizontal_overflow": 0,
+        "tree_kind_right_edges": [
+          281,
+          281,
+          281,
+          281,
+          281,
+          281,
+          281
+        ]
+      },
+      "widths": {
+        "context": 308,
+        "navigator": 280,
+        "results": 1306
+      }
+    },
+    "context_end": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 480
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 280
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 288,
+        "horizontal_overflow": 0,
+        "tree_kind_right_edges": [
+          281,
+          281,
+          281,
+          281,
+          281,
+          281,
+          281
+        ]
+      },
+      "widths": {
+        "context": 480,
+        "navigator": 280,
+        "results": 1134
+      }
+    },
+    "context_home": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 260
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 280
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 288,
+        "horizontal_overflow": 0,
+        "tree_kind_right_edges": [
+          281,
+          281,
+          281,
+          281,
+          281,
+          281,
+          281
+        ]
+      },
+      "widths": {
+        "context": 260,
+        "navigator": 280,
+        "results": 1354
+      }
+    },
+    "default": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 300
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 280
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 288,
+        "horizontal_overflow": 0,
+        "tree_kind_right_edges": [
+          281,
+          281,
+          281,
+          281,
+          281,
+          281,
+          281
+        ]
+      },
+      "widths": {
+        "context": 300,
+        "navigator": 280,
+        "results": 1314
+      }
+    },
+    "navigator_arrow_right": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 300
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 288
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 296,
+        "horizontal_overflow": 0,
+        "tree_kind_right_edges": [
+          289,
+          289,
+          289,
+          289,
+          289,
+          289,
+          289
+        ]
+      },
+      "widths": {
+        "context": 300,
+        "navigator": 288,
+        "results": 1306
+      }
+    },
+    "navigator_end": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 300
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 360
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 368,
+        "horizontal_overflow": 0,
+        "tree_kind_right_edges": [
+          361,
+          361,
+          361,
+          361,
+          361,
+          361,
+          361
+        ]
+      },
+      "widths": {
+        "context": 300,
+        "navigator": 360,
+        "results": 1234
+      }
+    },
+    "navigator_home": {
+      "aria": {
+        "context": {
+          "maximum": 480,
+          "minimum": 260,
+          "now": 300
+        },
+        "navigator": {
+          "maximum": 360,
+          "minimum": 200,
+          "now": 200
+        }
+      },
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 208,
+        "horizontal_overflow": 0,
+        "tree_kind_right_edges": [
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          201
+        ]
+      },
+      "widths": {
+        "context": 300,
+        "navigator": 200,
+        "results": 1394
+      }
+    }
+  },
+  "table_header_position": "sticky",
+  "table_headers": [
+    "Compare",
+    "Material / grade",
+    "Family",
+    "Description",
+    "Status"
+  ],
+  "target": "materials-search-normal-1920x1080",
+  "tree_scroller": {
+    "all_tree_kind_right_edges_within_content": true,
+    "content_right": 288,
+    "horizontal_overflow": 0,
+    "tree_kind_right_edges": [
+      281,
+      281,
+      281,
+      281,
+      281,
+      281,
+      281
+    ]
+  },
+  "viewport": {
+    "device_scale_factor": 1,
+    "height": 1080,
+    "width": 1920
+  },
+  "visible_selected_context": true,
+  "visible_splitter_count": 2
+}

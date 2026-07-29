@@ -1,0 +1,606 @@
+{
+  "target": "materials-datasheet-overview-normal-1920x1080",
+  "capture_date": "2026-07-29",
+  "viewport": {
+    "width": 1920,
+    "height": 1080,
+    "device_scale_factor": 1
+  },
+  "regions": {
+    "application_bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1920,
+      "height": 46
+    },
+    "command_bar": {
+      "x": 8,
+      "y": 46,
+      "width": 1904,
+      "height": 38
+    },
+    "workspace": {
+      "x": 8,
+      "y": 84,
+      "width": 1904,
+      "height": 972
+    },
+    "navigator": {
+      "x": 8,
+      "y": 84,
+      "width": 280,
+      "height": 972
+    },
+    "navigator_divider": {
+      "x": 288,
+      "y": 84,
+      "width": 5,
+      "height": 972
+    },
+    "datasheet": {
+      "x": 293,
+      "y": 84,
+      "width": 1619,
+      "height": 972
+    },
+    "status_bar": {
+      "x": 0,
+      "y": 1056,
+      "width": 1920,
+      "height": 24
+    },
+    "datasheet_main": {
+      "x": 293,
+      "y": 196,
+      "width": 1319,
+      "height": 860
+    },
+    "datasheet_aside": {
+      "x": 1612,
+      "y": 196,
+      "width": 300,
+      "height": 860
+    }
+  },
+  "divider_visual_widths": [
+    1
+  ],
+  "visible_splitter_count": 1,
+  "tree": {
+    "horizontal_overflow": 0,
+    "all_tree_kind_right_edges_within_content": true,
+    "tree_kind_labels": [
+      "Database",
+      "Profile",
+      "Table",
+      "Folder",
+      "Folder",
+      "Record",
+      "Record"
+    ],
+    "tree_kind_labels_match": true
+  },
+  "selected_tree_rows": 1,
+  "selected_record": true,
+  "tabs": {
+    "count": 6,
+    "labels": [
+      "Overview",
+      "Properties",
+      "Curves",
+      "CAE Cards",
+      "Related",
+      "Evidence"
+    ],
+    "active": "Overview"
+  },
+  "overflow": {
+    "document_horizontal": 0,
+    "document_vertical": 0,
+    "body_horizontal": 0,
+    "body_vertical": 0
+  },
+  "forbidden_visible_terms": [],
+  "unsupported_labels": [],
+  "primary_command_count": 1,
+  "nested_persistent_card_count": 0,
+  "splitter_evidence": {
+    "default": {
+      "widths": {
+        "navigator": 280,
+        "divider": 5,
+        "datasheet": 1619,
+        "related_list": null,
+        "related_context": null,
+        "empty_main": null,
+        "empty_context": null,
+        "main": 1319,
+        "aside": 300,
+        "plot": 1295
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 280
+      },
+      "active_tab": "Overview",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_arrow_right": {
+      "widths": {
+        "navigator": 288,
+        "divider": 5,
+        "datasheet": 1611,
+        "related_list": null,
+        "related_context": null,
+        "empty_main": null,
+        "empty_context": null,
+        "main": 1311,
+        "aside": 300,
+        "plot": 1287
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 288
+      },
+      "active_tab": "Overview",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_home": {
+      "widths": {
+        "navigator": 200,
+        "divider": 5,
+        "datasheet": 1699,
+        "related_list": null,
+        "related_context": null,
+        "empty_main": null,
+        "empty_context": null,
+        "main": 1399,
+        "aside": 300,
+        "plot": 1375
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 200
+      },
+      "active_tab": "Overview",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_end": {
+      "widths": {
+        "navigator": 360,
+        "divider": 5,
+        "datasheet": 1539,
+        "related_list": null,
+        "related_context": null,
+        "empty_main": null,
+        "empty_context": null,
+        "main": 1239,
+        "aside": 300,
+        "plot": 1215
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 360
+      },
+      "active_tab": "Overview",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    }
+  },
+  "interactions": {
+    "navigator_search_shortcut": true,
+    "tree_search": true,
+    "back_to_results": true,
+    "tree_keyboard": true,
+    "tabs_click_keyboard": true,
+    "card_preview": true,
+    "card_download": true
+  },
+  "web_interface_guidelines_audit": {
+    "source": "vercel-labs/web-interface-guidelines/command.md",
+    "checked": [
+      "semantic buttons, links, tabs and associated labels",
+      "visible keyboard focus",
+      "no fake controls or non-dialog ellipsis labels",
+      "no render-time layout loop",
+      "deliberate containment and truncation"
+    ],
+    "result": "pass"
+  },
+  "kind": "normal",
+  "row_density": {
+    "tree": {
+      "count": 7,
+      "minimum": 25,
+      "maximum": 25
+    },
+    "properties": {
+      "count": 4,
+      "minimum": 32,
+      "maximum": 32
+    }
+  },
+  "property_headers": [
+    "Property",
+    "Value",
+    "Unit",
+    "Condition",
+    "Source"
+  ],
+  "property_rows": 4,
+  "property_semantics": [
+    [
+      "Density",
+      "7,800",
+      "kg/m³",
+      "Ambient · as received",
+      "DP780-REF · r1"
+    ],
+    [
+      "Young's modulus",
+      "210,000",
+      "MPa",
+      "Ambient · as received",
+      "DP780-REF · r1"
+    ],
+    [
+      "Yield strength",
+      "450",
+      "MPa",
+      "Ambient · as received",
+      "DP780-REF · r1"
+    ],
+    [
+      "Poisson ratio",
+      "0.30",
+      "—",
+      "Ambient · as received",
+      "DP780-REF · r1"
+    ]
+  ],
+  "solver_formats": [
+    {
+      "solver": "Abaqus",
+      "format": ".inp"
+    },
+    {
+      "solver": "OpenRadioss",
+      "format": ".rad"
+    }
+  ],
+  "solver_format_count": 2,
+  "delivery_preview_count": 2,
+  "delivery_download_count": 2,
+  "plot_domain": {
+    "declared_series": {
+      "strain": {
+        "minimum": 0,
+        "maximum": 0.2
+      },
+      "stress_mpa": {
+        "minimum": 0,
+        "maximum": 850
+      }
+    },
+    "domain_policy": {
+      "upper_headroom_ratio": 0.1,
+      "target_intervals": {
+        "strain": 5,
+        "stress_mpa": 4
+      },
+      "nice_step_factors": [
+        1,
+        2,
+        2.5,
+        5,
+        10
+      ]
+    },
+    "declared_axis_maxima": {
+      "strain": 0.25,
+      "stress_mpa": 1000
+    },
+    "plot_area": {
+      "left": 64,
+      "right": 732,
+      "top": 27,
+      "bottom": 191
+    },
+    "response_path": {
+      "bounding_box": {
+        "x": 64,
+        "y": 51.599998474121094,
+        "right": 598.4000244140625,
+        "bottom": 190.99999237060547,
+        "width": 534.4000244140625,
+        "height": 139.39999389648438
+      },
+      "start": {
+        "x": 64,
+        "y": 191
+      },
+      "endpoint": {
+        "x": 598.4000244140625,
+        "y": 51.599998474121094
+      },
+      "fully_inside_plot": true
+    },
+    "headroom": {
+      "right": 133.5999755859375,
+      "top": 24.599998474121094
+    },
+    "visible_text": {
+      "plot": [
+        "0",
+        "0.10",
+        "0.20",
+        "0.25",
+        "0",
+        "500",
+        "1,000 MPa",
+        "Engineering strain",
+        "Engineering stress"
+      ],
+      "legend": [
+        "Representative response\n                      Condition: Ambient · as received"
+      ]
+    }
+  },
+  "first_viewport": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "status_bar_top": 1056,
+    "groups": {
+      "selected_record": [
+        {
+          "left": 8,
+          "top": 443,
+          "right": 288,
+          "bottom": 468,
+          "inside": true
+        }
+      ],
+      "tabs": [
+        {
+          "left": 303,
+          "top": 160,
+          "right": 378.171875,
+          "bottom": 196,
+          "inside": true
+        },
+        {
+          "left": 380.171875,
+          "top": 160,
+          "right": 460.4375,
+          "bottom": 196,
+          "inside": true
+        },
+        {
+          "left": 462.4375,
+          "top": 160,
+          "right": 522.90625,
+          "bottom": 196,
+          "inside": true
+        },
+        {
+          "left": 524.90625,
+          "top": 160,
+          "right": 604.703125,
+          "bottom": 196,
+          "inside": true
+        },
+        {
+          "left": 606.703125,
+          "top": 160,
+          "right": 671.203125,
+          "bottom": 196,
+          "inside": true
+        },
+        {
+          "left": 673.203125,
+          "top": 160,
+          "right": 745.265625,
+          "bottom": 196,
+          "inside": true
+        }
+      ],
+      "headers": [
+        {
+          "left": 305,
+          "top": 241.5,
+          "right": 564,
+          "bottom": 269.5,
+          "inside": true
+        },
+        {
+          "left": 564,
+          "top": 241.5,
+          "right": 823,
+          "bottom": 269.5,
+          "inside": true
+        },
+        {
+          "left": 823,
+          "top": 241.5,
+          "right": 1082,
+          "bottom": 269.5,
+          "inside": true
+        },
+        {
+          "left": 1082,
+          "top": 241.5,
+          "right": 1341,
+          "bottom": 269.5,
+          "inside": true
+        },
+        {
+          "left": 1341,
+          "top": 241.5,
+          "right": 1600,
+          "bottom": 269.5,
+          "inside": true
+        }
+      ],
+      "rows": [
+        {
+          "left": 305,
+          "top": 269.5,
+          "right": 1600,
+          "bottom": 301.5,
+          "inside": true
+        },
+        {
+          "left": 305,
+          "top": 301.5,
+          "right": 1600,
+          "bottom": 333.5,
+          "inside": true
+        },
+        {
+          "left": 305,
+          "top": 333.5,
+          "right": 1600,
+          "bottom": 365.5,
+          "inside": true
+        },
+        {
+          "left": 305,
+          "top": 365.5,
+          "right": 1600,
+          "bottom": 397.5,
+          "inside": true
+        }
+      ],
+      "plot": [
+        {
+          "left": 305,
+          "top": 456,
+          "right": 1600,
+          "bottom": 675,
+          "inside": true
+        }
+      ],
+      "condition": [
+        {
+          "left": 1625,
+          "top": 206,
+          "right": 1900,
+          "bottom": 367,
+          "inside": true
+        }
+      ],
+      "delivery": [
+        {
+          "left": 1625,
+          "top": 379,
+          "right": 1900,
+          "bottom": 620,
+          "inside": true
+        }
+      ],
+      "formats": [
+        {
+          "left": 1625,
+          "top": 464,
+          "right": 1900,
+          "bottom": 531,
+          "inside": true
+        },
+        {
+          "left": 1625,
+          "top": 531,
+          "right": 1900,
+          "bottom": 598,
+          "inside": true
+        }
+      ],
+      "previews": [
+        {
+          "left": 1761.15625,
+          "top": 495.25,
+          "right": 1821.796875,
+          "bottom": 521.25,
+          "inside": true
+        },
+        {
+          "left": 1761.15625,
+          "top": 562.25,
+          "right": 1821.796875,
+          "bottom": 588.25,
+          "inside": true
+        }
+      ],
+      "downloads": [
+        {
+          "left": 1826.796875,
+          "top": 495.25,
+          "right": 1900,
+          "bottom": 521.25,
+          "inside": true
+        },
+        {
+          "left": 1826.796875,
+          "top": 562.25,
+          "right": 1900,
+          "bottom": 588.25,
+          "inside": true
+        }
+      ]
+    },
+    "all_inside": true
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png",
+  "image_sha256": "eda9da6037d7dec12fd4c4c5ce5fa77e993a1faa37f5853b3da5c2203bd35849",
+  "responsive_evidence": false,
+  "console_errors": [],
+  "page_errors": []
+}

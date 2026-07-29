@@ -1,0 +1,26 @@
+/* Capture-only override for the pending 1366px materials-search approval target. */
+:root {
+  --navigator-width: 244px;
+  --context-width: 280px;
+}
+
+.materials-workspace {
+  grid-template-columns:
+    var(--navigator-width)
+    var(--splitter-hit)
+    minmax(720px, 1fr)
+    var(--splitter-hit)
+    var(--context-width);
+}
+
+.context-divider {
+  display: grid;
+}
+
+.selected-context {
+  display: block;
+}
+
+.material-tree {
+  min-width: 0;
+}

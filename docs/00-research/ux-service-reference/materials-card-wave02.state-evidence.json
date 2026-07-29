@@ -1,0 +1,1381 @@
+{
+  "schema_version": 1,
+  "family": "MAT-CARD",
+  "capture_date": "2026-07-29",
+  "states": {
+    "long": {
+      "1366x768": {
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-long-1366x768.png",
+        "screenshot_dimensions": {
+          "width": 1366,
+          "height": 768
+        },
+        "screenshot_sha256": "54dd45a7edf58bc9d1685ee5a38a047f9284da8992bd94553c523fadd43cbd82",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "long",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 257,
+              "top": 196,
+              "width": 1101,
+              "height": 548
+            },
+            "card_heading": {
+              "left": 257,
+              "top": 196,
+              "width": 1101,
+              "height": 49
+            },
+            "card_content": {
+              "left": 257,
+              "top": 245,
+              "width": 1101,
+              "height": 499
+            },
+            "native_preview": {
+              "left": 257,
+              "top": 245,
+              "width": 789,
+              "height": 499
+            },
+            "preview_scroll": {
+              "left": 269,
+              "top": 291,
+              "width": 767,
+              "height": 443
+            },
+            "delivery_sheet": {
+              "left": 1046,
+              "top": 245,
+              "width": 312,
+              "height": 499
+            }
+          },
+          "native_width": 789,
+          "delivery_width": 312,
+          "preview_scroll_width": 765,
+          "preview_scroll_height": 2036,
+          "preview_client_width": 765,
+          "preview_client_height": 441,
+          "preview_available_height": 443,
+          "preview_rendered_height": 443,
+          "preview_fills_available_height": true,
+          "native_text_visible": true,
+          "native_text_length": 7523,
+          "unavailable_visible": false,
+          "loading_visible": false,
+          "error_visible": false,
+          "retry_visible": false,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Download .inp",
+            "disabled": false,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Exact mapping · download is available without acknowledgement."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      "1440x900": {
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-long-1440x900.png",
+        "screenshot_dimensions": {
+          "width": 1440,
+          "height": 900
+        },
+        "screenshot_sha256": "c39dab0b4d28a66ff26b16b0d7e038c394f6c11dc780a9b6faeb31465a148a15",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "long",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 277,
+              "top": 196,
+              "width": 1155,
+              "height": 680
+            },
+            "card_heading": {
+              "left": 277,
+              "top": 196,
+              "width": 1155,
+              "height": 53
+            },
+            "card_content": {
+              "left": 277,
+              "top": 249,
+              "width": 1155,
+              "height": 627
+            },
+            "native_preview": {
+              "left": 277,
+              "top": 249,
+              "width": 843,
+              "height": 627
+            },
+            "preview_scroll": {
+              "left": 289,
+              "top": 297,
+              "width": 821,
+              "height": 569
+            },
+            "delivery_sheet": {
+              "left": 1120,
+              "top": 249,
+              "width": 312,
+              "height": 627
+            }
+          },
+          "native_width": 843,
+          "delivery_width": 312,
+          "preview_scroll_width": 819,
+          "preview_scroll_height": 2036,
+          "preview_client_width": 819,
+          "preview_client_height": 567,
+          "preview_available_height": 569,
+          "preview_rendered_height": 569,
+          "preview_fills_available_height": true,
+          "native_text_visible": true,
+          "native_text_length": 7523,
+          "unavailable_visible": false,
+          "loading_visible": false,
+          "error_visible": false,
+          "retry_visible": false,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Download .inp",
+            "disabled": false,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Exact mapping · download is available without acknowledgement."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      "1920x1080": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-long-1920x1080.png",
+        "screenshot_dimensions": {
+          "width": 1920,
+          "height": 1080
+        },
+        "screenshot_sha256": "38d8da028b821a19ca3505b8c900522bef034f3d7e21addd0b10db6144b1c4ef",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "long",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 293,
+              "top": 196,
+              "width": 1619,
+              "height": 860
+            },
+            "card_heading": {
+              "left": 293,
+              "top": 196,
+              "width": 1619,
+              "height": 53
+            },
+            "card_content": {
+              "left": 293,
+              "top": 249,
+              "width": 1619,
+              "height": 807
+            },
+            "native_preview": {
+              "left": 293,
+              "top": 249,
+              "width": 1307,
+              "height": 807
+            },
+            "preview_scroll": {
+              "left": 305,
+              "top": 297,
+              "width": 1285,
+              "height": 749
+            },
+            "delivery_sheet": {
+              "left": 1600,
+              "top": 249,
+              "width": 312,
+              "height": 807
+            }
+          },
+          "native_width": 1307,
+          "delivery_width": 312,
+          "preview_scroll_width": 1283,
+          "preview_scroll_height": 2036,
+          "preview_client_width": 1283,
+          "preview_client_height": 747,
+          "preview_available_height": 749,
+          "preview_rendered_height": 749,
+          "preview_fills_available_height": true,
+          "native_text_visible": true,
+          "native_text_length": 7523,
+          "unavailable_visible": false,
+          "loading_visible": false,
+          "error_visible": false,
+          "retry_visible": false,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Download .inp",
+            "disabled": false,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Exact mapping · download is available without acknowledgement."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "console_errors": [],
+        "page_errors": []
+      }
+    },
+    "loading": {
+      "1366x768": {
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-loading-1366x768.png",
+        "screenshot_dimensions": {
+          "width": 1366,
+          "height": 768
+        },
+        "screenshot_sha256": "2be6e0a35f6ea7829ac023d4f016087eb79c12e968f37c36fcc0a7481c0e5b92",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "loading",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 257,
+              "top": 196,
+              "width": 1101,
+              "height": 548
+            },
+            "card_heading": {
+              "left": 257,
+              "top": 196,
+              "width": 1101,
+              "height": 49
+            },
+            "card_content": {
+              "left": 257,
+              "top": 245,
+              "width": 1101,
+              "height": 499
+            },
+            "native_preview": {
+              "left": 257,
+              "top": 245,
+              "width": 789,
+              "height": 499
+            },
+            "preview_scroll": {
+              "left": 0,
+              "top": 0,
+              "width": 0,
+              "height": 0
+            },
+            "delivery_sheet": {
+              "left": 1046,
+              "top": 245,
+              "width": 312,
+              "height": 499
+            }
+          },
+          "native_width": 789,
+          "delivery_width": 312,
+          "preview_scroll_width": 0,
+          "preview_scroll_height": 0,
+          "preview_client_width": 0,
+          "preview_client_height": 0,
+          "preview_available_height": 734,
+          "preview_rendered_height": 0,
+          "preview_fills_available_height": false,
+          "native_text_visible": false,
+          "native_text_length": 683,
+          "unavailable_visible": false,
+          "loading_visible": true,
+          "error_visible": false,
+          "retry_visible": false,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Loading exact evidence…",
+            "disabled": true,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Exact evidence is loading · download is temporarily disabled."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      "1440x900": {
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-loading-1440x900.png",
+        "screenshot_dimensions": {
+          "width": 1440,
+          "height": 900
+        },
+        "screenshot_sha256": "074482bcc771dc13f62b64e114110345d91188f8355deb26712b674e1ba295b8",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "loading",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 277,
+              "top": 196,
+              "width": 1155,
+              "height": 680
+            },
+            "card_heading": {
+              "left": 277,
+              "top": 196,
+              "width": 1155,
+              "height": 53
+            },
+            "card_content": {
+              "left": 277,
+              "top": 249,
+              "width": 1155,
+              "height": 627
+            },
+            "native_preview": {
+              "left": 277,
+              "top": 249,
+              "width": 843,
+              "height": 627
+            },
+            "preview_scroll": {
+              "left": 0,
+              "top": 0,
+              "width": 0,
+              "height": 0
+            },
+            "delivery_sheet": {
+              "left": 1120,
+              "top": 249,
+              "width": 312,
+              "height": 627
+            }
+          },
+          "native_width": 843,
+          "delivery_width": 312,
+          "preview_scroll_width": 0,
+          "preview_scroll_height": 0,
+          "preview_client_width": 0,
+          "preview_client_height": 0,
+          "preview_available_height": 866,
+          "preview_rendered_height": 0,
+          "preview_fills_available_height": false,
+          "native_text_visible": false,
+          "native_text_length": 683,
+          "unavailable_visible": false,
+          "loading_visible": true,
+          "error_visible": false,
+          "retry_visible": false,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Loading exact evidence…",
+            "disabled": true,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Exact evidence is loading · download is temporarily disabled."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      "1920x1080": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-loading-1920x1080.png",
+        "screenshot_dimensions": {
+          "width": 1920,
+          "height": 1080
+        },
+        "screenshot_sha256": "03e97acd903f592efe0d48b493dd1ca4226752ac2fc25040278dc9dd846cf06a",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "loading",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 293,
+              "top": 196,
+              "width": 1619,
+              "height": 860
+            },
+            "card_heading": {
+              "left": 293,
+              "top": 196,
+              "width": 1619,
+              "height": 53
+            },
+            "card_content": {
+              "left": 293,
+              "top": 249,
+              "width": 1619,
+              "height": 807
+            },
+            "native_preview": {
+              "left": 293,
+              "top": 249,
+              "width": 1307,
+              "height": 807
+            },
+            "preview_scroll": {
+              "left": 0,
+              "top": 0,
+              "width": 0,
+              "height": 0
+            },
+            "delivery_sheet": {
+              "left": 1600,
+              "top": 249,
+              "width": 312,
+              "height": 807
+            }
+          },
+          "native_width": 1307,
+          "delivery_width": 312,
+          "preview_scroll_width": 0,
+          "preview_scroll_height": 0,
+          "preview_client_width": 0,
+          "preview_client_height": 0,
+          "preview_available_height": 1046,
+          "preview_rendered_height": 0,
+          "preview_fills_available_height": false,
+          "native_text_visible": false,
+          "native_text_length": 683,
+          "unavailable_visible": false,
+          "loading_visible": true,
+          "error_visible": false,
+          "retry_visible": false,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Loading exact evidence…",
+            "disabled": true,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Exact evidence is loading · download is temporarily disabled."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "console_errors": [],
+        "page_errors": []
+      }
+    },
+    "error": {
+      "1366x768": {
+        "state": "error",
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-1366x768.png",
+        "screenshot_dimensions": {
+          "width": 1366,
+          "height": 768
+        },
+        "screenshot_sha256": "003d8ba25ff726fae456008bf12c83be59fe788f1731512917c09f4ab0705e29",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "error",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 257,
+              "top": 196,
+              "width": 1101,
+              "height": 548
+            },
+            "card_heading": {
+              "left": 257,
+              "top": 196,
+              "width": 1101,
+              "height": 49
+            },
+            "card_content": {
+              "left": 257,
+              "top": 245,
+              "width": 1101,
+              "height": 499
+            },
+            "native_preview": {
+              "left": 257,
+              "top": 245,
+              "width": 789,
+              "height": 499
+            },
+            "preview_scroll": {
+              "left": 269,
+              "top": 324,
+              "width": 767,
+              "height": 410
+            },
+            "delivery_sheet": {
+              "left": 1046,
+              "top": 245,
+              "width": 312,
+              "height": 499
+            }
+          },
+          "native_width": 789,
+          "delivery_width": 312,
+          "preview_scroll_width": 765,
+          "preview_scroll_height": 408,
+          "preview_client_width": 765,
+          "preview_client_height": 408,
+          "preview_available_height": 410,
+          "preview_rendered_height": 410,
+          "preview_fills_available_height": true,
+          "native_text_visible": true,
+          "native_text_length": 683,
+          "unavailable_visible": false,
+          "loading_visible": false,
+          "error_visible": true,
+          "retry_visible": true,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Download .inp",
+            "disabled": false,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Preview error · retry the exact evidence request; Record and mapping context are retained."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "preserved_task_context": {
+          "selected_record": true,
+          "active_tab": "CAE Cards"
+        },
+        "console_errors": [],
+        "page_errors": [],
+        "recovery": {
+          "state": "normal",
+          "retry_announced": true,
+          "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-recovery-1366x768.png",
+          "screenshot_dimensions": {
+            "width": 1366,
+            "height": 768
+          },
+          "screenshot_sha256": "60497b5fef2239cd17a468b4e8fcf1316e0bccca5b753600aff5f240b21a4372",
+          "overflow": {
+            "document_horizontal": 0,
+            "document_vertical": 0,
+            "body_horizontal": 0,
+            "body_vertical": 0
+          },
+          "card": {
+            "state": "normal",
+            "mode": "normal",
+            "regions": {
+              "card_panel": {
+                "left": 257,
+                "top": 196,
+                "width": 1101,
+                "height": 548
+              },
+              "card_heading": {
+                "left": 257,
+                "top": 196,
+                "width": 1101,
+                "height": 49
+              },
+              "card_content": {
+                "left": 257,
+                "top": 245,
+                "width": 1101,
+                "height": 499
+              },
+              "native_preview": {
+                "left": 257,
+                "top": 245,
+                "width": 789,
+                "height": 499
+              },
+              "preview_scroll": {
+                "left": 269,
+                "top": 291,
+                "width": 767,
+                "height": 443
+              },
+              "delivery_sheet": {
+                "left": 1046,
+                "top": 245,
+                "width": 312,
+                "height": 499
+              }
+            },
+            "native_width": 789,
+            "delivery_width": 312,
+            "preview_scroll_width": 765,
+            "preview_scroll_height": 441,
+            "preview_client_width": 765,
+            "preview_client_height": 441,
+            "preview_available_height": 443,
+            "preview_rendered_height": 443,
+            "preview_fills_available_height": true,
+            "native_text_visible": true,
+            "native_text_length": 683,
+            "unavailable_visible": false,
+            "loading_visible": false,
+            "error_visible": false,
+            "retry_visible": false,
+            "mapping_rows": [
+              "EXACTdensitySI density is emitted unchanged.",
+              "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+              "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+              "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            ],
+            "approximation_acknowledged": false,
+            "download": {
+              "text": "Download .inp",
+              "disabled": false,
+              "primary": true
+            },
+            "open_modeling_visible": false,
+            "back_to_cards_visible": false,
+            "advanced_open": false,
+            "delivery_summary_present": false,
+            "decision_text_clipped": [],
+            "status": "Exact mapping · download is available without acknowledgement."
+          },
+          "typography": {
+            "body_px": 13,
+            "tree_row_px": 12.5,
+            "native_preview_data_px": 12.5,
+            "mapping_primary_px": 12.5,
+            "delivery_value_px": 12
+          },
+          "legacy_selector_report": {
+            "page-stack": 0,
+            "page-heading": 0,
+            "content-card": 0,
+            "module-material-card": 0,
+            "hero-actions": 0,
+            "eyebrow": 0,
+            "status-badge": 0,
+            "count-chip": 0
+          },
+          "preserved_task_context": {
+            "selected_record": true,
+            "active_tab": "CAE Cards"
+          }
+        }
+      },
+      "1440x900": {
+        "state": "error",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-1440x900.png",
+        "screenshot_dimensions": {
+          "width": 1440,
+          "height": 900
+        },
+        "screenshot_sha256": "8279c79518225b6c3819a4804188ed3b1132f1e553c44bb9471dc10e958e4cb2",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "error",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 277,
+              "top": 196,
+              "width": 1155,
+              "height": 680
+            },
+            "card_heading": {
+              "left": 277,
+              "top": 196,
+              "width": 1155,
+              "height": 53
+            },
+            "card_content": {
+              "left": 277,
+              "top": 249,
+              "width": 1155,
+              "height": 627
+            },
+            "native_preview": {
+              "left": 277,
+              "top": 249,
+              "width": 843,
+              "height": 627
+            },
+            "preview_scroll": {
+              "left": 289,
+              "top": 330,
+              "width": 821,
+              "height": 536
+            },
+            "delivery_sheet": {
+              "left": 1120,
+              "top": 249,
+              "width": 312,
+              "height": 627
+            }
+          },
+          "native_width": 843,
+          "delivery_width": 312,
+          "preview_scroll_width": 819,
+          "preview_scroll_height": 534,
+          "preview_client_width": 819,
+          "preview_client_height": 534,
+          "preview_available_height": 536,
+          "preview_rendered_height": 536,
+          "preview_fills_available_height": true,
+          "native_text_visible": true,
+          "native_text_length": 683,
+          "unavailable_visible": false,
+          "loading_visible": false,
+          "error_visible": true,
+          "retry_visible": true,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Download .inp",
+            "disabled": false,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Preview error · retry the exact evidence request; Record and mapping context are retained."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "preserved_task_context": {
+          "selected_record": true,
+          "active_tab": "CAE Cards"
+        },
+        "console_errors": [],
+        "page_errors": [],
+        "recovery": {
+          "state": "normal",
+          "retry_announced": true,
+          "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-recovery-1440x900.png",
+          "screenshot_dimensions": {
+            "width": 1440,
+            "height": 900
+          },
+          "screenshot_sha256": "029e5badf51e28a86a419113f59a8ac1bce075b79f5646d79a2478011934cf0a",
+          "overflow": {
+            "document_horizontal": 0,
+            "document_vertical": 0,
+            "body_horizontal": 0,
+            "body_vertical": 0
+          },
+          "card": {
+            "state": "normal",
+            "mode": "normal",
+            "regions": {
+              "card_panel": {
+                "left": 277,
+                "top": 196,
+                "width": 1155,
+                "height": 680
+              },
+              "card_heading": {
+                "left": 277,
+                "top": 196,
+                "width": 1155,
+                "height": 53
+              },
+              "card_content": {
+                "left": 277,
+                "top": 249,
+                "width": 1155,
+                "height": 627
+              },
+              "native_preview": {
+                "left": 277,
+                "top": 249,
+                "width": 843,
+                "height": 627
+              },
+              "preview_scroll": {
+                "left": 289,
+                "top": 297,
+                "width": 821,
+                "height": 569
+              },
+              "delivery_sheet": {
+                "left": 1120,
+                "top": 249,
+                "width": 312,
+                "height": 627
+              }
+            },
+            "native_width": 843,
+            "delivery_width": 312,
+            "preview_scroll_width": 819,
+            "preview_scroll_height": 567,
+            "preview_client_width": 819,
+            "preview_client_height": 567,
+            "preview_available_height": 569,
+            "preview_rendered_height": 569,
+            "preview_fills_available_height": true,
+            "native_text_visible": true,
+            "native_text_length": 683,
+            "unavailable_visible": false,
+            "loading_visible": false,
+            "error_visible": false,
+            "retry_visible": false,
+            "mapping_rows": [
+              "EXACTdensitySI density is emitted unchanged.",
+              "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+              "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+              "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            ],
+            "approximation_acknowledged": false,
+            "download": {
+              "text": "Download .inp",
+              "disabled": false,
+              "primary": true
+            },
+            "open_modeling_visible": false,
+            "back_to_cards_visible": false,
+            "advanced_open": false,
+            "delivery_summary_present": false,
+            "decision_text_clipped": [],
+            "status": "Exact mapping · download is available without acknowledgement."
+          },
+          "typography": {
+            "body_px": 13,
+            "tree_row_px": 12.5,
+            "native_preview_data_px": 12.5,
+            "mapping_primary_px": 12.5,
+            "delivery_value_px": 12
+          },
+          "legacy_selector_report": {
+            "page-stack": 0,
+            "page-heading": 0,
+            "content-card": 0,
+            "module-material-card": 0,
+            "hero-actions": 0,
+            "eyebrow": 0,
+            "status-badge": 0,
+            "count-chip": 0
+          },
+          "preserved_task_context": {
+            "selected_record": true,
+            "active_tab": "CAE Cards"
+          }
+        }
+      },
+      "1920x1080": {
+        "state": "error",
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "device_scale_factor": 1
+        },
+        "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-1920x1080.png",
+        "screenshot_dimensions": {
+          "width": 1920,
+          "height": 1080
+        },
+        "screenshot_sha256": "2d69f2f05b49c2525884320d3506371387bfb439db276f9d647762711990f5de",
+        "overflow": {
+          "document_horizontal": 0,
+          "document_vertical": 0,
+          "body_horizontal": 0,
+          "body_vertical": 0
+        },
+        "card": {
+          "state": "error",
+          "mode": "normal",
+          "regions": {
+            "card_panel": {
+              "left": 293,
+              "top": 196,
+              "width": 1619,
+              "height": 860
+            },
+            "card_heading": {
+              "left": 293,
+              "top": 196,
+              "width": 1619,
+              "height": 53
+            },
+            "card_content": {
+              "left": 293,
+              "top": 249,
+              "width": 1619,
+              "height": 807
+            },
+            "native_preview": {
+              "left": 293,
+              "top": 249,
+              "width": 1307,
+              "height": 807
+            },
+            "preview_scroll": {
+              "left": 305,
+              "top": 330,
+              "width": 1285,
+              "height": 716
+            },
+            "delivery_sheet": {
+              "left": 1600,
+              "top": 249,
+              "width": 312,
+              "height": 807
+            }
+          },
+          "native_width": 1307,
+          "delivery_width": 312,
+          "preview_scroll_width": 1283,
+          "preview_scroll_height": 714,
+          "preview_client_width": 1283,
+          "preview_client_height": 714,
+          "preview_available_height": 716,
+          "preview_rendered_height": 716,
+          "preview_fills_available_height": true,
+          "native_text_visible": true,
+          "native_text_length": 683,
+          "unavailable_visible": false,
+          "loading_visible": false,
+          "error_visible": true,
+          "retry_visible": true,
+          "mapping_rows": [
+            "EXACTdensitySI density is emitted unchanged.",
+            "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+            "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+            "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+          ],
+          "approximation_acknowledged": false,
+          "download": {
+            "text": "Download .inp",
+            "disabled": false,
+            "primary": true
+          },
+          "open_modeling_visible": false,
+          "back_to_cards_visible": false,
+          "advanced_open": false,
+          "delivery_summary_present": false,
+          "decision_text_clipped": [],
+          "status": "Preview error · retry the exact evidence request; Record and mapping context are retained."
+        },
+        "typography": {
+          "body_px": 13,
+          "tree_row_px": 12.5,
+          "native_preview_data_px": 12.5,
+          "mapping_primary_px": 12.5,
+          "delivery_value_px": 12
+        },
+        "legacy_selector_report": {
+          "page-stack": 0,
+          "page-heading": 0,
+          "content-card": 0,
+          "module-material-card": 0,
+          "hero-actions": 0,
+          "eyebrow": 0,
+          "status-badge": 0,
+          "count-chip": 0
+        },
+        "preserved_task_context": {
+          "selected_record": true,
+          "active_tab": "CAE Cards"
+        },
+        "console_errors": [],
+        "page_errors": [],
+        "recovery": {
+          "state": "normal",
+          "retry_announced": true,
+          "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-state-error-recovery-1920x1080.png",
+          "screenshot_dimensions": {
+            "width": 1920,
+            "height": 1080
+          },
+          "screenshot_sha256": "a9dbdff37d962d6db626915c55292776c2f1b0e511a907ab72a761e05ae6f1ab",
+          "overflow": {
+            "document_horizontal": 0,
+            "document_vertical": 0,
+            "body_horizontal": 0,
+            "body_vertical": 0
+          },
+          "card": {
+            "state": "normal",
+            "mode": "normal",
+            "regions": {
+              "card_panel": {
+                "left": 293,
+                "top": 196,
+                "width": 1619,
+                "height": 860
+              },
+              "card_heading": {
+                "left": 293,
+                "top": 196,
+                "width": 1619,
+                "height": 53
+              },
+              "card_content": {
+                "left": 293,
+                "top": 249,
+                "width": 1619,
+                "height": 807
+              },
+              "native_preview": {
+                "left": 293,
+                "top": 249,
+                "width": 1307,
+                "height": 807
+              },
+              "preview_scroll": {
+                "left": 305,
+                "top": 297,
+                "width": 1285,
+                "height": 749
+              },
+              "delivery_sheet": {
+                "left": 1600,
+                "top": 249,
+                "width": 312,
+                "height": 807
+              }
+            },
+            "native_width": 1307,
+            "delivery_width": 312,
+            "preview_scroll_width": 1283,
+            "preview_scroll_height": 747,
+            "preview_client_width": 1283,
+            "preview_client_height": 747,
+            "preview_available_height": 749,
+            "preview_rendered_height": 749,
+            "preview_fills_available_height": true,
+            "native_text_visible": true,
+            "native_text_length": 683,
+            "unavailable_visible": false,
+            "loading_visible": false,
+            "error_visible": false,
+            "retry_visible": false,
+            "mapping_rows": [
+              "EXACTdensitySI density is emitted unchanged.",
+              "EXACTisotropic elasticityYoung's modulus and Poisson ratio map directly.",
+              "TRANSFORMEDinitial yieldThe zero-plastic-strain anchor becomes the first hardening row.",
+              "TRANSFORMEDisotropic hardening curveNeutral curve stages are rendered as native rows."
+            ],
+            "approximation_acknowledged": false,
+            "download": {
+              "text": "Download .inp",
+              "disabled": false,
+              "primary": true
+            },
+            "open_modeling_visible": false,
+            "back_to_cards_visible": false,
+            "advanced_open": false,
+            "delivery_summary_present": false,
+            "decision_text_clipped": [],
+            "status": "Exact mapping · download is available without acknowledgement."
+          },
+          "typography": {
+            "body_px": 13,
+            "tree_row_px": 12.5,
+            "native_preview_data_px": 12.5,
+            "mapping_primary_px": 12.5,
+            "delivery_value_px": 12
+          },
+          "legacy_selector_report": {
+            "page-stack": 0,
+            "page-heading": 0,
+            "content-card": 0,
+            "module-material-card": 0,
+            "hero-actions": 0,
+            "eyebrow": 0,
+            "status-badge": 0,
+            "count-chip": 0
+          },
+          "preserved_task_context": {
+            "selected_record": true,
+            "active_tab": "CAE Cards"
+          }
+        }
+      }
+    }
+  }
+}

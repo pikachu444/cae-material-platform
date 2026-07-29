@@ -1,0 +1,171 @@
+{
+  "family": "ACT-QUEUE",
+  "status": "pending",
+  "capture_date": "2026-07-29",
+  "static": {
+    "html": "docs/00-research/ux-service-reference/activity-queue-normal.html",
+    "css": "docs/00-research/ux-service-reference/activity-queue.css",
+    "js": "docs/00-research/ux-service-reference/activity-queue.js",
+    "capture": "docs/00-research/ux-service-reference/capture_activity_queue_wave04.py",
+    "validator": "docs/00-research/ux-service-reference/validate_activity_queue_wave04.py"
+  },
+  "targets": {
+    "activity-user-normal-1366x768": {
+      "role": "user",
+      "state": "normal",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1366x768.measurements.json",
+      "sha256": "45ecff451bdd3b3f7d11cf8b6afb1f25cda17be19a4118c68ba5d4c37745e523"
+    },
+    "activity-user-normal-1440x900": {
+      "role": "user",
+      "state": "normal",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1440x900.measurements.json",
+      "sha256": "12b9cb7bd6d16ae57521ac69ac5dd61160d8ce3423d13e00ee66361cedfcc2aa"
+    },
+    "activity-user-normal-1920x1080": {
+      "role": "user",
+      "state": "normal",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-normal-1920x1080.measurements.json",
+      "sha256": "46cfb14e2a1ca9c8953d408004e9eff47d25c1fc7c4c311ff761509c4bd652ce"
+    },
+    "activity-reviewer-normal-1366x768": {
+      "role": "reviewer",
+      "state": "normal",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1366x768.measurements.json",
+      "sha256": "8139b08582acb9ff1595490a88486f6b4eff684271f5775a14b357c125f0b29b"
+    },
+    "activity-reviewer-normal-1440x900": {
+      "role": "reviewer",
+      "state": "normal",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1440x900.measurements.json",
+      "sha256": "daf7a2bacafaf0ae2f3c254a8a055fd4e57f6eb3dda05480726a90e9521fef3b"
+    },
+    "activity-reviewer-normal-1920x1080": {
+      "role": "reviewer",
+      "state": "normal",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-normal-1920x1080.measurements.json",
+      "sha256": "517ffdde4f5b1c49da291acd97c2f6abab9a8318e7793f05ceebeabb9db50c7b"
+    },
+    "activity-reviewer-long-decision-error-1440x900": {
+      "role": "reviewer",
+      "state": "long-decision-error",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-long-decision-error-1440x900.measurements.json",
+      "sha256": "bbcfcadd5555273afd030973f1f9e0da5ea18494722e975de3796eb0a90baaaa"
+    }
+  },
+  "evidence_only_states": {
+    "activity-user-empty-with-one-next-command": {
+      "role": "user",
+      "state": "empty",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-empty-with-one-next-command-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-empty-with-one-next-command-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-empty-with-one-next-command-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-empty-with-one-next-command.measurements.json"
+    },
+    "activity-user-loading-with-local-session-history-preserved": {
+      "role": "user",
+      "state": "loading",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-loading-with-local-session-history-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-loading-with-local-session-history-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-loading-with-local-session-history-preserved-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-loading-with-local-session-history-preserved.measurements.json"
+    },
+    "activity-user-long-row-containment": {
+      "role": "user",
+      "state": "long-row",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-long-row-containment-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-long-row-containment-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-long-row-containment-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-long-row-containment.measurements.json"
+    },
+    "activity-user-queue-error-with-current-rows-preserved": {
+      "role": "user",
+      "state": "queue-error",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-queue-error-with-current-rows-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-queue-error-with-current-rows-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-user-queue-error-with-current-rows-preserved-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-queue-error-with-current-rows-preserved.measurements.json"
+    },
+    "activity-reviewer-user-role-decision-blocked": {
+      "role": "user",
+      "state": "decision-blocked",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-user-role-decision-blocked-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-user-role-decision-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-user-role-decision-blocked-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-user-role-decision-blocked.measurements.json"
+    },
+    "activity-reviewer-stale-or-unauthorized-review": {
+      "role": "reviewer",
+      "state": "stale-unauthorized",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-stale-or-unauthorized-review-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-stale-or-unauthorized-review-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-stale-or-unauthorized-review-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-stale-or-unauthorized-review.measurements.json"
+    },
+    "activity-reviewer-decision-error-with-reason-and-request-preserved": {
+      "role": "reviewer",
+      "state": "decision-error",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-reviewer-decision-error-with-reason-and-request-preserved.measurements.json"
+    }
+  },
+  "state_evidence": "docs/17-evidence/images/issue-167-service-reference/activity-queue-wave04-state-evidence.json"
+}

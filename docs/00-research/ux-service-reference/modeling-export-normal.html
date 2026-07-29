@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Modeling Export Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="modeling-export.css">
+    <script src="modeling-export.js" defer></script>
+  </head>
+  <body class="modeling-export-page" data-state="preview-ready" data-family="metal" data-delivery-count="0" data-delivery-pointer="" data-preview-current="true">
+    <a class="skip-link" href="#modeling-main">Skip to Modeling Export workspace</a>
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no"><span class="brand-mark" aria-hidden="true">CMP</span><span class="brand-name">CAE Material Platform</span></div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a href="#materials">Materials</a><a class="active" href="#modeling-main" aria-current="page">Modeling</a><a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo workspace</span>
+    </header>
+
+    <main id="modeling-main" class="modeling-shell" data-region="modeling-workspace" aria-labelledby="modeling-title">
+      <section class="modeling-context" data-region="context-header">
+        <div class="context-identity">
+          <h1 id="modeling-title">Export solver card</h1>
+          <span class="context-material" data-context-material>DP780 Dual-Phase Steel · Tensile · room temperature</span>
+        </div>
+        <div class="context-actions">
+          <span class="session-state" data-session-state>Ready to create</span>
+          <button class="button" id="advanced-top" type="button" data-action="advanced">Advanced</button>
+        </div>
+      </section>
+
+      <nav class="stage-strip" aria-label="Modeling stages">
+        <button class="stage-button" type="button" data-stage="Data">Data</button>
+        <button class="stage-button" type="button" data-stage="Process">Process</button>
+        <button class="stage-button" type="button" data-stage="Fit">Fit</button>
+        <button class="stage-button active" type="button" aria-current="step" data-stage="Export">Export</button>
+        <span class="stage-status" data-stage-status>Export check complete</span>
+      </nav>
+
+      <section class="export-workspace" data-region="export-workspace">
+        <aside class="export-properties" data-region="properties" aria-labelledby="export-properties-title">
+          <header class="pane-heading">
+            <h2 id="export-properties-title">Export setup</h2>
+            <span class="sr-only" data-properties-state>Ready</span>
+          </header>
+          <div class="properties-scroll">
+            <section class="property-section source-section" aria-labelledby="source-title">
+              <div class="section-heading"><h3 id="source-title">Selected model</h3><span class="sr-only" data-source-state>Available</span></div>
+              <dl class="property-list source-list">
+                <div><dt>Model</dt><dd data-field="model-result">Swift / Voce blend (50/50)</dd></div>
+              </dl>
+              <button class="button text-action" type="button" data-action="view-source">Open in Fit</button>
+            </section>
+
+            <section class="property-section target-section" aria-labelledby="target-title">
+              <div class="section-heading"><h3 id="target-title">Destination</h3><span class="sr-only" data-target-state>Selected</span></div>
+              <label class="field-label" for="solver-target">Solver / format
+                <select id="solver-target" name="solver_target" data-target-select aria-describedby="target-helper">
+                  <option value="">Select Destination</option>
+                  <option value="abaqus" selected>Abaqus 2025 · ASCII</option>
+                  <option value="openradioss">OpenRadioss 2025 · ASCII</option>
+                </select>
+              </label>
+              <output class="sr-only" id="target-version" data-target-version>2025</output>
+              <label class="field-label" for="unit-system">Output unit system
+                <select id="unit-system" name="unit_system" data-unit-system-select aria-describedby="unit-system-capability">
+                  <option value="">Select unit system</option>
+                  <option value="kg_m_s" selected>kg · m · s</option>
+                  <option value="unavailable" disabled>Other unit systems — unavailable</option>
+                </select>
+              </label>
+              <span class="sr-only" id="unit-system-capability">Options are supplied by the selected exporter capability.</span>
+              <p class="helper-text target-message" id="target-helper" data-target-helper hidden></p>
+              <button class="button secondary-action check-again" type="button" data-action="run-check" hidden>Run Export check</button>
+            </section>
+
+            <section class="property-section check-section" aria-labelledby="check-title">
+              <div class="section-heading"><h3 id="check-title">Export check</h3></div>
+              <div class="check-status" data-check-status>
+                <strong data-check-state>Ready to create</strong>
+                <span data-check-summary>No blockers</span>
+              </div>
+              <button class="button primary-action" type="button" data-action="create-card" id="create-card">Create solver card</button>
+              <button class="button secondary-action" type="button" data-action="delivery-details" id="delivery-details" hidden>Delivery details</button>
+              <button class="button secondary-action" type="button" data-action="retry-preview" id="retry-preview" hidden>Retry Export check</button>
+              <label class="acknowledgement" data-ack-row hidden><input type="checkbox" id="approximation-ack" data-approximation-ack><span>Confirm <strong data-ack-identity>post-necking bounded extension · OpenRadioss 2025</strong>.</span></label>
+            </section>
+
+            <details class="technical-disclosure" data-advanced-disclosure>
+              <summary>Advanced</summary>
+              <dl class="property-list technical-list">
+                <div><dt>Temperature applicability</dt><dd><span class="technical-status">NOT_APPLICABLE</span> · Advanced</dd></div>
+                <div><dt>Strain-rate applicability</dt><dd><span class="technical-status">NOT_APPLICABLE</span> · Advanced</dd></div>
+                <div><dt>Mapping digest</dt><dd data-mapping-digest>metal-abaqus-2025-kg_m_s-v1</dd></div>
+                <div><dt>Delivery details</dt><dd>Receipt identity appears after create.</dd></div>
+              </dl>
+              <div class="mapping-counts technical-counts" role="list" aria-label="Technical mapping counts">
+                <div role="listitem"><span>Exact</span><strong data-count="exact">2</strong></div>
+                <div role="listitem"><span>Transformed</span><strong data-count="transformed">3</strong></div>
+                <div role="listitem" class="warning-count"><span>Approximated</span><strong data-count="approximated">1</strong></div>
+                <div role="listitem"><span>Not applicable</span><strong data-count="not_applicable">2</strong></div>
+              </div>
+            </details>
+          </div>
+        </aside>
+
+        <div class="export-divider" data-region="export-divider">
+          <div class="export-divider-resizer" role="separator" aria-orientation="vertical" aria-label="Resize Export setup" aria-valuemin="300" aria-valuemax="360" aria-valuenow="320" tabindex="0"></div>
+          <button type="button" aria-label="Collapse Export setup" aria-expanded="true" data-action="toggle-properties"><span aria-hidden="true">‹</span></button>
+        </div>
+
+        <section class="export-main" data-region="export-main" aria-label="Solver card result workspace">
+          <section class="export-result" data-region="export-result">
+            <section class="native-preview" aria-labelledby="native-preview-title">
+              <header class="preview-heading">
+                <div><h2 id="native-preview-title">Solver Card preview</h2><span data-preview-target>Abaqus 2025 · kg · m · s · synthetic reference</span></div>
+                <span class="preview-state" data-preview-state>Current preview · not created</span>
+              </header>
+              <div class="preview-error" role="alert" data-preview-error hidden></div>
+              <div class="preview-loading" data-preview-loading role="status" aria-live="polite" hidden><strong>Checking…</strong></div>
+              <div id="native-preview-scroll" class="preview-scroll" tabindex="0" aria-label="Scrollable native solver card text"><pre id="native-text">*HEADING
+** CMP synthetic reference · DP780 selected model
+*MATERIAL, NAME=DP780_SYNTHETIC_R1
+** Selected model: Swift / Voce blend (50/50)
+** Unit convention: kg · m · s; stress in Pa
+*DENSITY
+  7.80000000E+03,
+*ELASTIC
+  2.10000000E+11, 3.00000000E-01
+*PLASTIC
+  4.50000000E+08, 0.00000000E+00
+  5.00000000E+08, 1.00000000E-02
+  5.60000000E+08, 2.50000000E-02
+  6.20000000E+08, 5.00000000E-02
+  6.80000000E+08, 1.00000000E-01
+** Mapping: density exact · source/output kg/m³ agree
+** Mapping: isotropic elasticity exact · source/output Pa agree
+** Mapping: initial yield transformed · first *PLASTIC row
+** Mapping: hardening response transformed · native formatting
+** Mapping: post-necking extension · approximation acknowledged for this exact preview
+** Preview only · Create solver card writes one immutable revision
+** End of exact synthetic Abaqus card</pre></div>
+              <div class="scroll-cue native-scroll-cue" aria-hidden="true"><span></span></div>
+            </section>
+
+            <aside class="result-context" data-region="result-context" aria-label="Mapping details and Fit source">
+              <section class="mapping-sheet" data-region="mapping-sheet" aria-labelledby="mapping-title">
+                <header class="mapping-heading"><h2 id="mapping-title">Mapping details</h2><span data-mapping-state>6 mapped</span></header>
+                <div class="mapping-scroll" tabindex="0" aria-label="Scrollable mapping details"><ul class="mapping-list" id="mapping-list">
+                  <li class="mapping-row" data-status="exact"><div><strong>Density</strong><span>7,800 kg/m³ → 7.8000E+03</span></div><span class="mapping-status exact">Exact</span></li>
+                  <li class="mapping-row" data-status="exact"><div><strong>Isotropic elasticity</strong><span>210 GPa, ν 0.30 → *ELASTIC</span></div><span class="mapping-status exact">Exact</span></li>
+                  <li class="mapping-row" data-status="transformed"><div><strong>Initial yield</strong><span>450 MPa at εp = 0 → first *PLASTIC row</span></div><span class="mapping-status transformed">Converted</span></li>
+                  <li class="mapping-row" data-status="transformed"><div><strong>Hardening response</strong><span>5 points → native *PLASTIC rows</span></div><span class="mapping-status transformed">Converted</span></li>
+                  <li class="mapping-row" data-status="transformed"><div><strong>Unit convention</strong><span>kg · m · s → stress in Pa</span></div><span class="mapping-status transformed">Converted</span></li>
+                  <li class="mapping-row mapping-review" data-status="approximated" data-approximation-row><div><strong>Post-necking extension</strong><span>Bounded extension → target behavior</span></div><span class="mapping-status acknowledged">Reviewed</span></li>
+                </ul></div>
+                <details class="mapping-disclosure"><summary>Technical mapping details</summary><p>Exact 2 · transformed 3 · approximated 1 · not applicable 2 · unsupported 0.</p></details>
+                <div class="scroll-cue mapping-scroll-cue" aria-hidden="true"><span></span></div>
+              </section>
+
+              <section class="fit-source" aria-labelledby="fit-source-title">
+                <header><h2 id="fit-source-title">Fit source</h2><button class="button" type="button" data-action="open-fit">Open full graph</button></header>
+                <p class="fit-copy" data-fit-copy>Swift / Voce blend (50/50)</p>
+                <span class="sr-only" data-fit-family-label>Metal hardening response</span>
+                <div class="family-modes" data-family-modes hidden aria-label="Hyperelastic response mode">
+                  <button class="button mode-button active" type="button" data-mode="Uniaxial">Uniaxial</button><button class="button mode-button" type="button" data-mode="Biaxial">Biaxial</button><button class="button mode-button" type="button" data-mode="Planar">Planar</button><button class="button mode-button" type="button" data-mode="Volumetric">Volumetric</button>
+                </div>
+                <div class="source-graph-wrap" data-source-graph-wrap>
+                  <svg class="source-graph" data-family-graph="metal" role="img" viewBox="0 0 320 210" preserveAspectRatio="xMidYMid meet"></svg>
+                  <svg class="source-graph" data-family-graph="linear-viscoelastic" hidden role="img" viewBox="0 0 320 210" preserveAspectRatio="xMidYMid meet"></svg>
+                  <svg class="source-graph" data-family-graph="hyperelastic" hidden role="img" viewBox="0 0 320 210" preserveAspectRatio="xMidYMid meet"></svg>
+                </div>
+              </section>
+            </aside>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <footer class="status-bar" data-region="status-bar" aria-live="polite">
+      <span data-status-selection>Swift / Voce blend (50/50)</span><span data-status-job>Export check complete</span><span data-status-warning>Ready to create</span><span class="online-state"><i aria-hidden="true"></i>Online</span><span class="sr-only" id="interaction-status" role="status"></span>
+    </footer>
+  </body>
+</html>

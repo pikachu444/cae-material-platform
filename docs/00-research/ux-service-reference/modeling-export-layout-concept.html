@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MOD-EXPORT layout concept</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #12212d;
+        --muted: #526675;
+        --line: #bccad3;
+        --soft-line: #d9e2e7;
+        --surface: #ffffff;
+        --subtle: #f4f7f8;
+        --nav: #132735;
+        --accent: #0b6f9f;
+        --accent-soft: #e7f3f8;
+        --ok: #166534;
+        --warn: #9a6700;
+        --danger: #b42318;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--surface);
+        color: var(--ink);
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 13px;
+      }
+
+      button, select {
+        min-height: 30px;
+        border: 1px solid #9eb1bd;
+        background: #fff;
+        color: var(--ink);
+        font: inherit;
+      }
+
+      button:focus-visible, select:focus-visible {
+        outline: 2px solid #1385bc;
+        outline-offset: 1px;
+      }
+
+      .app {
+        display: grid;
+        height: 100%;
+        grid-template-rows: 46px 42px 34px minmax(0, 1fr) 24px;
+      }
+
+      .app-bar {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 0 14px;
+        background: var(--nav);
+        color: #fff;
+      }
+
+      .brand { font-weight: 650; }
+      .nav { display: flex; height: 100%; }
+      .nav span { display: grid; min-width: 84px; place-items: center; }
+      .nav .active { border-bottom: 3px solid #61b5da; background: #1b3546; }
+      .workspace-name { justify-self: end; font-size: 12px; }
+
+      .context-bar, .stage-bar {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .context-bar {
+        gap: 14px;
+        padding: 0 14px;
+      }
+
+      .context-bar h1 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      .context-copy { color: var(--muted); }
+      .context-bar .spacer { flex: 1; }
+      .context-status { color: var(--ok); font-size: 12px; }
+
+      .stage-bar { padding-left: 8px; }
+      .stage {
+        display: grid;
+        width: 140px;
+        height: 100%;
+        place-items: center;
+        border-right: 1px solid var(--soft-line);
+      }
+      .stage.active {
+        border-bottom: 2px solid var(--accent);
+        color: #004d75;
+        font-weight: 650;
+      }
+      .stage-note { padding-left: 12px; color: var(--muted); font-size: 12px; }
+
+      .workspace {
+        display: grid;
+        min-width: 0;
+        min-height: 0;
+        grid-template-columns: 300px minmax(520px, 1fr) 330px;
+      }
+
+      .setup, .preview, .details {
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .setup {
+        overflow-y: auto;
+        border-right: 1px solid var(--line);
+        background: var(--subtle);
+      }
+
+      .section {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .section h2, .pane-title h2, .details h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .section-lead {
+        margin: 4px 0 10px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .field {
+        display: grid;
+        grid-template-columns: 88px minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .field label { color: var(--muted); font-size: 12px; }
+      .field select { width: 100%; padding: 0 8px; }
+
+      .readiness {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .ready { color: var(--ok); font-size: 15px; font-weight: 650; }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 10px;
+        border: 1px solid var(--line);
+      }
+      .summary div { padding: 8px 4px; text-align: center; }
+      .summary div + div { border-left: 1px solid var(--line); }
+      .summary strong { display: block; font-size: 16px; }
+      .summary span { color: var(--muted); font-size: 11px; }
+
+      .primary {
+        width: 100%;
+        margin-top: 12px;
+        border-color: #07648f;
+        background: #0b739f;
+        color: #fff;
+        font-weight: 650;
+      }
+
+      .preview {
+        display: grid;
+        grid-template-rows: 52px minmax(0, 1fr);
+        background: #fff;
+      }
+
+      .pane-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--line);
+      }
+      .pane-title span { color: var(--muted); font-size: 12px; }
+      .pane-title .spacer { flex: 1; }
+      .pane-title .state { color: #805500; }
+
+      .code-sheet {
+        margin: 12px;
+        min-width: 0;
+        min-height: 0;
+        overflow: auto;
+        border: 1px solid #9eb0bb;
+        background:
+          linear-gradient(90deg, #eef2f4 0 42px, transparent 42px),
+          #fbfcfc;
+        color: #183241;
+        font: 12.5px/1.52 Consolas, "Courier New", monospace;
+        white-space: pre;
+        padding: 16px 18px 16px 58px;
+        tab-size: 2;
+      }
+
+      .details {
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) 230px;
+        border-left: 1px solid var(--line);
+      }
+
+      .mapping {
+        display: grid;
+        min-height: 0;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .details-heading {
+        padding: 11px 12px 9px;
+        border-bottom: 1px solid var(--line);
+      }
+      .details-heading p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .mapping-list {
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        list-style: none;
+        scrollbar-gutter: stable;
+      }
+
+      .mapping-row {
+        display: grid;
+        grid-template-columns: 86px minmax(0, 1fr);
+        gap: 8px;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--soft-line);
+      }
+      .tag {
+        align-self: start;
+        padding: 2px 4px;
+        border: 1px solid #8eb9a2;
+        color: var(--ok);
+        font-size: 10px;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+      }
+      .tag.converted { border-color: #d7b36a; color: var(--warn); }
+      .tag.context { border-color: #aab8c1; color: var(--muted); }
+      .tag.approx { border-color: #df9b8d; color: var(--danger); }
+      .mapping-row strong { display: block; font-size: 12px; }
+      .mapping-row small { display: block; margin-top: 2px; color: var(--muted); line-height: 1.35; }
+
+      .fit-source {
+        padding: 10px 12px;
+        border-top: 1px solid var(--line);
+        background: var(--subtle);
+      }
+      .fit-source header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+      .fit-source h2 { font-size: 13px; }
+      .fit-source button { min-height: 26px; padding: 0 8px; font-size: 11px; }
+      .fit-copy { margin: 3px 0 7px; color: var(--muted); font-size: 11px; }
+      .mini-graph {
+        width: 100%;
+        height: 150px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 10px;
+        border-top: 1px solid var(--line);
+        background: #edf2f4;
+        color: var(--muted);
+        font-size: 11px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="app-bar">
+        <div class="brand">CMP&nbsp;&nbsp; CAE Material Platform</div>
+        <nav class="nav" aria-label="Primary">
+          <span>Materials</span>
+          <span class="active">Modeling</span>
+          <span>Activity</span>
+        </nav>
+        <div class="workspace-name">Demo workspace</div>
+      </header>
+
+      <section class="context-bar" aria-labelledby="page-title">
+        <h1 id="page-title">Create solver card</h1>
+        <span class="context-copy">DP780 Dual-Phase Steel · Tensile · room temperature</span>
+        <span class="spacer"></span>
+        <span class="context-status">Saved Fit result selected</span>
+      </section>
+
+      <nav class="stage-bar" aria-label="Modeling stages">
+        <span class="stage">Data</span>
+        <span class="stage">Process</span>
+        <span class="stage">Fit</span>
+        <span class="stage active">Export</span>
+        <span class="stage-note">Choose a destination, review changes, then create one solver card.</span>
+      </nav>
+
+      <section class="workspace">
+        <aside class="setup" aria-label="Solver card destination and readiness">
+          <section class="section">
+            <h2>Destination</h2>
+            <p class="section-lead">Choose the solver format, version, and unit system.</p>
+            <div class="field">
+              <label for="solver">Solver / format</label>
+              <select id="solver"><option>Abaqus · Native ASCII</option></select>
+            </div>
+            <div class="field">
+              <label for="version">Version</label>
+              <select id="version"><option>2025</option></select>
+            </div>
+            <div class="field">
+              <label for="units">Unit system</label>
+              <select id="units"><option>kg · m · s</option></select>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Readiness</h2>
+            <div class="readiness">
+              <span class="ready">Ready to create</span>
+              <span>0 blockers</span>
+            </div>
+            <div class="summary" aria-label="Mapping summary">
+              <div><strong>2</strong><span>Direct</span></div>
+              <div><strong>2</strong><span>Converted</span></div>
+              <div><strong>1</strong><span>Needs review</span></div>
+            </div>
+            <p class="section-lead">Review the 1 approximation in Mapping details before creating this card.</p>
+            <button class="primary" type="button">Create solver card</button>
+          </section>
+        </aside>
+
+        <section class="preview" aria-labelledby="preview-title">
+          <header class="pane-title">
+            <h2 id="preview-title">Solver card preview</h2>
+            <span>Abaqus 2025 · kg · m · s</span>
+            <span class="spacer"></span>
+            <span class="state">Preview only · not created</span>
+          </header>
+          <pre class="code-sheet" aria-label="Solver card text preview">*HEADING
+** CMP synthetic reference · DP780 saved Fit result
+*MATERIAL, NAME=DP780_SYNTHETIC_R1
+** Source: Swift / Voce 50/50 blend · Fit r1
+
+*DENSITY
+  7.80000000E-09,
+
+*ELASTIC
+  2.10000000E+05, 3.00000000E-01
+
+*PLASTIC
+  4.50000000E+02, 0.00000000E+00
+  5.00000000E+02, 1.00000000E-02
+  5.60000000E+02, 2.50000000E-02
+  6.20000000E+02, 5.00000000E-02
+  6.80000000E+02, 1.00000000E-01
+
+** Preview only. Creating the card produces
+** a new immutable solver-card revision.</pre>
+        </section>
+
+        <aside class="details" aria-label="Mapping and Fit source">
+          <section class="mapping">
+            <header class="details-heading">
+              <h2>Mapping details</h2>
+              <p>How source properties will be written to this solver card.</p>
+            </header>
+            <ul class="mapping-list">
+              <li class="mapping-row">
+                <span class="tag converted">Converted</span>
+                <span><strong>Density → *DENSITY</strong><small>Value converted to the selected unit system.</small></span>
+              </li>
+              <li class="mapping-row">
+                <span class="tag">Direct</span>
+                <span><strong>Isotropic elasticity → *ELASTIC</strong><small>Same isotropic law and compatible target fields.</small></span>
+              </li>
+              <li class="mapping-row">
+                <span class="tag context">Context</span>
+                <span><strong>Material state</strong><small>Retained with the card record; not written as a solver keyword.</small></span>
+              </li>
+              <li class="mapping-row">
+                <span class="tag converted">Converted</span>
+                <span><strong>Hardening response → *PLASTIC</strong><small>Saved Fit response written as solver-native rows.</small></span>
+              </li>
+              <li class="mapping-row">
+                <span class="tag approx">Review</span>
+                <span><strong>Post-necking extension</strong><small>Target has no exact field; bounded approximation requires confirmation.</small></span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="fit-source">
+            <header>
+              <h2>Fit source</h2>
+              <button type="button">Open source graph</button>
+            </header>
+            <p class="fit-copy">Swift / Voce 50/50 blend · Fit r1 · saved</p>
+            <svg class="mini-graph" viewBox="0 0 300 150" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Yield stress versus true plastic strain source preview">
+              <rect x="0" y="0" width="300" height="150" fill="#fff"/>
+              <g stroke="#e0e7eb" stroke-width="1">
+                <line x1="38" y1="24" x2="286" y2="24"/><line x1="38" y1="58" x2="286" y2="58"/>
+                <line x1="38" y1="92" x2="286" y2="92"/><line x1="38" y1="126" x2="286" y2="126"/>
+                <line x1="38" y1="24" x2="38" y2="126"/><line x1="100" y1="24" x2="100" y2="126"/>
+                <line x1="162" y1="24" x2="162" y2="126"/><line x1="224" y1="24" x2="224" y2="126"/>
+              </g>
+              <g stroke="#66808e" stroke-width="1.2"><line x1="38" y1="126" x2="286" y2="126"/><line x1="38" y1="24" x2="38" y2="126"/></g>
+              <path d="M38 104 C72 84, 112 63, 156 49 S238 31, 282 27" fill="none" stroke="#0b76a6" stroke-width="2.2"/>
+              <text x="162" y="145" text-anchor="middle" fill="#526675" font-size="10">True plastic strain [1]</text>
+              <text x="10" y="76" text-anchor="middle" fill="#526675" font-size="10" transform="rotate(-90 10 76)">Yield stress (MPa)</text>
+            </svg>
+          </section>
+        </aside>
+      </section>
+
+      <footer class="status-bar">
+        <span>Fit r1 selected</span>
+        <span>Preview current</span>
+        <span>1 mapping item needs review</span>
+        <span>Online</span>
+      </footer>
+    </main>
+  </body>
+</html>

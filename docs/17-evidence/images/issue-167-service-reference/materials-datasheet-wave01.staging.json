@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated": "2026-07-29",
+  "family": "MAT-DETAIL",
+  "references": [
+    {
+      "id": "materials-datasheet-overview-normal-1920x1080",
+      "kind": "normal",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-overview-normal-1920x1080.png",
+      "measurements": "materials-datasheet-overview-normal-1920x1080.measurements.json",
+      "image_sha256": "eda9da6037d7dec12fd4c4c5ce5fa77e993a1faa37f5853b3da5c2203bd35849",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": []
+    },
+    {
+      "id": "materials-datasheet-related-long-1440x900",
+      "kind": "related",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.png",
+      "measurements": "materials-datasheet-related-long-1440x900.measurements.json",
+      "image_sha256": "810394678a9a77c1c35adc4a1848ca45eadd71a1a95a69ea94af7266405079b6",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.responsive-1920x1080.png"
+      ]
+    },
+    {
+      "id": "materials-datasheet-empty-1440x900",
+      "kind": "empty",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.png",
+      "measurements": "materials-datasheet-empty-1440x900.measurements.json",
+      "image_sha256": "8df98559459f03db925e02251e10a84265b9ff1e21cd8f4573dd9d2a090548e6",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-empty-1440x900.responsive-1920x1080.png"
+      ]
+    }
+  ]
+}

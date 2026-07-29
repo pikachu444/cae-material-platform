@@ -46,6 +46,42 @@ A route passes only when:
 - no hard-gate criterion scores 0;
 - required screenshots and measurements exist.
 
+The numeric result is necessary but never sufficient. Any applicable failure in the following
+qualitative checklist blocks handoff regardless of score.
+
+## Mandatory qualitative owner checklist
+
+This is the canonical record of the cumulative product-owner findings. Every visual
+implementer packet links it. After deterministic gates, both the main agent and fresh read-only
+reviewer independently open every target/state image at original resolution and record `pass`,
+`fail`, or `not-applicable` plus direct image/path evidence for Q-01–Q-16. `Not-applicable` requires
+a screen-topology reason. A generic web-guideline audit supplements this checklist but cannot replace
+it. After reviewer disposition, the main agent repeats the full-screen judgment and the product owner
+makes the final visual approval.
+
+| ID | Qualitative review requirement |
+| --- | --- |
+| Q-01 | Long navigator trees expose a visible, independent local scrollbar. |
+| Q-02 | Long result lists expose a visible, independent local scrollbar; empty results show no fake result scrollbar. |
+| Q-03 | Materials navigation uses compact 24–26 px rows, economical indentation/type glyphs, reachable complete identities and no scrollbar/text collision. |
+| Q-04 | Fit controls and status do not squeeze the graph; the ribbon stays shallow and candidate parameters use a bounded on-demand drawer while preserving a useful graph. |
+| Q-05 | Engineering axes use compact, consistent typography; values, titles and frame do not collide, the x title is not detached, units appear in titles and unused whitespace is materially minimized. |
+| Q-06 | Multiple curve identities do not form a wide footer or compete with decision status; the curve legend remains compact and semantically separate. |
+| Q-07 | Responsive plots preserve real glyph/stroke proportions; measured plot geometry is recomputed without non-uniform SVG stretching. |
+| Q-08 | True-yield-stress versus true-plastic-strain response starts at a positive initial yield stress at zero plastic strain and is not mislabeled as total stress–strain. |
+| Q-09 | Overflow affordances are perceptually discoverable in captured pixels with distinct reserved tracks, proportional thumbs and pointer/wheel/keyboard consequences; tree rows remain concise stored identities. |
+| Q-10 | Fit legend occupies a demonstrably curve-free plot quadrant and recovers graph width, with geometry-aware alternate placement or compact docked fallback on collision. |
+| Q-11 | Fit rail shares the Materials navigator's flat pane rhythm, sentence-case sections, regular identity weight, aligned hierarchy, secondary revision text and restrained selection, while preserving curve-specific controls and its own topology. |
+| Q-12 | Export setup identifies the exact branch by its selected model, while the shared experiment/method/condition remains page context. Output unit system remains a capability-backed selector even with one supported value; unsupported alternatives never become a selectable invalid state. Physical properties appear once in Mapping details when they affect output; ambiguous `r1` shorthand, duplicate Source/Output labels, `Saved`, `Pinned`, internal lineage and receipt vocabulary stay out of the normal surface. |
+| Q-13 | Export setup and result columns use a consistent compact row grammar. Secondary copy is one short consequence or recovery instruction, not a paragraph squeezed beneath every field or mapping row; technical counts and classifications stay in Advanced. |
+| Q-14 | Export readiness is expressed once as `Ready to create`, `Review required`, or `Cannot create`, followed by the exact blocker/review/action. The same state is not restated with competing colors or repeated in setup, preview and Mapping details. |
+| Q-15 | Compact engineering plots derive domain headroom from the displayed data span, preserve a physically meaningful zero anchor where applicable, and keep curves clear of the frame. Family-specific axes, units, glyph proportions and legend placement remain correct at every viewport. |
+| Q-16 | Export keeps the native solver-card preview dominant. Mapping details and Fit source share a bounded read-only context column; normal content does not show fake scroll rails, while genuine long mapping/native content exposes independent local scrolling without shrinking or obscuring the graph. |
+
+An `approve` disposition must include the completed Q-01–Q-16 result. Automated measurements support
+the evidence but do not prove visual quality. Any unresolved applicable `fail` requires
+`changes_requested`.
+
 ## Criteria
 
 | ID | Criterion | Hard gate | Verification |
@@ -95,6 +131,12 @@ Additional checks:
 - local search fixed above tree;
 - Database/Profile/Table/Folder/Record depth is visible;
 - tree scroll is independent;
+- overflowing tree/result panes show a distinct reserved track and proportional thumb in the
+  captured pixels; DOM overflow or an auto-hidden native scrollbar alone does not pass;
+- the vertical and conditional horizontal tree scrollbars operate by pointer, wheel and keyboard,
+  never cover node text and preserve access to the complete stored identity;
+- node labels are concise identities with aligned disclosure/type glyphs; descriptive qualification
+  prose is not repeated in every row;
 - selected Record opens datasheet in adjacent context;
 - forward/reverse links remain accessible.
 
@@ -128,8 +170,19 @@ Additional checks:
 - actual plot width is at least 72% of workspace at 1440 px;
 - curve rows separate inclusion checkbox from icon-only plot visibility;
 - curve tree is 184–210 px and controls do not create a permanent third column;
+- the Modeling rail and Materials navigator read as one desktop product: flat headings, sentence-case
+  section labels, regular 12–13 px identities, aligned hierarchy indentation and the same restrained
+  leading-accent selection grammar; stage-specific curve controls remain distinct rather than being
+  copied into catalog rows;
+- at the minimum rail width, every visible specimen identity/revision is unclipped, the narrow
+  plot-color sample does not resemble a badge or branch, and long rail content scrolls locally
+  without changing graph width;
 - task controls are property rows, not cards;
 - response/residual/extrapolation state is visible in the plot;
+- the curve legend overlays a measured data-free plot quadrant and does not consume a permanent
+  right column; deterministic geometry evidence proves it misses curves, boundaries, axes, labels
+  and state overlays at every required viewport, with a docked fallback only when no safe quadrant
+  exists;
 - cursor/selection state appears in status bar.
 
 ### Modeling Export
@@ -137,16 +190,25 @@ Additional checks:
 Required topology:
 
 ```text
-Export properties | Native card preview
+Destination + Export check | Native card preview | bounded read-only Mapping details / Fit source
 ```
 
 Additional checks:
 
 - native text preview is the dominant area;
-- solver/law/unit controls fit in 300–360 px pane;
+- Destination and Export check fit in a 300–340 px setup pane;
+- the Mapping/Fit-source region is read-only result context, not a permanent control inspector;
+- physical source values such as Density are read-only and show source/output units when relevant;
+- only exporter-declared target tuples are selectable; a one-value version/unit field is not
+  presented as a meaningful choice;
+- `Ready to create`, `Review required` and `Cannot create` agree with blockers and acknowledgement;
+- Material State context is not counted as an exact solver-field mapping;
+- native ASCII uses a light code surface and internally consistent target units/values;
+- metal, linear-viscoelastic and hyperelastic mapping/plot content use their own quantities without
+  changing the approved region topology;
 - approximation/unsupported warning is visible;
-- Download is the sole filled primary command;
-- detailed mapping evidence is disclosed.
+- Create/Open Solver Card is the sole filled primary command for the current state;
+- detailed technical mapping status, JSON, identifiers and receipt mechanics are disclosed.
 
 ### Administration
 

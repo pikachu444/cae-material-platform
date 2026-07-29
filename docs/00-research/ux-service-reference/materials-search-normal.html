@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Materials Search Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <script src="reference.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to materials workspace</a>
+
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no">
+        <span class="brand-mark" aria-hidden="true">CMP</span>
+        <span class="brand-name">CAE Material Platform</span>
+      </div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a class="active" href="#main-content" aria-current="page">Materials</a>
+        <a href="#modeling">Modeling</a>
+        <a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo user</span>
+    </header>
+
+    <main id="main-content" class="workspace-shell">
+      <section class="workspace-command-bar" data-region="command-bar" aria-labelledby="workspace-title">
+        <h1 id="workspace-title">Materials</h1>
+      </section>
+
+      <section class="search-band" data-region="search-band" aria-label="Material search">
+        <form id="material-search-form" class="material-search-form" role="search">
+          <label class="sr-only" for="material-query">Search materials</label>
+          <input
+            id="material-query"
+            name="material-query"
+            type="search"
+            value="steel"
+            autocomplete="off"
+            aria-keyshortcuts="Control+K Meta+K"
+          >
+          <button class="button primary-action" type="submit">Find</button>
+        </form>
+      </section>
+
+      <section class="materials-workspace" data-region="materials-workspace" aria-label="Materials explorer and results">
+        <aside class="navigator-pane" data-region="navigator" aria-labelledby="navigator-title">
+          <div class="pane-title">
+            <h2 id="navigator-title">Browse catalog</h2>
+          </div>
+
+          <nav class="navigator-modes" aria-label="Navigator mode">
+            <button class="active" type="button" aria-pressed="true">Browse</button>
+            <button type="button" aria-pressed="false">Filters</button>
+            <button type="button" aria-pressed="false">Subsets</button>
+          </nav>
+
+          <div class="scope-controls" aria-label="Catalog scope">
+            <label>
+              <span>Database</span>
+              <select name="database">
+                <option selected>Materials Database</option>
+              </select>
+            </label>
+            <label>
+              <span>Profile</span>
+              <select name="profile">
+                <option selected>Engineering Materials</option>
+              </select>
+            </label>
+            <label>
+              <span>Table</span>
+              <select name="table">
+                <option selected>Demo Material Records</option>
+              </select>
+            </label>
+          </div>
+
+          <form class="tree-search" role="search">
+            <label class="sr-only" for="tree-query">Find folder or record</label>
+            <input
+              id="tree-query"
+              name="tree-query"
+              type="search"
+              placeholder="Find folder or record"
+              autocomplete="off"
+            >
+          </form>
+
+          <div class="tree-scroll">
+            <div id="material-tree" class="material-tree" role="tree" aria-label="Material database hierarchy">
+              <div
+                id="tree-database"
+                class="tree-row depth-0"
+                role="treeitem"
+                aria-level="1"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Database"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Materials Database">Materials Database</span>
+                <span class="tree-kind">Database</span>
+              </div>
+              <div
+                id="tree-profile"
+                class="tree-row depth-1"
+                role="treeitem"
+                aria-level="2"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Profile"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Engineering Materials">Engineering Materials</span>
+                <span class="tree-kind">Profile</span>
+              </div>
+              <div
+                id="tree-table"
+                class="tree-row depth-2"
+                role="treeitem"
+                aria-level="3"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Table"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Demo Material Records">Demo Material Records</span>
+                <span class="tree-kind">Table</span>
+              </div>
+              <div
+                id="tree-metals"
+                class="tree-row depth-3"
+                role="treeitem"
+                aria-level="4"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Folder"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Synthetic metals">Synthetic metals</span>
+                <span class="tree-kind">Folder</span>
+              </div>
+              <div
+                id="tree-steels"
+                class="tree-row depth-4"
+                role="treeitem"
+                aria-level="5"
+                aria-expanded="true"
+                tabindex="-1"
+                data-kind="Folder"
+              >
+                <span class="tree-disclosure" aria-hidden="true">▾</span>
+                <span class="tree-label" title="Demo steels">Demo steels</span>
+                <span class="tree-kind">Folder</span>
+              </div>
+              <div
+                id="tree-dp780"
+                class="tree-row depth-5 selected"
+                role="treeitem"
+                aria-level="6"
+                aria-selected="true"
+                tabindex="0"
+                data-kind="Record"
+              >
+                <span class="tree-disclosure" aria-hidden="true"></span>
+                <span class="tree-label" title="DP780 synthetic demo steel">DP780 synthetic demo steel</span>
+                <span class="tree-kind">Record</span>
+              </div>
+              <div
+                id="tree-dp600"
+                class="tree-row depth-5"
+                role="treeitem"
+                aria-level="6"
+                aria-selected="false"
+                tabindex="-1"
+                data-kind="Record"
+              >
+                <span class="tree-disclosure" aria-hidden="true"></span>
+                <span class="tree-label" title="DP600 synthetic demo steel">DP600 synthetic demo steel</span>
+                <span class="tree-kind">Record</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div
+          class="splitter navigator-divider"
+          role="separator"
+          aria-label="Resize catalog navigator"
+          aria-orientation="vertical"
+          aria-valuemin="200"
+          aria-valuemax="360"
+          aria-valuenow="264"
+          tabindex="0"
+          data-region="navigator-divider"
+        >
+          <span aria-hidden="true"></span>
+        </div>
+
+        <section class="results-pane" data-region="results" aria-labelledby="results-title">
+          <header class="results-heading">
+            <div>
+              <h2 id="results-title">Search results</h2>
+              <span class="result-count">1–6 of 6 matches</span>
+            </div>
+            <p>Enter opens · select up to 3 to compare</p>
+          </header>
+
+          <div class="results-table-scroll">
+            <table class="results-table">
+              <colgroup>
+                <col class="compare-column">
+                <col class="material-column">
+                <col class="family-column">
+                <col class="description-column">
+                <col class="status-column">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col" data-column="Compare">
+                    <span class="column-label">Compare</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Material / grade">
+                    <span class="column-label">Material / grade</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Family">
+                    <span class="column-label">Family</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Description">
+                    <span class="column-label">Description</span>
+                    <span class="column-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th scope="col" data-column="Status">
+                    <span class="column-label">Status</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  class="result-row selected"
+                  tabindex="0"
+                  aria-selected="true"
+                  data-result-row
+                  data-name="DP780 synthetic demo steel"
+                  data-grade="DP780-REF"
+                  data-family="Metal"
+                  data-description="Synthetic local-demo data; not validated engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare DP780 synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="DP780 synthetic demo steel · DP780-REF">
+                    <strong>DP780 synthetic demo steel</strong>
+                    <span>DP780-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic local-demo data; not validated engineering data.">Synthetic local-demo data; not validated engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+                <tr
+                  class="result-row"
+                  tabindex="-1"
+                  aria-selected="false"
+                  data-result-row
+                  data-name="DP600 synthetic demo steel"
+                  data-grade="DP600-REF"
+                  data-family="Metal"
+                  data-description="Synthetic demo steel record; not engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare DP600 synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="DP600 synthetic demo steel · DP600-REF">
+                    <strong>DP600 synthetic demo steel</strong>
+                    <span>DP600-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic demo steel record; not engineering data.">Synthetic demo steel record; not engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+                <tr
+                  class="result-row"
+                  tabindex="-1"
+                  aria-selected="false"
+                  data-result-row
+                  data-name="HSLA synthetic demo steel"
+                  data-grade="HSLA-REF"
+                  data-family="Metal"
+                  data-description="Synthetic demo steel example; not engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare HSLA synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="HSLA synthetic demo steel · HSLA-REF">
+                    <strong>HSLA synthetic demo steel</strong>
+                    <span>HSLA-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic demo steel example; not engineering data.">Synthetic demo steel example; not engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+                <tr
+                  class="result-row"
+                  tabindex="-1"
+                  aria-selected="false"
+                  data-result-row
+                  data-name="Mild synthetic demo steel"
+                  data-grade="MILD-REF"
+                  data-family="Metal"
+                  data-description="Synthetic demo steel sample; not engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare Mild synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="Mild synthetic demo steel · MILD-REF">
+                    <strong>Mild synthetic demo steel</strong>
+                    <span>MILD-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic demo steel sample; not engineering data.">Synthetic demo steel sample; not engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+                <tr
+                  class="result-row"
+                  tabindex="-1"
+                  aria-selected="false"
+                  data-result-row
+                  data-name="Stainless synthetic demo steel"
+                  data-grade="SS-REF"
+                  data-family="Metal"
+                  data-description="Synthetic demo steel fixture; not engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare Stainless synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="Stainless synthetic demo steel · SS-REF">
+                    <strong>Stainless synthetic demo steel</strong>
+                    <span>SS-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic demo steel fixture; not engineering data.">Synthetic demo steel fixture; not engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+                <tr
+                  class="result-row"
+                  tabindex="-1"
+                  aria-selected="false"
+                  data-result-row
+                  data-name="Press-hardening synthetic demo steel"
+                  data-grade="PHS-REF"
+                  data-family="Metal"
+                  data-description="Synthetic demo steel reference; not engineering data."
+                  data-status="Draft"
+                >
+                  <td>
+                    <label class="compare-control">
+                      <input type="checkbox" aria-label="Compare Press-hardening synthetic demo steel">
+                    </label>
+                  </td>
+                  <td class="material-identity" title="Press-hardening synthetic demo steel · PHS-REF">
+                    <strong>Press-hardening synthetic demo steel</strong>
+                    <span>PHS-REF</span>
+                  </td>
+                  <td>Metal</td>
+                  <td title="Synthetic demo steel reference; not engineering data.">Synthetic demo steel reference; not engineering data.</td>
+                  <td>Draft</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div
+          class="splitter context-divider"
+          role="separator"
+          aria-label="Resize selected material context"
+          aria-orientation="vertical"
+          aria-valuemin="260"
+          aria-valuemax="480"
+          aria-valuenow="280"
+          tabindex="0"
+          data-region="context-divider"
+        >
+          <span aria-hidden="true"></span>
+        </div>
+
+        <aside class="selected-context" data-region="selected-context" aria-labelledby="selected-context-title">
+          <header class="context-heading">
+            <h2 id="selected-context-title">Selected material</h2>
+          </header>
+          <section class="selected-summary" aria-labelledby="selected-name">
+            <h3 id="selected-name">DP780 synthetic demo steel</h3>
+            <p id="selected-grade" class="selected-grade">DP780-REF</p>
+            <p id="selected-description" class="selected-description">
+              Synthetic local-demo data; not validated engineering data.
+            </p>
+          </section>
+          <dl class="selected-fields">
+            <div>
+              <dt>Family</dt>
+              <dd id="selected-family">Metal</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd id="selected-status">Draft</dd>
+            </div>
+          </dl>
+          <div class="context-action">
+            <button id="open-datasheet" class="button secondary-action" type="button">Open datasheet</button>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="status-bar" data-region="status-bar">
+      <span id="status-selection">DP780 synthetic demo steel · DP780-REF</span>
+      <span>r1 · draft</span>
+      <span class="status-spacer"></span>
+      <span>No active job</span>
+      <span>0 warnings</span>
+      <span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span>
+    </footer>
+
+    <p id="interaction-status" class="sr-only" aria-live="polite"></p>
+  </body>
+</html>

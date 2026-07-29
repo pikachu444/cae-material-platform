@@ -1,0 +1,62 @@
+{
+  "family": "MOD-PROCESS",
+  "status": "pending",
+  "capture_date": "2026-07-29",
+  "static": {
+    "html": "docs\\00-research\\ux-service-reference\\modeling-process-normal.html",
+    "css": "docs/00-research/ux-service-reference/modeling-process.css",
+    "js": "docs/00-research/ux-service-reference/modeling-process.js",
+    "capture": "docs\\00-research\\ux-service-reference\\capture_modeling_process_wave02.py",
+    "validator": "docs/00-research/ux-service-reference/validate_modeling_process_wave02.py"
+  },
+  "targets": {
+    "modeling-process-normal-1366x768": {
+      "state": "normal",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1366x768.png",
+      "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1366x768.measurements.json",
+      "sha256": "c537c7caf60d668a82021e50cdc0307b185faf118d5091edc41c10d9c5ef0cad"
+    },
+    "modeling-process-normal-1440x900": {
+      "state": "normal",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1440x900.png",
+      "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1440x900.measurements.json",
+      "sha256": "57d5c9e8f9ebbf21315ca94f76eb21e11ce116526afffc717973ebb514417461"
+    },
+    "modeling-process-normal-1920x1080": {
+      "state": "normal",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1920x1080.png",
+      "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-normal-1920x1080.measurements.json",
+      "sha256": "154c21e6679b999ee63ca65c10ac6e7af8a8ebdb54b69490be67460078ce53c1"
+    },
+    "modeling-process-prerequisite-blocked-1440x900": {
+      "state": "prerequisite-blocked",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-prerequisite-blocked-1440x900.png",
+      "measurements": "docs\\17-evidence\\images\\issue-167-service-reference\\modeling-process-prerequisite-blocked-1440x900.measurements.json",
+      "sha256": "9d71022e7c9bff6a5b88de70985a34aaf2e30d3bd1715a69a5e7c5bbd40b9868"
+    }
+  },
+  "evidence": {
+    "blocked_responsive": "docs/17-evidence/images/issue-167-service-reference/modeling-process-responsive-evidence.json",
+    "state_evidence": "docs/17-evidence/images/issue-167-service-reference/modeling-process-state-evidence.json"
+  }
+}

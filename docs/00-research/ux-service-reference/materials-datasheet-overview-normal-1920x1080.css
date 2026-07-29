@@ -1,0 +1,8 @@
+/* Target-only wide override: retain a restrained navigator and 300px context column. */
+:root {
+  --navigator-width: 280px;
+}
+
+.overview-grid {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}

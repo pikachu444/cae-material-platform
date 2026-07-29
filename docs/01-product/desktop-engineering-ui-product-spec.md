@@ -94,6 +94,10 @@ A large bordered button is not the default representation for every action.
 ```
 
 - Navigator and Context panes are resizable and independently scrollable.
+- An overflowing tree or result region has a reserved, visibly distinguishable scroll rail and
+  thumb in the required reference captures. Computed overflow or an operating-system scrollbar that
+  disappears in the captured pixels is not sufficient visual evidence. The rail must not cover row
+  text, and it must operate by pointer, wheel and keyboard.
 - Splitter positions persist per user and viewport class.
 - At 1366 px, Context defaults closed before the result region is compressed.
 - Main result/datasheet region must remain at least 720 px when possible.
@@ -117,6 +121,12 @@ A large bordered button is not the default representation for every action.
 - Related links open the linked Record while maintaining an in-workspace back stack.
 - Breadcrumbs show hierarchy but do not replace the Tree.
 - Record selection must preserve exact revision context when opened from Evidence or a governed link.
+- A tree row shows the concise stored object identity. Database/Profile/Table/Folder/Record type is
+  conveyed by one aligned disclosure/glyph grammar; explanatory or qualification prose belongs in
+  adjacent context or a tooltip, not appended to every node name.
+- A genuinely long stored identity remains one line and is reachable with a local horizontal
+  scrollbar that appears only when the tree actually overflows. The vertical scrollbar appears when
+  more rows exist than the local viewport can show. Both use reserved rails outside the text area.
 
 ### 5.4 Result grid columns
 
@@ -231,6 +241,23 @@ disclosure, never a permanent third column. Validation and review/release remain
 Advanced or Activity actions and are not normal-stage tiles. The approved visual reference is the
 lower proposal in `docs/17-evidence/images/ux-layout-review/modeling-reference-comparison.png`.
 
+The Modeling navigator is not a copy of the Materials catalog tree, but both belong to one desktop
+engineering grammar. Modeling therefore uses the same flat pane heading, regular 12–13 px identity
+text, restrained selection fill with a leading accent, aligned hierarchy indentation and compact
+section separators. The curve rail keeps its stage-specific membership checkbox, plot-color sample
+and independent visibility command, but these controls must not make the identity look bold, crowded
+or card-like. Section labels use sentence case rather than oversized uppercase navigation chrome.
+The method parent and its specimen children remain visually distinguishable at every supported pane
+width; full identities stay accessible, and a conditional local scrollbar appears when content
+actually overflows.
+
+The curve legend is a compact overlay inside a measured data-free plot quadrant, using lower-right
+for the current Fit response when it remains clear. It must not cover any curve, observed boundary,
+axis, tick/title, graph-state overlay or direct-selection feedback. The renderer checks candidate
+quadrants against current geometry and moves the legend when necessary; a compact docked legend is
+the fallback only when no safe plot region exists. A permanent external legend column must not tax
+the normal plot width. Recommendation/selection workflow status is not part of the curve legend.
+
 ### 7.2 Session lifecycle
 
 Normal-path states:
@@ -318,19 +345,89 @@ single/blend identity as the decision evidence. Polymer selection is the actual 
 term-count result, not the requested policy. A save is disabled until a row is selected, its reason
 is present and any row warning is acknowledged.
 
+One exact Test Data/Processing Output revision may branch into several independently calculated and
+saved models. For example, Swift, Voce and a Swift/Voce blend can share the same tensile input while
+retaining different method/version/options, parameters, fit domain, diagnostics and engineer
+decision. Saving one branch never updates or supersedes its siblings. Each promoted Material Model
+IR revision pins one exact saved branch, and each Solver Card pins that IR revision plus one explicit
+target tuple and mapping digest. Several Solver Cards may therefore coexist for the same experiment.
+A current pointer is only a workspace convenience; it never rewrites these links or makes a sibling
+the implicit source.
+
+The normal GUI identifies the branch by its selected model identity and keeps the common experiment,
+material state and condition in the page/session context. It does not use a source test name or an
+ambiguous label such as `r1` to distinguish model branches. Exact Test Data, Processing Output,
+selected-model/IR and Solver Card revision links remain inspectable in Advanced/Evidence and history.
+`Open in Fit` returns to the exact selected branch, not the newest branch derived from that test.
+
 ### 7.6 Export stage
 
 Flow:
 
 1. selected, saved model is pinned;
-2. choose target solver/version/unit system;
-3. preflight mapping states;
+2. choose one exporter-declared target tuple; Output unit system remains a visible selector so the
+   tuple is explicit even when the current exporter offers one supported value. Supported values are
+   selectable; capability-declared unavailable values may be visible but disabled with their reason;
+3. run the Export check and disclose mapping consequences;
 4. resolve required missing values;
 5. acknowledge approximations when present;
 6. preview native card;
 7. download and save/link to the Material Library.
 
-The preflight summary uses user language first and technical mapping details second.
+Export is a setup/result workspace. The left setup pane contains only the selected model identity,
+Destination and Export check. It does not repeat physical properties, lineage flags or generated
+output labels. The result side keeps the native Solver Card preview dominant and may divide its
+bounded secondary column between Mapping details and a compact family-specific Fit source preview.
+This secondary column is read-only result context, not a permanent control inspector. Mapping rows
+use one compact title/value/status grammar; explanatory paragraphs, technical mapping counts,
+identifiers and receipt mechanics remain under Advanced or Delivery details.
+
+The Export check uses three user-facing states:
+
+- `Ready to create`: zero blockers and no unacknowledged review item;
+- `Review required`: zero blockers and one or more named approximations awaiting acknowledgement;
+- `Cannot create`: one or more missing, stale, unsupported or unsafe prerequisites.
+
+Source Material/State/model values are read-only in Export. A physical value such as Density appears
+once in Mapping details when it affects the target representation; changing it requires an upstream
+governed revision. Changing the target tuple changes only the deterministic output representation
+and invalidates the current preview/delivery pointer. Mapping details show source value/unit, target
+value/unit or representation and one concise user consequence. Material State retained only as
+applicability context is not counted as a successful solver-field mapping.
+
+Output unit system is never presented as an unexplained read-only value. The selector is populated
+from the exporter capability response. With one supported option it remains visible and exposes that
+no other unit system is available; with several supported options it permits a change. An unsupported
+value is not accepted and then rejected by a warning dialog or a disabled Create action. If the
+capability response declares an unavailable option and reason, the option may be shown disabled.
+A valid unit-system change clears preview, acknowledgement and delivery pointers and requires a new
+Export check.
+
+Readiness is stated once in Export check as `Ready to create`, `Review required`, or `Cannot create`,
+with one short blocker, review item or next action. Preview and Mapping details must not restate the
+same failure in competing prose or large alert fields. The compact Fit source plot computes axis
+headroom as a ratio of its displayed data span, preserves a meaningful zero anchor where required,
+uses family-specific quantities/units and keeps the legend in a curve-free plot quadrant. Normal
+content has no decorative scroll rail; genuine long native or mapping content scrolls locally with
+a visible, proportional affordance.
+
+User-facing mapping language is consequence-first (`Values unchanged`, `Converted`,
+`Native formatting`, `Review required`, `Not supported`, `Context only`). The exporter-owned
+`exact`, `transformed`, `approximated`, `ignored`, `unsupported` and `not_applicable` values remain
+available in Advanced mapping details and are never silently changed. Reformatting immutable values
+as native ASCII rows is not presented as a numerical conversion.
+
+The visible mapping rows and Fit source preview are family-specific:
+
+- metal elastoplastic: density, elasticity, initial yield, hardening response, extension and
+  temperature/rate applicability;
+- linear viscoelastic: density, instantaneous/long-term elastic convention, shear/bulk Prony terms
+  and temperature shift/applicability;
+- hyperelastic or hyper-viscoelastic: density, strain-energy terms, volumetric response, available
+  test modes and optional Prony terms.
+
+A hyperelastic source preview may switch among or overlay uniaxial, biaxial, planar and volumetric
+responses. It must not force those different quantities into a metal stress/plastic-strain chart.
 
 ## 8. Activity workspace
 
@@ -491,6 +588,12 @@ No visual implementation starts until the main agent has opened/evaluated every 
 product owner has approved it. Every visual PR supplies registered reference/current side-by-side live
 captures to the main agent and product owner before merge. On a failure, make one evidence-backed
 correction and re-review; do not retry the same local CSS approach.
+
+The main agent and fresh read-only reviewer independently complete the
+[mandatory qualitative owner checklist](visual-acceptance-matrix.md#mandatory-qualitative-owner-checklist)
+at original resolution. Numeric scoring and automated measurements cannot override a qualitative
+failure. The main agent repeats the judgment after reviewer disposition, and product-owner approval
+is the final visual decision.
 
 ## 15. Tooling and implementation approach
 

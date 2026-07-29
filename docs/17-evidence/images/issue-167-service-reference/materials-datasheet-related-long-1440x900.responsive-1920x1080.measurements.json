@@ -1,0 +1,290 @@
+{
+  "target": "materials-datasheet-related-long-1440x900",
+  "capture_date": "2026-07-29",
+  "viewport": {
+    "width": 1920,
+    "height": 1080,
+    "device_scale_factor": 1
+  },
+  "regions": {
+    "application_bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1920,
+      "height": 46
+    },
+    "command_bar": {
+      "x": 8,
+      "y": 46,
+      "width": 1904,
+      "height": 38
+    },
+    "workspace": {
+      "x": 8,
+      "y": 84,
+      "width": 1904,
+      "height": 972
+    },
+    "navigator": {
+      "x": 8,
+      "y": 84,
+      "width": 280,
+      "height": 972
+    },
+    "navigator_divider": {
+      "x": 288,
+      "y": 84,
+      "width": 5,
+      "height": 972
+    },
+    "datasheet": {
+      "x": 293,
+      "y": 84,
+      "width": 1619,
+      "height": 972
+    },
+    "status_bar": {
+      "x": 0,
+      "y": 1056,
+      "width": 1920,
+      "height": 24
+    }
+  },
+  "divider_visual_widths": [
+    1
+  ],
+  "visible_splitter_count": 1,
+  "tree": {
+    "horizontal_overflow": 0,
+    "all_tree_kind_right_edges_within_content": true,
+    "tree_kind_labels": [
+      "Database",
+      "Profile",
+      "Table",
+      "Folder",
+      "Folder",
+      "Record",
+      "Record"
+    ],
+    "tree_kind_labels_match": true
+  },
+  "selected_tree_rows": 1,
+  "selected_record": true,
+  "tabs": {
+    "count": 6,
+    "labels": [
+      "Overview",
+      "Properties",
+      "Curves",
+      "CAE Cards",
+      "Related",
+      "Evidence"
+    ],
+    "active": "Related"
+  },
+  "overflow": {
+    "document_horizontal": 0,
+    "document_vertical": 0,
+    "body_horizontal": 0,
+    "body_vertical": 0
+  },
+  "forbidden_visible_terms": [],
+  "unsupported_labels": [],
+  "primary_command_count": 1,
+  "nested_persistent_card_count": 0,
+  "splitter_evidence": {
+    "default": {
+      "widths": {
+        "navigator": 280,
+        "divider": 5,
+        "datasheet": 1619,
+        "related_list": 1339,
+        "related_context": 280,
+        "empty_main": null,
+        "empty_context": null,
+        "main": null,
+        "aside": null,
+        "plot": null
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 280
+      },
+      "active_tab": "Related",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_arrow_right": {
+      "widths": {
+        "navigator": 288,
+        "divider": 5,
+        "datasheet": 1611,
+        "related_list": 1331,
+        "related_context": 280,
+        "empty_main": null,
+        "empty_context": null,
+        "main": null,
+        "aside": null,
+        "plot": null
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 288
+      },
+      "active_tab": "Related",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_home": {
+      "widths": {
+        "navigator": 200,
+        "divider": 5,
+        "datasheet": 1699,
+        "related_list": 1419,
+        "related_context": 280,
+        "empty_main": null,
+        "empty_context": null,
+        "main": null,
+        "aside": null,
+        "plot": null
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 200
+      },
+      "active_tab": "Related",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_end": {
+      "widths": {
+        "navigator": 360,
+        "divider": 5,
+        "datasheet": 1539,
+        "related_list": 1259,
+        "related_context": 280,
+        "empty_main": null,
+        "empty_context": null,
+        "main": null,
+        "aside": null,
+        "plot": null
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 360,
+        "now": 360
+      },
+      "active_tab": "Related",
+      "tree": {
+        "horizontal_overflow": 0,
+        "all_tree_kind_right_edges_within_content": true,
+        "tree_kind_labels_match": true
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    }
+  },
+  "interactions": {
+    "reverse_row_selection": true,
+    "forward_keyboard_selection": true,
+    "open_exact_related_record": true,
+    "current_record_preserved": true,
+    "related_tab_active": true
+  },
+  "web_interface_guidelines_audit": {
+    "source": "vercel-labs/web-interface-guidelines/command.md",
+    "checked": [
+      "semantic buttons, links, tabs and associated labels",
+      "visible keyboard focus",
+      "no fake controls or non-dialog ellipsis labels",
+      "no render-time layout loop",
+      "deliberate containment and truncation"
+    ],
+    "result": "pass"
+  },
+  "kind": "related",
+  "related": {
+    "active_tab": "Related",
+    "row_count": 2,
+    "directions": [
+      "Forward · validation specimen derived from this selected material Record",
+      "Reverse · available solver-card record prepared for this selected material Record"
+    ],
+    "relationship_titles": [
+      "Forward · validation specimen derived from this selected material Record",
+      "Reverse · available solver-card record prepared for this selected material Record"
+    ],
+    "record_names": [
+      "\n              DP780 long-cycle validation specimen — east press line / replicate 03\n            ",
+      "\n              DP780 solver-card delivery package — OpenRadioss thin-shell baseline\n            "
+    ],
+    "record_titles": [
+      "DP780 long-cycle validation specimen — east press line / replicate 03",
+      "DP780 solver-card delivery package — OpenRadioss thin-shell baseline"
+    ],
+    "types": [
+      "Test Data record",
+      "Solver card record"
+    ],
+    "revisions": [
+      "r2 · exact",
+      "r1 · exact"
+    ],
+    "table_horizontal_overflow": -1,
+    "table_scroll_horizontal_overflow": 0,
+    "cells_inside_boundary": true,
+    "context_record": "DP780 long-cycle validation specimen — east press line / replicate 03",
+    "primary_open_count": 1
+  },
+  "topology_signature": {
+    "navigator": true,
+    "divider": true,
+    "datasheet": true,
+    "related_list": true,
+    "related_context": true,
+    "nested_cards": 0
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/materials-datasheet-related-long-1440x900.responsive-1920x1080.png",
+  "image_sha256": "bf98b166f6b89ffae6baddb24321296837b340704352d74769b5764334eb0fc2",
+  "responsive_evidence": true,
+  "console_errors": [],
+  "page_errors": []
+}

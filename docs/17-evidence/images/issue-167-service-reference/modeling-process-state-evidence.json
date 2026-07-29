@@ -1,0 +1,4312 @@
+{
+  "states": [
+    {
+      "state": "preview-loading",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Calculating preview… the exact source, operation settings and previous graph remain in place.",
+      "geometry": {
+        "target": "preview-loading-1366x768",
+        "state": "preview-loading",
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 46,
+            "right": 1366,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1366,
+            "height": 42,
+            "right": 1366,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1366,
+            "height": 34,
+            "right": 1366,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 184,
+            "height": 622,
+            "right": 184,
+            "bottom": 744
+          },
+          "divider": {
+            "x": 184,
+            "y": 122,
+            "width": 5,
+            "height": 622,
+            "right": 189,
+            "bottom": 744
+          },
+          "main": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 622,
+            "right": 1366,
+            "bottom": 744
+          },
+          "ribbon": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 218,
+            "right": 1366,
+            "bottom": 340
+          },
+          "settingsGrid": {
+            "x": 189,
+            "y": 153,
+            "width": 1177,
+            "height": 141,
+            "right": 1366,
+            "bottom": 294
+          },
+          "graph": {
+            "x": 189,
+            "y": 340,
+            "width": 1177,
+            "height": 404,
+            "right": 1366,
+            "bottom": 744
+          },
+          "graphCanvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 744,
+            "width": 1366,
+            "height": 24,
+            "right": 1366,
+            "bottom": 768
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 184,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1159,
+          "height": 322,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "footer": {
+            "x": 198,
+            "y": 700,
+            "width": 1159,
+            "height": 37,
+            "right": 1357,
+            "bottom": 737
+          },
+          "axis": {
+            "x": 210,
+            "y": 709,
+            "width": 572.78,
+            "height": 16,
+            "right": 782.78,
+            "bottom": 725
+          },
+          "legend": {
+            "x": 794.78,
+            "y": 704,
+            "width": 550.22,
+            "height": 26,
+            "right": 1345,
+            "bottom": 730
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 218
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "preview-loading",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Calculating preview… the exact source, operation settings and previous graph remain in place.",
+      "geometry": {
+        "target": "preview-loading-1440x900",
+        "state": "preview-loading",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 46,
+            "right": 1440,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1440,
+            "height": 42,
+            "right": 1440,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 34,
+            "right": 1440,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 192,
+            "height": 754,
+            "right": 192,
+            "bottom": 876
+          },
+          "divider": {
+            "x": 192,
+            "y": 122,
+            "width": 5,
+            "height": 754,
+            "right": 197,
+            "bottom": 876
+          },
+          "main": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 754,
+            "right": 1440,
+            "bottom": 876
+          },
+          "ribbon": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 224,
+            "right": 1440,
+            "bottom": 346
+          },
+          "settingsGrid": {
+            "x": 197,
+            "y": 153,
+            "width": 1243,
+            "height": 145,
+            "right": 1440,
+            "bottom": 298
+          },
+          "graph": {
+            "x": 197,
+            "y": 346,
+            "width": 1243,
+            "height": 530,
+            "right": 1440,
+            "bottom": 876
+          },
+          "graphCanvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 876,
+            "width": 1440,
+            "height": 24,
+            "right": 1440,
+            "bottom": 900
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 192,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1225,
+          "height": 448,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "footer": {
+            "x": 206,
+            "y": 832,
+            "width": 1225,
+            "height": 37,
+            "right": 1431,
+            "bottom": 869
+          },
+          "axis": {
+            "x": 218,
+            "y": 841,
+            "width": 638.78,
+            "height": 16,
+            "right": 856.78,
+            "bottom": 857
+          },
+          "legend": {
+            "x": 868.78,
+            "y": 836,
+            "width": 550.22,
+            "height": 26,
+            "right": 1419,
+            "bottom": 862
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 224
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "preview-loading",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Calculating preview… the exact source, operation settings and previous graph remain in place.",
+      "geometry": {
+        "target": "preview-loading-1920x1080",
+        "state": "preview-loading",
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 46,
+            "right": 1920,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1920,
+            "height": 42,
+            "right": 1920,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1920,
+            "height": 34,
+            "right": 1920,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 208,
+            "height": 934,
+            "right": 208,
+            "bottom": 1056
+          },
+          "divider": {
+            "x": 208,
+            "y": 122,
+            "width": 5,
+            "height": 934,
+            "right": 213,
+            "bottom": 1056
+          },
+          "main": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 934,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "ribbon": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 210,
+            "right": 1920,
+            "bottom": 332
+          },
+          "settingsGrid": {
+            "x": 213,
+            "y": 153,
+            "width": 1707,
+            "height": 131,
+            "right": 1920,
+            "bottom": 284
+          },
+          "graph": {
+            "x": 213,
+            "y": 332,
+            "width": 1707,
+            "height": 724,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "graphCanvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1056,
+            "width": 1920,
+            "height": 24,
+            "right": 1920,
+            "bottom": 1080
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 208,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1689,
+          "height": 642,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "footer": {
+            "x": 222,
+            "y": 1012,
+            "width": 1689,
+            "height": 37,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "axis": {
+            "x": 234,
+            "y": 1021,
+            "width": 1102.78,
+            "height": 16,
+            "right": 1336.78,
+            "bottom": 1037
+          },
+          "legend": {
+            "x": 1348.78,
+            "y": 1016,
+            "width": 550.22,
+            "height": 26,
+            "right": 1899,
+            "bottom": 1042
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 210
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "commit-loading",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Saving processed curves… the current preview and draft settings remain in place until the immutable output succeeds.",
+      "geometry": {
+        "target": "commit-loading-1366x768",
+        "state": "commit-loading",
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 46,
+            "right": 1366,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1366,
+            "height": 42,
+            "right": 1366,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1366,
+            "height": 34,
+            "right": 1366,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 184,
+            "height": 622,
+            "right": 184,
+            "bottom": 744
+          },
+          "divider": {
+            "x": 184,
+            "y": 122,
+            "width": 5,
+            "height": 622,
+            "right": 189,
+            "bottom": 744
+          },
+          "main": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 622,
+            "right": 1366,
+            "bottom": 744
+          },
+          "ribbon": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 218,
+            "right": 1366,
+            "bottom": 340
+          },
+          "settingsGrid": {
+            "x": 189,
+            "y": 153,
+            "width": 1177,
+            "height": 141,
+            "right": 1366,
+            "bottom": 294
+          },
+          "graph": {
+            "x": 189,
+            "y": 340,
+            "width": 1177,
+            "height": 404,
+            "right": 1366,
+            "bottom": 744
+          },
+          "graphCanvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 744,
+            "width": 1366,
+            "height": 24,
+            "right": 1366,
+            "bottom": 768
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 184,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1159,
+          "height": 322,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "footer": {
+            "x": 198,
+            "y": 700,
+            "width": 1159,
+            "height": 37,
+            "right": 1357,
+            "bottom": 737
+          },
+          "axis": {
+            "x": 210,
+            "y": 709,
+            "width": 572.78,
+            "height": 16,
+            "right": 782.78,
+            "bottom": 725
+          },
+          "legend": {
+            "x": 794.78,
+            "y": 704,
+            "width": 550.22,
+            "height": 26,
+            "right": 1345,
+            "bottom": 730
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Saving…",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 218
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "commit-loading",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Saving processed curves… the current preview and draft settings remain in place until the immutable output succeeds.",
+      "geometry": {
+        "target": "commit-loading-1440x900",
+        "state": "commit-loading",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 46,
+            "right": 1440,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1440,
+            "height": 42,
+            "right": 1440,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 34,
+            "right": 1440,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 192,
+            "height": 754,
+            "right": 192,
+            "bottom": 876
+          },
+          "divider": {
+            "x": 192,
+            "y": 122,
+            "width": 5,
+            "height": 754,
+            "right": 197,
+            "bottom": 876
+          },
+          "main": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 754,
+            "right": 1440,
+            "bottom": 876
+          },
+          "ribbon": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 224,
+            "right": 1440,
+            "bottom": 346
+          },
+          "settingsGrid": {
+            "x": 197,
+            "y": 153,
+            "width": 1243,
+            "height": 145,
+            "right": 1440,
+            "bottom": 298
+          },
+          "graph": {
+            "x": 197,
+            "y": 346,
+            "width": 1243,
+            "height": 530,
+            "right": 1440,
+            "bottom": 876
+          },
+          "graphCanvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 876,
+            "width": 1440,
+            "height": 24,
+            "right": 1440,
+            "bottom": 900
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 192,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1225,
+          "height": 448,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "footer": {
+            "x": 206,
+            "y": 832,
+            "width": 1225,
+            "height": 37,
+            "right": 1431,
+            "bottom": 869
+          },
+          "axis": {
+            "x": 218,
+            "y": 841,
+            "width": 638.78,
+            "height": 16,
+            "right": 856.78,
+            "bottom": 857
+          },
+          "legend": {
+            "x": 868.78,
+            "y": 836,
+            "width": 550.22,
+            "height": 26,
+            "right": 1419,
+            "bottom": 862
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Saving…",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 224
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "commit-loading",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Saving processed curves… the current preview and draft settings remain in place until the immutable output succeeds.",
+      "geometry": {
+        "target": "commit-loading-1920x1080",
+        "state": "commit-loading",
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 46,
+            "right": 1920,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1920,
+            "height": 42,
+            "right": 1920,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1920,
+            "height": 34,
+            "right": 1920,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 208,
+            "height": 934,
+            "right": 208,
+            "bottom": 1056
+          },
+          "divider": {
+            "x": 208,
+            "y": 122,
+            "width": 5,
+            "height": 934,
+            "right": 213,
+            "bottom": 1056
+          },
+          "main": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 934,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "ribbon": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 210,
+            "right": 1920,
+            "bottom": 332
+          },
+          "settingsGrid": {
+            "x": 213,
+            "y": 153,
+            "width": 1707,
+            "height": 131,
+            "right": 1920,
+            "bottom": 284
+          },
+          "graph": {
+            "x": 213,
+            "y": 332,
+            "width": 1707,
+            "height": 724,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "graphCanvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1056,
+            "width": 1920,
+            "height": 24,
+            "right": 1920,
+            "bottom": 1080
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 208,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1689,
+          "height": 642,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "footer": {
+            "x": 222,
+            "y": 1012,
+            "width": 1689,
+            "height": 37,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "axis": {
+            "x": 234,
+            "y": 1021,
+            "width": 1102.78,
+            "height": 16,
+            "right": 1336.78,
+            "bottom": 1037
+          },
+          "legend": {
+            "x": 1348.78,
+            "y": 1016,
+            "width": 550.22,
+            "height": 26,
+            "right": 1899,
+            "bottom": 1042
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Saving…",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 210
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "preview-error",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Preview failed. The source, curve membership and draft settings are preserved; retry Preview changes.",
+      "geometry": {
+        "target": "preview-error-1366x768",
+        "state": "preview-error",
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 46,
+            "right": 1366,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1366,
+            "height": 42,
+            "right": 1366,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1366,
+            "height": 34,
+            "right": 1366,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 184,
+            "height": 622,
+            "right": 184,
+            "bottom": 744
+          },
+          "divider": {
+            "x": 184,
+            "y": 122,
+            "width": 5,
+            "height": 622,
+            "right": 189,
+            "bottom": 744
+          },
+          "main": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 622,
+            "right": 1366,
+            "bottom": 744
+          },
+          "ribbon": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 218,
+            "right": 1366,
+            "bottom": 340
+          },
+          "settingsGrid": {
+            "x": 189,
+            "y": 153,
+            "width": 1177,
+            "height": 141,
+            "right": 1366,
+            "bottom": 294
+          },
+          "graph": {
+            "x": 189,
+            "y": 340,
+            "width": 1177,
+            "height": 404,
+            "right": 1366,
+            "bottom": 744
+          },
+          "graphCanvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 744,
+            "width": 1366,
+            "height": 24,
+            "right": 1366,
+            "bottom": 768
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 184,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1159,
+          "height": 322,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "footer": {
+            "x": 198,
+            "y": 700,
+            "width": 1159,
+            "height": 37,
+            "right": 1357,
+            "bottom": 737
+          },
+          "axis": {
+            "x": 210,
+            "y": 709,
+            "width": 572.78,
+            "height": 16,
+            "right": 782.78,
+            "bottom": 725
+          },
+          "legend": {
+            "x": 794.78,
+            "y": 704,
+            "width": 550.22,
+            "height": 26,
+            "right": 1345,
+            "bottom": 730
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 218
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "preview-error",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Preview failed. The source, curve membership and draft settings are preserved; retry Preview changes.",
+      "geometry": {
+        "target": "preview-error-1440x900",
+        "state": "preview-error",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 46,
+            "right": 1440,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1440,
+            "height": 42,
+            "right": 1440,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 34,
+            "right": 1440,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 192,
+            "height": 754,
+            "right": 192,
+            "bottom": 876
+          },
+          "divider": {
+            "x": 192,
+            "y": 122,
+            "width": 5,
+            "height": 754,
+            "right": 197,
+            "bottom": 876
+          },
+          "main": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 754,
+            "right": 1440,
+            "bottom": 876
+          },
+          "ribbon": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 224,
+            "right": 1440,
+            "bottom": 346
+          },
+          "settingsGrid": {
+            "x": 197,
+            "y": 153,
+            "width": 1243,
+            "height": 145,
+            "right": 1440,
+            "bottom": 298
+          },
+          "graph": {
+            "x": 197,
+            "y": 346,
+            "width": 1243,
+            "height": 530,
+            "right": 1440,
+            "bottom": 876
+          },
+          "graphCanvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 876,
+            "width": 1440,
+            "height": 24,
+            "right": 1440,
+            "bottom": 900
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 192,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1225,
+          "height": 448,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "footer": {
+            "x": 206,
+            "y": 832,
+            "width": 1225,
+            "height": 37,
+            "right": 1431,
+            "bottom": 869
+          },
+          "axis": {
+            "x": 218,
+            "y": 841,
+            "width": 638.78,
+            "height": 16,
+            "right": 856.78,
+            "bottom": 857
+          },
+          "legend": {
+            "x": 868.78,
+            "y": 836,
+            "width": 550.22,
+            "height": 26,
+            "right": 1419,
+            "bottom": 862
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 224
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "preview-error",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Preview failed. The source, curve membership and draft settings are preserved; retry Preview changes.",
+      "geometry": {
+        "target": "preview-error-1920x1080",
+        "state": "preview-error",
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 46,
+            "right": 1920,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1920,
+            "height": 42,
+            "right": 1920,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1920,
+            "height": 34,
+            "right": 1920,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 208,
+            "height": 934,
+            "right": 208,
+            "bottom": 1056
+          },
+          "divider": {
+            "x": 208,
+            "y": 122,
+            "width": 5,
+            "height": 934,
+            "right": 213,
+            "bottom": 1056
+          },
+          "main": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 934,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "ribbon": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 210,
+            "right": 1920,
+            "bottom": 332
+          },
+          "settingsGrid": {
+            "x": 213,
+            "y": 153,
+            "width": 1707,
+            "height": 131,
+            "right": 1920,
+            "bottom": 284
+          },
+          "graph": {
+            "x": 213,
+            "y": 332,
+            "width": 1707,
+            "height": 724,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "graphCanvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1056,
+            "width": 1920,
+            "height": 24,
+            "right": 1920,
+            "bottom": 1080
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 208,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1689,
+          "height": 642,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "footer": {
+            "x": 222,
+            "y": 1012,
+            "width": 1689,
+            "height": 37,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "axis": {
+            "x": 234,
+            "y": 1021,
+            "width": 1102.78,
+            "height": 16,
+            "right": 1336.78,
+            "bottom": 1037
+          },
+          "legend": {
+            "x": 1348.78,
+            "y": 1016,
+            "width": 550.22,
+            "height": 26,
+            "right": 1899,
+            "bottom": 1042
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": true,
+            "ariaDisabled": "true"
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 210
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "commit-error",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Save failed. No Processing Output revision was registered; the current preview and save reason remain available for retry.",
+      "geometry": {
+        "target": "commit-error-1366x768",
+        "state": "commit-error",
+        "viewport": {
+          "width": 1366,
+          "height": 768,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1366,
+            "height": 46,
+            "right": 1366,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1366,
+            "height": 42,
+            "right": 1366,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1366,
+            "height": 34,
+            "right": 1366,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 184,
+            "height": 622,
+            "right": 184,
+            "bottom": 744
+          },
+          "divider": {
+            "x": 184,
+            "y": 122,
+            "width": 5,
+            "height": 622,
+            "right": 189,
+            "bottom": 744
+          },
+          "main": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 622,
+            "right": 1366,
+            "bottom": 744
+          },
+          "ribbon": {
+            "x": 189,
+            "y": 122,
+            "width": 1177,
+            "height": 218,
+            "right": 1366,
+            "bottom": 340
+          },
+          "settingsGrid": {
+            "x": 189,
+            "y": 153,
+            "width": 1177,
+            "height": 141,
+            "right": 1366,
+            "bottom": 294
+          },
+          "graph": {
+            "x": 189,
+            "y": 340,
+            "width": 1177,
+            "height": 404,
+            "right": 1366,
+            "bottom": 744
+          },
+          "graphCanvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 744,
+            "width": 1366,
+            "height": 24,
+            "right": 1366,
+            "bottom": 768
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 184,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1159,
+          "height": 322,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 198,
+            "y": 378,
+            "width": 1159,
+            "height": 359,
+            "right": 1357,
+            "bottom": 737
+          },
+          "footer": {
+            "x": 198,
+            "y": 700,
+            "width": 1159,
+            "height": 37,
+            "right": 1357,
+            "bottom": 737
+          },
+          "axis": {
+            "x": 210,
+            "y": 709,
+            "width": 572.78,
+            "height": 16,
+            "right": 782.78,
+            "bottom": 725
+          },
+          "legend": {
+            "x": 794.78,
+            "y": 704,
+            "width": 550.22,
+            "height": 26,
+            "right": 1345,
+            "bottom": 730
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": false,
+            "ariaDisabled": null
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 218
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "commit-error",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Save failed. No Processing Output revision was registered; the current preview and save reason remain available for retry.",
+      "geometry": {
+        "target": "commit-error-1440x900",
+        "state": "commit-error",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 46,
+            "right": 1440,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1440,
+            "height": 42,
+            "right": 1440,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1440,
+            "height": 34,
+            "right": 1440,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 192,
+            "height": 754,
+            "right": 192,
+            "bottom": 876
+          },
+          "divider": {
+            "x": 192,
+            "y": 122,
+            "width": 5,
+            "height": 754,
+            "right": 197,
+            "bottom": 876
+          },
+          "main": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 754,
+            "right": 1440,
+            "bottom": 876
+          },
+          "ribbon": {
+            "x": 197,
+            "y": 122,
+            "width": 1243,
+            "height": 224,
+            "right": 1440,
+            "bottom": 346
+          },
+          "settingsGrid": {
+            "x": 197,
+            "y": 153,
+            "width": 1243,
+            "height": 145,
+            "right": 1440,
+            "bottom": 298
+          },
+          "graph": {
+            "x": 197,
+            "y": 346,
+            "width": 1243,
+            "height": 530,
+            "right": 1440,
+            "bottom": 876
+          },
+          "graphCanvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 876,
+            "width": 1440,
+            "height": 24,
+            "right": 1440,
+            "bottom": 900
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 192,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1225,
+          "height": 448,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 206,
+            "y": 384,
+            "width": 1225,
+            "height": 485,
+            "right": 1431,
+            "bottom": 869
+          },
+          "footer": {
+            "x": 206,
+            "y": 832,
+            "width": 1225,
+            "height": 37,
+            "right": 1431,
+            "bottom": 869
+          },
+          "axis": {
+            "x": 218,
+            "y": 841,
+            "width": 638.78,
+            "height": 16,
+            "right": 856.78,
+            "bottom": 857
+          },
+          "legend": {
+            "x": 868.78,
+            "y": 836,
+            "width": 550.22,
+            "height": 26,
+            "right": 1419,
+            "bottom": 862
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": false,
+            "ariaDisabled": null
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 224
+        },
+        "nestedCards": 0
+      }
+    },
+    {
+      "state": "commit-error",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "console_errors": [],
+      "page_errors": [],
+      "overflow": {
+        "documentHorizontal": 0,
+        "documentVertical": 0,
+        "bodyHorizontal": 0,
+        "bodyVertical": 0
+      },
+      "context_preserved": true,
+      "graph_curves_preserved": true,
+      "message": "Save failed. No Processing Output revision was registered; the current preview and save reason remain available for retry.",
+      "geometry": {
+        "target": "commit-error-1920x1080",
+        "state": "commit-error",
+        "viewport": {
+          "width": 1920,
+          "height": 1080,
+          "device_scale_factor": 1
+        },
+        "overflow": {
+          "documentHorizontal": 0,
+          "documentVertical": 0,
+          "bodyHorizontal": 0,
+          "bodyVertical": 0
+        },
+        "regions": {
+          "applicationBar": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 46,
+            "right": 1920,
+            "bottom": 46
+          },
+          "context": {
+            "x": 0,
+            "y": 46,
+            "width": 1920,
+            "height": 42,
+            "right": 1920,
+            "bottom": 88
+          },
+          "stageStrip": {
+            "x": 0,
+            "y": 88,
+            "width": 1920,
+            "height": 34,
+            "right": 1920,
+            "bottom": 122
+          },
+          "navigator": {
+            "x": 0,
+            "y": 122,
+            "width": 208,
+            "height": 934,
+            "right": 208,
+            "bottom": 1056
+          },
+          "divider": {
+            "x": 208,
+            "y": 122,
+            "width": 5,
+            "height": 934,
+            "right": 213,
+            "bottom": 1056
+          },
+          "main": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 934,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "ribbon": {
+            "x": 213,
+            "y": 122,
+            "width": 1707,
+            "height": 210,
+            "right": 1920,
+            "bottom": 332
+          },
+          "settingsGrid": {
+            "x": 213,
+            "y": 153,
+            "width": 1707,
+            "height": 131,
+            "right": 1920,
+            "bottom": 284
+          },
+          "graph": {
+            "x": 213,
+            "y": 332,
+            "width": 1707,
+            "height": 724,
+            "right": 1920,
+            "bottom": 1056
+          },
+          "graphCanvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "statusBar": {
+            "x": 0,
+            "y": 1056,
+            "width": 1920,
+            "height": 24,
+            "right": 1920,
+            "bottom": 1080
+          }
+        },
+        "divider": {
+          "ariaMin": 180,
+          "ariaMax": 240,
+          "ariaNow": 208,
+          "ariaExpanded": true,
+          "visibleWidth": 5,
+          "ruleWidth": "5px"
+        },
+        "graph": {
+          "width": 1689,
+          "height": 642,
+          "pathBoxes": [
+            {
+              "className": "curve observed-one",
+              "x": 70,
+              "y": 52,
+              "width": 830,
+              "height": 378
+            },
+            {
+              "className": "curve observed-two",
+              "x": 70,
+              "y": 56,
+              "width": 834,
+              "height": 374
+            },
+            {
+              "className": "curve observed-three",
+              "x": 70,
+              "y": 60,
+              "width": 838,
+              "height": 370
+            },
+            {
+              "className": "curve processed-preview",
+              "x": 70,
+              "y": 54,
+              "width": 834,
+              "height": 376
+            },
+            {
+              "className": "curve elastic-fit",
+              "x": 70,
+              "y": 211,
+              "width": 87,
+              "height": 219
+            }
+          ],
+          "series": {
+            "minStrain": 0,
+            "maxStrain": 0.188,
+            "minStressMpa": 0,
+            "maxStressMpa": 842,
+            "computedMaxStrain": 0.2068,
+            "computedMaxStressMpa": 926.2,
+            "headroomRatio": 0.1,
+            "derivation": "finite-plotted-span-plus-proportional-headroom"
+          }
+        },
+        "plotFooter": {
+          "canvas": {
+            "x": 222,
+            "y": 370,
+            "width": 1689,
+            "height": 679,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "footer": {
+            "x": 222,
+            "y": 1012,
+            "width": 1689,
+            "height": 37,
+            "right": 1911,
+            "bottom": 1049
+          },
+          "axis": {
+            "x": 234,
+            "y": 1021,
+            "width": 1102.78,
+            "height": 16,
+            "right": 1336.78,
+            "bottom": 1037
+          },
+          "legend": {
+            "x": 1348.78,
+            "y": 1016,
+            "width": 550.22,
+            "height": 26,
+            "right": 1899,
+            "bottom": 1042
+          },
+          "axisLegendIntersect": false,
+          "axisContained": true,
+          "legendContained": true,
+          "axisInFooter": true,
+          "legendInFooter": true
+        },
+        "visibleContent": {
+          "stageLabels": [
+            "Data",
+            "Process",
+            "Fit",
+            "Export"
+          ],
+          "activeStage": "Process",
+          "curveRows": [
+            "Specimen 01",
+            "Specimen 02",
+            "Specimen 03"
+          ],
+          "includedCurves": [
+            "Specimen 01",
+            "Specimen 02"
+          ],
+          "operationLabels": [
+            "1Resolve duplicate x values",
+            "2Elastic modulus",
+            "3Offset proof stress",
+            "4Necking boundary",
+            "5Engineering → true / plastic"
+          ],
+          "selectedOperation": "2Elastic modulus",
+          "graphCurves": [
+            "curve observed-one",
+            "curve observed-two",
+            "curve observed-three",
+            "curve processed-preview",
+            "curve elastic-fit"
+          ],
+          "graphBlocked": false,
+          "plotLegend": true,
+          "advancedOpen": false,
+          "previewState": "",
+          "downstreamPointers": "",
+          "processTitle": "Step 2 · Elastic modulus",
+          "blockedReason": ""
+        },
+        "controls": {
+          "previewButtons": [
+            {
+              "text": "Preview changes",
+              "disabled": false,
+              "ariaDisabled": "false"
+            }
+          ],
+          "save": {
+            "text": "Save processed curves",
+            "disabled": false,
+            "ariaDisabled": null
+          },
+          "checkboxes": [
+            {
+              "label": "Include Specimen 01 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 02 in processing",
+              "checked": true
+            },
+            {
+              "label": "Include Specimen 03 in processing",
+              "checked": false
+            }
+          ],
+          "visibilityButtons": [
+            "Hide Specimen 01 from plot",
+            "Hide Specimen 02 from plot",
+            "Hide Specimen 03 from plot"
+          ],
+          "operationDisabled": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "typography": {
+          "bodyPx": 13,
+          "settingSmall": [
+            {
+              "text": "CMP-DEMO-DP780-TEST-JSON-03 · r1",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Server method · robust_huber · 1.0.0",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Minimum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Maximum finite source range",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Data-relative bounds · zero origin",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Elastic-fit overlay · not authoritative until save",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Stored on immutable output revision",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            },
+            {
+              "text": "Required before Save processed curves",
+              "fontSizePx": 12,
+              "lineHeightPx": 14,
+              "clipped": false
+            }
+          ]
+        },
+        "ribbon": {
+          "height": 210
+        },
+        "nestedCards": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182630">
+    <title>Modeling Process Reference</title>
+    <link rel="stylesheet" href="reference.css">
+    <link rel="stylesheet" href="modeling-process.css">
+    <script src="modeling-process.js" defer></script>
+  </head>
+  <body class="modeling-process-page" data-reference-state="normal">
+    <a class="skip-link" href="#modeling-main">Skip to Modeling Process workspace</a>
+    <header class="application-bar" data-region="application-bar">
+      <div class="brand" translate="no"><span class="brand-mark" aria-hidden="true">CMP</span><span class="brand-name">CAE Material Platform</span></div>
+      <nav class="primary-navigation" aria-label="Primary workspace">
+        <a href="#materials">Materials</a><a class="active" href="#modeling-main" aria-current="page">Modeling</a><a href="#activity">Activity</a>
+      </nav>
+      <span class="current-user">Demo workspace</span>
+    </header>
+    <main id="modeling-main" class="modeling-shell" data-region="modeling-workspace" aria-labelledby="modeling-title">
+      <section class="modeling-context" data-region="context-header">
+        <div class="context-identity"><h1 id="modeling-title">Prepare observed curves</h1><span class="context-material">DP780 Dual-Phase Steel · Tensile · room temperature</span></div>
+        <div class="context-actions"><span class="session-state" data-session-state>Test Data saved · Process draft</span><button class="button" id="advanced-top" type="button">Advanced</button><button class="button secondary-action" type="button" data-action="preview-top">Preview changes</button></div>
+      </section>
+      <nav class="stage-strip" aria-label="Modeling stages">
+        <button class="stage-button" type="button" data-stage="Data">Data</button><button class="stage-button active" type="button" aria-current="step" data-stage="Process">Process</button><button class="stage-button" type="button" data-stage="Fit">Fit</button><button class="stage-button" type="button" data-stage="Export">Export</button>
+        <span class="stage-status" data-stage-status>Test Data · exact revision saved · preview not saved</span>
+      </nav>
+      <section class="modeling-grid" data-region="workspace-grid">
+        <aside class="curve-navigator" data-region="navigator" aria-labelledby="curve-nav-title">
+          <header class="pane-heading"><h2 id="curve-nav-title">Curves</h2><span class="pane-count" data-included-count>3 curves · 2 included</span></header>
+          <div class="navigator-filter"><label class="sr-only" for="curve-filter">Filter curves</label><input id="curve-filter" name="curve_filter" type="search" placeholder="Filter curves…" autocomplete="off"></div>
+          <div class="curve-scroll">
+            <section class="curve-group" aria-labelledby="tensile-group-title">
+              <div class="group-heading"><span id="tensile-group-title">Tensile tests</span><span data-curve-count>3 curves</span></div>
+              <div class="curve-parent" title="DP780 tensile test at room temperature"><span class="disclosure-mark" aria-hidden="true">▾</span><span class="truncate">DP780 tensile · 293 K</span></div>
+              <div class="curve-row selected" data-curve="Specimen 01" title="Observed curve · revision 1">
+                <input type="checkbox" name="include_specimen_01" checked aria-label="Include Specimen 01 in processing"><button class="curve-selection-button" type="button" aria-label="Select Specimen 01 curve" aria-pressed="true"><span class="curve-swatch swatch-blue" aria-hidden="true"></span><span class="curve-label"><strong>Specimen 01</strong><small>Observed · r1</small></span></button><button class="curve-visibility-button" type="button" aria-label="Hide Specimen 01 from plot" title="Hide from plot">◉</button>
+              </div>
+              <div class="curve-row" data-curve="Specimen 02" title="Observed curve · revision 1">
+                <input type="checkbox" name="include_specimen_02" checked aria-label="Include Specimen 02 in processing"><button class="curve-selection-button" type="button" aria-label="Select Specimen 02 curve" aria-pressed="false"><span class="curve-swatch swatch-orange" aria-hidden="true"></span><span class="curve-label"><strong>Specimen 02</strong><small>Observed · r1</small></span></button><button class="curve-visibility-button" type="button" aria-label="Hide Specimen 02 from plot" title="Hide from plot">◉</button>
+              </div>
+              <div class="curve-row" data-curve="Specimen 03" title="Observed curve · revision 1">
+                <input type="checkbox" name="include_specimen_03" aria-label="Include Specimen 03 in processing"><button class="curve-selection-button" type="button" aria-label="Select Specimen 03 curve" aria-pressed="false"><span class="curve-swatch swatch-purple" aria-hidden="true"></span><span class="curve-label"><strong>Specimen 03</strong><small>Observed · r1</small></span></button><button class="curve-visibility-button" type="button" aria-label="Hide Specimen 03 from plot" title="Hide from plot">◉</button>
+              </div>
+            </section>
+            <details class="replicate-analysis"><summary>Replicate analysis</summary><p>Two included curves are available for replicate checks. This secondary view never changes the ordered recipe.</p></details>
+            <section class="operations-group" aria-labelledby="operations-title">
+              <h3 id="operations-title">Processing operations</h3>
+              <ol class="operation-list">
+                <li><button class="operation-row" type="button" data-step="1" aria-pressed="false"><span class="operation-number">1</span><span>Resolve duplicate x values</span></button></li>
+                <li><button class="operation-row selected" type="button" data-step="2" aria-pressed="true"><span class="operation-number">2</span><span>Elastic modulus</span></button></li>
+                <li><button class="operation-row" type="button" data-step="3" aria-pressed="false"><span class="operation-number">3</span><span>Offset proof stress</span></button></li>
+                <li><button class="operation-row" type="button" data-step="4" aria-pressed="false"><span class="operation-number">4</span><span>Necking boundary</span></button></li>
+                <li><button class="operation-row" type="button" data-step="5" aria-pressed="false"><span class="operation-number">5</span><span>Engineering → true / plastic</span></button></li>
+              </ol>
+            </section>
+            <section class="navigator-note" aria-label="Navigator note"><span>Inclusion changes the processing scope; plot visibility is local.</span><a href="#evidence">Recipe details in Evidence</a></section>
+          </div>
+        </aside>
+        <div class="modeling-divider" data-region="navigator-divider"><div class="modeling-divider-resizer" role="separator" aria-orientation="vertical" aria-label="Resize curve and process navigator" aria-valuemin="180" aria-valuemax="240" aria-valuenow="192" aria-expanded="true" tabindex="0"></div><button type="button" aria-label="Collapse curve and process navigator" aria-expanded="true"><span aria-hidden="true">‹</span></button></div>
+        <section class="modeling-main-surface" aria-label="Persistent Process graph and operation settings">
+          <section class="process-ribbon" data-region="process-settings" aria-labelledby="process-settings-title">
+            <header class="ribbon-heading">
+              <div><h2 id="process-settings-title">Step 2 · Elastic modulus</h2><span>Observed input · calculated method · exact source revision</span></div>
+              <span class="ribbon-state" data-ribbon-state>Preview · not saved</span>
+            </header>
+            <div class="settings-grid">
+              <div class="setting source-setting"><span class="setting-label">Source quantities</span><strong>Engineering strain [1] → Engineering stress [MPa]</strong><small data-source-revision>CMP-DEMO-DP780-TEST-JSON-03 · r1</small></div>
+              <label class="setting">Method<select name="method" aria-label="Elastic modulus method"><option selected>Robust calculated</option><option>Linear regression</option><option>Chord</option><option>Secant</option></select><small>Server method · robust_huber · 1.0.0</small></label>
+              <label class="setting">Start engineering strain<input name="start_strain" aria-label="Start engineering strain" type="number" inputmode="decimal" step="0.0001" value="0.0002"><small>Minimum finite source range</small></label>
+              <label class="setting">End engineering strain<input name="end_strain" aria-label="End engineering strain" type="number" inputmode="decimal" step="0.0001" value="0.0020"><small>Maximum finite source range</small></label>
+              <label class="setting">Graph range<select name="graph_range" aria-label="Graph range"><option selected>Full source + headroom</option><option>Selected range</option></select><small>Data-relative bounds · zero origin</small></label>
+              <div class="setting result-setting"><span class="setting-label">Calculated preview</span><strong data-preview-result>E = 209.6 GPa</strong><small>Elastic-fit overlay · not authoritative until save</small></div>
+              <label class="setting output-label">Processed curve label<input name="processed_curve_label" aria-label="Processed curve label" value="DP780 tensile · robust preview" autocomplete="off"><small>Stored on immutable output revision</small></label>
+              <label class="setting output-reason">Save reason<input name="processed_curve_save_reason" aria-label="Processed curve save reason" value="Use robust elastic fit for downstream proof stress" autocomplete="off"><small>Required before Save processed curves</small></label>
+              <div class="ribbon-actions"><button class="button primary-action" type="button" data-action="save">Save processed curves</button></div>
+            </div>
+            <div class="downstream-status" data-downstream-status role="status">Fit / Export current pointers are stale until this preview is saved; immutable prior revisions remain available.</div>
+            <div class="blocked-reason" data-blocked-reason role="alert" hidden></div>
+          </section>
+          <section class="graph-panel" data-region="graph" aria-labelledby="graph-title">
+            <header class="graph-toolbar">
+              <div class="graph-heading"><h2 id="graph-title">Elastic modulus preview</h2><span data-graph-context>CMP-DEMO-DP780-TEST-JSON-03 · r1 · observed + processed preview</span></div>
+              <div class="graph-controls" role="toolbar" aria-label="Graph view"><button class="graph-control active" type="button" data-graph-view="response" aria-pressed="true">Response</button><button class="graph-control" type="button" data-graph-view="reset" aria-pressed="false">Reset view</button></div>
+            </header>
+            <div class="graph-canvas">
+              <svg class="source-plot" viewBox="0 0 1000 500" preserveAspectRatio="none" role="img" aria-labelledby="plot-title plot-description" data-series-min-strain="0.0000" data-series-max-strain="0.188" data-series-min-stress-mpa="0" data-series-max-stress-mpa="842" data-axis-headroom-ratio="0.10" data-axis-max-strain="0.22" data-axis-max-stress-mpa="950" data-axis-derived="true">
+                <title id="plot-title">DP780 tensile processing preview</title>
+                <desc id="plot-description">Observed input curves, processed preview and a calculated robust elastic-fit overlay. Axes use finite plotted span with proportional headroom.</desc>
+                <rect class="plot-background" x="70" y="30" width="890" height="400"></rect>
+                <g class="plot-grid" aria-hidden="true"><line x1="70" y1="30" x2="960" y2="30"></line><line x1="70" y1="130" x2="960" y2="130"></line><line x1="70" y1="230" x2="960" y2="230"></line><line x1="70" y1="330" x2="960" y2="330"></line><line x1="70" y1="430" x2="430" y2="430"></line><line x1="70" y1="30" x2="70" y2="430"></line><line x1="292" y1="30" x2="292" y2="430"></line><line x1="514" y1="30" x2="514" y2="430"></line><line x1="736" y1="30" x2="736" y2="430"></line><line x1="960" y1="30" x2="960" y2="430"></line></g>
+                <g class="plot-axis" aria-hidden="true"><line x1="70" y1="430" x2="960" y2="430"></line><line x1="70" y1="30" x2="70" y2="430"></line></g>
+                <path class="curve observed-one" d="M70 430 C96 293, 126 216, 176 177 C264 121, 395 101, 535 85 C675 68, 800 57, 900 52"></path>
+                <path class="curve observed-two" d="M70 430 C98 300, 129 220, 180 181 C268 125, 399 105, 539 89 C679 72, 804 61, 904 56"></path>
+                <path class="curve observed-three" d="M70 430 C94 307, 130 224, 183 185 C270 129, 404 109, 543 93 C683 76, 808 65, 908 60"></path>
+                <path class="curve processed-preview" d="M70 430 C97 294, 128 218, 179 179 C266 123, 398 103, 538 87 C678 70, 802 59, 904 54"></path>
+                <path class="curve elastic-fit" d="M70 430 L157 211" data-fit-start="0.0002" data-fit-end="0.0020"></path>
+                <g class="plot-labels"><text x="70" y="454" text-anchor="start">0</text><text x="292" y="454" text-anchor="middle">0.055</text><text x="514" y="454" text-anchor="middle">0.11</text><text x="736" y="454" text-anchor="middle">0.165</text><text x="960" y="454" text-anchor="end">0.22</text><text x="58" y="434" text-anchor="end">0</text><text x="58" y="234" text-anchor="end">475</text><text x="58" y="34" text-anchor="end">950 MPa</text><text class="axis-title" transform="translate(17 230) rotate(-90)" text-anchor="middle">Engineering stress</text></g>
+              </svg>
+              <div class="graph-blocked" role="status" hidden><strong>Processing preview unavailable</strong><p data-blocked-graph-copy>The exact saved Test Data and compatible Mapping Profile are required before Process can calculate a preview.</p><button class="button primary-action" type="button" data-action="back-data">Back to Data</button></div>
+              <div class="plot-footer" data-region="plot-footer"><span class="plot-x-axis-title" data-plot-x-axis-title>Engineering strain</span><div class="plot-legend" aria-label="Processing preview legend"><span><i class="legend-line input" aria-hidden="true"></i>Observed input</span><span><i class="legend-line preview" aria-hidden="true"></i>Processed preview</span><span><i class="legend-line fit" aria-hidden="true"></i>Calculated elastic fit</span><span class="legend-note" data-legend-note>Preview · not saved · raw/source recoverable</span></div></div>
+            </div>
+          </section>
+          <details id="evidence" class="advanced-settings graph-advanced"><summary>Advanced / Evidence</summary><div><span>Processing Recipe</span><code>recipe-demo-metal-tensile · draft</code><span>Processing Batch</span><code>not created until Save processed curves</code><span>Mapping Profile</span><code>Engineering tension · exact r1</code><span>Preview provenance</span><code>execution_mode: preview · promotable: false</code><span>Raw JSON / hashes</span><code>Available in Evidence; immutable source bytes retained</code></div></details>
+        </section>
+      </section>
+    </main>
+    <footer class="status-bar" data-region="status-bar" aria-label="Workspace status"><span id="status-selection" data-status-selection>CMP-DEMO-DP780-TEST-JSON-03 · r1</span><span data-status-revision>Test Data · exact revision</span><span class="status-spacer"></span><span data-status-job>No active job</span><span data-status-warning>0 warnings</span><span class="online-state"><span class="online-dot" aria-hidden="true"></span>Online</span></footer>
+    <p id="interaction-status" class="sr-only" role="status" aria-live="polite"></p>
+  </body>
+</html>

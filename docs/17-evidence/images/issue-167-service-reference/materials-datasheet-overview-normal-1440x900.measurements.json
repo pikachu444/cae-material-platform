@@ -1,0 +1,468 @@
+{
+  "capture_date": "2026-07-28",
+  "console_errors": [],
+  "delivery_download_count": 2,
+  "delivery_preview_count": 2,
+  "divider_visual_widths": [
+    1
+  ],
+  "forbidden_visible_terms": [],
+  "image_sha256": "c54bcab3b473ea0b6a451cb5def06b672d88efde8d7007c185d26d94802b54c8",
+  "interactions": {
+    "back_to_results": true,
+    "card_download": true,
+    "card_preview": true,
+    "navigator_search_shortcut": true,
+    "tabs_click_keyboard": true,
+    "tree_keyboard": true,
+    "tree_search": true
+  },
+  "nested_persistent_card_count": 0,
+  "overflow": {
+    "bodyHorizontal": 0,
+    "bodyVertical": 0,
+    "documentHorizontal": 0,
+    "documentVertical": 0
+  },
+  "page_errors": [],
+  "plot_domain": {
+    "declared_axis_maxima": {
+      "strain": 0.25,
+      "stress_mpa": 1000
+    },
+    "declared_series": {
+      "strain": {
+        "maximum": 0.2,
+        "minimum": 0
+      },
+      "stress_mpa": {
+        "maximum": 850,
+        "minimum": 0
+      }
+    },
+    "domain_policy": {
+      "nice_step_factors": [
+        1,
+        2,
+        2.5,
+        5,
+        10
+      ],
+      "target_intervals": {
+        "strain": 5,
+        "stress_mpa": 4
+      },
+      "upper_headroom_ratio": 0.1
+    },
+    "headroom": {
+      "right": 133.5999755859375,
+      "top": 24.599998474121094
+    },
+    "plot_area": {
+      "bottom": 191,
+      "left": 64,
+      "right": 732,
+      "top": 27
+    },
+    "recomputed_domain": {
+      "axes": {
+        "strain": {
+          "domain_maximum": 0.25,
+          "nice_step": 0.05,
+          "padded_maximum": 0.22,
+          "rough_step": 0.044
+        },
+        "stress_mpa": {
+          "domain_maximum": 1000.0,
+          "nice_step": 250.0,
+          "padded_maximum": 935.0,
+          "rough_step": 233.75
+        }
+      },
+      "expected_response_endpoint": {
+        "x": 598.4,
+        "y": 51.6
+      }
+    },
+    "response_path": {
+      "bounding_box": {
+        "bottom": 190.99999237060547,
+        "height": 139.39999389648438,
+        "right": 598.4000244140625,
+        "width": 534.4000244140625,
+        "x": 64,
+        "y": 51.599998474121094
+      },
+      "endpoint": {
+        "x": 598.4000244140625,
+        "y": 51.599998474121094
+      },
+      "fully_inside_plot": true,
+      "start": {
+        "x": 64,
+        "y": 191
+      }
+    },
+    "visible_text": {
+      "legend": [
+        "Representative response\n                      Condition: Ambient \u00b7 as received"
+      ],
+      "plot": [
+        "0",
+        "0.10",
+        "0.20",
+        "0.25",
+        "0",
+        "500",
+        "1,000 MPa",
+        "Engineering strain",
+        "Engineering stress"
+      ]
+    }
+  },
+  "primary_command_count": 1,
+  "property_headers": [
+    "Property",
+    "Value",
+    "Unit",
+    "Condition",
+    "Source"
+  ],
+  "property_rows": 4,
+  "property_semantics": [
+    [
+      "Density",
+      "7,800",
+      "kg/m\u00b3",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ],
+    [
+      "Young's modulus",
+      "210,000",
+      "MPa",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ],
+    [
+      "Yield strength",
+      "450",
+      "MPa",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ],
+    [
+      "Poisson ratio",
+      "0.30",
+      "\u2014",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ]
+  ],
+  "regions": {
+    "application_bar": {
+      "height": 46,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "command_bar": {
+      "height": 38,
+      "width": 1424,
+      "x": 8,
+      "y": 46
+    },
+    "datasheet": {
+      "height": 792,
+      "width": 1155,
+      "x": 277,
+      "y": 84
+    },
+    "datasheet_aside": {
+      "height": 680,
+      "width": 300,
+      "x": 1132,
+      "y": 196
+    },
+    "datasheet_main": {
+      "height": 680,
+      "width": 855,
+      "x": 277,
+      "y": 196
+    },
+    "navigator": {
+      "height": 792,
+      "width": 264,
+      "x": 8,
+      "y": 84
+    },
+    "navigator_divider": {
+      "height": 792,
+      "width": 5,
+      "x": 272,
+      "y": 84
+    },
+    "status_bar": {
+      "height": 24,
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "workspace": {
+      "height": 792,
+      "width": 1424,
+      "x": 8,
+      "y": 84
+    }
+  },
+  "row_density": {
+    "properties": {
+      "count": 4,
+      "maximum": 32,
+      "minimum": 32
+    },
+    "tree": {
+      "count": 7,
+      "maximum": 25,
+      "minimum": 25
+    }
+  },
+  "selected_record": true,
+  "selected_tree_rows": 1,
+  "solver_format_count": 2,
+  "solver_formats": [
+    {
+      "format": ".inp",
+      "solver": "Abaqus",
+      "state": "Available"
+    },
+    {
+      "format": ".rad",
+      "solver": "OpenRadioss",
+      "state": "Available"
+    }
+  ],
+  "splitter_evidence": {
+    "default": {
+      "aria": {
+        "maximum": 360,
+        "minimum": 200,
+        "now": 264
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 272,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          265,
+          265,
+          265,
+          265,
+          265,
+          265,
+          265
+        ]
+      },
+      "widths": {
+        "datasheet": 1155,
+        "divider": 5,
+        "navigator": 264
+      }
+    },
+    "navigator_arrow_right": {
+      "aria": {
+        "maximum": 360,
+        "minimum": 200,
+        "now": 272
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 280,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          273,
+          273,
+          273,
+          273,
+          273,
+          273,
+          273
+        ]
+      },
+      "widths": {
+        "datasheet": 1147,
+        "divider": 5,
+        "navigator": 272
+      }
+    },
+    "navigator_end": {
+      "aria": {
+        "maximum": 360,
+        "minimum": 200,
+        "now": 360
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 368,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          361,
+          361,
+          361,
+          361,
+          361,
+          361,
+          361
+        ]
+      },
+      "widths": {
+        "datasheet": 1059,
+        "divider": 5,
+        "navigator": 360
+      }
+    },
+    "navigator_home": {
+      "aria": {
+        "maximum": 360,
+        "minimum": 200,
+        "now": 200
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 208,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          201
+        ]
+      },
+      "widths": {
+        "datasheet": 1219,
+        "divider": 5,
+        "navigator": 200
+      }
+    }
+  },
+  "tabs": {
+    "active": "Overview",
+    "count": 6,
+    "labels": [
+      "Overview",
+      "Properties",
+      "Curves",
+      "CAE Cards",
+      "Related",
+      "Evidence"
+    ],
+    "related_visible": true
+  },
+  "target": "materials-datasheet-overview-normal-1440x900",
+  "tree_scroller": {
+    "all_tree_kind_right_edges_within_content": true,
+    "content_right": 272,
+    "horizontal_overflow": 0,
+    "tree_kind_labels": [
+      "Database",
+      "Profile",
+      "Table",
+      "Folder",
+      "Folder",
+      "Record",
+      "Record"
+    ],
+    "tree_kind_labels_match": true,
+    "tree_kind_right_edges": [
+      265,
+      265,
+      265,
+      265,
+      265,
+      265,
+      265
+    ]
+  },
+  "unsupported_labels": [],
+  "viewport": {
+    "device_scale_factor": 1,
+    "height": 900,
+    "width": 1440
+  },
+  "visible_splitter_count": 1
+}

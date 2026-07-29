@@ -1,0 +1,114 @@
+{
+  "capture_date": "2026-07-28",
+  "console_errors": [],
+  "divider_visual_widths": [
+    1,
+    1
+  ],
+  "image_sha256": "8f99dba3ec20cc75f29ab938dfa42682ff741ef624fcdd495b89fd673e49c53b",
+  "interactions": {
+    "result_enter": true,
+    "search_shortcut": true,
+    "tree_keyboard": true
+  },
+  "nested_persistent_card_count": 0,
+  "overflow": {
+    "bodyHorizontal": 0,
+    "bodyVertical": 0,
+    "documentHorizontal": 0,
+    "documentVertical": 0
+  },
+  "page_errors": [],
+  "primary_command_count": 1,
+  "regions": {
+    "application_bar": {
+      "height": 46,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "command_bar": {
+      "height": 38,
+      "width": 1424,
+      "x": 8,
+      "y": 46
+    },
+    "context_divider": {
+      "height": 752,
+      "width": 5,
+      "x": 1147,
+      "y": 124
+    },
+    "navigator": {
+      "height": 752,
+      "width": 264,
+      "x": 8,
+      "y": 124
+    },
+    "navigator_divider": {
+      "height": 752,
+      "width": 5,
+      "x": 272,
+      "y": 124
+    },
+    "results": {
+      "height": 752,
+      "width": 870,
+      "x": 277,
+      "y": 124
+    },
+    "search_band": {
+      "height": 40,
+      "width": 1424,
+      "x": 8,
+      "y": 84
+    },
+    "selected_context": {
+      "height": 752,
+      "width": 280,
+      "x": 1152,
+      "y": 124
+    },
+    "status_bar": {
+      "height": 24,
+      "width": 1440,
+      "x": 0,
+      "y": 876
+    },
+    "workspace": {
+      "height": 752,
+      "width": 1424,
+      "x": 8,
+      "y": 124
+    }
+  },
+  "row_density": {
+    "results": {
+      "count": 6,
+      "maximum": 36,
+      "minimum": 36
+    },
+    "tree": {
+      "count": 7,
+      "maximum": 25,
+      "minimum": 25
+    }
+  },
+  "selected_result_rows": 1,
+  "selected_tree_rows": 1,
+  "table_header_position": "sticky",
+  "table_headers": [
+    "Compare",
+    "Material / grade",
+    "Family",
+    "Description",
+    "Status"
+  ],
+  "target": "materials-search-normal-1440x900",
+  "viewport": {
+    "device_scale_factor": 1,
+    "height": 900,
+    "width": 1440
+  },
+  "visible_selected_context": true
+}

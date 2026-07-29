@@ -1,0 +1,817 @@
+{
+  "schema_version": 2,
+  "family": "MOD-EXPORT",
+  "status": "pending",
+  "capture_date": "2026-07-29",
+  "static": {
+    "html": "docs/00-research/ux-service-reference/modeling-export-normal.html",
+    "css": "docs/00-research/ux-service-reference/modeling-export.css",
+    "javascript": "docs/00-research/ux-service-reference/modeling-export.js",
+    "capture": "docs/00-research/ux-service-reference/capture_modeling_export_wave04.py",
+    "validation": "docs/00-research/ux-service-reference/validate_modeling_export_wave04.py"
+  },
+  "dependencies": {
+    "MOD-FIT": {
+      "staging": "docs/00-research/ux-service-reference/modeling-fit-wave03.staging.json",
+      "status": "accepted",
+      "target_sha256": {
+        "modeling-fit-normal-1366x768": "41a775d88b32c9528d742858fdfbcf86dda6b391f3ad704337ee9d9781487a93",
+        "modeling-fit-normal-1440x900": "7ba66c5f5d5605dd897f1bb511fcaa888985c5472d378a56ce849ded55ed0db5",
+        "modeling-fit-normal-1920x1080": "f7a6aaf8720659bdadf1559347e08b8d1c5b920633c8ce954b34ba39aa7ee261",
+        "modeling-fit-candidate-parameters-long-1440x900": "500e66fa38e8b7f6adde92f7aa3f309a41aa7f27cb5ef3ebe322fad07abce881"
+      }
+    },
+    "MAT-CARD": {
+      "staging": "docs/17-evidence/images/issue-167-service-reference/materials-card-wave02.staging.json",
+      "status": "pending",
+      "target_sha256": {
+        "materials-card-preview-normal-1366x768": "60497b5fef2239cd17a468b4e8fcf1316e0bccca5b753600aff5f240b21a4372",
+        "materials-card-preview-normal-1440x900": "74f06d51955b1d7b8f95fed9aaa8f17af147ca00435d7e04f619638c977b2f21",
+        "materials-card-preview-normal-1920x1080": "8b9758160f441197c440aa11c8c5886cae75ce5e07e001a2aa4cf2fee60a1513",
+        "materials-card-approximation-blocked-1440x900": "2ea15b1bb5d0984296bab458a7d8572111f816c12f87ba5830ec3cbef7d7be92",
+        "materials-card-unsupported-blocked-1440x900": "688a0fd8bd9d4d72042f2ad21813df3b8f7ede78b128f75d3cfb1a6c63466d6d"
+      }
+    }
+  },
+  "targets": {
+    "modeling-export-normal-1366x768": {
+      "state": "preview-ready",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.measurements.json",
+      "sha256": "235b25e7bdd8668b341316c9c0b7e48c64c55f3098c1bb2208b6c23161cec770",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      }
+    },
+    "modeling-export-normal-1440x900": {
+      "state": "preview-ready",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.measurements.json",
+      "sha256": "38e6e300d7aa1258bf4523b0d768920df42653956a9e1659aabf9232bdd2d0b0",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      }
+    },
+    "modeling-export-normal-1920x1080": {
+      "state": "preview-ready",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.measurements.json",
+      "sha256": "363516b847e3298ed85ca7c7c06e1bef564fbaddca93ff17baba1cc8bd2d7a85",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      }
+    },
+    "modeling-export-source-blocked-1440x900": {
+      "state": "source-blocked",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.measurements.json",
+      "sha256": "2b406f84eb8180d994a87766da021b1e09c3e7b0869907d02bc9614bc5c6320f",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      }
+    },
+    "modeling-export-approximation-blocked-1440x900": {
+      "state": "approximation-blocked",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.measurements.json",
+      "sha256": "04a85b17f8eb6490aaf0edfe2cb3c898336329bfa33b40a66ee7c41c3215dbc9",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      }
+    },
+    "modeling-export-delivered-1440x900": {
+      "state": "delivered",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.measurements.json",
+      "sha256": "4979f4d070e17d0703052efcb2e0152d0858043467bc549e091b25204effc1cc",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      }
+    }
+  },
+  "state_evidence": {
+    "no-target-empty": {
+      "state": "no-target-empty",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json",
+      "canonical_1440": null
+    },
+    "preflight-or-delivering-loading": {
+      "state": "loading",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json",
+      "canonical_1440": null
+    },
+    "delivery-error-with-preflight-preserved": {
+      "state": "delivery-error",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json",
+      "canonical_1440": null
+    },
+    "long-mapping-disclosure": {
+      "state": "long-mapping",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json",
+      "canonical_1440": null
+    },
+    "source-blocked-responsive": {
+      "state": "source-blocked",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json",
+      "canonical_1440": {
+        "target": "modeling-export-source-blocked-1440x900",
+        "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "image_sha256": "2b406f84eb8180d994a87766da021b1e09c3e7b0869907d02bc9614bc5c6320f",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.measurements.json"
+      }
+    },
+    "approximation-blocked-responsive": {
+      "state": "approximation-blocked",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json",
+      "canonical_1440": {
+        "target": "modeling-export-approximation-blocked-1440x900",
+        "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "image_sha256": "04a85b17f8eb6490aaf0edfe2cb3c898336329bfa33b40a66ee7c41c3215dbc9",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.measurements.json"
+      }
+    },
+    "delivered-responsive": {
+      "state": "delivered",
+      "captures": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png"
+      ],
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-wave04.state-evidence.json",
+      "canonical_1440": {
+        "target": "modeling-export-delivered-1440x900",
+        "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "image_sha256": "4979f4d070e17d0703052efcb2e0152d0858043467bc549e091b25204effc1cc",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.measurements.json"
+      }
+    }
+  },
+  "family_adaptations": {
+    "linear-viscoelastic": {
+      "state": "preview-ready",
+      "family": "linear-viscoelastic",
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.measurements.json",
+      "sha256": "b76e0ed4dfbad72b27d26351f77205efa3d03ace9ed76d68edfe23395a04eecf",
+      "status": "evidence-only"
+    },
+    "hyperelastic": {
+      "state": "preview-ready",
+      "family": "hyperelastic",
+      "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.measurements.json",
+      "sha256": "f13385ff93498ae0be83d35b6799640da85210a3624eb3dca2e095c3884d7bc4",
+      "status": "evidence-only"
+    }
+  },
+  "qualitative_owner_checklist": {
+    "Q-01": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Export has no navigator tree; Export setup is a bounded property pane."
+      ]
+    },
+    "Q-02": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Mapping details are not a result list; their overflow is evaluated in Q-09."
+      ]
+    },
+    "Q-03": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Materials navigation is not mounted in Modeling Export."
+      ]
+    },
+    "Q-04": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Fit controls and candidate drawer are upstream; Export keeps only selected Fit source context."
+      ]
+    },
+    "Q-05": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "The bounded Fit source graph labels True stress (MPa) against true plastic strain [1] with positive initial yield.",
+        "Source graph is unavailable while the exact Fit prerequisite is blocked.",
+        "The bounded family Fit source uses readable quantity/unit labels and a compact in-plot legend."
+      ]
+    },
+    "Q-06": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Family legend remains compact and inside the bounded graph.",
+        "No graph legend is shown without an exact source."
+      ]
+    },
+    "Q-07": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "SVG preserveAspectRatio is uniform across responsive captures.",
+        "No source plot is rendered in blocked state."
+      ]
+    },
+    "Q-08": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Metal source response starts at positive yield stress at zero true plastic strain.",
+        "The source family is not a true-yield/true-plastic-strain plot."
+      ]
+    },
+    "Q-09": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Normal mapping is compact; long overflow is covered by long-mapping evidence.",
+        "Long mapping evidence exposes independent reserved local scroll rails and reachable wrapped identities."
+      ]
+    },
+    "Q-10": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Legend is placed in a curve-free graph quadrant.",
+        "No legend is shown without an exact source."
+      ]
+    },
+    "Q-11": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Export has no Fit rail; the right context is a bounded result column."
+      ]
+    },
+    "Q-12": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Export setup identifies the exact saved branch by selected model only; Output unit system remains a capability-backed selector with unsupported alternatives disabled, ambiguous r1 shorthand is absent, and physical values appear once in Mapping details."
+      ]
+    },
+    "Q-13": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Setup and mapping rows use one compact title/value/status rhythm; explanatory prose and technical counts are disclosed only on demand."
+      ]
+    },
+    "Q-14": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "Readiness and the exact next action are stated once in Export check; preview and mapping regions avoid duplicate alert prose."
+      ]
+    },
+    "Q-15": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "The family plot uses data-span-proportional headroom, uniform SVG geometry, correct family quantities and a curve-free legend.",
+        "No engineering plot is rendered without an exact selected model."
+      ]
+    },
+    "Q-16": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-normal-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-no-target-empty-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-preflight-or-delivering-loading-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivery-error-with-preflight-preserved-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-long-mapping-disclosure-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-source-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-approximation-blocked-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-delivered-responsive-1920x1080.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-hyperelastic-1440x900.png"
+      ],
+      "reasons": [
+        "The native preview remains dominant; bounded result context has no normal fake rail and genuine long content exposes independent local scrolling."
+      ]
+    }
+  }
+}

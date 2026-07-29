@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "generated": "2026-07-29",
+  "family": "MAT-CARD",
+  "references": [
+    {
+      "id": "materials-card-preview-normal-1366x768",
+      "kind": "normal",
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "device_scale_factor": 1
+      },
+      "html": "docs/00-research/ux-service-reference/materials-card-preview-normal.html",
+      "css": "docs/00-research/ux-service-reference/materials-card-preview.css",
+      "javascript": "docs/00-research/ux-service-reference/materials-card-preview.js",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1366x768.measurements.json",
+      "image_sha256": "60497b5fef2239cd17a468b4e8fcf1316e0bccca5b753600aff5f240b21a4372",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": []
+    },
+    {
+      "id": "materials-card-preview-normal-1440x900",
+      "kind": "normal",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "html": "docs/00-research/ux-service-reference/materials-card-preview-normal.html",
+      "css": "docs/00-research/ux-service-reference/materials-card-preview.css",
+      "javascript": "docs/00-research/ux-service-reference/materials-card-preview.js",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1440x900.measurements.json",
+      "image_sha256": "74f06d51955b1d7b8f95fed9aaa8f17af147ca00435d7e04f619638c977b2f21",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": []
+    },
+    {
+      "id": "materials-card-preview-normal-1920x1080",
+      "kind": "normal",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "device_scale_factor": 1
+      },
+      "html": "docs/00-research/ux-service-reference/materials-card-preview-normal.html",
+      "css": "docs/00-research/ux-service-reference/materials-card-preview.css",
+      "javascript": "docs/00-research/ux-service-reference/materials-card-preview.js",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-card-preview-normal-1920x1080.measurements.json",
+      "image_sha256": "8b9758160f441197c440aa11c8c5886cae75ce5e07e001a2aa4cf2fee60a1513",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": []
+    },
+    {
+      "id": "materials-card-approximation-blocked-1440x900",
+      "kind": "approximation",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "html": "docs/00-research/ux-service-reference/materials-card-preview-normal.html",
+      "css": "docs/00-research/ux-service-reference/materials-card-preview.css",
+      "javascript": "docs/00-research/ux-service-reference/materials-card-preview.js",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.measurements.json",
+      "image_sha256": "2ea15b1bb5d0984296bab458a7d8572111f816c12f87ba5830ec3cbef7d7be92",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/materials-card-approximation-blocked-1440x900.responsive-1920x1080.png"
+      ]
+    },
+    {
+      "id": "materials-card-unsupported-blocked-1440x900",
+      "kind": "unsupported",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "html": "docs/00-research/ux-service-reference/materials-card-preview-normal.html",
+      "css": "docs/00-research/ux-service-reference/materials-card-preview.css",
+      "javascript": "docs/00-research/ux-service-reference/materials-card-preview.js",
+      "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.png",
+      "measurements": "docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.measurements.json",
+      "image_sha256": "688a0fd8bd9d4d72042f2ad21813df3b8f7ede78b128f75d3cfb1a6c63466d6d",
+      "status": "pending",
+      "main_agent_evaluation": {
+        "status": "pending"
+      },
+      "product_owner_approval": {
+        "status": "absent"
+      },
+      "responsive_evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.responsive-1366x768.png",
+        "docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.responsive-1920x1080.png"
+      ]
+    }
+  ],
+  "state_evidence": "docs/00-research/ux-service-reference/materials-card-wave02.state-evidence.json"
+}

@@ -1,0 +1,514 @@
+{
+  "capture_date": "2026-07-29",
+  "target": "modeling-export-family-linear-viscoelastic-1440x900",
+  "state": "preview-ready",
+  "family": "linear-viscoelastic",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "device_scale_factor": 1
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png",
+  "image_sha256": "b76e0ed4dfbad72b27d26351f77205efa3d03ace9ed76d68edfe23395a04eecf",
+  "status": "pending",
+  "main_agent_evaluation": {
+    "status": "pending"
+  },
+  "product_owner_approval": {
+    "status": "absent"
+  },
+  "console_errors": [],
+  "page_errors": [],
+  "geometry": {
+    "target": "modeling-export-family-linear-viscoelastic-1440x900",
+    "state": "preview-ready",
+    "family": "linear-viscoelastic",
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "regions": {
+      "applicationBar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 46,
+        "right": 1440,
+        "bottom": 46
+      },
+      "context": {
+        "x": 8,
+        "y": 46,
+        "width": 1424,
+        "height": 42,
+        "right": 1432,
+        "bottom": 88
+      },
+      "stageStrip": {
+        "x": 8,
+        "y": 88,
+        "width": 1424,
+        "height": 34,
+        "right": 1432,
+        "bottom": 122
+      },
+      "workspace": {
+        "x": 8,
+        "y": 122,
+        "width": 1424,
+        "height": 754,
+        "right": 1432,
+        "bottom": 876
+      },
+      "properties": {
+        "x": 8,
+        "y": 122,
+        "width": 316.8,
+        "height": 754,
+        "right": 324.8,
+        "bottom": 876
+      },
+      "divider": {
+        "x": 324.8,
+        "y": 122,
+        "width": 8,
+        "height": 754,
+        "right": 332.8,
+        "bottom": 876
+      },
+      "main": {
+        "x": 332.8,
+        "y": 122,
+        "width": 1099.2,
+        "height": 754,
+        "right": 1432,
+        "bottom": 876
+      },
+      "result": {
+        "x": 332.8,
+        "y": 122,
+        "width": 1099.2,
+        "height": 754,
+        "right": 1432,
+        "bottom": 876
+      },
+      "nativePreview": {
+        "x": 332.8,
+        "y": 122,
+        "width": 739.2,
+        "height": 754,
+        "right": 1072,
+        "bottom": 876
+      },
+      "mappingSheet": {
+        "x": 1073,
+        "y": 122,
+        "width": 359,
+        "height": 448,
+        "right": 1432,
+        "bottom": 570
+      },
+      "fitSource": {
+        "x": 1073,
+        "y": 570,
+        "width": 359,
+        "height": 306,
+        "right": 1432,
+        "bottom": 876
+      },
+      "statusBar": {
+        "x": 0,
+        "y": 876,
+        "width": 1440,
+        "height": 24,
+        "right": 1440,
+        "bottom": 900
+      }
+    },
+    "layout": {
+      "workspaceWidth": 1424,
+      "nativeWidth": 739.203125,
+      "mappingWidth": 359,
+      "propertiesWidth": 316.796875
+    },
+    "sourceGraph": {
+      "box": {
+        "left": 1082,
+        "right": 1423,
+        "top": 627,
+        "bottom": 870,
+        "width": 341,
+        "height": 243
+      },
+      "axisTitles": [
+        {
+          "text": "Normalized shear modulus [1]",
+          "box": {
+            "left": 1124.625,
+            "right": 1275.953125,
+            "top": 637.3968505859375,
+            "bottom": 652.3968505859375,
+            "width": 151.328125,
+            "height": 15
+          }
+        },
+        {
+          "text": "log time (s)",
+          "box": {
+            "left": 1240.784423828125,
+            "right": 1298.598876953125,
+            "top": 843.0625,
+            "bottom": 858.0625,
+            "width": 57.814453125,
+            "height": 15
+          }
+        }
+      ],
+      "legendZone": "upper-right",
+      "legendOverlapsCurve": false,
+      "scaleDelta": 0,
+      "preserveAspectRatio": "xMidYMid meet",
+      "curveCount": 2,
+      "labels": [
+        "0.2",
+        "0.6",
+        "1.0",
+        "−3",
+        "0",
+        "3",
+        "Normalized shear modulus [1]",
+        "log time (s)"
+      ],
+      "renderedTicks": [
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375
+      ],
+      "renderedTitles": [
+        11.1890625,
+        11.1890625,
+        11.1890625,
+        11.1890625,
+        11.1890625,
+        11.1890625
+      ],
+      "renderedLegend": [
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375,
+        10.1234375
+      ],
+      "positiveYield": true,
+      "labelsContained": true,
+      "legendContained": true,
+      "curveClearance": {
+        "left": 24.157716798782303,
+        "right": 24.157708644866943,
+        "top": 15.195810711383842,
+        "bottom": 16.00615954399109,
+        "frameWidth": 289.8499755859375,
+        "frameHeight": 164.10626220703125
+      },
+      "dataRange": {
+        "paddingRatio": 0.1,
+        "xDataMin": -3,
+        "xDataMax": 3,
+        "xDomainMin": -3.6,
+        "xDomainMax": 3.6,
+        "yDataMin": 0.12,
+        "yDataMax": 1,
+        "yDomainMin": 0.01999999999999999,
+        "yDomainMax": 1.1
+      }
+    },
+    "preflight": {
+      "sourceState": "Available",
+      "targetState": "Selected",
+      "checkState": "Ready to create",
+      "checkStatus": "Ready to create\n                No blockers.",
+      "checkSummary": "No blockers.",
+      "mappingHeader": "5 mapped",
+      "rows": [
+        {
+          "text": "Density1,120 kg/m³ → 1.1200E+03Exact",
+          "status": "exact",
+          "title": "Density"
+        },
+        {
+          "text": "Instantaneous elasticity2.40 MPa, ν 0.49 → *ELASTICExact",
+          "status": "exact",
+          "title": "Instantaneous elasticity"
+        },
+        {
+          "text": "Shear Prony terms2 terms → *VISCOELASTICExact",
+          "status": "exact",
+          "title": "Shear Prony terms"
+        },
+        {
+          "text": "Bulk Prony terms2 terms → native Prony fieldsExact",
+          "status": "exact",
+          "title": "Bulk Prony terms"
+        },
+        {
+          "text": "Unit conventionkg · m · s → stress in PaConverted",
+          "status": "transformed",
+          "title": "Unit convention"
+        }
+      ],
+      "counts": {
+        "exact": 4,
+        "transformed": 1,
+        "approximated": 0,
+        "not_applicable": 1,
+        "unsupported": 0
+      },
+      "source": {
+        "text": "Selected model\nAvailable\nModel\nGeneralized Maxwell\nOpen in Fit",
+        "model": "Generalized Maxwell"
+      },
+      "advancedNotApplicable": 3
+    },
+    "actions": {
+      "primaryCount": 1,
+      "action": "create-card",
+      "text": "Create solver card",
+      "disabled": false,
+      "deliveryDetailsVisible": false,
+      "retryVisible": false,
+      "runCheckVisible": false,
+      "recoveryActions": [],
+      "acknowledgementVisible": false,
+      "acknowledgementChecked": false,
+      "previewState": "Current preview · not created",
+      "previewTarget": "Abaqus 2025 · kg · m · s · synthetic reference",
+      "sourceMaterialDisabled": false,
+      "fitSourceDisabled": false,
+      "fitSourceOpenVisible": true,
+      "fitSourceGraphOpacity": "1",
+      "outputMarkerVisible": false,
+      "visibleText": "Skip to Modeling Export workspace\nCMP\nCAE Material Platform\nMaterials\nModeling\nActivity\nDemo workspace\nExport solver card\nReference polymer · linear viscoelastic · 23 °C context\nReady to create\nAdvanced\nData\nProcess\nFit\nExport\nExport check complete\nExport setup\nReady\nSelected model\nAvailable\nModel\nGeneralized Maxwell\nOpen in Fit\nDestination\nSelected\nSolver / format\nSelect Destination\nAbaqus 2025 · ASCII\nOpenRadioss 2025 · ASCII\n2025\nOutput unit system\nSelect unit system\nkg · m · s\nOther unit systems — unavailable\nOptions are supplied by the selected exporter capability.\nExport check\nReady to create\nNo blockers.\nCreate solver card\nAdvanced\n‹\nSolver Card preview\nAbaqus 2025 · kg · m · s · synthetic reference\nCurrent preview · not created\n*HEADING\n** CMP reference / non-production · linear viscoelastic\n*MATERIAL, NAME=LINEAR_VISCO_REFERENCE_R1\n** Unit convention: kg · m · s; stress in Pa\n*DENSITY\n  1.12000000E+03,\n*ELASTIC\n  2.40000000E+06, 4.90000000E-01\n*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC\n  2.50000000E-01, 0.00000000E+00, 1.00000000E-02\n  1.50000000E-01, 0.00000000E+00, 1.00000000E+00\n** Mapping: shear and bulk Prony terms exact\n** Mapping: temperature applicability not_applicable · Advanced\n** Preview only · Create solver card writes one immutable revision\nMapping details\n5 mapped\nDensity\n1,120 kg/m³ → 1.1200E+03\nExact\nInstantaneous elasticity\n2.40 MPa, ν 0.49 → *ELASTIC\nExact\nShear Prony terms\n2 terms → *VISCOELASTIC\nExact\nBulk Prony terms\n2 terms → native Prony fields\nExact\nUnit convention\nkg · m · s → stress in Pa\nConverted\nTechnical mapping details\nFit source\nOpen full graph\n\nGeneralized Maxwell\n\nLinear viscoelastic response\n0.2\n0.6\n1.0\n−3\n0\n3\nNormalized shear modulus [1]\nlog time (s)\nFit response\nObserved\nGeneralized Maxwell\nExport check complete\nReady to create\nOnline",
+      "deliveryCount": 0,
+      "deliveryPointer": "",
+      "previewCurrent": true
+    },
+    "scroll": {
+      "properties": {
+        "clientWidth": 301,
+        "offsetWidth": 316,
+        "scrollWidth": 301,
+        "clientHeight": 720,
+        "offsetHeight": 720,
+        "scrollHeight": 720,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "native": {
+        "clientWidth": 700,
+        "offsetWidth": 717,
+        "scrollWidth": 700,
+        "clientHeight": 690,
+        "offsetHeight": 692,
+        "scrollHeight": 690,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      },
+      "mapping": {
+        "clientWidth": 344,
+        "offsetWidth": 359,
+        "scrollWidth": 344,
+        "clientHeight": 220,
+        "offsetHeight": 220,
+        "scrollHeight": 220,
+        "overflowX": "auto",
+        "overflowY": "auto",
+        "scrollbarGutter": "stable"
+      }
+    },
+    "interaction": {
+      "stageLabels": [
+        "Data",
+        "Process",
+        "Fit",
+        "Export"
+      ],
+      "activeStage": "Export",
+      "legacySelectors": [],
+      "nestedInteractive": [],
+      "topGraphCount": 0,
+      "sourceGraphVisible": true,
+      "focused": "BODY"
+    },
+    "technical": {
+      "digest": "linear-viscoelastic-abaqus-2025-kg_m_s-v1",
+      "nativeText": "*HEADING\n** CMP reference / non-production · linear viscoelastic\n*MATERIAL, NAME=LINEAR_VISCO_REFERENCE_R1\n** Unit convention: kg · m · s; stress in Pa\n*DENSITY\n  1.12000000E+03,\n*ELASTIC\n  2.40000000E+06, 4.90000000E-01\n*VISCOELASTIC, TIME=PRONY, TYPE=ISOTROPIC\n  2.50000000E-01, 0.00000000E+00, 1.00000000E-02\n  1.50000000E-01, 0.00000000E+00, 1.00000000E+00\n** Mapping: shear and bulk Prony terms exact\n** Mapping: temperature applicability not_applicable · Advanced\n** Preview only · Create solver card writes one immutable revision",
+      "targetValue": "abaqus",
+      "version": "2025",
+      "unitSystem": "kg_m_s",
+      "unitSystemLabel": "kg · m · s",
+      "unitControl": {
+        "disabled": false,
+        "options": [
+          {
+            "value": "",
+            "label": "Select unit system",
+            "disabled": false
+          },
+          {
+            "value": "kg_m_s",
+            "label": "kg · m · s",
+            "disabled": false
+          },
+          {
+            "value": "unavailable",
+            "label": "Other unit systems — unavailable",
+            "disabled": true
+          }
+        ]
+      },
+      "tuple": "abaqus|2025|kg_m_s|linear-viscoelastic",
+      "mappingPlaceholders": []
+    }
+  },
+  "overflow": {
+    "documentHorizontal": 0,
+    "documentVertical": 0,
+    "bodyHorizontal": 0,
+    "bodyVertical": 0
+  },
+  "exercise": {},
+  "qualitative_checklist": {
+    "Q-01": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Export has no navigator tree; Export setup is a bounded property pane."
+    },
+    "Q-02": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Mapping details are not a result list; their overflow is evaluated in Q-09."
+    },
+    "Q-03": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Materials navigation is not mounted in Modeling Export."
+    },
+    "Q-04": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Fit controls and candidate drawer are upstream; Export keeps only selected Fit source context."
+    },
+    "Q-05": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "The bounded family Fit source uses readable quantity/unit labels and a compact in-plot legend."
+    },
+    "Q-06": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Family legend remains compact and inside the bounded graph."
+    },
+    "Q-07": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "SVG preserveAspectRatio is uniform across responsive captures."
+    },
+    "Q-08": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "The source family is not a true-yield/true-plastic-strain plot."
+    },
+    "Q-09": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Normal mapping is compact; long overflow is covered by long-mapping evidence."
+    },
+    "Q-10": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Legend is placed in a curve-free graph quadrant."
+    },
+    "Q-11": {
+      "status": "not-applicable",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Export has no Fit rail; the right context is a bounded result column."
+    },
+    "Q-12": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Export setup identifies the exact saved branch by selected model only; Output unit system remains a capability-backed selector with unsupported alternatives disabled, ambiguous r1 shorthand is absent, and physical values appear once in Mapping details."
+    },
+    "Q-13": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Setup and mapping rows use one compact title/value/status rhythm; explanatory prose and technical counts are disclosed only on demand."
+    },
+    "Q-14": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "Readiness and the exact next action are stated once in Export check; preview and mapping regions avoid duplicate alert prose."
+    },
+    "Q-15": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "The family plot uses data-span-proportional headroom, uniform SVG geometry, correct family quantities and a curve-free legend."
+    },
+    "Q-16": {
+      "status": "pass",
+      "evidence": [
+        "docs/17-evidence/images/issue-167-service-reference/modeling-export-family-linear-viscoelastic-1440x900.png"
+      ],
+      "reason": "The native preview remains dominant; bounded result context has no normal fake rail and genuine long content exposes independent local scrolling."
+    }
+  }
+}

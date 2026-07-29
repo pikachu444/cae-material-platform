@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#eef2f4" />
+    <title>Activity · CAE Material Platform</title>
+    <link rel="stylesheet" href="activity-queue.css" />
+  </head>
+  <body data-role="user" data-state="normal">
+    <a class="skip-link" href="#activity-main">Skip to Activity queue</a>
+    <div class="app-frame">
+      <header class="app-topbar" data-region="global-shell">
+        <a class="brand-lockup" href="#activity-main" aria-label="CAE Material Platform home">
+          <span class="brand-mark" aria-hidden="true">CMP</span>
+          <span class="brand-copy">
+            <strong>CAE Material Platform</strong>
+            <small>Material data and solver delivery</small>
+          </span>
+        </a>
+        <nav class="workspace-nav" aria-label="Primary workspace navigation">
+          <a href="#materials">Materials</a>
+          <a href="#modeling">Modeling</a>
+          <a class="is-active" aria-current="page" href="#activity-main">Activity</a>
+        </nav>
+        <div class="topbar-context" data-role-context>Signed-in user</div>
+      </header>
+
+      <main id="activity-main" class="activity-page" data-region="main-content">
+        <div class="activity-shell">
+          <header class="activity-heading" data-region="activity-heading">
+            <div class="heading-copy">
+              <div class="heading-line">
+                <h1>Activity</h1>
+                <span class="role-context" data-role-label>User queue</span>
+              </div>
+              <p data-role-description>Your pending requests and browser-local work.</p>
+            </div>
+            <div class="heading-actions">
+              <span class="queue-status" role="status" aria-live="polite" data-queue-status>Ready</span>
+              <button class="queue-button quiet" type="button" data-action="refresh">Refresh</button>
+            </div>
+          </header>
+
+          <nav class="saved-views" aria-label="Activity saved views" role="tablist">
+            <button id="view-needs-attention" type="button" role="tab" aria-controls="section-needs-attention" aria-selected="true" class="saved-view is-active" data-view="needs-attention">Needs attention</button>
+            <button id="view-in-progress" type="button" role="tab" aria-controls="section-in-progress" aria-selected="false" class="saved-view" data-view="in-progress">In progress</button>
+            <button id="view-recent-outcomes" type="button" role="tab" aria-controls="section-recent-outcomes" aria-selected="false" class="saved-view" data-view="recent-outcomes">Recent outcomes</button>
+          </nav>
+
+          <div class="queue-region" data-region="queue-region">
+            <section class="queue-scroll" tabindex="0" aria-label="Activity queue" data-region="queue-scroll">
+              <section class="queue-section" id="section-needs-attention" aria-labelledby="needs-attention-heading" data-section="needs-attention">
+                <header class="queue-section-heading">
+                  <div>
+                    <h2 id="needs-attention-heading">Needs attention</h2>
+                    <p data-section-description>Requests you submitted that are still waiting for a decision.</p>
+                  </div>
+                  <span class="section-count" data-section-count="needs-attention">0 items</span>
+                </header>
+                <div class="queue-list-wrap">
+                  <ul class="queue-list" data-list="needs-attention" aria-label="Needs attention requests"></ul>
+                  <div class="queue-state empty-state" data-empty="needs-attention" role="status" aria-label="Nothing needs your attention">
+                    <span>No requests need your attention.</span>
+                  </div>
+                  <div class="queue-state loading-state" data-loading="needs-attention" aria-busy="true" aria-label="Loading needs attention"> 
+                    <span class="skeleton skeleton-main"></span><span class="skeleton skeleton-short"></span><span class="skeleton skeleton-action"></span>
+                    <span class="skeleton skeleton-main"></span><span class="skeleton skeleton-short"></span><span class="skeleton skeleton-action"></span>
+                    <span class="skeleton skeleton-main"></span><span class="skeleton skeleton-short"></span><span class="skeleton skeleton-action"></span>
+                  </div>
+                </div>
+              </section>
+
+              <section class="queue-section" id="section-in-progress" aria-labelledby="in-progress-heading" data-section="in-progress">
+                <header class="queue-section-heading">
+                  <div>
+                    <h2 id="in-progress-heading">In progress</h2>
+                    <p>Browser-local Modeling sessions and requests awaiting a decision.</p>
+                  </div>
+                  <span class="section-count" data-section-count="in-progress">0 items</span>
+                </header>
+                <div class="queue-list-wrap">
+                  <ul class="queue-list" data-list="in-progress" aria-label="In progress work"></ul>
+                  <div class="queue-state empty-state" data-empty="in-progress" role="status" aria-label="No work in progress">
+                    <div><strong>No work in progress</strong><span>Start a Modeling session to create a resume point.</span></div>
+                    <button class="queue-button primary" type="button" data-action="start-modeling">Start Modeling</button>
+                  </div>
+                  <div class="queue-state loading-state" data-loading="in-progress" aria-busy="true" aria-label="Loading in progress"> 
+                    <span class="skeleton skeleton-main"></span><span class="skeleton skeleton-short"></span><span class="skeleton skeleton-action"></span>
+                    <span class="skeleton skeleton-main"></span><span class="skeleton skeleton-short"></span><span class="skeleton skeleton-action"></span>
+                  </div>
+                </div>
+              </section>
+
+              <section class="queue-section" id="section-recent-outcomes" aria-labelledby="recent-outcomes-heading" data-section="recent-outcomes">
+                <header class="queue-section-heading">
+                  <div>
+                    <h2 id="recent-outcomes-heading">Recent outcomes</h2>
+                    <p>Completed review decisions and solver cards opened in this browser.</p>
+                  </div>
+                  <span class="section-count" data-section-count="recent-outcomes">0 items</span>
+                </header>
+                <div class="queue-list-wrap">
+                  <ul class="queue-list" data-list="recent-outcomes" aria-label="Recent outcomes"></ul>
+                  <div class="queue-state empty-state" data-empty="recent-outcomes" role="status" aria-label="No recent outcomes">No recent outcomes yet.</div>
+                  <div class="queue-state loading-state" data-loading="recent-outcomes" aria-busy="true" aria-label="Loading recent outcomes"> 
+                    <span class="skeleton skeleton-main"></span><span class="skeleton skeleton-short"></span><span class="skeleton skeleton-action"></span>
+                    <span class="skeleton skeleton-main"></span><span class="skeleton skeleton-short"></span><span class="skeleton skeleton-action"></span>
+                  </div>
+                </div>
+              </section>
+            </section>
+          </div>
+
+          <footer class="status-bar" data-region="status-bar">
+            <span data-status-selection>Activity queue</span>
+            <span data-status-role>User context</span>
+            <span data-status-scroll>Local queue scroll</span>
+            <span data-status-connection>Online</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+    <script src="activity-queue.js"></script>
+  </body>
+</html>

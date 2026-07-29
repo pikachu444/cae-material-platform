@@ -1,0 +1,2298 @@
+{
+  "capture_date": "2026-07-28",
+  "console_errors": [],
+  "delivery_download_count": 2,
+  "delivery_preview_count": 2,
+  "divider_visual_widths": [
+    1
+  ],
+  "first_viewport": {
+    "all_required_boxes_inside_viewport_above_status_bar": true,
+    "groups": {
+      "application_condition": [
+        {
+          "box": {
+            "bottom": 367,
+            "height": 161,
+            "left": 1091,
+            "right": 1346,
+            "top": 206,
+            "width": 255
+          },
+          "identifier": "application-condition",
+          "inside_viewport_above_status_bar": true,
+          "text": "Application condition\n                      Typed applicability summary\n                    \n                  \n                  \n                    \n                      Material state\n                      As received\n                    \n                    \n                      Temperature\n                      Ambient \u00b7 293.15 K\n                    \n                    \n                      Strain rate\n                      \u2014 /s \u00b7 not supplied\n                    \n                    \n                      Applicability\n                      Metal Property Set"
+        }
+      ],
+      "cae_delivery": [
+        {
+          "box": {
+            "bottom": 620,
+            "height": 241,
+            "left": 1091,
+            "right": 1346,
+            "top": 379,
+            "width": 255
+          },
+          "identifier": "cae-delivery",
+          "inside_viewport_above_status_bar": true,
+          "text": "CAE card delivery\n                      Native formats \u00b7 synthetic reference\n                    \n                  \n                  Preview or download one of the available native reference formats.\n                  \n                    \n                      \n                        Abaqus\n                        .inp\n                      \n                      Available\n                      \n                        Preview\n                        Download\n                      \n                    \n                    \n                      \n                        OpenRadioss\n                        .rad\n                      \n                      Available\n                      \n                        Preview\n                        Download\n                      \n                    \n                  \n                  Reference card \u00b7 available for this synthetic Record"
+        }
+      ],
+      "download_controls": [
+        {
+          "box": {
+            "bottom": 521.25,
+            "height": 26,
+            "left": 1272.8,
+            "right": 1346,
+            "top": 495.25,
+            "width": 73.2
+          },
+          "identifier": "download-0",
+          "inside_viewport_above_status_bar": true,
+          "text": "Download"
+        },
+        {
+          "box": {
+            "bottom": 588.25,
+            "height": 26,
+            "left": 1272.8,
+            "right": 1346,
+            "top": 562.25,
+            "width": 73.2
+          },
+          "identifier": "download-1",
+          "inside_viewport_above_status_bar": true,
+          "text": "Download"
+        }
+      ],
+      "formats": [
+        {
+          "box": {
+            "bottom": 531,
+            "height": 67,
+            "left": 1091,
+            "right": 1346,
+            "top": 464,
+            "width": 255
+          },
+          "identifier": "solver-format-0",
+          "inside_viewport_above_status_bar": true,
+          "text": "Abaqus\n                        .inp\n                      \n                      Available\n                      \n                        Preview\n                        Download"
+        },
+        {
+          "box": {
+            "bottom": 598,
+            "height": 67,
+            "left": 1091,
+            "right": 1346,
+            "top": 531,
+            "width": 255
+          },
+          "identifier": "solver-format-1",
+          "inside_viewport_above_status_bar": true,
+          "text": "OpenRadioss\n                        .rad\n                      \n                      Available\n                      \n                        Preview\n                        Download"
+        }
+      ],
+      "preview_controls": [
+        {
+          "box": {
+            "bottom": 521.25,
+            "height": 26,
+            "left": 1207.16,
+            "right": 1267.8,
+            "top": 495.25,
+            "width": 60.64
+          },
+          "identifier": "preview-0",
+          "inside_viewport_above_status_bar": true,
+          "text": "Preview"
+        },
+        {
+          "box": {
+            "bottom": 588.25,
+            "height": 26,
+            "left": 1207.16,
+            "right": 1267.8,
+            "top": 562.25,
+            "width": 60.64
+          },
+          "identifier": "preview-1",
+          "inside_viewport_above_status_bar": true,
+          "text": "Preview"
+        }
+      ],
+      "property_headers": [
+        {
+          "box": {
+            "bottom": 269.5,
+            "height": 28,
+            "left": 269,
+            "right": 428.39,
+            "top": 241.5,
+            "width": 159.39
+          },
+          "identifier": "property-header-0",
+          "inside_viewport_above_status_bar": true,
+          "text": "Property"
+        },
+        {
+          "box": {
+            "bottom": 269.5,
+            "height": 28,
+            "left": 428.39,
+            "right": 587.78,
+            "top": 241.5,
+            "width": 159.39
+          },
+          "identifier": "property-header-1",
+          "inside_viewport_above_status_bar": true,
+          "text": "Value"
+        },
+        {
+          "box": {
+            "bottom": 269.5,
+            "height": 28,
+            "left": 587.78,
+            "right": 747.17,
+            "top": 241.5,
+            "width": 159.39
+          },
+          "identifier": "property-header-2",
+          "inside_viewport_above_status_bar": true,
+          "text": "Unit"
+        },
+        {
+          "box": {
+            "bottom": 269.5,
+            "height": 28,
+            "left": 747.17,
+            "right": 906.56,
+            "top": 241.5,
+            "width": 159.39
+          },
+          "identifier": "property-header-3",
+          "inside_viewport_above_status_bar": true,
+          "text": "Condition"
+        },
+        {
+          "box": {
+            "bottom": 269.5,
+            "height": 28,
+            "left": 906.56,
+            "right": 1066,
+            "top": 241.5,
+            "width": 159.44
+          },
+          "identifier": "property-header-4",
+          "inside_viewport_above_status_bar": true,
+          "text": "Source"
+        }
+      ],
+      "property_rows": [
+        {
+          "box": {
+            "bottom": 301.5,
+            "height": 32,
+            "left": 269,
+            "right": 1066,
+            "top": 269.5,
+            "width": 797
+          },
+          "identifier": "property-row-0",
+          "inside_viewport_above_status_bar": true,
+          "text": "Density\n                        7,800\n                        kg/m\u00b3\n                        Ambient \u00b7 as received\n                        DP780-REF \u00b7 r1"
+        },
+        {
+          "box": {
+            "bottom": 333.5,
+            "height": 32,
+            "left": 269,
+            "right": 1066,
+            "top": 301.5,
+            "width": 797
+          },
+          "identifier": "property-row-1",
+          "inside_viewport_above_status_bar": true,
+          "text": "Young's modulus\n                        210,000\n                        MPa\n                        Ambient \u00b7 as received\n                        DP780-REF \u00b7 r1"
+        },
+        {
+          "box": {
+            "bottom": 365.5,
+            "height": 32,
+            "left": 269,
+            "right": 1066,
+            "top": 333.5,
+            "width": 797
+          },
+          "identifier": "property-row-2",
+          "inside_viewport_above_status_bar": true,
+          "text": "Yield strength\n                        450\n                        MPa\n                        Ambient \u00b7 as received\n                        DP780-REF \u00b7 r1"
+        },
+        {
+          "box": {
+            "bottom": 397.5,
+            "height": 32,
+            "left": 269,
+            "right": 1066,
+            "top": 365.5,
+            "width": 797
+          },
+          "identifier": "property-row-3",
+          "inside_viewport_above_status_bar": true,
+          "text": "Poisson ratio\n                        0.30\n                        \u2014\n                        Ambient \u00b7 as received\n                        DP780-REF \u00b7 r1"
+        }
+      ],
+      "representative_graph": [
+        {
+          "box": {
+            "bottom": 675,
+            "height": 219,
+            "left": 269,
+            "right": 1066,
+            "top": 456,
+            "width": 797
+          },
+          "identifier": "representative-graph",
+          "inside_viewport_above_status_bar": true,
+          "text": "DP780 representative stress-strain response\n                      A synthetic response curve rises steeply then hardens gradually, ending near 0.20 engineering strain while the displayed axes extend to 0.25 strain and 1,000 MPa.\n                      \n                        \n                        \n                        \n                        \n                        \n                        \n                        \n                        \n                        \n                        \n                        \n                      \n                      \n                        \n                        \n                      \n                      \n                      \n                        0\n                        0.10\n                        0.20\n                        0.25\n                        0\n                        500\n                        1,000 MPa\n                        Engineering strain\n                        Engineering stress\n                      \n                    \n                    \n                      Representative response\n                      Condition: Ambient \u00b7 as received"
+        }
+      ],
+      "selected_dp780": [
+        {
+          "box": {
+            "bottom": 468,
+            "height": 25,
+            "left": 8,
+            "right": 252,
+            "top": 443,
+            "width": 244
+          },
+          "identifier": "selected-dp780",
+          "inside_viewport_above_status_bar": true,
+          "text": "DP780 synthetic demo steel\n                Record"
+        }
+      ],
+      "tabs": [
+        {
+          "box": {
+            "bottom": 196,
+            "height": 36,
+            "left": 267,
+            "right": 342.17,
+            "top": 160,
+            "width": 75.17
+          },
+          "identifier": "tab-0",
+          "inside_viewport_above_status_bar": true,
+          "text": "Overview"
+        },
+        {
+          "box": {
+            "bottom": 196,
+            "height": 36,
+            "left": 344.17,
+            "right": 424.44,
+            "top": 160,
+            "width": 80.27
+          },
+          "identifier": "tab-1",
+          "inside_viewport_above_status_bar": true,
+          "text": "Properties"
+        },
+        {
+          "box": {
+            "bottom": 196,
+            "height": 36,
+            "left": 426.44,
+            "right": 486.91,
+            "top": 160,
+            "width": 60.47
+          },
+          "identifier": "tab-2",
+          "inside_viewport_above_status_bar": true,
+          "text": "Curves"
+        },
+        {
+          "box": {
+            "bottom": 196,
+            "height": 36,
+            "left": 488.91,
+            "right": 568.7,
+            "top": 160,
+            "width": 79.8
+          },
+          "identifier": "tab-3",
+          "inside_viewport_above_status_bar": true,
+          "text": "CAE Cards"
+        },
+        {
+          "box": {
+            "bottom": 196,
+            "height": 36,
+            "left": 570.7,
+            "right": 635.2,
+            "top": 160,
+            "width": 64.5
+          },
+          "identifier": "tab-4",
+          "inside_viewport_above_status_bar": true,
+          "text": "Related"
+        },
+        {
+          "box": {
+            "bottom": 196,
+            "height": 36,
+            "left": 637.2,
+            "right": 709.27,
+            "top": 160,
+            "width": 72.06
+          },
+          "identifier": "tab-5",
+          "inside_viewport_above_status_bar": true,
+          "text": "Evidence"
+        }
+      ]
+    },
+    "status_bar_top": 744,
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    }
+  },
+  "forbidden_visible_terms": [],
+  "image_sha256": "362b5ad430f7e10ef9533589e34186c42bce28cca6d9bbf799c91e5538ca5a98",
+  "interactions": {
+    "back_to_results": true,
+    "card_download": true,
+    "card_preview": true,
+    "navigator_search_shortcut": true,
+    "tabs_click_keyboard": true,
+    "tree_keyboard": true,
+    "tree_search": true
+  },
+  "nested_persistent_card_count": 0,
+  "overflow": {
+    "bodyHorizontal": 0,
+    "bodyVertical": 0,
+    "documentHorizontal": 0,
+    "documentVertical": 0
+  },
+  "page_errors": [],
+  "plot_domain": {
+    "declared_axis_maxima": {
+      "strain": 0.25,
+      "stress_mpa": 1000
+    },
+    "declared_series": {
+      "strain": {
+        "maximum": 0.2,
+        "minimum": 0
+      },
+      "stress_mpa": {
+        "maximum": 850,
+        "minimum": 0
+      }
+    },
+    "domain_policy": {
+      "nice_step_factors": [
+        1,
+        2,
+        2.5,
+        5,
+        10
+      ],
+      "target_intervals": {
+        "strain": 5,
+        "stress_mpa": 4
+      },
+      "upper_headroom_ratio": 0.1
+    },
+    "headroom": {
+      "right": 133.5999755859375,
+      "top": 24.599998474121094
+    },
+    "plot_area": {
+      "bottom": 191,
+      "left": 64,
+      "right": 732,
+      "top": 27
+    },
+    "recomputed_domain": {
+      "axes": {
+        "strain": {
+          "domain_maximum": 0.25,
+          "nice_step": 0.05,
+          "padded_maximum": 0.22,
+          "rough_step": 0.044
+        },
+        "stress_mpa": {
+          "domain_maximum": 1000.0,
+          "nice_step": 250.0,
+          "padded_maximum": 935.0,
+          "rough_step": 233.75
+        }
+      },
+      "expected_response_endpoint": {
+        "x": 598.4,
+        "y": 51.6
+      }
+    },
+    "response_path": {
+      "bounding_box": {
+        "bottom": 190.99999237060547,
+        "height": 139.39999389648438,
+        "right": 598.4000244140625,
+        "width": 534.4000244140625,
+        "x": 64,
+        "y": 51.599998474121094
+      },
+      "endpoint": {
+        "x": 598.4000244140625,
+        "y": 51.599998474121094
+      },
+      "fully_inside_plot": true,
+      "start": {
+        "x": 64,
+        "y": 191
+      }
+    },
+    "visible_text": {
+      "legend": [
+        "Representative response\n                      Condition: Ambient \u00b7 as received"
+      ],
+      "plot": [
+        "0",
+        "0.10",
+        "0.20",
+        "0.25",
+        "0",
+        "500",
+        "1,000 MPa",
+        "Engineering strain",
+        "Engineering stress"
+      ]
+    }
+  },
+  "primary_command_count": 1,
+  "property_headers": [
+    "Property",
+    "Value",
+    "Unit",
+    "Condition",
+    "Source"
+  ],
+  "property_rows": 4,
+  "property_semantics": [
+    [
+      "Density",
+      "7,800",
+      "kg/m\u00b3",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ],
+    [
+      "Young's modulus",
+      "210,000",
+      "MPa",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ],
+    [
+      "Yield strength",
+      "450",
+      "MPa",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ],
+    [
+      "Poisson ratio",
+      "0.30",
+      "\u2014",
+      "Ambient \u00b7 as received",
+      "DP780-REF \u00b7 r1"
+    ]
+  ],
+  "regions": {
+    "application_bar": {
+      "height": 46,
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "command_bar": {
+      "height": 38,
+      "width": 1350,
+      "x": 8,
+      "y": 46
+    },
+    "datasheet": {
+      "height": 660,
+      "width": 1101,
+      "x": 257,
+      "y": 84
+    },
+    "datasheet_aside": {
+      "height": 548,
+      "width": 280,
+      "x": 1078,
+      "y": 196
+    },
+    "datasheet_main": {
+      "height": 548,
+      "width": 821,
+      "x": 257,
+      "y": 196
+    },
+    "navigator": {
+      "height": 660,
+      "width": 244,
+      "x": 8,
+      "y": 84
+    },
+    "navigator_divider": {
+      "height": 660,
+      "width": 5,
+      "x": 252,
+      "y": 84
+    },
+    "status_bar": {
+      "height": 24,
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "workspace": {
+      "height": 660,
+      "width": 1350,
+      "x": 8,
+      "y": 84
+    }
+  },
+  "row_density": {
+    "properties": {
+      "count": 4,
+      "maximum": 32,
+      "minimum": 32
+    },
+    "tree": {
+      "count": 7,
+      "maximum": 25,
+      "minimum": 25
+    }
+  },
+  "selected_record": true,
+  "selected_tree_rows": 1,
+  "solver_format_count": 2,
+  "solver_formats": [
+    {
+      "format": ".inp",
+      "solver": "Abaqus",
+      "state": "Available"
+    },
+    {
+      "format": ".rad",
+      "solver": "OpenRadioss",
+      "state": "Available"
+    }
+  ],
+  "splitter_evidence": {
+    "default": {
+      "aria": {
+        "maximum": 345,
+        "minimum": 200,
+        "now": 244
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "property_containment": {
+        "all_cell_scroll_widths_within_client_width": true,
+        "all_cells_within_table_horizontal_boundary": true,
+        "cells": [
+          {
+            "box": {
+              "left": 269,
+              "right": 428.39,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "header-0",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Property",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 428.39,
+              "right": 587.78,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "header-1",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Value",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 587.78,
+              "right": 747.17,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "header-2",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Unit",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 747.17,
+              "right": 906.56,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "header-3",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Condition",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 906.56,
+              "right": 1066,
+              "width": 159.44
+            },
+            "client_width": 159,
+            "identifier": "header-4",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Source",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 269,
+              "right": 428.39,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-1-0",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Density",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 428.39,
+              "right": 587.78,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-1-1",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "7,800",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 587.78,
+              "right": 747.17,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-1-2",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "kg/m\u00b3",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 747.17,
+              "right": 906.56,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-1-3",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 906.56,
+              "right": 1066,
+              "width": 159.44
+            },
+            "client_width": 159,
+            "identifier": "body-1-4",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 269,
+              "right": 428.39,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-2-0",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Young's modulus",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 428.39,
+              "right": 587.78,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-2-1",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "210,000",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 587.78,
+              "right": 747.17,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-2-2",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 747.17,
+              "right": 906.56,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-2-3",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 906.56,
+              "right": 1066,
+              "width": 159.44
+            },
+            "client_width": 159,
+            "identifier": "body-2-4",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 269,
+              "right": 428.39,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-3-0",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Yield strength",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 428.39,
+              "right": 587.78,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-3-1",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "450",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 587.78,
+              "right": 747.17,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-3-2",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 747.17,
+              "right": 906.56,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-3-3",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 906.56,
+              "right": 1066,
+              "width": 159.44
+            },
+            "client_width": 159,
+            "identifier": "body-3-4",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 269,
+              "right": 428.39,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-4-0",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Poisson ratio",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 428.39,
+              "right": 587.78,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-4-1",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "0.30",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 587.78,
+              "right": 747.17,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-4-2",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "\u2014",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 747.17,
+              "right": 906.56,
+              "width": 159.39
+            },
+            "client_width": 159,
+            "identifier": "body-4-3",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 906.56,
+              "right": 1066,
+              "width": 159.44
+            },
+            "client_width": 159,
+            "identifier": "body-4-4",
+            "scroll_width": 159,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          }
+        ],
+        "container_horizontal_overflow": 0,
+        "table_boundary": {
+          "left": 269,
+          "right": 1066,
+          "width": 797
+        },
+        "table_horizontal_overflow": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 252,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          245,
+          245,
+          245,
+          245,
+          245,
+          245,
+          245
+        ]
+      },
+      "widths": {
+        "aside": 280,
+        "datasheet": 1101,
+        "divider": 5,
+        "main": 821,
+        "navigator": 244,
+        "plot": 797
+      }
+    },
+    "navigator_arrow_right": {
+      "aria": {
+        "maximum": 345,
+        "minimum": 200,
+        "now": 252
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "property_containment": {
+        "all_cell_scroll_widths_within_client_width": true,
+        "all_cells_within_table_horizontal_boundary": true,
+        "cells": [
+          {
+            "box": {
+              "left": 277,
+              "right": 434.8,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "header-0",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Property",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 434.8,
+              "right": 592.59,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "header-1",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Value",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 592.59,
+              "right": 750.39,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "header-2",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Unit",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 750.39,
+              "right": 908.19,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "header-3",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Condition",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 908.19,
+              "right": 1066,
+              "width": 157.81
+            },
+            "client_width": 158,
+            "identifier": "header-4",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Source",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 277,
+              "right": 434.8,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-1-0",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Density",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 434.8,
+              "right": 592.59,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-1-1",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "7,800",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 592.59,
+              "right": 750.39,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-1-2",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "kg/m\u00b3",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 750.39,
+              "right": 908.19,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-1-3",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 908.19,
+              "right": 1066,
+              "width": 157.81
+            },
+            "client_width": 158,
+            "identifier": "body-1-4",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 277,
+              "right": 434.8,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-2-0",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Young's modulus",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 434.8,
+              "right": 592.59,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-2-1",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "210,000",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 592.59,
+              "right": 750.39,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-2-2",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 750.39,
+              "right": 908.19,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-2-3",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 908.19,
+              "right": 1066,
+              "width": 157.81
+            },
+            "client_width": 158,
+            "identifier": "body-2-4",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 277,
+              "right": 434.8,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-3-0",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Yield strength",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 434.8,
+              "right": 592.59,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-3-1",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "450",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 592.59,
+              "right": 750.39,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-3-2",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 750.39,
+              "right": 908.19,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-3-3",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 908.19,
+              "right": 1066,
+              "width": 157.81
+            },
+            "client_width": 158,
+            "identifier": "body-3-4",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 277,
+              "right": 434.8,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-4-0",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Poisson ratio",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 434.8,
+              "right": 592.59,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-4-1",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "0.30",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 592.59,
+              "right": 750.39,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-4-2",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "\u2014",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 750.39,
+              "right": 908.19,
+              "width": 157.8
+            },
+            "client_width": 158,
+            "identifier": "body-4-3",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 908.19,
+              "right": 1066,
+              "width": 157.81
+            },
+            "client_width": 158,
+            "identifier": "body-4-4",
+            "scroll_width": 158,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          }
+        ],
+        "container_horizontal_overflow": 0,
+        "table_boundary": {
+          "left": 277,
+          "right": 1066,
+          "width": 789
+        },
+        "table_horizontal_overflow": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 260,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          253,
+          253,
+          253,
+          253,
+          253,
+          253,
+          253
+        ]
+      },
+      "widths": {
+        "aside": 280,
+        "datasheet": 1093,
+        "divider": 5,
+        "main": 813,
+        "navigator": 252,
+        "plot": 789
+      }
+    },
+    "navigator_end": {
+      "aria": {
+        "maximum": 345,
+        "minimum": 200,
+        "now": 345
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "property_containment": {
+        "all_cell_scroll_widths_within_client_width": true,
+        "all_cells_within_table_horizontal_boundary": true,
+        "cells": [
+          {
+            "box": {
+              "left": 370,
+              "right": 509.19,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "header-0",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Property",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 509.19,
+              "right": 648.38,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "header-1",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Value",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 648.38,
+              "right": 787.56,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "header-2",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Unit",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 787.56,
+              "right": 926.75,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "header-3",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Condition",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 926.75,
+              "right": 1066,
+              "width": 139.25
+            },
+            "client_width": 139,
+            "identifier": "header-4",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Source",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 370,
+              "right": 509.19,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-1-0",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Density",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 509.19,
+              "right": 648.38,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-1-1",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "7,800",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 648.38,
+              "right": 787.56,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-1-2",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "kg/m\u00b3",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 787.56,
+              "right": 926.75,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-1-3",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 926.75,
+              "right": 1066,
+              "width": 139.25
+            },
+            "client_width": 139,
+            "identifier": "body-1-4",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 370,
+              "right": 509.19,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-2-0",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Young's modulus",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 509.19,
+              "right": 648.38,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-2-1",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "210,000",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 648.38,
+              "right": 787.56,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-2-2",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 787.56,
+              "right": 926.75,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-2-3",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 926.75,
+              "right": 1066,
+              "width": 139.25
+            },
+            "client_width": 139,
+            "identifier": "body-2-4",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 370,
+              "right": 509.19,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-3-0",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Yield strength",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 509.19,
+              "right": 648.38,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-3-1",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "450",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 648.38,
+              "right": 787.56,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-3-2",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 787.56,
+              "right": 926.75,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-3-3",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 926.75,
+              "right": 1066,
+              "width": 139.25
+            },
+            "client_width": 139,
+            "identifier": "body-3-4",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 370,
+              "right": 509.19,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-4-0",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Poisson ratio",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 509.19,
+              "right": 648.38,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-4-1",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "0.30",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 648.38,
+              "right": 787.56,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-4-2",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "\u2014",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 787.56,
+              "right": 926.75,
+              "width": 139.19
+            },
+            "client_width": 139,
+            "identifier": "body-4-3",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 926.75,
+              "right": 1066,
+              "width": 139.25
+            },
+            "client_width": 139,
+            "identifier": "body-4-4",
+            "scroll_width": 139,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          }
+        ],
+        "container_horizontal_overflow": 0,
+        "table_boundary": {
+          "left": 370,
+          "right": 1066,
+          "width": 696
+        },
+        "table_horizontal_overflow": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 353,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          346,
+          346,
+          346,
+          346,
+          346,
+          346,
+          346
+        ]
+      },
+      "widths": {
+        "aside": 280,
+        "datasheet": 1000,
+        "divider": 5,
+        "main": 720,
+        "navigator": 345,
+        "plot": 696
+      }
+    },
+    "navigator_home": {
+      "aria": {
+        "maximum": 345,
+        "minimum": 200,
+        "now": 200
+      },
+      "delivery_visible": true,
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "property_containment": {
+        "all_cell_scroll_widths_within_client_width": true,
+        "all_cells_within_table_horizontal_boundary": true,
+        "cells": [
+          {
+            "box": {
+              "left": 225,
+              "right": 393.19,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "header-0",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Property",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 393.19,
+              "right": 561.38,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "header-1",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Value",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 561.38,
+              "right": 729.56,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "header-2",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Unit",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 729.56,
+              "right": 897.75,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "header-3",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Condition",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 897.75,
+              "right": 1066,
+              "width": 168.25
+            },
+            "client_width": 168,
+            "identifier": "header-4",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "header",
+            "text": "Source",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 225,
+              "right": 393.19,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-1-0",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Density",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 393.19,
+              "right": 561.38,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-1-1",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "7,800",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 561.38,
+              "right": 729.56,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-1-2",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "kg/m\u00b3",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 729.56,
+              "right": 897.75,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-1-3",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 897.75,
+              "right": 1066,
+              "width": 168.25
+            },
+            "client_width": 168,
+            "identifier": "body-1-4",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 225,
+              "right": 393.19,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-2-0",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Young's modulus",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 393.19,
+              "right": 561.38,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-2-1",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "210,000",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 561.38,
+              "right": 729.56,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-2-2",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 729.56,
+              "right": 897.75,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-2-3",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 897.75,
+              "right": 1066,
+              "width": 168.25
+            },
+            "client_width": 168,
+            "identifier": "body-2-4",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 225,
+              "right": 393.19,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-3-0",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Yield strength",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 393.19,
+              "right": 561.38,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-3-1",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "450",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 561.38,
+              "right": 729.56,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-3-2",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "MPa",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 729.56,
+              "right": 897.75,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-3-3",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 897.75,
+              "right": 1066,
+              "width": 168.25
+            },
+            "client_width": 168,
+            "identifier": "body-3-4",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 225,
+              "right": 393.19,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-4-0",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Poisson ratio",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 393.19,
+              "right": 561.38,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-4-1",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "0.30",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 561.38,
+              "right": 729.56,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-4-2",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "\u2014",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 729.56,
+              "right": 897.75,
+              "width": 168.19
+            },
+            "client_width": 168,
+            "identifier": "body-4-3",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "Ambient \u00b7 as received",
+            "within_table_horizontal_boundary": true
+          },
+          {
+            "box": {
+              "left": 897.75,
+              "right": 1066,
+              "width": 168.25
+            },
+            "client_width": 168,
+            "identifier": "body-4-4",
+            "scroll_width": 168,
+            "scroll_width_within_client_width": true,
+            "section": "body",
+            "text": "DP780-REF \u00b7 r1",
+            "within_table_horizontal_boundary": true
+          }
+        ],
+        "container_horizontal_overflow": 0,
+        "table_boundary": {
+          "left": 225,
+          "right": 1066,
+          "width": 841
+        },
+        "table_horizontal_overflow": 0
+      },
+      "selected_record_visible": true,
+      "tree_scroller": {
+        "all_tree_kind_right_edges_within_content": true,
+        "content_right": 208,
+        "horizontal_overflow": 0,
+        "tree_kind_labels": [
+          "Database",
+          "Profile",
+          "Table",
+          "Folder",
+          "Folder",
+          "Record",
+          "Record"
+        ],
+        "tree_kind_labels_match": true,
+        "tree_kind_right_edges": [
+          201,
+          201,
+          201,
+          201,
+          201,
+          201,
+          201
+        ]
+      },
+      "widths": {
+        "aside": 280,
+        "datasheet": 1145,
+        "divider": 5,
+        "main": 865,
+        "navigator": 200,
+        "plot": 841
+      }
+    }
+  },
+  "tabs": {
+    "active": "Overview",
+    "count": 6,
+    "labels": [
+      "Overview",
+      "Properties",
+      "Curves",
+      "CAE Cards",
+      "Related",
+      "Evidence"
+    ],
+    "related_visible": true
+  },
+  "target": "materials-datasheet-overview-normal-1366x768",
+  "tree_scroller": {
+    "all_tree_kind_right_edges_within_content": true,
+    "content_right": 252,
+    "horizontal_overflow": 0,
+    "tree_kind_labels": [
+      "Database",
+      "Profile",
+      "Table",
+      "Folder",
+      "Folder",
+      "Record",
+      "Record"
+    ],
+    "tree_kind_labels_match": true,
+    "tree_kind_right_edges": [
+      245,
+      245,
+      245,
+      245,
+      245,
+      245,
+      245
+    ]
+  },
+  "unsupported_labels": [],
+  "viewport": {
+    "device_scale_factor": 1,
+    "height": 768,
+    "width": 1366
+  },
+  "visible_splitter_count": 1,
+  "web_interface_guidelines_audit": {
+    "checked": [
+      "semantic buttons, links, tabs and associated labels",
+      "visible keyboard focus",
+      "no fake controls or non-dialog ellipsis labels",
+      "no render-time layout loop",
+      "deliberate containment and truncation"
+    ],
+    "result": "pass",
+    "source": "vercel-labs/web-interface-guidelines/command.md"
+  }
+}

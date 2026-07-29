@@ -1,0 +1,619 @@
+{
+  "capture_date": "2026-07-29",
+  "console_errors": [],
+  "family": "MAT-EXP",
+  "image": "docs/17-evidence/images/issue-167-service-reference/materials-search-long-1440x900.responsive-1366x768.png",
+  "image_dimensions": {
+    "height": 768,
+    "width": 1366
+  },
+  "image_sha256": "6e9b91ff80698c08d591b514bd491a682f618c4595ea7d9b11cb0f70bd66c504",
+  "independent_result_scroll": true,
+  "interactions": {
+    "clear_search": true,
+    "query_retry": true,
+    "result_enter": true,
+    "search_shortcut": true,
+    "search_submit": true,
+    "tree_keyboard": true,
+    "tree_retry": true
+  },
+  "kind": "responsive",
+  "legacy_selector_report": {
+    "content-card": 0,
+    "count-chip": 0,
+    "eyebrow": 0,
+    "hero-actions": 0,
+    "module-material-card": 0,
+    "page-heading": 0,
+    "page-stack": 0,
+    "status-badge": 0
+  },
+  "local_scroll": {
+    "result": {
+      "document_unchanged": true,
+      "horizontal_keyboard_after_scroll_left": 0,
+      "horizontal_keyboard_before_scroll_left": 0,
+      "horizontal_keyboard_moved": false,
+      "horizontal_overflowing": false,
+      "horizontal_scrollbar_keyboard_moved": false,
+      "overflowing": true,
+      "page_down_after_scroll_top": 459,
+      "page_down_before_scroll_top": 0,
+      "page_down_moved": true,
+      "vertical_scrollbar_keyboard_moved": true,
+      "vertical_scrollbar_pointer_moved": true,
+      "wheel_after_scroll_top": 360,
+      "wheel_before_scroll_top": 0,
+      "wheel_moved": true
+    },
+    "tree": {
+      "document_unchanged": true,
+      "horizontal_keyboard_after_scroll_left": 320,
+      "horizontal_keyboard_before_scroll_left": 0,
+      "horizontal_keyboard_moved": true,
+      "horizontal_overflowing": true,
+      "horizontal_scrollbar_keyboard_moved": true,
+      "overflowing": true,
+      "page_down_after_scroll_top": 302,
+      "page_down_before_scroll_top": 0,
+      "page_down_moved": true,
+      "vertical_scrollbar_keyboard_moved": true,
+      "vertical_scrollbar_pointer_moved": true,
+      "wheel_after_scroll_top": 331,
+      "wheel_before_scroll_top": 0,
+      "wheel_moved": true
+    }
+  },
+  "main_agent_evaluation": {
+    "status": "pending"
+  },
+  "overflow": {
+    "bodyHorizontal": 0,
+    "bodyVertical": 0,
+    "documentHorizontal": 0,
+    "documentVertical": 0
+  },
+  "page_errors": [],
+  "product_owner_approval": {
+    "status": "absent"
+  },
+  "regions": {
+    "application_bar": {
+      "height": 46,
+      "width": 1366,
+      "x": 0,
+      "y": 0
+    },
+    "command_bar": {
+      "height": 38,
+      "width": 1350,
+      "x": 8,
+      "y": 46
+    },
+    "context_divider": {
+      "height": 620,
+      "width": 5,
+      "x": 1073,
+      "y": 124
+    },
+    "navigator": {
+      "height": 620,
+      "width": 244,
+      "x": 8,
+      "y": 124
+    },
+    "navigator_divider": {
+      "height": 620,
+      "width": 5,
+      "x": 252,
+      "y": 124
+    },
+    "results": {
+      "height": 620,
+      "width": 816,
+      "x": 257,
+      "y": 124
+    },
+    "search_band": {
+      "height": 40,
+      "width": 1350,
+      "x": 8,
+      "y": 84
+    },
+    "selected_context": {
+      "height": 620,
+      "width": 280,
+      "x": 1078,
+      "y": 124
+    },
+    "status_bar": {
+      "height": 24,
+      "width": 1366,
+      "x": 0,
+      "y": 744
+    },
+    "workspace": {
+      "height": 620,
+      "width": 1350,
+      "x": 8,
+      "y": 124
+    }
+  },
+  "result": {
+    "clear_search_visible": false,
+    "count_text": "1\u201350 of 126 matches",
+    "empty_visible": false,
+    "family_counts": "Metal 10 \u00b7 Polymer 10 \u00b7 Elastomer 10 \u00b7 Composite 10 \u00b7 Ceramic 10",
+    "no_material_context": false,
+    "rendered_rows": 50,
+    "result_scroll": {
+      "client_height": 574,
+      "client_width": 803,
+      "custom_scrollbar_indicator_visible": true,
+      "independent_vertical_scroll": true,
+      "native_scrollbar_visible": false,
+      "overflow_x": "auto",
+      "overflow_y": "auto",
+      "scroll_control": {
+        "aria_controls": "results-scroll",
+        "aria_max": 1259,
+        "outside_text": true,
+        "thumb": {
+          "background": "rgb(82, 107, 120)",
+          "height": 178,
+          "left": 1063,
+          "right": 1071,
+          "width": 8
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "height": 574,
+          "left": 1060,
+          "right": 1073,
+          "width": 13
+        },
+        "visible": true
+      },
+      "scroll_height": 1833,
+      "scroll_width": 803,
+      "scrollbar_gutter": "auto",
+      "vertical_overflow": 1259
+    },
+    "retry_buttons": [],
+    "selected_context_heading": "DP780 synthetic demo steel",
+    "selected_context_visible": true,
+    "selected_grade": "DP780-REF",
+    "selected_rows": 1,
+    "stale_context_action_visible": true,
+    "state": "long",
+    "sticky_header": true,
+    "table_headers": [
+      "Compare",
+      "Material / grade",
+      "Family",
+      "Description",
+      "Status"
+    ],
+    "visible_filled_primary_actions": [
+      "Find"
+    ]
+  },
+  "result_count": {
+    "rendered_rows": 50,
+    "text": "1\u201350 of 126 matches",
+    "total": 126
+  },
+  "schema_version": 1,
+  "selected_context": {
+    "heading": "DP780 synthetic demo steel",
+    "no_material_selected": false,
+    "open_datasheet_visible": true,
+    "visible": true
+  },
+  "source": {
+    "css": "docs/00-research/ux-service-reference/materials-search-exceptional.css",
+    "html": "docs/00-research/ux-service-reference/materials-search-exceptional.html",
+    "javascript": "docs/00-research/ux-service-reference/materials-search-exceptional.js"
+  },
+  "splitter_evidence": {
+    "context_arrow_left": {
+      "aria": {
+        "context": {
+          "maximum": 376,
+          "minimum": 260,
+          "now": 288
+        },
+        "navigator": {
+          "maximum": 340,
+          "minimum": 200,
+          "now": 340
+        }
+      },
+      "divider_visual_widths": [
+        1,
+        1
+      ],
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "custom_vertical_visible": true,
+        "vertical_overflow": 331
+      },
+      "widths": {
+        "context": 288,
+        "navigator": 340,
+        "results": 720
+      }
+    },
+    "context_end": {
+      "aria": {
+        "context": {
+          "maximum": 376,
+          "minimum": 260,
+          "now": 376
+        },
+        "navigator": {
+          "maximum": 340,
+          "minimum": 200,
+          "now": 340
+        }
+      },
+      "divider_visual_widths": [
+        1,
+        1
+      ],
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "custom_vertical_visible": true,
+        "vertical_overflow": 331
+      },
+      "widths": {
+        "context": 376,
+        "navigator": 340,
+        "results": 720
+      }
+    },
+    "context_home": {
+      "aria": {
+        "context": {
+          "maximum": 376,
+          "minimum": 260,
+          "now": 260
+        },
+        "navigator": {
+          "maximum": 340,
+          "minimum": 200,
+          "now": 340
+        }
+      },
+      "divider_visual_widths": [
+        1,
+        1
+      ],
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "custom_vertical_visible": true,
+        "vertical_overflow": 331
+      },
+      "widths": {
+        "context": 260,
+        "navigator": 340,
+        "results": 740
+      }
+    },
+    "default": {
+      "aria": {
+        "context": {
+          "maximum": 376,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 340,
+          "minimum": 200,
+          "now": 244
+        }
+      },
+      "divider_visual_widths": [
+        1,
+        1
+      ],
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "custom_vertical_visible": true,
+        "vertical_overflow": 331
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 244,
+        "results": 816
+      }
+    },
+    "navigator_arrow_right": {
+      "aria": {
+        "context": {
+          "maximum": 376,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 340,
+          "minimum": 200,
+          "now": 252
+        }
+      },
+      "divider_visual_widths": [
+        1,
+        1
+      ],
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "custom_vertical_visible": true,
+        "vertical_overflow": 331
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 252,
+        "results": 808
+      }
+    },
+    "navigator_end": {
+      "aria": {
+        "context": {
+          "maximum": 376,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 340,
+          "minimum": 200,
+          "now": 340
+        }
+      },
+      "divider_visual_widths": [
+        1,
+        1
+      ],
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "custom_vertical_visible": true,
+        "vertical_overflow": 331
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 340,
+        "results": 720
+      }
+    },
+    "navigator_home": {
+      "aria": {
+        "context": {
+          "maximum": 376,
+          "minimum": 260,
+          "now": 280
+        },
+        "navigator": {
+          "maximum": 340,
+          "minimum": 200,
+          "now": 200
+        }
+      },
+      "divider_visual_widths": [
+        1,
+        1
+      ],
+      "overflow": {
+        "bodyHorizontal": 0,
+        "bodyVertical": 0,
+        "documentHorizontal": 0,
+        "documentVertical": 0
+      },
+      "selected_context_visible": true,
+      "tree_scroller": {
+        "custom_vertical_visible": true,
+        "vertical_overflow": 331
+      },
+      "widths": {
+        "context": 280,
+        "navigator": 200,
+        "results": 860
+      }
+    }
+  },
+  "state": "long",
+  "state_notices": {
+    "results-notice": {
+      "buttons": [],
+      "text": "",
+      "visible": false
+    },
+    "tree-notice": {
+      "buttons": [],
+      "text": "",
+      "visible": false
+    }
+  },
+  "status": "pending",
+  "sticky_header": true,
+  "target": "materials-search-long-1440x900.responsive-1366x768",
+  "tree": {
+    "client_height": 377,
+    "client_width": 231,
+    "custom_scrollbar_indicator_visible": true,
+    "horizontal_overflow": 330,
+    "indentation_increment_px": 9,
+    "labels_are_concise_identities": true,
+    "labels_have_title": true,
+    "native_scrollbar_visible": false,
+    "overflow_x": "auto",
+    "overflow_y": "auto",
+    "representative_identities": [
+      {
+        "accessible_type": "Database",
+        "full_text": "Materials Database",
+        "glyph_title": "Database",
+        "kind": "Database",
+        "title": "Materials Database",
+        "visible_text_box_width": 105
+      },
+      {
+        "accessible_type": "Profile",
+        "full_text": "Engineering Materials",
+        "glyph_title": "Profile",
+        "kind": "Profile",
+        "title": "Engineering Materials",
+        "visible_text_box_width": 120
+      },
+      {
+        "accessible_type": "Table",
+        "full_text": "Demo Material Records",
+        "glyph_title": "Table",
+        "kind": "Table",
+        "title": "Demo Material Records",
+        "visible_text_box_width": 129
+      },
+      {
+        "accessible_type": "Folder",
+        "full_text": "Archived qualification records",
+        "glyph_title": "Folder",
+        "kind": "Folder",
+        "title": "Archived qualification records",
+        "visible_text_box_width": 164
+      },
+      {
+        "accessible_type": "Record",
+        "full_text": "Advanced high-strength steel qualification sequence with extended governed identity",
+        "glyph_title": "Record",
+        "kind": "Record",
+        "title": "Advanced high-strength steel qualification sequence with extended governed identity",
+        "visible_text_box_width": 472
+      }
+    ],
+    "row_height_range": {
+      "max": 25,
+      "min": 25
+    },
+    "scroll_controls": {
+      "distinct_track_thumb": true,
+      "horizontal": {
+        "aria_controls": "tree-scroll",
+        "aria_max": 330,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "horizontal",
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 742,
+          "height": 8,
+          "left": 10,
+          "right": 103,
+          "top": 734,
+          "width": 93
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 744,
+          "height": 13,
+          "left": 8,
+          "right": 239,
+          "top": 731,
+          "width": 231
+        },
+        "visible": true
+      },
+      "rails_outside_text": true,
+      "vertical": {
+        "aria_controls": "tree-scroll",
+        "aria_max": 331,
+        "aria_min": 0,
+        "aria_now": 0,
+        "orientation": "vertical",
+        "thumb": {
+          "background": "rgb(109, 133, 145)",
+          "bottom": 555,
+          "height": 199,
+          "left": 242,
+          "right": 250,
+          "top": 356,
+          "width": 8
+        },
+        "track": {
+          "background": "rgb(231, 237, 239)",
+          "bottom": 731,
+          "height": 377,
+          "left": 239,
+          "right": 252,
+          "top": 354,
+          "width": 13
+        },
+        "visible": true
+      }
+    },
+    "scroll_height": 708,
+    "scroll_width": 561,
+    "scrollbar_gutter": "auto",
+    "scrollbar_reservation_px": 13,
+    "selected_rows": 1,
+    "selected_without_type_prefix": true,
+    "vertical_overflow": 331,
+    "visible_scrollbar_indicator": true
+  },
+  "typography": {
+    "body_px": 13,
+    "legacy_selector_report": {
+      "content-card": 0,
+      "count-chip": 0,
+      "eyebrow": 0,
+      "hero-actions": 0,
+      "module-material-card": 0,
+      "page-heading": 0,
+      "page-stack": 0,
+      "status-badge": 0
+    },
+    "result_data_px": 13,
+    "result_header_px": 11.5,
+    "result_metadata_px": 11.5,
+    "tree_row_px": 12.5
+  },
+  "viewport": {
+    "device_scale_factor": 1,
+    "height": 768,
+    "width": 1366
+  }
+}

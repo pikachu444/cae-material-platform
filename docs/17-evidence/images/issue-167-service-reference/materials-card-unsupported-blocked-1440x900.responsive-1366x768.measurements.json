@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "target": "materials-card-unsupported-blocked-1440x900.responsive-1366x768",
+  "family": "MAT-CARD",
+  "kind": "unsupported",
+  "state": "unsupported",
+  "capture_date": "2026-07-29",
+  "viewport": {
+    "width": 1366,
+    "height": 768,
+    "device_scale_factor": 1
+  },
+  "regions": {
+    "application_bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1366,
+      "height": 46
+    },
+    "command_bar": {
+      "x": 8,
+      "y": 46,
+      "width": 1350,
+      "height": 38
+    },
+    "workspace": {
+      "x": 8,
+      "y": 84,
+      "width": 1350,
+      "height": 660
+    },
+    "navigator": {
+      "x": 8,
+      "y": 84,
+      "width": 244,
+      "height": 660
+    },
+    "navigator_divider": {
+      "x": 252,
+      "y": 84,
+      "width": 5,
+      "height": 660
+    },
+    "datasheet": {
+      "x": 257,
+      "y": 84,
+      "width": 1101,
+      "height": 660
+    },
+    "record_header": {
+      "x": 257,
+      "y": 84,
+      "width": 1101,
+      "height": 76
+    },
+    "tabs": {
+      "x": 257,
+      "y": 160,
+      "width": 1101,
+      "height": 36
+    },
+    "card_panel": {
+      "x": 257,
+      "y": 196,
+      "width": 1101,
+      "height": 548
+    },
+    "card_heading": {
+      "x": 257,
+      "y": 196,
+      "width": 1101,
+      "height": 49
+    },
+    "card_content": {
+      "x": 257,
+      "y": 245,
+      "width": 1101,
+      "height": 499
+    },
+    "native_preview": {
+      "x": 257,
+      "y": 245,
+      "width": 789,
+      "height": 499
+    },
+    "delivery_sheet": {
+      "x": 1046,
+      "y": 245,
+      "width": 312,
+      "height": 499
+    },
+    "status_bar": {
+      "x": 0,
+      "y": 744,
+      "width": 1366,
+      "height": 24
+    }
+  },
+  "tree": {
+    "horizontal_overflow": 0,
+    "kinds_inside": true,
+    "labels_match": true,
+    "labels_have_title": true,
+    "labels": [
+      {
+        "expected": "Database",
+        "actual": "Database",
+        "title": "Materials Database"
+      },
+      {
+        "expected": "Profile",
+        "actual": "Profile",
+        "title": "Engineering Materials"
+      },
+      {
+        "expected": "Table",
+        "actual": "Table",
+        "title": "Demo Material Records"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "title": "Synthetic metals"
+      },
+      {
+        "expected": "Folder",
+        "actual": "Folder",
+        "title": "Demo steels"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "title": "DP780 synthetic demo steel"
+      },
+      {
+        "expected": "Record",
+        "actual": "Record",
+        "title": "DP600 synthetic demo steel"
+      }
+    ]
+  },
+  "selected_record": true,
+  "tabs": {
+    "count": 6,
+    "labels": [
+      "Overview",
+      "Properties",
+      "Curves",
+      "CAE Cards",
+      "Related",
+      "Evidence"
+    ],
+    "active": "CAE Cards"
+  },
+  "overflow": {
+    "document_horizontal": 0,
+    "document_vertical": 0,
+    "body_horizontal": 0,
+    "body_vertical": 0
+  },
+  "splitter_evidence": {
+    "default": {
+      "widths": {
+        "navigator": 244,
+        "divider": 5,
+        "datasheet": 1101,
+        "native": 789,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 345,
+        "now": 244
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_arrow_right": {
+      "widths": {
+        "navigator": 252,
+        "divider": 5,
+        "datasheet": 1093,
+        "native": 781,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 345,
+        "now": 252
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_home": {
+      "widths": {
+        "navigator": 200,
+        "divider": 5,
+        "datasheet": 1145,
+        "native": 833,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 345,
+        "now": 200
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    },
+    "navigator_end": {
+      "widths": {
+        "navigator": 345,
+        "divider": 5,
+        "datasheet": 1000,
+        "native": 688,
+        "delivery": 312
+      },
+      "aria": {
+        "minimum": 200,
+        "maximum": 345,
+        "now": 345
+      },
+      "overflow": {
+        "document_horizontal": 0,
+        "document_vertical": 0,
+        "body_horizontal": 0,
+        "body_vertical": 0
+      },
+      "selected_record_visible": true
+    }
+  },
+  "card": {
+    "state": "unsupported",
+    "mode": "unsupported",
+    "regions": {
+      "card_panel": {
+        "left": 257,
+        "top": 196,
+        "width": 1101,
+        "height": 548
+      },
+      "card_heading": {
+        "left": 257,
+        "top": 196,
+        "width": 1101,
+        "height": 49
+      },
+      "card_content": {
+        "left": 257,
+        "top": 245,
+        "width": 1101,
+        "height": 499
+      },
+      "native_preview": {
+        "left": 257,
+        "top": 245,
+        "width": 789,
+        "height": 499
+      },
+      "preview_scroll": {
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0
+      },
+      "delivery_sheet": {
+        "left": 1046,
+        "top": 245,
+        "width": 312,
+        "height": 499
+      }
+    },
+    "native_width": 789,
+    "delivery_width": 312,
+    "preview_scroll_width": 0,
+    "preview_scroll_height": 0,
+    "preview_client_width": 0,
+    "preview_client_height": 0,
+    "preview_available_height": 734,
+    "preview_rendered_height": 0,
+    "preview_fills_available_height": false,
+    "native_text_visible": false,
+    "native_text_length": 683,
+    "unavailable_visible": true,
+    "loading_visible": false,
+    "error_visible": false,
+    "retry_visible": false,
+    "mapping_rows": [
+      "EXACTdensitySI density is emitted unchanged.",
+      "UNSUPPORTEDdamage initiation · GISSMOThe synthetic source has no governed target representation for this field."
+    ],
+    "approximation_acknowledged": false,
+    "download": {
+      "text": "Download blocked",
+      "disabled": true,
+      "primary": false
+    },
+    "open_modeling_visible": true,
+    "back_to_cards_visible": true,
+    "advanced_open": false,
+    "delivery_summary_present": false,
+    "decision_text_clipped": [],
+    "status": "No native artifact was created · inspect the unsupported field in Modeling."
+  },
+  "interactions": {
+    "navigator_search": true,
+    "tree_search": true,
+    "back_to_results": true,
+    "tree_keyboard": true,
+    "tabs": true,
+    "advanced_disclosure": true,
+    "state_command": true
+  },
+  "forbidden_visible_terms": [],
+  "nested_persistent_card_count": 0,
+  "responsive_evidence": true,
+  "typography": {
+    "body_px": 13,
+    "tree_row_px": 12.5,
+    "native_preview_data_px": 12.5,
+    "mapping_primary_px": 12.5,
+    "delivery_value_px": 12
+  },
+  "legacy_selector_report": {
+    "page-stack": 0,
+    "page-heading": 0,
+    "content-card": 0,
+    "module-material-card": 0,
+    "hero-actions": 0,
+    "eyebrow": 0,
+    "status-badge": 0,
+    "count-chip": 0
+  },
+  "web_interface_guidelines_audit": {
+    "checked": [
+      "semantic buttons, links, tabs and associated labels",
+      "visible keyboard focus",
+      "deliberate text containment and native scrolling",
+      "no decorative nested cards"
+    ],
+    "result": "pass"
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/materials-card-unsupported-blocked-1440x900.responsive-1366x768.png",
+  "image_sha256": "ce132baa8c71ee67a56d1d64b773f85a6a951b70d2d997f5da4d3dbdc729b42b",
+  "screenshot_dimensions": {
+    "width": 1366,
+    "height": 768
+  },
+  "console_errors": [],
+  "page_errors": []
+}

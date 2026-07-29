@@ -1,0 +1,200 @@
+{
+  "target": "activity-user-empty-with-one-next-command-1366x768",
+  "role": "user",
+  "state": "empty",
+  "viewport": {
+    "width": 1366,
+    "height": 768,
+    "device_scale_factor": 1
+  },
+  "image": "docs/17-evidence/images/issue-167-service-reference/activity-user-empty-with-one-next-command-1366x768.png",
+  "measurements": "docs/17-evidence/images/issue-167-service-reference/activity-user-empty-with-one-next-command-1366x768.measurements.json",
+  "sha256": "a74bc59729d1b1f04841f389d13ceb95fd4104788b5e88c0e79d98797798ed2a",
+  "dimensions": {
+    "width": 1366,
+    "height": 768
+  },
+  "console_errors": [],
+  "page_errors": [],
+  "snapshot": {
+    "role": "user",
+    "state": "empty",
+    "pageText": "Skip to Activity queue\nCMP\nCAE Material Platform\nMaterial data and solver delivery\nMaterials\nModeling\nActivity\nSigned-in user\nActivity\nUser queue\n\nYour pending requests and browser-local work.\n\nReady\nRefresh\nNeeds attention\nIn progress\nRecent outcomes\nNeeds attention\n\nRequests you submitted that are still waiting for a decision.\n\n0 items\nNothing needs your attention.\nIn progress\n\nBrowser-local Modeling sessions and requests awaiting a decision.\n\n0 items\nNo work in progress\nStart a Modeling session to create a resume point.\nStart Modeling\nRecent outcomes\n\nCompleted review decisions and solver cards opened in this browser.\n\n0 items\nNo recent outcomes yet.\nActivity queue\nUser context\nLocal queue scroll\nOnline",
+    "viewport": {
+      "width": 1366,
+      "height": 768,
+      "deviceScaleFactor": 1
+    },
+    "overflow": {
+      "documentHorizontal": 0,
+      "documentVertical": 0,
+      "bodyHorizontal": 0,
+      "bodyVertical": 0
+    },
+    "geometry": {
+      "shell": {
+        "left": 8,
+        "top": 54,
+        "right": 1358,
+        "bottom": 760,
+        "width": 1350,
+        "height": 706
+      },
+      "content": {
+        "left": 0,
+        "top": 46,
+        "right": 1366,
+        "bottom": 768,
+        "width": 1366,
+        "height": 722
+      },
+      "queueRegion": {
+        "left": 9,
+        "top": 157,
+        "right": 1357,
+        "bottom": 732,
+        "width": 1348,
+        "height": 575
+      },
+      "queue": {
+        "left": 23,
+        "top": 157,
+        "right": 1343,
+        "bottom": 732,
+        "width": 1320,
+        "height": 575
+      },
+      "heading": {
+        "left": 9,
+        "top": 55,
+        "right": 1357,
+        "bottom": 120,
+        "width": 1348,
+        "height": 65
+      },
+      "views": {
+        "left": 9,
+        "top": 120,
+        "right": 1357,
+        "bottom": 157,
+        "width": 1348,
+        "height": 37
+      },
+      "status": {
+        "left": 9,
+        "top": 732,
+        "right": 1357,
+        "bottom": 759,
+        "width": 1348,
+        "height": 27
+      }
+    },
+    "queueScroll": {
+      "scrollHeight": 575,
+      "clientHeight": 575,
+      "scrollTop": 0,
+      "overflowY": "auto",
+      "scrollbarGutter": "stable both-edges",
+      "width": 1296
+    },
+    "sections": [
+      {
+        "id": "needs-attention",
+        "visible": true,
+        "rows": 0,
+        "listHidden": true,
+        "emptyHidden": false
+      },
+      {
+        "id": "in-progress",
+        "visible": true,
+        "rows": 0,
+        "listHidden": true,
+        "emptyHidden": false
+      },
+      {
+        "id": "recent-outcomes",
+        "visible": true,
+        "rows": 0,
+        "listHidden": true,
+        "emptyHidden": false
+      }
+    ],
+    "rows": [],
+    "controls": [
+      {
+        "tag": "a",
+        "name": "Skip to Activity queue",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "CAE Material Platform home",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Materials",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Modeling",
+        "disabled": false
+      },
+      {
+        "tag": "a",
+        "name": "Activity",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Refresh",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Needs attention",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "In progress",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Recent outcomes",
+        "disabled": false
+      },
+      {
+        "tag": "button",
+        "name": "Start Modeling",
+        "disabled": false
+      }
+    ],
+    "legacy": [],
+    "nestedInteractive": [],
+    "tabCount": 3,
+    "decision": {
+      "visible": false,
+      "reason": "",
+      "error": "",
+      "selected": "",
+      "help": "",
+      "selectedChoice": [],
+      "recoveryCommands": []
+    },
+    "queueStatus": "Ready",
+    "announcements": {
+      "alert": false,
+      "loading": true,
+      "focusVisibleRule": false
+    },
+    "typography": {
+      "body": 14,
+      "task": 14,
+      "metadata": 14
+    }
+  }
+}
